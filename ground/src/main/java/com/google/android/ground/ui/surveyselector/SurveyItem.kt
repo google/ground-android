@@ -16,16 +16,9 @@
 
 package com.google.android.ground.ui.surveyselector
 
-import com.google.android.ground.R
-
 data class SurveyItem(
   val surveyId: String,
   val surveyTitle: String,
   val surveyDescription: String,
   val isAvailableOffline: Boolean
-) {
-
-  val backgroundDrawable =
-    if (isAvailableOffline) R.drawable.survey_synced_background
-    else R.drawable.survey_default_background
-}
+)
