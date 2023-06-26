@@ -14,27 +14,24 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.local.room;
-
-import static java8.util.J8Arrays.stream;
-
-import androidx.annotation.NonNull;
+package com.google.android.ground.persistence.local.room
 
 /**
  * Common interface for Java enums with explicitly defined int representations. This is used instead
  * of relying on enum ordinal values to prevent accidentally breaking backwards compatibility when
  * adding and/or removing new enum values in the future.
  */
-public interface IntEnum {
-  int intValue();
+interface IntEnum {
+  fun intValue(): Int
 
-  static <E extends IntEnum> int toInt(E enumValue, @NonNull E defaultValue) {
-    return enumValue == null ? defaultValue.intValue() : enumValue.intValue();
-  }
+  companion object {
+    @JvmStatic
+    fun <E : IntEnum> toInt(enumValue: E?, defaultValue: E): Int =
+      enumValue?.intValue() ?: defaultValue.intValue()
 
-  @NonNull
-  static <E extends Enum<E> & IntEnum> E fromInt(
-      @NonNull E[] values, int intValue, @NonNull E defaultValue) {
-    return stream(values).filter(s -> s.intValue() == intValue).findFirst().orElse(defaultValue);
+    @JvmStatic
+    fun <E> fromInt(values: Array<E>, intValue: Int, defaultValue: E): E where
+    E : Enum<E>,
+    E : IntEnum = values.firstOrNull { it.intValue() == intValue } ?: defaultValue
   }
 }
