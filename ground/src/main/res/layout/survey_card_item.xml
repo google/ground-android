@@ -55,12 +55,11 @@
       android:padding="20dp">
       <TextView
         android:id="@+id/title"
+        style="@style/SurveyCardTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@{item.surveyTitle}"
-        android:textSize="18sp"
-        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Map the terrain" />
@@ -69,18 +68,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
-        app:layout_constraintStart_toEndOf="@+id/title"
+        app:layout_constraintEnd_toStartOf="@+id/overflowMenu"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/baseline_offline_pin_24"
         app:visible="@{item.isAvailableOffline}" />
       <TextView
         android:id="@+id/description"
+        style="@style/SurveyCardDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
         android:text="@{item.surveyDescription}"
-        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title"
         tools:text="Some description text" />
