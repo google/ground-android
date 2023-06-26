@@ -15,14 +15,12 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
+import android.content.Context
 import android.widget.RadioButton
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.hasChildCount
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.task.MultipleChoice
@@ -33,9 +31,10 @@ import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
 import com.google.android.material.checkbox.MaterialCheckBox
+import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import java.lang.NullPointerException
 import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -46,6 +45,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowAlertDialog
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -53,6 +53,7 @@ import org.robolectric.RobolectricTestRunner
 class MultipleChoiceTaskFragmentTest :
   BaseTaskFragmentTest<MultipleChoiceTaskFragment, MultipleChoiceTaskViewModel>() {
 
+  @Inject @ApplicationContext lateinit var context: Context
   @BindValue @Mock override lateinit var dataCollectionViewModel: DataCollectionViewModel
   @Inject override lateinit var viewModelFactory: ViewModelFactory
 
@@ -147,6 +148,26 @@ class MultipleChoiceTaskFragmentTest :
 
     buttonIsDisabled("Continue")
     buttonIsEnabled("Skip")
+  }
+
+  @Test
+  fun testActionButtons_dataEntered_skipButtonTapped_confirmationDialogIsShown() {
+    val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
+    setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(multipleChoice = multipleChoice))
+
+    onView(withText("Option 1")).perform(click())
+
+    onView(withText("Skip")).perform(click())
+    assertThat(ShadowAlertDialog.getLatestDialog().isShowing).isTrue()
+  }
+
+  @Test
+  fun testActionButtons_noDataEntered_skipButtonTapped_confirmationDialogIsNotShown() {
+    val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
+    setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(multipleChoice = multipleChoice))
+
+    onView(withText("Skip")).perform(click())
+    assertThat(ShadowAlertDialog.getShownDialogs().isEmpty()).isTrue()
   }
 
   @Test

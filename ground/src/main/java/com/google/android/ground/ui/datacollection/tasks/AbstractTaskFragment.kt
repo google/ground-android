@@ -125,14 +125,14 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .showIfTrue(viewModel.isTaskOptional())
 
   private fun onSkip() {
-    if (viewModel.responseText.value.isNullOrEmpty()) {
+    if (viewModel.hasNoData()) {
       skip()
     } else {
       AlertDialog.Builder(requireContext())
         .setCancelable(true)
-        .setTitle(R.string.warning)
+        .setTitle(R.string.skip_dialog_title)
         .setMessage(R.string.data_deletion_warning)
-        .setNegativeButton(R.string.cancel_button_label) { _, _ -> }
+        .setNegativeButton(R.string.go_back_button_label) { _, _ -> }
         .setPositiveButton(R.string.confirm_button_label) { _, _ -> skip() }
         .create()
         .show()

@@ -157,7 +157,8 @@
   <string name="accuracy">Accuracy</string>
   <string name="dropped_pin">Dropped pin</string>
   <string name="loading">Loading…</string>
-  <string name="warning">Warning</string>
-  <string name="data_deletion_warning">The data entered in this step will be discarded.</string>
+  <string name="skip_dialog_title">Skip this step?</string>
+  <string name="data_deletion_warning">Data you entered in this step won\'t be saved. Are you sure you want to continue?</string>
+  <string name="go_back_button_label">Go back</string>
   <string name="confirm_button_label">Confirm</string>
 </resources>
