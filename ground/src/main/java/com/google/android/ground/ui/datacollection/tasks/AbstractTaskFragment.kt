@@ -25,7 +25,6 @@ import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.isNotNullOrEmpty
-import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
@@ -126,7 +125,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .showIfTrue(viewModel.isTaskOptional())
 
   private fun onSkip() {
-    if (viewModel.taskData.value?.orElseGet { null }?.isNullOrEmpty() != false) {
+    if (viewModel.hasNoData()) {
       skip()
     } else {
       AlertDialog.Builder(requireContext())

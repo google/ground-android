@@ -19,13 +19,8 @@ import android.content.Context
 import android.widget.RadioButton
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.hasChildCount
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.task.MultipleChoice
@@ -40,7 +35,6 @@ import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import java.lang.NullPointerException
 import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -52,8 +46,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowAlertDialog
-import org.robolectric.shadows.ShadowDialog
-import org.robolectric.shadows.ShadowProgressDialog
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -175,7 +167,7 @@ class MultipleChoiceTaskFragmentTest :
     setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(multipleChoice = multipleChoice))
 
     onView(withText("Skip")).perform(click())
-    assertThat(ShadowAlertDialog.getLatestDialog().isShowing).isFalse()
+    assertThat(ShadowAlertDialog.getShownDialogs().isEmpty()).isTrue()
   }
 
   @Test
