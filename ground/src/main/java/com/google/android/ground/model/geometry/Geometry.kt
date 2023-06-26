@@ -87,7 +87,7 @@ data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
       return
     }
     if (coordinates.firstOrNull() != coordinates.lastOrNull()) {
-      error("Invalid linear ring")
+      throw InvalidGeometryException("Invalid linear ring")
     }
   }
 

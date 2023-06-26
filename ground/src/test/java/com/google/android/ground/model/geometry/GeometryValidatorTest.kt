@@ -31,7 +31,7 @@ class GeometryValidatorTest {
 
   @Test
   fun validateLinearRing_firstAndLastNotSame_throws() {
-    assertThrows("Invalid linear ring", IllegalStateException::class.java) {
+    assertThrows("Invalid linear ring", InvalidGeometryException::class.java) {
       LinearRing(OPEN_LOOP).validate()
     }
   }
