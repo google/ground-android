@@ -24,6 +24,6 @@ data class GeometryData(val geometry: Geometry) : TaskData {
   }
 
   override fun isEmpty(): Boolean {
-    throw NotImplementedError()
+    return false
   }
 }
