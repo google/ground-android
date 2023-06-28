@@ -13,87 +13,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.syncstatus
 
-package com.google.android.ground.ui.syncstatus;
-
-import static java8.util.stream.Collectors.toList;
-import static java8.util.stream.StreamSupport.stream;
-
-import android.util.Pair;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.LiveDataReactiveStreams;
-import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.mutation.Mutation;
-import com.google.android.ground.repository.LocationOfInterestRepository;
-import com.google.android.ground.repository.MutationRepository;
-import com.google.android.ground.repository.SurveyRepository;
-import com.google.android.ground.rx.annotations.Cold;
-import com.google.android.ground.ui.common.AbstractViewModel;
-import com.google.android.ground.ui.common.Navigator;
-import com.google.android.ground.ui.offlinebasemap.OfflineAreasFragmentDirections;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
-import java.util.List;
-import javax.inject.Inject;
+import android.util.Pair
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.toLiveData
+import com.google.android.ground.model.Survey
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.repository.LocationOfInterestRepository
+import com.google.android.ground.repository.MutationRepository
+import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.ui.common.AbstractViewModel
+import io.reactivex.Flowable
+import io.reactivex.Single
+import java8.util.Optional
+import javax.inject.Inject
 
 /**
  * View model for the offline area manager fragment. Handles the current list of downloaded areas.
  */
-public class SyncStatusViewModel extends AbstractViewModel {
+class SyncStatusViewModel
+@Inject
+internal constructor(
+  private val mutationRepository: MutationRepository,
+  private val surveyRepository: SurveyRepository,
+  private val locationOfInterestRepository: LocationOfInterestRepository
+) : AbstractViewModel() {
 
-  private final LiveData<List<Pair<LocationOfInterest, Mutation>>> mutations;
-  private final Navigator navigator;
-  private final MutationRepository mutationRepository;
-  private final SurveyRepository surveyRepository;
-  private final LocationOfInterestRepository locationOfInterestRepository;
+  val mutations: LiveData<List<Pair<LocationOfInterest, Mutation>>>
 
-  @Inject
-  SyncStatusViewModel(
-      MutationRepository mutationRepository,
-      SurveyRepository surveyRepository,
-      LocationOfInterestRepository locationOfInterestRepository,
-      Navigator navigator) {
-    this.mutationRepository = mutationRepository;
-    this.navigator = navigator;
-    this.surveyRepository = surveyRepository;
-    this.locationOfInterestRepository = locationOfInterestRepository;
-
-    this.mutations =
-        LiveDataReactiveStreams.fromPublisher(
-            getMutationsOnceAndStream().switchMap(this::loadLocationsOfInterestAndPair));
+  init {
+    mutations = mutationsOnceAndStream.switchMap { loadLocationsOfInterestAndPair(it) }.toLiveData()
   }
 
-  private Flowable<List<Pair<LocationOfInterest, Mutation>>> loadLocationsOfInterestAndPair(
-      List<Mutation> mutations) {
-    return Single.merge(
-            stream(mutations).map(this::loadLocationOfInterestAndPair).collect(toList()))
-        .toList()
-        .toFlowable();
-  }
+  private val mutationsOnceAndStream: Flowable<List<Mutation>>
+    get() =
+      surveyRepository.activeSurveyFlowable.switchMap { survey: Optional<Survey> ->
+        survey
+          .map { mutationRepository.getMutationsOnceAndStream(it) }
+          .orElse(Flowable.just(listOf()))
+      }
 
-  private Single<Pair<LocationOfInterest, Mutation>> loadLocationOfInterestAndPair(
-      Mutation mutation) {
-    return locationOfInterestRepository
-        .getOfflineLocationOfInterest(mutation.getSurveyId(), mutation.getLocationOfInterestId())
-        .map(locationOfInterest -> Pair.create(locationOfInterest, mutation));
-  }
+  // TODO: Replace with kotlin coroutine
+  private fun loadLocationsOfInterestAndPair(
+    mutations: List<Mutation>
+  ): Flowable<List<Pair<LocationOfInterest, Mutation>>> =
+    Single.merge(mutations.map { loadLocationOfInterestAndPair(it) }).toList().toFlowable()
 
-  private Flowable<List<Mutation>> getMutationsOnceAndStream() {
-    return surveyRepository
-        .getActiveSurveyFlowable()
-        .switchMap(
-            survey ->
-                survey
-                    .map(mutationRepository::getMutationsOnceAndStream)
-                    .orElse(Flowable.just(List.of())));
-  }
-
-  public void showOfflineAreaSelector() {
-    navigator.navigate(OfflineAreasFragmentDirections.showOfflineAreaSelector());
-  }
-
-  @Cold(replays = true, terminates = false)
-  LiveData<List<Pair<LocationOfInterest, Mutation>>> getMutations() {
-    return mutations;
-  }
+  // TODO: Replace with kotlin coroutine
+  private fun loadLocationOfInterestAndPair(
+    mutation: Mutation
+  ): Single<Pair<LocationOfInterest, Mutation>> =
+    locationOfInterestRepository
+      .getOfflineLocationOfInterest(mutation.surveyId, mutation.locationOfInterestId)
+      .map { locationOfInterest: LocationOfInterest -> Pair.create(locationOfInterest, mutation) }
 }

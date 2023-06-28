@@ -13,58 +13,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.syncstatus
 
-package com.google.android.ground.ui.syncstatus;
-
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.ground.MainActivity;
-import com.google.android.ground.databinding.SyncStatusFragBinding;
-import com.google.android.ground.ui.common.AbstractFragment;
-import com.google.android.ground.ui.common.LocationOfInterestHelper;
-import com.google.android.ground.ui.common.Navigator;
-import dagger.hilt.android.AndroidEntryPoint;
-import javax.inject.Inject;
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.ground.MainActivity
+import com.google.android.ground.databinding.SyncStatusFragBinding
+import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.common.LocationOfInterestHelper
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /** Fragment containing a list of mutations and their respective upload statuses. */
-@AndroidEntryPoint(AbstractFragment.class)
-public class SyncStatusFragment extends Hilt_SyncStatusFragment {
-  @Inject Navigator navigator;
-  @Inject LocationOfInterestHelper locationOfInterestHelper;
+@AndroidEntryPoint(AbstractFragment::class)
+class SyncStatusFragment : Hilt_SyncStatusFragment() {
 
-  private SyncStatusViewModel viewModel;
+  @Inject lateinit var locationOfInterestHelper: LocationOfInterestHelper
+  lateinit var viewModel: SyncStatusViewModel
 
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    viewModel = getViewModel(SyncStatusViewModel.class);
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    viewModel = getViewModel(SyncStatusViewModel::class.java)
   }
 
-  @Override
-  public View onCreateView(
-      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    super.onCreateView(inflater, container, savedInstanceState);
-    SyncStatusFragBinding binding = SyncStatusFragBinding.inflate(inflater, container, false);
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View {
+    super.onCreateView(inflater, container, savedInstanceState)
+    val binding = SyncStatusFragBinding.inflate(inflater, container, false)
+    binding.viewModel = viewModel
+    binding.lifecycleOwner = this
 
-    binding.setViewModel(viewModel);
-    binding.setLifecycleOwner(this);
+    (requireActivity() as MainActivity).setActionBar(binding.syncStatusToolbar, true)
 
-    ((MainActivity) getActivity()).setActionBar(binding.syncStatusToolbar, true);
+    val syncStatusListAdapter = SyncStatusListAdapter(requireContext(), locationOfInterestHelper)
+    val recyclerView = binding.syncStatusList
+    recyclerView.setHasFixedSize(true)
+    recyclerView.layoutManager = LinearLayoutManager(context)
+    recyclerView.adapter = syncStatusListAdapter
 
-    SyncStatusListAdapter syncStatusListAdapter =
-        new SyncStatusListAdapter(getContext().getApplicationContext(), locationOfInterestHelper);
-    RecyclerView recyclerView = binding.syncStatusList;
-    recyclerView.setHasFixedSize(true);
-    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-    recyclerView.setAdapter(syncStatusListAdapter);
+    viewModel.mutations.observe(viewLifecycleOwner) { syncStatusListAdapter.update(it) }
 
-    viewModel.getMutations().observe(getViewLifecycleOwner(), syncStatusListAdapter::update);
-
-    return binding.getRoot();
+    return binding.root
   }
 }

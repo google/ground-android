@@ -13,86 +13,71 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.syncstatus
 
-package com.google.android.ground.ui.syncstatus;
+import android.content.Context
+import android.text.format.DateFormat.getDateFormat
+import android.text.format.DateFormat.getTimeFormat
+import android.util.Pair
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.ground.databinding.SyncStatusListItemBinding
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.mutation.LocationOfInterestMutation
+import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.ui.common.LocationOfInterestHelper
+import java.text.DateFormat
+import java8.util.Optional
 
-import android.content.Context;
-import android.util.Pair;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.ground.databinding.SyncStatusListItemBinding;
-import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.mutation.LocationOfInterestMutation;
-import com.google.android.ground.model.mutation.Mutation;
-import com.google.android.ground.ui.common.LocationOfInterestHelper;
-import java.text.DateFormat;
-import java.util.List;
-import java8.util.Optional;
+internal class SyncStatusListAdapter(
+  context: Context,
+  private val locationOfInterestHelper: LocationOfInterestHelper
+) : RecyclerView.Adapter<SyncStatusListAdapter.SyncStatusViewHolder>() {
 
-class SyncStatusListAdapter extends RecyclerView.Adapter<SyncStatusViewHolder> {
+  private var mutations: List<Pair<LocationOfInterest, Mutation>> = listOf()
+  private val dateFormat: DateFormat = getDateFormat(context)
+  private val timeFormat: DateFormat = getTimeFormat(context)
 
-  private final LocationOfInterestHelper locationOfInterestHelper;
-  private List<Pair<LocationOfInterest, Mutation>> mutations;
-  private final DateFormat dateFormat;
-  private final DateFormat timeFormat;
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SyncStatusViewHolder =
+    SyncStatusViewHolder(
+      SyncStatusListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+    )
 
-  SyncStatusListAdapter(
-      @Nullable Context context, LocationOfInterestHelper locationOfInterestHelper) {
-    this.mutations = List.of();
-    this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
-    this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
-    this.locationOfInterestHelper = locationOfInterestHelper;
-  }
-
-  @NonNull
-  @Override
-  public SyncStatusViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    return new SyncStatusViewHolder(
-        SyncStatusListItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
-  }
-
-  @Override
-  public void onBindViewHolder(SyncStatusViewHolder viewHolder, int position) {
+  override fun onBindViewHolder(viewHolder: SyncStatusViewHolder, position: Int) {
     // TODO: i18n; add user friendly names.
     // TODO: Use data binding.
     // TODO(#876): Improve L&F and layout.
-
-    Pair<LocationOfInterest, Mutation> pair = mutations.get(position);
-    LocationOfInterest locationOfInterest = pair.first;
-    Mutation mutation = pair.second;
-    String text =
-        new StringBuilder()
-            .append(mutation.getType())
-            .append(' ')
-            .append(
-                mutation instanceof LocationOfInterestMutation
-                    ? "LocationOfInterest"
-                    : "Submission")
-            .append(' ')
-            .append(dateFormat.format(mutation.getClientTimestamp()))
-            .append(' ')
-            .append(timeFormat.format(mutation.getClientTimestamp()))
-            .append('\n')
-            .append(locationOfInterestHelper.getLabel(Optional.of(locationOfInterest)))
-            .append('\n')
-            .append(locationOfInterestHelper.getSubtitle(Optional.of(locationOfInterest)))
-            .append('\n')
-            .append("Sync ")
-            .append(mutation.getSyncStatus())
-            .toString();
-    viewHolder.binding.syncStatusText.setText(text);
+    val pair = mutations[position]
+    val locationOfInterest = pair.first
+    val mutation = pair.second
+    val text =
+      StringBuilder()
+        .append(mutation.type)
+        .append(' ')
+        .append(if (mutation is LocationOfInterestMutation) "LocationOfInterest" else "Submission")
+        .append(' ')
+        .append(dateFormat.format(mutation.clientTimestamp))
+        .append(' ')
+        .append(timeFormat.format(mutation.clientTimestamp))
+        .append('\n')
+        .append(locationOfInterestHelper.getLabel(Optional.of(locationOfInterest)))
+        .append('\n')
+        .append(locationOfInterestHelper.getSubtitle(Optional.of(locationOfInterest)))
+        .append('\n')
+        .append("Sync ")
+        .append(mutation.syncStatus)
+        .toString()
+    viewHolder.binding.syncStatusText.text = text
   }
 
-  @Override
-  public int getItemCount() {
-    return mutations.size();
+  override fun getItemCount(): Int = mutations.size
+
+  fun update(mutations: List<Pair<LocationOfInterest, Mutation>>) {
+    this.mutations = mutations
+    notifyDataSetChanged()
   }
 
-  void update(List<Pair<LocationOfInterest, Mutation>> mutations) {
-    this.mutations = mutations;
-    notifyDataSetChanged();
-  }
+  class SyncStatusViewHolder(internal val binding: SyncStatusListItemBinding) :
+    RecyclerView.ViewHolder(binding.root)
 }
