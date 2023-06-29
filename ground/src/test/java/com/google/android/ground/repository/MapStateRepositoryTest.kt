@@ -17,6 +17,7 @@ package com.google.android.ground.repository
 
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.ui.map.MapType
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -37,17 +38,16 @@ class MapStateRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testGetMapType_whenTerrain_returnsTerrain() {
-    mapStateRepository.mapType = GoogleMap.MAP_TYPE_TERRAIN
+    mapStateRepository.mapType = MapType.TERRAIN
 
-    assertThat(mapStateRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
+    assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)
   }
 
   @Test
   fun testMapTypeFlowable_whenTerrain_returnsTerrain() {
-    mapStateRepository.mapType = GoogleMap.MAP_TYPE_TERRAIN
+    mapStateRepository.mapType = MapType.TERRAIN
 
-    assertThat(mapStateRepository.mapTypeFlowable.blockingFirst())
-      .isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
+    assertThat(mapStateRepository.mapTypeFlowable.blockingFirst()).isEqualTo(MapType.TERRAIN)
   }
 
   @Test

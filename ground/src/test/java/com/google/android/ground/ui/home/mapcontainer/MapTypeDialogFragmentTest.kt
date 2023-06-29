@@ -26,6 +26,7 @@ import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.shouldHaveTextAtPosition
+import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.ui.map.gms.GoogleMapsFragment
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -84,7 +85,7 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
 
   private fun setupFragment() {
     launchFragmentInHiltContainer<MapTypeDialogFragment>(
-      bundleOf(Pair("mapTypes", GoogleMapsFragment.MAP_TYPES))
+      bundleOf(Pair("mapTypes", MapType.values()))
     ) {
       fragment = this as MapTypeDialogFragment
     }
