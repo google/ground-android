@@ -231,7 +231,7 @@ constructor(
         val tileFile = downloadOfflineBaseMapSource(tileSource)
         geoJsonParser.allTiles(tileFile)
       }
-      Type.MOG_TILE_SETS,
+      Type.MOG_COLLECTION,
       Type.TILED_WEB_MAP ->
         Single.just(
           listOf(

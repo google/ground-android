@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ data class TileSource(val url: URL, val type: Type) {
   enum class Type {
     MBTILES_FOOTPRINTS,
     TILED_WEB_MAP,
-    MOG_TILE_SETS,
+    MOG_COLLECTION,
     UNKNOWN,
   }
 
@@ -32,7 +32,7 @@ data class TileSource(val url: URL, val type: Type) {
       when (FilenameUtils.getExtension(url)) {
         "geojson" -> Type.MBTILES_FOOTPRINTS
         "png" -> Type.TILED_WEB_MAP
-        else -> Type.MOG_TILE_SETS
+        else -> Type.MOG_COLLECTION
       }
   }
 }
