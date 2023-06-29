@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.ui.map.MapType
 import com.google.common.truth.Truth.assertThat
@@ -33,7 +32,7 @@ class MapStateRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testGetMapType_returnsSatellite() {
-    assertThat(mapStateRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_HYBRID)
+    assertThat(mapStateRepository.mapType).isEqualTo(MapType.SATELLITE)
   }
 
   @Test

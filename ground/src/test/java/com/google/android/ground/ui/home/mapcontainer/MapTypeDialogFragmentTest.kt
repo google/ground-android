@@ -20,14 +20,12 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.shouldHaveTextAtPosition
 import com.google.android.ground.ui.map.MapType
-import com.google.android.ground.ui.map.gms.GoogleMapsFragment
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -73,14 +71,14 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
 
   @Test
   fun test_defaultMapType() {
-    assertThat(mapStateRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_HYBRID)
+    assertThat(mapStateRepository.mapType).isEqualTo(MapType.SATELLITE)
   }
 
   @Test
   fun test_changeMapType() {
     onView(withText("Terrain")).perform(click())
 
-    assertThat(mapStateRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
+    assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)
   }
 
   private fun setupFragment() {
