@@ -18,7 +18,15 @@ package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.submission.*
+import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.GeometryData
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
+import com.google.android.ground.model.submission.NumberTaskData
+import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.TaskDataMap
+import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
@@ -86,6 +94,8 @@ internal object SubmissionConverter {
       Task.Type.NUMBER -> putNumberResponse(taskId, obj, responses)
       Task.Type.DATE -> putDateResponse(taskId, obj, responses)
       Task.Type.TIME -> putTimeResponse(taskId, obj, responses)
+      Task.Type.DROP_A_PIN -> putDropAPinResponse(taskId, obj, responses)
+      Task.Type.DRAW_POLYGON -> putGeometryResponse(taskId, obj, responses)
       else -> throw DataStoreException("Unknown type " + task.type)
     }
   }
@@ -110,6 +120,32 @@ internal object SubmissionConverter {
   private fun putTimeResponse(taskId: String, obj: Any, responses: MutableMap<String, TaskData>) {
     val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
     TimeTaskData.fromDate(value.toDate()).ifPresent { r: TaskData -> responses[taskId] = r }
+  }
+
+  private fun putDropAPinResponse(
+    taskId: String,
+    obj: Any,
+    responses: MutableMap<String, TaskData>
+  ) {
+    val map = obj as HashMap<String, *>
+    check(map["type"] == "Point")
+    val result = GeometryConverter.fromFirestoreMap(map).getOrNull()
+    if (result != null) {
+      responses[taskId] = GeometryData(result)
+    }
+  }
+
+  private fun putGeometryResponse(
+    taskId: String,
+    obj: Any,
+    responses: MutableMap<String, TaskData>
+  ) {
+    val map = obj as HashMap<String, *>
+    check(map["type"] == "Polygon")
+    val result = GeometryConverter.fromFirestoreMap(map).getOrNull()
+    if (result != null) {
+      responses[taskId] = GeometryData(result)
+    }
   }
 
   private fun putMultipleChoiceResponse(
