@@ -33,7 +33,7 @@ import com.google.android.material.color.MaterialColors
  */
 class MapTypeAdapter(
   private val context: Context,
-  private val itemsList: Array<MapType>,
+  private val itemsList: List<MapType>,
   private var selectedIndex: Int,
   private val callback: (Int) -> Unit
 ) : RecyclerView.Adapter<ViewHolder>() {

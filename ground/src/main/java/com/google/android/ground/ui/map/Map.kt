@@ -29,14 +29,14 @@ import java8.util.function.Consumer
 
 /** Interface for a Fragment that renders a map view. */
 interface Map {
-  /** Returns a list of supported basemap types. */
-  val availableMapTypes: Array<MapType>
+  /** A list of map types supported by the map implementation. */
+  val supportedMapTypes: List<MapType>
 
-  /** Returns the current map zoom level. */
+  /** The current map type. */
+  var mapType: MapType
+
+  /** The current map zoom level. */
   val currentZoomLevel: Float
-
-  /** Get or set the current map type. */
-  var mapType: Int
 
   /** Get or set the bounds of the currently visible viewport. */
   var viewport: Bounds

@@ -55,7 +55,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     lifecycleScope.launch {
       getMapViewModel().locationLock.collect { onLocationLockStateChange(it, map) }
     }
-    getMapViewModel().baseMapType.observe(viewLifecycleOwner) { map.mapType = it }
+    getMapViewModel().mapType.observe(viewLifecycleOwner) { map.mapType = it }
     getMapViewModel().cameraUpdateRequests.observe(viewLifecycleOwner) { update ->
       update.ifUnhandled { data -> onCameraUpdateRequest(data, map) }
     }
@@ -66,9 +66,9 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     onMapReady(map)
   }
 
-  /** Opens a dialog for selecting a `MapType` for the basemap layer. */
+  /** Opens a dialog for selecting a [MapType] for the basemap layer. */
   fun showMapTypeSelectorDialog() {
-    val types = map.availableMapTypes
+    val types = map.supportedMapTypes.toTypedArray()
     navigator.navigate(MapTypeDialogFragmentDirections.showMapTypeDialogFragment(types))
   }
 

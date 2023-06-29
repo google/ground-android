@@ -47,6 +47,7 @@ import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
 import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
 import com.google.android.ground.ui.util.BitmapUtil
+import com.google.android.ground.util.invert
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.clustering.Cluster
 import dagger.hilt.android.AndroidEntryPoint
@@ -106,7 +107,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
    */
   private var customCap: CustomCap? = null
 
-  override val availableMapTypes: Array<MapType> = MAP_TYPES
+  override val supportedMapTypes: List<MapType> = IDS_BY_MAP_TYPE.keys.toList()
 
   private val locationOfInterestInteractionSubject: @Hot PublishSubject<List<Feature>> =
     PublishSubject.create()
@@ -117,10 +118,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   private val polylineStrokeWidth: Float
     get() = resources.getDimension(R.dimen.polyline_stroke_width)
 
-  override var mapType: Int
-    get() = map.mapType
+  override var mapType: MapType
+    get() = MAP_TYPES_BY_ID[map.mapType]!!
     set(mapType) {
-      map.mapType = mapType
+      map.mapType = IDS_BY_MAP_TYPE[mapType]!!
     }
 
   override var viewport: Bounds
@@ -394,12 +395,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   }
 
   companion object {
-    // TODO(#1544): Use optimized icons. Current icons are very large in size.
-    val MAP_TYPES =
-      arrayOf(
-        MapType(GoogleMap.MAP_TYPE_NORMAL, R.string.road_map, R.drawable.ic_type_roadmap),
-        MapType(GoogleMap.MAP_TYPE_TERRAIN, R.string.terrain, R.drawable.ic_type_terrain),
-        MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.satellite, R.drawable.ic_type_satellite)
+    private val IDS_BY_MAP_TYPE =
+      mapOf(
+        MapType.ROAD to GoogleMap.MAP_TYPE_NORMAL,
+        MapType.TERRAIN to GoogleMap.MAP_TYPE_TERRAIN,
+        MapType.SATELLITE to GoogleMap.MAP_TYPE_HYBRID
       )
+    private val MAP_TYPES_BY_ID = IDS_BY_MAP_TYPE.invert()
   }
 }

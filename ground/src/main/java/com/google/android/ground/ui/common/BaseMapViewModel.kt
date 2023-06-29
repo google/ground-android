@@ -28,6 +28,7 @@ import com.google.android.ground.system.*
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapController
+import com.google.android.ground.ui.map.MapType
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -59,7 +60,7 @@ constructor(
   val locationLock: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
-  val baseMapType: LiveData<Int>
+  val mapType: LiveData<MapType>
 
   val locationLockIconTint =
     locationLock
@@ -90,7 +91,7 @@ constructor(
 
   init {
     cameraUpdateRequests = mapController.getCameraUpdates().map { Event.create(it) }.toLiveData()
-    baseMapType = mapStateRepository.mapTypeFlowable.toLiveData()
+    mapType = mapStateRepository.mapTypeFlowable.toLiveData()
   }
 
   private suspend fun toggleLocationLock() {
