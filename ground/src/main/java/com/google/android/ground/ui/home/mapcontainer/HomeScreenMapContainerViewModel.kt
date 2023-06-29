@@ -20,7 +20,7 @@ import androidx.lifecycle.toLiveData
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
-import com.google.android.ground.model.basemap.tile.TileSet
+import com.google.android.ground.model.basemap.MbtilesFile
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -112,7 +112,7 @@ internal constructor(
     mbtilesFilePaths =
       offlineAreaRepository
         .downloadedTileSetsOnceAndStream()
-        .map { set: Set<TileSet> -> set.map(TileSet::path).toSet() }
+        .map { set: Set<MbtilesFile> -> set.map(MbtilesFile::path).toSet() }
         .toLiveData()
 
     loisWithinMapBoundsAtVisibleZoomLevel =

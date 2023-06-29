@@ -118,7 +118,7 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
     Observable.fromIterable(jobs).flatMapCompletable { insertOrUpdateJob(surveyId, it) }
 
   private fun insertOfflineBaseMapSources(survey: Survey): Completable =
-    Observable.fromIterable(survey.baseMaps).flatMapCompletable {
+    Observable.fromIterable(survey.tileOverlaySources).flatMapCompletable {
       baseMapDao.insertOrUpdate(it.toLocalDataStoreObject(surveyId = survey.id))
     }
 }

@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.persistence.local.room.stores
 
-import com.google.android.ground.model.basemap.tile.TileSet
+import com.google.android.ground.model.basemap.MbtilesFile
 import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.TileSetDao
@@ -38,19 +38,19 @@ class RoomTileSetStore @Inject internal constructor() : LocalTileSetStore {
   @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var fileUtil: FileUtil
 
-  override fun tileSetsOnceAndStream(): Flowable<Set<TileSet>> =
+  override fun tileSetsOnceAndStream(): Flowable<Set<MbtilesFile>> =
     tileSetDao
       .findAllOnceAndStream()
       .map { list: List<TileSetEntity> -> list.map { it.toModelObject() }.toSet() }
       .subscribeOn(schedulers.io())
 
-  override fun insertOrUpdateTileSet(tileSet: TileSet): Completable =
-    tileSetDao.insertOrUpdate(tileSet.toLocalDataStoreObject()).subscribeOn(schedulers.io())
+  override fun insertOrUpdateTileSet(mbtilesFile: MbtilesFile): Completable =
+    tileSetDao.insertOrUpdate(mbtilesFile.toLocalDataStoreObject()).subscribeOn(schedulers.io())
 
-  override fun getTileSet(tileUrl: String): Maybe<TileSet> =
+  override fun getTileSet(tileUrl: String): Maybe<MbtilesFile> =
     tileSetDao.findByUrl(tileUrl).map { it.toModelObject() }.subscribeOn(schedulers.io())
 
-  override fun pendingTileSets(): Single<List<TileSet>> =
+  override fun pendingTileSets(): Single<List<MbtilesFile>> =
     tileSetDao
       .findByState(TileSetEntityState.PENDING.intValue())
       .map { list: List<TileSetEntity> -> list.map { it.toModelObject() } }
@@ -61,10 +61,10 @@ class RoomTileSetStore @Inject internal constructor() : LocalTileSetStore {
     url: String
   ): Completable = Completable.fromSingle(tileSetDao.updateBasemapReferenceCount(newCount, url))
 
-  override fun deleteTileSetByUrl(tileSet: TileSet): Completable =
-    if (tileSet.offlineAreaReferenceCount < 1) {
-      Completable.fromAction { fileUtil.deleteFile(tileSet.path) }
-        .andThen(Completable.fromMaybe(tileSetDao.deleteByUrl(tileSet.url)))
+  override fun deleteTileSetByUrl(mbtilesFile: MbtilesFile): Completable =
+    if (mbtilesFile.referenceCount < 1) {
+      Completable.fromAction { fileUtil.deleteFile(mbtilesFile.path) }
+        .andThen(Completable.fromMaybe(tileSetDao.deleteByUrl(mbtilesFile.url)))
         .subscribeOn(schedulers.io())
     } else {
       Completable.complete().subscribeOn(schedulers.io())

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,21 @@ package com.google.android.ground.model.basemap
 import java.net.URL
 import org.apache.commons.io.FilenameUtils
 
-/** Represents a possible source for offline base map data. */
-data class BaseMap(val url: URL, val type: BaseMapType) {
-  enum class BaseMapType {
+/** Represents a single source of tiled map imagery. */
+data class TileOverlaySource(val url: URL, val type: Type) {
+  enum class Type {
     MBTILES_FOOTPRINTS,
     TILED_WEB_MAP,
+    MOG_TILE_SETS,
     UNKNOWN,
-    MOG_TILE_SETS
   }
 
   companion object {
-    fun typeFromExtension(url: String): BaseMapType =
+    fun fromFileExtension(url: String): Type =
       when (FilenameUtils.getExtension(url)) {
-        "geojson" -> BaseMapType.MBTILES_FOOTPRINTS
-        "png" -> BaseMapType.TILED_WEB_MAP
-        else -> BaseMapType.MOG_TILE_SETS
+        "geojson" -> Type.MBTILES_FOOTPRINTS
+        "png" -> Type.TILED_WEB_MAP
+        else -> Type.MOG_TILE_SETS
       }
   }
 }

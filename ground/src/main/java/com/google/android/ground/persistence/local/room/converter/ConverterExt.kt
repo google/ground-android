@@ -18,9 +18,9 @@ package com.google.android.ground.persistence.local.room.converter
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
-import com.google.android.ground.model.basemap.BaseMap
 import com.google.android.ground.model.basemap.OfflineArea
-import com.google.android.ground.model.basemap.tile.TileSet
+import com.google.android.ground.model.basemap.TileOverlaySource
+import com.google.android.ground.model.basemap.MbtilesFile
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -62,24 +62,24 @@ fun AuditInfoEntity.toModelObject() =
     Optional.ofNullable(serverTimestamp).map { Date(it!!) }
   )
 
-private fun BaseMap.BaseMapType.toLocalDataStoreObject() =
+private fun TileOverlaySource.Type.toLocalDataStoreObject() =
   when (this) {
-    BaseMap.BaseMapType.TILED_WEB_MAP -> BaseMapEntity.BaseMapEntityType.IMAGE
-    BaseMap.BaseMapType.MBTILES_FOOTPRINTS -> BaseMapEntity.BaseMapEntityType.GEOJSON
+    TileOverlaySource.Type.TILED_WEB_MAP -> BaseMapEntity.BaseMapEntityType.IMAGE
+    TileOverlaySource.Type.MBTILES_FOOTPRINTS -> BaseMapEntity.BaseMapEntityType.GEOJSON
     else -> BaseMapEntity.BaseMapEntityType.UNKNOWN
   }
 
 private fun BaseMapEntity.BaseMapEntityType.toModelObject() =
   when (this) {
-    BaseMapEntity.BaseMapEntityType.IMAGE -> BaseMap.BaseMapType.TILED_WEB_MAP
-    BaseMapEntity.BaseMapEntityType.GEOJSON -> BaseMap.BaseMapType.MBTILES_FOOTPRINTS
-    else -> BaseMap.BaseMapType.UNKNOWN
+    BaseMapEntity.BaseMapEntityType.IMAGE -> TileOverlaySource.Type.TILED_WEB_MAP
+    BaseMapEntity.BaseMapEntityType.GEOJSON -> TileOverlaySource.Type.MBTILES_FOOTPRINTS
+    else -> TileOverlaySource.Type.UNKNOWN
   }
 
-fun BaseMap.toLocalDataStoreObject(surveyId: String) =
+fun TileOverlaySource.toLocalDataStoreObject(surveyId: String) =
   BaseMapEntity(surveyId = surveyId, url = url.toString(), type = type.toLocalDataStoreObject())
 
-fun BaseMapEntity.toModelObject() = BaseMap(url = URL(url), type = type.toModelObject())
+fun BaseMapEntity.toModelObject() = TileOverlaySource(url = URL(url), type = type.toModelObject())
 
 fun Geometry.toLocalDataStoreObject() = GeometryWrapper.fromGeometry(this)
 
@@ -402,37 +402,37 @@ fun TaskEntityAndRelations.toModelObject(): Task {
 
 private fun TileSetEntityState.toModelObject() =
   when (this) {
-    TileSetEntityState.PENDING -> TileSet.State.PENDING
-    TileSetEntityState.IN_PROGRESS -> TileSet.State.IN_PROGRESS
-    TileSetEntityState.DOWNLOADED -> TileSet.State.DOWNLOADED
-    TileSetEntityState.FAILED -> TileSet.State.FAILED
+    TileSetEntityState.PENDING -> MbtilesFile.DownloadState.PENDING
+    TileSetEntityState.IN_PROGRESS -> MbtilesFile.DownloadState.IN_PROGRESS
+    TileSetEntityState.DOWNLOADED -> MbtilesFile.DownloadState.DOWNLOADED
+    TileSetEntityState.FAILED -> MbtilesFile.DownloadState.FAILED
     else -> throw IllegalArgumentException("Unknown tile source state: $this")
   }
 
-private fun TileSet.State.toLocalDataStoreObject() =
+private fun MbtilesFile.DownloadState.toLocalDataStoreObject() =
   when (this) {
-    TileSet.State.PENDING -> TileSetEntityState.PENDING
-    TileSet.State.IN_PROGRESS -> TileSetEntityState.IN_PROGRESS
-    TileSet.State.FAILED -> TileSetEntityState.FAILED
-    TileSet.State.DOWNLOADED -> TileSetEntityState.DOWNLOADED
+    MbtilesFile.DownloadState.PENDING -> TileSetEntityState.PENDING
+    MbtilesFile.DownloadState.IN_PROGRESS -> TileSetEntityState.IN_PROGRESS
+    MbtilesFile.DownloadState.FAILED -> TileSetEntityState.FAILED
+    MbtilesFile.DownloadState.DOWNLOADED -> TileSetEntityState.DOWNLOADED
   }
 
 fun TileSetEntity.toModelObject() =
-  TileSet(
+  MbtilesFile(
     id = id,
     url = url,
     path = path,
-    offlineAreaReferenceCount = offlineAreaReferenceCount,
-    state = state.toModelObject()
+    referenceCount = offlineAreaReferenceCount,
+    downloadState = state.toModelObject()
   )
 
-fun TileSet.toLocalDataStoreObject() =
+fun MbtilesFile.toLocalDataStoreObject() =
   TileSetEntity(
     id = id,
     url = url,
     path = path,
-    offlineAreaReferenceCount = offlineAreaReferenceCount,
-    state = state.toLocalDataStoreObject()
+    offlineAreaReferenceCount = referenceCount,
+    state = downloadState.toLocalDataStoreObject()
   )
 
 fun User.toLocalDataStoreObject() =

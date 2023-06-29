@@ -19,7 +19,7 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.toLiveData
 import com.google.android.ground.model.basemap.OfflineArea
-import com.google.android.ground.model.basemap.tile.TileSet
+import com.google.android.ground.model.basemap.MbtilesFile
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.rx.Nil
@@ -93,7 +93,7 @@ constructor(
     areaStorageSize =
       offlineAreaItemAsFlowable
         .flatMap { offlineAreaRepository.getIntersectingDownloadedTileSetsOnceAndStream(it) }
-        .map { tileSets: Set<TileSet> -> tileSetsToTotalStorageSize(tileSets) }
+        .map { mbtilesFiles: Set<MbtilesFile> -> tileSetsToTotalStorageSize(mbtilesFiles) }
         .toLiveData()
     offlineArea = offlineAreaItemAsFlowable.toLiveData()
     disposeOnClear(
@@ -105,18 +105,18 @@ constructor(
     )
   }
 
-  private fun tileSetsToTotalStorageSize(tileSets: Set<TileSet>): Double =
-    StreamSupport.stream(tileSets)
-      .map { tileSet: TileSet -> tileSetStorageSize(tileSet) }
+  private fun tileSetsToTotalStorageSize(mbtilesFiles: Set<MbtilesFile>): Double =
+    StreamSupport.stream(mbtilesFiles)
+      .map { mbtilesFile: MbtilesFile -> tileSetStorageSize(mbtilesFile) }
       .reduce { x: Double, y: Double -> x + y }
       .orElse(0.0)
 
-  private fun tileSetStorageSize(tileSet: TileSet): Double {
+  private fun tileSetStorageSize(mbtilesFile: MbtilesFile): Double {
     val context1 = context.get()
     return if (context1 == null) {
       0.0
     } else {
-      val tileFile = File(context1.filesDir, tileSet.path)
+      val tileFile = File(context1.filesDir, mbtilesFile.path)
       tileFile.length().toDouble() / (1024 * 1024)
     }
   }

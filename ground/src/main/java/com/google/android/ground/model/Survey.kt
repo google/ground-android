@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.model
 
-import com.google.android.ground.model.basemap.BaseMap
+import com.google.android.ground.model.basemap.TileOverlaySource
 import com.google.android.ground.model.job.Job
 import java8.util.Optional
 
@@ -25,7 +25,7 @@ data class Survey(
   val title: String,
   val description: String,
   val jobMap: Map<String, Job>,
-  val baseMaps: List<BaseMap> = listOf(),
+  val tileOverlaySources: List<TileOverlaySource> = listOf(),
   val acl: Map<String, String> = mapOf()
 ) {
   val jobs: Collection<Job>
