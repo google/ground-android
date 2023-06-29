@@ -17,8 +17,8 @@
 package com.google.android.ground.persistence.remote.firebase.schema
 
 data class TileSourceNestedObject(
-  val url: String?,
-  val type: String?,
-  val minHiResZoom: Int?,
-  val maxHiResZoom: Int?
+  val url: String? = null,
+  val type: String? = null,
+  val minHiResZoom: Int? = null,
+  val maxHiResZoom: Int? = null
 )
