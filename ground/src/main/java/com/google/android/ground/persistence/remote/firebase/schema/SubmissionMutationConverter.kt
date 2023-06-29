@@ -44,10 +44,13 @@ internal object SubmissionMutationConverter {
         map[CREATED] = auditInfo
         map[LAST_MODIFIED] = auditInfo
       }
-      Mutation.Type.UPDATE -> map[LAST_MODIFIED] = auditInfo
+      Mutation.Type.UPDATE -> {
+        map[LAST_MODIFIED] = auditInfo
+      }
       Mutation.Type.DELETE,
-      Mutation.Type.UNKNOWN ->
+      Mutation.Type.UNKNOWN -> {
         throw DataStoreException("Unsupported mutation type: ${mutation.type}")
+      }
     }
     map[LOI_ID] = mutation.locationOfInterestId
     map[JOB_ID] = mutation.job!!.id
@@ -68,11 +71,21 @@ internal object SubmissionMutationConverter {
 
   private fun toObject(taskData: TaskData): Any? =
     when (taskData) {
-      is TextTaskData -> taskData.text
-      is MultipleChoiceTaskData -> taskData.selectedOptionIds
-      is NumberTaskData -> taskData.value
-      is TimeTaskData -> taskData.time
-      is DateTaskData -> taskData.date
+      is TextTaskData -> {
+        taskData.text
+      }
+      is MultipleChoiceTaskData -> {
+        taskData.selectedOptionIds
+      }
+      is NumberTaskData -> {
+        taskData.value
+      }
+      is TimeTaskData -> {
+        taskData.time
+      }
+      is DateTaskData -> {
+        taskData.date
+      }
       else -> {
         Timber.e("Unknown taskData type: %s", taskData.javaClass.name)
         null

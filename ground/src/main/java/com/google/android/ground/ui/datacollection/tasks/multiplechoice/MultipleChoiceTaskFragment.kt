@@ -43,8 +43,8 @@ class MultipleChoiceTaskFragment : Hilt_MultipleChoiceTaskFragment<MultipleChoic
     return binding.root
   }
 
-  override fun onSkip() {
-    super.onSkip()
+  override fun skip() {
+    super.skip()
 
     setupMultipleChoice(binding.selectOptionList)
   }

@@ -21,9 +21,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.R
+import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.system.GoogleApiManager
-import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.EphemeralPopups
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,9 +33,9 @@ import timber.log.Timber
 @AndroidEntryPoint(AbstractFragment::class)
 class StartupFragment : Hilt_StartupFragment() {
 
-  @Inject lateinit var authenticationManager: AuthenticationManager
   @Inject lateinit var googleApiManager: GoogleApiManager
   @Inject lateinit var popups: EphemeralPopups
+  @Inject lateinit var userRepository: UserRepository
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -52,7 +52,7 @@ class StartupFragment : Hilt_StartupFragment() {
   }
 
   private fun onGooglePlayServicesReady() {
-    authenticationManager.init()
+    userRepository.init()
   }
 
   private fun onGooglePlayServicesFailed(t: Throwable) {

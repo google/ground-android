@@ -18,7 +18,6 @@ package com.google.android.ground.ui.surveyselector
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.SurveyCardItemBinding
 import com.google.android.ground.ui.surveyselector.SurveyListAdapter.ViewHolder
@@ -46,8 +45,6 @@ class SurveyListAdapter(
     holder.binding.item = item
     holder.binding.viewModel = viewModel
     holder.binding.fragment = fragment
-    holder.binding.surveyCard.background =
-      ResourcesCompat.getDrawable(holder.itemView.context.resources, item.backgroundDrawable, null)
   }
 
   /** Returns the size of the list. */

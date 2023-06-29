@@ -42,7 +42,7 @@ import timber.log.Timber
 class TileSetDownloadWorker
 @AssistedInject
 constructor(
-  @param:Assisted private val context: Context,
+  @Assisted private val context: Context,
   @Assisted params: WorkerParameters,
   private val localTileSetStore: LocalTileSetStore
 ) : Worker(context, params) {

@@ -33,10 +33,9 @@ private constructor(
     get() = Visibility.VISIBLE == visibility
 
   companion object {
-    @JvmStatic
     fun visible(locationOfInterest: LocationOfInterest) =
       BottomSheetState(Visibility.VISIBLE, locationOfInterest)
 
-    @JvmStatic fun hidden() = BottomSheetState(Visibility.HIDDEN)
+    fun hidden() = BottomSheetState(Visibility.HIDDEN)
   }
 }

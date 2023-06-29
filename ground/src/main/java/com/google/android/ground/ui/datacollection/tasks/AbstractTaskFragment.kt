@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.datacollection.tasks
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -123,7 +124,22 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .setOnClickListener { onSkip() }
       .showIfTrue(viewModel.isTaskOptional())
 
-  protected open fun onSkip() {
+  private fun onSkip() {
+    if (viewModel.hasNoData()) {
+      skip()
+    } else {
+      AlertDialog.Builder(requireContext())
+        .setCancelable(true)
+        .setTitle(R.string.skip_dialog_title)
+        .setMessage(R.string.data_deletion_warning)
+        .setNegativeButton(R.string.go_back_button_label) { _, _ -> }
+        .setPositiveButton(R.string.confirm_button_label) { _, _ -> skip() }
+        .create()
+        .show()
+    }
+  }
+
+  protected open fun skip() {
     viewModel.clearResponse()
     dataCollectionViewModel.onContinueClicked()
   }

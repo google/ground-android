@@ -61,11 +61,6 @@
   <dimen name="submission_list_item_preview_table_right_margin">18dp</dimen>
   <dimen name="loi_details_header_height">120dp</dimen>
 
-  <!-- Offline areas UI -->
-  <dimen name="selector_dialog_list_item_padding">26dp</dimen>
-  <dimen name="selector_dialog_list_item_text_size">16sp</dimen>
-  <dimen name="selector_dialog_progress_bar_padding">48dp</dimen>
-
   <!-- Navigation drawer -->
   <dimen name="nav_drawer_profile_image_size">64dp</dimen>
 

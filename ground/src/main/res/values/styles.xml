@@ -225,6 +225,17 @@
     <item name="iconTint">?attr/colorPrimary</item>
   </style>
 
+  <style name="SurveyCardTitle" parent="AppTheme.Base">
+    <item name="android:textColor">?attr/colorOnSurface</item>
+    <item name="android:textSize">18sp</item>
+    <item name="android:textStyle">bold</item>
+  </style>
+
+  <style name="SurveyCardDescription" parent="AppTheme.Base">
+    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    <item name="android:textSize">14sp</item>
+  </style>
+
   <style name="JobCardTitle" parent="AppTheme.Base">
     <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
     <item name="android:textSize">14sp</item>

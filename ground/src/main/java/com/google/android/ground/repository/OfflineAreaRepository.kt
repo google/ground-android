@@ -232,7 +232,7 @@ constructor(
         geoJsonParser.allTiles(tileFile)
       }
       Type.MOG_COLLECTION,
-      Type.TILED_WEB_MAP ->
+      Type.TILED_WEB_MAP -> {
         Single.just(
           listOf(
             MbtilesFile(
@@ -244,6 +244,7 @@ constructor(
             )
           )
         )
+      }
       else -> {
         Timber.d("Unknown basemap source type")
         // Try to read a tile from the URL anyway.

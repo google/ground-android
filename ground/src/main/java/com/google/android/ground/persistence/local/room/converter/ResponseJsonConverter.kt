@@ -106,7 +106,9 @@ internal object ResponseJsonConverter {
           DropAPinTaskData.fromString(obj as String)
         }
       }
-      Task.Type.UNKNOWN -> throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
+      Task.Type.UNKNOWN -> {
+        throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
+      }
     }
 
   private fun toList(jsonArray: JSONArray): List<String> {
