@@ -15,12 +15,12 @@
  */
 package com.google.android.ground.persistence.local.room.stores
 
-import com.google.android.ground.model.basemap.MbtilesFile
+import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.local.room.converter.toModelObject
-import com.google.android.ground.persistence.local.room.dao.TileSetDao
+import com.google.android.ground.persistence.local.room.dao.MbtilesFileDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
-import com.google.android.ground.persistence.local.room.entity.TileSetEntity
+import com.google.android.ground.persistence.local.room.entity.MbtilesFileEntity
 import com.google.android.ground.persistence.local.room.fields.TileSetEntityState
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
 import com.google.android.ground.rx.Schedulers
@@ -34,37 +34,37 @@ import javax.inject.Singleton
 
 @Singleton
 class RoomTileSetStore @Inject internal constructor() : LocalTileSetStore {
-  @Inject lateinit var tileSetDao: TileSetDao
+  @Inject lateinit var mbtilesFileDao: MbtilesFileDao
   @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var fileUtil: FileUtil
 
   override fun tileSetsOnceAndStream(): Flowable<Set<MbtilesFile>> =
-    tileSetDao
+    mbtilesFileDao
       .findAllOnceAndStream()
-      .map { list: List<TileSetEntity> -> list.map { it.toModelObject() }.toSet() }
+      .map { list: List<MbtilesFileEntity> -> list.map { it.toModelObject() }.toSet() }
       .subscribeOn(schedulers.io())
 
   override fun insertOrUpdateTileSet(mbtilesFile: MbtilesFile): Completable =
-    tileSetDao.insertOrUpdate(mbtilesFile.toLocalDataStoreObject()).subscribeOn(schedulers.io())
+    mbtilesFileDao.insertOrUpdate(mbtilesFile.toLocalDataStoreObject()).subscribeOn(schedulers.io())
 
   override fun getTileSet(tileUrl: String): Maybe<MbtilesFile> =
-    tileSetDao.findByUrl(tileUrl).map { it.toModelObject() }.subscribeOn(schedulers.io())
+    mbtilesFileDao.findByUrl(tileUrl).map { it.toModelObject() }.subscribeOn(schedulers.io())
 
   override fun pendingTileSets(): Single<List<MbtilesFile>> =
-    tileSetDao
+    mbtilesFileDao
       .findByState(TileSetEntityState.PENDING.intValue())
-      .map { list: List<TileSetEntity> -> list.map { it.toModelObject() } }
+      .map { list: List<MbtilesFileEntity> -> list.map { it.toModelObject() } }
       .subscribeOn(schedulers.io())
 
   override fun updateTileSetOfflineAreaReferenceCountByUrl(
     newCount: Int,
     url: String
-  ): Completable = Completable.fromSingle(tileSetDao.updateBasemapReferenceCount(newCount, url))
+  ): Completable = Completable.fromSingle(mbtilesFileDao.updateReferenceCount(newCount, url))
 
   override fun deleteTileSetByUrl(mbtilesFile: MbtilesFile): Completable =
     if (mbtilesFile.referenceCount < 1) {
       Completable.fromAction { fileUtil.deleteFile(mbtilesFile.path) }
-        .andThen(Completable.fromMaybe(tileSetDao.deleteByUrl(mbtilesFile.url)))
+        .andThen(Completable.fromMaybe(mbtilesFileDao.deleteByUrl(mbtilesFile.url)))
         .subscribeOn(schedulers.io())
     } else {
       Completable.complete().subscribeOn(schedulers.io())

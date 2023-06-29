@@ -19,8 +19,8 @@ import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.toLiveData
 import com.google.android.ground.R
-import com.google.android.ground.model.basemap.OfflineArea
-import com.google.android.ground.model.basemap.MbtilesFile
+import com.google.android.ground.model.imagery.OfflineArea
+import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository

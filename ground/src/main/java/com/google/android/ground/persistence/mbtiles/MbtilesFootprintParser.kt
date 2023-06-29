@@ -15,8 +15,8 @@
  */
 package com.google.android.ground.persistence.mbtiles
 
-import com.google.android.ground.model.basemap.MbtilesFile
-import com.google.android.ground.model.basemap.MbtilesFile.Companion.pathFromId
+import com.google.android.ground.model.imagery.MbtilesFile
+import com.google.android.ground.model.imagery.MbtilesFile.Companion.pathFromId
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.ui.map.Bounds
 import io.reactivex.Single

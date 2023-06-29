@@ -41,7 +41,7 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
   @Inject lateinit var taskDao: TaskDao
   @Inject lateinit var jobDao: JobDao
   @Inject lateinit var surveyDao: SurveyDao
-  @Inject lateinit var baseMapDao: BaseMapDao
+  @Inject lateinit var tileSourceDao: TileSourceDao
   @Inject lateinit var schedulers: Schedulers
 
   override val surveys: Flow<List<Survey>>
@@ -56,7 +56,7 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
       .insertOrUpdate(survey.toLocalDataStoreObject())
       .andThen(jobDao.deleteBySurveyId(survey.id))
       .andThen(insertOrUpdateJobs(survey.id, survey.jobs))
-      .andThen(baseMapDao.deleteBySurveyId(survey.id))
+      .andThen(tileSourceDao.deleteBySurveyId(survey.id))
       .andThen(insertOfflineBaseMapSources(survey))
       .subscribeOn(schedulers.io())
 
@@ -118,7 +118,7 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
     Observable.fromIterable(jobs).flatMapCompletable { insertOrUpdateJob(surveyId, it) }
 
   private fun insertOfflineBaseMapSources(survey: Survey): Completable =
-    Observable.fromIterable(survey.tileOverlaySources).flatMapCompletable {
-      baseMapDao.insertOrUpdate(it.toLocalDataStoreObject(surveyId = survey.id))
+    Observable.fromIterable(survey.tileSources).flatMapCompletable {
+      tileSourceDao.insertOrUpdate(it.toLocalDataStoreObject(surveyId = survey.id))
     }
 }

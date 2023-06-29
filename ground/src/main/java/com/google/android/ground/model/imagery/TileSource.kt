@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.basemap
+package com.google.android.ground.model.imagery
 
 import java.net.URL
 import org.apache.commons.io.FilenameUtils
 
 /** Represents a single source of tiled map imagery. */
-data class TileOverlaySource(val url: URL, val type: Type) {
+data class TileSource(val url: URL, val type: Type) {
   enum class Type {
     MBTILES_FOOTPRINTS,
     TILED_WEB_MAP,

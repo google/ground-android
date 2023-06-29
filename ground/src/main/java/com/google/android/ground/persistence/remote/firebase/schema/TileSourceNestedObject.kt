@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.persistence.local.room.dao
 
-import androidx.room.Dao
-import androidx.room.Query
-import com.google.android.ground.persistence.local.room.entity.BaseMapEntity
-import io.reactivex.Completable
+package com.google.android.ground.persistence.remote.firebase.schema
 
-@Dao
-interface BaseMapDao : BaseDao<BaseMapEntity> {
-  @Query("DELETE FROM offline_base_map_source WHERE survey_id = :surveyId")
-  fun deleteBySurveyId(surveyId: String): Completable
-}
+data class TileSourceNestedObject(
+  val url: String?,
+  val type: String?,
+  val minHiResZoom: Int?,
+  val maxHiResZoom: Int?
+)

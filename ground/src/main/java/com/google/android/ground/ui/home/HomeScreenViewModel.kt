@@ -49,7 +49,7 @@ internal constructor(
   val openDrawerRequests: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
   val bottomSheetState: @Hot(replays = true) MutableLiveData<BottomSheetState> = MutableLiveData()
   val showOfflineAreaMenuItem: LiveData<Boolean> =
-    surveyRepository.activeSurveyFlow.map { it?.tileOverlaySources?.isNotEmpty() ?: false }.asLiveData()
+    surveyRepository.activeSurveyFlow.map { it?.tileSources?.isNotEmpty() ?: false }.asLiveData()
 
   fun openNavDrawer() {
     openDrawerRequests.onNext(Nil.NIL)

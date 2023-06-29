@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.basemap
+package com.google.android.ground.model.imagery
 
 /** A single MBTiles file stored in the local file system. */
 data class MbtilesFile(

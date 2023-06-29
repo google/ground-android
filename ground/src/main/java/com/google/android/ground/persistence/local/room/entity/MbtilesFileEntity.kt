@@ -21,10 +21,10 @@ import androidx.room.PrimaryKey
 import com.google.android.ground.persistence.local.room.fields.TileSetEntityState
 
 @Entity(tableName = "tile_sources")
-data class TileSetEntity(
+data class MbtilesFileEntity(
   @ColumnInfo(name = "id") @PrimaryKey val id: String,
   @ColumnInfo(name = "path") val path: String,
   @ColumnInfo(name = "url") val url: String,
   @ColumnInfo(name = "state") val state: TileSetEntityState,
-  @ColumnInfo(name = "basemap_count") val offlineAreaReferenceCount: Int
+  @ColumnInfo(name = "ref_count") val referenceCount: Int
 )

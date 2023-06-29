@@ -18,10 +18,10 @@ package com.google.android.ground.persistence.local.room.converter
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
-import com.google.android.ground.model.basemap.OfflineArea
-import com.google.android.ground.model.basemap.TileOverlaySource
-import com.google.android.ground.model.basemap.MbtilesFile
 import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.imagery.MbtilesFile
+import com.google.android.ground.model.imagery.OfflineArea
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
@@ -62,24 +62,24 @@ fun AuditInfoEntity.toModelObject() =
     Optional.ofNullable(serverTimestamp).map { Date(it!!) }
   )
 
-private fun TileOverlaySource.Type.toLocalDataStoreObject() =
+private fun TileSource.Type.toLocalDataStoreObject() =
   when (this) {
-    TileOverlaySource.Type.TILED_WEB_MAP -> BaseMapEntity.BaseMapEntityType.IMAGE
-    TileOverlaySource.Type.MBTILES_FOOTPRINTS -> BaseMapEntity.BaseMapEntityType.GEOJSON
-    else -> BaseMapEntity.BaseMapEntityType.UNKNOWN
+    TileSource.Type.TILED_WEB_MAP -> TileSourceEntity.TileSourceEntityType.IMAGE
+    TileSource.Type.MBTILES_FOOTPRINTS -> TileSourceEntity.TileSourceEntityType.GEOJSON
+    else -> TileSourceEntity.TileSourceEntityType.UNKNOWN
   }
 
-private fun BaseMapEntity.BaseMapEntityType.toModelObject() =
+private fun TileSourceEntity.TileSourceEntityType.toModelObject() =
   when (this) {
-    BaseMapEntity.BaseMapEntityType.IMAGE -> TileOverlaySource.Type.TILED_WEB_MAP
-    BaseMapEntity.BaseMapEntityType.GEOJSON -> TileOverlaySource.Type.MBTILES_FOOTPRINTS
-    else -> TileOverlaySource.Type.UNKNOWN
+    TileSourceEntity.TileSourceEntityType.IMAGE -> TileSource.Type.TILED_WEB_MAP
+    TileSourceEntity.TileSourceEntityType.GEOJSON -> TileSource.Type.MBTILES_FOOTPRINTS
+    else -> TileSource.Type.UNKNOWN
   }
 
-fun TileOverlaySource.toLocalDataStoreObject(surveyId: String) =
-  BaseMapEntity(surveyId = surveyId, url = url.toString(), type = type.toLocalDataStoreObject())
+fun TileSource.toLocalDataStoreObject(surveyId: String) =
+  TileSourceEntity(surveyId = surveyId, url = url.toString(), type = type.toLocalDataStoreObject())
 
-fun BaseMapEntity.toModelObject() = TileOverlaySource(url = URL(url), type = type.toModelObject())
+fun TileSourceEntity.toModelObject() = TileSource(url = URL(url), type = type.toModelObject())
 
 fun Geometry.toLocalDataStoreObject() = GeometryWrapper.fromGeometry(this)
 
@@ -343,14 +343,14 @@ fun SubmissionMutation.toLocalDataStoreObject() =
 
 fun SurveyEntityAndRelations.toModelObject(): Survey {
   val jobMap = jobEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
-  val baseMaps = baseMapEntityAndRelations.map { it.toModelObject() }
+  val tileSources = tileSourceEntityAndRelations.map { it.toModelObject() }
 
   return Survey(
     surveyEntity.id,
     surveyEntity.title!!,
     surveyEntity.description!!,
     jobMap.toPersistentMap(),
-    baseMaps.toPersistentList(),
+    tileSources.toPersistentList(),
     surveyEntity.acl?.toStringMap()!!
   )
 }
@@ -417,21 +417,21 @@ private fun MbtilesFile.DownloadState.toLocalDataStoreObject() =
     MbtilesFile.DownloadState.DOWNLOADED -> TileSetEntityState.DOWNLOADED
   }
 
-fun TileSetEntity.toModelObject() =
+fun MbtilesFileEntity.toModelObject() =
   MbtilesFile(
     id = id,
     url = url,
     path = path,
-    referenceCount = offlineAreaReferenceCount,
+    referenceCount = referenceCount,
     downloadState = state.toModelObject()
   )
 
 fun MbtilesFile.toLocalDataStoreObject() =
-  TileSetEntity(
+  MbtilesFileEntity(
     id = id,
     url = url,
     path = path,
-    offlineAreaReferenceCount = referenceCount,
+    referenceCount = referenceCount,
     state = downloadState.toLocalDataStoreObject()
   )
 

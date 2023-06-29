@@ -20,7 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.databinding.OfflineBaseMapViewerFragBinding
-import com.google.android.ground.model.basemap.OfflineArea
+import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.Map

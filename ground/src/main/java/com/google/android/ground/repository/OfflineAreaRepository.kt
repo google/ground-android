@@ -16,10 +16,10 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.basemap.TileOverlaySource
-import com.google.android.ground.model.basemap.TileOverlaySource.Type
-import com.google.android.ground.model.basemap.OfflineArea
-import com.google.android.ground.model.basemap.MbtilesFile
+import com.google.android.ground.model.imagery.TileSource
+import com.google.android.ground.model.imagery.TileSource.Type
+import com.google.android.ground.model.imagery.OfflineArea
+import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
 import com.google.android.ground.persistence.mbtiles.MbtilesFootprintParser
@@ -60,8 +60,8 @@ constructor(
    * subsequent calls.
    */
   @Throws(IOException::class)
-  private fun downloadOfflineBaseMapSource(tileOverlaySource: TileOverlaySource): File {
-    val baseMapUrl = tileOverlaySource.url
+  private fun downloadOfflineBaseMapSource(tileSource: TileSource): File {
+    val baseMapUrl = tileSource.url
     Timber.d("Basemap url: $baseMapUrl, file: ${baseMapUrl.file}")
     val localFile = fileUtil.getOrCreateFile(baseMapUrl.file)
 
@@ -105,7 +105,7 @@ constructor(
   // TODO: Simplify this stream.
   private fun getOfflineAreaTileSets(offlineArea: OfflineArea): @Cold Single<List<MbtilesFile>> =
     surveyRepository.activeSurveyFlowable
-      .map { it.map(Survey::tileOverlaySources).orElse(listOf()) }
+      .map { it.map(Survey::tileSources).orElse(listOf()) }
       .doOnError { throwable ->
         Timber.e(throwable, "no basemap sources specified for the active survey")
       }
@@ -211,7 +211,7 @@ constructor(
    */
   fun tileSets(): Single<List<MbtilesFile>> =
     surveyRepository.activeSurveyFlowable
-      .map { it.map(Survey::tileOverlaySources).orElse(listOf()) }
+      .map { it.map(Survey::tileSources).orElse(listOf()) }
       .doOnError { t -> Timber.e(t, "No basemap sources specified for the active survey") }
       .flatMap { source -> Flowable.fromIterable(source) }
       .firstOrError()
@@ -219,16 +219,16 @@ constructor(
       .doOnError { t -> Timber.e(t, "Couldn't retrieve basemap sources for the active survey") }
 
   /**
-   * Returns a list of [MbtilesFile]s corresponding to a given [TileOverlaySource] based on the TileOverlaySource's type.
+   * Returns a list of [MbtilesFile]s corresponding to a given [TileSource] based on the TileSource's type.
    *
-   * This function may perform network IO when the provided TileOverlaySource requires downloading TileSets
+   * This function may perform network IO when the provided TileSource requires downloading TileSets
    * locally.
    */
   @Throws(IOException::class)
-  private fun getTileSets(tileOverlaySource: TileOverlaySource): Single<List<MbtilesFile>> =
-    when (tileOverlaySource.type) {
+  private fun getTileSets(tileSource: TileSource): Single<List<MbtilesFile>> =
+    when (tileSource.type) {
       Type.MBTILES_FOOTPRINTS -> {
-        val tileFile = downloadOfflineBaseMapSource(tileOverlaySource)
+        val tileFile = downloadOfflineBaseMapSource(tileSource)
         geoJsonParser.allTiles(tileFile)
       }
       Type.MOG_TILE_SETS,
@@ -236,9 +236,9 @@ constructor(
         Single.just(
           listOf(
             MbtilesFile(
-              tileOverlaySource.url.toString(),
+              tileSource.url.toString(),
               offlineUuidGenerator.generateUuid(),
-              tileOverlaySource.url.toString(),
+              tileSource.url.toString(),
               MbtilesFile.DownloadState.PENDING,
               1
             )
@@ -250,9 +250,9 @@ constructor(
         Single.just(
           listOf(
             MbtilesFile(
-              tileOverlaySource.url.toString(),
+              tileSource.url.toString(),
               offlineUuidGenerator.generateUuid(),
-              tileOverlaySource.url.toString(),
+              tileSource.url.toString(),
               MbtilesFile.DownloadState.PENDING,
               1
             )

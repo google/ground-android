@@ -19,7 +19,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.google.android.ground.model.basemap.MbtilesFile
+import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
 import com.google.android.ground.persistence.sync.SyncService.Companion.DEFAULT_MAX_RETRY_ATTEMPTS
 import dagger.assisted.Assisted

@@ -31,7 +31,7 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.basemap.TileOverlaySource
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.Navigator
 import com.sharedtest.FakeData
@@ -128,9 +128,9 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
   private val surveyWithBasemap: Survey =
     surveyWithoutBasemap.copy(
-      tileOverlaySources =
+      tileSources =
         listOf(
-          TileOverlaySource(URL("http://google.com"), TileOverlaySource.Type.MBTILES_FOOTPRINTS),
+          TileSource(URL("http://google.com"), TileSource.Type.MBTILES_FOOTPRINTS),
         ),
       id = "BASEMAPS"
     )

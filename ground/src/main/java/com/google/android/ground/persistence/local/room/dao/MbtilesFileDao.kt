@@ -17,28 +17,28 @@ package com.google.android.ground.persistence.local.room.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.google.android.ground.persistence.local.room.entity.TileSetEntity
+import com.google.android.ground.persistence.local.room.entity.MbtilesFileEntity
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
 
 @Dao
-interface TileSetDao : BaseDao<TileSetEntity> {
-  @Query("SELECT * FROM tile_sources") fun findAllOnceAndStream(): Flowable<List<TileSetEntity>>
+interface MbtilesFileDao : BaseDao<MbtilesFileEntity> {
+  @Query("SELECT * FROM tile_sources") fun findAllOnceAndStream(): Flowable<List<MbtilesFileEntity>>
 
   @Query("SELECT * FROM tile_sources WHERE state = :state")
-  fun findByState(state: Int): Single<List<TileSetEntity>>
+  fun findByState(state: Int): Single<List<MbtilesFileEntity>>
 
-  @Query("SELECT * FROM tile_sources WHERE id = :id") fun findById(id: String): Maybe<TileSetEntity>
+  @Query("SELECT * FROM tile_sources WHERE id = :id") fun findById(id: String): Maybe<MbtilesFileEntity>
 
   @Query("SELECT * FROM tile_sources WHERE url = :url")
-  fun findByUrl(url: String): Maybe<TileSetEntity>
+  fun findByUrl(url: String): Maybe<MbtilesFileEntity>
 
   @Query("SELECT * FROM tile_sources WHERE path = :path")
-  fun findByPath(path: String): Maybe<TileSetEntity>
+  fun findByPath(path: String): Maybe<MbtilesFileEntity>
 
-  @Query("UPDATE tile_sources SET basemap_count=:newCount WHERE url = :url")
-  fun updateBasemapReferenceCount(newCount: Int, url: String): Single<Int>
+  @Query("UPDATE tile_sources SET ref_count=:newCount WHERE url = :url")
+  fun updateReferenceCount(newCount: Int, url: String): Single<Int>
 
   @Query("DELETE FROM tile_sources WHERE url = :url") fun deleteByUrl(url: String): Maybe<Int>
 }

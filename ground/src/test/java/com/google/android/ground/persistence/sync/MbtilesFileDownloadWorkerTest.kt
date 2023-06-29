@@ -25,7 +25,7 @@ import androidx.work.WorkerParameters
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.TestWorkerBuilder
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.basemap.MbtilesFile
+import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
