@@ -28,7 +28,7 @@ import io.reactivex.Observable
 import java8.util.function.Consumer
 
 /** Interface for a Fragment that renders a map view. */
-interface MapFragment {
+interface Map {
   /** Returns a list of supported basemap types. */
   val availableMapTypes: Array<MapType>
 
@@ -60,11 +60,11 @@ interface MapFragment {
   /** Returns TileProviders associated with this map adapter. */
   val tileProviders: @Hot Observable<MapBoxOfflineTileProvider>
 
-  /** Adds the [MapFragment] to a fragment. */
+  /** Adds the [Map] to a fragment. */
   fun attachToFragment(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
-    mapAdapter: Consumer<MapFragment>
+    onMapReadyCallback: Consumer<Map>
   )
 
   /** Enables map gestures like pan and zoom. */

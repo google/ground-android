@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.model.basemap.tile
 
-/** Represents a source of offline imagery tileset data. */
+/** Defines a source of offline map overlay data. */
 data class TileSet(
   val url: String,
   val id: String,
