@@ -23,7 +23,8 @@ data class BaseMap(val url: URL, val type: BaseMapType) {
   enum class BaseMapType {
     MBTILES_FOOTPRINTS,
     TILED_WEB_MAP,
-    UNKNOWN
+    UNKNOWN,
+    MOG_TILE_SETS
   }
 
   companion object {
@@ -31,7 +32,7 @@ data class BaseMap(val url: URL, val type: BaseMapType) {
       when (FilenameUtils.getExtension(url)) {
         "geojson" -> BaseMapType.MBTILES_FOOTPRINTS
         "png" -> BaseMapType.TILED_WEB_MAP
-        else -> BaseMapType.UNKNOWN
+        else -> BaseMapType.MOG_TILE_SETS
       }
   }
 }
