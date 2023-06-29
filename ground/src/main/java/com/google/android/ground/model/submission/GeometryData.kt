@@ -16,6 +16,7 @@
 package com.google.android.ground.model.submission
 
 import com.google.android.ground.model.geometry.Geometry
+import java8.util.Optional
 
 /** A user provided response to a geometry based task. */
 data class GeometryData(val geometry: Geometry) : TaskData {
@@ -25,5 +26,14 @@ data class GeometryData(val geometry: Geometry) : TaskData {
 
   override fun isEmpty(): Boolean {
     return false
+  }
+
+  companion object {
+    fun fromGeometry(geometry: Geometry?): Optional<GeometryData> =
+      if (geometry == null) {
+        Optional.empty()
+      } else {
+        Optional.of(GeometryData(geometry))
+      }
   }
 }
