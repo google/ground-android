@@ -16,10 +16,10 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.imagery.MbtilesFile
+import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.imagery.TileSource.Type
-import com.google.android.ground.model.imagery.OfflineArea
-import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
 import com.google.android.ground.persistence.mbtiles.MbtilesFootprintParser
@@ -70,7 +70,10 @@ constructor(
   }
 
   /** Enqueue a single area and its tile sources for download. */
-  private fun enqueueDownload(area: OfflineArea, mbtilesFiles: List<MbtilesFile>): @Cold Completable =
+  private fun enqueueDownload(
+    area: OfflineArea,
+    mbtilesFiles: List<MbtilesFile>
+  ): @Cold Completable =
     Flowable.fromIterable(mbtilesFiles)
       .flatMapCompletable { tileSet ->
         localTileSetStore
@@ -173,7 +176,9 @@ constructor(
    * Retrieves a set of downloaded tiles that intersect with {@param offlineArea}. Triggers
    * `onError` only if there is a problem accessing the local store.
    */
-  fun getIntersectingDownloadedTileSetsOnce(offlineArea: OfflineArea): @Cold Maybe<Set<MbtilesFile>> =
+  fun getIntersectingDownloadedTileSetsOnce(
+    offlineArea: OfflineArea
+  ): @Cold Maybe<Set<MbtilesFile>> =
     getIntersectingDownloadedTileSetsOnceAndStream(offlineArea).firstElement()
 
   /**
@@ -197,16 +202,14 @@ constructor(
       .map { it.decrementReferenceCount() }
       .flatMapCompletable { tileSet ->
         localTileSetStore
-          .updateTileSetOfflineAreaReferenceCountByUrl(
-            tileSet.referenceCount,
-            tileSet.url
-          )
+          .updateTileSetOfflineAreaReferenceCountByUrl(tileSet.referenceCount, tileSet.url)
           .andThen(localTileSetStore.deleteTileSetByUrl(tileSet))
       }
       .andThen(localOfflineAreaStore.deleteOfflineArea(offlineAreaId))
 
   /**
-   * Returns a list of [MbtilesFile]s corresponding to a given [TileSource] based on the TileSource's type.
+   * Returns a list of [MbtilesFile]s corresponding to a given [TileSource] based on the
+   * TileSource's type.
    *
    * This function may perform network IO when the provided TileSource requires downloading TileSets
    * locally.
