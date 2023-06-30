@@ -29,7 +29,8 @@ interface MbtilesFileDao : BaseDao<MbtilesFileEntity> {
   @Query("SELECT * FROM tile_sources WHERE state = :state")
   fun findByState(state: Int): Single<List<MbtilesFileEntity>>
 
-  @Query("SELECT * FROM tile_sources WHERE id = :id") fun findById(id: String): Maybe<MbtilesFileEntity>
+  @Query("SELECT * FROM tile_sources WHERE id = :id")
+  fun findById(id: String): Maybe<MbtilesFileEntity>
 
   @Query("SELECT * FROM tile_sources WHERE url = :url")
   fun findByUrl(url: String): Maybe<MbtilesFileEntity>

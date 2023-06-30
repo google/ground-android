@@ -18,8 +18,8 @@ package com.google.android.ground.ui.offlinebasemap.viewer
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.toLiveData
-import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.imagery.MbtilesFile
+import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.rx.Nil

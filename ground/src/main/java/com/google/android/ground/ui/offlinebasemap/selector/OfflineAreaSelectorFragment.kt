@@ -32,9 +32,7 @@ import com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorV
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-/**
- * Map UI used to select areas for download and viewing offline.
- */
+/** Map UI used to select areas for download and viewing offline. */
 @AndroidEntryPoint(AbstractMapContainerFragment::class)
 class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
 
