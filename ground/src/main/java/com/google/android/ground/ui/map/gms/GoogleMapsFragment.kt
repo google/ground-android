@@ -390,12 +390,9 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     map.addTileOverlay(TileOverlayOptions().tileProvider(webTileProvider))
   }
 
-  override fun addTileOverlay(tileSource: TileSource) {
-    when (tileSource.type) {
-      MOG_COLLECTION -> addMogCollectionTileOverlay(tileSource.url)
-      else -> error("Unsupported tile source type ${tileSource.type}")
-    }
-  }
+  override fun addTileOverlay(tileSource: TileSource) =
+    if (tileSource.type == MOG_COLLECTION) addMogCollectionTileOverlay(tileSource.url)
+    else error("Unsupported tile source type ${tileSource.type}")
 
   private fun addMogCollectionTileOverlay(url: URL) {
     // TODO(#1730): Make URLs and zoom level configuration using a standard metadata format (STAC?).
