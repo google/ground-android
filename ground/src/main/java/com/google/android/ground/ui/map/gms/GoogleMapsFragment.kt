@@ -36,6 +36,8 @@ import com.google.android.ground.Config
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.imagery.TileSource
+import com.google.android.ground.model.imagery.TileSource.Type.MOG_COLLECTION
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
@@ -44,6 +46,8 @@ import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Map
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
+import com.google.android.ground.ui.map.gms.mog.MogCollection
+import com.google.android.ground.ui.map.gms.mog.MogTileProvider
 import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
 import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
 import com.google.android.ground.ui.util.BitmapUtil
@@ -57,6 +61,7 @@ import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import java.io.File
+import java.net.URL
 import java8.util.function.Consumer
 import javax.inject.Inject
 import kotlin.math.min
@@ -383,6 +388,19 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   private fun addWebTileOverlay(url: String) {
     val webTileProvider = WebTileProvider(url)
     map.addTileOverlay(TileOverlayOptions().tileProvider(webTileProvider))
+  }
+
+  override fun addTileOverlay(tileSource: TileSource) {
+    when (tileSource.type) {
+      MOG_COLLECTION -> addMogCollectionTileOverlay(tileSource.url)
+      else -> error("Unsupported tile source type ${tileSource.type}")
+    }
+  }
+
+  private fun addMogCollectionTileOverlay(url: URL) {
+    val mogCollection = MogCollection("${url}/{z}/world.tif", "${url}/{z}/{x}/{y}.tif", 8, 14)
+    val tileProvider = MogTileProvider(mogCollection)
+    map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
   }
 
   override fun addWebTileOverlays(urls: List<String>) = urls.forEach { addWebTileOverlay(it) }

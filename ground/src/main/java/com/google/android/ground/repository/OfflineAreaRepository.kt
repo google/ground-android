@@ -206,19 +206,6 @@ constructor(
       .andThen(localOfflineAreaStore.deleteOfflineArea(offlineAreaId))
 
   /**
-   * Retrieves all tile sources from a GeoJSON basemap specification, regardless of their
-   * coordinates.
-   */
-  fun tileSets(): Single<List<MbtilesFile>> =
-    surveyRepository.activeSurveyFlowable
-      .map { it.map(Survey::tileSources).orElse(listOf()) }
-      .doOnError { t -> Timber.e(t, "No basemap sources specified for the active survey") }
-      .flatMap { source -> Flowable.fromIterable(source) }
-      .firstOrError()
-      .flatMap { baseMap -> getTileSets(baseMap) }
-      .doOnError { t -> Timber.e(t, "Couldn't retrieve basemap sources for the active survey") }
-
-  /**
    * Returns a list of [MbtilesFile]s corresponding to a given [TileSource] based on the TileSource's type.
    *
    * This function may perform network IO when the provided TileSource requires downloading TileSets
