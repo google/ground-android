@@ -21,6 +21,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.google.android.ground.*
+import com.google.android.ground.NavGraphDirections.ShowMapTypeDialogFragment
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.map.MapType
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -44,13 +45,13 @@ class HomeScreenMapContainerFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun test_clickMapType_launchesMapTypeDialogFragment() {
+  fun clickMapType_launchesMapTypeDialogFragment() {
     val navDirectionsTestObserver = navigator.getNavigateRequests().test()
 
     onView(withId(R.id.map_type_btn)).perform(click()).check(matches(isEnabled()))
 
-    navDirectionsTestObserver.assertValue(
-      MapTypeDialogFragmentDirections.showMapTypeDialogFragment(MapType.values())
-    )
+    navDirectionsTestObserver.assertValue {
+      it is ShowMapTypeDialogFragment && it.mapTypes.contentEquals(MapType.values())
+    }
   }
 }
