@@ -398,6 +398,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   }
 
   private fun addMogCollectionTileOverlay(url: URL) {
+    // TODO(#1730): Make URLs and zoom level configuration using a standard metadata format (STAC?).
     val mogCollection = MogCollection("${url}/{z}/world.tif", "${url}/{z}/{x}/{y}.tif", 8, 14)
     val tileProvider = MogTileProvider(mogCollection)
     map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
