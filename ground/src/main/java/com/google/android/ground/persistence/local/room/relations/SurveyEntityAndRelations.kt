@@ -17,9 +17,9 @@ package com.google.android.ground.persistence.local.room.relations
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.google.android.ground.persistence.local.room.entity.TileSourceEntity
 import com.google.android.ground.persistence.local.room.entity.JobEntity
 import com.google.android.ground.persistence.local.room.entity.SurveyEntity
+import com.google.android.ground.persistence.local.room.entity.TileSourceEntity
 
 /**
  * Represents relationship between SurveyEntity and JobEntity.

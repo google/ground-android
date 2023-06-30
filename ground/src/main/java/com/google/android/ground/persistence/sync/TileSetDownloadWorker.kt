@@ -131,9 +131,9 @@ constructor(
   }
 
   /**
-   * Verifies that {@param tile} marked as `Tile.DownloadState.DOWNLOADED` in the local database still
-   * exists in the app's storage. If the tile's source file isn't present, initiates a download of
-   * source file.
+   * Verifies that {@param tile} marked as `Tile.DownloadState.DOWNLOADED` in the local database
+   * still exists in the app's storage. If the tile's source file isn't present, initiates a
+   * download of source file.
    */
   private fun downloadIfNotFound(mbtilesFile: MbtilesFile): Completable {
     val file = File(context.filesDir, mbtilesFile.path)

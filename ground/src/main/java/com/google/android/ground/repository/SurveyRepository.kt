@@ -112,7 +112,9 @@ constructor(
       .flatMap { localSurveyStore.insertOrUpdateSurvey(it).toSingleDefault(it) }
       .doOnSuccess {
         // TODO: Define and use a BaseMapStore
-        it.tileSources.forEach { bm -> tileSourceDao.insertOrUpdate(bm.toLocalDataStoreObject(it.id)) }
+        it.tileSources.forEach { bm ->
+          tileSourceDao.insertOrUpdate(bm.toLocalDataStoreObject(it.id))
+        }
       }
       .doOnSubscribe { Timber.d("Loading survey $id") }
       .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
