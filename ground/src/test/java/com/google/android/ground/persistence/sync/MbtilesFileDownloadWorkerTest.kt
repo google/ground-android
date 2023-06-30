@@ -25,7 +25,7 @@ import androidx.work.WorkerParameters
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.TestWorkerBuilder
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.basemap.tile.TileSet
+import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -41,7 +41,7 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class TileSetDownloadWorkerTest : BaseHiltTest() {
+class MbtilesFileDownloadWorkerTest : BaseHiltTest() {
   @Inject lateinit var localTileSetStore: LocalTileSetStore
   private lateinit var context: Context
   @Mock private lateinit var mockContext: Context
@@ -79,12 +79,12 @@ class TileSetDownloadWorkerTest : BaseHiltTest() {
     out.write(0)
 
     val tiles =
-      TileSet(
+      MbtilesFile(
         url = "http://google.com",
         id = "TILESET",
         path = "TILESET",
-        state = TileSet.State.DOWNLOADED,
-        offlineAreaReferenceCount = 1
+        downloadState = MbtilesFile.DownloadState.DOWNLOADED,
+        referenceCount = 1
       )
     localTileSetStore.insertOrUpdateTileSet(tiles).blockingAwait()
     val worker =
@@ -102,12 +102,12 @@ class TileSetDownloadWorkerTest : BaseHiltTest() {
     `when`(mockContext.openFileOutput("TILESET", Context.MODE_PRIVATE))
       .thenReturn(FileOutputStream("fake").apply { close() })
     val tiles =
-      TileSet(
+      MbtilesFile(
         url = "http://google.com",
         id = "TILESET",
         path = "TILESET",
-        state = TileSet.State.PENDING,
-        offlineAreaReferenceCount = 1
+        downloadState = MbtilesFile.DownloadState.PENDING,
+        referenceCount = 1
       )
 
     localTileSetStore.insertOrUpdateTileSet(tiles).blockingAwait()
@@ -124,12 +124,12 @@ class TileSetDownloadWorkerTest : BaseHiltTest() {
   @Test
   fun doWork_FailsOnInvalidURL() {
     val tiles =
-      TileSet(
+      MbtilesFile(
         url = "BAD URL",
         id = "TILESET",
         path = "TILESET",
-        state = TileSet.State.PENDING,
-        offlineAreaReferenceCount = 1
+        downloadState = MbtilesFile.DownloadState.PENDING,
+        referenceCount = 1
       )
 
     localTileSetStore.insertOrUpdateTileSet(tiles).blockingAwait()

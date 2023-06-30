@@ -19,8 +19,8 @@ import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.toLiveData
 import com.google.android.ground.R
-import com.google.android.ground.model.basemap.OfflineArea
-import com.google.android.ground.model.basemap.tile.TileSet
+import com.google.android.ground.model.imagery.MbtilesFile
+import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
@@ -66,7 +66,7 @@ internal constructor(
   private val downloadClicks: @Hot FlowableProcessor<OfflineArea> = PublishProcessor.create()
   private val remoteTileRequests: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
   val downloadMessages: LiveData<Event<DownloadMessage>>
-  val remoteTileSets: Flowable<List<TileSet>>
+  val remoteTileSets: Flowable<List<MbtilesFile>>
   private var viewport: Bounds? = null
 
   init {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model.imagery
 
-package com.google.android.ground.persistence.remote.firebase.schema
+import com.google.android.ground.ui.map.Bounds
 
-import com.google.firebase.firestore.IgnoreExtraProperties
-
-/** Project entity stored in Firestore. */
-@IgnoreExtraProperties
-data class SurveyDocument(
-  val title: String? = null,
-  val description: String? = null,
-  val jobs: Map<String, JobNestedObject>? = null,
-  val acl: Map<String, String>? = null,
-  val tileSources: List<TileSourceNestedObject>? = null
-)
+/** An area is a contiguous set of tiles that task a geodesic rectangle. */
+data class OfflineArea(val id: String, val state: State, val bounds: Bounds, val name: String) {
+  enum class State {
+    PENDING,
+    IN_PROGRESS,
+    DOWNLOADED,
+    FAILED
+  }
+}

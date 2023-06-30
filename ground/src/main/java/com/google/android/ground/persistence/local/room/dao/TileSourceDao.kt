@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.basemap
+package com.google.android.ground.persistence.local.room.dao
 
-import com.google.android.ground.ui.map.Bounds
+import androidx.room.Dao
+import androidx.room.Query
+import com.google.android.ground.persistence.local.room.entity.TileSourceEntity
+import io.reactivex.Completable
 
-/** An area is a contiguous set of tiles that task a geodesic rectangle. */
-data class OfflineArea(val id: String, val state: State, val bounds: Bounds, val name: String) {
-  enum class State {
-    PENDING,
-    IN_PROGRESS,
-    DOWNLOADED,
-    FAILED
-  }
+@Dao
+interface TileSourceDao : BaseDao<TileSourceEntity> {
+  @Query("DELETE FROM offline_base_map_source WHERE survey_id = :surveyId")
+  fun deleteBySurveyId(surveyId: String): Completable
 }

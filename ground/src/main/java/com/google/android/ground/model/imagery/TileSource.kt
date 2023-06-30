@@ -13,18 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.persistence.local.room.entity
+package com.google.android.ground.model.imagery
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import com.google.android.ground.persistence.local.room.fields.TileSetEntityState
+import java.net.URL
+import org.apache.commons.io.FilenameUtils
 
-@Entity(tableName = "tile_sources")
-data class TileSetEntity(
-  @ColumnInfo(name = "id") @PrimaryKey val id: String,
-  @ColumnInfo(name = "path") val path: String,
-  @ColumnInfo(name = "url") val url: String,
-  @ColumnInfo(name = "state") val state: TileSetEntityState,
-  @ColumnInfo(name = "basemap_count") val offlineAreaReferenceCount: Int
-)
+/** Represents a single source of tiled map imagery. */
+data class TileSource(val url: URL, val type: Type) {
+  enum class Type {
+    MBTILES_FOOTPRINTS,
+    TILED_WEB_MAP,
+    MOG_COLLECTION,
+    UNKNOWN,
+  }
+
+  companion object {
+    fun fromFileExtension(url: String): Type =
+      when (FilenameUtils.getExtension(url)) {
+        "geojson" -> Type.MBTILES_FOOTPRINTS
+        "png" -> Type.TILED_WEB_MAP
+        else -> Type.MOG_COLLECTION
+      }
+  }
+}

@@ -38,7 +38,7 @@ import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
-import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.Map
 import com.google.maps.android.data.Point
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
@@ -62,10 +62,10 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    mapFragment.locationOfInterestInteractions
-      .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe { mapContainerViewModel.onFeatureClick(it) }
-    mapFragment.tileProviders.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
+    map.locationOfInterestInteractions.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
+      mapContainerViewModel.onFeatureClick(it)
+    }
+    map.tileProviders.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
       mapContainerViewModel.queueTileProvider(it)
     }
 
@@ -164,27 +164,25 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
     }
   }
 
-  override fun onMapReady(mapFragment: MapFragment) {
+  override fun onMapReady(map: Map) {
     // Observe events emitted by the ViewModel.
-    mapContainerViewModel.mapLocationOfInterestFeatures.observe(this) {
-      mapFragment.renderFeatures(it)
-    }
+    mapContainerViewModel.mapLocationOfInterestFeatures.observe(this) { map.renderFeatures(it) }
     homeScreenViewModel.bottomSheetState.observe(this) { state: BottomSheetState ->
-      onBottomSheetStateChange(state, mapFragment)
+      onBottomSheetStateChange(state, map)
     }
-    mapContainerViewModel.mbtilesFilePaths.observe(this) { mapFragment.addLocalTileOverlays(it) }
+    mapContainerViewModel.mbtilesFilePaths.observe(this) { map.addLocalTileOverlays(it) }
     adapter.setLoiCardFocusedListener {
       when (it) {
-        is MapCardUiData.LoiCardUiData -> mapFragment.setActiveLocationOfInterest(it.loi.id)
+        is MapCardUiData.LoiCardUiData -> map.setActiveLocationOfInterest(it.loi.id)
         is MapCardUiData.SuggestLoiCardUiData,
-        null -> mapFragment.setActiveLocationOfInterest(null)
+        null -> map.setActiveLocationOfInterest(null)
       }
     }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel
 
-  private fun onBottomSheetStateChange(state: BottomSheetState, map: MapFragment) {
+  private fun onBottomSheetStateChange(state: BottomSheetState, map: Map) {
     val loi: Optional<LocationOfInterest> = Optional.ofNullable(state.locationOfInterest)
     when (state.visibility) {
       BottomSheetState.Visibility.VISIBLE -> {
@@ -205,7 +203,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
 
   private fun onZoomThresholdCrossed() {
     Timber.v("Refresh markers after zoom threshold crossed")
-    mapFragment.refresh()
+    map.refresh()
   }
 
   override fun onDestroy() {

@@ -19,7 +19,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.google.android.ground.model.basemap.tile.TileSet
+import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
 import com.google.android.ground.persistence.sync.SyncService.Companion.DEFAULT_MAX_RETRY_ATTEMPTS
 import dagger.assisted.Assisted
@@ -52,11 +52,11 @@ constructor(
    * storage. Optional HTTP request header {@param requestProperties} may be provided.
    */
   @Throws(TileSetDownloadException::class)
-  private fun downloadTileFile(tileSet: TileSet, requestProperties: Map<String, String>) {
+  private fun downloadTileFile(mbtilesFile: MbtilesFile, requestProperties: Map<String, String>) {
     var mode = Context.MODE_PRIVATE
 
     try {
-      val url = URL(tileSet.url)
+      val url = URL(mbtilesFile.url)
       val connection = url.openConnection() as HttpURLConnection
 
       if (requestProperties.isNotEmpty()) {
@@ -68,7 +68,7 @@ constructor(
 
       connection.connect()
       connection.inputStream.use { inputStream ->
-        context.openFileOutput(tileSet.path, mode).use { fos ->
+        context.openFileOutput(mbtilesFile.path, mode).use { fos ->
           val byteChunk = ByteArray(BUFFER_SIZE)
           var n: Int
 
@@ -86,7 +86,7 @@ constructor(
   }
 
   /** Update a tile's state in the database and initiate a download of the tile source file. */
-  private fun downloadTileSet(tileSet: TileSet): Completable {
+  private fun downloadTileSet(mbtilesFile: MbtilesFile): Completable {
     val requestProperties: MutableMap<String, String> = HashMap()
 
     // To resume a download for an in progress tile, we use the HTTP Range request property.
@@ -102,53 +102,53 @@ constructor(
     // downloaded yet (since then we'll fetch the range '0-', the entire file).
     //
     // For more info see: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range
-    if (tileSet.state === TileSet.State.IN_PROGRESS) {
-      val existingTileFile = File(context.filesDir, tileSet.path)
+    if (mbtilesFile.downloadState === MbtilesFile.DownloadState.IN_PROGRESS) {
+      val existingTileFile = File(context.filesDir, mbtilesFile.path)
       requestProperties["Range"] = "bytes=" + existingTileFile.length() + "-"
     }
     return localTileSetStore
       .insertOrUpdateTileSet(
-        tileSet.copy(
-          state = TileSet.State.IN_PROGRESS,
+        mbtilesFile.copy(
+          downloadState = MbtilesFile.DownloadState.IN_PROGRESS,
         )
       )
-      .andThen(Completable.fromRunnable { downloadTileFile(tileSet, requestProperties) })
+      .andThen(Completable.fromRunnable { downloadTileFile(mbtilesFile, requestProperties) })
       .doOnError { e ->
-        Timber.d(e, "Failed to download tile: $tileSet")
+        Timber.d(e, "Failed to download tile: $mbtilesFile")
         localTileSetStore.insertOrUpdateTileSet(
-          tileSet.copy(
-            state = TileSet.State.FAILED,
+          mbtilesFile.copy(
+            downloadState = MbtilesFile.DownloadState.FAILED,
           )
         )
       }
       .andThen(
         localTileSetStore.insertOrUpdateTileSet(
-          tileSet.copy(
-            state = TileSet.State.DOWNLOADED,
+          mbtilesFile.copy(
+            downloadState = MbtilesFile.DownloadState.DOWNLOADED,
           )
         )
       )
   }
 
   /**
-   * Verifies that {@param tile} marked as `Tile.State.DOWNLOADED` in the local database still
-   * exists in the app's storage. If the tile's source file isn't present, initiates a download of
-   * source file.
+   * Verifies that {@param tile} marked as `Tile.DownloadState.DOWNLOADED` in the local database
+   * still exists in the app's storage. If the tile's source file isn't present, initiates a
+   * download of source file.
    */
-  private fun downloadIfNotFound(tileSet: TileSet): Completable {
-    val file = File(context.filesDir, tileSet.path)
+  private fun downloadIfNotFound(mbtilesFile: MbtilesFile): Completable {
+    val file = File(context.filesDir, mbtilesFile.path)
     return if (file.exists()) {
       Completable.complete()
-    } else downloadTileSet(tileSet)
+    } else downloadTileSet(mbtilesFile)
   }
 
-  private fun processTileSets(pendingTileSets: List<TileSet>): Completable =
-    Observable.fromIterable(pendingTileSets).flatMapCompletable { tileSet ->
-      when (tileSet.state) {
-        TileSet.State.DOWNLOADED -> downloadIfNotFound(tileSet)
-        TileSet.State.PENDING,
-        TileSet.State.IN_PROGRESS,
-        TileSet.State.FAILED -> downloadTileSet(tileSet)
+  private fun processTileSets(pendingMbtilesFiles: List<MbtilesFile>): Completable =
+    Observable.fromIterable(pendingMbtilesFiles).flatMapCompletable { tileSet ->
+      when (tileSet.downloadState) {
+        MbtilesFile.DownloadState.DOWNLOADED -> downloadIfNotFound(tileSet)
+        MbtilesFile.DownloadState.PENDING,
+        MbtilesFile.DownloadState.IN_PROGRESS,
+        MbtilesFile.DownloadState.FAILED -> downloadTileSet(tileSet)
       }
     }
 

@@ -27,11 +27,12 @@ import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
-import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.Map
 import com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel.DownloadMessage
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+/** Map UI used to select areas for download and viewing offline. */
 @AndroidEntryPoint(AbstractMapContainerFragment::class)
 class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
 
@@ -73,11 +74,11 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
     return binding.root
   }
 
-  override fun onMapReady(mapFragment: MapFragment) {
+  override fun onMapReady(map: Map) {
     viewModel.remoteTileSets
       .map { tileSets -> tileSets.map { it.url } }
       .`as`(autoDisposable(this))
-      .subscribe(mapFragment::addWebTileOverlays)
+      .subscribe(map::addWebTileOverlays)
 
     viewModel.requestRemoteTileSets()
     viewModel.cameraBoundUpdates.`as`(autoDisposable(this)).subscribe(viewModel::setViewport)

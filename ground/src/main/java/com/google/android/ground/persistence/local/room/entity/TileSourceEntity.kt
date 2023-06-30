@@ -30,14 +30,14 @@ import androidx.room.*
     ],
   indices = [Index("survey_id")]
 )
-data class BaseMapEntity(
+data class TileSourceEntity(
   @ColumnInfo(name = "id") @PrimaryKey(autoGenerate = true) val id: Int? = 0,
   @ColumnInfo(name = "survey_id") val surveyId: String,
   @ColumnInfo(name = "url") val url: String,
-  @ColumnInfo(name = "type") val type: BaseMapEntityType
+  @ColumnInfo(name = "type") val type: TileSourceEntityType
 ) {
 
-  enum class BaseMapEntityType {
+  enum class TileSourceEntityType {
     GEOJSON,
     IMAGE,
     UNKNOWN

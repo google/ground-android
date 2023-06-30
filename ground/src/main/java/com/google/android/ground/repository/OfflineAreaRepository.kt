@@ -16,10 +16,10 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.basemap.BaseMap
-import com.google.android.ground.model.basemap.BaseMap.BaseMapType
-import com.google.android.ground.model.basemap.OfflineArea
-import com.google.android.ground.model.basemap.tile.TileSet
+import com.google.android.ground.model.imagery.MbtilesFile
+import com.google.android.ground.model.imagery.OfflineArea
+import com.google.android.ground.model.imagery.TileSource
+import com.google.android.ground.model.imagery.TileSource.Type
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
 import com.google.android.ground.persistence.mbtiles.MbtilesFootprintParser
@@ -60,8 +60,8 @@ constructor(
    * subsequent calls.
    */
   @Throws(IOException::class)
-  private fun downloadOfflineBaseMapSource(baseMap: BaseMap): File {
-    val baseMapUrl = baseMap.url
+  private fun downloadOfflineBaseMapSource(tileSource: TileSource): File {
+    val baseMapUrl = tileSource.url
     Timber.d("Basemap url: $baseMapUrl, file: ${baseMapUrl.file}")
     val localFile = fileUtil.getOrCreateFile(baseMapUrl.file)
 
@@ -70,12 +70,15 @@ constructor(
   }
 
   /** Enqueue a single area and its tile sources for download. */
-  private fun enqueueDownload(area: OfflineArea, tileSets: List<TileSet>): @Cold Completable =
-    Flowable.fromIterable(tileSets)
+  private fun enqueueDownload(
+    area: OfflineArea,
+    mbtilesFiles: List<MbtilesFile>
+  ): @Cold Completable =
+    Flowable.fromIterable(mbtilesFiles)
       .flatMapCompletable { tileSet ->
         localTileSetStore
           .getTileSet(tileSet.url)
-          .map { it.incrementOfflineAreaCount() }
+          .map { it.incrementReferenceCount() }
           .toSingle(tileSet)
           .flatMapCompletable { localTileSetStore.insertOrUpdateTileSet(it) }
       }
@@ -103,9 +106,9 @@ constructor(
    * intersect a given area.
    */
   // TODO: Simplify this stream.
-  private fun getOfflineAreaTileSets(offlineArea: OfflineArea): @Cold Single<List<TileSet>> =
+  private fun getOfflineAreaTileSets(offlineArea: OfflineArea): @Cold Single<List<MbtilesFile>> =
     surveyRepository.activeSurveyFlowable
-      .map { it.map(Survey::baseMaps).orElse(listOf()) }
+      .map { it.map(Survey::tileSources).orElse(listOf()) }
       .doOnError { throwable ->
         Timber.e(throwable, "no basemap sources specified for the active survey")
       }
@@ -142,13 +145,13 @@ constructor(
    * equal if their URLs are equal.
    */
   private fun downloadedTileSetsIntersection(
-    tileSets: Collection<TileSet>,
-    other: Collection<TileSet>
-  ): Set<TileSet> {
+    mbtilesFiles: Collection<MbtilesFile>,
+    other: Collection<MbtilesFile>
+  ): Set<MbtilesFile> {
     val otherUrls = other.map { it.url }
-    return tileSets
+    return mbtilesFiles
       .filter { otherUrls.contains(it.url) }
-      .filter { it.state === TileSet.State.DOWNLOADED }
+      .filter { it.downloadState === MbtilesFile.DownloadState.DOWNLOADED }
       .toPersistentSet()
   }
 
@@ -159,7 +162,7 @@ constructor(
    */
   fun getIntersectingDownloadedTileSetsOnceAndStream(
     offlineArea: OfflineArea
-  ): @Cold(terminates = false) Flowable<Set<TileSet>> =
+  ): @Cold(terminates = false) Flowable<Set<MbtilesFile>> =
     getOfflineAreaTileSets(offlineArea)
       .flatMapPublisher { tiles ->
         downloadedTileSetsOnceAndStream().map { tileSet ->
@@ -173,16 +176,18 @@ constructor(
    * Retrieves a set of downloaded tiles that intersect with {@param offlineArea}. Triggers
    * `onError` only if there is a problem accessing the local store.
    */
-  fun getIntersectingDownloadedTileSetsOnce(offlineArea: OfflineArea): @Cold Maybe<Set<TileSet>> =
+  fun getIntersectingDownloadedTileSetsOnce(
+    offlineArea: OfflineArea
+  ): @Cold Maybe<Set<MbtilesFile>> =
     getIntersectingDownloadedTileSetsOnceAndStream(offlineArea).firstElement()
 
   /**
    * Retrieves all downloaded tile sources from the local store. Triggers `onError` only if there is
    * a problem accessing the local store; does not trigger an error on empty rows.
    */
-  fun downloadedTileSetsOnceAndStream(): @Cold(terminates = false) Flowable<Set<TileSet>> =
+  fun downloadedTileSetsOnceAndStream(): @Cold(terminates = false) Flowable<Set<MbtilesFile>> =
     localTileSetStore.tileSetsOnceAndStream().map { tileSet ->
-      tileSet.filter { it.state === TileSet.State.DOWNLOADED }.toPersistentSet()
+      tileSet.filter { it.downloadState === MbtilesFile.DownloadState.DOWNLOADED }.toPersistentSet()
     }
 
   /**
@@ -194,13 +199,10 @@ constructor(
       .getOfflineAreaById(offlineAreaId)
       .flatMapMaybe { offlineArea -> getIntersectingDownloadedTileSetsOnce(offlineArea) }
       .flatMapObservable { source -> Observable.fromIterable(source) }
-      .map { it.decrementOfflineAreaCount() }
+      .map { it.decrementReferenceCount() }
       .flatMapCompletable { tileSet ->
         localTileSetStore
-          .updateTileSetOfflineAreaReferenceCountByUrl(
-            tileSet.offlineAreaReferenceCount,
-            tileSet.url
-          )
+          .updateTileSetOfflineAreaReferenceCountByUrl(tileSet.referenceCount, tileSet.url)
           .andThen(localTileSetStore.deleteTileSetByUrl(tileSet))
       }
       .andThen(localOfflineAreaStore.deleteOfflineArea(offlineAreaId))
@@ -209,9 +211,9 @@ constructor(
    * Retrieves all tile sources from a GeoJSON basemap specification, regardless of their
    * coordinates.
    */
-  fun tileSets(): Single<List<TileSet>> =
+  fun tileSets(): Single<List<MbtilesFile>> =
     surveyRepository.activeSurveyFlowable
-      .map { it.map(Survey::baseMaps).orElse(listOf()) }
+      .map { it.map(Survey::tileSources).orElse(listOf()) }
       .doOnError { t -> Timber.e(t, "No basemap sources specified for the active survey") }
       .flatMap { source -> Flowable.fromIterable(source) }
       .firstOrError()
@@ -219,26 +221,28 @@ constructor(
       .doOnError { t -> Timber.e(t, "Couldn't retrieve basemap sources for the active survey") }
 
   /**
-   * Returns a list of [TileSet]s corresponding to a given [BaseMap] based on the BaseMap's type.
+   * Returns a list of [MbtilesFile]s corresponding to a given [TileSource] based on the
+   * TileSource's type.
    *
-   * This function may perform network IO when the provided BaseMap requires downloading TileSets
+   * This function may perform network IO when the provided TileSource requires downloading TileSets
    * locally.
    */
   @Throws(IOException::class)
-  private fun getTileSets(baseMap: BaseMap): Single<List<TileSet>> =
-    when (baseMap.type) {
-      BaseMapType.MBTILES_FOOTPRINTS -> {
-        val tileFile = downloadOfflineBaseMapSource(baseMap)
+  private fun getTileSets(tileSource: TileSource): Single<List<MbtilesFile>> =
+    when (tileSource.type) {
+      Type.MBTILES_FOOTPRINTS -> {
+        val tileFile = downloadOfflineBaseMapSource(tileSource)
         geoJsonParser.allTiles(tileFile)
       }
-      BaseMapType.TILED_WEB_MAP -> {
+      Type.MOG_COLLECTION,
+      Type.TILED_WEB_MAP -> {
         Single.just(
           listOf(
-            TileSet(
-              baseMap.url.toString(),
+            MbtilesFile(
+              tileSource.url.toString(),
               offlineUuidGenerator.generateUuid(),
-              baseMap.url.toString(),
-              TileSet.State.PENDING,
+              tileSource.url.toString(),
+              MbtilesFile.DownloadState.PENDING,
               1
             )
           )
@@ -249,11 +253,11 @@ constructor(
         // Try to read a tile from the URL anyway.
         Single.just(
           listOf(
-            TileSet(
-              baseMap.url.toString(),
+            MbtilesFile(
+              tileSource.url.toString(),
               offlineUuidGenerator.generateUuid(),
-              baseMap.url.toString(),
-              TileSet.State.PENDING,
+              tileSource.url.toString(),
+              MbtilesFile.DownloadState.PENDING,
               1
             )
           )
