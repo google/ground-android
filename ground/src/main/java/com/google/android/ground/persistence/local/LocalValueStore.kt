@@ -54,10 +54,11 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
   /** The last map type selected. */
   var mapType: MapType
     get() = allowThreadDiskReads {
-      MapType.values()[preferences.getInt(MAP_TYPE, MapType.DEFAULT.ordinal) - 1]
+      val mapTypeIdx = preferences.getInt(MAP_TYPE, MapType.DEFAULT.ordinal)
+      MapType.values()[mapTypeIdx]
     }
     set(value) = allowThreadDiskWrites {
-      preferences.edit().putInt(MAP_TYPE, value.ordinal + 1).apply()
+      preferences.edit().putInt(MAP_TYPE, value.ordinal).apply()
       mapTypeProcessor.onNext(value)
     }
 

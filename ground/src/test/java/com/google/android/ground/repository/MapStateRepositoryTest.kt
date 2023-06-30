@@ -31,31 +31,31 @@ class MapStateRepositoryTest : BaseHiltTest() {
   @Inject lateinit var mapStateRepository: MapStateRepository
 
   @Test
-  fun testGetMapType_returnsSatellite() {
-    assertThat(mapStateRepository.mapType).isEqualTo(MapType.SATELLITE)
+  fun getMapType_whenNotSet_returnsDefault() {
+    assertThat(mapStateRepository.mapType).isEqualTo(MapType.DEFAULT)
   }
 
   @Test
-  fun testGetMapType_whenTerrain_returnsTerrain() {
+  fun getMapType_whenTerrain_returnsTerrain() {
     mapStateRepository.mapType = MapType.TERRAIN
 
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)
   }
 
   @Test
-  fun testMapTypeFlowable_whenTerrain_returnsTerrain() {
+  fun mapTypeFlowable_whenTerrain_returnsTerrain() {
     mapStateRepository.mapType = MapType.TERRAIN
 
     assertThat(mapStateRepository.mapTypeFlowable.blockingFirst()).isEqualTo(MapType.TERRAIN)
   }
 
   @Test
-  fun testIsLocationLockEnabled_default() {
+  fun isLocationLockEnabled_default() {
     assertThat(mapStateRepository.isLocationLockEnabled).isFalse()
   }
 
   @Test
-  fun testIsLocationLockEnabled_whenLocked_returnsTrue() {
+  fun isLocationLockEnabled_whenLocked_returnsTrue() {
     mapStateRepository.isLocationLockEnabled = true
 
     assertThat(mapStateRepository.isLocationLockEnabled).isTrue()

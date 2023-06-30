@@ -50,32 +50,32 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun test_render() {
+  fun render() {
     assertThat(fragment.isVisible).isTrue()
 
-    onView(withText("Map Type")).check(matches(isDisplayed()))
+    onView(withText("Map type")).check(matches(isDisplayed()))
     onView(withId(R.id.recycler_view)).check(matches(allOf(isDisplayed(), hasChildCount(3))))
     with(R.id.recycler_view) {
-      shouldHaveTextAtPosition("Road Map", 0)
+      shouldHaveTextAtPosition("Road map", 0)
       shouldHaveTextAtPosition("Terrain", 1)
       shouldHaveTextAtPosition("Satellite", 2)
     }
   }
 
   @Test
-  fun test_close() {
+  fun close() {
     onView(withId(R.id.dialog_close_btn)).perform(click())
 
     assertThat(fragment.isVisible).isFalse()
   }
 
   @Test
-  fun test_defaultMapType() {
+  fun defaultMapType() {
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.SATELLITE)
   }
 
   @Test
-  fun test_changeMapType() {
+  fun changeMapType() {
     onView(withText("Terrain")).perform(click())
 
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)
