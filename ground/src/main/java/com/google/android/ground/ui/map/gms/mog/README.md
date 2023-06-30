@@ -33,7 +33,7 @@ To simplify discovery and retrieval, MOGs are organized in collections structure
   space, or tile (0, 0) at zoom level 0. The world MOG consists of one image for each zoom level
   from `0` to `hiResMogMinZoom - 1`.
 
-See [Map and Tile Coordinates])https://developers.google.com/maps/documentation/android-sdk/coordinates)
+See [Map and Tile Coordinates](https://developers.google.com/maps/documentation/android-sdk/coordinates)
 in the Google Maps Platform docs for info.
 
 <!-- TODO: Provide example usage. -->
