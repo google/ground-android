@@ -26,7 +26,7 @@ import java8.util.Optional
 /** A user provided response to a geometry based task. */
 data class GeometryData(val geometry: Geometry) : TaskData {
 
-  // TODO: Fix this!!!
+  // TODO(#1733): Figure out what should be the user visible text for geometry data.
   override fun getDetailsText(): String =
     when (geometry) {
       is Point -> "Point data"

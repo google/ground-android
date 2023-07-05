@@ -66,6 +66,7 @@ internal object ResponseJsonConverter {
   private fun toJsonArray(response: MultipleChoiceTaskData): JSONArray =
     JSONArray().apply { response.selectedOptionIds.forEach { this.put(it) } }
 
+  // TODO(#1735): Replace Optional<TaskData> with TaskData?
   fun toResponse(task: Task, obj: Any): Optional<TaskData> =
     when (task.type) {
       Task.Type.TEXT,
