@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.persistence.local.room.dao
+package com.google.android.ground.persistence.local.room.entity
 
-import androidx.room.Dao
-import androidx.room.Query
-import com.google.android.ground.persistence.local.room.entity.BaseMapEntity
-import io.reactivex.Completable
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.google.android.ground.persistence.local.room.fields.TileSetEntityState
 
-@Dao
-interface BaseMapDao : BaseDao<BaseMapEntity> {
-  @Query("DELETE FROM offline_base_map_source WHERE survey_id = :surveyId")
-  fun deleteBySurveyId(surveyId: String): Completable
-}
+@Entity(tableName = "tile_sources")
+data class MbtilesFileEntity(
+  @ColumnInfo(name = "id") @PrimaryKey val id: String,
+  @ColumnInfo(name = "path") val path: String,
+  @ColumnInfo(name = "url") val url: String,
+  @ColumnInfo(name = "state") val state: TileSetEntityState,
+  @ColumnInfo(name = "ref_count") val referenceCount: Int
+)

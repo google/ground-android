@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,9 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.firebase.firestore.IgnoreExtraProperties
-
-/** Project entity stored in Firestore. */
-@IgnoreExtraProperties
-data class SurveyDocument(
-  val title: String? = null,
-  val description: String? = null,
-  val jobs: Map<String, JobNestedObject>? = null,
-  val acl: Map<String, String>? = null,
-  val tileSources: List<TileSourceNestedObject>? = null
+data class TileSourceNestedObject(
+  val url: String? = null,
+  val type: String? = null,
+  val minHiResZoom: Int? = null,
+  val maxHiResZoom: Int? = null
 )

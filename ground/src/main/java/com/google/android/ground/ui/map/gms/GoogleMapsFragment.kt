@@ -36,16 +36,22 @@ import com.google.android.ground.Config
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.imagery.TileSource
+import com.google.android.ground.model.imagery.TileSource.Type.MOG_COLLECTION
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.Map
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
+import com.google.android.ground.ui.map.gms.mog.MogCollection
+import com.google.android.ground.ui.map.gms.mog.MogTileProvider
 import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
 import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
 import com.google.android.ground.ui.util.BitmapUtil
+import com.google.android.ground.util.invert
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.clustering.Cluster
 import dagger.hilt.android.AndroidEntryPoint
@@ -55,6 +61,7 @@ import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import java.io.File
+import java.net.URL
 import java8.util.function.Consumer
 import javax.inject.Inject
 import kotlin.math.min
@@ -67,7 +74,7 @@ import timber.log.Timber
  * on window insets.
  */
 @AndroidEntryPoint(SupportMapFragment::class)
-class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
+class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   private lateinit var clusterRenderer: FeatureClusterRenderer
 
   /** Map drag events. Emits items when the map drag has started. */
@@ -105,7 +112,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
    */
   private var customCap: CustomCap? = null
 
-  override val availableMapTypes: Array<MapType> = MAP_TYPES
+  override val supportedMapTypes: List<MapType> = IDS_BY_MAP_TYPE.keys.toList()
 
   private val locationOfInterestInteractionSubject: @Hot PublishSubject<List<Feature>> =
     PublishSubject.create()
@@ -116,10 +123,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private val polylineStrokeWidth: Float
     get() = resources.getDimension(R.dimen.polyline_stroke_width)
 
-  override var mapType: Int
-    get() = map.mapType
+  override var mapType: MapType
+    get() = MAP_TYPES_BY_ID[map.mapType]!!
     set(mapType) {
-      map.mapType = mapType
+      map.mapType = IDS_BY_MAP_TYPE[mapType]!!
     }
 
   override var viewport: Bounds
@@ -171,12 +178,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   override fun attachToFragment(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
-    mapAdapter: Consumer<MapFragment>
+    onMapReadyCallback: Consumer<Map>
   ) {
     containerFragment.replaceFragment(containerId, this)
     getMapAsync { googleMap: GoogleMap ->
       onMapReady(googleMap)
-      mapAdapter.accept(this)
+      onMapReadyCallback.accept(this)
     }
   }
 
@@ -383,6 +390,17 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     map.addTileOverlay(TileOverlayOptions().tileProvider(webTileProvider))
   }
 
+  override fun addTileOverlay(tileSource: TileSource) =
+    if (tileSource.type == MOG_COLLECTION) addMogCollectionTileOverlay(tileSource.url)
+    else error("Unsupported tile source type ${tileSource.type}")
+
+  private fun addMogCollectionTileOverlay(url: URL) {
+    // TODO(#1730): Make URLs and zoom level configuration using a standard metadata format (STAC?).
+    val mogCollection = MogCollection("${url}/{z}/world.tif", "${url}/{z}/{x}/{y}.tif", 8, 14)
+    val tileProvider = MogTileProvider(mogCollection)
+    map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
+  }
+
   override fun addWebTileOverlays(urls: List<String>) = urls.forEach { addWebTileOverlay(it) }
 
   override fun setActiveLocationOfInterest(newLoiId: String?) {
@@ -393,12 +411,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   }
 
   companion object {
-    // TODO(#1544): Use optimized icons. Current icons are very large in size.
-    val MAP_TYPES =
-      arrayOf(
-        MapType(GoogleMap.MAP_TYPE_NORMAL, R.string.road_map, R.drawable.ic_type_roadmap),
-        MapType(GoogleMap.MAP_TYPE_TERRAIN, R.string.terrain, R.drawable.ic_type_terrain),
-        MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.satellite, R.drawable.ic_type_satellite)
+    private val IDS_BY_MAP_TYPE =
+      mapOf(
+        MapType.ROAD to GoogleMap.MAP_TYPE_NORMAL,
+        MapType.TERRAIN to GoogleMap.MAP_TYPE_TERRAIN,
+        MapType.SATELLITE to GoogleMap.MAP_TYPE_HYBRID
       )
+    private val MAP_TYPES_BY_ID = IDS_BY_MAP_TYPE.invert()
   }
 }

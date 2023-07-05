@@ -13,25 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.basemap.tile
+package com.google.android.ground.model.imagery
 
-/** Represents a source of offline imagery tileset data. */
-data class TileSet(
+/** A single MBTiles file stored in the local file system. */
+data class MbtilesFile(
   val url: String,
   val id: String,
   val path: String,
-  val state: State,
-  val offlineAreaReferenceCount: Int
+  val downloadState: DownloadState,
+  val referenceCount: Int
 ) {
   /** Increment the area reference count of a tile source by one. */
-  fun incrementOfflineAreaCount(): TileSet =
-    copy(offlineAreaReferenceCount = offlineAreaReferenceCount + 1)
+  fun incrementReferenceCount(): MbtilesFile = copy(referenceCount = referenceCount + 1)
 
   /** Decrement the area reference count of a tile source by one. */
-  fun decrementOfflineAreaCount(): TileSet =
-    copy(offlineAreaReferenceCount = offlineAreaReferenceCount - 1)
+  fun decrementReferenceCount(): MbtilesFile = copy(referenceCount = referenceCount - 1)
 
-  enum class State {
+  enum class DownloadState {
     PENDING,
     IN_PROGRESS,
     DOWNLOADED,

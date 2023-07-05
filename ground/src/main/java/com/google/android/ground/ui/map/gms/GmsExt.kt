@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.map.gms
 
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Geometry
@@ -44,6 +43,4 @@ object GmsExt {
 
     return null
   }
-
-  fun defaultMapType(): Int = GoogleMap.MAP_TYPE_HYBRID
 }

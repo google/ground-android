@@ -19,6 +19,7 @@ import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
@@ -28,15 +29,15 @@ import io.reactivex.Observable
 import java8.util.function.Consumer
 
 /** Interface for a Fragment that renders a map view. */
-interface MapFragment {
-  /** Returns a list of supported basemap types. */
-  val availableMapTypes: Array<MapType>
+interface Map {
+  /** A list of map types supported by the map implementation. */
+  val supportedMapTypes: List<MapType>
 
-  /** Returns the current map zoom level. */
+  /** The current map type. */
+  var mapType: MapType
+
+  /** The current map zoom level. */
   val currentZoomLevel: Float
-
-  /** Get or set the current map type. */
-  var mapType: Int
 
   /** Get or set the bounds of the currently visible viewport. */
   var viewport: Bounds
@@ -60,11 +61,11 @@ interface MapFragment {
   /** Returns TileProviders associated with this map adapter. */
   val tileProviders: @Hot Observable<MapBoxOfflineTileProvider>
 
-  /** Adds the [MapFragment] to a fragment. */
+  /** Adds the [Map] to a fragment. */
   fun attachToFragment(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
-    mapAdapter: Consumer<MapFragment>
+    onMapReadyCallback: Consumer<Map>
   )
 
   /** Enables map gestures like pan and zoom. */
@@ -106,4 +107,6 @@ interface MapFragment {
 
   /** Update UI of rendered [LocationOfInterest]. */
   fun setActiveLocationOfInterest(newLoiId: String?)
+
+  fun addTileOverlay(tileSource: TileSource)
 }

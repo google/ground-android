@@ -27,7 +27,7 @@ import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.Map
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -35,7 +35,7 @@ import javax.inject.Inject
 class DropAPinTaskFragment : Hilt_DropAPinTaskFragment<DropAPinTaskViewModel>() {
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
-  @Inject lateinit var mapFragment: MapFragment
+  @Inject lateinit var map: Map
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
     TaskViewFactory.createWithoutHeader(inflater, R.drawable.outline_pin_drop, R.string.drop_a_pin)
@@ -44,11 +44,7 @@ class DropAPinTaskFragment : Hilt_DropAPinTaskFragment<DropAPinTaskViewModel>() 
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
     parentFragmentManager
       .beginTransaction()
-      .add(
-        rowLayout.id,
-        DropAPinMapFragment.newInstance(viewModel, mapFragment),
-        "Drop a pin fragment"
-      )
+      .add(rowLayout.id, DropAPinMapFragment.newInstance(viewModel, map), "Drop a pin fragment")
       .commit()
     return rowLayout
   }

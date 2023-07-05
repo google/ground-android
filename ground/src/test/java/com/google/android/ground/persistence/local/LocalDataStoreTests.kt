@@ -18,12 +18,12 @@ package com.google.android.ground.persistence.local
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
-import com.google.android.ground.model.basemap.OfflineArea
-import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.imagery.MbtilesFile
+import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
@@ -459,11 +459,11 @@ class LocalDataStoreTests : BaseHiltTest() {
         userId = "user id"
       )
     private val TEST_PENDING_TILE_SOURCE =
-      TileSet("some_url 1", "id_1", "some_path 1", TileSet.State.PENDING, 1)
+      MbtilesFile("some_url 1", "id_1", "some_path 1", MbtilesFile.DownloadState.PENDING, 1)
     private val TEST_DOWNLOADED_TILE_SOURCE =
-      TileSet("some_url 2", "id_2", "some_path 2", TileSet.State.DOWNLOADED, 1)
+      MbtilesFile("some_url 2", "id_2", "some_path 2", MbtilesFile.DownloadState.DOWNLOADED, 1)
     private val TEST_FAILED_TILE_SOURCE =
-      TileSet("some_url 3", "id_3", "some_path 3", TileSet.State.FAILED, 1)
+      MbtilesFile("some_url 3", "id_3", "some_path 3", MbtilesFile.DownloadState.FAILED, 1)
     private val TEST_OFFLINE_AREA =
       OfflineArea(
         "id_1",
