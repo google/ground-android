@@ -95,7 +95,7 @@ internal object SubmissionConverter {
       Task.Type.DATE -> putDateResponse(taskId, obj, responses)
       Task.Type.TIME -> putTimeResponse(taskId, obj, responses)
       Task.Type.DROP_A_PIN -> putDropAPinResponse(taskId, obj, responses)
-      Task.Type.DRAW_POLYGON -> putGeometryResponse(taskId, obj, responses)
+      Task.Type.DRAW_POLYGON -> putDrawPolygonResponse(taskId, obj, responses)
       else -> throw DataStoreException("Unknown type " + task.type)
     }
   }
@@ -135,7 +135,7 @@ internal object SubmissionConverter {
     }
   }
 
-  private fun putGeometryResponse(
+  private fun putDrawPolygonResponse(
     taskId: String,
     obj: Any,
     responses: MutableMap<String, TaskData>
