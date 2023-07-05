@@ -176,6 +176,9 @@ dependencies {
     // GeoJSON support
     implementation 'com.google.code.gson:gson:2.10'
 
+    // Test Json
+    testImplementation 'org.json:json:20180813'
+
     // Firebase and related libraries.
     implementation platform('com.google.firebase:firebase-bom:31.1.1')
     implementation 'com.google.firebase:firebase-analytics'

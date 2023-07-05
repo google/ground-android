@@ -19,6 +19,7 @@ import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
@@ -106,4 +107,6 @@ interface Map {
 
   /** Update UI of rendered [LocationOfInterest]. */
   fun setActiveLocationOfInterest(newLoiId: String?)
+
+  fun addTileOverlay(tileSource: TileSource)
 }

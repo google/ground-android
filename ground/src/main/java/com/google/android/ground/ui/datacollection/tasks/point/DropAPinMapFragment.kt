@@ -24,7 +24,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTaskFragBinding
-import com.google.android.ground.model.submission.DropAPinTaskData
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinate
@@ -64,7 +65,7 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.taskDataValue.collect {
-          setDroppedPinAsInfoCard((it as? DropAPinTaskData)?.cameraPosition)
+          setDroppedPinAsInfoCard((it as? GeometryData)?.geometry as? Point)
         }
       }
     }
@@ -82,12 +83,12 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
     }
   }
 
-  private fun setDroppedPinAsInfoCard(cameraPosition: CameraPosition?) {
-    if (cameraPosition == null) {
+  private fun setDroppedPinAsInfoCard(point: Point?) {
+    if (point == null) {
       binding.infoCard.visibility = View.GONE
     } else {
       binding.cardTitle.setText(R.string.dropped_pin)
-      binding.cardValue.text = processCoordinate(cameraPosition.target!!)
+      binding.cardValue.text = processCoordinate(point.coordinate)
       binding.infoCard.visibility = View.VISIBLE
     }
   }

@@ -19,26 +19,27 @@ import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.toLiveData
 import com.google.android.ground.R
-import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.model.imagery.OfflineArea
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
+import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Event
-import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.Bounds
+import com.google.android.ground.ui.map.Map
 import com.google.android.ground.ui.map.MapController
-import io.reactivex.Flowable
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import javax.inject.Inject
 import timber.log.Timber
 
+/** States and behaviors of Map UI used to select areas for download and viewing offline. */
 class OfflineAreaSelectorViewModel
 @Inject
 internal constructor(
@@ -46,6 +47,7 @@ internal constructor(
   private val offlineUuidGenerator: OfflineUuidGenerator,
   private val resources: Resources,
   locationManager: LocationManager,
+  surveyRepository: SurveyRepository,
   mapStateRepository: MapStateRepository,
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
@@ -64,9 +66,8 @@ internal constructor(
   }
 
   private val downloadClicks: @Hot FlowableProcessor<OfflineArea> = PublishProcessor.create()
-  private val remoteTileRequests: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
   val downloadMessages: LiveData<Event<DownloadMessage>>
-  val remoteTileSets: Flowable<List<MbtilesFile>>
+  val tileSources: List<TileSource>
   private var viewport: Bounds? = null
 
   init {
@@ -80,7 +81,7 @@ internal constructor(
             .map { Event.create(it) }
         }
         .toLiveData()
-    remoteTileSets = remoteTileRequests.switchMapSingle { offlineAreaRepository.tileSets() }
+    tileSources = surveyRepository.activeSurvey!!.tileSources
   }
 
   private fun onEnqueueError(e: Throwable): DownloadMessage {
@@ -105,5 +106,8 @@ internal constructor(
     }
   }
 
-  fun requestRemoteTileSets() = remoteTileRequests.onNext(Nil.NIL)
+  fun onMapReady(map: Map) {
+    tileSources.forEach { map.addTileOverlay(it) }
+    disposeOnClear(cameraBoundUpdates.subscribe(this::setViewport))
+  }
 }

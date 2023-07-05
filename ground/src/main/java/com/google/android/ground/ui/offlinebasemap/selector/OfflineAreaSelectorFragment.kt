@@ -23,7 +23,6 @@ import android.view.ViewGroup
 import com.google.android.ground.R
 import com.google.android.ground.databinding.OfflineBaseMapSelectorFragBinding
 import com.google.android.ground.rx.Event
-import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
@@ -74,15 +73,7 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
     return binding.root
   }
 
-  override fun onMapReady(map: Map) {
-    viewModel.remoteTileSets
-      .map { tileSets -> tileSets.map { it.url } }
-      .`as`(autoDisposable(this))
-      .subscribe(map::addWebTileOverlays)
-
-    viewModel.requestRemoteTileSets()
-    viewModel.cameraBoundUpdates.`as`(autoDisposable(this)).subscribe(viewModel::setViewport)
-  }
+  override fun onMapReady(map: Map) = viewModel.onMapReady(map)
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
 }

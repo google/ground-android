@@ -17,13 +17,20 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import android.content.res.Resources
 import androidx.lifecycle.viewModelScope
-import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.GeometryValidator.isComplete
+import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
+import java8.util.Optional
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -137,7 +144,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     isMarkedComplete = true
 
     refreshFeatures(vertices, true)
-    // TODO(#1351): Serialize the polygon and update response
+    setResponse(Optional.of(GeometryData(createGeometry(vertices, true))))
   }
 
   /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */
@@ -149,20 +156,22 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
         Feature(
           id = uuidGenerator.generateUuid(),
           type = FeatureType.USER_POLYGON.ordinal,
-          geometry = createGeometry(points.map { it.coordinate }, isMarkedComplete)
+          geometry = createGeometry(points, isMarkedComplete)
         )
       }
   }
 
   /** Returns a map geometry to be drawn based on given list of points. */
-  private fun createGeometry(coordinates: List<Coordinate>, isMarkedComplete: Boolean): Geometry =
-    if (isMarkedComplete && coordinates.isComplete()) {
+  private fun createGeometry(points: List<Point>, isMarkedComplete: Boolean): Geometry {
+    val coordinates = points.map { it.coordinate }
+    return if (isMarkedComplete && coordinates.isComplete()) {
       Polygon(LinearRing(coordinates))
     } else if (coordinates.isComplete()) {
       LinearRing(coordinates)
     } else {
       LineString(coordinates)
     }
+  }
 
   companion object {
     /** Min. distance in dp between two points for them be considered as overlapping. */
