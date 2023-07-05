@@ -15,6 +15,8 @@
  */
 package com.google.android.ground.model.geometry
 
+import com.google.android.ground.ui.map.gms.GmsExt.center
+import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -30,6 +32,12 @@ sealed interface Geometry {
   val size: Int
     get() = vertices.size
 
+  /**
+   * Returns the center coordinate of the geometry. It may or may not be within the geometry bounds
+   * if the shape is irregular.
+   */
+  fun center(): Coordinate
+
   /** Validates that the current [Geometry] is well-formed. */
   fun validate() {
     // default no-op implementation
@@ -44,6 +52,8 @@ sealed interface Geometry {
 @SerialName("polygon")
 data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()) : Geometry {
   override val vertices: List<Point> = shell.vertices
+
+  override fun center(): Coordinate = shell.center()
 }
 
 /** Represents a single point. */
@@ -51,6 +61,8 @@ data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()
 @SerialName("point")
 data class Point(val coordinate: Coordinate) : Geometry {
   override val vertices: List<Point> = listOf(this)
+
+  override fun center(): Coordinate = coordinate
 }
 
 /** A collection of [Polygon]s. */
@@ -58,6 +70,8 @@ data class Point(val coordinate: Coordinate) : Geometry {
 @SerialName("multi_polygon")
 data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
   override val vertices: List<Point> = polygons.flatMap { it.vertices }
+
+  override fun center(): Coordinate = polygons.map { it.center() }.centerOrError()
 }
 
 /** A sequence of two or more vertices modelling an OCG style line string. */
@@ -65,6 +79,8 @@ data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
 @SerialName("line_string")
 data class LineString(val coordinates: List<Coordinate>) : Geometry {
   override val vertices: List<Point> = coordinates.map { Point(it) }
+
+  override fun center(): Coordinate = coordinates.centerOrError()
 }
 
 /**
@@ -80,6 +96,8 @@ data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
   }
 
   override val vertices: List<Point> = coordinates.map { Point(it) }
+
+  override fun center(): Coordinate = coordinates.centerOrError()
 
   override fun validate() {
     // TODO(#1647): Check for vertices count > 3
@@ -119,6 +137,10 @@ data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
   fun contains(other: LinearRing) =
     this.maximum() >= other.maximum() && this.minimum() <= other.minimum()
 }
+
+/** Returns the center coordinate of the bounding box from the given list of coordinates. */
+private fun List<Coordinate>?.centerOrError(): Coordinate =
+  this?.map { Point(it) }?.toBounds()?.center() ?: error("missing vertices")
 
 val geometrySerializer = Json {
   SerializersModule {
