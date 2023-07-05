@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.persistence.local.stores
 
-import com.google.android.ground.model.basemap.tile.TileSet
+import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -27,26 +27,26 @@ interface LocalTileSetStore {
    * Returns a long-lived stream that emits the full set of tiles on subscribe and continues to
    * return the full set each time a tile is added/changed/removed.
    */
-  fun tileSetsOnceAndStream(): Flowable<Set<TileSet>>
+  fun tileSetsOnceAndStream(): Flowable<Set<MbtilesFile>>
 
   /**
    * Attempts to update a tile in the local data store. If the tile doesn't exist, inserts the tile
    * into the local data store.
    */
-  fun insertOrUpdateTileSet(tileSet: TileSet): @Cold Completable
+  fun insertOrUpdateTileSet(mbtilesFile: MbtilesFile): @Cold Completable
 
   /** Returns the tile with the specified URL from the local data store, if found. */
-  fun getTileSet(tileUrl: String): @Cold Maybe<TileSet>
+  fun getTileSet(tileUrl: String): @Cold Maybe<MbtilesFile>
 
   /** Returns all pending tiles from the local data store. */
-  fun pendingTileSets(): @Cold Single<List<TileSet>>
+  fun pendingTileSets(): @Cold Single<List<MbtilesFile>>
 
   /**
    * Update the area count of an existing tile source in the local data store with the area count of
-   * [TileSet].
+   * [MbtilesFile].
    */
   fun updateTileSetOfflineAreaReferenceCountByUrl(newCount: Int, url: String): @Cold Completable
 
   /** Delete a tile source associated with a given URL from the local data store. */
-  fun deleteTileSetByUrl(tileSet: TileSet): @Cold Completable
+  fun deleteTileSetByUrl(mbtilesFile: MbtilesFile): @Cold Completable
 }

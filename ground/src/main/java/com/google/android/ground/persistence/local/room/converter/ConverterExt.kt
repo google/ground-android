@@ -18,10 +18,10 @@ package com.google.android.ground.persistence.local.room.converter
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
-import com.google.android.ground.model.basemap.BaseMap
-import com.google.android.ground.model.basemap.OfflineArea
-import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.imagery.MbtilesFile
+import com.google.android.ground.model.imagery.OfflineArea
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
@@ -62,24 +62,24 @@ fun AuditInfoEntity.toModelObject() =
     Optional.ofNullable(serverTimestamp).map { Date(it!!) }
   )
 
-private fun BaseMap.BaseMapType.toLocalDataStoreObject() =
+private fun TileSource.Type.toLocalDataStoreObject() =
   when (this) {
-    BaseMap.BaseMapType.TILED_WEB_MAP -> BaseMapEntity.BaseMapEntityType.IMAGE
-    BaseMap.BaseMapType.MBTILES_FOOTPRINTS -> BaseMapEntity.BaseMapEntityType.GEOJSON
-    else -> BaseMapEntity.BaseMapEntityType.UNKNOWN
+    TileSource.Type.TILED_WEB_MAP -> TileSourceEntity.TileSourceEntityType.IMAGE
+    TileSource.Type.MBTILES_FOOTPRINTS -> TileSourceEntity.TileSourceEntityType.GEOJSON
+    else -> TileSourceEntity.TileSourceEntityType.UNKNOWN
   }
 
-private fun BaseMapEntity.BaseMapEntityType.toModelObject() =
+private fun TileSourceEntity.TileSourceEntityType.toModelObject() =
   when (this) {
-    BaseMapEntity.BaseMapEntityType.IMAGE -> BaseMap.BaseMapType.TILED_WEB_MAP
-    BaseMapEntity.BaseMapEntityType.GEOJSON -> BaseMap.BaseMapType.MBTILES_FOOTPRINTS
-    else -> BaseMap.BaseMapType.UNKNOWN
+    TileSourceEntity.TileSourceEntityType.IMAGE -> TileSource.Type.TILED_WEB_MAP
+    TileSourceEntity.TileSourceEntityType.GEOJSON -> TileSource.Type.MBTILES_FOOTPRINTS
+    else -> TileSource.Type.UNKNOWN
   }
 
-fun BaseMap.toLocalDataStoreObject(surveyId: String) =
-  BaseMapEntity(surveyId = surveyId, url = url.toString(), type = type.toLocalDataStoreObject())
+fun TileSource.toLocalDataStoreObject(surveyId: String) =
+  TileSourceEntity(surveyId = surveyId, url = url.toString(), type = type.toLocalDataStoreObject())
 
-fun BaseMapEntity.toModelObject() = BaseMap(url = URL(url), type = type.toModelObject())
+fun TileSourceEntity.toModelObject() = TileSource(url = URL(url), type = type.toModelObject())
 
 fun Geometry.toLocalDataStoreObject() = GeometryWrapper.fromGeometry(this)
 
@@ -343,14 +343,14 @@ fun SubmissionMutation.toLocalDataStoreObject() =
 
 fun SurveyEntityAndRelations.toModelObject(): Survey {
   val jobMap = jobEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
-  val baseMaps = baseMapEntityAndRelations.map { it.toModelObject() }
+  val tileSources = tileSourceEntityAndRelations.map { it.toModelObject() }
 
   return Survey(
     surveyEntity.id,
     surveyEntity.title!!,
     surveyEntity.description!!,
     jobMap.toPersistentMap(),
-    baseMaps.toPersistentList(),
+    tileSources.toPersistentList(),
     surveyEntity.acl?.toStringMap()!!
   )
 }
@@ -402,37 +402,37 @@ fun TaskEntityAndRelations.toModelObject(): Task {
 
 private fun TileSetEntityState.toModelObject() =
   when (this) {
-    TileSetEntityState.PENDING -> TileSet.State.PENDING
-    TileSetEntityState.IN_PROGRESS -> TileSet.State.IN_PROGRESS
-    TileSetEntityState.DOWNLOADED -> TileSet.State.DOWNLOADED
-    TileSetEntityState.FAILED -> TileSet.State.FAILED
+    TileSetEntityState.PENDING -> MbtilesFile.DownloadState.PENDING
+    TileSetEntityState.IN_PROGRESS -> MbtilesFile.DownloadState.IN_PROGRESS
+    TileSetEntityState.DOWNLOADED -> MbtilesFile.DownloadState.DOWNLOADED
+    TileSetEntityState.FAILED -> MbtilesFile.DownloadState.FAILED
     else -> throw IllegalArgumentException("Unknown tile source state: $this")
   }
 
-private fun TileSet.State.toLocalDataStoreObject() =
+private fun MbtilesFile.DownloadState.toLocalDataStoreObject() =
   when (this) {
-    TileSet.State.PENDING -> TileSetEntityState.PENDING
-    TileSet.State.IN_PROGRESS -> TileSetEntityState.IN_PROGRESS
-    TileSet.State.FAILED -> TileSetEntityState.FAILED
-    TileSet.State.DOWNLOADED -> TileSetEntityState.DOWNLOADED
+    MbtilesFile.DownloadState.PENDING -> TileSetEntityState.PENDING
+    MbtilesFile.DownloadState.IN_PROGRESS -> TileSetEntityState.IN_PROGRESS
+    MbtilesFile.DownloadState.FAILED -> TileSetEntityState.FAILED
+    MbtilesFile.DownloadState.DOWNLOADED -> TileSetEntityState.DOWNLOADED
   }
 
-fun TileSetEntity.toModelObject() =
-  TileSet(
+fun MbtilesFileEntity.toModelObject() =
+  MbtilesFile(
     id = id,
     url = url,
     path = path,
-    offlineAreaReferenceCount = offlineAreaReferenceCount,
-    state = state.toModelObject()
+    referenceCount = referenceCount,
+    downloadState = state.toModelObject()
   )
 
-fun TileSet.toLocalDataStoreObject() =
-  TileSetEntity(
+fun MbtilesFile.toLocalDataStoreObject() =
+  MbtilesFileEntity(
     id = id,
     url = url,
     path = path,
-    offlineAreaReferenceCount = offlineAreaReferenceCount,
-    state = state.toLocalDataStoreObject()
+    referenceCount = referenceCount,
+    state = downloadState.toLocalDataStoreObject()
   )
 
 fun User.toLocalDataStoreObject() =

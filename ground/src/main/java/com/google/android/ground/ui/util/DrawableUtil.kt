@@ -18,10 +18,13 @@ package com.google.android.ground.ui.util
 import android.content.res.Resources
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
+import android.view.View
+import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.core.content.res.ResourcesCompat
+import com.google.android.material.color.MaterialColors
 import javax.inject.Inject
 
 class DrawableUtil @Inject constructor(private val resources: Resources) {
@@ -31,9 +34,9 @@ class DrawableUtil @Inject constructor(private val resources: Resources) {
   private fun getDrawable(@DrawableRes drawableId: Int): Drawable? =
     ResourcesCompat.getDrawable(resources, drawableId, null)
 
-  fun getDrawable(@DrawableRes drawableId: Int, @ColorRes colorId: Int): Drawable? {
+  fun getDrawable(view: View, @DrawableRes drawableId: Int, @AttrRes colorId: Int): Drawable? {
     val drawable = getDrawable(drawableId)
-    drawable?.setColorFilter(getColor(colorId), PorterDuff.Mode.SRC_ATOP)
+    drawable?.setColorFilter(MaterialColors.getColor(view, colorId), PorterDuff.Mode.SRC_ATOP)
     return drawable
   }
 }

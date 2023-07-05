@@ -20,7 +20,8 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.*
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.model.geometry.Coordinate
-import com.google.android.ground.model.submission.LocationTaskData
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -79,7 +80,7 @@ class DropAPinTaskFragmentTest :
     viewModel.updateCameraPosition(testPosition)
     onView(withText("Drop pin")).perform(click())
 
-    hasTaskData(LocationTaskData(testPosition))
+    hasTaskData(GeometryData(Point(Coordinate(10.0, 20.0))))
     buttonIsEnabled("Continue")
     buttonIsEnabled(ButtonAction.UNDO)
     buttonIsHidden("Drop pin")

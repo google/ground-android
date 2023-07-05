@@ -78,7 +78,6 @@
   <string name="sign_out">Sign out</string>
   <string name="change_survey">Change survey</string>
   <string name="collect_data">Collect data</string>
-  <string name="add_location">Add location</string>
   <string name="question_data_collection_title">Question</string>
   <string name="task_number">Task %1$s:</string>
 
@@ -135,10 +134,10 @@
   <string name="submission_delete_confirmation_dialog_title">Delete this submission?"</string>
   <string name="submission_delete_confirmation_dialog_message">This submission will disappear from the map. This change cannot be undone. Are you sure?</string>
 
-  <string name="road_map">Road Map</string>
+  <string name="road_map">Road map</string>
   <string name="satellite">Satellite</string>
   <string name="terrain">Terrain</string>
-  <string name="map_type">Map Type</string>
+  <string name="map_type">Map type</string>
   <string name="close">Close</string>
   <string name="continue_text">Continue</string>
   <string name="select_survey_title">Select a survey to start collecting data</string>
@@ -150,11 +149,16 @@
 
   <string name="drop_pin">Drop pin</string>
 
-  <string name="new_location">Suggest area of interest</string>
+  <string name="new_site">New data collection site</string>
+  <string name="new_site_hint_text">Add new site and submit related data</string>
   <string name="take_a_photo">Take a photo</string>
   <string name="drop_a_pin">Drop a pin</string>
   <string name="draw_an_area">Draw an area</string>
   <string name="accuracy">Accuracy</string>
   <string name="dropped_pin">Dropped pin</string>
   <string name="loading">Loading…</string>
+  <string name="skip_dialog_title">Skip this step?</string>
+  <string name="data_deletion_warning">Data you entered in this step won\'t be saved. Are you sure you want to continue?</string>
+  <string name="go_back_button_label">Go back</string>
+  <string name="confirm_button_label">Confirm</string>
 </resources>

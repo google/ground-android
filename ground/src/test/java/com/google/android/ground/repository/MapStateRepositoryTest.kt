@@ -15,8 +15,8 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.ui.map.MapType
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -31,32 +31,31 @@ class MapStateRepositoryTest : BaseHiltTest() {
   @Inject lateinit var mapStateRepository: MapStateRepository
 
   @Test
-  fun testGetMapType_returnsSatellite() {
-    assertThat(mapStateRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_HYBRID)
+  fun getMapType_whenNotSet_returnsDefault() {
+    assertThat(mapStateRepository.mapType).isEqualTo(MapType.DEFAULT)
   }
 
   @Test
-  fun testGetMapType_whenTerrain_returnsTerrain() {
-    mapStateRepository.mapType = GoogleMap.MAP_TYPE_TERRAIN
+  fun getMapType_whenTerrain_returnsTerrain() {
+    mapStateRepository.mapType = MapType.TERRAIN
 
-    assertThat(mapStateRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
+    assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)
   }
 
   @Test
-  fun testMapTypeFlowable_whenTerrain_returnsTerrain() {
-    mapStateRepository.mapType = GoogleMap.MAP_TYPE_TERRAIN
+  fun mapTypeFlowable_whenTerrain_returnsTerrain() {
+    mapStateRepository.mapType = MapType.TERRAIN
 
-    assertThat(mapStateRepository.mapTypeFlowable.blockingFirst())
-      .isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
+    assertThat(mapStateRepository.mapTypeFlowable.blockingFirst()).isEqualTo(MapType.TERRAIN)
   }
 
   @Test
-  fun testIsLocationLockEnabled_default() {
+  fun isLocationLockEnabled_default() {
     assertThat(mapStateRepository.isLocationLockEnabled).isFalse()
   }
 
   @Test
-  fun testIsLocationLockEnabled_whenLocked_returnsTrue() {
+  fun isLocationLockEnabled_whenLocked_returnsTrue() {
     mapStateRepository.isLocationLockEnabled = true
 
     assertThat(mapStateRepository.isLocationLockEnabled).isTrue()

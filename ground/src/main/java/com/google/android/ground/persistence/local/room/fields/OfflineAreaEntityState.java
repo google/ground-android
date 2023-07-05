@@ -19,7 +19,7 @@ package com.google.android.ground.persistence.local.room.fields;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.TypeConverter;
-import com.google.android.ground.model.basemap.OfflineArea;
+import com.google.android.ground.model.imagery.OfflineArea;
 import com.google.android.ground.persistence.local.room.IntEnum;
 
 /**

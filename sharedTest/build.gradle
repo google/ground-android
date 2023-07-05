@@ -43,7 +43,7 @@ dependencies {
     implementation 'androidx.room:room-runtime:2.4.3'
 
     // Guava
-    implementation 'com.google.guava:guava:30.1-jre'
+    implementation 'com.google.guava:guava:31.1-jre'
 
     // Support for Java streams.
     implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:1.7.4'

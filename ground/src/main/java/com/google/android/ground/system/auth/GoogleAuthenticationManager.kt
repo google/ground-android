@@ -45,7 +45,6 @@ constructor(resources: Resources, private val activityStreams: ActivityStreams) 
   private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
   private val googleSignInOptions: GoogleSignInOptions
 
-  // TODO: Update Fragments to access via ProjectRepository rather than directly.
   init {
     googleSignInOptions =
       GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

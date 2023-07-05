@@ -21,7 +21,7 @@
   android:shape="oval">
   <size android:width="40dp" android:height="40dp"/>
   <stroke
-    android:color="@color/colorAccent"
+    android:color="?attr/colorPrimary"
     android:width="1dp"/>
   <solid android:color="@android:color/transparent" />
 </shape>

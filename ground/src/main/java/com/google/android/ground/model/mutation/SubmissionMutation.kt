@@ -30,8 +30,8 @@ data class SubmissionMutation(
   override val retryCount: Long = 0,
   override val lastError: String = "",
   val job: Job? = null,
-  var submissionId: String = "",
-  var taskDataDeltas: List<TaskDataDelta> = listOf()
+  val submissionId: String = "",
+  val taskDataDeltas: List<TaskDataDelta> = listOf()
 ) : Mutation() {
 
   override fun toString(): String = super.toString() + "deltas= $taskDataDeltas"
@@ -44,7 +44,6 @@ data class SubmissionMutation(
           when (it) {
             is LocationOfInterestMutation -> false
             is SubmissionMutation -> true
-            else -> false
           }
         }
         .map { it as SubmissionMutation }

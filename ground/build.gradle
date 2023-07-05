@@ -112,10 +112,10 @@ android {
         }
     }
 
-    // Keep the following configuration in order to target Java 8.
+    // Keep the following configuration in order to target Java 9.
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_9
+        targetCompatibility JavaVersion.VERSION_1_9
     }
     buildFeatures {
         dataBinding true
@@ -161,6 +161,7 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation "androidx.compose.material3:material3:1.1.0"
 
     // Support for Java streams.
     implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:1.7.4'
@@ -174,6 +175,9 @@ dependencies {
 
     // GeoJSON support
     implementation 'com.google.code.gson:gson:2.10'
+
+    // Test Json
+    testImplementation 'org.json:json:20180813'
 
     // Firebase and related libraries.
     implementation platform('com.google.firebase:firebase-bom:31.1.1')
@@ -297,6 +301,8 @@ dependencies {
     debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
     //noinspection AndroidLintFragmentGradleConfiguration
     stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
+
+    implementation "com.google.guava:guava:31.1-android"
 }
 
 // Allow references to generated code.

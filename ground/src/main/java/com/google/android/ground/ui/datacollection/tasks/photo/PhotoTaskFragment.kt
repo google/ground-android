@@ -88,7 +88,6 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
 
     viewModel.setEditable(true)
     viewModel.setSurveyId(dataCollectionViewModel.surveyId)
-    viewModel.setSubmissionId(requireNotNull(dataCollectionViewModel.submission.value).id)
     viewModel.setTaskWaitingForPhoto(taskWaitingForPhoto)
     viewModel.setCapturedPhotoPath(capturedPhotoPath)
 

@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.persistence.local.room.converter
 
+import android.util.Base64
 import androidx.room.TypeConverter
 import com.google.android.ground.persistence.local.room.entity.GeometryWrapper
 import kotlinx.serialization.decodeFromByteArray
@@ -26,7 +27,7 @@ import timber.log.Timber
 object GeometryWrapperTypeConverter {
 
   @TypeConverter
-  fun toByteArray(geometryWrapper: GeometryWrapper?): ByteArray? =
+  fun toByteArray(geometryWrapper: GeometryWrapper?): ByteArray =
     geometryWrapper?.getGeometry().let { ProtoBuf.encodeToByteArray(it) }
 
   @TypeConverter
@@ -37,4 +38,10 @@ object GeometryWrapperTypeConverter {
       Timber.d(e, "Invalid Geometry in db")
       null
     }
+
+  fun toString(geometryWrapper: GeometryWrapper?): String =
+    Base64.encodeToString(toByteArray(geometryWrapper), Base64.DEFAULT)
+
+  fun fromString(byteArrayString: String): GeometryWrapper? =
+    fromByteArray(Base64.decode(byteArrayString, Base64.DEFAULT))
 }

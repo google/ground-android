@@ -15,12 +15,15 @@
  */
 package com.google.android.ground.util
 
+import timber.log.Timber
+
 object Enums {
   @JvmStatic
   fun <T : Enum<T>> toEnum(enumClass: Class<T>, value: String): T =
     try {
       java.lang.Enum.valueOf(enumClass, value.uppercase())
     } catch (e: IllegalArgumentException) {
+      Timber.e(e, "Failed to convert $value to enum $enumClass")
       enumClass.enumConstants?.get(0)!!
     }
 }

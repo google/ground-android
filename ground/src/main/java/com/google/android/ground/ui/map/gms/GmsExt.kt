@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.ui.map.gms
 
-import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.ui.map.Bounds
@@ -33,5 +33,14 @@ object GmsExt {
 
   fun Bounds.center(): Coordinate = toGoogleMapsObject().center.toModelObject()
 
-  fun defaultMapType(): Int = GoogleMap.MAP_TYPE_HYBRID
+  fun List<Geometry>.toBounds(): Bounds? {
+    val coordinates = this.map { it.vertices.first().coordinate }
+    if (coordinates.isNotEmpty()) {
+      val bounds = LatLngBounds.builder()
+      coordinates.forEach { bounds.include(it.toGoogleMapsObject()) }
+      return bounds.build().toModelObject()
+    }
+
+    return null
+  }
 }

@@ -69,6 +69,6 @@
       android:layout_height="wrap_content"
       android:layout_alignParentBottom="true"
       android:alpha="0"
-      android:background="@color/colorGrey300" />
+      android:background="?attr/colorSurfaceVariant" />
   </RelativeLayout>
 </layout>

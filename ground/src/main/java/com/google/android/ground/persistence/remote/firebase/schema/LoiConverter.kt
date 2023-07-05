@@ -25,10 +25,10 @@ import com.google.firebase.firestore.DocumentSnapshot
 /** Converts between Firestore documents and [LocationOfInterest] instances. */
 object LoiConverter {
   const val JOB_ID = "jobId"
-  const val LOCATION = "location"
   const val CREATED = "created"
   const val LAST_MODIFIED = "lastModified"
   const val GEOMETRY_TYPE = "type"
+  const val POINT_TYPE = "Point"
   const val POLYGON_TYPE = "Polygon"
   const val GEOMETRY_COORDINATES = "coordinates"
   const val GEOMETRY = "geometry"

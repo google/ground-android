@@ -152,7 +152,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     advanceUntilIdle()
 
     verify(submissionRepository)
-      .createOrUpdateSubmission(eq(SUBMISSION), capture(taskDataDeltaCaptor), eq(true))
+      .saveSubmission(eq(SURVEY.id), eq(LOCATION_OF_INTEREST.id), capture(taskDataDeltaCaptor))
     expectedTaskDataDeltas.forEach { taskData ->
       assertThat(taskDataDeltaCaptor.value).contains(taskData)
     }

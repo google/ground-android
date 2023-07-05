@@ -32,19 +32,28 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.ground.Config
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.imagery.TileSource
+import com.google.android.ground.model.imagery.TileSource.Type.MOG_COLLECTION
 import com.google.android.ground.model.job.Style
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.Map
+import com.google.android.ground.ui.map.gms.GmsExt.toBounds
+import com.google.android.ground.ui.map.gms.mog.MogCollection
+import com.google.android.ground.ui.map.gms.mog.MogTileProvider
+import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
+import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
 import com.google.android.ground.ui.util.BitmapUtil
+import com.google.android.ground.util.invert
 import com.google.maps.android.PolyUtil
+import com.google.maps.android.clustering.Cluster
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -52,6 +61,7 @@ import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import java.io.File
+import java.net.URL
 import java8.util.function.Consumer
 import javax.inject.Inject
 import kotlin.math.min
@@ -64,7 +74,7 @@ import timber.log.Timber
  * on window insets.
  */
 @AndroidEntryPoint(SupportMapFragment::class)
-class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
+class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   private lateinit var clusterRenderer: FeatureClusterRenderer
 
   /** Map drag events. Emits items when the map drag has started. */
@@ -87,8 +97,8 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   override val tileProviders: @Hot Observable<MapBoxOfflineTileProvider> = tileProvidersSubject
 
-  private val polylines: MutableMap<Feature, MutableList<Polyline>> = HashMap()
-  private val polygons: MutableMap<Feature, MutableList<MapsPolygon>> = HashMap()
+  private lateinit var polylineRenderer: PolylineRenderer
+  private lateinit var polygonRenderer: PolygonRenderer
 
   @Inject lateinit var bitmapUtil: BitmapUtil
 
@@ -102,7 +112,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
    */
   private var customCap: CustomCap? = null
 
-  override val availableMapTypes: Array<MapType> = MAP_TYPES
+  override val supportedMapTypes: List<MapType> = IDS_BY_MAP_TYPE.keys.toList()
 
   private val locationOfInterestInteractionSubject: @Hot PublishSubject<List<Feature>> =
     PublishSubject.create()
@@ -110,13 +120,13 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   override val locationOfInterestInteractions: @Hot Observable<List<Feature>> =
     locationOfInterestInteractionSubject
 
-  private val polylineStrokeWidth: Int
-    get() = resources.getDimension(R.dimen.polyline_stroke_width).toInt()
+  private val polylineStrokeWidth: Float
+    get() = resources.getDimension(R.dimen.polyline_stroke_width)
 
-  override var mapType: Int
-    get() = map.mapType
+  override var mapType: MapType
+    get() = MAP_TYPES_BY_ID[map.mapType]!!
     set(mapType) {
-      map.mapType = mapType
+      map.mapType = IDS_BY_MAP_TYPE[mapType]!!
     }
 
   override var viewport: Bounds
@@ -168,28 +178,37 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   override fun attachToFragment(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
-    mapAdapter: Consumer<MapFragment>
+    onMapReadyCallback: Consumer<Map>
   ) {
     containerFragment.replaceFragment(containerId, this)
     getMapAsync { googleMap: GoogleMap ->
       onMapReady(googleMap)
-      mapAdapter.accept(this)
+      onMapReadyCallback.accept(this)
     }
   }
 
   private fun onMapReady(map: GoogleMap) {
     this.map = map
-    this.clusterManager = FeatureClusterManager(context, map)
-    this.clusterRenderer =
+
+    // TODO(jsunde): Figure out where we want to get the style from parseColor(Style().color)
+    val featureColor = parseColor(Style().color)
+
+    clusterManager = FeatureClusterManager(context, map)
+    clusterRenderer =
       FeatureClusterRenderer(
-        context,
+        requireContext(),
         map,
         clusterManager,
         Config.CLUSTERING_ZOOM_THRESHOLD,
-        map.cameraPosition.zoom
+        map.cameraPosition.zoom,
+        featureColor
       )
-    clusterManager.setOnClusterItemClickListener(this::onClusterItemClick)
+    clusterManager.setOnClusterClickListener(this::onClusterItemClick)
     clusterManager.renderer = clusterRenderer
+
+    polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth, featureColor)
+    polygonRenderer =
+      PolygonRenderer(map, polylineStrokeWidth, parseColor("#55ffffff"), featureColor)
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
@@ -205,13 +224,18 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     }
   }
 
+  private fun onClusterItemClick(cluster: Cluster<FeatureClusterItem>): Boolean {
+    // Move the camera to point to LOIs within the current cluster
+    cluster.items.map { it.feature.geometry }.toBounds()?.let { moveCamera(it) }
+    return true
+  }
+
   // Handle taps on ambiguous features.
   private fun handleAmbiguity(latLng: LatLng) {
     val candidates = mutableListOf<Feature>()
     val processed = ArrayList<String>()
 
-    for ((feature, value) in
-      polygons.filter { it.key.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal }) {
+    for ((feature, value) in polygonRenderer.getPolygonsWithLoi()) {
       val loiId = feature.tag.id
 
       if (processed.contains(loiId)) {
@@ -232,17 +256,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     }
   }
 
-  /** Handles both cluster and marker clicks. */
-  private fun onClusterItemClick(item: FeatureClusterItem): Boolean =
-    if (map.uiSettings.isZoomGesturesEnabled) {
-      locationOfInterestInteractionSubject.onNext(listOf(item.feature))
-      // Allow map to pan to marker.
-      false
-    } else {
-      // Prevent map from panning to marker.
-      true
-    }
-
   override fun getDistanceInPixels(coordinate1: Coordinate, coordinate2: Coordinate): Double {
     val projection = map.projection
     val loc1 = projection.toScreenLocation(coordinate1.toGoogleMapsObject())
@@ -262,8 +275,9 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   override fun moveCamera(coordinate: Coordinate, zoomLevel: Float) =
     map.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate.toGoogleMapsObject(), zoomLevel))
 
-  private fun addMultiPolygon(locationOfInterest: Feature, multiPolygon: MultiPolygon) =
-    multiPolygon.polygons.forEach { addPolygon(locationOfInterest, it) }
+  override fun moveCamera(bounds: Bounds) {
+    map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 100))
+  }
 
   private fun getCustomCap(): CustomCap {
     if (customCap == null) {
@@ -271,47 +285,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
       customCap = CustomCap(BitmapDescriptorFactory.fromBitmap(bitmap))
     }
     return checkNotNull(customCap)
-  }
-
-  private fun addPolyline(feature: Feature, points: List<Point>) {
-    val options = PolylineOptions()
-    options.clickable(false)
-
-    val shellVertices = points.map { it.toLatLng() }
-    options.addAll(shellVertices)
-
-    val polyline: Polyline = map.addPolyline(options)
-    polyline.tag = points
-    polyline.startCap = getCustomCap()
-    polyline.endCap = getCustomCap()
-    polyline.width = polylineStrokeWidth.toFloat()
-    // TODO(jsunde): Figure out where we want to get the style from
-    polyline.color = parseColor(Style().color)
-    polyline.jointType = JointType.ROUND
-
-    polylines.getOrPut(feature) { mutableListOf() }.add(polyline)
-  }
-
-  private fun addPolygon(feature: Feature, polygon: Polygon) {
-    val options = PolygonOptions()
-    options.clickable(false)
-
-    val shellVertices = polygon.shell.vertices.map { it.toLatLng() }
-    options.addAll(shellVertices)
-
-    val holes = polygon.holes.map { hole -> hole.vertices.map { point -> point.toLatLng() } }
-    holes.forEach { options.addHole(it) }
-
-    val mapsPolygon = map.addPolygon(options)
-    mapsPolygon.tag = Pair(feature.tag.id, LocationOfInterest::javaClass)
-    mapsPolygon.strokeWidth = polylineStrokeWidth.toFloat()
-    // TODO(jsunde): Figure out where we want to get the style from
-    //  parseColor(Style().color)
-    mapsPolygon.fillColor = parseColor("#55ffffff")
-    mapsPolygon.strokeColor = parseColor(Style().color)
-    mapsPolygon.strokeJointType = JointType.ROUND
-
-    polygons.getOrPut(feature) { mutableListOf() }.add(mapsPolygon)
   }
 
   private fun onMapClick(latLng: LatLng) = handleAmbiguity(latLng)
@@ -325,45 +298,28 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   private fun removeStaleFeatures(features: Set<Feature>) {
     removeStalePoints(features)
-    removeStalePolylines(features)
-    removeStalePolygons(features)
+    polylineRenderer.removeStaleFeatures(features)
+    polygonRenderer.removeStaleFeatures(features)
   }
 
   private fun removeStalePoints(features: Set<Feature>) {
     clusterManager.removeStaleFeatures(features)
   }
 
-  private fun removeStalePolylines(features: Set<Feature>) {
-    val deletedIds = polylines.keys.map { it.tag.id } - features.map { it.tag.id }.toSet()
-    val deletedPolylines = polylines.filter { deletedIds.contains(it.key.tag.id) }
-    deletedPolylines.values.forEach { it.forEach(Polyline::remove) }
-    polylines.minusAssign(deletedPolylines.keys)
-  }
-
-  private fun removeStalePolygons(features: Set<Feature>) {
-    val deletedIds = polygons.keys.map { it.tag.id } - features.map { it.tag.id }.toSet()
-    val deletedPolygons = polygons.filter { deletedIds.contains(it.key.tag.id) }
-    deletedPolygons.values.forEach { it.forEach(MapsPolygon::remove) }
-    polygons.minusAssign(deletedPolygons.keys)
-  }
-
   private fun removeAllFeatures() {
     clusterManager.removeAllFeatures()
-
-    polylines.values.forEach { it.forEach(Polyline::remove) }
-    polylines.clear()
-
-    polygons.values.forEach { it.forEach(MapsPolygon::remove) }
-    polygons.clear()
+    polylineRenderer.removeAllFeatures()
+    polygonRenderer.removeAllFeatures()
   }
 
   private fun addOrUpdateLocationOfInterest(feature: Feature) {
     when (feature.geometry) {
       is Point -> clusterManager.addOrUpdateLocationOfInterestFeature(feature)
       is LineString,
-      is LinearRing -> addPolyline(feature, feature.geometry.vertices)
-      is Polygon -> addPolygon(feature, feature.geometry)
-      is MultiPolygon -> addMultiPolygon(feature, feature.geometry)
+      is LinearRing -> polylineRenderer.addFeature(feature, feature.geometry)
+      is Polygon -> polygonRenderer.addFeature(feature, feature.geometry)
+      is MultiPolygon ->
+        feature.geometry.polygons.forEach { polygonRenderer.addFeature(feature, it) }
     }
   }
 
@@ -386,7 +342,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     try {
       Color.parseColor(colorHexCode.toString())
     } catch (e: IllegalArgumentException) {
-      Timber.w("Invalid color code in job style: $colorHexCode")
+      Timber.w(e, "Invalid color code in job style: $colorHexCode")
       resources.getColor(R.color.colorMapAccent)
     }
 
@@ -429,12 +385,23 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   override fun addLocalTileOverlays(mbtilesFiles: Set<String>) =
     mbtilesFiles.forEach { filePath -> addTileOverlay(filePath) }
 
-  private fun addRemoteTileOverlay(url: String) {
+  private fun addWebTileOverlay(url: String) {
     val webTileProvider = WebTileProvider(url)
     map.addTileOverlay(TileOverlayOptions().tileProvider(webTileProvider))
   }
 
-  override fun addRemoteTileOverlays(urls: List<String>) = urls.forEach { addRemoteTileOverlay(it) }
+  override fun addTileOverlay(tileSource: TileSource) =
+    if (tileSource.type == MOG_COLLECTION) addMogCollectionTileOverlay(tileSource.url)
+    else error("Unsupported tile source type ${tileSource.type}")
+
+  private fun addMogCollectionTileOverlay(url: URL) {
+    // TODO(#1730): Make URLs and zoom level configuration using a standard metadata format (STAC?).
+    val mogCollection = MogCollection("${url}/{z}/world.tif", "${url}/{z}/{x}/{y}.tif", 8, 14)
+    val tileProvider = MogTileProvider(mogCollection)
+    map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
+  }
+
+  override fun addWebTileOverlays(urls: List<String>) = urls.forEach { addWebTileOverlay(it) }
 
   override fun setActiveLocationOfInterest(newLoiId: String?) {
     clusterRenderer.previousActiveLoiId = clusterManager.activeLocationOfInterest
@@ -444,12 +411,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   }
 
   companion object {
-    // TODO(#1544): Use optimized icons. Current icons are very large in size.
-    val MAP_TYPES =
-      arrayOf(
-        MapType(GoogleMap.MAP_TYPE_NORMAL, R.string.road_map, R.drawable.ic_type_roadmap),
-        MapType(GoogleMap.MAP_TYPE_TERRAIN, R.string.terrain, R.drawable.ic_type_terrain),
-        MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.satellite, R.drawable.ic_type_satellite)
+    private val IDS_BY_MAP_TYPE =
+      mapOf(
+        MapType.ROAD to GoogleMap.MAP_TYPE_NORMAL,
+        MapType.TERRAIN to GoogleMap.MAP_TYPE_TERRAIN,
+        MapType.SATELLITE to GoogleMap.MAP_TYPE_HYBRID
       )
+    private val MAP_TYPES_BY_ID = IDS_BY_MAP_TYPE.invert()
   }
 }

@@ -15,8 +15,8 @@
  */
 package com.google.android.ground.persistence.mbtiles
 
-import com.google.android.ground.model.basemap.tile.TileSet
-import com.google.android.ground.model.basemap.tile.TileSet.Companion.pathFromId
+import com.google.android.ground.model.imagery.MbtilesFile
+import com.google.android.ground.model.imagery.MbtilesFile.Companion.pathFromId
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.ui.map.Bounds
 import io.reactivex.Single
@@ -44,7 +44,7 @@ class MbtilesFootprintParser @Inject constructor(private val uuidGenerator: Offl
       Single.error(e)
     }
 
-  fun allTiles(file: File): Single<List<TileSet>> =
+  fun allTiles(file: File): Single<List<MbtilesFile>> =
     getJsonTileSets(file)
       .map { tilesetJsonList -> tilesetJsonList.map { jsonToTileSet(it) } }
       .doOnError { Timber.e(it) }
@@ -53,24 +53,24 @@ class MbtilesFootprintParser @Inject constructor(private val uuidGenerator: Offl
    * Returns the immutable list of tiles specified in {@param geojson} that intersect {@param
    * bounds}.
    */
-  fun intersectingTiles(bounds: Bounds, file: File): Single<List<TileSet>> =
+  fun intersectingTiles(bounds: Bounds, file: File): Single<List<MbtilesFile>> =
     getJsonTileSets(file)
       .map { tilesetJsonList ->
         tilesetJsonList
           .filter { it.boundsIntersect(bounds) }
-          .map { jsonToTileSet(it).incrementOfflineAreaCount() }
+          .map { jsonToTileSet(it).incrementReferenceCount() }
       }
       .doOnError { Timber.e(it) }
 
   // TODO: Instead of returning tiles with invalid state (empty URL/ID values), throw an exception
   //  here and handle it downstream.
-  /** Returns the [TileSet] specified by {@param json}. */
-  private fun jsonToTileSet(json: TileSetJson): TileSet =
-    TileSet(
+  /** Returns the [MbtilesFile] specified by {@param json}. */
+  private fun jsonToTileSet(json: TileSetJson): MbtilesFile =
+    MbtilesFile(
       json.url.orElse(""),
       uuidGenerator.generateUuid(),
       pathFromId(json.id.orElse("")),
-      TileSet.State.PENDING,
+      MbtilesFile.DownloadState.PENDING,
       0
     )
 

@@ -40,7 +40,7 @@
       android:layout_width="match_parent"
       android:layout_height="@dimen/loi_details_header_height"
       android:layout_marginTop="@dimen/bottom_sheet_margin_top"
-      app:cardBackgroundColor="@color/colorBackground"
+      app:cardBackgroundColor="?attr/colorSurface"
       app:cardCornerRadius="@dimen/loi_details_header_corner_radius"
       app:cardElevation="3dp">
 
@@ -68,7 +68,7 @@
           android:gravity="center_horizontal"
           android:text="@{viewModel.subtitle}"
           android:textAlignment="center"
-          android:textColor="@color/colorGrey600"
+          android:textColor="?attr/colorOnSurfaceVariant"
           android:textSize="12sp"
           tools:text="Location Of Interest Subtitle" />
       </LinearLayout>
@@ -79,7 +79,7 @@
       android:layout_width="match_parent"
       android:layout_height="1dp"
       android:layout_gravity="bottom"
-      android:background="@color/colorGrey300"
+      android:background="?attr/colorSurfaceVariant"
       android:elevation="4dp" />
 
     <!-- HACK: Scrim to obscure bottom rounded corners -->
@@ -87,7 +87,7 @@
       android:layout_width="match_parent"
       android:layout_height="@dimen/loi_details_header_corner_radius"
       android:layout_gravity="bottom"
-      android:background="@color/colorBackground"
+      android:background="?attr/colorSurface"
       android:elevation="3dp" />
 
     <!-- LocationOfInterest icon and upload overlay. -->
@@ -109,7 +109,7 @@
         android:layout_width="18dp"
         android:layout_height="18dp"
         android:layout_gravity="bottom|end"
-        app:tint="@color/colorGrey500"
+        app:tint="?attr/colorOutline"
         app:srcCompat="@drawable/ic_upload_pending"
         app:visible="@{viewModel.isUploadPendingIconVisible()}">
       </ImageView>
