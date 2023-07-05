@@ -30,7 +30,6 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.common.truth.Truth.assertThat
-import com.google.firebase.firestore.GeoPoint
 import com.sharedtest.FakeData
 import java.util.Date
 import java8.util.Optional
@@ -92,8 +91,7 @@ class ResponseJsonConverterTest(
 
     private val pointGeometryTaskData = GeometryData.fromGeometry(Point(Coordinate(10.0, 20.0)))
 
-    private val pointGeometryTaskDataResponse =
-      mapOf(Pair("type", "Point"), Pair("coordinates", GeoPoint(10.0, 20.0)))
+    private const val pointGeometryTaskDataResponse = "HQoFcG9pbnQSFAoSCQAAAAAAACRAEQAAAAAAADRA\n"
 
     private val polygonGeometryTaskData =
       GeometryData.fromGeometry(
@@ -110,23 +108,8 @@ class ResponseJsonConverterTest(
       )
 
     private val polygonGeometryTaskDataResponse =
-      mapOf(
-        Pair("type", "Polygon"),
-        Pair(
-          "coordinates",
-          mapOf(
-            Pair(
-              "0",
-              mapOf(
-                Pair("0", GeoPoint(10.0, 20.0)),
-                Pair("1", GeoPoint(20.0, 30.0)),
-                Pair("2", GeoPoint(30.0, 40.0)),
-                Pair("3", GeoPoint(10.0, 20.0))
-              )
-            )
-          )
-        )
-      )
+      "XQoHcG9seWdvbhJSClAKEgkAAAAAAAAkQBEAAAAAAAA0QAoSCQAAAAAAADRAEQAAAAAAAD5AChIJ\n" +
+        "AAAAAAAAPkARAAAAAAAAREAKEgkAAAAAAAAkQBEAAAAAAAA0QA==\n"
 
     @JvmStatic
     @ParameterizedRobolectricTestRunner.Parameters(name = "task:{0}, data:{1}, jsonObject:{2}")

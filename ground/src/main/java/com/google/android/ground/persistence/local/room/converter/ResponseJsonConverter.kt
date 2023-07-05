@@ -24,8 +24,8 @@ import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.room.entity.GeometryWrapper
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.android.ground.persistence.remote.firebase.schema.GeometryConverter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -48,7 +48,8 @@ internal object ResponseJsonConverter {
       is NumberTaskData -> taskData.value
       is DateTaskData -> dateToIsoString(taskData.date)
       is TimeTaskData -> dateToIsoString(taskData.time)
-      is GeometryData -> GeometryConverter.toFirestoreMap(taskData.geometry).getOrThrow()
+      is GeometryData ->
+        GeometryWrapperTypeConverter.toString(GeometryWrapper.fromGeometry(taskData.geometry))
       else -> throw UnsupportedOperationException("Unimplemented taskData ${taskData.javaClass}")
     }
 
@@ -105,9 +106,9 @@ internal object ResponseJsonConverter {
         if (obj === JSONObject.NULL) {
           Optional.empty()
         } else {
-          Optional.ofNullable(
-            GeometryData(GeometryConverter.fromFirestoreMap(obj as Map<String, *>).getOrThrow())
-          )
+          GeometryData.fromGeometry(
+            GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
+          ) as Optional<TaskData>
         }
       }
       Task.Type.UNKNOWN -> {
