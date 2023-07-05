@@ -42,17 +42,6 @@ data class LocationOfInterest(
   val geometry: Geometry,
 ) {
 
-  // TODO: Delete me once we no longer have Java callers.
-  /** Returns the type of this LOI based on its Geometry. */
-  val type: LocationOfInterestType =
-    when (geometry) {
-      is Point -> LocationOfInterestType.POINT
-      is Polygon -> LocationOfInterestType.POLYGON
-      is LineString -> LocationOfInterestType.LINE_STRING
-      is LinearRing -> LocationOfInterestType.LINEAR_RING
-      is MultiPolygon -> LocationOfInterestType.MULTIPOLYGON
-    }
-
   /**
    * Converts this LOI to a mutation that can be used to update this LOI in the remote and local
    * database.

@@ -40,7 +40,7 @@
       android:layout_height="wrap_content"
       android:onClick="@{()-> viewModel.onTakePhotoClick()}"
       android:text="@string/take_picture"
-      android:textColor="@color/colorAccent"
+      android:textColor="?attr/colorPrimary"
       android:visibility="@{viewModel.isPhotoPresent() ? View.GONE : View.VISIBLE}" />
 
     <include

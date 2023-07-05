@@ -17,9 +17,9 @@ package com.google.android.ground.persistence.local.room.relations
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.google.android.ground.persistence.local.room.entity.BaseMapEntity
 import com.google.android.ground.persistence.local.room.entity.JobEntity
 import com.google.android.ground.persistence.local.room.entity.SurveyEntity
+import com.google.android.ground.persistence.local.room.entity.TileSourceEntity
 
 /**
  * Represents relationship between SurveyEntity and JobEntity.
@@ -30,6 +30,6 @@ data class SurveyEntityAndRelations(
   @Embedded val surveyEntity: SurveyEntity,
   @Relation(parentColumn = "id", entityColumn = "survey_id", entity = JobEntity::class)
   val jobEntityAndRelations: List<JobEntityAndRelations>,
-  @Relation(parentColumn = "id", entityColumn = "survey_id", entity = BaseMapEntity::class)
-  val baseMapEntityAndRelations: List<BaseMapEntity>
+  @Relation(parentColumn = "id", entityColumn = "survey_id", entity = TileSourceEntity::class)
+  val tileSourceEntityAndRelations: List<TileSourceEntity>
 )

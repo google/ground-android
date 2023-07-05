@@ -125,7 +125,7 @@
       android:layout_height="1dp"
       android:layout_gravity="bottom"
       android:layout_marginHorizontal="@dimen/submission_list_item_horizontal_margin"
-      android:background="@color/colorGrey300" />
+      android:background="?attr/colorSurfaceVariant" />
 
   </FrameLayout>
 </layout>

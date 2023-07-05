@@ -20,13 +20,12 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.shouldHaveTextAtPosition
-import com.google.android.ground.ui.map.gms.GoogleMapsFragment
+import com.google.android.ground.ui.map.MapType
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -51,40 +50,40 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun test_render() {
+  fun render() {
     assertThat(fragment.isVisible).isTrue()
 
-    onView(withText("Map Type")).check(matches(isDisplayed()))
+    onView(withText("Map type")).check(matches(isDisplayed()))
     onView(withId(R.id.recycler_view)).check(matches(allOf(isDisplayed(), hasChildCount(3))))
     with(R.id.recycler_view) {
-      shouldHaveTextAtPosition("Road Map", 0)
+      shouldHaveTextAtPosition("Road map", 0)
       shouldHaveTextAtPosition("Terrain", 1)
       shouldHaveTextAtPosition("Satellite", 2)
     }
   }
 
   @Test
-  fun test_close() {
+  fun close() {
     onView(withId(R.id.dialog_close_btn)).perform(click())
 
     assertThat(fragment.isVisible).isFalse()
   }
 
   @Test
-  fun test_defaultMapType() {
-    assertThat(mapStateRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_HYBRID)
+  fun defaultMapType() {
+    assertThat(mapStateRepository.mapType).isEqualTo(MapType.SATELLITE)
   }
 
   @Test
-  fun test_changeMapType() {
+  fun changeMapType() {
     onView(withText("Terrain")).perform(click())
 
-    assertThat(mapStateRepository.mapType).isEqualTo(GoogleMap.MAP_TYPE_TERRAIN)
+    assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)
   }
 
   private fun setupFragment() {
     launchFragmentInHiltContainer<MapTypeDialogFragment>(
-      bundleOf(Pair("mapTypes", GoogleMapsFragment.MAP_TYPES))
+      bundleOf(Pair("mapTypes", MapType.values()))
     ) {
       fragment = this as MapTypeDialogFragment
     }

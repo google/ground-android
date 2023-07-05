@@ -18,7 +18,7 @@ package com.google.android.ground.ui.datacollection.tasks.point
 import android.content.res.Resources
 import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.submission.LocationTaskData
+import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
@@ -45,9 +45,9 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
     features.postValue(setOf())
   }
 
-  fun updateResponse(position: CameraPosition) {
-    setResponse(Optional.of(LocationTaskData(position)))
-    features.postValue(setOf(createFeature(Point(position.target))))
+  fun updateResponse(point: Point) {
+    setResponse(Optional.of(GeometryData(point)))
+    features.postValue(setOf(createFeature(point)))
   }
 
   /** Creates a new map [Feature] representing the point placed by the user. */
@@ -59,6 +59,6 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
     )
 
   fun dropPin() {
-    lastCameraPosition?.let { updateResponse(it) }
+    lastCameraPosition?.let { updateResponse(Point(it.target!!)) }
   }
 }

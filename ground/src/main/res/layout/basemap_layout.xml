@@ -44,7 +44,7 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:fitsSystemWindows="true"
-      tools:background="@color/colorGrey800">
+      tools:background="?attr/colorOnSurfaceVariant">
 
       <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/map_type_btn"
@@ -52,8 +52,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top|end"
         android:onClick="@{() -> fragment.showMapTypeSelectorDialog()}"
-        android:tint="@color/colorGrey500"
-        app:backgroundTint="@color/colorBackground"
+        android:tint="?attr/colorOutline"
+        app:backgroundTint="?attr/colorSurface"
         app:fabSize="mini"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -67,7 +67,7 @@
         android:layout_gravity="bottom|end"
         android:enabled="@{viewModel.getLocationLockEnabled()}"
         android:onClick="@{() -> viewModel.onLocationLockClick()}"
-        app:backgroundTint="@color/colorBackground"
+        app:backgroundTint="?attr/colorSurface"
         app:fabSize="normal"
         app:imageResource="@{viewModel.getLocationLockIcon()}"
         app:layout_constraintBottom_toTopOf="@+id/bottom_container"

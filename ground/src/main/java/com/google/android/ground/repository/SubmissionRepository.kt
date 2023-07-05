@@ -173,6 +173,15 @@ constructor(
       )
     )
 
+  fun saveSubmission(
+    surveyId: String,
+    locationOfInterestId: String,
+    taskDataDeltas: List<TaskDataDelta>
+  ): @Cold Completable =
+    createSubmission(surveyId, locationOfInterestId).flatMapCompletable {
+      createOrUpdateSubmission(it, taskDataDeltas, isNew = true)
+    }
+
   private fun applyAndEnqueue(mutation: SubmissionMutation): @Cold Completable =
     localSubmissionStore
       .applyAndEnqueue(mutation)

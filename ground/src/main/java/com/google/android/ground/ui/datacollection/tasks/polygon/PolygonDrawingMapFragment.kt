@@ -28,7 +28,7 @@ import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.Map
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -73,10 +73,10 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
     }
   }
 
-  override fun onMapReady(mapFragment: MapFragment) {
+  override fun onMapReady(map: Map) {
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.featureValue.collect { feature: Feature? ->
-        mapFragment.renderFeatures(if (feature == null) setOf() else setOf(feature))
+        map.renderFeatures(if (feature == null) setOf() else setOf(feature))
       }
     }
   }
@@ -86,15 +86,15 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
     if (!viewModel.isMarkedComplete()) {
-      val mapCenter = position.target
+      val mapCenter = position.target!!
       viewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->
-        mapFragment.getDistanceInPixels(c1, c2)
+        map.getDistanceInPixels(c1, c2)
       }
     }
   }
 
   companion object {
-    fun newInstance(viewModel: PolygonDrawingViewModel, mapFragment: MapFragment) =
-      PolygonDrawingMapFragment(viewModel).apply { this.mapFragment = mapFragment }
+    fun newInstance(viewModel: PolygonDrawingViewModel, map: Map) =
+      PolygonDrawingMapFragment(viewModel).apply { this.map = map }
   }
 }

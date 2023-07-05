@@ -63,17 +63,16 @@ class FirebaseStorageManager @Inject constructor() : RemoteStorageManager {
      * Generates destination path in which an submission attachment is to be stored in to Cloud
      * Storage.
      *
-     * user-media/surveys/{survey_id}/submissions/{submission_id}/{field_id-uuid.jpg}
+     * user-media/surveys/{survey_id}/submissions/{field_id-uuid.jpg}
      */
     // TODO: Refactor this into MediaStorageRepository.
     @JvmStatic
-    fun getRemoteMediaPath(surveyId: String, submissionId: String, filename: String): String =
+    fun getRemoteMediaPath(surveyId: String, filename: String): String =
       StringJoiner(File.separator)
         .add(MEDIA_ROOT_DIR)
         .add("surveys")
         .add(surveyId)
         .add("submissions")
-        .add(submissionId)
         .add(filename)
         .toString()
   }

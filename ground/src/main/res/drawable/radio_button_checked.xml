@@ -20,5 +20,5 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:shape="oval">
   <size android:width="40dp" android:height="40dp"/>
-  <solid android:color="@color/colorAccent" />
+  <solid android:color="?attr/colorPrimary" />
 </shape>

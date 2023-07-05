@@ -15,12 +15,18 @@
  */
 package com.google.android.ground.ui.home.mapcontainer.cards
 
+import com.google.android.ground.model.geometry.Geometry
+import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.MultiPolygon
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 
 /** Helper class for creating user-visible text. */
 object LoiCardUtil {
 
-  fun getDisplayLoiName(loi: LocationOfInterest): String = loi.caption ?: loi.type.name
+  fun getDisplayLoiName(loi: LocationOfInterest): String = loi.caption ?: loi.geometry.type()
 
   fun getJobName(loi: LocationOfInterest): String? = loi.job.name
 
@@ -29,5 +35,15 @@ object LoiCardUtil {
       0 -> "No submissions"
       1 -> "$count submission"
       else -> "$count submissions"
+    }
+
+  /** Returns a user-visible string representing the type of the geometry. */
+  private fun Geometry.type() =
+    when (this) {
+      is Point -> "Point"
+      is Polygon -> "Polygon"
+      is LinearRing -> "LinearRing"
+      is LineString -> "LineString"
+      is MultiPolygon -> "MultiPolygon"
     }
 }

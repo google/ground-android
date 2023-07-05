@@ -35,7 +35,7 @@ class MapTypeDialogFragment : Hilt_MapTypeDialogFragment() {
   @Inject lateinit var mapStateRepository: MapStateRepository
 
   private lateinit var binding: MapTypeDialogFragmentBinding
-  private lateinit var mapTypes: Array<MapType>
+  private lateinit var mapTypes: List<MapType>
 
   // TODO(#936): Remove the suppress annotation when fragment dependency is upgraded to 1.3.4
   @SuppressLint("UseRequireInsteadOfGet")
@@ -44,7 +44,7 @@ class MapTypeDialogFragment : Hilt_MapTypeDialogFragment() {
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    mapTypes = MapTypeDialogFragmentArgs.fromBundle(arguments!!).mapTypes
+    mapTypes = MapTypeDialogFragmentArgs.fromBundle(arguments!!).mapTypes.toList()
     binding = MapTypeDialogFragmentBinding.inflate(inflater, container, false)
     return binding.root
   }
@@ -55,13 +55,13 @@ class MapTypeDialogFragment : Hilt_MapTypeDialogFragment() {
     binding.dialogCloseBtn.setOnClickListener { dismiss() }
 
     val currentMapType = mapStateRepository.mapType
-    val index = mapTypes.indexOfFirst { it.type == currentMapType }
+    val index = mapTypes.indexOfFirst { it == currentMapType }
     val recyclerview = binding.recyclerView
     recyclerview.adapter =
-      MapTypeAdapter(requireContext(), mapTypes, index) { handleMapTypeSelected(it) }
+      MapTypeAdapter(requireContext(), mapTypes, index) { onMapTypeSelected(it) }
   }
 
-  private fun handleMapTypeSelected(position: Int) {
-    mapStateRepository.mapType = mapTypes[position].type
+  private fun onMapTypeSelected(position: Int) {
+    mapStateRepository.mapType = mapTypes[position]
   }
 }

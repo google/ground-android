@@ -28,7 +28,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:button="@drawable/radio_button_background"
-    android:buttonTint="@color/colorAccent"
+    android:buttonTint="?attr/colorPrimary"
     android:padding="16dp"
     android:text="@{option.label}" />
 </layout>

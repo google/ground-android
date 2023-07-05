@@ -22,6 +22,7 @@ import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.rx.annotations.Hot
@@ -106,4 +107,6 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   }
 
   fun isTaskOptional(): Boolean = !task.isRequired
+
+  fun hasNoData(): Boolean = taskDataFlow.value.isNullOrEmpty()
 }

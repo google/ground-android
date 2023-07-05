@@ -90,7 +90,7 @@ abstract class LocalDataStoreModule {
     }
 
     @Provides
-    fun tileSetDao(localDatabase: LocalDatabase): TileSetDao {
+    fun tileSetDao(localDatabase: LocalDatabase): MbtilesFileDao {
       return localDatabase.tileSetDao()
     }
 
@@ -100,8 +100,8 @@ abstract class LocalDataStoreModule {
     }
 
     @Provides
-    fun baseMapDao(localDatabase: LocalDatabase): BaseMapDao {
-      return localDatabase.baseMapDao()
+    fun tileSourceDao(localDatabase: LocalDatabase): TileSourceDao {
+      return localDatabase.tileSourceDao()
     }
 
     @Provides

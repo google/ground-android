@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.persistence.local.room.stores
 
-import com.google.android.ground.model.basemap.OfflineArea
+import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.converter.toOfflineAreaEntity
 import com.google.android.ground.persistence.local.room.dao.OfflineAreaDao

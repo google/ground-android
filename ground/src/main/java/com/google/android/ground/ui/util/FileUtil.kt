@@ -20,7 +20,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import javax.inject.Inject
 
-class FileUtil @Inject constructor(@param:ApplicationContext private val context: Context) {
+class FileUtil @Inject constructor(@ApplicationContext private val context: Context) {
   /**
    * Get a file by name relative to the app's file directory
    * /data/data/com.google.android.ground/files.

@@ -18,15 +18,23 @@ package com.google.android.ground.ui.map
 import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import com.google.android.ground.R
 import kotlinx.parcelize.Parcelize
 
 /**
- * MapType refers to the basemap shown below map LOIs and offline satellite imagery. It's called
- * "map styles" in Mapbox and "basemaps" in Leaflet.
+ * The type of base map shown beneath all other layers. Google Maps SDK refers to these as "map
+ * type", or "map styles" in Mapbox, or "basemap" in Leaflet.
  */
 @Parcelize
-data class MapType(
-  val type: Int,
-  @field:StringRes @param:StringRes val labelId: Int,
-  @field:DrawableRes @param:DrawableRes val imageId: Int
-) : Parcelable
+enum class MapType(
+  @field:StringRes @StringRes val labelId: Int,
+  @field:DrawableRes @DrawableRes val imageId: Int
+) : Parcelable {
+  ROAD(R.string.road_map, R.drawable.ic_type_roadmap),
+  TERRAIN(R.string.terrain, R.drawable.ic_type_terrain),
+  SATELLITE(R.string.satellite, R.drawable.ic_type_satellite);
+
+  companion object {
+    val DEFAULT = SATELLITE
+  }
+}

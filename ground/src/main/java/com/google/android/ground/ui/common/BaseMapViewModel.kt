@@ -24,26 +24,18 @@ import com.google.android.ground.R
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.system.FINE_LOCATION_UPDATES_REQUEST
-import com.google.android.ground.system.LocationManager
-import com.google.android.ground.system.PermissionDeniedException
-import com.google.android.ground.system.PermissionsManager
-import com.google.android.ground.system.SettingsManager
+import com.google.android.ground.system.*
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapController
+import com.google.android.ground.ui.map.MapType
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.await
 import timber.log.Timber
@@ -68,7 +60,7 @@ constructor(
   val locationLock: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
-  val baseMapType: LiveData<Int>
+  val mapType: LiveData<MapType>
 
   val locationLockIconTint =
     locationLock
@@ -99,7 +91,7 @@ constructor(
 
   init {
     cameraUpdateRequests = mapController.getCameraUpdates().map { Event.create(it) }.toLiveData()
-    baseMapType = mapStateRepository.mapTypeFlowable.toLiveData()
+    mapType = mapStateRepository.mapTypeFlowable.toLiveData()
   }
 
   private suspend fun toggleLocationLock() {
@@ -160,8 +152,8 @@ constructor(
   }
 
   companion object {
-    private const val LOCATION_LOCK_ICON_TINT_ENABLED = R.color.colorMapBlue
-    private const val LOCATION_LOCK_ICON_TINT_DISABLED = R.color.colorGrey800
+    private const val LOCATION_LOCK_ICON_TINT_ENABLED = R.color.md_theme_primary
+    private const val LOCATION_LOCK_ICON_TINT_DISABLED = R.color.md_theme_onSurfaceVariant
 
     // TODO(Shobhit): Consider adding another icon for representing "GPS disabled" state.
     private const val LOCATION_LOCK_ICON_ENABLED = R.drawable.ic_gps_lock

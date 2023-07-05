@@ -28,7 +28,7 @@ import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.Map
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawingViewModel>() {
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
-  @Inject lateinit var mapFragment: MapFragment
+  @Inject lateinit var map: Map
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_draw, R.string.draw_an_area)
@@ -48,7 +48,7 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
       .beginTransaction()
       .add(
         rowLayout.id,
-        PolygonDrawingMapFragment.newInstance(viewModel, mapFragment),
+        PolygonDrawingMapFragment.newInstance(viewModel, map),
         "Draw a polygon fragment"
       )
       .commit()

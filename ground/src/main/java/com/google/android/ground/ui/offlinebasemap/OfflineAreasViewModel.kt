@@ -18,7 +18,7 @@ package com.google.android.ground.ui.offlinebasemap
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.toLiveData
-import com.google.android.ground.model.basemap.OfflineArea
+import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
