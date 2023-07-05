@@ -107,7 +107,7 @@ class ResponseJsonConverterTest(
         )
       )
 
-    private val polygonGeometryTaskDataResponse =
+    private const val polygonGeometryTaskDataResponse =
       "XQoHcG9seWdvbhJSClAKEgkAAAAAAAAkQBEAAAAAAAA0QAoSCQAAAAAAADRAEQAAAAAAAD5AChIJ\n" +
         "AAAAAAAAPkARAAAAAAAAREAKEgkAAAAAAAAkQBEAAAAAAAA0QA==\n"
 

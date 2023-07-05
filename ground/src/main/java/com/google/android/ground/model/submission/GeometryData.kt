@@ -16,17 +16,27 @@
 package com.google.android.ground.model.submission
 
 import com.google.android.ground.model.geometry.Geometry
+import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.MultiPolygon
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import java8.util.Optional
 
 /** A user provided response to a geometry based task. */
 data class GeometryData(val geometry: Geometry) : TaskData {
-  override fun getDetailsText(): String {
-    throw NotImplementedError()
-  }
 
-  override fun isEmpty(): Boolean {
-    return false
-  }
+  // TODO: Fix this!!!
+  override fun getDetailsText(): String =
+    when (geometry) {
+      is Point -> "Point data"
+      is Polygon -> "Polygon data"
+      is LinearRing -> "LinearRing data"
+      is LineString -> "LineString data"
+      is MultiPolygon -> "MultiPolygon data"
+    }
+
+  override fun isEmpty(): Boolean = false
 
   companion object {
     fun fromGeometry(geometry: Geometry?): Optional<GeometryData> =
