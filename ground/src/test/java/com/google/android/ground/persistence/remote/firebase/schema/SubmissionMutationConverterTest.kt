@@ -15,10 +15,16 @@
  */
 package com.google.android.ground.persistence.remote.firebase.schema
 
+import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.MultipleChoice
@@ -26,14 +32,17 @@ import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.common.truth.Truth.assertThat
+import com.google.firebase.firestore.GeoPoint
 import com.sharedtest.FakeData
 import java.util.Date
+import java8.util.Optional
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 
+// TODO(#1734): Add coverage for date, time task types
 @RunWith(MockitoJUnitRunner::class)
 class SubmissionMutationConverterTest {
 
@@ -70,7 +79,24 @@ class SubmissionMutationConverterTest {
 
   private val numberTaskData = NumberTaskData.fromNumber("123")
 
-  // TODO(Shobhit): Add coverage for date, time, location task types
+  private val pointTaskData: Optional<TaskData> =
+    Optional.of(GeometryData(Point(Coordinate(10.0, 20.0))))
+
+  private val polygonTaskData: Optional<TaskData> =
+    Optional.of(
+      GeometryData(
+        Polygon(
+          LinearRing(
+            listOf(
+              Coordinate(10.0, 20.0),
+              Coordinate(20.0, 30.0),
+              Coordinate(30.0, 20.0),
+              Coordinate(10.0, 20.0)
+            )
+          )
+        )
+      )
+    )
 
   private val submissionMutation =
     SubmissionMutation(
@@ -101,6 +127,16 @@ class SubmissionMutationConverterTest {
             taskId = "number_task",
             taskType = Task.Type.NUMBER,
             newTaskData = numberTaskData
+          ),
+          TaskDataDelta(
+            taskId = "drop_a_pin_task",
+            taskType = Task.Type.DROP_A_PIN,
+            newTaskData = pointTaskData
+          ),
+          TaskDataDelta(
+            taskId = "draw_polygon_task",
+            taskType = Task.Type.DRAW_POLYGON,
+            newTaskData = polygonTaskData
           )
         )
     )
@@ -111,6 +147,30 @@ class SubmissionMutationConverterTest {
       Pair("single_choice_task", listOf("option id 1")),
       Pair("multiple_choice_task", listOf("option id 1", "option id 2")),
       Pair("number_task", 123.0),
+      Pair(
+        "drop_a_pin_task",
+        mapOf(Pair("type", "Point"), Pair("coordinates", GeoPoint(10.0, 20.0)))
+      ),
+      Pair(
+        "draw_polygon_task",
+        mapOf(
+          Pair("type", "Polygon"),
+          Pair(
+            "coordinates",
+            mapOf(
+              Pair(
+                "0",
+                mapOf(
+                  Pair("0", GeoPoint(10.0, 20.0)),
+                  Pair("1", GeoPoint(20.0, 30.0)),
+                  Pair("2", GeoPoint(30.0, 20.0)),
+                  Pair("3", GeoPoint(10.0, 20.0))
+                )
+              )
+            )
+          )
+        )
+      )
     )
 
   private val auditInfoObject = AuditInfoConverter.fromMutationAndUser(submissionMutation, user)
