@@ -90,16 +90,18 @@ internal constructor(
   }
 
   fun onDownloadClick() {
-    viewport?.let {
-      downloadClicks.onNext(
-        OfflineArea(
-          offlineUuidGenerator.generateUuid(),
-          OfflineArea.State.PENDING,
-          it,
-          resources.getString(R.string.unnamed_area)
-        )
-      )
+    if (viewport == null) {
+      // Download was likely clicked before map was ready.
+      return
     }
+    downloadClicks.onNext(
+      OfflineArea(
+        offlineUuidGenerator.generateUuid(),
+        OfflineArea.State.PENDING,
+        viewport!!,
+        resources.getString(R.string.unnamed_area)
+      )
+    )
   }
 
   fun onMapReady(map: Map) {
