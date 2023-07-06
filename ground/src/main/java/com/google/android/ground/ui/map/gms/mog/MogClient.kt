@@ -18,7 +18,6 @@ package com.google.android.ground.ui.map.gms.mog
 
 import android.util.LruCache
 import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.ground.ui.map.gms.mog.TileCoordinates.Companion.WORLD
 import java.io.FileNotFoundException
 import java.io.InputStream
 import kotlinx.coroutines.Deferred
@@ -40,43 +39,38 @@ class MogClient(val collection: MogCollection) {
     return getTiles(requests).first()
   }
 
-  /** Returns the metadata for the MOG with the specified bounds. */
-  @Suppress("MemberVisibilityCanBePrivate")
-  suspend fun getMogMetadata(mogBounds: TileCoordinates): MogMetadata? =
-    getMogMetadata(collection.getMogUrl(mogBounds), mogBounds)
-
   /**
    * Returns the byte ranges of tiles overlapping the specified [tileBounds] and [zoomRange]s,
    * fetching required metadata if not already in cache.
    *
    * @param tileBounds the bounds used to constrain which tiles are retrieved. Only tiles within or
-   * overlapping these bounds are retrieved.
+   *   overlapping these bounds are retrieved.
    * @param zoomRange the min. and max. zoom levels for which tiles should be retrieved. Defaults to
-   * all available tiles in the collection as determined by the [MogCollection.hiResMogMaxZoom].
+   *   all available tiles in the collection as determined by the [MogCollection.hiResMogMaxZoom].
    */
-  suspend fun getTilesRequests(
-    tileBounds: LatLngBounds,
-    zoomRange: IntRange = 0..collection.hiResMogMaxZoom
-  ): List<MogTilesRequest> {
-    val hiResMogMinZoom = collection.hiResMogMinZoom
-    val requests = mutableListOf<MogTilesRequest>()
-    val (loResZoomLevels, hiResZoomLevels) = zoomRange.partition { it < hiResMogMinZoom }
-    if (loResZoomLevels.isNotEmpty()) {
-      requests.addAll(getTileRequestsForPyramid(WORLD, tileBounds, loResZoomLevels))
-    }
-    if (hiResZoomLevels.isNotEmpty()) {
-      // Compute tile coordinates of first and last MOG covered by specified bounds.
-      val nwMogBounds = TileCoordinates.fromLatLng(tileBounds.northwest(), hiResMogMinZoom)
-      val seMogBounds = TileCoordinates.fromLatLng(tileBounds.southeast(), hiResMogMinZoom)
-      for (y in nwMogBounds.y..seMogBounds.y) {
-        for (x in nwMogBounds.x..seMogBounds.x) {
-          val mogBounds = TileCoordinates(x, y, hiResMogMinZoom)
-          requests.addAll(getTileRequestsForPyramid(mogBounds, tileBounds, hiResZoomLevels))
-        }
-      }
-    }
-    return requests
-  }
+  //  suspend fun getTilesRequests(
+  //    tileBounds: LatLngBounds,
+  //    zoomRange: IntRange = IntRange(collection.minZoom, collection.maxZoom)
+  //  ): List<MogTilesRequest> {
+  //    val hiResMogMinZoom = collection.hiResMogMinZoom
+  //    val requests = mutableListOf<MogTilesRequest>()
+  //    val (loResZoomLevels, hiResZoomLevels) = zoomRange.partition { it < hiResMogMinZoom }
+  //    if (loResZoomLevels.isNotEmpty()) {
+  //      requests.addAll(getTileRequestsForPyramid(WORLD, tileBounds, loResZoomLevels))
+  //    }
+  //    if (hiResZoomLevels.isNotEmpty()) {
+  //      // Compute tile coordinates of first and last MOG covered by specified bounds.
+  //      val nwMogBounds = TileCoordinates.fromLatLng(tileBounds.northwest(), hiResMogMinZoom)
+  //      val seMogBounds = TileCoordinates.fromLatLng(tileBounds.southeast(), hiResMogMinZoom)
+  //      for (y in nwMogBounds.y..seMogBounds.y) {
+  //        for (x in nwMogBounds.x..seMogBounds.x) {
+  //          val mogBounds = TileCoordinates(x, y, hiResMogMinZoom)
+  //          requests.addAll(getTileRequestsForPyramid(mogBounds, tileBounds, hiResZoomLevels))
+  //        }
+  //      }
+  //    }
+  //    return requests
+  //  }
 
   /**
    * Returns a [Flow] which emits the tiles for the specified tile coordinates along with each
@@ -103,23 +97,27 @@ class MogClient(val collection: MogCollection) {
    * Returns the metadata for the MOG which contains the tile with the specified coordinate, or
    * `null` if unavailable.
    */
-  private suspend fun getMogMetadataForTile(tileCoordinates: TileCoordinates): MogMetadata? =
-    getMogMetadata(collection.getMogBoundsForTile(tileCoordinates))
+  private suspend fun getMogMetadataForTile(tileCoordinates: TileCoordinates): MogMetadata? {
+    val mogSource = collection.getMogSource(tileCoordinates.zoom) ?: return null
+    val mogBounds = mogSource.getMogBoundsForTile(tileCoordinates)
+    val mogUrl = mogSource.getMogUrl(mogBounds)
+    return getMogMetadata(mogUrl, mogBounds)
+  }
 
   /**
    * Builds and returns the tile requests which can be used to fetch all available tiles within
    * [tileBounds] at [zoomLevels] within the MOG with the specified [mogBounds]. Consecutive byte
    * ranges are consolidated to minimized the number of individual requests required.
    */
-  private suspend fun getTileRequestsForPyramid(
-    mogBounds: TileCoordinates,
-    tileBounds: LatLngBounds,
-    zoomLevels: List<Int>
-  ): List<MogTilesRequest> {
-    val mogMetadata = getMogMetadata(mogBounds) ?: return listOf()
-    val tiles = zoomLevels.flatMap { zoom -> getTileMetadata(mogMetadata, tileBounds, zoom) }
-    return getTileRequests(mogMetadata.sourceUrl, tiles)
-  }
+  //  private suspend fun getTileRequestsForPyramid(
+  //    mogBounds: TileCoordinates,
+  //    tileBounds: LatLngBounds,
+  //    zoomLevels: List<Int>
+  //  ): List<MogTilesRequest> {
+  //    val mogMetadata = getMogMetadata(mogBounds) ?: return listOf()
+  //    val tiles = zoomLevels.flatMap { zoom -> getTileMetadata(mogMetadata, tileBounds, zoom) }
+  //    return getTileRequests(mogMetadata.sourceUrl, tiles)
+  //  }
 
   /**
    * Builds and returns the tile requests which can be used to fetch the specified tiles.

@@ -17,34 +17,13 @@
 package com.google.android.ground.ui.map.gms.mog
 
 /** A collection of Maps Optimized GeoTIFFs (MOGs). */
-class MogCollection(
-  private val worldMogUrl: String,
-  private val hiResMogUrl: String,
-  val hiResMogMinZoom: Int,
-  val hiResMogMaxZoom: Int
-) {
-  fun getMogUrl(bounds: TileCoordinates): String {
-    val (x, y, zoom) = bounds
-    if (zoom == 0) {
-      worldMogUrl.checkContainsAll("{z}")
-      return worldMogUrl.replace("{z}", hiResMogMinZoom.toString())
-    }
-    if (zoom < hiResMogMinZoom) {
-      error("Invalid zoom for this collection. Expected 0 or $hiResMogMinZoom, got $zoom")
-    }
-    hiResMogUrl.checkContainsAll("{x}", "{y}", "{z}")
-    return hiResMogUrl
-      .replace("{x}", x.toString())
-      .replace("{y}", y.toString())
-      .replace("{z}", hiResMogMinZoom.toString())
-  }
+class MogCollection(private val mogSources: List<MogSource>) {
+  val minZoom = mogSources.minOf { it.zoomRange.first }
+  val maxZoom = mogSources.minOf { it.zoomRange.last }
+
+  fun getMogSource(zoom: Int) = mogSources.firstOrNull { it.zoomRange.contains(zoom) }
 
   /** Returns the bounds of the MOG containing the tile with the specified coordinates. */
-  fun getMogBoundsForTile(tileCoordinates: TileCoordinates): TileCoordinates =
-    if (tileCoordinates.zoom < hiResMogMinZoom) TileCoordinates.WORLD
-    else tileCoordinates.originAtZoom(hiResMogMinZoom)
-
-  private fun String.checkContainsAll(vararg substrings: String) {
-    substrings.forEach { param -> check(this.contains(param)) { "$this doesn't contain $param" } }
-  }
+  //  fun getMogUrlForTile(tileCoordinates: TileCoordinates): URL? =
+  //    getMogSource(tileCoordinates.zoom)?.getMogUrl(tileCoordinates.x, tileCoordinates.y)
 }
