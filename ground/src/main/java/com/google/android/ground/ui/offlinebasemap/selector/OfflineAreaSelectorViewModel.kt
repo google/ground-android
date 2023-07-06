@@ -89,10 +89,6 @@ internal constructor(
     return DownloadMessage.FAILURE
   }
 
-  fun setViewport(viewport: Bounds?) {
-    this.viewport = viewport
-  }
-
   fun onDownloadClick() {
     viewport?.let {
       downloadClicks.onNext(
@@ -108,6 +104,6 @@ internal constructor(
 
   fun onMapReady(map: Map) {
     tileSources.forEach { map.addTileOverlay(it) }
-    disposeOnClear(cameraBoundUpdates.subscribe(this::setViewport))
+    disposeOnClear(cameraBoundUpdates.subscribe { viewport = it })
   }
 }
