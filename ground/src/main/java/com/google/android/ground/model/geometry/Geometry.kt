@@ -138,7 +138,12 @@ data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
     this.maximum() >= other.maximum() && this.minimum() <= other.minimum()
 }
 
-/** Returns the center coordinate of the bounding box from the given list of coordinates. */
+/**
+ * Returns the center coordinate of the bounding box from the given list of coordinates.
+ *
+ * Note: This might return an unexpected result for oddly shaped polygons. Check if this can be
+ * replaced with a centroid. See (#1737) for more info.
+ */
 private fun List<Coordinate>?.centerOrError(): Coordinate =
   this?.map { Point(it) }?.toBounds()?.center() ?: error("missing vertices")
 
