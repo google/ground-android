@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.SnapHelper
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.RxAutoDispose
@@ -39,7 +40,6 @@ import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.Map
-import com.google.maps.android.data.Point
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.Optional
 import javax.inject.Inject
@@ -193,7 +193,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
         loi
           .map { it.geometry }
           .filter { it is Point }
-          .ifPresent { mapContainerViewModel.panAndZoomCamera(it.vertices[0]) }
+          .ifPresent { mapContainerViewModel.panAndZoomCamera(Point(it.center())) }
       }
       BottomSheetState.Visibility.HIDDEN -> {
         map.enableGestures()
