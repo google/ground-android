@@ -47,11 +47,11 @@
         android:id="@+id/header_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:gravity="center_vertical"
         android:textColor="?attr/colorOnSurface"
         android:textSize="16sp"
-        android:gravity="center_vertical"
         tools:text="Task label" />
     </LinearLayout>
 
@@ -59,14 +59,18 @@
       android:id="@+id/task_container"
       android:layout_width="match_parent"
       android:layout_height="0dp"
-      android:layout_weight="1"/>
+      android:layout_weight="1" />
 
     <LinearLayout
       android:id="@+id/action_buttons_container"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:background="@color/taskBottomControlsBackground"
+      android:background="?attr/colorSurface"
+      android:gravity="end"
       android:orientation="horizontal"
-      android:padding="24dp" />
+      android:padding="24dp"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent" />
   </LinearLayout>
 </layout>

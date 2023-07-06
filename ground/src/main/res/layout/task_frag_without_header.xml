@@ -78,6 +78,10 @@
       android:layout_height="wrap_content"
       android:background="?attr/colorSurface"
       android:orientation="horizontal"
-      android:padding="24dp" />
+      android:padding="24dp"
+      android:gravity="end"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent" />
   </LinearLayout>
 </layout>

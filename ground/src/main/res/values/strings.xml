@@ -156,6 +156,7 @@
   <string name="draw_an_area">Draw an area</string>
   <string name="accuracy">Accuracy</string>
   <string name="dropped_pin">Dropped pin</string>
+  <string name="drop_a_pin_hint_text">Drag your map until the center pin is in the desired location</string>
   <string name="loading">Loading…</string>
   <string name="skip_dialog_title">Skip this step?</string>
   <string name="data_deletion_warning">Data you entered in this step won\'t be saved. Are you sure you want to continue?</string>

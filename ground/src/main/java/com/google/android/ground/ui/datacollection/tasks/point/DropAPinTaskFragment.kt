@@ -38,7 +38,11 @@ class DropAPinTaskFragment : Hilt_DropAPinTaskFragment<DropAPinTaskViewModel>() 
   @Inject lateinit var map: Map
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
-    TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop, R.string.drop_a_pin)
+    TaskViewFactory.createWithCombinedHeader(
+      inflater,
+      R.drawable.outline_pin_drop,
+      R.string.drop_a_pin
+    )
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
@@ -50,6 +54,8 @@ class DropAPinTaskFragment : Hilt_DropAPinTaskFragment<DropAPinTaskViewModel>() 
   }
 
   override fun onCreateActionButtons() {
+    addSkipButton()
+    addUndoButton()
     addButton(ButtonAction.DROP_PIN)
       .setOnClickListener { viewModel.dropPin() }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNullOrEmpty()) }
@@ -57,7 +63,5 @@ class DropAPinTaskFragment : Hilt_DropAPinTaskFragment<DropAPinTaskViewModel>() 
       .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
       .hide()
-    addUndoButton()
-    addSkipButton()
   }
 }

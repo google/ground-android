@@ -40,7 +40,11 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
   @Inject lateinit var map: Map
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
-    TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_draw, R.string.draw_an_area)
+    TaskViewFactory.createWithCombinedHeader(
+      inflater,
+      R.drawable.outline_draw,
+      R.string.draw_an_area
+    )
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
@@ -56,11 +60,11 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
   }
 
   override fun onCreateActionButtons() {
+    addSkipButton()
+    addUndoButton()
     addContinueButton()
     addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
     addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.onCompletePolygonButtonClick() }
-    addUndoButton()
-    addSkipButton()
   }
 
   override fun onTaskViewAttached() {
