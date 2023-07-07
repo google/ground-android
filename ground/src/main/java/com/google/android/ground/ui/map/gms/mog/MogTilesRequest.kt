@@ -19,7 +19,24 @@ package com.google.android.ground.ui.map.gms.mog
 // TODO(#1596): Add unit tests.
 /** A set of [tiles] to be fetched from [sourceUrl] in a single request. */
 open class MogTilesRequest(val sourceUrl: String, val tiles: List<MogTileMetadata>) {
-  val byteRange = LongRange(tiles.first().byteRange.first, tiles.last().byteRange.last)
+  val byteRange: LongRange
+    get() = LongRange(tiles.first().byteRange.first, tiles.last().byteRange.last)
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is MogTilesRequest) return false
+
+    if (sourceUrl != other.sourceUrl) return false
+    if (tiles != other.tiles) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = sourceUrl.hashCode()
+    result = 31 * result + tiles.hashCode()
+    return result
+  }
 }
 
 class MutableMogTilesRequest(sourceUrl: String, tiles: MutableList<MogTileMetadata>) :
