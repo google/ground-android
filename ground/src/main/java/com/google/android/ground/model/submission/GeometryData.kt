@@ -38,11 +38,6 @@ data class GeometryData(val geometry: Geometry) : TaskData {
   override fun isEmpty(): Boolean = false
 
   companion object {
-    fun fromGeometry(geometry: Geometry?): GeometryData? =
-      if (geometry == null) {
-        null
-      } else {
-        GeometryData(geometry)
-      }
+    fun fromGeometry(geometry: Geometry?): GeometryData? = geometry?.let { GeometryData(it) }
   }
 }
