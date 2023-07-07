@@ -44,20 +44,20 @@ class MogClient(val collection: MogCollection) {
    * specified [tileBounds] and [zoomRange]s.
    *
    * @param tileBounds the bounds used to constrain which tiles are retrieved. Only requests for
-   * tiles within or overlapping these bounds are returned.
+   *   tiles within or overlapping these bounds are returned.
    * @param zoomRange the min. and max. zoom levels for which tile requests should be returned.
-   * Defaults to all available zoom levels in the collection ([MogCollection.minZoom] to
-   * [MogCollection.maxZoom]).
+   *   Defaults to all available zoom levels in the collection ([MogCollection.minZoom] to
+   *   [MogCollection.maxZoom]).
    */
   suspend fun buildTilesRequests(
     tileBounds: LatLngBounds,
     zoomRange: IntRange = IntRange(collection.minZoom, collection.maxZoom)
-  ): List<MogTilesRequest> {
-    //    val requests = mutableListOf<MogTilesRequest>()
-    val requests = zoomRange.flatMap { zoom -> buildTileRequests(tileBounds, zoom) }
-    return mergeConsecutiveRanges(requests)
-  }
+  ) =
+    zoomRange
+      .flatMap { zoom -> buildTileRequests(tileBounds, zoom) }
+      .consolidate(MAX_OVER_FETCH_PER_TILE)
 
+  /** Returns requests for tiles in the specified bounds and zoom, one request per tile. */
   private suspend fun buildTileRequests(
     tileBounds: LatLngBounds,
     zoom: Int
@@ -68,6 +68,7 @@ class MogClient(val collection: MogCollection) {
     }
   }
 
+  /** Returns a request for the specified tile. */
   private suspend fun buildTileRequest(
     mogSource: MogSource,
     tileCoordinates: TileCoordinates
@@ -78,29 +79,6 @@ class MogClient(val collection: MogCollection) {
     val tileMetadata = getTileMetadata(mogMetadata, tileCoordinates) ?: return null
     return MogTilesRequest(mogUrl, listOf(tileMetadata))
   }
-
-  /**
-   * Merges requests for consecutive or near-consecutive byte ranges into a single request to reduce
-   * the number of individual HTTP requests required when downloading tiles in bulk for offline use.
-   */
-  private fun mergeConsecutiveRanges(requests: List<MogTilesRequest>): List<MogTilesRequest> {
-    val mergedRequests = mutableListOf<MutableMogTilesRequest>()
-    for (request in requests) {
-      for (tile in request.tiles) {
-        // Create a new request for the first tile and for each non adjacent tile.
-        val lastRequest = mergedRequests.lastOrNull()
-        if (lastRequest == null || !canMergeTileRequests(lastRequest, request)) {
-          mergedRequests.add(MutableMogTilesRequest(request.sourceUrl, mutableListOf()))
-        }
-        mergedRequests.last().appendTile(tile)
-      }
-    }
-    return mergedRequests
-  }
-
-  private fun canMergeTileRequests(first: MogTilesRequest, second: MogTilesRequest) =
-    first.sourceUrl == second.sourceUrl &&
-      second.byteRange.first - first.byteRange.last - 1 <= MAX_OVER_FETCH_PER_TILE
 
   /**
    * Returns a [Flow] which emits the tiles for the specified tile coordinates along with each

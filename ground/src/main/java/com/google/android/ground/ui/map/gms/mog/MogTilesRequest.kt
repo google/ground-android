@@ -30,4 +30,27 @@ class MutableMogTilesRequest(sourceUrl: String, tiles: MutableList<MogTileMetada
     }
     (tiles as MutableList).add(newTile)
   }
+
+  fun canMergeWith(next: MogTilesRequest, maxOverFetchPerTile: Int) =
+    this.sourceUrl == next.sourceUrl &&
+      next.byteRange.first - this.byteRange.last - 1 <= maxOverFetchPerTile
+}
+
+/**
+ * Merges requests for consecutive or near-consecutive byte ranges into a single request to reduce
+ * the number of individual HTTP requests required when downloading tiles in bulk for offline use.
+ */
+fun List<MogTilesRequest>.consolidate(maxOverFetchPerTile: Int): List<MogTilesRequest> {
+  val mergedRequests = mutableListOf<MutableMogTilesRequest>()
+  for (request in this) {
+    for (tile in request.tiles) {
+      // Create a new request for the first tile and for each non adjacent tile.
+      val lastRequest = mergedRequests.lastOrNull()
+      if (lastRequest == null || !lastRequest.canMergeWith(request, maxOverFetchPerTile)) {
+        mergedRequests.add(MutableMogTilesRequest(request.sourceUrl, mutableListOf()))
+      }
+      mergedRequests.last().appendTile(tile)
+    }
+  }
+  return mergedRequests
 }
