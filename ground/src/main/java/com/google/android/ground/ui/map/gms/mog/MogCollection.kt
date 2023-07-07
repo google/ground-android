@@ -22,8 +22,4 @@ class MogCollection(private val mogSources: List<MogSource>) {
   val maxZoom = mogSources.minOf { it.zoomRange.last }
 
   fun getMogSource(zoom: Int) = mogSources.firstOrNull { it.zoomRange.contains(zoom) }
-
-  /** Returns the bounds of the MOG containing the tile with the specified coordinates. */
-  //  fun getMogUrlForTile(tileCoordinates: TileCoordinates): URL? =
-  //    getMogSource(tileCoordinates.zoom)?.getMogUrl(tileCoordinates.x, tileCoordinates.y)
 }
