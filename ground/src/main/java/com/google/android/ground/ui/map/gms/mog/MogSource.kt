@@ -20,13 +20,13 @@ package com.google.android.ground.ui.map.gms.mog
  * The URL template of one or more MOGs partitions by web mercator tile extents.
  *
  * Examples:
- * ```kotlin
+ * ```
  *   // Tiles for zoom levels 0-7 (inclusive) contained in a single file:
- *   val world = MogSource("https://storage.googleapis.com/my-bucket/cogs/8/world.tif", 0..7)
+ *   val world = MogSource("https://storage.googleapis.com/my-bucket/world.tif", 0..7)
  *
  *   // Tiles for zoom levels 8-14 (inclusive) contained in separate files, partitioned by zoom level
  *   // 8 tile extents:
- *   val world = MogSource("https://storage.googleapis.com/my-bucket/cogs/8/{x}/{y}.tif", 8..14)
+ *   val region = MogSource("https://storage.googleapis.com/my-bucket/{x}/{y}.tif", 8..14)
  * ```
  */
 data class MogSource(val urlTemplate: String, val zoomRange: IntRange) {
