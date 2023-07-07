@@ -21,7 +21,6 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import java8.util.Optional
 
 /** A user provided response to a geometry based task. */
 data class GeometryData(val geometry: Geometry) : TaskData {
@@ -39,11 +38,6 @@ data class GeometryData(val geometry: Geometry) : TaskData {
   override fun isEmpty(): Boolean = false
 
   companion object {
-    fun fromGeometry(geometry: Geometry?): Optional<GeometryData> =
-      if (geometry == null) {
-        Optional.empty()
-      } else {
-        Optional.of(GeometryData(geometry))
-      }
+    fun fromGeometry(geometry: Geometry?): GeometryData? = geometry?.let { GeometryData(it) }
   }
 }

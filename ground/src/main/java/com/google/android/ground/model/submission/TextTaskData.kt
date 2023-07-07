@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.model.submission
 
-import java8.util.Optional
 import kotlinx.serialization.Serializable
 
 /** A user provided taskData to a text question task. */
@@ -28,8 +27,6 @@ data class TextTaskData(val text: String) : TaskData {
   override fun toString(): String = text
 
   companion object {
-    @JvmStatic
-    fun fromString(text: String): Optional<TaskData> =
-      if (text.isEmpty()) Optional.empty() else Optional.of(TextTaskData(text))
+    fun fromString(text: String): TaskData? = if (text.isEmpty()) null else TextTaskData(text)
   }
 }

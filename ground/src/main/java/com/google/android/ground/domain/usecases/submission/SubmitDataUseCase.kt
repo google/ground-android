@@ -55,7 +55,7 @@ constructor(
 
     if (loiId == null) {
       // loiIds are null for Suggest LOI data collection flows
-      when (val suggestLoiTaskData = taskDataDeltasToSubmit.removeAt(0).newTaskData.orElse(null)) {
+      when (val suggestLoiTaskData = taskDataDeltasToSubmit.removeAt(0).newTaskData) {
         is GeometryData -> loiIdToSubmit = saveLoi(suggestLoiTaskData.geometry, job, surveyId).id
         else -> error("No suggest LOI Task found when loi ID was null")
       }

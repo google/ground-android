@@ -24,7 +24,6 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
-import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.MultipleChoice
@@ -35,7 +34,6 @@ import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.GeoPoint
 import com.sharedtest.FakeData
 import java.util.Date
-import java8.util.Optional
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -79,20 +77,17 @@ class SubmissionMutationConverterTest {
 
   private val numberTaskData = NumberTaskData.fromNumber("123")
 
-  private val pointTaskData: Optional<TaskData> =
-    Optional.of(GeometryData(Point(Coordinate(10.0, 20.0))))
+  private val pointTaskData = GeometryData(Point(Coordinate(10.0, 20.0)))
 
-  private val polygonTaskData: Optional<TaskData> =
-    Optional.of(
-      GeometryData(
-        Polygon(
-          LinearRing(
-            listOf(
-              Coordinate(10.0, 20.0),
-              Coordinate(20.0, 30.0),
-              Coordinate(30.0, 20.0),
-              Coordinate(10.0, 20.0)
-            )
+  private val polygonTaskData =
+    GeometryData(
+      Polygon(
+        LinearRing(
+          listOf(
+            Coordinate(10.0, 20.0),
+            Coordinate(20.0, 30.0),
+            Coordinate(30.0, 20.0),
+            Coordinate(10.0, 20.0)
           )
         )
       )

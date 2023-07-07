@@ -65,7 +65,7 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   }
 
   // TODO: Add a reference of Task in TaskData for simplification.
-  fun initialize(task: Task, taskData: Optional<TaskData>) {
+  fun initialize(task: Task, taskData: TaskData?) {
     this.task = task
     setResponse(taskData)
   }
@@ -97,13 +97,13 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
       }
       .toString()
 
-  fun setResponse(taskData: Optional<TaskData>) {
-    taskDataSubject.onNext(taskData)
-    taskDataFlow.value = taskData.orElse(null)
+  fun setResponse(taskData: TaskData?) {
+    taskDataSubject.onNext(Optional.ofNullable(taskData))
+    taskDataFlow.value = taskData
   }
 
   open fun clearResponse() {
-    setResponse(Optional.empty())
+    setResponse(null)
   }
 
   fun isTaskOptional(): Boolean = !task.isRequired

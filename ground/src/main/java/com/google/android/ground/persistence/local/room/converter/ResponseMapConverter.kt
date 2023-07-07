@@ -64,7 +64,7 @@ object ResponseMapConverter {
             job.getTask(taskId).orElseThrow {
               LocalDataConsistencyException("Unknown task id $taskId")
             }
-          ResponseJsonConverter.toResponse(task, jsonObject[taskId]).ifPresent { map[taskId] = it }
+          ResponseJsonConverter.toResponse(task, jsonObject[taskId])?.let { map[taskId] = it }
         } catch (e: LocalDataConsistencyException) {
           Timber.d("Bad taskData in local db: ${e.message}")
         }

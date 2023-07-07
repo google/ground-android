@@ -38,8 +38,8 @@ data class TaskDataMap(private val taskDatas: Map<String, TaskData?> = mapOf()) 
   fun copyWithDeltas(taskDataDeltas: List<TaskDataDelta>): TaskDataMap {
     val newResponses = taskDatas.toMutableMap()
     taskDataDeltas.forEach {
-      if (it.newTaskData.isPresent) {
-        newResponses[it.taskId] = it.newTaskData.get()
+      if (it.newTaskData.isNotNullOrEmpty()) {
+        newResponses[it.taskId] = it.newTaskData
       } else {
         newResponses.remove(it.taskId)
       }

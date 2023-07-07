@@ -32,7 +32,6 @@ import com.google.android.ground.model.task.Task
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import java.util.Date
-import java8.util.Optional
 import kotlinx.collections.immutable.persistentListOf
 import org.json.JSONArray
 import org.junit.Test
@@ -42,13 +41,13 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class ResponseJsonConverterTest(
   private val task: Task,
-  private val taskData: Optional<TaskData>,
+  private val taskData: TaskData,
   private val responseObject: Any
 ) {
 
   @Test
   fun testToJsonObject() {
-    assertThat(ResponseJsonConverter.toJsonObject(taskData.get())).isEqualTo(responseObject)
+    assertThat(ResponseJsonConverter.toJsonObject(taskData)).isEqualTo(responseObject)
   }
 
   @Test
