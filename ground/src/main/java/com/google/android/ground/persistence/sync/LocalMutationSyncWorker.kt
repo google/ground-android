@@ -25,6 +25,7 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.TaskDataDelta
+import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
@@ -114,10 +115,10 @@ constructor(
       .filter { mutation: Mutation -> mutation is SubmissionMutation }
       .flatMapIterable { mutation: Mutation -> (mutation as SubmissionMutation).taskDataDeltas }
       .filter { (_, taskType, newResponse): TaskDataDelta ->
-        taskType === Task.Type.PHOTO && newResponse.isPresent
+        taskType === Task.Type.PHOTO && newResponse.isNotNullOrEmpty()
       }
       // TODO: Instead of using toString(), add a method getSerializedValue() in TaskData.
-      .map { (_, _, newResponse): TaskDataDelta -> newResponse.get().toString() }
+      .map { (_, _, newResponse): TaskDataDelta -> newResponse.toString() }
       .flatMapCompletable { remotePath: String ->
         Completable.fromRunnable { photoSyncWorkManager.enqueueSyncWorker(remotePath) }
       }

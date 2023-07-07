@@ -17,8 +17,8 @@ package com.google.android.ground.model.submission
 
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.util.*
-import java8.util.Optional
+import java.util.Date
+import java.util.Locale
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
@@ -34,8 +34,7 @@ data class DateTaskData(val date: @Contextual Date) : TaskData {
   override fun isEmpty(): Boolean = date.time == 0L
 
   companion object {
-    @JvmStatic
-    fun fromDate(date: Date?): Optional<TaskData> =
-      if (date == null || date.time == 0L) Optional.empty() else Optional.of(DateTaskData(date))
+    fun fromDate(date: Date?): TaskData? =
+      if (date == null || date.time == 0L) null else DateTaskData(date)
   }
 }

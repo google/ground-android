@@ -266,8 +266,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    val taskDataMap =
-      TaskDataMap(mapOf(Pair("task id", TextTaskData.fromString("foo value").get())))
+    val taskDataMap = TaskDataMap(mapOf(Pair("task id", TextTaskData.fromString("foo value"))))
     val submission =
       localSubmissionStore
         .getSubmission(loi, "submission id")
@@ -276,7 +275,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     localSubmissionStore.merge(submission).test().assertComplete()
     val responses =
       localSubmissionStore.getSubmission(loi, submission.id).test().values()[0].responses
-    assertThat(responses.getResponse("task id"))
+    assertThat(responses.getResponse("task id").get())
       .isEqualTo(TextTaskData.fromString("updated taskData"))
   }
 

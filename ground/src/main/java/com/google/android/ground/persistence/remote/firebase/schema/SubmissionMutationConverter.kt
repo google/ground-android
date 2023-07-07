@@ -61,15 +61,12 @@ internal object SubmissionMutationConverter {
   private fun toMap(taskDataDeltas: List<TaskDataDelta>): Map<String, Any> {
     val map = mutableMapOf<String, Any>()
     for (delta in taskDataDeltas) {
-      delta.newTaskData
-        .map { obj: TaskData -> toObject(obj) }
-        .orElse(FieldValue.delete())
-        ?.let { map.put(delta.taskId, it) }
+      map[delta.taskId] = toObject(delta.newTaskData) ?: FieldValue.delete()
     }
     return map.toPersistentMap()
   }
 
-  private fun toObject(taskData: TaskData): Any? =
+  private fun toObject(taskData: TaskData?): Any? =
     when (taskData) {
       is TextTaskData -> {
         taskData.text
@@ -90,7 +87,7 @@ internal object SubmissionMutationConverter {
         GeometryConverter.toFirestoreMap(taskData.geometry).getOrThrow()
       }
       else -> {
-        Timber.e("Unknown taskData type: %s", taskData.javaClass.name)
+        Timber.e("Unknown taskData type: %s", taskData?.javaClass?.name)
         null
       }
     }
