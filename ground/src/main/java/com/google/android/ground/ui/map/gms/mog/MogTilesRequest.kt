@@ -18,19 +18,16 @@ package com.google.android.ground.ui.map.gms.mog
 
 // TODO(#1596): Add unit tests.
 /** A set of [tiles] to be fetched from [sourceUrl] in a single request. */
-data class MogTilesRequest(val sourceUrl: String, val tiles: List<MogTileMetadata>) {
+open class MogTilesRequest(val sourceUrl: String, val tiles: List<MogTileMetadata>) {
   val byteRange = LongRange(tiles.first().byteRange.first, tiles.last().byteRange.last)
 }
 
-class MutableMogTilesRequest(var sourceUrl: String) {
-  val tiles = mutableListOf<MogTileMetadata>()
-
-  fun toTilesRequest() = MogTilesRequest(sourceUrl, tiles)
-
+class MutableMogTilesRequest(sourceUrl: String, tiles: MutableList<MogTileMetadata>) :
+  MogTilesRequest(sourceUrl, tiles) {
   fun appendTile(newTile: MogTileMetadata) {
     require(tiles.isEmpty() || tiles.last().byteRange.last < newTile.byteRange.first) {
       "Can't append tile with non-consecutive byte range"
     }
-    tiles.add(newTile)
+    (tiles as MutableList).add(newTile)
   }
 }

@@ -20,7 +20,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
-import org.robolectric.RobolectricTestRunner
 
 const val TEST_WORLD_URL = "world_url/5/world.tif"
 const val TEST_HIGH_RES_URL = "high_res_url/5/{x}/{y}.tif"
@@ -51,7 +50,6 @@ class MogCollectionTest {
     val mogSource = mogCollection.getMogSource(5)
     assertThat(mogSource).isEqualTo(MOG_SOURCE_5_TO_14)
   }
-
 
   @Test
   fun getMogSource_invalidZoom_returnsNull() {
