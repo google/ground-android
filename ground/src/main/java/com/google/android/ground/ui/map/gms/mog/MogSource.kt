@@ -17,8 +17,8 @@
 package com.google.android.ground.ui.map.gms.mog
 
 /**
- * Provides URLs of one or more MOGs partitioned by web mercator tile extents at a particular
- * range of zoom level.
+ * Provides URLs of one or more MOGs partitioned by web mercator tile extents at a particular range
+ * of zoom level.
  *
  * Examples:
  * ```
