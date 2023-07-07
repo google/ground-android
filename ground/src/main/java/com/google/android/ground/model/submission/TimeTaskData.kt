@@ -19,7 +19,6 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java8.util.Optional
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
@@ -37,8 +36,7 @@ data class TimeTaskData(val time: @Contextual Date) : TaskData {
   override fun isEmpty(): Boolean = time.time == 0L
 
   companion object {
-    @JvmStatic
-    fun fromDate(time: Date?): Optional<TaskData> =
-      if (time == null || time.time == 0L) Optional.empty() else Optional.of(TimeTaskData(time))
+    fun fromDate(time: Date?): TaskData? =
+      if (time == null || time.time == 0L) null else TimeTaskData(time)
   }
 }

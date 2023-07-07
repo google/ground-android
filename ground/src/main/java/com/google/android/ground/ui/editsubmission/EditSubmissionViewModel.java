@@ -266,7 +266,7 @@ public class EditSubmissionViewModel extends AbstractViewModel {
       if (currentResponse.equals(originalResponse)) {
         continue;
       }
-      result.add(new TaskDataDelta(taskId, task.getType(), currentResponse));
+      result.add(new TaskDataDelta(taskId, task.getType(), currentResponse.orElse(null)));
     }
     Timber.v("Deltas: %s", result);
     return result;

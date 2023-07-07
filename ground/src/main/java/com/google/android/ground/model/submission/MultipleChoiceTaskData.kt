@@ -17,7 +17,6 @@
 package com.google.android.ground.model.submission
 
 import com.google.android.ground.model.task.MultipleChoice
-import java8.util.Optional
 import kotlinx.serialization.Serializable
 
 /** User responses to a select-one (radio) or select-multiple (checkbox) field. */
@@ -49,11 +48,11 @@ class MultipleChoiceTaskData(
   override fun toString(): String = selectedOptionIds.sorted().joinToString()
 
   companion object {
-    fun fromList(multipleChoice: MultipleChoice?, ids: List<String>): Optional<TaskData> =
+    fun fromList(multipleChoice: MultipleChoice?, ids: List<String>): TaskData? =
       if (ids.isEmpty()) {
-        Optional.empty()
+        null
       } else {
-        Optional.of(MultipleChoiceTaskData(multipleChoice, ids))
+        MultipleChoiceTaskData(multipleChoice, ids)
       }
   }
 }
