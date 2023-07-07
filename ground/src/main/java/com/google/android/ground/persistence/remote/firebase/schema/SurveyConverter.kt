@@ -57,17 +57,14 @@ internal object SurveyConverter {
   }
 
   private fun convertOfflineBaseMapSources(pd: SurveyDocument, builder: MutableList<TileSource>) {
-    for ((url) in pd.tileSources!!) {
-      if (url == null) {
-        Timber.d("Skipping base map source in survey with missing URL")
-        continue
+    pd.tileSources
+      ?.mapNotNull { it.url }
+      ?.forEach { url ->
+        try {
+          builder.add(TileSource(URL(url), TileSource.fromFileExtension(url)))
+        } catch (e: MalformedURLException) {
+          Timber.d("Skipping tile source with malformed URL: $url")
+        }
       }
-      try {
-        Timber.d("Converting base map source: $url")
-        builder.add(TileSource(URL(url), TileSource.fromFileExtension(url)))
-      } catch (e: MalformedURLException) {
-        Timber.d("Skipping base map source in survey with malformed URL")
-      }
-    }
   }
 }
