@@ -143,12 +143,10 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       lastModified = lastModified.toModelObject(),
       caption = caption,
       geometry = geometry.getGeometry(),
-      job =
-        survey.getJob(jobId = jobId).orElseThrow {
-          LocalDataConsistencyException(
+      job = survey.getJob(jobId = jobId)
+          ?: throw LocalDataConsistencyException(
             "Unknown jobId ${this.jobId} in location of interest ${this.id}"
           )
-        }
     )
   }
 
@@ -305,9 +303,8 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
 @Throws(LocalDataConsistencyException::class)
 fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
   val job =
-    survey.getJob(jobId).orElseThrow {
-      LocalDataConsistencyException("Unknown jobId in submission mutation $id")
-    }
+    survey.getJob(jobId)
+      ?: throw LocalDataConsistencyException("Unknown jobId in submission mutation $id")
 
   return SubmissionMutation(
     job = job,
