@@ -21,7 +21,6 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.firebase.Timestamp
-import java8.util.Optional
 
 /** Converts between Firestore nested objects and [AuditInfo] instances. */
 internal object AuditInfoConverter {
@@ -32,7 +31,7 @@ internal object AuditInfoConverter {
     return AuditInfo(
       UserConverter.toUser(doc.user),
       doc.clientTimestamp!!.toDate(),
-      Optional.ofNullable(doc.serverTimestamp?.toDate())
+      doc.serverTimestamp?.toDate()
     )
   }
 

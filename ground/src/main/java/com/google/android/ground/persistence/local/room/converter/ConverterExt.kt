@@ -42,7 +42,6 @@ import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import java.net.URL
 import java.util.*
-import java8.util.Optional
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
 import org.json.JSONObject
@@ -52,15 +51,11 @@ fun AuditInfo.toLocalDataStoreObject(): AuditInfoEntity =
   AuditInfoEntity(
     user = UserDetails.fromUser(user),
     clientTimestamp = clientTimestamp.time,
-    serverTimestamp = serverTimestamp.map { obj: Date -> obj.time }.orElse(null)
+    serverTimestamp = serverTimestamp?.time
   )
 
 fun AuditInfoEntity.toModelObject() =
-  AuditInfo(
-    UserDetails.toUser(user),
-    Date(clientTimestamp),
-    Optional.ofNullable(serverTimestamp).map { Date(it!!) }
-  )
+  AuditInfo(UserDetails.toUser(user), Date(clientTimestamp), serverTimestamp?.let { Date(it) })
 
 private fun TileSource.Type.toLocalDataStoreObject() =
   when (this) {

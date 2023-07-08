@@ -15,23 +15,20 @@
  */
 package com.google.android.ground.model
 
-import java.util.*
-import java8.util.Optional
+import java.util.Date
 
 /**
  * User details and timestamp for creation or modification of a model object.
  *
  * @property user the user initiating the related action. This can never be null, since users must
- * always be logged in to make changes.
+ *   always be logged in to make changes.
  * @property clientTimestamp the time at which the user action was initiated, according to the
- * user's device. Defaults to the current time if unspecified.
+ *   user's device. Defaults to the current time if unspecified.
  * @property serverTimestamp the time at which the server received the requested change according to
- * the server's internal clock, or empty if the updated server time was not yet received.
+ *   the server's internal clock, or empty if the updated server time was not yet received.
  */
-data class AuditInfo
-@JvmOverloads
-constructor(
+data class AuditInfo(
   val user: User,
   val clientTimestamp: Date = Date(),
-  val serverTimestamp: Optional<Date> = Optional.empty()
+  val serverTimestamp: Date? = null
 )
