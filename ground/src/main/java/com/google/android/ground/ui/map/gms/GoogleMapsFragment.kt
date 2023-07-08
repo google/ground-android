@@ -396,10 +396,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     else error("Unsupported tile source type ${tileSource.type}")
 
   private fun addMogCollectionTileOverlay(url: URL) {
-    // TODO(#1730): Use standard metadata format (STAC?) to represent MOG sources.
+    // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
     val mogCollection =
       MogCollection(
-        listOf(MogSource("${url}/8/world.tif", 0..7), MogSource("${url}/8/{x}/{y}.tif", 8..14))
+        listOf(MogSource("${url}/world.tif", 0..7), MogSource("${url}/{x}/{y}.tif", 8..14))
       )
     val tileProvider = MogTileProvider(mogCollection)
     map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
