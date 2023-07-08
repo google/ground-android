@@ -54,10 +54,7 @@ object ResponseMapConverter {
       while (keys.hasNext()) {
         try {
           val taskId = keys.next()
-          val task =
-            job.getTask(taskId).orElseThrow {
-              LocalDataConsistencyException("Unknown task id $taskId")
-            }
+          val task = job.getTask(taskId)
           ResponseJsonConverter.toResponse(task, jsonObject[taskId])?.let { map[taskId] = it }
         } catch (e: LocalDataConsistencyException) {
           Timber.d("Bad taskData in local db: ${e.message}")

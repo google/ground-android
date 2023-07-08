@@ -16,11 +16,10 @@
 package com.google.android.ground.model.job
 
 import com.google.android.ground.model.task.Task
-import java8.util.Optional
 
 /**
  * @param suggestLoiTaskType the type of task used to suggest the LOI for this Job. Null if the job
- * is already associated with an LOI.
+ *   is already associated with an LOI.
  */
 data class Job(
   val id: String,
@@ -30,6 +29,8 @@ data class Job(
 ) {
   val tasksSorted: List<Task>
     get() = tasks.values.sortedBy { it.index }
-  fun getTask(id: String): Optional<Task> = Optional.ofNullable(tasks[id])
+
+  fun getTask(id: String): Task = tasks[id] ?: error("Unknown task id $id")
+
   fun hasData(): Boolean = tasks.isNotEmpty()
 }
