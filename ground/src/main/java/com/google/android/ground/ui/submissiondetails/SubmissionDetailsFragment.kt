@@ -106,7 +106,7 @@ class SubmissionDetailsFragment : Hilt_SubmissionDetailsFragment() {
     binding.task = task
     binding.lifecycleOwner = this
     this.binding.submissionDetailsLayout.addView(binding.root)
-    submission.responses.getResponse(task.id).ifPresent { taskData: TaskData ->
+    submission.responses.getResponse(task.id)?.let { taskData: TaskData ->
       if (task.type === Task.Type.PHOTO) {
         binding.taskValue.visibility = View.GONE
         addPhotoTask(binding.root as ViewGroup, taskData)

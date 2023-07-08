@@ -34,13 +34,7 @@ object ResponseMapConverter {
       .apply {
         for (taskId in responseDeltas.taskIds()) {
           try {
-            put(
-              taskId,
-              responseDeltas
-                .getResponse(taskId)
-                .map { ResponseJsonConverter.toJsonObject(it) }
-                .orElse(null)
-            )
+            put(taskId, ResponseJsonConverter.toJsonObject(responseDeltas.getResponse(taskId)))
           } catch (e: JSONException) {
             Timber.e(e, "Error building JSON")
           }
