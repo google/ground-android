@@ -44,9 +44,9 @@ internal class TileSetJson(private val json: JSONObject) {
       return jsonArrayToCoordinates(exteriorRing)
     }
 
-  val id: String? = json.optString(ID_KEY).ifEmpty { null }
+  val id: String = json.optString(ID_KEY) ?: ""
 
-  val url: String? = json.optJSONObject(PROPERTIES_KEY)?.optString(URL_KEY)?.ifEmpty { null }
+  val url: String = json.optJSONObject(PROPERTIES_KEY)?.optString(URL_KEY) ?: ""
 
   fun boundsIntersect(bounds: Bounds): Boolean = vertices.any { bounds.contains(it) }
 
