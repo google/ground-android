@@ -16,9 +16,9 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import java.io.File
+import kotlinx.coroutines.flow.flow
+import timber.log.Timber
 
 /**
  * Downloads tiles across regions at multiple zoom levels.
@@ -31,15 +31,17 @@ class MogTileDownloader(private val client: MogClient, private val outputBasePat
    * Executes the provided [requests], writing resulting tiles to [outputBasePath] in sub-paths of
    * the form `{z}/{x}/{y}.jpg`.
    */
-  @RequiresApi(Build.VERSION_CODES.S)
-  suspend fun downloadTiles(requests: List<MogTilesRequest>) {
-    // TODO: Return download status as Flow.
+  suspend fun downloadTiles(requests: List<MogTilesRequest>) = flow {
     client.getTiles(requests).collect { tile ->
       val (x, y, zoom) = tile.metadata.tileCoordinates
       val path = File(outputBasePath, "$zoom/$x")
       path.mkdirs()
       val gmsTile = tile.toGmsTile()
-      File(path, "$y.jpg").writeBytes(gmsTile.data!!)
+      val outFile = File(path, "$y.jpg")
+      val data = gmsTile.data!!
+      outFile.writeBytes(data)
+      Timber.d("Saved ${data.size} bytes to ${outFile.path}")
+      emit(data.size)
     }
   }
 }

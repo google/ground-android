@@ -30,6 +30,7 @@ import com.google.android.ground.system.ApplicationErrorManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.*
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.android.schedulers.AndroidSchedulers
 import java8.util.function.Consumer
 import javax.inject.Inject
 import timber.log.Timber
@@ -69,12 +70,17 @@ class MainActivity : Hilt_MainActivity() {
       callback.accept(this)
     }
 
-    navigator.getNavigateRequests().`as`(autoDisposable(this)).subscribe {
-      navDirections: NavDirections ->
-      onNavigate(navDirections)
-    }
+    navigator
+      .getNavigateRequests()
+      .observeOn(AndroidSchedulers.mainThread())
+      .`as`(autoDisposable(this))
+      .subscribe { navDirections: NavDirections -> onNavigate(navDirections) }
 
-    navigator.getNavigateUpRequests().`as`(autoDisposable(this)).subscribe { navigateUp() }
+    navigator
+      .getNavigateUpRequests()
+      .observeOn(AndroidSchedulers.mainThread())
+      .`as`(autoDisposable(this))
+      .subscribe { navigateUp() }
 
     val binding = MainActBinding.inflate(layoutInflater)
     setContentView(binding.root)

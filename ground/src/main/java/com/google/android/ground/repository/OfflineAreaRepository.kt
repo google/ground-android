@@ -26,6 +26,9 @@ import com.google.android.ground.persistence.sync.TileSetDownloadWorkManager
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.GeocodingManager
+import com.google.android.ground.ui.map.Bounds
+import com.google.android.ground.ui.map.gms.mog.*
+import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.android.ground.ui.util.FileUtil
 import io.reactivex.*
 import java.io.File
@@ -33,6 +36,9 @@ import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentSet
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.reactive.asFlow
 import org.apache.commons.io.FileUtils
 import timber.log.Timber
 
@@ -203,4 +209,28 @@ constructor(
           .andThen(localTileSetStore.deleteTileSetByUrl(tileSet))
       }
       .andThen(localOfflineAreaStore.deleteOfflineArea(offlineAreaId))
+
+  suspend fun getMogBaseUrl(): String {
+    val survey = surveyRepository.activeSurveyFlowable.asFlow().firstOrNull()?.orElse(null)
+    return survey?.tileSources?.firstOrNull()?.url?.toString()
+      ?: error("Survey has no tile sources")
+  }
+
+  private fun getMogClient(baseUrl: String): MogClient {
+    // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
+    val mogCollection =
+      MogCollection(
+        listOf(MogSource("${baseUrl}/world.tif", 0..7), MogSource("${baseUrl}/{x}/{y}.tif", 8..14))
+      )
+    return MogClient(mogCollection)
+  }
+
+  suspend fun buildTileRequests(baseUrl: String, viewport: Bounds): List<MogTilesRequest> =
+    getMogClient(baseUrl).buildTilesRequests(viewport.toGoogleMapsObject())
+
+  suspend fun downloadTiles(baseUrl: String, requests: List<MogTilesRequest>): Flow<Int> {
+    val tilePath = File(fileUtil.filesDir.path, "tiles/${baseUrl.hashCode()}").path
+    val downloader = MogTileDownloader(getMogClient(baseUrl), tilePath)
+    return downloader.downloadTiles(requests)
+  }
 }
