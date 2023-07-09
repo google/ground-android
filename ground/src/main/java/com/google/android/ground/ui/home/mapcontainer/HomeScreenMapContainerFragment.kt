@@ -82,7 +82,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onZoomThresholdCrossed() }
 
-    val userRole = surveyRepository.activeSurvey!!.getRole(userRepository.currentUser.email)
+    val userRole = surveyRepository.activeSurvey?.getRole(userRepository.currentUser.email)
     val canSubmitData = userRole != Role.VIEWER
 
     adapter = MapCardAdapter(submissionRepository, lifecycleScope)
