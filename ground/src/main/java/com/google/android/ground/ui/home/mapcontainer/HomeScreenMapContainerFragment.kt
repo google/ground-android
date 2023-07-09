@@ -25,15 +25,20 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
+import com.google.android.ground.R
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
+import com.google.android.ground.model.Role
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.SubmissionRepository
+import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
@@ -51,7 +56,10 @@ import timber.log.Timber
 @AndroidEntryPoint(AbstractMapContainerFragment::class)
 class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
 
+  @Inject lateinit var ephemeralPopups: EphemeralPopups
   @Inject lateinit var submissionRepository: SubmissionRepository
+  @Inject lateinit var surveyRepository: SurveyRepository
+  @Inject lateinit var userRepository: UserRepository
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -74,8 +82,18 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onZoomThresholdCrossed() }
 
+    val userRole = surveyRepository.activeSurvey!!.getRole(userRepository.currentUser.email)
+    val canSubmitData = userRole != Role.VIEWER
+
     adapter = MapCardAdapter(submissionRepository, lifecycleScope)
-    adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
+    adapter.setCollectDataListener {
+      if (canSubmitData) {
+        navigateToDataCollectionFragment(it)
+      } else {
+        // TODO(#1667): Revisit UX for displaying view only mode
+        ephemeralPopups.showError(getString(R.string.collect_data_viewer_error))
+      }
+    }
 
     lifecycleScope.launch {
       mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel
