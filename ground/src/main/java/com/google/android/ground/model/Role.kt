@@ -16,8 +16,8 @@
 package com.google.android.ground.model
 
 enum class Role {
-  UNKNOWN,
+  DATA_COLLECTOR,
   OWNER,
   SURVEY_ORGANIZER,
-  DATA_COLLECTOR
+  VIEWER
 }
