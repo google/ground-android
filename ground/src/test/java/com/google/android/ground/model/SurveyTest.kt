@@ -16,7 +16,7 @@
 package com.google.android.ground.model
 
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.assertThrows
+import kotlin.test.assertFailsWith
 import org.junit.Test
 
 class SurveyTest {
@@ -52,9 +52,16 @@ class SurveyTest {
     assertThat(testSurvey.getRole(surveyOrganizerEmail)).isEqualTo(Role.SURVEY_ORGANIZER)
 
     // unknown acl
-    assertThrows(IllegalStateException::class.java) { testSurvey.getRole(randomEmail) }
+    assertFailsWith<IllegalStateException> { testSurvey.getRole(randomEmail) }
+      .hasMessage("Unknown acl random-acl in survey Survey title for user random_email@gmail.com")
 
     // missing email
-    assertThrows(IllegalStateException::class.java) { testSurvey.getRole("") }
+    assertFailsWith<IllegalStateException>("") { testSurvey.getRole("") }
+      .hasMessage("ACL not found for email  in survey Survey title")
+    assertFailsWith<IllegalStateException>("") { testSurvey.getRole("some-email") }
+      .hasMessage("ACL not found for email some-email in survey Survey title")
   }
+
+  private fun Throwable.hasMessage(actualMessage: String) =
+    assertThat(message).isEqualTo(actualMessage)
 }

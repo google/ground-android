@@ -33,15 +33,12 @@ data class Survey(
 
   fun getJob(jobId: String): Optional<Job> = Optional.ofNullable(jobMap[jobId])
 
-  fun getRole(email: String): Role {
-    return when (
-      val aclValue = acl[email] ?: error("ACL not found for email $email in survey $title")
-    ) {
+  fun getRole(email: String): Role =
+    when (val aclValue = acl[email] ?: error("ACL not found for email $email in survey $title")) {
       "owner" -> Role.OWNER
       "viewer" -> Role.VIEWER
       "data-collector" -> Role.DATA_COLLECTOR
       "survey-organizer" -> Role.SURVEY_ORGANIZER
       else -> error("Unknown acl $aclValue in survey $title for user $email")
     }
-  }
 }
