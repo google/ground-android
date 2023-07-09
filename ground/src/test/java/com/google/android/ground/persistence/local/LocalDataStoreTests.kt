@@ -88,7 +88,7 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Test
   fun testDeleteSurvey() = runWithTestDispatcher {
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localSurveyStore.deleteSurvey(TEST_SURVEY).test().assertComplete()
+    localSurveyStore.deleteSurvey(TEST_SURVEY)
     assertThat(localSurveyStore.surveys.first()).isEmpty()
   }
 
