@@ -17,15 +17,12 @@ package com.google.android.ground.persistence.local.stores
 
 import com.google.android.ground.model.User
 import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Completable
 import io.reactivex.Single
 
 /** Provides access to [User] data in local storage. */
 interface LocalUserStore {
   /** Add user to the database. */
-  fun insertOrUpdateUser(user: User): @Cold Completable
-  /** Add user to the database. */
-  suspend fun insertOrUpdateUserSuspend(user: User)
+  suspend fun insertOrUpdateUser(user: User)
 
   /**
    * Loads the user with the specified id from the local data store. The returned Single fails with
