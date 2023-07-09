@@ -16,6 +16,7 @@
 package com.google.android.ground.persistence.local.room.stores
 
 import com.google.android.ground.model.User
+import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.UserDao
@@ -44,6 +45,7 @@ class RoomUserStore @Inject internal constructor() : LocalUserStore {
    * Attempts to retrieve the [User] with the given ID from the local database. If the retrieval
    * fails, returns a [NoSuchElementException].
    */
+  @Deprecated("Use getUserSuspend instead")
   override fun getUser(id: String): Single<User> =
     userDao
       .findById(id)
@@ -53,4 +55,8 @@ class RoomUserStore @Inject internal constructor() : LocalUserStore {
       .toSingle()
       .map { it.toModelObject() }
       .subscribeOn(schedulers.io())
+
+  override suspend fun getUserSuspend(id: String): User =
+    userDao.findByIdSuspend(id)?.toModelObject()
+      ?: throw LocalDataStoreException("Error loading user from local db: $id")
 }

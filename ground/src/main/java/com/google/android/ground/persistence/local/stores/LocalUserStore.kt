@@ -28,5 +28,8 @@ interface LocalUserStore {
    * Loads the user with the specified id from the local data store. The returned Single fails with
    * [java.util.NoSuchElementException] if not found.
    */
-  fun getUser(id: String): @Cold Single<User>
+  @Deprecated("Use getUserSuspend instead") fun getUser(id: String): @Cold Single<User>
+
+  // TODO(#1581): Rename to getUser once all existing usages are migrated to coroutine.
+  suspend fun getUserSuspend(id: String): User
 }
