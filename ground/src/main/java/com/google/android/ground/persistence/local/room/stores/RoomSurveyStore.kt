@@ -22,7 +22,13 @@ import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.local.room.converter.toModelObject
-import com.google.android.ground.persistence.local.room.dao.*
+import com.google.android.ground.persistence.local.room.dao.JobDao
+import com.google.android.ground.persistence.local.room.dao.MultipleChoiceDao
+import com.google.android.ground.persistence.local.room.dao.OptionDao
+import com.google.android.ground.persistence.local.room.dao.SurveyDao
+import com.google.android.ground.persistence.local.room.dao.TaskDao
+import com.google.android.ground.persistence.local.room.dao.TileSourceDao
+import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.rx.Schedulers
 import io.reactivex.Completable
@@ -75,8 +81,8 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
     surveyDao.getSurveyByIdSuspend(id)?.toModelObject()
 
   /** Deletes the provided [Survey] from the local database, if it exists in the database. */
-  override fun deleteSurvey(survey: Survey): Completable =
-    surveyDao.delete(survey.toLocalDataStoreObject()).subscribeOn(schedulers.io())
+  override suspend fun deleteSurvey(survey: Survey) =
+    surveyDao.deleteSuspend(survey.toLocalDataStoreObject())
 
   private fun insertOrUpdateOption(taskId: String, option: Option): Completable =
     optionDao.insertOrUpdate(option.toLocalDataStoreObject(taskId)).subscribeOn(schedulers.io())
