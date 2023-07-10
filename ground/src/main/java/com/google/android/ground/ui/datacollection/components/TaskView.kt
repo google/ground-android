@@ -77,7 +77,8 @@ data class TaskViewWithoutHeader(private val binding: TaskFragWithoutHeaderBindi
 }
 
 /** Implementation of [TaskView] with a header that is an extension of the title bar. */
-data class TaskViewWithCombinedHeader(private val binding: TaskFragWithCombinedHeaderBinding) : TaskView {
+data class TaskViewWithCombinedHeader(private val binding: TaskFragWithCombinedHeaderBinding) :
+  TaskView {
 
   override val actionButtonsContainer = binding.actionButtonsContainer
 

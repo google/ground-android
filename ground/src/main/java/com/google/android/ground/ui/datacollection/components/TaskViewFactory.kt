@@ -45,9 +45,7 @@ object TaskViewFactory {
     return TaskViewWithoutHeader(binding)
   }
 
-  /**
-   * Creates a TaskView with a header that is an extension of the app bar.
-   */
+  /** Creates a TaskView with a header that is an extension of the app bar. */
   fun createWithCombinedHeader(
     layoutInflater: LayoutInflater,
     @DrawableRes iconResId: Int? = null,
