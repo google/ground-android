@@ -26,7 +26,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.io.File
 import java.io.FileNotFoundException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /**
@@ -48,7 +50,9 @@ constructor(
   private val remoteDestinationPath: String =
     workerParams.inputData.getString(DESTINATION_PATH_PARAM_KEY)!!
 
-  override suspend fun doWork(): Result {
+  override suspend fun doWork(): Result = withContext(Dispatchers.IO) { doWorkInternal() }
+
+  private suspend fun doWorkInternal(): Result {
     Timber.d("Attempting photo sync: $localSourcePath, $remoteDestinationPath")
     val file = File(localSourcePath)
     return if (file.exists()) {

@@ -25,6 +25,8 @@ import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
 import com.google.android.ground.persistence.sync.SyncService.Companion.DEFAULT_MAX_RETRY_ATTEMPTS
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /** Worker responsible for syncing latest surveys and LOIs from remote server to local db. */
@@ -38,7 +40,9 @@ constructor(
 ) : CoroutineWorker(context, params) {
   private val surveyId: String? = params.inputData.getString(SURVEY_ID_PARAM_KEY)
 
-  override suspend fun doWork(): Result {
+  override suspend fun doWork(): Result = withContext(Dispatchers.IO) { doWorkInternal() }
+
+  private suspend fun doWorkInternal(): Result {
     if (surveyId == null) {
       Timber.e("Survey sync scheduled with null surveyId")
       return Result.failure()

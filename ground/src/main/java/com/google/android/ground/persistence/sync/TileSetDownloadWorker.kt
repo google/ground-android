@@ -29,6 +29,8 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /**
@@ -148,7 +150,9 @@ constructor(
    * If the tile source file already exists on the device, this method returns `Result.success()`
    * and does not re-download the file.
    */
-  override suspend fun doWork(): Result {
+  override suspend fun doWork(): Result = withContext(Dispatchers.IO) { doWorkInternal() }
+
+  private suspend fun doWorkInternal(): Result {
     val pendingTileSets = localTileSetStore.pendingTileSets()
 
     // When there are no tiles in the db, the blockingGet returns null.

@@ -34,7 +34,9 @@ import com.google.android.ground.repository.MutationRepository
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /**
@@ -57,7 +59,9 @@ constructor(
   private val locationOfInterestId: String =
     params.inputData.getString(LOCATION_OF_INTEREST_ID_PARAM_KEY)!!
 
-  override suspend fun doWork(): Result {
+  override suspend fun doWork(): Result = withContext(Dispatchers.IO) { doWorkInternal() }
+
+  private suspend fun doWorkInternal(): Result {
     Timber.d("Connected. Syncing changes to location of interest $locationOfInterestId")
     val mutations: List<Mutation> =
       mutationRepository.getPendingMutations(locationOfInterestId).blockingGet()
