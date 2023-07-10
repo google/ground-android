@@ -36,7 +36,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.coroutines.rx2.await
-import kotlinx.coroutines.rx2.awaitSingleOrNull
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_SECS: Long = 15
@@ -136,8 +135,8 @@ constructor(
 
   /** Attempts to remove the locally synced survey. Doesn't throw an error if it doesn't exist. */
   suspend fun removeOfflineSurvey(surveyId: String) {
-    val survey = localSurveyStore.getSurveyById(surveyId).awaitSingleOrNull()
-    survey?.let { localSurveyStore.deleteSurvey(survey).await() }
+    val survey = localSurveyStore.getSurveyByIdSuspend(surveyId)
+    survey?.let { localSurveyStore.deleteSurvey(survey) }
     if (activeSurvey?.id == surveyId) {
       clearActiveSurvey()
     }

@@ -31,7 +31,6 @@ import io.reactivex.Flowable
 import java.util.*
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -60,7 +59,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     super.setUp()
     runWithTestDispatcher {
       // Setup user
-      userRepository.saveUser(TEST_USER).await()
+      userRepository.saveUser(TEST_USER)
       fakeAuthenticationManager.setUser(TEST_USER)
 
       // Setup survey and LOIs
