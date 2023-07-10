@@ -22,8 +22,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker.Result
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import androidx.work.testing.SynchronousExecutor
-import androidx.work.testing.TestWorkerBuilder
+import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
@@ -32,8 +31,6 @@ import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.SURVEY
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Before
 import org.junit.Test
@@ -47,7 +44,6 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class SurveySyncWorkerTest : BaseHiltTest() {
   private lateinit var context: Context
-  private lateinit var executor: Executor
   @BindValue @Mock lateinit var syncSurvey: SyncSurveyUseCase
 
   private val factory =
@@ -63,15 +59,13 @@ class SurveySyncWorkerTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     context = ApplicationProvider.getApplicationContext()
-    executor = Executors.newSingleThreadExecutor()
   }
 
   @Test
-  fun doWork_FailsOnNoInput() {
+  fun doWork_FailsOnNoInput() = runWithTestDispatcher {
     val worker =
-      TestWorkerBuilder<SurveySyncWorker>(
+      TestListenableWorkerBuilder<SurveySyncWorker>(
           context,
-          executor,
           inputData = workDataOf(Pair(SURVEY_ID_PARAM_KEY, null)),
         )
         .setWorkerFactory(factory)
@@ -85,9 +79,8 @@ class SurveySyncWorkerTest : BaseHiltTest() {
     `when`(syncSurvey(SURVEY.id)).thenReturn(SURVEY)
 
     val worker =
-      TestWorkerBuilder<SurveySyncWorker>(
+      TestListenableWorkerBuilder<SurveySyncWorker>(
           context,
-          SynchronousExecutor(),
           inputData = workDataOf(Pair(SURVEY_ID_PARAM_KEY, SURVEY.id)),
         )
         .setWorkerFactory(factory)
@@ -101,9 +94,8 @@ class SurveySyncWorkerTest : BaseHiltTest() {
     `when`(syncSurvey(SURVEY.id)).thenThrow(NotFoundException())
 
     val worker =
-      TestWorkerBuilder<SurveySyncWorker>(
+      TestListenableWorkerBuilder<SurveySyncWorker>(
           context,
-          executor,
           inputData = workDataOf(Pair(SURVEY_ID_PARAM_KEY, SURVEY.id)),
         )
         .setWorkerFactory(factory)

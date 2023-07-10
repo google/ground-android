@@ -374,11 +374,11 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testGetPendingTile() {
-    localTileSetStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait()
-    localTileSetStore.insertOrUpdateTileSet(TEST_FAILED_TILE_SOURCE).blockingAwait()
-    localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait()
-    localTileSetStore.pendingTileSets().test().assertValue(listOf(TEST_PENDING_TILE_SOURCE))
+  fun testGetPendingTile() = runWithTestDispatcher {
+    localTileSetStore.insertOrUpdateTileSetSuspend(TEST_DOWNLOADED_TILE_SOURCE)
+    localTileSetStore.insertOrUpdateTileSetSuspend(TEST_FAILED_TILE_SOURCE)
+    localTileSetStore.insertOrUpdateTileSetSuspend(TEST_PENDING_TILE_SOURCE)
+    assertThat(localTileSetStore.pendingTileSets()).isEqualTo(listOf(TEST_PENDING_TILE_SOURCE))
   }
 
   @Test
