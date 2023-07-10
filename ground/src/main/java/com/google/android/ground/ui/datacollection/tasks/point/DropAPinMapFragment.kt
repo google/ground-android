@@ -28,7 +28,6 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.datacollection.components.TaskHeaderPopupView
 import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinate
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Map
@@ -70,10 +69,6 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
         }
       }
     }
-
-    val centerMarker = binding.root.findViewById<View>(R.id.centerMarker)
-    TaskHeaderPopupView(requireContext())
-      .show(centerMarker, requireContext().getString(R.string.drop_a_pin_hint_text))
 
     return binding.root
   }
