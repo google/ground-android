@@ -25,7 +25,6 @@ import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
-import java8.util.Optional
 import javax.inject.Inject
 
 class DropAPinTaskViewModel
@@ -46,7 +45,7 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
   }
 
   fun updateResponse(point: Point) {
-    setResponse(Optional.of(GeometryData(point)))
+    setResponse(GeometryData(point))
     features.postValue(setOf(createFeature(point)))
   }
 

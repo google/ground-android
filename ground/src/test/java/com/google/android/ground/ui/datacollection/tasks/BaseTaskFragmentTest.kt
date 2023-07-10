@@ -34,7 +34,6 @@ import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.common.truth.Truth.assertThat
-import java8.util.Optional
 import org.hamcrest.core.IsNot.not
 import org.mockito.kotlin.whenever
 
@@ -109,7 +108,7 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
 
   protected inline fun <reified T : Fragment> setupTaskFragment(task: Task) {
     viewModel = viewModelFactory.create(DataCollectionViewModel.getViewModelClass(task.type)) as VM
-    viewModel.initialize(task, Optional.empty())
+    viewModel.initialize(task, null)
     whenever(dataCollectionViewModel.getTaskViewModel(task.index)).thenReturn(viewModel)
 
     launchFragmentWithNavController<T>(

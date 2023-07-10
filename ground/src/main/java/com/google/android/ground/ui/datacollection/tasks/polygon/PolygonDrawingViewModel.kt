@@ -30,7 +30,6 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
-import java8.util.Optional
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -144,7 +143,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     isMarkedComplete = true
 
     refreshFeatures(vertices, true)
-    setResponse(Optional.of(GeometryData(createGeometry(vertices, true))))
+    setResponse(GeometryData(createGeometry(vertices, true)))
   }
 
   /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */

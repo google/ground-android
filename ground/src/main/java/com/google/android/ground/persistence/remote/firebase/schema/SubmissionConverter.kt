@@ -102,24 +102,22 @@ internal object SubmissionConverter {
 
   private fun putNumberResponse(taskId: String, obj: Any, responses: MutableMap<String, TaskData>) {
     val value = DataStoreException.checkType(Double::class.java, obj) as Double
-    NumberTaskData.fromNumber(value.toString()).ifPresent { r: TaskData -> responses[taskId] = r }
+    NumberTaskData.fromNumber(value.toString())?.let { r: TaskData -> responses[taskId] = r }
   }
 
   private fun putTextResponse(taskId: String, obj: Any, responses: MutableMap<String, TaskData>) {
     val value = DataStoreException.checkType(String::class.java, obj) as String
-    TextTaskData.fromString(value.trim { it <= ' ' }).ifPresent { r: TaskData ->
-      responses[taskId] = r
-    }
+    TextTaskData.fromString(value.trim { it <= ' ' })?.let { r: TaskData -> responses[taskId] = r }
   }
 
   private fun putDateResponse(taskId: String, obj: Any, responses: MutableMap<String, TaskData>) {
     val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
-    DateTaskData.fromDate(value.toDate()).ifPresent { r: TaskData -> responses[taskId] = r }
+    DateTaskData.fromDate(value.toDate())?.let { r: TaskData -> responses[taskId] = r }
   }
 
   private fun putTimeResponse(taskId: String, obj: Any, responses: MutableMap<String, TaskData>) {
     val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
-    TimeTaskData.fromDate(value.toDate()).ifPresent { r: TaskData -> responses[taskId] = r }
+    TimeTaskData.fromDate(value.toDate())?.let { r: TaskData -> responses[taskId] = r }
   }
 
   private fun putDropAPinResponse(
@@ -156,7 +154,7 @@ internal object SubmissionConverter {
   ) {
     val values = DataStoreException.checkType(MutableList::class.java, obj) as List<*>
     values.forEach { DataStoreException.checkType(String::class.java, it as Any) }
-    MultipleChoiceTaskData.fromList(multipleChoice, values as List<String>).ifPresent {
+    MultipleChoiceTaskData.fromList(multipleChoice, values as List<String>)?.let {
       responses[taskId] = it
     }
   }

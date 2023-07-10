@@ -47,6 +47,7 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Map
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.mog.MogCollection
+import com.google.android.ground.ui.map.gms.mog.MogSource
 import com.google.android.ground.ui.map.gms.mog.MogTileProvider
 import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
 import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
@@ -395,8 +396,11 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     else error("Unsupported tile source type ${tileSource.type}")
 
   private fun addMogCollectionTileOverlay(url: URL) {
-    // TODO(#1730): Make URLs and zoom level configuration using a standard metadata format (STAC?).
-    val mogCollection = MogCollection("${url}/{z}/world.tif", "${url}/{z}/{x}/{y}.tif", 8, 14)
+    // TODO(#1730): Use standard metadata format (STAC?) to represent MOG sources.
+    val mogCollection =
+      MogCollection(
+        listOf(MogSource("${url}/8/world.tif", 0..7), MogSource("${url}/8/{x}/{y}.tif", 8..14))
+      )
     val tileProvider = MogTileProvider(mogCollection)
     map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
   }
