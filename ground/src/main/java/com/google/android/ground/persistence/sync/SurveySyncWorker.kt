@@ -18,14 +18,13 @@ package com.google.android.ground.persistence.sync
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
+import androidx.work.CoroutineWorker
 import androidx.work.Data
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
 import com.google.android.ground.persistence.sync.SyncService.Companion.DEFAULT_MAX_RETRY_ATTEMPTS
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 /** Worker responsible for syncing latest surveys and LOIs from remote server to local db. */
@@ -36,21 +35,18 @@ constructor(
   @Assisted context: Context,
   @Assisted params: WorkerParameters,
   private val syncSurvey: SyncSurveyUseCase,
-) : Worker(context, params) {
+) : CoroutineWorker(context, params) {
   private val surveyId: String? = params.inputData.getString(SURVEY_ID_PARAM_KEY)
 
-  override fun doWork(): Result {
+  override suspend fun doWork(): Result {
     if (surveyId == null) {
       Timber.e("Survey sync scheduled with null surveyId")
       return Result.failure()
     }
 
     try {
-      // It's ok to block here since WorkManager calls doWork() on a background thread.
-      runBlocking {
-        Timber.d("Syncing survey $surveyId")
-        syncSurvey(surveyId)
-      }
+      Timber.d("Syncing survey $surveyId")
+      syncSurvey(surveyId)
     } catch (e: Throwable) {
       Timber.e("error syncing survey in the background", e)
       return if (this.runAttemptCount > DEFAULT_MAX_RETRY_ATTEMPTS) {
