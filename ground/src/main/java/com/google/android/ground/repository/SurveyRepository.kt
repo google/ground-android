@@ -36,6 +36,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.rx2.rxCompletable
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_SECS: Long = 15
@@ -108,7 +109,7 @@ constructor(
     remoteDataStore
       .loadSurvey(id)
       .timeout(LOAD_REMOTE_SURVEY_TIMEOUT_SECS, TimeUnit.SECONDS)
-      .flatMap { localSurveyStore.insertOrUpdateSurvey(it).toSingleDefault(it) }
+      .flatMap { rxCompletable { localSurveyStore.insertOrUpdateSurvey(it) }.toSingleDefault(it) }
       .doOnSuccess {
         // TODO: Define and use a BaseMapStore
         it.tileSources.forEach { bm ->

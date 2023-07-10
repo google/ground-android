@@ -17,7 +17,6 @@ package com.google.android.ground.persistence.local.stores
 
 import com.google.android.ground.model.Survey
 import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Completable
 import io.reactivex.Maybe
 import kotlinx.coroutines.flow.Flow
 
@@ -38,5 +37,5 @@ interface LocalSurveyStore {
   suspend fun deleteSurvey(survey: Survey)
 
   /** Add survey to the database. */
-  fun insertOrUpdateSurvey(survey: Survey): @Cold Completable
+  suspend fun insertOrUpdateSurvey(survey: Survey)
 }
