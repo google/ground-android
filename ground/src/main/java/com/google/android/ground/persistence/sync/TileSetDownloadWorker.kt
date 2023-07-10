@@ -111,6 +111,7 @@ constructor(
     } catch (e: Exception) {
       Timber.e(e, "Failed to download tile: $mbtilesFile")
       updateDownloadState(mbtilesFile, MbtilesFile.DownloadState.FAILED)
+      throw e
     }
   }
 
