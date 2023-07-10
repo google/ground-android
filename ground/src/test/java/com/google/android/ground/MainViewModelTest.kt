@@ -19,6 +19,7 @@ import android.content.SharedPreferences
 import android.os.Looper
 import androidx.navigation.NavDirections
 import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.auth.SignInState.Companion.error
@@ -35,6 +36,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.Maybe
 import io.reactivex.observers.TestObserver
 import javax.inject.Inject
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Before
@@ -78,12 +80,12 @@ class MainViewModelTest : BaseHiltTest() {
     assertThat(sharedPreferences.all).isEmpty()
   }
 
-  private fun verifyUserSaved() {
-    userRepository.getUser(FakeData.USER.id).test().assertResult(FakeData.USER)
+  private fun verifyUserSaved() = runWithTestDispatcher {
+    assertThat(userRepository.getUser(FakeData.USER.id)).isEqualTo(FakeData.USER)
   }
 
-  private fun verifyUserNotSaved() {
-    userRepository.getUser(FakeData.USER.id).test().assertError(NoSuchElementException::class.java)
+  private fun verifyUserNotSaved() = runWithTestDispatcher {
+    assertFailsWith<LocalDataStoreException> { userRepository.getUser(FakeData.USER.id) }
   }
 
   private fun verifyProgressDialogVisible(visible: Boolean) {
