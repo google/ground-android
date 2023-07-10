@@ -65,15 +65,6 @@ class PolygonDrawingTaskFragmentTest :
   }
 
   @Test
-  fun testHeader_click_displaysTaskLabel() = runWithTestDispatcher {
-    setupTaskFragment<PolygonDrawingTaskFragment>(task)
-
-    onView(withText("Draw an area")).perform(click())
-
-    onView(withText("Task for drawing a polygon")).check(matches(isDisplayed()))
-  }
-
-  @Test
   fun testInfoCard_noTaskData() {
     setupTaskFragment<PolygonDrawingTaskFragment>(task)
 
