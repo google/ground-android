@@ -43,12 +43,7 @@ object ResponseDeltasConverter {
               delta.taskId,
               JSONObject()
                 .put(KEY_TASK_TYPE, delta.taskType.name)
-                .put(
-                  KEY_NEW_RESPONSE,
-                  delta.newTaskData
-                    .map { ResponseJsonConverter.toJsonObject(it) }
-                    .orElse(JSONObject.NULL)
-                )
+                .put(KEY_NEW_RESPONSE, ResponseJsonConverter.toJsonObject(delta.newTaskData))
             )
           } catch (e: JSONException) {
             Timber.e(e, "Error building JSON")

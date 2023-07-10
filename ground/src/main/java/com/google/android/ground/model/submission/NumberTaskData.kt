@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.model.submission
 
-import java8.util.Optional
 import kotlinx.serialization.Serializable
 
 /** A user provided response to a number question task. */
@@ -29,8 +28,7 @@ data class NumberTaskData constructor(private val number: String) : TaskData {
   override fun isEmpty(): Boolean = number.isEmpty()
 
   companion object {
-    @JvmStatic
-    fun fromNumber(number: String): Optional<TaskData> =
-      if (number.isEmpty()) Optional.empty() else Optional.of(NumberTaskData(number))
+    fun fromNumber(number: String): TaskData? =
+      if (number.isEmpty()) null else NumberTaskData(number)
   }
 }

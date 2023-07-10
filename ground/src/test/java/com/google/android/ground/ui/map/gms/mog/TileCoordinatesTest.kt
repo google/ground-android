@@ -26,11 +26,6 @@ import org.robolectric.RobolectricTestRunner
 class TileCoordinatesTest {
 
   @Test
-  fun worldCoordinate() {
-    assertThat(TileCoordinates.WORLD).isEqualTo(TileCoordinates(0, 0, 0))
-  }
-
-  @Test
   fun fromLatLng() {
     assertThat(TileCoordinates.fromLatLng(LatLng(10.5, 20.5), 10))
       .isEqualTo(TileCoordinates(570, 481, 10))
