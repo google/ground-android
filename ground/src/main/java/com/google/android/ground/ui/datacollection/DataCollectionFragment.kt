@@ -15,11 +15,13 @@
  */
 package com.google.android.ground.ui.datacollection
 
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import androidx.constraintlayout.widget.Guideline
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.ground.R
@@ -45,6 +47,7 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
 
   private lateinit var binding: DataCollectionFragBinding
   private lateinit var progressBar: ProgressBar
+  private lateinit var guideline: Guideline
   private lateinit var viewPager: ViewPager2
 
   override fun onCreateView(
@@ -56,6 +59,7 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
     binding = DataCollectionFragBinding.inflate(inflater, container, false)
     viewPager = binding.pager
     progressBar = binding.progressBar
+    guideline = binding.progressBarGuideline
     getAbstractActivity().setActionBar(binding.dataCollectionToolbar, showTitle = false)
     return binding.root
   }
@@ -71,6 +75,21 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
     loadTasks(viewModel.tasks)
     viewModel.currentPosition.observe(viewLifecycleOwner) { onTaskChanged(it) }
     viewModel.currentTaskDataLiveData.observe(viewLifecycleOwner) { onTaskDataUpdated(it) }
+
+    viewPager.registerOnPageChangeCallback(
+      object : ViewPager2.OnPageChangeCallback() {
+        override fun onPageSelected(position: Int) {
+          super.onPageSelected(position)
+
+          val buttonContainer = view.findViewById<View>(R.id.action_buttons_container) ?: return
+          val anchorLocation = IntArray(2)
+          buttonContainer.getLocationInWindow(anchorLocation)
+          val guidelineTop =
+            anchorLocation[1] - buttonContainer.rootWindowInsets.systemWindowInsetTop
+          guideline.setGuidelineBegin(guidelineTop)
+        }
+      }
+    )
   }
 
   private fun loadTasks(tasks: List<Task>) {
