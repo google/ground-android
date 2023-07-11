@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection
 
-import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
