@@ -22,8 +22,7 @@ import androidx.work.ListenableWorker
 import androidx.work.ListenableWorker.Result
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import androidx.work.testing.SynchronousExecutor
-import androidx.work.testing.TestWorkerBuilder
+import androidx.work.testing.TestListenableWorkerBuilder
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
@@ -32,6 +31,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,6 +39,7 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MbtilesFileDownloadWorkerTest : BaseHiltTest() {
@@ -62,18 +63,13 @@ class MbtilesFileDownloadWorkerTest : BaseHiltTest() {
   }
 
   @Test
-  fun doWork_SucceedsOnNoPendingTileSets() {
-    val worker =
-      TestWorkerBuilder<TileSetDownloadWorker>(context, SynchronousExecutor())
-        .setWorkerFactory(factory)
-        .build()
-
-    val result = worker.doWork()
+  fun doWork_SucceedsOnNoPendingTileSets() = runWithTestDispatcher {
+    val result = createAndDoWork(context)
     assertThat(result).isEqualTo(Result.success())
   }
 
   @Test
-  fun doWork_SucceedsWhenTileSetAlreadyDownloaded() {
+  fun doWork_SucceedsWhenTileSetAlreadyDownloaded() = runWithTestDispatcher {
     val tilefile = File(context.filesDir, "TILESET")
     val out = FileOutputStream(tilefile)
     out.write(0)
@@ -86,18 +82,14 @@ class MbtilesFileDownloadWorkerTest : BaseHiltTest() {
         downloadState = MbtilesFile.DownloadState.DOWNLOADED,
         referenceCount = 1
       )
-    localTileSetStore.insertOrUpdateTileSet(tiles).blockingAwait()
-    val worker =
-      TestWorkerBuilder<TileSetDownloadWorker>(context, SynchronousExecutor())
-        .setWorkerFactory(factory)
-        .build()
+    localTileSetStore.insertOrUpdateTileSetSuspend(tiles)
 
-    val result = worker.doWork()
+    val result = createAndDoWork(context)
     assertThat(result).isEqualTo(Result.success())
   }
 
   @Test
-  fun doWork_RetriesOnFailure() {
+  fun doWork_RetriesOnFailure() = runWithTestDispatcher {
     // Force an IOException by writing to a closed stream.
     `when`(mockContext.openFileOutput("TILESET", Context.MODE_PRIVATE))
       .thenReturn(FileOutputStream("fake").apply { close() })
@@ -110,19 +102,15 @@ class MbtilesFileDownloadWorkerTest : BaseHiltTest() {
         referenceCount = 1
       )
 
-    localTileSetStore.insertOrUpdateTileSet(tiles).blockingAwait()
-    val worker =
-      TestWorkerBuilder<TileSetDownloadWorker>(mockContext, SynchronousExecutor())
-        .setWorkerFactory(factory)
-        .build()
+    localTileSetStore.insertOrUpdateTileSetSuspend(tiles)
 
-    val result = worker.doWork()
+    val result = createAndDoWork(mockContext)
     assertThat(result).isEqualTo(Result.retry())
     File("fake").delete()
   }
 
   @Test
-  fun doWork_FailsOnInvalidURL() {
+  fun doWork_FailsOnInvalidURL() = runWithTestDispatcher {
     val tiles =
       MbtilesFile(
         url = "BAD URL",
@@ -132,13 +120,15 @@ class MbtilesFileDownloadWorkerTest : BaseHiltTest() {
         referenceCount = 1
       )
 
-    localTileSetStore.insertOrUpdateTileSet(tiles).blockingAwait()
-    val worker =
-      TestWorkerBuilder<TileSetDownloadWorker>(context, SynchronousExecutor())
-        .setWorkerFactory(factory)
-        .build()
+    localTileSetStore.insertOrUpdateTileSetSuspend(tiles)
 
-    val result = worker.doWork()
+    val result = createAndDoWork(context)
     assertThat(result).isEqualTo(Result.failure())
   }
+
+  private suspend fun createAndDoWork(context: Context): Result =
+    TestListenableWorkerBuilder<TileSetDownloadWorker>(context)
+      .setWorkerFactory(factory)
+      .build()
+      .doWork()
 }

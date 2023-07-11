@@ -20,6 +20,7 @@ import com.google.android.ground.persistence.local.room.converter.toLocalDataSto
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.MbtilesFileDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
+import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
 import com.google.android.ground.persistence.local.room.entity.MbtilesFileEntity
 import com.google.android.ground.persistence.local.room.fields.TileSetEntityState
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
@@ -28,7 +29,6 @@ import com.google.android.ground.ui.util.FileUtil
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
-import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -44,17 +44,20 @@ class RoomTileSetStore @Inject internal constructor() : LocalTileSetStore {
       .map { list: List<MbtilesFileEntity> -> list.map { it.toModelObject() }.toSet() }
       .subscribeOn(schedulers.io())
 
+  @Deprecated("Use insertOrUpdateTileSetSuspend instead")
   override fun insertOrUpdateTileSet(mbtilesFile: MbtilesFile): Completable =
     mbtilesFileDao.insertOrUpdate(mbtilesFile.toLocalDataStoreObject()).subscribeOn(schedulers.io())
+
+  // TODO(#1581): Rename to insertOrUpdateTileSet once existing usages are migrated.
+  override suspend fun insertOrUpdateTileSetSuspend(mbtilesFile: MbtilesFile) =
+    mbtilesFileDao.insertOrUpdateSuspend(mbtilesFile.toLocalDataStoreObject())
 
   override fun getTileSet(tileUrl: String): Maybe<MbtilesFile> =
     mbtilesFileDao.findByUrl(tileUrl).map { it.toModelObject() }.subscribeOn(schedulers.io())
 
-  override fun pendingTileSets(): Single<List<MbtilesFile>> =
-    mbtilesFileDao
-      .findByState(TileSetEntityState.PENDING.intValue())
-      .map { list: List<MbtilesFileEntity> -> list.map { it.toModelObject() } }
-      .subscribeOn(schedulers.io())
+  override suspend fun pendingTileSets(): List<MbtilesFile> =
+    mbtilesFileDao.findByState(TileSetEntityState.PENDING.intValue())?.map { it.toModelObject() }
+      ?: listOf()
 
   override fun updateTileSetOfflineAreaReferenceCountByUrl(
     newCount: Int,

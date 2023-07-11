@@ -88,7 +88,7 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Test
   fun testDeleteSurvey() = runWithTestDispatcher {
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localSurveyStore.deleteSurvey(TEST_SURVEY).test().assertComplete()
+    localSurveyStore.deleteSurvey(TEST_SURVEY)
     assertThat(localSurveyStore.surveys.first()).isEmpty()
   }
 
@@ -107,14 +107,14 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testInsertAndGetUser() {
-    localUserStore.insertOrUpdateUser(TEST_USER).test().assertComplete()
+  fun testInsertAndGetUser() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
     localUserStore.getUser("user id").test().assertValue(TEST_USER)
   }
 
   @Test
-  fun testApplyAndEnqueue_insertsLoi() {
-    localUserStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testApplyAndEnqueue_insertsLoi() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
 
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).test().assertComplete()
@@ -126,7 +126,7 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
   @Test
   fun testApplyAndEnqueue_insertsMutation() = runWithTestDispatcher {
-    localUserStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
 
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).test().assertComplete()
@@ -142,8 +142,8 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_insertPolygonLoi() {
-    localUserStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testApplyAndEnqueue_insertPolygonLoi() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
 
     localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION).test().assertComplete()
@@ -155,8 +155,8 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_enqueuesPolygonLoiMutation() {
-    localUserStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testApplyAndEnqueue_enqueuesPolygonLoiMutation() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION).test().assertComplete()
 
@@ -170,8 +170,8 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testGetLoisOnceAndStream() {
-    localUserStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testGetLoisOnceAndStream() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     val subscriber = localLoiStore.getLocationsOfInterestOnceAndStream(TEST_SURVEY).test()
     subscriber.assertValue(setOf())
@@ -181,8 +181,8 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testMergeLoi() {
-    localUserStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testMergeLoi() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
@@ -194,8 +194,8 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testMergePolygonLoi() {
-    localUserStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testMergePolygonLoi() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION).blockingAwait()
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
@@ -207,8 +207,8 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_insertAndUpdateSubmission() {
-    localUserStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testApplyAndEnqueue_insertAndUpdateSubmission() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
 
@@ -260,8 +260,8 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testMergeSubmission() {
-    localUserStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testMergeSubmission() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
@@ -280,9 +280,9 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testDeleteSubmission() {
+  fun testDeleteSubmission() = runWithTestDispatcher {
     // Add test submission
-    localUserStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+    localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
@@ -309,8 +309,8 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testDeleteLoi() {
-    localUserStore.insertOrUpdateUser(TEST_USER).blockingAwait()
+  fun testDeleteLoi() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
@@ -374,11 +374,11 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testGetPendingTile() {
-    localTileSetStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait()
-    localTileSetStore.insertOrUpdateTileSet(TEST_FAILED_TILE_SOURCE).blockingAwait()
-    localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait()
-    localTileSetStore.pendingTileSets().test().assertValue(listOf(TEST_PENDING_TILE_SOURCE))
+  fun testGetPendingTile() = runWithTestDispatcher {
+    localTileSetStore.insertOrUpdateTileSetSuspend(TEST_DOWNLOADED_TILE_SOURCE)
+    localTileSetStore.insertOrUpdateTileSetSuspend(TEST_FAILED_TILE_SOURCE)
+    localTileSetStore.insertOrUpdateTileSetSuspend(TEST_PENDING_TILE_SOURCE)
+    assertThat(localTileSetStore.pendingTileSets()).isEqualTo(listOf(TEST_PENDING_TILE_SOURCE))
   }
 
   @Test
