@@ -20,7 +20,6 @@ import androidx.lifecycle.toLiveData
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
-import com.google.android.ground.model.Role
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.model.job.Job
@@ -29,7 +28,6 @@ import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
@@ -61,9 +59,8 @@ internal constructor(
   locationManager: LocationManager,
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
-  private val surveyRepository: SurveyRepository,
+  surveyRepository: SurveyRepository,
   offlineAreaRepository: OfflineAreaRepository,
-  private val userRepository: UserRepository
 ) :
   BaseMapViewModel(
     locationManager,
@@ -197,14 +194,4 @@ internal constructor(
   }
 
   fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed
-
-  /**
-   * Returns true if the currently logged in user has permissions to write data to the active
-   * survey. If no survey is active at the moment, then it returns false.
-   */
-  fun canUserSubmitData(): Boolean {
-    val email = userRepository.currentUser.email
-    val userRole = surveyRepository.activeSurvey?.getRole(email)
-    return userRole != Role.VIEWER
-  }
 }

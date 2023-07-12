@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.repository
 
+import com.google.android.ground.model.Role
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
@@ -32,7 +33,8 @@ class UserRepository
 constructor(
   private val authenticationManager: AuthenticationManager,
   private val localValueStore: LocalValueStore,
-  private val localUserStore: LocalUserStore
+  private val localUserStore: LocalUserStore,
+  private val surveyRepository: SurveyRepository
 ) : AuthenticationManager by authenticationManager {
 
   suspend fun saveUser(user: User) = localUserStore.insertOrUpdateUser(user)
@@ -41,4 +43,11 @@ constructor(
 
   /** Clears all user-specific preferences and settings. */
   fun clearUserPreferences() = localValueStore.clear()
+
+  /**
+   * Returns true if the currently logged in user has permissions to write data to the active
+   * survey. If no survey is active at the moment, then it returns false.
+   */
+  fun canUserSubmitData(): Boolean =
+    surveyRepository.activeSurvey?.getRole(currentUser.email) != Role.VIEWER
 }
