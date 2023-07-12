@@ -275,7 +275,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     localSubmissionStore.merge(submission).test().assertComplete()
     val responses =
       localSubmissionStore.getSubmission(loi, submission.id).test().values()[0].responses
-    assertThat(responses.getResponse("task id").get())
+    assertThat(responses.getResponse("task id"))
       .isEqualTo(TextTaskData.fromString("updated taskData"))
   }
 

@@ -39,7 +39,6 @@ import com.google.firebase.firestore.GeoPoint
 import com.sharedtest.FakeData
 import com.sharedtest.FakeData.newTask
 import java.util.*
-import java8.util.Optional
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Assert
 import org.junit.Test
@@ -296,8 +295,8 @@ class SubmissionLocalDataStoreConverterTest {
     toSubmission(locationOfInterest, submissionDocumentSnapshot)
 
   companion object {
-    private val AUDIT_INFO_1 = AuditInfo(User("user1", "", ""), Date(100), Optional.of(Date(101)))
-    private val AUDIT_INFO_2 = AuditInfo(User("user2", "", ""), Date(200), Optional.of(Date(201)))
+    private val AUDIT_INFO_1 = AuditInfo(User("user1", "", ""), Date(100), Date(101))
+    private val AUDIT_INFO_2 = AuditInfo(User("user2", "", ""), Date(200), Date(201))
     private val AUDIT_INFO_1_NESTED_OBJECT =
       AuditInfoNestedObject(
         UserNestedObject("user1", null, null),

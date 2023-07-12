@@ -18,7 +18,6 @@ package com.google.android.ground.persistence.mbtiles
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.GmsExt.contains
-import java8.util.Optional
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -41,20 +40,13 @@ internal class TileSetJson(private val json: JSONObject) {
   private val vertices: List<Coordinate>
     get() {
       val exteriorRing =
-        Optional.ofNullable(json.optJSONObject(GEOMETRY_KEY))
-          .flatMap { j: JSONObject -> Optional.ofNullable(j.optJSONArray(VERTICES_JSON_KEY)) }
-          .map { j: JSONArray -> j.optJSONArray(0) }
-      return jsonArrayToCoordinates(exteriorRing.orElse(null))
+        json.optJSONObject(GEOMETRY_KEY)?.optJSONArray(VERTICES_JSON_KEY)?.optJSONArray(0)
+      return jsonArrayToCoordinates(exteriorRing)
     }
 
-  val id: Optional<String>
-    get() {
-      val value = json.optString(ID_KEY)
-      return if (value.isEmpty()) Optional.empty() else Optional.of(value)
-    }
+  val id: String = json.optString(ID_KEY) ?: ""
 
-  val url: Optional<String>
-    get() = Optional.ofNullable(json.optJSONObject(PROPERTIES_KEY)).map { it.optString(URL_KEY) }
+  val url: String = json.optJSONObject(PROPERTIES_KEY)?.optString(URL_KEY) ?: ""
 
   fun boundsIntersect(bounds: Bounds): Boolean = vertices.any { bounds.contains(it) }
 

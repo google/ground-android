@@ -19,7 +19,6 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firebase.schema.MultipleChoiceConverter.toMultipleChoice
-import java8.util.Optional
 import timber.log.Timber
 
 /** Converts between Firestore nested objects and [Task] instances. */
@@ -27,17 +26,22 @@ internal object TaskConverter {
 
   private val suggestLoiTaskTypes = setOf(Task.Type.DROP_A_PIN, Task.Type.DRAW_POLYGON)
 
-  fun toTask(id: String, em: TaskNestedObject): Optional<Task> {
+  fun toTask(id: String, em: TaskNestedObject): Task? {
     val type = toTaskType(em.type)
     if (type == Task.Type.UNKNOWN) {
       Timber.d("Unsupported task type: ${em.type}")
-      return Optional.empty()
+      return null
     }
     // Default index to -1 to degrade gracefully on older dev db instances and surveys.
     val multipleChoice: MultipleChoice? =
       if (type == Task.Type.MULTIPLE_CHOICE) toMultipleChoice(em) else null
-    return Optional.of(
-      Task(id, em.index ?: -1, type, em.label!!, em.required != null && em.required, multipleChoice)
+    return Task(
+      id,
+      em.index ?: -1,
+      type,
+      em.label!!,
+      em.required != null && em.required,
+      multipleChoice
     )
   }
 

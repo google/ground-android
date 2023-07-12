@@ -64,10 +64,7 @@ object ResponseDeltasConverter {
       while (keys.hasNext()) {
         try {
           val taskId = keys.next()
-          val task =
-            job.getTask(taskId).orElseThrow {
-              LocalDataConsistencyException("Unknown task id $taskId")
-            }
+          val task = job.getTask(taskId)
           val jsonDelta = jsonObject.getJSONObject(taskId)
           deltas.add(
             TaskDataDelta(

@@ -30,7 +30,6 @@ import com.google.android.ground.model.submission.Submission;
 import com.google.android.ground.model.submission.TaskData;
 import com.google.android.ground.model.task.Task;
 import java.util.List;
-import java8.util.Optional;
 
 class SubmissionListItemViewHolder extends RecyclerView.ViewHolder {
 
@@ -60,12 +59,12 @@ class SubmissionListItemViewHolder extends RecyclerView.ViewHolder {
     List<Task> tasks = job.getTasksSorted();
     for (int i = 0; i < MAX_COLUMNS && i < tasks.size(); i++) {
       Task task = tasks.get(i);
-      Optional<TaskData> response = submission.getResponses().getResponse(task.getId());
+      TaskData response = submission.getResponses().getResponse(task.getId());
       binding.taskLabelRow.addView(
           newTextView(task.getLabel(), R.style.SubmissionListText_TaskLabel));
       binding.taskValueRow.addView(
-          newTextView(
-              response.map(TaskData::getDetailsText).orElse(""), R.style.SubmissionListText_Task));
+          newTextView(response == null ? "" : response.getDetailsText(),
+              R.style.SubmissionListText_Task));
     }
   }
 
