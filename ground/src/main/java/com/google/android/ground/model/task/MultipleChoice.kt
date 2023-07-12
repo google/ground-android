@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.model.task
 
-import java8.util.Optional
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.serialization.Serializable
@@ -34,13 +33,4 @@ constructor(
   }
 
   fun getOptionById(id: String): Option? = options.firstOrNull { it.id == id }
-
-  fun getIndex(id: String): Optional<Int> {
-    for (i in options.indices) {
-      if (options[i].id == id) {
-        return Optional.of(i)
-      }
-    }
-    return Optional.empty()
-  }
 }
