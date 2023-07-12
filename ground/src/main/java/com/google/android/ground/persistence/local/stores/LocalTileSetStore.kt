@@ -20,7 +20,6 @@ import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
-import io.reactivex.Single
 
 interface LocalTileSetStore {
   /**
@@ -33,13 +32,16 @@ interface LocalTileSetStore {
    * Attempts to update a tile in the local data store. If the tile doesn't exist, inserts the tile
    * into the local data store.
    */
+  @Deprecated("Use insertOrUpdateTileSetSuspend instead")
   fun insertOrUpdateTileSet(mbtilesFile: MbtilesFile): @Cold Completable
+
+  suspend fun insertOrUpdateTileSetSuspend(mbtilesFile: MbtilesFile)
 
   /** Returns the tile with the specified URL from the local data store, if found. */
   fun getTileSet(tileUrl: String): @Cold Maybe<MbtilesFile>
 
   /** Returns all pending tiles from the local data store. */
-  fun pendingTileSets(): @Cold Single<List<MbtilesFile>>
+  suspend fun pendingTileSets(): List<MbtilesFile>
 
   /**
    * Update the area count of an existing tile source in the local data store with the area count of

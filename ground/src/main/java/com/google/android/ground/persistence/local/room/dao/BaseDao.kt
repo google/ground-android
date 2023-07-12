@@ -41,7 +41,10 @@ interface BaseDao<E> {
 
   @Update fun updateAll(entities: List<E>): Completable
 
-  @Delete fun delete(entity: E): Completable
+  @Deprecated("Replace usage with deleteSuspend") @Delete fun delete(entity: E): Completable
+
+  // TODO(#1581): Rename to delete once all existing usages are migrated to coroutine.
+  @Delete suspend fun deleteSuspend(entity: E)
 }
 
 /** Try to update the specified entity, and if it doesn't yet exist, create it. */

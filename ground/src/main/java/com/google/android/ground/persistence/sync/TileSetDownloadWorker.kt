@@ -17,20 +17,20 @@ package com.google.android.ground.persistence.sync
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
-import androidx.work.Worker
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
 import com.google.android.ground.persistence.sync.SyncService.Companion.DEFAULT_MAX_RETRY_ATTEMPTS
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import io.reactivex.Completable
-import io.reactivex.Observable
 import java.io.File
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /**
@@ -45,7 +45,7 @@ constructor(
   @Assisted private val context: Context,
   @Assisted params: WorkerParameters,
   private val localTileSetStore: LocalTileSetStore
-) : Worker(context, params) {
+) : CoroutineWorker(context, params) {
 
   /**
    * Given a tile, downloads the given {@param tile}'s source file and saves it to the device's app
@@ -86,7 +86,7 @@ constructor(
   }
 
   /** Update a tile's state in the database and initiate a download of the tile source file. */
-  private fun downloadTileSet(mbtilesFile: MbtilesFile): Completable {
+  private suspend fun downloadTileSet(mbtilesFile: MbtilesFile) {
     val requestProperties: MutableMap<String, String> = HashMap()
 
     // To resume a download for an in progress tile, we use the HTTP Range request property.
@@ -106,44 +106,37 @@ constructor(
       val existingTileFile = File(context.filesDir, mbtilesFile.path)
       requestProperties["Range"] = "bytes=" + existingTileFile.length() + "-"
     }
-    return localTileSetStore
-      .insertOrUpdateTileSet(
-        mbtilesFile.copy(
-          downloadState = MbtilesFile.DownloadState.IN_PROGRESS,
-        )
-      )
-      .andThen(Completable.fromRunnable { downloadTileFile(mbtilesFile, requestProperties) })
-      .doOnError { e ->
-        Timber.d(e, "Failed to download tile: $mbtilesFile")
-        localTileSetStore.insertOrUpdateTileSet(
-          mbtilesFile.copy(
-            downloadState = MbtilesFile.DownloadState.FAILED,
-          )
-        )
-      }
-      .andThen(
-        localTileSetStore.insertOrUpdateTileSet(
-          mbtilesFile.copy(
-            downloadState = MbtilesFile.DownloadState.DOWNLOADED,
-          )
-        )
-      )
+    try {
+      updateDownloadState(mbtilesFile, MbtilesFile.DownloadState.IN_PROGRESS)
+      downloadTileFile(mbtilesFile, requestProperties)
+      updateDownloadState(mbtilesFile, MbtilesFile.DownloadState.DOWNLOADED)
+    } catch (e: Exception) {
+      Timber.e(e, "Failed to download tile: $mbtilesFile")
+      updateDownloadState(mbtilesFile, MbtilesFile.DownloadState.FAILED)
+      throw e
+    }
   }
+
+  private suspend fun updateDownloadState(
+    mbtilesFile: MbtilesFile,
+    downloadState: MbtilesFile.DownloadState
+  ) =
+    localTileSetStore.insertOrUpdateTileSetSuspend(mbtilesFile.copy(downloadState = downloadState))
 
   /**
    * Verifies that {@param tile} marked as `Tile.DownloadState.DOWNLOADED` in the local database
    * still exists in the app's storage. If the tile's source file isn't present, initiates a
    * download of source file.
    */
-  private fun downloadIfNotFound(mbtilesFile: MbtilesFile): Completable {
+  private suspend fun downloadIfNotFound(mbtilesFile: MbtilesFile) {
     val file = File(context.filesDir, mbtilesFile.path)
-    return if (file.exists()) {
-      Completable.complete()
-    } else downloadTileSet(mbtilesFile)
+    if (!file.exists()) {
+      downloadTileSet(mbtilesFile)
+    }
   }
 
-  private fun processTileSets(pendingMbtilesFiles: List<MbtilesFile>): Completable =
-    Observable.fromIterable(pendingMbtilesFiles).flatMapCompletable { tileSet ->
+  private suspend fun processTileSets(pendingMbtilesFiles: List<MbtilesFile>) =
+    pendingMbtilesFiles.forEach { tileSet ->
       when (tileSet.downloadState) {
         MbtilesFile.DownloadState.DOWNLOADED -> downloadIfNotFound(tileSet)
         MbtilesFile.DownloadState.PENDING,
@@ -157,15 +150,17 @@ constructor(
    * If the tile source file already exists on the device, this method returns `Result.success()`
    * and does not re-download the file.
    */
-  override fun doWork(): Result {
-    val pendingTileSets = localTileSetStore.pendingTileSets().blockingGet()
+  override suspend fun doWork(): Result = withContext(Dispatchers.IO) { doWorkInternal() }
+
+  private suspend fun doWorkInternal(): Result {
+    val pendingTileSets = localTileSetStore.pendingTileSets()
 
     // When there are no tiles in the db, the blockingGet returns null.
     // If that isn't the case, another worker may have already taken care of the work.
     // In this case, we return a result immediately to stop the worker.
     Timber.d("Downloading tiles: $pendingTileSets")
     return try {
-      processTileSets(pendingTileSets).blockingAwait()
+      processTileSets(pendingTileSets)
       Result.success()
     } catch (e: MalformedURLException) {
       Timber.e(e, "can't download tileset from malformed URL ${e.message}")

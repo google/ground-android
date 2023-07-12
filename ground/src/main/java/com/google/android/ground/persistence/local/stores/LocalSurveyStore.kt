@@ -25,12 +25,18 @@ import kotlinx.coroutines.flow.Flow
 interface LocalSurveyStore {
   /** Load surveys stored in local database. */
   val surveys: Flow<List<Survey>>
+
   /** Load last active survey, if any. */
+  @Deprecated("Use getSurveyByIdSuspend() instead")
   fun getSurveyById(id: String): @Cold Maybe<Survey>
+
   /** Load last active survey, if any. */
+  // TODO(#1581): Rename to getSurveyById once all existing usages are migrated to kotlin coroutine.
   suspend fun getSurveyByIdSuspend(id: String): Survey?
+
   /** Delete stored survey from database. */
-  fun deleteSurvey(survey: Survey): @Cold Completable
+  suspend fun deleteSurvey(survey: Survey)
+
   /** Add survey to the database. */
   fun insertOrUpdateSurvey(survey: Survey): @Cold Completable
 }

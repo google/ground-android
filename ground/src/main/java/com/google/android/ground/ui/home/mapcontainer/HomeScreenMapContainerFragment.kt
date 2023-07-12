@@ -30,7 +30,6 @@ import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
@@ -43,7 +42,6 @@ import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.Map
 import dagger.hilt.android.AndroidEntryPoint
-import java8.util.Optional
 import javax.inject.Inject
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -194,17 +192,16 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
   override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel
 
   private fun onBottomSheetStateChange(state: BottomSheetState, map: Map) {
-    val loi: Optional<LocationOfInterest> = Optional.ofNullable(state.locationOfInterest)
     when (state.visibility) {
       BottomSheetState.Visibility.VISIBLE -> {
         map.disableGestures()
         // TODO(#358): Once polygon drawing is implemented, pan & zoom to polygon when
         // selected. This will involve calculating centroid and possibly zoom level based on
         // vertices.
-        loi
-          .map { it.geometry }
-          .filter { it is Point }
-          .ifPresent { mapContainerViewModel.panAndZoomCamera(Point(it.center())) }
+        state.locationOfInterest
+          ?.geometry
+          ?.takeIf { it is Point }
+          ?.let { mapContainerViewModel.panAndZoomCamera(Point(it.center())) }
       }
       BottomSheetState.Visibility.HIDDEN -> {
         map.enableGestures()

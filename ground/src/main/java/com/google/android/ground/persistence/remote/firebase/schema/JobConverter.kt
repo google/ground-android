@@ -28,7 +28,7 @@ internal object JobConverter {
     val taskMap = mutableMapOf<String, Task>()
     obj.tasks?.let {
       it.entries.map { (key, value) ->
-        TaskConverter.toTask(key, value).ifPresent { task -> taskMap[task.id] = task }
+        TaskConverter.toTask(key, value)?.let { task -> taskMap[task.id] = task }
       }
     }
     return Job(

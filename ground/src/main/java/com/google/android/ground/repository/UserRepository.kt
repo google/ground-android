@@ -18,10 +18,7 @@ package com.google.android.ground.repository
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
-import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
-import io.reactivex.Completable
-import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,11 +35,9 @@ constructor(
   private val localUserStore: LocalUserStore
 ) : AuthenticationManager by authenticationManager {
 
-  fun saveUser(user: User): @Cold Completable = localUserStore.insertOrUpdateUser(user)
+  suspend fun saveUser(user: User) = localUserStore.insertOrUpdateUser(user)
 
-  suspend fun saveUserSuspend(user: User) = localUserStore.insertOrUpdateUserSuspend(user)
-
-  fun getUser(userId: String): @Cold Single<User> = localUserStore.getUser(userId)
+  suspend fun getUser(userId: String): User = localUserStore.getUserSuspend(userId)
 
   /** Clears all user-specific preferences and settings. */
   fun clearUserPreferences() = localValueStore.clear()
