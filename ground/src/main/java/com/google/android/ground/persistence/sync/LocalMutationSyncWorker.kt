@@ -73,7 +73,7 @@ constructor(
         .log("Error applying remote updates to location of interest $locationOfInterestId")
       FirebaseCrashlytics.getInstance().recordException(t)
       Timber.e(t, "Remote updates for location of interest $locationOfInterestId failed")
-      mutationRepository.updateMutations(incrementRetryCounts(mutations, t)).blockingAwait()
+      mutationRepository.updateMutations(incrementRetryCounts(mutations, t))
       Result.retry()
     }
   }

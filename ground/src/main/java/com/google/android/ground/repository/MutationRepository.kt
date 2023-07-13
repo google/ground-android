@@ -94,14 +94,12 @@ constructor(
   }
 
   /** Updates the provided list of mutations. */
-  fun updateMutations(mutations: List<Mutation>): Completable {
+  suspend fun updateMutations(mutations: List<Mutation>) {
     val loiMutations = mutations.filterIsInstance<LocationOfInterestMutation>()
-    val submissionMutations = mutations.filterIsInstance<SubmissionMutation>()
+    localLocationOfInterestStore.updateAllSuspend(loiMutations)
 
-    return localLocationOfInterestStore
-      .updateAll(loiMutations)
-      .andThen(localSubmissionStore.updateAll(submissionMutations))
-      .subscribeOn(schedulers.io())
+    val submissionMutations = mutations.filterIsInstance<SubmissionMutation>()
+    localSubmissionStore.updateAllSuspend(submissionMutations)
   }
 
   /**

@@ -39,7 +39,9 @@ interface BaseDao<E> {
   // TODO(#1581): Rename once all uses migrated to coroutines.
   @Update suspend fun updateSuspend(entity: E): Int
 
-  @Update fun updateAll(entities: List<E>): Completable
+  @Deprecated("Use updateAllSuspend instead") @Update fun updateAll(entities: List<E>): Completable
+
+  @Update suspend fun updateAllSuspend(entities: List<E>)
 
   @Deprecated("Replace usage with deleteSuspend") @Delete fun delete(entity: E): Completable
 

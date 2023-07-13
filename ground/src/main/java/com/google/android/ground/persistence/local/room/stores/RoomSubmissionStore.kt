@@ -128,8 +128,13 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       Mutation.Type.UNKNOWN -> throw LocalDataStoreException("Unknown Mutation.Type")
     }
 
+  @Deprecated("Use updateAllSuspend instead")
   override fun updateAll(mutations: List<SubmissionMutation>): Completable =
     submissionMutationDao.updateAll(mutations.map { it.toLocalDataStoreObject() })
+
+  override suspend fun updateAllSuspend(mutations: List<SubmissionMutation>) {
+    submissionMutationDao.updateAllSuspend(mutations.map { it.toLocalDataStoreObject() })
+  }
 
   private fun markSubmissionForDeletion(
     entity: SubmissionEntity,
