@@ -99,7 +99,9 @@ constructor(
           mergeRemoteSubmissions(submissions)
         }
         .onErrorComplete()
-    return remoteSync.andThen(localSubmissionStore.getSubmissions(locationOfInterest, jobId))
+    return remoteSync.andThen(
+      rxSingle { localSubmissionStore.getSubmissions(locationOfInterest, jobId) }
+    )
   }
 
   private fun mergeRemoteSubmissions(submissions: List<Result<Submission>>): @Cold Completable =

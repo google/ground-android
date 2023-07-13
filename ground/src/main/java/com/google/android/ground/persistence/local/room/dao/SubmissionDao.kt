@@ -20,7 +20,6 @@ import androidx.room.Query
 import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
 import com.google.android.ground.persistence.local.room.fields.EntityState
 import io.reactivex.Maybe
-import io.reactivex.Single
 
 @Dao
 interface SubmissionDao : BaseDao<SubmissionEntity> {
@@ -41,9 +40,9 @@ interface SubmissionDao : BaseDao<SubmissionEntity> {
       "WHERE location_of_interest_id = :locationOfInterestId " +
       "AND job_id = :jobId AND state = :state"
   )
-  fun findByLocationOfInterestId(
+  suspend fun findByLocationOfInterestId(
     locationOfInterestId: String,
     jobId: String,
     state: EntityState
-  ): Single<List<SubmissionEntity>>
+  ): List<SubmissionEntity>?
 }

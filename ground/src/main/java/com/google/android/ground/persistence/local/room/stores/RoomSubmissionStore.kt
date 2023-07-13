@@ -78,20 +78,14 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
    * [LocationOfInterest]. Returns a [Single] that contains an exception if no such Submission exist
    * or the list of submissions otherwise. Does not stream subsequent data changes.
    */
-  override fun getSubmissions(
+  override suspend fun getSubmissions(
     locationOfInterest: LocationOfInterest,
     jobId: String
-  ): Single<List<Submission>> =
+  ): List<Submission> =
     submissionDao
       .findByLocationOfInterestId(locationOfInterest.id, jobId, EntityState.DEFAULT)
-      .map { toSubmissions(locationOfInterest, it) }
-      .subscribeOn(schedulers.io())
-
-  fun insertOrUpdate(submission: Submission): Completable =
-    submissionDao.insertOrUpdate(submission.toLocalDataStoreObject())
-
-  fun insertOrUpdate(submission: SubmissionEntity): Completable =
-    submissionDao.insertOrUpdate(submission)
+      ?.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } }
+      ?: listOf()
 
   override fun merge(model: Submission): Completable {
     val submissionEntity = model.toLocalDataStoreObject()
@@ -221,12 +215,6 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     }
     return responseMap.copyWithDeltas(deltas.toPersistentList())
   }
-
-  private fun toSubmissions(
-    locationOfInterest: LocationOfInterest,
-    submissionEntities: List<SubmissionEntity>
-  ): List<Submission> =
-    submissionEntities.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } }
 
   override suspend fun deleteSubmission(submissionId: String) {
     submissionDao.findByIdSuspend(submissionId)?.let { submissionDao.deleteSuspend(it) }

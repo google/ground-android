@@ -255,7 +255,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     assertEquivalent(mutation, submission)
 
     // also test that getSubmissions returns the same submission as well
-    val submissions = localSubmissionStore.getSubmissions(loi, "job id").blockingGet()
+    val submissions = localSubmissionStore.getSubmissions(loi, "job id")
     assertThat(submissions).hasSize(1)
     assertEquivalent(mutation, submissions[0])
   }
@@ -293,7 +293,7 @@ class LocalDataStoreTests : BaseHiltTest() {
 
     // Verify that the local submission doesn't end up in getSubmissions().
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    localSubmissionStore.getSubmissions(loi, "task id").test().assertValue(listOf())
+    assertThat(localSubmissionStore.getSubmissions(loi, "task id")).isEmpty()
 
     // After successful remote sync, delete submission is called by LocalMutationSyncWorker.
     localSubmissionStore.deleteSubmission("submission id")

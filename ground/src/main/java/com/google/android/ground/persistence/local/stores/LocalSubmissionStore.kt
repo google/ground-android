@@ -21,7 +21,6 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
 import io.reactivex.Single
 
@@ -30,10 +29,10 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
    * Returns the list of submissions which are not marked for deletion for the specified
    * locationOfInterest and job.
    */
-  fun getSubmissions(
+  suspend fun getSubmissions(
     locationOfInterest: LocationOfInterest,
     jobId: String
-  ): @Cold Single<List<Submission>>
+  ): List<Submission>
 
   /** Returns the submission with the specified UUID from the local data store, if found. */
   suspend fun getSubmission(
