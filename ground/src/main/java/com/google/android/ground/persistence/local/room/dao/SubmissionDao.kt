@@ -26,7 +26,11 @@ import io.reactivex.Single
 interface SubmissionDao : BaseDao<SubmissionEntity> {
   /** Returns the submission with the specified UUID, if found. */
   @Query("SELECT * FROM submission WHERE id = :submissionId")
+  @Deprecated("Use findByIdSuspend instead")
   fun findById(submissionId: String): Maybe<SubmissionEntity>
+
+  @Query("SELECT * FROM submission WHERE id = :submissionId")
+  suspend fun findByIdSuspend(submissionId: String): SubmissionEntity?
 
   /**
    * Returns the list submissions associated with the specified location of interest, task and

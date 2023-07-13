@@ -46,7 +46,6 @@ import com.google.common.base.Preconditions
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.SingleSource
 import javax.inject.Inject
@@ -64,20 +63,15 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
 
   /**
    * Attempts to retrieve the [Submission] associated with the given ID and [LocationOfInterest].
-   * Returns a [Maybe] that completes immediately (with no data) if the location of interest isn't
-   * found and that succeeds with the location of interest otherwise (and then completes). Does not
-   * stream subsequent data changes.
+   *
+   * @throws LocalDataStoreException
    */
-  override fun getSubmission(
+  override suspend fun getSubmission(
     locationOfInterest: LocationOfInterest,
     submissionId: String
-  ): Maybe<Submission> =
-    submissionDao
-      .findById(submissionId)
-      .map { it.toModelObject(locationOfInterest) }
-      .doOnError { Timber.d(it) }
-      .onErrorComplete()
-      .subscribeOn(schedulers.io())
+  ): Submission =
+    submissionDao.findByIdSuspend(submissionId)?.toModelObject(locationOfInterest)
+      ?: throw LocalDataStoreException("Submission not found $submissionId")
 
   /**
    * Attempts to retrieve the complete list of [Submission]s associated with the given Job ID and

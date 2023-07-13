@@ -34,6 +34,7 @@ import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.TaskDataMap
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.persistence.local.room.converter.formatVertices
 import com.google.android.ground.persistence.local.room.converter.parseVertices
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao
@@ -48,6 +49,7 @@ import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.*
 import javax.inject.Inject
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -223,7 +225,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       .test()
       .assertValue(listOf(TEST_SUBMISSION_MUTATION))
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    var submission = localSubmissionStore.getSubmission(loi, "submission id").blockingGet()
+    var submission = localSubmissionStore.getSubmission(loi, "submission id")
     assertEquivalent(TEST_SUBMISSION_MUTATION, submission)
 
     // now update the inserted submission with new responses
@@ -250,7 +252,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       .assertValue(listOf(TEST_SUBMISSION_MUTATION, mutation))
 
     // check if the submission was updated in the local database
-    submission = localSubmissionStore.getSubmission(loi, "submission id").blockingGet()
+    submission = localSubmissionStore.getSubmission(loi, "submission id")
     assertEquivalent(mutation, submission)
 
     // also test that getSubmissions returns the same submission as well
@@ -268,13 +270,9 @@ class LocalDataStoreTests : BaseHiltTest() {
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
     val taskDataMap = TaskDataMap(mapOf(Pair("task id", TextTaskData.fromString("foo value"))))
     val submission =
-      localSubmissionStore
-        .getSubmission(loi, "submission id")
-        .blockingGet()
-        .copy(responses = taskDataMap)
+      localSubmissionStore.getSubmission(loi, "submission id").copy(responses = taskDataMap)
     localSubmissionStore.merge(submission).test().assertComplete()
-    val responses =
-      localSubmissionStore.getSubmission(loi, submission.id).test().values()[0].responses
+    val responses = localSubmissionStore.getSubmission(loi, submission.id).responses
     assertThat(responses.getResponse("task id"))
       .isEqualTo(TextTaskData.fromString("updated taskData"))
   }
@@ -305,7 +303,9 @@ class LocalDataStoreTests : BaseHiltTest() {
     localSubmissionStore.deleteSubmission("submission id").blockingAwait()
 
     // Verify that the submission doesn't exist anymore
-    localSubmissionStore.getSubmission(loi, "submission id").test().assertNoValues()
+    assertFailsWith<LocalDataStoreException> {
+      localSubmissionStore.getSubmission(loi, "submission id")
+    }
   }
 
   @Test
@@ -340,7 +340,9 @@ class LocalDataStoreTests : BaseHiltTest() {
     localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").test().assertNoValues()
 
     // Verify that the linked submission is also deleted.
-    localSubmissionStore.getSubmission(loi, "submission id").test().assertNoValues()
+    assertFailsWith<LocalDataStoreException> {
+      localSubmissionStore.getSubmission(loi, "submission id")
+    }
   }
 
   @Test

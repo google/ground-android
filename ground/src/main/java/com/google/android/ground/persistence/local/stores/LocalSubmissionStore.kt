@@ -24,7 +24,6 @@ import com.google.android.ground.persistence.local.room.fields.MutationEntitySyn
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Maybe
 import io.reactivex.Single
 
 interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submission> {
@@ -38,10 +37,10 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
   ): @Cold Single<List<Submission>>
 
   /** Returns the submission with the specified UUID from the local data store, if found. */
-  fun getSubmission(
+  suspend fun getSubmission(
     locationOfInterest: LocationOfInterest,
     submissionId: String
-  ): @Cold Maybe<Submission>
+  ): Submission
 
   /** Deletes submission from local database. */
   fun deleteSubmission(submissionId: String): @Cold Completable
