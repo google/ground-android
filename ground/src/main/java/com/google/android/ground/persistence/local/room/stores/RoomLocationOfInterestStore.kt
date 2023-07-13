@@ -131,7 +131,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     }
 
   override suspend fun updateAll(mutations: List<LocationOfInterestMutation>) {
-    locationOfInterestMutationDao.updateAllSuspend(toLocationOfInterestMutationEntities(mutations))
+    locationOfInterestMutationDao.updateAll(toLocationOfInterestMutationEntities(mutations))
   }
 
   private fun toLocationsOfInterest(

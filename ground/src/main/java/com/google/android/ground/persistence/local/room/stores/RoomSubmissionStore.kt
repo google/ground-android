@@ -129,7 +129,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     }
 
   override suspend fun updateAll(mutations: List<SubmissionMutation>) {
-    submissionMutationDao.updateAllSuspend(mutations.map { it.toLocalDataStoreObject() })
+    submissionMutationDao.updateAll(mutations.map { it.toLocalDataStoreObject() })
   }
 
   private fun markSubmissionForDeletion(
