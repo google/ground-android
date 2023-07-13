@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.rx2.rxMaybe
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS: Long = 15
@@ -196,13 +197,15 @@ constructor(
     surveyId: String,
     locationOfInterestId: String
   ): Flowable<List<SubmissionMutation>> =
-    localSurveyStore.getSurveyById(surveyId).toFlowable().flatMap {
-      localSubmissionStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
-        it,
-        locationOfInterestId,
-        MutationEntitySyncStatus.PENDING,
-        MutationEntitySyncStatus.IN_PROGRESS,
-        MutationEntitySyncStatus.FAILED
-      )
-    }
+    rxMaybe { localSurveyStore.getSurveyByIdSuspend(surveyId) }
+      .toFlowable()
+      .flatMap {
+        localSubmissionStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+          it,
+          locationOfInterestId,
+          MutationEntitySyncStatus.PENDING,
+          MutationEntitySyncStatus.IN_PROGRESS,
+          MutationEntitySyncStatus.FAILED
+        )
+      }
 }
