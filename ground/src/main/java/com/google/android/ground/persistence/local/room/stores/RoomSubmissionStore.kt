@@ -242,9 +242,8 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   override fun getAllMutationsAndStream(): Flowable<List<SubmissionMutationEntity>> =
     submissionMutationDao.loadAllOnceAndStream()
 
-  override fun findByLocationOfInterestId(
+  override suspend fun findByLocationOfInterestId(
     id: String,
     vararg states: MutationEntitySyncStatus
-  ): Single<List<SubmissionMutationEntity>> =
-    submissionMutationDao.findByLocationOfInterestId(id, *states)
+  ): List<SubmissionMutationEntity> = submissionMutationDao.findByLocationOfInterestId(id, *states)
 }

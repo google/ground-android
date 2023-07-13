@@ -23,7 +23,6 @@ import com.google.android.ground.persistence.local.room.fields.MutationEntitySyn
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
 import io.reactivex.Maybe
-import io.reactivex.Single
 import kotlinx.coroutines.flow.Flow
 
 interface LocalLocationOfInterestStore :
@@ -62,10 +61,10 @@ interface LocalLocationOfInterestStore :
 
   fun getAllMutationsAndStream(): Flowable<List<LocationOfInterestMutationEntity>>
 
-  fun findByLocationOfInterestId(
+  suspend fun findByLocationOfInterestId(
     id: String,
     vararg states: MutationEntitySyncStatus
-  ): Single<List<LocationOfInterestMutationEntity>>
+  ): List<LocationOfInterestMutationEntity>
 
   suspend fun insertOrUpdate(loi: LocationOfInterest)
 

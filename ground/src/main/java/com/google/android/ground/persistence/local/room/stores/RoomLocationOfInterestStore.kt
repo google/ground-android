@@ -38,7 +38,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
-import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.map
@@ -180,11 +179,11 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   override fun getAllMutationsAndStream(): Flowable<List<LocationOfInterestMutationEntity>> =
     locationOfInterestMutationDao.loadAllOnceAndStream()
 
-  override fun findByLocationOfInterestId(
+  override suspend fun findByLocationOfInterestId(
     id: String,
     vararg states: MutationEntitySyncStatus
-  ): Single<List<LocationOfInterestMutationEntity>> =
-    locationOfInterestMutationDao.findByLocationOfInterestId(id, *states)
+  ): List<LocationOfInterestMutationEntity> =
+    locationOfInterestMutationDao.findByLocationOfInterestId(id, *states) ?: listOf()
 
   override suspend fun insertOrUpdate(loi: LocationOfInterest) =
     locationOfInterestDao.insertOrUpdateSuspend(loi.toLocalDataStoreObject())

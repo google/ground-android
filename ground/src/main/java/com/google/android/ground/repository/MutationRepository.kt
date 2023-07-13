@@ -31,12 +31,9 @@ import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
-import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.rx2.rxCompletable
-import kotlinx.coroutines.rx2.rxMaybe
-import timber.log.Timber
 
 /**
  * Coordinates persistence of mutations across [LocationOfInterestMutation] and [SubmissionMutation]
@@ -82,28 +79,19 @@ constructor(
    * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
    * specified id.
    */
-  fun getPendingMutations(locationOfInterestId: String): Single<List<Mutation>> =
-    localLocationOfInterestStore
-      .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
-      .flattenAsObservable { it }
-      .map { it.toModelObject() }
-      .cast(Mutation::class.java)
-      .mergeWith(
-        localSubmissionStore
-          .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
-          .flattenAsObservable { it }
-          .flatMap { ome ->
-            rxMaybe { localSurveyStore.getSurveyByIdSuspend(ome.surveyId) }
-              .toSingle()
-              .map { ome.toModelObject(it) }
-              .toObservable()
-              .doOnError { Timber.e(it, "Submission mutation skipped") }
-              .onErrorResumeNext(Observable.empty())
-          }
-          .cast(Mutation::class.java)
-      )
-      .toList()
-      .subscribeOn(schedulers.io())
+  suspend fun getPendingMutations(locationOfInterestId: String): List<Mutation> {
+    val pendingLoiMutations =
+      localLocationOfInterestStore
+        .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
+        .map { it.toModelObject() }
+    val pendingSubmissionMutations =
+      localSubmissionStore
+        .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
+        .mapNotNull { entity ->
+          localSurveyStore.getSurveyByIdSuspend(entity.surveyId)?.let { entity.toModelObject(it) }
+        }
+    return pendingLoiMutations + pendingSubmissionMutations
+  }
 
   /** Updates the provided list of mutations. */
   fun updateMutations(mutations: List<Mutation>): Completable {
