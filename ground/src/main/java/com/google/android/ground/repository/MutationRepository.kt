@@ -135,10 +135,10 @@ constructor(
         it.copy(syncStatus = Mutation.SyncStatus.COMPLETED)
       }
 
-    return localLocationOfInterestStore
-      .updateAll(locationOfInterestMutations)
-      .andThen(localSubmissionStore.updateAll(submissionMutations).subscribeOn(schedulers.io()))
-      .subscribeOn(schedulers.io())
+    return rxCompletable {
+      localLocationOfInterestStore.updateAllSuspend(locationOfInterestMutations)
+      localSubmissionStore.updateAllSuspend(submissionMutations)
+    }
   }
 
   private fun combineAndSortMutations(
