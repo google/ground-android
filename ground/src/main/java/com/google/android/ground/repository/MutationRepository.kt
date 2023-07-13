@@ -34,6 +34,8 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.rx2.rxCompletable
+import kotlinx.coroutines.rx2.rxMaybe
 import timber.log.Timber
 
 /**
@@ -91,8 +93,7 @@ constructor(
           .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
           .flattenAsObservable { it }
           .flatMap { ome ->
-            localSurveyStore
-              .getSurveyById(ome.surveyId)
+            rxMaybe { localSurveyStore.getSurveyByIdSuspend(ome.surveyId) }
               .toSingle()
               .map { ome.toModelObject(it) }
               .toObservable()
@@ -128,7 +129,7 @@ constructor(
       .flatMapCompletable { mutation ->
         when (mutation) {
           is SubmissionMutation -> {
-            localSubmissionStore.deleteSubmission(mutation.submissionId)
+            rxCompletable { localSubmissionStore.deleteSubmission(mutation.submissionId) }
           }
           is LocationOfInterestMutation -> {
             localLocationOfInterestStore.deleteLocationOfInterest(mutation.locationOfInterestId)
