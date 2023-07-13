@@ -330,7 +330,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     subscriber.assertValueAt(1, setOf())
 
     // After successful remote sync, delete LOI is called by LocalMutationSyncWorker.
-    localLoiStore.deleteLocationOfInterest("loi id").blockingAwait()
+    localLoiStore.deleteLocationOfInterest("loi id")
 
     // Verify that the LOI doesn't exist anymore
     localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").test().assertNoValues()

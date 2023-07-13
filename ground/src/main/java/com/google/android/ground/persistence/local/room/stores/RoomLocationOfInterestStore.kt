@@ -162,13 +162,12 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       .doOnSubscribe { Timber.d("Marking location of interest as deleted : $mutation") }
       .ignoreElement()
 
-  override fun deleteLocationOfInterest(locationOfInterestId: String): Completable =
-    locationOfInterestDao
-      .findById(locationOfInterestId)
-      .toSingle()
-      .doOnSubscribe { Timber.d("Deleting local location of interest : $locationOfInterestId") }
-      .flatMapCompletable { locationOfInterestDao.delete(it) }
-      .subscribeOn(schedulers.io())
+  override suspend fun deleteLocationOfInterest(locationOfInterestId: String) {
+    Timber.d("Deleting local location of interest : $locationOfInterestId")
+    locationOfInterestDao.findByIdSuspend(locationOfInterestId)?.let {
+      locationOfInterestDao.deleteSuspend(it)
+    }
+  }
 
   override fun getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
     locationOfInterestId: String,

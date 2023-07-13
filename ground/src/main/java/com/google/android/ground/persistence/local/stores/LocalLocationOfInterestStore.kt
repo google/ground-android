@@ -21,7 +21,6 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -50,7 +49,7 @@ interface LocalLocationOfInterestStore :
   ): @Cold Maybe<LocationOfInterest>
 
   /** Deletes LOI from local database. */
-  fun deleteLocationOfInterest(locationOfInterestId: String): @Cold Completable
+  suspend fun deleteLocationOfInterest(locationOfInterestId: String)
 
   /**
    * Emits the list of [LocationOfInterestMutation] instances for a given LOI which match the

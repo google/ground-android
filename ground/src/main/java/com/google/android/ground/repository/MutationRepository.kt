@@ -132,7 +132,9 @@ constructor(
             rxCompletable { localSubmissionStore.deleteSubmission(mutation.submissionId) }
           }
           is LocationOfInterestMutation -> {
-            localLocationOfInterestStore.deleteLocationOfInterest(mutation.locationOfInterestId)
+            rxCompletable {
+              localLocationOfInterestStore.deleteLocationOfInterest(mutation.locationOfInterestId)
+            }
           }
         }
       }
