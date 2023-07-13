@@ -23,7 +23,6 @@ import com.google.android.ground.persistence.local.room.converter.toLocalDataSto
 import com.google.android.ground.persistence.local.room.dao.TileSourceDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
@@ -91,13 +90,6 @@ constructor(
   /** Listens for remote changes to the survey with the specified id. */
   suspend fun subscribeToSurveyUpdates(surveyId: String) =
     remoteDataStore.subscribeToSurveyUpdates(surveyId).await()
-
-  /** This only works if the survey is already cached to local db. */
-  @Deprecated("Use getOfflineSurveySuspend() instead")
-  fun getOfflineSurvey(surveyId: String): @Cold Single<Survey> =
-    localSurveyStore
-      .getSurveyById(surveyId)
-      .switchIfEmpty(Single.error { NotFoundException("Survey not found $surveyId") })
 
   /**
    * Returns the survey with the specified id from the local db, or `null` if not available offline.
