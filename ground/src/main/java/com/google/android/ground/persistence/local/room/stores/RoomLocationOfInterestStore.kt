@@ -130,11 +130,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       Completable.error(e)
     }
 
-  @Deprecated("Use updateAllSuspend instead")
-  override fun updateAll(mutations: List<LocationOfInterestMutation>): Completable =
-    locationOfInterestMutationDao.updateAll(toLocationOfInterestMutationEntities(mutations))
-
-  override suspend fun updateAllSuspend(mutations: List<LocationOfInterestMutation>) {
+  override suspend fun updateAll(mutations: List<LocationOfInterestMutation>) {
     locationOfInterestMutationDao.updateAllSuspend(toLocationOfInterestMutationEntities(mutations))
   }
 

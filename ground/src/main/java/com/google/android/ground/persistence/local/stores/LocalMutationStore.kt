@@ -36,10 +36,7 @@ interface LocalMutationStore<T : Mutation, M> {
   fun apply(mutation: T): Completable
 
   /** Updates specified mutations in the local queue. */
-  @Deprecated("Use updateAllSuspend instead") fun updateAll(mutations: List<T>): Completable
-
-  /** Updates specified mutations in the local queue. */
-  suspend fun updateAllSuspend(mutations: List<T>)
+  suspend fun updateAll(mutations: List<T>)
 
   /**
    * Applies mutations to locally stored data, then enqueues the mutation for use when merging

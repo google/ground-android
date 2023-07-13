@@ -96,10 +96,10 @@ constructor(
   /** Updates the provided list of mutations. */
   suspend fun updateMutations(mutations: List<Mutation>) {
     val loiMutations = mutations.filterIsInstance<LocationOfInterestMutation>()
-    localLocationOfInterestStore.updateAllSuspend(loiMutations)
+    localLocationOfInterestStore.updateAll(loiMutations)
 
     val submissionMutations = mutations.filterIsInstance<SubmissionMutation>()
-    localSubmissionStore.updateAllSuspend(submissionMutations)
+    localSubmissionStore.updateAll(submissionMutations)
   }
 
   /**
@@ -136,8 +136,8 @@ constructor(
       }
 
     return rxCompletable {
-      localLocationOfInterestStore.updateAllSuspend(locationOfInterestMutations)
-      localSubmissionStore.updateAllSuspend(submissionMutations)
+      localLocationOfInterestStore.updateAll(locationOfInterestMutations)
+      localSubmissionStore.updateAll(submissionMutations)
     }
   }
 
