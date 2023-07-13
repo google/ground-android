@@ -94,7 +94,7 @@ constructor(
   /**
    * Returns the survey with the specified id from the local db, or `null` if not available offline.
    */
-  suspend fun getOfflineSurveySuspend(surveyId: String): Survey? =
+  suspend fun getOfflineSurvey(surveyId: String): Survey? =
     localSurveyStore.getSurveyByIdSuspend(surveyId)
 
   fun syncSurveyWithRemote(id: String): @Cold Single<Survey> =
