@@ -228,13 +228,9 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   ): List<Submission> =
     submissionEntities.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } }
 
-  override fun deleteSubmission(submissionId: String): Completable =
-    submissionDao
-      .findById(submissionId)
-      .toSingle()
-      .doOnSubscribe { Timber.d("Deleting local submission : $submissionId") }
-      .flatMapCompletable { submissionDao.delete(it) }
-      .subscribeOn(schedulers.io())
+  override suspend fun deleteSubmission(submissionId: String) {
+    submissionDao.findByIdSuspend(submissionId)?.let { submissionDao.deleteSuspend(it) }
+  }
 
   override fun getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
     survey: Survey,

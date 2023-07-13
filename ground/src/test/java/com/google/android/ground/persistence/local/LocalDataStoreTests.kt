@@ -40,7 +40,6 @@ import com.google.android.ground.persistence.local.room.converter.parseVertices
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao
 import com.google.android.ground.persistence.local.room.dao.SubmissionDao
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
-import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
 import com.google.android.ground.persistence.local.room.fields.EntityState
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.*
@@ -290,17 +289,14 @@ class LocalDataStoreTests : BaseHiltTest() {
     localSubmissionStore.applyAndEnqueue(mutation).blockingAwait()
 
     // Verify that local entity exists and its state is updated.
-    submissionDao.findById("submission id").test().assertValue { submissionEntity: SubmissionEntity
-      ->
-      submissionEntity.state == EntityState.DELETED
-    }
+    assertThat(submissionDao.findByIdSuspend("submission id")?.state).isEqualTo(EntityState.DELETED)
 
     // Verify that the local submission doesn't end up in getSubmissions().
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
     localSubmissionStore.getSubmissions(loi, "task id").test().assertValue(listOf())
 
     // After successful remote sync, delete submission is called by LocalMutationSyncWorker.
-    localSubmissionStore.deleteSubmission("submission id").blockingAwait()
+    localSubmissionStore.deleteSubmission("submission id")
 
     // Verify that the submission doesn't exist anymore
     assertFailsWith<LocalDataStoreException> {

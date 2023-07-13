@@ -34,6 +34,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.rx2.rxCompletable
 import kotlinx.coroutines.rx2.rxMaybe
 import timber.log.Timber
 
@@ -128,7 +129,7 @@ constructor(
       .flatMapCompletable { mutation ->
         when (mutation) {
           is SubmissionMutation -> {
-            localSubmissionStore.deleteSubmission(mutation.submissionId)
+            rxCompletable { localSubmissionStore.deleteSubmission(mutation.submissionId) }
           }
           is LocationOfInterestMutation -> {
             localLocationOfInterestStore.deleteLocationOfInterest(mutation.locationOfInterestId)
