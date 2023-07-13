@@ -77,9 +77,10 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onZoomThresholdCrossed() }
 
-    adapter = MapCardAdapter(submissionRepository, lifecycleScope)
+    val canUserSubmitData = userRepository.canUserSubmitData()
+    adapter = MapCardAdapter(submissionRepository, lifecycleScope, canUserSubmitData)
     adapter.setCollectDataListener {
-      if (userRepository.canUserSubmitData()) {
+      if (canUserSubmitData) {
         navigateToDataCollectionFragment(it)
       } else {
         // Skip data collection screen if the user can't submit any data

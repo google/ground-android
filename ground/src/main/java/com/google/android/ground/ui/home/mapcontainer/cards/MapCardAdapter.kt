@@ -36,7 +36,8 @@ import kotlinx.coroutines.launch
  */
 class MapCardAdapter(
   private val submissionRepository: SubmissionRepository,
-  private val lifecycleScope: LifecycleCoroutineScope
+  private val lifecycleScope: LifecycleCoroutineScope,
+  private val canUserSubmitData: Boolean
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
   private var focusedIndex: Int = 0
@@ -50,9 +51,12 @@ class MapCardAdapter(
     val layoutInflater = LayoutInflater.from(parent.context)
 
     return if (viewType == R.layout.loi_card_item) {
-      LoiViewHolder(LoiCardItemBinding.inflate(layoutInflater, parent, false))
+      LoiViewHolder(LoiCardItemBinding.inflate(layoutInflater, parent, false), canUserSubmitData)
     } else {
-      SuggestLoiViewHolder(SuggestLoiCardItemBinding.inflate(layoutInflater, parent, false))
+      SuggestLoiViewHolder(
+        SuggestLoiCardItemBinding.inflate(layoutInflater, parent, false),
+        canUserSubmitData
+      )
     }
   }
 
@@ -124,9 +128,10 @@ class MapCardAdapter(
   }
 
   /** View item representing the [LocationOfInterest] data in the list. */
-  class LoiViewHolder(internal val binding: LoiCardItemBinding) :
-    CardViewHolder(binding.root, binding.loiCard) {
-
+  class LoiViewHolder(
+    internal val binding: LoiCardItemBinding,
+    private val canUserSubmitData: Boolean
+  ) : CardViewHolder(binding.root, binding.loiCard) {
     fun bind(
       submissionRepository: SubmissionRepository,
       lifecycleScope: LifecycleCoroutineScope,
@@ -135,6 +140,7 @@ class MapCardAdapter(
       with(binding) {
         loiName.text = LoiCardUtil.getDisplayLoiName(loi)
         jobName.text = LoiCardUtil.getJobName(loi)
+        collectData.visibility = if (canUserSubmitData) View.VISIBLE else View.GONE
 
         lifecycleScope.launch {
           val count = submissionRepository.getSubmissions(loi).size
@@ -145,11 +151,16 @@ class MapCardAdapter(
   }
 
   /** View item representing the Suggestion Loi Job data in the list. */
-  class SuggestLoiViewHolder(internal val binding: SuggestLoiCardItemBinding) :
-    CardViewHolder(binding.root, binding.loiCard) {
+  class SuggestLoiViewHolder(
+    internal val binding: SuggestLoiCardItemBinding,
+    private val canUserSubmitData: Boolean
+  ) : CardViewHolder(binding.root, binding.loiCard) {
 
     fun bind(job: Job) {
-      with(binding) { jobName.text = job.name }
+      with(binding) {
+        jobName.text = job.name
+        collectData.visibility = if (canUserSubmitData) View.VISIBLE else View.GONE
+      }
     }
   }
 }
