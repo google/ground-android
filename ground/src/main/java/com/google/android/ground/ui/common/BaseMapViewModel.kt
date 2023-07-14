@@ -109,7 +109,7 @@ constructor(
     } else {
       try {
         permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST).await()
+        settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST)
 
         enableLocationLock()
 
