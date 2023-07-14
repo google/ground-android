@@ -17,18 +17,14 @@ package com.google.android.ground.system.rx
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Location
 import android.os.Looper
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-import com.google.android.ground.rx.RxTask.toCompletable
-import com.google.android.ground.rx.RxTask.toMaybe
 import com.google.android.ground.system.channel.LocationSharedFlowCallback
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.reactivex.Completable
-import io.reactivex.Maybe
 import javax.inject.Inject
+import kotlinx.coroutines.tasks.await
 
 /** Thin wrapper around [FusedLocationProviderClient] exposing key LOIs as reactive streams. */
 class RxFusedLocationProviderClient @Inject constructor(@ApplicationContext context: Context) {
@@ -38,24 +34,17 @@ class RxFusedLocationProviderClient @Inject constructor(@ApplicationContext cont
     fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
   }
 
-  @get:SuppressLint("MissingPermission")
-  val lastLocation: Maybe<Location>
-    get() = toMaybe { fusedLocationProviderClient.lastLocation }
-
   @SuppressLint("MissingPermission")
-  fun requestLocationUpdates(
+  suspend fun requestLocationUpdates(
     locationRequest: LocationRequest,
     locationCallback: LocationSharedFlowCallback
-  ): Completable = toCompletable {
-    fusedLocationProviderClient.requestLocationUpdates(
-      locationRequest,
-      locationCallback,
-      Looper.myLooper()
-    )
+  ) {
+    fusedLocationProviderClient
+      .requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
+      .await()
   }
 
-  fun removeLocationUpdates(locationCallback: LocationSharedFlowCallback): Completable =
-    toCompletable {
-      fusedLocationProviderClient.removeLocationUpdates(locationCallback)
-    }
+  suspend fun removeLocationUpdates(locationCallback: LocationSharedFlowCallback) {
+    fusedLocationProviderClient.removeLocationUpdates(locationCallback).await()
+  }
 }

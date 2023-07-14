@@ -20,12 +20,11 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.system.channel.LocationSharedFlowCallback
 import com.google.android.ground.system.rx.RxFusedLocationProviderClient
-import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.*
-import timber.log.Timber
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 
 private const val UPDATE_INTERVAL: Long = 1000 /* 1 sec */
 
@@ -50,17 +49,10 @@ constructor(
     get() = _locationUpdates
   private val locationCallback = LocationSharedFlowCallback(_locationUpdates, externalScope)
 
-  fun requestLocationUpdates() =
+  // TODO: Request updates on resume.
+  suspend fun requestLocationUpdates() =
     locationClient.requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST, locationCallback)
 
-  // TODO: Request/remove updates on resume/pause.
-  @Synchronized
-  fun disableLocationUpdates(): Single<Result<Boolean>> =
-    removeLocationUpdates()
-      .toSingle { Result.success(false) }
-      // Ignore errors as they are usually caused by disabling the same callback multiple times.
-      .doOnError { Timber.e(it, "disableLocationUpdates") }
-      .onErrorReturn { Result.success(false) }
-
-  private fun removeLocationUpdates() = locationClient.removeLocationUpdates(locationCallback)
+  // TODO: Remove updates on pause.
+  suspend fun disableLocationUpdates() = locationClient.removeLocationUpdates(locationCallback)
 }

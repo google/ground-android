@@ -35,7 +35,6 @@ import com.google.android.ground.ui.map.MapController
 import com.google.android.ground.ui.map.MapType
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
-import io.reactivex.Single
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
@@ -46,7 +45,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 
 open class BaseMapViewModel
@@ -105,7 +103,7 @@ constructor(
 
   private suspend fun toggleLocationLock() {
     if (locationLock.value.getOrDefault(false)) {
-      disableLocationLock().await()
+      disableLocationLock()
     } else {
       try {
         permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -113,10 +111,10 @@ constructor(
 
         enableLocationLock()
 
-        locationManager.requestLocationUpdates().await()
+        locationManager.requestLocationUpdates()
       } catch (e: PermissionDeniedException) {
         locationLock.value = Result.failure(e)
-        locationManager.disableLocationUpdates().await()
+        locationManager.disableLocationUpdates()
       }
     }
   }
@@ -124,9 +122,9 @@ constructor(
   private fun enableLocationLock() = onLockStateChanged(true)
 
   /** Releases location enableLocationLock by disabling location updates. */
-  private fun disableLocationLock(): Single<Result<Boolean>> {
+  private suspend fun disableLocationLock() {
     onLockStateChanged(false)
-    return locationManager.disableLocationUpdates()
+    locationManager.disableLocationUpdates()
   }
 
   private fun onLockStateChanged(isLocked: Boolean) {
@@ -149,7 +147,7 @@ constructor(
   fun onMapDragged() {
     if (locationLock.value.getOrDefault(false)) {
       Timber.d("User dragged map. Disabling location lock")
-      viewModelScope.launch { disableLocationLock().await() }
+      viewModelScope.launch { disableLocationLock() }
     }
   }
 
