@@ -28,12 +28,9 @@ import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Observable
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.rx2.rxCompletable
 
 /**
  * Coordinates persistence of mutations across [LocationOfInterestMutation] and [SubmissionMutation]
@@ -106,26 +103,26 @@ constructor(
    * Mark pending mutations as complete. If the mutation is of type DELETE, also removes the
    * corresponding submission or LOI.
    */
-  fun finalizePendingMutations(mutations: List<Mutation>): Completable =
-    finalizeDeletions(mutations).andThen(markComplete(mutations))
+  suspend fun finalizePendingMutations(mutations: List<Mutation>) {
+    finalizeDeletions(mutations)
+    markComplete(mutations)
+  }
 
-  private fun finalizeDeletions(mutations: List<Mutation>): Completable =
-    Observable.fromIterable(mutations)
+  private suspend fun finalizeDeletions(mutations: List<Mutation>) =
+    mutations
       .filter { it.type === Mutation.Type.DELETE }
-      .flatMapCompletable { mutation ->
+      .map { mutation ->
         when (mutation) {
           is SubmissionMutation -> {
-            rxCompletable { localSubmissionStore.deleteSubmission(mutation.submissionId) }
+            localSubmissionStore.deleteSubmission(mutation.submissionId)
           }
           is LocationOfInterestMutation -> {
-            rxCompletable {
-              localLocationOfInterestStore.deleteLocationOfInterest(mutation.locationOfInterestId)
-            }
+            localLocationOfInterestStore.deleteLocationOfInterest(mutation.locationOfInterestId)
           }
         }
       }
 
-  private fun markComplete(mutations: List<Mutation>): Completable {
+  private suspend fun markComplete(mutations: List<Mutation>) {
     val locationOfInterestMutations =
       LocationOfInterestMutation.filter(mutations).map {
         it.copy(syncStatus = Mutation.SyncStatus.COMPLETED)
@@ -135,10 +132,8 @@ constructor(
         it.copy(syncStatus = Mutation.SyncStatus.COMPLETED)
       }
 
-    return rxCompletable {
-      localLocationOfInterestStore.updateAll(locationOfInterestMutations)
-      localSubmissionStore.updateAll(submissionMutations)
-    }
+    localLocationOfInterestStore.updateAll(locationOfInterestMutations)
+    localSubmissionStore.updateAll(submissionMutations)
   }
 
   private fun combineAndSortMutations(
