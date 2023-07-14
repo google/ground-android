@@ -22,7 +22,6 @@ import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import io.reactivex.Flowable
-import io.reactivex.Single
 
 interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submission> {
   /**
@@ -55,8 +54,8 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
 
   fun getAllMutationsAndStream(): Flowable<List<SubmissionMutationEntity>>
 
-  fun findByLocationOfInterestId(
+  suspend fun findByLocationOfInterestId(
     id: String,
     vararg states: MutationEntitySyncStatus
-  ): Single<List<SubmissionMutationEntity>>
+  ): List<SubmissionMutationEntity>
 }

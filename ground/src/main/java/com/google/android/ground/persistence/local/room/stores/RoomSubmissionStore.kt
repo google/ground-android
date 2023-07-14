@@ -128,8 +128,9 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       Mutation.Type.UNKNOWN -> throw LocalDataStoreException("Unknown Mutation.Type")
     }
 
-  override fun updateAll(mutations: List<SubmissionMutation>): Completable =
+  override suspend fun updateAll(mutations: List<SubmissionMutation>) {
     submissionMutationDao.updateAll(mutations.map { it.toLocalDataStoreObject() })
+  }
 
   private fun markSubmissionForDeletion(
     entity: SubmissionEntity,
@@ -242,9 +243,8 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   override fun getAllMutationsAndStream(): Flowable<List<SubmissionMutationEntity>> =
     submissionMutationDao.loadAllOnceAndStream()
 
-  override fun findByLocationOfInterestId(
+  override suspend fun findByLocationOfInterestId(
     id: String,
     vararg states: MutationEntitySyncStatus
-  ): Single<List<SubmissionMutationEntity>> =
-    submissionMutationDao.findByLocationOfInterestId(id, *states)
+  ): List<SubmissionMutationEntity> = submissionMutationDao.findByLocationOfInterestId(id, *states)
 }

@@ -36,7 +36,7 @@ interface LocalMutationStore<T : Mutation, M> {
   fun apply(mutation: T): Completable
 
   /** Updates specified mutations in the local queue. */
-  fun updateAll(mutations: List<T>): Completable
+  suspend fun updateAll(mutations: List<T>)
 
   /**
    * Applies mutations to locally stored data, then enqueues the mutation for use when merging
