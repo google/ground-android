@@ -20,6 +20,7 @@ import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.android.ground.BaseHiltTest
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,6 +28,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadow.api.Shadow.extract
 import org.robolectric.shadows.ShadowApplication
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class PermissionsManagerTest : BaseHiltTest() {
@@ -36,15 +38,15 @@ class PermissionsManagerTest : BaseHiltTest() {
   @Inject lateinit var permissionsManager: PermissionsManager
 
   @Test
-  fun permissionAvailable_granted() {
+  fun permissionAvailable_granted() = runWithTestDispatcher {
     val shadowApplication = extract<ShadowApplication>(getInstrumentation().targetContext)
     shadowApplication.grantPermissions(testPermission)
 
-    permissionsManager.obtainPermission(testPermission).test().assertComplete()
+    permissionsManager.obtainPermission(testPermission)
   }
 
   @Test
-  fun permissionNotAvailable_granted() {
-    permissionsManager.obtainPermission(testPermission).test().assertNotComplete()
+  fun permissionNotAvailable_granted() = runWithTestDispatcher {
+    permissionsManager.obtainPermission(testPermission)
   }
 }

@@ -24,7 +24,11 @@ import com.google.android.ground.R
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.system.*
+import com.google.android.ground.system.FINE_LOCATION_UPDATES_REQUEST
+import com.google.android.ground.system.LocationManager
+import com.google.android.ground.system.PermissionDeniedException
+import com.google.android.ground.system.PermissionsManager
+import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapController
@@ -35,7 +39,12 @@ import io.reactivex.Single
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.await
 import timber.log.Timber
@@ -99,8 +108,7 @@ constructor(
       disableLocationLock().await()
     } else {
       try {
-        permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION).await()
-
+        permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
         settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST).await()
 
         enableLocationLock()
