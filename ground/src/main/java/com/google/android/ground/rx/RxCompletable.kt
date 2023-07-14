@@ -16,20 +16,10 @@
 package com.google.android.ground.rx
 
 import io.reactivex.Completable
-import io.reactivex.Single
-import java.util.concurrent.Callable
-import java8.util.function.Consumer
 import java8.util.function.Supplier
 
 /** Helpers for working with RxJava Completable classes. */
 object RxCompletable {
-
-  fun completeIf(conditionFunction: Callable<Boolean>): Completable =
-    Completable.create {
-      if (conditionFunction.call()) {
-        it.onComplete()
-      }
-    }
 
   fun completeOrError(supplier: Supplier<Boolean>, errorClass: Class<out Throwable>): Completable =
     Completable.create {
@@ -39,18 +29,4 @@ object RxCompletable {
         it.onError(errorClass.newInstance())
       }
     }
-
-  /**
-   * Receives a [Completable] and returns a [Single] that emits `true` if the [Completable]
-   * completes successfully, `false` otherwise. In case any error occurs, the exception is consumed
-   * by the argument {@param exceptionConsumer}.
-   */
-  fun toBooleanSingle(
-    completable: Completable,
-    exceptionConsumer: Consumer<in Throwable>
-  ): Single<Boolean> =
-    completable
-      .doOnError { exceptionConsumer.accept(it) }
-      .toSingleDefault(true)
-      .onErrorReturnItem(false)
 }
