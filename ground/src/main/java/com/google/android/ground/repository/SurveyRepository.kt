@@ -23,7 +23,6 @@ import com.google.android.ground.persistence.local.room.converter.toLocalDataSto
 import com.google.android.ground.persistence.local.room.dao.TileSourceDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
@@ -36,6 +35,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.rx2.rxCompletable
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_SECS: Long = 15
@@ -91,24 +91,17 @@ constructor(
   suspend fun subscribeToSurveyUpdates(surveyId: String) =
     remoteDataStore.subscribeToSurveyUpdates(surveyId).await()
 
-  /** This only works if the survey is already cached to local db. */
-  @Deprecated("Use getOfflineSurveySuspend() instead")
-  fun getOfflineSurvey(surveyId: String): @Cold Single<Survey> =
-    localSurveyStore
-      .getSurveyById(surveyId)
-      .switchIfEmpty(Single.error { NotFoundException("Survey not found $surveyId") })
-
   /**
    * Returns the survey with the specified id from the local db, or `null` if not available offline.
    */
-  suspend fun getOfflineSurveySuspend(surveyId: String): Survey? =
+  suspend fun getOfflineSurvey(surveyId: String): Survey? =
     localSurveyStore.getSurveyByIdSuspend(surveyId)
 
   fun syncSurveyWithRemote(id: String): @Cold Single<Survey> =
     remoteDataStore
       .loadSurvey(id)
       .timeout(LOAD_REMOTE_SURVEY_TIMEOUT_SECS, TimeUnit.SECONDS)
-      .flatMap { localSurveyStore.insertOrUpdateSurvey(it).toSingleDefault(it) }
+      .flatMap { rxCompletable { localSurveyStore.insertOrUpdateSurvey(it) }.toSingleDefault(it) }
       .doOnSuccess {
         // TODO: Define and use a BaseMapStore
         it.tileSources.forEach { bm ->

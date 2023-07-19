@@ -63,8 +63,7 @@ constructor(
 
   private suspend fun doWorkInternal(): Result {
     Timber.d("Connected. Syncing changes to location of interest $locationOfInterestId")
-    val mutations: List<Mutation> =
-      mutationRepository.getPendingMutations(locationOfInterestId).blockingGet()
+    val mutations: List<Mutation> = mutationRepository.getPendingMutations(locationOfInterestId)
     return try {
       Timber.v("Mutations: $mutations")
       processMutations(mutations)
@@ -74,7 +73,7 @@ constructor(
         .log("Error applying remote updates to location of interest $locationOfInterestId")
       FirebaseCrashlytics.getInstance().recordException(t)
       Timber.e(t, "Remote updates for location of interest $locationOfInterestId failed")
-      mutationRepository.updateMutations(incrementRetryCounts(mutations, t)).blockingAwait()
+      mutationRepository.updateMutations(incrementRetryCounts(mutations, t))
       Result.retry()
     }
   }
@@ -107,7 +106,7 @@ constructor(
     remoteDataStore.applyMutations(mutations, user).await()
     processPhotoFieldMutations(mutations)
     // TODO: If the remote sync fails, reset the state to DEFAULT.
-    mutationRepository.finalizePendingMutations(mutations).await()
+    mutationRepository.finalizePendingMutations(mutations)
   }
 
   /**
