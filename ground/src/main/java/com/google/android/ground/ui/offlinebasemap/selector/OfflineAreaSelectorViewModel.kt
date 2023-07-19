@@ -37,11 +37,11 @@ import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.Map
 import com.google.android.ground.ui.map.MapController
 import com.google.android.ground.ui.map.MapType
+import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -108,11 +108,12 @@ internal constructor(
     isDownloadProgressVisible.value = true
     downloadProgress.value = 0
     viewModelScope.launch(ioDispatcher) {
-      val baseUrl = offlineAreaRepository.getMogBaseUrl()
-      val requests = offlineAreaRepository.buildTileRequests(baseUrl, viewport!!)
+      val client = offlineAreaRepository.getMogClient()
+      val requests = client.buildTilesRequests(viewport!!.toGoogleMapsObject())
+
       // Compute total byte to be downloaded.
       downloadProgressMax.postValue(requests.sumOf { it.totalBytes })
-      offlineAreaRepository.downloadTiles(baseUrl, requests).collect {
+      offlineAreaRepository.downloadTiles(client, requests).collect {
         // Add number of bytes downloaded to progress.
         downloadProgress.postValue(downloadProgress.value!! + it)
       }

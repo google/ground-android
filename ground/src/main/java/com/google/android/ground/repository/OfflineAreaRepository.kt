@@ -26,9 +26,7 @@ import com.google.android.ground.persistence.sync.TileSetDownloadWorkManager
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.GeocodingManager
-import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.mog.*
-import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.android.ground.ui.util.FileUtil
 import io.reactivex.*
 import java.io.File
@@ -210,14 +208,13 @@ constructor(
       }
       .andThen(localOfflineAreaStore.deleteOfflineArea(offlineAreaId))
 
-  suspend fun getMogBaseUrl(): String {
-    val survey = surveyRepository.activeSurveyFlowable.asFlow().firstOrNull()?.orElse(null)
-    return survey?.tileSources?.firstOrNull()?.url?.toString()
-      ?: error("Survey has no tile sources")
-  }
-
-  private fun getMogClient(baseUrl: String): MogClient {
+  /**
+   * Uses the first tile source URL of the currently active survey and returns a [MogClient], or
+   * throws an error if no survey is active or if no tile sources are defined.
+   */
+  suspend fun getMogClient(): MogClient {
     // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
+    val baseUrl = getFirstTileSourceUrl()
     val mogCollection =
       MogCollection(
         listOf(MogSource("${baseUrl}/world.tif", 0..7), MogSource("${baseUrl}/{x}/{y}.tif", 8..14))
@@ -225,12 +222,24 @@ constructor(
     return MogClient(mogCollection)
   }
 
-  suspend fun buildTileRequests(baseUrl: String, viewport: Bounds): List<MogTilesRequest> =
-    getMogClient(baseUrl).buildTilesRequests(viewport.toGoogleMapsObject())
+  /**
+   * Returns the URL of the first tile source in the current survey, or throws an error if no survey
+   * is active or if no tile sources are defined.
+   */
+  private suspend fun getFirstTileSourceUrl(): String {
+    val survey = surveyRepository.activeSurveyFlowable.asFlow().firstOrNull()?.orElse(null)
+    return survey?.tileSources?.firstOrNull()?.url?.toString()
+      ?: error("Survey has no tile sources")
+  }
 
-  suspend fun downloadTiles(baseUrl: String, requests: List<MogTilesRequest>): Flow<Int> {
-    val tilePath = File(fileUtil.filesDir.path, "tiles/${baseUrl.hashCode()}").path
-    val downloader = MogTileDownloader(getMogClient(baseUrl), tilePath)
+  /**
+   * Sends the provided tile requests and downloads tiles to the local file store. The path will be
+   * interpreted as a sub-path relative to the app's file path.
+   */
+  suspend fun downloadTiles(client: MogClient, requests: List<MogTilesRequest>): Flow<Int> {
+    // TODO(#1730): Generate local tiles path based on source base path.
+    val tilePath = File(fileUtil.filesDir.path, "tiles").path
+    val downloader = MogTileDownloader(client, tilePath)
     return downloader.downloadTiles(requests)
   }
 }

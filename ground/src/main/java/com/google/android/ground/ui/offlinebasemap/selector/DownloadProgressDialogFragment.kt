@@ -21,7 +21,7 @@ import android.app.Dialog
 import android.os.Bundle
 import androidx.fragment.app.FragmentManager
 import com.google.android.ground.R
-import com.google.android.ground.databinding.ImageryDownloadProgressDialogFragBinding
+import com.google.android.ground.databinding.DownloadProgressDialogFragBinding
 import com.google.android.ground.ui.common.AbstractDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -29,7 +29,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class DownloadProgressDialogFragment : Hilt_DownloadProgressDialogFragment() {
   override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
     val inflater = requireActivity().layoutInflater
-    val binding = ImageryDownloadProgressDialogFragBinding.inflate(inflater)
+    val binding = DownloadProgressDialogFragBinding.inflate(inflater)
     binding.lifecycleOwner = this
     binding.viewModel = getViewModel(OfflineAreaSelectorViewModel::class.java)
     return AlertDialog.Builder(requireActivity())
