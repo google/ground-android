@@ -25,7 +25,6 @@ import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -39,6 +38,8 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.rx2.rxMaybe
+import kotlinx.coroutines.rx2.rxSingle
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS: Long = 15
@@ -98,7 +99,9 @@ constructor(
           mergeRemoteSubmissions(submissions)
         }
         .onErrorComplete()
-    return remoteSync.andThen(localSubmissionStore.getSubmissions(locationOfInterest, jobId))
+    return remoteSync.andThen(
+      rxSingle { localSubmissionStore.getSubmissions(locationOfInterest, jobId) }
+    )
   }
 
   private fun mergeRemoteSubmissions(submissions: List<Result<Submission>>): @Cold Completable =
@@ -121,9 +124,7 @@ constructor(
     locationOfInterestRepository
       .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
       .flatMap { locationOfInterest ->
-        localSubmissionStore
-          .getSubmission(locationOfInterest, submissionId)
-          .switchIfEmpty(Single.error { NotFoundException("Submission $submissionId") })
+        rxSingle { localSubmissionStore.getSubmission(locationOfInterest, submissionId) }
       }
 
   fun createSubmission(surveyId: String, locationOfInterestId: String): @Cold Single<Submission> {
@@ -196,13 +197,15 @@ constructor(
     surveyId: String,
     locationOfInterestId: String
   ): Flowable<List<SubmissionMutation>> =
-    localSurveyStore.getSurveyById(surveyId).toFlowable().flatMap {
-      localSubmissionStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
-        it,
-        locationOfInterestId,
-        MutationEntitySyncStatus.PENDING,
-        MutationEntitySyncStatus.IN_PROGRESS,
-        MutationEntitySyncStatus.FAILED
-      )
-    }
+    rxMaybe { localSurveyStore.getSurveyByIdSuspend(surveyId) }
+      .toFlowable()
+      .flatMap {
+        localSubmissionStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+          it,
+          locationOfInterestId,
+          MutationEntitySyncStatus.PENDING,
+          MutationEntitySyncStatus.IN_PROGRESS,
+          MutationEntitySyncStatus.FAILED
+        )
+      }
 }

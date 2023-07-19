@@ -21,7 +21,6 @@ import com.google.android.ground.persistence.local.room.entity.LocationOfInteres
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
-import io.reactivex.Single
 
 /**
  * Provides low-level read/write operations of [LocationOfInterestMutationEntity] to/from the local
@@ -37,10 +36,10 @@ interface LocationOfInterestMutationDao : BaseDao<LocationOfInterestMutationEnti
       "WHERE location_of_interest_id = :locationOfInterestId " +
       "AND state IN (:allowedStates)"
   )
-  fun findByLocationOfInterestId(
+  suspend fun findByLocationOfInterestId(
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
-  ): Single<List<LocationOfInterestMutationEntity>>
+  ): List<LocationOfInterestMutationEntity>?
 
   @Query(
     "SELECT * FROM location_of_interest_mutation " +

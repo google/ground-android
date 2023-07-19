@@ -27,7 +27,7 @@ interface MbtilesFileDao : BaseDao<MbtilesFileEntity> {
   @Query("SELECT * FROM tile_sources") fun findAllOnceAndStream(): Flowable<List<MbtilesFileEntity>>
 
   @Query("SELECT * FROM tile_sources WHERE state = :state")
-  fun findByState(state: Int): Single<List<MbtilesFileEntity>>
+  fun findByState(state: Int): List<MbtilesFileEntity>?
 
   @Query("SELECT * FROM tile_sources WHERE id = :id")
   fun findById(id: String): Maybe<MbtilesFileEntity>

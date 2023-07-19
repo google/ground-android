@@ -154,8 +154,9 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     viewArgs.onNext(args);
   }
 
-  Optional<TaskData> getResponse(String taskId) {
-    return Optional.ofNullable(responses.get(taskId));
+  @Nullable
+  TaskData getResponse(String taskId) {
+    return responses.get(taskId);
   }
 
   /**
@@ -197,7 +198,10 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     if (restoredResponses == null) {
       TaskDataMap taskDataMap = submission.getResponses();
       for (String taskId : taskDataMap.taskIds()) {
-        taskDataMap.getResponse(taskId).ifPresent(r -> responses.put(taskId, r));
+        TaskData taskData = taskDataMap.getResponse(taskId);
+        if (taskData != null) {
+          responses.put(taskId, taskData);
+        }
       }
     } else {
       Timber.v("Restoring responses from bundle");
@@ -261,12 +265,12 @@ public class EditSubmissionViewModel extends AbstractViewModel {
     Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses);
     for (Task task : originalSubmission.getJob().getTasksSorted()) {
       String taskId = task.getId();
-      Optional<TaskData> originalResponse = originalResponses.getResponse(taskId);
-      Optional<TaskData> currentResponse = getResponse(taskId).filter(r -> !r.isEmpty());
-      if (currentResponse.equals(originalResponse)) {
+      TaskData originalResponse = originalResponses.getResponse(taskId);
+      TaskData currentResponse = getResponse(taskId);
+      if (currentResponse != null && currentResponse.equals(originalResponse)) {
         continue;
       }
-      result.add(new TaskDataDelta(taskId, task.getType(), currentResponse.orElse(null)));
+      result.add(new TaskDataDelta(taskId, task.getType(), currentResponse));
     }
     Timber.v("Deltas: %s", result);
     return result;

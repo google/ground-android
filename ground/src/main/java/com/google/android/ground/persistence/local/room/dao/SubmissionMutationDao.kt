@@ -33,10 +33,10 @@ interface SubmissionMutationDao : BaseDao<SubmissionMutationEntity> {
     "SELECT * FROM submission_mutation " +
       "WHERE location_of_interest_id = :locationOfInterestId AND state IN (:allowedStates)"
   )
-  fun findByLocationOfInterestId(
+  suspend fun findByLocationOfInterestId(
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
-  ): Single<List<SubmissionMutationEntity>>
+  ): List<SubmissionMutationEntity>
 
   @Query(
     "SELECT * FROM submission_mutation " +

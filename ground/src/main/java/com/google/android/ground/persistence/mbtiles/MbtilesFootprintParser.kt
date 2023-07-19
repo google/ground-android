@@ -67,9 +67,9 @@ class MbtilesFootprintParser @Inject constructor(private val uuidGenerator: Offl
   /** Returns the [MbtilesFile] specified by {@param json}. */
   private fun jsonToTileSet(json: TileSetJson): MbtilesFile =
     MbtilesFile(
-      json.url.orElse(""),
+      json.url,
       uuidGenerator.generateUuid(),
-      pathFromId(json.id.orElse("")),
+      pathFromId(json.id),
       MbtilesFile.DownloadState.PENDING,
       0
     )

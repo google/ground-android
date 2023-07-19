@@ -18,10 +18,9 @@ package com.google.android.ground.persistence.local.room.dao
 import androidx.room.Dao
 import androidx.room.Query
 import com.google.android.ground.persistence.local.room.entity.TileSourceEntity
-import io.reactivex.Completable
 
 @Dao
 interface TileSourceDao : BaseDao<TileSourceEntity> {
   @Query("DELETE FROM offline_base_map_source WHERE survey_id = :surveyId")
-  fun deleteBySurveyId(surveyId: String): Completable
+  suspend fun deleteBySurveyId(surveyId: String)
 }

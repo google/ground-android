@@ -60,7 +60,7 @@ internal constructor(
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
   surveyRepository: SurveyRepository,
-  offlineAreaRepository: OfflineAreaRepository
+  offlineAreaRepository: OfflineAreaRepository,
 ) :
   BaseMapViewModel(
     locationManager,

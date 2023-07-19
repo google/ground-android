@@ -36,7 +36,12 @@ interface LocationOfInterestDao : BaseDao<LocationOfInterestEntity> {
   fun findByState(surveyId: String, state: EntityState): Flow<List<LocationOfInterestEntity>>
 
   @Query("SELECT * FROM location_of_interest WHERE id = :id")
+  @Deprecated("Use findByIdSuspend instead")
   fun findById(id: String): Maybe<LocationOfInterestEntity>
+
+  // TODO(#1581): Rename to findById
+  @Query("SELECT * FROM location_of_interest WHERE id = :id")
+  suspend fun findByIdSuspend(id: String): LocationOfInterestEntity?
 
   /**
    * Deletes all LOIs in specified survey whose IDs are not present in the specified list..
