@@ -43,7 +43,7 @@ internal object SurveyConverter {
 
     val tileSources = mutableListOf<TileSource>()
     if (pd.tileSources != null) {
-      convertOfflineBaseMapSources(pd, tileSources)
+      convertTileSources(pd, tileSources)
     }
 
     return Survey(
@@ -56,7 +56,7 @@ internal object SurveyConverter {
     )
   }
 
-  private fun convertOfflineBaseMapSources(pd: SurveyDocument, builder: MutableList<TileSource>) {
+  private fun convertTileSources(pd: SurveyDocument, builder: MutableList<TileSource>) {
     pd.tileSources
       ?.mapNotNull { it.url }
       ?.forEach { url ->
