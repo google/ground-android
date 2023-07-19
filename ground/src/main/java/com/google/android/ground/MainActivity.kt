@@ -25,12 +25,12 @@ import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.databinding.MainActBinding
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.rx.RxAutoDispose.autoDisposable
+import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.ActivityStreams
 import com.google.android.ground.system.ApplicationErrorManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.*
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.android.schedulers.AndroidSchedulers
 import java8.util.function.Consumer
 import javax.inject.Inject
 import timber.log.Timber
@@ -54,6 +54,8 @@ class MainActivity : Hilt_MainActivity() {
 
   @Inject lateinit var popups: EphemeralPopups
 
+  @Inject lateinit var schedulers: Schedulers
+
   private lateinit var viewModel: MainViewModel
   private lateinit var navHostFragment: NavHostFragment
 
@@ -72,13 +74,13 @@ class MainActivity : Hilt_MainActivity() {
 
     navigator
       .getNavigateRequests()
-      .observeOn(AndroidSchedulers.mainThread())
+      .observeOn(schedulers.ui())
       .`as`(autoDisposable(this))
       .subscribe { navDirections: NavDirections -> onNavigate(navDirections) }
 
     navigator
       .getNavigateUpRequests()
-      .observeOn(AndroidSchedulers.mainThread())
+      .observeOn(schedulers.ui())
       .`as`(autoDisposable(this))
       .subscribe { navigateUp() }
 
