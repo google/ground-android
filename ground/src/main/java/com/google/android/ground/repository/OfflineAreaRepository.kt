@@ -26,7 +26,9 @@ import com.google.android.ground.persistence.sync.TileSetDownloadWorkManager
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.GeocodingManager
+import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.mog.*
+import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.android.ground.ui.util.FileUtil
 import io.reactivex.*
 import java.io.File
@@ -34,8 +36,7 @@ import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentSet
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import org.apache.commons.io.FileUtils
 import timber.log.Timber
@@ -208,11 +209,17 @@ constructor(
       }
       .andThen(localOfflineAreaStore.deleteOfflineArea(offlineAreaId))
 
+  suspend fun downloadTiles(bounds: Bounds): Flow<Pair<Int, Int>> = flow {
+    val client = getMogClient()
+    val requests = client.buildTilesRequests(bounds.toGoogleMapsObject())
+    val totalBytes = requests.sumOf { it.totalBytes }
+    emitAll(downloadTiles(client, requests).map { Pair(it, totalBytes) })
+  }
   /**
    * Uses the first tile source URL of the currently active survey and returns a [MogClient], or
    * throws an error if no survey is active or if no tile sources are defined.
    */
-  suspend fun getMogClient(): MogClient {
+  private suspend fun getMogClient(): MogClient {
     // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
     val baseUrl = getFirstTileSourceUrl()
     val mogCollection =
@@ -236,7 +243,7 @@ constructor(
    * Sends the provided tile requests and downloads tiles to the local file store. The path will be
    * interpreted as a sub-path relative to the app's file path.
    */
-  suspend fun downloadTiles(client: MogClient, requests: List<MogTilesRequest>): Flow<Int> {
+  private suspend fun downloadTiles(client: MogClient, requests: List<MogTilesRequest>): Flow<Int> {
     // TODO(#1730): Generate local tiles path based on source base path.
     val tilePath = File(fileUtil.filesDir.path, "tiles").path
     val downloader = MogTileDownloader(client, tilePath)
