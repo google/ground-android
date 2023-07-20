@@ -22,11 +22,8 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.JobConverter.toJob
 import com.google.firebase.firestore.DocumentSnapshot
-import java.net.MalformedURLException
-import java.net.URL
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
-import timber.log.Timber
 
 /** Converts between Firestore documents and [Survey] instances. */
 internal object SurveyConverter {
@@ -59,12 +56,6 @@ internal object SurveyConverter {
   private fun convertTileSources(pd: SurveyDocument, builder: MutableList<TileSource>) {
     pd.tileSources
       ?.mapNotNull { it.url }
-      ?.forEach { url ->
-        try {
-          builder.add(TileSource(URL(url), TileSource.fromFileExtension(url)))
-        } catch (e: MalformedURLException) {
-          Timber.d("Skipping tile source with malformed URL: $url")
-        }
-      }
+      ?.forEach { url -> builder.add(TileSource(url, TileSource.fromFileExtension(url))) }
   }
 }

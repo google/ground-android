@@ -40,7 +40,6 @@ import com.google.android.ground.persistence.local.room.relations.TaskEntityAndR
 import com.google.android.ground.ui.map.Bounds
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import java.net.URL
 import java.util.*
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
@@ -72,9 +71,9 @@ private fun TileSourceEntity.TileSourceEntityType.toModelObject() =
   }
 
 fun TileSource.toLocalDataStoreObject(surveyId: String) =
-  TileSourceEntity(surveyId = surveyId, url = url.toString(), type = type.toLocalDataStoreObject())
+  TileSourceEntity(surveyId = surveyId, url = url, type = type.toLocalDataStoreObject())
 
-fun TileSourceEntity.toModelObject() = TileSource(url = URL(url), type = type.toModelObject())
+fun TileSourceEntity.toModelObject() = TileSource(url = url, type = type.toModelObject())
 
 fun Geometry.toLocalDataStoreObject() = GeometryWrapper.fromGeometry(this)
 

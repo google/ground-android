@@ -15,11 +15,10 @@
  */
 package com.google.android.ground.model.imagery
 
-import java.net.URL
 import org.apache.commons.io.FilenameUtils
 
 /** Represents a single source of tiled map imagery. */
-data class TileSource(val url: URL, val type: Type) {
+data class TileSource(val url: String, val type: Type) {
   enum class Type {
     MBTILES_FOOTPRINTS,
     TILED_WEB_MAP,

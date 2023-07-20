@@ -33,6 +33,7 @@ import com.google.android.ground.ui.util.FileUtil
 import io.reactivex.*
 import java.io.File
 import java.io.IOException
+import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentSet
@@ -64,10 +65,10 @@ constructor(
   @Throws(IOException::class)
   private fun downloadOfflineBaseMapSource(tileSource: TileSource): File {
     val baseMapUrl = tileSource.url
-    Timber.d("Basemap url: $baseMapUrl, file: ${baseMapUrl.file}")
-    val localFile = fileUtil.getOrCreateFile(baseMapUrl.file)
+    Timber.d("Basemap url: $baseMapUrl, file: ${baseMapUrl}")
+    val localFile = fileUtil.getOrCreateFile(baseMapUrl)
 
-    FileUtils.copyURLToFile(baseMapUrl, localFile)
+    FileUtils.copyURLToFile(URL(baseMapUrl), localFile)
     return localFile
   }
 
