@@ -218,7 +218,9 @@ constructor(
     val requests = client.buildTilesRequests(bounds.toGoogleMapsObject())
     val totalBytes = requests.sumOf { it.totalBytes }
     var bytesDownloaded = 0
-    downloadTiles(client, requests).collect {
+    // TODO(#1730): Generate local tiles path based on source base path.
+    val tilePath = File(fileUtil.filesDir.path, "tiles").path
+    MogTileDownloader(client, tilePath).downloadTiles(requests).collect {
       bytesDownloaded += it
       emit(Pair(bytesDownloaded, totalBytes))
     }
@@ -246,16 +248,5 @@ constructor(
     val survey = surveyRepository.activeSurveyFlowable.asFlow().firstOrNull()?.orElse(null)
     return survey?.tileSources?.firstOrNull()?.url?.toString()
       ?: error("Survey has no tile sources")
-  }
-
-  /**
-   * Sends the provided tile requests and downloads tiles to the local file store. The path will be
-   * interpreted as a sub-path relative to the app's file path.
-   */
-  private suspend fun downloadTiles(client: MogClient, requests: List<MogTilesRequest>): Flow<Int> {
-    // TODO(#1730): Generate local tiles path based on source base path.
-    val tilePath = File(fileUtil.filesDir.path, "tiles").path
-    val downloader = MogTileDownloader(client, tilePath)
-    return downloader.downloadTiles(requests)
   }
 }
