@@ -209,12 +209,21 @@ constructor(
       }
       .andThen(localOfflineAreaStore.deleteOfflineArea(offlineAreaId))
 
+  /**
+   * Downloads tiles in the specified bounds and stores them in the local filesystem. Emits the
+   * number of bytes processed and total expected bytes as the download progresses.
+   */
   suspend fun downloadTiles(bounds: Bounds): Flow<Pair<Int, Int>> = flow {
     val client = getMogClient()
     val requests = client.buildTilesRequests(bounds.toGoogleMapsObject())
     val totalBytes = requests.sumOf { it.totalBytes }
-    emitAll(downloadTiles(client, requests).map { Pair(it, totalBytes) })
+    var bytesDownloaded = 0
+    downloadTiles(client, requests).collect {
+      bytesDownloaded += it
+      emit(Pair(bytesDownloaded, totalBytes))
+    }
   }
+
   /**
    * Uses the first tile source URL of the currently active survey and returns a [MogClient], or
    * throws an error if no survey is active or if no tile sources are defined.

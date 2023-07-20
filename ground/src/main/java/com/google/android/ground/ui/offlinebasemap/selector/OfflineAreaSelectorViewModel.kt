@@ -111,7 +111,7 @@ internal constructor(
         // Set total bytes / max value on first iteration.
         if (downloadProgressMax.value != totalBytes) downloadProgressMax.postValue(totalBytes)
         // Add number of bytes downloaded to progress.
-        downloadProgress.postValue(downloadProgress.value!! + byteDownloaded)
+        downloadProgress.postValue(byteDownloaded)
       }
       isDownloadProgressVisible.postValue(false)
       navigator.navigateUp()
