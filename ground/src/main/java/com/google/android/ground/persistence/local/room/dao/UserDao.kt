@@ -23,7 +23,14 @@ import io.reactivex.Maybe
 
 @Dao
 interface UserDao : BaseDao<UserEntity> {
+
   @Transaction
   @Query("SELECT * FROM user WHERE id = :id")
+  @Deprecated("Use findByIdSuspend")
   fun findById(id: String): Maybe<UserEntity>
+
+  @Transaction
+  @Query("SELECT * FROM user WHERE id = :id")
+  // TODO(#1581): Rename to findById once all existing usages are migrated to coroutine.
+  suspend fun findByIdSuspend(id: String): UserEntity?
 }

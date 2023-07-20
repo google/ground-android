@@ -15,7 +15,14 @@
  */
 package com.google.android.ground.persistence.sync
 
-import androidx.work.*
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.ListenableWorker
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkRequest
+import androidx.work.Worker
 import java.util.concurrent.TimeUnit
 
 /**
@@ -33,7 +40,7 @@ abstract class SyncService {
     get() = Constraints.Builder().setRequiredNetworkType(preferredNetworkType()).build()
 
   /** A class extending [Worker] which gets scheduled for a request. */
-  protected abstract val workerClass: Class<out Worker?>
+  protected abstract val workerClass: Class<out ListenableWorker?>
 
   /**
    * Override this method if the worker requires a stable internet connection for large file

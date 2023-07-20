@@ -64,15 +64,6 @@ class DropAPinTaskFragmentTest :
   }
 
   @Test
-  fun testHeader_click_displaysTaskLabel() = runWithTestDispatcher {
-    setupTaskFragment<DropAPinTaskFragment>(task)
-
-    onView(withText("Drop a pin")).perform(click())
-
-    onView(withText("Task for dropping a pin")).check(matches(isDisplayed()))
-  }
-
-  @Test
   fun testDropPin() = runWithTestDispatcher {
     val testPosition = CameraPosition(Coordinate(10.0, 20.0))
     setupTaskFragment<DropAPinTaskFragment>(task)

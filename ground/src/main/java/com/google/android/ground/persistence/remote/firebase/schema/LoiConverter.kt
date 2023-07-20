@@ -54,7 +54,7 @@ object LoiConverter {
     geometry: Geometry
   ): LocationOfInterest {
     val jobId = DataStoreException.checkNotNull(loiDoc.jobId, JOB_ID)
-    val job = DataStoreException.checkNotEmpty(survey.getJob(jobId), "job ${loiDoc.jobId}")
+    val job = DataStoreException.checkNotNull(survey.getJob(jobId), "job ${loiDoc.jobId}")
     // Degrade gracefully when audit info missing in remote db.
     val created = loiDoc.created ?: AuditInfoNestedObject.FALLBACK_VALUE
     val lastModified = loiDoc.lastModified ?: created

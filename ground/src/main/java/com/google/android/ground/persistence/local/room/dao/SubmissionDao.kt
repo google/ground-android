@@ -20,13 +20,16 @@ import androidx.room.Query
 import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
 import com.google.android.ground.persistence.local.room.fields.EntityState
 import io.reactivex.Maybe
-import io.reactivex.Single
 
 @Dao
 interface SubmissionDao : BaseDao<SubmissionEntity> {
   /** Returns the submission with the specified UUID, if found. */
   @Query("SELECT * FROM submission WHERE id = :submissionId")
+  @Deprecated("Use findByIdSuspend instead")
   fun findById(submissionId: String): Maybe<SubmissionEntity>
+
+  @Query("SELECT * FROM submission WHERE id = :submissionId")
+  suspend fun findByIdSuspend(submissionId: String): SubmissionEntity?
 
   /**
    * Returns the list submissions associated with the specified location of interest, task and
@@ -37,9 +40,9 @@ interface SubmissionDao : BaseDao<SubmissionEntity> {
       "WHERE location_of_interest_id = :locationOfInterestId " +
       "AND job_id = :jobId AND state = :state"
   )
-  fun findByLocationOfInterestId(
+  suspend fun findByLocationOfInterestId(
     locationOfInterestId: String,
     jobId: String,
     state: EntityState
-  ): Single<List<SubmissionEntity>>
+  ): List<SubmissionEntity>?
 }

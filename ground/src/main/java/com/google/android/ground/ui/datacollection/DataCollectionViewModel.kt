@@ -86,7 +86,7 @@ internal constructor(
   private val loiId: String? = savedStateHandle["locationOfInterestId"]
   private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
   private val job: Job =
-    activeSurvey.getJob(requireNotNull(savedStateHandle["jobId"])).orElseThrow()
+    activeSurvey.getJob(requireNotNull(savedStateHandle["jobId"])) ?: error("empty job")
   val tasks: List<Task> = buildList {
     if (job.suggestLoiTaskType != null) {
       add(createSuggestLoiTask(job.suggestLoiTaskType))

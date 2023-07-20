@@ -21,26 +21,6 @@ import java8.util.function.Supplier
 
 /** Static helper methods for converting Google Play Services Tasks into Rx Observables. */
 object RxTask {
-  /**
-   * Turns a non-void [Task] into an Rx [Single]. Null values are reported as an error result of
-   * [NullPointerException]. The provided supplier will be invoked only onSubscribe.
-   */
-  @JvmStatic
-  fun <T> toMaybe(task: Supplier<Task<T>>): Maybe<T> =
-    Maybe.create { emitter: MaybeEmitter<T> ->
-      task
-        .get()
-        .addOnSuccessListener { result: T -> onSuccess(result, emitter) }
-        .addOnFailureListener { t: Exception -> emitter.onError(t) }
-    }
-
-  private fun <T> onSuccess(v: T?, emitter: MaybeEmitter<T>) {
-    if (v == null) {
-      emitter.onComplete()
-    } else {
-      emitter.onSuccess(v)
-    }
-  }
 
   /**
    * Turns a non-void [Task] into an Rx [Single]. Null values are reported as an error result of

@@ -33,7 +33,7 @@ constructor(
     }
 
     surveyRepository.activeSurvey =
-      surveyRepository.getOfflineSurveySuspend(surveyId)?.let { syncSurvey(it.id) }
+      surveyRepository.getOfflineSurvey(surveyId)?.let { syncSurvey(it.id) }
         ?: makeSurveyAvailableOffline(surveyId)
   }
 }

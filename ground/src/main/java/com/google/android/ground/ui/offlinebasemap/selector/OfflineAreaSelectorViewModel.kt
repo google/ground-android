@@ -89,25 +89,23 @@ internal constructor(
     return DownloadMessage.FAILURE
   }
 
-  fun setViewport(viewport: Bounds?) {
-    this.viewport = viewport
-  }
-
   fun onDownloadClick() {
-    viewport?.let {
-      downloadClicks.onNext(
-        OfflineArea(
-          offlineUuidGenerator.generateUuid(),
-          OfflineArea.State.PENDING,
-          it,
-          resources.getString(R.string.unnamed_area)
-        )
-      )
+    if (viewport == null) {
+      // Download was likely clicked before map was ready.
+      return
     }
+    downloadClicks.onNext(
+      OfflineArea(
+        offlineUuidGenerator.generateUuid(),
+        OfflineArea.State.PENDING,
+        viewport!!,
+        resources.getString(R.string.unnamed_area)
+      )
+    )
   }
 
   fun onMapReady(map: Map) {
     tileSources.forEach { map.addTileOverlay(it) }
-    disposeOnClear(cameraBoundUpdates.subscribe(this::setViewport))
+    disposeOnClear(cameraBoundUpdates.subscribe { viewport = it })
   }
 }

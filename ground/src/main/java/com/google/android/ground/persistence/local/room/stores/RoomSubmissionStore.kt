@@ -46,7 +46,6 @@ import com.google.common.base.Preconditions
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.SingleSource
 import javax.inject.Inject
@@ -64,40 +63,29 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
 
   /**
    * Attempts to retrieve the [Submission] associated with the given ID and [LocationOfInterest].
-   * Returns a [Maybe] that completes immediately (with no data) if the location of interest isn't
-   * found and that succeeds with the location of interest otherwise (and then completes). Does not
-   * stream subsequent data changes.
+   *
+   * @throws LocalDataStoreException
    */
-  override fun getSubmission(
+  override suspend fun getSubmission(
     locationOfInterest: LocationOfInterest,
     submissionId: String
-  ): Maybe<Submission> =
-    submissionDao
-      .findById(submissionId)
-      .map { it.toModelObject(locationOfInterest) }
-      .doOnError { Timber.d(it) }
-      .onErrorComplete()
-      .subscribeOn(schedulers.io())
+  ): Submission =
+    submissionDao.findByIdSuspend(submissionId)?.toModelObject(locationOfInterest)
+      ?: throw LocalDataStoreException("Submission not found $submissionId")
 
   /**
    * Attempts to retrieve the complete list of [Submission]s associated with the given Job ID and
    * [LocationOfInterest]. Returns a [Single] that contains an exception if no such Submission exist
    * or the list of submissions otherwise. Does not stream subsequent data changes.
    */
-  override fun getSubmissions(
+  override suspend fun getSubmissions(
     locationOfInterest: LocationOfInterest,
     jobId: String
-  ): Single<List<Submission>> =
+  ): List<Submission> =
     submissionDao
       .findByLocationOfInterestId(locationOfInterest.id, jobId, EntityState.DEFAULT)
-      .map { toSubmissions(locationOfInterest, it) }
-      .subscribeOn(schedulers.io())
-
-  fun insertOrUpdate(submission: Submission): Completable =
-    submissionDao.insertOrUpdate(submission.toLocalDataStoreObject())
-
-  fun insertOrUpdate(submission: SubmissionEntity): Completable =
-    submissionDao.insertOrUpdate(submission)
+      ?.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } }
+      ?: listOf()
 
   override fun merge(model: Submission): Completable {
     val submissionEntity = model.toLocalDataStoreObject()
@@ -140,8 +128,9 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       Mutation.Type.UNKNOWN -> throw LocalDataStoreException("Unknown Mutation.Type")
     }
 
-  override fun updateAll(mutations: List<SubmissionMutation>): Completable =
+  override suspend fun updateAll(mutations: List<SubmissionMutation>) {
     submissionMutationDao.updateAll(mutations.map { it.toLocalDataStoreObject() })
+  }
 
   private fun markSubmissionForDeletion(
     entity: SubmissionEntity,
@@ -228,19 +217,9 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     return responseMap.copyWithDeltas(deltas.toPersistentList())
   }
 
-  private fun toSubmissions(
-    locationOfInterest: LocationOfInterest,
-    submissionEntities: List<SubmissionEntity>
-  ): List<Submission> =
-    submissionEntities.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } }
-
-  override fun deleteSubmission(submissionId: String): Completable =
-    submissionDao
-      .findById(submissionId)
-      .toSingle()
-      .doOnSubscribe { Timber.d("Deleting local submission : $submissionId") }
-      .flatMapCompletable { submissionDao.delete(it) }
-      .subscribeOn(schedulers.io())
+  override suspend fun deleteSubmission(submissionId: String) {
+    submissionDao.findByIdSuspend(submissionId)?.let { submissionDao.deleteSuspend(it) }
+  }
 
   override fun getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
     survey: Survey,
@@ -264,9 +243,8 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   override fun getAllMutationsAndStream(): Flowable<List<SubmissionMutationEntity>> =
     submissionMutationDao.loadAllOnceAndStream()
 
-  override fun findByLocationOfInterestId(
+  override suspend fun findByLocationOfInterestId(
     id: String,
     vararg states: MutationEntitySyncStatus
-  ): Single<List<SubmissionMutationEntity>> =
-    submissionMutationDao.findByLocationOfInterestId(id, *states)
+  ): List<SubmissionMutationEntity> = submissionMutationDao.findByLocationOfInterestId(id, *states)
 }

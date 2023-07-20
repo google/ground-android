@@ -161,4 +161,5 @@
   <string name="data_deletion_warning">Data you entered in this step won\'t be saved. Are you sure you want to continue?</string>
   <string name="go_back_button_label">Go back</string>
   <string name="confirm_button_label">Confirm</string>
+  <string name="collect_data_viewer_error">Can\'t to collect data as user is a VIEWER</string>
 </resources>

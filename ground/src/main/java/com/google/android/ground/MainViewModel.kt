@@ -104,7 +104,7 @@ constructor(
   }
 
   private suspend fun onUserSignedIn(user: User): NavDirections {
-    userRepository.saveUserSuspend(user)
+    userRepository.saveUser(user)
     val tos = termsOfServiceRepository.getTermsOfService()
     return if (tos == null || termsOfServiceRepository.isTermsOfServiceAccepted) {
       reactivateLastSurvey()
