@@ -17,8 +17,6 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.model.geometry.Coordinate
 import com.google.android.ground.model.geometry.LinearRing
@@ -62,15 +60,6 @@ class PolygonDrawingTaskFragmentTest :
     setupTaskFragment<PolygonDrawingTaskFragment>(task)
 
     hasTaskViewWithoutHeader("Draw an area")
-  }
-
-  @Test
-  fun testHeader_click_displaysTaskLabel() = runWithTestDispatcher {
-    setupTaskFragment<PolygonDrawingTaskFragment>(task)
-
-    onView(withText("Draw an area")).perform(click())
-
-    onView(withText("Task for drawing a polygon")).check(matches(isDisplayed()))
   }
 
   @Test

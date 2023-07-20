@@ -85,7 +85,7 @@ internal object SubmissionConverter {
     obj: Any,
     responses: MutableMap<String, TaskData>
   ) {
-    val task = job.getTask(taskId).orElseThrow { DataStoreException("Not defined in task") }
+    val task = job.getTask(taskId)
     when (task.type) {
       Task.Type.PHOTO,
       Task.Type.TEXT -> putTextResponse(taskId, obj, responses)

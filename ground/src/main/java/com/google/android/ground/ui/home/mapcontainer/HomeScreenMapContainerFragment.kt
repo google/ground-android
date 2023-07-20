@@ -25,15 +25,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
+import com.google.android.ground.R
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.SubmissionRepository
+import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
@@ -41,7 +43,6 @@ import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.Map
 import dagger.hilt.android.AndroidEntryPoint
-import java8.util.Optional
 import javax.inject.Inject
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -51,7 +52,9 @@ import timber.log.Timber
 @AndroidEntryPoint(AbstractMapContainerFragment::class)
 class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
 
+  @Inject lateinit var ephemeralPopups: EphemeralPopups
   @Inject lateinit var submissionRepository: SubmissionRepository
+  @Inject lateinit var userRepository: UserRepository
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -74,8 +77,17 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onZoomThresholdCrossed() }
 
-    adapter = MapCardAdapter(submissionRepository, lifecycleScope)
-    adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
+    val canUserSubmitData = userRepository.canUserSubmitData()
+    adapter = MapCardAdapter(submissionRepository, lifecycleScope, canUserSubmitData)
+    adapter.setCollectDataListener {
+      if (canUserSubmitData) {
+        navigateToDataCollectionFragment(it)
+      } else {
+        // Skip data collection screen if the user can't submit any data
+        // TODO(#1667): Revisit UX for displaying view only mode
+        ephemeralPopups.showError(getString(R.string.collect_data_viewer_error))
+      }
+    }
 
     lifecycleScope.launch {
       mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel
@@ -183,17 +195,16 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
   override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel
 
   private fun onBottomSheetStateChange(state: BottomSheetState, map: Map) {
-    val loi: Optional<LocationOfInterest> = Optional.ofNullable(state.locationOfInterest)
     when (state.visibility) {
       BottomSheetState.Visibility.VISIBLE -> {
         map.disableGestures()
         // TODO(#358): Once polygon drawing is implemented, pan & zoom to polygon when
         // selected. This will involve calculating centroid and possibly zoom level based on
         // vertices.
-        loi
-          .map { it.geometry }
-          .filter { it is Point }
-          .ifPresent { mapContainerViewModel.panAndZoomCamera(Point(it.center())) }
+        state.locationOfInterest
+          ?.geometry
+          ?.takeIf { it is Point }
+          ?.let { mapContainerViewModel.panAndZoomCamera(Point(it.center())) }
       }
       BottomSheetState.Visibility.HIDDEN -> {
         map.enableGestures()

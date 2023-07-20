@@ -42,7 +42,6 @@ import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import java.net.URL
 import java.util.*
-import java8.util.Optional
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
 import org.json.JSONObject
@@ -52,15 +51,11 @@ fun AuditInfo.toLocalDataStoreObject(): AuditInfoEntity =
   AuditInfoEntity(
     user = UserDetails.fromUser(user),
     clientTimestamp = clientTimestamp.time,
-    serverTimestamp = serverTimestamp.map { obj: Date -> obj.time }.orElse(null)
+    serverTimestamp = serverTimestamp?.time
   )
 
 fun AuditInfoEntity.toModelObject() =
-  AuditInfo(
-    UserDetails.toUser(user),
-    Date(clientTimestamp),
-    Optional.ofNullable(serverTimestamp).map { Date(it!!) }
-  )
+  AuditInfo(UserDetails.toUser(user), Date(clientTimestamp), serverTimestamp?.let { Date(it) })
 
 private fun TileSource.Type.toLocalDataStoreObject() =
   when (this) {
@@ -143,12 +138,10 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       lastModified = lastModified.toModelObject(),
       caption = caption,
       geometry = geometry.getGeometry(),
-      job =
-        survey.getJob(jobId = jobId).orElseThrow {
-          LocalDataConsistencyException(
+      job = survey.getJob(jobId = jobId)
+          ?: throw LocalDataConsistencyException(
             "Unknown jobId ${this.jobId} in location of interest ${this.id}"
           )
-        }
     )
   }
 
@@ -305,9 +298,8 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
 @Throws(LocalDataConsistencyException::class)
 fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
   val job =
-    survey.getJob(jobId).orElseThrow {
-      LocalDataConsistencyException("Unknown jobId in submission mutation $id")
-    }
+    survey.getJob(jobId)
+      ?: throw LocalDataConsistencyException("Unknown jobId in submission mutation $id")
 
   return SubmissionMutation(
     job = job,

@@ -29,7 +29,6 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFails
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -78,7 +77,7 @@ class ActivateSurveyUseCaseTest : BaseHiltTest() {
   @Test
   fun activateSurvey_alreadyAvailableOffline() = runWithTestDispatcher {
     fakeRemoteDataStore.surveys = listOf(SURVEY)
-    localSurveyStore.insertOrUpdateSurvey(SURVEY).await()
+    localSurveyStore.insertOrUpdateSurvey(SURVEY)
 
     activateSurvey(SURVEY.id)
     advanceUntilIdle()

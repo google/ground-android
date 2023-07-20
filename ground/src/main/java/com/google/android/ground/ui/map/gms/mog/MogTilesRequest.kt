@@ -18,19 +18,56 @@ package com.google.android.ground.ui.map.gms.mog
 
 // TODO(#1596): Add unit tests.
 /** A set of [tiles] to be fetched from [sourceUrl] in a single request. */
-data class MogTilesRequest(val sourceUrl: String, val tiles: List<MogTileMetadata>) {
-  val byteRange = LongRange(tiles.first().byteRange.first, tiles.last().byteRange.last)
+open class MogTilesRequest(val sourceUrl: String, val tiles: List<MogTileMetadata>) {
+  val byteRange: LongRange
+    get() = LongRange(tiles.first().byteRange.first, tiles.last().byteRange.last)
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is MogTilesRequest) return false
+
+    if (sourceUrl != other.sourceUrl) return false
+    if (tiles != other.tiles) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = sourceUrl.hashCode()
+    result = 31 * result + tiles.hashCode()
+    return result
+  }
 }
 
-class MutableMogTilesRequest(var sourceUrl: String) {
-  val tiles = mutableListOf<MogTileMetadata>()
-
-  fun toTilesRequest() = MogTilesRequest(sourceUrl, tiles)
-
+class MutableMogTilesRequest(sourceUrl: String, tiles: MutableList<MogTileMetadata>) :
+  MogTilesRequest(sourceUrl, tiles) {
   fun appendTile(newTile: MogTileMetadata) {
     require(tiles.isEmpty() || tiles.last().byteRange.last < newTile.byteRange.first) {
       "Can't append tile with non-consecutive byte range"
     }
-    tiles.add(newTile)
+    (tiles as MutableList).add(newTile)
   }
+
+  fun canMergeWith(next: MogTilesRequest, maxOverFetchPerTile: Int) =
+    this.sourceUrl == next.sourceUrl &&
+      next.byteRange.first - this.byteRange.last - 1 <= maxOverFetchPerTile
+}
+
+/**
+ * Merges requests for consecutive or near-consecutive byte ranges into a single request to reduce
+ * the number of individual HTTP requests required when downloading tiles in bulk for offline use.
+ */
+fun List<MogTilesRequest>.consolidate(maxOverFetchPerTile: Int): List<MogTilesRequest> {
+  val mergedRequests = mutableListOf<MutableMogTilesRequest>()
+  for (request in this) {
+    for (tile in request.tiles) {
+      // Create a new request for the first tile and for each non adjacent tile.
+      val lastRequest = mergedRequests.lastOrNull()
+      if (lastRequest == null || !lastRequest.canMergeWith(request, maxOverFetchPerTile)) {
+        mergedRequests.add(MutableMogTilesRequest(request.sourceUrl, mutableListOf()))
+      }
+      mergedRequests.last().appendTile(tile)
+    }
+  }
+  return mergedRequests
 }

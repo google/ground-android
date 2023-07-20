@@ -28,13 +28,9 @@ import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Observable
-import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 /**
  * Coordinates persistence of mutations across [LocationOfInterestMutation] and [SubmissionMutation]
@@ -80,52 +76,42 @@ constructor(
    * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
    * specified id.
    */
-  fun getPendingMutations(locationOfInterestId: String): Single<List<Mutation>> =
-    localLocationOfInterestStore
-      .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
-      .flattenAsObservable { it }
-      .map { it.toModelObject() }
-      .cast(Mutation::class.java)
-      .mergeWith(
-        localSubmissionStore
-          .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
-          .flattenAsObservable { it }
-          .flatMap { ome ->
-            localSurveyStore
-              .getSurveyById(ome.surveyId)
-              .toSingle()
-              .map { ome.toModelObject(it) }
-              .toObservable()
-              .doOnError { Timber.e(it, "Submission mutation skipped") }
-              .onErrorResumeNext(Observable.empty())
-          }
-          .cast(Mutation::class.java)
-      )
-      .toList()
-      .subscribeOn(schedulers.io())
+  suspend fun getPendingMutations(locationOfInterestId: String): List<Mutation> {
+    val pendingLoiMutations =
+      localLocationOfInterestStore
+        .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
+        .map { it.toModelObject() }
+    val pendingSubmissionMutations =
+      localSubmissionStore
+        .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
+        .mapNotNull { entity ->
+          localSurveyStore.getSurveyByIdSuspend(entity.surveyId)?.let { entity.toModelObject(it) }
+        }
+    return pendingLoiMutations + pendingSubmissionMutations
+  }
 
   /** Updates the provided list of mutations. */
-  fun updateMutations(mutations: List<Mutation>): Completable {
+  suspend fun updateMutations(mutations: List<Mutation>) {
     val loiMutations = mutations.filterIsInstance<LocationOfInterestMutation>()
-    val submissionMutations = mutations.filterIsInstance<SubmissionMutation>()
+    localLocationOfInterestStore.updateAll(loiMutations)
 
-    return localLocationOfInterestStore
-      .updateAll(loiMutations)
-      .andThen(localSubmissionStore.updateAll(submissionMutations))
-      .subscribeOn(schedulers.io())
+    val submissionMutations = mutations.filterIsInstance<SubmissionMutation>()
+    localSubmissionStore.updateAll(submissionMutations)
   }
 
   /**
    * Mark pending mutations as complete. If the mutation is of type DELETE, also removes the
    * corresponding submission or LOI.
    */
-  fun finalizePendingMutations(mutations: List<Mutation>): Completable =
-    finalizeDeletions(mutations).andThen(markComplete(mutations))
+  suspend fun finalizePendingMutations(mutations: List<Mutation>) {
+    finalizeDeletions(mutations)
+    markComplete(mutations)
+  }
 
-  private fun finalizeDeletions(mutations: List<Mutation>): Completable =
-    Observable.fromIterable(mutations)
+  private suspend fun finalizeDeletions(mutations: List<Mutation>) =
+    mutations
       .filter { it.type === Mutation.Type.DELETE }
-      .flatMapCompletable { mutation ->
+      .map { mutation ->
         when (mutation) {
           is SubmissionMutation -> {
             localSubmissionStore.deleteSubmission(mutation.submissionId)
@@ -136,7 +122,7 @@ constructor(
         }
       }
 
-  private fun markComplete(mutations: List<Mutation>): Completable {
+  private suspend fun markComplete(mutations: List<Mutation>) {
     val locationOfInterestMutations =
       LocationOfInterestMutation.filter(mutations).map {
         it.copy(syncStatus = Mutation.SyncStatus.COMPLETED)
@@ -146,10 +132,8 @@ constructor(
         it.copy(syncStatus = Mutation.SyncStatus.COMPLETED)
       }
 
-    return localLocationOfInterestStore
-      .updateAll(locationOfInterestMutations)
-      .andThen(localSubmissionStore.updateAll(submissionMutations).subscribeOn(schedulers.io()))
-      .subscribeOn(schedulers.io())
+    localLocationOfInterestStore.updateAll(locationOfInterestMutations)
+    localSubmissionStore.updateAll(submissionMutations)
   }
 
   private fun combineAndSortMutations(

@@ -27,24 +27,28 @@ import io.reactivex.Single
  * @param <E> the type of entity that is persisted by sub-interfaces. </E>
  */
 interface BaseDao<E> {
-  @Insert fun insert(entity: E): Completable
+  @Deprecated("Use insertSuspend instead") @Insert fun insert(entity: E): Completable
 
   // TODO(#1581): Rename once all uses migrated to coroutines.
   /** Insert entity into local db. Main-safe. */
   @Insert suspend fun insertSuspend(entity: E)
 
   /** Update entity in local db. Main-safe. */
-  @Update fun update(entity: E): Single<Int>
+  @Deprecated("Use updateSuspend instead") @Update fun update(entity: E): Single<Int>
 
   // TODO(#1581): Rename once all uses migrated to coroutines.
   @Update suspend fun updateSuspend(entity: E): Int
 
-  @Update fun updateAll(entities: List<E>): Completable
+  @Update suspend fun updateAll(entities: List<E>)
 
-  @Delete fun delete(entity: E): Completable
+  @Deprecated("Replace usage with deleteSuspend") @Delete fun delete(entity: E): Completable
+
+  // TODO(#1581): Rename to delete once all existing usages are migrated to coroutine.
+  @Delete suspend fun deleteSuspend(entity: E)
 }
 
 /** Try to update the specified entity, and if it doesn't yet exist, create it. */
+@Deprecated("Use insertOrUpdateSuspend instead")
 fun <E> BaseDao<E>.insertOrUpdate(entity: E): Completable =
   update(entity).filter { n: Int -> n == 0 }.flatMapCompletable { insert(entity) }
 

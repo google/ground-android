@@ -18,6 +18,7 @@ package com.google.android.ground.ui.datacollection.components
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.google.android.ground.databinding.TaskFragWithCombinedHeaderBinding
 import com.google.android.ground.databinding.TaskFragWithHeaderBinding
 import com.google.android.ground.databinding.TaskFragWithoutHeaderBinding
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
@@ -68,6 +69,24 @@ data class TaskViewWithoutHeader(private val binding: TaskFragWithoutHeaderBindi
     binding.headerCard.setOnClickListener {
       TaskHeaderPopupView(fragment.requireContext()).show(it, viewModel.taskLabel())
     }
+  }
+
+  override fun addTaskView(view: View) {
+    binding.taskContainer.addView(view)
+  }
+}
+
+/** Implementation of [TaskView] with a header that is an extension of the title bar. */
+data class TaskViewWithCombinedHeader(private val binding: TaskFragWithCombinedHeaderBinding) :
+  TaskView {
+
+  override val actionButtonsContainer = binding.actionButtonsContainer
+
+  override val root = binding.root
+
+  override fun bind(fragment: Fragment, viewModel: AbstractTaskViewModel) {
+    binding.viewModel = viewModel
+    binding.lifecycleOwner = fragment
   }
 
   override fun addTaskView(view: View) {

@@ -38,7 +38,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
-import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.map
@@ -131,8 +130,9 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       Completable.error(e)
     }
 
-  override fun updateAll(mutations: List<LocationOfInterestMutation>): Completable =
+  override suspend fun updateAll(mutations: List<LocationOfInterestMutation>) {
     locationOfInterestMutationDao.updateAll(toLocationOfInterestMutationEntities(mutations))
+  }
 
   private fun toLocationsOfInterest(
     survey: Survey,
@@ -162,13 +162,12 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       .doOnSubscribe { Timber.d("Marking location of interest as deleted : $mutation") }
       .ignoreElement()
 
-  override fun deleteLocationOfInterest(locationOfInterestId: String): Completable =
-    locationOfInterestDao
-      .findById(locationOfInterestId)
-      .toSingle()
-      .doOnSubscribe { Timber.d("Deleting local location of interest : $locationOfInterestId") }
-      .flatMapCompletable { locationOfInterestDao.delete(it) }
-      .subscribeOn(schedulers.io())
+  override suspend fun deleteLocationOfInterest(locationOfInterestId: String) {
+    Timber.d("Deleting local location of interest : $locationOfInterestId")
+    locationOfInterestDao.findByIdSuspend(locationOfInterestId)?.let {
+      locationOfInterestDao.deleteSuspend(it)
+    }
+  }
 
   override fun getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
     locationOfInterestId: String,
@@ -181,11 +180,11 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   override fun getAllMutationsAndStream(): Flowable<List<LocationOfInterestMutationEntity>> =
     locationOfInterestMutationDao.loadAllOnceAndStream()
 
-  override fun findByLocationOfInterestId(
+  override suspend fun findByLocationOfInterestId(
     id: String,
     vararg states: MutationEntitySyncStatus
-  ): Single<List<LocationOfInterestMutationEntity>> =
-    locationOfInterestMutationDao.findByLocationOfInterestId(id, *states)
+  ): List<LocationOfInterestMutationEntity> =
+    locationOfInterestMutationDao.findByLocationOfInterestId(id, *states) ?: listOf()
 
   override suspend fun insertOrUpdate(loi: LocationOfInterest) =
     locationOfInterestDao.insertOrUpdateSuspend(loi.toLocalDataStoreObject())

@@ -17,8 +17,8 @@ package com.google.android.ground.persistence.sync
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
+import androidx.work.CoroutineWorker
 import androidx.work.Data
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
@@ -34,8 +34,9 @@ import com.google.android.ground.repository.MutationRepository
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import io.reactivex.Completable
-import io.reactivex.Observable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /**
@@ -53,25 +54,26 @@ constructor(
   private val localUserStore: LocalUserStore,
   private val remoteDataStore: RemoteDataStore,
   private val photoSyncWorkManager: PhotoSyncWorkManager
-) : Worker(context, params) {
+) : CoroutineWorker(context, params) {
 
   private val locationOfInterestId: String =
     params.inputData.getString(LOCATION_OF_INTEREST_ID_PARAM_KEY)!!
 
-  override fun doWork(): Result {
+  override suspend fun doWork(): Result = withContext(Dispatchers.IO) { doWorkInternal() }
+
+  private suspend fun doWorkInternal(): Result {
     Timber.d("Connected. Syncing changes to location of interest $locationOfInterestId")
-    val mutations: List<Mutation> =
-      mutationRepository.getPendingMutations(locationOfInterestId).blockingGet()
+    val mutations: List<Mutation> = mutationRepository.getPendingMutations(locationOfInterestId)
     return try {
       Timber.v("Mutations: $mutations")
-      processMutations(mutations).blockingAwait()
+      processMutations(mutations)
       Result.success()
     } catch (t: Throwable) {
       FirebaseCrashlytics.getInstance()
         .log("Error applying remote updates to location of interest $locationOfInterestId")
       FirebaseCrashlytics.getInstance().recordException(t)
       Timber.e(t, "Remote updates for location of interest $locationOfInterestId failed")
-      mutationRepository.updateMutations(incrementRetryCounts(mutations, t)).blockingAwait()
+      mutationRepository.updateMutations(incrementRetryCounts(mutations, t))
       Result.retry()
     }
   }
@@ -80,48 +82,47 @@ constructor(
    * Groups mutations by user id, loads each user, applies mutations, and removes processed
    * mutations.
    */
-  private fun processMutations(pendingMutations: List<Mutation>): Completable {
+  private suspend fun processMutations(pendingMutations: List<Mutation>) {
     val mutationsByUserId: Map<String, List<Mutation>> = groupByUserId(pendingMutations)
     val userIds = mutationsByUserId.keys
-    return Observable.fromIterable(userIds).flatMapCompletable { userId: String ->
+    for (userId in userIds) {
       val mutations = mutationsByUserId[userId] ?: listOf()
       processMutations(mutations, userId)
     }
   }
 
   /** Loads each user with specified id, applies mutations, and removes processed mutations. */
-  private fun processMutations(mutations: List<Mutation>, userId: String): Completable =
-    localUserStore
-      .getUser(userId)
-      .flatMapCompletable { user: User -> processMutations(mutations, user) }
-      .doOnError { Timber.d("User account removed before mutation processed") }
-      .onErrorComplete()
+  private suspend fun processMutations(mutations: List<Mutation>, userId: String) {
+    try {
+      val user = localUserStore.getUserSuspend(userId)
+      processMutations(mutations, user)
+    } catch (e: Exception) {
+      Timber.e(e, "User account removed before mutation processed")
+    }
+  }
 
   /** Applies mutations to remote data store. Once successful, removes them from the local db. */
-  private fun processMutations(mutations: List<Mutation>, user: User): Completable =
-    remoteDataStore
-      .applyMutations(mutations, user)
-      .andThen(
-        processPhotoFieldMutations(mutations)
-      ) // TODO: If the remote sync fails, reset the state to DEFAULT.
-      .andThen(mutationRepository.finalizePendingMutations(mutations))
+  private suspend fun processMutations(mutations: List<Mutation>, user: User) {
+    remoteDataStore.applyMutations(mutations, user).await()
+    processPhotoFieldMutations(mutations)
+    // TODO: If the remote sync fails, reset the state to DEFAULT.
+    mutationRepository.finalizePendingMutations(mutations)
+  }
 
   /**
    * Filters all mutations containing submission mutations with changes to photo fields and uploads
    * to remote storage.
    */
-  private fun processPhotoFieldMutations(mutations: List<Mutation>): Completable =
-    Observable.fromIterable(mutations)
-      .filter { mutation: Mutation -> mutation is SubmissionMutation }
-      .flatMapIterable { mutation: Mutation -> (mutation as SubmissionMutation).taskDataDeltas }
+  private fun processPhotoFieldMutations(mutations: List<Mutation>) =
+    mutations
+      .filterIsInstance<SubmissionMutation>()
+      .flatMap { mutation: Mutation -> (mutation as SubmissionMutation).taskDataDeltas }
       .filter { (_, taskType, newResponse): TaskDataDelta ->
         taskType === Task.Type.PHOTO && newResponse.isNotNullOrEmpty()
       }
       // TODO: Instead of using toString(), add a method getSerializedValue() in TaskData.
       .map { (_, _, newResponse): TaskDataDelta -> newResponse.toString() }
-      .flatMapCompletable { remotePath: String ->
-        Completable.fromRunnable { photoSyncWorkManager.enqueueSyncWorker(remotePath) }
-      }
+      .forEach { remotePath: String -> photoSyncWorkManager.enqueueSyncWorker(remotePath) }
 
   private fun groupByUserId(pendingMutations: List<Mutation>): Map<String, List<Mutation>> =
     pendingMutations.groupBy { it.userId }
