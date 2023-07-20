@@ -182,7 +182,10 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
     homeScreenViewModel.bottomSheetState.observe(this) { state: BottomSheetState ->
       onBottomSheetStateChange(state, map)
     }
+    // TODO(#1756): Clear tile overlays on change to stop accumulating them on map.
+    mapContainerViewModel.tileOverlays.observe(this) { it.forEach(map::addTileOverlay) }
     mapContainerViewModel.mbtilesFilePaths.observe(this) { map.addLocalTileOverlays(it) }
+
     adapter.setLoiCardFocusedListener {
       when (it) {
         is MapCardUiData.LoiCardUiData -> map.setActiveLocationOfInterest(it.loi.id)

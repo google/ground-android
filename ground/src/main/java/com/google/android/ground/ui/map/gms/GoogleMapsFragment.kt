@@ -386,15 +386,15 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   override fun addLocalTileOverlays(mbtilesFiles: Set<String>) =
     mbtilesFiles.forEach { filePath -> addTileOverlay(filePath) }
 
-  private fun addWebTileOverlay(url: String) {
-    val webTileProvider = WebTileProvider(url)
-    map.addTileOverlay(TileOverlayOptions().tileProvider(webTileProvider))
+  private fun addTemplateUrlTileOverlay(url: String) {
+    val tileProvider = TemplateUrlTileProvider(url)
+    map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
   }
 
   override fun addTileOverlay(tileSource: TileSource) =
     when (tileSource.type) {
       MOG_COLLECTION -> addMogCollectionTileOverlay(tileSource.url)
-      TILED_WEB_MAP -> addWebTileOverlay(tileSource.url)
+      TILED_WEB_MAP -> addTemplateUrlTileOverlay(tileSource.url)
       else -> error("Unsupported tile source type ${tileSource.type}")
     }
 

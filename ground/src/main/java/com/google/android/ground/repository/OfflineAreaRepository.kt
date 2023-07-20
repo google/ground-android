@@ -219,14 +219,17 @@ constructor(
     val requests = client.buildTilesRequests(bounds.toGoogleMapsObject())
     val totalBytes = requests.sumOf { it.totalBytes }
     var bytesDownloaded = 0
-    // TODO(#1730): Generate local tiles path based on source base path.
-    val tilePath = File(fileUtil.filesDir.path, "tiles").path
+    val tilePath = getLocalTileSourcePath()
     MogTileDownloader(client, tilePath).downloadTiles(requests).collect {
       bytesDownloaded += it
       emit(Pair(bytesDownloaded, totalBytes))
     }
   }
 
+  fun getLocalTileSourcePath(): String {
+    // TODO(#1730): Generate local tiles path based on source base path.
+    return File(fileUtil.filesDir.path, "tiles").path
+  }
   /**
    * Uses the first tile source URL of the currently active survey and returns a [MogClient], or
    * throws an error if no survey is active or if no tile sources are defined.
