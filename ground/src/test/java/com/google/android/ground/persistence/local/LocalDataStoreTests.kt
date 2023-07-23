@@ -188,7 +188,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
     val newLoi = loi.copy(geometry = TEST_POINT_2)
-    localLoiStore.merge(newLoi).test().assertComplete()
+    localLoiStore.merge(newLoi)
     localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").test().assertValue {
       it.geometry == TEST_POINT_2
     }
@@ -201,7 +201,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION).blockingAwait()
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
     val newLoi = loi.copy(geometry = Polygon(LinearRing(TEST_POLYGON_2.map { it.coordinate })))
-    localLoiStore.merge(newLoi).test().assertComplete()
+    localLoiStore.merge(newLoi)
     localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").test().assertValue {
       it.geometry.vertices == TEST_POLYGON_2
     }
@@ -270,7 +270,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     val taskDataMap = TaskDataMap(mapOf(Pair("task id", TextTaskData.fromString("foo value"))))
     val submission =
       localSubmissionStore.getSubmission(loi, "submission id").copy(responses = taskDataMap)
-    localSubmissionStore.merge(submission).test().assertComplete()
+    localSubmissionStore.merge(submission)
     val responses = localSubmissionStore.getSubmission(loi, submission.id).responses
     assertThat(responses.getResponse("task id"))
       .isEqualTo(TextTaskData.fromString("updated taskData"))

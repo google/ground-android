@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.rx2.rxCompletable
 import kotlinx.coroutines.rx2.rxMaybe
 import kotlinx.coroutines.rx2.rxSingle
 import timber.log.Timber
@@ -113,7 +114,7 @@ constructor(
       }
       .filter { it.isSuccess }
       .map { it.getOrThrow() }
-      .flatMapCompletable { localSubmissionStore.merge(it) }
+      .flatMapCompletable { rxCompletable { localSubmissionStore.merge(it) } }
 
   fun getSubmission(
     surveyId: String,

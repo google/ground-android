@@ -33,6 +33,7 @@ import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.SubmissionDao
 import com.google.android.ground.persistence.local.room.dao.SubmissionMutationDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
+import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
 import com.google.android.ground.persistence.local.room.entity.AuditInfoEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
@@ -87,16 +88,14 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       ?.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } }
       ?: listOf()
 
-  override fun merge(model: Submission): Completable {
-    val submissionEntity = model.toLocalDataStoreObject()
-    return submissionMutationDao
+  override suspend fun merge(model: Submission) {
+    submissionMutationDao
       .findBySubmissionId(
         model.id,
         MutationEntitySyncStatus.PENDING,
         MutationEntitySyncStatus.IN_PROGRESS
       )
-      .flatMapCompletable { mergeSubmission(model.job, submissionEntity, it) }
-      .subscribeOn(schedulers.io())
+      ?.let { mergeSubmission(model.job, model.toLocalDataStoreObject(), it) }
   }
 
   override fun enqueue(mutation: SubmissionMutation): Completable =
@@ -170,20 +169,20 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       .doOnSubscribe { Timber.v("Inserting submission: $mutation") }
       .subscribeOn(schedulers.io())
 
-  private fun mergeSubmission(
+  private suspend fun mergeSubmission(
     job: Job,
     submission: SubmissionEntity,
     mutations: List<SubmissionMutationEntity>
-  ): Completable {
+  ) {
     if (mutations.isEmpty()) {
-      return submissionDao.insertOrUpdate(submission)
+      return submissionDao.insertOrUpdateSuspend(submission)
     }
     val lastMutation = mutations[mutations.size - 1]
     Preconditions.checkNotNull(lastMutation, "Could not get last mutation")
     return userStore
-      .getUser(lastMutation.userId)
-      .map { user -> commitMutations(job, submission, mutations, user) }
-      .flatMapCompletable { submissionDao.insertOrUpdate(it) }
+      .getUserSuspend(lastMutation.userId)
+      .let { commitMutations(job, submission, mutations, it) }
+      .let { submissionDao.insertOrUpdateSuspend(it) }
   }
 
   private fun commitMutations(

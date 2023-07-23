@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.persistence.remote.firebase
 
-import com.google.android.gms.tasks.Task
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
@@ -29,7 +28,6 @@ import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.remote.firebase.schema.GroundFirestore
-import com.google.android.ground.rx.RxTask
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.ApplicationErrorManager
@@ -37,19 +35,19 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 
 @Singleton
 class FirestoreDataStore
 @Inject
 internal constructor(
-  val errorManager: ApplicationErrorManager,
+  private val errorManager: ApplicationErrorManager,
   val db: GroundFirestore,
   val schedulers: Schedulers
 ) : RemoteDataStore {
@@ -125,21 +123,23 @@ internal constructor(
   override suspend fun loadLocationsOfInterest(survey: Survey) =
     db.surveys().survey(survey.id).lois().locationsOfInterest(survey)
 
-  override fun applyMutations(mutations: List<Mutation>, user: User): @Cold Completable =
-    RxTask.toCompletable { applyMutationsInternal(mutations, user) }
-      .doOnError { e: Throwable -> recordException(e, "Error applying mutation") }
-      .onErrorResumeNext { e: Throwable ->
-        if (shouldInterceptException(e)) Completable.never() else Completable.error(e)
+  override suspend fun applyMutations(mutations: List<Mutation>, user: User) {
+    try {
+      applyMutationsInternal(mutations, user)
+    } catch (e: Throwable) {
+      recordException(e, "Error applying mutation")
+      if (!shouldInterceptException(e)) {
+        throw e
       }
-      .subscribeOn(schedulers.io())
-
-  override fun subscribeToSurveyUpdates(surveyId: String): Completable =
-    RxTask.toCompletable {
-      Timber.d("Subscribing to FCM topic $surveyId")
-      Firebase.messaging.subscribeToTopic(surveyId)
     }
+  }
 
-  private fun applyMutationsInternal(mutations: List<Mutation>, user: User): Task<*> {
+  override suspend fun subscribeToSurveyUpdates(surveyId: String) {
+    Timber.d("Subscribing to FCM topic $surveyId")
+    Firebase.messaging.subscribeToTopic(surveyId).await()
+  }
+
+  private suspend fun applyMutationsInternal(mutations: List<Mutation>, user: User) {
     val batch = db.batch()
     for (mutation in mutations) {
       try {
@@ -155,7 +155,7 @@ internal constructor(
         Timber.e(e, "Skipping invalid mutation")
       }
     }
-    return batch.commit()
+    batch.commit().await()
   }
 
   @Throws(DataStoreException::class)

@@ -34,6 +34,7 @@ import io.reactivex.subjects.Subject
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
+import kotlinx.coroutines.rx2.rxMaybe
 import timber.log.Timber
 
 class PhotoTaskViewModel
@@ -66,7 +67,9 @@ constructor(
   private var capturedPhotoPath: String? = null
 
   val uri: LiveData<Uri> =
-    detailsTextFlowable().switchMapSingle { userMediaRepository.getDownloadUrl(it) }.toLiveData()
+    detailsTextFlowable()
+      .switchMapMaybe { rxMaybe { userMediaRepository.getDownloadUrl(it) } }
+      .toLiveData()
 
   val isPhotoPresent: LiveData<Boolean> = detailsTextFlowable().map { it.isNotEmpty() }.toLiveData()
 

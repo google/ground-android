@@ -27,7 +27,7 @@ interface LocalMutationStore<T : Mutation, M> {
    * Applies enqueued mutations to an entity then saves it to the local database, ensuring the
    * latest version of the data is retained.
    */
-  fun merge(model: M): Completable
+  suspend fun merge(model: M)
 
   /** Enqueue a mutation to be applied to the remote data store. */
   fun enqueue(mutation: T): Completable

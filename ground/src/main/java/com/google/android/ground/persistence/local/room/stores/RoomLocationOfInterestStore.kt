@@ -93,10 +93,9 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       .subscribeOn(schedulers.io())
 
   // TODO(#706): Apply pending local mutations before saving.
-  override fun merge(model: LocationOfInterest): Completable =
-    locationOfInterestDao
-      .insertOrUpdate(model.toLocalDataStoreObject())
-      .subscribeOn(schedulers.io())
+  override suspend fun merge(model: LocationOfInterest) {
+    locationOfInterestDao.insertOrUpdateSuspend(model.toLocalDataStoreObject())
+  }
 
   override fun enqueue(mutation: LocationOfInterestMutation): Completable =
     locationOfInterestMutationDao

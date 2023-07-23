@@ -17,14 +17,11 @@ package com.sharedtest.persistence.remote
 
 import android.net.Uri
 import com.google.android.ground.persistence.remote.RemoteStorageManager
-import io.reactivex.Completable
-import io.reactivex.Single
 import java.io.File
 import javax.inject.Inject
 
 class FakeRemoteStorageManager @Inject internal constructor() : RemoteStorageManager {
-  override fun getDownloadUrl(remoteDestinationPath: String): Single<Uri> = Single.never()
+  override suspend fun getDownloadUrl(remoteDestinationPath: String): Uri? = null
 
-  override fun uploadMediaFromFile(file: File, remoteDestinationPath: String): Completable =
-    Completable.never()
+  override suspend fun uploadMediaFromFile(file: File, remoteDestinationPath: String) {}
 }
