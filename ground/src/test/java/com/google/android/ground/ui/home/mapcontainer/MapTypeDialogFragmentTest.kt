@@ -53,7 +53,8 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
   fun render() {
     assertThat(fragment.isVisible).isTrue()
 
-    onView(withText("Map type")).check(matches(isDisplayed()))
+    onView(withText("Layers")).check(matches(isDisplayed()))
+    onView(withText("Base map")).check(matches(isDisplayed()))
     onView(withId(R.id.recycler_view)).check(matches(allOf(isDisplayed(), hasChildCount(3))))
     with(R.id.recycler_view) {
       shouldHaveTextAtPosition("Road map", 0)
