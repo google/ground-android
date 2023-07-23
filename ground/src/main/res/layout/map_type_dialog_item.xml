@@ -26,11 +26,13 @@
   android:orientation="vertical">
 
   <!-- TODO(#1753): Add elevation and change border color when selected. -->
-  <androidx.cardview.widget.CardView
+  <com.google.android.material.card.MaterialCardView
     android:layout_width="116dp"
     android:layout_height="116dp"
-    android:elevation="10dp"
-    app:cardCornerRadius="16dp">
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp"
+    app:strokeColor="?attr/colorPrimary"
+    app:strokeWidth="2dp">
 
     <ImageView
       android:id="@+id/imageView"
@@ -38,7 +40,7 @@
       android:layout_height="match_parent"
       android:scaleType="centerCrop"
       tools:src="@drawable/ic_type_roadmap" />
-  </androidx.cardview.widget.CardView>
+  </com.google.android.material.card.MaterialCardView>
 
   <TextView
     android:id="@+id/textView"
