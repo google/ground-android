@@ -93,7 +93,7 @@ constructor(
   /** Loads each user with specified id, applies mutations, and removes processed mutations. */
   private suspend fun processMutations(mutations: List<Mutation>, userId: String) {
     try {
-      val user = localUserStore.getUserSuspend(userId)
+      val user = localUserStore.getUser(userId)
       processMutations(mutations, user)
     } catch (e: Exception) {
       Timber.e(e, "User account removed before mutation processed")

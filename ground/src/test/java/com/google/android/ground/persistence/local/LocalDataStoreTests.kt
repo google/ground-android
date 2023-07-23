@@ -110,7 +110,7 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Test
   fun testInsertAndGetUser() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
-    localUserStore.getUser("user id").test().assertValue(TEST_USER)
+    assertThat(localUserStore.getUser("user id")).isEqualTo(TEST_USER)
   }
 
   @Test

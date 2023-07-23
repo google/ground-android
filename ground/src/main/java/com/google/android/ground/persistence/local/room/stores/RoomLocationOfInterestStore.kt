@@ -109,7 +109,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       when (mutation.type) {
         Mutation.Type.CREATE,
         Mutation.Type.UPDATE -> {
-          val user = userStore.getUserSuspend(mutation.userId)
+          val user = userStore.getUser(mutation.userId)
           val entity = mutation.toLocalDataStoreObject(user)
           locationOfInterestDao.insertOrUpdateSuspend(entity)
         }

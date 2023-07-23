@@ -17,6 +17,7 @@ package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
@@ -24,6 +25,7 @@ import com.sharedtest.persistence.local.LocalDataStoreHelper
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,12 +53,9 @@ class UserRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testSaveUser() = runWithTestDispatcher {
-    localUserStore
-      .getUser(FakeData.USER.id)
-      .test()
-      .assertFailure(NoSuchElementException::class.java)
+    assertFailsWith<LocalDataStoreException> { localUserStore.getUser(FakeData.USER.id) }
     userRepository.saveUser(FakeData.USER)
-    localUserStore.getUser(FakeData.USER.id).test().assertResult(FakeData.USER)
+    assertThat(localUserStore.getUser(FakeData.USER.id)).isEqualTo(FakeData.USER)
   }
 
   @Test

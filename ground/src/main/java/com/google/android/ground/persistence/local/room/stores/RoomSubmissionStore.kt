@@ -116,12 +116,12 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     rxCompletable(ioDispatcher) {
       when (mutation.type) {
         Mutation.Type.CREATE -> {
-          val user = userStore.getUserSuspend(mutation.userId)
+          val user = userStore.getUser(mutation.userId)
           val entity = mutation.toLocalDataStoreObject(AuditInfo(user))
           submissionDao.insertOrUpdateSuspend(entity)
         }
         Mutation.Type.UPDATE -> {
-          val user = userStore.getUserSuspend(mutation.userId)
+          val user = userStore.getUser(mutation.userId)
           updateSubmission(mutation, user)
         }
         Mutation.Type.DELETE -> {
@@ -166,7 +166,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     val lastMutation = mutations[mutations.size - 1]
     Preconditions.checkNotNull(lastMutation, "Could not get last mutation")
     return userStore
-      .getUserSuspend(lastMutation.userId)
+      .getUser(lastMutation.userId)
       .let { commitMutations(job, submission, mutations, it) }
       .let { submissionDao.insertOrUpdateSuspend(it) }
   }
