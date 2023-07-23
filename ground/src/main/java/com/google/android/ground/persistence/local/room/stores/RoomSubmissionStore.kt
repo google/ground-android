@@ -100,10 +100,8 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       ?.let { mergeSubmission(model.job, model.toLocalDataStoreObject(), it) }
   }
 
-  override fun enqueue(mutation: SubmissionMutation): Completable =
-    rxCompletable(ioDispatcher) {
-      submissionMutationDao.insertSuspend(mutation.toLocalDataStoreObject())
-    }
+  override suspend fun enqueue(mutation: SubmissionMutation) =
+    submissionMutationDao.insertSuspend(mutation.toLocalDataStoreObject())
 
   /**
    * Applies mutation to submission in database or creates a new one.
@@ -111,27 +109,26 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
    * exist, or if type is "CREATE" and entity already exists.
    */
-  override fun apply(mutation: SubmissionMutation): Completable =
-    rxCompletable(ioDispatcher) {
-      when (mutation.type) {
-        Mutation.Type.CREATE -> {
-          val user = userStore.getUser(mutation.userId)
-          val entity = mutation.toLocalDataStoreObject(AuditInfo(user))
-          submissionDao.insertOrUpdateSuspend(entity)
-        }
-        Mutation.Type.UPDATE -> {
-          val user = userStore.getUser(mutation.userId)
-          updateSubmission(mutation, user)
-        }
-        Mutation.Type.DELETE -> {
-          val entity = checkNotNull(submissionDao.findByIdSuspend(mutation.submissionId))
-          submissionDao.updateSuspend(entity.copy(state = EntityState.DELETED))
-        }
-        Mutation.Type.UNKNOWN -> {
-          throw LocalDataStoreException("Unknown Mutation.Type")
-        }
+  override suspend fun apply(mutation: SubmissionMutation) {
+    when (mutation.type) {
+      Mutation.Type.CREATE -> {
+        val user = userStore.getUser(mutation.userId)
+        val entity = mutation.toLocalDataStoreObject(AuditInfo(user))
+        submissionDao.insertOrUpdateSuspend(entity)
+      }
+      Mutation.Type.UPDATE -> {
+        val user = userStore.getUser(mutation.userId)
+        updateSubmission(mutation, user)
+      }
+      Mutation.Type.DELETE -> {
+        val entity = checkNotNull(submissionDao.findByIdSuspend(mutation.submissionId))
+        submissionDao.updateSuspend(entity.copy(state = EntityState.DELETED))
+      }
+      Mutation.Type.UNKNOWN -> {
+        throw LocalDataStoreException("Unknown Mutation.Type")
       }
     }
+  }
 
   override suspend fun updateAll(mutations: List<SubmissionMutation>) {
     submissionMutationDao.updateAll(mutations.map { it.toLocalDataStoreObject() })
@@ -216,7 +213,10 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
 
   override fun applyAndEnqueue(mutation: SubmissionMutation): Completable =
     try {
-      apply(mutation).andThen(enqueue(mutation))
+      rxCompletable(ioDispatcher) {
+        apply(mutation)
+        enqueue(mutation)
+      }
     } catch (e: LocalDataStoreException) {
       FirebaseCrashlytics.getInstance()
         .log("Error enqueueing ${mutation.type} mutation for submission ${mutation.submissionId}")

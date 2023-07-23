@@ -30,10 +30,10 @@ interface LocalMutationStore<T : Mutation, M> {
   suspend fun merge(model: M)
 
   /** Enqueue a mutation to be applied to the remote data store. */
-  fun enqueue(mutation: T): Completable
+  suspend fun enqueue(mutation: T)
 
   /** Applies a mutation to the local data store. */
-  fun apply(mutation: T): Completable
+  suspend fun apply(mutation: T)
 
   /** Updates specified mutations in the local queue. */
   suspend fun updateAll(mutations: List<T>)

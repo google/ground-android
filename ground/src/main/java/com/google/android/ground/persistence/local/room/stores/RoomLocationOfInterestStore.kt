@@ -99,34 +99,34 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     locationOfInterestDao.insertOrUpdateSuspend(model.toLocalDataStoreObject())
   }
 
-  override fun enqueue(mutation: LocationOfInterestMutation): Completable =
-    rxCompletable(ioDispatcher) {
-      locationOfInterestMutationDao.insertSuspend(mutation.toLocalDataStoreObject())
-    }
+  override suspend fun enqueue(mutation: LocationOfInterestMutation) =
+    locationOfInterestMutationDao.insertSuspend(mutation.toLocalDataStoreObject())
 
-  override fun apply(mutation: LocationOfInterestMutation): Completable =
-    rxCompletable(ioDispatcher) {
-      when (mutation.type) {
-        Mutation.Type.CREATE,
-        Mutation.Type.UPDATE -> {
-          val user = userStore.getUser(mutation.userId)
-          val entity = mutation.toLocalDataStoreObject(user)
-          locationOfInterestDao.insertOrUpdateSuspend(entity)
-        }
-        Mutation.Type.DELETE -> {
-          val loiId = mutation.locationOfInterestId
-          val entity = checkNotNull(locationOfInterestDao.findByIdSuspend(loiId))
-          locationOfInterestDao.updateSuspend(entity.copy(state = EntityState.DELETED))
-        }
-        Mutation.Type.UNKNOWN -> {
-          throw LocalDataStoreException("Unknown Mutation.Type")
-        }
+  override suspend fun apply(mutation: LocationOfInterestMutation) {
+    when (mutation.type) {
+      Mutation.Type.CREATE,
+      Mutation.Type.UPDATE -> {
+        val user = userStore.getUser(mutation.userId)
+        val entity = mutation.toLocalDataStoreObject(user)
+        locationOfInterestDao.insertOrUpdateSuspend(entity)
+      }
+      Mutation.Type.DELETE -> {
+        val loiId = mutation.locationOfInterestId
+        val entity = checkNotNull(locationOfInterestDao.findByIdSuspend(loiId))
+        locationOfInterestDao.updateSuspend(entity.copy(state = EntityState.DELETED))
+      }
+      Mutation.Type.UNKNOWN -> {
+        throw LocalDataStoreException("Unknown Mutation.Type")
       }
     }
+  }
 
   override fun applyAndEnqueue(mutation: LocationOfInterestMutation): Completable =
     try {
-      apply(mutation).andThen(enqueue(mutation))
+      rxCompletable(ioDispatcher) {
+        apply(mutation)
+        enqueue(mutation)
+      }
     } catch (e: LocalDataStoreException) {
       FirebaseCrashlytics.getInstance()
         .log(
