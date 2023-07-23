@@ -22,18 +22,50 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:paddingLeft="24dp"
+  android:paddingTop="16dp"
   android:paddingRight="24dp"
   android:paddingBottom="64dp">
+
+  <View
+    android:id="@+id/drag_handle"
+    android:layout_width="32dp"
+    android:layout_height="4dp"
+    android:background="#747775"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
 
   <TextView
     android:id="@+id/dialog_title"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="@string/map_type"
-    android:textColor="?attr/colorTertiary"
-    android:textStyle="bold"
+    android:layout_marginTop="16dp"
+    android:text="@string/layers"
+    android:textSize="22sp"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
+    app:layout_constraintTop_toBottomOf="@id/drag_handle" />
+
+  <TextView
+    android:id="@+id/base_map_selector_title"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="27dp"
+    android:text="@string/base_map"
+    android:textColor="?attr/colorOnSurface"
+    android:textSize="16sp"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/dialog_title" />
+
+  <!-- TODO(#1753): Handle button clicks -->
+  <androidx.constraintlayout.utils.widget.ImageFilterView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    android:src="@drawable/baseline_help_outline_24"
+    android:tint="#70757A"
+    app:layout_constraintStart_toEndOf="@id/base_map_selector_title"
+    app:layout_constraintTop_toTopOf="@id/base_map_selector_title" />
 
   <androidx.recyclerview.widget.RecyclerView
     android:id="@+id/recycler_view"
@@ -45,14 +77,14 @@
     app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/dialog_title"
+    app:layout_constraintTop_toBottomOf="@+id/base_map_selector_title"
     tools:itemCount="3"
     tools:listitem="@layout/map_type_dialog_item" />
 
   <View
     android:id="@+id/divider"
     android:layout_width="match_parent"
-    android:layout_height="2dp"
+    android:layout_height="1dp"
     android:background="#DADCE0"
     app:layout_constraintTop_toBottomOf="@id/recycler_view" />
 

@@ -164,4 +164,6 @@
   <string name="collect_data_viewer_error">Can\'t to collect data as user is a VIEWER</string>
   <string name="offline_map_imagery">Offline map imagery</string>
   <string name="offline_map_imagery_pref_description">This is an explanation of the offline overlay. \nThe images come from this source.</string>
+  <string name="layers">Layers</string>
+  <string name="base_map">Base map</string>
 </resources>
