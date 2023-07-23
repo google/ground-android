@@ -100,9 +100,9 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   }
 
   override fun enqueue(mutation: LocationOfInterestMutation): Completable =
-    locationOfInterestMutationDao
-      .insert(mutation.toLocalDataStoreObject())
-      .subscribeOn(schedulers.io())
+    rxCompletable(ioDispatcher) {
+      locationOfInterestMutationDao.insertSuspend(mutation.toLocalDataStoreObject())
+    }
 
   override fun apply(mutation: LocationOfInterestMutation): Completable =
     rxCompletable(ioDispatcher) {

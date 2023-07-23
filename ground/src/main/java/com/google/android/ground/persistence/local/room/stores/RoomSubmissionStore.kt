@@ -101,10 +101,9 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   }
 
   override fun enqueue(mutation: SubmissionMutation): Completable =
-    submissionMutationDao
-      .insert(mutation.toLocalDataStoreObject())
-      .doOnSubscribe { Timber.v("Enqueuing mutation: $mutation") }
-      .subscribeOn(schedulers.io())
+    rxCompletable(ioDispatcher) {
+      submissionMutationDao.insertSuspend(mutation.toLocalDataStoreObject())
+    }
 
   /**
    * Applies mutation to submission in database or creates a new one.
