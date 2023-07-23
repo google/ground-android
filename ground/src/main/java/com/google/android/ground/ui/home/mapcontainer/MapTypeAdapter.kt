@@ -19,7 +19,6 @@ package com.google.android.ground.ui.home.mapcontainer
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTypeDialogItemBinding
@@ -48,7 +47,7 @@ class MapTypeAdapter(
   /** Binds [MapType] data to [ViewHolder]. */
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
     val itemsViewModel = itemsList[position]
-    holder.binding.imageview.setImageResource(itemsViewModel.imageId)
+    holder.binding.imageView.setImageResource(itemsViewModel.imageId)
     holder.binding.textView.text = context.getString(itemsViewModel.labelId)
     val textColor =
       if (selectedIndex == position) {
@@ -59,14 +58,16 @@ class MapTypeAdapter(
     holder.binding.textView.setTextColor(
       MaterialColors.getColor(holder.binding.textView, textColor)
     )
-    val borderDrawable =
-      if (selectedIndex == position) {
-        R.drawable.map_type_item_selected_background
-      } else {
-        R.drawable.map_type_item_default_background
-      }
-    holder.binding.container.background =
-      ResourcesCompat.getDrawable(context.resources, borderDrawable, null)
+
+    // TODO(#1753): Add border when selected
+    //    val borderDrawable =
+    //      if (selectedIndex == position) {
+    //        R.drawable.map_type_item_selected_background
+    //      } else {
+    //        R.drawable.map_type_item_default_background
+    //      }
+    //    holder.binding.container.background =
+    //      ResourcesCompat.getDrawable(context.resources, borderDrawable, null)
     holder.itemView.setOnClickListener { handleItemClicked(holder.adapterPosition) }
   }
 

@@ -23,22 +23,20 @@
   android:layout_height="wrap_content"
   android:orientation="vertical">
 
-  <FrameLayout
-    android:id="@+id/container"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:padding="5dp">
-    <androidx.cardview.widget.CardView
-      android:layout_width="128dp"
-      android:layout_height="128dp"
-      app:cardCornerRadius="8dp">
-      <ImageView
-        android:id="@+id/imageview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:src="@drawable/ic_type_roadmap" />
-    </androidx.cardview.widget.CardView>
-  </FrameLayout>
+  <!-- TODO(#1753): Add elevation and change border color when selected. -->
+  <androidx.cardview.widget.CardView
+    android:layout_width="116dp"
+    android:layout_height="116dp"
+    android:elevation="10dp"
+    app:cardCornerRadius="16dp">
+
+    <ImageView
+      android:id="@+id/imageView"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:scaleType="centerCrop"
+      tools:src="@drawable/ic_type_roadmap" />
+  </androidx.cardview.widget.CardView>
 
   <TextView
     android:id="@+id/textView"
