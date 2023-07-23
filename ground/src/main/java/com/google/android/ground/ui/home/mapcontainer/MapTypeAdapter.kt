@@ -49,25 +49,22 @@ class MapTypeAdapter(
     val itemsViewModel = itemsList[position]
     holder.binding.imageView.setImageResource(itemsViewModel.imageId)
     holder.binding.textView.text = context.getString(itemsViewModel.labelId)
-    val textColor =
-      if (selectedIndex == position) {
-        R.attr.colorPrimary
-      } else {
-        R.attr.colorOnSurface
-      }
-    holder.binding.textView.setTextColor(
-      MaterialColors.getColor(holder.binding.textView, textColor)
-    )
 
-    // TODO(#1753): Add border when selected
-    //    val borderDrawable =
-    //      if (selectedIndex == position) {
-    //        R.drawable.map_type_item_selected_background
-    //      } else {
-    //        R.drawable.map_type_item_default_background
-    //      }
-    //    holder.binding.container.background =
-    //      ResourcesCompat.getDrawable(context.resources, borderDrawable, null)
+    val isItemSelected = selectedIndex == position
+    holder.binding.textView.setTextColor(
+      MaterialColors.getColor(
+        holder.binding.textView,
+        if (isItemSelected) {
+          R.attr.colorPrimary
+        } else {
+          R.attr.colorOnSurface
+        }
+      )
+    )
+    holder.binding.card.apply {
+      strokeWidth = if (isItemSelected) 5 else 0
+      elevation = if (isItemSelected) 7.0f else 0.0f
+    }
     holder.itemView.setOnClickListener { handleItemClicked(holder.adapterPosition) }
   }
 

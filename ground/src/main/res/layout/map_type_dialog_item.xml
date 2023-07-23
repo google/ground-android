@@ -25,14 +25,12 @@
   android:layout_marginRight="4dp"
   android:orientation="vertical">
 
-  <!-- TODO(#1753): Add elevation and change border color when selected. -->
   <com.google.android.material.card.MaterialCardView
+    android:id="@+id/card"
     android:layout_width="116dp"
     android:layout_height="116dp"
     app:cardCornerRadius="16dp"
-    app:cardElevation="3dp"
-    app:strokeColor="?attr/colorPrimary"
-    app:strokeWidth="2dp">
+    app:strokeColor="?attr/colorPrimary">
 
     <ImageView
       android:id="@+id/imageView"
