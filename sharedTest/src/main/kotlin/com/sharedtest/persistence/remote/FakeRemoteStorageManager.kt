@@ -23,5 +23,5 @@ import javax.inject.Inject
 class FakeRemoteStorageManager @Inject internal constructor() : RemoteStorageManager {
   override suspend fun getDownloadUrl(remoteDestinationPath: String): Uri = Uri.EMPTY
 
-  override suspend fun uploadMediaFromFile(file: File, remoteDestinationPath: String) {}
+  override suspend fun uploadMediaFromFile(file: File, remoteDestinationPath: String) = Unit
 }
