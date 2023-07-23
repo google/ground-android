@@ -185,8 +185,7 @@ constructor(
     }
 
   private fun applyAndEnqueue(mutation: SubmissionMutation): @Cold Completable =
-    localSubmissionStore
-      .applyAndEnqueue(mutation)
+    rxCompletable { localSubmissionStore.applyAndEnqueue(mutation) }
       .andThen(mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId))
 
   /**

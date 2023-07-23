@@ -39,6 +39,7 @@ import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.rx2.rxCompletable
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
@@ -102,7 +103,7 @@ constructor(
    * @return If successful, returns the provided locations of interest wrapped as `Loadable`
    */
   fun applyAndEnqueue(mutation: LocationOfInterestMutation): @Cold Completable {
-    val localTransaction = localLoiStore.applyAndEnqueue(mutation)
+    val localTransaction = rxCompletable { localLoiStore.applyAndEnqueue(mutation) }
     val remoteSync = mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
     return localTransaction.andThen(remoteSync)
   }

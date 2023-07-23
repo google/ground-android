@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.persistence.local.room.stores
 
-import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
@@ -39,15 +38,12 @@ import io.reactivex.Flowable
 import io.reactivex.Maybe
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.rx2.rxCompletable
 import timber.log.Timber
 
 /** Manages access to [LocationOfInterest] objects persisted in local storage. */
 @Singleton
 class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocationOfInterestStore {
-  @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
   @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
   @Inject lateinit var locationOfInterestMutationDao: LocationOfInterestMutationDao
   @Inject lateinit var userStore: RoomUserStore
@@ -121,20 +117,19 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     }
   }
 
-  override fun applyAndEnqueue(mutation: LocationOfInterestMutation): Completable =
+  override suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
     try {
-      rxCompletable(ioDispatcher) {
-        apply(mutation)
-        enqueue(mutation)
-      }
+      apply(mutation)
+      enqueue(mutation)
     } catch (e: LocalDataStoreException) {
       FirebaseCrashlytics.getInstance()
         .log(
           "Error enqueueing ${mutation.type} mutation for location of interest ${mutation.locationOfInterestId}"
         )
       FirebaseCrashlytics.getInstance().recordException(e)
-      Completable.error(e)
+      throw e
     }
+  }
 
   override suspend fun updateAll(mutations: List<LocationOfInterestMutation>) {
     locationOfInterestMutationDao.updateAll(toLocationOfInterestMutationEntities(mutations))

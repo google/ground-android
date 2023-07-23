@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.persistence.local.room.stores
 
-import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
@@ -45,20 +44,16 @@ import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.Debug.logOnFailure
 import com.google.common.base.Preconditions
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentList
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.rx2.rxCompletable
 import timber.log.Timber
 
 /** Manages access to [Submission] objects persisted in local storage. */
 @Singleton
 class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore {
-  @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
   @Inject lateinit var submissionDao: SubmissionDao
   @Inject lateinit var submissionMutationDao: SubmissionMutationDao
   @Inject lateinit var userStore: RoomUserStore
@@ -107,7 +102,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
    * Applies mutation to submission in database or creates a new one.
    *
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
-   * exist, or if type is "CREATE" and entity already exists.
+   *   exist, or if type is "CREATE" and entity already exists.
    */
   override suspend fun apply(mutation: SubmissionMutation) {
     when (mutation.type) {
@@ -211,18 +206,17 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       .findByLocationOfInterestIdOnceAndStream(locationOfInterestId, *allowedStates)
       .map { list: List<SubmissionMutationEntity> -> list.map { it.toModelObject(survey) } }
 
-  override fun applyAndEnqueue(mutation: SubmissionMutation): Completable =
+  override suspend fun applyAndEnqueue(mutation: SubmissionMutation) {
     try {
-      rxCompletable(ioDispatcher) {
-        apply(mutation)
-        enqueue(mutation)
-      }
+      apply(mutation)
+      enqueue(mutation)
     } catch (e: LocalDataStoreException) {
       FirebaseCrashlytics.getInstance()
         .log("Error enqueueing ${mutation.type} mutation for submission ${mutation.submissionId}")
       FirebaseCrashlytics.getInstance().recordException(e)
-      Completable.error(e)
+      throw e
     }
+  }
 
   override fun getAllMutationsAndStream(): Flowable<List<SubmissionMutationEntity>> =
     submissionMutationDao.loadAllOnceAndStream()
