@@ -21,7 +21,9 @@
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  android:padding="20dp">
+  android:paddingLeft="24dp"
+  android:paddingRight="24dp"
+  android:paddingBottom="64dp">
 
   <TextView
     android:id="@+id/dialog_title"
@@ -33,28 +35,54 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
 
-  <ImageButton
-    android:id="@+id/dialog_close_btn"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="@android:color/transparent"
-    android:contentDescription="@string/close"
-    android:src="@drawable/ic_close_black_24dp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
-
   <androidx.recyclerview.widget.RecyclerView
     android:id="@+id/recycler_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingTop="20dp"
-    android:paddingBottom="10dp"
+    android:paddingTop="11dp"
+    android:paddingBottom="14dp"
     app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/dialog_title"
     tools:itemCount="3"
     tools:listitem="@layout/map_type_dialog_item" />
+
+  <View
+    android:id="@+id/divider"
+    android:layout_width="match_parent"
+    android:layout_height="2dp"
+    android:background="#DADCE0"
+    app:layout_constraintTop_toBottomOf="@id/recycler_view" />
+
+  <TextView
+    android:id="@+id/offline_map_pref_title"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="38dp"
+    android:text="@string/offline_map_imagery"
+    android:textColor="?attr/colorOnSurface"
+    android:textSize="16sp"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/divider" />
+
+  <!-- TODO(#1753): Highlight the text "this source" and make it clickable. -->
+  <TextView
+    android:id="@+id/offline_map_pref_description"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/offline_map_imagery_pref_description"
+    android:textColor="?attr/colorSecondary"
+    android:textSize="12sp"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/offline_map_pref_title" />
+
+  <com.google.android.material.materialswitch.MaterialSwitch
+    android:id="@+id/offline_map_preference_switch"
+    android:layout_width="wrap_content"
+    android:layout_height="32dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintTop_toTopOf="@+id/offline_map_pref_title" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

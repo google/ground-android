@@ -52,8 +52,6 @@ class MapTypeDialogFragment : Hilt_MapTypeDialogFragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    binding.dialogCloseBtn.setOnClickListener { dismiss() }
-
     val currentMapType = mapStateRepository.mapType
     val index = mapTypes.indexOfFirst { it == currentMapType }
     val recyclerview = binding.recyclerView
