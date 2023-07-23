@@ -77,10 +77,10 @@ constructor(
    *
    * @param path Final destination path of the uploaded file relative to Firestore
    */
-  suspend fun getDownloadUrl(path: String): Uri? =
+  suspend fun getDownloadUrl(path: String): Uri =
     if (path.isEmpty()) Uri.EMPTY else getFileUriFromRemotePath(path)
 
-  private suspend fun getFileUriFromRemotePath(destinationPath: String): Uri? {
+  private suspend fun getFileUriFromRemotePath(destinationPath: String): Uri {
     val file = getLocalFileFromRemotePath(destinationPath)
     return if (file.exists()) {
       Uri.fromFile(file)

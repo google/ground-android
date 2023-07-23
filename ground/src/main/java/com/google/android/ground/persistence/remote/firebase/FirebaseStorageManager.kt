@@ -36,7 +36,7 @@ class FirebaseStorageManager @Inject constructor() : RemoteStorageManager {
   // StorageException's constructor logs errors, so even though we handle the exception,
   // an ERROR level log line is added which could be misleading to developers. We log an extra
   // error message here as an extra hint that the log line is probably noise.
-  override suspend fun getDownloadUrl(remoteDestinationPath: String): Uri? =
+  override suspend fun getDownloadUrl(remoteDestinationPath: String): Uri =
     createReference(remoteDestinationPath).downloadUrl.await()
 
   // Do not delete the file after successful upload. It is used as a cache
