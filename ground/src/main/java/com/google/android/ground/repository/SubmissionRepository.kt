@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.repository
 
+import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
@@ -37,6 +38,7 @@ import io.reactivex.Single
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.rx2.rxCompletable
 import kotlinx.coroutines.rx2.rxMaybe
@@ -60,7 +62,8 @@ constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val uuidGenerator: OfflineUuidGenerator,
-  private val authManager: AuthenticationManager
+  private val authManager: AuthenticationManager,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
 
   /**
@@ -184,9 +187,11 @@ constructor(
       createOrUpdateSubmission(it, taskDataDeltas, isNew = true)
     }
 
-  private fun applyAndEnqueue(mutation: SubmissionMutation): @Cold Completable =
-    rxCompletable { localSubmissionStore.applyAndEnqueue(mutation) }
-      .andThen(mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId))
+  private fun applyAndEnqueue(mutation: SubmissionMutation) =
+    rxCompletable(ioDispatcher) {
+      localSubmissionStore.applyAndEnqueue(mutation)
+      mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
+    }
 
   /**
    * Returns all [SubmissionMutation] instances for a given location of interest which have not yet

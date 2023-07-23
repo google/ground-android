@@ -33,13 +33,11 @@ import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.GmsExt.contains
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.rx2.rxCompletable
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
@@ -55,7 +53,7 @@ constructor(
   private val remoteDataStore: RemoteDataStore,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val authManager: AuthenticationManager,
-  private val uuidGenerator: OfflineUuidGenerator,
+  private val uuidGenerator: OfflineUuidGenerator
 ) {
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
   suspend fun syncLocationsOfInterest(survey: Survey) {
@@ -102,10 +100,9 @@ constructor(
    * @param mutation Input [LocationOfInterestMutation]
    * @return If successful, returns the provided locations of interest wrapped as `Loadable`
    */
-  fun applyAndEnqueue(mutation: LocationOfInterestMutation): @Cold Completable {
-    val localTransaction = rxCompletable { localLoiStore.applyAndEnqueue(mutation) }
-    val remoteSync = mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
-    return localTransaction.andThen(remoteSync)
+  suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
+    localLoiStore.applyAndEnqueue(mutation)
+    mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
   }
 
   /**

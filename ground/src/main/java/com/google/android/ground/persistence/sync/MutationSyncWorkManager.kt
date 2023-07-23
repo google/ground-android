@@ -18,7 +18,6 @@ package com.google.android.ground.persistence.sync
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
 import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.createInputData
-import io.reactivex.Completable
 import javax.inject.Inject
 
 /** Enqueues data sync work to be done in the background. */
@@ -32,10 +31,7 @@ class MutationSyncWorkManager @Inject constructor(private val workManager: WorkM
    * connection is available. The returned `Completable` completes immediately as soon as the worker
    * is added to the work queue (not once the sync job completes).
    */
-  fun enqueueSyncWorker(locationOfInterestId: String): Completable =
-    Completable.fromRunnable { enqueueSyncWorkerInternal(locationOfInterestId) }
-
-  private fun enqueueSyncWorkerInternal(locationOfInterestId: String) {
+  fun enqueueSyncWorker(locationOfInterestId: String) {
     // Rather than having running workers monitor the queue for new mutations for their respective
     // locationOfInterestId, we instead queue a new worker on each new mutation. This simplifies the
     // worker
