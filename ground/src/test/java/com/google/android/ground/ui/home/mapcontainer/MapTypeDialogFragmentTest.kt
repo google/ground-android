@@ -63,13 +63,6 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun close() {
-    onView(withId(R.id.dialog_close_btn)).perform(click())
-
-    assertThat(fragment.isVisible).isFalse()
-  }
-
-  @Test
   fun defaultMapType() {
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.SATELLITE)
   }
