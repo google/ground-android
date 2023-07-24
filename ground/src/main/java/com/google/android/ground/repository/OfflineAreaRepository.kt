@@ -225,10 +225,9 @@ constructor(
     }
   }
 
-  fun getLocalTileSourcePath(): String {
-    // TODO(#1730): Generate local tiles path based on source base path.
-    return File(fileUtil.filesDir.path, "tiles").path
-  }
+  // TODO(#1730): Generate local tiles path based on source base path.
+  fun getLocalTileSourcePath(): String = File(fileUtil.filesDir.path, "tiles").path
+
   /**
    * Uses the first tile source URL of the currently active survey and returns a [MogClient], or
    * throws an error if no survey is active or if no tile sources are defined.
