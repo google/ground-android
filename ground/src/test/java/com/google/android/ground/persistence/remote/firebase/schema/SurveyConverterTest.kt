@@ -19,7 +19,6 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.imagery.TileSource
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
-import java.net.URL
 import org.junit.Test
 import org.mockito.Mockito.*
 
@@ -31,7 +30,7 @@ class SurveyConverterTest {
     val snapshot = createSurveyDocumentSnapshot("123", doc)
 
     assertThat(SurveyConverter.toSurvey(snapshot).tileSources)
-      .containsExactly(TileSource(URL(testUrl), TileSource.Type.MOG_COLLECTION))
+      .containsExactly(TileSource(testUrl, TileSource.Type.MOG_COLLECTION))
   }
 
   @Test
