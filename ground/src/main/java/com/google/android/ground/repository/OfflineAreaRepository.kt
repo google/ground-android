@@ -38,7 +38,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.reactive.asFlow
 import org.apache.commons.io.FileUtils
 import timber.log.Timber
 
@@ -249,9 +248,7 @@ constructor(
    * Returns the URL of the first tile source in the current survey, or throws an error if no survey
    * is active or if no tile sources are defined.
    */
-  private suspend fun getFirstTileSourceUrl(): String {
-    val survey = surveyRepository.activeSurveyFlowable.asFlow().firstOrNull()?.orElse(null)
-    return survey?.tileSources?.firstOrNull()?.url?.toString()
+  private fun getFirstTileSourceUrl() =
+    surveyRepository.activeSurvey?.tileSources?.firstOrNull()?.url
       ?: error("Survey has no tile sources")
-  }
 }
