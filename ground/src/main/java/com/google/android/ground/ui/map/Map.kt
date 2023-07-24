@@ -99,9 +99,6 @@ interface Map {
   /** Render locally stored tile overlays on the map. */
   fun addLocalTileOverlays(mbtilesFiles: Set<String>)
 
-  /** Render web tile overlays on the map. */
-  fun addWebTileOverlays(urls: List<String>)
-
   /** Returns the actual distance in pixels between provided [Coordinate]s. */
   fun getDistanceInPixels(coordinate1: Coordinate, coordinate2: Coordinate): Double
 
