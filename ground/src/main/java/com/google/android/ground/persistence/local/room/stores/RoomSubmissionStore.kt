@@ -42,7 +42,6 @@ import com.google.android.ground.persistence.local.room.fields.UserDetails
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.Debug.logOnFailure
-import com.google.common.base.Preconditions
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -102,7 +101,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
    * Applies mutation to submission in database or creates a new one.
    *
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
-   * exist, or if type is "CREATE" and entity already exists.
+   *   exist, or if type is "CREATE" and entity already exists.
    */
   override suspend fun apply(mutation: SubmissionMutation) {
     when (mutation.type) {
@@ -152,14 +151,12 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     mutations: List<SubmissionMutationEntity>
   ) {
     if (mutations.isEmpty()) {
-      return submissionDao.insertOrUpdateSuspend(submission)
+      submissionDao.insertOrUpdateSuspend(submission)
+    } else {
+      val user = userStore.getUser(mutations.last().userId)
+      val entity = commitMutations(job, submission, mutations, user)
+      submissionDao.insertOrUpdateSuspend(entity)
     }
-    val lastMutation = mutations[mutations.size - 1]
-    Preconditions.checkNotNull(lastMutation, "Could not get last mutation")
-    return userStore
-      .getUser(lastMutation.userId)
-      .let { commitMutations(job, submission, mutations, it) }
-      .let { submissionDao.insertOrUpdateSuspend(it) }
   }
 
   private fun commitMutations(
