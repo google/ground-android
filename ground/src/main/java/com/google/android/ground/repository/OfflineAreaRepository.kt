@@ -26,13 +26,18 @@ import com.google.android.ground.persistence.sync.TileSetDownloadWorkManager
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.GeocodingManager
+import com.google.android.ground.ui.map.Bounds
+import com.google.android.ground.ui.map.gms.mog.*
+import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.android.ground.ui.util.FileUtil
 import io.reactivex.*
 import java.io.File
 import java.io.IOException
+import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentSet
+import kotlinx.coroutines.flow.*
 import org.apache.commons.io.FileUtils
 import timber.log.Timber
 
@@ -59,10 +64,10 @@ constructor(
   @Throws(IOException::class)
   private fun downloadOfflineBaseMapSource(tileSource: TileSource): File {
     val baseMapUrl = tileSource.url
-    Timber.d("Basemap url: $baseMapUrl, file: ${baseMapUrl.file}")
-    val localFile = fileUtil.getOrCreateFile(baseMapUrl.file)
+    Timber.d("Basemap url: $baseMapUrl, file: ${baseMapUrl}")
+    val localFile = fileUtil.getOrCreateFile(baseMapUrl)
 
-    FileUtils.copyURLToFile(baseMapUrl, localFile)
+    FileUtils.copyURLToFile(URL(baseMapUrl), localFile)
     return localFile
   }
 
@@ -203,4 +208,46 @@ constructor(
           .andThen(localTileSetStore.deleteTileSetByUrl(tileSet))
       }
       .andThen(localOfflineAreaStore.deleteOfflineArea(offlineAreaId))
+
+  /**
+   * Downloads tiles in the specified bounds and stores them in the local filesystem. Emits the
+   * number of bytes processed and total expected bytes as the download progresses.
+   */
+  suspend fun downloadTiles(bounds: Bounds): Flow<Pair<Int, Int>> = flow {
+    val client = getMogClient()
+    val requests = client.buildTilesRequests(bounds.toGoogleMapsObject())
+    val totalBytes = requests.sumOf { it.totalBytes }
+    var bytesDownloaded = 0
+    val tilePath = getLocalTileSourcePath()
+    MogTileDownloader(client, tilePath).downloadTiles(requests).collect {
+      bytesDownloaded += it
+      emit(Pair(bytesDownloaded, totalBytes))
+    }
+  }
+
+  // TODO(#1730): Generate local tiles path based on source base path.
+  fun getLocalTileSourcePath(): String = File(fileUtil.filesDir.path, "tiles").path
+
+  /**
+   * Uses the first tile source URL of the currently active survey and returns a [MogClient], or
+   * throws an error if no survey is active or if no tile sources are defined.
+   */
+  private suspend fun getMogClient(): MogClient {
+    // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
+    val baseUrl = getFirstTileSourceUrl()
+    val mogCollection =
+      MogCollection(
+        listOf(MogSource("${baseUrl}/world.tif", 0..7), MogSource("${baseUrl}/{x}/{y}.tif", 8..14))
+      )
+    // TODO(#1754): Create a factory and inject rather than instantiating here. Add tests.
+    return MogClient(mogCollection)
+  }
+
+  /**
+   * Returns the URL of the first tile source in the current survey, or throws an error if no survey
+   * is active or if no tile sources are defined.
+   */
+  private fun getFirstTileSourceUrl() =
+    surveyRepository.activeSurvey?.tileSources?.firstOrNull()?.url
+      ?: error("Survey has no tile sources")
 }

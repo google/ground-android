@@ -39,11 +39,16 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
 
   private lateinit var viewModel: OfflineAreaSelectorViewModel
 
+  private var downloadProgressDialogFragment = DownloadProgressDialogFragment()
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(OfflineAreaSelectorViewModel::class.java)
     viewModel.downloadMessages.observe(this) { e: Event<DownloadMessage> ->
       e.ifUnhandled { message: DownloadMessage -> onDownloadMessage(message) }
+    }
+    viewModel.isDownloadProgressVisible.observe(this) {
+      downloadProgressDialogFragment.setVisibility(childFragmentManager, it)
     }
   }
 

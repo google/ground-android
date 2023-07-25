@@ -22,11 +22,8 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.JobConverter.toJob
 import com.google.firebase.firestore.DocumentSnapshot
-import java.net.MalformedURLException
-import java.net.URL
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
-import timber.log.Timber
 
 /** Converts between Firestore documents and [Survey] instances. */
 internal object SurveyConverter {
@@ -43,7 +40,7 @@ internal object SurveyConverter {
 
     val tileSources = mutableListOf<TileSource>()
     if (pd.tileSources != null) {
-      convertOfflineBaseMapSources(pd, tileSources)
+      convertTileSources(pd, tileSources)
     }
 
     return Survey(
@@ -56,18 +53,9 @@ internal object SurveyConverter {
     )
   }
 
-  private fun convertOfflineBaseMapSources(pd: SurveyDocument, builder: MutableList<TileSource>) {
-    for ((url) in pd.tileSources!!) {
-      if (url == null) {
-        Timber.d("Skipping base map source in survey with missing URL")
-        continue
-      }
-      try {
-        Timber.d("Converting base map source: $url")
-        builder.add(TileSource(URL(url), TileSource.fromFileExtension(url)))
-      } catch (e: MalformedURLException) {
-        Timber.d("Skipping base map source in survey with malformed URL")
-      }
-    }
+  private fun convertTileSources(pd: SurveyDocument, builder: MutableList<TileSource>) {
+    pd.tileSources
+      ?.mapNotNull { it.url }
+      ?.forEach { url -> builder.add(TileSource(url, TileSource.fromFileExtension(url))) }
   }
 }

@@ -16,12 +16,14 @@
 package com.google.android.ground.ui.home.mapcontainer
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.toLiveData
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.imagery.MbtilesFile
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
@@ -47,6 +49,7 @@ import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import timber.log.Timber
 
 @SharedViewModel
@@ -60,7 +63,7 @@ internal constructor(
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
   surveyRepository: SurveyRepository,
-  offlineAreaRepository: OfflineAreaRepository,
+  private val offlineAreaRepository: OfflineAreaRepository,
 ) :
   BaseMapViewModel(
     locationManager,
@@ -69,6 +72,8 @@ internal constructor(
     permissionsManager,
     mapController
   ) {
+
+  val tileOverlays: LiveData<List<TileSource>>
 
   val mapLocationOfInterestFeatures: LiveData<Set<Feature>>
 
@@ -95,7 +100,6 @@ internal constructor(
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     // into the repo
     // LOIs that are persisted to the local and remote dbs.
-
     mapLocationOfInterestFeatures =
       surveyRepository.activeSurveyFlowable
         .switchMap { survey ->
@@ -109,6 +113,10 @@ internal constructor(
         }
         .toLiveData()
 
+    tileOverlays =
+      surveyRepository.activeSurveyFlow
+        .mapNotNull { it?.tileSources?.mapNotNull(this::toLocalTileSource) ?: listOf() }
+        .asLiveData()
     mbtilesFilePaths =
       offlineAreaRepository
         .downloadedTileSetsOnceAndStream()
@@ -133,6 +141,14 @@ internal constructor(
       surveyRepository.activeSurveyFlow.map {
         it?.jobs?.filter { job -> job.suggestLoiTaskType != null }?.toList() ?: listOf()
       }
+  }
+
+  private fun toLocalTileSource(tileSource: TileSource): TileSource? {
+    if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
+    return TileSource(
+      "file://" + offlineAreaRepository.getLocalTileSourcePath() + "/{z}/{x}/{y}.jpg",
+      TileSource.Type.TILED_WEB_MAP
+    )
   }
 
   private fun toLocationOfInterestFeatures(

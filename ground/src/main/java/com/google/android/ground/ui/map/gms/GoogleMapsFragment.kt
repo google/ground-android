@@ -38,6 +38,7 @@ import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.imagery.TileSource.Type.MOG_COLLECTION
+import com.google.android.ground.model.imagery.TileSource.Type.TILED_WEB_MAP
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
@@ -62,7 +63,6 @@ import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import java.io.File
-import java.net.URL
 import java8.util.function.Consumer
 import javax.inject.Inject
 import kotlin.math.min
@@ -386,26 +386,27 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   override fun addLocalTileOverlays(mbtilesFiles: Set<String>) =
     mbtilesFiles.forEach { filePath -> addTileOverlay(filePath) }
 
-  private fun addWebTileOverlay(url: String) {
-    val webTileProvider = WebTileProvider(url)
-    map.addTileOverlay(TileOverlayOptions().tileProvider(webTileProvider))
+  private fun addTemplateUrlTileOverlay(url: String) {
+    val tileProvider = TemplateUrlTileProvider(url)
+    map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
   }
 
   override fun addTileOverlay(tileSource: TileSource) =
-    if (tileSource.type == MOG_COLLECTION) addMogCollectionTileOverlay(tileSource.url)
-    else error("Unsupported tile source type ${tileSource.type}")
+    when (tileSource.type) {
+      MOG_COLLECTION -> addMogCollectionTileOverlay(tileSource.url)
+      TILED_WEB_MAP -> addTemplateUrlTileOverlay(tileSource.url)
+      else -> error("Unsupported tile source type ${tileSource.type}")
+    }
 
-  private fun addMogCollectionTileOverlay(url: URL) {
-    // TODO(#1730): Use standard metadata format (STAC?) to represent MOG sources.
+  private fun addMogCollectionTileOverlay(url: String) {
+    // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
     val mogCollection =
       MogCollection(
-        listOf(MogSource("${url}/8/world.tif", 0..7), MogSource("${url}/8/{x}/{y}.tif", 8..14))
+        listOf(MogSource("${url}/world.tif", 0..7), MogSource("${url}/{x}/{y}.tif", 8..14))
       )
     val tileProvider = MogTileProvider(mogCollection)
     map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
   }
-
-  override fun addWebTileOverlays(urls: List<String>) = urls.forEach { addWebTileOverlay(it) }
 
   override fun setActiveLocationOfInterest(newLoiId: String?) {
     clusterRenderer.previousActiveLoiId = clusterManager.activeLocationOfInterest
