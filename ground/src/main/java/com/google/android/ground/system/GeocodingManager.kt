@@ -22,7 +22,6 @@ import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.GmsExt.center
 import java.io.IOException
-import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
@@ -56,12 +55,9 @@ constructor(
       val address = addresses[0]
 
       // TODO(#613): Decide exactly what set of address parts we want to show the user.
-      val country = Optional.ofNullable(address.countryName).orElse("")
-      val locality = Optional.ofNullable(address.locality).orElse("")
-      val admin = Optional.ofNullable(address.adminArea).orElse("")
-      val subAdmin = Optional.ofNullable(address.subAdminArea).orElse("")
-      val components = listOf(subAdmin, admin, locality, country)
-      val fullLocationName = components.filter { it.isNotEmpty() }.joinToString()
+      val components =
+        listOf(address.subAdminArea, address.adminArea, address.locality, address.countryName)
+      val fullLocationName = components.filterNotNull().joinToString()
       fullLocationName.ifEmpty { defaultAreaName }
     }
 }
