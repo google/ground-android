@@ -127,16 +127,14 @@ constructor(
 
   private suspend fun addOfflineArea(bounds: Bounds) {
     val areaName = geocodingManager.getAreaName(bounds).await()
-    localOfflineAreaStore
-      .insertOrUpdateOfflineArea(
-        OfflineArea(
-          offlineUuidGenerator.generateUuid(),
-          OfflineArea.State.DOWNLOADED,
-          bounds,
-          areaName
-        )
+    localOfflineAreaStore.insertOrUpdate(
+      OfflineArea(
+        offlineUuidGenerator.generateUuid(),
+        OfflineArea.State.DOWNLOADED,
+        bounds,
+        areaName
       )
-      .await()
+    )
   }
 
   fun addOfflineAreaAndEnqueue(area: OfflineArea): @Cold Completable =
