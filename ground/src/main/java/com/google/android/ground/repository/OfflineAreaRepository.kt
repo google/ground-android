@@ -23,6 +23,7 @@ import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
 import com.google.android.ground.persistence.mbtiles.MbtilesFootprintParser
 import com.google.android.ground.persistence.sync.TileSetDownloadWorkManager
+import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.GeocodingManager
@@ -52,7 +53,8 @@ constructor(
   private val geoJsonParser: MbtilesFootprintParser,
   private val fileUtil: FileUtil,
   private val schedulers: Schedulers,
-  private val geocodingManager: GeocodingManager
+  private val geocodingManager: GeocodingManager,
+  private val offlineUuidGenerator: OfflineUuidGenerator
 ) {
 
   /**
@@ -121,6 +123,20 @@ constructor(
       .doOnError { throwable ->
         Timber.e(throwable, "couldn't retrieve basemap sources for the active survey")
       }
+
+  private suspend fun addOfflineArea(bounds: Bounds) {
+    val areaName = geocodingManager.getAreaName(bounds).blockingGet()
+    localOfflineAreaStore
+      .insertOrUpdateOfflineArea(
+        OfflineArea(
+          offlineUuidGenerator.generateUuid(),
+          OfflineArea.State.DOWNLOADED,
+          bounds,
+          areaName
+        )
+      )
+      .blockingAwait()
+  }
 
   fun addOfflineAreaAndEnqueue(area: OfflineArea): @Cold Completable =
     geocodingManager
@@ -223,6 +239,7 @@ constructor(
       bytesDownloaded += it
       emit(Pair(bytesDownloaded, totalBytes))
     }
+    addOfflineArea(bounds)
   }
 
   // TODO(#1730): Generate local tiles path based on source base path.
