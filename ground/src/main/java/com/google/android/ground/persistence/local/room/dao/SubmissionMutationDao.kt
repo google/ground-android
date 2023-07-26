@@ -21,7 +21,6 @@ import com.google.android.ground.persistence.local.room.entity.SubmissionMutatio
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
-import io.reactivex.Single
 
 /** Data access object for database operations related to [SubmissionMutationEntity]. */
 @Dao
@@ -42,10 +41,10 @@ interface SubmissionMutationDao : BaseDao<SubmissionMutationEntity> {
     "SELECT * FROM submission_mutation " +
       "WHERE submission_id = :submissionId AND state IN (:allowedStates)"
   )
-  fun findBySubmissionId(
+  suspend fun findBySubmissionId(
     submissionId: String,
     vararg allowedStates: MutationEntitySyncStatus
-  ): Single<List<SubmissionMutationEntity>>
+  ): List<SubmissionMutationEntity>?
 
   @Query(
     "SELECT * FROM submission_mutation " +

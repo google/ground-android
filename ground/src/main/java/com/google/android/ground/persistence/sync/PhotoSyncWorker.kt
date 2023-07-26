@@ -27,7 +27,6 @@ import dagger.assisted.AssistedInject
 import java.io.File
 import java.io.FileNotFoundException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -58,7 +57,7 @@ constructor(
     return if (file.exists()) {
       Timber.d("Starting photo upload: $localSourcePath, $remoteDestinationPath")
       try {
-        remoteStorageManager.uploadMediaFromFile(file, remoteDestinationPath).await()
+        remoteStorageManager.uploadMediaFromFile(file, remoteDestinationPath)
         Result.success()
       } catch (e: Exception) {
         FirebaseCrashlytics.getInstance().log("Photo sync failed")

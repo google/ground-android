@@ -39,7 +39,7 @@ constructor(
 
   suspend fun saveUser(user: User) = localUserStore.insertOrUpdateUser(user)
 
-  suspend fun getUser(userId: String): User = localUserStore.getUserSuspend(userId)
+  suspend fun getUser(userId: String): User = localUserStore.getUser(userId)
 
   /** Clears all user-specific preferences and settings. */
   fun clearUserPreferences() = localValueStore.clear()

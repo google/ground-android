@@ -32,9 +32,12 @@ import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.rx2.asFlowable
-import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.rx2.rxCompletable
 import timber.log.Timber
 
@@ -89,7 +92,7 @@ constructor(
 
   /** Listens for remote changes to the survey with the specified id. */
   suspend fun subscribeToSurveyUpdates(surveyId: String) =
-    remoteDataStore.subscribeToSurveyUpdates(surveyId).await()
+    remoteDataStore.subscribeToSurveyUpdates(surveyId)
 
   /**
    * Returns the survey with the specified id from the local db, or `null` if not available offline.

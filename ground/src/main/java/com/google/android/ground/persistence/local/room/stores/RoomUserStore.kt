@@ -23,10 +23,8 @@ import com.google.android.ground.persistence.local.room.dao.UserDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.rx.Schedulers
-import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 /** Manages access to [User] objects persisted in local storage. */
 @Singleton
@@ -41,22 +39,8 @@ class RoomUserStore @Inject internal constructor() : LocalUserStore {
   override suspend fun insertOrUpdateUser(user: User) =
     userDao.insertOrUpdateSuspend(user.toLocalDataStoreObject())
 
-  /**
-   * Attempts to retrieve the [User] with the given ID from the local database. If the retrieval
-   * fails, returns a [NoSuchElementException].
-   */
-  @Deprecated("Use getUserSuspend instead")
-  override fun getUser(id: String): Single<User> =
-    userDao
-      .findById(id)
-      .doOnError {
-        Timber.e(it, "Error loading user from local db: $id")
-      } // Fail with NoSuchElementException if not found.
-      .toSingle()
-      .map { it.toModelObject() }
-      .subscribeOn(schedulers.io())
-
-  override suspend fun getUserSuspend(id: String): User =
+  /** Attempts to retrieve the [User] with the given ID from the local database. */
+  override suspend fun getUser(id: String): User =
     userDao.findByIdSuspend(id)?.toModelObject()
       ?: throw LocalDataStoreException("Error loading user from local db: $id")
 }

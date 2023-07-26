@@ -35,7 +35,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -94,7 +93,7 @@ constructor(
   /** Loads each user with specified id, applies mutations, and removes processed mutations. */
   private suspend fun processMutations(mutations: List<Mutation>, userId: String) {
     try {
-      val user = localUserStore.getUserSuspend(userId)
+      val user = localUserStore.getUser(userId)
       processMutations(mutations, user)
     } catch (e: Exception) {
       Timber.e(e, "User account removed before mutation processed")
@@ -103,7 +102,7 @@ constructor(
 
   /** Applies mutations to remote data store. Once successful, removes them from the local db. */
   private suspend fun processMutations(mutations: List<Mutation>, user: User) {
-    remoteDataStore.applyMutations(mutations, user).await()
+    remoteDataStore.applyMutations(mutations, user)
     processPhotoFieldMutations(mutations)
     // TODO: If the remote sync fails, reset the state to DEFAULT.
     mutationRepository.finalizePendingMutations(mutations)

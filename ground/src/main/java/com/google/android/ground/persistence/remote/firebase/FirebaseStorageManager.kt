@@ -17,17 +17,12 @@ package com.google.android.ground.persistence.remote.firebase
 
 import android.net.Uri
 import com.google.android.ground.persistence.remote.RemoteStorageManager
-import com.google.android.ground.rx.RxTask
-import com.google.android.ground.rx.annotations.Cold
 import com.google.firebase.storage.StorageReference
-import io.reactivex.Completable
-import io.reactivex.CompletableEmitter
-import io.reactivex.Single
 import java.io.File
 import java8.util.StringJoiner
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
+import kotlinx.coroutines.tasks.await
 
 // TODO: Add column to Submission table for storing uploaded media urls
 // TODO: Synced to remote db as well
@@ -41,19 +36,14 @@ class FirebaseStorageManager @Inject constructor() : RemoteStorageManager {
   // StorageException's constructor logs errors, so even though we handle the exception,
   // an ERROR level log line is added which could be misleading to developers. We log an extra
   // error message here as an extra hint that the log line is probably noise.
-  override fun getDownloadUrl(remoteDestinationPath: String): @Cold Single<Uri> =
-    RxTask.toSingle { createReference(remoteDestinationPath).downloadUrl }
-      .doOnError { Timber.e(it, "StorageException handled and can be ignored") }
+  override suspend fun getDownloadUrl(remoteDestinationPath: String): Uri =
+    createReference(remoteDestinationPath).downloadUrl.await()
 
   // Do not delete the file after successful upload. It is used as a cache
   // while viewing submissions when network is unavailable.
-  override fun uploadMediaFromFile(file: File, remoteDestinationPath: String): @Cold Completable =
-    Completable.create { emitter: CompletableEmitter ->
-      createReference(remoteDestinationPath)
-        .putFile(Uri.fromFile(file))
-        .addOnCompleteListener { emitter.onComplete() }
-        .addOnFailureListener { emitter.onError(it) }
-    }
+  override suspend fun uploadMediaFromFile(file: File, remoteDestinationPath: String) {
+    createReference(remoteDestinationPath).putFile(Uri.fromFile(file)).await()
+  }
 
   companion object {
     /** Top-level directory in Cloud Storage where user media is stored. */

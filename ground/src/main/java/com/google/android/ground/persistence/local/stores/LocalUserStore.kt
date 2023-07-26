@@ -16,20 +16,12 @@
 package com.google.android.ground.persistence.local.stores
 
 import com.google.android.ground.model.User
-import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Single
 
 /** Provides access to [User] data in local storage. */
 interface LocalUserStore {
   /** Add user to the database. */
   suspend fun insertOrUpdateUser(user: User)
 
-  /**
-   * Loads the user with the specified id from the local data store. The returned Single fails with
-   * [java.util.NoSuchElementException] if not found.
-   */
-  @Deprecated("Use getUserSuspend instead") fun getUser(id: String): @Cold Single<User>
-
-  // TODO(#1581): Rename to getUser once all existing usages are migrated to coroutine.
-  suspend fun getUserSuspend(id: String): User
+  /** Loads the user with the specified id from the local data store. */
+  suspend fun getUser(id: String): User
 }
