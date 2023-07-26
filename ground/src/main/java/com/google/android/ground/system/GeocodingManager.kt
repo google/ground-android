@@ -60,7 +60,7 @@ constructor(
       val locality = Optional.ofNullable(address.locality).orElse("")
       val admin = Optional.ofNullable(address.adminArea).orElse("")
       val subAdmin = Optional.ofNullable(address.subAdminArea).orElse("")
-      val components: Collection<String> = ArrayList(listOf(country, locality, admin, subAdmin))
+      val components = listOf(subAdmin, admin, locality, country)
       val fullLocationName = components.filter { it.isNotEmpty() }.joinToString()
       fullLocationName.ifEmpty { defaultAreaName }
     }
