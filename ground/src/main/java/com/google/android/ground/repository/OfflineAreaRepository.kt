@@ -232,7 +232,7 @@ constructor(
    * Uses the first tile source URL of the currently active survey and returns a [MogClient], or
    * throws an error if no survey is active or if no tile sources are defined.
    */
-  private suspend fun getMogClient(): MogClient {
+  private fun getMogClient(): MogClient {
     // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
     val baseUrl = getFirstTileSourceUrl()
     val mogCollection =
