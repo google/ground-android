@@ -39,6 +39,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.rx2.await
 import org.apache.commons.io.FileUtils
 import timber.log.Timber
 
@@ -125,7 +126,7 @@ constructor(
       }
 
   private suspend fun addOfflineArea(bounds: Bounds) {
-    val areaName = geocodingManager.getAreaName(bounds).blockingGet()
+    val areaName = geocodingManager.getAreaName(bounds).await()
     localOfflineAreaStore
       .insertOrUpdateOfflineArea(
         OfflineArea(
@@ -135,7 +136,7 @@ constructor(
           areaName
         )
       )
-      .blockingAwait()
+      .await()
   }
 
   fun addOfflineAreaAndEnqueue(area: OfflineArea): @Cold Completable =
@@ -239,7 +240,9 @@ constructor(
       bytesDownloaded += it
       emit(Pair(bytesDownloaded, totalBytes))
     }
-    addOfflineArea(bounds)
+    if (bytesDownloaded > 0) {
+      addOfflineArea(bounds)
+    }
   }
 
   // TODO(#1730): Generate local tiles path based on source base path.
