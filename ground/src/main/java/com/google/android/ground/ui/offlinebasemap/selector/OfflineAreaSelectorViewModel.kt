@@ -15,18 +15,13 @@
  */
 package com.google.android.ground.ui.offlinebasemap.selector
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.coroutines.IoDispatcher
-import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.rx.Event
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
@@ -37,12 +32,9 @@ import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.Map
 import com.google.android.ground.ui.map.MapController
 import com.google.android.ground.ui.map.MapType
-import io.reactivex.processors.FlowableProcessor
-import io.reactivex.processors.PublishProcessor
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 /** States and behaviors of Map UI used to select areas for download and viewing offline. */
 @SharedViewModel
@@ -71,8 +63,6 @@ internal constructor(
     FAILURE
   }
 
-  private val downloadClicks: @Hot FlowableProcessor<OfflineArea> = PublishProcessor.create()
-  val downloadMessages: LiveData<Event<DownloadMessage>>
   val tileSources: List<TileSource>
   private var viewport: Bounds? = null
   val isDownloadProgressVisible = MutableLiveData(false)
@@ -80,22 +70,7 @@ internal constructor(
   val downloadProgress = MutableLiveData(0)
 
   init {
-    downloadMessages =
-      downloadClicks
-        .switchMapSingle { baseMap: OfflineArea ->
-          offlineAreaRepository
-            .addOfflineAreaAndEnqueue(baseMap)
-            .toSingleDefault(DownloadMessage.STARTED)
-            .onErrorReturn { e: Throwable -> onEnqueueError(e) }
-            .map { Event.create(it) }
-        }
-        .toLiveData()
     tileSources = surveyRepository.activeSurvey!!.tileSources
-  }
-
-  private fun onEnqueueError(e: Throwable): DownloadMessage {
-    Timber.e("Failed to add area and queue downloads: %s", e.message)
-    return DownloadMessage.FAILURE
   }
 
   fun onDownloadClick() {

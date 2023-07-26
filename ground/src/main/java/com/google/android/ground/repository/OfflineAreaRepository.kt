@@ -39,7 +39,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.rx2.await
 import org.apache.commons.io.FileUtils
 import timber.log.Timber
 
@@ -126,7 +125,7 @@ constructor(
       }
 
   private suspend fun addOfflineArea(bounds: Bounds) {
-    val areaName = geocodingManager.getAreaName(bounds).await()
+    val areaName = geocodingManager.getAreaName(bounds)
     localOfflineAreaStore.insertOrUpdate(
       OfflineArea(
         offlineUuidGenerator.generateUuid(),
@@ -136,12 +135,6 @@ constructor(
       )
     )
   }
-
-  fun addOfflineAreaAndEnqueue(area: OfflineArea): @Cold Completable =
-    geocodingManager
-      .getAreaName(area.bounds)
-      .map { name -> area.copy(state = OfflineArea.State.IN_PROGRESS, name = name) }
-      .flatMapCompletable { enqueueTileSetDownloads(it) }
 
   /**
    * Retrieves all offline areas from the local store and continually streams the list as the local
