@@ -26,10 +26,10 @@ import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import java.util.*
 import javax.inject.Inject
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -70,12 +70,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     }
   }
 
-  private fun mockEnqueueSyncWorker() {
-    `when`(mockWorkManager.enqueueSyncWorker(anyString())).thenReturn(Completable.complete())
-  }
-
   @Test
-  fun testApplyAndEnqueue_createsLocalLoi() {
+  fun testApplyAndEnqueue_createsLocalLoi() = runWithTestDispatcher {
     // TODO(#1559): Remove once customId and caption are handled consistently.
     val loi =
       LOCATION_OF_INTEREST.copy(
@@ -84,12 +80,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         // TODO(#1562): Remove once creation time is preserved in local db.
         lastModified = LOCATION_OF_INTEREST.created
       )
-    mockEnqueueSyncWorker()
-    locationOfInterestRepository
-      .applyAndEnqueue(loi.toMutation(CREATE, TEST_USER.id))
-      .test()
-      .assertNoErrors()
-      .assertComplete()
+    locationOfInterestRepository.applyAndEnqueue(loi.toMutation(CREATE, TEST_USER.id))
 
     locationOfInterestRepository
       .getOfflineLocationOfInterest(TEST_SURVEY.id, loi.id)
@@ -99,10 +90,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_enqueuesLoiMutation() {
-    mockEnqueueSyncWorker()
-
-    locationOfInterestRepository.applyAndEnqueue(mutation).test().assertNoErrors().assertComplete()
+  fun testApplyAndEnqueue_enqueuesLoiMutation() = runWithTestDispatcher {
+    locationOfInterestRepository.applyAndEnqueue(mutation)
 
     locationOfInterestRepository
       .getIncompleteLocationOfInterestMutationsOnceAndStream(LOCATION_OF_INTEREST.id)
@@ -112,23 +101,21 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_enqueuesWorker() {
-    mockEnqueueSyncWorker()
-
-    locationOfInterestRepository.applyAndEnqueue(mutation).test().assertNoErrors().assertComplete()
+  fun testApplyAndEnqueue_enqueuesWorker() = runWithTestDispatcher {
+    locationOfInterestRepository.applyAndEnqueue(mutation)
 
     verify(mockWorkManager).enqueueSyncWorker(LOCATION_OF_INTEREST.id)
   }
 
   @Test
-  fun testApplyAndEnqueue_returnsErrorOnWorkerSyncFailure() {
-    `when`(mockWorkManager.enqueueSyncWorker(anyString())).thenReturn(Completable.error(Error()))
+  fun testApplyAndEnqueue_returnsErrorOnWorkerSyncFailure() = runWithTestDispatcher {
+    `when`(mockWorkManager.enqueueSyncWorker(anyString())).thenThrow(Error())
 
-    locationOfInterestRepository
-      .applyAndEnqueue(LOCATION_OF_INTEREST.toMutation(CREATE, TEST_USER.id))
-      .test()
-      .assertError(Error::class.java)
-      .assertNotComplete()
+    assertFailsWith<Error> {
+      locationOfInterestRepository.applyAndEnqueue(
+        LOCATION_OF_INTEREST.toMutation(CREATE, TEST_USER.id)
+      )
+    }
 
     verify(mockWorkManager, times(1)).enqueueSyncWorker(LOCATION_OF_INTEREST.id)
   }

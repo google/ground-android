@@ -164,4 +164,5 @@
   <string name="offline_map_imagery_pref_description">This is an explanation of the offline overlay. \nThe images come from this source.</string>
   <string name="layers">Layers</string>
   <string name="base_map">Base map</string>
+  <string name="offline_map_imagery_download_progress_dialog_message">Downloading offline map imagery…</string>
 </resources>

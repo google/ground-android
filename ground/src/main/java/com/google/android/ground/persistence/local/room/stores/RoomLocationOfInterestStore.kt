@@ -16,7 +16,6 @@
 package com.google.android.ground.persistence.local.room.stores
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
@@ -25,7 +24,6 @@ import com.google.android.ground.persistence.local.room.converter.toLocalDataSto
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestMutationDao
-import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
@@ -93,42 +91,45 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       .subscribeOn(schedulers.io())
 
   // TODO(#706): Apply pending local mutations before saving.
-  override fun merge(model: LocationOfInterest): Completable =
-    locationOfInterestDao
-      .insertOrUpdate(model.toLocalDataStoreObject())
-      .subscribeOn(schedulers.io())
+  override suspend fun merge(model: LocationOfInterest) {
+    locationOfInterestDao.insertOrUpdateSuspend(model.toLocalDataStoreObject())
+  }
 
-  override fun enqueue(mutation: LocationOfInterestMutation): Completable =
-    locationOfInterestMutationDao
-      .insert(mutation.toLocalDataStoreObject())
-      .subscribeOn(schedulers.io())
+  override suspend fun enqueue(mutation: LocationOfInterestMutation) =
+    locationOfInterestMutationDao.insertSuspend(mutation.toLocalDataStoreObject())
 
-  override fun apply(mutation: LocationOfInterestMutation): Completable =
+  override suspend fun apply(mutation: LocationOfInterestMutation) {
     when (mutation.type) {
       Mutation.Type.CREATE,
-      Mutation.Type.UPDATE ->
-        userStore.getUser(mutation.userId).flatMapCompletable { user ->
-          insertOrUpdateLocationOfInterestFromMutation(mutation, user)
-        }
-      Mutation.Type.DELETE ->
-        locationOfInterestDao
-          .findById(mutation.locationOfInterestId)
-          .flatMapCompletable { entity -> markLocationOfInterestForDeletion(entity, mutation) }
-          .subscribeOn(schedulers.io())
-      Mutation.Type.UNKNOWN -> throw LocalDataStoreException("Unknown Mutation.Type")
+      Mutation.Type.UPDATE -> {
+        val user = userStore.getUser(mutation.userId)
+        val entity = mutation.toLocalDataStoreObject(user)
+        locationOfInterestDao.insertOrUpdateSuspend(entity)
+      }
+      Mutation.Type.DELETE -> {
+        val loiId = mutation.locationOfInterestId
+        val entity = checkNotNull(locationOfInterestDao.findByIdSuspend(loiId))
+        locationOfInterestDao.updateSuspend(entity.copy(state = EntityState.DELETED))
+      }
+      Mutation.Type.UNKNOWN -> {
+        throw LocalDataStoreException("Unknown Mutation.Type")
+      }
     }
+  }
 
-  override fun applyAndEnqueue(mutation: LocationOfInterestMutation): Completable =
+  override suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
     try {
-      apply(mutation).andThen(enqueue(mutation))
+      apply(mutation)
+      enqueue(mutation)
     } catch (e: LocalDataStoreException) {
       FirebaseCrashlytics.getInstance()
         .log(
           "Error enqueueing ${mutation.type} mutation for location of interest ${mutation.locationOfInterestId}"
         )
       FirebaseCrashlytics.getInstance().recordException(e)
-      Completable.error(e)
+      throw e
     }
+  }
 
   override suspend fun updateAll(mutations: List<LocationOfInterestMutation>) {
     locationOfInterestMutationDao.updateAll(toLocationOfInterestMutationEntities(mutations))
@@ -144,23 +145,6 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     mutations: List<LocationOfInterestMutation>
   ): List<LocationOfInterestMutationEntity> =
     LocationOfInterestMutation.filter(mutations).map { it.toLocalDataStoreObject() }
-
-  private fun insertOrUpdateLocationOfInterestFromMutation(
-    mutation: LocationOfInterestMutation,
-    user: User
-  ): Completable =
-    locationOfInterestDao
-      .insertOrUpdate(mutation.toLocalDataStoreObject(user))
-      .subscribeOn(schedulers.io())
-
-  private fun markLocationOfInterestForDeletion(
-    entity: LocationOfInterestEntity,
-    mutation: LocationOfInterestMutation
-  ): Completable =
-    locationOfInterestDao
-      .update(entity.copy(state = EntityState.DELETED))
-      .doOnSubscribe { Timber.d("Marking location of interest as deleted : $mutation") }
-      .ignoreElement()
 
   override suspend fun deleteLocationOfInterest(locationOfInterestId: String) {
     Timber.d("Deleting local location of interest : $locationOfInterestId")

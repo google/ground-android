@@ -51,9 +51,7 @@ internal constructor(
     val offlineAreas =
       offlineAreaRepository
         .offlineAreasOnceAndStream()
-        .doOnError {
-          Timber.e(it, "Unexpected error accessing offline basemaps in the local store.")
-        }
+        .doOnError { Timber.e(it, "Unexpected error loading offline areas from the local db") }
         .onErrorReturnItem(listOf())
     this.offlineAreas = offlineAreas.toLiveData()
     noAreasMessageVisibility =

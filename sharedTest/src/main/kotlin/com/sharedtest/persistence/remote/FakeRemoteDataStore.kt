@@ -25,7 +25,6 @@ import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -65,12 +64,13 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
     TODO("Missing implementation")
   }
 
-  override fun applyMutations(mutations: List<Mutation>, user: User): Completable {
+  override suspend fun applyMutations(mutations: List<Mutation>, user: User) {
     TODO("Missing implementation")
   }
 
-  override fun subscribeToSurveyUpdates(surveyId: String): Completable =
-    Completable.fromRunnable { subscribedSurveyIds.add(surveyId) }
+  override suspend fun subscribeToSurveyUpdates(surveyId: String) {
+    subscribedSurveyIds.add(surveyId)
+  }
 
   /** Returns true iff [subscribeToSurveyUpdates] has been called with the specified id. */
   fun isSubscribedToSurveyUpdates(surveyId: String): Boolean =

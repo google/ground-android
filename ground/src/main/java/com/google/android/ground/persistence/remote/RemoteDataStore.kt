@@ -22,7 +22,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -69,12 +68,12 @@ interface RemoteDataStore {
    * Applies the provided mutations to the remote data store in a single batched transaction. If one
    * update fails, none of the mutations will be applied.
    */
-  fun applyMutations(mutations: List<Mutation>, user: User): @Cold Completable
+  suspend fun applyMutations(mutations: List<Mutation>, user: User)
 
   /**
    * Listens for remote changes to the survey with the specified id. Implementations should handle
    * synchronization of new, changed, and deleted surveys and LOIs to the local db in the
    * background.
    */
-  fun subscribeToSurveyUpdates(surveyId: String): @Cold Completable
+  suspend fun subscribeToSurveyUpdates(surveyId: String)
 }
