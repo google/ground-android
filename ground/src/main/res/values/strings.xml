@@ -163,4 +163,5 @@
   <string name="confirm_button_label">Confirm</string>
   <string name="collect_data_viewer_error">Can\'t to collect data as user is a VIEWER</string>
   <string name="offline_map_imagery_download_progress_dialog_message">Downloading offline map imagery…</string>
+  <string name="multiple_regions">Multiple regions</string>
 </resources>

@@ -42,6 +42,13 @@ import kotlinx.coroutines.flow.*
 import org.apache.commons.io.FileUtils
 import timber.log.Timber
 
+/**
+ * Corners of the viewport are scaled by this value when determining the name of downloaded
+ * areas. Value derived experimentally.
+ */
+const val AREA_NAME_SENSITIVITY = 0.5
+
+
 @Singleton
 class OfflineAreaRepository
 @Inject
@@ -125,7 +132,7 @@ constructor(
       }
 
   private suspend fun addOfflineArea(bounds: Bounds) {
-    val areaName = geocodingManager.getAreaName(bounds)
+    val areaName = geocodingManager.getAreaName(bounds, AREA_NAME_SENSITIVITY)
     localOfflineAreaStore.insertOrUpdate(
       OfflineArea(
         offlineUuidGenerator.generateUuid(),
