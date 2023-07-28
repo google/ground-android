@@ -66,6 +66,12 @@ constructor(
     return nameComponents.joinToString(", ").ifEmpty { defaultAreaName }
   }
 
+  /**
+   * Calls getters in order on all [Address]es and returns names present in all other entries
+   * present in [addressesList]. If a common name is not found, searching stops and further getters
+   * are not called. This allows the caller to build an area name out of multiple addresses by
+   * finding the largest common admin unit name among provided addresses.
+   */
   private fun findCommonComponents(
     addressesList: List<List<Address>>,
     vararg getters: (Address) -> String?
