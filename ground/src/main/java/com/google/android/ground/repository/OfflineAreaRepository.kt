@@ -95,7 +95,7 @@ constructor(
       }
 
   private suspend fun addOfflineArea(bounds: Bounds) {
-    val areaName = geocodingManager.getAreaName(bounds, AREA_NAME_SENSITIVITY)
+    val areaName = geocodingManager.getAreaName(bounds.shrink(AREA_NAME_SENSITIVITY))
     localOfflineAreaStore.insertOrUpdate(
       OfflineArea(
         offlineUuidGenerator.generateUuid(),

@@ -48,13 +48,13 @@ constructor(
    * If no area name is found for the given area, returns a default value.
    */
   @Throws(IOException::class)
-  suspend fun getAreaName(bounds: Bounds, sensitivity: Double): String {
+  suspend fun getAreaName(bounds: Bounds): String {
     // Get potential addresses of center and four corners between viewport and center.
-    val vertices = bounds.shrink(sensitivity).corners + bounds.center()
-    val vertexAddresses = vertices.map { fetchAddresses(it) }.filter { it.isNotEmpty() }
+    val vertices = bounds.corners + bounds.center()
+    val vertexAddresses = vertices.map { fetchAddresses(it) }
     val nameComponents =
       findCommonComponents(
-        vertexAddresses,
+        vertexAddresses.filter { it.isNotEmpty() },
         Address::getCountryName,
         Address::getAdminArea,
         Address::getSubAdminArea,
