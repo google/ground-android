@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground
+
+package com.google.android.ground.system
 
 import android.content.Context
-import android.content.res.Resources
-import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.ground.ui.common.ViewModelModule
+import android.location.Geocoder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,17 +26,12 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
-@Module(includes = [ViewModelModule::class])
-object GroundApplicationModule {
+@Module
+object SystemModule {
 
   @Provides
   @Singleton
-  fun googleApiAvailability(): GoogleApiAvailability {
-    return GoogleApiAvailability.getInstance()
-  }
-
-  @Provides
-  fun provideResources(@ApplicationContext context: Context): Resources {
-    return context.resources
+  fun provideGeocoder(@ApplicationContext context: Context): Geocoder {
+    return Geocoder(context)
   }
 }
