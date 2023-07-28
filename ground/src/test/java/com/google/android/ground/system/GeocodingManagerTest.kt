@@ -76,12 +76,12 @@ class GeocodingManagerTest(
     private const val ADMIN_AREA = "Parà"
     private const val COUNTRY = "Brazil"
     private const val MULTIPLE_REGIONS = "Multiple regions"
-    private val locality = newAddress(COUNTRY, ADMIN_AREA, SUB_ADMIN_AREA, LOCALITY)
-    private val subAdminArea = newAddress(COUNTRY, ADMIN_AREA, SUB_ADMIN_AREA)
-    private val adminArea = newAddress(COUNTRY, ADMIN_AREA)
-    private val country = newAddress(COUNTRY)
+    private val locality = mockAddress(COUNTRY, ADMIN_AREA, SUB_ADMIN_AREA, LOCALITY)
+    private val subAdminArea = mockAddress(COUNTRY, ADMIN_AREA, SUB_ADMIN_AREA)
+    private val adminArea = mockAddress(COUNTRY, ADMIN_AREA)
+    private val country = mockAddress(COUNTRY)
 
-    private fun newAddress(
+    private fun mockAddress(
       countryName: String? = null,
       adminArea: String? = null,
       subAdminArea: String? = null,
