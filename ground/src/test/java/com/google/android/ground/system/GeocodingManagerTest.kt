@@ -43,23 +43,23 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 @OptIn(ExperimentalCoroutinesApi::class)
 class GeocodingManagerTest(
   private val expectedAreaName: String,
-  private val inputs: List<Pair<Coordinate, Address>>,
+  private val message: String,
+  private val inputs: List<Pair<Coordinate, List<Address>>>,
 ) : BaseHiltTest() {
   @BindValue @Mock lateinit var geocoder: Geocoder
   @Inject lateinit var geocodingManager: GeocodingManager
 
   @Test
-  fun `getAreaName() returns name`() = runWithTestDispatcher {
-    inputs.forEach { (coordinates, address) ->
-      setAddress(coordinates.lat, coordinates.lng, address)
+  fun `getAreaName() returns expected name`() = runWithTestDispatcher {
+    inputs.forEach { (coordinates, addresses) ->
+      setAddresses(coordinates.lat, coordinates.lng, addresses)
     }
 
-    assertEquals(expectedAreaName, geocodingManager.getAreaName(BOUNDS))
+    assertEquals(expectedAreaName, geocodingManager.getAreaName(BOUNDS), message)
   }
 
-  private fun setAddress(latitude: Double, longitude: Double, vararg addresses: Address) {
-    whenever(geocoder.getFromLocation(eq(latitude), eq(longitude), anyInt()))
-      .thenReturn(addresses.toList())
+  private fun setAddresses(latitude: Double, longitude: Double, addresses: List<Address>) {
+    whenever(geocoder.getFromLocation(eq(latitude), eq(longitude), anyInt())).thenReturn(addresses)
   }
 
   companion object {
@@ -69,18 +69,25 @@ class GeocodingManagerTest(
     private const val W = -1.0
     private val SW = Coordinate(S, W)
     private val NE = Coordinate(N, E)
+    private val NW = Coordinate(N, W)
+    private val SE = Coordinate(S, E)
     private val BOUNDS = Bounds(SW, NE)
     private val CENTER = BOUNDS.center()
     private const val LOCALITY = "Marambaia"
     private const val SUB_ADMIN_AREA = "Belém"
-    private const val ADMIN_AREA = "Parà"
-    private const val COUNTRY = "Brazil"
+    private const val ADMIN_AREA1 = "Parà"
+    private const val ADMIN_AREA2 = "State of Parà"
+    private const val COUNTRY1 = "Brazil"
+    private const val COUNTRY2 = "Uruguay"
     private const val MULTIPLE_REGIONS = "Multiple regions"
     private const val UNNAMED_AREA = "Unnamed area"
-    private val locality = mockAddress(COUNTRY, ADMIN_AREA, SUB_ADMIN_AREA, LOCALITY)
-    private val subAdminArea = mockAddress(COUNTRY, ADMIN_AREA, SUB_ADMIN_AREA)
-    private val adminArea = mockAddress(COUNTRY, ADMIN_AREA)
-    private val country = mockAddress(COUNTRY)
+    private val level1Address1 = mockAddress(COUNTRY1)
+    private val level1Address2 = mockAddress(COUNTRY2)
+    private val level2Address1 = mockAddress(COUNTRY1, ADMIN_AREA1)
+    private val level2Address2 = mockAddress(COUNTRY1, ADMIN_AREA2)
+    private val nullLevel2Address = mockAddress(COUNTRY1, null)
+    private val level3Address = mockAddress(COUNTRY1, ADMIN_AREA1, SUB_ADMIN_AREA)
+    private val level4Address = mockAddress(COUNTRY1, ADMIN_AREA1, SUB_ADMIN_AREA, LOCALITY)
 
     private fun mockAddress(
       countryName: String? = null,
@@ -99,9 +106,59 @@ class GeocodingManagerTest(
     @ParameterizedRobolectricTestRunner.Parameters
     fun data() =
       listOf(
-        arrayOf("$MULTIPLE_REGIONS, $COUNTRY", listOf(NE to country, SW to country)),
-        arrayOf("$ADMIN_AREA, $COUNTRY", listOf(NE to adminArea, SW to adminArea)),
-        arrayOf(UNNAMED_AREA, listOf<Pair<Coordinate, Address>>())
+        testCase(
+          "$MULTIPLE_REGIONS, $COUNTRY1",
+          "Points with matching country-only addresses",
+          addresses(NE, level1Address1),
+          addresses(CENTER, level1Address1)
+        ),
+        testCase(
+          UNNAMED_AREA,
+          "Points with distinct countries",
+          addresses(CENTER, level1Address1),
+          addresses(SW, level1Address2)
+        ),
+        testCase(
+          "$ADMIN_AREA1, $COUNTRY1",
+          "Points with matching admin areas",
+          addresses(NE, level2Address1),
+          addresses(NW, level2Address1)
+        ),
+        testCase(
+          "$SUB_ADMIN_AREA, $ADMIN_AREA1, $COUNTRY1",
+          "Points with matching sub-admin areas",
+          addresses(NE, level3Address),
+          addresses(SE, level3Address)
+        ),
+        testCase(
+          "$LOCALITY, $SUB_ADMIN_AREA, $ADMIN_AREA1, $COUNTRY1",
+          "Points with matching localities",
+          addresses(NE, level4Address),
+          addresses(SE, level4Address)
+        ),
+        testCase(
+          "$ADMIN_AREA1, $COUNTRY1",
+          "Points with multiple admin area names: return shortest",
+          addresses(NE, level2Address2, level2Address1),
+          addresses(SW, level2Address1, level2Address2)
+        ),
+        testCase(
+          "$ADMIN_AREA1, $COUNTRY1",
+          "Ignore null addresses",
+          addresses(NE, level2Address2, nullLevel2Address, level2Address1),
+          addresses(SE, level2Address1, level2Address2, nullLevel2Address)
+        ),
+        testCase(UNNAMED_AREA, "Only one point with address", addresses(NE, level2Address1)),
+        testCase(UNNAMED_AREA, "All points with no address")
       )
+
+    private fun testCase(
+      expectedAreaName: String,
+      message: String,
+      vararg areas: Pair<Coordinate, List<Address>>
+    ) = arrayOf(expectedAreaName, message, areas.toList())
+
+    private fun addresses(coordinates: Coordinate, vararg addresses: Address) =
+      Pair(coordinates, addresses.toList())
   }
 }
