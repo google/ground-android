@@ -52,7 +52,8 @@ constructor(
     // Get potential addresses of five sample points: the centroid and the four vertices of the
     // bounding box.
     val samplePoints = bounds.corners + bounds.center()
-    val samplePointAddresses = samplePoints.map { fetchAddresses(it) }
+    val samplePointAddresses =
+      withContext(ioDispatcher) { samplePoints.map { fetchAddressesBlocking(it) } }
     val nameComponents =
       findCommonComponents(
         samplePointAddresses.filter { it.isNotEmpty() },
@@ -104,15 +105,16 @@ constructor(
         samplePointNames.drop(0).all { it.contains(el) }
       }
 
-  /** Fetches potential addresses at the specified coordinates. */
-  private suspend fun fetchAddresses(coordinate: Coordinate): List<Address> =
-    withContext(ioDispatcher) {
-      // TODO(#1762): Replace with non-blocking call with listener.
-      try {
-        geocoder.getFromLocation(coordinate.lat, coordinate.lng, 5) ?: listOf()
-      } catch (e: Exception) {
-        Timber.e(e, "Reverse geocode lookup failed")
-        return@withContext listOf()
-      }
+  /**
+   * Fetches potential addresses for the specified coordinates. Blocks the thread on I/O; do not
+   * call on main thread.
+   */
+  private fun fetchAddressesBlocking(coordinate: Coordinate): List<Address> =
+    // TODO(#1762): Replace with non-blocking call with listener.
+    try {
+      geocoder.getFromLocation(coordinate.lat, coordinate.lng, 5) ?: listOf()
+    } catch (e: Exception) {
+      Timber.e(e, "Reverse geocode lookup failed")
+      listOf()
     }
 }
