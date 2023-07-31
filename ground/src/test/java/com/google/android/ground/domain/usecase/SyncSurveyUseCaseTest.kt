@@ -42,11 +42,11 @@ class SyncSurveyUseCaseTest : BaseHiltTest() {
 
   @Test
   fun syncsSurveyAndLois() = runBlocking {
-    `when`(surveyRepository.syncSurveyWithRemote(SURVEY.id)).thenReturn(Single.just(SURVEY))
+    `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(Single.just(SURVEY))
 
     syncSurvey(SURVEY.id)
 
-    verify(surveyRepository).syncSurveyWithRemote(SURVEY.id)
+    verify(surveyRepository).loadAndSyncSurveyWithRemote(SURVEY.id)
     verify(loiRepository).syncLocationsOfInterest(SURVEY)
   }
 }

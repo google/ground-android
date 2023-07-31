@@ -21,7 +21,6 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
@@ -43,10 +42,8 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override fun loadSurveySummaries(user: User): Single<List<Survey>> = Single.just(surveys)
 
-  override fun loadSurvey(surveyId: String): Single<Survey> =
-    Single.just(
-      surveys.firstOrNull { it.id == surveyId } ?: throw NotFoundException("Invalid survey id")
-    )
+  override suspend fun loadSurvey(surveyId: String): Survey? =
+    surveys.firstOrNull { it.id == surveyId }
 
   override fun loadTermsOfService(): @Cold Maybe<TermsOfService> = termsOfService
 

@@ -16,8 +16,10 @@
 
 package com.google.android.ground.domain.usecases.survey
 
+import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
 import javax.inject.Inject
+import timber.log.Timber
 
 class ActivateSurveyUseCase
 @Inject
@@ -27,13 +29,27 @@ constructor(
   private val syncSurvey: SyncSurveyUseCase,
 ) {
   suspend operator fun invoke(surveyId: String) {
-    // Do nothing if survey is already active.
+    // Do nothing if specified survey is already active.
     if (surveyId == surveyRepository.activeSurvey?.id) {
       return
     }
 
+    val survey = surveyRepository.getOfflineSurvey(surveyId)
     surveyRepository.activeSurvey =
-      surveyRepository.getOfflineSurvey(surveyId)?.let { syncSurvey(it.id) }
-        ?: makeSurveyAvailableOffline(surveyId)
+      if (survey == null) {
+        // Survey not loaded? Fetch and store locally.
+        makeSurveyAvailableOffline(surveyId)
+      } else {
+        // Survey loaded? Try to fetch from remote, but don't fail if we're offline.
+        tryToSyncSurveyWithRemote(survey)
+      }
   }
+
+  private suspend fun tryToSyncSurveyWithRemote(survey: Survey): Survey =
+    try {
+      syncSurvey(survey.id)
+    } catch (e: Throwable) {
+      Timber.d(e, "Failed to sync survey. This is expected if the app is online")
+      survey
+    }
 }
