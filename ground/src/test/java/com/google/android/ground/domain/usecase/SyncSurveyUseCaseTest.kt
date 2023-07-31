@@ -42,7 +42,7 @@ class SyncSurveyUseCaseTest : BaseHiltTest() {
 
   @Test
   fun syncsSurveyAndLois() = runBlocking {
-    `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(Single.just(SURVEY))
+    `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(SURVEY)
 
     syncSurvey(SURVEY.id)
 
