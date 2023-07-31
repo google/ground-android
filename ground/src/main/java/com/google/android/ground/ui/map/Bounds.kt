@@ -40,6 +40,10 @@ data class Bounds(val southwest: Coordinate, val northeast: Coordinate) {
   val corners
     get() = listOf(northwest, southwest, southeast, northeast)
 
+  /**
+   * Reduce size of bounding box by the specified factor. The width and height are multiplied by the
+   * given value to produce a new bounding box centered on the same centroid as the original.
+   */
   fun shrink(factor: Double): Bounds {
     val latOffset = (north - south) * factor * 0.5
     val lngOffset = (east - west) * factor * 0.5
