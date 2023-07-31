@@ -49,12 +49,13 @@ constructor(
    */
   @Throws(IOException::class)
   suspend fun getAreaName(bounds: Bounds): String {
-    // Get potential addresses of center and four corners between viewport and center.
-    val vertices = bounds.corners + bounds.center()
-    val vertexAddresses = vertices.map { fetchAddresses(it) }
+    // Get potential addresses of five sample points: the centroid and the four vertices of the
+    // bounding box.
+    val samplePoints = bounds.corners + bounds.center()
+    val samplePointAddresses = samplePoints.map { fetchAddresses(it) }
     val nameComponents =
       findCommonComponents(
-        vertexAddresses.filter { it.isNotEmpty() },
+        samplePointAddresses.filter { it.isNotEmpty() },
         Address::getCountryName,
         Address::getAdminArea,
         Address::getSubAdminArea,
@@ -68,27 +69,25 @@ constructor(
 
   /**
    * Calls getters in order on all [Address]es and returns names present in all other entries
-   * present in [addressesList]. If a common name is not found, searching stops and further getters
-   * are not called. This allows the caller to build an area name out of multiple addresses by
-   * finding the largest common admin unit name among provided addresses.
+   * present in [samplePointAddresses]. If a common name is not found, searching stops and further
+   * getters are not called. This allows the caller to build an area name out of multiple addresses
+   * by finding the largest common admin unit name among provided addresses.
    */
   private fun findCommonComponents(
-    addressesList: List<List<Address>>,
+    samplePointAddresses: List<List<Address>>,
     vararg getters: (Address) -> String?
   ): MutableList<String> {
     val commonComponents = mutableListOf<String>()
     for (getter in getters) {
-      val vertexNameVariants =
-        addressesList.map { it.mapNotNull(getter::invoke) }.filter { it.isNotEmpty() }
-      // We need at least two vertices with non-null area labels to identify a common name.
-      if (vertexNameVariants.size < 2) break
-      val commonElements = getCommonElements(vertexNameVariants)
-
-      if (commonElements.isEmpty()) break
-      // Choose the shortest common name. If two names have the same length, use whichever comes
-      // first alphabetically.
-      val selectedName = commonElements.sortedWith(compareBy({ it.length }, { it })).first()
-      commonComponents.add(0, selectedName)
+      val samplePointNames =
+        samplePointAddresses.map { it.mapNotNull(getter::invoke) }.filter { it.isNotEmpty() }
+      val commonElements = getCommonComponents(samplePointNames)
+      if (commonElements.isNotEmpty()) {
+        // Choose the shortest common name. If two names have the same length, use whichever comes
+        // first alphabetically.
+        val selectedName = commonElements.sortedWith(compareBy({ it.length }, { it })).first()
+        commonComponents.add(0, selectedName)
+      }
     }
     return commonComponents
   }
@@ -97,9 +96,13 @@ constructor(
    * Returns the distinct list of Strings which appear at least once in all sub-lists, or an empty
    * list if none are found.
    */
-  private fun getCommonElements(lists: List<List<String>>): List<String> =
-    lists.firstOrNull()?.distinct()?.filter { el -> lists.drop(0).all { it.contains(el) } }
-      ?: listOf()
+  private fun getCommonComponents(samplePointNames: List<List<String>>): List<String> =
+    // Require at least two vertices with non-null area labels to identify a common name.
+    if (samplePointNames.size < 2) listOf()
+    else
+      samplePointNames.first().distinct().filter { el ->
+        samplePointNames.drop(0).all { it.contains(el) }
+      }
 
   /** Fetches potential addresses at the specified coordinates. */
   private suspend fun fetchAddresses(coordinate: Coordinate): List<Address> =
