@@ -62,10 +62,11 @@ constructor(
         Address::getSubAdminArea,
         Address::getLocality
       )
-    if (nameComponents.size == 1) {
-      nameComponents.add(0, multipleRegionsLabel)
+    return when (nameComponents.size) {
+      0 -> defaultAreaName
+      1 -> "$multipleRegionsLabel, ${nameComponents.first()}"
+      else -> nameComponents.joinToString(", ")
     }
-    return nameComponents.joinToString(", ").ifEmpty { defaultAreaName }
   }
 
   /**
