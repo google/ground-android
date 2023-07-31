@@ -99,8 +99,6 @@
   <string name="offline_base_map_viewer_remove_button">Remove</string>
   <string name="offline_base_map_viewer_storage">This base map takes up %.1f MB of storage space on your device.</string>
   <string name="unnamed_area">Unnamed area</string>
-  <string name="offline_base_map_download_started">Download started</string>
-  <string name="offline_base_map_download_failed">Base map download failed</string>
   <string name="added_by">Added by %s</string>
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_base_map_selector_select">Select and download</string>
@@ -163,4 +161,5 @@
   <string name="confirm_button_label">Confirm</string>
   <string name="collect_data_viewer_error">Can\'t to collect data as user is a VIEWER</string>
   <string name="offline_map_imagery_download_progress_dialog_message">Downloading offline map imagery…</string>
+  <string name="multiple_regions">Multiple regions</string>
 </resources>

@@ -22,8 +22,34 @@ import com.google.android.ground.model.geometry.Coordinate
  * northeast coordinates.
  */
 data class Bounds(val southwest: Coordinate, val northeast: Coordinate) {
-  val north = northeast.lat
-  val east = northeast.lng
-  val south = southwest.lat
-  val west = southwest.lng
+  val north
+    get() = northeast.lat
+  val east
+    get() = northeast.lng
+  val south
+    get() = southwest.lat
+  val west
+    get() = southwest.lng
+  val northwest
+    get() = Coordinate(north, west)
+  val southeast
+    get() = Coordinate(south, east)
+  /**
+   * The corners of the bounds in counterclockwise order starting from the northwestern most vertex.
+   */
+  val corners
+    get() = listOf(northwest, southwest, southeast, northeast)
+
+  /**
+   * Reduce size of bounding box by the specified factor. The width and height are multiplied by the
+   * given value to produce a new bounding box centered on the same centroid as the original.
+   */
+  fun shrink(factor: Double): Bounds {
+    val latOffset = (north - south) * factor * 0.5
+    val lngOffset = (east - west) * factor * 0.5
+    return Bounds(
+      Coordinate(south + latOffset, west + lngOffset),
+      Coordinate(north - latOffset, east - lngOffset)
+    )
+  }
 }
