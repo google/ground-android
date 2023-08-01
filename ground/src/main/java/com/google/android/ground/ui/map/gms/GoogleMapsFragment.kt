@@ -354,7 +354,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     clusterManager.onCameraIdle()
     cameraMovedEventsProcessor.onNext(
       CameraPosition(
-        map.cameraPosition.target.toCoordinate(),
+        map.cameraPosition.target.toCoordinates(),
         map.cameraPosition.zoom,
         false,
         map.projection.visibleRegion.latLngBounds.toModelObject()

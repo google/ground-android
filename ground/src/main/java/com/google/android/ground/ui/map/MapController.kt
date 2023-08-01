@@ -24,7 +24,7 @@ import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
-import com.google.android.ground.ui.map.gms.toCoordinate
+import com.google.android.ground.ui.map.gms.toCoordinates
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
@@ -57,7 +57,7 @@ constructor(
 
   /** Emits a stream of camera update requests due to location changes. */
   private fun getCameraUpdatesFromLocationChanges(): Flowable<CameraPosition> {
-    val locationUpdates = locationManager.locationUpdates.asFlowable().map { it.toCoordinate() }
+    val locationUpdates = locationManager.locationUpdates.asFlowable().map { it.toCoordinates() }
     // The first update pans and zooms the camera to the appropriate zoom level;
     // subsequent ones only pan the map.
     return locationUpdates

@@ -96,9 +96,9 @@ object GeometryConverter {
       else -> throw DataStoreException("Invalid geometry type '$type'")
     }
 
-  private fun geoPointToPoint(geoPoint: GeoPoint): Point = Point(geoPointToCoordinate(geoPoint))
+  private fun geoPointToPoint(geoPoint: GeoPoint): Point = Point(geoPointToCoordinates(geoPoint))
 
-  private fun geoPointToCoordinate(geoPoint: GeoPoint): Coordinates =
+  private fun geoPointToCoordinates(geoPoint: GeoPoint): Coordinates =
     Coordinates(geoPoint.latitude, geoPoint.longitude)
 
   private fun nestedIndexedMapToPolygon(ringsMap: IndexedMap<IndexedMap<GeoPoint>>): Polygon {
@@ -110,7 +110,7 @@ object GeometryConverter {
   }
 
   private fun indexedMapToLinearRing(coordinatesMap: IndexedMap<GeoPoint>): LinearRing =
-    LinearRing(indexedMapToList(coordinatesMap).map(this::geoPointToCoordinate))
+    LinearRing(indexedMapToList(coordinatesMap).map(this::geoPointToCoordinates))
 
   private fun nestedIndexedMapToMultiPolygon(
     coordinatesMap: IndexedMap<IndexedMap<IndexedMap<GeoPoint>>>
