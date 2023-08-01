@@ -28,7 +28,7 @@ typealias IndexedMap<T> = Map<String, T>
  * modified GeoJSON representation:
  * * The GeoJSON map hierarchy is converted to a Firestore nested map.
  * * Since Firestore does not allow nested arrays, arrays are replaced with nested maps, keyed by
- * integer array index.
+ *   integer array index.
  * * Coordinates (two-element double arrays) are represented as a Firestore GeoPoint.
  *
  * Only `Point`, `Polygon`, and `MultiPolygon` are supported; behavior for other geometry types is
@@ -58,7 +58,7 @@ object GeometryConverter {
   private fun geometryMapOf(type: String, coordinates: Any): Map<String, Any> =
     mapOf(TYPE_KEY to type, COORDINATES_KEY to coordinates)
 
-  private fun getPointCoordinates(point: Point): GeoPoint = coordinateToGeoPoint(point.coordinate)
+  private fun getPointCoordinates(point: Point): GeoPoint = coordinateToGeoPoint(point.coordinates)
 
   private fun getPolygonCoordinates(polygon: Polygon): IndexedMap<IndexedMap<GeoPoint>> =
     listToIndexedMap((listOf(polygon.shell) + polygon.holes).map(::getLinearRingCoordinates))
@@ -71,8 +71,8 @@ object GeometryConverter {
   ): IndexedMap<IndexedMap<IndexedMap<GeoPoint>>> =
     listToIndexedMap(multiPolygon.polygons.map(this::getPolygonCoordinates))
 
-  private fun coordinateToGeoPoint(coordinate: Coordinate): GeoPoint =
-    GeoPoint(coordinate.lat, coordinate.lng)
+  private fun coordinateToGeoPoint(coordinates: Coordinates): GeoPoint =
+    GeoPoint(coordinates.lat, coordinates.lng)
 
   private fun <T> listToIndexedMap(list: List<T>): IndexedMap<T> =
     list.mapIndexed { index, value -> index.toString() to value }.toMap()
@@ -98,8 +98,8 @@ object GeometryConverter {
 
   private fun geoPointToPoint(geoPoint: GeoPoint): Point = Point(geoPointToCoordinate(geoPoint))
 
-  private fun geoPointToCoordinate(geoPoint: GeoPoint): Coordinate =
-    Coordinate(geoPoint.latitude, geoPoint.longitude)
+  private fun geoPointToCoordinate(geoPoint: GeoPoint): Coordinates =
+    Coordinates(geoPoint.latitude, geoPoint.longitude)
 
   private fun nestedIndexedMapToPolygon(ringsMap: IndexedMap<IndexedMap<GeoPoint>>): Polygon {
     val rings = indexedMapToList(ringsMap)

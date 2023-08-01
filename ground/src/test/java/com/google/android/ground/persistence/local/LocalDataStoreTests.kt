@@ -200,7 +200,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION)
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    val newLoi = loi.copy(geometry = Polygon(LinearRing(TEST_POLYGON_2.map { it.coordinate })))
+    val newLoi = loi.copy(geometry = Polygon(LinearRing(TEST_POLYGON_2.map { it.coordinates })))
     localLoiStore.merge(newLoi)
     localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").test().assertValue {
       it.geometry.vertices == TEST_POLYGON_2
@@ -487,7 +487,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     ): LocationOfInterestMutation =
       LocationOfInterestMutation(
         jobId = "job id",
-        geometry = Polygon(LinearRing(polygonVertices.map { it.coordinate })),
+        geometry = Polygon(LinearRing(polygonVertices.map { it.coordinates })),
         id = 1L,
         locationOfInterestId = "loi id",
         type = Mutation.Type.CREATE,

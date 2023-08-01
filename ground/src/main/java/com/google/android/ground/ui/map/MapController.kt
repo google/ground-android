@@ -17,7 +17,7 @@ package com.google.android.ground.ui.map
 
 import com.google.android.ground.Config.DEFAULT_LOI_ZOOM_LEVEL
 import com.google.android.ground.coroutines.DefaultDispatcher
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -86,7 +86,7 @@ constructor(
       }
 
   /** Requests moving the map camera to [position] with zoom level [DEFAULT_LOI_ZOOM_LEVEL]. */
-  fun panAndZoomCamera(position: Coordinate) {
+  fun panAndZoomCamera(position: Coordinates) {
     cameraUpdatesSubject.onNext(CameraPosition(position, DEFAULT_LOI_ZOOM_LEVEL))
   }
 }

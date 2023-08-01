@@ -44,10 +44,10 @@ class MogClient(val collection: MogCollection) {
    * specified [tileBounds] and [zoomRange]s.
    *
    * @param tileBounds the bounds used to constrain which tiles are retrieved. Only requests for
-   * tiles within or overlapping these bounds are returned.
+   *   tiles within or overlapping these bounds are returned.
    * @param zoomRange the min. and max. zoom levels for which tile requests should be returned.
-   * Defaults to all available zoom levels in the collection ([MogCollection.minZoom] to
-   * [MogCollection.maxZoom]).
+   *   Defaults to all available zoom levels in the collection ([MogCollection.minZoom] to
+   *   [MogCollection.maxZoom]).
    */
   suspend fun buildTilesRequests(
     tileBounds: LatLngBounds,
@@ -102,7 +102,7 @@ class MogClient(val collection: MogCollection) {
   }
 
   /**
-   * Returns the metadata for the MOG which contains the tile with the specified coordinate, or
+   * Returns the metadata for the MOG which contains the tile with the specified coordinates, or
    * `null` if unavailable.
    */
   private suspend fun getMogMetadataForTile(tileCoordinates: TileCoordinates): MogMetadata? {

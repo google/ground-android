@@ -18,11 +18,11 @@ package com.google.android.ground.model.geometry
 import kotlinx.serialization.Serializable
 
 /**
- * A coordinate in reference to the Earth and using https://en.wikipedia.org/wiki/Decimal_degrees to
- * represent lat/lng.
+ * A coordinates in reference to the Earth and using https://en.wikipedia.org/wiki/Decimal_degrees
+ * to represent lat/lng.
  */
 @Serializable
-data class Coordinate(val lat: Double, val lng: Double) : Comparable<Coordinate> {
-  override fun compareTo(other: Coordinate): Int =
+data class Coordinates(val lat: Double, val lng: Double) : Comparable<Coordinates> {
+  override fun compareTo(other: Coordinates): Int =
     compareValuesBy(this, other, { it.lat }, { it.lng })
 }

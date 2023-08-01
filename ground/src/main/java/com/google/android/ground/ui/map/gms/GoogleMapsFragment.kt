@@ -257,10 +257,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     }
   }
 
-  override fun getDistanceInPixels(coordinate1: Coordinate, coordinate2: Coordinate): Double {
+  override fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double {
     val projection = map.projection
-    val loc1 = projection.toScreenLocation(coordinate1.toGoogleMapsObject())
-    val loc2 = projection.toScreenLocation(coordinate2.toGoogleMapsObject())
+    val loc1 = projection.toScreenLocation(coordinates1.toGoogleMapsObject())
+    val loc2 = projection.toScreenLocation(coordinates2.toGoogleMapsObject())
     val dx = (loc1.x - loc2.x).toDouble()
     val dy = (loc1.y - loc2.y).toDouble()
     return sqrt(dx * dx + dy * dy)
@@ -270,11 +270,13 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
 
   override fun disableGestures() = map.uiSettings.setAllGesturesEnabled(false)
 
-  override fun moveCamera(coordinate: Coordinate) =
-    map.animateCamera(CameraUpdateFactory.newLatLng(coordinate.toGoogleMapsObject()))
+  override fun moveCamera(coordinates: Coordinates) =
+    map.animateCamera(CameraUpdateFactory.newLatLng(coordinates.toGoogleMapsObject()))
 
-  override fun moveCamera(coordinate: Coordinate, zoomLevel: Float) =
-    map.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate.toGoogleMapsObject(), zoomLevel))
+  override fun moveCamera(coordinates: Coordinates, zoomLevel: Float) =
+    map.animateCamera(
+      CameraUpdateFactory.newLatLngZoom(coordinates.toGoogleMapsObject(), zoomLevel)
+    )
 
   override fun moveCamera(bounds: Bounds) {
     map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 100))
