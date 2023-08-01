@@ -100,6 +100,10 @@ constructor(
   suspend fun getOfflineSurvey(surveyId: String): Survey? =
     localSurveyStore.getSurveyByIdSuspend(surveyId)
 
+  /**
+   * Loads the survey with the specified id from remote and writes to local db. Returns `null` if
+   * not found, or throws an error if remote query timed out or failed.
+   */
   suspend fun loadAndSyncSurveyWithRemote(id: String): Survey? {
     Timber.d("Loading survey $id")
     val survey =

@@ -24,6 +24,8 @@ import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
 import java8.util.Optional
 import javax.inject.Inject
+import kotlin.test.assertFails
+import kotlin.test.assertNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -102,4 +104,16 @@ class SurveyRepositoryTest : BaseHiltTest() {
     // Verify survey is deleted
     surveyRepository.offlineSurveys.test().assertValues(listOf(survey1))
   }
+
+  @Test
+  fun `loadAndSyncSurveyWithRemote() returns null when survey not found`() = runWithTestDispatcher {
+    assertNull(surveyRepository.loadAndSyncSurveyWithRemote("someUnknownSurveyId"))
+  }
+
+  @Test
+  fun `loadAndSyncSurveyWithRemote() throws error when remote fetch fails`() =
+    runWithTestDispatcher {
+      fakeRemoteDataStore.onLoadSurvey = { error("Something went wrong") }
+      assertFails { surveyRepository.loadAndSyncSurveyWithRemote("anySurveyId") }
+    }
 }

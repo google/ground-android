@@ -28,10 +28,11 @@ constructor(
 ) {
   /**
    * Makes the survey with the specified ID and related LOIs available offline. Subscribes to
-   * updated from the remote server so that they may be refetched on updates.
+   * updates from the remote server so that they may be refetched on change. Throws an error if the
+   * survey cannot be retrieved, or `null` if not found in the remote db.
    */
-  suspend operator fun invoke(surveyId: String): Survey {
-    val survey = syncSurvey(surveyId)
+  suspend operator fun invoke(surveyId: String): Survey? {
+    val survey = syncSurvey(surveyId) ?: return null
     surveyRepository.subscribeToSurveyUpdates(surveyId)
     return survey
   }

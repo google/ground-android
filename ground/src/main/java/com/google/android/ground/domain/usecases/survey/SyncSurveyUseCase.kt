@@ -17,7 +17,6 @@
 package com.google.android.ground.domain.usecases.survey
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import javax.inject.Inject
@@ -30,12 +29,11 @@ constructor(
 ) {
   /**
    * Downloads the survey with the specified ID and related LOIs from remote and inserts and/or
-   * updates them on the local device. Throws an error if the survey could not be found.
+   * updates them on the local device. Returns the updated [Survey], or `null` if the survey could
+   * not be found.
    */
-  suspend operator fun invoke(surveyId: String): Survey {
-    val survey =
-      surveyRepository.loadAndSyncSurveyWithRemote(surveyId)
-        ?: throw DataStoreException("Survey $surveyId does not exist on remote")
+  suspend operator fun invoke(surveyId: String): Survey? {
+    val survey = surveyRepository.loadAndSyncSurveyWithRemote(surveyId) ?: return null
 
     loiRepository.syncLocationsOfInterest(survey)
 

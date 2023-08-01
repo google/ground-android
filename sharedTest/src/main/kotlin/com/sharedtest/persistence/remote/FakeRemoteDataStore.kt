@@ -34,6 +34,7 @@ import javax.inject.Singleton
 class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   var lois = emptyList<LocationOfInterest>()
   var surveys = emptyList<Survey>()
+  var onLoadSurvey = { surveyId: String -> surveys.firstOrNull { it.id == surveyId } }
 
   // TODO(#1373): Delete once new LOI sync is implemented.
   var termsOfService: Maybe<TermsOfService> = Maybe.empty()
@@ -42,8 +43,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override fun loadSurveySummaries(user: User): Single<List<Survey>> = Single.just(surveys)
 
-  override suspend fun loadSurvey(surveyId: String): Survey? =
-    surveys.firstOrNull { it.id == surveyId }
+  override suspend fun loadSurvey(surveyId: String): Survey? = onLoadSurvey.invoke(surveyId)
 
   override fun loadTermsOfService(): @Cold Maybe<TermsOfService> = termsOfService
 

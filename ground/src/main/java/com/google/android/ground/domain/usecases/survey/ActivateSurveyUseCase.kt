@@ -16,40 +16,30 @@
 
 package com.google.android.ground.domain.usecases.survey
 
-import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
 import javax.inject.Inject
-import timber.log.Timber
 
 class ActivateSurveyUseCase
 @Inject
 constructor(
   private val surveyRepository: SurveyRepository,
-  private val makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase,
-  private val syncSurvey: SyncSurveyUseCase,
+  private val makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase
 ) {
+  /**
+   * Sets the survey with the specified ID as the currently active. First attempts to load the
+   * survey from the local db, and if not present, fetches from remote and activates offline sync.
+   * Throws an error if the survey isn't found or cannot be made available offlien. Activating a
+   * survey which is already available offline doesn't force a resync, since this is handled by
+   * [com.google.android.ground.persistence.sync.SurveySyncWorker].
+   */
   suspend operator fun invoke(surveyId: String) {
     // Do nothing if specified survey is already active.
     if (surveyId == surveyRepository.activeSurvey?.id) {
       return
     }
 
-    val survey = surveyRepository.getOfflineSurvey(surveyId)
     surveyRepository.activeSurvey =
-      if (survey == null) {
-        // Survey not loaded? Fetch and store locally.
-        makeSurveyAvailableOffline(surveyId)
-      } else {
-        // Survey loaded? Try to fetch from remote, but don't fail if we're offline.
-        tryToSyncSurveyWithRemote(survey)
-      }
+      surveyRepository.getOfflineSurvey(surveyId)
+        ?: makeSurveyAvailableOffline(surveyId) ?: error("Survey $surveyId not found in remote db")
   }
-
-  private suspend fun tryToSyncSurveyWithRemote(survey: Survey): Survey =
-    try {
-      syncSurvey(survey.id)
-    } catch (e: Throwable) {
-      Timber.d(e, "Failed to sync survey. This is expected if the app is online")
-      survey
-    }
 }
