@@ -35,6 +35,8 @@ import javax.inject.Singleton
 class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   var lois = emptyList<LocationOfInterest>()
   var surveys = emptyList<Survey>()
+  var userProfileRefreshCount = 0
+    private set
 
   // TODO(#1373): Delete once new LOI sync is implemented.
   var termsOfService: Maybe<TermsOfService> = Maybe.empty()
@@ -70,6 +72,10 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {
     subscribedSurveyIds.add(surveyId)
+  }
+
+  override suspend fun refreshUserProfile() {
+    userProfileRefreshCount++
   }
 
   /** Returns true iff [subscribeToSurveyUpdates] has been called with the specified id. */

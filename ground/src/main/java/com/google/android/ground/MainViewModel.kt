@@ -104,13 +104,19 @@ constructor(
   }
 
   private suspend fun onUserSignedIn(user: User): NavDirections {
-    userRepository.saveUser(user)
-    val tos = termsOfServiceRepository.getTermsOfService()
-    return if (tos == null || termsOfServiceRepository.isTermsOfServiceAccepted) {
-      reactivateLastSurvey()
-      getDirectionAfterSignIn()
-    } else {
-      SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(tos.text)
+    try {
+      userRepository.saveUser(user)
+      userRepository.refreshProfile()
+      val tos = termsOfServiceRepository.getTermsOfService()
+      return if (tos == null || termsOfServiceRepository.isTermsOfServiceAccepted) {
+        reactivateLastSurvey()
+        getDirectionAfterSignIn()
+      } else {
+        SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(tos.text)
+      }
+    } catch (e: Throwable) {
+      Timber.e(e, "Error")
+      return getDirectionAfterSignIn()
     }
   }
 

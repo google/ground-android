@@ -33,6 +33,7 @@ import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.ApplicationErrorManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.WriteBatch
+import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
 import io.reactivex.Flowable
@@ -43,10 +44,13 @@ import javax.inject.Singleton
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 
+const val PROFILE_REFRESH_CLOUD_FUNCTION_NAME = "profile-refresh"
+
 @Singleton
 class FirestoreDataStore
 @Inject
 internal constructor(
+  private val firebaseFunctions: FirebaseFunctions,
   private val errorManager: ApplicationErrorManager,
   val db: GroundFirestore,
   val schedulers: Schedulers
@@ -137,6 +141,11 @@ internal constructor(
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {
     Timber.d("Subscribing to FCM topic $surveyId")
     Firebase.messaging.subscribeToTopic(surveyId).await()
+  }
+
+  /** Calls Cloud Function to refresh the current user's profile info in the remote database. */
+  override suspend fun refreshUserProfile() {
+    firebaseFunctions.getHttpsCallable(PROFILE_REFRESH_CLOUD_FUNCTION_NAME).call().await()
   }
 
   private suspend fun applyMutationsInternal(mutations: List<Mutation>, user: User) {

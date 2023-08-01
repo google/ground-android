@@ -19,6 +19,7 @@ import com.google.android.ground.model.Role
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
+import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.system.auth.AuthenticationManager
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -34,7 +35,8 @@ constructor(
   private val authenticationManager: AuthenticationManager,
   private val localValueStore: LocalValueStore,
   private val localUserStore: LocalUserStore,
-  private val surveyRepository: SurveyRepository
+  private val surveyRepository: SurveyRepository,
+  private val remoteDataStore: RemoteDataStore,
 ) : AuthenticationManager by authenticationManager {
 
   suspend fun saveUser(user: User) = localUserStore.insertOrUpdateUser(user)
@@ -50,4 +52,7 @@ constructor(
    */
   fun canUserSubmitData(): Boolean =
     surveyRepository.activeSurvey?.getRole(currentUser.email) != Role.VIEWER
+
+  /** Refresh the current user's profile info in the remote database. */
+  suspend fun refreshProfile() = remoteDataStore.refreshUserProfile()
 }
