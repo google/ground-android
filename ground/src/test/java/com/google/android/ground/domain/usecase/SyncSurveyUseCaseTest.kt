@@ -43,7 +43,7 @@ class SyncSurveyUseCaseTest : BaseHiltTest() {
   @BindValue @Mock lateinit var loiRepository: LocationOfInterestRepository
 
   @Test
-  fun `syncSurvey() syncs survey and LOIs with remote`() = runBlocking {
+  fun `Syncs survey and LOIs with remote`() = runBlocking {
     `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(SURVEY)
 
     syncSurvey(SURVEY.id)
@@ -53,14 +53,14 @@ class SyncSurveyUseCaseTest : BaseHiltTest() {
   }
 
   @Test
-  fun `syncSurvey() returns null when survey not found`() = runBlocking {
+  fun `Returns null when survey not found`() = runBlocking {
     `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(null)
 
     assertNull(syncSurvey(SURVEY.id))
   }
 
   @Test
-  fun `syncSurvey() throws error when load fails`() = runBlocking {
+  fun `Throws error when load fails`() = runBlocking {
     `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenThrow(Error::class.java)
 
     assertFails { syncSurvey(SURVEY.id) }
