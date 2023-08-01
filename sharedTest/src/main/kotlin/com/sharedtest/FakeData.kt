@@ -97,10 +97,8 @@ object FakeData {
       "",
       AUDIT_INFO,
       AUDIT_INFO,
-      Polygon(LinearRing(VERTICES.map { it.coordinate })),
+      Polygon(LinearRing(VERTICES.map { it.coordinates })),
     )
-
-  val COORDINATE = Coordinate(42.0, 18.0)
 
   private const val SUBMISSION_ID = "789"
   const val TASK_1_NAME = "task 1"
