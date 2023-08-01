@@ -34,7 +34,6 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
 
-@Suppress("MainFunctionReturnUnit")
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MakeSurveyAvailableOfflineUseCaseTest : BaseHiltTest() {
@@ -49,10 +48,12 @@ class MakeSurveyAvailableOfflineUseCaseTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Throws error when survey can't be loaded`() = runBlocking {
-    `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenThrow(Error::class.java)
+  fun `Throws error when survey can't be loaded`() {
+    runBlocking {
+      `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenThrow(Error::class.java)
 
-    assertFails { makeSurveyAvailableOffline(SURVEY.id) }
+      assertFails { makeSurveyAvailableOffline(SURVEY.id) }
+    }
   }
 
   @Test

@@ -34,7 +34,6 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
 
-@Suppress("MainFunctionReturnUnit")
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SyncSurveyUseCaseTest : BaseHiltTest() {
@@ -60,9 +59,11 @@ class SyncSurveyUseCaseTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Throws error when load fails`() = runBlocking {
-    `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenThrow(Error::class.java)
+  fun `Throws error when load fails`() {
+    runBlocking {
+      `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenThrow(Error::class.java)
 
-    assertFails { syncSurvey(SURVEY.id) }
+      assertFails { syncSurvey(SURVEY.id) }
+    }
   }
 }
