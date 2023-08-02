@@ -14,38 +14,48 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.dicedmelon.gradle.jacoco-android'
+apply plugin: 'jacoco'
 
 jacoco {
-    toolVersion = "0.8.7"
+    toolVersion = "0.8.5"
 }
 
-tasks.withType(Test) {
+tasks.withType(Test).configureEach {
     jacoco.includeNoLocationClasses = true
     jacoco.excludes = ['jdk.internal.*']
 }
 
-jacocoAndroidUnitTestReport {
-    excludes += [
-        '**/databinding/*',
-        '**/generated/callback/*',
-        '**/_com_google_android_ground_*',
-        '**/hilt_aggregated_deps',
-        '**/local/room/dao/*',
-        '**/AutoOneOf_*',
-        '**/*AutoValue_*',
-        '**/DataBind*',
-        '**/*_Factory*',
-        '**/Hilt_*',
-        '**/*FragmentArgs*',
-        '**/*FragmentDirections*',
-        '**/LocalDatabase_Impl*',
-        '**/*Module*',
-    ]
-}
 
-jacocoAndroidUnitTestReport {
-    csv.enabled false
-    html.enabled true
-    xml.enabled true
+def androidExclusion = [
+    '**/databinding/*',
+    '**/generated/callback/*',
+    '**/_com_google_android_ground_*',
+    '**/hilt_aggregated_deps',
+    '**/local/room/dao/*',
+    '**/AutoOneOf_*',
+    '**/*AutoValue_*',
+    '**/DataBind*',
+    '**/*_Factory*',
+    '**/Hilt_*',
+    '**/*FragmentArgs*',
+    '**/*FragmentDirections*',
+    '**/LocalDatabase_Impl*',
+    '**/*Module*',
+]
+
+tasks.register('jacocoTestStagingUnitTestReport', JacocoReport) {
+    dependsOn 'testDebugUnitTest'
+    group = "Reporting"
+    description = "Run tests and generate coverage reports"
+    reports {
+        csv.required = false
+        xml.required = true
+        html.required = true
+    }
+    classDirectories.from = fileTree(
+        dir: 'build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/google/android/ground',
+        excludes: androidExclusion
+    )
+    sourceDirectories.from = files('src/main/java/com/google/android/ground')
+    executionData.from = files('build/jacoco/testDebugUnitTest.exec')
 }
