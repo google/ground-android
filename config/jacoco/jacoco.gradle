@@ -25,24 +25,6 @@ tasks.withType(Test).configureEach {
     jacoco.excludes = ['jdk.internal.*']
 }
 
-
-def androidExclusion = [
-    '**/databinding/*',
-    '**/generated/callback/*',
-    '**/_com_google_android_ground_*',
-    '**/hilt_aggregated_deps',
-    '**/local/room/dao/*',
-    '**/AutoOneOf_*',
-    '**/*AutoValue_*',
-    '**/DataBind*',
-    '**/*_Factory*',
-    '**/Hilt_*',
-    '**/*FragmentArgs*',
-    '**/*FragmentDirections*',
-    '**/LocalDatabase_Impl*',
-    '**/*Module*',
-]
-
 tasks.register('jacocoTestStagingUnitTestReport', JacocoReport) {
     dependsOn 'testDebugUnitTest'
     group = "Reporting"
@@ -54,7 +36,22 @@ tasks.register('jacocoTestStagingUnitTestReport', JacocoReport) {
     }
     classDirectories.from = fileTree(
         dir: 'build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/google/android/ground',
-        excludes: androidExclusion
+        excludes: [
+            '**/databinding/*',
+            '**/generated/callback/*',
+            '**/_com_google_android_ground_*',
+            '**/hilt_aggregated_deps',
+            '**/local/room/dao/*',
+            '**/AutoOneOf_*',
+            '**/*AutoValue_*',
+            '**/DataBind*',
+            '**/*_Factory*',
+            '**/Hilt_*',
+            '**/*FragmentArgs*',
+            '**/*FragmentDirections*',
+            '**/LocalDatabase_Impl*',
+            '**/*Module*',
+        ]
     )
     sourceDirectories.from = files('src/main/java/com/google/android/ground')
     executionData.from = files('build/jacoco/testDebugUnitTest.exec')
