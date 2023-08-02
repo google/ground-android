@@ -52,9 +52,10 @@ class UserRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testSaveUser() = runWithTestDispatcher {
+  fun testSaveUserDetails() = runWithTestDispatcher {
     assertFailsWith<LocalDataStoreException> { localUserStore.getUser(FakeData.USER.id) }
-    userRepository.saveUser(FakeData.USER)
+    fakeAuthenticationManager.setUser(FakeData.USER)
+    userRepository.saveUserDetails()
     assertThat(localUserStore.getUser(FakeData.USER.id)).isEqualTo(FakeData.USER)
   }
 

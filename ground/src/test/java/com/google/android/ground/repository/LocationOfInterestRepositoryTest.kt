@@ -59,8 +59,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     super.setUp()
     runWithTestDispatcher {
       // Setup user
-      userRepository.saveUser(TEST_USER)
       fakeAuthenticationManager.setUser(TEST_USER)
+      userRepository.saveUserDetails()
 
       // Setup survey and LOIs
       fakeRemoteDataStore.surveys = listOf(TEST_SURVEY)

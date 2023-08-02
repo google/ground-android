@@ -39,7 +39,11 @@ constructor(
   private val remoteDataStore: RemoteDataStore,
 ) : AuthenticationManager by authenticationManager {
 
-  suspend fun saveUser(user: User) = localUserStore.insertOrUpdateUser(user)
+  /** Stores the current user's profile details into the local and remote dbs. */
+  suspend fun saveUserDetails() {
+    localUserStore.insertOrUpdateUser(authenticationManager.currentUser)
+    remoteDataStore.refreshUserProfile()
+  }
 
   suspend fun getUser(userId: String): User = localUserStore.getUser(userId)
 
@@ -52,7 +56,4 @@ constructor(
    */
   fun canUserSubmitData(): Boolean =
     surveyRepository.activeSurvey?.getRole(currentUser.email) != Role.VIEWER
-
-  /** Refresh the current user's profile info in the remote database. */
-  suspend fun refreshProfile() = remoteDataStore.refreshUserProfile()
 }

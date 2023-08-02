@@ -90,7 +90,7 @@ constructor(
   }
 
   private fun onUserSignInError(error: Throwable): Observable<NavDirections> {
-    Timber.e("Authentication error: $error")
+    Timber.e(error, "Sign in failed")
     popups.showError(R.string.sign_in_unsuccessful)
     return onUserSignedOut()
   }
@@ -105,8 +105,7 @@ constructor(
 
   private suspend fun onUserSignedIn(user: User): NavDirections {
     try {
-      userRepository.saveUser(user)
-      userRepository.refreshProfile()
+      userRepository.saveUserDetails()
       val tos = termsOfServiceRepository.getTermsOfService()
       return if (tos == null || termsOfServiceRepository.isTermsOfServiceAccepted) {
         reactivateLastSurvey()
