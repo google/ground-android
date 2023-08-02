@@ -34,10 +34,10 @@ interface RemoteDataStore {
   fun loadSurveySummaries(user: User): @Cold Single<List<Survey>>
 
   /**
-   * Loads the survey with the specified id from the remote data store. The return Single fails with
-   * if the survey is not found, or if the remote data store is not available.
+   * Loads the survey with the specified id from the remote data store. Returns `null` if the survey
+   * is not found. Throws an error if the remote data store is not available.
    */
-  fun loadSurvey(surveyId: String): @Cold Single<Survey>
+  suspend fun loadSurvey(surveyId: String): Survey?
 
   /**
    * Loads the survey terms from the remote data store. The returned Maybe is empty if not found,

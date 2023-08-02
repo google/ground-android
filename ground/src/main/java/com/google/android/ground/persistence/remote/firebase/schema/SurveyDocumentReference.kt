@@ -21,6 +21,7 @@ import com.google.android.ground.persistence.remote.firebase.base.FluentDocument
 import com.google.firebase.firestore.DocumentReference
 import durdinapps.rxfirebase2.RxFirestore
 import io.reactivex.Maybe
+import kotlinx.coroutines.tasks.await
 
 private const val LOIS = "lois"
 private const val SUBMISSIONS = "submissions"
@@ -34,4 +35,7 @@ class SurveyDocumentReference internal constructor(ref: DocumentReference) :
 
   fun get(): Maybe<Survey> =
     RxFirestore.getDocument(reference()).map { SurveyConverter.toSurvey(it) }
+
+  suspend fun getSuspend(): Survey? =
+    reference().get().await()?.let { SurveyConverter.toSurvey(it) }
 }

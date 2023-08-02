@@ -15,13 +15,13 @@
  */
 package com.google.android.ground.ui.map
 
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 
 /**
  * Represents a rectangular bound on a map. A bounds may be constructed using only southwest and
  * northeast coordinates.
  */
-data class Bounds(val southwest: Coordinate, val northeast: Coordinate) {
+data class Bounds(val southwest: Coordinates, val northeast: Coordinates) {
   val north
     get() = northeast.lat
   val east
@@ -31,9 +31,9 @@ data class Bounds(val southwest: Coordinate, val northeast: Coordinate) {
   val west
     get() = southwest.lng
   val northwest
-    get() = Coordinate(north, west)
+    get() = Coordinates(north, west)
   val southeast
-    get() = Coordinate(south, east)
+    get() = Coordinates(south, east)
   /**
    * The corners of the bounds in counterclockwise order starting from the northwestern most vertex.
    */
@@ -48,8 +48,8 @@ data class Bounds(val southwest: Coordinate, val northeast: Coordinate) {
     val latOffset = (north - south) * factor * 0.5
     val lngOffset = (east - west) * factor * 0.5
     return Bounds(
-      Coordinate(south + latOffset, west + lngOffset),
-      Coordinate(north - latOffset, east - lngOffset)
+      Coordinates(south + latOffset, west + lngOffset),
+      Coordinates(north - latOffset, east - lngOffset)
     )
   }
 }

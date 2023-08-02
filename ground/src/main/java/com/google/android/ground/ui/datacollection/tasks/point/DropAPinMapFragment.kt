@@ -88,7 +88,7 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
       binding.infoCard.visibility = View.GONE
     } else {
       binding.cardTitle.setText(R.string.dropped_pin)
-      binding.cardValue.text = processCoordinate(point.coordinate)
+      binding.cardValue.text = processCoordinate(point.coordinates)
       binding.infoCard.visibility = View.VISIBLE
     }
   }

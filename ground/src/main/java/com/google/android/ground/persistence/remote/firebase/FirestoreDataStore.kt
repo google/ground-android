@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.persistence.remote.firebase
 
+import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
@@ -24,7 +25,6 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.remote.firebase.schema.GroundFirestore
@@ -41,7 +41,9 @@ import io.reactivex.Maybe
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 const val PROFILE_REFRESH_CLOUD_FUNCTION_NAME = "profile-refresh"
@@ -52,6 +54,7 @@ class FirestoreDataStore
 internal constructor(
   private val firebaseFunctions: FirebaseFunctions,
   private val errorManager: ApplicationErrorManager,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   val db: GroundFirestore,
   val schedulers: Schedulers
 ) : RemoteDataStore {
@@ -68,16 +71,8 @@ internal constructor(
     FirebaseCrashlytics.getInstance().recordException(t)
   }
 
-  override fun loadSurvey(surveyId: String): @Cold Single<Survey> =
-    db
-      .surveys()
-      .survey(surveyId)
-      .get()
-      .onErrorResumeNext { e: Throwable ->
-        if (shouldInterceptException(e)) Maybe.never() else Maybe.error(e)
-      }
-      .switchIfEmpty(Single.error { NotFoundException("Survey $surveyId") })
-      .subscribeOn(schedulers.io())
+  override suspend fun loadSurvey(surveyId: String): Survey? =
+    withContext(ioDispatcher) { db.surveys().survey(surveyId).getSuspend() }
 
   override fun loadSubmissions(
     locationOfInterest: LocationOfInterest
