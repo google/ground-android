@@ -17,15 +17,14 @@ package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.persistence.local.LocalValueStore
-import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.persistence.local.LocalDataStoreHelper
+import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,24 +35,21 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class UserRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
-
   @Inject lateinit var localUserStore: LocalUserStore
-
   @Inject lateinit var localDataStoreHelper: LocalDataStoreHelper
-
   @Inject lateinit var localValueStore: LocalValueStore
-
   @Inject lateinit var userRepository: UserRepository
+  @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
   @Test
   fun `currentUser returns current user`() {
     fakeAuthenticationManager.setUser(FakeData.USER)
+
     assertThat(userRepository.currentUser).isEqualTo(FakeData.USER)
   }
 
   @Test
   fun `saveUserDetails() updates local user profile`() = runWithTestDispatcher {
-    assertFailsWith<LocalDataStoreException> { localUserStore.getUser(FakeData.USER.id) }
     fakeAuthenticationManager.setUser(FakeData.USER)
 
     userRepository.saveUserDetails()
@@ -62,7 +58,16 @@ class UserRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun `clearUserPreferences() returns empty lastActiveSurveyId`() {
+  fun `saveUserDetails() updates remote user profile`() = runWithTestDispatcher {
+    fakeAuthenticationManager.setUser(FakeData.USER)
+
+    userRepository.saveUserDetails()
+
+    assertThat(fakeRemoteDataStore.userProfileRefreshCount).isEqualTo(1)
+  }
+
+  @Test
+  fun `clearUserPreferences() clears lastActiveSurveyId`() {
     localValueStore.lastActiveSurveyId = "foo"
 
     userRepository.clearUserPreferences()
