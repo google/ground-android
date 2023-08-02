@@ -20,7 +20,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDirections
 import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.domain.usecases.survey.ReactivateLastSurveyUseCase
-import com.google.android.ground.model.User
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
@@ -79,8 +78,7 @@ constructor(
     return signInState.result.fold(
       {
         when (signInState.state) {
-          SignInState.State.SIGNED_IN ->
-            rxObservable(defaultDispatcher) { send(onUserSignedIn(it!!)) }
+          SignInState.State.SIGNED_IN -> rxObservable(defaultDispatcher) { send(onUserSignedIn()) }
           SignInState.State.SIGNED_OUT -> Observable.just(onUserSignedOut())
           else -> Observable.never()
         }
@@ -103,7 +101,7 @@ constructor(
     return SignInFragmentDirections.showSignInScreen()
   }
 
-  private suspend fun onUserSignedIn(user: User): NavDirections =
+  private suspend fun onUserSignedIn(): NavDirections =
     try {
       userRepository.saveUserDetails()
       val tos = termsOfServiceRepository.getTermsOfService()
