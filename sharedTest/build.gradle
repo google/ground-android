@@ -55,3 +55,7 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
     implementation 'com.squareup.rx.idler:rx2-idler:0.11.0'
 }
+
+kotlin {
+    jvmToolchain rootProject.jvmToolchainVersion
+}
