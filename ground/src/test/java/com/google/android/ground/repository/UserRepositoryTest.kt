@@ -46,23 +46,27 @@ class UserRepositoryTest : BaseHiltTest() {
   @Inject lateinit var userRepository: UserRepository
 
   @Test
-  fun testGetCurrentUser() {
+  fun `currentUser returns current user`() {
     fakeAuthenticationManager.setUser(FakeData.USER)
     assertThat(userRepository.currentUser).isEqualTo(FakeData.USER)
   }
 
   @Test
-  fun testSaveUserDetails() = runWithTestDispatcher {
+  fun `saveUserDetails() updates local user profile`() = runWithTestDispatcher {
     assertFailsWith<LocalDataStoreException> { localUserStore.getUser(FakeData.USER.id) }
     fakeAuthenticationManager.setUser(FakeData.USER)
+
     userRepository.saveUserDetails()
+
     assertThat(localUserStore.getUser(FakeData.USER.id)).isEqualTo(FakeData.USER)
   }
 
   @Test
-  fun testClearUserPreferences_returnsEmptyLastActiveSurvey() {
+  fun `clearUserPreferences() returns empty lastActiveSurveyId`() {
     localValueStore.lastActiveSurveyId = "foo"
+
     userRepository.clearUserPreferences()
+
     assertThat(localValueStore.lastActiveSurveyId).isEmpty()
   }
 }
