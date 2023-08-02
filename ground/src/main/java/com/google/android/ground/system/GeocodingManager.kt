@@ -20,7 +20,7 @@ import android.location.Address
 import android.location.Geocoder
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.IoDispatcher
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.GmsExt.center
 import java.io.IOException
@@ -110,10 +110,10 @@ constructor(
    * Fetches potential addresses for the specified coordinates. Blocks the thread on I/O; do not
    * call on main thread.
    */
-  private fun fetchAddressesBlocking(coordinate: Coordinate): List<Address> =
+  private fun fetchAddressesBlocking(coordinates: Coordinates): List<Address> =
     // TODO(#1762): Replace with non-blocking call with listener.
     try {
-      geocoder.getFromLocation(coordinate.lat, coordinate.lng, 5) ?: listOf()
+      geocoder.getFromLocation(coordinates.lat, coordinates.lng, 5) ?: listOf()
     } catch (e: Exception) {
       Timber.e(e, "Reverse geocode lookup failed")
       listOf()

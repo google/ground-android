@@ -192,12 +192,12 @@ internal constructor(
     val geometry = features[0].geometry
 
     if (geometry is Point) {
-      mapController.panAndZoomCamera(geometry.coordinate)
+      mapController.panAndZoomCamera(geometry.coordinates)
     }
   }
 
   fun panAndZoomCamera(position: Point) {
-    mapController.panAndZoomCamera(position.coordinate)
+    mapController.panAndZoomCamera(position.coordinates)
   }
 
   // TODO(#691): Create our own wrapper/interface for MbTiles providers.

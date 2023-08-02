@@ -18,7 +18,7 @@ package com.google.android.ground.ui.map
 import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.rx.Nil
@@ -74,14 +74,14 @@ interface Map {
   /** Disables all map gestures like pan and zoom. */
   fun disableGestures()
 
-  /** Centers the map viewport around the specified [Coordinate]. */
-  fun moveCamera(coordinate: Coordinate)
+  /** Centers the map viewport around the specified [Coordinates]. */
+  fun moveCamera(coordinates: Coordinates)
 
   /**
-   * Centers the map viewport around the specified [Coordinate] and updates the map's current zoom
+   * Centers the map viewport around the specified [Coordinates] and updates the map's current zoom
    * level.
    */
-  fun moveCamera(coordinate: Coordinate, zoomLevel: Float)
+  fun moveCamera(coordinates: Coordinates, zoomLevel: Float)
 
   /**
    * Centers the map viewport around the specified [Bounds] are included at the least zoom level.
@@ -99,8 +99,8 @@ interface Map {
   /** Render locally stored tile overlays on the map. */
   fun addLocalTileOverlays(mbtilesFiles: Set<String>)
 
-  /** Returns the actual distance in pixels between provided [Coordinate]s. */
-  fun getDistanceInPixels(coordinate1: Coordinate, coordinate2: Coordinate): Double
+  /** Returns the actual distance in pixels between provided [Coordinates]s. */
+  fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double
 
   /** Update UI of rendered [LocationOfInterest]. */
   fun setActiveLocationOfInterest(newLoiId: String?)
