@@ -66,10 +66,10 @@ class GeometryValidatorTest {
   }
 
   companion object {
-    private val COORDINATE_1 = Coordinate(10.0, 10.0)
-    private val COORDINATE_2 = Coordinate(20.0, 20.0)
-    private val COORDINATE_3 = Coordinate(30.0, 30.0)
-    private val COORDINATE_4 = Coordinate(40.0, 40.0)
+    private val COORDINATE_1 = Coordinates(10.0, 10.0)
+    private val COORDINATE_2 = Coordinates(20.0, 20.0)
+    private val COORDINATE_3 = Coordinates(30.0, 30.0)
+    private val COORDINATE_4 = Coordinates(40.0, 40.0)
 
     private val OPEN_LOOP = listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3)
     private val CLOSED_LOOP = listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1)
