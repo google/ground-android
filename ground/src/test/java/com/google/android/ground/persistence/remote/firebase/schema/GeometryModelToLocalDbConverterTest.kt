@@ -107,7 +107,7 @@ class GeometryModelToLocalDbConverterTest {
   }
 
   @Test
-  fun fromFirestoreMap_nullCoordinate() {
+  fun fromFirestoreMap_nullCoordinates() {
     assertIsFailure(
       GeometryConverter.fromFirestoreMap(mapOf("type" to "Point", "coordinates" to null))
     )
@@ -198,7 +198,7 @@ class GeometryModelToLocalDbConverterTest {
     )
   }
 
-  private fun point(x: Double, y: Double) = Point(Coordinate(x, y))
+  private fun point(x: Double, y: Double) = Point(Coordinates(x, y))
 
   private fun linearRing(path: Path) = LinearRing(toCoordinateList(path))
 
@@ -207,8 +207,8 @@ class GeometryModelToLocalDbConverterTest {
 
   private fun multiPolygon(vararg polygons: Polygon) = MultiPolygon(polygons.asList())
 
-  private fun toCoordinateList(path: Path): List<Coordinate> =
-    path.map { Coordinate(it.first, it.second) }
+  private fun toCoordinateList(path: Path): List<Coordinates> =
+    path.map { Coordinates(it.first, it.second) }
 
   private fun indexedGeoPointMap(path: Path): Map<String, Any> =
     path.mapIndexed { idx, (first, second) -> idx.toString() to GeoPoint(first, second) }.toMap()

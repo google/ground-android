@@ -17,7 +17,7 @@ package com.google.android.ground.ui.map
 
 import android.location.Location
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
@@ -120,9 +120,9 @@ class MapControllerTest : BaseHiltTest() {
       `when`(locationOfInterestRepository.getAllGeometries(any()))
         .thenReturn(
           listOf(
-            Point(Coordinate(10.0, 10.0)),
-            Point(Coordinate(20.0, 20.0)),
-            Point(Coordinate(30.0, 30.0))
+            Point(Coordinates(10.0, 10.0)),
+            Point(Coordinates(20.0, 20.0)),
+            Point(Coordinates(30.0, 30.0))
           )
         )
       advanceUntilIdle()
@@ -139,7 +139,7 @@ class MapControllerTest : BaseHiltTest() {
   }
 
   companion object {
-    private val TEST_COORDINATE = Coordinate(20.0, 30.0)
+    private val TEST_COORDINATE = Coordinates(20.0, 30.0)
     private val TEST_POSITION = CameraPosition(TEST_COORDINATE)
     private val TEST_SURVEY = Optional.of(FakeData.SURVEY)
   }

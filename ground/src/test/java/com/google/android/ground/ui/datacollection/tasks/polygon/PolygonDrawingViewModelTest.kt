@@ -17,7 +17,7 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
@@ -187,9 +187,9 @@ class PolygonDrawingViewModelTest : BaseHiltTest() {
   }
 
   companion object {
-    private val COORDINATE_1 = Coordinate(0.0, 0.0)
-    private val COORDINATE_2 = Coordinate(10.0, 10.0)
-    private val COORDINATE_3 = Coordinate(20.0, 20.0)
-    private val COORDINATE_4 = Coordinate(30.0, 30.0)
+    private val COORDINATE_1 = Coordinates(0.0, 0.0)
+    private val COORDINATE_2 = Coordinates(10.0, 10.0)
+    private val COORDINATE_3 = Coordinates(20.0, 20.0)
+    private val COORDINATE_4 = Coordinates(30.0, 30.0)
   }
 }

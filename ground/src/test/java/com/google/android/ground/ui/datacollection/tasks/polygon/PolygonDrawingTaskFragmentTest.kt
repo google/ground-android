@@ -18,7 +18,7 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.submission.GeometryData
@@ -119,10 +119,10 @@ class PolygonDrawingTaskFragmentTest :
         Polygon(
           LinearRing(
             listOf(
-              Coordinate(0.0, 0.0),
-              Coordinate(10.0, 10.0),
-              Coordinate(20.0, 20.0),
-              Coordinate(0.0, 0.0)
+              Coordinates(0.0, 0.0),
+              Coordinates(10.0, 10.0),
+              Coordinates(20.0, 20.0),
+              Coordinates(0.0, 0.0)
             )
           )
         )
@@ -147,9 +147,9 @@ class PolygonDrawingTaskFragmentTest :
   }
 
   companion object {
-    private val COORDINATE_1 = Coordinate(0.0, 0.0)
-    private val COORDINATE_2 = Coordinate(10.0, 10.0)
-    private val COORDINATE_3 = Coordinate(20.0, 20.0)
-    private val COORDINATE_4 = Coordinate(30.0, 30.0)
+    private val COORDINATE_1 = Coordinates(0.0, 0.0)
+    private val COORDINATE_2 = Coordinates(10.0, 10.0)
+    private val COORDINATE_3 = Coordinates(20.0, 20.0)
+    private val COORDINATE_4 = Coordinates(30.0, 30.0)
   }
 }
