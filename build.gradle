@@ -21,7 +21,6 @@ buildscript {
         hiltVersion = "2.45"
         kotlinVersion = "1.8.10"
         navigationVersion = "2.5.3"
-        jvmToolChainVersion = "17"
     }
     repositories {
         google()

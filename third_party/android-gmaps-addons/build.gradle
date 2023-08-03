@@ -18,3 +18,9 @@ android {
 dependencies {
   implementation "com.google.android.gms:play-services-maps:$rootProject.gmsMapsVersion"
 }
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(rootProject.jvmToolchainVersion))
+    }
+}
