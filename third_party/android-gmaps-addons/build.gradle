@@ -21,6 +21,6 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(rootProject.jvmToolchainVersion))
+        languageVersion = JavaLanguageVersion.of(rootProject.jvmToolchainVersion)
     }
 }
