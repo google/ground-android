@@ -53,13 +53,13 @@ class MogSourceTest {
   }
 
   @Test
-  fun getMogBoundsForTile_whenZoomIsEqualToMinZoom_returnsSameCoordinate() {
+  fun getMogBoundsForTile_whenZoomIsEqualToMinZoom_returnsSameCoordinates() {
     val testCoords = TileCoordinates(10, 20, 5)
     assertThat(mogSource.getMogBoundsForTile(testCoords)).isEqualTo(testCoords)
   }
 
   @Test
-  fun getMogBoundsForTile_whenZoomIsMoreThanMinZoom_returnsScaledCoordinate() {
+  fun getMogBoundsForTile_whenZoomIsMoreThanMinZoom_returnsScaledCoordinates() {
     val testCoords = TileCoordinates(10, 20, 6)
     assertThat(mogSource.getMogBoundsForTile(TileCoordinates(10, 20, 6)))
       .isEqualTo(TileCoordinates(5, 10, 5))

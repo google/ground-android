@@ -18,7 +18,7 @@ package com.google.android.ground.system
 import android.location.Address
 import android.location.Geocoder
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.GmsExt.center
 import dagger.hilt.android.testing.BindValue
@@ -67,10 +67,10 @@ class GeocodingManagerTest(
     private const val S = -1.0
     private const val E = 1.0
     private const val W = -1.0
-    private val SW = Coordinate(S, W)
-    private val NE = Coordinate(N, E)
-    private val NW = Coordinate(N, W)
-    private val SE = Coordinate(S, E)
+    private val SW = Coordinates(S, W)
+    private val NE = Coordinates(N, E)
+    private val NW = Coordinates(N, W)
+    private val SE = Coordinates(S, E)
     private val BOUNDS = Bounds(SW, NE)
     private val CENTER = BOUNDS.center()
     private const val LOCALITY = "Marambaia"

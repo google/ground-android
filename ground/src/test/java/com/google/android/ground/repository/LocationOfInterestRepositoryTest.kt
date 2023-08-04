@@ -134,8 +134,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testLoiWithinBounds_whenOutOfBounds_returnsEmptyList() {
-    val southwest = Coordinate(-60.0, -60.0)
-    val northeast = Coordinate(-50.0, -50.0)
+    val southwest = Coordinates(-60.0, -60.0)
+    val northeast = Coordinates(-50.0, -50.0)
 
     locationOfInterestRepository
       .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(Bounds(southwest, northeast)))
@@ -145,8 +145,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testLoiWithinBounds_whenSomeLOIsInsideBounds_returnsPartialList() {
-    val southwest = Coordinate(-20.0, -20.0)
-    val northeast = Coordinate(-10.0, -10.0)
+    val southwest = Coordinates(-20.0, -20.0)
+    val northeast = Coordinates(-10.0, -10.0)
 
     locationOfInterestRepository
       .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(Bounds(southwest, northeast)))
@@ -156,8 +156,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testLoiWithinBounds_whenAllLOIsInsideBounds_returnsCompleteList() {
-    val southwest = Coordinate(-20.0, -20.0)
-    val northeast = Coordinate(20.0, 20.0)
+    val southwest = Coordinates(-20.0, -20.0)
+    val northeast = Coordinates(20.0, 20.0)
 
     locationOfInterestRepository
       .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(Bounds(southwest, northeast)))
@@ -174,9 +174,9 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   companion object {
-    private val COORDINATE_1 = Coordinate(-20.0, -20.0)
-    private val COORDINATE_2 = Coordinate(0.0, 0.0)
-    private val COORDINATE_3 = Coordinate(20.0, 20.0)
+    private val COORDINATE_1 = Coordinates(-20.0, -20.0)
+    private val COORDINATE_2 = Coordinates(0.0, 0.0)
+    private val COORDINATE_3 = Coordinates(20.0, 20.0)
 
     private val AREA_OF_INTEREST = FakeData.AREA_OF_INTEREST
     private val LOCATION_OF_INTEREST = FakeData.LOCATION_OF_INTEREST
@@ -200,7 +200,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         TEST_AREA_OF_INTEREST_2
       )
 
-    private fun createPoint(id: String, coordinate: Coordinate) =
+    private fun createPoint(id: String, coordinate: Coordinates) =
       LOCATION_OF_INTEREST.copy(
         id = id,
         geometry = Point(coordinate),
@@ -209,7 +209,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         customId = null
       )
 
-    private fun createPolygon(id: String, coordinates: List<Coordinate>) =
+    private fun createPolygon(id: String, coordinates: List<Coordinates>) =
       AREA_OF_INTEREST.copy(
         id = id,
         geometry = Polygon(LinearRing(coordinates)),
