@@ -153,6 +153,7 @@
   <string name="new_site_hint_text">Add new site and submit related data</string>
   <string name="take_a_photo">Take a photo</string>
   <string name="drop_a_pin">Drop a pin</string>
+  <string name="drop_a_pin_tooltip_text">Drag your map until the center pin is on the desired location</string>
   <string name="draw_an_area">Draw an area</string>
   <string name="accuracy">Accuracy</string>
   <string name="dropped_pin">Dropped pin</string>

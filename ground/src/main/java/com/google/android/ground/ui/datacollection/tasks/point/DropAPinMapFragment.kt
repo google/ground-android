@@ -28,6 +28,7 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.datacollection.components.TaskHeaderPopupView
 import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinate
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Map
@@ -55,6 +56,11 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
     binding.fragment = this
     binding.viewModel = mapViewModel
     binding.lifecycleOwner = this
+    binding.hintIcon.setOnClickListener {
+      TaskHeaderPopupView(requireContext())
+        .show(binding.hintIcon, getString(R.string.drop_a_pin_tooltip_text))
+    }
+    binding.hintIcon.visibility = View.VISIBLE
 
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
