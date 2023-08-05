@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.persistence.local.room.converter
 
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
@@ -88,7 +88,7 @@ class ResponseJsonConverterTest(
         put("option id 2")
       }
 
-    private val pointGeometryTaskData = GeometryData.fromGeometry(Point(Coordinate(10.0, 20.0)))
+    private val pointGeometryTaskData = GeometryData.fromGeometry(Point(Coordinates(10.0, 20.0)))
 
     private const val pointGeometryTaskDataResponse = "HQoFcG9pbnQSFAoSCQAAAAAAACRAEQAAAAAAADRA\n"
 
@@ -97,10 +97,10 @@ class ResponseJsonConverterTest(
         Polygon(
           LinearRing(
             listOf(
-              Coordinate(10.0, 20.0),
-              Coordinate(20.0, 30.0),
-              Coordinate(30.0, 40.0),
-              Coordinate(10.0, 20.0)
+              Coordinates(10.0, 20.0),
+              Coordinates(20.0, 30.0),
+              Coordinates(30.0, 40.0),
+              Coordinates(10.0, 20.0)
             )
           )
         )

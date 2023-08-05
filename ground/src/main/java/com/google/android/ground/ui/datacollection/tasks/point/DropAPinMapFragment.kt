@@ -28,7 +28,7 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinate
+import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinates
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Map
 import dagger.hilt.android.AndroidEntryPoint
@@ -88,7 +88,7 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
       binding.infoCard.visibility = View.GONE
     } else {
       binding.cardTitle.setText(R.string.dropped_pin)
-      binding.cardValue.text = processCoordinate(point.coordinate)
+      binding.cardValue.text = processCoordinates(point.coordinates)
       binding.infoCard.visibility = View.VISIBLE
     }
   }

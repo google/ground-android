@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.model.geometry
+package com.google.android.ground.system
 
-object GeometryValidator {
+import android.content.Context
+import android.location.Geocoder
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-  /** Returns true if the current geometry is closed. */
-  fun Geometry?.isClosed(): Boolean = this is Polygon || this is LinearRing
+@InstallIn(SingletonComponent::class)
+@Module
+object SystemModule {
 
-  /** Returns true of the current list of vertices can generate a closed loop. */
-  fun List<Coordinates>.isComplete(): Boolean = size >= 4 && firstOrNull() == lastOrNull()
+  @Provides
+  @Singleton
+  fun provideGeocoder(@ApplicationContext context: Context): Geocoder {
+    return Geocoder(context)
+  }
 }

@@ -16,18 +16,18 @@
 package com.google.android.ground.ui.datacollection.tasks.point
 
 import android.location.Location
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 import kotlin.math.abs
 
 /**
- * Utility class for converting a coordinate into its DMS (degrees, minutes, seconds)
+ * Utility class for converting a coordinates into its DMS (degrees, minutes, seconds)
  * representation.
  */
 object LatLngConverter {
 
-  /** Converts the given coordinate in decimal format to D°M′S″ format. */
-  fun processCoordinate(coordinate: Coordinate): String =
-    "${convertLatToDMS(coordinate.lat)} ${convertLongToDMS(coordinate.lng)}"
+  /** Converts the given coordinates in decimal format to D°M′S″ format. */
+  fun processCoordinates(coordinates: Coordinates): String =
+    "${convertLatToDMS(coordinates.lat)} ${convertLongToDMS(coordinates.lng)}"
 
   private fun convertLatToDMS(lat: Double): String {
     val orientation = if (lat > 0) "N" else "S"

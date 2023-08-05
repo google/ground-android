@@ -76,7 +76,7 @@ internal object LoiMutationConverter {
     this[LoiConverter.GEOMETRY] = geometryMap
   }
 
-  private fun toGeoPoint(point: Point) = GeoPoint(point.coordinate.lat, point.coordinate.lng)
+  private fun toGeoPoint(point: Point) = GeoPoint(point.coordinates.lat, point.coordinates.lng)
 
   private fun toGeoPointList(point: List<Point>): List<GeoPoint> = point.map { toGeoPoint(it) }
 }
