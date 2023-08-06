@@ -134,13 +134,13 @@ class PolygonDrawingTaskFragmentTest :
   }
 
   /** Overwrites the last vertex and also adds a new one. */
-  private fun updateLastVertexAndAddPoint(coordinate: Coordinate) {
+  private fun updateLastVertexAndAddPoint(coordinate: Coordinates) {
     updateLastVertex(coordinate, false)
     onView(withText("Add point")).perform(click())
   }
 
   /** Updates the last vertex of the polygon with the given vertex. */
-  private fun updateLastVertex(coordinate: Coordinate, isNearFirstVertex: Boolean = false) {
+  private fun updateLastVertex(coordinate: Coordinates, isNearFirstVertex: Boolean = false) {
     val threshold = PolygonDrawingViewModel.DISTANCE_THRESHOLD_DP.toDouble()
     val distanceInPixels = if (isNearFirstVertex) threshold else threshold + 1
     viewModel.updateLastVertexAndMaybeCompletePolygon(coordinate) { _, _ -> distanceInPixels }

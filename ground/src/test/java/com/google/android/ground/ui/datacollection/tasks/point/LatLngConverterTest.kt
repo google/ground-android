@@ -17,7 +17,7 @@
 package com.google.android.ground.ui.datacollection.tasks.point
 
 import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinate
+import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinates
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,7 +28,8 @@ class LatLngConverterTest {
 
   @Test
   fun testProcessCoordinates_ne() {
-    assertThat(processCoordinates(Coordinates(10.555, 10.555))).isEqualTo("10°33'18\" N 10°33'18\" E")
+    assertThat(processCoordinates(Coordinates(10.555, 10.555)))
+      .isEqualTo("10°33'18\" N 10°33'18\" E")
   }
 
   @Test
