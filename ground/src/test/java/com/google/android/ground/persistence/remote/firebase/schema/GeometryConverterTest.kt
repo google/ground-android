@@ -209,7 +209,7 @@ class GeometryConverterTest {
 
   private fun multiPolygon(vararg polygons: Polygon) = MultiPolygon(polygons.asList())
 
-  private fun toCoordinateList(path: Path): List<Coordinate> =
+  private fun toCoordinateList(path: Path): List<Coordinates> =
     path.map { Coordinates(it.first, it.second) }
 
   private fun indexedGeoPointMap(path: Path): Map<String, Any> =
