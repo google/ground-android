@@ -44,7 +44,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 class GeocodingManagerTest(
   private val expectedAreaName: String,
   private val message: String,
-  private val inputs: List<Pair<Coordinate, List<Address>>>,
+  private val inputs: List<Pair<Coordinates, List<Address>>>,
 ) : BaseHiltTest() {
   @BindValue @Mock lateinit var geocoder: Geocoder
   @Inject lateinit var geocodingManager: GeocodingManager
@@ -155,10 +155,10 @@ class GeocodingManagerTest(
     private fun testCase(
       expectedAreaName: String,
       message: String,
-      vararg areas: Pair<Coordinate, List<Address>>
+      vararg areas: Pair<Coordinates, List<Address>>
     ) = arrayOf(expectedAreaName, message, areas.toList())
 
-    private fun addresses(coordinates: Coordinate, vararg addresses: Address) =
+    private fun addresses(coordinates: Coordinates, vararg addresses: Address) =
       Pair(coordinates, addresses.toList())
   }
 }
