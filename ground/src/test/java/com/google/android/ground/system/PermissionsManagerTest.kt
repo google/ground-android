@@ -16,35 +16,71 @@
 package com.google.android.ground.system
 
 import android.Manifest
+import android.content.pm.PackageManager
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.system.PermissionsManager.Companion.PERMISSIONS_REQUEST_CODE
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import io.reactivex.Observable
 import javax.inject.Inject
+import kotlin.test.assertFailsWith
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadow.api.Shadow.extract
 import org.robolectric.shadows.ShadowApplication
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class PermissionsManagerTest : BaseHiltTest() {
 
   private val testPermission = Manifest.permission.ACCESS_COARSE_LOCATION
 
+  @BindValue @Mock lateinit var activityStreamsMock: ActivityStreams
   @Inject lateinit var permissionsManager: PermissionsManager
 
   @Test
-  fun permissionAvailable_granted() {
+  fun permissionAvailable_granted() = runWithTestDispatcher {
     val shadowApplication = extract<ShadowApplication>(getInstrumentation().targetContext)
     shadowApplication.grantPermissions(testPermission)
 
-    permissionsManager.obtainPermission(testPermission).test().assertComplete()
+    permissionsManager.obtainPermission(testPermission)
   }
 
   @Test
-  fun permissionNotAvailable_granted() {
-    permissionsManager.obtainPermission(testPermission).test().assertNotComplete()
+  fun permissionNotAvailable_granted() = runWithTestDispatcher {
+    setupPermissionResult(true)
+
+    permissionsManager.obtainPermission(testPermission)
+  }
+
+  @Test
+  fun permissionNotAvailable_notGranted_fails() = runWithTestDispatcher {
+    setupPermissionResult(false)
+
+    assertFailsWith<PermissionDeniedException> {
+      permissionsManager.obtainPermission(testPermission)
+    }
+  }
+
+  private fun setupPermissionResult(granted: Boolean) {
+    whenever(activityStreamsMock.getNextRequestPermissionsResult(PERMISSIONS_REQUEST_CODE))
+      .thenReturn(
+        Observable.just(
+          RequestPermissionsResult(
+            PERMISSIONS_REQUEST_CODE,
+            arrayOf(testPermission),
+            intArrayOf(
+              if (granted) PackageManager.PERMISSION_GRANTED else PackageManager.PERMISSION_DENIED
+            )
+          )
+        )
+      )
   }
 }

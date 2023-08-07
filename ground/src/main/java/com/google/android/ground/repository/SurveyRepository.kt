@@ -21,9 +21,8 @@ import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.local.room.dao.TileSourceDao
-import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
+import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
@@ -33,12 +32,16 @@ import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.rx2.asFlowable
-import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 
-private const val LOAD_REMOTE_SURVEY_TIMEOUT_SECS: Long = 15
+private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15000
 private const val LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS: Long = 30
 
 /**
@@ -89,34 +92,30 @@ constructor(
 
   /** Listens for remote changes to the survey with the specified id. */
   suspend fun subscribeToSurveyUpdates(surveyId: String) =
-    remoteDataStore.subscribeToSurveyUpdates(surveyId).await()
-
-  /** This only works if the survey is already cached to local db. */
-  @Deprecated("Use getOfflineSurveySuspend() instead")
-  fun getOfflineSurvey(surveyId: String): @Cold Single<Survey> =
-    localSurveyStore
-      .getSurveyById(surveyId)
-      .switchIfEmpty(Single.error { NotFoundException("Survey not found $surveyId") })
+    remoteDataStore.subscribeToSurveyUpdates(surveyId)
 
   /**
    * Returns the survey with the specified id from the local db, or `null` if not available offline.
    */
-  suspend fun getOfflineSurveySuspend(surveyId: String): Survey? =
+  suspend fun getOfflineSurvey(surveyId: String): Survey? =
     localSurveyStore.getSurveyByIdSuspend(surveyId)
 
-  fun syncSurveyWithRemote(id: String): @Cold Single<Survey> =
-    remoteDataStore
-      .loadSurvey(id)
-      .timeout(LOAD_REMOTE_SURVEY_TIMEOUT_SECS, TimeUnit.SECONDS)
-      .flatMap { localSurveyStore.insertOrUpdateSurvey(it).toSingleDefault(it) }
-      .doOnSuccess {
-        // TODO: Define and use a BaseMapStore
-        it.tileSources.forEach { bm ->
-          tileSourceDao.insertOrUpdate(bm.toLocalDataStoreObject(it.id))
-        }
-      }
-      .doOnSubscribe { Timber.d("Loading survey $id") }
-      .doOnError { err -> Timber.d(err, "Error loading survey from remote") }
+  /**
+   * Loads the survey with the specified id from remote and writes to local db. Returns `null` if
+   * not found, or throws an error if remote query timed out or failed.
+   */
+  suspend fun loadAndSyncSurveyWithRemote(id: String): Survey? {
+    Timber.d("Loading survey $id")
+    val survey =
+      withTimeout(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) { remoteDataStore.loadSurvey(id) }
+        ?: return null
+
+    localSurveyStore.insertOrUpdateSurvey(survey)
+    survey.tileSources.forEach {
+      tileSourceDao.insertOrUpdateSuspend(it.toLocalDataStoreObject(survey.id))
+    }
+    return survey
+  }
 
   fun clearActiveSurvey() {
     activeSurvey = null

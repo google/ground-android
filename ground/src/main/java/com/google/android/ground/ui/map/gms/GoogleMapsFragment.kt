@@ -38,6 +38,7 @@ import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.imagery.TileSource.Type.MOG_COLLECTION
+import com.google.android.ground.model.imagery.TileSource.Type.TILED_WEB_MAP
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
@@ -62,7 +63,6 @@ import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
 import java.io.File
-import java.net.URL
 import java8.util.function.Consumer
 import javax.inject.Inject
 import kotlin.math.min
@@ -257,10 +257,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     }
   }
 
-  override fun getDistanceInPixels(coordinate1: Coordinate, coordinate2: Coordinate): Double {
+  override fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double {
     val projection = map.projection
-    val loc1 = projection.toScreenLocation(coordinate1.toGoogleMapsObject())
-    val loc2 = projection.toScreenLocation(coordinate2.toGoogleMapsObject())
+    val loc1 = projection.toScreenLocation(coordinates1.toGoogleMapsObject())
+    val loc2 = projection.toScreenLocation(coordinates2.toGoogleMapsObject())
     val dx = (loc1.x - loc2.x).toDouble()
     val dy = (loc1.y - loc2.y).toDouble()
     return sqrt(dx * dx + dy * dy)
@@ -270,11 +270,13 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
 
   override fun disableGestures() = map.uiSettings.setAllGesturesEnabled(false)
 
-  override fun moveCamera(coordinate: Coordinate) =
-    map.animateCamera(CameraUpdateFactory.newLatLng(coordinate.toGoogleMapsObject()))
+  override fun moveCamera(coordinates: Coordinates) =
+    map.animateCamera(CameraUpdateFactory.newLatLng(coordinates.toGoogleMapsObject()))
 
-  override fun moveCamera(coordinate: Coordinate, zoomLevel: Float) =
-    map.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate.toGoogleMapsObject(), zoomLevel))
+  override fun moveCamera(coordinates: Coordinates, zoomLevel: Float) =
+    map.animateCamera(
+      CameraUpdateFactory.newLatLngZoom(coordinates.toGoogleMapsObject(), zoomLevel)
+    )
 
   override fun moveCamera(bounds: Bounds) {
     map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 100))
@@ -352,7 +354,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     clusterManager.onCameraIdle()
     cameraMovedEventsProcessor.onNext(
       CameraPosition(
-        map.cameraPosition.target.toCoordinate(),
+        map.cameraPosition.target.toCoordinates(),
         map.cameraPosition.zoom,
         false,
         map.projection.visibleRegion.latLngBounds.toModelObject()
@@ -386,26 +388,27 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   override fun addLocalTileOverlays(mbtilesFiles: Set<String>) =
     mbtilesFiles.forEach { filePath -> addTileOverlay(filePath) }
 
-  private fun addWebTileOverlay(url: String) {
-    val webTileProvider = WebTileProvider(url)
-    map.addTileOverlay(TileOverlayOptions().tileProvider(webTileProvider))
+  private fun addTemplateUrlTileOverlay(url: String) {
+    val tileProvider = TemplateUrlTileProvider(url)
+    map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
   }
 
   override fun addTileOverlay(tileSource: TileSource) =
-    if (tileSource.type == MOG_COLLECTION) addMogCollectionTileOverlay(tileSource.url)
-    else error("Unsupported tile source type ${tileSource.type}")
+    when (tileSource.type) {
+      MOG_COLLECTION -> addMogCollectionTileOverlay(tileSource.url)
+      TILED_WEB_MAP -> addTemplateUrlTileOverlay(tileSource.url)
+      else -> error("Unsupported tile source type ${tileSource.type}")
+    }
 
-  private fun addMogCollectionTileOverlay(url: URL) {
-    // TODO(#1730): Use standard metadata format (STAC?) to represent MOG sources.
+  private fun addMogCollectionTileOverlay(url: String) {
+    // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
     val mogCollection =
       MogCollection(
-        listOf(MogSource("${url}/8/world.tif", 0..7), MogSource("${url}/8/{x}/{y}.tif", 8..14))
+        listOf(MogSource("${url}/world.tif", 0..7), MogSource("${url}/{x}/{y}.tif", 8..14))
       )
     val tileProvider = MogTileProvider(mogCollection)
     map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
   }
-
-  override fun addWebTileOverlays(urls: List<String>) = urls.forEach { addWebTileOverlay(it) }
 
   override fun setActiveLocationOfInterest(newLoiId: String?) {
     clusterRenderer.previousActiveLoiId = clusterManager.activeLocationOfInterest

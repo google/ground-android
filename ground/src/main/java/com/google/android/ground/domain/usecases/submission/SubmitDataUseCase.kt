@@ -43,7 +43,7 @@ constructor(
    */
   @Transaction
   @Suppress("UseIfInsteadOfWhen")
-  operator fun invoke(
+  suspend operator fun invoke(
     loiId: String?,
     job: Job,
     surveyId: String,
@@ -70,12 +70,11 @@ constructor(
       .blockingAwait()
   }
 
-  private fun saveLoi(geometry: Geometry, job: Job, surveyId: String): LocationOfInterest {
+  private suspend fun saveLoi(geometry: Geometry, job: Job, surveyId: String): LocationOfInterest {
     val loi = locationOfInterestRepository.createLocationOfInterest(geometry, job, surveyId)
-    locationOfInterestRepository
-      .applyAndEnqueue(loi.toMutation(Mutation.Type.CREATE, authManager.currentUser.id))
-      .blockingAwait()
-
+    locationOfInterestRepository.applyAndEnqueue(
+      loi.toMutation(Mutation.Type.CREATE, authManager.currentUser.id)
+    )
     return loi
   }
 }

@@ -22,32 +22,41 @@ import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
 import com.google.android.ground.persistence.mbtiles.MbtilesFootprintParser
-import com.google.android.ground.persistence.sync.TileSetDownloadWorkManager
-import com.google.android.ground.rx.Schedulers
+import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.GeocodingManager
+import com.google.android.ground.ui.map.Bounds
+import com.google.android.ground.ui.map.gms.mog.*
+import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.android.ground.ui.util.FileUtil
 import io.reactivex.*
 import java.io.File
 import java.io.IOException
+import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentSet
+import kotlinx.coroutines.flow.*
 import org.apache.commons.io.FileUtils
 import timber.log.Timber
+
+/**
+ * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
+ * Value derived experimentally.
+ */
+const val AREA_NAME_SENSITIVITY = 0.5
 
 @Singleton
 class OfflineAreaRepository
 @Inject
 constructor(
-  private val tileSetDownloadWorkManager: TileSetDownloadWorkManager,
   private val localOfflineAreaStore: LocalOfflineAreaStore,
   private val localTileSetStore: LocalTileSetStore,
   private val surveyRepository: SurveyRepository,
   private val geoJsonParser: MbtilesFootprintParser,
   private val fileUtil: FileUtil,
-  private val schedulers: Schedulers,
-  private val geocodingManager: GeocodingManager
+  private val geocodingManager: GeocodingManager,
+  private val offlineUuidGenerator: OfflineUuidGenerator
 ) {
 
   /**
@@ -59,44 +68,12 @@ constructor(
   @Throws(IOException::class)
   private fun downloadOfflineBaseMapSource(tileSource: TileSource): File {
     val baseMapUrl = tileSource.url
-    Timber.d("Basemap url: $baseMapUrl, file: ${baseMapUrl.file}")
-    val localFile = fileUtil.getOrCreateFile(baseMapUrl.file)
+    Timber.d("Basemap url: $baseMapUrl, file: ${baseMapUrl}")
+    val localFile = fileUtil.getOrCreateFile(baseMapUrl)
 
-    FileUtils.copyURLToFile(baseMapUrl, localFile)
+    FileUtils.copyURLToFile(URL(baseMapUrl), localFile)
     return localFile
   }
-
-  /** Enqueue a single area and its tile sources for download. */
-  private fun enqueueDownload(
-    area: OfflineArea,
-    mbtilesFiles: List<MbtilesFile>
-  ): @Cold Completable =
-    Flowable.fromIterable(mbtilesFiles)
-      .flatMapCompletable { tileSet ->
-        localTileSetStore
-          .getTileSet(tileSet.url)
-          .map { it.incrementReferenceCount() }
-          .toSingle(tileSet)
-          .flatMapCompletable { localTileSetStore.insertOrUpdateTileSet(it) }
-      }
-      .doOnError { Timber.e("failed to add/update a tile in the database") }
-      .andThen(
-        localOfflineAreaStore.insertOrUpdateOfflineArea(
-          area.copy(state = OfflineArea.State.IN_PROGRESS)
-        )
-      )
-      .andThen(tileSetDownloadWorkManager.enqueueTileSetDownloadWorker())
-
-  /**
-   * Determine the tile sources that need to be downloaded for a given area, then enqueue tile
-   * source downloads.
-   */
-  private fun enqueueTileSetDownloads(area: OfflineArea): @Cold Completable =
-    getOfflineAreaTileSets(area)
-      .flatMapCompletable { tileSets -> enqueueDownload(area, tileSets) }
-      .doOnComplete { Timber.d("area download completed") }
-      .doOnError { throwable -> Timber.e(throwable, "failed to download area") }
-      .subscribeOn(schedulers.io())
 
   /**
    * Get a list of tile sources specified in the first basemap source of the active survey that
@@ -117,11 +94,17 @@ constructor(
         Timber.e(throwable, "couldn't retrieve basemap sources for the active survey")
       }
 
-  fun addOfflineAreaAndEnqueue(area: OfflineArea): @Cold Completable =
-    geocodingManager
-      .getAreaName(area.bounds)
-      .map { name -> area.copy(state = OfflineArea.State.IN_PROGRESS, name = name) }
-      .flatMapCompletable { enqueueTileSetDownloads(it) }
+  private suspend fun addOfflineArea(bounds: Bounds) {
+    val areaName = geocodingManager.getAreaName(bounds.shrink(AREA_NAME_SENSITIVITY))
+    localOfflineAreaStore.insertOrUpdate(
+      OfflineArea(
+        offlineUuidGenerator.generateUuid(),
+        OfflineArea.State.DOWNLOADED,
+        bounds,
+        areaName
+      )
+    )
+  }
 
   /**
    * Retrieves all offline areas from the local store and continually streams the list as the local
@@ -203,4 +186,49 @@ constructor(
           .andThen(localTileSetStore.deleteTileSetByUrl(tileSet))
       }
       .andThen(localOfflineAreaStore.deleteOfflineArea(offlineAreaId))
+
+  /**
+   * Downloads tiles in the specified bounds and stores them in the local filesystem. Emits the
+   * number of bytes processed and total expected bytes as the download progresses.
+   */
+  suspend fun downloadTiles(bounds: Bounds): Flow<Pair<Int, Int>> = flow {
+    val client = getMogClient()
+    val requests = client.buildTilesRequests(bounds.toGoogleMapsObject())
+    val totalBytes = requests.sumOf { it.totalBytes }
+    var bytesDownloaded = 0
+    val tilePath = getLocalTileSourcePath()
+    MogTileDownloader(client, tilePath).downloadTiles(requests).collect {
+      bytesDownloaded += it
+      emit(Pair(bytesDownloaded, totalBytes))
+    }
+    if (bytesDownloaded > 0) {
+      addOfflineArea(bounds)
+    }
+  }
+
+  // TODO(#1730): Generate local tiles path based on source base path.
+  fun getLocalTileSourcePath(): String = File(fileUtil.filesDir.path, "tiles").path
+
+  /**
+   * Uses the first tile source URL of the currently active survey and returns a [MogClient], or
+   * throws an error if no survey is active or if no tile sources are defined.
+   */
+  private fun getMogClient(): MogClient {
+    // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
+    val baseUrl = getFirstTileSourceUrl()
+    val mogCollection =
+      MogCollection(
+        listOf(MogSource("${baseUrl}/world.tif", 0..7), MogSource("${baseUrl}/{x}/{y}.tif", 8..14))
+      )
+    // TODO(#1754): Create a factory and inject rather than instantiating here. Add tests.
+    return MogClient(mogCollection)
+  }
+
+  /**
+   * Returns the URL of the first tile source in the current survey, or throws an error if no survey
+   * is active or if no tile sources are defined.
+   */
+  private fun getFirstTileSourceUrl() =
+    surveyRepository.activeSurvey?.tileSources?.firstOrNull()?.url
+      ?: error("Survey has no tile sources")
 }

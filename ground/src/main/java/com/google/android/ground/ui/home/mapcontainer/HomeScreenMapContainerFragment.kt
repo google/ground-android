@@ -25,14 +25,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
+import com.google.android.ground.R
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.repository.SubmissionRepository
+import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
@@ -49,7 +52,9 @@ import timber.log.Timber
 @AndroidEntryPoint(AbstractMapContainerFragment::class)
 class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
 
+  @Inject lateinit var ephemeralPopups: EphemeralPopups
   @Inject lateinit var submissionRepository: SubmissionRepository
+  @Inject lateinit var userRepository: UserRepository
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -72,8 +77,17 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
       .`as`(RxAutoDispose.autoDisposable(this))
       .subscribe { onZoomThresholdCrossed() }
 
-    adapter = MapCardAdapter(submissionRepository, lifecycleScope)
-    adapter.setCollectDataListener { navigateToDataCollectionFragment(it) }
+    val canUserSubmitData = userRepository.canUserSubmitData()
+    adapter = MapCardAdapter(submissionRepository, lifecycleScope, canUserSubmitData)
+    adapter.setCollectDataListener {
+      if (canUserSubmitData) {
+        navigateToDataCollectionFragment(it)
+      } else {
+        // Skip data collection screen if the user can't submit any data
+        // TODO(#1667): Revisit UX for displaying view only mode
+        ephemeralPopups.showError(getString(R.string.collect_data_viewer_error))
+      }
+    }
 
     lifecycleScope.launch {
       mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel
@@ -168,7 +182,10 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
     homeScreenViewModel.bottomSheetState.observe(this) { state: BottomSheetState ->
       onBottomSheetStateChange(state, map)
     }
+    // TODO(#1756): Clear tile overlays on change to stop accumulating them on map.
+    mapContainerViewModel.tileOverlays.observe(this) { it.forEach(map::addTileOverlay) }
     mapContainerViewModel.mbtilesFilePaths.observe(this) { map.addLocalTileOverlays(it) }
+
     adapter.setLoiCardFocusedListener {
       when (it) {
         is MapCardUiData.LoiCardUiData -> map.setActiveLocationOfInterest(it.loi.id)

@@ -30,9 +30,9 @@ enum class MapType(
   @field:StringRes @StringRes val labelId: Int,
   @field:DrawableRes @DrawableRes val imageId: Int
 ) : Parcelable {
-  ROAD(R.string.road_map, R.drawable.ic_type_roadmap),
-  TERRAIN(R.string.terrain, R.drawable.ic_type_terrain),
-  SATELLITE(R.string.satellite, R.drawable.ic_type_satellite);
+  ROAD(R.string.road_map, R.drawable.map_type_roadmap),
+  TERRAIN(R.string.terrain, R.drawable.map_type_terrain),
+  SATELLITE(R.string.satellite, R.drawable.map_type_satellite);
 
   companion object {
     val DEFAULT = SATELLITE

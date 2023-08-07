@@ -15,16 +15,14 @@
  */
 package com.google.android.ground.system
 
-import android.content.IntentSender.SendIntentException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.ground.rx.RxCompletable.completeOrError
 import com.google.android.ground.system.rx.RxSettingsClient
-import io.reactivex.Completable
-import io.reactivex.CompletableEmitter
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 
 private val LOCATION_SETTINGS_REQUEST_CODE = SettingsManager::class.java.hashCode() and 0xffff
@@ -47,47 +45,38 @@ constructor(
    * Try to enable location settings. If location settings are already enabled, this will complete
    * immediately on subscribe.
    */
-  fun enableLocationSettings(locationRequest: LocationRequest): Completable {
+  suspend fun enableLocationSettings(locationRequest: LocationRequest) {
     Timber.d("Checking location settings")
     val settingsRequest =
       LocationSettingsRequest.Builder().addLocationRequest(locationRequest).build()
-    return settingsClient.checkLocationSettings(settingsRequest).toCompletable().onErrorResumeNext {
-      onCheckSettingsFailure(it)
+    try {
+      settingsClient.checkLocationSettings(settingsRequest)
+    } catch (e: Error) {
+      onCheckSettingsFailure(e)
     }
   }
 
-  private fun onCheckSettingsFailure(throwable: Throwable): Completable =
+  private suspend fun onCheckSettingsFailure(throwable: Throwable) =
     if (throwable is ResolvableApiException) {
       val requestCode = LOCATION_SETTINGS_REQUEST_CODE
-      startResolution(requestCode, throwable).andThen(getNextResult(requestCode))
+      startResolution(requestCode, throwable)
+      getNextResult(requestCode)
     } else {
-      Completable.error(throwable)
+      throw throwable
     }
 
-  private fun startResolution(
-    requestCode: Int,
-    resolvableException: ResolvableApiException
-  ): Completable =
-    Completable.create { emitter: CompletableEmitter ->
-      Timber.d("Prompting user to enable settings")
-      activityStreams.withActivity {
-        try {
-          resolvableException.startResolutionForResult(it, requestCode)
-          emitter.onComplete()
-        } catch (e: SendIntentException) {
-          emitter.onError(e)
-        }
-      }
-    }
+  private fun startResolution(requestCode: Int, resolvableException: ResolvableApiException) {
+    Timber.d("Prompting user to enable settings")
+    activityStreams.withActivity { resolvableException.startResolutionForResult(it, requestCode) }
+  }
 
-  private fun getNextResult(requestCode: Int): Completable =
+  private suspend fun getNextResult(requestCode: Int) =
     activityStreams
       .getNextActivityResult(requestCode)
       .flatMapCompletable {
         completeOrError({ it.isOk() }, SettingsChangeRequestCanceled::class.java)
       }
-      .doOnComplete { Timber.d("Settings change request successful") }
-      .doOnError { Timber.e(it, "Settings change request failed") }
+      .await()
 }
 
 class SettingsChangeRequestCanceled : Exception()

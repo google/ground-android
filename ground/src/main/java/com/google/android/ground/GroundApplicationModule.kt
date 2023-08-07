@@ -17,7 +17,6 @@ package com.google.android.ground
 
 import android.content.Context
 import android.content.res.Resources
-import android.location.Geocoder
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.ground.ui.common.ViewModelModule
 import dagger.Module
@@ -35,12 +34,6 @@ object GroundApplicationModule {
   @Singleton
   fun googleApiAvailability(): GoogleApiAvailability {
     return GoogleApiAvailability.getInstance()
-  }
-
-  @Provides
-  @Singleton
-  fun provideGeocoder(@ApplicationContext context: Context): Geocoder {
-    return Geocoder(context)
   }
 
   @Provides

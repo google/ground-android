@@ -16,10 +16,6 @@
   ~ limitations under the License.
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-  <corners android:radius="8dp" />
-  <stroke
-    android:width="5dp"
-    android:color="?attr/colorPrimary" />
-  <solid android:color="#FFFFFF" />
-</shape>
+<resources>
+    <color name="ic_launcher_background">#FFFFFF</color>
+</resources>

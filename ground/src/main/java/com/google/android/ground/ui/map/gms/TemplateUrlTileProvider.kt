@@ -25,13 +25,13 @@ import timber.log.Timber
  *
  * Tile URLs should have the format: host/z/x/y
  */
-class WebTileProvider(private val formatUrl: String) : UrlTileProvider(256, 256) {
+class TemplateUrlTileProvider(private val template: String) : UrlTileProvider(256, 256) {
   override fun getTileUrl(x: Int, y: Int, z: Int): URL? {
     val url =
-      formatUrl
-        .replace("\${z}", z.toString())
-        .replace("\${x}", x.toString())
-        .replace("\${y}", y.toString())
+      template
+        .replace("{z}", z.toString())
+        .replace("{x}", x.toString())
+        .replace("{y}", y.toString())
     return try {
       URL(url)
     } catch (e: MalformedURLException) {

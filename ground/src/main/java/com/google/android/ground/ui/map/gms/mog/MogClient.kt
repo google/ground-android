@@ -102,7 +102,7 @@ class MogClient(val collection: MogCollection) {
   }
 
   /**
-   * Returns the metadata for the MOG which contains the tile with the specified coordinate, or
+   * Returns the metadata for the MOG which contains the tile with the specified coordinates, or
    * `null` if unavailable.
    */
   private suspend fun getMogMetadataForTile(tileCoordinates: TileCoordinates): MogMetadata? {

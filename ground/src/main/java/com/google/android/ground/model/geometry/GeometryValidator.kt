@@ -22,5 +22,5 @@ object GeometryValidator {
   fun Geometry?.isClosed(): Boolean = this is Polygon || this is LinearRing
 
   /** Returns true of the current list of vertices can generate a closed loop. */
-  fun List<Coordinate>.isComplete(): Boolean = size >= 4 && firstOrNull() == lastOrNull()
+  fun List<Coordinates>.isComplete(): Boolean = size >= 4 && firstOrNull() == lastOrNull()
 }

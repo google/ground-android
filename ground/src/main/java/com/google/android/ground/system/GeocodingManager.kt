@@ -16,17 +16,18 @@
 package com.google.android.ground.system
 
 import android.content.res.Resources
+import android.location.Address
 import android.location.Geocoder
 import com.google.android.ground.R
-import com.google.android.ground.rx.Schedulers
-import com.google.android.ground.rx.annotations.Cold
+import com.google.android.ground.coroutines.IoDispatcher
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.GmsExt.center
-import io.reactivex.Single
 import java.io.IOException
-import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /** Abstracts native geocoding facilities. */
@@ -35,39 +36,86 @@ class GeocodingManager
 @Inject
 constructor(
   private val geocoder: Geocoder,
-  private val schedulers: Schedulers,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   resources: Resources
 ) {
   private val defaultAreaName: String = resources.getString(R.string.unnamed_area)
+  private val multipleRegionsLabel: String = resources.getString(R.string.multiple_regions)
 
   /**
    * Retrieve a human readable name for the region bounded by the provided {@param bounds}.
    *
    * If no area name is found for the given area, returns a default value.
    */
-  fun getAreaName(bounds: Bounds): @Cold Single<String> =
-    Single.fromCallable { getAreaNameInternal(bounds) }
-      .doOnError { Timber.e(it, "Couldn't get address for bounds: $bounds") }
-      .subscribeOn(schedulers.io())
-
-  @Throws(AddressNotFoundException::class, IOException::class)
-  private fun getAreaNameInternal(bounds: Bounds): String {
-    val center = bounds.center()
-    val addresses = geocoder.getFromLocation(center.lat, center.lng, 1)
-    if (addresses.isNullOrEmpty()) {
-      throw AddressNotFoundException("No address found for area.")
+  @Throws(IOException::class)
+  suspend fun getAreaName(bounds: Bounds): String {
+    // Get potential addresses of five sample points: the centroid and the four vertices of the
+    // bounding box.
+    val samplePoints = bounds.corners + bounds.center()
+    val samplePointAddresses =
+      withContext(ioDispatcher) { samplePoints.map { fetchAddressesBlocking(it) } }
+    val nameComponents =
+      findCommonComponents(
+        samplePointAddresses.filter { it.isNotEmpty() },
+        Address::getCountryName,
+        Address::getAdminArea,
+        Address::getSubAdminArea,
+        Address::getLocality
+      )
+    return when (nameComponents.size) {
+      0 -> defaultAreaName
+      1 -> "$multipleRegionsLabel, ${nameComponents.first()}"
+      else -> nameComponents.joinToString(", ")
     }
-    val address = addresses[0]
-
-    // TODO(#613): Decide exactly what set of address parts we want to show the user.
-    val country = Optional.ofNullable(address.countryName).orElse("")
-    val locality = Optional.ofNullable(address.locality).orElse("")
-    val admin = Optional.ofNullable(address.adminArea).orElse("")
-    val subAdmin = Optional.ofNullable(address.subAdminArea).orElse("")
-    val components: Collection<String> = ArrayList(listOf(country, locality, admin, subAdmin))
-    val fullLocationName = components.filter { it.isNotEmpty() }.joinToString()
-    return fullLocationName.ifEmpty { defaultAreaName }
   }
-}
 
-internal class AddressNotFoundException(message: String) : Exception(message)
+  /**
+   * Calls getters in order on all [Address]es and returns names present in all other entries
+   * present in [samplePointAddresses]. If a common name is not found, searching stops and further
+   * getters are not called. This allows the caller to build an area name out of multiple addresses
+   * by finding the largest common admin unit name among provided addresses.
+   */
+  private fun findCommonComponents(
+    samplePointAddresses: List<List<Address>>,
+    vararg getters: (Address) -> String?
+  ): MutableList<String> {
+    val commonComponents = mutableListOf<String>()
+    for (getter in getters) {
+      val samplePointNames =
+        samplePointAddresses.map { it.mapNotNull(getter::invoke) }.filter { it.isNotEmpty() }
+      val commonElements = getCommonComponents(samplePointNames)
+      if (commonElements.isNotEmpty()) {
+        // Choose the shortest common name. If two names have the same length, use whichever comes
+        // first alphabetically.
+        val selectedName = commonElements.sortedWith(compareBy({ it.length }, { it })).first()
+        commonComponents.add(0, selectedName)
+      }
+    }
+    return commonComponents
+  }
+
+  /**
+   * Returns the distinct list of Strings which appear at least once in all sub-lists, or an empty
+   * list if none are found.
+   */
+  private fun getCommonComponents(samplePointNames: List<List<String>>): List<String> =
+    // Require at least two vertices with non-null area labels to identify a common name.
+    if (samplePointNames.size < 2) listOf()
+    else
+      samplePointNames.first().distinct().filter { el ->
+        samplePointNames.drop(0).all { it.contains(el) }
+      }
+
+  /**
+   * Fetches potential addresses for the specified coordinates. Blocks the thread on I/O; do not
+   * call on main thread.
+   */
+  private fun fetchAddressesBlocking(coordinates: Coordinates): List<Address> =
+    // TODO(#1762): Replace with non-blocking call with listener.
+    try {
+      geocoder.getFromLocation(coordinates.lat, coordinates.lng, 5) ?: listOf()
+    } catch (e: Exception) {
+      Timber.e(e, "Reverse geocode lookup failed")
+      listOf()
+    }
+}

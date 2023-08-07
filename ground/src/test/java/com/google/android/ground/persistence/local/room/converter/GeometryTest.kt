@@ -78,7 +78,7 @@ class GeometryTest {
     assertThat(multiPolygon).isEqualTo(multiPolygon.toLocalDataStoreObject().getGeometry())
   }
 
-  private fun point(x: Double, y: Double) = Point(Coordinate(x, y))
+  private fun point(x: Double, y: Double) = Point(Coordinates(x, y))
 
   private fun linearRing(path: Path) = LinearRing(toCoordinateList(path))
 
@@ -87,6 +87,6 @@ class GeometryTest {
 
   private fun multiPolygon(vararg polygons: Polygon) = MultiPolygon(polygons.asList())
 
-  private fun toCoordinateList(path: Path): List<Coordinate> =
-    path.map { Coordinate(it.first, it.second) }
+  private fun toCoordinateList(path: Path): List<Coordinates> =
+    path.map { Coordinates(it.first, it.second) }
 }

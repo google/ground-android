@@ -20,10 +20,9 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.LocationSettingsResponse
 import com.google.android.gms.location.SettingsClient
-import com.google.android.ground.rx.RxTask.toSingle
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.reactivex.Single
 import javax.inject.Inject
+import kotlinx.coroutines.tasks.await
 
 /** Thin wrapper around [SettingsClient] exposing key features as reactive streams. */
 class RxSettingsClient @Inject constructor(@ApplicationContext context: Context) {
@@ -33,8 +32,6 @@ class RxSettingsClient @Inject constructor(@ApplicationContext context: Context)
     settingsClient = LocationServices.getSettingsClient(context)
   }
 
-  fun checkLocationSettings(request: LocationSettingsRequest): Single<LocationSettingsResponse> =
-    toSingle {
-      settingsClient.checkLocationSettings(request)
-    }
+  suspend fun checkLocationSettings(request: LocationSettingsRequest): LocationSettingsResponse =
+    settingsClient.checkLocationSettings(request).await()
 }

@@ -23,17 +23,23 @@ class ActivateSurveyUseCase
 @Inject
 constructor(
   private val surveyRepository: SurveyRepository,
-  private val makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase,
-  private val syncSurvey: SyncSurveyUseCase,
+  private val makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase
 ) {
+  /**
+   * Sets the survey with the specified ID as the currently active. First attempts to load the
+   * survey from the local db, and if not present, fetches from remote and activates offline sync.
+   * Throws an error if the survey isn't found or cannot be made available offlien. Activating a
+   * survey which is already available offline doesn't force a resync, since this is handled by
+   * [com.google.android.ground.persistence.sync.SurveySyncWorker].
+   */
   suspend operator fun invoke(surveyId: String) {
-    // Do nothing if survey is already active.
+    // Do nothing if specified survey is already active.
     if (surveyId == surveyRepository.activeSurvey?.id) {
       return
     }
 
     surveyRepository.activeSurvey =
-      surveyRepository.getOfflineSurveySuspend(surveyId)?.let { syncSurvey(it.id) }
-        ?: makeSurveyAvailableOffline(surveyId)
+      surveyRepository.getOfflineSurvey(surveyId)
+        ?: makeSurveyAvailableOffline(surveyId) ?: error("Survey $surveyId not found in remote db")
   }
 }

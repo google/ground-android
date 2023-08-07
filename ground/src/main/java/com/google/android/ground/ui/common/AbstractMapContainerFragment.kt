@@ -21,6 +21,7 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.rx.RxAutoDispose
+import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
@@ -36,6 +37,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   @Inject lateinit var map: Map
   @Inject lateinit var navigator: Navigator
+  @Inject lateinit var geocodingManager: GeocodingManager
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)

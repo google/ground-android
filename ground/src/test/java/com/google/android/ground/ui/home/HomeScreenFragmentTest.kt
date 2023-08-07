@@ -37,7 +37,6 @@ import com.google.android.ground.ui.common.Navigator
 import com.sharedtest.FakeData
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.testing.HiltAndroidTest
-import java.net.URL
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -130,7 +129,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
     surveyWithoutBasemap.copy(
       tileSources =
         listOf(
-          TileSource(URL("http://google.com"), TileSource.Type.MBTILES_FOOTPRINTS),
+          TileSource("http://google.com", TileSource.Type.MBTILES_FOOTPRINTS),
         ),
       id = "BASEMAPS"
     )

@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.ui.map
 
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import org.junit.Test
@@ -54,8 +54,8 @@ class CameraPositionTest {
   }
 
   companion object {
-    private val BOUNDS = Bounds(Coordinate(-10.0, -20.0), Coordinate(10.0, 20.0))
-    private val TARGET = FakeData.COORDINATE
+    private val BOUNDS = Bounds(Coordinates(-10.0, -20.0), Coordinates(10.0, 20.0))
+    private val TARGET = FakeData.COORDINATES
     private const val ZOOM_LEVEL = 13.0f
   }
 }

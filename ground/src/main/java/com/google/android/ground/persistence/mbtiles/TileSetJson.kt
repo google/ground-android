@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.persistence.mbtiles
 
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.GmsExt.contains
 import org.json.JSONArray
@@ -29,7 +29,7 @@ import org.json.JSONObject
  * - an id specifying cartesian coordinates.
  * - a URL specifying a source for the tile imagery.
  *
- * GeoJSON Polygons are described using coordinate arrays that task a linear ring. The first and
+ * GeoJSON Polygons are described using coordinates arrays that task a linear ring. The first and
  * last value in a linear ring are equivalent. We assume coordinates are ordered, S/W, S/E, N/E,
  * N/W, (S/W again, closing the ring).
  *
@@ -37,7 +37,7 @@ import org.json.JSONObject
  */
 internal class TileSetJson(private val json: JSONObject) {
 
-  private val vertices: List<Coordinate>
+  private val vertices: List<Coordinates>
     get() {
       val exteriorRing =
         json.optJSONObject(GEOMETRY_KEY)?.optJSONArray(VERTICES_JSON_KEY)?.optJSONArray(0)
@@ -50,16 +50,16 @@ internal class TileSetJson(private val json: JSONObject) {
 
   fun boundsIntersect(bounds: Bounds): Boolean = vertices.any { bounds.contains(it) }
 
-  private fun jsonArrayToCoordinates(exteriorRing: JSONArray?): List<Coordinate> {
+  private fun jsonArrayToCoordinates(exteriorRing: JSONArray?): List<Coordinates> {
     if (exteriorRing == null) {
       return listOf()
     }
-    val coordinates: MutableList<Coordinate> = ArrayList()
+    val coordinates: MutableList<Coordinates> = ArrayList()
     for (i in 0 until exteriorRing.length()) {
       val point = exteriorRing.optJSONArray(i)
       val lat = point.optDouble(1, 0.0)
       val lng = point.optDouble(0, 0.0)
-      coordinates.add(Coordinate(lat, lng))
+      coordinates.add(Coordinates(lat, lng))
     }
     return coordinates
   }

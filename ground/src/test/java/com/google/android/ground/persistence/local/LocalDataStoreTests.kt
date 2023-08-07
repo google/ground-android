@@ -18,7 +18,7 @@ package com.google.android.ground.persistence.local
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
@@ -34,12 +34,12 @@ import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.TaskDataMap
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.persistence.local.room.converter.formatVertices
 import com.google.android.ground.persistence.local.room.converter.parseVertices
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao
 import com.google.android.ground.persistence.local.room.dao.SubmissionDao
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
-import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
 import com.google.android.ground.persistence.local.room.fields.EntityState
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.*
@@ -48,6 +48,7 @@ import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.*
 import javax.inject.Inject
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -75,49 +76,49 @@ class LocalDataStoreTests : BaseHiltTest() {
 
   @Test
   fun testInsertAndGetSurveys() = runWithTestDispatcher {
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).test().assertComplete()
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     assertThat(localSurveyStore.surveys.first()).containsExactly(TEST_SURVEY)
   }
 
   @Test
-  fun testGetSurveyById() {
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localSurveyStore.getSurveyById(TEST_SURVEY.id).test().assertValue(TEST_SURVEY)
+  fun testGetSurveyById() = runWithTestDispatcher {
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+    assertThat(localSurveyStore.getSurveyByIdSuspend(TEST_SURVEY.id)).isEqualTo(TEST_SURVEY)
   }
 
   @Test
   fun testDeleteSurvey() = runWithTestDispatcher {
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localSurveyStore.deleteSurvey(TEST_SURVEY)
     assertThat(localSurveyStore.surveys.first()).isEmpty()
   }
 
   @Test
-  fun testRemovedJobFromSurvey() {
+  fun testRemovedJobFromSurvey() = runWithTestDispatcher {
     val job1 = Job("job 1", "job 1 name")
     val job2 = Job("job 2", "job 2 name")
     var survey =
       Survey("foo id", "foo survey", "foo survey description", mapOf(Pair(job1.id, job1)))
-    localSurveyStore.insertOrUpdateSurvey(survey).blockingAwait()
+    localSurveyStore.insertOrUpdateSurvey(survey)
     survey = Survey("foo id", "foo survey", "foo survey description", mapOf(Pair(job2.id, job2)))
-    localSurveyStore.insertOrUpdateSurvey(survey).blockingAwait()
-    localSurveyStore.getSurveyById("foo id").test().assertValue { result: Survey ->
-      result.jobs.size == 1 && result.jobs.first() == job2
-    }
+    localSurveyStore.insertOrUpdateSurvey(survey)
+    val updatedSurvey = localSurveyStore.getSurveyByIdSuspend("foo id")
+    assertThat(updatedSurvey?.jobs).hasSize(1)
+    assertThat(updatedSurvey?.jobs?.first()).isEqualTo(job2)
   }
 
   @Test
   fun testInsertAndGetUser() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
-    localUserStore.getUser("user id").test().assertValue(TEST_USER)
+    assertThat(localUserStore.getUser("user id")).isEqualTo(TEST_USER)
   }
 
   @Test
   fun testApplyAndEnqueue_insertsLoi() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
 
-    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).test().assertComplete()
+    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
 
     localLoiStore
       .getLocationOfInterest(TEST_SURVEY, TEST_LOI_MUTATION.locationOfInterestId)
@@ -127,9 +128,9 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Test
   fun testApplyAndEnqueue_insertsMutation() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
 
-    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).test().assertComplete()
+    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
     advanceUntilIdle()
 
     localLoiStore
@@ -144,9 +145,9 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Test
   fun testApplyAndEnqueue_insertPolygonLoi() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
 
-    localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION).test().assertComplete()
+    localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION)
 
     localLoiStore
       .getLocationOfInterest(TEST_SURVEY, TEST_POLYGON_LOI_MUTATION.locationOfInterestId)
@@ -157,8 +158,8 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Test
   fun testApplyAndEnqueue_enqueuesPolygonLoiMutation() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION).test().assertComplete()
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+    localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION)
 
     localLoiStore
       .getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
@@ -172,10 +173,10 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Test
   fun testGetLoisOnceAndStream() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     val subscriber = localLoiStore.getLocationsOfInterestOnceAndStream(TEST_SURVEY).test()
     subscriber.assertValue(setOf())
-    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
+    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
     subscriber.assertValueSet(setOf(setOf(), setOf(loi)))
   }
@@ -183,11 +184,11 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Test
   fun testMergeLoi() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
     val newLoi = loi.copy(geometry = TEST_POINT_2)
-    localLoiStore.merge(newLoi).test().assertComplete()
+    localLoiStore.merge(newLoi)
     localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").test().assertValue {
       it.geometry == TEST_POINT_2
     }
@@ -196,11 +197,11 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Test
   fun testMergePolygonLoi() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION).blockingAwait()
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+    localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION)
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    val newLoi = loi.copy(geometry = Polygon(LinearRing(TEST_POLYGON_2.map { it.coordinate })))
-    localLoiStore.merge(newLoi).test().assertComplete()
+    val newLoi = loi.copy(geometry = Polygon(LinearRing(TEST_POLYGON_2.map { it.coordinates })))
+    localLoiStore.merge(newLoi)
     localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").test().assertValue {
       it.geometry.vertices == TEST_POLYGON_2
     }
@@ -209,10 +210,10 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Test
   fun testApplyAndEnqueue_insertAndUpdateSubmission() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
 
-    localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).test().assertComplete()
+    localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION)
 
     localSubmissionStore
       .getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
@@ -223,7 +224,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       .test()
       .assertValue(listOf(TEST_SUBMISSION_MUTATION))
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    var submission = localSubmissionStore.getSubmission(loi, "submission id").blockingGet()
+    var submission = localSubmissionStore.getSubmission(loi, "submission id")
     assertEquivalent(TEST_SUBMISSION_MUTATION, submission)
 
     // now update the inserted submission with new responses
@@ -238,7 +239,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     val mutation =
       TEST_SUBMISSION_MUTATION.copy(taskDataDeltas = deltas, id = 2L, type = Mutation.Type.UPDATE)
 
-    localSubmissionStore.applyAndEnqueue(mutation).test().assertComplete()
+    localSubmissionStore.applyAndEnqueue(mutation)
 
     localSubmissionStore
       .getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
@@ -250,11 +251,11 @@ class LocalDataStoreTests : BaseHiltTest() {
       .assertValue(listOf(TEST_SUBMISSION_MUTATION, mutation))
 
     // check if the submission was updated in the local database
-    submission = localSubmissionStore.getSubmission(loi, "submission id").blockingGet()
+    submission = localSubmissionStore.getSubmission(loi, "submission id")
     assertEquivalent(mutation, submission)
 
     // also test that getSubmissions returns the same submission as well
-    val submissions = localSubmissionStore.getSubmissions(loi, "job id").blockingGet()
+    val submissions = localSubmissionStore.getSubmissions(loi, "job id")
     assertThat(submissions).hasSize(1)
     assertEquivalent(mutation, submissions[0])
   }
@@ -262,19 +263,15 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Test
   fun testMergeSubmission() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
-    localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
+    localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION)
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
     val taskDataMap = TaskDataMap(mapOf(Pair("task id", TextTaskData.fromString("foo value"))))
     val submission =
-      localSubmissionStore
-        .getSubmission(loi, "submission id")
-        .blockingGet()
-        .copy(responses = taskDataMap)
-    localSubmissionStore.merge(submission).test().assertComplete()
-    val responses =
-      localSubmissionStore.getSubmission(loi, submission.id).test().values()[0].responses
+      localSubmissionStore.getSubmission(loi, "submission id").copy(responses = taskDataMap)
+    localSubmissionStore.merge(submission)
+    val responses = localSubmissionStore.getSubmission(loi, submission.id).responses
     assertThat(responses.getResponse("task id"))
       .isEqualTo(TextTaskData.fromString("updated taskData"))
   }
@@ -283,37 +280,36 @@ class LocalDataStoreTests : BaseHiltTest() {
   fun testDeleteSubmission() = runWithTestDispatcher {
     // Add test submission
     localUserStore.insertOrUpdateUser(TEST_USER)
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
-    localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
+    localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION)
     val mutation = TEST_SUBMISSION_MUTATION.copy(id = null, type = Mutation.Type.DELETE)
 
     // Calling applyAndEnqueue marks the local submission as deleted.
-    localSubmissionStore.applyAndEnqueue(mutation).blockingAwait()
+    localSubmissionStore.applyAndEnqueue(mutation)
 
     // Verify that local entity exists and its state is updated.
-    submissionDao.findById("submission id").test().assertValue { submissionEntity: SubmissionEntity
-      ->
-      submissionEntity.state == EntityState.DELETED
-    }
+    assertThat(submissionDao.findByIdSuspend("submission id")?.state).isEqualTo(EntityState.DELETED)
 
     // Verify that the local submission doesn't end up in getSubmissions().
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    localSubmissionStore.getSubmissions(loi, "task id").test().assertValue(listOf())
+    assertThat(localSubmissionStore.getSubmissions(loi, "task id")).isEmpty()
 
     // After successful remote sync, delete submission is called by LocalMutationSyncWorker.
-    localSubmissionStore.deleteSubmission("submission id").blockingAwait()
+    localSubmissionStore.deleteSubmission("submission id")
 
     // Verify that the submission doesn't exist anymore
-    localSubmissionStore.getSubmission(loi, "submission id").test().assertNoValues()
+    assertFailsWith<LocalDataStoreException> {
+      localSubmissionStore.getSubmission(loi, "submission id")
+    }
   }
 
   @Test
   fun testDeleteLoi() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY).blockingAwait()
-    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION).blockingAwait()
-    localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION).blockingAwait()
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
+    localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION)
     val subscriber = localLoiStore.getLocationsOfInterestOnceAndStream(TEST_SURVEY).test()
 
     // Assert that one LOI is streamed.
@@ -322,7 +318,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     val mutation = TEST_LOI_MUTATION.copy(id = null, type = Mutation.Type.DELETE)
 
     // Calling applyAndEnqueue marks the local LOI as deleted.
-    localLoiStore.applyAndEnqueue(mutation).blockingAwait()
+    localLoiStore.applyAndEnqueue(mutation)
 
     // Verify that local entity exists but its state is updated to DELETED.
     locationOfInterestDao.findById("loi id").test().assertValue { entity: LocationOfInterestEntity
@@ -334,13 +330,15 @@ class LocalDataStoreTests : BaseHiltTest() {
     subscriber.assertValueAt(1, setOf())
 
     // After successful remote sync, delete LOI is called by LocalMutationSyncWorker.
-    localLoiStore.deleteLocationOfInterest("loi id").blockingAwait()
+    localLoiStore.deleteLocationOfInterest("loi id")
 
     // Verify that the LOI doesn't exist anymore
     localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").test().assertNoValues()
 
     // Verify that the linked submission is also deleted.
-    localSubmissionStore.getSubmission(loi, "submission id").test().assertNoValues()
+    assertFailsWith<LocalDataStoreException> {
+      localSubmissionStore.getSubmission(loi, "submission id")
+    }
   }
 
   @Test
@@ -420,25 +418,25 @@ class LocalDataStoreTests : BaseHiltTest() {
     private val TEST_JOB = Job("job id", "heading title", mapOf(Pair(TEST_TASK.id, TEST_TASK)))
     private val TEST_SURVEY =
       Survey("survey id", "survey 1", "foo description", mapOf(Pair(TEST_JOB.id, TEST_JOB)))
-    private val TEST_POINT = Point(Coordinate(110.0, -23.1))
-    private val TEST_POINT_2 = Point(Coordinate(51.0, 44.0))
+    private val TEST_POINT = Point(Coordinates(110.0, -23.1))
+    private val TEST_POINT_2 = Point(Coordinates(51.0, 44.0))
     private val TEST_POLYGON_1 =
       listOf(
-        Point(Coordinate(49.874502, 8.655993)),
-        Point(Coordinate(49.874099, 8.651173)),
-        Point(Coordinate(49.872919, 8.651628)),
-        Point(Coordinate(49.873164, 8.653515)),
-        Point(Coordinate(49.874343, 8.653038)),
-        Point(Coordinate(49.874502, 8.655993))
+        Point(Coordinates(49.874502, 8.655993)),
+        Point(Coordinates(49.874099, 8.651173)),
+        Point(Coordinates(49.872919, 8.651628)),
+        Point(Coordinates(49.873164, 8.653515)),
+        Point(Coordinates(49.874343, 8.653038)),
+        Point(Coordinates(49.874502, 8.655993))
       )
     private val TEST_POLYGON_2 =
       listOf(
-        Point(Coordinate(49.865374, 8.646920)),
-        Point(Coordinate(49.864241, 8.647286)),
-        Point(Coordinate(49.864664, 8.650387)),
-        Point(Coordinate(49.863102, 8.650445)),
-        Point(Coordinate(49.863051, 8.647306)),
-        Point(Coordinate(49.865374, 8.646920))
+        Point(Coordinates(49.865374, 8.646920)),
+        Point(Coordinates(49.864241, 8.647286)),
+        Point(Coordinates(49.864664, 8.650387)),
+        Point(Coordinates(49.863102, 8.650445)),
+        Point(Coordinates(49.863051, 8.647306)),
+        Point(Coordinates(49.865374, 8.646920))
       )
     private val TEST_LOI_MUTATION = createTestLocationOfInterestMutation(TEST_POINT)
     private val TEST_POLYGON_LOI_MUTATION = createTestAreaOfInterestMutation(TEST_POLYGON_1)
@@ -467,7 +465,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       OfflineArea(
         "id_1",
         OfflineArea.State.PENDING,
-        Bounds(Coordinate(0.0, 0.0), Coordinate(0.0, 0.0)),
+        Bounds(Coordinates(0.0, 0.0), Coordinates(0.0, 0.0)),
         "Test Area"
       )
 
@@ -489,7 +487,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     ): LocationOfInterestMutation =
       LocationOfInterestMutation(
         jobId = "job id",
-        geometry = Polygon(LinearRing(polygonVertices.map { it.coordinate })),
+        geometry = Polygon(LinearRing(polygonVertices.map { it.coordinates })),
         id = 1L,
         locationOfInterestId = "loi id",
         type = Mutation.Type.CREATE,
