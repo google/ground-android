@@ -21,6 +21,8 @@ import java.io.File
 import javax.inject.Inject
 
 class FileUtil @Inject constructor(@ApplicationContext private val context: Context) {
+  val filesDir = context.filesDir
+
   /**
    * Get a file by name relative to the app's file directory
    * /data/data/com.google.android.ground/files.

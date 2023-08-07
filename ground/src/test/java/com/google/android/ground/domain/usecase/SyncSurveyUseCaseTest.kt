@@ -23,8 +23,9 @@ import com.google.android.ground.repository.SurveyRepository
 import com.sharedtest.FakeData.SURVEY
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import io.reactivex.Single
 import javax.inject.Inject
+import kotlin.test.assertFails
+import kotlin.test.assertNull
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,12 +42,28 @@ class SyncSurveyUseCaseTest : BaseHiltTest() {
   @BindValue @Mock lateinit var loiRepository: LocationOfInterestRepository
 
   @Test
-  fun syncsSurveyAndLois() = runBlocking {
-    `when`(surveyRepository.syncSurveyWithRemote(SURVEY.id)).thenReturn(Single.just(SURVEY))
+  fun `Syncs survey and LOIs with remote`() = runBlocking {
+    `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(SURVEY)
 
     syncSurvey(SURVEY.id)
 
-    verify(surveyRepository).syncSurveyWithRemote(SURVEY.id)
+    verify(surveyRepository).loadAndSyncSurveyWithRemote(SURVEY.id)
     verify(loiRepository).syncLocationsOfInterest(SURVEY)
+  }
+
+  @Test
+  fun `Returns null when survey not found`() = runBlocking {
+    `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(null)
+
+    assertNull(syncSurvey(SURVEY.id))
+  }
+
+  @Test
+  fun `Throws error when load fails`() {
+    runBlocking {
+      `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenThrow(Error::class.java)
+
+      assertFails { syncSurvey(SURVEY.id) }
+    }
   }
 }

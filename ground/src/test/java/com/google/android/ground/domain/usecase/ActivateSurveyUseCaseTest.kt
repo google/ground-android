@@ -29,7 +29,6 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFails
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,7 +50,7 @@ class ActivateSurveyUseCaseTest : BaseHiltTest() {
   @BindValue @Mock lateinit var makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase
 
   @Test
-  fun activateSurvey_noActiveSurvey() = runWithTestDispatcher {
+  fun `Activates survey when no survey is active`() = runWithTestDispatcher {
     `when`(makeSurveyAvailableOffline(SURVEY.id)).thenReturn(SURVEY)
 
     activateSurvey(SURVEY.id)
@@ -64,21 +63,31 @@ class ActivateSurveyUseCaseTest : BaseHiltTest() {
   }
 
   @Test
-  fun activateSurvey_noActiveSurvey_handleFailedMakeSurveyAvailableOffline() =
-    runWithTestDispatcher {
-      `when`(makeSurveyAvailableOffline(SURVEY.id)).thenThrow(Error::class.java)
+  fun `Throws error when survey can't be made available offline`() = runWithTestDispatcher {
+    `when`(makeSurveyAvailableOffline(SURVEY.id)).thenThrow(Error::class.java)
 
-      assertFails { activateSurvey(SURVEY.id) }
-      advanceUntilIdle()
+    assertFails { activateSurvey(SURVEY.id) }
+    advanceUntilIdle()
 
-      // Verify no survey is active.
-      assertThat(surveyRepository.activeSurvey).isNull()
-    }
+    // Verify no survey is active.
+    assertThat(surveyRepository.activeSurvey).isNull()
+  }
 
   @Test
-  fun activateSurvey_alreadyAvailableOffline() = runWithTestDispatcher {
+  fun `Throws error when survey doesn't exist`() = runWithTestDispatcher {
+    `when`(makeSurveyAvailableOffline(SURVEY.id)).thenReturn(null)
+
+    assertFails { activateSurvey(SURVEY.id) }
+    advanceUntilIdle()
+
+    // Verify no survey is active.
+    assertThat(surveyRepository.activeSurvey).isNull()
+  }
+
+  @Test
+  fun `Uses local instance if available`() = runWithTestDispatcher {
     fakeRemoteDataStore.surveys = listOf(SURVEY)
-    localSurveyStore.insertOrUpdateSurvey(SURVEY).await()
+    localSurveyStore.insertOrUpdateSurvey(SURVEY)
 
     activateSurvey(SURVEY.id)
     advanceUntilIdle()
@@ -90,7 +99,7 @@ class ActivateSurveyUseCaseTest : BaseHiltTest() {
   }
 
   @Test
-  fun activateSurvey_surveyAlreadyActive() = runWithTestDispatcher {
+  fun `Does nothing when survey already active`() = runWithTestDispatcher {
     localSurveyStore.insertOrUpdateSurvey(SURVEY)
     surveyRepository.activeSurvey = SURVEY
 

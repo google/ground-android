@@ -21,11 +21,9 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -36,6 +34,7 @@ import javax.inject.Singleton
 class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   var lois = emptyList<LocationOfInterest>()
   var surveys = emptyList<Survey>()
+  var onLoadSurvey = { surveyId: String -> surveys.firstOrNull { it.id == surveyId } }
 
   // TODO(#1373): Delete once new LOI sync is implemented.
   var termsOfService: Maybe<TermsOfService> = Maybe.empty()
@@ -44,10 +43,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override fun loadSurveySummaries(user: User): Single<List<Survey>> = Single.just(surveys)
 
-  override fun loadSurvey(surveyId: String): Single<Survey> =
-    Single.just(
-      surveys.firstOrNull { it.id == surveyId } ?: throw NotFoundException("Invalid survey id")
-    )
+  override suspend fun loadSurvey(surveyId: String): Survey? = onLoadSurvey.invoke(surveyId)
 
   override fun loadTermsOfService(): @Cold Maybe<TermsOfService> = termsOfService
 
@@ -65,12 +61,13 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
     TODO("Missing implementation")
   }
 
-  override fun applyMutations(mutations: List<Mutation>, user: User): Completable {
+  override suspend fun applyMutations(mutations: List<Mutation>, user: User) {
     TODO("Missing implementation")
   }
 
-  override fun subscribeToSurveyUpdates(surveyId: String): Completable =
-    Completable.fromRunnable { subscribedSurveyIds.add(surveyId) }
+  override suspend fun subscribeToSurveyUpdates(surveyId: String) {
+    subscribedSurveyIds.add(surveyId)
+  }
 
   /** Returns true iff [subscribeToSurveyUpdates] has been called with the specified id. */
   fun isSubscribedToSurveyUpdates(surveyId: String): Boolean =

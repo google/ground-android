@@ -18,7 +18,7 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.submission.GeometryData
@@ -119,10 +119,10 @@ class PolygonDrawingTaskFragmentTest :
         Polygon(
           LinearRing(
             listOf(
-              Coordinate(0.0, 0.0),
-              Coordinate(10.0, 10.0),
-              Coordinate(20.0, 20.0),
-              Coordinate(0.0, 0.0)
+              Coordinates(0.0, 0.0),
+              Coordinates(10.0, 10.0),
+              Coordinates(20.0, 20.0),
+              Coordinates(0.0, 0.0)
             )
           )
         )
@@ -134,22 +134,22 @@ class PolygonDrawingTaskFragmentTest :
   }
 
   /** Overwrites the last vertex and also adds a new one. */
-  private fun updateLastVertexAndAddPoint(coordinate: Coordinate) {
+  private fun updateLastVertexAndAddPoint(coordinate: Coordinates) {
     updateLastVertex(coordinate, false)
     onView(withText("Add point")).perform(click())
   }
 
   /** Updates the last vertex of the polygon with the given vertex. */
-  private fun updateLastVertex(coordinate: Coordinate, isNearFirstVertex: Boolean = false) {
+  private fun updateLastVertex(coordinate: Coordinates, isNearFirstVertex: Boolean = false) {
     val threshold = PolygonDrawingViewModel.DISTANCE_THRESHOLD_DP.toDouble()
     val distanceInPixels = if (isNearFirstVertex) threshold else threshold + 1
     viewModel.updateLastVertexAndMaybeCompletePolygon(coordinate) { _, _ -> distanceInPixels }
   }
 
   companion object {
-    private val COORDINATE_1 = Coordinate(0.0, 0.0)
-    private val COORDINATE_2 = Coordinate(10.0, 10.0)
-    private val COORDINATE_3 = Coordinate(20.0, 20.0)
-    private val COORDINATE_4 = Coordinate(30.0, 30.0)
+    private val COORDINATE_1 = Coordinates(0.0, 0.0)
+    private val COORDINATE_2 = Coordinates(10.0, 10.0)
+    private val COORDINATE_3 = Coordinates(20.0, 20.0)
+    private val COORDINATE_4 = Coordinates(30.0, 30.0)
   }
 }

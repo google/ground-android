@@ -34,7 +34,7 @@ data class MogSource(val urlTemplate: String, val zoomRange: IntRange) {
   /** Returns the bounds of the MOG containing the tile with the specified coordinates. */
   fun getMogBoundsForTile(tileCoordinates: TileCoordinates): TileCoordinates {
     check(zoomRange.contains(tileCoordinates.zoom)) {
-      "Tile coordinate zoom ${tileCoordinates.zoom} must be within source zoom range $zoomRange"
+      "Tile coordinates zoom ${tileCoordinates.zoom} must be within source zoom range $zoomRange"
     }
     return tileCoordinates.originAtZoom(zoomRange.first)
   }

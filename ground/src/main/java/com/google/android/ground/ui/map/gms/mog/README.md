@@ -16,7 +16,7 @@ To be considered a MOG, a file must satisfy the following constraints:
 * Image compression: JPEG
 * Cloud Storage ACLs: Public read access
 * Extent: Clipped to the exact bounds of a web mercator tile. This ensures contained images tiles
-  align properly with the web tile coordinate system.
+  align properly with the web tile coordinates system.
 
 * Note that since the MOGs are sliced exactly along the extents of web mercator tiles, the width and
   height of images at each zoom level are always integer multiples of 256, with the lowest
@@ -29,7 +29,7 @@ To simplify discovery and retrieval, MOGs are organized in collections structure
   these extents. As such, each MOG can be uniquely identified by the (X, Y) coordinates of the web
   tile used to determine the extents of the MOG tile pyramid. Each hi-res MOGs contains one image
   for each zoom level from `hiResMogMinZoom` to `hiResMogMaxZoom`.
-* *World MOG*: A single lower resolution MOG whose extents cover the entire web mercator coordinate
+* *World MOG*: A single lower resolution MOG whose extents cover the entire web mercator coordinates
   space, or tile (0, 0) at zoom level 0. The world MOG consists of one image for each zoom level
   from `0` to `hiResMogMinZoom - 1`.
 

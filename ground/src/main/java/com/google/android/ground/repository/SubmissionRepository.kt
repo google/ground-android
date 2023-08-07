@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.repository
 
+import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
@@ -25,7 +26,6 @@ import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -38,7 +38,11 @@ import io.reactivex.Single
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.rx2.await
+import kotlinx.coroutines.rx2.rxCompletable
+import kotlinx.coroutines.rx2.rxMaybe
+import kotlinx.coroutines.rx2.rxSingle
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS: Long = 15
@@ -58,7 +62,8 @@ constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val uuidGenerator: OfflineUuidGenerator,
-  private val authManager: AuthenticationManager
+  private val authManager: AuthenticationManager,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
 
   /**
@@ -98,7 +103,9 @@ constructor(
           mergeRemoteSubmissions(submissions)
         }
         .onErrorComplete()
-    return remoteSync.andThen(localSubmissionStore.getSubmissions(locationOfInterest, jobId))
+    return remoteSync.andThen(
+      rxSingle { localSubmissionStore.getSubmissions(locationOfInterest, jobId) }
+    )
   }
 
   private fun mergeRemoteSubmissions(submissions: List<Result<Submission>>): @Cold Completable =
@@ -110,7 +117,7 @@ constructor(
       }
       .filter { it.isSuccess }
       .map { it.getOrThrow() }
-      .flatMapCompletable { localSubmissionStore.merge(it) }
+      .flatMapCompletable { rxCompletable { localSubmissionStore.merge(it) } }
 
   fun getSubmission(
     surveyId: String,
@@ -121,9 +128,7 @@ constructor(
     locationOfInterestRepository
       .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
       .flatMap { locationOfInterest ->
-        localSubmissionStore
-          .getSubmission(locationOfInterest, submissionId)
-          .switchIfEmpty(Single.error { NotFoundException("Submission $submissionId") })
+        rxSingle { localSubmissionStore.getSubmission(locationOfInterest, submissionId) }
       }
 
   fun createSubmission(surveyId: String, locationOfInterestId: String): @Cold Single<Submission> {
@@ -182,10 +187,11 @@ constructor(
       createOrUpdateSubmission(it, taskDataDeltas, isNew = true)
     }
 
-  private fun applyAndEnqueue(mutation: SubmissionMutation): @Cold Completable =
-    localSubmissionStore
-      .applyAndEnqueue(mutation)
-      .andThen(mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId))
+  private fun applyAndEnqueue(mutation: SubmissionMutation) =
+    rxCompletable(ioDispatcher) {
+      localSubmissionStore.applyAndEnqueue(mutation)
+      mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
+    }
 
   /**
    * Returns all [SubmissionMutation] instances for a given location of interest which have not yet
@@ -196,13 +202,15 @@ constructor(
     surveyId: String,
     locationOfInterestId: String
   ): Flowable<List<SubmissionMutation>> =
-    localSurveyStore.getSurveyById(surveyId).toFlowable().flatMap {
-      localSubmissionStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
-        it,
-        locationOfInterestId,
-        MutationEntitySyncStatus.PENDING,
-        MutationEntitySyncStatus.IN_PROGRESS,
-        MutationEntitySyncStatus.FAILED
-      )
-    }
+    rxMaybe { localSurveyStore.getSurveyByIdSuspend(surveyId) }
+      .toFlowable()
+      .flatMap {
+        localSubmissionStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+          it,
+          locationOfInterestId,
+          MutationEntitySyncStatus.PENDING,
+          MutationEntitySyncStatus.IN_PROGRESS,
+          MutationEntitySyncStatus.FAILED
+        )
+      }
 }

@@ -26,7 +26,10 @@ interface LocalOfflineAreaStore {
    * Attempts to update an offline area in the local data store. If the area doesn't exist, inserts
    * the area into the local data store.
    */
+  @Deprecated("Use insertOrUpdate() instead")
   fun insertOrUpdateOfflineArea(area: OfflineArea): @Cold Completable
+
+  suspend fun insertOrUpdate(area: OfflineArea)
 
   /** Returns all queued, failed, and completed offline areas from the local data store. */
   fun offlineAreasOnceAndStream(): @Cold(terminates = false) Flowable<List<OfflineArea>>

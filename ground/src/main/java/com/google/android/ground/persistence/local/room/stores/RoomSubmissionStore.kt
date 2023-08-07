@@ -32,7 +32,7 @@ import com.google.android.ground.persistence.local.room.converter.toLocalDataSto
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.SubmissionDao
 import com.google.android.ground.persistence.local.room.dao.SubmissionMutationDao
-import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
+import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
 import com.google.android.ground.persistence.local.room.entity.AuditInfoEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
@@ -42,13 +42,9 @@ import com.google.android.ground.persistence.local.room.fields.UserDetails
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.Debug.logOnFailure
-import com.google.common.base.Preconditions
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Maybe
 import io.reactivex.Single
-import io.reactivex.SingleSource
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentList
@@ -64,58 +60,42 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
 
   /**
    * Attempts to retrieve the [Submission] associated with the given ID and [LocationOfInterest].
-   * Returns a [Maybe] that completes immediately (with no data) if the location of interest isn't
-   * found and that succeeds with the location of interest otherwise (and then completes). Does not
-   * stream subsequent data changes.
+   *
+   * @throws LocalDataStoreException
    */
-  override fun getSubmission(
+  override suspend fun getSubmission(
     locationOfInterest: LocationOfInterest,
     submissionId: String
-  ): Maybe<Submission> =
-    submissionDao
-      .findById(submissionId)
-      .map { it.toModelObject(locationOfInterest) }
-      .doOnError { Timber.d(it) }
-      .onErrorComplete()
-      .subscribeOn(schedulers.io())
+  ): Submission =
+    submissionDao.findByIdSuspend(submissionId)?.toModelObject(locationOfInterest)
+      ?: throw LocalDataStoreException("Submission not found $submissionId")
 
   /**
    * Attempts to retrieve the complete list of [Submission]s associated with the given Job ID and
    * [LocationOfInterest]. Returns a [Single] that contains an exception if no such Submission exist
    * or the list of submissions otherwise. Does not stream subsequent data changes.
    */
-  override fun getSubmissions(
+  override suspend fun getSubmissions(
     locationOfInterest: LocationOfInterest,
     jobId: String
-  ): Single<List<Submission>> =
+  ): List<Submission> =
     submissionDao
       .findByLocationOfInterestId(locationOfInterest.id, jobId, EntityState.DEFAULT)
-      .map { toSubmissions(locationOfInterest, it) }
-      .subscribeOn(schedulers.io())
+      ?.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } }
+      ?: listOf()
 
-  fun insertOrUpdate(submission: Submission): Completable =
-    submissionDao.insertOrUpdate(submission.toLocalDataStoreObject())
-
-  fun insertOrUpdate(submission: SubmissionEntity): Completable =
-    submissionDao.insertOrUpdate(submission)
-
-  override fun merge(model: Submission): Completable {
-    val submissionEntity = model.toLocalDataStoreObject()
-    return submissionMutationDao
+  override suspend fun merge(model: Submission) {
+    submissionMutationDao
       .findBySubmissionId(
         model.id,
         MutationEntitySyncStatus.PENDING,
         MutationEntitySyncStatus.IN_PROGRESS
       )
-      .flatMapCompletable { mergeSubmission(model.job, submissionEntity, it) }
-      .subscribeOn(schedulers.io())
+      ?.let { mergeSubmission(model.job, model.toLocalDataStoreObject(), it) }
   }
 
-  override fun enqueue(mutation: SubmissionMutation): Completable =
-    submissionMutationDao
-      .insert(mutation.toLocalDataStoreObject())
-      .doOnSubscribe { Timber.v("Enqueuing mutation: $mutation") }
-      .subscribeOn(schedulers.io())
+  override suspend fun enqueue(mutation: SubmissionMutation) =
+    submissionMutationDao.insertSuspend(mutation.toLocalDataStoreObject())
 
   /**
    * Applies mutation to submission in database or creates a new one.
@@ -123,46 +103,38 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
    * exist, or if type is "CREATE" and entity already exists.
    */
-  override fun apply(mutation: SubmissionMutation): Completable =
+  override suspend fun apply(mutation: SubmissionMutation) {
     when (mutation.type) {
-      Mutation.Type.CREATE ->
-        userStore.getUser(mutation.userId).flatMapCompletable { user ->
-          insertFromMutation(mutation, user)
-        }
-      Mutation.Type.UPDATE ->
-        userStore.getUser(mutation.userId).flatMapCompletable { user ->
-          updateSubmission(mutation, user)
-        }
-      Mutation.Type.DELETE ->
-        submissionDao.findById(mutation.submissionId).flatMapCompletable { entity ->
-          markSubmissionForDeletion(entity, mutation)
-        }
-      Mutation.Type.UNKNOWN -> throw LocalDataStoreException("Unknown Mutation.Type")
+      Mutation.Type.CREATE -> {
+        val user = userStore.getUser(mutation.userId)
+        val entity = mutation.toLocalDataStoreObject(AuditInfo(user))
+        submissionDao.insertOrUpdateSuspend(entity)
+      }
+      Mutation.Type.UPDATE -> {
+        val user = userStore.getUser(mutation.userId)
+        updateSubmission(mutation, user)
+      }
+      Mutation.Type.DELETE -> {
+        val entity = checkNotNull(submissionDao.findByIdSuspend(mutation.submissionId))
+        submissionDao.updateSuspend(entity.copy(state = EntityState.DELETED))
+      }
+      Mutation.Type.UNKNOWN -> {
+        throw LocalDataStoreException("Unknown Mutation.Type")
+      }
     }
+  }
 
-  override fun updateAll(mutations: List<SubmissionMutation>): Completable =
+  override suspend fun updateAll(mutations: List<SubmissionMutation>) {
     submissionMutationDao.updateAll(mutations.map { it.toLocalDataStoreObject() })
+  }
 
-  private fun markSubmissionForDeletion(
-    entity: SubmissionEntity,
-    mutation: SubmissionMutation
-  ): Completable =
-    submissionDao
-      .update(entity.copy(state = EntityState.DELETED))
-      .doOnSubscribe { Timber.d("Marking submission as deleted : $mutation") }
-      .ignoreElement()
-      .subscribeOn(schedulers.io())
-
-  private fun updateSubmission(mutation: SubmissionMutation, user: User): Completable {
+  private suspend fun updateSubmission(mutation: SubmissionMutation, user: User) {
+    Timber.v("Applying mutation: $mutation")
     val mutationEntity = mutation.toLocalDataStoreObject()
-
-    return submissionDao
-      .findById(mutation.submissionId)
-      .doOnSubscribe { Timber.v("Applying mutation: $mutation") }
-      .switchIfEmpty(fallbackSubmission(mutation))
-      .map { commitMutations(mutation.job, it, listOf(mutationEntity), user) }
-      .flatMapCompletable { submissionDao.insertOrUpdate(it).subscribeOn(schedulers.io()) }
-      .subscribeOn(schedulers.io())
+    val entity =
+      submissionDao.findByIdSuspend(mutation.submissionId) ?: fallbackSubmission(mutation)
+    commitMutations(mutation.job, entity, listOf(mutationEntity), user)
+    submissionDao.insertOrUpdateSuspend(entity)
   }
 
   /**
@@ -170,31 +142,21 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
    * when the submission is no longer in the local db, but the user is updating rather than creating
    * a new submission. In these cases creation metadata is unknown, so empty audit info is used.
    */
-  private fun fallbackSubmission(mutation: SubmissionMutation): SingleSource<SubmissionEntity> =
-    SingleSource {
-      it.onSuccess(mutation.toLocalDataStoreObject(AuditInfo(User("", "", ""))))
-    }
+  private fun fallbackSubmission(mutation: SubmissionMutation): SubmissionEntity =
+    mutation.toLocalDataStoreObject(AuditInfo(User("", "", "")))
 
-  private fun insertFromMutation(mutation: SubmissionMutation, user: User): Completable =
-    submissionDao
-      .insertOrUpdate(mutation.toLocalDataStoreObject(AuditInfo(user)))
-      .doOnSubscribe { Timber.v("Inserting submission: $mutation") }
-      .subscribeOn(schedulers.io())
-
-  private fun mergeSubmission(
+  private suspend fun mergeSubmission(
     job: Job,
     submission: SubmissionEntity,
     mutations: List<SubmissionMutationEntity>
-  ): Completable {
+  ) {
     if (mutations.isEmpty()) {
-      return submissionDao.insertOrUpdate(submission)
+      submissionDao.insertOrUpdateSuspend(submission)
+    } else {
+      val user = userStore.getUser(mutations.last().userId)
+      val entity = commitMutations(job, submission, mutations, user)
+      submissionDao.insertOrUpdateSuspend(entity)
     }
-    val lastMutation = mutations[mutations.size - 1]
-    Preconditions.checkNotNull(lastMutation, "Could not get last mutation")
-    return userStore
-      .getUser(lastMutation.userId)
-      .map { user -> commitMutations(job, submission, mutations, user) }
-      .flatMapCompletable { submissionDao.insertOrUpdate(it) }
   }
 
   private fun commitMutations(
@@ -228,19 +190,9 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     return responseMap.copyWithDeltas(deltas.toPersistentList())
   }
 
-  private fun toSubmissions(
-    locationOfInterest: LocationOfInterest,
-    submissionEntities: List<SubmissionEntity>
-  ): List<Submission> =
-    submissionEntities.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } }
-
-  override fun deleteSubmission(submissionId: String): Completable =
-    submissionDao
-      .findById(submissionId)
-      .toSingle()
-      .doOnSubscribe { Timber.d("Deleting local submission : $submissionId") }
-      .flatMapCompletable { submissionDao.delete(it) }
-      .subscribeOn(schedulers.io())
+  override suspend fun deleteSubmission(submissionId: String) {
+    submissionDao.findByIdSuspend(submissionId)?.let { submissionDao.deleteSuspend(it) }
+  }
 
   override fun getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
     survey: Survey,
@@ -251,22 +203,23 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       .findByLocationOfInterestIdOnceAndStream(locationOfInterestId, *allowedStates)
       .map { list: List<SubmissionMutationEntity> -> list.map { it.toModelObject(survey) } }
 
-  override fun applyAndEnqueue(mutation: SubmissionMutation): Completable =
+  override suspend fun applyAndEnqueue(mutation: SubmissionMutation) {
     try {
-      apply(mutation).andThen(enqueue(mutation))
+      apply(mutation)
+      enqueue(mutation)
     } catch (e: LocalDataStoreException) {
       FirebaseCrashlytics.getInstance()
         .log("Error enqueueing ${mutation.type} mutation for submission ${mutation.submissionId}")
       FirebaseCrashlytics.getInstance().recordException(e)
-      Completable.error(e)
+      throw e
     }
+  }
 
   override fun getAllMutationsAndStream(): Flowable<List<SubmissionMutationEntity>> =
     submissionMutationDao.loadAllOnceAndStream()
 
-  override fun findByLocationOfInterestId(
+  override suspend fun findByLocationOfInterestId(
     id: String,
     vararg states: MutationEntitySyncStatus
-  ): Single<List<SubmissionMutationEntity>> =
-    submissionMutationDao.findByLocationOfInterestId(id, *states)
+  ): List<SubmissionMutationEntity> = submissionMutationDao.findByLocationOfInterestId(id, *states)
 }

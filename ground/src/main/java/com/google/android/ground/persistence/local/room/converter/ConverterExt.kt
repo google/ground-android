@@ -40,7 +40,6 @@ import com.google.android.ground.persistence.local.room.relations.TaskEntityAndR
 import com.google.android.ground.ui.map.Bounds
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import java.net.URL
 import java.util.*
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
@@ -72,9 +71,9 @@ private fun TileSourceEntity.TileSourceEntityType.toModelObject() =
   }
 
 fun TileSource.toLocalDataStoreObject(surveyId: String) =
-  TileSourceEntity(surveyId = surveyId, url = url.toString(), type = type.toLocalDataStoreObject())
+  TileSourceEntity(surveyId = surveyId, url = url, type = type.toLocalDataStoreObject())
 
-fun TileSourceEntity.toModelObject() = TileSource(url = URL(url), type = type.toModelObject())
+fun TileSourceEntity.toModelObject() = TileSource(url = url, type = type.toModelObject())
 
 fun Geometry.toLocalDataStoreObject() = GeometryWrapper.fromGeometry(this)
 
@@ -94,7 +93,7 @@ fun parseVertices(vertices: String?): List<Point> {
   val gson = Gson()
   val verticesArray =
     gson.fromJson<List<List<Double>>>(vertices, object : TypeToken<List<List<Double?>?>?>() {}.type)
-  return verticesArray.map { vertex: List<Double> -> Point(Coordinate(vertex[0], vertex[1])) }
+  return verticesArray.map { vertex: List<Double> -> Point(Coordinates(vertex[0], vertex[1])) }
 }
 
 fun Job.toLocalDataStoreObject(surveyId: String): JobEntity =
@@ -237,8 +236,8 @@ fun OfflineArea.toOfflineAreaEntity() =
   )
 
 fun OfflineAreaEntity.toModelObject(): OfflineArea {
-  val northEast = Coordinate(this.north, this.east)
-  val southWest = Coordinate(this.south, this.west)
+  val northEast = Coordinates(this.north, this.east)
+  val southWest = Coordinates(this.south, this.west)
   val bounds = Bounds(southWest, northEast)
   return OfflineArea(this.id, this.state.toModelObject(), bounds, this.name)
 }
