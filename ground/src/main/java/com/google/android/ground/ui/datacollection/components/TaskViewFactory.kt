@@ -26,24 +26,11 @@ import com.google.android.ground.databinding.TaskFragWithoutHeaderBinding
 /** Factory for creating a [TaskView]. */
 object TaskViewFactory {
 
-  fun createWithHeader(layoutInflater: LayoutInflater): TaskView {
-    val binding = TaskFragWithHeaderBinding.inflate(layoutInflater)
-    return TaskViewWithHeader(binding)
-  }
+  fun createWithHeader(layoutInflater: LayoutInflater): TaskView =
+    TaskViewWithHeader(TaskFragWithHeaderBinding.inflate(layoutInflater))
 
-  fun createWithoutHeader(
-    layoutInflater: LayoutInflater,
-    @DrawableRes iconResId: Int? = null,
-    @StringRes labelResId: Int? = null
-  ): TaskView {
-    val binding = TaskFragWithoutHeaderBinding.inflate(layoutInflater)
-    iconResId?.let {
-      val drawable = AppCompatResources.getDrawable(layoutInflater.context, it)
-      binding.headerIcon.setImageDrawable(drawable)
-    }
-    labelResId?.let { binding.headerLabel.setText(labelResId) }
-    return TaskViewWithoutHeader(binding)
-  }
+  fun createWithoutHeader(layoutInflater: LayoutInflater): TaskView =
+    TaskViewWithoutHeader(TaskFragWithoutHeaderBinding.inflate(layoutInflater))
 
   /** Creates a TaskView with a header that is an extension of the app bar. */
   fun createWithCombinedHeader(
