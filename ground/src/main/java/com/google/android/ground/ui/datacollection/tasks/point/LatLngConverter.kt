@@ -26,7 +26,7 @@ import kotlin.math.abs
 object LatLngConverter {
 
   /** Converts the given coordinates in decimal format to D°M′S″ format. */
-  fun processCoordinate(coordinates: Coordinates): String =
+  fun processCoordinates(coordinates: Coordinates): String =
     "${convertLatToDMS(coordinates.lat)} ${convertLongToDMS(coordinates.lng)}"
 
   private fun convertLatToDMS(lat: Double): String {

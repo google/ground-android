@@ -135,8 +135,6 @@
   <string name="road_map">Road map</string>
   <string name="satellite">Satellite</string>
   <string name="terrain">Terrain</string>
-  <string name="map_type">Map type</string>
-  <string name="close">Close</string>
   <string name="continue_text">Continue</string>
   <string name="select_survey_title">Select a survey to start collecting data</string>
   <string name="survey_sync_hint">Surveys are automatically synced</string>
@@ -151,6 +149,7 @@
   <string name="new_site_hint_text">Add new site and submit related data</string>
   <string name="take_a_photo">Take a photo</string>
   <string name="drop_a_pin">Drop a pin</string>
+  <string name="drop_a_pin_tooltip_text">Drag your map until the center pin is on the desired location</string>
   <string name="draw_an_area">Draw an area</string>
   <string name="accuracy">Accuracy</string>
   <string name="dropped_pin">Dropped pin</string>
@@ -160,6 +159,10 @@
   <string name="go_back_button_label">Go back</string>
   <string name="confirm_button_label">Confirm</string>
   <string name="collect_data_viewer_error">Can\'t to collect data as user is a VIEWER</string>
+  <string name="offline_map_imagery">Offline map imagery</string>
+  <string name="offline_map_imagery_pref_description">This is an explanation of the offline overlay. \nThe images come from this source.</string>
+  <string name="layers">Layers</string>
+  <string name="base_map">Base map</string>
   <string name="offline_map_imagery_download_progress_dialog_message">Downloading offline map imagery…</string>
   <string name="multiple_regions">Multiple regions</string>
 </resources>

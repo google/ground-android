@@ -19,7 +19,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.*
 import androidx.test.espresso.matcher.ViewMatchers.*
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.model.task.Task
@@ -65,13 +65,13 @@ class DropAPinTaskFragmentTest :
 
   @Test
   fun testDropPin() = runWithTestDispatcher {
-    val testPosition = CameraPosition(Coordinate(10.0, 20.0))
+    val testPosition = CameraPosition(Coordinates(10.0, 20.0))
     setupTaskFragment<DropAPinTaskFragment>(task)
 
     viewModel.updateCameraPosition(testPosition)
     onView(withText("Drop pin")).perform(click())
 
-    hasTaskData(GeometryData(Point(Coordinate(10.0, 20.0))))
+    hasTaskData(GeometryData(Point(Coordinates(10.0, 20.0))))
     buttonIsEnabled("Continue")
     buttonIsEnabled(ButtonAction.UNDO)
     buttonIsHidden("Drop pin")
@@ -88,7 +88,7 @@ class DropAPinTaskFragmentTest :
   fun testInfoCard_withTaskData() {
     setupTaskFragment<DropAPinTaskFragment>(task)
 
-    viewModel.updateCameraPosition(CameraPosition(Coordinate(10.0, 20.0)))
+    viewModel.updateCameraPosition(CameraPosition(Coordinates(10.0, 20.0)))
     onView(withText("Drop pin")).perform(click())
 
     infoCardShown("Dropped pin", "10°0'0\" N 20°0'0\" E")
@@ -96,7 +96,7 @@ class DropAPinTaskFragmentTest :
 
   @Test
   fun testUndo() = runWithTestDispatcher {
-    val testPosition = CameraPosition(Coordinate(10.0, 20.0))
+    val testPosition = CameraPosition(Coordinates(10.0, 20.0))
     setupTaskFragment<DropAPinTaskFragment>(task)
 
     viewModel.updateCameraPosition(testPosition)

@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
@@ -77,17 +77,17 @@ class SubmissionMutationConverterTest {
 
   private val numberTaskData = NumberTaskData.fromNumber("123")
 
-  private val pointTaskData = GeometryData(Point(Coordinate(10.0, 20.0)))
+  private val pointTaskData = GeometryData(Point(Coordinates(10.0, 20.0)))
 
   private val polygonTaskData =
     GeometryData(
       Polygon(
         LinearRing(
           listOf(
-            Coordinate(10.0, 20.0),
-            Coordinate(20.0, 30.0),
-            Coordinate(30.0, 20.0),
-            Coordinate(10.0, 20.0)
+            Coordinates(10.0, 20.0),
+            Coordinates(20.0, 30.0),
+            Coordinates(30.0, 20.0),
+            Coordinates(10.0, 20.0)
           )
         )
       )

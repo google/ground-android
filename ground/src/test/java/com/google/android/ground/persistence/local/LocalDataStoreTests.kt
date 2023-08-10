@@ -18,7 +18,7 @@ package com.google.android.ground.persistence.local
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
-import com.google.android.ground.model.geometry.Coordinate
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
@@ -418,25 +418,25 @@ class LocalDataStoreTests : BaseHiltTest() {
     private val TEST_JOB = Job("job id", "heading title", mapOf(Pair(TEST_TASK.id, TEST_TASK)))
     private val TEST_SURVEY =
       Survey("survey id", "survey 1", "foo description", mapOf(Pair(TEST_JOB.id, TEST_JOB)))
-    private val TEST_POINT = Point(Coordinate(110.0, -23.1))
-    private val TEST_POINT_2 = Point(Coordinate(51.0, 44.0))
+    private val TEST_POINT = Point(Coordinates(110.0, -23.1))
+    private val TEST_POINT_2 = Point(Coordinates(51.0, 44.0))
     private val TEST_POLYGON_1 =
       listOf(
-        Point(Coordinate(49.874502, 8.655993)),
-        Point(Coordinate(49.874099, 8.651173)),
-        Point(Coordinate(49.872919, 8.651628)),
-        Point(Coordinate(49.873164, 8.653515)),
-        Point(Coordinate(49.874343, 8.653038)),
-        Point(Coordinate(49.874502, 8.655993))
+        Point(Coordinates(49.874502, 8.655993)),
+        Point(Coordinates(49.874099, 8.651173)),
+        Point(Coordinates(49.872919, 8.651628)),
+        Point(Coordinates(49.873164, 8.653515)),
+        Point(Coordinates(49.874343, 8.653038)),
+        Point(Coordinates(49.874502, 8.655993))
       )
     private val TEST_POLYGON_2 =
       listOf(
-        Point(Coordinate(49.865374, 8.646920)),
-        Point(Coordinate(49.864241, 8.647286)),
-        Point(Coordinate(49.864664, 8.650387)),
-        Point(Coordinate(49.863102, 8.650445)),
-        Point(Coordinate(49.863051, 8.647306)),
-        Point(Coordinate(49.865374, 8.646920))
+        Point(Coordinates(49.865374, 8.646920)),
+        Point(Coordinates(49.864241, 8.647286)),
+        Point(Coordinates(49.864664, 8.650387)),
+        Point(Coordinates(49.863102, 8.650445)),
+        Point(Coordinates(49.863051, 8.647306)),
+        Point(Coordinates(49.865374, 8.646920))
       )
     private val TEST_LOI_MUTATION = createTestLocationOfInterestMutation(TEST_POINT)
     private val TEST_POLYGON_LOI_MUTATION = createTestAreaOfInterestMutation(TEST_POLYGON_1)
@@ -465,7 +465,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       OfflineArea(
         "id_1",
         OfflineArea.State.PENDING,
-        Bounds(Coordinate(0.0, 0.0), Coordinate(0.0, 0.0)),
+        Bounds(Coordinates(0.0, 0.0), Coordinates(0.0, 0.0)),
         "Test Area"
       )
 
