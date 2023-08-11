@@ -58,7 +58,7 @@ def getCommitSha1 = { ->
 }
 
 android {
-    compileSdkVersion rootProject.androidCompileSdk
+    compileSdk rootProject.androidCompileSdk
     defaultConfig {
         applicationId "com.google.android.ground"
         minSdkVersion rootProject.androidMinSdk

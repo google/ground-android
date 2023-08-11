@@ -23,7 +23,7 @@ apply from: '../config/jacoco/jacoco.gradle'
 
 android {
     namespace 'com.sharedtest'
-    compileSdkVersion rootProject.androidCompileSdk
+    compileSdk rootProject.androidCompileSdk
 
     defaultConfig {
         minSdkVersion rootProject.androidMinSdk

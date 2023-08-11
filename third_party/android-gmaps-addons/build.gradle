@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 android {
     namespace 'com.cocoahero.android.gmaps.addons'
-    compileSdkVersion rootProject.androidCompileSdk
+    compileSdk rootProject.androidCompileSdk
 
     defaultConfig {
         minSdkVersion rootProject.androidMinSdk
