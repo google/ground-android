@@ -66,9 +66,11 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     getMapViewModel().setLocationLockEnabled(true)
 
     // Offline imagery
-    lifecycleScope.launch {
-      getMapViewModel().offlineImageryEnabled.collect { enabled ->
-        if (enabled) addTileOverlays() else map.clearTileOverlays()
+    if (getMapConfig().tileOverlay) {
+      lifecycleScope.launch {
+        getMapViewModel().offlineImageryEnabled.collect { enabled ->
+          if (enabled) addTileOverlays() else map.clearTileOverlays()
+        }
       }
     }
 
@@ -145,4 +147,11 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   /** Provides an implementation of [BaseMapViewModel]. */
   protected abstract fun getMapViewModel(): BaseMapViewModel
+
+  /** Configuration to enable/disable base map features. */
+  protected open fun getMapConfig(): MapConfig = DEFAULT_MAP_CONFIG
+
+  companion object {
+    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(tileOverlay = true)
+  }
 }
