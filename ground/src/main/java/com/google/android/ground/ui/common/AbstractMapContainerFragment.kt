@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.common
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -77,10 +78,11 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     onMapReady(map)
   }
 
+  @SuppressLint("FragmentLiveDataObserve")
   private fun addTileOverlays() {
     // TODO(#1756): Clear tile overlays on change to stop accumulating them on map.
 
-    // TODO: Changing the owner to `viewLifecycleOwner` in observe() causes a crash in task fragment
+    // TODO(#1782): Changing the owner to `viewLifecycleOwner` in observe() causes a crash in task fragment
     //  and converting live data to flow results in clear tiles not working. Figure out a better way
     //  to fix the IDE warning.
     getMapViewModel().tileOverlays.observe(this) { it.forEach(map::addTileOverlay) }
