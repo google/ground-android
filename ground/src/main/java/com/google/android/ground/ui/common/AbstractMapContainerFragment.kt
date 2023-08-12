@@ -82,9 +82,9 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   private fun addTileOverlays() {
     // TODO(#1756): Clear tile overlays on change to stop accumulating them on map.
 
-    // TODO(#1782): Changing the owner to `viewLifecycleOwner` in observe() causes a crash in task fragment
-    //  and converting live data to flow results in clear tiles not working. Figure out a better way
-    //  to fix the IDE warning.
+    // TODO(#1782): Changing the owner to `viewLifecycleOwner` in observe() causes a crash in task
+    //  fragment and converting live data to flow results in clear tiles not working. Figure out a
+    //  better way to fix the IDE warning.
     getMapViewModel().tileOverlays.observe(this) { it.forEach(map::addTileOverlay) }
     getMapViewModel().mbtilesFilePaths.observe(this) { map.addLocalTileOverlays(it) }
   }
