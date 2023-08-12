@@ -59,6 +59,10 @@ class MapTypeDialogFragment : Hilt_MapTypeDialogFragment() {
     val recyclerview = binding.recyclerView
     recyclerview.adapter =
       MapTypeAdapter(requireContext(), mapTypes, index) { onMapTypeSelected(it) }
+
+    binding.offlineMapPreferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
+      mapStateRepository.isOfflineImageryEnabled = isChecked
+    }
   }
 
   private fun onMapTypeSelected(position: Int) {
