@@ -97,6 +97,7 @@ constructor(
     get() = allowThreadDiskReads { preferences.getBoolean(OFFLINE_MAP_IMAGERY, false) }
     set(value) = allowThreadDiskReads {
       preferences.edit().putBoolean(OFFLINE_MAP_IMAGERY, value).apply()
+      _offlineImageryEnabled.value = value
     }
 
   /** Removes all values stored in the local store. */

@@ -92,6 +92,7 @@ internal constructor(
    */
   val loisWithinMapBoundsAtVisibleZoomLevel: LiveData<List<LocationOfInterest>>
 
+  val offlineImageryEnabled: Flow<Boolean> = mapStateRepository.offlineImageryFlow
   val suggestLoiJobs: Flow<List<Job>>
 
   init {
