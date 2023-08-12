@@ -15,15 +15,19 @@
  */
 package com.google.android.ground.repository
 
+import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.ui.map.MapType
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlin.test.Ignore
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MapStateRepositoryTest : BaseHiltTest() {
@@ -59,5 +63,18 @@ class MapStateRepositoryTest : BaseHiltTest() {
     mapStateRepository.isLocationLockEnabled = true
 
     assertThat(mapStateRepository.isLocationLockEnabled).isTrue()
+  }
+
+  @Test
+  fun isOfflineImageryEnabled_default() = runWithTestDispatcher {
+    assertThat(mapStateRepository.isOfflineImageryEnabled).isFalse()
+  }
+
+  @Test
+  @Ignore("Changing the preference should update the value of returned value. Fix this!")
+  fun isOfflineImageryEnabled_whenEnabled_returnsTrue() = runWithTestDispatcher {
+    mapStateRepository.isOfflineImageryEnabled = true
+
+    mapStateRepository.offlineImageryFlow.test { assertThat(expectMostRecentItem()).isTrue() }
   }
 }
