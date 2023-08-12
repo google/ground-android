@@ -183,12 +183,6 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
       onBottomSheetStateChange(state, map)
     }
 
-    lifecycleScope.launch {
-      mapContainerViewModel.offlineImageryEnabled.collect { enabled ->
-        if (enabled) addTileOverlays() else map.clearTileOverlays()
-      }
-    }
-
     adapter.setLoiCardFocusedListener {
       when (it) {
         is MapCardUiData.LoiCardUiData -> map.setActiveLocationOfInterest(it.loi.id)
@@ -196,12 +190,6 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
         null -> map.setActiveLocationOfInterest(null)
       }
     }
-  }
-
-  private fun addTileOverlays() {
-    // TODO(#1756): Clear tile overlays on change to stop accumulating them on map.
-    mapContainerViewModel.tileOverlays.observe(this) { it.forEach(map::addTileOverlay) }
-    mapContainerViewModel.mbtilesFilePaths.observe(this) { map.addLocalTileOverlays(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel

@@ -65,7 +65,20 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     // Enable map controls
     getMapViewModel().setLocationLockEnabled(true)
 
+    // Offline imagery
+    lifecycleScope.launch {
+      getMapViewModel().offlineImageryEnabled.collect { enabled ->
+        if (enabled) addTileOverlays() else map.clearTileOverlays()
+      }
+    }
+
     onMapReady(map)
+  }
+
+  private fun addTileOverlays() {
+    // TODO(#1756): Clear tile overlays on change to stop accumulating them on map.
+    getMapViewModel().tileOverlays.observe(this) { it.forEach(map::addTileOverlay) }
+    getMapViewModel().mbtilesFilePaths.observe(this) { map.addLocalTileOverlays(it) }
   }
 
   /** Opens a dialog for selecting a [MapType] for the basemap layer. */

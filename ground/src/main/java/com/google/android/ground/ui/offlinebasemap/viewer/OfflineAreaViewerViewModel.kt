@@ -22,6 +22,7 @@ import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
+import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
@@ -54,14 +55,17 @@ constructor(
   mapStateRepository: MapStateRepository,
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
-  mapController: MapController
+  mapController: MapController,
+  surveyRepository: SurveyRepository
 ) :
   BaseMapViewModel(
     locationManager,
     mapStateRepository,
     settingsManager,
+    offlineAreaRepository,
     permissionsManager,
-    mapController
+    mapController,
+    surveyRepository
   ) {
 
   private val fragmentArgs: @Hot(replays = true) PublishSubject<OfflineAreaViewerFragmentArgs> =

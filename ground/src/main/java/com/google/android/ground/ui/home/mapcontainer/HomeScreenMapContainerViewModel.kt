@@ -16,14 +16,11 @@
 package com.google.android.ground.ui.home.mapcontainer
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.toLiveData
 import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.imagery.MbtilesFile
-import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
@@ -49,7 +46,6 @@ import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import timber.log.Timber
 
 @SharedViewModel
@@ -61,25 +57,23 @@ internal constructor(
   private val mapStateRepository: MapStateRepository,
   locationManager: LocationManager,
   settingsManager: SettingsManager,
+  offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
   surveyRepository: SurveyRepository,
-  private val offlineAreaRepository: OfflineAreaRepository,
 ) :
   BaseMapViewModel(
     locationManager,
     mapStateRepository,
     settingsManager,
+    offlineAreaRepository,
     permissionsManager,
-    mapController
+    mapController,
+    surveyRepository
   ) {
-
-  val tileOverlays: LiveData<List<TileSource>>
 
   val mapLocationOfInterestFeatures: LiveData<Set<Feature>>
 
   private var lastCameraPosition: CameraPosition? = null
-
-  val mbtilesFilePaths: LiveData<Set<String>>
 
   private val tileProviders: MutableList<MapBoxOfflineTileProvider> = ArrayList()
 
@@ -92,7 +86,6 @@ internal constructor(
    */
   val loisWithinMapBoundsAtVisibleZoomLevel: LiveData<List<LocationOfInterest>>
 
-  val offlineImageryEnabled: Flow<Boolean> = mapStateRepository.offlineImageryFlow
   val suggestLoiJobs: Flow<List<Job>>
 
   init {
@@ -114,16 +107,6 @@ internal constructor(
         }
         .toLiveData()
 
-    tileOverlays =
-      surveyRepository.activeSurveyFlow
-        .mapNotNull { it?.tileSources?.mapNotNull(this::toLocalTileSource) ?: listOf() }
-        .asLiveData()
-    mbtilesFilePaths =
-      offlineAreaRepository
-        .downloadedTileSetsOnceAndStream()
-        .map { set: Set<MbtilesFile> -> set.map(MbtilesFile::path).toSet() }
-        .toLiveData()
-
     loisWithinMapBoundsAtVisibleZoomLevel =
       surveyRepository.activeSurveyFlowable
         .switchMap { survey ->
@@ -142,14 +125,6 @@ internal constructor(
       surveyRepository.activeSurveyFlow.map {
         it?.jobs?.filter { job -> job.suggestLoiTaskType != null }?.toList() ?: listOf()
       }
-  }
-
-  private fun toLocalTileSource(tileSource: TileSource): TileSource? {
-    if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
-    return TileSource(
-      "file://" + offlineAreaRepository.getLocalTileSourcePath() + "/{z}/{x}/{y}.jpg",
-      TileSource.Type.TILED_WEB_MAP
-    )
   }
 
   private fun toLocationOfInterestFeatures(
