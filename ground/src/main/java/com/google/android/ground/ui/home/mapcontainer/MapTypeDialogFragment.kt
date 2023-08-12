@@ -60,6 +60,7 @@ class MapTypeDialogFragment : Hilt_MapTypeDialogFragment() {
     recyclerview.adapter =
       MapTypeAdapter(requireContext(), mapTypes, index) { onMapTypeSelected(it) }
 
+    binding.offlineMapPreferenceSwitch.isChecked = mapStateRepository.isOfflineImageryEnabled
     binding.offlineMapPreferenceSwitch.setOnCheckedChangeListener { _, isChecked ->
       mapStateRepository.isOfflineImageryEnabled = isChecked
     }
