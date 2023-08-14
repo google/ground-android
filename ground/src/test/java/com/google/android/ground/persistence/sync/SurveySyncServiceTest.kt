@@ -86,7 +86,7 @@ class SurveySyncServiceTest : BaseHiltTest() {
     advanceUntilIdle()
 
     // TODO(#1787): Re-enable once GCB-specific failure resolved.
-//    verify(syncSurvey).invoke(surveyId)
+    //    verify(syncSurvey).invoke(surveyId)
     assertEquals(WorkInfo.State.SUCCEEDED, workManager.getWorkInfoById(requestId).await().state)
   }
 }
