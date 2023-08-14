@@ -58,7 +58,7 @@ def getCommitSha1 = { ->
 }
 
 android {
-    compileSdkVersion rootProject.androidCompileSdk
+    compileSdk rootProject.androidCompileSdk
     defaultConfig {
         applicationId "com.google.android.ground"
         minSdkVersion rootProject.androidMinSdk
@@ -112,11 +112,6 @@ android {
         }
     }
 
-    // Keep the following configuration in order to target Java 9.
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_9
-        targetCompatibility JavaVersion.VERSION_1_9
-    }
     buildFeatures {
         dataBinding true
         viewBinding true
@@ -315,3 +310,7 @@ apply plugin: 'androidx.navigation.safeargs'
 // This must be last to avoid dependency collisions.
 // https://developers.google.com/android/guides/google-services-plugin#introduction
 apply plugin: 'com.google.gms.google-services'
+
+kotlin {
+    jvmToolchain rootProject.jvmToolchainVersion
+}
