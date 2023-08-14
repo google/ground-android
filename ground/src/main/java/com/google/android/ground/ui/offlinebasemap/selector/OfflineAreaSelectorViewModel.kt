@@ -55,8 +55,10 @@ internal constructor(
     locationManager,
     mapStateRepository,
     settingsManager,
+    offlineAreaRepository,
     permissionsManager,
-    mapController
+    mapController,
+    surveyRepository
   ) {
   enum class DownloadMessage {
     STARTED,

@@ -61,7 +61,7 @@ steps:
       - |
         tar zxf $(< hashsum)-cache.tgz || echo "No cache found."
 
-  - name: 'gcr.io/$PROJECT_ID/android:30'
+  - name: 'gcr.io/$PROJECT_ID/android:34'
     id: &config_google_services 'Load debug google-services.json'
     waitFor: [ '-' ]
     entrypoint: 'bash'
@@ -70,7 +70,14 @@ steps:
       - |
         gcloud secrets versions access latest --secret=$_GOOGLE_SERVICES_JSON --format='get(payload.data)' | tr '_-' '/+' | base64 -d > ground/google-services.json
 
-  - name: 'gcr.io/$PROJECT_ID/android:30'
+  - name: 'gcr.io/$PROJECT_ID/android:34'
+    id: &print_debug 'Print debug info'
+    args:
+      - '-c'
+      - |
+        ./gradlew --version
+
+  - name: 'gcr.io/$PROJECT_ID/android:34'
     id: &assemble_debug 'Assemble debug apks'
     waitFor:
       - *extract_build_cache
@@ -86,7 +93,7 @@ steps:
   #        fi
 
   # Run code quality checks
-  - name: 'gcr.io/$PROJECT_ID/android:30'
+  - name: 'gcr.io/$PROJECT_ID/android:34'
     id: &code_quality 'Run code quality checks'
     waitFor:
       - *assemble_debug
@@ -100,7 +107,7 @@ steps:
           ./gradlew -PdisablePreDex dependencyUpdates
         fi
 
-  - name: 'gcr.io/$PROJECT_ID/android:30'
+  - name: 'gcr.io/$PROJECT_ID/android:34'
     id: &unit_tests 'Run unit tests'
     waitFor:
       - *assemble_debug
@@ -113,7 +120,7 @@ steps:
         # TODO: Add a check for _PUSH_TO_MASTER
         ./gradlew jacocoTestStagingUnitTestReport
 
-  - name: 'gcr.io/$PROJECT_ID/android:30'
+  - name: 'gcr.io/$PROJECT_ID/android:34'
     id: &authenticate_gcloud 'Authorize gcloud'
     waitFor:
       - *assemble_debug
@@ -125,7 +132,7 @@ steps:
         gcloud auth activate-service-account --key-file client-secret.json
 
   # For more details: https://cloud.google.com/sdk/gcloud/reference/alpha/firebase/test/android/run
-  - name: 'gcr.io/$PROJECT_ID/android:30'
+  - name: 'gcr.io/$PROJECT_ID/android:34'
     id: &instrumented_tests 'Run instrumented tests'
     waitFor:
       - *authenticate_gcloud

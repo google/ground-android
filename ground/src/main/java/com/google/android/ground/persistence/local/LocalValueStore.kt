@@ -25,6 +25,9 @@ import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
 
 /**
@@ -37,8 +40,12 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
   private val mapTypeProcessor: BehaviorProcessor<MapType> =
     BehaviorProcessor.createDefault(mapType)
 
+  private val _offlineImageryEnabled = MutableStateFlow(isOfflineImageryEnabled)
+
   val mapTypeFlowable: Flowable<MapType>
     get() = allowThreadDiskReads { mapTypeProcessor }
+
+  val offlineImageryEnabledFlow: StateFlow<Boolean> = _offlineImageryEnabled.asStateFlow()
 
   /**
    * Id of the last survey successfully activated by the user. This value is only updated after the
@@ -74,6 +81,14 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     get() = allowThreadDiskReads { preferences.getBoolean(TOS_ACCEPTED, false) }
     set(value) = allowThreadDiskWrites {
       preferences.edit().putBoolean(TOS_ACCEPTED, value).apply()
+    }
+
+  /** Whether to overlay offline map imagery. */
+  var isOfflineImageryEnabled: Boolean
+    get() = allowThreadDiskReads { preferences.getBoolean(OFFLINE_MAP_IMAGERY, false) }
+    set(value) = allowThreadDiskReads {
+      preferences.edit().putBoolean(OFFLINE_MAP_IMAGERY, value).apply()
+      _offlineImageryEnabled.value = value
     }
 
   /** Removes all values stored in the local store. */
@@ -114,5 +129,6 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     const val LAST_VIEWPORT_PREFIX = "last_viewport_"
     const val TOS_ACCEPTED = "tos_accepted"
     const val LOCATION_LOCK_ENABLED = "location_lock_enabled"
+    const val OFFLINE_MAP_IMAGERY = "offline_map_imagery"
   }
 }
