@@ -162,7 +162,7 @@ dependencies {
     implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:1.7.4'
 
     // Google Play Services.
-    implementation 'com.google.android.gms:play-services-auth:20.5.0'
+    implementation 'com.google.android.gms:play-services-auth:20.6.0'
     implementation "com.google.android.gms:play-services-maps:$rootProject.gmsMapsVersion"
     implementation 'com.google.android.gms:play-services-location:21.0.1'
 
@@ -175,9 +175,10 @@ dependencies {
     testImplementation 'org.json:json:20180813'
 
     // Firebase and related libraries.
-    implementation platform('com.google.firebase:firebase-bom:31.1.1')
+    implementation platform('com.google.firebase:firebase-bom:32.2.0')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-functions-ktx'
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-perf'
     implementation 'com.google.firebase:firebase-storage'
