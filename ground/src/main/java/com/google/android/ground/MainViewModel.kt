@@ -20,7 +20,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDirections
 import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.domain.usecases.survey.ReactivateLastSurveyUseCase
-import com.google.android.ground.model.User
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
@@ -79,40 +78,42 @@ constructor(
     return signInState.result.fold(
       {
         when (signInState.state) {
-          SignInState.State.SIGNED_IN ->
-            rxObservable(defaultDispatcher) { send(onUserSignedIn(it!!)) }
-          SignInState.State.SIGNED_OUT -> onUserSignedOut()
+          SignInState.State.SIGNED_IN -> rxObservable(defaultDispatcher) { send(onUserSignedIn()) }
+          SignInState.State.SIGNED_OUT -> Observable.just(onUserSignedOut())
           else -> Observable.never()
         }
       },
-      { onUserSignInError(it) }
+      { Observable.just(onUserSignInError(it)) }
     )
   }
 
-  private fun onUserSignInError(error: Throwable): Observable<NavDirections> {
-    Timber.e("Authentication error: $error")
+  private fun onUserSignInError(error: Throwable): NavDirections {
+    Timber.e(error, "Sign in failed")
     popups.showError(R.string.sign_in_unsuccessful)
     return onUserSignedOut()
   }
 
-  private fun onUserSignedOut(): Observable<NavDirections> {
+  private fun onUserSignedOut(): NavDirections {
     // Scope of subscription is until view model is cleared. Dispose it manually otherwise, firebase
     // attempts to maintain a connection even after user has logged out and throws an error.
     surveyRepository.clearActiveSurvey()
     userRepository.clearUserPreferences()
-    return Observable.just(SignInFragmentDirections.showSignInScreen())
+    return SignInFragmentDirections.showSignInScreen()
   }
 
-  private suspend fun onUserSignedIn(user: User): NavDirections {
-    userRepository.saveUser(user)
-    val tos = termsOfServiceRepository.getTermsOfService()
-    return if (tos == null || termsOfServiceRepository.isTermsOfServiceAccepted) {
-      reactivateLastSurvey()
-      getDirectionAfterSignIn()
-    } else {
-      SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(tos.text)
+  private suspend fun onUserSignedIn(): NavDirections =
+    try {
+      userRepository.saveUserDetails()
+      val tos = termsOfServiceRepository.getTermsOfService()
+      if (tos == null || termsOfServiceRepository.isTermsOfServiceAccepted) {
+        reactivateLastSurvey()
+        getDirectionAfterSignIn()
+      } else {
+        SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(tos.text)
+      }
+    } catch (e: Throwable) {
+      onUserSignInError(e)
     }
-  }
 
   private fun getDirectionAfterSignIn(): NavDirections =
     if (surveyRepository.activeSurvey != null) {
