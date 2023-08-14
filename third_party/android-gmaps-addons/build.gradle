@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 android {
     namespace 'com.cocoahero.android.gmaps.addons'
-    compileSdkVersion rootProject.androidCompileSdk
+    compileSdk rootProject.androidCompileSdk
 
     defaultConfig {
         minSdkVersion rootProject.androidMinSdk
@@ -17,4 +17,10 @@ android {
 
 dependencies {
   implementation "com.google.android.gms:play-services-maps:$rootProject.gmsMapsVersion"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(rootProject.jvmToolchainVersion)
+    }
 }
