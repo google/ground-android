@@ -67,6 +67,7 @@ import java8.util.function.Consumer
 import javax.inject.Inject
 import kotlin.math.min
 import kotlin.math.sqrt
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import timber.log.Timber
 
@@ -117,6 +118,8 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
 
   private val locationOfInterestInteractionSubject: @Hot PublishSubject<List<Feature>> =
     PublishSubject.create()
+
+  private val tileOverlays = mutableListOf<TileOverlay>()
 
   override val locationOfInterestInteractions: @Hot Observable<List<Feature>> =
     locationOfInterestInteractionSubject
@@ -379,7 +382,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     try {
       val tileProvider = MapBoxOfflineTileProvider(mbtilesFile)
       tileProvidersSubject.onNext(tileProvider)
-      map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
+      addTileOverlay(tileProvider)
     } catch (e: Exception) {
       Timber.e(e, "Couldn't initialize tile provider for mbtiles file $mbtilesFile")
     }
@@ -389,8 +392,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     mbtilesFiles.forEach { filePath -> addTileOverlay(filePath) }
 
   private fun addTemplateUrlTileOverlay(url: String) {
-    val tileProvider = TemplateUrlTileProvider(url)
-    map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
+    addTileOverlay(TemplateUrlTileProvider(url))
   }
 
   override fun addTileOverlay(tileSource: TileSource) =
@@ -406,8 +408,24 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
       MogCollection(
         listOf(MogSource("${url}/world.tif", 0..7), MogSource("${url}/{x}/{y}.tif", 8..14))
       )
-    val tileProvider = MogTileProvider(mogCollection)
-    map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
+    addTileOverlay(MogTileProvider(mogCollection))
+  }
+
+  private fun addTileOverlay(tileProvider: TileProvider) {
+    val tileOverlay = map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
+    if (tileOverlay == null) {
+      Timber.e("Unable to add tile overlay $tileProvider")
+      return
+    }
+
+    tileOverlays.add(tileOverlay)
+  }
+
+  override fun clearTileOverlays() {
+    if (tileOverlays.isEmpty()) return
+
+    tileOverlays.toImmutableList().forEach { it.remove() }
+    tileOverlays.clear()
   }
 
   override fun setActiveLocationOfInterest(newLoiId: String?) {
