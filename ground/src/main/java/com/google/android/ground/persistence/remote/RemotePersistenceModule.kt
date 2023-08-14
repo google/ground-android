@@ -22,6 +22,9 @@ import com.google.android.ground.persistence.remote.firebase.FirestoreUuidGenera
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.google.firebase.functions.FirebaseFunctions
+import com.google.firebase.functions.ktx.functions
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import dagger.Binds
@@ -70,5 +73,7 @@ abstract class RemotePersistenceModule {
     fun firebaseStorageReference(): StorageReference {
       return FirebaseStorage.getInstance().reference
     }
+
+    @Provides @Singleton fun firebaseFuntions(): FirebaseFunctions = Firebase.functions
   }
 }
