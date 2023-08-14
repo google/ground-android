@@ -38,7 +38,6 @@ class MapTypeDialogFragment : Hilt_MapTypeDialogFragment() {
   private lateinit var mapTypes: List<MapType>
 
   // TODO(#936): Remove the suppress annotation when fragment dependency is upgraded to 1.3.4
-  // TODO(#1753): Handle preference change for offline imagery
   // TODO(#1753): Handle click for help icon
   @SuppressLint("UseRequireInsteadOfGet")
   override fun onCreateView(
