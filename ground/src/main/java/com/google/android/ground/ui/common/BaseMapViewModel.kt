@@ -161,7 +161,7 @@ constructor(
     private val LOCATION_LOCK_ICON_TINT_ENABLED = R.color.md_theme_primary
     private val LOCATION_LOCK_ICON_TINT_DISABLED = R.color.md_theme_onSurfaceVariant
 
-    // TODO(Shobhit): Consider adding another icon for representing "GPS disabled" state.
+    // TODO(#1789): Consider adding another icon for representing "GPS disabled" state.
     private val LOCATION_LOCK_ICON_ENABLED = R.drawable.ic_gps_lock
     private val LOCATION_LOCK_ICON_DISABLED = R.drawable.ic_gps_lock_not_fixed
   }
