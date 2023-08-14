@@ -18,10 +18,15 @@ package com.google.android.ground.ui.common
 import android.Manifest
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
+import com.google.android.ground.model.imagery.MbtilesFile
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.repository.MapStateRepository
+import com.google.android.ground.repository.OfflineAreaRepository
+import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.FINE_LOCATION_UPDATES_REQUEST
@@ -38,11 +43,13 @@ import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -53,8 +60,10 @@ constructor(
   private val locationManager: LocationManager,
   private val mapStateRepository: MapStateRepository,
   private val settingsManager: SettingsManager,
+  private val offlineAreaRepository: OfflineAreaRepository,
   private val permissionsManager: PermissionsManager,
-  mapController: MapController
+  mapController: MapController,
+  surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
   private val cameraZoomSubject: @Hot Subject<Float> = PublishSubject.create()
@@ -96,9 +105,31 @@ constructor(
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
+  val tileOverlays: LiveData<List<TileSource>>
+  val mbtilesFilePaths: LiveData<Set<String>>
+  val offlineImageryEnabled: Flow<Boolean> = mapStateRepository.offlineImageryFlow
+
   init {
     cameraUpdateRequests = mapController.getCameraUpdates().map { Event.create(it) }.toLiveData()
     mapType = mapStateRepository.mapTypeFlowable.toLiveData()
+    tileOverlays =
+      surveyRepository.activeSurveyFlow
+        .mapNotNull { it?.tileSources?.mapNotNull(this::toLocalTileSource) ?: listOf() }
+        .asLiveData()
+    mbtilesFilePaths =
+      offlineAreaRepository
+        .downloadedTileSetsOnceAndStream()
+        .map { set: Set<MbtilesFile> -> set.map(MbtilesFile::path).toSet() }
+        .toLiveData()
+  }
+
+  // TODO(#1790): Maybe create a new data class object which is not of type TileSource.
+  private fun toLocalTileSource(tileSource: TileSource): TileSource? {
+    if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
+    return TileSource(
+      "file://${offlineAreaRepository.getLocalTileSourcePath()}/{z}/{x}/{y}.jpg",
+      TileSource.Type.TILED_WEB_MAP
+    )
   }
 
   private suspend fun toggleLocationLock() {

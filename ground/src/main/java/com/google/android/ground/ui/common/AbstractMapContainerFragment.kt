@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.common
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -65,7 +66,27 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     // Enable map controls
     getMapViewModel().setLocationLockEnabled(true)
 
+    // Offline imagery
+    if (getMapConfig().showTileOverlays) {
+      lifecycleScope.launch {
+        getMapViewModel().offlineImageryEnabled.collect { enabled ->
+          if (enabled) addTileOverlays() else map.clearTileOverlays()
+        }
+      }
+    }
+
     onMapReady(map)
+  }
+
+  @SuppressLint("FragmentLiveDataObserve")
+  private fun addTileOverlays() {
+    // TODO(#1756): Clear tile overlays on change to stop accumulating them on map.
+
+    // TODO(#1782): Changing the owner to `viewLifecycleOwner` in observe() causes a crash in task
+    //  fragment and converting live data to flow results in clear tiles not working. Figure out a
+    //  better way to fix the IDE warning.
+    getMapViewModel().tileOverlays.observe(this) { it.forEach(map::addTileOverlay) }
+    getMapViewModel().mbtilesFilePaths.observe(this) { map.addLocalTileOverlays(it) }
   }
 
   /** Opens a dialog for selecting a [MapType] for the basemap layer. */
@@ -132,4 +153,11 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   /** Provides an implementation of [BaseMapViewModel]. */
   protected abstract fun getMapViewModel(): BaseMapViewModel
+
+  /** Configuration to enable/disable base map features. */
+  protected open fun getMapConfig(): MapConfig = DEFAULT_MAP_CONFIG
+
+  companion object {
+    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showTileOverlays = true)
+  }
 }
