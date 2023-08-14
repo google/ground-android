@@ -20,9 +20,7 @@
 #
 # Based on https://github.com/GoogleCloudPlatform/cloud-builders-community
 
-# We use openjdk13 rather than gcr.io/cloud-builders/javac because of
-# https://bugs.openjdk.java.net/browse/JDK-8233655
-FROM adoptopenjdk/openjdk13
+FROM eclipse-temurin:17
 
 ENV DEBIAN_FRONTEND=noninteractive
 
