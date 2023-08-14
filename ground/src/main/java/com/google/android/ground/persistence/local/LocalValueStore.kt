@@ -16,7 +16,6 @@
 package com.google.android.ground.persistence.local
 
 import android.content.SharedPreferences
-import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.ui.settings.Keys
@@ -26,11 +25,9 @@ import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
 
 /**
@@ -39,12 +36,7 @@ import timber.log.Timber
  * implementation.
  */
 @Singleton
-class LocalValueStore
-@Inject
-constructor(
-  private val preferences: SharedPreferences,
-  @ApplicationScope private val externalScope: CoroutineScope
-) {
+class LocalValueStore @Inject constructor(private val preferences: SharedPreferences) {
   private val mapTypeProcessor: BehaviorProcessor<MapType> =
     BehaviorProcessor.createDefault(mapType)
 
@@ -53,8 +45,7 @@ constructor(
   val mapTypeFlowable: Flowable<MapType>
     get() = allowThreadDiskReads { mapTypeProcessor }
 
-  val offlineImageryEnabledFlow: SharedFlow<Boolean> =
-    _offlineImageryEnabled.shareIn(externalScope, replay = 1, started = SharingStarted.Eagerly)
+  val offlineImageryEnabledFlow: StateFlow<Boolean> = _offlineImageryEnabled.asStateFlow()
 
   /**
    * Id of the last survey successfully activated by the user. This value is only updated after the

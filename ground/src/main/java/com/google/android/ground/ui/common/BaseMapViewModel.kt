@@ -123,7 +123,7 @@ constructor(
         .toLiveData()
   }
 
-  // TODO: Maybe create a new data class object which is not of type TileSource.
+  // TODO(#1790): Maybe create a new data class object which is not of type TileSource.
   private fun toLocalTileSource(tileSource: TileSource): TileSource? {
     if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
     return TileSource(

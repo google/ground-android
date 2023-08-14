@@ -67,7 +67,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     getMapViewModel().setLocationLockEnabled(true)
 
     // Offline imagery
-    if (getMapConfig().tileOverlay) {
+    if (getMapConfig().showTileOverlays) {
       lifecycleScope.launch {
         getMapViewModel().offlineImageryEnabled.collect { enabled ->
           if (enabled) addTileOverlays() else map.clearTileOverlays()
@@ -158,6 +158,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   protected open fun getMapConfig(): MapConfig = DEFAULT_MAP_CONFIG
 
   companion object {
-    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(tileOverlay = true)
+    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showTileOverlays = true)
   }
 }

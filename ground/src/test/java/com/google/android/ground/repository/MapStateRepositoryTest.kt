@@ -21,7 +21,6 @@ import com.google.android.ground.ui.map.MapType
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlin.test.Ignore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -71,7 +70,6 @@ class MapStateRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  @Ignore("Changing the preference should update the value of returned value. Fix this!")
   fun isOfflineImageryEnabled_whenEnabled_returnsTrue() = runWithTestDispatcher {
     mapStateRepository.isOfflineImageryEnabled = true
 
