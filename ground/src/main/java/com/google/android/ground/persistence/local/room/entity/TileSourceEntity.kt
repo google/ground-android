@@ -15,7 +15,11 @@
  */
 package com.google.android.ground.persistence.local.room.entity
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
 
 @Entity(
   tableName = "offline_base_map_source",
@@ -40,6 +44,7 @@ data class TileSourceEntity(
   enum class TileSourceEntityType {
     GEOJSON,
     IMAGE,
+    MOG,
     UNKNOWN
   }
 }

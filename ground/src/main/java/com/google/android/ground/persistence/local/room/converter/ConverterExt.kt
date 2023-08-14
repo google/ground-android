@@ -60,6 +60,7 @@ private fun TileSource.Type.toLocalDataStoreObject() =
   when (this) {
     TileSource.Type.TILED_WEB_MAP -> TileSourceEntity.TileSourceEntityType.IMAGE
     TileSource.Type.MBTILES_FOOTPRINTS -> TileSourceEntity.TileSourceEntityType.GEOJSON
+    TileSource.Type.MOG_COLLECTION -> TileSourceEntity.TileSourceEntityType.MOG
     else -> TileSourceEntity.TileSourceEntityType.UNKNOWN
   }
 
@@ -67,6 +68,7 @@ private fun TileSourceEntity.TileSourceEntityType.toModelObject() =
   when (this) {
     TileSourceEntity.TileSourceEntityType.IMAGE -> TileSource.Type.TILED_WEB_MAP
     TileSourceEntity.TileSourceEntityType.GEOJSON -> TileSource.Type.MBTILES_FOOTPRINTS
+    TileSourceEntity.TileSourceEntityType.MOG -> TileSource.Type.MOG_COLLECTION
     else -> TileSource.Type.UNKNOWN
   }
 

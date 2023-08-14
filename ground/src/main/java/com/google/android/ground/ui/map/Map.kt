@@ -106,4 +106,7 @@ interface Map {
   fun setActiveLocationOfInterest(newLoiId: String?)
 
   fun addTileOverlay(tileSource: TileSource)
+
+  /** Remove all tile overlays from the map. */
+  fun clearTileOverlays()
 }

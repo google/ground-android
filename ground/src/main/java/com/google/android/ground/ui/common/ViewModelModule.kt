@@ -32,6 +32,7 @@ import com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInt
 import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListItemViewModel
 import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListViewModel
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
+import com.google.android.ground.ui.home.mapcontainer.MapTypeViewModel
 import com.google.android.ground.ui.offlinebasemap.OfflineAreasViewModel
 import com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel
 import com.google.android.ground.ui.offlinebasemap.viewer.OfflineAreaViewerViewModel
@@ -148,6 +149,11 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(BaseMapViewModel::class)
   abstract fun bindBaseMapViewModel(viewModel: BaseMapViewModel): ViewModel
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(MapTypeViewModel::class)
+  abstract fun bindMapTypeViewModel(viewModel: MapTypeViewModel): ViewModel
 
   @Binds abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
 }
