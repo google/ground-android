@@ -114,8 +114,7 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
     progressAnimator.interpolator = FastOutSlowInInterpolator()
 
     progressAnimator.addUpdateListener {
-      val updatedProgress = it.animatedValue as Int
-      progressBar.progress = updatedProgress
+      progressBar.progress = it.animatedValue as Int
     }
 
     progressAnimator.start()
