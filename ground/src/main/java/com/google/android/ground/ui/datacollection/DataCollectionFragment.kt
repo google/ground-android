@@ -113,9 +113,7 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
     progressAnimator.duration = 400L
     progressAnimator.interpolator = FastOutSlowInInterpolator()
 
-    progressAnimator.addUpdateListener {
-      progressBar.progress = it.animatedValue as Int
-    }
+    progressAnimator.addUpdateListener { progressBar.progress = it.animatedValue as Int }
 
     progressAnimator.start()
   }
