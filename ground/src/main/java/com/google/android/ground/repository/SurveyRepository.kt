@@ -121,8 +121,8 @@ constructor(
     activeSurvey = null
   }
 
-  suspend fun getSurveySummaries(user: User): Flow<List<Survey>> {
-    return try {
+  suspend fun getSurveySummaries(user: User): Flow<List<Survey>> =
+    try {
       val surveys =
         withTimeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_MILLIS) {
           Timber.d("Loading survey list from remote")
@@ -133,7 +133,6 @@ constructor(
       Timber.d(e, "Failed to load survey list from remote")
       offlineSurveys
     }
-  }
 
   /** Attempts to remove the locally synced survey. Doesn't throw an error if it doesn't exist. */
   suspend fun removeOfflineSurvey(surveyId: String) {

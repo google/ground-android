@@ -28,6 +28,7 @@ import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapMerge
@@ -35,6 +36,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /** Represents view state and behaviors of the survey selector dialog. */
+@OptIn(FlowPreview::class)
 class SurveySelectorViewModel
 @Inject
 internal constructor(
@@ -49,11 +51,6 @@ internal constructor(
   val displayProgressDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
   val surveySummaries: Flow<List<SurveyItem>>
 
-  private fun offlineSurveys(): Flow<List<Survey>> = surveyRepository.offlineSurveys
-
-  private suspend fun allSurveys(): Flow<List<Survey>> =
-    surveyRepository.getSurveySummaries(authManager.currentUser)
-
   init {
     surveySummaries =
       offlineSurveys().flatMapMerge { offlineSurveys: List<Survey> ->
@@ -65,6 +62,11 @@ internal constructor(
         }
       }
   }
+
+  private fun offlineSurveys(): Flow<List<Survey>> = surveyRepository.offlineSurveys
+
+  private suspend fun allSurveys(): Flow<List<Survey>> =
+    surveyRepository.getSurveySummaries(authManager.currentUser)
 
   private fun createSurveyItem(survey: Survey, localSurveys: List<Survey>): SurveyItem =
     SurveyItem(

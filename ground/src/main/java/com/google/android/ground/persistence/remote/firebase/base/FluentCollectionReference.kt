@@ -37,7 +37,7 @@ protected constructor(
    * Returns a Completable that completes immediately on subscribe if network is available, or fails
    * in error if not.
    */
-  private fun requireActiveNetwork(): Unit =
+  private fun requireActiveNetwork() =
     requireActiveNetwork(reference.firestore.app.applicationContext)
 
   /**
@@ -48,13 +48,12 @@ protected constructor(
   protected suspend fun <T> runQuery(
     query: Query,
     mappingFunction: Function<DocumentSnapshot, T>
-  ): List<T> {
-    return withContext(ioDispatcher) {
+  ): List<T> =
+    withContext(ioDispatcher) {
       requireActiveNetwork()
       val querySnapshot = query.get().await()
       querySnapshot.documents.map { mappingFunction.apply(it) }
     }
-  }
 
   protected fun reference(): CollectionReference = reference
 
