@@ -31,7 +31,7 @@ import io.reactivex.Single
  * subscriptions are run in a background thread (i.e., not the Android main thread).
  */
 interface RemoteDataStore {
-  fun loadSurveySummaries(user: User): @Cold Single<List<Survey>>
+  suspend fun loadSurveySummaries(user: User): List<Survey>
 
   /**
    * Loads the survey with the specified id from the remote data store. Returns `null` if the survey

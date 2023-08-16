@@ -44,7 +44,7 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(SurveySelectorViewModel::class.java)
     adapter = SurveyListAdapter(viewModel, this)
-    viewModel.surveySummaries.observe(this) { adapter.updateData(it) }
+    lifecycleScope.launch { viewModel.surveySummaries.collect { adapter.updateData(it) } }
     lifecycleScope.launch {
       viewModel.displayProgressDialog.collect { handleDisplayProgressDialog(it) }
     }

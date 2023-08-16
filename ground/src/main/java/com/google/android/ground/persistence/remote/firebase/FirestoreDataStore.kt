@@ -97,14 +97,8 @@ internal constructor(
       }
       .subscribeOn(schedulers.io())
 
-  override fun loadSurveySummaries(user: User): @Cold Single<List<Survey>> =
-    db
-      .surveys()
-      .getReadable(user)
-      .onErrorResumeNext { e: Throwable ->
-        if (shouldInterceptException(e)) Single.never() else Single.error(e)
-      }
-      .subscribeOn(schedulers.io())
+  override suspend fun loadSurveySummaries(user: User): List<Survey> =
+    withContext(ioDispatcher) { db.surveys().getReadable(user) }
 
   override fun loadLocationsOfInterestOnceAndStreamChanges(
     survey: Survey
