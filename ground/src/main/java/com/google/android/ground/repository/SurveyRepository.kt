@@ -41,8 +41,8 @@ import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 
-private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15000
-private const val LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS: Long = 30
+private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000
+private const val LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_MILLIS: Long = 30 * 1000
 
 /**
  * Coordinates persistence and retrieval of [Survey] instances from remote, local, and in memory
@@ -128,17 +128,16 @@ constructor(
   suspend fun getSurveySummaries(user: User): Flow<List<Survey>> {
     Timber.d("Loading survey list from remote")
     return try {
-      loadSurveySummariesFromRemote(user).let { listOf(it).asFlow() }
+      val surveys =
+        withTimeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_MILLIS) {
+          remoteDataStore.loadSurveySummaries(user)
+        }
+      listOf(surveys).asFlow()
     } catch (e: Throwable) {
       Timber.d(e, "Failed to load survey list from remote")
       offlineSurveysFlow
     }
   }
-
-  private suspend fun loadSurveySummariesFromRemote(user: User): List<Survey> =
-    withTimeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS * 1000) {
-      remoteDataStore.loadSurveySummaries(user)
-    }
 
   /** Attempts to remove the locally synced survey. Doesn't throw an error if it doesn't exist. */
   suspend fun removeOfflineSurvey(surveyId: String) {
