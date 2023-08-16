@@ -24,7 +24,6 @@ import java8.util.function.Function
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 
 open class FluentCollectionReference
 protected constructor(
@@ -48,12 +47,11 @@ protected constructor(
   protected suspend fun <T> runQuery(
     query: Query,
     mappingFunction: Function<DocumentSnapshot, T>
-  ): List<T> =
-    withContext(ioDispatcher) {
-      requireActiveNetwork()
-      val querySnapshot = query.get().await()
-      querySnapshot.documents.map { mappingFunction.apply(it) }
-    }
+  ): List<T> {
+    requireActiveNetwork()
+    val querySnapshot = query.get().await()
+    return querySnapshot.documents.map { mappingFunction.apply(it) }
+  }
 
   protected fun reference(): CollectionReference = reference
 

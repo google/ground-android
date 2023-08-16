@@ -98,7 +98,7 @@ internal constructor(
       .subscribeOn(schedulers.io())
 
   override suspend fun loadSurveySummaries(user: User): List<Survey> =
-    db.surveys().getReadable(user)
+    withContext(ioDispatcher) { db.surveys().getReadable(user) }
 
   override fun loadLocationsOfInterestOnceAndStreamChanges(
     survey: Survey
