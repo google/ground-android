@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.ui.surveyselector
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
@@ -27,11 +25,13 @@ import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
-import io.reactivex.Flowable
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /** Represents view state and behaviors of the survey selector dialog. */
@@ -47,26 +47,23 @@ internal constructor(
 ) : AbstractViewModel() {
 
   val displayProgressDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
-  val surveySummaries: LiveData<List<SurveyItem>>
+  val surveySummaries: Flow<List<SurveyItem>>
 
-  private val offlineSurveys: Flowable<List<Survey>>
-    get() = surveyRepository.offlineSurveys
+  private fun offlineSurveys(): Flow<List<Survey>> = surveyRepository.offlineSurveysFlow
 
-  private val allSurveys: Flowable<List<Survey>>
-    get() = surveyRepository.getSurveySummaries(authManager.currentUser).toFlowable()
+  private suspend fun allSurveys(): Flow<List<Survey>> =
+    surveyRepository.getSurveySummaries(authManager.currentUser)
 
   init {
     surveySummaries =
-      offlineSurveys
-        .flatMap { offlineSurveys: List<Survey> ->
-          allSurveys.map { allSurveys: List<Survey> ->
-            allSurveys
-              .map { createSurveyItem(it, offlineSurveys) }
-              .sortedBy { it.surveyTitle }
-              .sortedByDescending { it.isAvailableOffline }
-          }
+      offlineSurveys().flatMapMerge { offlineSurveys: List<Survey> ->
+        allSurveys().map { allSurveys: List<Survey> ->
+          allSurveys
+            .map { createSurveyItem(it, offlineSurveys) }
+            .sortedBy { it.surveyTitle }
+            .sortedByDescending { it.isAvailableOffline }
         }
-        .toLiveData()
+      }
   }
 
   private fun createSurveyItem(survey: Survey, localSurveys: List<Survey>): SurveyItem =
