@@ -20,11 +20,9 @@ import com.google.android.ground.model.Constants
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.remote.firebase.base.FluentCollectionReference
-import com.google.android.ground.rx.annotations.Cold
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldPath
-import io.reactivex.Single
 
 private const val ACL_FIELD = "acl"
 private val VALID_ROLES =
@@ -40,8 +38,8 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
 
   fun survey(id: String) = SurveyDocumentReference(reference().document(id))
 
-  fun getReadable(user: User): @Cold Single<List<Survey>> =
-    runQuery(reference().whereIn(FieldPath.of(ACL_FIELD, user.email), VALID_ROLES)) {
+  suspend fun getReadable(user: User): List<Survey> =
+    runQuerySuspend(reference().whereIn(FieldPath.of(ACL_FIELD, user.email), VALID_ROLES)) {
       doc: DocumentSnapshot ->
       SurveyConverter.toSurvey(doc)
     }

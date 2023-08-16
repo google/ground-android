@@ -40,4 +40,10 @@ object NetworkManager {
   @JvmStatic
   fun requireActiveNetwork(context: Context): Completable =
     completeOrError({ isNetworkAvailable(context) }, ConnectException::class.java)
+
+  fun requireActiveNetworkBlocking(context: Context) {
+    if (!isNetworkAvailable(context)) {
+      throw ConnectException()
+    }
+  }
 }

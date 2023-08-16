@@ -18,6 +18,7 @@ package com.google.android.ground.persistence.remote.firebase.base
 
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.NetworkManager.requireActiveNetwork
+import com.google.android.ground.system.NetworkManager.requireActiveNetworkBlocking
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
@@ -27,6 +28,8 @@ import io.reactivex.Single
 import java8.util.function.Function
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 open class FluentCollectionReference
 protected constructor(
@@ -42,17 +45,32 @@ protected constructor(
   private fun requireActiveNetwork(): @Cold Completable =
     requireActiveNetwork(reference.firestore.app.applicationContext)
 
+  private fun requireActiveNetworkBlocking(): Unit =
+    requireActiveNetworkBlocking(reference.firestore.app.applicationContext)
+
   /**
    * Runs the specified query, returning a Single containing a List of values created by applying
    * the mappingFunction to all results. Fails immediately with an error if an active network is not
    * available.
    */
+  @Deprecated("Use runQuerySuspend instead")
   protected fun <T> runQuery(
     query: Query,
     mappingFunction: Function<DocumentSnapshot, T>
   ): @Cold Single<List<T>> =
     requireActiveNetwork()
       .andThen(FluentFirestore.toSingleList(RxFirestore.getCollection(query), mappingFunction))
+
+  protected suspend fun <T> runQuerySuspend(
+    query: Query,
+    mappingFunction: Function<DocumentSnapshot, T>
+  ): List<T> {
+    return withContext(ioDispatcher) {
+      requireActiveNetworkBlocking()
+      val querySnapshot = query.get().await()
+      querySnapshot.documents.map { mappingFunction.apply(it) }
+    }
+  }
 
   protected fun reference(): CollectionReference = reference
 
