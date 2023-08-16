@@ -42,6 +42,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import io.reactivex.*
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.Matchers.*
 import org.junit.Before
@@ -187,12 +188,13 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     }
   }
 
-  private fun setAllSurveys(surveys: List<Survey>) {
-    whenever(surveyRepository.getSurveySummaries(FakeData.USER)).thenReturn(Single.just(surveys))
+  private fun setAllSurveys(surveys: List<Survey>) = runWithTestDispatcher {
+    whenever(surveyRepository.getSurveySummaries(FakeData.USER))
+      .thenReturn(listOf(surveys).asFlow())
   }
 
   private fun setOfflineSurveys(surveys: List<Survey>) {
-    whenever(surveyRepository.offlineSurveys).thenReturn(Flowable.just(surveys))
+    whenever(surveyRepository.offlineSurveys).thenReturn(listOf(surveys).asFlow())
   }
 
   private fun getViewHolder(index: Int): SurveyListAdapter.ViewHolder {

@@ -16,17 +16,14 @@
 
 package com.google.android.ground.persistence.remote.firebase.base
 
-import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.NetworkManager.requireActiveNetwork
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
-import durdinapps.rxfirebase2.RxFirestore
-import io.reactivex.Completable
-import io.reactivex.Single
 import java8.util.function.Function
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
 
 open class FluentCollectionReference
 protected constructor(
@@ -39,7 +36,7 @@ protected constructor(
    * Returns a Completable that completes immediately on subscribe if network is available, or fails
    * in error if not.
    */
-  private fun requireActiveNetwork(): @Cold Completable =
+  private fun requireActiveNetwork() =
     requireActiveNetwork(reference.firestore.app.applicationContext)
 
   /**
@@ -47,12 +44,14 @@ protected constructor(
    * the mappingFunction to all results. Fails immediately with an error if an active network is not
    * available.
    */
-  protected fun <T> runQuery(
+  protected suspend fun <T> runQuery(
     query: Query,
     mappingFunction: Function<DocumentSnapshot, T>
-  ): @Cold Single<List<T>> =
+  ): List<T> {
     requireActiveNetwork()
-      .andThen(FluentFirestore.toSingleList(RxFirestore.getCollection(query), mappingFunction))
+    val querySnapshot = query.get().await()
+    return querySnapshot.documents.map { mappingFunction.apply(it) }
+  }
 
   protected fun reference(): CollectionReference = reference
 
