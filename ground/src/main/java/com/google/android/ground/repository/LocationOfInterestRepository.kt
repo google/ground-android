@@ -124,6 +124,9 @@ constructor(
   fun getLocationsOfInterestOnceAndStream(survey: Survey): Flowable<Set<LocationOfInterest>> =
     localLoiStore.getLocationsOfInterestOnceAndStream(survey)
 
+  fun findLocationsOfInterest(survey: Survey) =
+    localLoiStore.findLocationsOfInterest(survey)
+
   /** Returns a list of geometries associated with the given [Survey]. */
   suspend fun getAllGeometries(survey: Survey): List<Geometry> =
     getLocationsOfInterestOnceAndStream(survey).awaitFirst().map { it.geometry }

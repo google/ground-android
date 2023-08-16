@@ -62,7 +62,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       .map { toLocationsOfInterest(survey, it) }
       .subscribeOn(schedulers.io())
 
-  override suspend fun findLocationsOfInterest(survey: Survey) =
+  override fun findLocationsOfInterest(survey: Survey) =
     locationOfInterestDao.findByState(survey.id, EntityState.DEFAULT).map {
       toLocationsOfInterest(survey, it)
     }

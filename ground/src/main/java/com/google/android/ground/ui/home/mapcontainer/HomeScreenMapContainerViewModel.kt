@@ -23,10 +23,7 @@ import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.repository.LocationOfInterestRepository
-import com.google.android.ground.repository.MapStateRepository
-import com.google.android.ground.repository.OfflineAreaRepository
-import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.repository.*
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
@@ -45,7 +42,10 @@ import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.rx2.asFlowable
 import timber.log.Timber
 
 @SharedViewModel
@@ -55,6 +55,7 @@ internal constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mapController: MapController,
   private val mapStateRepository: MapStateRepository,
+  private val submissionRepository: SubmissionRepository
   locationManager: LocationManager,
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,
@@ -99,8 +100,9 @@ internal constructor(
         .switchMap { survey ->
           if (survey.isPresent)
             locationOfInterestRepository
-              .getLocationsOfInterestOnceAndStream(survey.get())
+              .findLocationsOfInterest(survey.get())
               .map { toLocationOfInterestFeatures(it) }
+              .asFlowable()
               .startWith(setOf<Feature>())
               .distinctUntilChanged()
           else Flowable.just(setOf())
@@ -127,15 +129,16 @@ internal constructor(
       }
   }
 
-  private fun toLocationOfInterestFeatures(
+  private suspend fun toLocationOfInterestFeatures(
     locationsOfInterest: Set<LocationOfInterest>
   ): Set<Feature> = // TODO: Add support for polylines similar to mapPins.
   locationsOfInterest
       .map {
+        val submissionCount = submissionRepository.getSubmissions(it).size
         Feature(
           id = it.id,
           type = FeatureType.LOCATION_OF_INTEREST.ordinal,
-          flag = it.job.hasData(),
+          flag = submissionCount > 0,
           geometry = it.geometry
         )
       }
