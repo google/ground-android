@@ -208,7 +208,7 @@
 
   <style name="TaskChipButton.LightGreen">
     <item name="android:backgroundTint">@drawable/task_light_green_btn_selector</item>
-    <item name="android:textColor">@color/task_light_green_btn_selector</item>
+    <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 
   <style name="TaskChipButton.Transparent">
