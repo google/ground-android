@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.repository
 
+import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.common.truth.Truth.assertThat
@@ -78,7 +79,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
     advanceUntilIdle()
 
     // Verify survey is deleted
-    surveyRepository.offlineSurveys.test().assertValues(listOf())
+    surveyRepository.offlineSurveys.test { assertThat(expectMostRecentItem()).isEmpty() }
     // Verify survey deactivated
     assertThat(surveyRepository.activeSurvey).isNull()
   }
@@ -102,7 +103,9 @@ class SurveyRepositoryTest : BaseHiltTest() {
     // Verify active survey isn't cleared
     assertThat(surveyRepository.activeSurvey).isEqualTo(survey1)
     // Verify survey is deleted
-    surveyRepository.offlineSurveys.test().assertValues(listOf(survey1))
+    surveyRepository.offlineSurveys.test {
+      assertThat(expectMostRecentItem()).isEqualTo(listOf(survey1))
+    }
   }
 
   @Test
