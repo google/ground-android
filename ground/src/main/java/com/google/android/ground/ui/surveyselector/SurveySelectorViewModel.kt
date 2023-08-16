@@ -49,7 +49,7 @@ internal constructor(
   val displayProgressDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
   val surveySummaries: Flow<List<SurveyItem>>
 
-  private fun offlineSurveys(): Flow<List<Survey>> = surveyRepository.offlineSurveysFlow
+  private fun offlineSurveys(): Flow<List<Survey>> = surveyRepository.offlineSurveys
 
   private suspend fun allSurveys(): Flow<List<Survey>> =
     surveyRepository.getSurveySummaries(authManager.currentUser)

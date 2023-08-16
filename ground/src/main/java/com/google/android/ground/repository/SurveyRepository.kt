@@ -84,12 +84,8 @@ constructor(
   val activeSurveyFlowable: @Cold Flowable<Optional<Survey>> =
     activeSurveyFlow.map { if (it == null) Optional.empty() else Optional.of(it) }.asFlowable()
 
-  val offlineSurveysFlow: Flow<List<Survey>>
+  val offlineSurveys: Flow<List<Survey>>
     get() = localSurveyStore.surveys
-
-  @Deprecated("Use offlineSurveysFlow instead")
-  val offlineSurveys: @Cold Flowable<List<Survey>>
-    get() = localSurveyStore.surveys.asFlowable()
 
   var lastActiveSurveyId: String by localValueStore::lastActiveSurveyId
     internal set
@@ -126,16 +122,16 @@ constructor(
   }
 
   suspend fun getSurveySummaries(user: User): Flow<List<Survey>> {
-    Timber.d("Loading survey list from remote")
     return try {
       val surveys =
         withTimeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_MILLIS) {
+          Timber.d("Loading survey list from remote")
           remoteDataStore.loadSurveySummaries(user)
         }
       listOf(surveys).asFlow()
     } catch (e: Throwable) {
       Timber.d(e, "Failed to load survey list from remote")
-      offlineSurveysFlow
+      offlineSurveys
     }
   }
 
