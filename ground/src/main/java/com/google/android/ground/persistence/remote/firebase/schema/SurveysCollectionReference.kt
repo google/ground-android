@@ -39,7 +39,7 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
   fun survey(id: String) = SurveyDocumentReference(reference().document(id))
 
   suspend fun getReadable(user: User): List<Survey> =
-    runQuerySuspend(reference().whereIn(FieldPath.of(ACL_FIELD, user.email), VALID_ROLES)) {
+    runQuery(reference().whereIn(FieldPath.of(ACL_FIELD, user.email), VALID_ROLES)) {
       doc: DocumentSnapshot ->
       SurveyConverter.toSurvey(doc)
     }

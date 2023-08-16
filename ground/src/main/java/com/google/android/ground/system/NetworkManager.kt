@@ -18,8 +18,6 @@ package com.google.android.ground.system
 import android.content.Context
 import android.net.ConnectivityManager
 import androidx.annotation.RequiresPermission
-import com.google.android.ground.rx.RxCompletable.completeOrError
-import io.reactivex.Completable
 import java.net.ConnectException
 
 /** Abstracts access to network state. */
@@ -37,11 +35,7 @@ object NetworkManager {
    * Returns a Completable that completes immediately on subscribe if network is available, or fails
    * in error if not.
    */
-  @JvmStatic
-  fun requireActiveNetwork(context: Context): Completable =
-    completeOrError({ isNetworkAvailable(context) }, ConnectException::class.java)
-
-  fun requireActiveNetworkBlocking(context: Context) {
+  fun requireActiveNetwork(context: Context) {
     if (!isNetworkAvailable(context)) {
       throw ConnectException()
     }
