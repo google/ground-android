@@ -26,7 +26,6 @@ tasks.withType(Test).configureEach {
 }
 
 tasks.register('jacocoTestStagingUnitTestReport', JacocoReport) {
-    dependsOn 'testDebugUnitTest'
     group = "Reporting"
     description = "Run tests and generate coverage reports"
     reports {
@@ -54,5 +53,5 @@ tasks.register('jacocoTestStagingUnitTestReport', JacocoReport) {
         ]
     )
     sourceDirectories.from = files('src/main/java/com/google/android/ground')
-    executionData.from = files('build/jacoco/testDebugUnitTest.exec')
+    executionData.from = files('build/jacoco/*.exec')
 }
