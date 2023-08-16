@@ -43,7 +43,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   private val subscribedSurveyIds = mutableSetOf<String>()
 
-  override fun loadSurveySummaries(user: User): Single<List<Survey>> = Single.just(surveys)
+  override suspend fun loadSurveySummaries(user: User): List<Survey> = surveys
 
   override suspend fun loadSurvey(surveyId: String): Survey? = onLoadSurvey.invoke(surveyId)
 
