@@ -26,23 +26,23 @@ import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
-import io.reactivex.Single
-import java.util.concurrent.TimeUnit
 import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 
-private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15000
-private const val LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS: Long = 30
+private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000
+private const val LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_MILLIS: Long = 30 * 1000
 
 /**
  * Coordinates persistence and retrieval of [Survey] instances from remote, local, and in memory
@@ -84,8 +84,8 @@ constructor(
   val activeSurveyFlowable: @Cold Flowable<Optional<Survey>> =
     activeSurveyFlow.map { if (it == null) Optional.empty() else Optional.of(it) }.asFlowable()
 
-  val offlineSurveys: @Cold Flowable<List<Survey>>
-    get() = localSurveyStore.surveys.asFlowable()
+  val offlineSurveys: Flow<List<Survey>>
+    get() = localSurveyStore.surveys
 
   var lastActiveSurveyId: String by localValueStore::lastActiveSurveyId
     internal set
@@ -121,16 +121,18 @@ constructor(
     activeSurvey = null
   }
 
-  fun getSurveySummaries(user: User): @Cold Single<List<Survey>> =
-    loadSurveySummariesFromRemote(user)
-      .doOnSubscribe { Timber.d("Loading survey list from remote") }
-      .doOnError { Timber.d(it, "Failed to load survey list from remote") }
-      .onErrorResumeNext { offlineSurveys.single(listOf()) }
-
-  private fun loadSurveySummariesFromRemote(user: User): @Cold Single<List<Survey>> =
-    remoteDataStore
-      .loadSurveySummaries(user)
-      .timeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_SECS, TimeUnit.SECONDS)
+  suspend fun getSurveySummaries(user: User): Flow<List<Survey>> =
+    try {
+      val surveys =
+        withTimeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_MILLIS) {
+          Timber.d("Loading survey list from remote")
+          remoteDataStore.loadSurveySummaries(user)
+        }
+      listOf(surveys).asFlow()
+    } catch (e: Throwable) {
+      Timber.d(e, "Failed to load survey list from remote")
+      offlineSurveys
+    }
 
   /** Attempts to remove the locally synced survey. Doesn't throw an error if it doesn't exist. */
   suspend fun removeOfflineSurvey(surveyId: String) {
