@@ -42,6 +42,7 @@ import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
@@ -55,7 +56,7 @@ internal constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mapController: MapController,
   private val mapStateRepository: MapStateRepository,
-  private val submissionRepository: SubmissionRepository
+  private val submissionRepository: SubmissionRepository,
   locationManager: LocationManager,
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,
@@ -126,7 +127,7 @@ internal constructor(
     suggestLoiJobs =
       surveyRepository.activeSurveyFlow.map {
         it?.jobs?.filter { job -> job.suggestLoiTaskType != null }?.toList() ?: listOf()
-      }
+      }.distinctUntilChanged()
   }
 
   private suspend fun toLocationOfInterestFeatures(
