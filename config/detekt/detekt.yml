@@ -136,7 +136,7 @@ complexity:
             - 'with'
     LabeledExpression:
         active: true
-        ignoredLabels: [ ]
+        ignoredLabels: [ "return" ]
     LargeClass:
         active: true
         threshold: 600
