@@ -127,9 +127,11 @@ internal constructor(
     suggestLoiJobs =
       surveyRepository.activeSurveyFlow
         .combine(cameraZoomUpdates.asFlow()) { survey, zoomLevel ->
-          if (zoomLevel < CLUSTERING_ZOOM_THRESHOLD) return@combine listOf()
-
-          survey?.jobs?.filter { job -> job.suggestLoiTaskType != null }?.toList() ?: listOf()
+          if (zoomLevel < CLUSTERING_ZOOM_THRESHOLD) {
+            listOf()
+          } else {
+            survey?.jobs?.filter { job -> job.suggestLoiTaskType != null }?.toList() ?: listOf()
+          }
         }
         .distinctUntilChanged()
   }
