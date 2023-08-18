@@ -46,6 +46,7 @@ import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
 import timber.log.Timber
@@ -128,7 +129,7 @@ internal constructor(
         if (zoomLevel < CLUSTERING_ZOOM_THRESHOLD) return@combine listOf()
 
         survey?.jobs?.filter { job -> job.suggestLoiTaskType != null }?.toList() ?: listOf()
-      }
+      }.distinctUntilChanged()
   }
 
   private fun toLocationOfInterestFeatures(
