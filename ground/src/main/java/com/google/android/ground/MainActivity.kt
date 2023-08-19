@@ -84,6 +84,10 @@ class MainActivity : Hilt_MainActivity() {
       .`as`(autoDisposable(this))
       .subscribe { navigateUp() }
 
+    navigator.getFinishRequests().observeOn(schedulers.ui()).`as`(autoDisposable(this)).subscribe {
+      finish()
+    }
+
     val binding = MainActBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
