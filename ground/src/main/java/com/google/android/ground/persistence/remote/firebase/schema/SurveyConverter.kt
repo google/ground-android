@@ -29,7 +29,9 @@ import kotlinx.collections.immutable.toPersistentMap
 internal object SurveyConverter {
 
   @Throws(DataStoreException::class)
-  fun toSurvey(doc: DocumentSnapshot): Survey {
+  fun toSurvey(doc: DocumentSnapshot): Survey? {
+    if (!doc.exists()) return null
+
     val pd =
       DataStoreException.checkNotNull(doc.toObject(SurveyDocument::class.java), "surveyDocument")
 

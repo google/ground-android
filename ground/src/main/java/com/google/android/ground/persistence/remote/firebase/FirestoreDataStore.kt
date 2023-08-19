@@ -71,7 +71,7 @@ internal constructor(
   }
 
   override suspend fun loadSurvey(surveyId: String): Survey? =
-    withContext(ioDispatcher) { db.surveys().survey(surveyId).getSuspend() }
+    withContext(ioDispatcher) { db.surveys().survey(surveyId).get() }
 
   override fun loadSubmissions(
     locationOfInterest: LocationOfInterest
