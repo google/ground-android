@@ -33,6 +33,7 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.signin.SignInFragmentDirections
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
+import com.google.android.ground.util.isPermissionDeniedException
 import io.reactivex.Observable
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -88,9 +89,14 @@ constructor(
   }
 
   private fun onUserSignInError(error: Throwable): NavDirections {
-    Timber.e(error, "Sign in failed")
-    popups.showError(R.string.sign_in_unsuccessful)
-    return onUserSignedOut()
+    return if (error.isPermissionDeniedException()) {
+      SignInFragmentDirections.showPermissionDeniedDialogFragment()
+    } else {
+      // TODO(#1808): Handle this case more gracefully instead of abruptly closing the app.
+      Timber.e(error, "Sign in failed")
+      popups.showError(R.string.sign_in_unsuccessful)
+      onUserSignedOut()
+    }
   }
 
   private fun onUserSignedOut(): NavDirections {
