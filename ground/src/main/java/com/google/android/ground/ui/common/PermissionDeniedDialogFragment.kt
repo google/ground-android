@@ -19,16 +19,21 @@ package com.google.android.ground.ui.common
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
+import com.google.android.ground.R
 import com.google.android.ground.databinding.PermissionDeniedDialogBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint(AbstractDialogFragment::class)
 class PermissionDeniedDialogFragment : Hilt_PermissionDeniedDialogFragment() {
 
+  private val viewModel: PermissionDeniedDialogViewModel by hiltNavGraphViewModels(R.id.navGraph)
+
   override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
     super.onCreateDialog(savedInstanceState)
     val inflater = requireActivity().layoutInflater
     val binding = PermissionDeniedDialogBinding.inflate(inflater)
+    binding.viewModel = viewModel
     return AlertDialog.Builder(requireActivity()).setView(binding.root).create()
   }
 }
