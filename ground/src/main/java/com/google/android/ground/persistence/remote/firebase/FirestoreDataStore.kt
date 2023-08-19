@@ -37,7 +37,6 @@ import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
 import io.reactivex.Flowable
-import io.reactivex.Maybe
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -87,15 +86,8 @@ internal constructor(
       }
       .subscribeOn(schedulers.io())
 
-  override fun loadTermsOfService(): @Cold Maybe<TermsOfService> =
-    db
-      .termsOfService()
-      .terms()
-      .get()
-      .onErrorResumeNext { e: Throwable ->
-        if (shouldInterceptException(e)) Maybe.never() else Maybe.error(e)
-      }
-      .subscribeOn(schedulers.io())
+  override suspend fun loadTermsOfService(): TermsOfService? =
+    withContext(ioDispatcher) { db.termsOfService().terms().get() }
 
   override suspend fun loadSurveySummaries(user: User): List<Survey> =
     withContext(ioDispatcher) { db.surveys().getReadable(user) }

@@ -33,7 +33,6 @@ import com.sharedtest.TestObservers.observeUntilFirstChange
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
-import io.reactivex.Maybe
 import io.reactivex.observers.TestObserver
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
@@ -129,7 +128,7 @@ class MainViewModelTest : BaseHiltTest() {
   @Test
   fun testSignInStateChanged_onSignedIn_whenTosNotAccepted() = runWithTestDispatcher {
     tosRepository.isTermsOfServiceAccepted = false
-    fakeRemoteDataStore.termsOfService = Maybe.just(FakeData.TERMS_OF_SERVICE)
+    fakeRemoteDataStore.termsOfService = FakeData.TERMS_OF_SERVICE
     fakeAuthenticationManager.signIn()
     advanceUntilIdle()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
@@ -145,7 +144,6 @@ class MainViewModelTest : BaseHiltTest() {
   @Test
   fun testSignInStateChanged_onSignedIn_whenTosMissing() = runWithTestDispatcher {
     tosRepository.isTermsOfServiceAccepted = false
-    fakeRemoteDataStore.termsOfService = Maybe.empty()
     fakeAuthenticationManager.signIn()
     advanceUntilIdle()
     Shadows.shadowOf(Looper.getMainLooper()).idle()

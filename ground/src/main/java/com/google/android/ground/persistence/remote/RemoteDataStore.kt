@@ -23,7 +23,6 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
-import io.reactivex.Maybe
 import io.reactivex.Single
 
 /**
@@ -43,7 +42,7 @@ interface RemoteDataStore {
    * Loads the survey terms from the remote data store. The returned Maybe is empty if not found,
    * otherwise it completes with the loaded terms of service.
    */
-  fun loadTermsOfService(): @Cold Maybe<TermsOfService>
+  suspend fun loadTermsOfService(): TermsOfService?
 
   /**
    * Returns all LOIs in the specified survey, then continues to emit any remote updates to the set

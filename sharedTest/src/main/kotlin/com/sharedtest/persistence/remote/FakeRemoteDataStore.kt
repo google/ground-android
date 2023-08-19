@@ -23,9 +23,7 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
-import io.reactivex.Maybe
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -39,7 +37,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
     private set
 
   // TODO(#1373): Delete once new LOI sync is implemented.
-  var termsOfService: Maybe<TermsOfService> = Maybe.empty()
+  var termsOfService: TermsOfService? = null
 
   private val subscribedSurveyIds = mutableSetOf<String>()
 
@@ -47,7 +45,8 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override suspend fun loadSurvey(surveyId: String): Survey? = onLoadSurvey.invoke(surveyId)
 
-  override fun loadTermsOfService(): @Cold Maybe<TermsOfService> = termsOfService
+  override suspend fun loadTermsOfService(): TermsOfService =
+    termsOfService ?: throw Error("no terms of service")
 
   // TODO(#1373): Delete once new LOI sync is implemented.
   override fun loadLocationsOfInterestOnceAndStreamChanges(
