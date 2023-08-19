@@ -95,8 +95,8 @@ constructor(
     )
   }
 
-  private fun onUserSignInError(error: Throwable): NavDirections {
-    return if (error.isPermissionDeniedException()) {
+  private fun onUserSignInError(error: Throwable): NavDirections =
+    if (error.isPermissionDeniedException()) {
       SignInFragmentDirections.showPermissionDeniedDialogFragment()
     } else {
       // TODO(#1808): Handle this case more gracefully instead of abruptly closing the app.
@@ -104,7 +104,6 @@ constructor(
       popups.showError(R.string.sign_in_unsuccessful)
       onUserSignedOut()
     }
-  }
 
   private fun onUserSignedOut(): NavDirections {
     // Scope of subscription is until view model is cleared. Dispose it manually otherwise, firebase
