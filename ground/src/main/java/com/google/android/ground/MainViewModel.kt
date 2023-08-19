@@ -17,9 +17,12 @@ package com.google.android.ground
 
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavDirections
 import com.google.android.ground.coroutines.DefaultDispatcher
+import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.survey.ReactivateLastSurveyUseCase
+import com.google.android.ground.persistence.local.room.LocalDatabase
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
@@ -37,7 +40,9 @@ import com.google.android.ground.util.isPermissionDeniedException
 import io.reactivex.Observable
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.rxObservable
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /** Top-level view model representing state of the [MainActivity] shared by all fragments. */
@@ -45,12 +50,14 @@ import timber.log.Timber
 class MainViewModel
 @Inject
 constructor(
+  private val localDatabase: LocalDatabase,
   private val surveyRepository: SurveyRepository,
   private val userRepository: UserRepository,
   private val termsOfServiceRepository: TermsOfServiceRepository,
   private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
   private val popups: EphemeralPopups,
   @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   navigator: Navigator,
   authenticationManager: AuthenticationManager,
   schedulers: Schedulers,
@@ -104,6 +111,12 @@ constructor(
     // attempts to maintain a connection even after user has logged out and throws an error.
     surveyRepository.clearActiveSurvey()
     userRepository.clearUserPreferences()
+
+    // TODO(#1691): Once multi-user login is supported, avoid clearing local db data. This is
+    //  currently being done to prevent one user's data to be submitted as another user after
+    //  re-login.
+    viewModelScope.launch { withContext(ioDispatcher) { localDatabase.clearAllTables() } }
+
     return SignInFragmentDirections.showSignInScreen()
   }
 
