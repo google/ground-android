@@ -17,7 +17,6 @@ package com.google.android.ground
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.google.android.ground.persistence.local.LocalDatabaseModule
 import dagger.Module
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
