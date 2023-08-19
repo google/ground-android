@@ -19,29 +19,20 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.remote.firebase.base.FluentCollectionReference
-import com.google.android.ground.rx.annotations.Cold
-import com.google.firebase.firestore.*
-import durdinapps.rxfirebase2.RxFirestore
-import io.reactivex.Single
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FieldPath
+import com.google.firebase.firestore.Query
 
 class SubmissionCollectionReference internal constructor(ref: CollectionReference) :
   FluentCollectionReference(ref) {
 
   fun submission(id: String) = SubmissionDocumentReference(reference().document(id))
 
-  fun submissionsByLocationOfInterestId(
+  suspend fun submissionsByLocationOfInterestId(
     locationOfInterest: LocationOfInterest
-  ): @Cold Single<List<Result<Submission>>> =
-    RxFirestore.getCollection(byLoiId(locationOfInterest.id))
-      .map { querySnapshot: QuerySnapshot -> convert(querySnapshot, locationOfInterest) }
-      .toSingle(listOf())
-
-  private fun convert(
-    querySnapshot: QuerySnapshot,
-    locationOfInterest: LocationOfInterest
-  ): List<Result<Submission>> =
-    querySnapshot.documents.map { doc: DocumentSnapshot ->
-      runCatching { SubmissionConverter.toSubmission(locationOfInterest, doc) }
+  ): List<Submission> =
+    runQuery(byLoiId(locationOfInterest.id)) {
+      SubmissionConverter.toSubmission(locationOfInterest, it)
     }
 
   private fun byLoiId(loiId: String): Query =

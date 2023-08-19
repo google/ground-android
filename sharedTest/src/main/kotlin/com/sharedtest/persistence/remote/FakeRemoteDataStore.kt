@@ -24,7 +24,6 @@ import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import io.reactivex.Flowable
-import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -56,9 +55,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override suspend fun loadLocationsOfInterest(survey: Survey) = lois
 
-  override fun loadSubmissions(
-    locationOfInterest: LocationOfInterest
-  ): Single<List<Result<Submission>>> {
+  override suspend fun loadSubmissions(locationOfInterest: LocationOfInterest): List<Submission> {
     TODO("Missing implementation")
   }
 

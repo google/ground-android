@@ -30,7 +30,7 @@ class SurveyConverterTest {
     val doc = SurveyDocument(tileSources = listOf(TileSourceNestedObject(url = testUrl)))
     val snapshot = createSurveyDocumentSnapshot(doc)
 
-    assertThat(SurveyConverter.toSurvey(snapshot)?.tileSources)
+    assertThat(SurveyConverter.toSurvey(snapshot).tileSources)
       .containsExactly(TileSource(testUrl, TileSource.Type.MOG_COLLECTION))
   }
 
@@ -39,7 +39,7 @@ class SurveyConverterTest {
     val doc = SurveyDocument()
     val snapshot = createSurveyDocumentSnapshot(doc)
 
-    assertThat(SurveyConverter.toSurvey(snapshot)?.tileSources).isEmpty()
+    assertThat(SurveyConverter.toSurvey(snapshot).tileSources).isEmpty()
   }
 
   @Test
@@ -47,7 +47,7 @@ class SurveyConverterTest {
     val doc = SurveyDocument(tileSources = listOf(TileSourceNestedObject(url = null)))
     val snapshot = createSurveyDocumentSnapshot(doc)
 
-    assertThat(SurveyConverter.toSurvey(snapshot)?.tileSources).isEmpty()
+    assertThat(SurveyConverter.toSurvey(snapshot).tileSources).isEmpty()
   }
 
   private fun createSurveyDocumentSnapshot(surveyDocument: SurveyDocument): DocumentSnapshot {

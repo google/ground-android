@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000
@@ -106,15 +107,11 @@ constructor(
    */
   suspend fun loadAndSyncSurveyWithRemote(id: String): Survey? {
     Timber.d("Loading survey $id")
-    val survey =
-      withTimeout(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) { remoteDataStore.loadSurvey(id) }
-        ?: return null
-
-    localSurveyStore.insertOrUpdateSurvey(survey)
-    survey.tileSources.forEach {
-      tileSourceDao.insertOrUpdateSuspend(it.toLocalDataStoreObject(survey.id))
-    }
-    return survey
+    return withTimeoutOrNull(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) { remoteDataStore.loadSurvey(id) }
+      ?.apply {
+        localSurveyStore.insertOrUpdateSurvey(this)
+        tileSources.forEach { tileSourceDao.insertOrUpdateSuspend(it.toLocalDataStoreObject(id)) }
+      }
   }
 
   fun clearActiveSurvey() {

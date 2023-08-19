@@ -31,7 +31,7 @@ class SurveyDocumentReference internal constructor(ref: DocumentReference) :
 
   fun submissions() = SubmissionCollectionReference(reference().collection(SUBMISSIONS))
 
-  suspend fun get(): Survey? {
+  suspend fun get(): Survey {
     val document = reference().get().await()
     return SurveyConverter.toSurvey(document)
   }

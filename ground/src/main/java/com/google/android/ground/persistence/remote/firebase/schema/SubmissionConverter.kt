@@ -40,6 +40,7 @@ import timber.log.Timber
 internal object SubmissionConverter {
 
   fun toSubmission(loi: LocationOfInterest, snapshot: DocumentSnapshot): Submission {
+    if (!snapshot.exists()) throw Error("Missing submission")
     val doc = snapshot.toObject(SubmissionDocument::class.java)
     val loiId = DataStoreException.checkNotNull(doc!!.loiId, "loiId")
     if (loi.id != loiId) {

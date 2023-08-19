@@ -37,7 +37,6 @@ import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
 import io.reactivex.Flowable
-import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
@@ -70,21 +69,17 @@ internal constructor(
     FirebaseCrashlytics.getInstance().recordException(t)
   }
 
-  override suspend fun loadSurvey(surveyId: String): Survey? =
+  override suspend fun loadSurvey(surveyId: String): Survey =
     withContext(ioDispatcher) { db.surveys().survey(surveyId).get() }
 
-  override fun loadSubmissions(
-    locationOfInterest: LocationOfInterest
-  ): @Cold Single<List<Result<Submission>>> =
-    db
-      .surveys()
-      .survey(locationOfInterest.surveyId)
-      .submissions()
-      .submissionsByLocationOfInterestId(locationOfInterest)
-      .onErrorResumeNext { e: Throwable ->
-        if (shouldInterceptException(e)) Single.never() else Single.error(e)
-      }
-      .subscribeOn(schedulers.io())
+  override suspend fun loadSubmissions(locationOfInterest: LocationOfInterest): List<Submission> =
+    withContext(ioDispatcher) {
+      db
+        .surveys()
+        .survey(locationOfInterest.surveyId)
+        .submissions()
+        .submissionsByLocationOfInterestId(locationOfInterest)
+    }
 
   override suspend fun loadTermsOfService(): TermsOfService? =
     withContext(ioDispatcher) { db.termsOfService().terms().get() }

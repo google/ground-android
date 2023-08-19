@@ -23,7 +23,6 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
-import io.reactivex.Single
 
 /**
  * Defines API for accessing data in a remote data store. Implementations must ensure all
@@ -59,9 +58,7 @@ interface RemoteDataStore {
    * Returns a list of all submissions associated with the specified LOI, or an empty list if none
    * are found.
    */
-  fun loadSubmissions(
-    locationOfInterest: LocationOfInterest
-  ): @Cold Single<List<Result<Submission>>>
+  suspend fun loadSubmissions(locationOfInterest: LocationOfInterest): List<Submission>
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one
