@@ -30,7 +30,7 @@ internal object SurveyConverter {
 
   @Throws(DataStoreException::class)
   fun toSurvey(doc: DocumentSnapshot): Survey {
-    if (!doc.exists()) throw Error("Missing survey")
+    if (!doc.exists()) throw DataStoreException("Missing survey")
 
     val pd =
       DataStoreException.checkNotNull(doc.toObject(SurveyDocument::class.java), "surveyDocument")

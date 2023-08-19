@@ -21,6 +21,7 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import io.reactivex.Flowable
@@ -45,7 +46,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   override suspend fun loadSurvey(surveyId: String): Survey? = onLoadSurvey.invoke(surveyId)
 
   override suspend fun loadTermsOfService(): TermsOfService =
-    termsOfService ?: throw Error("no terms of service")
+    termsOfService ?: throw DataStoreException("no terms of service")
 
   // TODO(#1373): Delete once new LOI sync is implemented.
   override fun loadLocationsOfInterestOnceAndStreamChanges(
