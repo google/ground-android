@@ -27,7 +27,6 @@ import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.remote.firebase.schema.GroundFirestore
-import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.ApplicationErrorManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.WriteBatch
@@ -51,7 +50,6 @@ internal constructor(
   private val errorManager: ApplicationErrorManager,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   val db: GroundFirestore,
-  val schedulers: Schedulers
 ) : RemoteDataStore {
 
   /**
