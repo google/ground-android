@@ -18,29 +18,16 @@ package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.firebase.base.FluentCollectionReference
 import com.google.android.ground.persistence.remote.firebase.schema.LoiConverter.toLoi
-import com.google.android.ground.rx.annotations.Cold
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
-import durdinapps.rxfirebase2.RxFirestore
-import io.reactivex.Flowable
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class LoiCollectionReference internal constructor(ref: CollectionReference) :
   FluentCollectionReference(ref) {
-
-  /** Retrieves all lois in the survey, then streams changes to the remote db incrementally. */
-  fun loadOnceAndStreamChanges(
-    survey: Survey
-  ): @Cold(terminates = false) Flowable<RemoteDataEvent<LocationOfInterest>> =
-    RxFirestore.observeQueryRef(reference()).flatMapIterable { snapshot: QuerySnapshot ->
-      toRemoteDataEvents(survey, snapshot)
-    }
 
   fun loi(id: String) = LoiDocumentReference(reference().document(id))
 
@@ -55,10 +42,4 @@ class LoiCollectionReference internal constructor(ref: CollectionReference) :
         // Filter out bad results and log.
         .mapNotNull { it.onFailure { t -> Timber.e(t) }.getOrNull() }
     }
-
-  private fun toRemoteDataEvents(
-    survey: Survey,
-    snapshot: QuerySnapshot
-  ): Iterable<RemoteDataEvent<LocationOfInterest>> =
-    QuerySnapshotConverter.toEvents(snapshot) { doc: DocumentSnapshot -> toLoi(survey, doc) }
 }

@@ -25,18 +25,15 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.remote.firebase.schema.GroundFirestore
 import com.google.android.ground.rx.Schedulers
-import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.ApplicationErrorManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
-import io.reactivex.Flowable
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
@@ -86,19 +83,6 @@ internal constructor(
 
   override suspend fun loadSurveySummaries(user: User): List<Survey> =
     withContext(ioDispatcher) { db.surveys().getReadable(user) }
-
-  override fun loadLocationsOfInterestOnceAndStreamChanges(
-    survey: Survey
-  ): @Cold(stateful = true, terminates = false) Flowable<RemoteDataEvent<LocationOfInterest>> =
-    db
-      .surveys()
-      .survey(survey.id)
-      .lois()
-      .loadOnceAndStreamChanges(survey)
-      .onErrorResumeNext { e: Throwable ->
-        if (shouldInterceptException(e)) Flowable.never() else Flowable.error(e)
-      }
-      .subscribeOn(schedulers.io())
 
   override suspend fun loadLocationsOfInterest(survey: Survey) =
     db.surveys().survey(survey.id).lois().locationsOfInterest(survey)
