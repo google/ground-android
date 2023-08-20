@@ -32,12 +32,7 @@ protected constructor(
   protected val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) {
 
-  /**
-   * Returns a Completable that completes immediately on subscribe if network is available, or fails
-   * in error if not.
-   */
-  private fun requireActiveNetwork() =
-    requireActiveNetwork(reference.firestore.app.applicationContext)
+  private val context = reference.firestore.app.applicationContext
 
   /**
    * Runs the specified query, returning a Single containing a List of values created by applying
@@ -48,7 +43,7 @@ protected constructor(
     query: Query,
     mappingFunction: Function<DocumentSnapshot, T>
   ): List<T> {
-    requireActiveNetwork()
+    requireActiveNetwork(context)
     val querySnapshot = query.get().await()
     return querySnapshot.documents.filter { it.exists() }.map { mappingFunction.apply(it) }
   }
