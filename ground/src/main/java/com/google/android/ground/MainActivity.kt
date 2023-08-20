@@ -27,7 +27,6 @@ import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.ActivityStreams
-import com.google.android.ground.system.ApplicationErrorManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.*
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,8 +40,6 @@ import timber.log.Timber
 @AndroidEntryPoint(AbstractActivity::class)
 class MainActivity : Hilt_MainActivity() {
   @Inject lateinit var activityStreams: ActivityStreams
-
-  @Inject lateinit var errorManager: ApplicationErrorManager
 
   @Inject lateinit var viewModelFactory: ViewModelFactory
 
@@ -98,13 +95,6 @@ class MainActivity : Hilt_MainActivity() {
     viewModel.signInProgressDialogVisibility.observe(this) { visible: Boolean ->
       onSignInProgress(visible)
     }
-
-    errorManager.exceptions.`as`(autoDisposable(this)).subscribe { onUnrecoverableError(it) }
-  }
-
-  private fun onUnrecoverableError(message: String) {
-    popups.showError(message)
-    finish()
   }
 
   override fun onWindowInsetChanged(insets: WindowInsetsCompat) {
