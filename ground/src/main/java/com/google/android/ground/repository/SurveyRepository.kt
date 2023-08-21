@@ -19,9 +19,6 @@ import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
-import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
-import com.google.android.ground.persistence.local.room.dao.TileSourceDao
-import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
@@ -57,7 +54,6 @@ constructor(
   private val localSurveyStore: LocalSurveyStore,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
-  private val tileSourceDao: TileSourceDao,
   @ApplicationScope private val externalScope: CoroutineScope
 ) {
   private val _activeSurvey = MutableStateFlow<Survey?>(null)
@@ -107,11 +103,11 @@ constructor(
    */
   suspend fun loadAndSyncSurveyWithRemote(id: String): Survey? {
     Timber.d("Loading survey $id")
-    return withTimeoutOrNull(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) { remoteDataStore.loadSurvey(id) }
-      ?.apply {
-        localSurveyStore.insertOrUpdateSurvey(this)
-        tileSources.forEach { tileSourceDao.insertOrUpdateSuspend(it.toLocalDataStoreObject(id)) }
-      }
+    val survey =
+      withTimeoutOrNull(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) { remoteDataStore.loadSurvey(id) }
+        ?: return null
+    localSurveyStore.insertOrUpdateSurvey(survey)
+    return survey
   }
 
   fun clearActiveSurvey() {
