@@ -22,6 +22,7 @@ import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -40,8 +41,8 @@ class TermsOfServiceRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testGetTermsOfService_whenMissing_doesNotThrowException() = runBlocking {
-    assertThat(termsOfServiceRepository.getTermsOfService()).isNull()
+  fun testGetTermsOfService_whenMissing_throwsException() {
+    assertThrows(Error::class.java) { runBlocking { termsOfServiceRepository.getTermsOfService() } }
   }
 
   @Test
