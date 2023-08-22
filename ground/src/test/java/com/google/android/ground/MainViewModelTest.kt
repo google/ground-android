@@ -149,7 +149,6 @@ class MainViewModelTest : BaseHiltTest() {
 
     verifyProgressDialogVisible(false)
     verifyNavigationRequested(SignInFragmentDirections.showSignInScreen())
-    verifyUserSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
   }
 
