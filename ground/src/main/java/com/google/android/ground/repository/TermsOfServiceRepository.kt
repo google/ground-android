@@ -22,6 +22,7 @@ import com.google.android.ground.persistence.remote.RemoteDataStore
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.withTimeoutOrNull
+import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS: Long = 30 * 1000
 
@@ -38,6 +39,7 @@ constructor(
   suspend fun getTermsOfService(): TermsOfService? =
     // TODO(#1691): Maybe parse the exception and display to the user.
     withTimeoutOrNull(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS) {
+      Timber.d("Loading Terms of Service")
       remoteDataStore.loadTermsOfService()
     }
 }

@@ -20,7 +20,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavDirections
 import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.domain.usecases.survey.ReactivateLastSurveyUseCase
-import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
@@ -105,7 +104,7 @@ constructor(
   private suspend fun onUserSignedIn(): NavDirections =
     try {
       userRepository.saveUserDetails()
-      val tos = getTos()
+      val tos = termsOfServiceRepository.getTermsOfService()
       if (tos == null || termsOfServiceRepository.isTermsOfServiceAccepted) {
         reactivateLastSurvey()
         getDirectionAfterSignIn()
@@ -114,15 +113,6 @@ constructor(
       }
     } catch (e: Throwable) {
       onUserSignInError(e)
-    }
-
-  private suspend fun getTos(): TermsOfService? =
-    try {
-      termsOfServiceRepository.getTermsOfService()
-    } catch (e: Error) {
-      // Request timed out or failed due to some error (e.g. PERMISSION_DENIED)
-      Timber.e(e)
-      null
     }
 
   private fun getDirectionAfterSignIn(): NavDirections =
