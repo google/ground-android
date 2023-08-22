@@ -98,17 +98,17 @@ constructor(
     localSurveyStore.getSurveyByIdSuspend(surveyId)
 
   /**
-   * Loads the survey with the specified id from remote and writes to local db. Returns `null` if
-   * not found, or throws an error if remote query timed out or failed.
+   * Loads the survey with the specified id from remote and writes to local db. If the survey isn't
+   * found or operation times out, then we return null and don't fetch the survey from local db.
+   *
+   * @throws error if the remote query fails.
    */
-  suspend fun loadAndSyncSurveyWithRemote(id: String): Survey? {
-    Timber.d("Loading survey $id")
-    val survey =
-      withTimeoutOrNull(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) { remoteDataStore.loadSurvey(id) }
-        ?: return null
-    localSurveyStore.insertOrUpdateSurvey(survey)
-    return survey
-  }
+  suspend fun loadAndSyncSurveyWithRemote(id: String): Survey? =
+    withTimeoutOrNull(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) {
+        Timber.d("Loading survey $id")
+        remoteDataStore.loadSurvey(id)
+      }
+      ?.apply { localSurveyStore.insertOrUpdateSurvey(this) }
 
   fun clearActiveSurvey() {
     activeSurvey = null
