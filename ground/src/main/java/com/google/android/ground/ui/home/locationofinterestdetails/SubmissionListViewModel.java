@@ -80,7 +80,7 @@ public class SubmissionListViewModel extends AbstractViewModel {
     //        .getSubmissions(req.surveyId, req.locationOfInterestId, req.taskId.get())
     //        .onErrorResumeNext(this::onGetSubmissionsError);
     // TODO(#1691): Replace the above call with coroutine once migrated to kotlin
-    throw new RuntimeException("Please convert to kotlin and use appropriate method");
+    throw new UnsupportedOperationException("Convert to Kotlin and use appropriate method");
   }
 
   private Single<List<Submission>> onGetSubmissionsError(Throwable t) {
