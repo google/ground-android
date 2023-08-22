@@ -76,10 +76,10 @@ public class SubmissionListViewModel extends AbstractViewModel {
       return Single.just(List.of());
     }
 
+    // TODO(#1691): Replace the above call with coroutine once migrated to kotlin
     //    return submissionRepository
     //        .getSubmissions(req.surveyId, req.locationOfInterestId, req.taskId.get())
     //        .onErrorResumeNext(this::onGetSubmissionsError);
-    // TODO(#1691): Replace the above call with coroutine once migrated to kotlin
     throw new UnsupportedOperationException("Convert to Kotlin and use appropriate method");
   }
 
