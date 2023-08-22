@@ -23,8 +23,6 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
-import io.reactivex.Maybe
-import io.reactivex.Single
 
 /**
  * Defines API for accessing data in a remote data store. Implementations must ensure all
@@ -40,10 +38,10 @@ interface RemoteDataStore {
   suspend fun loadSurvey(surveyId: String): Survey?
 
   /**
-   * Loads the survey terms from the remote data store. The returned Maybe is empty if not found,
-   * otherwise it completes with the loaded terms of service.
+   * Loads the survey terms from the remote data store. Returns `null` if the survey
+   * * is not found. Throws an error if the remote data store is not available.
    */
-  fun loadTermsOfService(): @Cold Maybe<TermsOfService>
+  suspend fun loadTermsOfService(): TermsOfService?
 
   /**
    * Returns all LOIs in the specified survey, then continues to emit any remote updates to the set
@@ -60,9 +58,7 @@ interface RemoteDataStore {
    * Returns a list of all submissions associated with the specified LOI, or an empty list if none
    * are found.
    */
-  fun loadSubmissions(
-    locationOfInterest: LocationOfInterest
-  ): @Cold Single<List<Result<Submission>>>
+  suspend fun loadSubmissions(locationOfInterest: LocationOfInterest): List<Submission>
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one

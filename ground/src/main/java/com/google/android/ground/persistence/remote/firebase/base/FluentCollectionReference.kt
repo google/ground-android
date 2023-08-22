@@ -50,7 +50,7 @@ protected constructor(
   ): List<T> {
     requireActiveNetwork()
     val querySnapshot = query.get().await()
-    return querySnapshot.documents.map { mappingFunction.apply(it) }
+    return querySnapshot.documents.filter { it.exists() }.map { mappingFunction.apply(it) }
   }
 
   protected fun reference(): CollectionReference = reference

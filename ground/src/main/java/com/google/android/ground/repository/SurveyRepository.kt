@@ -19,9 +19,6 @@ import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
-import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
-import com.google.android.ground.persistence.local.room.dao.TileSourceDao
-import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
@@ -39,6 +36,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000
@@ -56,7 +54,6 @@ constructor(
   private val localSurveyStore: LocalSurveyStore,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
-  private val tileSourceDao: TileSourceDao,
   @ApplicationScope private val externalScope: CoroutineScope
 ) {
   private val _activeSurvey = MutableStateFlow<Survey?>(null)
@@ -101,21 +98,17 @@ constructor(
     localSurveyStore.getSurveyByIdSuspend(surveyId)
 
   /**
-   * Loads the survey with the specified id from remote and writes to local db. Returns `null` if
-   * not found, or throws an error if remote query timed out or failed.
+   * Loads the survey with the specified id from remote and writes to local db. If the survey isn't
+   * found or operation times out, then we return null and don't fetch the survey from local db.
+   *
+   * @throws error if the remote query fails.
    */
-  suspend fun loadAndSyncSurveyWithRemote(id: String): Survey? {
-    Timber.d("Loading survey $id")
-    val survey =
-      withTimeout(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) { remoteDataStore.loadSurvey(id) }
-        ?: return null
-
-    localSurveyStore.insertOrUpdateSurvey(survey)
-    survey.tileSources.forEach {
-      tileSourceDao.insertOrUpdateSuspend(it.toLocalDataStoreObject(survey.id))
-    }
-    return survey
-  }
+  suspend fun loadAndSyncSurveyWithRemote(id: String): Survey? =
+    withTimeoutOrNull(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) {
+        Timber.d("Loading survey $id")
+        remoteDataStore.loadSurvey(id)
+      }
+      ?.apply { localSurveyStore.insertOrUpdateSurvey(this) }
 
   fun clearActiveSurvey() {
     activeSurvey = null

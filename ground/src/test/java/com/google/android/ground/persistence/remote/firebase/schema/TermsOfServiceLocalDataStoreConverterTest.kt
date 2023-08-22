@@ -23,8 +23,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
 class TermsOfServiceLocalDataStoreConverterTest {
@@ -45,12 +45,13 @@ class TermsOfServiceLocalDataStoreConverterTest {
 
   /** Mock submission document snapshot to return the specified id and object representation. */
   private fun mockTermsOfServiceDocumentSnapshot(doc: TermsOfServiceDocument) {
-    Mockito.`when`(termsOfServiceDocumentSnapshot.id).thenReturn(TEST_TERMS_ID)
-    Mockito.`when`(termsOfServiceDocumentSnapshot.toObject(TermsOfServiceDocument::class.java))
+    whenever(termsOfServiceDocumentSnapshot.id).thenReturn(TEST_TERMS_ID)
+    whenever(termsOfServiceDocumentSnapshot.toObject(TermsOfServiceDocument::class.java))
       .thenReturn(doc)
+    whenever(termsOfServiceDocumentSnapshot.exists()).thenReturn(true)
   }
 
-  private fun toTermsOfService(): TermsOfService = toTerms(termsOfServiceDocumentSnapshot)
+  private fun toTermsOfService(): TermsOfService? = toTerms(termsOfServiceDocumentSnapshot)
 
   companion object {
     private const val TEST_TERMS = "TERMS"

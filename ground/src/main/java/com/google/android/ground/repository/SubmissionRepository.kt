@@ -33,19 +33,16 @@ import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
 import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Observable
 import io.reactivex.Single
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.rx2.rxCompletable
 import kotlinx.coroutines.rx2.rxMaybe
 import kotlinx.coroutines.rx2.rxSingle
-import timber.log.Timber
+import kotlinx.coroutines.withTimeoutOrNull
 
-private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS: Long = 15
+private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_MILLIS: Long = 15 * 1000
 
 /**
  * Coordinates persistence and retrieval of [Submission] instances from remote, local, and in memory
@@ -75,49 +72,21 @@ constructor(
    * ```
    * 2. Relevant submissions are returned directly from the local data store.
    */
-  suspend fun getSubmissions(loi: LocationOfInterest): List<Submission> =
-    getSubmissions(loi.surveyId, loi.id, loi.job.id).await()
-
-  fun getSubmissions(
-    surveyId: String,
-    locationOfInterestId: String,
-    jobId: String
-  ): @Cold Single<List<Submission>> =
+  suspend fun getSubmissions(locationOfInterest: LocationOfInterest): List<Submission> {
     // TODO: Only fetch first n fields.
-    locationOfInterestRepository
-      .getOfflineLocationOfInterest(surveyId, locationOfInterestId)
-      .flatMap { locationOfInterest: LocationOfInterest ->
-        getSubmissions(locationOfInterest, jobId)
-      }
-
-  private fun getSubmissions(
-    locationOfInterest: LocationOfInterest,
-    jobId: String
-  ): @Cold Single<List<Submission>> {
-    val remoteSync =
-      remoteDataStore
-        .loadSubmissions(locationOfInterest)
-        .timeout(LOAD_REMOTE_SUBMISSIONS_TIMEOUT_SECS, TimeUnit.SECONDS)
-        .doOnError { Timber.e(it, "Submission sync timed out") }
-        .flatMapCompletable { submissions: List<Result<Submission>> ->
-          mergeRemoteSubmissions(submissions)
-        }
-        .onErrorComplete()
-    return remoteSync.andThen(
-      rxSingle { localSubmissionStore.getSubmissions(locationOfInterest, jobId) }
-    )
+    syncSubmissionsFromRemote(locationOfInterest)
+    return localSubmissionStore.getSubmissions(locationOfInterest, locationOfInterest.job.id)
   }
 
-  private fun mergeRemoteSubmissions(submissions: List<Result<Submission>>): @Cold Completable =
-    Observable.fromIterable(submissions)
-      .doOnNext { result: Result<Submission> ->
-        if (result.isFailure) {
-          Timber.e(result.exceptionOrNull(), "Skipping bad submission")
-        }
+  private suspend fun syncSubmissionsFromRemote(locationOfInterest: LocationOfInterest) {
+    withTimeoutOrNull(LOAD_REMOTE_SUBMISSIONS_TIMEOUT_MILLIS) {
+        remoteDataStore.loadSubmissions(locationOfInterest)
       }
-      .filter { it.isSuccess }
-      .map { it.getOrThrow() }
-      .flatMapCompletable { rxCompletable { localSubmissionStore.merge(it) } }
+      ?.let { mergeRemoteSubmissions(it) }
+  }
+
+  private suspend fun mergeRemoteSubmissions(submissions: List<Submission>) =
+    submissions.forEach { localSubmissionStore.merge(it) }
 
   fun getSubmission(
     surveyId: String,
