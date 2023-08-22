@@ -26,7 +26,6 @@ import com.google.android.ground.system.auth.SignInState.Companion.error
 import com.google.android.ground.system.auth.SignInState.Companion.signingIn
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.signin.SignInFragmentDirections
-import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.TestObservers.observeUntilFirstChange
