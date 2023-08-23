@@ -54,6 +54,7 @@ dependencies {
     // ReactiveX
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
     implementation 'com.squareup.rx.idler:rx2-idler:0.11.0'
+    implementation 'com.google.firebase:firebase-firestore-ktx:24.7.0'
 }
 
 kotlin {
