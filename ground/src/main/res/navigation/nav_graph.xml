@@ -263,7 +263,9 @@
   <action
     android:id="@+id/showSubmissionConfirmationDialogFragment"
     app:destination="@id/submissionConfirmationDialogFragment" />
-
+  <action
+    android:id="@+id/showPermissionDeniedDialogFragment"
+    app:destination="@id/permissionDeniedDialogFragment" />
   <fragment
     android:id="@+id/terms_of_service_fragment"
     android:name="com.google.android.ground.ui.tos.TermsOfServiceFragment"
@@ -304,5 +306,8 @@
     android:id="@+id/submissionConfirmationDialogFragment"
     android:name="com.google.android.ground.ui.datacollection.DataSubmissionConfirmationDialogFragment"
     android:label="DataSubmittedConfirmationDialogFragment" />
-
+  <dialog
+    android:id="@+id/permissionDeniedDialogFragment"
+    android:name="com.google.android.ground.ui.common.PermissionDeniedDialogFragment"
+    android:label="PermissionDeniedDialogFragment" />
 </navigation>

@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground
 
-import android.content.Context
-import android.content.SharedPreferences
-import dagger.Module
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import dagger.hilt.testing.TestInstallIn
+package com.google.android.ground.ui.common
 
-@Module
-@TestInstallIn(components = [SingletonComponent::class], replaces = [LocalDatabaseModule::class])
-object TestSharedPreferencesModule {
-  fun sharedPreferences(@ApplicationContext context: Context): SharedPreferences =
-    context.getSharedPreferences("test_shared_prefs", Context.MODE_PRIVATE)
+import com.google.android.ground.repository.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+
+@HiltViewModel
+class PermissionDeniedDialogViewModel
+@Inject
+internal constructor(private val navigator: Navigator, private val userRepository: UserRepository) :
+  AbstractViewModel() {
+
+  fun closeApp() {
+    navigator.finishApp()
+  }
+
+  fun signOut() {
+    userRepository.signOut()
+  }
 }

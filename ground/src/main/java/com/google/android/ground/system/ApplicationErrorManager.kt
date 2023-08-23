@@ -18,7 +18,7 @@ package com.google.android.ground.system
 import android.content.res.Resources
 import androidx.annotation.StringRes
 import com.google.android.ground.R
-import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.android.ground.util.isPermissionDeniedException
 import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
@@ -53,10 +53,7 @@ class ApplicationErrorManager @Inject internal constructor(private val resources
    * @return true if the exception is consumed otherwise false.
    */
   fun handleException(throwable: Throwable): Boolean {
-    if (
-      throwable is FirebaseFirestoreException &&
-        throwable.code == FirebaseFirestoreException.Code.PERMISSION_DENIED
-    ) {
+    if (throwable.isPermissionDeniedException()) {
       publishMessage(R.string.permission_denied_error)
       return true
     }

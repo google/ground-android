@@ -35,8 +35,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   var userProfileRefreshCount = 0
     private set
 
-  // TODO(#1373): Delete once new LOI sync is implemented.
-  var termsOfService: TermsOfService? = null
+  var termsOfService: Result<TermsOfService?>? = null
 
   private val subscribedSurveyIds = mutableSetOf<String>()
 
@@ -44,8 +43,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override suspend fun loadSurvey(surveyId: String): Survey? = onLoadSurvey.invoke(surveyId)
 
-  override suspend fun loadTermsOfService(): TermsOfService =
-    termsOfService ?: throw TermsOfServiceMissingException()
+  override suspend fun loadTermsOfService(): TermsOfService? = termsOfService?.getOrThrow()
 
   // TODO(#1373): Delete once new LOI sync is implemented.
   override fun loadLocationsOfInterestOnceAndStreamChanges(
@@ -74,6 +72,4 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   /** Returns true iff [subscribeToSurveyUpdates] has been called with the specified id. */
   fun isSubscribedToSurveyUpdates(surveyId: String): Boolean =
     subscribedSurveyIds.contains(surveyId)
-
-  class TermsOfServiceMissingException : Error()
 }

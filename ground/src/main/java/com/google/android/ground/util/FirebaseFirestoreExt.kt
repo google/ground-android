@@ -13,18 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground
 
-import android.content.Context
-import android.content.SharedPreferences
-import dagger.Module
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import dagger.hilt.testing.TestInstallIn
+package com.google.android.ground.util
 
-@Module
-@TestInstallIn(components = [SingletonComponent::class], replaces = [LocalDatabaseModule::class])
-object TestSharedPreferencesModule {
-  fun sharedPreferences(@ApplicationContext context: Context): SharedPreferences =
-    context.getSharedPreferences("test_shared_prefs", Context.MODE_PRIVATE)
-}
+import com.google.firebase.firestore.FirebaseFirestoreException
+
+fun Throwable.isPermissionDeniedException(): Boolean =
+  this is FirebaseFirestoreException &&
+    this.code == FirebaseFirestoreException.Code.PERMISSION_DENIED
