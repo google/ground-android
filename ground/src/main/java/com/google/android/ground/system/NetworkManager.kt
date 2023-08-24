@@ -31,10 +31,7 @@ object NetworkManager {
     return networkInfo?.isConnected ?: false
   }
 
-  /**
-   * Returns a Completable that completes immediately on subscribe if network is available, or fails
-   * in error if not.
-   */
+  /** Throws an error if network isn't available. */
   fun requireActiveNetwork(context: Context) {
     if (!isNetworkAvailable(context)) {
       throw ConnectException()

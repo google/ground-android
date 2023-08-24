@@ -21,8 +21,6 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Flowable
 
 /**
  * Defines API for accessing data in a remote data store. Implementations must ensure all
@@ -42,14 +40,6 @@ interface RemoteDataStore {
    * * is not found. Throws an error if the remote data store is not available.
    */
   suspend fun loadTermsOfService(): TermsOfService?
-
-  /**
-   * Returns all LOIs in the specified survey, then continues to emit any remote updates to the set
-   * of LOIs in the survey until all subscribers have been disposed.
-   */
-  fun loadLocationsOfInterestOnceAndStreamChanges(
-    survey: Survey
-  ): @Cold(stateful = true, terminates = false) Flowable<RemoteDataEvent<LocationOfInterest>>
 
   /** Returns all LOIs in the specified survey. Main-safe. */
   suspend fun loadLocationsOfInterest(survey: Survey): List<LocationOfInterest>
