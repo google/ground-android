@@ -33,7 +33,6 @@ import com.google.android.ground.persistence.local.stores.LocalLocationOfInteres
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.Debug.logOnFailure
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import javax.inject.Inject
@@ -80,14 +79,6 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     locationOfInterestDao
       .findById(locationOfInterestId)
       .map { it.toModelObject(survey) }
-      .subscribeOn(schedulers.io())
-
-  fun delete(locationOfInterestId: String): Completable =
-    locationOfInterestDao
-      .findById(locationOfInterestId)
-      .toSingle()
-      .doOnSubscribe { Timber.d("Deleting local location of interest : $locationOfInterestId") }
-      .flatMapCompletable { locationOfInterestDao.delete(it) }
       .subscribeOn(schedulers.io())
 
   // TODO(#706): Apply pending local mutations before saving.
