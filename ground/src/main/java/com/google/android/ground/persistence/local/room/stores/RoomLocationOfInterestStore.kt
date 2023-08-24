@@ -24,7 +24,7 @@ import com.google.android.ground.persistence.local.room.converter.toLocalDataSto
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestMutationDao
-import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
+import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
 import com.google.android.ground.persistence.local.room.fields.EntityState
@@ -33,7 +33,6 @@ import com.google.android.ground.persistence.local.stores.LocalLocationOfInteres
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.Debug.logOnFailure
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import javax.inject.Inject
@@ -82,21 +81,13 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       .map { it.toModelObject(survey) }
       .subscribeOn(schedulers.io())
 
-  fun delete(locationOfInterestId: String): Completable =
-    locationOfInterestDao
-      .findById(locationOfInterestId)
-      .toSingle()
-      .doOnSubscribe { Timber.d("Deleting local location of interest : $locationOfInterestId") }
-      .flatMapCompletable { locationOfInterestDao.delete(it) }
-      .subscribeOn(schedulers.io())
-
   // TODO(#706): Apply pending local mutations before saving.
   override suspend fun merge(model: LocationOfInterest) {
-    locationOfInterestDao.insertOrUpdateSuspend(model.toLocalDataStoreObject())
+    locationOfInterestDao.insertOrUpdate(model.toLocalDataStoreObject())
   }
 
   override suspend fun enqueue(mutation: LocationOfInterestMutation) =
-    locationOfInterestMutationDao.insertSuspend(mutation.toLocalDataStoreObject())
+    locationOfInterestMutationDao.insert(mutation.toLocalDataStoreObject())
 
   override suspend fun apply(mutation: LocationOfInterestMutation) {
     when (mutation.type) {
@@ -104,12 +95,12 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       Mutation.Type.UPDATE -> {
         val user = userStore.getUser(mutation.userId)
         val entity = mutation.toLocalDataStoreObject(user)
-        locationOfInterestDao.insertOrUpdateSuspend(entity)
+        locationOfInterestDao.insertOrUpdate(entity)
       }
       Mutation.Type.DELETE -> {
         val loiId = mutation.locationOfInterestId
         val entity = checkNotNull(locationOfInterestDao.findByIdSuspend(loiId))
-        locationOfInterestDao.updateSuspend(entity.copy(state = EntityState.DELETED))
+        locationOfInterestDao.update(entity.copy(state = EntityState.DELETED))
       }
       Mutation.Type.UNKNOWN -> {
         throw LocalDataStoreException("Unknown Mutation.Type")
@@ -171,7 +162,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     locationOfInterestMutationDao.findByLocationOfInterestId(id, *states) ?: listOf()
 
   override suspend fun insertOrUpdate(loi: LocationOfInterest) =
-    locationOfInterestDao.insertOrUpdateSuspend(loi.toLocalDataStoreObject())
+    locationOfInterestDao.insertOrUpdate(loi.toLocalDataStoreObject())
 
   override suspend fun deleteNotIn(surveyId: String, ids: List<String>) =
     locationOfInterestDao.deleteNotIn(surveyId, ids)

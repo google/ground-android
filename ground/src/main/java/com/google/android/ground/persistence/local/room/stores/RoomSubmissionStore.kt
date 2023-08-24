@@ -32,7 +32,7 @@ import com.google.android.ground.persistence.local.room.converter.toLocalDataSto
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.SubmissionDao
 import com.google.android.ground.persistence.local.room.dao.SubmissionMutationDao
-import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
+import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.room.entity.AuditInfoEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
@@ -95,7 +95,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   }
 
   override suspend fun enqueue(mutation: SubmissionMutation) =
-    submissionMutationDao.insertSuspend(mutation.toLocalDataStoreObject())
+    submissionMutationDao.insert(mutation.toLocalDataStoreObject())
 
   /**
    * Applies mutation to submission in database or creates a new one.
@@ -108,7 +108,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       Mutation.Type.CREATE -> {
         val user = userStore.getUser(mutation.userId)
         val entity = mutation.toLocalDataStoreObject(AuditInfo(user))
-        submissionDao.insertOrUpdateSuspend(entity)
+        submissionDao.insertOrUpdate(entity)
       }
       Mutation.Type.UPDATE -> {
         val user = userStore.getUser(mutation.userId)
@@ -116,7 +116,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       }
       Mutation.Type.DELETE -> {
         val entity = checkNotNull(submissionDao.findByIdSuspend(mutation.submissionId))
-        submissionDao.updateSuspend(entity.copy(state = EntityState.DELETED))
+        submissionDao.update(entity.copy(state = EntityState.DELETED))
       }
       Mutation.Type.UNKNOWN -> {
         throw LocalDataStoreException("Unknown Mutation.Type")
@@ -134,7 +134,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     val entity =
       submissionDao.findByIdSuspend(mutation.submissionId) ?: fallbackSubmission(mutation)
     commitMutations(mutation.job, entity, listOf(mutationEntity), user)
-    submissionDao.insertOrUpdateSuspend(entity)
+    submissionDao.insertOrUpdate(entity)
   }
 
   /**
@@ -151,11 +151,11 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     mutations: List<SubmissionMutationEntity>
   ) {
     if (mutations.isEmpty()) {
-      submissionDao.insertOrUpdateSuspend(submission)
+      submissionDao.insertOrUpdate(submission)
     } else {
       val user = userStore.getUser(mutations.last().userId)
       val entity = commitMutations(job, submission, mutations, user)
-      submissionDao.insertOrUpdateSuspend(entity)
+      submissionDao.insertOrUpdate(entity)
     }
   }
 

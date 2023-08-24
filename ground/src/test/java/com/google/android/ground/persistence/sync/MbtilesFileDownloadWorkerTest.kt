@@ -82,7 +82,7 @@ class MbtilesFileDownloadWorkerTest : BaseHiltTest() {
         downloadState = MbtilesFile.DownloadState.DOWNLOADED,
         referenceCount = 1
       )
-    localTileSetStore.insertOrUpdateTileSetSuspend(tiles)
+    localTileSetStore.insertOrUpdateTileSet(tiles)
 
     val result = createAndDoWork(context)
     assertThat(result).isEqualTo(Result.success())
@@ -102,7 +102,7 @@ class MbtilesFileDownloadWorkerTest : BaseHiltTest() {
         referenceCount = 1
       )
 
-    localTileSetStore.insertOrUpdateTileSetSuspend(tiles)
+    localTileSetStore.insertOrUpdateTileSet(tiles)
 
     val result = createAndDoWork(mockContext)
     assertThat(result).isEqualTo(Result.retry())
@@ -120,7 +120,7 @@ class MbtilesFileDownloadWorkerTest : BaseHiltTest() {
         referenceCount = 1
       )
 
-    localTileSetStore.insertOrUpdateTileSetSuspend(tiles)
+    localTileSetStore.insertOrUpdateTileSet(tiles)
 
     val result = createAndDoWork(context)
     assertThat(result).isEqualTo(Result.failure())

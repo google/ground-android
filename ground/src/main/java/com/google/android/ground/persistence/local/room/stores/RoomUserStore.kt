@@ -20,7 +20,7 @@ import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.UserDao
-import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
+import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.rx.Schedulers
 import javax.inject.Inject
@@ -37,7 +37,7 @@ class RoomUserStore @Inject internal constructor() : LocalUserStore {
    * provided user does not exist, inserts the given user into the database.
    */
   override suspend fun insertOrUpdateUser(user: User) =
-    userDao.insertOrUpdateSuspend(user.toLocalDataStoreObject())
+    userDao.insertOrUpdate(user.toLocalDataStoreObject())
 
   /** Attempts to retrieve the [User] with the given ID from the local database. */
   override suspend fun getUser(id: String): User =
