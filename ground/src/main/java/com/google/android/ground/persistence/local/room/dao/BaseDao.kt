@@ -19,7 +19,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Update
 import io.reactivex.Completable
-import io.reactivex.Single
 
 /**
  * Base interface for DAOs that implement operations on a specific entity type.
@@ -32,10 +31,7 @@ interface BaseDao<E> {
   @Insert suspend fun insert(entity: E)
 
   /** Update entity in local db. Main-safe. */
-  @Deprecated("Use updateSuspend instead") @Update fun update(entity: E): Single<Int>
-
-  // TODO(#1581): Rename once all uses migrated to coroutines.
-  @Update suspend fun updateSuspend(entity: E): Int
+  @Update suspend fun update(entity: E): Int
 
   @Update suspend fun updateAll(entities: List<E>)
 
@@ -47,7 +43,7 @@ interface BaseDao<E> {
 
 /** Try to update the specified entity, and if it doesn't yet exist, create it. Main-safe. */
 suspend fun <E> BaseDao<E>.insertOrUpdate(entity: E) {
-  val count = updateSuspend(entity)
+  val count = update(entity)
   if (count == 0) {
     insert(entity)
   }

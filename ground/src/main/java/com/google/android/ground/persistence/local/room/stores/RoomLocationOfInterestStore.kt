@@ -100,7 +100,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       Mutation.Type.DELETE -> {
         val loiId = mutation.locationOfInterestId
         val entity = checkNotNull(locationOfInterestDao.findByIdSuspend(loiId))
-        locationOfInterestDao.updateSuspend(entity.copy(state = EntityState.DELETED))
+        locationOfInterestDao.update(entity.copy(state = EntityState.DELETED))
       }
       Mutation.Type.UNKNOWN -> {
         throw LocalDataStoreException("Unknown Mutation.Type")

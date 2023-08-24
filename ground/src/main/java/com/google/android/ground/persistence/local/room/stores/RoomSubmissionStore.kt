@@ -116,7 +116,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       }
       Mutation.Type.DELETE -> {
         val entity = checkNotNull(submissionDao.findByIdSuspend(mutation.submissionId))
-        submissionDao.updateSuspend(entity.copy(state = EntityState.DELETED))
+        submissionDao.update(entity.copy(state = EntityState.DELETED))
       }
       Mutation.Type.UNKNOWN -> {
         throw LocalDataStoreException("Unknown Mutation.Type")
