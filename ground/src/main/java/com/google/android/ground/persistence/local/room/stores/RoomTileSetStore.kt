@@ -19,7 +19,7 @@ import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.MbtilesFileDao
-import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
+import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.room.entity.MbtilesFileEntity
 import com.google.android.ground.persistence.local.room.fields.TileSetEntityState
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
@@ -44,7 +44,7 @@ class RoomTileSetStore @Inject internal constructor() : LocalTileSetStore {
       .subscribeOn(schedulers.io())
 
   override suspend fun insertOrUpdateTileSet(mbtilesFile: MbtilesFile) =
-    mbtilesFileDao.insertOrUpdateSuspend(mbtilesFile.toLocalDataStoreObject())
+    mbtilesFileDao.insertOrUpdate(mbtilesFile.toLocalDataStoreObject())
 
   override fun getTileSet(tileUrl: String): Maybe<MbtilesFile> =
     mbtilesFileDao.findByUrl(tileUrl).map { it.toModelObject() }.subscribeOn(schedulers.io())

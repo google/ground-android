@@ -47,14 +47,8 @@ interface BaseDao<E> {
   @Delete suspend fun deleteSuspend(entity: E)
 }
 
-/** Try to update the specified entity, and if it doesn't yet exist, create it. */
-@Deprecated("Use insertOrUpdateSuspend instead")
-fun <E> BaseDao<E>.insertOrUpdate(entity: E): Completable =
-  update(entity).filter { n: Int -> n == 0 }.flatMapCompletable { insert(entity) }
-
-// TODO(#1581): Rename once all uses migrated to coroutines.
 /** Try to update the specified entity, and if it doesn't yet exist, create it. Main-safe. */
-suspend fun <E> BaseDao<E>.insertOrUpdateSuspend(entity: E) {
+suspend fun <E> BaseDao<E>.insertOrUpdate(entity: E) {
   val count = updateSuspend(entity)
   if (count == 0) {
     insertSuspend(entity)

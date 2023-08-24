@@ -24,7 +24,7 @@ import com.google.android.ground.persistence.local.room.converter.toLocalDataSto
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestMutationDao
-import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
+import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
 import com.google.android.ground.persistence.local.room.fields.EntityState
@@ -92,7 +92,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
 
   // TODO(#706): Apply pending local mutations before saving.
   override suspend fun merge(model: LocationOfInterest) {
-    locationOfInterestDao.insertOrUpdateSuspend(model.toLocalDataStoreObject())
+    locationOfInterestDao.insertOrUpdate(model.toLocalDataStoreObject())
   }
 
   override suspend fun enqueue(mutation: LocationOfInterestMutation) =
@@ -104,7 +104,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       Mutation.Type.UPDATE -> {
         val user = userStore.getUser(mutation.userId)
         val entity = mutation.toLocalDataStoreObject(user)
-        locationOfInterestDao.insertOrUpdateSuspend(entity)
+        locationOfInterestDao.insertOrUpdate(entity)
       }
       Mutation.Type.DELETE -> {
         val loiId = mutation.locationOfInterestId
@@ -171,7 +171,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     locationOfInterestMutationDao.findByLocationOfInterestId(id, *states) ?: listOf()
 
   override suspend fun insertOrUpdate(loi: LocationOfInterest) =
-    locationOfInterestDao.insertOrUpdateSuspend(loi.toLocalDataStoreObject())
+    locationOfInterestDao.insertOrUpdate(loi.toLocalDataStoreObject())
 
   override suspend fun deleteNotIn(surveyId: String, ids: List<String>) =
     locationOfInterestDao.deleteNotIn(surveyId, ids)
