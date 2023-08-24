@@ -380,14 +380,8 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testInsertOfflineArea() {
-    localOfflineAreaStore.insertOrUpdateOfflineArea(TEST_OFFLINE_AREA).test().assertComplete()
-  }
-
-  @Test
-  fun testGetOfflineAreas() {
-    localOfflineAreaStore.insertOrUpdateOfflineArea(TEST_OFFLINE_AREA).blockingAwait()
-
+  fun testGetOfflineAreas() = runWithTestDispatcher {
+    localOfflineAreaStore.insertOrUpdate(TEST_OFFLINE_AREA)
     localOfflineAreaStore.offlineAreasOnceAndStream().test().assertValue(listOf(TEST_OFFLINE_AREA))
   }
 
