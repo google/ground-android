@@ -121,7 +121,7 @@ constructor(
     mbtilesFile: MbtilesFile,
     downloadState: MbtilesFile.DownloadState
   ) =
-    localTileSetStore.insertOrUpdateTileSetSuspend(mbtilesFile.copy(downloadState = downloadState))
+    localTileSetStore.insertOrUpdateTileSet(mbtilesFile.copy(downloadState = downloadState))
 
   /**
    * Verifies that {@param tile} marked as `Tile.DownloadState.DOWNLOADED` in the local database

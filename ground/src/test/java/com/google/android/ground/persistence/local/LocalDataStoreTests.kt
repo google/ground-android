@@ -342,13 +342,13 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testInsertTile() {
-    localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).test().assertComplete()
+  fun testInsertTile() = runWithTestDispatcher {
+    localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE)
   }
 
   @Test
-  fun testGetTile() {
-    localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait()
+  fun testGetTile() = runWithTestDispatcher {
+    localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE)
     localTileSetStore
       .getTileSet("some_url 1")
       .test()
@@ -357,11 +357,11 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testGetTilesOnceAndStream() {
+  fun testGetTilesOnceAndStream() = runWithTestDispatcher {
     val subscriber = localTileSetStore.tileSetsOnceAndStream().test()
     subscriber.assertValue(setOf())
-    localTileSetStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE).blockingAwait()
-    localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE).blockingAwait()
+    localTileSetStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE)
+    localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE)
     subscriber.assertValueSet(
       setOf(
         setOf(),
@@ -373,9 +373,9 @@ class LocalDataStoreTests : BaseHiltTest() {
 
   @Test
   fun testGetPendingTile() = runWithTestDispatcher {
-    localTileSetStore.insertOrUpdateTileSetSuspend(TEST_DOWNLOADED_TILE_SOURCE)
-    localTileSetStore.insertOrUpdateTileSetSuspend(TEST_FAILED_TILE_SOURCE)
-    localTileSetStore.insertOrUpdateTileSetSuspend(TEST_PENDING_TILE_SOURCE)
+    localTileSetStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE)
+    localTileSetStore.insertOrUpdateTileSet(TEST_FAILED_TILE_SOURCE)
+    localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE)
     assertThat(localTileSetStore.pendingTileSets()).isEqualTo(listOf(TEST_PENDING_TILE_SOURCE))
   }
 
