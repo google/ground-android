@@ -87,7 +87,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   }
 
   override suspend fun enqueue(mutation: LocationOfInterestMutation) =
-    locationOfInterestMutationDao.insertSuspend(mutation.toLocalDataStoreObject())
+    locationOfInterestMutationDao.insert(mutation.toLocalDataStoreObject())
 
   override suspend fun apply(mutation: LocationOfInterestMutation) {
     when (mutation.type) {

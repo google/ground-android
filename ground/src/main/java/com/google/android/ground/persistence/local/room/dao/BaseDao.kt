@@ -27,11 +27,9 @@ import io.reactivex.Single
  * @param <E> the type of entity that is persisted by sub-interfaces. </E>
  */
 interface BaseDao<E> {
-  @Deprecated("Use insertSuspend instead") @Insert fun insert(entity: E): Completable
 
-  // TODO(#1581): Rename once all uses migrated to coroutines.
   /** Insert entity into local db. Main-safe. */
-  @Insert suspend fun insertSuspend(entity: E)
+  @Insert suspend fun insert(entity: E)
 
   /** Update entity in local db. Main-safe. */
   @Deprecated("Use updateSuspend instead") @Update fun update(entity: E): Single<Int>
@@ -51,6 +49,6 @@ interface BaseDao<E> {
 suspend fun <E> BaseDao<E>.insertOrUpdate(entity: E) {
   val count = updateSuspend(entity)
   if (count == 0) {
-    insertSuspend(entity)
+    insert(entity)
   }
 }

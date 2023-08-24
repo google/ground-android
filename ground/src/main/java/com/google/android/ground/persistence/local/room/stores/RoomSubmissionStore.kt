@@ -95,7 +95,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   }
 
   override suspend fun enqueue(mutation: SubmissionMutation) =
-    submissionMutationDao.insertSuspend(mutation.toLocalDataStoreObject())
+    submissionMutationDao.insert(mutation.toLocalDataStoreObject())
 
   /**
    * Applies mutation to submission in database or creates a new one.
