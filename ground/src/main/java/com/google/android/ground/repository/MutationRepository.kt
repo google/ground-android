@@ -126,18 +126,16 @@ constructor(
         }
       }
 
-  private suspend fun markComplete(mutations: List<Mutation>) {
-    val locationOfInterestMutations =
-      LocationOfInterestMutation.filter(mutations).map {
-        it.copy(syncStatus = Mutation.SyncStatus.COMPLETED)
-      }
-    val submissionMutations =
-      SubmissionMutation.filter(mutations).map {
-        it.copy(syncStatus = Mutation.SyncStatus.COMPLETED)
-      }
+  suspend fun markAsInProgress(mutations: List<Mutation>) {
+    updateMutations(mutations.updateMutationStatus(Mutation.SyncStatus.IN_PROGRESS))
+  }
 
-    localLocationOfInterestStore.updateAll(locationOfInterestMutations)
-    localSubmissionStore.updateAll(submissionMutations)
+  suspend fun markAsFailed(mutations: List<Mutation>, error: Throwable) {
+    updateMutations(mutations.updateMutationStatus(Mutation.SyncStatus.FAILED, error))
+  }
+
+  private suspend fun markComplete(mutations: List<Mutation>) {
+    updateMutations(mutations.updateMutationStatus(Mutation.SyncStatus.COMPLETED))
   }
 
   private fun combineAndSortMutations(
@@ -147,4 +145,20 @@ constructor(
     (locationOfInterestMutations + submissionMutations).sortedWith(
       Mutation.byDescendingClientTimestamp()
     )
+}
+
+private fun List<Mutation>.updateMutationStatus(
+  syncStatus: Mutation.SyncStatus,
+  error: Throwable? = null
+): List<Mutation> = map {
+  val hasSyncFailed = syncStatus == Mutation.SyncStatus.FAILED
+  val retryCount = if (hasSyncFailed) it.retryCount + 1 else it.retryCount
+  val errorMessage = if (hasSyncFailed) error?.message ?: error.toString() else it.lastError
+
+  when (it) {
+    is LocationOfInterestMutation ->
+      it.copy(syncStatus = syncStatus, retryCount = retryCount, lastError = errorMessage)
+    is SubmissionMutation ->
+      it.copy(syncStatus = syncStatus, retryCount = retryCount, lastError = errorMessage)
+  }
 }

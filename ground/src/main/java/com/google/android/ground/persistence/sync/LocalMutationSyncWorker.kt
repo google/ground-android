@@ -21,7 +21,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
 import com.google.android.ground.model.User
-import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.TaskDataDelta
@@ -61,14 +60,13 @@ constructor(
 
   private suspend fun doWorkInternal(): Result {
     Timber.d("Connected. Syncing changes to location of interest $locationOfInterestId")
-    val mutations = mutationRepository.getPendingMutations(locationOfInterestId)
     return try {
+      val mutations = mutationRepository.getPendingMutations(locationOfInterestId)
       Timber.d("Attempting to sync mutations: $mutations")
       processMutations(mutations)
       Result.success()
     } catch (t: Throwable) {
       Timber.e(t, "Error applying local mutations to remote for LOI $locationOfInterestId")
-      mutationRepository.updateMutations(mutations = mutations.map { it.incrementRetryCount(t) })
       Result.retry()
     }
   }
@@ -93,10 +91,15 @@ constructor(
   private suspend fun processMutations(mutations: List<Mutation>, user: User) {
     check(mutations.isNotEmpty()) { "List of mutations is empty" }
 
-    remoteDataStore.applyMutations(mutations, user)
-    processPhotoFieldMutations(mutations)
-    // TODO: If the remote sync fails, reset the state to DEFAULT.
-    mutationRepository.finalizePendingMutations(mutations)
+    try {
+      mutationRepository.markAsInProgress(mutations)
+      remoteDataStore.applyMutations(mutations, user)
+      processPhotoFieldMutations(mutations)
+      // TODO: If the remote sync fails, reset the state to DEFAULT.
+      mutationRepository.finalizePendingMutations(mutations)
+    } catch (t: Throwable) {
+      mutationRepository.markAsFailed(mutations, t)
+    }
   }
 
   /**
@@ -113,16 +116,6 @@ constructor(
       // TODO: Instead of using toString(), add a method getSerializedValue() in TaskData.
       .map { (_, _, newResponse): TaskDataDelta -> newResponse.toString() }
       .forEach { remotePath: String -> photoSyncWorkManager.enqueueSyncWorker(remotePath) }
-
-  private fun Mutation.incrementRetryCount(error: Throwable): Mutation {
-    val newCount = retryCount + 1
-    val errorMessage = error.toString()
-
-    return when (this) {
-      is LocationOfInterestMutation -> copy(retryCount = newCount, lastError = errorMessage)
-      is SubmissionMutation -> copy(retryCount = newCount, lastError = errorMessage)
-    }
-  }
 
   private suspend fun getUser(userId: String): User? {
     val user = localUserStore.getUserOrNull(userId)
