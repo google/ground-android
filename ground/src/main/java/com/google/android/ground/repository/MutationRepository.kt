@@ -76,22 +76,30 @@ constructor(
    * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
    * specified id.
    */
-  suspend fun getPendingMutations(locationOfInterestId: String): List<Mutation> {
-    val pendingLoiMutations =
-      localLocationOfInterestStore
-        .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
-        .map { it.toModelObject() }
-    val pendingSubmissionMutations =
-      localSubmissionStore
-        .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
-        .map { entity ->
-          val surveyId = entity.surveyId
-          entity.toModelObject(
-            localSurveyStore.getSurveyByIdSuspend(surveyId)
-              ?: error("Survey missing $surveyId. Unable to fetch pending submission mutations.")
-          )
-        }
-    return pendingLoiMutations + pendingSubmissionMutations
+  suspend fun getQueuedMutations(loiId: String): List<Mutation> {
+    return getMutations(loiId, MutationEntitySyncStatus.PENDING) +
+      getMutations(loiId, MutationEntitySyncStatus.FAILED).filter {
+        it.retryCount < MAX_RETRY_COUNT
+      }
+  }
+
+  private suspend fun getMutations(
+    loidId: String,
+    entitySyncStatus: MutationEntitySyncStatus
+  ): List<Mutation> {
+    val loiMutations =
+      localLocationOfInterestStore.findByLocationOfInterestId(loidId, entitySyncStatus).map {
+        it.toModelObject()
+      }
+    val submissionMutations =
+      localSubmissionStore.findByLocationOfInterestId(loidId, entitySyncStatus).map { entity ->
+        val surveyId = entity.surveyId
+        entity.toModelObject(
+          localSurveyStore.getSurveyByIdSuspend(surveyId)
+            ?: error("Survey missing $surveyId. Unable to fetch pending submission mutations.")
+        )
+      }
+    return loiMutations + submissionMutations
   }
 
   /** Updates the provided list of mutations. */
@@ -145,6 +153,10 @@ constructor(
     (locationOfInterestMutations + submissionMutations).sortedWith(
       Mutation.byDescendingClientTimestamp()
     )
+
+  companion object {
+    private const val MAX_RETRY_COUNT = 3
+  }
 }
 
 private fun List<Mutation>.updateMutationStatus(

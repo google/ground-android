@@ -61,7 +61,7 @@ constructor(
   private suspend fun doWorkInternal(): Result {
     Timber.d("Connected. Syncing changes to location of interest $locationOfInterestId")
     return try {
-      val mutations = mutationRepository.getPendingMutations(locationOfInterestId)
+      val mutations = mutationRepository.getQueuedMutations(locationOfInterestId)
       Timber.d("Attempting to sync mutations: $mutations")
       processMutations(mutations)
       Result.success()
