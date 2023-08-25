@@ -134,8 +134,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
 
   private fun toLocationOfInterestMutationEntities(
     mutations: List<LocationOfInterestMutation>
-  ): List<LocationOfInterestMutationEntity> =
-    LocationOfInterestMutation.filter(mutations).map { it.toLocalDataStoreObject() }
+  ): List<LocationOfInterestMutationEntity> = mutations.map { it.toLocalDataStoreObject() }
 
   override suspend fun deleteLocationOfInterest(locationOfInterestId: String) {
     Timber.d("Deleting local location of interest : $locationOfInterestId")
