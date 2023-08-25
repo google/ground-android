@@ -84,8 +84,12 @@ constructor(
     val pendingSubmissionMutations =
       localSubmissionStore
         .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
-        .mapNotNull { entity ->
-          localSurveyStore.getSurveyByIdSuspend(entity.surveyId)?.let { entity.toModelObject(it) }
+        .map { entity ->
+          val surveyId = entity.surveyId
+          entity.toModelObject(
+            localSurveyStore.getSurveyByIdSuspend(surveyId)
+              ?: error("Survey missing $surveyId. Unable to fetch pending submission mutations.")
+          )
         }
     return pendingLoiMutations + pendingSubmissionMutations
   }
