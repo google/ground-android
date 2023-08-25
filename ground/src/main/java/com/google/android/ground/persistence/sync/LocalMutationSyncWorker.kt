@@ -31,7 +31,6 @@ import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.createInputData
 import com.google.android.ground.repository.MutationRepository
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -62,17 +61,14 @@ constructor(
 
   private suspend fun doWorkInternal(): Result {
     Timber.d("Connected. Syncing changes to location of interest $locationOfInterestId")
-    val mutations: List<Mutation> = mutationRepository.getPendingMutations(locationOfInterestId)
+    val mutations = mutationRepository.getPendingMutations(locationOfInterestId)
     return try {
-      Timber.v("Mutations: $mutations")
+      Timber.d("Attempting to sync mutations: $mutations")
       processMutations(mutations)
       Result.success()
     } catch (t: Throwable) {
-      FirebaseCrashlytics.getInstance()
-        .log("Error applying remote updates to location of interest $locationOfInterestId")
-      FirebaseCrashlytics.getInstance().recordException(t)
-      Timber.e(t, "Remote updates for location of interest $locationOfInterestId failed")
-      mutationRepository.updateMutations(incrementRetryCounts(mutations, t))
+      Timber.e(t, "Error applying local mutations to remote for LOI $locationOfInterestId")
+      mutationRepository.updateMutations(mutations = mutations.map { it.incrementRetryCount(t) })
       Result.retry()
     }
   }
@@ -81,27 +77,22 @@ constructor(
    * Groups mutations by user id, loads each user, applies mutations, and removes processed
    * mutations.
    */
-  private suspend fun processMutations(pendingMutations: List<Mutation>) {
-    val mutationsByUserId: Map<String, List<Mutation>> = groupByUserId(pendingMutations)
+  private suspend fun processMutations(allMutations: List<Mutation>) {
+    check(allMutations.isNotEmpty()) { "List of mutations is empty" }
+
+    val mutationsByUserId = allMutations.groupBy { it.userId }
     val userIds = mutationsByUserId.keys
     for (userId in userIds) {
-      val mutations = mutationsByUserId[userId] ?: listOf()
-      processMutations(mutations, userId)
-    }
-  }
-
-  /** Loads each user with specified id, applies mutations, and removes processed mutations. */
-  private suspend fun processMutations(mutations: List<Mutation>, userId: String) {
-    try {
-      val user = localUserStore.getUser(userId)
+      val mutations = mutationsByUserId[userId] ?: continue
+      val user = getUser(userId) ?: continue
       processMutations(mutations, user)
-    } catch (e: Exception) {
-      Timber.e(e, "User account removed before mutation processed")
     }
   }
 
   /** Applies mutations to remote data store. Once successful, removes them from the local db. */
   private suspend fun processMutations(mutations: List<Mutation>, user: User) {
+    check(mutations.isNotEmpty()) { "List of mutations is empty" }
+
     remoteDataStore.applyMutations(mutations, user)
     processPhotoFieldMutations(mutations)
     // TODO: If the remote sync fails, reset the state to DEFAULT.
@@ -123,19 +114,23 @@ constructor(
       .map { (_, _, newResponse): TaskDataDelta -> newResponse.toString() }
       .forEach { remotePath: String -> photoSyncWorkManager.enqueueSyncWorker(remotePath) }
 
-  private fun groupByUserId(pendingMutations: List<Mutation>): Map<String, List<Mutation>> =
-    pendingMutations.groupBy { it.userId }
+  private fun Mutation.incrementRetryCount(error: Throwable): Mutation {
+    val newCount = retryCount + 1
+    val errorMessage = error.toString()
 
-  private fun incrementRetryCounts(mutations: List<Mutation>, error: Throwable): List<Mutation> =
-    mutations.map { m: Mutation -> incrementRetryCount(m, error) }
-
-  private fun incrementRetryCount(mutation: Mutation, error: Throwable): Mutation =
-    when (mutation) {
-      is LocationOfInterestMutation ->
-        mutation.copy(retryCount = mutation.retryCount + 1, lastError = error.toString())
-      is SubmissionMutation ->
-        mutation.copy(retryCount = mutation.retryCount + 1, lastError = error.toString())
+    return when (this) {
+      is LocationOfInterestMutation -> copy(retryCount = newCount, lastError = errorMessage)
+      is SubmissionMutation -> copy(retryCount = newCount, lastError = errorMessage)
     }
+  }
+
+  private suspend fun getUser(userId: String): User? {
+    val user = localUserStore.getUserOrNull(userId)
+    if (user == null) {
+      Timber.e("User account removed before mutation processed")
+    }
+    return user
+  }
 
   companion object {
     private const val LOCATION_OF_INTEREST_ID_PARAM_KEY = "locationOfInterestId"
