@@ -103,7 +103,7 @@ constructor(
   }
 
   /** Updates the provided list of mutations. */
-  suspend fun updateMutations(mutations: List<Mutation>) {
+  private suspend fun updateMutations(mutations: List<Mutation>) {
     val loiMutations = mutations.filterIsInstance<LocationOfInterestMutation>()
     localLocationOfInterestStore.updateAll(loiMutations)
 

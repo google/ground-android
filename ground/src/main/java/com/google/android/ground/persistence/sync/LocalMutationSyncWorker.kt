@@ -95,7 +95,6 @@ constructor(
       mutationRepository.markAsInProgress(mutations)
       remoteDataStore.applyMutations(mutations, user)
       processPhotoFieldMutations(mutations)
-      // TODO: If the remote sync fails, reset the state to DEFAULT.
       mutationRepository.finalizePendingMutations(mutations)
     } catch (t: Throwable) {
       mutationRepository.markAsFailed(mutations, t)
