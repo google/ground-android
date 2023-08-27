@@ -62,6 +62,10 @@ constructor(
     Timber.d("Connected. Syncing changes to location of interest $locationOfInterestId")
     return try {
       val mutations = mutationRepository.getQueuedMutations(locationOfInterestId)
+      if (mutations.isEmpty()) {
+        Timber.d("Skipping remote sync. 0 pending mutations")
+        return Result.success()
+      }
       Timber.d("Attempting to sync ${mutations.size} mutations")
       processMutations(mutations)
       Result.success()
@@ -76,8 +80,6 @@ constructor(
    * mutations.
    */
   private suspend fun processMutations(allMutations: List<Mutation>) {
-    check(allMutations.isNotEmpty()) { "List of mutations is empty" }
-
     val mutationsByUserId = allMutations.groupBy { it.userId }
     val userIds = mutationsByUserId.keys
     for (userId in userIds) {
@@ -125,7 +127,7 @@ constructor(
   }
 
   companion object {
-    private const val LOCATION_OF_INTEREST_ID_PARAM_KEY = "locationOfInterestId"
+    internal const val LOCATION_OF_INTEREST_ID_PARAM_KEY = "locationOfInterestId"
 
     /** Returns a new work [Data] object containing the specified location of interest id. */
     @JvmStatic
