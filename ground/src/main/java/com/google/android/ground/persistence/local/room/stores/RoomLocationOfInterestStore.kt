@@ -32,7 +32,6 @@ import com.google.android.ground.persistence.local.room.fields.MutationEntitySyn
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.Debug.logOnFailure
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import javax.inject.Inject
@@ -113,11 +112,9 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       apply(mutation)
       enqueue(mutation)
     } catch (e: LocalDataStoreException) {
-      FirebaseCrashlytics.getInstance()
-        .log(
-          "Error enqueueing ${mutation.type} mutation for location of interest ${mutation.locationOfInterestId}"
-        )
-      FirebaseCrashlytics.getInstance().recordException(e)
+      Timber.e(
+        "Error enqueueing ${mutation.type} mutation for location of interest ${mutation.locationOfInterestId}"
+      )
       throw e
     }
   }

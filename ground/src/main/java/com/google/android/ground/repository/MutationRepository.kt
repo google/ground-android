@@ -76,14 +76,7 @@ constructor(
    * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
    * specified id.
    */
-  suspend fun getQueuedMutations(loiId: String): List<Mutation> {
-    return getMutations(loiId, MutationEntitySyncStatus.PENDING) +
-      getMutations(loiId, MutationEntitySyncStatus.FAILED).filter {
-        it.retryCount < MAX_RETRY_COUNT
-      }
-  }
-
-  private suspend fun getMutations(
+  suspend fun getMutations(
     loidId: String,
     entitySyncStatus: MutationEntitySyncStatus
   ): List<Mutation> {
@@ -153,10 +146,6 @@ constructor(
     (locationOfInterestMutations + submissionMutations).sortedWith(
       Mutation.byDescendingClientTimestamp()
     )
-
-  companion object {
-    private const val MAX_RETRY_COUNT = 3
-  }
 }
 
 private fun List<Mutation>.updateMutationStatus(

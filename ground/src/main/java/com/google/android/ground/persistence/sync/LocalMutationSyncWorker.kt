@@ -26,6 +26,7 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.createInputData
@@ -61,14 +62,16 @@ constructor(
   private suspend fun doWorkInternal(): Result {
     Timber.d("Connected. Syncing changes to location of interest $locationOfInterestId")
     return try {
-      val mutations = mutationRepository.getQueuedMutations(locationOfInterestId)
+      val mutations = getPendingOrEligibleFailedMutations()
+
       if (mutations.isEmpty()) {
-        Timber.d("Skipping remote sync. 0 pending mutations")
+        Timber.d("Skipping remote sync. 0 pending or eligible failed mutations")
         return Result.success()
       }
+
       Timber.d("Attempting to sync ${mutations.size} mutations")
-      processMutations(mutations)
-      Result.success()
+      val result = processMutations(mutations)
+      return if (result) return Result.retry() else Result.success()
     } catch (t: Throwable) {
       Timber.e(t, "Error applying local mutations to remote for LOI $locationOfInterestId")
       Result.retry()
@@ -76,30 +79,57 @@ constructor(
   }
 
   /**
+   * Attempts to fetch all mutations from the [MutationRepository] that are in `PENDING` state or in
+   * `FAILED` state but eligible for retry.
+   */
+  private suspend fun getPendingOrEligibleFailedMutations(): List<Mutation> {
+    val pendingMutations =
+      mutationRepository.getMutations(locationOfInterestId, MutationEntitySyncStatus.PENDING)
+    val failedMutationsEligibleForRetry =
+      mutationRepository
+        .getMutations(locationOfInterestId, MutationEntitySyncStatus.FAILED)
+        .filter { it.retryCount < MAX_RETRY_COUNT }
+    return pendingMutations + failedMutationsEligibleForRetry
+  }
+
+  /**
    * Groups mutations by user id, loads each user, applies mutations, and removes processed
    * mutations.
+   *
+   * @return `true` if all mutations are applied successfully, else `false`
    */
-  private suspend fun processMutations(allMutations: List<Mutation>) {
+  private suspend fun processMutations(allMutations: List<Mutation>): Boolean {
     val mutationsByUserId = allMutations.groupBy { it.userId }
     val userIds = mutationsByUserId.keys
+    var mutationBatchFailed = false
     for (userId in userIds) {
       val mutations = mutationsByUserId[userId] ?: continue
       val user = getUser(userId) ?: continue
-      processMutations(mutations, user)
+      val result = processMutations(mutations, user)
+      if (!result) {
+        mutationBatchFailed = true
+      }
     }
+    return mutationBatchFailed
   }
 
-  /** Applies mutations to remote data store. Once successful, removes them from the local db. */
-  private suspend fun processMutations(mutations: List<Mutation>, user: User) {
+  /**
+   * Applies mutations to remote data store. Once successful, removes them from the local db.
+   *
+   * @return `true` if the mutations were successfully synced with [RemoteDataStore].
+   */
+  private suspend fun processMutations(mutations: List<Mutation>, user: User): Boolean {
     check(mutations.isNotEmpty()) { "List of mutations is empty" }
 
-    try {
+    return try {
       mutationRepository.markAsInProgress(mutations)
       remoteDataStore.applyMutations(mutations, user)
       processPhotoFieldMutations(mutations)
       mutationRepository.finalizePendingMutations(mutations)
+      true
     } catch (t: Throwable) {
       mutationRepository.markAsFailed(mutations, t)
+      false
     }
   }
 
@@ -133,5 +163,7 @@ constructor(
     @JvmStatic
     fun createInputData(locationOfInterestId: String): Data =
       Data.Builder().putString(LOCATION_OF_INTEREST_ID_PARAM_KEY, locationOfInterestId).build()
+
+    private const val MAX_RETRY_COUNT = 3
   }
 }
