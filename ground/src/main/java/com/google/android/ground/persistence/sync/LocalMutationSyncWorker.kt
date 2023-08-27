@@ -63,15 +63,9 @@ constructor(
     Timber.d("Connected. Syncing changes to location of interest $locationOfInterestId")
     return try {
       val mutations = getPendingOrEligibleFailedMutations()
-
-      if (mutations.isEmpty()) {
-        Timber.d("Skipping remote sync. 0 pending or eligible failed mutations")
-        return Result.success()
-      }
-
       Timber.d("Attempting to sync ${mutations.size} mutations")
       val result = processMutations(mutations)
-      return if (result) return Result.retry() else Result.success()
+      return if (result) Result.success() else Result.retry()
     } catch (t: Throwable) {
       Timber.e(t, "Error applying local mutations to remote for LOI $locationOfInterestId")
       Result.retry()
@@ -101,16 +95,19 @@ constructor(
   private suspend fun processMutations(allMutations: List<Mutation>): Boolean {
     val mutationsByUserId = allMutations.groupBy { it.userId }
     val userIds = mutationsByUserId.keys
-    var mutationBatchFailed = false
+    var noErrors = true
     for (userId in userIds) {
-      val mutations = mutationsByUserId[userId] ?: continue
-      val user = getUser(userId) ?: continue
+      val mutations = mutationsByUserId[userId]
+      val user = getUser(userId)
+      if (mutations == null || user == null) {
+        continue
+      }
       val result = processMutations(mutations, user)
       if (!result) {
-        mutationBatchFailed = true
+        noErrors = false
       }
     }
-    return mutationBatchFailed
+    return noErrors
   }
 
   /**
@@ -157,13 +154,13 @@ constructor(
   }
 
   companion object {
+    private const val MAX_RETRY_COUNT = 3
+
     internal const val LOCATION_OF_INTEREST_ID_PARAM_KEY = "locationOfInterestId"
 
     /** Returns a new work [Data] object containing the specified location of interest id. */
     @JvmStatic
     fun createInputData(locationOfInterestId: String): Data =
       Data.Builder().putString(LOCATION_OF_INTEREST_ID_PARAM_KEY, locationOfInterestId).build()
-
-    private const val MAX_RETRY_COUNT = 3
   }
 }
