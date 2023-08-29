@@ -91,7 +91,7 @@ data class MogImageMetadata(
           ?.map { (it as Int).toByte() }
           ?.toByteArray()
           ?: byteArrayOf(),
-        (tiffTagToValue[TiffTag.GdalNodata] as String)?.toIntOrNull()
+        (tiffTagToValue[TiffTag.GdalNodata] as String?)?.toIntOrNull()
       )
   }
 }
