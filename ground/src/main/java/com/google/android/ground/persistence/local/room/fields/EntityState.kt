@@ -13,38 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.fields
 
-package com.google.android.ground.persistence.local.room.fields;
+import androidx.room.TypeConverter
+import com.google.android.ground.persistence.local.room.IntEnum
+import com.google.android.ground.persistence.local.room.IntEnum.Companion.fromInt
+import com.google.android.ground.persistence.local.room.IntEnum.Companion.toInt
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.room.TypeConverter;
-import com.google.android.ground.persistence.local.room.IntEnum;
+/** Mutually exclusive entity states shared by LOIs and Submissions.  */
+enum class EntityState(private val intValue: Int) : IntEnum {
+  UNKNOWN(0), DEFAULT(1), DELETED(2);
 
-/** Mutually exclusive entity states shared by LOIs and Submissions. */
-public enum EntityState implements IntEnum {
-  UNKNOWN(0),
-  DEFAULT(1),
-  DELETED(2);
-
-  private final int intValue;
-
-  EntityState(int intValue) {
-    this.intValue = intValue;
+  override fun intValue(): Int {
+    return intValue
   }
 
-  public int intValue() {
-    return intValue;
-  }
+  companion object {
+    @JvmStatic
+    @TypeConverter
+    fun toInt(value: EntityState?): Int {
+      return toInt(value, UNKNOWN)
+    }
 
-  @TypeConverter
-  public static int toInt(@Nullable EntityState value) {
-    return IntEnum.toInt(value, UNKNOWN);
-  }
-
-  @NonNull
-  @TypeConverter
-  public static EntityState fromInt(int intValue) {
-    return IntEnum.fromInt(values(), intValue, UNKNOWN);
+    @JvmStatic
+    @TypeConverter
+    fun fromInt(intValue: Int): EntityState {
+      return fromInt(values(), intValue, UNKNOWN)
+    }
   }
 }
