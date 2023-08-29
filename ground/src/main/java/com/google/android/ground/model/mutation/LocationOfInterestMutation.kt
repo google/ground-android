@@ -30,7 +30,8 @@ data class LocationOfInterestMutation(
   override val lastError: String = "",
   val jobId: String = "",
   val geometry: Geometry? = null,
-  val caption: String? = null
+  val caption: String? = null,
+  val submissionCount: Int = 0
 ) : Mutation() {
 
   companion object {

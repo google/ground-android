@@ -31,5 +31,6 @@ data class LocationOfInterestEntity(
   @ColumnInfo(name = "caption") val caption: String?,
   @Embedded(prefix = "created_") val created: AuditInfoEntity,
   @Embedded(prefix = "modified_") val lastModified: AuditInfoEntity,
-  val geometry: GeometryWrapper?
+  val geometry: GeometryWrapper?,
+  val submissionCount: Int
 )
