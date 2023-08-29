@@ -20,7 +20,6 @@ import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.room.IntEnum
 import com.google.android.ground.persistence.local.room.IntEnum.Companion.fromInt
 import com.google.android.ground.persistence.local.room.IntEnum.Companion.toInt
-import java8.util.J8Arrays
 
 /** Mutually exclusive mutations states. */
 enum class MutationEntitySyncStatus(private val intValue: Int, private val enumValue: SyncStatus) :
@@ -47,10 +46,8 @@ enum class MutationEntitySyncStatus(private val intValue: Int, private val enumV
 
   companion object {
     fun fromMutationSyncStatus(syncStatus: SyncStatus): MutationEntitySyncStatus {
-      return J8Arrays.stream(values())
-        .filter { s: MutationEntitySyncStatus -> s.enumValue === syncStatus }
-        .findFirst()
-        .orElse(UNKNOWN)
+      return values().firstOrNull { s: MutationEntitySyncStatus -> s.enumValue === syncStatus }
+        ?: UNKNOWN
     }
 
     @JvmStatic
