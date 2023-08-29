@@ -60,6 +60,10 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
   ): List<SubmissionMutationEntity>
 
   suspend fun getPendingSubmissionCountByLocationOfInterestId(
-    id: String,
+    loiId: String,
+  ): Int
+
+  suspend fun getPendingSubmissionDeletionCountByLocationOfInterestId(
+    loiId: String,
   ): Int
 }

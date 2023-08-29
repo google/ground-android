@@ -38,12 +38,11 @@ import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.gms.GmsExt.contains
 import io.reactivex.Flowable
 import io.reactivex.Single
-import kotlinx.collections.immutable.toPersistentSet
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.collections.immutable.toPersistentSet
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.rx2.asFlowable
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
@@ -128,23 +127,24 @@ constructor(
     )
 
   /** Returns a flowable of all [LocationOfInterest] for the given [Survey]. */
-  private fun getLocationsOfInterestOnceAndStream(survey: Survey): Flowable<Set<LocationOfInterest>> =
-    localLoiStore.getLocationsOfInterestOnceAndStream(survey)
+  private fun getLocationsOfInterestOnceAndStream(
+    survey: Survey
+  ): Flowable<Set<LocationOfInterest>> = localLoiStore.getLocationsOfInterestOnceAndStream(survey)
 
   private fun findLocationsOfInterest(survey: Survey) =
     localLoiStore.findLocationsOfInterest(survey)
 
   fun findLocationsOfInterestFeatures(survey: Survey) =
-    findLocationsOfInterest(survey)
-      .map { toLocationOfInterestFeatures(it) }
+    findLocationsOfInterest(survey).map { toLocationOfInterestFeatures(it) }
 
   private suspend fun toLocationOfInterestFeatures(
     locationsOfInterest: Set<LocationOfInterest>
   ): Set<Feature> = // TODO: Add support for polylines similar to mapPins.
-    locationsOfInterest
+  locationsOfInterest
       .map {
         val pendingSubmissions =
-          localSubmissionStore.getPendingSubmissionCountByLocationOfInterestId(it.id)
+          localSubmissionStore.getPendingSubmissionCountByLocationOfInterestId(it.id) -
+            localSubmissionStore.getPendingSubmissionDeletionCountByLocationOfInterestId(it.id)
         val submissionCount = it.submissionCount + pendingSubmissions
         Feature(
           id = it.id,
