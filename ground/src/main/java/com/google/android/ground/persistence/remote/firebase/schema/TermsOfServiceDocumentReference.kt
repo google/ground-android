@@ -19,17 +19,15 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.persistence.remote.firebase.base.FluentDocumentReference
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.DocumentSnapshot
-import durdinapps.rxfirebase2.RxFirestore
-import io.reactivex.Maybe
+import kotlinx.coroutines.tasks.await
 
 class TermsOfServiceDocumentReference internal constructor(ref: DocumentReference) :
   FluentDocumentReference(ref) {
 
   fun terms() = TermsOfServiceDocumentReference(reference())
 
-  fun get(): Maybe<TermsOfService> =
-    RxFirestore.getDocument(reference()).map { doc: DocumentSnapshot ->
-      TermsOfServiceConverter.toTerms(doc)
-    }
+  suspend fun get(): TermsOfService? {
+    val documentSnapshot = reference().get().await()
+    return TermsOfServiceConverter.toTerms(documentSnapshot)
+  }
 }

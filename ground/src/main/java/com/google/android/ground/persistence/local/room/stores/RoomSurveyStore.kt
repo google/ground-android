@@ -28,7 +28,7 @@ import com.google.android.ground.persistence.local.room.dao.OptionDao
 import com.google.android.ground.persistence.local.room.dao.SurveyDao
 import com.google.android.ground.persistence.local.room.dao.TaskDao
 import com.google.android.ground.persistence.local.room.dao.TileSourceDao
-import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
+import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.rx.Schedulers
 import io.reactivex.Maybe
@@ -56,7 +56,7 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
    * provided survey does not exist, inserts the given survey into the database.
    */
   override suspend fun insertOrUpdateSurvey(survey: Survey) {
-    surveyDao.insertOrUpdateSuspend(survey.toLocalDataStoreObject())
+    surveyDao.insertOrUpdate(survey.toLocalDataStoreObject())
     jobDao.deleteBySurveyId(survey.id)
     insertOrUpdateJobs(survey.id, survey.jobs)
     tileSourceDao.deleteBySurveyId(survey.id)
@@ -82,19 +82,19 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
     surveyDao.deleteSuspend(survey.toLocalDataStoreObject())
 
   private suspend fun insertOrUpdateOption(taskId: String, option: Option) =
-    optionDao.insertOrUpdateSuspend(option.toLocalDataStoreObject(taskId))
+    optionDao.insertOrUpdate(option.toLocalDataStoreObject(taskId))
 
   private suspend fun insertOrUpdateOptions(taskId: String, options: List<Option>) {
     options.forEach { insertOrUpdateOption(taskId, it) }
   }
 
   private suspend fun insertOrUpdateMultipleChoice(taskId: String, multipleChoice: MultipleChoice) {
-    multipleChoiceDao.insertOrUpdateSuspend(multipleChoice.toLocalDataStoreObject(taskId))
+    multipleChoiceDao.insertOrUpdate(multipleChoice.toLocalDataStoreObject(taskId))
     insertOrUpdateOptions(taskId, multipleChoice.options)
   }
 
   private suspend fun insertOrUpdateTask(jobId: String, task: Task) {
-    taskDao.insertOrUpdateSuspend(task.toLocalDataStoreObject(jobId))
+    taskDao.insertOrUpdate(task.toLocalDataStoreObject(jobId))
     if (task.multipleChoice != null) {
       insertOrUpdateMultipleChoice(task.id, task.multipleChoice)
     }
@@ -104,7 +104,7 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
     tasks.forEach { insertOrUpdateTask(jobId, it) }
 
   private suspend fun insertOrUpdateJob(surveyId: String, job: Job) {
-    jobDao.insertOrUpdateSuspend(job.toLocalDataStoreObject(surveyId))
+    jobDao.insertOrUpdate(job.toLocalDataStoreObject(surveyId))
     insertOrUpdateTasks(job.id, job.tasks.values)
   }
 
@@ -113,6 +113,6 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
 
   private suspend fun insertOfflineBaseMapSources(survey: Survey) =
     survey.tileSources.forEach {
-      tileSourceDao.insertOrUpdateSuspend(it.toLocalDataStoreObject(surveyId = survey.id))
+      tileSourceDao.insertOrUpdate(it.toLocalDataStoreObject(surveyId = survey.id))
     }
 }

@@ -21,12 +21,7 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.persistence.remote.RemoteDataEvent
 import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Flowable
-import io.reactivex.Maybe
-import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,8 +33,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   var userProfileRefreshCount = 0
     private set
 
-  // TODO(#1373): Delete once new LOI sync is implemented.
-  var termsOfService: Maybe<TermsOfService> = Maybe.empty()
+  var termsOfService: Result<TermsOfService?>? = null
 
   private val subscribedSurveyIds = mutableSetOf<String>()
 
@@ -47,19 +41,11 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override suspend fun loadSurvey(surveyId: String): Survey? = onLoadSurvey.invoke(surveyId)
 
-  override fun loadTermsOfService(): @Cold Maybe<TermsOfService> = termsOfService
-
-  // TODO(#1373): Delete once new LOI sync is implemented.
-  override fun loadLocationsOfInterestOnceAndStreamChanges(
-    survey: Survey
-  ): Flowable<RemoteDataEvent<LocationOfInterest>> =
-    Flowable.fromIterable(lois).map { RemoteDataEvent.loaded(it.id, it) }
+  override suspend fun loadTermsOfService(): TermsOfService? = termsOfService?.getOrThrow()
 
   override suspend fun loadLocationsOfInterest(survey: Survey) = lois
 
-  override fun loadSubmissions(
-    locationOfInterest: LocationOfInterest
-  ): Single<List<Result<Submission>>> {
+  override suspend fun loadSubmissions(locationOfInterest: LocationOfInterest): List<Submission> {
     TODO("Missing implementation")
   }
 

@@ -32,10 +32,7 @@ interface LocalTileSetStore {
    * Attempts to update a tile in the local data store. If the tile doesn't exist, inserts the tile
    * into the local data store.
    */
-  @Deprecated("Use insertOrUpdateTileSetSuspend instead")
-  fun insertOrUpdateTileSet(mbtilesFile: MbtilesFile): @Cold Completable
-
-  suspend fun insertOrUpdateTileSetSuspend(mbtilesFile: MbtilesFile)
+  suspend fun insertOrUpdateTileSet(mbtilesFile: MbtilesFile)
 
   /** Returns the tile with the specified URL from the local data store, if found. */
   fun getTileSet(tileUrl: String): @Cold Maybe<MbtilesFile>

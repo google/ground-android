@@ -20,14 +20,15 @@ import com.google.android.ground.model.imagery.TileSource
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
 import org.junit.Test
-import org.mockito.Mockito.*
+import org.mockito.Mockito.mock
+import org.mockito.kotlin.whenever
 
 class SurveyConverterTest {
   @Test
   fun toSurvey_whenPresent_convertsTileSources() {
     val testUrl = "http://test123"
     val doc = SurveyDocument(tileSources = listOf(TileSourceNestedObject(url = testUrl)))
-    val snapshot = createSurveyDocumentSnapshot("123", doc)
+    val snapshot = createSurveyDocumentSnapshot(doc)
 
     assertThat(SurveyConverter.toSurvey(snapshot).tileSources)
       .containsExactly(TileSource(testUrl, TileSource.Type.MOG_COLLECTION))
@@ -36,7 +37,7 @@ class SurveyConverterTest {
   @Test
   fun toSurvey_whenMissing_skipsTileSources() {
     val doc = SurveyDocument()
-    val snapshot = createSurveyDocumentSnapshot("123", doc)
+    val snapshot = createSurveyDocumentSnapshot(doc)
 
     assertThat(SurveyConverter.toSurvey(snapshot).tileSources).isEmpty()
   }
@@ -44,18 +45,20 @@ class SurveyConverterTest {
   @Test
   fun toSurvey_whenUrlMissing_skipsTileSources() {
     val doc = SurveyDocument(tileSources = listOf(TileSourceNestedObject(url = null)))
-    val snapshot = createSurveyDocumentSnapshot("123", doc)
+    val snapshot = createSurveyDocumentSnapshot(doc)
 
     assertThat(SurveyConverter.toSurvey(snapshot).tileSources).isEmpty()
   }
 
-  private fun createSurveyDocumentSnapshot(
-    id: String,
-    surveyDocument: SurveyDocument
-  ): DocumentSnapshot {
+  private fun createSurveyDocumentSnapshot(surveyDocument: SurveyDocument): DocumentSnapshot {
     val snapshot = mock(DocumentSnapshot::class.java)
-    `when`(snapshot.id).thenReturn(id)
-    `when`(snapshot.toObject(SurveyDocument::class.java)).thenReturn(surveyDocument)
+    whenever(snapshot.id).thenReturn(DOCUMENT_ID)
+    whenever(snapshot.toObject(SurveyDocument::class.java)).thenReturn(surveyDocument)
+    whenever(snapshot.exists()).thenReturn(true)
     return snapshot
+  }
+
+  companion object {
+    const val DOCUMENT_ID = "id1"
   }
 }

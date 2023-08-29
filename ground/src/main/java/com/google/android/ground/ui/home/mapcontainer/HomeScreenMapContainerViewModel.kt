@@ -43,8 +43,10 @@ import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.rx2.asFlowable
 import timber.log.Timber
 
@@ -126,6 +128,13 @@ internal constructor(
     suggestLoiJobs =
       surveyRepository.activeSurveyFlow
         .map { it?.jobs?.filter { job -> job.suggestLoiTaskType != null }?.toList() ?: listOf() }
+        .combine(cameraZoomUpdates.asFlow()) { survey, zoomLevel ->
+          if (zoomLevel < CLUSTERING_ZOOM_THRESHOLD) {
+            listOf()
+          } else {
+            survey?.jobs?.filter { job -> job.suggestLoiTaskType != null }?.toList() ?: listOf()
+          }
+        }
         .distinctUntilChanged()
   }
 

@@ -17,12 +17,13 @@ package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
 import com.google.common.truth.Truth.assertThat
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
-import io.reactivex.Maybe
 import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -36,20 +37,24 @@ class TermsOfServiceRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testGetTermsOfService() = runBlocking {
-    fakeRemoteDataStore.termsOfService = Maybe.just(FakeData.TERMS_OF_SERVICE)
+    fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
     assertThat(termsOfServiceRepository.getTermsOfService()).isEqualTo(FakeData.TERMS_OF_SERVICE)
   }
 
   @Test
-  fun testGetTermsOfService_whenMissing_doesNotThrowException() = runBlocking {
-    fakeRemoteDataStore.termsOfService = Maybe.empty()
+  fun testGetTermsOfService_whenMissing_returnsNull() = runBlocking {
     assertThat(termsOfServiceRepository.getTermsOfService()).isNull()
   }
 
   @Test
-  fun testGetTermsOfService_whenErrorFetchingTos_doesNotThrowException() = runBlocking {
-    fakeRemoteDataStore.termsOfService = Maybe.error(Error("some error"))
-    assertThat(termsOfServiceRepository.getTermsOfService()).isNull()
+  fun testGetTermsOfService_whenRequestFails_throwsError() {
+    fakeRemoteDataStore.termsOfService =
+      Result.failure(
+        FirebaseFirestoreException("user error", FirebaseFirestoreException.Code.ABORTED)
+      )
+    assertThrows(FirebaseFirestoreException::class.java) {
+      runBlocking { termsOfServiceRepository.getTermsOfService() }
+    }
   }
 
   @Test
