@@ -13,73 +13,61 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.fields
 
-package com.google.android.ground.persistence.local.room.fields;
+import androidx.room.TypeConverter
+import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.persistence.local.room.IntEnum
+import com.google.android.ground.persistence.local.room.IntEnum.Companion.fromInt
+import com.google.android.ground.persistence.local.room.IntEnum.Companion.toInt
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.room.TypeConverter;
-import com.google.android.ground.model.mutation.Mutation;
-import com.google.android.ground.persistence.local.room.IntEnum;
-
-/** Defines how Room represents mutation types in the remote sync queue in the local db. */
-public enum MutationEntityType implements IntEnum {
-  /** Indicates the field was missing or contained an unrecognized value. */
+/** Defines how Room represents mutation types in the remote sync queue in the local db.  */
+enum class MutationEntityType(private val intValue: Int) : IntEnum {
+  /** Indicates the field was missing or contained an unrecognized value.  */
   UNKNOWN(0),
 
-  /** Indicates a new entity should be created. */
+  /** Indicates a new entity should be created.  */
   CREATE(1),
 
-  /** Indicates an existing entity should be updated. */
+  /** Indicates an existing entity should be updated.  */
   UPDATE(2),
 
-  /** Indicates an existing entity should be marked for deletion. */
+  /** Indicates an existing entity should be marked for deletion.  */
   DELETE(3);
 
-  private final int intValue;
-
-  MutationEntityType(int intValue) {
-    this.intValue = intValue;
-  }
-
-  public static MutationEntityType fromMutationType(Mutation.Type type) {
-    switch (type) {
-      case CREATE:
-        return CREATE;
-      case UPDATE:
-        return UPDATE;
-      case DELETE:
-        return DELETE;
-      default:
-        return UNKNOWN;
+  fun toMutationType(): Mutation.Type {
+    return when (this) {
+      CREATE -> Mutation.Type.CREATE
+      UPDATE -> Mutation.Type.UPDATE
+      DELETE -> Mutation.Type.DELETE
+      else -> Mutation.Type.UNKNOWN
     }
   }
 
-  public Mutation.Type toMutationType() {
-    switch (this) {
-      case CREATE:
-        return Mutation.Type.CREATE;
-      case UPDATE:
-        return Mutation.Type.UPDATE;
-      case DELETE:
-        return Mutation.Type.DELETE;
-      default:
-        return Mutation.Type.UNKNOWN;
+  override fun intValue(): Int {
+    return intValue
+  }
+
+  companion object {
+    fun fromMutationType(type: Mutation.Type?): MutationEntityType {
+      return when (type) {
+        Mutation.Type.CREATE -> CREATE
+        Mutation.Type.UPDATE -> UPDATE
+        Mutation.Type.DELETE -> DELETE
+        else -> UNKNOWN
+      }
     }
-  }
 
-  public int intValue() {
-    return intValue;
-  }
+    @JvmStatic
+    @TypeConverter
+    fun toInt(value: MutationEntityType?): Int {
+      return toInt(value, UNKNOWN)
+    }
 
-  @TypeConverter
-  public static int toInt(@Nullable MutationEntityType value) {
-    return IntEnum.toInt(value, UNKNOWN);
-  }
-
-  @NonNull
-  @TypeConverter
-  public static MutationEntityType fromInt(int intValue) {
-    return IntEnum.fromInt(values(), intValue, UNKNOWN);
+    @JvmStatic
+    @TypeConverter
+    fun fromInt(intValue: Int): MutationEntityType {
+      return fromInt(values(), intValue, UNKNOWN)
+    }
   }
 }
