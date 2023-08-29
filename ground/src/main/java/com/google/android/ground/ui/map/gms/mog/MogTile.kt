@@ -16,7 +16,12 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Color
+import androidx.core.graphics.get
 import com.google.android.gms.maps.model.Tile
+import java.io.ByteArrayOutputStream
 
 /** Metadata and image data for a single tile. */
 class MogTile(val metadata: MogTileMetadata, val data: ByteArray) {
@@ -26,7 +31,36 @@ class MogTile(val metadata: MogTileMetadata, val data: ByteArray) {
       .dropLast(2) // Drop trailing EOI.
       .toByteArray()
 
-  fun toGmsTile(): Tile = Tile(metadata.width, metadata.height, buildJfifFile())
+  fun toGmsTile(): Tile {
+    val jfifData = buildJfifFile()
+    return if (metadata.noDataValue == null) {
+      Tile(metadata.width, metadata.height, jfifData)
+    } else {
+      val maskedData = maskNoDataValues(jfifData, metadata.noDataValue)
+      Tile(metadata.width, metadata.height, maskedData)
+    }
+  }
+
+  private fun maskNoDataValues(jfifData: ByteArray, noDataValue: Int): ByteArray {
+    val opts = BitmapFactory.Options()
+    opts.inMutable = true
+    val bitmap = BitmapFactory.decodeByteArray(jfifData, 0, jfifData.size, opts)
+    bitmap.setHasAlpha(true)
+    for (y in 0 until bitmap.height) {
+      for (x in 0 until bitmap.width) {
+        if (bitmap.getPixel(x, y) == Color.rgb(noDataValue, noDataValue, noDataValue)) {
+          bitmap.setPixel(x, y, Color.TRANSPARENT)
+        }
+      }
+    }
+    // Android doesn't implement encoders for uncompressed format, so we must compress the returned
+    // tile so that it can be later encoded by Maps SDK. Experimentally, decompressing JPG and
+    // compressing WEBP each tile adds on the order of 1ms to each tile which we can consider
+    // negligible.
+    val stream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.WEBP, 100, stream)
+    return stream.toByteArray()
+  }
 
   private fun buildJfifFile(): ByteArray =
     START_OF_IMAGE +

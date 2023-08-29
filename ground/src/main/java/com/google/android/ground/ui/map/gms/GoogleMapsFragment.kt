@@ -406,7 +406,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
     val mogCollection =
       MogCollection(
-        listOf(MogSource("${url}/world.tif", 0..7), MogSource("${url}/{x}/{y}.tif", 8..14))
+        listOf(MogSource("${url}/world-masked.tif", 0..7), MogSource("${url}/{x}/{y}.tif", 8..14))
       )
     addTileOverlay(MogTileProvider(mogCollection))
   }

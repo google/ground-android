@@ -218,7 +218,10 @@ constructor(
     val baseUrl = getFirstTileSourceUrl()
     val mogCollection =
       MogCollection(
-        listOf(MogSource("${baseUrl}/world.tif", 0..7), MogSource("${baseUrl}/{x}/{y}.tif", 8..14))
+        listOf(
+          MogSource("${baseUrl}/world-masked.tif", 0..7),
+          MogSource("${baseUrl}/{x}/{y}.tif", 8..14)
+        )
       )
     // TODO(#1754): Create a factory and inject rather than instantiating here. Add tests.
     return MogClient(mogCollection)
