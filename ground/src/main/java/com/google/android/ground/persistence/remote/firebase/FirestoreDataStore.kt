@@ -24,11 +24,8 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.remote.firebase.schema.GroundFirestore
-import com.google.android.ground.system.ApplicationErrorManager
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.ktx.Firebase
@@ -47,22 +44,9 @@ class FirestoreDataStore
 @Inject
 internal constructor(
   private val firebaseFunctions: FirebaseFunctions,
-  private val errorManager: ApplicationErrorManager,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   val db: GroundFirestore,
 ) : RemoteDataStore {
-
-  /**
-   * Prevents known `FirebaseFirestoreException` from propagating downstream. Also, notifies the
-   * event to a processor that should be handled commonly.
-   */
-  private fun shouldInterceptException(throwable: Throwable): Boolean =
-    errorManager.handleException(throwable)
-
-  private fun recordException(t: Throwable, message: String) {
-    FirebaseCrashlytics.getInstance().log(message)
-    FirebaseCrashlytics.getInstance().recordException(t)
-  }
 
   override suspend fun loadSurvey(surveyId: String): Survey =
     withContext(ioDispatcher) { db.surveys().survey(surveyId).get() }
@@ -85,17 +69,6 @@ internal constructor(
   override suspend fun loadLocationsOfInterest(survey: Survey) =
     db.surveys().survey(survey.id).lois().locationsOfInterest(survey)
 
-  override suspend fun applyMutations(mutations: List<Mutation>, user: User) {
-    try {
-      applyMutationsInternal(mutations, user)
-    } catch (e: Throwable) {
-      recordException(e, "Error applying mutation")
-      if (!shouldInterceptException(e)) {
-        throw e
-      }
-    }
-  }
-
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {
     Timber.d("Subscribing to FCM topic $surveyId")
     Firebase.messaging.subscribeToTopic(surveyId).await()
@@ -106,34 +79,17 @@ internal constructor(
     firebaseFunctions.getHttpsCallable(PROFILE_REFRESH_CLOUD_FUNCTION_NAME).call().await()
   }
 
-  private suspend fun applyMutationsInternal(mutations: List<Mutation>, user: User) {
+  override suspend fun applyMutations(mutations: List<Mutation>, user: User) {
     val batch = db.batch()
     for (mutation in mutations) {
-      try {
-        addMutationToBatch(mutation, user, batch)
-      } catch (e: DataStoreException) {
-        val mutationId =
-          if (mutation is SubmissionMutation) mutation.submissionId
-          else mutation.locationOfInterestId
-        recordException(
-          e,
-          "Error adding ${mutation.type} ${mutation.javaClass.simpleName} for $mutationId  to batch"
-        )
-        Timber.e(e, "Skipping invalid mutation")
+      when (mutation) {
+        is LocationOfInterestMutation -> addLocationOfInterestMutationToBatch(mutation, user, batch)
+        is SubmissionMutation -> addSubmissionMutationToBatch(mutation, user, batch)
       }
     }
     batch.commit().await()
   }
 
-  @Throws(DataStoreException::class)
-  private fun addMutationToBatch(mutation: Mutation, user: User, batch: WriteBatch) {
-    when (mutation) {
-      is LocationOfInterestMutation -> addLocationOfInterestMutationToBatch(mutation, user, batch)
-      is SubmissionMutation -> addSubmissionMutationToBatch(mutation, user, batch)
-    }
-  }
-
-  @Throws(DataStoreException::class)
   private fun addLocationOfInterestMutationToBatch(
     mutation: LocationOfInterestMutation,
     user: User,
@@ -147,7 +103,6 @@ internal constructor(
       .addMutationToBatch(mutation, user, batch)
   }
 
-  @Throws(DataStoreException::class)
   private fun addSubmissionMutationToBatch(
     mutation: SubmissionMutation,
     user: User,

@@ -120,7 +120,6 @@
   <string name="loi_properties">LOI properties</string>
   <!-- Label on button shown to dismiss the locationOfInterest properties dialog. -->
   <string name="close_loi_properties">OK</string>
-  <string name="permission_denied_error">Permission denied! Check user pass-list.</string>
 
   <string name="add_point">Add point</string>
   <string name="complete_polygon">Complete</string>
