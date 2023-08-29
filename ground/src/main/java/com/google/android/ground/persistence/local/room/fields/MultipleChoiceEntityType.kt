@@ -13,63 +13,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.fields
 
-package com.google.android.ground.persistence.local.room.fields;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.room.TypeConverter;
-import com.google.android.ground.model.task.MultipleChoice;
-import com.google.android.ground.model.task.MultipleChoice.Cardinality;
-import com.google.android.ground.persistence.local.room.IntEnum;
+import androidx.room.TypeConverter
+import com.google.android.ground.model.task.MultipleChoice
+import com.google.android.ground.persistence.local.room.IntEnum
+import com.google.android.ground.persistence.local.room.IntEnum.Companion.fromInt
+import com.google.android.ground.persistence.local.room.IntEnum.Companion.toInt
 
 /** Defines how Room represents cardinality types in the local db. */
-public enum MultipleChoiceEntityType implements IntEnum {
+enum class MultipleChoiceEntityType(private val intValue: Int) : IntEnum {
   UNKNOWN(0),
   SELECT_ONE(1),
   SELECT_MULTIPLE(2);
 
-  private final int intValue;
-
-  MultipleChoiceEntityType(int intValue) {
-    this.intValue = intValue;
+  override fun intValue(): Int {
+    return intValue
   }
 
-  @Override
-  public int intValue() {
-    return intValue;
-  }
-
-  public static MultipleChoiceEntityType fromCardinality(MultipleChoice.Cardinality type) {
-    switch (type) {
-      case SELECT_ONE:
-        return SELECT_ONE;
-      case SELECT_MULTIPLE:
-        return SELECT_MULTIPLE;
-      default:
-        return UNKNOWN;
+  fun toCardinality(): MultipleChoice.Cardinality {
+    return when (this) {
+      SELECT_ONE -> MultipleChoice.Cardinality.SELECT_ONE
+      SELECT_MULTIPLE -> MultipleChoice.Cardinality.SELECT_MULTIPLE
+      else -> throw IllegalArgumentException("Unknown cardinality")
     }
   }
 
-  public MultipleChoice.Cardinality toCardinality() {
-    switch (this) {
-      case SELECT_ONE:
-        return Cardinality.SELECT_ONE;
-      case SELECT_MULTIPLE:
-        return Cardinality.SELECT_MULTIPLE;
-      default:
-        throw new IllegalArgumentException("Unknown cardinality");
+  companion object {
+    fun fromCardinality(type: MultipleChoice.Cardinality?): MultipleChoiceEntityType {
+      return when (type) {
+        MultipleChoice.Cardinality.SELECT_ONE -> SELECT_ONE
+        MultipleChoice.Cardinality.SELECT_MULTIPLE -> SELECT_MULTIPLE
+        else -> UNKNOWN
+      }
     }
-  }
 
-  @TypeConverter
-  public static int toInt(@Nullable MultipleChoiceEntityType value) {
-    return IntEnum.toInt(value, UNKNOWN);
-  }
+    @JvmStatic
+    @TypeConverter
+    fun toInt(value: MultipleChoiceEntityType?): Int {
+      return toInt(value, UNKNOWN)
+    }
 
-  @NonNull
-  @TypeConverter
-  public static MultipleChoiceEntityType fromInt(int intValue) {
-    return IntEnum.fromInt(values(), intValue, UNKNOWN);
+    @JvmStatic
+    @TypeConverter
+    fun fromInt(intValue: Int): MultipleChoiceEntityType {
+      return fromInt(values(), intValue, UNKNOWN)
+    }
   }
 }
