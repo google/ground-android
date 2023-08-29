@@ -24,6 +24,7 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
+import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
@@ -32,12 +33,17 @@ import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.map.Bounds
+import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.gms.GmsExt.contains
 import io.reactivex.Flowable
 import io.reactivex.Single
+import kotlinx.collections.immutable.toPersistentSet
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.rx2.asFlowable
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
@@ -50,6 +56,7 @@ class LocationOfInterestRepository
 constructor(
   private val localSurveyStore: LocalSurveyStore,
   private val localLoiStore: LocalLocationOfInterestStore,
+  private val localSubmissionStore: LocalSubmissionStore,
   private val remoteDataStore: RemoteDataStore,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val authManager: AuthenticationManager,
@@ -121,11 +128,32 @@ constructor(
     )
 
   /** Returns a flowable of all [LocationOfInterest] for the given [Survey]. */
-  fun getLocationsOfInterestOnceAndStream(survey: Survey): Flowable<Set<LocationOfInterest>> =
+  private fun getLocationsOfInterestOnceAndStream(survey: Survey): Flowable<Set<LocationOfInterest>> =
     localLoiStore.getLocationsOfInterestOnceAndStream(survey)
 
-  fun findLocationsOfInterest(survey: Survey) =
+  private fun findLocationsOfInterest(survey: Survey) =
     localLoiStore.findLocationsOfInterest(survey)
+
+  fun findLocationsOfInterestFeatures(survey: Survey) =
+    findLocationsOfInterest(survey)
+      .map { toLocationOfInterestFeatures(it) }
+
+  private suspend fun toLocationOfInterestFeatures(
+    locationsOfInterest: Set<LocationOfInterest>
+  ): Set<Feature> = // TODO: Add support for polylines similar to mapPins.
+    locationsOfInterest
+      .map {
+        val pendingSubmissions =
+          localSubmissionStore.getPendingSubmissionCountByLocationOfInterestId(it.id)
+        val submissionCount = it.submissionCount + pendingSubmissions
+        Feature(
+          id = it.id,
+          type = FeatureType.LOCATION_OF_INTEREST.ordinal,
+          flag = submissionCount > 0,
+          geometry = it.geometry
+        )
+      }
+      .toPersistentSet()
 
   /** Returns a list of geometries associated with the given [Survey]. */
   suspend fun getAllGeometries(survey: Survey): List<Geometry> =

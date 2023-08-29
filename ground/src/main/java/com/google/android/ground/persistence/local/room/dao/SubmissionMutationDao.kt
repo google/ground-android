@@ -40,11 +40,11 @@ interface SubmissionMutationDao : BaseDao<SubmissionMutationEntity> {
 
   @Query(
     "SELECT COUNT(*) FROM submission_mutation " +
-      "WHERE location_of_interest_id = :locationOfInterestId AND state IN (:allowedStates) " +
+      "WHERE location_of_interest_id = :loiId AND state IN (:allowedStates) " +
       "AND type = :mutationType"
   )
-  suspend fun getPendingSubmissionCountByLocationOfInterestId(
-    locationOfInterestId: String,
+  suspend fun getSubmissionMutationCount(
+    loiId: String,
     mutationType: MutationEntityType,
     vararg allowedStates: MutationEntitySyncStatus
   ): Int

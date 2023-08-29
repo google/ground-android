@@ -55,7 +55,6 @@ internal constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mapController: MapController,
   private val mapStateRepository: MapStateRepository,
-  private val localSubmissionStore: LocalSubmissionStore,
   locationManager: LocationManager,
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,
@@ -100,8 +99,7 @@ internal constructor(
         .switchMap { survey ->
           if (survey.isPresent)
             locationOfInterestRepository
-              .findLocationsOfInterest(survey.get())
-              .map { toLocationOfInterestFeatures(it) }
+              .findLocationsOfInterestFeatures(survey.get())
               .asFlowable()
               .startWith(setOf<Feature>())
               .distinctUntilChanged()
@@ -128,23 +126,6 @@ internal constructor(
         .map { it?.jobs?.filter { job -> job.suggestLoiTaskType != null }?.toList() ?: listOf() }
         .distinctUntilChanged()
   }
-
-  private suspend fun toLocationOfInterestFeatures(
-    locationsOfInterest: Set<LocationOfInterest>
-  ): Set<Feature> = // TODO: Add support for polylines similar to mapPins.
-  locationsOfInterest
-      .map {
-        val pendingSubmissions =
-          localSubmissionStore.getPendingSubmissionCountByLocationOfInterestId(it.id)
-        val submissionCount = it.submissionCount + pendingSubmissions
-        Feature(
-          id = it.id,
-          type = FeatureType.LOCATION_OF_INTEREST.ordinal,
-          flag = submissionCount > 0,
-          geometry = it.geometry
-        )
-      }
-      .toPersistentSet()
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     super.onMapCameraMoved(newCameraPosition)

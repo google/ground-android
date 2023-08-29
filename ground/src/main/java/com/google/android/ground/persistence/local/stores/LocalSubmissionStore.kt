@@ -55,7 +55,7 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
   fun getAllMutationsAndStream(): Flowable<List<SubmissionMutationEntity>>
 
   suspend fun findByLocationOfInterestId(
-    id: String,
+    loidId: String,
     vararg states: MutationEntitySyncStatus
   ): List<SubmissionMutationEntity>
 
