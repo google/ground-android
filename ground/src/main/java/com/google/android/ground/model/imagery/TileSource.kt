@@ -20,7 +20,6 @@ import org.apache.commons.io.FilenameUtils
 /** Represents a single source of tiled map imagery. */
 data class TileSource(val url: String, val type: Type) {
   enum class Type {
-    MBTILES_FOOTPRINTS,
     TILED_WEB_MAP,
     MOG_COLLECTION,
     UNKNOWN,
@@ -29,7 +28,6 @@ data class TileSource(val url: String, val type: Type) {
   companion object {
     fun fromFileExtension(url: String): Type =
       when (FilenameUtils.getExtension(url)) {
-        "geojson" -> Type.MBTILES_FOOTPRINTS
         "png" -> Type.TILED_WEB_MAP
         else -> Type.MOG_COLLECTION
       }

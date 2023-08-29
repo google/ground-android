@@ -86,7 +86,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     //  fragment and converting live data to flow results in clear tiles not working. Figure out a
     //  better way to fix the IDE warning.
     getMapViewModel().tileOverlays.observe(this) { it.forEach(map::addTileOverlay) }
-    getMapViewModel().mbtilesFilePaths.observe(this) { map.addLocalTileOverlays(it) }
   }
 
   /** Opens a dialog for selecting a [MapType] for the basemap layer. */

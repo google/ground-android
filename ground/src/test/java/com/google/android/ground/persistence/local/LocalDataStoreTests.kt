@@ -22,7 +22,6 @@ import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
@@ -68,7 +67,6 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Inject lateinit var localSubmissionStore: LocalSubmissionStore
   @Inject lateinit var localLoiStore: LocalLocationOfInterestStore
   @Inject lateinit var localOfflineAreaStore: LocalOfflineAreaStore
-  @Inject lateinit var localTileSetStore: LocalTileSetStore
   @Inject lateinit var localValueStore: LocalValueStore
   // TODO(#1470): Use public interface of data stores instead of inspecting state of impl (DAOs).
   @Inject lateinit var submissionDao: SubmissionDao
@@ -342,44 +340,6 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testInsertTile() = runWithTestDispatcher {
-    localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE)
-  }
-
-  @Test
-  fun testGetTile() = runWithTestDispatcher {
-    localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE)
-    localTileSetStore
-      .getTileSet("some_url 1")
-      .test()
-      .assertValueCount(1)
-      .assertValue(TEST_PENDING_TILE_SOURCE)
-  }
-
-  @Test
-  fun testGetTilesOnceAndStream() = runWithTestDispatcher {
-    val subscriber = localTileSetStore.tileSetsOnceAndStream().test()
-    subscriber.assertValue(setOf())
-    localTileSetStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE)
-    localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE)
-    subscriber.assertValueSet(
-      setOf(
-        setOf(),
-        setOf(TEST_DOWNLOADED_TILE_SOURCE),
-        setOf(TEST_DOWNLOADED_TILE_SOURCE, TEST_PENDING_TILE_SOURCE)
-      )
-    )
-  }
-
-  @Test
-  fun testGetPendingTile() = runWithTestDispatcher {
-    localTileSetStore.insertOrUpdateTileSet(TEST_DOWNLOADED_TILE_SOURCE)
-    localTileSetStore.insertOrUpdateTileSet(TEST_FAILED_TILE_SOURCE)
-    localTileSetStore.insertOrUpdateTileSet(TEST_PENDING_TILE_SOURCE)
-    assertThat(localTileSetStore.pendingTileSets()).isEqualTo(listOf(TEST_PENDING_TILE_SOURCE))
-  }
-
-  @Test
   fun testGetOfflineAreas() = runWithTestDispatcher {
     localOfflineAreaStore.insertOrUpdate(TEST_OFFLINE_AREA)
     localOfflineAreaStore.offlineAreasOnceAndStream().test().assertValue(listOf(TEST_OFFLINE_AREA))
@@ -449,12 +409,6 @@ class LocalDataStoreTests : BaseHiltTest() {
         locationOfInterestId = "loi id",
         userId = "user id"
       )
-    private val TEST_PENDING_TILE_SOURCE =
-      MbtilesFile("some_url 1", "id_1", "some_path 1", MbtilesFile.DownloadState.PENDING, 1)
-    private val TEST_DOWNLOADED_TILE_SOURCE =
-      MbtilesFile("some_url 2", "id_2", "some_path 2", MbtilesFile.DownloadState.DOWNLOADED, 1)
-    private val TEST_FAILED_TILE_SOURCE =
-      MbtilesFile("some_url 3", "id_3", "some_path 3", MbtilesFile.DownloadState.FAILED, 1)
     private val TEST_OFFLINE_AREA =
       OfflineArea(
         "id_1",

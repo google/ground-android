@@ -22,7 +22,6 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
-import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
@@ -106,7 +105,6 @@ constructor(
       .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
   val tileOverlays: LiveData<List<TileSource>>
-  val mbtilesFilePaths: LiveData<Set<String>>
   val offlineImageryEnabled: Flow<Boolean> = mapStateRepository.offlineImageryFlow
 
   init {
@@ -116,11 +114,6 @@ constructor(
       surveyRepository.activeSurveyFlow
         .mapNotNull { it?.tileSources?.mapNotNull(this::toLocalTileSource) ?: listOf() }
         .asLiveData()
-    mbtilesFilePaths =
-      offlineAreaRepository
-        .downloadedTileSetsOnceAndStream()
-        .map { set: Set<MbtilesFile> -> set.map(MbtilesFile::path).toSet() }
-        .toLiveData()
   }
 
   // TODO(#1790): Maybe create a new data class object which is not of type TileSource.

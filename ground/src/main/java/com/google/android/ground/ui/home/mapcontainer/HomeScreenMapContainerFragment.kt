@@ -68,9 +68,6 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
     map.locationOfInterestInteractions.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
       mapContainerViewModel.onFeatureClick(it)
     }
-    map.tileProviders.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
-      mapContainerViewModel.queueTileProvider(it)
-    }
 
     mapContainerViewModel
       .getZoomThresholdCrossed()
@@ -215,10 +212,5 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
   private fun onZoomThresholdCrossed() {
     Timber.v("Refresh markers after zoom threshold crossed")
     map.refresh()
-  }
-
-  override fun onDestroy() {
-    mapContainerViewModel.closeProviders()
-    super.onDestroy()
   }
 }
