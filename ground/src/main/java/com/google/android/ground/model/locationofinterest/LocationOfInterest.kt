@@ -58,6 +58,7 @@ data class LocationOfInterest(
       userId = userId,
       clientTimestamp = lastModified.clientTimestamp,
       geometry = geometry,
-      caption = caption, submissionCount = submissionCount
+      caption = caption,
+      submissionCount = submissionCount
     )
 }
