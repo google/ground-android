@@ -30,8 +30,8 @@ import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
 class LoiLocalDataStoreConverterTest {
@@ -114,8 +114,9 @@ class LoiLocalDataStoreConverterTest {
 
   /** Mock submission document snapshot to return the specified id and object representation. */
   private fun mockLoiDocumentSnapshot(id: String, doc: LoiDocument) {
-    Mockito.`when`(loiDocumentSnapshot.id).thenReturn(id)
-    Mockito.`when`(loiDocumentSnapshot.toObject(LoiDocument::class.java)).thenReturn(doc)
+    whenever(loiDocumentSnapshot.id).thenReturn(id)
+    whenever(loiDocumentSnapshot.toObject(LoiDocument::class.java)).thenReturn(doc)
+    whenever(loiDocumentSnapshot.exists()).thenReturn(true)
   }
 
   private fun toLocationOfInterest(): Result<LocationOfInterest> =

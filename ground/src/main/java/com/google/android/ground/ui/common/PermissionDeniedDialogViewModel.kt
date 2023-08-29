@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firebase.schema
+package com.google.android.ground.ui.common
 
-import com.google.android.ground.model.TermsOfService
-import com.google.firebase.firestore.DocumentSnapshot
+import com.google.android.ground.repository.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-/** Converts between Firestore documents and [TermsOfService] instances. */
-object TermsOfServiceConverter {
+@HiltViewModel
+class PermissionDeniedDialogViewModel
+@Inject
+internal constructor(private val navigator: Navigator, private val userRepository: UserRepository) :
+  AbstractViewModel() {
 
-  fun toTerms(doc: DocumentSnapshot): TermsOfService? {
-    if (!doc.exists()) return null
-    val pd = doc.toObject(TermsOfServiceDocument::class.java)
-    return TermsOfService(doc.id, pd!!.text)
+  fun closeApp() {
+    navigator.finishApp()
+  }
+
+  fun signOut() {
+    userRepository.signOut()
   }
 }

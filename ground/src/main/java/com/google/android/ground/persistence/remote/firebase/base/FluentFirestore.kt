@@ -16,14 +16,8 @@
 
 package com.google.android.ground.persistence.remote.firebase.base
 
-import com.google.android.ground.rx.annotations.Cold
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.WriteBatch
-import io.reactivex.Maybe
-import io.reactivex.Single
-import java8.util.function.Function
 
 /** Base class for representing Firestore databases as object hierarchies. */
 open class FluentFirestore protected constructor(private val db: FirebaseFirestore) {
@@ -32,20 +26,4 @@ open class FluentFirestore protected constructor(private val db: FirebaseFiresto
 
   // TODO: Wrap in fluent version of WriteBatch.
   fun batch(): WriteBatch = db.batch()
-
-  companion object {
-    /**
-     * Applies the provided mapping function to each document in the specified query snapshot, if
-     * present. If no results are present, completes with an empty list.
-     */
-    fun <T> toSingleList(
-      result: Maybe<QuerySnapshot>,
-      mappingFunction: Function<DocumentSnapshot, T>
-    ): @Cold Single<List<T>> =
-      result
-        .map { querySnapshot: QuerySnapshot ->
-          querySnapshot.documents.map { mappingFunction.apply(it) }
-        }
-        .toSingle(emptyList())
-  }
 }

@@ -20,7 +20,6 @@ import com.google.android.ground.persistence.local.room.converter.toLocalDataSto
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.MbtilesFileDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
-import com.google.android.ground.persistence.local.room.dao.insertOrUpdateSuspend
 import com.google.android.ground.persistence.local.room.entity.MbtilesFileEntity
 import com.google.android.ground.persistence.local.room.fields.TileSetEntityState
 import com.google.android.ground.persistence.local.stores.LocalTileSetStore
@@ -44,13 +43,8 @@ class RoomTileSetStore @Inject internal constructor() : LocalTileSetStore {
       .map { list: List<MbtilesFileEntity> -> list.map { it.toModelObject() }.toSet() }
       .subscribeOn(schedulers.io())
 
-  @Deprecated("Use insertOrUpdateTileSetSuspend instead")
-  override fun insertOrUpdateTileSet(mbtilesFile: MbtilesFile): Completable =
-    mbtilesFileDao.insertOrUpdate(mbtilesFile.toLocalDataStoreObject()).subscribeOn(schedulers.io())
-
-  // TODO(#1581): Rename to insertOrUpdateTileSet once existing usages are migrated.
-  override suspend fun insertOrUpdateTileSetSuspend(mbtilesFile: MbtilesFile) =
-    mbtilesFileDao.insertOrUpdateSuspend(mbtilesFile.toLocalDataStoreObject())
+  override suspend fun insertOrUpdateTileSet(mbtilesFile: MbtilesFile) =
+    mbtilesFileDao.insertOrUpdate(mbtilesFile.toLocalDataStoreObject())
 
   override fun getTileSet(tileUrl: String): Maybe<MbtilesFile> =
     mbtilesFileDao.findByUrl(tileUrl).map { it.toModelObject() }.subscribeOn(schedulers.io())

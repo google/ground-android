@@ -20,7 +20,6 @@ import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
-import com.sharedtest.persistence.local.LocalDataStoreHelper
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -36,7 +35,6 @@ import org.robolectric.RobolectricTestRunner
 class UserRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var localUserStore: LocalUserStore
-  @Inject lateinit var localDataStoreHelper: LocalDataStoreHelper
   @Inject lateinit var localValueStore: LocalValueStore
   @Inject lateinit var userRepository: UserRepository
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore

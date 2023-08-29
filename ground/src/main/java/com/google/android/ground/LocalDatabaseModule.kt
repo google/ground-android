@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.persistence.local
+package com.google.android.ground
 
 import android.content.Context
 import androidx.room.Room
-import com.google.android.ground.Config
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.persistence.local.room.LocalDatabase
 import dagger.Module

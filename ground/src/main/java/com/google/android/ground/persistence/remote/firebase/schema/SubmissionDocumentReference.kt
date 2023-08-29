@@ -17,24 +17,14 @@
 package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.User
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.remote.firebase.base.FluentDocumentReference
-import com.google.android.ground.rx.annotations.Cold
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.WriteBatch
-import durdinapps.rxfirebase2.RxFirestore
-import io.reactivex.Maybe
 
 class SubmissionDocumentReference internal constructor(ref: DocumentReference) :
   FluentDocumentReference(ref) {
-  operator fun get(locationOfInterest: LocationOfInterest): @Cold Maybe<Submission> =
-    RxFirestore.getDocument(reference()).map { doc: DocumentSnapshot ->
-      SubmissionConverter.toSubmission(locationOfInterest, doc)
-    }
 
   /** Appends the operation described by the specified mutation to the provided write batch. */
   fun addMutationToBatch(mutation: SubmissionMutation, user: User, batch: WriteBatch) {

@@ -44,8 +44,8 @@ import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
 class SubmissionLocalDataStoreConverterTest {
@@ -286,9 +286,9 @@ class SubmissionLocalDataStoreConverterTest {
 
   /** Mock submission document snapshot to return the specified id and object representation. */
   private fun mockSubmissionDocumentSnapshot(id: String, doc: SubmissionDocument) {
-    Mockito.`when`(submissionDocumentSnapshot.id).thenReturn(id)
-    Mockito.`when`(submissionDocumentSnapshot.toObject(SubmissionDocument::class.java))
-      .thenReturn(doc)
+    whenever(submissionDocumentSnapshot.id).thenReturn(id)
+    whenever(submissionDocumentSnapshot.toObject(SubmissionDocument::class.java)).thenReturn(doc)
+    whenever(submissionDocumentSnapshot.exists()).thenReturn(true)
   }
 
   private fun toSubmission(): Submission =
