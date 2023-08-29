@@ -102,7 +102,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
    * Applies mutation to submission in database or creates a new one.
    *
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
-   * exist, or if type is "CREATE" and entity already exists.
+   *   exist, or if type is "CREATE" and entity already exists.
    */
   override suspend fun apply(mutation: SubmissionMutation) {
     when (mutation.type) {
@@ -224,7 +224,10 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     vararg states: MutationEntitySyncStatus
   ): List<SubmissionMutationEntity> = submissionMutationDao.findByLocationOfInterestId(id, *states)
 
-  override suspend fun getPendingSubmissionCountByLocationOfInterestId(
-    id: String
-  ): Int = submissionMutationDao.getPendingSubmissionCountByLocationOfInterestId(id, MutationEntityType.CREATE, MutationEntitySyncStatus.PENDING)
+  override suspend fun getPendingSubmissionCountByLocationOfInterestId(id: String): Int =
+    submissionMutationDao.getPendingSubmissionCountByLocationOfInterestId(
+      id,
+      MutationEntityType.CREATE,
+      MutationEntitySyncStatus.PENDING
+    )
 }
