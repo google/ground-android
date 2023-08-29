@@ -13,58 +13,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.fields
 
-package com.google.android.ground.persistence.local.room.fields;
-
-import static java8.util.J8Arrays.stream;
-
-import androidx.annotation.Nullable;
-import androidx.room.TypeConverter;
-import com.google.android.ground.model.mutation.Mutation.SyncStatus;
-import com.google.android.ground.persistence.local.room.IntEnum;
+import androidx.room.TypeConverter
+import com.google.android.ground.model.mutation.Mutation.SyncStatus
+import com.google.android.ground.persistence.local.room.IntEnum
+import com.google.android.ground.persistence.local.room.IntEnum.Companion.fromInt
+import com.google.android.ground.persistence.local.room.IntEnum.Companion.toInt
+import java8.util.J8Arrays
 
 /** Mutually exclusive mutations states. */
-public enum MutationEntitySyncStatus implements IntEnum {
+enum class MutationEntitySyncStatus(private val intValue: Int, private val enumValue: SyncStatus) :
+  IntEnum {
   // TODO(#950): Set IN_PROGRESS and FAILED statuses when necessary. On failure, set retry count and
   // error and update to PENDING.
   UNKNOWN(0, SyncStatus.UNKNOWN),
+
   /** Pending includes failed sync attempts pending retry. */
   PENDING(1, SyncStatus.PENDING),
   IN_PROGRESS(2, SyncStatus.IN_PROGRESS),
   COMPLETED(3, SyncStatus.COMPLETED),
+
   /** Failed indicates all retries have failed. */
   FAILED(4, SyncStatus.FAILED);
 
-  private final int intValue;
-  private final SyncStatus enumValue;
-
-  MutationEntitySyncStatus(int intValue, SyncStatus enumValue) {
-    this.intValue = intValue;
-    this.enumValue = enumValue;
+  override fun intValue(): Int {
+    return intValue
   }
 
-  public static MutationEntitySyncStatus fromMutationSyncStatus(SyncStatus syncStatus) {
-    return stream(MutationEntitySyncStatus.values())
-        .filter(s -> s.enumValue == syncStatus)
+  fun toMutationSyncStatus(): SyncStatus {
+    return enumValue
+  }
+
+  companion object {
+    fun fromMutationSyncStatus(syncStatus: SyncStatus): MutationEntitySyncStatus {
+      return J8Arrays.stream(values())
+        .filter { s: MutationEntitySyncStatus -> s.enumValue === syncStatus }
         .findFirst()
-        .orElse(MutationEntitySyncStatus.UNKNOWN);
-  }
+        .orElse(UNKNOWN)
+    }
 
-  public int intValue() {
-    return intValue;
-  }
+    @JvmStatic
+    @TypeConverter
+    fun toInt(value: MutationEntitySyncStatus?): Int {
+      return toInt(value, UNKNOWN)
+    }
 
-  public SyncStatus toMutationSyncStatus() {
-    return enumValue;
-  }
-
-  @TypeConverter
-  public static int toInt(@Nullable MutationEntitySyncStatus value) {
-    return IntEnum.toInt(value, UNKNOWN);
-  }
-
-  @TypeConverter
-  public static MutationEntitySyncStatus fromInt(int intValue) {
-    return IntEnum.fromInt(values(), intValue, UNKNOWN);
+    @JvmStatic
+    @TypeConverter
+    fun fromInt(intValue: Int): MutationEntitySyncStatus {
+      return fromInt(values(), intValue, UNKNOWN)
+    }
   }
 }
