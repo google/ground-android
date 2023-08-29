@@ -38,6 +38,7 @@ import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
 import com.google.android.ground.persistence.local.room.fields.EntityState
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.room.fields.MutationEntityType
 import com.google.android.ground.persistence.local.room.fields.UserDetails
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.rx.Schedulers
@@ -222,4 +223,8 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     id: String,
     vararg states: MutationEntitySyncStatus
   ): List<SubmissionMutationEntity> = submissionMutationDao.findByLocationOfInterestId(id, *states)
+
+  override suspend fun getPendingSubmissionCountByLocationOfInterestId(
+    id: String
+  ): Int = submissionMutationDao.getPendingSubmissionCountByLocationOfInterestId(id, MutationEntityType.CREATE, MutationEntitySyncStatus.PENDING)
 }
