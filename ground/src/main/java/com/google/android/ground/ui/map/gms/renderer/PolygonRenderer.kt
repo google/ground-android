@@ -40,10 +40,10 @@ class PolygonRenderer(
     val options = PolygonOptions()
     options.clickable(false)
 
-    val shellVertices = polygon.shell.vertices.map { it.toLatLng() }
+    val shellVertices = polygon.shell.coordinates.map { it.toLatLng() }
     options.addAll(shellVertices)
 
-    val holes = polygon.holes.map { hole -> hole.vertices.map { point -> point.toLatLng() } }
+    val holes = polygon.holes.map { hole -> hole.coordinates.map { it.toLatLng() } }
     holes.forEach { options.addHole(it) }
 
     val mapsPolygon = map.addPolygon(options)
