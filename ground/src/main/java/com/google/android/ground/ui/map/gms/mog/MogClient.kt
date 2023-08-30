@@ -139,7 +139,8 @@ class MogClient(val collection: MogCollection) {
       imageMetadata.tileWidth,
       imageMetadata.tileLength,
       imageMetadata.jpegTables,
-      byteRange
+      byteRange,
+      imageMetadata.noDataValue
     )
   }
 

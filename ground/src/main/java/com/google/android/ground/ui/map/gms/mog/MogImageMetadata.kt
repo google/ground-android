@@ -25,7 +25,8 @@ data class MogImageMetadata(
   val byteCounts: List<Long>,
   val imageWidth: Int,
   val imageLength: Int,
-  val jpegTables: ByteArray
+  val jpegTables: ByteArray,
+  val noDataValue: Int? = null
 ) {
   private val tileCountX = imageWidth / tileWidth
   private val tileCountY = imageLength / tileLength
@@ -73,10 +74,7 @@ data class MogImageMetadata(
   override fun hashCode() = throw UnsupportedOperationException()
 
   companion object {
-    fun fromTiffTags(
-      originTile: TileCoordinates,
-      tiffTagToValue: Map<TiffTag, Any?>
-    ): MogImageMetadata =
+    fun fromTiffTags(originTile: TileCoordinates, tiffTagToValue: Map<TiffTag, Any?>) =
       MogImageMetadata(
         originTile,
         tiffTagToValue[TiffTag.TileWidth] as Int,
@@ -89,7 +87,8 @@ data class MogImageMetadata(
         (tiffTagToValue[TiffTag.JPEGTables] as? List<*>)
           ?.map { (it as Int).toByte() }
           ?.toByteArray()
-          ?: byteArrayOf()
+          ?: byteArrayOf(),
+        (tiffTagToValue[TiffTag.GdalNodata] as? String)?.toIntOrNull()
       )
   }
 }

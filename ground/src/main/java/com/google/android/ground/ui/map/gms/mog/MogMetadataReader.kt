@@ -146,7 +146,7 @@ class MogMetadataReader(private val seekable: SeekableInputStream) {
 
   /** Returns the ASCII TIFF field values as a string of lists, splitting strings by `null`. */
   private fun tiffAsciiValuesToStringList(values: List<Any?>): List<String> =
-    values.map { it?.toString() ?: NULL_CHAR }.joinToString().split(NULL_CHAR)
+    values.map { it?.toString() ?: NULL_CHAR }.joinToString("").split(NULL_CHAR)
 }
 
 fun DataInput.readUnsignedInt(): Long = readInt().toLong() and 0xffffffffL
