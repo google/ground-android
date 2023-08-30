@@ -44,10 +44,9 @@ import com.google.android.ground.persistence.local.room.fields.*
       MultipleChoiceEntity::class,
       OptionEntity::class,
       SurveyEntity::class,
-      BaseMapEntity::class,
+      TileSourceEntity::class,
       SubmissionEntity::class,
       SubmissionMutationEntity::class,
-      TileSetEntity::class,
       OfflineAreaEntity::class,
       UserEntity::class
     ],
@@ -75,10 +74,9 @@ abstract class LocalDatabase : RoomDatabase() {
   abstract fun multipleChoiceDao(): MultipleChoiceDao
   abstract fun optionDao(): OptionDao
   abstract fun surveyDao(): SurveyDao
-  abstract fun baseMapDao(): BaseMapDao
+  abstract fun tileSourceDao(): TileSourceDao
   abstract fun submissionDao(): SubmissionDao
   abstract fun submissionMutationDao(): SubmissionMutationDao
-  abstract fun tileSetDao(): TileSetDao
   abstract fun offlineAreaDao(): OfflineAreaDao
   abstract fun userDao(): UserDao
 }

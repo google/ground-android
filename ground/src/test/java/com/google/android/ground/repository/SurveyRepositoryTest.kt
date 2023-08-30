@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.repository
 
+import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.common.truth.Truth.assertThat
@@ -24,9 +25,10 @@ import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
 import java8.util.Optional
 import javax.inject.Inject
+import kotlin.test.assertFails
+import kotlin.test.assertNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -68,7 +70,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun deleteSurvey_whenSurveyIsActive() = runWithTestDispatcher {
     fakeRemoteDataStore.surveys = listOf(SURVEY)
-    surveyRepository.syncSurveyWithRemote(SURVEY.id).await()
+    surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)
     advanceUntilIdle()
     activateSurvey(SURVEY.id)
     advanceUntilIdle()
@@ -77,7 +79,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
     advanceUntilIdle()
 
     // Verify survey is deleted
-    surveyRepository.offlineSurveys.test().assertValues(listOf())
+    surveyRepository.offlineSurveys.test { assertThat(expectMostRecentItem()).isEmpty() }
     // Verify survey deactivated
     assertThat(surveyRepository.activeSurvey).isNull()
   }
@@ -90,8 +92,8 @@ class SurveyRepositoryTest : BaseHiltTest() {
     val survey1 = SURVEY.copy(id = "active survey id", jobMap = mapOf(job1.id to job1))
     val survey2 = SURVEY.copy(id = "inactive survey id", jobMap = mapOf(job2.id to job2))
     fakeRemoteDataStore.surveys = listOf(survey1, survey2)
-    surveyRepository.syncSurveyWithRemote(survey1.id).await()
-    surveyRepository.syncSurveyWithRemote(survey2.id).await()
+    surveyRepository.loadAndSyncSurveyWithRemote(survey1.id)
+    surveyRepository.loadAndSyncSurveyWithRemote(survey2.id)
     activateSurvey(survey1.id)
     advanceUntilIdle()
 
@@ -101,6 +103,20 @@ class SurveyRepositoryTest : BaseHiltTest() {
     // Verify active survey isn't cleared
     assertThat(surveyRepository.activeSurvey).isEqualTo(survey1)
     // Verify survey is deleted
-    surveyRepository.offlineSurveys.test().assertValues(listOf(survey1))
+    surveyRepository.offlineSurveys.test {
+      assertThat(expectMostRecentItem()).isEqualTo(listOf(survey1))
+    }
   }
+
+  @Test
+  fun `loadAndSyncSurveyWithRemote() returns null when survey not found`() = runWithTestDispatcher {
+    assertNull(surveyRepository.loadAndSyncSurveyWithRemote("someUnknownSurveyId"))
+  }
+
+  @Test
+  fun `loadAndSyncSurveyWithRemote() throws error when remote fetch fails`() =
+    runWithTestDispatcher {
+      fakeRemoteDataStore.onLoadSurvey = { error("Something went wrong") }
+      assertFails { surveyRepository.loadAndSyncSurveyWithRemote("anySurveyId") }
+    }
 }

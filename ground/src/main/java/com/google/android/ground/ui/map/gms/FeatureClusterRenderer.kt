@@ -66,6 +66,10 @@ class FeatureClusterRenderer(
     marker.setIcon(getMarkerIcon(item.isSelected()))
   }
 
+  /**
+   * Creates the marker with a label indicating the number of jobs with submissions over the total
+   * number of jobs in the cluster.
+   */
   private fun createMarker(cluster: Cluster<FeatureClusterItem>): BitmapDescriptor {
     val totalWithData = cluster.items.count { it.feature.tag.flag }
     return markerIconFactory.getClusterIcon(
@@ -95,7 +99,7 @@ class FeatureClusterRenderer(
    * Only true when the current zoom level is lesser than a set threshold.
    */
   override fun shouldRenderAsCluster(cluster: Cluster<FeatureClusterItem>): Boolean =
-    zoom < clusteringZoomThreshold && cluster.size > 1
+    zoom < clusteringZoomThreshold
 
   /**
    * Determines if the renderer should re-render clusters.

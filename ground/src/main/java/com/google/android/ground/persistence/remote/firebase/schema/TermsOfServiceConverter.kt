@@ -22,7 +22,8 @@ import com.google.firebase.firestore.DocumentSnapshot
 /** Converts between Firestore documents and [TermsOfService] instances. */
 object TermsOfServiceConverter {
 
-  fun toTerms(doc: DocumentSnapshot): TermsOfService {
+  fun toTerms(doc: DocumentSnapshot): TermsOfService? {
+    if (!doc.exists()) return null
     val pd = doc.toObject(TermsOfServiceDocument::class.java)
     return TermsOfService(doc.id, pd!!.text)
   }

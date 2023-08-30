@@ -115,37 +115,37 @@
       android:id="@+id/drop_a_pin_task_fragment"
       android:name="com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskFragment"
       android:label="@string/collect_data"
-      tools:layout="@layout/question_task_frag" />
+      tools:layout="@layout/text_task_frag" />
 
     <fragment
       android:id="@+id/multiple_choice_task_fragment"
       android:name="com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskFragment"
       android:label="@string/collect_data"
-      tools:layout="@layout/question_task_frag" />
+      tools:layout="@layout/text_task_frag" />
 
     <fragment
       android:id="@+id/number_task_fragment"
       android:name="com.google.android.ground.ui.datacollection.tasks.number.NumberTaskFragment"
       android:label="@string/collect_data"
-      tools:layout="@layout/question_task_frag" />
+      tools:layout="@layout/text_task_frag" />
 
     <fragment
       android:id="@+id/photo_task_fragment"
       android:name="com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskFragment"
       android:label="@string/collect_data"
-      tools:layout="@layout/question_task_frag" />
+      tools:layout="@layout/text_task_frag" />
 
     <fragment
       android:id="@+id/polygon_task_fragment"
       android:name="com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingTaskFragment"
       android:label="@string/collect_data"
-      tools:layout="@layout/question_task_frag" />
+      tools:layout="@layout/text_task_frag" />
 
     <fragment
       android:id="@+id/question_task_fragment"
       android:name="com.google.android.ground.ui.datacollection.tasks.text.TextTaskFragment"
       android:label="@string/collect_data"
-      tools:layout="@layout/question_task_frag" />
+      tools:layout="@layout/text_task_frag" />
   </navigation>
   <fragment
     android:id="@+id/offline_areas_fragment"
@@ -263,7 +263,9 @@
   <action
     android:id="@+id/showSubmissionConfirmationDialogFragment"
     app:destination="@id/submissionConfirmationDialogFragment" />
-
+  <action
+    android:id="@+id/showPermissionDeniedDialogFragment"
+    app:destination="@id/permissionDeniedDialogFragment" />
   <fragment
     android:id="@+id/terms_of_service_fragment"
     android:name="com.google.android.ground.ui.tos.TermsOfServiceFragment"
@@ -304,5 +306,8 @@
     android:id="@+id/submissionConfirmationDialogFragment"
     android:name="com.google.android.ground.ui.datacollection.DataSubmissionConfirmationDialogFragment"
     android:label="DataSubmittedConfirmationDialogFragment" />
-
+  <dialog
+    android:id="@+id/permissionDeniedDialogFragment"
+    android:name="com.google.android.ground.ui.common.PermissionDeniedDialogFragment"
+    android:label="PermissionDeniedDialogFragment" />
 </navigation>

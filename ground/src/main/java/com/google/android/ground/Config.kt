@@ -16,6 +16,7 @@
 package com.google.android.ground
 
 import android.content.Context
+import com.google.android.ground.ui.map.gms.mog.MogSource
 
 /** Application configuration. */
 object Config {
@@ -25,7 +26,7 @@ object Config {
 
   // Local db settings.
   // TODO(#128): Reset version to 1 before releasing.
-  const val DB_VERSION = 100
+  const val DB_VERSION = 103
   const val DB_NAME = "ground.db"
 
   // Firebase Cloud Firestore settings.
@@ -50,4 +51,8 @@ object Config {
    * lower, renders markers as clusters, otherwise, we render them as individual markers.
    */
   const val CLUSTERING_ZOOM_THRESHOLD = 14f
+
+  // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
+  fun getMogSources(url: String) =
+    listOf(MogSource("${url}/world-masked.tif", 0..7), MogSource("${url}/{x}/{y}.tif", 8..14))
 }

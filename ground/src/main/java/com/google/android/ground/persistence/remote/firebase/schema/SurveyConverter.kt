@@ -17,22 +17,21 @@
 package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.basemap.BaseMap
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.JobConverter.toJob
 import com.google.firebase.firestore.DocumentSnapshot
-import java.net.MalformedURLException
-import java.net.URL
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
-import timber.log.Timber
 
 /** Converts between Firestore documents and [Survey] instances. */
 internal object SurveyConverter {
 
   @Throws(DataStoreException::class)
   fun toSurvey(doc: DocumentSnapshot): Survey {
+    if (!doc.exists()) throw DataStoreException("Missing survey")
+
     val pd =
       DataStoreException.checkNotNull(doc.toObject(SurveyDocument::class.java), "surveyDocument")
 
@@ -41,9 +40,9 @@ internal object SurveyConverter {
       pd.jobs.forEach { (id: String, obj: JobNestedObject) -> jobMap[id] = toJob(id, obj) }
     }
 
-    val baseMaps = mutableListOf<BaseMap>()
-    if (pd.baseMaps != null) {
-      convertOfflineBaseMapSources(pd, baseMaps)
+    val tileSources = mutableListOf<TileSource>()
+    if (pd.tileSources != null) {
+      convertTileSources(pd, tileSources)
     }
 
     return Survey(
@@ -51,23 +50,14 @@ internal object SurveyConverter {
       pd.title.orEmpty(),
       pd.description.orEmpty(),
       jobMap.toPersistentMap(),
-      baseMaps.toPersistentList(),
+      tileSources.toPersistentList(),
       pd.acl ?: mapOf()
     )
   }
 
-  private fun convertOfflineBaseMapSources(pd: SurveyDocument, builder: MutableList<BaseMap>) {
-    for ((url) in pd.baseMaps!!) {
-      if (url == null) {
-        Timber.d("Skipping base map source in survey with missing URL")
-        continue
-      }
-      try {
-        Timber.d("Converting base map source: $url")
-        builder.add(BaseMap(URL(url), BaseMap.typeFromExtension(url)))
-      } catch (e: MalformedURLException) {
-        Timber.d("Skipping base map source in survey with malformed URL")
-      }
-    }
+  private fun convertTileSources(pd: SurveyDocument, builder: MutableList<TileSource>) {
+    pd.tileSources
+      ?.mapNotNull { it.url }
+      ?.forEach { url -> builder.add(TileSource(url, TileSource.fromFileExtension(url))) }
   }
 }

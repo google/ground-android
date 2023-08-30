@@ -18,10 +18,9 @@ package com.google.android.ground.persistence.local.room.converter
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
-import com.google.android.ground.model.basemap.BaseMap
-import com.google.android.ground.model.basemap.OfflineArea
-import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.imagery.OfflineArea
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -41,9 +40,7 @@ import com.google.android.ground.persistence.local.room.relations.TaskEntityAndR
 import com.google.android.ground.ui.map.Bounds
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import java.net.URL
 import java.util.*
-import java8.util.Optional
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
 import org.json.JSONObject
@@ -53,34 +50,30 @@ fun AuditInfo.toLocalDataStoreObject(): AuditInfoEntity =
   AuditInfoEntity(
     user = UserDetails.fromUser(user),
     clientTimestamp = clientTimestamp.time,
-    serverTimestamp = serverTimestamp.map { obj: Date -> obj.time }.orElse(null)
+    serverTimestamp = serverTimestamp?.time
   )
 
 fun AuditInfoEntity.toModelObject() =
-  AuditInfo(
-    UserDetails.toUser(user),
-    Date(clientTimestamp),
-    Optional.ofNullable(serverTimestamp).map { Date(it!!) }
-  )
+  AuditInfo(UserDetails.toUser(user), Date(clientTimestamp), serverTimestamp?.let { Date(it) })
 
-private fun BaseMap.BaseMapType.toLocalDataStoreObject() =
+private fun TileSource.Type.toLocalDataStoreObject() =
   when (this) {
-    BaseMap.BaseMapType.TILED_WEB_MAP -> BaseMapEntity.BaseMapEntityType.IMAGE
-    BaseMap.BaseMapType.MBTILES_FOOTPRINTS -> BaseMapEntity.BaseMapEntityType.GEOJSON
-    else -> BaseMapEntity.BaseMapEntityType.UNKNOWN
+    TileSource.Type.TILED_WEB_MAP -> TileSourceEntity.TileSourceEntityType.IMAGE
+    TileSource.Type.MOG_COLLECTION -> TileSourceEntity.TileSourceEntityType.MOG
+    else -> TileSourceEntity.TileSourceEntityType.UNKNOWN
   }
 
-private fun BaseMapEntity.BaseMapEntityType.toModelObject() =
+private fun TileSourceEntity.TileSourceEntityType.toModelObject() =
   when (this) {
-    BaseMapEntity.BaseMapEntityType.IMAGE -> BaseMap.BaseMapType.TILED_WEB_MAP
-    BaseMapEntity.BaseMapEntityType.GEOJSON -> BaseMap.BaseMapType.MBTILES_FOOTPRINTS
-    else -> BaseMap.BaseMapType.UNKNOWN
+    TileSourceEntity.TileSourceEntityType.IMAGE -> TileSource.Type.TILED_WEB_MAP
+    TileSourceEntity.TileSourceEntityType.MOG -> TileSource.Type.MOG_COLLECTION
+    else -> TileSource.Type.UNKNOWN
   }
 
-fun BaseMap.toLocalDataStoreObject(surveyId: String) =
-  BaseMapEntity(surveyId = surveyId, url = url.toString(), type = type.toLocalDataStoreObject())
+fun TileSource.toLocalDataStoreObject(surveyId: String) =
+  TileSourceEntity(surveyId = surveyId, url = url, type = type.toLocalDataStoreObject())
 
-fun BaseMapEntity.toModelObject() = BaseMap(url = URL(url), type = type.toModelObject())
+fun TileSourceEntity.toModelObject() = TileSource(url = url, type = type.toModelObject())
 
 fun Geometry.toLocalDataStoreObject() = GeometryWrapper.fromGeometry(this)
 
@@ -100,7 +93,7 @@ fun parseVertices(vertices: String?): List<Point> {
   val gson = Gson()
   val verticesArray =
     gson.fromJson<List<List<Double>>>(vertices, object : TypeToken<List<List<Double?>?>?>() {}.type)
-  return verticesArray.map { vertex: List<Double> -> Point(Coordinate(vertex[0], vertex[1])) }
+  return verticesArray.map { vertex: List<Double> -> Point(Coordinates(vertex[0], vertex[1])) }
 }
 
 fun Job.toLocalDataStoreObject(surveyId: String): JobEntity =
@@ -135,7 +128,8 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     caption = caption,
     created = created.toLocalDataStoreObject(),
     lastModified = lastModified.toLocalDataStoreObject(),
-    geometry = geometry.toLocalDataStoreObject()
+    geometry = geometry.toLocalDataStoreObject(),
+    submissionCount = submissionCount
   )
 
 fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
@@ -149,12 +143,11 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       lastModified = lastModified.toModelObject(),
       caption = caption,
       geometry = geometry.getGeometry(),
-      job =
-        survey.getJob(jobId = jobId).orElseThrow {
-          LocalDataConsistencyException(
+      submissionCount = submissionCount,
+      job = survey.getJob(jobId = jobId)
+          ?: throw LocalDataConsistencyException(
             "Unknown jobId ${this.jobId} in location of interest ${this.id}"
           )
-        }
     )
   }
 
@@ -177,7 +170,8 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(user: User): LocationOfInt
     // TODO(#1562): Preserve creation audit info for UPDATE mutations.
     created = auditInfo,
     lastModified = auditInfo,
-    geometry = geometry?.toLocalDataStoreObject()
+    geometry = geometry?.toLocalDataStoreObject(),
+    submissionCount = submissionCount
   )
 }
 
@@ -250,8 +244,8 @@ fun OfflineArea.toOfflineAreaEntity() =
   )
 
 fun OfflineAreaEntity.toModelObject(): OfflineArea {
-  val northEast = Coordinate(this.north, this.east)
-  val southWest = Coordinate(this.south, this.west)
+  val northEast = Coordinates(this.north, this.east)
+  val southWest = Coordinates(this.south, this.west)
   val bounds = Bounds(southWest, northEast)
   return OfflineArea(this.id, this.state.toModelObject(), bounds, this.name)
 }
@@ -311,9 +305,8 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
 @Throws(LocalDataConsistencyException::class)
 fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
   val job =
-    survey.getJob(jobId).orElseThrow {
-      LocalDataConsistencyException("Unknown jobId in submission mutation $id")
-    }
+    survey.getJob(jobId)
+      ?: throw LocalDataConsistencyException("Unknown jobId in submission mutation $id")
 
   return SubmissionMutation(
     job = job,
@@ -349,14 +342,14 @@ fun SubmissionMutation.toLocalDataStoreObject() =
 
 fun SurveyEntityAndRelations.toModelObject(): Survey {
   val jobMap = jobEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
-  val baseMaps = baseMapEntityAndRelations.map { it.toModelObject() }
+  val tileSources = tileSourceEntityAndRelations.map { it.toModelObject() }
 
   return Survey(
     surveyEntity.id,
     surveyEntity.title!!,
     surveyEntity.description!!,
     jobMap.toPersistentMap(),
-    baseMaps.toPersistentList(),
+    tileSources.toPersistentList(),
     surveyEntity.acl?.toStringMap()!!
   )
 }
@@ -405,41 +398,6 @@ fun TaskEntityAndRelations.toModelObject(): Task {
     multipleChoice
   )
 }
-
-private fun TileSetEntityState.toModelObject() =
-  when (this) {
-    TileSetEntityState.PENDING -> TileSet.State.PENDING
-    TileSetEntityState.IN_PROGRESS -> TileSet.State.IN_PROGRESS
-    TileSetEntityState.DOWNLOADED -> TileSet.State.DOWNLOADED
-    TileSetEntityState.FAILED -> TileSet.State.FAILED
-    else -> throw IllegalArgumentException("Unknown tile source state: $this")
-  }
-
-private fun TileSet.State.toLocalDataStoreObject() =
-  when (this) {
-    TileSet.State.PENDING -> TileSetEntityState.PENDING
-    TileSet.State.IN_PROGRESS -> TileSetEntityState.IN_PROGRESS
-    TileSet.State.FAILED -> TileSetEntityState.FAILED
-    TileSet.State.DOWNLOADED -> TileSetEntityState.DOWNLOADED
-  }
-
-fun TileSetEntity.toModelObject() =
-  TileSet(
-    id = id,
-    url = url,
-    path = path,
-    offlineAreaReferenceCount = offlineAreaReferenceCount,
-    state = state.toModelObject()
-  )
-
-fun TileSet.toLocalDataStoreObject() =
-  TileSetEntity(
-    id = id,
-    url = url,
-    path = path,
-    offlineAreaReferenceCount = offlineAreaReferenceCount,
-    state = state.toLocalDataStoreObject()
-  )
 
 fun User.toLocalDataStoreObject() =
   UserEntity(id = id, email = email, displayName = displayName, photoUrl = photoUrl)

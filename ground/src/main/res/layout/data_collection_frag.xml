@@ -45,14 +45,6 @@
       app:subtitle="@{viewModel.loiName}"
       app:title="@{viewModel.jobName}" />
 
-    <com.google.android.material.progressindicator.LinearProgressIndicator
-      android:id="@+id/progress_bar"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/data_collection_toolbar" />
-
     <androidx.viewpager2.widget.ViewPager2
       android:id="@+id/pager"
       android:layout_width="match_parent"
@@ -60,7 +52,21 @@
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/progress_bar" />
+      app:layout_constraintTop_toBottomOf="@+id/data_collection_toolbar" />
+
+    <androidx.constraintlayout.widget.Guideline
+      android:id="@+id/progress_bar_guideline"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+      android:id="@+id/progress_bar"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="@id/progress_bar_guideline" />
 
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

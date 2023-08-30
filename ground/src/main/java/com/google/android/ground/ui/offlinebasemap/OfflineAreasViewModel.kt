@@ -18,7 +18,7 @@ package com.google.android.ground.ui.offlinebasemap
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.toLiveData
-import com.google.android.ground.model.basemap.OfflineArea
+import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
@@ -51,9 +51,7 @@ internal constructor(
     val offlineAreas =
       offlineAreaRepository
         .offlineAreasOnceAndStream()
-        .doOnError {
-          Timber.e(it, "Unexpected error accessing offline basemaps in the local store.")
-        }
+        .doOnError { Timber.e(it, "Unexpected error loading offline areas from the local db") }
         .onErrorReturnItem(listOf())
     this.offlineAreas = offlineAreas.toLiveData()
     noAreasMessageVisibility =

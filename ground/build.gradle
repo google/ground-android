@@ -58,7 +58,7 @@ def getCommitSha1 = { ->
 }
 
 android {
-    compileSdkVersion rootProject.androidCompileSdk
+    compileSdk rootProject.androidCompileSdk
     defaultConfig {
         applicationId "com.google.android.ground"
         minSdkVersion rootProject.androidMinSdk
@@ -112,11 +112,6 @@ android {
         }
     }
 
-    // Keep the following configuration in order to target Java 9.
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_9
-        targetCompatibility JavaVersion.VERSION_1_9
-    }
     buildFeatures {
         dataBinding true
         viewBinding true
@@ -132,7 +127,6 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation project(':android-gmaps-addons')
     implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
     implementation 'androidx.test.ext:junit-ktx:1.1.5'
     testImplementation project(':sharedTest')
@@ -167,7 +161,7 @@ dependencies {
     implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:1.7.4'
 
     // Google Play Services.
-    implementation 'com.google.android.gms:play-services-auth:20.5.0'
+    implementation 'com.google.android.gms:play-services-auth:20.6.0'
     implementation "com.google.android.gms:play-services-maps:$rootProject.gmsMapsVersion"
     implementation 'com.google.android.gms:play-services-location:21.0.1'
 
@@ -176,10 +170,14 @@ dependencies {
     // GeoJSON support
     implementation 'com.google.code.gson:gson:2.10'
 
+    // Test Json
+    testImplementation 'org.json:json:20180813'
+
     // Firebase and related libraries.
-    implementation platform('com.google.firebase:firebase-bom:31.1.1')
+    implementation platform('com.google.firebase:firebase-bom:32.2.0')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-functions-ktx'
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-perf'
     implementation 'com.google.firebase:firebase-storage'
@@ -187,7 +185,6 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging'
     implementation 'com.google.firebase:firebase-messaging-directboot'
     implementation 'com.google.firebase:firebase-messaging-ktx'
-    implementation 'com.github.FrangSierra:RxFirebase:1.5.7'
 
     // Hilt
     implementation "com.google.dagger:hilt-android:$project.hiltVersion"
@@ -247,7 +244,7 @@ dependencies {
     testImplementation "androidx.room:room-testing:$roomVersion"
 
     // WorkManager
-    implementation "androidx.work:work-runtime:$workVersion"
+    implementation "androidx.work:work-runtime-ktx:$workVersion"
     implementation "androidx.work:work-rxjava2:$workVersion"
     testImplementation "androidx.work:work-testing:$workVersion"
 
@@ -298,6 +295,8 @@ dependencies {
     debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
     //noinspection AndroidLintFragmentGradleConfiguration
     stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
+
+    implementation "com.google.guava:guava:31.1-android"
 }
 
 // Allow references to generated code.
@@ -310,3 +309,7 @@ apply plugin: 'androidx.navigation.safeargs'
 // This must be last to avoid dependency collisions.
 // https://developers.google.com/android/guides/google-services-plugin#introduction
 apply plugin: 'com.google.gms.google-services'
+
+kotlin {
+    jvmToolchain rootProject.jvmToolchainVersion
+}

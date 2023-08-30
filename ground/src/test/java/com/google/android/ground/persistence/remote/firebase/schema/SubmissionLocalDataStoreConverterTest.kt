@@ -17,8 +17,13 @@ package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.User
+import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TaskDataMap
@@ -30,17 +35,17 @@ import com.google.android.ground.persistence.remote.firebase.schema.SubmissionCo
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.GeoPoint
 import com.sharedtest.FakeData
 import com.sharedtest.FakeData.newTask
 import java.util.*
-import java8.util.Optional
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
 class SubmissionLocalDataStoreConverterTest {
@@ -61,7 +66,9 @@ class SubmissionLocalDataStoreConverterTest {
         MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE)
       ),
       newTask("task3", Task.Type.MULTIPLE_CHOICE),
-      newTask("task4", Task.Type.PHOTO)
+      newTask("task4", Task.Type.PHOTO),
+      newTask("task5", Task.Type.DROP_A_PIN),
+      newTask("task6", Task.Type.DRAW_POLYGON),
     )
     mockSubmissionDocumentSnapshot(
       SUBMISSION_ID,
@@ -74,7 +81,28 @@ class SubmissionLocalDataStoreConverterTest {
           Pair("task1", "Text taskData"),
           Pair("task2", listOf("option2")),
           Pair("task3", listOf("optionA", "optionB")),
-          Pair("task4", "Photo URL")
+          Pair("task4", "Photo URL"),
+          Pair("task5", mapOf(Pair("type", "Point"), Pair("coordinates", GeoPoint(10.0, 20.0)))),
+          Pair(
+            "task6",
+            mapOf(
+              Pair("type", "Polygon"),
+              Pair(
+                "coordinates",
+                mapOf(
+                  Pair(
+                    "0",
+                    mapOf(
+                      Pair("0", GeoPoint(10.0, 20.0)),
+                      Pair("1", GeoPoint(20.0, 30.0)),
+                      Pair("2", GeoPoint(30.0, 20.0)),
+                      Pair("3", GeoPoint(10.0, 20.0))
+                    )
+                  )
+                )
+              )
+            )
+          ),
         )
       )
     )
@@ -104,7 +132,23 @@ class SubmissionLocalDataStoreConverterTest {
                   listOf("optionA", "optionB")
                 )
               ),
-              Pair("task4", TextTaskData("Photo URL"))
+              Pair("task4", TextTaskData("Photo URL")),
+              Pair("task5", GeometryData(Point(Coordinates(10.0, 20.0)))),
+              Pair(
+                "task6",
+                GeometryData(
+                  Polygon(
+                    LinearRing(
+                      listOf(
+                        Coordinates(10.0, 20.0),
+                        Coordinates(20.0, 30.0),
+                        Coordinates(30.0, 20.0),
+                        Coordinates(10.0, 20.0)
+                      )
+                    )
+                  )
+                )
+              ),
             )
           )
         )
@@ -242,17 +286,17 @@ class SubmissionLocalDataStoreConverterTest {
 
   /** Mock submission document snapshot to return the specified id and object representation. */
   private fun mockSubmissionDocumentSnapshot(id: String, doc: SubmissionDocument) {
-    Mockito.`when`(submissionDocumentSnapshot.id).thenReturn(id)
-    Mockito.`when`(submissionDocumentSnapshot.toObject(SubmissionDocument::class.java))
-      .thenReturn(doc)
+    whenever(submissionDocumentSnapshot.id).thenReturn(id)
+    whenever(submissionDocumentSnapshot.toObject(SubmissionDocument::class.java)).thenReturn(doc)
+    whenever(submissionDocumentSnapshot.exists()).thenReturn(true)
   }
 
   private fun toSubmission(): Submission =
     toSubmission(locationOfInterest, submissionDocumentSnapshot)
 
   companion object {
-    private val AUDIT_INFO_1 = AuditInfo(User("user1", "", ""), Date(100), Optional.of(Date(101)))
-    private val AUDIT_INFO_2 = AuditInfo(User("user2", "", ""), Date(200), Optional.of(Date(201)))
+    private val AUDIT_INFO_1 = AuditInfo(User("user1", "", ""), Date(100), Date(101))
+    private val AUDIT_INFO_2 = AuditInfo(User("user2", "", ""), Date(200), Date(201))
     private val AUDIT_INFO_1_NESTED_OBJECT =
       AuditInfoNestedObject(
         UserNestedObject("user1", null, null),

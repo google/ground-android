@@ -20,7 +20,6 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import javax.inject.Inject
-import kotlinx.coroutines.rx2.await
 
 class SyncSurveyUseCase
 @Inject
@@ -30,10 +29,11 @@ constructor(
 ) {
   /**
    * Downloads the survey with the specified ID and related LOIs from remote and inserts and/or
-   * updates them on the local device.
+   * updates them on the local device. Returns the updated [Survey], or `null` if the survey could
+   * not be found.
    */
-  suspend operator fun invoke(surveyId: String): Survey {
-    val survey = surveyRepository.syncSurveyWithRemote(surveyId).await()
+  suspend operator fun invoke(surveyId: String): Survey? {
+    val survey = surveyRepository.loadAndSyncSurveyWithRemote(surveyId) ?: return null
 
     loiRepository.syncLocationsOfInterest(survey)
 

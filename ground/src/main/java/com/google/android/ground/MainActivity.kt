@@ -25,8 +25,8 @@ import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.databinding.MainActBinding
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.rx.RxAutoDispose.autoDisposable
+import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.ActivityStreams
-import com.google.android.ground.system.ApplicationErrorManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.*
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,8 +41,6 @@ import timber.log.Timber
 class MainActivity : Hilt_MainActivity() {
   @Inject lateinit var activityStreams: ActivityStreams
 
-  @Inject lateinit var errorManager: ApplicationErrorManager
-
   @Inject lateinit var viewModelFactory: ViewModelFactory
 
   @Inject lateinit var settingsManager: SettingsManager
@@ -52,6 +50,8 @@ class MainActivity : Hilt_MainActivity() {
   @Inject lateinit var userRepository: UserRepository
 
   @Inject lateinit var popups: EphemeralPopups
+
+  @Inject lateinit var schedulers: Schedulers
 
   private lateinit var viewModel: MainViewModel
   private lateinit var navHostFragment: NavHostFragment
@@ -69,12 +69,21 @@ class MainActivity : Hilt_MainActivity() {
       callback.accept(this)
     }
 
-    navigator.getNavigateRequests().`as`(autoDisposable(this)).subscribe {
-      navDirections: NavDirections ->
-      onNavigate(navDirections)
-    }
+    navigator
+      .getNavigateRequests()
+      .observeOn(schedulers.ui())
+      .`as`(autoDisposable(this))
+      .subscribe { navDirections: NavDirections -> onNavigate(navDirections) }
 
-    navigator.getNavigateUpRequests().`as`(autoDisposable(this)).subscribe { navigateUp() }
+    navigator
+      .getNavigateUpRequests()
+      .observeOn(schedulers.ui())
+      .`as`(autoDisposable(this))
+      .subscribe { navigateUp() }
+
+    navigator.getFinishRequests().observeOn(schedulers.ui()).`as`(autoDisposable(this)).subscribe {
+      finish()
+    }
 
     val binding = MainActBinding.inflate(layoutInflater)
     setContentView(binding.root)
@@ -86,13 +95,6 @@ class MainActivity : Hilt_MainActivity() {
     viewModel.signInProgressDialogVisibility.observe(this) { visible: Boolean ->
       onSignInProgress(visible)
     }
-
-    errorManager.exceptions.`as`(autoDisposable(this)).subscribe { onUnrecoverableError(it) }
-  }
-
-  private fun onUnrecoverableError(message: String) {
-    popups.showError(message)
-    finish()
   }
 
   override fun onWindowInsetChanged(insets: WindowInsetsCompat) {

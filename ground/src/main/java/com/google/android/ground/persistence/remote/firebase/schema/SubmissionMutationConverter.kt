@@ -44,10 +44,13 @@ internal object SubmissionMutationConverter {
         map[CREATED] = auditInfo
         map[LAST_MODIFIED] = auditInfo
       }
-      Mutation.Type.UPDATE -> map[LAST_MODIFIED] = auditInfo
+      Mutation.Type.UPDATE -> {
+        map[LAST_MODIFIED] = auditInfo
+      }
       Mutation.Type.DELETE,
-      Mutation.Type.UNKNOWN ->
+      Mutation.Type.UNKNOWN -> {
         throw DataStoreException("Unsupported mutation type: ${mutation.type}")
+      }
     }
     map[LOI_ID] = mutation.locationOfInterestId
     map[JOB_ID] = mutation.job!!.id
@@ -58,23 +61,33 @@ internal object SubmissionMutationConverter {
   private fun toMap(taskDataDeltas: List<TaskDataDelta>): Map<String, Any> {
     val map = mutableMapOf<String, Any>()
     for (delta in taskDataDeltas) {
-      delta.newTaskData
-        .map { obj: TaskData -> toObject(obj) }
-        .orElse(FieldValue.delete())
-        ?.let { map.put(delta.taskId, it) }
+      map[delta.taskId] = toObject(delta.newTaskData) ?: FieldValue.delete()
     }
     return map.toPersistentMap()
   }
 
-  private fun toObject(taskData: TaskData): Any? =
+  private fun toObject(taskData: TaskData?): Any? =
     when (taskData) {
-      is TextTaskData -> taskData.text
-      is MultipleChoiceTaskData -> taskData.selectedOptionIds
-      is NumberTaskData -> taskData.value
-      is TimeTaskData -> taskData.time
-      is DateTaskData -> taskData.date
+      is TextTaskData -> {
+        taskData.text
+      }
+      is MultipleChoiceTaskData -> {
+        taskData.selectedOptionIds
+      }
+      is NumberTaskData -> {
+        taskData.value
+      }
+      is TimeTaskData -> {
+        taskData.time
+      }
+      is DateTaskData -> {
+        taskData.date
+      }
+      is GeometryData -> {
+        GeometryConverter.toFirestoreMap(taskData.geometry).getOrThrow()
+      }
       else -> {
-        Timber.e("Unknown taskData type: %s", taskData.javaClass.name)
+        Timber.e("Unknown taskData type: %s", taskData?.javaClass?.name)
         null
       }
     }

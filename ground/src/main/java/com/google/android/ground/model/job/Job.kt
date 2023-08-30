@@ -16,7 +16,6 @@
 package com.google.android.ground.model.job
 
 import com.google.android.ground.model.task.Task
-import java8.util.Optional
 
 /**
  * @param suggestLoiTaskType the type of task used to suggest the LOI for this Job. Null if the job
@@ -32,6 +31,8 @@ data class Job(
   // TODO(jsunde): Add style and plumb through from firebase
   val tasksSorted: List<Task>
     get() = tasks.values.sortedBy { it.index }
-  fun getTask(id: String): Optional<Task> = Optional.ofNullable(tasks[id])
+
+  fun getTask(id: String): Task = tasks[id] ?: error("Unknown task id $id")
+
   fun hasData(): Boolean = tasks.isNotEmpty()
 }

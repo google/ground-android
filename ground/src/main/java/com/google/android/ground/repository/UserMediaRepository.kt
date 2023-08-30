@@ -23,9 +23,7 @@ import android.provider.MediaStore
 import com.google.android.ground.Config
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.google.android.ground.rx.annotations.Cold
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.reactivex.Single
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -42,7 +40,7 @@ import timber.log.Timber
 class UserMediaRepository
 @Inject
 constructor(
-  @param:ApplicationContext private val context: Context,
+  @ApplicationContext private val context: Context,
   private val remoteStorageManager: RemoteStorageManager,
   private val uuidGenerator: OfflineUuidGenerator
 ) {
@@ -79,13 +77,13 @@ constructor(
    *
    * @param path Final destination path of the uploaded file relative to Firestore
    */
-  fun getDownloadUrl(path: String): @Cold Single<Uri> =
-    if (path.isEmpty()) Single.just(Uri.EMPTY) else getFileUriFromRemotePath(path)
+  suspend fun getDownloadUrl(path: String): Uri =
+    if (path.isEmpty()) Uri.EMPTY else getFileUriFromRemotePath(path)
 
-  private fun getFileUriFromRemotePath(destinationPath: String): Single<Uri> {
+  private suspend fun getFileUriFromRemotePath(destinationPath: String): Uri {
     val file = getLocalFileFromRemotePath(destinationPath)
     return if (file.exists()) {
-      Single.fromCallable { Uri.fromFile(file) }
+      Uri.fromFile(file)
     } else {
       Timber.d("File doesn't exist locally: %s", file.path)
       remoteStorageManager.getDownloadUrl(destinationPath)

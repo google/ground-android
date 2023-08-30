@@ -20,7 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.OfflineBaseMapListItemBinding
-import com.google.android.ground.model.basemap.OfflineArea
+import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.ui.common.Navigator
 
 internal class OfflineAreaListAdapter(private val navigator: Navigator) :

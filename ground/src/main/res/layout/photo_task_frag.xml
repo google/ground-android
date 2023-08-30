@@ -32,15 +32,18 @@
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
     android:orientation="vertical">
-    <Button
+    <com.google.android.material.button.MaterialButton
       android:id="@+id/btn_take_photo"
-      style="?attr/materialButtonOutlinedStyle"
+      style="@style/TaskChipButton.LightGreen"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      app:icon="@drawable/outline_photo_camera"
+      app:iconTint="?attr/colorOnSurface"
       android:onClick="@{()-> viewModel.onTakePhotoClick()}"
       android:text="@string/take_picture"
-      android:textColor="?attr/colorPrimary"
       android:visibility="@{viewModel.isPhotoPresent() ? View.GONE : View.VISIBLE}" />
 
     <include

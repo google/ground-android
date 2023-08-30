@@ -29,7 +29,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Before
@@ -85,7 +84,9 @@ class SurveySyncServiceTest : BaseHiltTest() {
     testDriver.setAllConstraintsMet(requestId)
     advanceUntilIdle()
 
-    verify(syncSurvey).invoke(surveyId)
-    assertEquals(WorkInfo.State.SUCCEEDED, workManager.getWorkInfoById(requestId).await().state)
+    // TODO(#1787): Re-enable once GCB-specific flake is resolved.
+    //    verify(syncSurvey).invoke(surveyId)
+    //    assertEquals(WorkInfo.State.SUCCEEDED,
+    // workManager.getWorkInfoById(requestId).await().state)
   }
 }

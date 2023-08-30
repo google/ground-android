@@ -15,9 +15,8 @@
  */
 package com.google.android.ground.model
 
-import com.google.android.ground.model.basemap.BaseMap
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
-import java8.util.Optional
 
 /** Configuration, schema, and ACLs for a single survey. */
 data class Survey(
@@ -25,11 +24,20 @@ data class Survey(
   val title: String,
   val description: String,
   val jobMap: Map<String, Job>,
-  val baseMaps: List<BaseMap> = listOf(),
+  val tileSources: List<TileSource> = listOf(),
   val acl: Map<String, String> = mapOf()
 ) {
   val jobs: Collection<Job>
     get() = jobMap.values
 
-  fun getJob(jobId: String): Optional<Job> = Optional.ofNullable(jobMap[jobId])
+  fun getJob(jobId: String): Job? = jobMap[jobId]
+
+  fun getRole(email: String): Role =
+    when (val aclValue = acl[email] ?: error("ACL not found for email $email in survey $title")) {
+      "owner" -> Role.OWNER
+      "viewer" -> Role.VIEWER
+      "data-collector" -> Role.DATA_COLLECTOR
+      "survey-organizer" -> Role.SURVEY_ORGANIZER
+      else -> error("Unknown acl $aclValue in survey $title for user $email")
+    }
 }

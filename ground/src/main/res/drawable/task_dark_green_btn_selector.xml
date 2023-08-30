@@ -17,6 +17,6 @@
   -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-  <item android:color="?attr/colorOnSurfaceVariant" android:state_enabled="false" />
+  <item android:color="@color/md_theme_on_surface_disabled" android:state_enabled="false" />
   <item android:color="?attr/colorPrimary" android:state_enabled="true" />
 </selector>

@@ -26,12 +26,11 @@ import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import java.util.*
 import javax.inject.Inject
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -60,8 +59,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     super.setUp()
     runWithTestDispatcher {
       // Setup user
-      userRepository.saveUser(TEST_USER).await()
       fakeAuthenticationManager.setUser(TEST_USER)
+      userRepository.saveUserDetails()
 
       // Setup survey and LOIs
       fakeRemoteDataStore.surveys = listOf(TEST_SURVEY)
@@ -71,12 +70,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     }
   }
 
-  private fun mockEnqueueSyncWorker() {
-    `when`(mockWorkManager.enqueueSyncWorker(anyString())).thenReturn(Completable.complete())
-  }
-
   @Test
-  fun testApplyAndEnqueue_createsLocalLoi() {
+  fun testApplyAndEnqueue_createsLocalLoi() = runWithTestDispatcher {
     // TODO(#1559): Remove once customId and caption are handled consistently.
     val loi =
       LOCATION_OF_INTEREST.copy(
@@ -85,12 +80,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         // TODO(#1562): Remove once creation time is preserved in local db.
         lastModified = LOCATION_OF_INTEREST.created
       )
-    mockEnqueueSyncWorker()
-    locationOfInterestRepository
-      .applyAndEnqueue(loi.toMutation(CREATE, TEST_USER.id))
-      .test()
-      .assertNoErrors()
-      .assertComplete()
+    locationOfInterestRepository.applyAndEnqueue(loi.toMutation(CREATE, TEST_USER.id))
 
     locationOfInterestRepository
       .getOfflineLocationOfInterest(TEST_SURVEY.id, loi.id)
@@ -100,10 +90,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_enqueuesLoiMutation() {
-    mockEnqueueSyncWorker()
-
-    locationOfInterestRepository.applyAndEnqueue(mutation).test().assertNoErrors().assertComplete()
+  fun testApplyAndEnqueue_enqueuesLoiMutation() = runWithTestDispatcher {
+    locationOfInterestRepository.applyAndEnqueue(mutation)
 
     locationOfInterestRepository
       .getIncompleteLocationOfInterestMutationsOnceAndStream(LOCATION_OF_INTEREST.id)
@@ -113,23 +101,21 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_enqueuesWorker() {
-    mockEnqueueSyncWorker()
-
-    locationOfInterestRepository.applyAndEnqueue(mutation).test().assertNoErrors().assertComplete()
+  fun testApplyAndEnqueue_enqueuesWorker() = runWithTestDispatcher {
+    locationOfInterestRepository.applyAndEnqueue(mutation)
 
     verify(mockWorkManager).enqueueSyncWorker(LOCATION_OF_INTEREST.id)
   }
 
   @Test
-  fun testApplyAndEnqueue_returnsErrorOnWorkerSyncFailure() {
-    `when`(mockWorkManager.enqueueSyncWorker(anyString())).thenReturn(Completable.error(Error()))
+  fun testApplyAndEnqueue_returnsErrorOnWorkerSyncFailure() = runWithTestDispatcher {
+    `when`(mockWorkManager.enqueueSyncWorker(anyString())).thenThrow(Error())
 
-    locationOfInterestRepository
-      .applyAndEnqueue(LOCATION_OF_INTEREST.toMutation(CREATE, TEST_USER.id))
-      .test()
-      .assertError(Error::class.java)
-      .assertNotComplete()
+    assertFailsWith<Error> {
+      locationOfInterestRepository.applyAndEnqueue(
+        LOCATION_OF_INTEREST.toMutation(CREATE, TEST_USER.id)
+      )
+    }
 
     verify(mockWorkManager, times(1)).enqueueSyncWorker(LOCATION_OF_INTEREST.id)
   }
@@ -148,8 +134,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testLoiWithinBounds_whenOutOfBounds_returnsEmptyList() {
-    val southwest = Coordinate(-60.0, -60.0)
-    val northeast = Coordinate(-50.0, -50.0)
+    val southwest = Coordinates(-60.0, -60.0)
+    val northeast = Coordinates(-50.0, -50.0)
 
     locationOfInterestRepository
       .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(Bounds(southwest, northeast)))
@@ -159,8 +145,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testLoiWithinBounds_whenSomeLOIsInsideBounds_returnsPartialList() {
-    val southwest = Coordinate(-20.0, -20.0)
-    val northeast = Coordinate(-10.0, -10.0)
+    val southwest = Coordinates(-20.0, -20.0)
+    val northeast = Coordinates(-10.0, -10.0)
 
     locationOfInterestRepository
       .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(Bounds(southwest, northeast)))
@@ -170,8 +156,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testLoiWithinBounds_whenAllLOIsInsideBounds_returnsCompleteList() {
-    val southwest = Coordinate(-20.0, -20.0)
-    val northeast = Coordinate(20.0, 20.0)
+    val southwest = Coordinates(-20.0, -20.0)
+    val northeast = Coordinates(20.0, 20.0)
 
     locationOfInterestRepository
       .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(Bounds(southwest, northeast)))
@@ -188,9 +174,9 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   companion object {
-    private val COORDINATE_1 = Coordinate(-20.0, -20.0)
-    private val COORDINATE_2 = Coordinate(0.0, 0.0)
-    private val COORDINATE_3 = Coordinate(20.0, 20.0)
+    private val COORDINATE_1 = Coordinates(-20.0, -20.0)
+    private val COORDINATE_2 = Coordinates(0.0, 0.0)
+    private val COORDINATE_3 = Coordinates(20.0, 20.0)
 
     private val AREA_OF_INTEREST = FakeData.AREA_OF_INTEREST
     private val LOCATION_OF_INTEREST = FakeData.LOCATION_OF_INTEREST
@@ -214,7 +200,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         TEST_AREA_OF_INTEREST_2
       )
 
-    private fun createPoint(id: String, coordinate: Coordinate) =
+    private fun createPoint(id: String, coordinate: Coordinates) =
       LOCATION_OF_INTEREST.copy(
         id = id,
         geometry = Point(coordinate),
@@ -223,7 +209,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         customId = null
       )
 
-    private fun createPolygon(id: String, coordinates: List<Coordinate>) =
+    private fun createPolygon(id: String, coordinates: List<Coordinates>) =
       AREA_OF_INTEREST.copy(
         id = id,
         geometry = Polygon(LinearRing(coordinates)),

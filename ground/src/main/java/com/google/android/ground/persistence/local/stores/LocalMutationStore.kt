@@ -16,7 +16,6 @@
 package com.google.android.ground.persistence.local.stores
 
 import com.google.android.ground.model.mutation.Mutation
-import io.reactivex.Completable
 
 /**
  * A data store capable of applying changes in the form of [Mutation]s to existing data and managing
@@ -27,20 +26,20 @@ interface LocalMutationStore<T : Mutation, M> {
    * Applies enqueued mutations to an entity then saves it to the local database, ensuring the
    * latest version of the data is retained.
    */
-  fun merge(model: M): Completable
+  suspend fun merge(model: M)
 
   /** Enqueue a mutation to be applied to the remote data store. */
-  fun enqueue(mutation: T): Completable
+  suspend fun enqueue(mutation: T)
 
   /** Applies a mutation to the local data store. */
-  fun apply(mutation: T): Completable
+  suspend fun apply(mutation: T)
 
   /** Updates specified mutations in the local queue. */
-  fun updateAll(mutations: List<T>): Completable
+  suspend fun updateAll(mutations: List<T>)
 
   /**
    * Applies mutations to locally stored data, then enqueues the mutation for use when merging
    * runtime model objects.
    */
-  fun applyAndEnqueue(mutation: T): Completable
+  suspend fun applyAndEnqueue(mutation: T)
 }

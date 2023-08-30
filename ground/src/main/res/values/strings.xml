@@ -78,7 +78,6 @@
   <string name="sign_out">Sign out</string>
   <string name="change_survey">Change survey</string>
   <string name="collect_data">Collect data</string>
-  <string name="add_location">Add location</string>
   <string name="question_data_collection_title">Question</string>
   <string name="task_number">Task %1$s:</string>
 
@@ -98,10 +97,7 @@
   <string name="settings">Settings</string>
   <string name="offline_base_map_viewer_title">Offline base map area</string>
   <string name="offline_base_map_viewer_remove_button">Remove</string>
-  <string name="offline_base_map_viewer_storage">This base map takes up %.1f MB of storage space on your device.</string>
   <string name="unnamed_area">Unnamed area</string>
-  <string name="offline_base_map_download_started">Download started</string>
-  <string name="offline_base_map_download_failed">Base map download failed</string>
   <string name="added_by">Added by %s</string>
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_base_map_selector_select">Select and download</string>
@@ -123,7 +119,6 @@
   <string name="loi_properties">LOI properties</string>
   <!-- Label on button shown to dismiss the locationOfInterest properties dialog. -->
   <string name="close_loi_properties">OK</string>
-  <string name="permission_denied_error">Permission denied! Check user pass-list.</string>
 
   <string name="add_point">Add point</string>
   <string name="complete_polygon">Complete</string>
@@ -135,11 +130,9 @@
   <string name="submission_delete_confirmation_dialog_title">Delete this submission?"</string>
   <string name="submission_delete_confirmation_dialog_message">This submission will disappear from the map. This change cannot be undone. Are you sure?</string>
 
-  <string name="road_map">Road Map</string>
+  <string name="road_map">Road map</string>
   <string name="satellite">Satellite</string>
   <string name="terrain">Terrain</string>
-  <string name="map_type">Map Type</string>
-  <string name="close">Close</string>
   <string name="continue_text">Continue</string>
   <string name="select_survey_title">Select a survey to start collecting data</string>
   <string name="survey_sync_hint">Surveys are automatically synced</string>
@@ -150,11 +143,27 @@
 
   <string name="drop_pin">Drop pin</string>
 
-  <string name="new_location">Suggest area of interest</string>
-  <string name="take_a_photo">Take a photo</string>
+  <string name="new_site">New data collection site</string>
+  <string name="new_site_hint_text">Add new site and submit related data</string>
   <string name="drop_a_pin">Drop a pin</string>
+  <string name="drop_a_pin_tooltip_text">Drag your map until the center pin is on the desired location</string>
   <string name="draw_an_area">Draw an area</string>
   <string name="accuracy">Accuracy</string>
   <string name="dropped_pin">Dropped pin</string>
   <string name="loading">Loading…</string>
+  <string name="skip_dialog_title">Skip this step?</string>
+  <string name="data_deletion_warning">Data you entered in this step won’t be saved. Are you sure you want to continue?</string>
+  <string name="go_back_button_label">Go back</string>
+  <string name="confirm_button_label">Confirm</string>
+  <string name="collect_data_viewer_error">Can’t to collect data as user is a VIEWER</string>
+  <string name="offline_map_imagery">Offline map imagery</string>
+  <string name="offline_map_imagery_pref_description">This is an explanation of the offline overlay. \nThe images come from this source.</string>
+  <string name="layers">Layers</string>
+  <string name="base_map">Base map</string>
+  <string name="offline_map_imagery_download_progress_dialog_message">Downloading offline map imagery…</string>
+  <string name="multiple_regions">Multiple regions</string>
+  <string name="permission_denied">Permission denied</string>
+  <string name="contact_survey_organizer_to_obtain_access">Contact your system administrator to request access</string>
+  <string name="close_app">Close app</string>
+  <string name="warning_sign_out">Warning: If you sign out, all unsaved data will be lost </string>
 </resources>

@@ -15,6 +15,8 @@
  */
 package com.google.android.ground.model.geometry
 
+import com.google.android.ground.ui.map.gms.GmsExt.center
+import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -30,6 +32,12 @@ sealed interface Geometry {
   val size: Int
     get() = vertices.size
 
+  /**
+   * Returns the center coordinates of the geometry. It may or may not be within the geometry bounds
+   * if the shape is irregular.
+   */
+  fun center(): Coordinates
+
   /** Validates that the current [Geometry] is well-formed. */
   fun validate() {
     // default no-op implementation
@@ -44,13 +52,17 @@ sealed interface Geometry {
 @SerialName("polygon")
 data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()) : Geometry {
   override val vertices: List<Point> = shell.vertices
+
+  override fun center(): Coordinates = shell.center()
 }
 
 /** Represents a single point. */
 @Serializable
 @SerialName("point")
-data class Point(val coordinate: Coordinate) : Geometry {
+data class Point(val coordinates: Coordinates) : Geometry {
   override val vertices: List<Point> = listOf(this)
+
+  override fun center(): Coordinates = coordinates
 }
 
 /** A collection of [Polygon]s. */
@@ -58,22 +70,26 @@ data class Point(val coordinate: Coordinate) : Geometry {
 @SerialName("multi_polygon")
 data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
   override val vertices: List<Point> = polygons.flatMap { it.vertices }
+
+  override fun center(): Coordinates = polygons.map { it.center() }.centerOrError()
 }
 
 /** A sequence of two or more vertices modelling an OCG style line string. */
 @Serializable
 @SerialName("line_string")
-data class LineString(val coordinates: List<Coordinate>) : Geometry {
+data class LineString(val coordinates: List<Coordinates>) : Geometry {
   override val vertices: List<Point> = coordinates.map { Point(it) }
+
+  override fun center(): Coordinates = coordinates.centerOrError()
 }
 
 /**
- * A closed linear ring is a sequence of [Coordinate]s where the first and last coordinates are
+ * A closed linear ring is a sequence of [Coordinates] where the first and last coordinates are
  * equal.
  */
 @Serializable
 @SerialName("linear_ring")
-data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
+data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
 
   init {
     validate()
@@ -81,34 +97,36 @@ data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
 
   override val vertices: List<Point> = coordinates.map { Point(it) }
 
+  override fun center(): Coordinates = coordinates.centerOrError()
+
   override fun validate() {
     // TODO(#1647): Check for vertices count > 3
     if (coordinates.isEmpty()) {
       return
     }
     if (coordinates.firstOrNull() != coordinates.lastOrNull()) {
-      error("Invalid linear ring")
+      throw InvalidGeometryException("Invalid linear ring")
     }
   }
 
   /**
-   * Returns a *synthetic* coordinate containing the maximum x and y coordinate values of this ring.
+   * Returns *synthetic* coordinates containing the maximum `x` and `y` coordinates of this ring.
    */
-  private fun maximum(): Coordinate {
+  private fun maximum(): Coordinates {
     val maximumLat = this.coordinates.maxOfOrNull { it.lat }
     val maximumLng = this.coordinates.maxOfOrNull { it.lng }
 
-    return Coordinate(maximumLat ?: 0.0, maximumLng ?: 0.0)
+    return Coordinates(maximumLat ?: 0.0, maximumLng ?: 0.0)
   }
 
   /**
-   * Returns a *synthetic* coordinate containing the minimum x and y coordinate values of this ring.
+   * Returns *synthetic* coordinates containing the minimum `x` and `y` coordinates of this ring.
    */
-  private fun minimum(): Coordinate {
+  private fun minimum(): Coordinates {
     val minimumLat = this.coordinates.minOfOrNull { it.lat }
     val minimumLng = this.coordinates.minOfOrNull { it.lng }
 
-    return Coordinate(minimumLat ?: 0.0, minimumLng ?: 0.0)
+    return Coordinates(minimumLat ?: 0.0, minimumLng ?: 0.0)
   }
 
   /**
@@ -119,6 +137,15 @@ data class LinearRing(val coordinates: List<Coordinate>) : Geometry {
   fun contains(other: LinearRing) =
     this.maximum() >= other.maximum() && this.minimum() <= other.minimum()
 }
+
+/**
+ * Returns the center coordinates of the bounding box from the given list of coordinates.
+ *
+ * Note: This might return an unexpected result for oddly shaped polygons. Check if this can be
+ * replaced with a centroid. See (#1737) for more info.
+ */
+private fun List<Coordinates>?.centerOrError(): Coordinates =
+  this?.map { Point(it) }?.toBounds()?.center() ?: error("missing vertices")
 
 val geometrySerializer = Json {
   SerializersModule {

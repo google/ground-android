@@ -23,6 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.databinding.MapTypeDialogFragmentBinding
 import com.google.android.ground.repository.MapStateRepository
+import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.map.MapType
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,35 +34,36 @@ import javax.inject.Inject
 class MapTypeDialogFragment : Hilt_MapTypeDialogFragment() {
 
   @Inject lateinit var mapStateRepository: MapStateRepository
+  @Inject lateinit var viewModelFactory: ViewModelFactory
 
   private lateinit var binding: MapTypeDialogFragmentBinding
-  private lateinit var mapTypes: Array<MapType>
+  private lateinit var mapTypes: List<MapType>
+  private lateinit var viewModel: MapTypeViewModel
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    viewModel = viewModelFactory.get(this, MapTypeViewModel::class.java)
+  }
 
   // TODO(#936): Remove the suppress annotation when fragment dependency is upgraded to 1.3.4
+  // TODO(#1753): Handle click for help icon
   @SuppressLint("UseRequireInsteadOfGet")
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    mapTypes = MapTypeDialogFragmentArgs.fromBundle(arguments!!).mapTypes
+    mapTypes = MapTypeDialogFragmentArgs.fromBundle(arguments!!).mapTypes.toList()
     binding = MapTypeDialogFragmentBinding.inflate(inflater, container, false)
+    binding.viewModel = viewModel
     return binding.root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    binding.dialogCloseBtn.setOnClickListener { dismiss() }
-
-    val currentMapType = mapStateRepository.mapType
-    val index = mapTypes.indexOfFirst { it.type == currentMapType }
-    val recyclerview = binding.recyclerView
-    recyclerview.adapter =
-      MapTypeAdapter(requireContext(), mapTypes, index) { handleMapTypeSelected(it) }
-  }
-
-  private fun handleMapTypeSelected(position: Int) {
-    mapStateRepository.mapType = mapTypes[position].type
+    val index = mapTypes.indexOfFirst { it == viewModel.mapType }
+    binding.recyclerView.adapter =
+      MapTypeAdapter(requireContext(), mapTypes, index) { viewModel.mapType = mapTypes[it] }
   }
 }

@@ -24,6 +24,7 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
+import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
@@ -32,12 +33,16 @@ import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.map.Bounds
+import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.gms.GmsExt.contains
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.collections.immutable.toPersistentSet
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactive.awaitFirst
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
@@ -50,10 +55,11 @@ class LocationOfInterestRepository
 constructor(
   private val localSurveyStore: LocalSurveyStore,
   private val localLoiStore: LocalLocationOfInterestStore,
+  private val localSubmissionStore: LocalSubmissionStore,
   private val remoteDataStore: RemoteDataStore,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val authManager: AuthenticationManager,
-  private val uuidGenerator: OfflineUuidGenerator,
+  private val uuidGenerator: OfflineUuidGenerator
 ) {
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
   suspend fun syncLocationsOfInterest(survey: Survey) {
@@ -100,10 +106,9 @@ constructor(
    * @param mutation Input [LocationOfInterestMutation]
    * @return If successful, returns the provided locations of interest wrapped as `Loadable`
    */
-  fun applyAndEnqueue(mutation: LocationOfInterestMutation): @Cold Completable {
-    val localTransaction = localLoiStore.applyAndEnqueue(mutation)
-    val remoteSync = mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
-    return localTransaction.andThen(remoteSync)
+  suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
+    localLoiStore.applyAndEnqueue(mutation)
+    mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
   }
 
   /**
@@ -121,9 +126,38 @@ constructor(
       MutationEntitySyncStatus.FAILED
     )
 
-  /** Returns a flowable of all [LocationOfInterest] for the currently active [Survey]. */
-  fun getLocationsOfInterestOnceAndStream(survey: Survey): Flowable<Set<LocationOfInterest>> =
-    localLoiStore.getLocationsOfInterestOnceAndStream(survey)
+  /** Returns a flowable of all [LocationOfInterest] for the given [Survey]. */
+  private fun getLocationsOfInterestOnceAndStream(
+    survey: Survey
+  ): Flowable<Set<LocationOfInterest>> = localLoiStore.getLocationsOfInterestOnceAndStream(survey)
+
+  private fun findLocationsOfInterest(survey: Survey) =
+    localLoiStore.findLocationsOfInterest(survey)
+
+  fun findLocationsOfInterestFeatures(survey: Survey) =
+    findLocationsOfInterest(survey).map { toLocationOfInterestFeatures(it) }
+
+  private suspend fun toLocationOfInterestFeatures(
+    locationsOfInterest: Set<LocationOfInterest>
+  ): Set<Feature> = // TODO: Add support for polylines similar to mapPins.
+  locationsOfInterest
+      .map {
+        val pendingSubmissions =
+          localSubmissionStore.getPendingSubmissionCountByLocationOfInterestId(it.id) -
+            localSubmissionStore.getPendingSubmissionDeletionCountByLocationOfInterestId(it.id)
+        val submissionCount = it.submissionCount + pendingSubmissions
+        Feature(
+          id = it.id,
+          type = FeatureType.LOCATION_OF_INTEREST.ordinal,
+          flag = submissionCount > 0,
+          geometry = it.geometry
+        )
+      }
+      .toPersistentSet()
+
+  /** Returns a list of geometries associated with the given [Survey]. */
+  suspend fun getAllGeometries(survey: Survey): List<Geometry> =
+    getLocationsOfInterestOnceAndStream(survey).awaitFirst().map { it.geometry }
 
   /** Returns a flowable of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBoundsOnceAndStream(

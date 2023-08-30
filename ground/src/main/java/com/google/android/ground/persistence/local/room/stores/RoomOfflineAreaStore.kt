@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.persistence.local.room.stores
 
-import com.google.android.ground.model.basemap.OfflineArea
+import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.converter.toOfflineAreaEntity
 import com.google.android.ground.persistence.local.room.dao.OfflineAreaDao
@@ -35,8 +35,8 @@ class RoomOfflineAreaStore @Inject internal constructor() : LocalOfflineAreaStor
   @Inject lateinit var offlineAreaDao: OfflineAreaDao
   @Inject lateinit var schedulers: Schedulers
 
-  override fun insertOrUpdateOfflineArea(area: OfflineArea): Completable =
-    offlineAreaDao.insertOrUpdate(area.toOfflineAreaEntity()).subscribeOn(schedulers.io())
+  override suspend fun insertOrUpdate(area: OfflineArea) =
+    offlineAreaDao.insertOrUpdate(area.toOfflineAreaEntity())
 
   override fun offlineAreasOnceAndStream(): Flowable<List<OfflineArea>> =
     offlineAreaDao

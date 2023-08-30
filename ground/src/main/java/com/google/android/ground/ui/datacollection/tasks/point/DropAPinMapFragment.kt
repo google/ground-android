@@ -24,12 +24,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTaskFragBinding
-import com.google.android.ground.model.submission.DropAPinTaskData
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinate
+import com.google.android.ground.ui.datacollection.components.TaskHeaderPopupView
+import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinates
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.Map
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -54,6 +56,11 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
     binding.fragment = this
     binding.viewModel = mapViewModel
     binding.lifecycleOwner = this
+    binding.hintIcon.setOnClickListener {
+      TaskHeaderPopupView(requireContext())
+        .show(binding.hintIcon, getString(R.string.drop_a_pin_tooltip_text))
+    }
+    binding.hintIcon.visibility = View.VISIBLE
 
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -64,7 +71,7 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.taskDataValue.collect {
-          setDroppedPinAsInfoCard((it as? DropAPinTaskData)?.cameraPosition)
+          setDroppedPinAsInfoCard((it as? GeometryData)?.geometry as? Point)
         }
       }
     }
@@ -82,18 +89,18 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
     }
   }
 
-  private fun setDroppedPinAsInfoCard(cameraPosition: CameraPosition?) {
-    if (cameraPosition == null) {
+  private fun setDroppedPinAsInfoCard(point: Point?) {
+    if (point == null) {
       binding.infoCard.visibility = View.GONE
     } else {
       binding.cardTitle.setText(R.string.dropped_pin)
-      binding.cardValue.text = processCoordinate(cameraPosition.target)
+      binding.cardValue.text = processCoordinates(point.coordinates)
       binding.infoCard.visibility = View.VISIBLE
     }
   }
 
-  override fun onMapReady(mapFragment: MapFragment) {
-    viewModel.features.observe(this) { mapFragment.renderFeatures(it) }
+  override fun onMapReady(map: Map) {
+    viewModel.features.observe(this) { map.renderFeatures(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
@@ -104,7 +111,7 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
   }
 
   companion object {
-    fun newInstance(viewModel: DropAPinTaskViewModel, mapFragment: MapFragment) =
-      DropAPinMapFragment(viewModel).apply { this.mapFragment = mapFragment }
+    fun newInstance(viewModel: DropAPinTaskViewModel, map: Map) =
+      DropAPinMapFragment(viewModel).apply { this.map = map }
   }
 }

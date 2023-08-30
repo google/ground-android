@@ -18,23 +18,23 @@ package com.google.android.ground
 import android.content.SharedPreferences
 import android.os.Looper
 import androidx.navigation.NavDirections
-import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.auth.SignInState.Companion.error
 import com.google.android.ground.system.auth.SignInState.Companion.signingIn
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.signin.SignInFragmentDirections
-import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.common.truth.Truth.assertThat
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.sharedtest.FakeData
 import com.sharedtest.TestObservers.observeUntilFirstChange
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
-import io.reactivex.Maybe
 import io.reactivex.observers.TestObserver
 import javax.inject.Inject
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Before
@@ -53,7 +53,6 @@ class MainViewModelTest : BaseHiltTest() {
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var viewModel: MainViewModel
   @Inject lateinit var navigator: Navigator
-  @Inject lateinit var localValueStore: LocalValueStore
   @Inject lateinit var sharedPreferences: SharedPreferences
   @Inject lateinit var tosRepository: TermsOfServiceRepository
   @Inject lateinit var userRepository: UserRepository
@@ -78,12 +77,12 @@ class MainViewModelTest : BaseHiltTest() {
     assertThat(sharedPreferences.all).isEmpty()
   }
 
-  private fun verifyUserSaved() {
-    userRepository.getUser(FakeData.USER.id).test().assertResult(FakeData.USER)
+  private fun verifyUserSaved() = runWithTestDispatcher {
+    assertThat(userRepository.getUser(FakeData.USER.id)).isEqualTo(FakeData.USER)
   }
 
-  private fun verifyUserNotSaved() {
-    userRepository.getUser(FakeData.USER.id).test().assertError(NoSuchElementException::class.java)
+  private fun verifyUserNotSaved() = runWithTestDispatcher {
+    assertFailsWith<LocalDataStoreException> { userRepository.getUser(FakeData.USER.id) }
   }
 
   private fun verifyProgressDialogVisible(visible: Boolean) {
@@ -127,7 +126,7 @@ class MainViewModelTest : BaseHiltTest() {
   @Test
   fun testSignInStateChanged_onSignedIn_whenTosNotAccepted() = runWithTestDispatcher {
     tosRepository.isTermsOfServiceAccepted = false
-    fakeRemoteDataStore.termsOfService = Maybe.just(FakeData.TERMS_OF_SERVICE)
+    fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
     fakeAuthenticationManager.signIn()
     advanceUntilIdle()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
@@ -141,18 +140,51 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testSignInStateChanged_onSignedIn_whenTosMissing() = runWithTestDispatcher {
+  fun testSignInStateChanged_onSignedIn_getTos_whenTosMissing() = runWithTestDispatcher {
     tosRepository.isTermsOfServiceAccepted = false
-    fakeRemoteDataStore.termsOfService = Maybe.empty()
+    fakeRemoteDataStore.termsOfService = null
     fakeAuthenticationManager.signIn()
     advanceUntilIdle()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
 
     verifyProgressDialogVisible(false)
-    verifyNavigationRequested(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
+    verifyNavigationRequested(SignInFragmentDirections.showSurveySelectorScreen(true))
     verifyUserSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
   }
+
+  @Test
+  fun testSignInStateChanged_onSignedIn_getTos_whenPermissionDenied() = runWithTestDispatcher {
+    tosRepository.isTermsOfServiceAccepted = false
+    fakeRemoteDataStore.termsOfService =
+      Result.failure(
+        FirebaseFirestoreException(
+          "permission denied",
+          FirebaseFirestoreException.Code.PERMISSION_DENIED
+        )
+      )
+    fakeAuthenticationManager.signIn()
+    advanceUntilIdle()
+    Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+    verifyProgressDialogVisible(false)
+    verifyNavigationRequested(SignInFragmentDirections.showPermissionDeniedDialogFragment())
+    assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+  }
+
+  @Test
+  fun testSignInStateChanged_onSignedIn_getTos_whenNotPermissionDeniedError() =
+    runWithTestDispatcher {
+      tosRepository.isTermsOfServiceAccepted = false
+      fakeRemoteDataStore.termsOfService = Result.failure(Error("user error"))
+      fakeAuthenticationManager.signIn()
+      advanceUntilIdle()
+      Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+      verifyProgressDialogVisible(false)
+      verifyNavigationRequested(SignInFragmentDirections.showSignInScreen())
+      assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+    }
 
   @Test
   fun testSignInStateChanged_onSignInError() {

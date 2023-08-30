@@ -18,25 +18,39 @@ package com.google.android.ground.ui.common
 import android.Manifest
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.repository.MapStateRepository
+import com.google.android.ground.repository.OfflineAreaRepository
+import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.system.*
+import com.google.android.ground.system.FINE_LOCATION_UPDATES_REQUEST
+import com.google.android.ground.system.LocationManager
+import com.google.android.ground.system.PermissionDeniedException
+import com.google.android.ground.system.PermissionsManager
+import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapController
+import com.google.android.ground.ui.map.MapType
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
-import io.reactivex.Single
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 
 open class BaseMapViewModel
@@ -45,8 +59,10 @@ constructor(
   private val locationManager: LocationManager,
   private val mapStateRepository: MapStateRepository,
   private val settingsManager: SettingsManager,
+  private val offlineAreaRepository: OfflineAreaRepository,
   private val permissionsManager: PermissionsManager,
-  mapController: MapController
+  mapController: MapController,
+  surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
   private val cameraZoomSubject: @Hot Subject<Float> = PublishSubject.create()
@@ -59,7 +75,7 @@ constructor(
   val locationLock: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
-  val baseMapType: LiveData<Int>
+  val mapType: LiveData<MapType>
 
   val locationLockIconTint =
     locationLock
@@ -88,26 +104,41 @@ constructor(
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
+  val tileOverlays: LiveData<List<TileSource>>
+  val offlineImageryEnabled: Flow<Boolean> = mapStateRepository.offlineImageryFlow
+
   init {
     cameraUpdateRequests = mapController.getCameraUpdates().map { Event.create(it) }.toLiveData()
-    baseMapType = mapStateRepository.mapTypeFlowable.toLiveData()
+    mapType = mapStateRepository.mapTypeFlowable.toLiveData()
+    tileOverlays =
+      surveyRepository.activeSurveyFlow
+        .mapNotNull { it?.tileSources?.mapNotNull(this::toLocalTileSource) ?: listOf() }
+        .asLiveData()
+  }
+
+  // TODO(#1790): Maybe create a new data class object which is not of type TileSource.
+  private fun toLocalTileSource(tileSource: TileSource): TileSource? {
+    if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
+    return TileSource(
+      "file://${offlineAreaRepository.getLocalTileSourcePath()}/{z}/{x}/{y}.jpg",
+      TileSource.Type.TILED_WEB_MAP
+    )
   }
 
   private suspend fun toggleLocationLock() {
     if (locationLock.value.getOrDefault(false)) {
-      disableLocationLock().await()
+      disableLocationLock()
     } else {
       try {
-        permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION).await()
-
-        settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST).await()
+        permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+        settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST)
 
         enableLocationLock()
 
-        locationManager.requestLocationUpdates().await()
+        locationManager.requestLocationUpdates()
       } catch (e: PermissionDeniedException) {
         locationLock.value = Result.failure(e)
-        locationManager.disableLocationUpdates().await()
+        locationManager.disableLocationUpdates()
       }
     }
   }
@@ -115,9 +146,9 @@ constructor(
   private fun enableLocationLock() = onLockStateChanged(true)
 
   /** Releases location enableLocationLock by disabling location updates. */
-  private fun disableLocationLock(): Single<Result<Boolean>> {
+  private suspend fun disableLocationLock() {
     onLockStateChanged(false)
-    return locationManager.disableLocationUpdates()
+    locationManager.disableLocationUpdates()
   }
 
   private fun onLockStateChanged(isLocked: Boolean) {
@@ -140,7 +171,7 @@ constructor(
   fun onMapDragged() {
     if (locationLock.value.getOrDefault(false)) {
       Timber.d("User dragged map. Disabling location lock")
-      viewModelScope.launch { disableLocationLock().await() }
+      viewModelScope.launch { disableLocationLock() }
     }
   }
 
@@ -151,11 +182,11 @@ constructor(
   }
 
   companion object {
-    private const val LOCATION_LOCK_ICON_TINT_ENABLED = R.color.md_theme_primary
-    private const val LOCATION_LOCK_ICON_TINT_DISABLED = R.color.md_theme_onSurfaceVariant
+    private val LOCATION_LOCK_ICON_TINT_ENABLED = R.color.md_theme_primary
+    private val LOCATION_LOCK_ICON_TINT_DISABLED = R.color.md_theme_onSurfaceVariant
 
-    // TODO(Shobhit): Consider adding another icon for representing "GPS disabled" state.
-    private const val LOCATION_LOCK_ICON_ENABLED = R.drawable.ic_gps_lock
-    private const val LOCATION_LOCK_ICON_DISABLED = R.drawable.ic_gps_lock_not_fixed
+    // TODO(#1789): Consider adding another icon for representing "GPS disabled" state.
+    private val LOCATION_LOCK_ICON_ENABLED = R.drawable.ic_gps_lock
+    private val LOCATION_LOCK_ICON_DISABLED = R.drawable.ic_gps_lock_not_fixed
   }
 }

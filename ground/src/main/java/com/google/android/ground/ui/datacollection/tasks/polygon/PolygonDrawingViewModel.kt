@@ -17,8 +17,14 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import android.content.res.Resources
 import androidx.lifecycle.viewModelScope
-import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.GeometryValidator.isComplete
+import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
@@ -63,17 +69,17 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
    * the first vertex to complete the polygon.
    */
   fun updateLastVertexAndMaybeCompletePolygon(
-    target: Coordinate,
-    calculateDistanceInPixels: (c1: Coordinate, c2: Coordinate) -> Double
+    target: Coordinates,
+    calculateDistanceInPixels: (c1: Coordinates, c2: Coordinates) -> Double
   ) {
     check(!isMarkedComplete) { "Attempted to update last vertex after completing the drawing" }
 
     val firstVertex = vertices.firstOrNull()
     var updatedTarget = target
     if (firstVertex != null && vertices.size > 2) {
-      val distance = calculateDistanceInPixels(firstVertex.coordinate, target)
+      val distance = calculateDistanceInPixels(firstVertex.coordinates, target)
       if (distance <= DISTANCE_THRESHOLD_DP) {
-        updatedTarget = firstVertex.coordinate
+        updatedTarget = firstVertex.coordinates
       }
     }
 
@@ -101,7 +107,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   /** Adds the last vertex to the polygon. */
   fun addLastVertex() {
     check(!isMarkedComplete) { "Attempted to add last vertex after completing the drawing" }
-    vertices.lastOrNull()?.let { addVertex(it.coordinate, false) }
+    vertices.lastOrNull()?.let { addVertex(it.coordinates, false) }
   }
 
   /**
@@ -110,7 +116,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
    * @param vertex
    * @param shouldOverwriteLastVertex
    */
-  private fun addVertex(vertex: Coordinate, shouldOverwriteLastVertex: Boolean) {
+  private fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean) {
     val updatedVertices = vertices.toMutableList()
 
     // Maybe remove the last vertex before adding the new vertex.
@@ -131,13 +137,13 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   }
 
   fun onCompletePolygonButtonClick() {
-    check(vertices.map { it.coordinate }.isComplete()) { "Polygon is not complete" }
+    check(vertices.map { it.coordinates }.isComplete()) { "Polygon is not complete" }
     check(!isMarkedComplete) { "Already marked complete" }
 
     isMarkedComplete = true
 
     refreshFeatures(vertices, true)
-    // TODO(#1351): Serialize the polygon and update response
+    setResponse(GeometryData(createGeometry(vertices, true)))
   }
 
   /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */
@@ -149,20 +155,22 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
         Feature(
           id = uuidGenerator.generateUuid(),
           type = FeatureType.USER_POLYGON.ordinal,
-          geometry = createGeometry(points.map { it.coordinate }, isMarkedComplete)
+          geometry = createGeometry(points, isMarkedComplete)
         )
       }
   }
 
   /** Returns a map geometry to be drawn based on given list of points. */
-  private fun createGeometry(coordinates: List<Coordinate>, isMarkedComplete: Boolean): Geometry =
-    if (isMarkedComplete && coordinates.isComplete()) {
+  private fun createGeometry(points: List<Point>, isMarkedComplete: Boolean): Geometry {
+    val coordinates = points.map { it.coordinates }
+    return if (isMarkedComplete && coordinates.isComplete()) {
       Polygon(LinearRing(coordinates))
     } else if (coordinates.isComplete()) {
       LinearRing(coordinates)
     } else {
       LineString(coordinates)
     }
+  }
 
   companion object {
     /** Min. distance in dp between two points for them be considered as overlapping. */

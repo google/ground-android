@@ -29,12 +29,12 @@ class LoiCardUtilTest {
 
   @Test
   fun testLoiNameWithPoint_whenCaptionIsNull() {
-    assertThat(getDisplayLoiName(TEST_LOI.copy(caption = null))).isEqualTo("POINT")
+    assertThat(getDisplayLoiName(TEST_LOI.copy(caption = null))).isEqualTo("Point")
   }
 
   @Test
   fun testLoiNameWithPolygon_whenCaptionIsNull() {
-    assertThat(getDisplayLoiName(TEST_AREA.copy(caption = null))).isEqualTo("POLYGON")
+    assertThat(getDisplayLoiName(TEST_AREA.copy(caption = null))).isEqualTo("Polygon")
   }
 
   @Test

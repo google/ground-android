@@ -16,45 +16,116 @@
   ~ limitations under the License.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:padding="20dp">
+  xmlns:tools="http://schemas.android.com/tools">
 
-  <TextView
-    android:id="@+id/dialog_title"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="@string/map_type"
-    android:textColor="?attr/colorTertiary"
-    android:textStyle="bold"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
+  <data>
+    <variable
+      name="viewModel"
+      type="com.google.android.ground.ui.home.mapcontainer.MapTypeViewModel" />
+  </data>
 
-  <ImageButton
-    android:id="@+id/dialog_close_btn"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="@android:color/transparent"
-    android:contentDescription="@string/close"
-    android:src="@drawable/ic_close_black_24dp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
-
-  <androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/recycler_view"
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:paddingTop="20dp"
-    android:paddingBottom="10dp"
-    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/dialog_title"
-    tools:itemCount="3"
-    tools:listitem="@layout/map_type_dialog_item" />
+    android:layout_height="match_parent"
+    android:paddingLeft="24dp"
+    android:paddingTop="16dp"
+    android:paddingRight="24dp"
+    android:paddingBottom="64dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <View
+      android:id="@+id/drag_handle"
+      android:layout_width="32dp"
+      android:layout_height="4dp"
+      android:background="#747775"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+      android:id="@+id/dialog_title"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      android:text="@string/layers"
+      android:textSize="22sp"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/drag_handle" />
+
+    <TextView
+      android:id="@+id/base_map_selector_title"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="27dp"
+      android:text="@string/base_map"
+      android:textColor="?attr/colorOnSurface"
+      android:textSize="16sp"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/dialog_title" />
+
+    <!-- TODO(#1753): Handle button clicks -->
+    <androidx.constraintlayout.utils.widget.ImageFilterView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="5dp"
+      android:layout_marginEnd="5dp"
+      android:src="@drawable/baseline_help_outline_24"
+      android:tint="#70757A"
+      app:layout_constraintStart_toEndOf="@id/base_map_selector_title"
+      app:layout_constraintTop_toTopOf="@id/base_map_selector_title" />
+
+    <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/recycler_view"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:paddingTop="11dp"
+      android:paddingBottom="14dp"
+      app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/base_map_selector_title"
+      tools:itemCount="3"
+      tools:listitem="@layout/map_type_dialog_item" />
+
+    <View
+      android:id="@+id/divider"
+      android:layout_width="match_parent"
+      android:layout_height="1dp"
+      android:background="#DADCE0"
+      app:layout_constraintTop_toBottomOf="@id/recycler_view" />
+
+    <TextView
+      android:id="@+id/offline_map_pref_title"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="38dp"
+      android:text="@string/offline_map_imagery"
+      android:textColor="?attr/colorOnSurface"
+      android:textSize="16sp"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/divider" />
+
+    <!-- TODO(#1753): Highlight the text "this source" and make it clickable. -->
+    <TextView
+      android:id="@+id/offline_map_pref_description"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/offline_map_imagery_pref_description"
+      android:textColor="?attr/colorSecondary"
+      android:textSize="12sp"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/offline_map_pref_title" />
+
+    <com.google.android.material.materialswitch.MaterialSwitch
+      android:id="@+id/offline_map_preference_switch"
+      android:layout_width="wrap_content"
+      android:layout_height="32dp"
+      android:checked="@{viewModel.offlineImageryEnabled}"
+      android:onCheckedChanged="@{(view, value) -> viewModel.offlineImageryPreferenceUpdated(value)}"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toTopOf="@+id/offline_map_pref_title" />
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

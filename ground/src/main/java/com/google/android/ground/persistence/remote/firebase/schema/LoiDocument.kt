@@ -29,5 +29,6 @@ data class LoiDocument(
   val geoJson: String? = null,
   val geometry: Map<String, Any>? = null,
   val created: AuditInfoNestedObject? = null,
-  val lastModified: AuditInfoNestedObject? = null
+  val lastModified: AuditInfoNestedObject? = null,
+  val submissionCount: Int? = null
 )

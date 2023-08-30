@@ -33,7 +33,6 @@ import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import java8.util.Optional
 import javax.inject.Inject
 import timber.log.Timber
 
@@ -107,7 +106,7 @@ class SubmissionDetailsFragment : Hilt_SubmissionDetailsFragment() {
     binding.task = task
     binding.lifecycleOwner = this
     this.binding.submissionDetailsLayout.addView(binding.root)
-    submission.responses.getResponse(task.id).ifPresent { taskData: TaskData ->
+    submission.responses.getResponse(task.id)?.let { taskData: TaskData ->
       if (task.type === Task.Type.PHOTO) {
         binding.taskValue.visibility = View.GONE
         addPhotoTask(binding.root as ViewGroup, taskData)
@@ -119,7 +118,7 @@ class SubmissionDetailsFragment : Hilt_SubmissionDetailsFragment() {
 
   private fun addPhotoTask(container: ViewGroup, taskData: TaskData) {
     val photoFieldViewModel = viewModelFactory.create(PhotoTaskViewModel::class.java)
-    photoFieldViewModel.setResponse(Optional.of(taskData))
+    photoFieldViewModel.setResponse(taskData)
     val photoFieldBinding = PhotoTaskBinding.inflate(layoutInflater)
     photoFieldBinding.lifecycleOwner = this
     photoFieldBinding.viewModel = photoFieldViewModel

@@ -21,30 +21,26 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Maybe
-import io.reactivex.Single
 
 interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submission> {
   /**
    * Returns the list of submissions which are not marked for deletion for the specified
    * locationOfInterest and job.
    */
-  fun getSubmissions(
+  suspend fun getSubmissions(
     locationOfInterest: LocationOfInterest,
     jobId: String
-  ): @Cold Single<List<Submission>>
+  ): List<Submission>
 
   /** Returns the submission with the specified UUID from the local data store, if found. */
-  fun getSubmission(
+  suspend fun getSubmission(
     locationOfInterest: LocationOfInterest,
     submissionId: String
-  ): @Cold Maybe<Submission>
+  ): Submission
 
   /** Deletes submission from local database. */
-  fun deleteSubmission(submissionId: String): @Cold Completable
+  suspend fun deleteSubmission(submissionId: String)
 
   /**
    * Emits the list of [SubmissionMutation] instances for a given LOI which match the provided
@@ -58,8 +54,16 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
 
   fun getAllMutationsAndStream(): Flowable<List<SubmissionMutationEntity>>
 
-  fun findByLocationOfInterestId(
-    id: String,
+  suspend fun findByLocationOfInterestId(
+    loidId: String,
     vararg states: MutationEntitySyncStatus
-  ): Single<List<SubmissionMutationEntity>>
+  ): List<SubmissionMutationEntity>
+
+  suspend fun getPendingSubmissionCountByLocationOfInterestId(
+    loiId: String,
+  ): Int
+
+  suspend fun getPendingSubmissionDeletionCountByLocationOfInterestId(
+    loiId: String,
+  ): Int
 }

@@ -19,7 +19,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Update
 import io.reactivex.Completable
-import io.reactivex.Single
 
 /**
  * Base interface for DAOs that implement operations on a specific entity type.
@@ -27,32 +26,25 @@ import io.reactivex.Single
  * @param <E> the type of entity that is persisted by sub-interfaces. </E>
  */
 interface BaseDao<E> {
-  @Insert fun insert(entity: E): Completable
 
-  // TODO(#1581): Rename once all uses migrated to coroutines.
   /** Insert entity into local db. Main-safe. */
-  @Insert suspend fun insertSuspend(entity: E)
+  @Insert suspend fun insert(entity: E)
 
   /** Update entity in local db. Main-safe. */
-  @Update fun update(entity: E): Single<Int>
+  @Update suspend fun update(entity: E): Int
 
-  // TODO(#1581): Rename once all uses migrated to coroutines.
-  @Update suspend fun updateSuspend(entity: E): Int
+  @Update suspend fun updateAll(entities: List<E>)
 
-  @Update fun updateAll(entities: List<E>): Completable
+  @Deprecated("Replace usage with deleteSuspend") @Delete fun delete(entity: E): Completable
 
-  @Delete fun delete(entity: E): Completable
+  // TODO(#1581): Rename to delete once all existing usages are migrated to coroutine.
+  @Delete suspend fun deleteSuspend(entity: E)
 }
 
-/** Try to update the specified entity, and if it doesn't yet exist, create it. */
-fun <E> BaseDao<E>.insertOrUpdate(entity: E): Completable =
-  update(entity).filter { n: Int -> n == 0 }.flatMapCompletable { insert(entity) }
-
-// TODO(#1581): Rename once all uses migrated to coroutines.
 /** Try to update the specified entity, and if it doesn't yet exist, create it. Main-safe. */
-suspend fun <E> BaseDao<E>.insertOrUpdateSuspend(entity: E) {
-  val count = updateSuspend(entity)
+suspend fun <E> BaseDao<E>.insertOrUpdate(entity: E) {
+  val count = update(entity)
   if (count == 0) {
-    insertSuspend(entity)
+    insert(entity)
   }
 }

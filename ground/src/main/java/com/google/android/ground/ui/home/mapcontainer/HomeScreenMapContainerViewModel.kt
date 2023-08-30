@@ -17,17 +17,12 @@ package com.google.android.ground.ui.home.mapcontainer
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.toLiveData
-import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
-import com.google.android.ground.model.basemap.tile.TileSet
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.repository.LocationOfInterestRepository
-import com.google.android.ground.repository.MapStateRepository
-import com.google.android.ground.repository.OfflineAreaRepository
-import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.repository.*
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
@@ -37,16 +32,17 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.MapController
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
-import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.rx2.asFlowable
 import timber.log.Timber
 
 @SharedViewModel
@@ -58,25 +54,23 @@ internal constructor(
   private val mapStateRepository: MapStateRepository,
   locationManager: LocationManager,
   settingsManager: SettingsManager,
+  offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
   surveyRepository: SurveyRepository,
-  offlineAreaRepository: OfflineAreaRepository
 ) :
   BaseMapViewModel(
     locationManager,
     mapStateRepository,
     settingsManager,
+    offlineAreaRepository,
     permissionsManager,
-    mapController
+    mapController,
+    surveyRepository
   ) {
 
   val mapLocationOfInterestFeatures: LiveData<Set<Feature>>
 
   private var lastCameraPosition: CameraPosition? = null
-
-  val mbtilesFilePaths: LiveData<Set<String>>
-
-  private val tileProviders: MutableList<MapBoxOfflineTileProvider> = ArrayList()
 
   /* UI Clicks */
   private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
@@ -95,24 +89,17 @@ internal constructor(
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     // into the repo
     // LOIs that are persisted to the local and remote dbs.
-
     mapLocationOfInterestFeatures =
       surveyRepository.activeSurveyFlowable
         .switchMap { survey ->
           if (survey.isPresent)
             locationOfInterestRepository
-              .getLocationsOfInterestOnceAndStream(survey.get())
-              .map { toLocationOfInterestFeatures(it) }
+              .findLocationsOfInterestFeatures(survey.get())
+              .asFlowable()
               .startWith(setOf<Feature>())
               .distinctUntilChanged()
           else Flowable.just(setOf())
         }
-        .toLiveData()
-
-    mbtilesFilePaths =
-      offlineAreaRepository
-        .downloadedTileSetsOnceAndStream()
-        .map { set: Set<TileSet> -> set.map(TileSet::path).toSet() }
         .toLiveData()
 
     loisWithinMapBoundsAtVisibleZoomLevel =
@@ -130,24 +117,16 @@ internal constructor(
         .toLiveData()
 
     suggestLoiJobs =
-      surveyRepository.activeSurveyFlow.map {
-        it?.jobs?.filter { job -> job.suggestLoiTaskType != null }?.toList() ?: listOf()
-      }
+      surveyRepository.activeSurveyFlow
+        .combine(cameraZoomUpdates.asFlow()) { survey, zoomLevel ->
+          if (zoomLevel < CLUSTERING_ZOOM_THRESHOLD) {
+            listOf()
+          } else {
+            survey?.jobs?.filter { job -> job.suggestLoiTaskType != null }?.toList() ?: listOf()
+          }
+        }
+        .distinctUntilChanged()
   }
-
-  private fun toLocationOfInterestFeatures(
-    locationsOfInterest: Set<LocationOfInterest>
-  ): Set<Feature> = // TODO: Add support for polylines similar to mapPins.
-  locationsOfInterest
-      .map {
-        Feature(
-          id = it.id,
-          type = FeatureType.LOCATION_OF_INTEREST.ordinal,
-          flag = it.job.hasData(),
-          geometry = it.geometry
-        )
-      }
-      .toPersistentSet()
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     super.onMapCameraMoved(newCameraPosition)
@@ -176,21 +155,12 @@ internal constructor(
     val geometry = features[0].geometry
 
     if (geometry is Point) {
-      mapController.panAndZoomCamera(geometry.coordinate)
+      mapController.panAndZoomCamera(geometry.coordinates)
     }
   }
 
   fun panAndZoomCamera(position: Point) {
-    mapController.panAndZoomCamera(position.coordinate)
-  }
-
-  // TODO(#691): Create our own wrapper/interface for MbTiles providers.
-  fun queueTileProvider(tileProvider: MapBoxOfflineTileProvider) {
-    tileProviders.add(tileProvider)
-  }
-
-  fun closeProviders() {
-    tileProviders.forEach { it.close() }
+    mapController.panAndZoomCamera(position.coordinates)
   }
 
   fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed

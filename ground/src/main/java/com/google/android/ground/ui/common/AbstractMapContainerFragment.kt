@@ -15,64 +15,86 @@
  */
 package com.google.android.ground.ui.common
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.rx.RxAutoDispose
+import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.Map
 import javax.inject.Inject
 import kotlin.math.max
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-/** Injects a [MapFragment] in the container with id "map" and provides shared map functionality. */
+/** Injects a [Map] in the container with id "map" and provides shared map functionality. */
 abstract class AbstractMapContainerFragment : AbstractFragment() {
 
-  @Inject lateinit var mapFragment: MapFragment
+  @Inject lateinit var map: Map
   @Inject lateinit var navigator: Navigator
+  @Inject lateinit var geocodingManager: GeocodingManager
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    mapFragment.attachToFragment(this, R.id.map) { onMapAttached(it) }
+    map.attachToFragment(this, R.id.map) { onMapAttached(it) }
   }
 
-  private fun onMapAttached(mapFragment: MapFragment) {
-    mapFragment.cameraMovedEvents
+  private fun onMapAttached(map: Map) {
+    map.cameraMovedEvents
       .onBackpressureLatest()
       .`as`(RxAutoDispose.disposeOnDestroy(this))
       .subscribe { onMapCameraMoved(it) }
-    mapFragment.startDragEvents
+    map.startDragEvents
       .onBackpressureLatest()
       .`as`(RxAutoDispose.disposeOnDestroy(this))
       .subscribe { getMapViewModel().onMapDragged() }
 
     lifecycleScope.launch {
-      getMapViewModel().locationLock.collect { onLocationLockStateChange(it, mapFragment) }
+      getMapViewModel().locationLock.collect { onLocationLockStateChange(it, map) }
     }
-    getMapViewModel().baseMapType.observe(viewLifecycleOwner) { mapFragment.mapType = it }
+    getMapViewModel().mapType.observe(viewLifecycleOwner) { map.mapType = it }
     getMapViewModel().cameraUpdateRequests.observe(viewLifecycleOwner) { update ->
-      update.ifUnhandled { data -> onCameraUpdateRequest(data, mapFragment) }
+      update.ifUnhandled { data -> onCameraUpdateRequest(data, map) }
     }
 
     // Enable map controls
     getMapViewModel().setLocationLockEnabled(true)
 
-    onMapReady(mapFragment)
+    // Offline imagery
+    if (getMapConfig().showTileOverlays) {
+      lifecycleScope.launch {
+        getMapViewModel().offlineImageryEnabled.collect { enabled ->
+          if (enabled) addTileOverlays() else map.clearTileOverlays()
+        }
+      }
+    }
+
+    onMapReady(map)
   }
 
-  /** Opens a dialog for selecting a `MapType` for the basemap layer. */
+  @SuppressLint("FragmentLiveDataObserve")
+  private fun addTileOverlays() {
+    // TODO(#1756): Clear tile overlays on change to stop accumulating them on map.
+
+    // TODO(#1782): Changing the owner to `viewLifecycleOwner` in observe() causes a crash in task
+    //  fragment and converting live data to flow results in clear tiles not working. Figure out a
+    //  better way to fix the IDE warning.
+    getMapViewModel().tileOverlays.observe(this) { it.forEach(map::addTileOverlay) }
+  }
+
+  /** Opens a dialog for selecting a [MapType] for the basemap layer. */
   fun showMapTypeSelectorDialog() {
-    val types = mapFragment.availableMapTypes
+    val types = map.supportedMapTypes.toTypedArray()
     navigator.navigate(MapTypeDialogFragmentDirections.showMapTypeDialogFragment(types))
   }
 
-  private fun onLocationLockStateChange(result: Result<Boolean>, map: MapFragment) {
+  private fun onLocationLockStateChange(result: Result<Boolean>, map: Map) {
     result.fold(
       onSuccess = {
         Timber.d("Location lock: $it")
@@ -94,19 +116,28 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     Toast.makeText(context, messageId, Toast.LENGTH_LONG).show()
   }
 
-  private fun onCameraUpdateRequest(newPosition: CameraPosition, map: MapFragment) {
+  private fun onCameraUpdateRequest(newPosition: CameraPosition, map: Map) {
     Timber.v("Update camera: %s", newPosition)
-    if (newPosition.zoomLevel != null) {
-      var zoomLevel = newPosition.zoomLevel
-      if (!newPosition.isAllowZoomOut) {
-        zoomLevel = max(zoomLevel, map.currentZoomLevel)
-      }
-      map.moveCamera(newPosition.target, zoomLevel)
-    } else {
-      map.moveCamera(newPosition.target)
+    val bounds = newPosition.bounds
+    val target = newPosition.target
+    var zoomLevel = newPosition.zoomLevel
+
+    if (target != null && zoomLevel != null && !newPosition.isAllowZoomOut) {
+      zoomLevel = max(zoomLevel, map.currentZoomLevel)
     }
 
-    // Manually notify that the camera has moved as `mapFragment.cameraMovedEvents` only returns
+    // TODO(#1712): Fix this once CameraPosition is refactored to not contain duplicated state
+    if (bounds != null) {
+      map.moveCamera(bounds)
+    } else if (target != null && zoomLevel != null) {
+      map.moveCamera(target, zoomLevel)
+    } else if (target != null) {
+      map.moveCamera(target)
+    } else {
+      error("Must have either target or bounds set")
+    }
+
+    // Manually notify that the camera has moved as `map.cameraMovedEvents` only returns
     // an event when the map is moved by the user (REASON_GESTURE).
     onMapCameraMoved(newPosition)
   }
@@ -117,8 +148,15 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   /** Called when the map is attached to the fragment. */
-  protected abstract fun onMapReady(mapFragment: MapFragment)
+  protected abstract fun onMapReady(map: Map)
 
   /** Provides an implementation of [BaseMapViewModel]. */
   protected abstract fun getMapViewModel(): BaseMapViewModel
+
+  /** Configuration to enable/disable base map features. */
+  protected open fun getMapConfig(): MapConfig = DEFAULT_MAP_CONFIG
+
+  companion object {
+    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showTileOverlays = true)
+  }
 }

@@ -19,10 +19,7 @@ import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
-import com.google.android.ground.model.geometry.Coordinate
-import com.google.android.ground.model.geometry.LinearRing
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.Submission
@@ -66,7 +63,7 @@ object FakeData {
       LOI_NAME,
       AuditInfo(USER),
       AuditInfo(USER),
-      Point(Coordinate(0.0, 0.0))
+      Point(Coordinates(0.0, 0.0))
     )
 
   val LOCATION_OF_INTEREST_FEATURE =
@@ -80,10 +77,10 @@ object FakeData {
 
   val VERTICES: List<Point> =
     listOf(
-      Point(Coordinate(0.0, 0.0)),
-      Point(Coordinate(10.0, 10.0)),
-      Point(Coordinate(20.0, 20.0)),
-      Point(Coordinate(0.0, 0.0)),
+      Point(Coordinates(0.0, 0.0)),
+      Point(Coordinates(10.0, 10.0)),
+      Point(Coordinates(20.0, 20.0)),
+      Point(Coordinates(0.0, 0.0)),
     )
 
   private val AUDIT_INFO = AuditInfo(USER)
@@ -97,10 +94,10 @@ object FakeData {
       "",
       AUDIT_INFO,
       AUDIT_INFO,
-      Polygon(LinearRing(VERTICES.map { it.coordinate })),
+      Polygon(LinearRing(VERTICES.map { it.coordinates })),
     )
 
-  val COORDINATE = Coordinate(42.0, 18.0)
+  val COORDINATES = Coordinates(42.0, 18.0)
 
   private const val SUBMISSION_ID = "789"
   const val TASK_1_NAME = "task 1"

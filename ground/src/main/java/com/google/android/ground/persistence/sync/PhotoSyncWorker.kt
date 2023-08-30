@@ -17,8 +17,8 @@ package com.google.android.ground.persistence.sync
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
+import androidx.work.CoroutineWorker
 import androidx.work.Data
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -26,6 +26,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.io.File
 import java.io.FileNotFoundException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /**
@@ -40,20 +42,22 @@ constructor(
   @Assisted context: Context,
   @Assisted workerParams: WorkerParameters,
   private val remoteStorageManager: RemoteStorageManager
-) : Worker(context, workerParams) {
+) : CoroutineWorker(context, workerParams) {
 
   private val localSourcePath: String =
     workerParams.inputData.getString(SOURCE_FILE_PATH_PARAM_KEY)!!
   private val remoteDestinationPath: String =
     workerParams.inputData.getString(DESTINATION_PATH_PARAM_KEY)!!
 
-  override fun doWork(): Result {
+  override suspend fun doWork(): Result = withContext(Dispatchers.IO) { doWorkInternal() }
+
+  private suspend fun doWorkInternal(): Result {
     Timber.d("Attempting photo sync: $localSourcePath, $remoteDestinationPath")
     val file = File(localSourcePath)
     return if (file.exists()) {
       Timber.d("Starting photo upload: $localSourcePath, $remoteDestinationPath")
       try {
-        remoteStorageManager.uploadMediaFromFile(file, remoteDestinationPath).blockingAwait()
+        remoteStorageManager.uploadMediaFromFile(file, remoteDestinationPath)
         Result.success()
       } catch (e: Exception) {
         FirebaseCrashlytics.getInstance().log("Photo sync failed")

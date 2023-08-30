@@ -27,7 +27,7 @@ import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.Map
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -35,25 +35,27 @@ import javax.inject.Inject
 class DropAPinTaskFragment : Hilt_DropAPinTaskFragment<DropAPinTaskViewModel>() {
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
-  @Inject lateinit var mapFragment: MapFragment
+  @Inject lateinit var map: Map
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
-    TaskViewFactory.createWithoutHeader(inflater, R.drawable.outline_pin_drop, R.string.drop_a_pin)
+    TaskViewFactory.createWithCombinedHeader(
+      inflater,
+      R.drawable.outline_pin_drop,
+      R.string.drop_a_pin
+    )
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
     parentFragmentManager
       .beginTransaction()
-      .add(
-        rowLayout.id,
-        DropAPinMapFragment.newInstance(viewModel, mapFragment),
-        "Drop a pin fragment"
-      )
+      .add(rowLayout.id, DropAPinMapFragment.newInstance(viewModel, map), "Drop a pin fragment")
       .commit()
     return rowLayout
   }
 
   override fun onCreateActionButtons() {
+    addSkipButton()
+    addUndoButton()
     addButton(ButtonAction.DROP_PIN)
       .setOnClickListener { viewModel.dropPin() }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNullOrEmpty()) }
@@ -61,7 +63,5 @@ class DropAPinTaskFragment : Hilt_DropAPinTaskFragment<DropAPinTaskViewModel>() 
       .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
       .hide()
-    addUndoButton()
-    addSkipButton()
   }
 }

@@ -20,13 +20,12 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
-import com.google.android.ground.rx.RxCompletable.completeIf
 import com.google.android.ground.rx.RxCompletable.completeOrError
-import com.google.android.ground.rx.annotations.Cold
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.reactivex.Completable
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 
 /** Provides access to obtain and check the app's permissions. */
@@ -34,7 +33,7 @@ import timber.log.Timber
 class PermissionsManager
 @Inject
 constructor(
-  @param:ApplicationContext private val context: Context,
+  @ApplicationContext private val context: Context,
   private val activityStreams: ActivityStreams
 ) {
   /**
@@ -42,8 +41,11 @@ constructor(
    * already been granted, completes immediately, otherwise completes once the next permissions
    * result is received.
    */
-  fun obtainPermission(permission: String): @Cold Completable =
-    completeIf { requestPermission(permission) }.ambWith(getPermissionsResult(permission))
+  suspend fun obtainPermission(permission: String) {
+    if (!requestPermission(permission)) {
+      getPermissionsResult(permission)
+    }
+  }
 
   /**
    * Sends the system request that the app be granted the specified permission. Returns `true` if
@@ -69,11 +71,14 @@ constructor(
    * Returns a [Completable] that completes once the specified permission is granted or terminates
    * with error [PermissionDeniedException] if the requested permission was denied.
    */
-  private fun getPermissionsResult(permission: String): @Cold Completable =
-    activityStreams.getNextRequestPermissionsResult(PERMISSIONS_REQUEST_CODE).flatMapCompletable {
-      r: RequestPermissionsResult ->
-      completeOrError({ r.isGranted(permission) }, PermissionDeniedException::class.java)
-    }
+  private suspend fun getPermissionsResult(permission: String) {
+    activityStreams
+      .getNextRequestPermissionsResult(PERMISSIONS_REQUEST_CODE)
+      .flatMapCompletable { r: RequestPermissionsResult ->
+        completeOrError({ r.isGranted(permission) }, PermissionDeniedException::class.java)
+      }
+      .await()
+  }
 
   companion object {
     @JvmField val PERMISSIONS_REQUEST_CODE = PermissionsManager::class.java.hashCode() and 0xffff

@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.model.submission
 
-import java8.util.Optional
-
 /**
  * An immutable map of task ids to related user taskDatas.
  *
@@ -29,7 +27,7 @@ data class TaskDataMap(private val taskDatas: Map<String, TaskData?> = mapOf()) 
    * Returns the user taskData for the given task id, or empty if the user did not specify a
    * taskData.
    */
-  fun getResponse(taskId: String): Optional<TaskData> = Optional.ofNullable(taskDatas[taskId])
+  fun getResponse(taskId: String): TaskData? = taskDatas[taskId]
 
   /** Returns an Iterable over the task ids in this map. */
   fun taskIds(): Iterable<String> = taskDatas.keys
@@ -38,8 +36,8 @@ data class TaskDataMap(private val taskDatas: Map<String, TaskData?> = mapOf()) 
   fun copyWithDeltas(taskDataDeltas: List<TaskDataDelta>): TaskDataMap {
     val newResponses = taskDatas.toMutableMap()
     taskDataDeltas.forEach {
-      if (it.newTaskData.isPresent) {
-        newResponses[it.taskId] = it.newTaskData.get()
+      if (it.newTaskData.isNotNullOrEmpty()) {
+        newResponses[it.taskId] = it.newTaskData
       } else {
         newResponses.remove(it.taskId)
       }

@@ -31,13 +31,12 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.basemap.BaseMap
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.Navigator
 import com.sharedtest.FakeData
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.testing.HiltAndroidTest
-import java.net.URL
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -128,9 +127,9 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
   private val surveyWithBasemap: Survey =
     surveyWithoutBasemap.copy(
-      baseMaps =
+      tileSources =
         listOf(
-          BaseMap(URL("http://google.com"), BaseMap.BaseMapType.MBTILES_FOOTPRINTS),
+          TileSource("http://google.com", TileSource.Type.MOG_COLLECTION),
         ),
       id = "BASEMAPS"
     )

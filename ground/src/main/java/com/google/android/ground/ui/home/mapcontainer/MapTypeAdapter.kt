@@ -19,7 +19,6 @@ package com.google.android.ground.ui.home.mapcontainer
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTypeDialogItemBinding
@@ -33,7 +32,7 @@ import com.google.android.material.color.MaterialColors
  */
 class MapTypeAdapter(
   private val context: Context,
-  private val itemsList: Array<MapType>,
+  private val itemsList: List<MapType>,
   private var selectedIndex: Int,
   private val callback: (Int) -> Unit
 ) : RecyclerView.Adapter<ViewHolder>() {
@@ -48,25 +47,24 @@ class MapTypeAdapter(
   /** Binds [MapType] data to [ViewHolder]. */
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
     val itemsViewModel = itemsList[position]
-    holder.binding.imageview.setImageResource(itemsViewModel.imageId)
+    holder.binding.imageView.setImageResource(itemsViewModel.imageId)
     holder.binding.textView.text = context.getString(itemsViewModel.labelId)
-    val textColor =
-      if (selectedIndex == position) {
-        R.attr.colorPrimary
-      } else {
-        R.attr.colorOnSurface
-      }
+
+    val isItemSelected = selectedIndex == position
     holder.binding.textView.setTextColor(
-      MaterialColors.getColor(holder.binding.textView, textColor)
+      MaterialColors.getColor(
+        holder.binding.textView,
+        if (isItemSelected) {
+          R.attr.colorPrimary
+        } else {
+          R.attr.colorOnSurface
+        }
+      )
     )
-    val borderDrawable =
-      if (selectedIndex == position) {
-        R.drawable.map_type_item_selected_background
-      } else {
-        R.drawable.map_type_item_default_background
-      }
-    holder.binding.container.background =
-      ResourcesCompat.getDrawable(context.resources, borderDrawable, null)
+    holder.binding.card.apply {
+      strokeWidth = if (isItemSelected) 5 else 0
+      elevation = if (isItemSelected) 7.0f else 0.0f
+    }
     holder.itemView.setOnClickListener { handleItemClicked(holder.adapterPosition) }
   }
 

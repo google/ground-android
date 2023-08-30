@@ -32,12 +32,14 @@ object LoiConverter {
   const val POLYGON_TYPE = "Polygon"
   const val GEOMETRY_COORDINATES = "coordinates"
   const val GEOMETRY = "geometry"
+  const val SUBMISSION_COUNT = "submissionCount"
 
   fun toLoi(survey: Survey, doc: DocumentSnapshot): Result<LocationOfInterest> = runCatching {
     toLoiUnchecked(survey, doc)
   }
 
   private fun toLoiUnchecked(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
+    if (!doc.exists()) throw DataStoreException("LOI missing")
     val loiId = doc.id
     val loiDoc =
       DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "loi document")
@@ -54,10 +56,11 @@ object LoiConverter {
     geometry: Geometry
   ): LocationOfInterest {
     val jobId = DataStoreException.checkNotNull(loiDoc.jobId, JOB_ID)
-    val job = DataStoreException.checkNotEmpty(survey.getJob(jobId), "job ${loiDoc.jobId}")
+    val job = DataStoreException.checkNotNull(survey.getJob(jobId), "job ${loiDoc.jobId}")
     // Degrade gracefully when audit info missing in remote db.
     val created = loiDoc.created ?: AuditInfoNestedObject.FALLBACK_VALUE
     val lastModified = loiDoc.lastModified ?: created
+    val submissionCount = loiDoc.submissionCount ?: 0
     return LocationOfInterest(
       id = loiId,
       surveyId = survey.id,
@@ -67,7 +70,8 @@ object LoiConverter {
       created = AuditInfoConverter.toAuditInfo(created),
       lastModified = AuditInfoConverter.toAuditInfo(lastModified),
       // TODO(#929): Set geometry once LOI has been updated to use our own model.
-      geometry = geometry
+      geometry = geometry,
+      submissionCount = submissionCount
     )
   }
 }

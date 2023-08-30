@@ -32,7 +32,11 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.common.*
+import com.google.android.ground.ui.common.AbstractViewModel
+import com.google.android.ground.ui.common.EphemeralPopups
+import com.google.android.ground.ui.common.LocationOfInterestHelper
+import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
@@ -45,7 +49,6 @@ import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.util.combineWith
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.collections.component1
@@ -53,7 +56,12 @@ import kotlin.collections.component2
 import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
 
@@ -78,7 +86,7 @@ internal constructor(
   private val loiId: String? = savedStateHandle["locationOfInterestId"]
   private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
   private val job: Job =
-    activeSurvey.getJob(requireNotNull(savedStateHandle["jobId"])).orElseThrow()
+    activeSurvey.getJob(requireNotNull(savedStateHandle["jobId"])) ?: error("empty job")
   val tasks: List<Task> = buildList {
     if (job.suggestLoiTaskType != null) {
       add(createSuggestLoiTask(job.suggestLoiTaskType))
@@ -139,7 +147,7 @@ internal constructor(
     }
     val viewModel = viewModelFactory.create(getViewModelClass(task.type))
     // TODO(#1146): Pass in the existing taskData if there is one
-    viewModel.initialize(task, Optional.empty())
+    viewModel.initialize(task, null)
     addTaskViewModel(viewModel)
     return viewModel
   }
@@ -174,9 +182,7 @@ internal constructor(
       setCurrentPosition(currentPosition.value!! + 1)
     } else {
       val taskDataDeltas =
-        responses.map { (task, taskData) ->
-          TaskDataDelta(task.id, task.type, Optional.ofNullable(taskData))
-        }
+        responses.map { (task, taskData) -> TaskDataDelta(task.id, task.type, taskData) }
       saveChanges(taskDataDeltas)
 
       // Move to home screen and display a confirmation dialog after that.
@@ -200,13 +206,7 @@ internal constructor(
   }
 
   private fun createSuggestLoiTask(taskType: Task.Type): Task =
-    Task(
-      id = "-1",
-      index = -1,
-      taskType,
-      resources.getString(R.string.new_location),
-      isRequired = true
-    )
+    Task(id = "-1", index = -1, taskType, resources.getString(R.string.new_site), isRequired = true)
 
   companion object {
     fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =

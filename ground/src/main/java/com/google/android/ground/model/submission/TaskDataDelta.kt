@@ -16,7 +16,6 @@
 package com.google.android.ground.model.submission
 
 import com.google.android.ground.model.task.Task
-import java8.util.Optional
 
 /**
  * Represents a change to an individual taskData in a submission.
@@ -25,8 +24,4 @@ import java8.util.Optional
  * @property taskType the type of task being updated.
  * @property newTaskData the new value of the taskData, or empty if removed.
  */
-data class TaskDataDelta(
-  val taskId: String,
-  val taskType: Task.Type,
-  val newTaskData: Optional<TaskData>
-)
+data class TaskDataDelta(val taskId: String, val taskType: Task.Type, val newTaskData: TaskData?)

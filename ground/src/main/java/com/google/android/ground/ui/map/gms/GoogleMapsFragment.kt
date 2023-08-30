@@ -26,7 +26,6 @@ import android.widget.RelativeLayout
 import androidx.annotation.IdRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
@@ -36,27 +35,36 @@ import com.google.android.ground.Config
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.imagery.TileSource
+import com.google.android.ground.model.imagery.TileSource.Type.MOG_COLLECTION
+import com.google.android.ground.model.imagery.TileSource.Type.TILED_WEB_MAP
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.Map
+import com.google.android.ground.ui.map.gms.GmsExt.toBounds
+import com.google.android.ground.ui.map.gms.mog.MogCollection
+import com.google.android.ground.ui.map.gms.mog.MogTileProvider
 import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
 import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
 import com.google.android.ground.ui.util.BitmapUtil
+import com.google.android.ground.util.invert
 import com.google.maps.android.PolyUtil
+import com.google.maps.android.clustering.Cluster
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
-import java.io.File
 import java8.util.function.Consumer
 import javax.inject.Inject
 import kotlin.math.min
 import kotlin.math.sqrt
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import timber.log.Timber
 
@@ -65,7 +73,7 @@ import timber.log.Timber
  * on window insets.
  */
 @AndroidEntryPoint(SupportMapFragment::class)
-class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
+class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   private lateinit var clusterRenderer: FeatureClusterRenderer
 
   /** Map drag events. Emits items when the map drag has started. */
@@ -78,15 +86,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     PublishProcessor.create()
 
   override val cameraMovedEvents: @Hot Flowable<CameraPosition> = cameraMovedEventsProcessor
-
-  // TODO(#693): Simplify impl of tile providers.
-  // TODO(#691): This is a limitation of the MapBox tile provider we're using;
-  // since one need to call `close` explicitly, we cannot generically expose these as TileProviders;
-  // instead we must retain explicit reference to the concrete type.
-  private val tileProvidersSubject: @Hot PublishSubject<MapBoxOfflineTileProvider> =
-    PublishSubject.create()
-
-  override val tileProviders: @Hot Observable<MapBoxOfflineTileProvider> = tileProvidersSubject
 
   private lateinit var polylineRenderer: PolylineRenderer
   private lateinit var polygonRenderer: PolygonRenderer
@@ -103,10 +102,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
    */
   private var customCap: CustomCap? = null
 
-  override val availableMapTypes: Array<MapType> = MAP_TYPES
+  override val supportedMapTypes: List<MapType> = IDS_BY_MAP_TYPE.keys.toList()
 
   private val locationOfInterestInteractionSubject: @Hot PublishSubject<List<Feature>> =
     PublishSubject.create()
+
+  private val tileOverlays = mutableListOf<TileOverlay>()
 
   override val locationOfInterestInteractions: @Hot Observable<List<Feature>> =
     locationOfInterestInteractionSubject
@@ -114,10 +115,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private val polylineStrokeWidth: Float
     get() = resources.getDimension(R.dimen.polyline_stroke_width)
 
-  override var mapType: Int
-    get() = map.mapType
+  override var mapType: MapType
+    get() = MAP_TYPES_BY_ID[map.mapType]!!
     set(mapType) {
-      map.mapType = mapType
+      map.mapType = IDS_BY_MAP_TYPE[mapType]!!
     }
 
   override var viewport: Bounds
@@ -169,12 +170,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   override fun attachToFragment(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
-    mapAdapter: Consumer<MapFragment>
+    onMapReadyCallback: Consumer<Map>
   ) {
     containerFragment.replaceFragment(containerId, this)
     getMapAsync { googleMap: GoogleMap ->
       onMapReady(googleMap)
-      mapAdapter.accept(this)
+      onMapReadyCallback.accept(this)
     }
   }
 
@@ -194,7 +195,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
         map.cameraPosition.zoom,
         featureColor
       )
-    clusterManager.setOnClusterItemClickListener(this::onClusterItemClick)
+    clusterManager.setOnClusterClickListener(this::onClusterItemClick)
     clusterManager.renderer = clusterRenderer
 
     polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth, featureColor)
@@ -213,6 +214,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
       isCompassEnabled = true
       isIndoorLevelPickerEnabled = false
     }
+  }
+
+  private fun onClusterItemClick(cluster: Cluster<FeatureClusterItem>): Boolean {
+    // Move the camera to point to LOIs within the current cluster
+    cluster.items.map { it.feature.geometry }.toBounds()?.let { moveCamera(it) }
+    return true
   }
 
   // Handle taps on ambiguous features.
@@ -241,21 +248,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     }
   }
 
-  /** Handles both cluster and marker clicks. */
-  private fun onClusterItemClick(item: FeatureClusterItem): Boolean =
-    if (map.uiSettings.isZoomGesturesEnabled) {
-      locationOfInterestInteractionSubject.onNext(listOf(item.feature))
-      // Allow map to pan to marker.
-      false
-    } else {
-      // Prevent map from panning to marker.
-      true
-    }
-
-  override fun getDistanceInPixels(coordinate1: Coordinate, coordinate2: Coordinate): Double {
+  override fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double {
     val projection = map.projection
-    val loc1 = projection.toScreenLocation(coordinate1.toGoogleMapsObject())
-    val loc2 = projection.toScreenLocation(coordinate2.toGoogleMapsObject())
+    val loc1 = projection.toScreenLocation(coordinates1.toGoogleMapsObject())
+    val loc2 = projection.toScreenLocation(coordinates2.toGoogleMapsObject())
     val dx = (loc1.x - loc2.x).toDouble()
     val dy = (loc1.y - loc2.y).toDouble()
     return sqrt(dx * dx + dy * dy)
@@ -265,11 +261,17 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   override fun disableGestures() = map.uiSettings.setAllGesturesEnabled(false)
 
-  override fun moveCamera(coordinate: Coordinate) =
-    map.animateCamera(CameraUpdateFactory.newLatLng(coordinate.toGoogleMapsObject()))
+  override fun moveCamera(coordinates: Coordinates) =
+    map.animateCamera(CameraUpdateFactory.newLatLng(coordinates.toGoogleMapsObject()))
 
-  override fun moveCamera(coordinate: Coordinate, zoomLevel: Float) =
-    map.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate.toGoogleMapsObject(), zoomLevel))
+  override fun moveCamera(coordinates: Coordinates, zoomLevel: Float) =
+    map.animateCamera(
+      CameraUpdateFactory.newLatLngZoom(coordinates.toGoogleMapsObject(), zoomLevel)
+    )
+
+  override fun moveCamera(bounds: Bounds) {
+    map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 100))
+  }
 
   private fun getCustomCap(): CustomCap {
     if (customCap == null) {
@@ -343,7 +345,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     clusterManager.onCameraIdle()
     cameraMovedEventsProcessor.onNext(
       CameraPosition(
-        map.cameraPosition.target.toCoordinate(),
+        map.cameraPosition.target.toCoordinates(),
         map.cameraPosition.zoom,
         false,
         map.projection.visibleRegion.latLngBounds.toModelObject()
@@ -357,32 +359,39 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     }
   }
 
-  private fun addTileOverlay(filePath: String) {
-    val mbtilesFile = File(requireContext().filesDir, filePath)
+  private fun addTemplateUrlTileOverlay(url: String) {
+    addTileOverlay(TemplateUrlTileProvider(url))
+  }
 
-    if (!mbtilesFile.exists()) {
-      Timber.i("mbtiles file ${mbtilesFile.absolutePath} does not exist")
+  override fun addTileOverlay(tileSource: TileSource) =
+    when (tileSource.type) {
+      MOG_COLLECTION -> addMogCollectionTileOverlay(tileSource.url)
+      TILED_WEB_MAP -> addTemplateUrlTileOverlay(tileSource.url)
+      else -> error("Unsupported tile source type ${tileSource.type}")
+    }
+
+  private fun addMogCollectionTileOverlay(url: String) {
+    // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
+    val mogCollection = MogCollection(Config.getMogSources(url))
+    addTileOverlay(MogTileProvider(mogCollection))
+  }
+
+  private fun addTileOverlay(tileProvider: TileProvider) {
+    val tileOverlay = map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
+    if (tileOverlay == null) {
+      Timber.e("Unable to add tile overlay $tileProvider")
       return
     }
 
-    try {
-      val tileProvider = MapBoxOfflineTileProvider(mbtilesFile)
-      tileProvidersSubject.onNext(tileProvider)
-      map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
-    } catch (e: Exception) {
-      Timber.e(e, "Couldn't initialize tile provider for mbtiles file $mbtilesFile")
-    }
+    tileOverlays.add(tileOverlay)
   }
 
-  override fun addLocalTileOverlays(mbtilesFiles: Set<String>) =
-    mbtilesFiles.forEach { filePath -> addTileOverlay(filePath) }
+  override fun clearTileOverlays() {
+    if (tileOverlays.isEmpty()) return
 
-  private fun addRemoteTileOverlay(url: String) {
-    val webTileProvider = WebTileProvider(url)
-    map.addTileOverlay(TileOverlayOptions().tileProvider(webTileProvider))
+    tileOverlays.toImmutableList().forEach { it.remove() }
+    tileOverlays.clear()
   }
-
-  override fun addRemoteTileOverlays(urls: List<String>) = urls.forEach { addRemoteTileOverlay(it) }
 
   override fun setActiveLocationOfInterest(newLoiId: String?) {
     clusterRenderer.previousActiveLoiId = clusterManager.activeLocationOfInterest
@@ -392,12 +401,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   }
 
   companion object {
-    // TODO(#1544): Use optimized icons. Current icons are very large in size.
-    val MAP_TYPES =
-      arrayOf(
-        MapType(GoogleMap.MAP_TYPE_NORMAL, R.string.road_map, R.drawable.ic_type_roadmap),
-        MapType(GoogleMap.MAP_TYPE_TERRAIN, R.string.terrain, R.drawable.ic_type_terrain),
-        MapType(GoogleMap.MAP_TYPE_HYBRID, R.string.satellite, R.drawable.ic_type_satellite)
+    private val IDS_BY_MAP_TYPE =
+      mapOf(
+        MapType.ROAD to GoogleMap.MAP_TYPE_NORMAL,
+        MapType.TERRAIN to GoogleMap.MAP_TYPE_TERRAIN,
+        MapType.SATELLITE to GoogleMap.MAP_TYPE_HYBRID
       )
+    private val MAP_TYPES_BY_ID = IDS_BY_MAP_TYPE.invert()
   }
 }

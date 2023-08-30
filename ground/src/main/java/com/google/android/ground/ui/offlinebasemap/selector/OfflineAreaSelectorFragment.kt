@@ -20,18 +20,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.ground.R
 import com.google.android.ground.databinding.OfflineBaseMapSelectorFragBinding
-import com.google.android.ground.rx.Event
-import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
-import com.google.android.ground.ui.map.MapFragment
-import com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel.DownloadMessage
+import com.google.android.ground.ui.common.MapConfig
+import com.google.android.ground.ui.map.Map
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+/** Map UI used to select areas for download and viewing offline. */
 @AndroidEntryPoint(AbstractMapContainerFragment::class)
 class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
 
@@ -39,24 +37,13 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
 
   private lateinit var viewModel: OfflineAreaSelectorViewModel
 
+  private var downloadProgressDialogFragment = DownloadProgressDialogFragment()
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(OfflineAreaSelectorViewModel::class.java)
-    viewModel.downloadMessages.observe(this) { e: Event<DownloadMessage> ->
-      e.ifUnhandled { message: DownloadMessage -> onDownloadMessage(message) }
-    }
-  }
-
-  private fun onDownloadMessage(message: DownloadMessage) {
-    when (message) {
-      DownloadMessage.STARTED -> {
-        popups.showSuccess(R.string.offline_base_map_download_started)
-        navigator.navigateUp()
-      }
-      DownloadMessage.FAILURE -> {
-        popups.showError(R.string.offline_base_map_download_failed)
-        navigator.navigateUp()
-      }
+    viewModel.isDownloadProgressVisible.observe(this) {
+      downloadProgressDialogFragment.setVisibility(childFragmentManager, it)
     }
   }
 
@@ -73,15 +60,9 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
     return binding.root
   }
 
-  override fun onMapReady(mapFragment: MapFragment) {
-    viewModel.remoteTileSets
-      .map { tileSets -> tileSets.map { it.url } }
-      .`as`(autoDisposable(this))
-      .subscribe(mapFragment::addRemoteTileOverlays)
-
-    viewModel.requestRemoteTileSets()
-    viewModel.cameraBoundUpdates.`as`(autoDisposable(this)).subscribe(viewModel::setViewport)
-  }
+  override fun onMapReady(map: Map) = viewModel.onMapReady(map)
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
+
+  override fun getMapConfig(): MapConfig = super.getMapConfig().copy(showTileOverlays = false)
 }

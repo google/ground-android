@@ -35,11 +35,14 @@ import kotlinx.coroutines.launch
 class Navigator @Inject constructor() {
   private val navigateRequests: @Hot Subject<NavDirections> = PublishSubject.create()
   private val navigateUpRequests: @Hot Subject<Any> = PublishSubject.create()
+  private val finishRequests: @Hot Subject<Any> = PublishSubject.create()
 
   /** Stream of navigation requests for fulfillment by the view layer. */
   fun getNavigateRequests(): Observable<NavDirections> = navigateRequests
 
   fun getNavigateUpRequests(): Observable<Any> = navigateUpRequests
+
+  fun getFinishRequests(): Observable<Any> = finishRequests
 
   /** Navigates up one level on the back stack. */
   fun navigateUp() {
@@ -48,5 +51,9 @@ class Navigator @Inject constructor() {
 
   fun navigate(directions: NavDirections) {
     CoroutineScope(Main).launch { navigateRequests.onNext(directions) }
+  }
+
+  fun finishApp() {
+    finishRequests.onNext(Any())
   }
 }

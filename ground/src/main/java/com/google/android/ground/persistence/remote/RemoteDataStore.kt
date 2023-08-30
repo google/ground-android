@@ -21,38 +21,25 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Maybe
-import io.reactivex.Single
 
 /**
  * Defines API for accessing data in a remote data store. Implementations must ensure all
  * subscriptions are run in a background thread (i.e., not the Android main thread).
  */
 interface RemoteDataStore {
-  fun loadSurveySummaries(user: User): @Cold Single<List<Survey>>
+  suspend fun loadSurveySummaries(user: User): List<Survey>
 
   /**
-   * Loads the survey with the specified id from the remote data store. The return Single fails with
-   * if the survey is not found, or if the remote data store is not available.
+   * Loads the survey with the specified id from the remote data store. Returns `null` if the survey
+   * is not found. Throws an error if the remote data store is not available.
    */
-  fun loadSurvey(surveyId: String): @Cold Single<Survey>
+  suspend fun loadSurvey(surveyId: String): Survey?
 
   /**
-   * Loads the survey terms from the remote data store. The returned Maybe is empty if not found,
-   * otherwise it completes with the loaded terms of service.
+   * Loads the survey terms from the remote data store. Returns `null` if the survey
+   * * is not found. Throws an error if the remote data store is not available.
    */
-  fun loadTermsOfService(): @Cold Maybe<TermsOfService>
-
-  /**
-   * Returns all LOIs in the specified survey, then continues to emit any remote updates to the set
-   * of LOIs in the survey until all subscribers have been disposed.
-   */
-  fun loadLocationsOfInterestOnceAndStreamChanges(
-    survey: Survey
-  ): @Cold(stateful = true, terminates = false) Flowable<RemoteDataEvent<LocationOfInterest>>
+  suspend fun loadTermsOfService(): TermsOfService?
 
   /** Returns all LOIs in the specified survey. Main-safe. */
   suspend fun loadLocationsOfInterest(survey: Survey): List<LocationOfInterest>
@@ -61,20 +48,21 @@ interface RemoteDataStore {
    * Returns a list of all submissions associated with the specified LOI, or an empty list if none
    * are found.
    */
-  fun loadSubmissions(
-    locationOfInterest: LocationOfInterest
-  ): @Cold Single<List<Result<Submission>>>
+  suspend fun loadSubmissions(locationOfInterest: LocationOfInterest): List<Submission>
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one
    * update fails, none of the mutations will be applied.
    */
-  fun applyMutations(mutations: List<Mutation>, user: User): @Cold Completable
+  suspend fun applyMutations(mutations: List<Mutation>, user: User)
 
   /**
    * Listens for remote changes to the survey with the specified id. Implementations should handle
    * synchronization of new, changed, and deleted surveys and LOIs to the local db in the
    * background.
    */
-  fun subscribeToSurveyUpdates(surveyId: String): @Cold Completable
+  suspend fun subscribeToSurveyUpdates(surveyId: String)
+
+  /** Refreshes the current user's profile info in the remote database. */
+  suspend fun refreshUserProfile()
 }

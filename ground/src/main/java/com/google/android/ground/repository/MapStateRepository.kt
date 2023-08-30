@@ -17,17 +17,21 @@ package com.google.android.ground.repository
 
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.MapType
 import io.reactivex.Flowable
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
 
 /** Provides access and storage of persistent map states. */
 @Singleton
 class MapStateRepository @Inject constructor(private val localValueStore: LocalValueStore) {
 
-  val mapTypeFlowable: Flowable<Int> by localValueStore::mapTypeFlowable
-  var mapType: Int by localValueStore::mapType
+  val mapTypeFlowable: Flowable<MapType> by localValueStore::mapTypeFlowable
+  var mapType: MapType by localValueStore::mapType
   var isLocationLockEnabled: Boolean by localValueStore::isLocationLockEnabled
+  val offlineImageryFlow: Flow<Boolean> by localValueStore::offlineImageryEnabledFlow
+  var isOfflineImageryEnabled: Boolean by localValueStore::isOfflineImageryEnabled
 
   fun setCameraPosition(cameraPosition: CameraPosition) =
     localValueStore.setLastCameraPosition(localValueStore.lastActiveSurveyId, cameraPosition)

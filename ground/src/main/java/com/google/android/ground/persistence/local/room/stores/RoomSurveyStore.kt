@@ -22,12 +22,16 @@ import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.local.room.converter.toModelObject
-import com.google.android.ground.persistence.local.room.dao.*
+import com.google.android.ground.persistence.local.room.dao.JobDao
+import com.google.android.ground.persistence.local.room.dao.MultipleChoiceDao
+import com.google.android.ground.persistence.local.room.dao.OptionDao
+import com.google.android.ground.persistence.local.room.dao.SurveyDao
+import com.google.android.ground.persistence.local.room.dao.TaskDao
+import com.google.android.ground.persistence.local.room.dao.TileSourceDao
+import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.rx.Schedulers
-import io.reactivex.Completable
 import io.reactivex.Maybe
-import io.reactivex.Observable
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
@@ -41,7 +45,7 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
   @Inject lateinit var taskDao: TaskDao
   @Inject lateinit var jobDao: JobDao
   @Inject lateinit var surveyDao: SurveyDao
-  @Inject lateinit var baseMapDao: BaseMapDao
+  @Inject lateinit var tileSourceDao: TileSourceDao
   @Inject lateinit var schedulers: Schedulers
 
   override val surveys: Flow<List<Survey>>
@@ -51,14 +55,13 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
    * Attempts to update persisted data associated with a [Survey] in the local database. If the
    * provided survey does not exist, inserts the given survey into the database.
    */
-  override fun insertOrUpdateSurvey(survey: Survey): Completable =
-    surveyDao
-      .insertOrUpdate(survey.toLocalDataStoreObject())
-      .andThen(jobDao.deleteBySurveyId(survey.id))
-      .andThen(insertOrUpdateJobs(survey.id, survey.jobs))
-      .andThen(baseMapDao.deleteBySurveyId(survey.id))
-      .andThen(insertOfflineBaseMapSources(survey))
-      .subscribeOn(schedulers.io())
+  override suspend fun insertOrUpdateSurvey(survey: Survey) {
+    surveyDao.insertOrUpdate(survey.toLocalDataStoreObject())
+    jobDao.deleteBySurveyId(survey.id)
+    insertOrUpdateJobs(survey.id, survey.jobs)
+    tileSourceDao.deleteBySurveyId(survey.id)
+    insertOfflineBaseMapSources(survey)
+  }
 
   /**
    * Attempts to retrieve the [Survey] with the given ID from the local database. If retrieval
@@ -75,50 +78,41 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
     surveyDao.getSurveyByIdSuspend(id)?.toModelObject()
 
   /** Deletes the provided [Survey] from the local database, if it exists in the database. */
-  override fun deleteSurvey(survey: Survey): Completable =
-    surveyDao.delete(survey.toLocalDataStoreObject()).subscribeOn(schedulers.io())
+  override suspend fun deleteSurvey(survey: Survey) =
+    surveyDao.deleteSuspend(survey.toLocalDataStoreObject())
 
-  private fun insertOrUpdateOption(taskId: String, option: Option): Completable =
-    optionDao.insertOrUpdate(option.toLocalDataStoreObject(taskId)).subscribeOn(schedulers.io())
+  private suspend fun insertOrUpdateOption(taskId: String, option: Option) =
+    optionDao.insertOrUpdate(option.toLocalDataStoreObject(taskId))
 
-  private fun insertOrUpdateOptions(taskId: String, options: List<Option>): Completable =
-    Observable.fromIterable(options)
-      .flatMapCompletable { insertOrUpdateOption(taskId, it) }
-      .subscribeOn(schedulers.io())
+  private suspend fun insertOrUpdateOptions(taskId: String, options: List<Option>) {
+    options.forEach { insertOrUpdateOption(taskId, it) }
+  }
 
-  private fun insertOrUpdateMultipleChoice(
-    taskId: String,
-    multipleChoice: MultipleChoice
-  ): Completable =
-    multipleChoiceDao
-      .insertOrUpdate(multipleChoice.toLocalDataStoreObject(taskId))
-      .andThen(insertOrUpdateOptions(taskId, multipleChoice.options))
-      .subscribeOn(schedulers.io())
+  private suspend fun insertOrUpdateMultipleChoice(taskId: String, multipleChoice: MultipleChoice) {
+    multipleChoiceDao.insertOrUpdate(multipleChoice.toLocalDataStoreObject(taskId))
+    insertOrUpdateOptions(taskId, multipleChoice.options)
+  }
 
-  private fun insertOrUpdateTask(jobId: String, task: Task): Completable =
-    taskDao
-      .insertOrUpdate(task.toLocalDataStoreObject(jobId))
-      .andThen(
-        Observable.just(task)
-          .filter { task.multipleChoice != null }
-          .flatMapCompletable { insertOrUpdateMultipleChoice(task.id, task.multipleChoice!!) }
-      )
-      .subscribeOn(schedulers.io())
+  private suspend fun insertOrUpdateTask(jobId: String, task: Task) {
+    taskDao.insertOrUpdate(task.toLocalDataStoreObject(jobId))
+    if (task.multipleChoice != null) {
+      insertOrUpdateMultipleChoice(task.id, task.multipleChoice)
+    }
+  }
 
-  private fun insertOrUpdateTasks(jobId: String, tasks: Collection<Task>): Completable =
-    Observable.fromIterable(tasks).flatMapCompletable { insertOrUpdateTask(jobId, it) }
+  private suspend fun insertOrUpdateTasks(jobId: String, tasks: Collection<Task>) =
+    tasks.forEach { insertOrUpdateTask(jobId, it) }
 
-  private fun insertOrUpdateJob(surveyId: String, job: Job): Completable =
-    jobDao
-      .insertOrUpdate(job.toLocalDataStoreObject(surveyId))
-      .andThen(insertOrUpdateTasks(job.id, job.tasks.values))
-      .subscribeOn(schedulers.io())
+  private suspend fun insertOrUpdateJob(surveyId: String, job: Job) {
+    jobDao.insertOrUpdate(job.toLocalDataStoreObject(surveyId))
+    insertOrUpdateTasks(job.id, job.tasks.values)
+  }
 
-  private fun insertOrUpdateJobs(surveyId: String, jobs: Collection<Job>): Completable =
-    Observable.fromIterable(jobs).flatMapCompletable { insertOrUpdateJob(surveyId, it) }
+  private suspend fun insertOrUpdateJobs(surveyId: String, jobs: Collection<Job>) =
+    jobs.forEach { insertOrUpdateJob(surveyId, it) }
 
-  private fun insertOfflineBaseMapSources(survey: Survey): Completable =
-    Observable.fromIterable(survey.baseMaps).flatMapCompletable {
-      baseMapDao.insertOrUpdate(it.toLocalDataStoreObject(surveyId = survey.id))
+  private suspend fun insertOfflineBaseMapSources(survey: Survey) =
+    survey.tileSources.forEach {
+      tileSourceDao.insertOrUpdate(it.toLocalDataStoreObject(surveyId = survey.id))
     }
 }

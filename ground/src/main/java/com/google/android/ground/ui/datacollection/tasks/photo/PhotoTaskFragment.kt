@@ -25,7 +25,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import com.google.android.ground.BuildConfig
-import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.databinding.PhotoTaskFragBinding
 import com.google.android.ground.repository.UserMediaRepository
@@ -39,7 +38,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 
 /** Fragment allowing the user to capture a photo to complete a task. */
@@ -56,11 +54,7 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
   private var capturedPhotoPath: String? = null
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
-    TaskViewFactory.createWithoutHeader(
-      inflater,
-      R.drawable.outline_photo_camera,
-      R.string.take_a_photo
-    )
+    TaskViewFactory.createWithoutHeader(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val taskBinding = PhotoTaskFragBinding.inflate(inflater)
@@ -131,9 +125,8 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
   private fun obtainCapturePhotoPermissions(onPermissionsGranted: () -> Unit = {}) {
     externalScope.launch {
       try {
-        permissionsManager.obtainPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE).await()
-
-        permissionsManager.obtainPermission(Manifest.permission.CAMERA).await()
+        permissionsManager.obtainPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        permissionsManager.obtainPermission(Manifest.permission.CAMERA)
 
         onPermissionsGranted()
       } catch (_: PermissionDeniedException) {

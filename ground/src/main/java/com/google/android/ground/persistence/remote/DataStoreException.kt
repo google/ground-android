@@ -15,19 +15,12 @@
  */
 package com.google.android.ground.persistence.remote
 
-import java8.util.Optional
-
 open class DataStoreException(message: String?) : RuntimeException(message) {
   companion object {
     @JvmStatic
     @Throws(DataStoreException::class)
     fun <T> checkNotNull(reference: T?, field: String): T =
       reference ?: throw DataStoreException("Missing $field")
-
-    @JvmStatic
-    @Throws(DataStoreException::class)
-    fun <T> checkNotEmpty(optional: Optional<T>, field: String): T =
-      optional.orElseThrow { DataStoreException("Missing $field") }
 
     /**
      * Checks if the provided object is of the same type as (or a subtype of) the specified type. If

@@ -16,13 +16,20 @@
 
 package com.google.android.ground.persistence.local.room.converter
 
-import com.google.android.ground.model.submission.*
+import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.GeometryData
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
+import com.google.android.ground.model.submission.NumberTaskData
+import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.room.entity.GeometryWrapper
 import com.google.android.ground.persistence.remote.DataStoreException
-import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.util.*
-import java8.util.Optional
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import kotlinx.collections.immutable.toPersistentList
 import org.json.JSONArray
 import org.json.JSONException
@@ -31,63 +38,52 @@ import timber.log.Timber
 
 internal object ResponseJsonConverter {
 
-  private val ISO_INSTANT_FORMAT: DateFormat =
-    SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ", Locale.getDefault())
+  private const val ISO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mmZ"
 
-  fun toJsonObject(taskData: TaskData): Any =
-    when (taskData) {
+  fun toJsonObject(taskData: TaskData?): Any {
+    if (taskData == null) return JSONObject.NULL
+    return when (taskData) {
       is TextTaskData -> taskData.text
       is MultipleChoiceTaskData -> toJsonArray(taskData)
       is NumberTaskData -> taskData.value
       is DateTaskData -> dateToIsoString(taskData.date)
       is TimeTaskData -> dateToIsoString(taskData.time)
-      is DropAPinTaskData -> taskData.cameraPosition.serialize()
+      is GeometryData ->
+        GeometryWrapperTypeConverter.toString(GeometryWrapper.fromGeometry(taskData.geometry))
       else -> throw UnsupportedOperationException("Unimplemented taskData ${taskData.javaClass}")
     }
-
-  fun dateToIsoString(date: Date): String {
-    synchronized(ISO_INSTANT_FORMAT) {
-      ISO_INSTANT_FORMAT.timeZone = TimeZone.getTimeZone("UTC")
-      return ISO_INSTANT_FORMAT.format(date)
-    }
   }
 
-  fun isoStringToDate(isoString: String): Date {
-    synchronized(ISO_INSTANT_FORMAT) {
-      ISO_INSTANT_FORMAT.timeZone = TimeZone.getTimeZone("UTC")
-      return ISO_INSTANT_FORMAT.parse(isoString)
-    }
-  }
+  private fun dateToIsoString(date: Date): String =
+    SimpleDateFormat(ISO_DATE_TIME_FORMAT, Locale.getDefault())
+      .apply { timeZone = TimeZone.getTimeZone("UTC") }
+      .format(date)
+
+  private fun isoStringToDate(isoString: String): Date? =
+    SimpleDateFormat(ISO_DATE_TIME_FORMAT, Locale.getDefault())
+      .apply { timeZone = TimeZone.getTimeZone("UTC") }
+      .parse(isoString)
 
   private fun toJsonArray(response: MultipleChoiceTaskData): JSONArray =
     JSONArray().apply { response.selectedOptionIds.forEach { this.put(it) } }
 
-  fun toResponse(task: Task, obj: Any): Optional<TaskData> =
-    when (task.type) {
+  fun toResponse(task: Task, obj: Any): TaskData? {
+    if (JSONObject.NULL === obj) {
+      return null
+    }
+    return when (task.type) {
       Task.Type.TEXT,
       Task.Type.PHOTO -> {
-        if (obj === JSONObject.NULL) {
-          TextTaskData.fromString("")
-        } else {
-          DataStoreException.checkType(String::class.java, obj)
-          TextTaskData.fromString(obj as String)
-        }
+        DataStoreException.checkType(String::class.java, obj)
+        TextTaskData.fromString(obj as String)
       }
       Task.Type.MULTIPLE_CHOICE -> {
-        if (obj === JSONObject.NULL) {
-          MultipleChoiceTaskData.fromList(task.multipleChoice, emptyList())
-        } else {
-          DataStoreException.checkType(JSONArray::class.java, obj)
-          MultipleChoiceTaskData.fromList(task.multipleChoice, toList(obj as JSONArray))
-        }
+        DataStoreException.checkType(JSONArray::class.java, obj)
+        MultipleChoiceTaskData.fromList(task.multipleChoice, toList(obj as JSONArray))
       }
       Task.Type.NUMBER -> {
-        if (JSONObject.NULL === obj) {
-          NumberTaskData.fromNumber("")
-        } else {
-          DataStoreException.checkType(Number::class.java, obj)
-          NumberTaskData.fromNumber(obj.toString())
-        }
+        DataStoreException.checkType(Number::class.java, obj)
+        NumberTaskData.fromNumber(obj.toString())
       }
       Task.Type.DATE -> {
         DataStoreException.checkType(String::class.java, obj)
@@ -99,15 +95,15 @@ internal object ResponseJsonConverter {
       }
       Task.Type.DRAW_POLYGON,
       Task.Type.DROP_A_PIN -> {
-        if (obj === JSONObject.NULL) {
-          DropAPinTaskData.fromString("")
-        } else {
-          DataStoreException.checkType(String::class.java, obj)
-          DropAPinTaskData.fromString(obj as String)
-        }
+        GeometryData.fromGeometry(
+          GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
+        )
       }
-      Task.Type.UNKNOWN -> throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
+      Task.Type.UNKNOWN -> {
+        throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
+      }
     }
+  }
 
   private fun toList(jsonArray: JSONArray): List<String> {
     val list: MutableList<String> = ArrayList(jsonArray.length())

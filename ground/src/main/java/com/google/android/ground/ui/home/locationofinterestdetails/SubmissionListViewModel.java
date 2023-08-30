@@ -75,9 +75,12 @@ public class SubmissionListViewModel extends AbstractViewModel {
       // TODO(#354): Show message or special treatment for layer with no task.
       return Single.just(List.of());
     }
-    return submissionRepository
-        .getSubmissions(req.surveyId, req.locationOfInterestId, req.taskId.get())
-        .onErrorResumeNext(this::onGetSubmissionsError);
+
+    // TODO(#1691): Replace the above call with coroutine once migrated to kotlin
+    //    return submissionRepository
+    //        .getSubmissions(req.surveyId, req.locationOfInterestId, req.taskId.get())
+    //        .onErrorResumeNext(this::onGetSubmissionsError);
+    throw new UnsupportedOperationException("Convert to Kotlin and use appropriate method");
   }
 
   private Single<List<Submission>> onGetSubmissionsError(Throwable t) {

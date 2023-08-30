@@ -19,28 +19,31 @@ import android.view.LayoutInflater
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
+import com.google.android.ground.databinding.TaskFragWithCombinedHeaderBinding
 import com.google.android.ground.databinding.TaskFragWithHeaderBinding
 import com.google.android.ground.databinding.TaskFragWithoutHeaderBinding
 
 /** Factory for creating a [TaskView]. */
 object TaskViewFactory {
 
-  fun createWithHeader(layoutInflater: LayoutInflater): TaskView {
-    val binding = TaskFragWithHeaderBinding.inflate(layoutInflater)
-    return TaskViewWithHeader(binding)
-  }
+  fun createWithHeader(layoutInflater: LayoutInflater): TaskView =
+    TaskViewWithHeader(TaskFragWithHeaderBinding.inflate(layoutInflater))
 
-  fun createWithoutHeader(
+  fun createWithoutHeader(layoutInflater: LayoutInflater): TaskView =
+    TaskViewWithoutHeader(TaskFragWithoutHeaderBinding.inflate(layoutInflater))
+
+  /** Creates a TaskView with a header that is an extension of the app bar. */
+  fun createWithCombinedHeader(
     layoutInflater: LayoutInflater,
     @DrawableRes iconResId: Int? = null,
     @StringRes labelResId: Int? = null
   ): TaskView {
-    val binding = TaskFragWithoutHeaderBinding.inflate(layoutInflater)
+    val binding = TaskFragWithCombinedHeaderBinding.inflate(layoutInflater)
     iconResId?.let {
       val drawable = AppCompatResources.getDrawable(layoutInflater.context, it)
       binding.headerIcon.setImageDrawable(drawable)
     }
     labelResId?.let { binding.headerLabel.setText(labelResId) }
-    return TaskViewWithoutHeader(binding)
+    return TaskViewWithCombinedHeader(binding)
   }
 }

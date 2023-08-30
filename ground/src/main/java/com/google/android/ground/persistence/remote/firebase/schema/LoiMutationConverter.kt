@@ -38,6 +38,7 @@ internal object LoiMutationConverter {
     val map = mutableMapOf<String, Any>()
 
     map[LoiConverter.JOB_ID] = mutation.jobId
+    map[LoiConverter.SUBMISSION_COUNT] = mutation.submissionCount
 
     when (val geometry = mutation.geometry) {
       is Point -> map.addGeometryCoordinates(toGeoPoint(geometry), LoiConverter.POINT_TYPE)
@@ -55,9 +56,13 @@ internal object LoiMutationConverter {
         map[LoiConverter.CREATED] = auditInfo
         map[LoiConverter.LAST_MODIFIED] = auditInfo
       }
-      Mutation.Type.UPDATE -> map.put(LoiConverter.LAST_MODIFIED, auditInfo)
+      Mutation.Type.UPDATE -> {
+        map[LoiConverter.LAST_MODIFIED] = auditInfo
+      }
       Mutation.Type.DELETE,
-      Mutation.Type.UNKNOWN -> throw UnsupportedOperationException()
+      Mutation.Type.UNKNOWN -> {
+        throw UnsupportedOperationException()
+      }
     }
     return map.toPersistentMap()
   }
@@ -72,7 +77,7 @@ internal object LoiMutationConverter {
     this[LoiConverter.GEOMETRY] = geometryMap
   }
 
-  private fun toGeoPoint(point: Point) = GeoPoint(point.coordinate.lat, point.coordinate.lng)
+  private fun toGeoPoint(point: Point) = GeoPoint(point.coordinates.lat, point.coordinates.lng)
 
   private fun toGeoPointList(point: List<Point>): List<GeoPoint> = point.map { toGeoPoint(it) }
 }

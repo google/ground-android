@@ -17,7 +17,7 @@ package com.google.android.ground.persistence.local
 
 import android.content.SharedPreferences
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.gms.GmsExt.defaultMapType
+import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.ui.settings.Keys
 import com.google.android.ground.util.allowThreadDiskReads
 import com.google.android.ground.util.allowThreadDiskWrites
@@ -25,6 +25,9 @@ import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
 
 /**
@@ -34,10 +37,15 @@ import timber.log.Timber
  */
 @Singleton
 class LocalValueStore @Inject constructor(private val preferences: SharedPreferences) {
-  private val mapTypeProcessor: BehaviorProcessor<Int> = BehaviorProcessor.createDefault(mapType)
+  private val mapTypeProcessor: BehaviorProcessor<MapType> =
+    BehaviorProcessor.createDefault(mapType)
 
-  val mapTypeFlowable: Flowable<Int>
+  private val _offlineImageryEnabled = MutableStateFlow(isOfflineImageryEnabled)
+
+  val mapTypeFlowable: Flowable<MapType>
     get() = allowThreadDiskReads { mapTypeProcessor }
+
+  val offlineImageryEnabledFlow: StateFlow<Boolean> = _offlineImageryEnabled.asStateFlow()
 
   /**
    * Id of the last survey successfully activated by the user. This value is only updated after the
@@ -50,12 +58,15 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
       preferences.edit().putString(ACTIVE_SURVEY_ID_KEY, id).apply()
     }
 
-  /** Id of the basemap type. */
-  var mapType: Int
-    get() = allowThreadDiskReads { preferences.getInt(MAP_TYPE, defaultMapType()) }
-    set(type) = allowThreadDiskWrites {
-      preferences.edit().putInt(MAP_TYPE, type).apply()
-      mapTypeProcessor.onNext(type)
+  /** The last map type selected. */
+  var mapType: MapType
+    get() = allowThreadDiskReads {
+      val mapTypeIdx = preferences.getInt(MAP_TYPE, MapType.DEFAULT.ordinal)
+      MapType.values()[mapTypeIdx]
+    }
+    set(value) = allowThreadDiskWrites {
+      preferences.edit().putInt(MAP_TYPE, value.ordinal).apply()
+      mapTypeProcessor.onNext(value)
     }
 
   /** Whether location lock is enabled or not. */
@@ -70,6 +81,14 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     get() = allowThreadDiskReads { preferences.getBoolean(TOS_ACCEPTED, false) }
     set(value) = allowThreadDiskWrites {
       preferences.edit().putBoolean(TOS_ACCEPTED, value).apply()
+    }
+
+  /** Whether to overlay offline map imagery. */
+  var isOfflineImageryEnabled: Boolean
+    get() = allowThreadDiskReads { preferences.getBoolean(OFFLINE_MAP_IMAGERY, false) }
+    set(value) = allowThreadDiskReads {
+      preferences.edit().putBoolean(OFFLINE_MAP_IMAGERY, value).apply()
+      _offlineImageryEnabled.value = value
     }
 
   /** Removes all values stored in the local store. */
@@ -110,5 +129,6 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     const val LAST_VIEWPORT_PREFIX = "last_viewport_"
     const val TOS_ACCEPTED = "tos_accepted"
     const val LOCATION_LOCK_ENABLED = "location_lock_enabled"
+    const val OFFLINE_MAP_IMAGERY = "offline_map_imagery"
   }
 }

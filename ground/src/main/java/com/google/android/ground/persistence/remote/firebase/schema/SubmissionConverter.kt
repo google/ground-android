@@ -18,7 +18,15 @@ package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.submission.*
+import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.GeometryData
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
+import com.google.android.ground.model.submission.NumberTaskData
+import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.TaskDataMap
+import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
@@ -32,6 +40,7 @@ import timber.log.Timber
 internal object SubmissionConverter {
 
   fun toSubmission(loi: LocationOfInterest, snapshot: DocumentSnapshot): Submission {
+    if (!snapshot.exists()) throw DataStoreException("Missing submission")
     val doc = snapshot.toObject(SubmissionDocument::class.java)
     val loiId = DataStoreException.checkNotNull(doc!!.loiId, "loiId")
     if (loi.id != loiId) {
@@ -77,7 +86,7 @@ internal object SubmissionConverter {
     obj: Any,
     responses: MutableMap<String, TaskData>
   ) {
-    val task = job.getTask(taskId).orElseThrow { DataStoreException("Not defined in task") }
+    val task = job.getTask(taskId)
     when (task.type) {
       Task.Type.PHOTO,
       Task.Type.TEXT -> putTextResponse(taskId, obj, responses)
@@ -86,30 +95,56 @@ internal object SubmissionConverter {
       Task.Type.NUMBER -> putNumberResponse(taskId, obj, responses)
       Task.Type.DATE -> putDateResponse(taskId, obj, responses)
       Task.Type.TIME -> putTimeResponse(taskId, obj, responses)
+      Task.Type.DROP_A_PIN -> putDropAPinResponse(taskId, obj, responses)
+      Task.Type.DRAW_POLYGON -> putDrawPolygonResponse(taskId, obj, responses)
       else -> throw DataStoreException("Unknown type " + task.type)
     }
   }
 
   private fun putNumberResponse(taskId: String, obj: Any, responses: MutableMap<String, TaskData>) {
     val value = DataStoreException.checkType(Double::class.java, obj) as Double
-    NumberTaskData.fromNumber(value.toString()).ifPresent { r: TaskData -> responses[taskId] = r }
+    NumberTaskData.fromNumber(value.toString())?.let { r: TaskData -> responses[taskId] = r }
   }
 
   private fun putTextResponse(taskId: String, obj: Any, responses: MutableMap<String, TaskData>) {
     val value = DataStoreException.checkType(String::class.java, obj) as String
-    TextTaskData.fromString(value.trim { it <= ' ' }).ifPresent { r: TaskData ->
-      responses[taskId] = r
-    }
+    TextTaskData.fromString(value.trim { it <= ' ' })?.let { r: TaskData -> responses[taskId] = r }
   }
 
   private fun putDateResponse(taskId: String, obj: Any, responses: MutableMap<String, TaskData>) {
     val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
-    DateTaskData.fromDate(value.toDate()).ifPresent { r: TaskData -> responses[taskId] = r }
+    DateTaskData.fromDate(value.toDate())?.let { r: TaskData -> responses[taskId] = r }
   }
 
   private fun putTimeResponse(taskId: String, obj: Any, responses: MutableMap<String, TaskData>) {
     val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
-    TimeTaskData.fromDate(value.toDate()).ifPresent { r: TaskData -> responses[taskId] = r }
+    TimeTaskData.fromDate(value.toDate())?.let { r: TaskData -> responses[taskId] = r }
+  }
+
+  private fun putDropAPinResponse(
+    taskId: String,
+    obj: Any,
+    responses: MutableMap<String, TaskData>
+  ) {
+    val map = obj as HashMap<String, *>
+    check(map["type"] == "Point")
+    val result = GeometryConverter.fromFirestoreMap(map).getOrNull()
+    if (result != null) {
+      responses[taskId] = GeometryData(result)
+    }
+  }
+
+  private fun putDrawPolygonResponse(
+    taskId: String,
+    obj: Any,
+    responses: MutableMap<String, TaskData>
+  ) {
+    val map = obj as HashMap<String, *>
+    check(map["type"] == "Polygon")
+    val result = GeometryConverter.fromFirestoreMap(map).getOrNull()
+    if (result != null) {
+      responses[taskId] = GeometryData(result)
+    }
   }
 
   private fun putMultipleChoiceResponse(
@@ -120,7 +155,7 @@ internal object SubmissionConverter {
   ) {
     val values = DataStoreException.checkType(MutableList::class.java, obj) as List<*>
     values.forEach { DataStoreException.checkType(String::class.java, it as Any) }
-    MultipleChoiceTaskData.fromList(multipleChoice, values as List<String>).ifPresent {
+    MultipleChoiceTaskData.fromList(multipleChoice, values as List<String>)?.let {
       responses[taskId] = it
     }
   }

@@ -21,10 +21,8 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
-import io.reactivex.Single
 import kotlinx.coroutines.flow.Flow
 
 interface LocalLocationOfInterestStore :
@@ -41,7 +39,7 @@ interface LocalLocationOfInterestStore :
    * Returns a main-safe flow that emits the full set of LOIs for a survey on subscribe, and
    * continues to return the full set each time a LOI is added/changed/removed.
    */
-  suspend fun findLocationsOfInterest(survey: Survey): Flow<Set<LocationOfInterest>>
+  fun findLocationsOfInterest(survey: Survey): Flow<Set<LocationOfInterest>>
 
   /** Returns the LOI with the specified UUID from the local data store, if found. */
   fun getLocationOfInterest(
@@ -50,7 +48,7 @@ interface LocalLocationOfInterestStore :
   ): @Cold Maybe<LocationOfInterest>
 
   /** Deletes LOI from local database. */
-  fun deleteLocationOfInterest(locationOfInterestId: String): @Cold Completable
+  suspend fun deleteLocationOfInterest(locationOfInterestId: String)
 
   /**
    * Emits the list of [LocationOfInterestMutation] instances for a given LOI which match the
@@ -63,10 +61,10 @@ interface LocalLocationOfInterestStore :
 
   fun getAllMutationsAndStream(): Flowable<List<LocationOfInterestMutationEntity>>
 
-  fun findByLocationOfInterestId(
+  suspend fun findByLocationOfInterestId(
     id: String,
     vararg states: MutationEntitySyncStatus
-  ): Single<List<LocationOfInterestMutationEntity>>
+  ): List<LocationOfInterestMutationEntity>
 
   suspend fun insertOrUpdate(loi: LocationOfInterest)
 
