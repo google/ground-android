@@ -108,15 +108,8 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   }
 
   override suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
-    try {
-      apply(mutation)
-      enqueue(mutation)
-    } catch (e: LocalDataStoreException) {
-      Timber.e(
-        "Error enqueueing ${mutation.type} mutation for location of interest ${mutation.locationOfInterestId}"
-      )
-      throw e
-    }
+    apply(mutation)
+    enqueue(mutation)
   }
 
   override suspend fun updateAll(mutations: List<LocationOfInterestMutation>) {
