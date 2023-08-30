@@ -24,10 +24,12 @@ import java8.util.Optional
  */
 data class Job(
   val id: String,
+  val style: Style,
   val name: String? = null,
   val tasks: Map<String, Task> = mapOf(),
   val suggestLoiTaskType: Task.Type? = null,
 ) {
+  // TODO(jsunde): Add style and plumb through from firebase
   val tasksSorted: List<Task>
     get() = tasks.values.sortedBy { it.index }
   fun getTask(id: String): Optional<Task> = Optional.ofNullable(tasks[id])
