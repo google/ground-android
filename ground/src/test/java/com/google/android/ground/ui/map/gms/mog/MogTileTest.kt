@@ -24,7 +24,7 @@ import org.robolectric.RobolectricTestRunner
 class MogTileTest {
 
   @Test
-  fun testMogTile_toGmsTile() {
+  fun `toGmsTile() returns valid tile`() {
     val mogTile = MogTile(MOG_TILE_METADATA, byteArrayOf(0, 1, 2, 3, 4))
     val gmsTile = mogTile.toGmsTile()
     assertThat(gmsTile.width).isEqualTo(WIDTH)
