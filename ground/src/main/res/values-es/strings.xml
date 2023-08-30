@@ -91,7 +91,6 @@
   <string name="settings">Ajustes</string>
   <string name="offline_base_map_viewer_title">Área del mapa base sin conexión</string>
   <string name="offline_base_map_viewer_remove_button">Eliminar</string>
-  <string name="offline_base_map_viewer_storage">Este mapa base ocupa %.1f MB de espacio de almacenamiento en su dispositivo.</string>
   <string name="unnamed_area">Área sin nombre</string>
   <string name="added_by">Añadido por %s</string>
   <!-- Label of button used enter the offline area selector. -->
