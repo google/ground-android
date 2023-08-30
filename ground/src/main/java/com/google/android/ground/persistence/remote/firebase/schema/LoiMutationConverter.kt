@@ -38,6 +38,7 @@ internal object LoiMutationConverter {
     val map = mutableMapOf<String, Any>()
 
     map[LoiConverter.JOB_ID] = mutation.jobId
+    map[LoiConverter.SUBMISSION_COUNT] = mutation.submissionCount
 
     when (val geometry = mutation.geometry) {
       is Point -> map.addGeometryCoordinates(toGeoPoint(geometry), LoiConverter.POINT_TYPE)

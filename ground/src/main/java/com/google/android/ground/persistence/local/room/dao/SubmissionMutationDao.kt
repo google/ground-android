@@ -19,6 +19,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.room.fields.MutationEntityType
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
 
@@ -36,6 +37,17 @@ interface SubmissionMutationDao : BaseDao<SubmissionMutationEntity> {
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
   ): List<SubmissionMutationEntity>
+
+  @Query(
+    "SELECT COUNT(*) FROM submission_mutation " +
+      "WHERE location_of_interest_id = :loiId AND state IN (:allowedStates) " +
+      "AND type = :mutationType"
+  )
+  suspend fun getSubmissionMutationCount(
+    loiId: String,
+    mutationType: MutationEntityType,
+    vararg allowedStates: MutationEntitySyncStatus
+  ): Int
 
   @Query(
     "SELECT * FROM submission_mutation " +

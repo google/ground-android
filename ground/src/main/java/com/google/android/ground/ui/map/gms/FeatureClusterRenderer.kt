@@ -66,6 +66,10 @@ class FeatureClusterRenderer(
     marker.setIcon(getMarkerIcon(item.isSelected()))
   }
 
+  /**
+   * Creates the marker with a label indicating the number of jobs with submissions over the total
+   * number of jobs in the cluster.
+   */
   private fun createMarker(cluster: Cluster<FeatureClusterItem>): BitmapDescriptor {
     val totalWithData = cluster.items.count { it.feature.tag.flag }
     return markerIconFactory.getClusterIcon(

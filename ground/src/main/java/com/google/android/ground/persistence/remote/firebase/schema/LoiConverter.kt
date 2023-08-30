@@ -32,6 +32,7 @@ object LoiConverter {
   const val POLYGON_TYPE = "Polygon"
   const val GEOMETRY_COORDINATES = "coordinates"
   const val GEOMETRY = "geometry"
+  const val SUBMISSION_COUNT = "submissionCount"
 
   fun toLoi(survey: Survey, doc: DocumentSnapshot): Result<LocationOfInterest> = runCatching {
     toLoiUnchecked(survey, doc)
@@ -59,6 +60,7 @@ object LoiConverter {
     // Degrade gracefully when audit info missing in remote db.
     val created = loiDoc.created ?: AuditInfoNestedObject.FALLBACK_VALUE
     val lastModified = loiDoc.lastModified ?: created
+    val submissionCount = loiDoc.submissionCount ?: 0
     return LocationOfInterest(
       id = loiId,
       surveyId = survey.id,
@@ -68,7 +70,8 @@ object LoiConverter {
       created = AuditInfoConverter.toAuditInfo(created),
       lastModified = AuditInfoConverter.toAuditInfo(lastModified),
       // TODO(#929): Set geometry once LOI has been updated to use our own model.
-      geometry = geometry
+      geometry = geometry,
+      submissionCount = submissionCount
     )
   }
 }
