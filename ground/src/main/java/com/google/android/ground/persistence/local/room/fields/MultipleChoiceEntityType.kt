@@ -27,37 +27,25 @@ enum class MultipleChoiceEntityType(private val intValue: Int) : IntEnum {
   SELECT_ONE(1),
   SELECT_MULTIPLE(2);
 
-  override fun intValue(): Int {
-    return intValue
-  }
+  override fun intValue() = intValue
 
-  fun toCardinality(): MultipleChoice.Cardinality {
-    return when (this) {
+  fun toCardinality() =
+    when (this) {
       SELECT_ONE -> MultipleChoice.Cardinality.SELECT_ONE
       SELECT_MULTIPLE -> MultipleChoice.Cardinality.SELECT_MULTIPLE
       else -> throw IllegalArgumentException("Unknown cardinality")
     }
-  }
 
   companion object {
-    fun fromCardinality(type: MultipleChoice.Cardinality?): MultipleChoiceEntityType {
-      return when (type) {
+    fun fromCardinality(type: MultipleChoice.Cardinality?) =
+      when (type) {
         MultipleChoice.Cardinality.SELECT_ONE -> SELECT_ONE
         MultipleChoice.Cardinality.SELECT_MULTIPLE -> SELECT_MULTIPLE
         else -> UNKNOWN
       }
-    }
 
-    @JvmStatic
-    @TypeConverter
-    fun toInt(value: MultipleChoiceEntityType?): Int {
-      return toInt(value, UNKNOWN)
-    }
+    @JvmStatic @TypeConverter fun toInt(value: MultipleChoiceEntityType?) = toInt(value, UNKNOWN)
 
-    @JvmStatic
-    @TypeConverter
-    fun fromInt(intValue: Int): MultipleChoiceEntityType {
-      return fromInt(values(), intValue, UNKNOWN)
-    }
+    @JvmStatic @TypeConverter fun fromInt(intValue: Int) = fromInt(values(), intValue, UNKNOWN)
   }
 }

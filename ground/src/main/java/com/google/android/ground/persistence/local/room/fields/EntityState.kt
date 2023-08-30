@@ -24,21 +24,15 @@ import com.google.android.ground.persistence.local.room.IntEnum.Companion.toInt
 enum class EntityState(private val intValue: Int) : IntEnum {
   UNKNOWN(0), DEFAULT(1), DELETED(2);
 
-  override fun intValue(): Int {
-    return intValue
-  }
+  override fun intValue() = intValue
 
   companion object {
     @JvmStatic
     @TypeConverter
-    fun toInt(value: EntityState?): Int {
-      return toInt(value, UNKNOWN)
-    }
+    fun toInt(value: EntityState?) = toInt(value, UNKNOWN)
 
     @JvmStatic
     @TypeConverter
-    fun fromInt(intValue: Int): EntityState {
-      return fromInt(values(), intValue, UNKNOWN)
-    }
+    fun fromInt(intValue: Int) = fromInt(values(), intValue, UNKNOWN)
   }
 }

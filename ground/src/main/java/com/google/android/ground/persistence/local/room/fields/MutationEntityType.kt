@@ -21,53 +21,41 @@ import com.google.android.ground.persistence.local.room.IntEnum
 import com.google.android.ground.persistence.local.room.IntEnum.Companion.fromInt
 import com.google.android.ground.persistence.local.room.IntEnum.Companion.toInt
 
-/** Defines how Room represents mutation types in the remote sync queue in the local db.  */
+/** Defines how Room represents mutation types in the remote sync queue in the local db. */
 enum class MutationEntityType(private val intValue: Int) : IntEnum {
-  /** Indicates the field was missing or contained an unrecognized value.  */
+  /** Indicates the field was missing or contained an unrecognized value. */
   UNKNOWN(0),
 
-  /** Indicates a new entity should be created.  */
+  /** Indicates a new entity should be created. */
   CREATE(1),
 
-  /** Indicates an existing entity should be updated.  */
+  /** Indicates an existing entity should be updated. */
   UPDATE(2),
 
-  /** Indicates an existing entity should be marked for deletion.  */
+  /** Indicates an existing entity should be marked for deletion. */
   DELETE(3);
 
-  fun toMutationType(): Mutation.Type {
-    return when (this) {
+  fun toMutationType() =
+    when (this) {
       CREATE -> Mutation.Type.CREATE
       UPDATE -> Mutation.Type.UPDATE
       DELETE -> Mutation.Type.DELETE
       else -> Mutation.Type.UNKNOWN
     }
-  }
 
-  override fun intValue(): Int {
-    return intValue
-  }
+  override fun intValue() = intValue
 
   companion object {
-    fun fromMutationType(type: Mutation.Type?): MutationEntityType {
-      return when (type) {
+    fun fromMutationType(type: Mutation.Type?) =
+      when (type) {
         Mutation.Type.CREATE -> CREATE
         Mutation.Type.UPDATE -> UPDATE
         Mutation.Type.DELETE -> DELETE
         else -> UNKNOWN
       }
-    }
 
-    @JvmStatic
-    @TypeConverter
-    fun toInt(value: MutationEntityType?): Int {
-      return toInt(value, UNKNOWN)
-    }
+    @JvmStatic @TypeConverter fun toInt(value: MutationEntityType?) = toInt(value, UNKNOWN)
 
-    @JvmStatic
-    @TypeConverter
-    fun fromInt(intValue: Int): MutationEntityType {
-      return fromInt(values(), intValue, UNKNOWN)
-    }
+    @JvmStatic @TypeConverter fun fromInt(intValue: Int) = fromInt(values(), intValue, UNKNOWN)
   }
 }

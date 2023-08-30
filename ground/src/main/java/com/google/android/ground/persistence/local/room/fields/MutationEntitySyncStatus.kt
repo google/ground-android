@@ -36,30 +36,16 @@ enum class MutationEntitySyncStatus(private val intValue: Int, private val enumV
   /** Failed indicates all retries have failed. */
   FAILED(4, SyncStatus.FAILED);
 
-  override fun intValue(): Int {
-    return intValue
-  }
+  override fun intValue() = intValue
 
-  fun toMutationSyncStatus(): SyncStatus {
-    return enumValue
-  }
+  fun toMutationSyncStatus() = enumValue
 
   companion object {
-    fun fromMutationSyncStatus(syncStatus: SyncStatus): MutationEntitySyncStatus {
-      return values().firstOrNull { s: MutationEntitySyncStatus -> s.enumValue === syncStatus }
-        ?: UNKNOWN
-    }
+    fun fromMutationSyncStatus(syncStatus: SyncStatus) =
+      values().firstOrNull { s: MutationEntitySyncStatus -> s.enumValue === syncStatus } ?: UNKNOWN
 
-    @JvmStatic
-    @TypeConverter
-    fun toInt(value: MutationEntitySyncStatus?): Int {
-      return toInt(value, UNKNOWN)
-    }
+    @JvmStatic @TypeConverter fun toInt(value: MutationEntitySyncStatus?) = toInt(value, UNKNOWN)
 
-    @JvmStatic
-    @TypeConverter
-    fun fromInt(intValue: Int): MutationEntitySyncStatus {
-      return fromInt(values(), intValue, UNKNOWN)
-    }
+    @JvmStatic @TypeConverter fun fromInt(intValue: Int) = fromInt(values(), intValue, UNKNOWN)
   }
 }
