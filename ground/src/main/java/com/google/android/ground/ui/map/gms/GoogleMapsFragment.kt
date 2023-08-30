@@ -26,7 +26,6 @@ import android.widget.RelativeLayout
 import androidx.annotation.IdRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
@@ -61,7 +60,6 @@ import io.reactivex.Observable
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.PublishSubject
-import java.io.File
 import java8.util.function.Consumer
 import javax.inject.Inject
 import kotlin.math.min
@@ -88,15 +86,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     PublishProcessor.create()
 
   override val cameraMovedEvents: @Hot Flowable<CameraPosition> = cameraMovedEventsProcessor
-
-  // TODO(#693): Simplify impl of tile providers.
-  // TODO(#691): This is a limitation of the MapBox tile provider we're using;
-  // since one need to call `close` explicitly, we cannot generically expose these as TileProviders;
-  // instead we must retain explicit reference to the concrete type.
-  private val tileProvidersSubject: @Hot PublishSubject<MapBoxOfflineTileProvider> =
-    PublishSubject.create()
-
-  override val tileProviders: @Hot Observable<MapBoxOfflineTileProvider> = tileProvidersSubject
 
   private lateinit var polylineRenderer: PolylineRenderer
   private lateinit var polygonRenderer: PolygonRenderer
@@ -369,26 +358,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
       this.startDragEventsProcessor.onNext(Nil.NIL)
     }
   }
-
-  private fun addTileOverlay(filePath: String) {
-    val mbtilesFile = File(requireContext().filesDir, filePath)
-
-    if (!mbtilesFile.exists()) {
-      Timber.i("mbtiles file ${mbtilesFile.absolutePath} does not exist")
-      return
-    }
-
-    try {
-      val tileProvider = MapBoxOfflineTileProvider(mbtilesFile)
-      tileProvidersSubject.onNext(tileProvider)
-      addTileOverlay(tileProvider)
-    } catch (e: Exception) {
-      Timber.e(e, "Couldn't initialize tile provider for mbtiles file $mbtilesFile")
-    }
-  }
-
-  override fun addLocalTileOverlays(mbtilesFiles: Set<String>) =
-    mbtilesFiles.forEach { filePath -> addTileOverlay(filePath) }
 
   private fun addTemplateUrlTileOverlay(url: String) {
     addTileOverlay(TemplateUrlTileProvider(url))

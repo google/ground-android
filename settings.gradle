@@ -2,6 +2,5 @@ plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.4.0'
 }
 
-include ':ground', ':android-gmaps-addons', ':sharedTest'
+include ':ground', ':sharedTest'
 
-project(':android-gmaps-addons').projectDir = new File('third_party/android-gmaps-addons')

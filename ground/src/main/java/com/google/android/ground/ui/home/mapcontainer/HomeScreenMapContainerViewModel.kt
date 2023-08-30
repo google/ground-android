@@ -17,7 +17,6 @@ package com.google.android.ground.ui.home.mapcontainer
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.toLiveData
-import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.model.geometry.Point
@@ -77,8 +76,6 @@ internal constructor(
   val mapLocationOfInterestFeatures: LiveData<Set<Feature>>
 
   private var lastCameraPosition: CameraPosition? = null
-
-  private val tileProviders: MutableList<MapBoxOfflineTileProvider> = ArrayList()
 
   /* UI Clicks */
   private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
@@ -183,15 +180,6 @@ internal constructor(
 
   fun panAndZoomCamera(position: Point) {
     mapController.panAndZoomCamera(position.coordinates)
-  }
-
-  // TODO(#691): Create our own wrapper/interface for MbTiles providers.
-  fun queueTileProvider(tileProvider: MapBoxOfflineTileProvider) {
-    tileProviders.add(tileProvider)
-  }
-
-  fun closeProviders() {
-    tileProviders.forEach { it.close() }
   }
 
   fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed

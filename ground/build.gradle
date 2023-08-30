@@ -127,7 +127,6 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation project(':android-gmaps-addons')
     implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
     implementation 'androidx.test.ext:junit-ktx:1.1.5'
     testImplementation project(':sharedTest')
