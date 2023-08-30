@@ -38,27 +38,27 @@ class MogImageMetadataTest {
     )
 
   @Test
-  fun testHasTile_whenInRange() {
+  fun `hasTile() returns true when coords in range`() {
     assertThat(testMogImageMetadata.hasTile(12, 12)).isTrue()
   }
 
   @Test
-  fun testHasTile_whenXIsOutOfRange() {
+  fun `hasTile() returns false when X coord out of range`() {
     assertThat(testMogImageMetadata.hasTile(16, 12)).isFalse()
   }
 
   @Test
-  fun testHasTile_whenYIsOutOfRange() {
+  fun `hasTile() returns false when Y coord out of range`() {
     assertThat(testMogImageMetadata.hasTile(12, 16)).isFalse()
   }
 
   @Test
-  fun testGetByteRange_whenNotInRange_isNull() {
+  fun `getByteRange() returns null when coords out of range`() {
     assertThat(testMogImageMetadata.getByteRange(12, 16)).isNull()
   }
 
   @Test
-  fun testGetByteRange_whenInRangeButIndexMoreThanOffsets_throwsError() {
+  fun `getByteRange() throws error when index out of bounds`() {
     assertThrows(IllegalArgumentException::class.java) {
       testMogImageMetadata
         .copy(tileOffsets = LongRange(1, 12).toList(), byteCounts = LongRange(1, 12).toList())
@@ -67,7 +67,7 @@ class MogImageMetadataTest {
   }
 
   @Test
-  fun testGetByteRange_success() {
+  fun `getByteRange() returns correct range`() {
     assertThat(
         testMogImageMetadata
           .copy(tileOffsets = LongRange(1, 12).toList(), byteCounts = LongRange(1, 12).toList())
@@ -77,14 +77,15 @@ class MogImageMetadataTest {
   }
 
   @Test
-  fun testEquals_throwsError() {
+  fun `equals() throws error`() {
     assertThrows(UnsupportedOperationException::class.java) {
+      @Suppress("UnusedEquals")
       testMogImageMetadata.equals(testMogImageMetadata.copy(tileWidth = 100))
     }
   }
 
   @Test
-  fun testHashcode_throwsError() {
+  fun `hashCode() throws error`() {
     assertThrows(UnsupportedOperationException::class.java) { testMogImageMetadata.hashCode() }
   }
 }
