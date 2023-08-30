@@ -154,7 +154,7 @@ constructor(
   }
 
   companion object {
-    private const val MAX_RETRY_COUNT = 3
+    private const val MAX_RETRY_COUNT = 10
 
     internal const val LOCATION_OF_INTEREST_ID_PARAM_KEY = "locationOfInterestId"
 

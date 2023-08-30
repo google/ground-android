@@ -21,6 +21,7 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.persistence.local.room.converter.toModelObject
+import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
@@ -81,19 +82,21 @@ constructor(
     entitySyncStatus: MutationEntitySyncStatus
   ): List<Mutation> {
     val loiMutations =
-      localLocationOfInterestStore.findByLocationOfInterestId(loidId, entitySyncStatus).map {
-        it.toModelObject()
-      }
+      localLocationOfInterestStore
+        .findByLocationOfInterestId(loidId, entitySyncStatus)
+        .map(LocationOfInterestMutationEntity::toModelObject)
     val submissionMutations =
-      localSubmissionStore.findByLocationOfInterestId(loidId, entitySyncStatus).map { entity ->
-        val surveyId = entity.surveyId
-        entity.toModelObject(
-          localSurveyStore.getSurveyByIdSuspend(surveyId)
-            ?: error("Survey missing $surveyId. Unable to fetch pending submission mutations.")
-        )
+      localSubmissionStore.findByLocationOfInterestId(loidId, entitySyncStatus).map {
+        it.toSubmissionMutation()
       }
     return loiMutations + submissionMutations
   }
+
+  private suspend fun SubmissionMutationEntity.toSubmissionMutation(): SubmissionMutation =
+    toModelObject(
+      localSurveyStore.getSurveyByIdSuspend(surveyId)
+        ?: error("Survey missing $surveyId. Unable to fetch pending submission mutations.")
+    )
 
   /** Updates the provided list of mutations. */
   private suspend fun updateMutations(mutations: List<Mutation>) {

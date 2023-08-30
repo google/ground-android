@@ -90,21 +90,21 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Worker throws an NPE if LOI ID is null`() {
+  fun `Throws an NPE if LOI ID is null`() {
     assertThrows(NullPointerException::class.java) {
       runWithTestDispatcher { createAndDoWork(context, null) }
     }
   }
 
   @Test
-  fun `Worker succeeds if there are 0 pending mutations`() = runWithTestDispatcher {
+  fun `Succeeds if there are 0 pending mutations`() = runWithTestDispatcher {
     val result = createAndDoWork(context, TEST_LOI_ID)
 
     assertThat(result).isEqualTo(success())
   }
 
   @Test
-  fun `Worker succeeds if there are non-zero pending mutations`() = runWithTestDispatcher {
+  fun `Succeeds if there are non-zero pending mutations`() = runWithTestDispatcher {
     addPendingMutations()
 
     val result = createAndDoWork(context, TEST_LOI_ID)
@@ -114,7 +114,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Worker retries if there are non-zero pending mutations but remote sync fails`() =
+  fun `Retries if there are non-zero pending mutations but remote sync fails`() =
     runWithTestDispatcher {
       fakeRemoteDataStore.applyMutationError = Error(ERROR_MESSAGE)
       addPendingMutations()
@@ -130,12 +130,12 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     }
 
   @Test
-  fun `Worker retries if retryCount is less than 3 for any mutation`() = runWithTestDispatcher {
+  fun `Worker retries if retryCount is less than 10 for any mutation`() = runWithTestDispatcher {
     fakeRemoteDataStore.applyMutationError = Error(ERROR_MESSAGE)
     addPendingMutations()
 
     // Run the worker 3 times
-    for (i in 1..3) {
+    for (i in 1..10) {
       val result = createAndDoWork(context, TEST_LOI_ID)
 
       assertThat(result).isEqualTo(retry())
@@ -154,7 +154,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     // Verify that the retryCount and last error hasn't changed
     assertMutationsState(
       failed = 2,
-      retryCount = listOf(3, 3),
+      retryCount = listOf(10, 10),
       lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE)
     )
   }
