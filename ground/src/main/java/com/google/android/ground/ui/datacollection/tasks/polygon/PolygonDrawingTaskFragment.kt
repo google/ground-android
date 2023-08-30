@@ -74,7 +74,7 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
   }
 
   private fun onFeatureUpdated(feature: Feature?) {
-    val vertexCount = feature?.geometry?.size ?: 0
+    val vertexCount = feature?.geometry?.size() ?: 0
     val isClosedGeometry = feature?.geometry.isClosed()
     val isMarkedComplete = viewModel.isMarkedComplete()
 

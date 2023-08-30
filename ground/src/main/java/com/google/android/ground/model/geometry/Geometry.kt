@@ -29,14 +29,14 @@ sealed interface Geometry {
   // subclasses.
   val vertices: List<Point>
 
-  val size: Int
-    get() = vertices.size
-
   /**
    * Returns the center coordinates of the geometry. It may or may not be within the geometry bounds
    * if the shape is irregular.
    */
   fun center(): Coordinates
+
+  /** Number of vertices in the geometry. */
+  fun size(): Int
 
   /** Validates that the current [Geometry] is well-formed. */
   fun validate() {
@@ -54,6 +54,8 @@ data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()
   override val vertices: List<Point> = shell.vertices
 
   override fun center(): Coordinates = shell.center()
+
+  override fun size() = shell.size()
 }
 
 /** Represents a single point. */
@@ -63,6 +65,8 @@ data class Point(val coordinates: Coordinates) : Geometry {
   override val vertices: List<Point> = listOf(this)
 
   override fun center(): Coordinates = coordinates
+
+  override fun size() = 1
 }
 
 /** A collection of [Polygon]s. */
@@ -72,6 +76,8 @@ data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
   override val vertices: List<Point> = polygons.flatMap { it.vertices }
 
   override fun center(): Coordinates = polygons.map { it.center() }.centerOrError()
+
+  override fun size() = polygons.sumOf { it.size() }
 }
 
 /** A sequence of two or more vertices modelling an OCG style line string. */
@@ -81,6 +87,8 @@ data class LineString(val coordinates: List<Coordinates>) : Geometry {
   override val vertices: List<Point> = coordinates.map { Point(it) }
 
   override fun center(): Coordinates = coordinates.centerOrError()
+
+  override fun size() = coordinates.size
 }
 
 /**
@@ -98,6 +106,8 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
   override val vertices: List<Point> = coordinates.map { Point(it) }
 
   override fun center(): Coordinates = coordinates.centerOrError()
+
+  override fun size() = coordinates.size
 
   override fun validate() {
     // TODO(#1647): Check for vertices count > 3

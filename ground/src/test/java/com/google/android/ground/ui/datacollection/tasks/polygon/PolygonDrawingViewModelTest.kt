@@ -161,7 +161,7 @@ class PolygonDrawingViewModelTest : BaseHiltTest() {
     } else {
       assertNotNull(geometry)
       assertWithMessage(geometry.vertices.toString())
-        .that(geometry.size)
+        .that(geometry.size())
         .isEqualTo(expectedVerticesCount)
       assertThat(geometry)
         .isInstanceOf(
