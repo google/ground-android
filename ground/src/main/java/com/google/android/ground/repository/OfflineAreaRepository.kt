@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.repository
 
+import com.google.android.ground.Config
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.model.imagery.OfflineArea
@@ -214,15 +215,8 @@ constructor(
    * throws an error if no survey is active or if no tile sources are defined.
    */
   private fun getMogClient(): MogClient {
-    // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
     val baseUrl = getFirstTileSourceUrl()
-    val mogCollection =
-      MogCollection(
-        listOf(
-          MogSource("${baseUrl}/world-masked.tif", 0..7),
-          MogSource("${baseUrl}/{x}/{y}.tif", 8..14)
-        )
-      )
+    val mogCollection = MogCollection(Config.getMogSources(baseUrl))
     // TODO(#1754): Create a factory and inject rather than instantiating here. Add tests.
     return MogClient(mogCollection)
   }

@@ -48,7 +48,6 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Map
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.mog.MogCollection
-import com.google.android.ground.ui.map.gms.mog.MogSource
 import com.google.android.ground.ui.map.gms.mog.MogTileProvider
 import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
 import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
@@ -404,10 +403,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
 
   private fun addMogCollectionTileOverlay(url: String) {
     // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
-    val mogCollection =
-      MogCollection(
-        listOf(MogSource("${url}/world-masked.tif", 0..7), MogSource("${url}/{x}/{y}.tif", 8..14))
-      )
+    val mogCollection = MogCollection(Config.getMogSources(url))
     addTileOverlay(MogTileProvider(mogCollection))
   }
 
