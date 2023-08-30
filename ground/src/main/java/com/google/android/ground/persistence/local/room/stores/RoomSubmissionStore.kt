@@ -222,7 +222,8 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   override suspend fun findByLocationOfInterestId(
     loidId: String,
     vararg states: MutationEntitySyncStatus
-  ): List<SubmissionMutationEntity> = submissionMutationDao.findByLocationOfInterestId(loidId, *states)
+  ): List<SubmissionMutationEntity> =
+    submissionMutationDao.findByLocationOfInterestId(loidId, *states)
 
   override suspend fun getPendingSubmissionCountByLocationOfInterestId(loiId: String): Int =
     submissionMutationDao.getSubmissionMutationCount(
