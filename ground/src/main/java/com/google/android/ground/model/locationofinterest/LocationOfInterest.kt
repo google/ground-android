@@ -40,6 +40,8 @@ data class LocationOfInterest(
   val lastModified: AuditInfo,
   /** Geometry associated with this LOI. */
   val geometry: Geometry,
+  /** The number of submissions that have been made for this LOI. */
+  val submissionCount: Int = 0
 ) {
 
   /**
@@ -56,6 +58,7 @@ data class LocationOfInterest(
       userId = userId,
       clientTimestamp = lastModified.clientTimestamp,
       geometry = geometry,
-      caption = caption
+      caption = caption,
+      submissionCount = submissionCount
     )
 }

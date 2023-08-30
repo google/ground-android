@@ -122,7 +122,8 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     caption = caption,
     created = created.toLocalDataStoreObject(),
     lastModified = lastModified.toLocalDataStoreObject(),
-    geometry = geometry.toLocalDataStoreObject()
+    geometry = geometry.toLocalDataStoreObject(),
+    submissionCount = submissionCount
   )
 
 fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
@@ -136,6 +137,7 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       lastModified = lastModified.toModelObject(),
       caption = caption,
       geometry = geometry.getGeometry(),
+      submissionCount = submissionCount,
       job = survey.getJob(jobId = jobId)
           ?: throw LocalDataConsistencyException(
             "Unknown jobId ${this.jobId} in location of interest ${this.id}"
@@ -162,7 +164,8 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(user: User): LocationOfInt
     // TODO(#1562): Preserve creation audit info for UPDATE mutations.
     created = auditInfo,
     lastModified = auditInfo,
-    geometry = geometry?.toLocalDataStoreObject()
+    geometry = geometry?.toLocalDataStoreObject(),
+    submissionCount = submissionCount
   )
 }
 
