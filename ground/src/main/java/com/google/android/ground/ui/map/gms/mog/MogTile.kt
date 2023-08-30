@@ -32,13 +32,10 @@ class MogTile(val metadata: MogTileMetadata, val data: ByteArray) {
       .toByteArray()
 
   fun toGmsTile(): Tile {
-    val jfifData = buildJfifFile()
-    return if (metadata.noDataValue == null) {
-      Tile(metadata.width, metadata.height, jfifData)
-    } else {
-      val maskedData = maskNoDataValues(jfifData, metadata.noDataValue)
-      Tile(metadata.width, metadata.height, maskedData)
-    }
+    val imageData =
+      if (metadata.noDataValue == null) buildJfifFile()
+      else maskNoDataValues(buildJfifFile(), metadata.noDataValue)
+    return Tile(metadata.width, metadata.height, imageData)
   }
 
   private fun maskNoDataValues(jfifData: ByteArray, noDataValue: Int): ByteArray {
