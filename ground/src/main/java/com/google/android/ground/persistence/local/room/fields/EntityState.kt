@@ -20,19 +20,17 @@ import com.google.android.ground.persistence.local.room.IntEnum
 import com.google.android.ground.persistence.local.room.IntEnum.Companion.fromInt
 import com.google.android.ground.persistence.local.room.IntEnum.Companion.toInt
 
-/** Mutually exclusive entity states shared by LOIs and Submissions.  */
+/** Mutually exclusive entity states shared by LOIs and Submissions. */
 enum class EntityState(private val intValue: Int) : IntEnum {
-  UNKNOWN(0), DEFAULT(1), DELETED(2);
+  UNKNOWN(0),
+  DEFAULT(1),
+  DELETED(2);
 
   override fun intValue() = intValue
 
   companion object {
-    @JvmStatic
-    @TypeConverter
-    fun toInt(value: EntityState?) = toInt(value, UNKNOWN)
+    @JvmStatic @TypeConverter fun toInt(value: EntityState?) = toInt(value, UNKNOWN)
 
-    @JvmStatic
-    @TypeConverter
-    fun fromInt(intValue: Int) = fromInt(values(), intValue, UNKNOWN)
+    @JvmStatic @TypeConverter fun fromInt(intValue: Int) = fromInt(values(), intValue, UNKNOWN)
   }
 }
