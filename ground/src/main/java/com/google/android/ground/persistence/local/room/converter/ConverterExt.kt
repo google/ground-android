@@ -19,7 +19,6 @@ import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.model.geometry.*
-import com.google.android.ground.model.imagery.MbtilesFile
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
@@ -59,7 +58,6 @@ fun AuditInfoEntity.toModelObject() =
 private fun TileSource.Type.toLocalDataStoreObject() =
   when (this) {
     TileSource.Type.TILED_WEB_MAP -> TileSourceEntity.TileSourceEntityType.IMAGE
-    TileSource.Type.MBTILES_FOOTPRINTS -> TileSourceEntity.TileSourceEntityType.GEOJSON
     TileSource.Type.MOG_COLLECTION -> TileSourceEntity.TileSourceEntityType.MOG
     else -> TileSourceEntity.TileSourceEntityType.UNKNOWN
   }
@@ -67,7 +65,6 @@ private fun TileSource.Type.toLocalDataStoreObject() =
 private fun TileSourceEntity.TileSourceEntityType.toModelObject() =
   when (this) {
     TileSourceEntity.TileSourceEntityType.IMAGE -> TileSource.Type.TILED_WEB_MAP
-    TileSourceEntity.TileSourceEntityType.GEOJSON -> TileSource.Type.MBTILES_FOOTPRINTS
     TileSourceEntity.TileSourceEntityType.MOG -> TileSource.Type.MOG_COLLECTION
     else -> TileSource.Type.UNKNOWN
   }
@@ -392,41 +389,6 @@ fun TaskEntityAndRelations.toModelObject(): Task {
     multipleChoice
   )
 }
-
-private fun TileSetEntityState.toModelObject() =
-  when (this) {
-    TileSetEntityState.PENDING -> MbtilesFile.DownloadState.PENDING
-    TileSetEntityState.IN_PROGRESS -> MbtilesFile.DownloadState.IN_PROGRESS
-    TileSetEntityState.DOWNLOADED -> MbtilesFile.DownloadState.DOWNLOADED
-    TileSetEntityState.FAILED -> MbtilesFile.DownloadState.FAILED
-    else -> throw IllegalArgumentException("Unknown tile source state: $this")
-  }
-
-private fun MbtilesFile.DownloadState.toLocalDataStoreObject() =
-  when (this) {
-    MbtilesFile.DownloadState.PENDING -> TileSetEntityState.PENDING
-    MbtilesFile.DownloadState.IN_PROGRESS -> TileSetEntityState.IN_PROGRESS
-    MbtilesFile.DownloadState.FAILED -> TileSetEntityState.FAILED
-    MbtilesFile.DownloadState.DOWNLOADED -> TileSetEntityState.DOWNLOADED
-  }
-
-fun MbtilesFileEntity.toModelObject() =
-  MbtilesFile(
-    id = id,
-    url = url,
-    path = path,
-    referenceCount = referenceCount,
-    downloadState = state.toModelObject()
-  )
-
-fun MbtilesFile.toLocalDataStoreObject() =
-  MbtilesFileEntity(
-    id = id,
-    url = url,
-    path = path,
-    referenceCount = referenceCount,
-    state = downloadState.toLocalDataStoreObject()
-  )
 
 fun User.toLocalDataStoreObject() =
   UserEntity(id = id, email = email, displayName = displayName, photoUrl = photoUrl)

@@ -17,7 +17,6 @@ package com.google.android.ground.ui.map
 
 import android.annotation.SuppressLint
 import androidx.annotation.IdRes
-import com.cocoahero.android.gmaps.addons.mapbox.MapBoxOfflineTileProvider
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -57,10 +56,6 @@ interface Map {
    */
   val cameraMovedEvents: @Hot Flowable<CameraPosition>
 
-  // TODO(#691): Create interface and impl to encapsulate MapBoxOfflineTileProvider impl.
-  /** Returns TileProviders associated with this map adapter. */
-  val tileProviders: @Hot Observable<MapBoxOfflineTileProvider>
-
   /** Adds the [Map] to a fragment. */
   fun attachToFragment(
     containerFragment: AbstractFragment,
@@ -95,9 +90,6 @@ interface Map {
   fun renderFeatures(features: Set<Feature>)
 
   fun refresh()
-
-  /** Render locally stored tile overlays on the map. */
-  fun addLocalTileOverlays(mbtilesFiles: Set<String>)
 
   /** Returns the actual distance in pixels between provided [Coordinates]s. */
   fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double

@@ -47,7 +47,6 @@ import com.google.android.ground.persistence.local.room.fields.*
       TileSourceEntity::class,
       SubmissionEntity::class,
       SubmissionMutationEntity::class,
-      MbtilesFileEntity::class,
       OfflineAreaEntity::class,
       UserEntity::class
     ],
@@ -78,7 +77,6 @@ abstract class LocalDatabase : RoomDatabase() {
   abstract fun tileSourceDao(): TileSourceDao
   abstract fun submissionDao(): SubmissionDao
   abstract fun submissionMutationDao(): SubmissionMutationDao
-  abstract fun tileSetDao(): MbtilesFileDao
   abstract fun offlineAreaDao(): OfflineAreaDao
   abstract fun userDao(): UserDao
 }

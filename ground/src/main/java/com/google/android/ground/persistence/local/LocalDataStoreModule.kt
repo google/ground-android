@@ -40,7 +40,6 @@ abstract class LocalDataStoreModule {
   abstract fun offlineAreaStore(store: RoomOfflineAreaStore): LocalOfflineAreaStore
   @Binds @Singleton abstract fun submissionStore(store: RoomSubmissionStore): LocalSubmissionStore
   @Binds @Singleton abstract fun surveyStore(store: RoomSurveyStore): LocalSurveyStore
-  @Binds @Singleton abstract fun tileSetStore(store: RoomTileSetStore): LocalTileSetStore
   @Binds @Singleton abstract fun userStore(store: RoomUserStore): LocalUserStore
 
   companion object {
@@ -87,11 +86,6 @@ abstract class LocalDataStoreModule {
     @Provides
     fun submissionMutationDao(localDatabase: LocalDatabase): SubmissionMutationDao {
       return localDatabase.submissionMutationDao()
-    }
-
-    @Provides
-    fun tileSetDao(localDatabase: LocalDatabase): MbtilesFileDao {
-      return localDatabase.tileSetDao()
     }
 
     @Provides
