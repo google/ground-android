@@ -28,7 +28,6 @@ data class Job(
   val tasks: Map<String, Task> = mapOf(),
   val suggestLoiTaskType: Task.Type? = null,
 ) {
-  // TODO(jsunde): Add style and plumb through from firebase
   val tasksSorted: List<Task>
     get() = tasks.values.sortedBy { it.index }
 

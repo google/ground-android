@@ -116,7 +116,8 @@ fun JobEntityAndRelations.toModelObject(): Job {
   )
 }
 
-fun StyleEntity.toModelObject() = Style(color)
+fun StyleEntity.toModelObject() = color?.let { Style(it) } ?: Style()
+
 fun Style.toLocalDataStoreObject() = StyleEntity(color)
 
 fun LocationOfInterest.toLocalDataStoreObject() =

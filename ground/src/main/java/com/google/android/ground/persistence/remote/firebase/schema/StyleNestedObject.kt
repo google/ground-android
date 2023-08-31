@@ -19,9 +19,6 @@ import com.google.android.ground.model.job.Style
 import com.google.firebase.firestore.IgnoreExtraProperties
 
 /** Firestore representation of map layers. */
-@IgnoreExtraProperties
-data class StyleNestedObject(
-  val color: String = "#ff9131"
-)
+@IgnoreExtraProperties data class StyleNestedObject(val color: String = "#ff9131")
 
 fun StyleNestedObject.toStyle(): Style = Style(color)

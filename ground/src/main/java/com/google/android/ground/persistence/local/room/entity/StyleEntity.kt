@@ -18,6 +18,4 @@ package com.google.android.ground.persistence.local.room.entity
 import androidx.room.ColumnInfo
 
 /** Style data for job. */
-data class StyleEntity(
-  @ColumnInfo(name = "color") val color: String?
-)
+data class StyleEntity(@ColumnInfo(name = "color") val color: String?)

@@ -96,7 +96,7 @@ class MarkerIconFactory @Inject constructor(@ApplicationContext private val cont
     val canvas = Canvas(bitmap)
     val style = Paint()
 
-    style.color = Color.WHITE
+    style.color = Color.BLACK
     style.textSize = 40.0.toFloat()
 
     val bounds = Rect()

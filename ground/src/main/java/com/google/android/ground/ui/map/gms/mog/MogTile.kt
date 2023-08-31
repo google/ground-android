@@ -19,7 +19,6 @@ package com.google.android.ground.ui.map.gms.mog
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import androidx.core.graphics.get
 import com.google.android.gms.maps.model.Tile
 import java.io.ByteArrayOutputStream
 

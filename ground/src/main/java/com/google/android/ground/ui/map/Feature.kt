@@ -16,15 +16,17 @@
 package com.google.android.ground.ui.map
 
 import com.google.android.ground.model.geometry.Geometry
+import com.google.android.ground.model.job.Style
 
 /** Represents an individual feature on a map with a given [Geometry] and [Tag]. */
-data class Feature(val tag: Tag, val geometry: Geometry) {
+data class Feature(val tag: Tag, val geometry: Geometry, val style: Style) {
   constructor(
     id: String,
     type: Int,
+    geometry: Geometry,
     flag: Boolean = false,
-    geometry: Geometry
-  ) : this(Tag(id, type, flag), geometry)
+    style: Style = Style()
+  ) : this(Tag(id, type, flag), geometry, style)
 
   /**
    * Denotes the kind of entity this map feature represents and contains any additional data it
