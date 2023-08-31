@@ -25,18 +25,14 @@ import kotlinx.serialization.modules.SerializersModule
 /** A common ancestor for all geometry types. */
 @Serializable
 sealed interface Geometry {
-  // TODO(#1246): Remove. Stick with concrete semantics; leave it to callers to discriminate
-  // subclasses.
-  val vertices: List<Point>
-
-  val size: Int
-    get() = vertices.size
-
   /**
    * Returns the center coordinates of the geometry. It may or may not be within the geometry bounds
    * if the shape is irregular.
    */
   fun center(): Coordinates
+
+  /** Returns true if there are one or more vertices in the geometry. */
+  fun isEmpty(): Boolean
 
   /** Validates that the current [Geometry] is well-formed. */
   fun validate() {
@@ -51,36 +47,38 @@ sealed interface Geometry {
 @Serializable
 @SerialName("polygon")
 data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()) : Geometry {
-  override val vertices: List<Point> = shell.vertices
-
   override fun center(): Coordinates = shell.center()
+
+  override fun isEmpty() = shell.isEmpty()
+
+  fun getShellCoordinates() = shell.coordinates
 }
 
 /** Represents a single point. */
 @Serializable
 @SerialName("point")
 data class Point(val coordinates: Coordinates) : Geometry {
-  override val vertices: List<Point> = listOf(this)
-
   override fun center(): Coordinates = coordinates
+
+  override fun isEmpty() = false
 }
 
 /** A collection of [Polygon]s. */
 @Serializable
 @SerialName("multi_polygon")
 data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
-  override val vertices: List<Point> = polygons.flatMap { it.vertices }
-
   override fun center(): Coordinates = polygons.map { it.center() }.centerOrError()
+
+  override fun isEmpty() = polygons.all { it.isEmpty() }
 }
 
 /** A sequence of two or more vertices modelling an OCG style line string. */
 @Serializable
 @SerialName("line_string")
 data class LineString(val coordinates: List<Coordinates>) : Geometry {
-  override val vertices: List<Point> = coordinates.map { Point(it) }
-
   override fun center(): Coordinates = coordinates.centerOrError()
+
+  override fun isEmpty() = coordinates.isEmpty()
 }
 
 /**
@@ -95,9 +93,9 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
     validate()
   }
 
-  override val vertices: List<Point> = coordinates.map { Point(it) }
-
   override fun center(): Coordinates = coordinates.centerOrError()
+
+  override fun isEmpty() = coordinates.isEmpty()
 
   override fun validate() {
     // TODO(#1647): Check for vertices count > 3

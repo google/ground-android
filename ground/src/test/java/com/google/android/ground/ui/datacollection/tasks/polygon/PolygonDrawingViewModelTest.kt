@@ -23,6 +23,7 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel.Companion.DISTANCE_THRESHOLD_DP
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.gms.GmsExt.getShellCoordinates
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.jraska.livedata.TestObserver
@@ -160,8 +161,8 @@ class PolygonDrawingViewModelTest : BaseHiltTest() {
       assertThat(geometry).isNull()
     } else {
       assertNotNull(geometry)
-      assertWithMessage(geometry.vertices.toString())
-        .that(geometry.size)
+      assertWithMessage(geometry.getShellCoordinates().toString())
+        .that(geometry.getShellCoordinates().size)
         .isEqualTo(expectedVerticesCount)
       assertThat(geometry)
         .isInstanceOf(

@@ -18,23 +18,26 @@ package com.google.android.ground.ui.map.gms
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Geometry
+import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.MultiPolygon
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.map.Bounds
 
 /** Extensions for indirectly using GMS functions in map-provider agnostic codebase. */
 object GmsExt {
 
-  fun Bounds.contains(coordinates: Coordinates): Boolean =
-    toGoogleMapsObject().contains(coordinates.toGoogleMapsObject())
-
   fun Bounds.contains(geometry: Geometry): Boolean {
     val latLngBounds = toGoogleMapsObject()
-    return geometry.vertices.any { latLngBounds.contains(it.toLatLng()) }
+    return geometry.getShellCoordinates().any { latLngBounds.contains(it.toLatLng()) }
   }
 
   fun Bounds.center(): Coordinates = toGoogleMapsObject().center.toModelObject()
 
   fun List<Geometry>.toBounds(): Bounds? {
-    val coordinates = this.map { it.vertices.first().coordinates }
+    // TODO(#1825): Don't use shell coordinates for polygon and multi-polygons.
+    val coordinates = this.flatMap { it.getShellCoordinates() }
     if (coordinates.isNotEmpty()) {
       val bounds = LatLngBounds.builder()
       coordinates.forEach { bounds.include(it.toGoogleMapsObject()) }
@@ -43,4 +46,14 @@ object GmsExt {
 
     return null
   }
+
+  /** Returns the list of [Coordinates] in the geometry or in the outer shell of the geometry. */
+  fun Geometry.getShellCoordinates(): List<Coordinates> =
+    when (this) {
+      is Point -> listOf(coordinates)
+      is LineString -> coordinates
+      is LinearRing -> coordinates
+      is Polygon -> getShellCoordinates()
+      is MultiPolygon -> polygons.flatMap { it.getShellCoordinates() }
+    }
 }
