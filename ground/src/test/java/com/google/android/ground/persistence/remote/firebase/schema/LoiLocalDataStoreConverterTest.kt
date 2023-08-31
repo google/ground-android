@@ -17,6 +17,7 @@ package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
@@ -103,7 +104,7 @@ class LoiLocalDataStoreConverterTest {
 
   private fun setUpTestSurvey(jobId: String, vararg tasks: Task) {
     val taskMap = tasks.associateBy { it.id }
-    val job = Job(jobId, "JOB_NAME", taskMap)
+    val job = Job(jobId, Style(), "JOB_NAME", taskMap)
     survey = Survey("", "", "", mapOf(Pair(job.id, job)))
   }
 

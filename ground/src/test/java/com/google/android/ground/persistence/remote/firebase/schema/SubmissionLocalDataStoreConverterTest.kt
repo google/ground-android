@@ -22,6 +22,7 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
@@ -279,7 +280,7 @@ class SubmissionLocalDataStoreConverterTest {
 
   private fun setUpTestSurvey(jobId: String, loiId: String, vararg tasks: Task) {
     val taskMap = tasks.associateBy { it.id }
-    job = Job(jobId, "JOB_NAME", taskMap)
+    job = Job(jobId, Style(), "JOB_NAME", taskMap)
     locationOfInterest =
       FakeData.LOCATION_OF_INTEREST.copy(id = loiId, surveyId = TEST_SURVEY_ID, job = job)
   }
