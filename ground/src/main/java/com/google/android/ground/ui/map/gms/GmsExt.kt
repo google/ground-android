@@ -28,7 +28,7 @@ object GmsExt {
 
   fun Bounds.contains(geometry: Geometry): Boolean {
     val latLngBounds = toGoogleMapsObject()
-    return geometry.vertices.any { latLngBounds.contains(it.toLatLng()) }
+    return geometry.toLatLngList().any { latLngBounds.contains(it) }
   }
 
   fun Bounds.center(): Coordinates = toGoogleMapsObject().center.toModelObject()
