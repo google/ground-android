@@ -43,7 +43,7 @@ import com.google.android.ground.persistence.local.room.fields.EntityState
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.*
 import com.google.android.ground.ui.map.Bounds
-import com.google.android.ground.ui.map.gms.toCoordinates
+import com.google.android.ground.ui.map.gms.GmsExt.getShellCoordinates
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.*
@@ -202,7 +202,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     val newLoi = loi.copy(geometry = Polygon(LinearRing(TEST_POLYGON_2)))
     localLoiStore.merge(newLoi)
     localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").test().assertValue {
-      it.geometry.toCoordinates() == TEST_POLYGON_2
+      it.geometry.getShellCoordinates() == TEST_POLYGON_2
     }
   }
 
