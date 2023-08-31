@@ -370,7 +370,8 @@ class LocalDataStoreTests : BaseHiltTest() {
   companion object {
     private val TEST_USER = User("user id", "user@gmail.com", "user 1")
     private val TEST_TASK = Task("task id", 1, Task.Type.TEXT, "task label", false)
-    private val TEST_JOB = Job("job id", Style(), "heading title", mapOf(Pair(TEST_TASK.id, TEST_TASK)))
+    private val TEST_JOB =
+      Job("job id", Style(), "heading title", mapOf(Pair(TEST_TASK.id, TEST_TASK)))
     private val TEST_SURVEY =
       Survey("survey id", "survey 1", "foo description", mapOf(Pair(TEST_JOB.id, TEST_JOB)))
     private val TEST_POINT = Point(Coordinates(110.0, -23.1))
