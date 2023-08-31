@@ -31,8 +31,8 @@ sealed interface Geometry {
    */
   fun center(): Coordinates
 
-  /** Number of vertices in the geometry. */
-  fun size(): Int
+  /** Returns true if there are non-zero vertices in the geometry. */
+  fun isEmpty(): Boolean
 
   /** Validates that the current [Geometry] is well-formed. */
   fun validate() {
@@ -49,7 +49,7 @@ sealed interface Geometry {
 data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()) : Geometry {
   override fun center(): Coordinates = shell.center()
 
-  override fun size() = shell.size()
+  override fun isEmpty() = shell.isEmpty()
 
   fun getShellCoordinates() = shell.coordinates
 }
@@ -60,7 +60,7 @@ data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()
 data class Point(val coordinates: Coordinates) : Geometry {
   override fun center(): Coordinates = coordinates
 
-  override fun size() = 1
+  override fun isEmpty() = false
 }
 
 /** A collection of [Polygon]s. */
@@ -69,7 +69,7 @@ data class Point(val coordinates: Coordinates) : Geometry {
 data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
   override fun center(): Coordinates = polygons.map { it.center() }.centerOrError()
 
-  override fun size() = polygons.sumOf { it.size() }
+  override fun isEmpty() = polygons.all { it.isEmpty() }
 }
 
 /** A sequence of two or more vertices modelling an OCG style line string. */
@@ -78,7 +78,7 @@ data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
 data class LineString(val coordinates: List<Coordinates>) : Geometry {
   override fun center(): Coordinates = coordinates.centerOrError()
 
-  override fun size() = coordinates.size
+  override fun isEmpty() = coordinates.isEmpty()
 }
 
 /**
@@ -95,7 +95,7 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
 
   override fun center(): Coordinates = coordinates.centerOrError()
 
-  override fun size() = coordinates.size
+  override fun isEmpty() = coordinates.isEmpty()
 
   override fun validate() {
     // TODO(#1647): Check for vertices count > 3

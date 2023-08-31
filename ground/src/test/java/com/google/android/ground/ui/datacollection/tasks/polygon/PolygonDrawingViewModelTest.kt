@@ -162,7 +162,7 @@ class PolygonDrawingViewModelTest : BaseHiltTest() {
     } else {
       assertNotNull(geometry)
       assertWithMessage(geometry.getShellCoordinates().toString())
-        .that(geometry.size())
+        .that(geometry.getShellCoordinates().size)
         .isEqualTo(expectedVerticesCount)
       assertThat(geometry)
         .isInstanceOf(
