@@ -17,7 +17,7 @@ package com.google.android.ground.model.mutation
 
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.TaskDataDelta
-import java.util.*
+import java.util.Date
 
 data class SubmissionMutation(
   override val id: Long? = null,
@@ -29,23 +29,10 @@ data class SubmissionMutation(
   override val clientTimestamp: Date = Date(),
   override val retryCount: Long = 0,
   override val lastError: String = "",
-  val job: Job? = null,
+  val job: Job,
   val submissionId: String = "",
   val taskDataDeltas: List<TaskDataDelta> = listOf()
 ) : Mutation() {
 
   override fun toString(): String = super.toString() + "deltas= $taskDataDeltas"
-
-  companion object {
-    fun filter(mutations: List<Mutation>): List<SubmissionMutation> =
-      mutations
-        .toTypedArray()
-        .filter {
-          when (it) {
-            is LocationOfInterestMutation -> false
-            is SubmissionMutation -> true
-          }
-        }
-        .map { it as SubmissionMutation }
-  }
 }

@@ -21,6 +21,7 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.persistence.local.room.converter.toModelObject
+import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
@@ -76,22 +77,29 @@ constructor(
    * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
    * specified id.
    */
-  suspend fun getPendingMutations(locationOfInterestId: String): List<Mutation> {
-    val pendingLoiMutations =
+  suspend fun getMutations(
+    loidId: String,
+    entitySyncStatus: MutationEntitySyncStatus
+  ): List<Mutation> {
+    val loiMutations =
       localLocationOfInterestStore
-        .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
-        .map { it.toModelObject() }
-    val pendingSubmissionMutations =
-      localSubmissionStore
-        .findByLocationOfInterestId(locationOfInterestId, MutationEntitySyncStatus.PENDING)
-        .mapNotNull { entity ->
-          localSurveyStore.getSurveyByIdSuspend(entity.surveyId)?.let { entity.toModelObject(it) }
-        }
-    return pendingLoiMutations + pendingSubmissionMutations
+        .findByLocationOfInterestId(loidId, entitySyncStatus)
+        .map(LocationOfInterestMutationEntity::toModelObject)
+    val submissionMutations =
+      localSubmissionStore.findByLocationOfInterestId(loidId, entitySyncStatus).map {
+        it.toSubmissionMutation()
+      }
+    return loiMutations + submissionMutations
   }
 
+  private suspend fun SubmissionMutationEntity.toSubmissionMutation(): SubmissionMutation =
+    toModelObject(
+      localSurveyStore.getSurveyByIdSuspend(surveyId)
+        ?: error("Survey missing $surveyId. Unable to fetch pending submission mutations.")
+    )
+
   /** Updates the provided list of mutations. */
-  suspend fun updateMutations(mutations: List<Mutation>) {
+  private suspend fun updateMutations(mutations: List<Mutation>) {
     val loiMutations = mutations.filterIsInstance<LocationOfInterestMutation>()
     localLocationOfInterestStore.updateAll(loiMutations)
 
@@ -122,18 +130,16 @@ constructor(
         }
       }
 
-  private suspend fun markComplete(mutations: List<Mutation>) {
-    val locationOfInterestMutations =
-      LocationOfInterestMutation.filter(mutations).map {
-        it.copy(syncStatus = Mutation.SyncStatus.COMPLETED)
-      }
-    val submissionMutations =
-      SubmissionMutation.filter(mutations).map {
-        it.copy(syncStatus = Mutation.SyncStatus.COMPLETED)
-      }
+  suspend fun markAsInProgress(mutations: List<Mutation>) {
+    updateMutations(mutations.updateMutationStatus(Mutation.SyncStatus.IN_PROGRESS))
+  }
 
-    localLocationOfInterestStore.updateAll(locationOfInterestMutations)
-    localSubmissionStore.updateAll(submissionMutations)
+  suspend fun markAsFailed(mutations: List<Mutation>, error: Throwable) {
+    updateMutations(mutations.updateMutationStatus(Mutation.SyncStatus.FAILED, error))
+  }
+
+  private suspend fun markComplete(mutations: List<Mutation>) {
+    updateMutations(mutations.updateMutationStatus(Mutation.SyncStatus.COMPLETED))
   }
 
   private fun combineAndSortMutations(
@@ -143,4 +149,20 @@ constructor(
     (locationOfInterestMutations + submissionMutations).sortedWith(
       Mutation.byDescendingClientTimestamp()
     )
+}
+
+private fun List<Mutation>.updateMutationStatus(
+  syncStatus: Mutation.SyncStatus,
+  error: Throwable? = null
+): List<Mutation> = map {
+  val hasSyncFailed = syncStatus == Mutation.SyncStatus.FAILED
+  val retryCount = if (hasSyncFailed) it.retryCount + 1 else it.retryCount
+  val errorMessage = if (hasSyncFailed) error?.message ?: error.toString() else it.lastError
+
+  when (it) {
+    is LocationOfInterestMutation ->
+      it.copy(syncStatus = syncStatus, retryCount = retryCount, lastError = errorMessage)
+    is SubmissionMutation ->
+      it.copy(syncStatus = syncStatus, retryCount = retryCount, lastError = errorMessage)
+  }
 }
