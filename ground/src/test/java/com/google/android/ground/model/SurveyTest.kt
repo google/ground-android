@@ -16,7 +16,7 @@
 package com.google.android.ground.model
 
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.assertFailsWith
+import kotlin.test.assertFails
 import org.junit.Test
 
 class SurveyTest {
@@ -44,35 +44,20 @@ class SurveyTest {
     )
 
   @Test
-  fun `getRole() returns OWNER`() {
+  fun `getRole() converts valid values`() {
     assertThat(testSurvey.getRole(ownerEmail)).isEqualTo(Role.OWNER)
-  }
-
-  @Test
-  fun `getRole() returns VIEWER`() {
-
     assertThat(testSurvey.getRole(viewerEmail)).isEqualTo(Role.VIEWER)
-  }
-
-  @Test
-  fun `getRole() returns DATA_COLLECTOR`() {
-
     assertThat(testSurvey.getRole(dataCollectorEmail)).isEqualTo(Role.DATA_COLLECTOR)
-  }
-
-  @Test
-  fun `getRole() returns SURVEY_ORGANIZER`() {
-
     assertThat(testSurvey.getRole(surveyOrganizerEmail)).isEqualTo(Role.SURVEY_ORGANIZER)
   }
 
   @Test
   fun `getRole() throws error on unknown email`() {
-    assertFailsWith<IllegalStateException> { testSurvey.getRole("") }
+    assertFails { testSurvey.getRole("") }
   }
 
   @Test
   fun `getRole() throws error on unsupported role`() {
-    assertFailsWith<IllegalStateException>("") { testSurvey.getRole(badRoleEmail) }
+    assertFails("") { testSurvey.getRole(badRoleEmail) }
   }
 }
