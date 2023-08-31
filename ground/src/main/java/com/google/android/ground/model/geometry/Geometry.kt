@@ -25,10 +25,6 @@ import kotlinx.serialization.modules.SerializersModule
 /** A common ancestor for all geometry types. */
 @Serializable
 sealed interface Geometry {
-  // TODO(#1246): Remove. Stick with concrete semantics; leave it to callers to discriminate
-  // subclasses.
-  val vertices: List<Point>
-
   /**
    * Returns the center coordinates of the geometry. It may or may not be within the geometry bounds
    * if the shape is irregular.
@@ -51,8 +47,6 @@ sealed interface Geometry {
 @Serializable
 @SerialName("polygon")
 data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()) : Geometry {
-  override val vertices: List<Point> = shell.vertices
-
   override fun center(): Coordinates = shell.center()
 
   override fun size() = shell.size()
@@ -62,8 +56,6 @@ data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()
 @Serializable
 @SerialName("point")
 data class Point(val coordinates: Coordinates) : Geometry {
-  override val vertices: List<Point> = listOf(this)
-
   override fun center(): Coordinates = coordinates
 
   override fun size() = 1
@@ -73,8 +65,6 @@ data class Point(val coordinates: Coordinates) : Geometry {
 @Serializable
 @SerialName("multi_polygon")
 data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
-  override val vertices: List<Point> = polygons.flatMap { it.vertices }
-
   override fun center(): Coordinates = polygons.map { it.center() }.centerOrError()
 
   override fun size() = polygons.sumOf { it.size() }
@@ -84,8 +74,6 @@ data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
 @Serializable
 @SerialName("line_string")
 data class LineString(val coordinates: List<Coordinates>) : Geometry {
-  override val vertices: List<Point> = coordinates.map { Point(it) }
-
   override fun center(): Coordinates = coordinates.centerOrError()
 
   override fun size() = coordinates.size
@@ -102,8 +90,6 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
   init {
     validate()
   }
-
-  override val vertices: List<Point> = coordinates.map { Point(it) }
 
   override fun center(): Coordinates = coordinates.centerOrError()
 
