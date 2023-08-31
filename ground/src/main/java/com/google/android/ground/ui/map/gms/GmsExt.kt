@@ -23,9 +23,6 @@ import com.google.android.ground.ui.map.Bounds
 /** Extensions for indirectly using GMS functions in map-provider agnostic codebase. */
 object GmsExt {
 
-  fun Bounds.contains(coordinates: Coordinates): Boolean =
-    toGoogleMapsObject().contains(coordinates.toGoogleMapsObject())
-
   fun Bounds.contains(geometry: Geometry): Boolean {
     val latLngBounds = toGoogleMapsObject()
     return geometry.toLatLngList().any { latLngBounds.contains(it) }
@@ -34,7 +31,7 @@ object GmsExt {
   fun Bounds.center(): Coordinates = toGoogleMapsObject().center.toModelObject()
 
   fun List<Geometry>.toBounds(): Bounds? {
-    val coordinates = this.map { it.vertices.first().coordinates }
+    val coordinates = this.flatMap { it.toCoordinates() }
     if (coordinates.isNotEmpty()) {
       val bounds = LatLngBounds.builder()
       coordinates.forEach { bounds.include(it.toGoogleMapsObject()) }

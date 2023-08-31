@@ -45,11 +45,13 @@ fun Coordinates.toLatLng(): LatLng = LatLng(lat, lng)
 
 fun Location.toCoordinates(): Coordinates = Coordinates(latitude, longitude)
 
-fun Geometry.toLatLngList(): List<LatLng> =
+fun Geometry.toCoordinates(): List<Coordinates> =
   when (this) {
     is Point -> listOf(coordinates)
     is LineString -> coordinates
     is LinearRing -> coordinates
     is Polygon -> shell.coordinates
     is MultiPolygon -> polygons.flatMap { it.shell.coordinates }
-  }.map { it.toLatLng() }
+  }
+
+fun Geometry.toLatLngList(): List<LatLng> = toCoordinates().map { it.toLatLng() }
