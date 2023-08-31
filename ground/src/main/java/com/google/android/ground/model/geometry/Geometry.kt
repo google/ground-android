@@ -50,6 +50,8 @@ data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()
   override fun center(): Coordinates = shell.center()
 
   override fun size() = shell.size()
+
+  fun getShellCoordinates() = shell.coordinates
 }
 
 /** Represents a single point. */

@@ -53,7 +53,7 @@ object GmsExt {
       is Point -> listOf(coordinates)
       is LineString -> coordinates
       is LinearRing -> coordinates
-      is Polygon -> shell.coordinates
-      is MultiPolygon -> polygons.flatMap { it.shell.coordinates }
+      is Polygon -> getShellCoordinates()
+      is MultiPolygon -> polygons.flatMap { it.getShellCoordinates() }
     }
 }

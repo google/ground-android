@@ -46,7 +46,7 @@ internal object LoiMutationConverter {
         map.addGeometryCoordinates(geometry.coordinates.toGeoPoint(), LoiConverter.POINT_TYPE)
       is Polygon ->
         map.addGeometryCoordinates(
-          geometry.shell.coordinates.toGeoPointList(),
+          geometry.getShellCoordinates().toGeoPointList(),
           LoiConverter.POLYGON_TYPE
         )
       else -> {}

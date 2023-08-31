@@ -50,7 +50,7 @@ class PolygonRenderer(
     val options = PolygonOptions()
     options.clickable(false)
 
-    val shellVertices = polygon.shell.coordinates.map { it.toLatLng() }
+    val shellVertices = polygon.getShellCoordinates().map { it.toLatLng() }
     options.addAll(shellVertices)
 
     val holes = polygon.holes.map { hole -> hole.coordinates.map { it.toLatLng() } }
