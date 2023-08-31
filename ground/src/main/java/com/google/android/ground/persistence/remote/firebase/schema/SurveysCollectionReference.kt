@@ -16,7 +16,7 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.Constants
+import com.google.android.ground.model.Role
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.remote.firebase.base.FluentCollectionReference
@@ -25,13 +25,6 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldPath
 
 private const val ACL_FIELD = "acl"
-private val VALID_ROLES =
-  listOf(
-    Constants.OWNER,
-    Constants.SURVEY_ORGANIZER,
-    Constants.DATA_COLLECTOR,
-    Constants.VIEWER_ROLE
-  )
 
 class SurveysCollectionReference internal constructor(ref: CollectionReference) :
   FluentCollectionReference(ref) {
@@ -39,7 +32,7 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
   fun survey(id: String) = SurveyDocumentReference(reference().document(id))
 
   suspend fun getReadable(user: User): List<Survey> =
-    runQuery(reference().whereIn(FieldPath.of(ACL_FIELD, user.email), VALID_ROLES)) {
+    runQuery(reference().whereIn(FieldPath.of(ACL_FIELD, user.email), Role.valueStrings())) {
       doc: DocumentSnapshot ->
       SurveyConverter.toSurvey(doc)
     }

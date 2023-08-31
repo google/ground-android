@@ -25,7 +25,7 @@ class SurveyTest {
   private val viewerEmail = "viewer_email@gmail.com"
   private val dataCollectorEmail = "data_collector_email@gmail.com"
   private val surveyOrganizerEmail = "survey_organizer_email@gmail.com"
-  private val randomEmail = "random_email@gmail.com"
+  private val badRoleEmail = "random_email@gmail.com"
   private val testSurvey =
     Survey(
       id = "survey 1",
@@ -35,33 +35,44 @@ class SurveyTest {
       tileSources = listOf(),
       acl =
         mapOf(
-          Pair(ownerEmail, "owner"),
-          Pair(viewerEmail, "viewer"),
-          Pair(dataCollectorEmail, "data-collector"),
-          Pair(surveyOrganizerEmail, "survey-organizer"),
-          Pair(randomEmail, "random-acl")
+          Pair(ownerEmail, Role.OWNER.toString()),
+          Pair(viewerEmail, Role.VIEWER.toString()),
+          Pair(dataCollectorEmail, Role.DATA_COLLECTOR.toString()),
+          Pair(surveyOrganizerEmail, Role.SURVEY_ORGANIZER.toString()),
+          Pair(badRoleEmail, "UNKNOWN_ROLE")
         )
     )
 
   @Test
-  fun getRole() {
-    // known acl
+  fun `getRole() returns OWNER`() {
     assertThat(testSurvey.getRole(ownerEmail)).isEqualTo(Role.OWNER)
-    assertThat(testSurvey.getRole(viewerEmail)).isEqualTo(Role.VIEWER)
-    assertThat(testSurvey.getRole(dataCollectorEmail)).isEqualTo(Role.DATA_COLLECTOR)
-    assertThat(testSurvey.getRole(surveyOrganizerEmail)).isEqualTo(Role.SURVEY_ORGANIZER)
-
-    // unknown acl
-    assertFailsWith<IllegalStateException> { testSurvey.getRole(randomEmail) }
-      .hasMessage("Unknown acl random-acl in survey Survey title for user random_email@gmail.com")
-
-    // missing email
-    assertFailsWith<IllegalStateException>("") { testSurvey.getRole("") }
-      .hasMessage("ACL not found for email  in survey Survey title")
-    assertFailsWith<IllegalStateException>("") { testSurvey.getRole("some-email") }
-      .hasMessage("ACL not found for email some-email in survey Survey title")
   }
 
-  private fun Throwable.hasMessage(actualMessage: String) =
-    assertThat(message).isEqualTo(actualMessage)
+  @Test
+  fun `getRole() returns VIEWER`() {
+
+    assertThat(testSurvey.getRole(viewerEmail)).isEqualTo(Role.VIEWER)
+  }
+
+  @Test
+  fun `getRole() returns DATA_COLLECTOR`() {
+
+    assertThat(testSurvey.getRole(dataCollectorEmail)).isEqualTo(Role.DATA_COLLECTOR)
+  }
+
+  @Test
+  fun `getRole() returns SURVEY_ORGANIZER`() {
+
+    assertThat(testSurvey.getRole(surveyOrganizerEmail)).isEqualTo(Role.SURVEY_ORGANIZER)
+  }
+
+  @Test
+  fun `getRole() throws error on unknown email`() {
+    assertFailsWith<IllegalStateException> { testSurvey.getRole("") }
+  }
+
+  @Test
+  fun `getRole() throws error on unsupported role`() {
+    assertFailsWith<IllegalStateException>("") { testSurvey.getRole(badRoleEmail) }
+  }
 }
