@@ -19,7 +19,10 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.gms.maps.model.PolygonOptions
-import com.google.android.ground.model.geometry.Geometry
+import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.MultiPolygon
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.map.Feature
@@ -35,8 +38,18 @@ class PolygonRenderer(
 
   private val polygons: MutableMap<Feature, MutableList<MapsPolygon>> = HashMap()
 
-  override fun addFeature(feature: Feature, geometry: Geometry) {
-    val polygon = geometry as Polygon
+  override fun addFeature(feature: Feature) {
+    when (feature.geometry) {
+      is Point,
+      is LineString,
+      is LinearRing ->
+        throw IllegalArgumentException("Can't render polygon for geometry : ${feature.geometry}")
+      is Polygon -> render(feature, feature.geometry)
+      is MultiPolygon -> feature.geometry.polygons.map { render(feature, it) }
+    }
+  }
+
+  private fun render(feature: Feature, polygon: Polygon) {
     val options = PolygonOptions()
     options.clickable(false)
 

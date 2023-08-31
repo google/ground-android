@@ -20,7 +20,12 @@ import com.google.android.gms.maps.model.CustomCap
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
-import com.google.android.ground.model.geometry.Geometry
+import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.MultiPolygon
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.gms.toLatLng
 
@@ -33,8 +38,18 @@ class PolylineRenderer(
 
   private val polylines: MutableMap<Feature, MutableList<Polyline>> = HashMap()
 
-  override fun addFeature(feature: Feature, geometry: Geometry) {
-    val points = geometry.vertices
+  override fun addFeature(feature: Feature) {
+    when (feature.geometry) {
+      is Point,
+      is MultiPolygon,
+      is Polygon ->
+        throw IllegalArgumentException("Can't render polyline for geometry: ${feature.geometry}")
+      is LineString -> render(feature, feature.geometry.coordinates)
+      is LinearRing -> render(feature, feature.geometry.coordinates)
+    }
+  }
+
+  private fun render(feature: Feature, points: List<Coordinates>) {
     val options = PolylineOptions()
     options.clickable(false)
 
@@ -42,7 +57,7 @@ class PolylineRenderer(
     options.addAll(shellVertices)
 
     val polyline: Polyline = map.addPolyline(options)
-    polyline.tag = points
+    polyline.tag = feature.tag
     polyline.startCap = customCap
     polyline.endCap = customCap
     polyline.width = strokeWidth
