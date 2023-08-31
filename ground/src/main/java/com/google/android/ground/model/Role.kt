@@ -19,5 +19,9 @@ enum class Role {
   DATA_COLLECTOR,
   OWNER,
   SURVEY_ORGANIZER,
-  VIEWER
+  VIEWER;
+
+  companion object {
+    fun valueStrings() = values().map(Role::toString)
+  }
 }
