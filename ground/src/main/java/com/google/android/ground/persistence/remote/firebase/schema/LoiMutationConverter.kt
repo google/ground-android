@@ -17,6 +17,7 @@
 package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.User
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
@@ -41,10 +42,11 @@ internal object LoiMutationConverter {
     map[LoiConverter.SUBMISSION_COUNT] = mutation.submissionCount
 
     when (val geometry = mutation.geometry) {
-      is Point -> map.addGeometryCoordinates(toGeoPoint(geometry), LoiConverter.POINT_TYPE)
+      is Point ->
+        map.addGeometryCoordinates(geometry.coordinates.toGeoPoint(), LoiConverter.POINT_TYPE)
       is Polygon ->
         map.addGeometryCoordinates(
-          toGeoPointList(geometry.shell.vertices),
+          geometry.shell.coordinates.toGeoPointList(),
           LoiConverter.POLYGON_TYPE
         )
       else -> {}
@@ -77,7 +79,7 @@ internal object LoiMutationConverter {
     this[LoiConverter.GEOMETRY] = geometryMap
   }
 
-  private fun toGeoPoint(point: Point) = GeoPoint(point.coordinates.lat, point.coordinates.lng)
+  private fun Coordinates.toGeoPoint() = GeoPoint(lat, lng)
 
-  private fun toGeoPointList(point: List<Point>): List<GeoPoint> = point.map { toGeoPoint(it) }
+  private fun List<Coordinates>.toGeoPointList(): List<GeoPoint> = this.map { it.toGeoPoint() }
 }
