@@ -53,7 +53,7 @@ internal object SubmissionMutationConverter {
       }
     }
     map[LOI_ID] = mutation.locationOfInterestId
-    map[JOB_ID] = mutation.job!!.id
+    map[JOB_ID] = mutation.job.id
     map[RESPONSES] = toMap(mutation.taskDataDeltas)
     return map.toPersistentMap()
   }

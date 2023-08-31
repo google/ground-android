@@ -16,12 +16,22 @@
 package com.google.android.ground.persistence.local.stores
 
 import com.google.android.ground.model.User
+import com.google.android.ground.persistence.local.room.LocalDataStoreException
 
 /** Provides access to [User] data in local storage. */
 interface LocalUserStore {
   /** Add user to the database. */
   suspend fun insertOrUpdateUser(user: User)
 
-  /** Loads the user with the specified id from the local data store. */
+  /**
+   * Loads the [User] with the specified id from the local data store.
+   *
+   * @throws LocalDataStoreException if the user is not found.
+   */
   suspend fun getUser(id: String): User
+
+  /**
+   * Loads the [User] with the specified id from the local data store. If not found, returns null.
+   */
+  suspend fun getUserOrNull(id: String): User?
 }

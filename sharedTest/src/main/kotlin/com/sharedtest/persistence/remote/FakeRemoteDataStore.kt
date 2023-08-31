@@ -34,6 +34,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
     private set
 
   var termsOfService: Result<TermsOfService?>? = null
+  var applyMutationError: Error? = null
 
   private val subscribedSurveyIds = mutableSetOf<String>()
 
@@ -50,7 +51,9 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   }
 
   override suspend fun applyMutations(mutations: List<Mutation>, user: User) {
-    TODO("Missing implementation")
+    if (applyMutationError != null) {
+      throw applyMutationError as Error
+    }
   }
 
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {

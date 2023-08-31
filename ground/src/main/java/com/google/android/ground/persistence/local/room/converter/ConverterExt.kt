@@ -286,7 +286,7 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
 
   return SubmissionEntity(
     id = this.submissionId,
-    jobId = this.job!!.id,
+    jobId = this.job.id,
     locationOfInterestId = this.locationOfInterestId,
     state = EntityState.DEFAULT,
     responses = ResponseMapConverter.toString(TaskDataMap().copyWithDeltas(this.taskDataDeltas)),
@@ -323,7 +323,7 @@ fun SubmissionMutation.toLocalDataStoreObject() =
     id = id,
     surveyId = surveyId,
     locationOfInterestId = locationOfInterestId,
-    jobId = job!!.id,
+    jobId = job.id,
     submissionId = submissionId,
     type = MutationEntityType.fromMutationType(type),
     syncStatus = MutationEntitySyncStatus.fromMutationSyncStatus(syncStatus),

@@ -16,7 +16,7 @@
 package com.google.android.ground.model.mutation
 
 import com.google.android.ground.model.geometry.Geometry
-import java.util.*
+import java.util.Date
 
 data class LocationOfInterestMutation(
   override val id: Long? = null,
@@ -32,18 +32,4 @@ data class LocationOfInterestMutation(
   val geometry: Geometry? = null,
   val caption: String? = null,
   val submissionCount: Int = 0
-) : Mutation() {
-
-  companion object {
-    fun filter(mutations: List<Mutation>): List<LocationOfInterestMutation> =
-      mutations
-        .toTypedArray()
-        .filter {
-          when (it) {
-            is LocationOfInterestMutation -> true
-            is SubmissionMutation -> false
-          }
-        }
-        .map { it as LocationOfInterestMutation }
-  }
-}
+) : Mutation()
