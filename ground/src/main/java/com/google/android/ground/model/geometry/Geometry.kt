@@ -31,7 +31,7 @@ sealed interface Geometry {
    */
   fun center(): Coordinates
 
-  /** Returns true if there are non-zero vertices in the geometry. */
+  /** Returns true if there are one or more vertices in the geometry. */
   fun isEmpty(): Boolean
 
   /** Validates that the current [Geometry] is well-formed. */
