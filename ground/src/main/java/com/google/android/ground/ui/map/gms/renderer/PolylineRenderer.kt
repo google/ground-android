@@ -23,9 +23,6 @@ import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
-import com.google.android.ground.model.geometry.MultiPolygon
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.gms.toLatLng
 
@@ -40,12 +37,12 @@ class PolylineRenderer(
 
   override fun addFeature(feature: Feature) {
     when (feature.geometry) {
-      is Point,
-      is MultiPolygon,
-      is Polygon ->
-        throw IllegalArgumentException("Can't render polyline for geometry: ${feature.geometry}")
       is LineString -> render(feature, feature.geometry.coordinates)
       is LinearRing -> render(feature, feature.geometry.coordinates)
+      else ->
+        throw IllegalArgumentException(
+          "PolylineRendered expected LineString or LinearRing, but got ${feature.geometry::class.simpleName}"
+        )
     }
   }
 
