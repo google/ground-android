@@ -312,10 +312,9 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     when (feature.geometry) {
       is Point -> clusterManager.addOrUpdateLocationOfInterestFeature(feature)
       is LineString,
-      is LinearRing -> polylineRenderer.addFeature(feature, feature.geometry)
-      is Polygon -> polygonRenderer.addFeature(feature, feature.geometry)
-      is MultiPolygon ->
-        feature.geometry.polygons.forEach { polygonRenderer.addFeature(feature, it) }
+      is LinearRing -> polylineRenderer.addFeature(feature)
+      is Polygon,
+      is MultiPolygon -> polygonRenderer.addFeature(feature)
     }
   }
 

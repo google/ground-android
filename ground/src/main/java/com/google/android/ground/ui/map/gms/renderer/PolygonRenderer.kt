@@ -19,7 +19,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.gms.maps.model.PolygonOptions
-import com.google.android.ground.model.geometry.Geometry
+import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.map.Feature
@@ -35,15 +35,25 @@ class PolygonRenderer(
 
   private val polygons: MutableMap<Feature, MutableList<MapsPolygon>> = HashMap()
 
-  override fun addFeature(feature: Feature, geometry: Geometry) {
-    val polygon = geometry as Polygon
+  override fun addFeature(feature: Feature) {
+    when (feature.geometry) {
+      is Polygon -> render(feature, feature.geometry)
+      is MultiPolygon -> feature.geometry.polygons.map { render(feature, it) }
+      else ->
+        throw IllegalArgumentException(
+          "PolylineRendered expected Polygon or MultiPolygon, but got ${feature.geometry::class.simpleName}"
+        )
+    }
+  }
+
+  private fun render(feature: Feature, polygon: Polygon) {
     val options = PolygonOptions()
     options.clickable(false)
 
-    val shellVertices = polygon.shell.vertices.map { it.toLatLng() }
+    val shellVertices = polygon.getShellCoordinates().map { it.toLatLng() }
     options.addAll(shellVertices)
 
-    val holes = polygon.holes.map { hole -> hole.vertices.map { point -> point.toLatLng() } }
+    val holes = polygon.holes.map { hole -> hole.coordinates.map { it.toLatLng() } }
     holes.forEach { options.addHole(it) }
 
     val mapsPolygon = map.addPolygon(options)
