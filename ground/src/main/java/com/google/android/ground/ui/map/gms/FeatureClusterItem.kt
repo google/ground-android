@@ -21,11 +21,11 @@ import com.google.maps.android.clustering.ClusterItem
 
 /** A [ClusterItem] implementation for clustering map [Feature]s. */
 data class FeatureClusterItem(val feature: Feature) : ClusterItem {
+  val style = feature.style
+  
   override fun getPosition(): LatLng = feature.geometry.center().toGoogleMapsObject()
 
   override fun getTitle(): String? = null
 
   override fun getSnippet(): String? = null
-
-  val style = feature.style
 }
