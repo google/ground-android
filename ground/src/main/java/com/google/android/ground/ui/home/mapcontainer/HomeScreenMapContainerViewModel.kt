@@ -22,7 +22,10 @@ import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.repository.*
+import com.google.android.ground.repository.LocationOfInterestRepository
+import com.google.android.ground.repository.MapStateRepository
+import com.google.android.ground.repository.OfflineAreaRepository
+import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
@@ -41,8 +44,9 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.rx2.asFlowable
 import timber.log.Timber
 
 @SharedViewModel
@@ -68,7 +72,7 @@ internal constructor(
     surveyRepository
   ) {
 
-  val mapLocationOfInterestFeatures: LiveData<Set<Feature>>
+  val mapLocationOfInterestFeatures: Flow<Set<Feature>>
 
   private var lastCameraPosition: CameraPosition? = null
 
@@ -87,20 +91,19 @@ internal constructor(
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     // TODO: Clear location of interest markers when survey is deactivated.
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
-    // into the repo
+    //  into the repository.
+
     // LOIs that are persisted to the local and remote dbs.
     mapLocationOfInterestFeatures =
-      surveyRepository.activeSurveyFlowable
-        .switchMap { survey ->
-          if (survey.isPresent)
-            locationOfInterestRepository
-              .findLocationsOfInterestFeatures(survey.get())
-              .asFlowable()
-              .startWith(setOf<Feature>())
-              .distinctUntilChanged()
-          else Flowable.just(setOf())
+      surveyRepository.activeSurveyFlow
+        .transform { survey ->
+          if (survey == null) {
+            emit(setOf())
+          } else {
+            emitAll(locationOfInterestRepository.findLocationsOfInterestFeatures(survey))
+          }
         }
-        .toLiveData()
+        .distinctUntilChanged()
 
     loisWithinMapBoundsAtVisibleZoomLevel =
       surveyRepository.activeSurveyFlowable

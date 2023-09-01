@@ -175,7 +175,10 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
 
   override fun onMapReady(map: Map) {
     // Observe events emitted by the ViewModel.
-    mapContainerViewModel.mapLocationOfInterestFeatures.observe(this) { map.renderFeatures(it) }
+    viewLifecycleOwner.lifecycleScope.launch {
+      mapContainerViewModel.mapLocationOfInterestFeatures.collect { map.renderFeatures(it) }
+    }
+
     homeScreenViewModel.bottomSheetState.observe(this) { state: BottomSheetState ->
       onBottomSheetStateChange(state, map)
     }
@@ -210,7 +213,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
   }
 
   private fun onZoomThresholdCrossed() {
-    Timber.v("Refresh markers after zoom threshold crossed")
+    Timber.v("GoogleMapsFragment: Refresh markers after zoom threshold crossed")
     map.refresh()
   }
 }
