@@ -18,6 +18,8 @@
 
 <resources>
   <color name="colorMapAccent">#ff9131</color>
+  <color name="clusterColor">#6DDD81</color>
+  <color name="polyLineColor">#55ffffff</color>
 
   <!-- Updated Color palette -->
   <color name="md_theme_primary">#006E2C</color>

@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.map.gms
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -38,7 +37,6 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.imagery.TileSource.Type.MOG_COLLECTION
 import com.google.android.ground.model.imagery.TileSource.Type.TILED_WEB_MAP
-import com.google.android.ground.model.job.Style
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
@@ -182,8 +180,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   private fun onMapReady(map: GoogleMap) {
     this.map = map
 
-    // TODO(jsunde): Figure out where we want to get the style from parseColor(Style().color)
-    val featureColor = parseColor(Style().color)
+    val featureColor = resources.getColor(R.color.clusterColor)
 
     clusterManager = FeatureClusterManager(context, map)
     clusterRenderer =
@@ -200,7 +197,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
 
     polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth, featureColor)
     polygonRenderer =
-      PolygonRenderer(map, polylineStrokeWidth, parseColor("#55ffffff"), featureColor)
+      PolygonRenderer(
+        map,
+        polylineStrokeWidth,
+        resources.getColor(R.color.polyLineColor),
+        featureColor
+      )
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
@@ -330,14 +332,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   }
 
   override fun refresh() = renderFeatures(clusterManager.getManagedFeatures())
-
-  private fun parseColor(colorHexCode: String?): Int =
-    try {
-      Color.parseColor(colorHexCode.toString())
-    } catch (e: IllegalArgumentException) {
-      Timber.w(e, "Invalid color code in job style: $colorHexCode")
-      resources.getColor(R.color.colorMapAccent)
-    }
 
   private fun onCameraIdle() {
     clusterRenderer.zoom = map.cameraPosition.zoom

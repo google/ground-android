@@ -150,7 +150,8 @@ constructor(
           id = it.id,
           type = FeatureType.LOCATION_OF_INTEREST.ordinal,
           flag = submissionCount > 0,
-          geometry = it.geometry
+          geometry = it.geometry,
+          style = it.job.style
         )
       }
       .toPersistentSet()

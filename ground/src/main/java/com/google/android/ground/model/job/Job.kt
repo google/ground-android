@@ -23,6 +23,7 @@ import com.google.android.ground.model.task.Task
  */
 data class Job(
   val id: String,
+  val style: Style,
   val name: String? = null,
   val tasks: Map<String, Task> = mapOf(),
   val suggestLoiTaskType: Task.Type? = null,
