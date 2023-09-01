@@ -25,6 +25,7 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.gms.toLatLng
+import timber.log.Timber
 
 class PolygonRenderer(
   map: GoogleMap,
@@ -47,6 +48,8 @@ class PolygonRenderer(
   }
 
   private fun render(feature: Feature, polygon: Polygon) {
+    Timber.d("Adding polygon $feature")
+
     val options = PolygonOptions()
     options.clickable(false)
 

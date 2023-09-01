@@ -213,7 +213,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
   }
 
   private fun onZoomThresholdCrossed() {
-    Timber.v("GoogleMapsFragment: Refresh markers after zoom threshold crossed")
+    Timber.v("Refresh markers after zoom threshold crossed")
     map.refresh()
   }
 }
