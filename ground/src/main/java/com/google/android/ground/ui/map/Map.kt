@@ -101,4 +101,7 @@ interface Map {
 
   /** Remove all tile overlays from the map. */
   fun clearTileOverlays()
+
+  /** Removes all markers, overlays, polylines and polygons from the map. */
+  fun clear()
 }

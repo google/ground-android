@@ -291,16 +291,14 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   }
 
   private fun removeStaleFeatures(features: Set<Feature>) {
-    removeStalePoints(features)
+    Timber.d("Removing stale features from map")
+    clusterManager.removeStaleFeatures(features)
     polylineRenderer.removeStaleFeatures(features)
     polygonRenderer.removeStaleFeatures(features)
   }
 
-  private fun removeStalePoints(features: Set<Feature>) {
-    clusterManager.removeStaleFeatures(features)
-  }
-
   private fun removeAllFeatures() {
+    Timber.d("Removing all features from map")
     clusterManager.removeAllFeatures()
     polylineRenderer.removeAllFeatures()
     polygonRenderer.removeAllFeatures()
@@ -321,7 +319,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     Timber.v("renderFeatures() called with ${features.size} locations of interest")
     if (features.isNotEmpty()) {
       removeStaleFeatures(features)
-      Timber.v("Updating ${features.size} features")
+      Timber.d("Updating ${features.size} features")
       features.forEach(this::addOrUpdateLocationOfInterest)
     } else {
       removeAllFeatures()
@@ -393,6 +391,11 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
 
     tileOverlays.toImmutableList().forEach { it.remove() }
     tileOverlays.clear()
+  }
+
+  override fun clear() {
+    Timber.d("Removes all markers, overlays, polylines and polygons from the map.")
+    map.clear()
   }
 
   override fun setActiveLocationOfInterest(newLoiId: String?) {
