@@ -318,8 +318,8 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
 
   override fun renderFeatures(features: Set<Feature>) {
     // Re-cluster and re-render
+    Timber.v("renderFeatures() called with ${features.size} locations of interest")
     if (features.isNotEmpty()) {
-      Timber.v("renderFeatures() called with ${features.size} locations of interest")
       removeStaleFeatures(features)
       Timber.v("Updating ${features.size} features")
       features.forEach(this::addOrUpdateLocationOfInterest)
@@ -329,7 +329,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     clusterManager.cluster()
   }
 
-  override fun refresh() = renderFeatures(clusterManager.getManagedFeatures())
+  override fun refresh() {
+    Timber.v("Refresh features")
+    renderFeatures(clusterManager.getManagedFeatures())
+  }
 
   private fun parseColor(colorHexCode: String?): Int =
     try {
@@ -393,6 +396,8 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   }
 
   override fun setActiveLocationOfInterest(newLoiId: String?) {
+    if (newLoiId == clusterManager.activeLocationOfInterest) return
+
     clusterRenderer.previousActiveLoiId = clusterManager.activeLocationOfInterest
     clusterManager.activeLocationOfInterest = newLoiId
 
