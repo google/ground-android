@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.map.gms
+package com.google.android.ground.persistence.local.room.entity
 
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.ground.ui.map.Feature
-import com.google.maps.android.clustering.ClusterItem
+import androidx.room.ColumnInfo
 
-/** A [ClusterItem] implementation for clustering map [Feature]s. */
-data class FeatureClusterItem(val feature: Feature) : ClusterItem {
-  val style = feature.style
-
-  override fun getPosition(): LatLng = feature.geometry.center().toGoogleMapsObject()
-
-  override fun getTitle(): String? = null
-
-  override fun getSnippet(): String? = null
-}
+/** Style data for job. */
+data class StyleEntity(@ColumnInfo(name = "color") val color: String?)

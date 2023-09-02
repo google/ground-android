@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,16 @@
  */
 package com.google.android.ground.ui.map.gms
 
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.ground.ui.map.Feature
-import com.google.maps.android.clustering.ClusterItem
+import android.content.res.Resources
+import android.graphics.Color
+import com.google.android.ground.R
+import timber.log.Timber
 
-/** A [ClusterItem] implementation for clustering map [Feature]s. */
-data class FeatureClusterItem(val feature: Feature) : ClusterItem {
-  val style = feature.style
-
-  override fun getPosition(): LatLng = feature.geometry.center().toGoogleMapsObject()
-
-  override fun getTitle(): String? = null
-
-  override fun getSnippet(): String? = null
-}
+/** Extension function for getting a color from a hex string. */
+fun String.parseColor(resources: Resources): Int =
+  try {
+    Color.parseColor(this)
+  } catch (e: IllegalArgumentException) {
+    Timber.w(e, "Invalid color code: $this")
+    resources.getColor(R.color.colorMapAccent)
+  }

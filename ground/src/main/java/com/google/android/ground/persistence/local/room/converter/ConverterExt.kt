@@ -22,6 +22,7 @@ import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.SubmissionMutation
@@ -100,18 +101,24 @@ fun Job.toLocalDataStoreObject(surveyId: String): JobEntity =
     id = id,
     surveyId = surveyId,
     name = name,
-    suggestLoiTaskType = suggestLoiTaskType?.toString()
+    suggestLoiTaskType = suggestLoiTaskType?.toString(),
+    style = style.toLocalDataStoreObject()
   )
 
 fun JobEntityAndRelations.toModelObject(): Job {
   val taskMap = taskEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
   return Job(
     jobEntity.id,
+    jobEntity.style.toModelObject(),
     jobEntity.name,
     taskMap.toPersistentMap(),
     jobEntity.suggestLoiTaskType?.let { Task.Type.valueOf(it) }
   )
 }
+
+fun StyleEntity.toModelObject() = color?.let { Style(it) } ?: Style()
+
+fun Style.toLocalDataStoreObject() = StyleEntity(color)
 
 fun LocationOfInterest.toLocalDataStoreObject() =
   LocationOfInterestEntity(

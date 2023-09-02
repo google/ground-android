@@ -21,6 +21,7 @@ import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.MultipleChoice
@@ -38,7 +39,7 @@ object FakeData {
   val TERMS_OF_SERVICE: TermsOfService =
     TermsOfService("TERMS_OF_SERVICE", "Fake Terms of Service text")
 
-  val JOB = Job(name = "Job", id = "JOB")
+  val JOB = Job(name = "Job", id = "JOB", style = Style())
 
   val USER = User("user_id", "user@gmail.com", "User")
 

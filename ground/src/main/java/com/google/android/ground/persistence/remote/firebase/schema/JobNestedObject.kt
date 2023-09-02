@@ -21,6 +21,7 @@ import com.google.firebase.firestore.IgnoreExtraProperties
 /** Firestore representation of map layers. */
 @IgnoreExtraProperties
 data class JobNestedObject(
+  val defaultStyle: StyleNestedObject = StyleNestedObject(),
   val name: String? = null,
   val tasks: Map<String, TaskNestedObject>? = null,
   val suggestLoiTaskType: String? = null

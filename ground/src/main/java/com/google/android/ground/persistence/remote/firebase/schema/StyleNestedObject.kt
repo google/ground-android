@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.map.gms
+package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.ground.ui.map.Feature
-import com.google.maps.android.clustering.ClusterItem
+import com.google.android.ground.model.job.Style
+import com.google.firebase.firestore.IgnoreExtraProperties
 
-/** A [ClusterItem] implementation for clustering map [Feature]s. */
-data class FeatureClusterItem(val feature: Feature) : ClusterItem {
-  val style = feature.style
+/** Firestore representation of map layers. */
+@IgnoreExtraProperties data class StyleNestedObject(val color: String = "#ff9131")
 
-  override fun getPosition(): LatLng = feature.geometry.center().toGoogleMapsObject()
-
-  override fun getTitle(): String? = null
-
-  override fun getSnippet(): String? = null
-}
+fun StyleNestedObject.toStyle(): Style = Style(color)

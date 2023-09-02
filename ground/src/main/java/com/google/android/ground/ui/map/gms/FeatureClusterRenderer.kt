@@ -33,7 +33,7 @@ import timber.log.Timber
  * individual markers for each cluster item.
  */
 class FeatureClusterRenderer(
-  context: Context,
+  private val context: Context,
   private val map: GoogleMap,
   private val clusterManager: FeatureClusterManager,
   private val clusteringZoomThreshold: Float,
@@ -53,17 +53,21 @@ class FeatureClusterRenderer(
 
   private fun getCurrentZoomLevel() = map.cameraPosition.zoom
 
-  private fun getMarkerIcon(isSelected: Boolean = false): BitmapDescriptor =
-    markerIconFactory.getMarkerIcon(markerColor, getCurrentZoomLevel(), isSelected)
+  private fun getMarkerIcon(isSelected: Boolean = false, color: String): BitmapDescriptor =
+    markerIconFactory.getMarkerIcon(
+      color.parseColor(context.resources),
+      getCurrentZoomLevel(),
+      isSelected
+    )
 
   /** Sets appropriate styling for clustered markers prior to rendering. */
   override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
-    markerOptions.icon(getMarkerIcon(item.isSelected()))
+    markerOptions.icon(getMarkerIcon(item.isSelected(), item.style.color))
   }
 
   override fun onClusterItemUpdated(item: FeatureClusterItem, marker: Marker) {
     super.onClusterItemUpdated(item, marker)
-    marker.setIcon(getMarkerIcon(item.isSelected()))
+    marker.setIcon(getMarkerIcon(item.isSelected(), item.style.color))
   }
 
   /**
