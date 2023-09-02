@@ -17,7 +17,8 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
   <data>
     <variable
@@ -27,20 +28,21 @@
 
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="20dp">
+    android:layout_height="match_parent">
 
-    <include
+    <TextView
       android:id="@+id/data_collection_header"
-      layout="@layout/data_collection_header"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginStart="20dp"
-      android:layout_marginEnd="20dp"
+      android:drawablePadding="16dp"
+      android:padding="16dp"
+      android:text="@{viewModel.task.label}"
+      android:textSize="16sp"
+      app:drawableStartCompat="@drawable/ic_question_answer"
       app:layout_constraintBottom_toTopOf="@+id/task_container"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:viewModel="@{viewModel}" />
+      tools:text="Sample question?" />
 
     <FrameLayout
       android:id="@+id/task_container"
@@ -56,9 +58,9 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:background="?attr/colorSurface"
+      android:gravity="end"
       android:orientation="horizontal"
       android:padding="24dp"
-      android:gravity="end"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent" />
