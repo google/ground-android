@@ -27,41 +27,14 @@
       type="com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel" />
   </data>
 
-  <androidx.constraintlayout.widget.ConstraintLayout
+  <TextView
+    android:id="@+id/data_collection_task_name"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
-    <ImageView
-      android:id="@+id/data_collection_task_icon"
-      android:layout_width="24dp"
-      android:layout_height="24dp"
-      android:layout_marginStart="8dp"
-      android:layout_marginEnd="8dp"
-      app:layout_constraintBottom_toTopOf="@+id/data_collection_question"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:srcCompat="@drawable/ic_question_answer" />
-    <TextView
-      android:id="@+id/data_collection_task_name"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:paddingStart="8dp"
-      android:paddingEnd="8dp"
-      android:text="@string/question_data_collection_title"
-      android:textSize="16sp"
-      app:layout_constraintBottom_toTopOf="@+id/data_collection_question"
-      app:layout_constraintStart_toEndOf="@+id/data_collection_task_icon"
-      app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-      android:id="@+id/data_collection_question"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:paddingTop="24dp"
-      android:text="@{viewModel.task.label}"
-      android:textSize="16sp"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/data_collection_task_icon"
-      tools:text="Sample question?" />
-  </androidx.constraintlayout.widget.ConstraintLayout>
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:text="@{viewModel.task.label}"
+    android:textSize="16sp"
+    app:drawableStartCompat="@drawable/ic_question_answer"
+    app:layout_constraintTop_toTopOf="parent"
+    tools:text="Sample question?" />
 </layout>
