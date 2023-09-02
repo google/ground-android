@@ -47,10 +47,7 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
   lateinit var viewModel: VM
 
   protected fun hasTaskViewWithHeader(task: Task) {
-    onView(withId(R.id.data_collection_step_number))
-      .check(matches(withText("Task ${task.index + 1}:")))
-      .check(matches(isDisplayed()))
-    onView(withId(R.id.data_collection_question))
+    onView(withId(R.id.data_collection_header))
       .check(matches(withText(task.label)))
       .check(matches(isDisplayed()))
   }
