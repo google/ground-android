@@ -17,6 +17,7 @@ package com.google.android.ground.ui.home.mapcontainer
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.toLiveData
+import androidx.lifecycle.viewModelScope
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.model.geometry.Point
@@ -42,9 +43,12 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.reactive.asFlow
 import timber.log.Timber
@@ -72,7 +76,7 @@ internal constructor(
     surveyRepository
   ) {
 
-  val mapLocationOfInterestFeatures: Flow<Set<Feature>>
+  val mapLocationOfInterestFeatures: StateFlow<Set<Feature>>
 
   private var lastCameraPosition: CameraPosition? = null
 
@@ -104,6 +108,7 @@ internal constructor(
           }
         }
         .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.Lazily, setOf())
 
     loisWithinMapBoundsAtVisibleZoomLevel =
       surveyRepository.activeSurveyFlowable
