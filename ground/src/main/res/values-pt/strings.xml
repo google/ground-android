@@ -66,7 +66,6 @@
   <string name="save_submission_button_label">Salve</string>
   <string name="saving">Salvando&#8230;</string>
   <string name="google_api_install_failed">Google Play Services instalação falhada</string>
-  <string name="sign_in_unsuccessful">Entrar sem sucesso</string>
   <string name="sign_out">Sair</string>
 
   <string name="tos_title">Termos de serviço</string>
