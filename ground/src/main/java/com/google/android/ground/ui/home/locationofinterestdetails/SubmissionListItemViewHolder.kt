@@ -41,9 +41,9 @@ internal class SubmissionListItemViewHolder(private val binding: SubmissionListI
     val tasks = job.tasksSorted
     var i = 0
     while (i < MAX_COLUMNS && i < tasks.size) {
-      val (id, _, _, label) = tasks[i]
-      val response = submission.responses.getResponse(id)
-      binding.taskLabelRow.addView(newTextView(label, R.style.SubmissionListText_TaskLabel))
+      val task = tasks[i]
+      val response = submission.responses.getResponse(task.id)
+      binding.taskLabelRow.addView(newTextView(task.label, R.style.SubmissionListText_TaskLabel))
       binding.taskValueRow.addView(
         newTextView(response?.getDetailsText() ?: "", R.style.SubmissionListText_Task)
       )

@@ -31,16 +31,17 @@ class SubmissionListItemViewModel
 internal constructor(private val application: Application) :
   AbstractViewModel(), View.OnClickListener {
 
-  @JvmField val userName: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
-  @JvmField val modifiedDate: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
-  @JvmField val modifiedTime: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
-  private var submissionCallback: Consumer<Submission?>? = null
+  val userName: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
+  val modifiedDate: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
+  val modifiedTime: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
+
+  private var submissionCallback: Consumer<Submission>? = null
   private val selectedSubmission: @Hot(replays = true) MutableLiveData<Submission> =
     MutableLiveData()
 
   override fun onClick(view: View) {
     Preconditions.checkNotNull(submissionCallback, "submissionCallback is null")
-    submissionCallback!!.accept(selectedSubmission.value)
+    submissionCallback?.accept(selectedSubmission.value)
   }
 
   fun setSubmission(submission: Submission) {
@@ -51,7 +52,7 @@ internal constructor(private val application: Application) :
     modifiedTime.value = DateFormat.getTimeFormat(application).format(creationTime)
   }
 
-  fun setSubmissionCallback(submissionCallback: Consumer<Submission?>?) {
+  fun setSubmissionCallback(submissionCallback: Consumer<Submission>?) {
     this.submissionCallback = submissionCallback
   }
 }

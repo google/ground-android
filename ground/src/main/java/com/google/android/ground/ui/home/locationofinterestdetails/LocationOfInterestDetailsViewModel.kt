@@ -47,12 +47,14 @@ constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val submissionRepository: SubmissionRepository
 ) : ViewModel() {
+
   private val selectedLocationOfInterest: @Hot FlowableProcessor<Optional<LocationOfInterest>> =
     BehaviorProcessor.createDefault(Optional.empty())
-  @JvmField val markerBitmap: Bitmap
-  @JvmField val title: LiveData<String>
-  @JvmField val subtitle: LiveData<String>
+
   val isUploadPendingIconVisible: LiveData<Boolean>
+  val markerBitmap: Bitmap
+  val subtitle: LiveData<String>
+  val title: LiveData<String>
 
   init {
     markerBitmap =
@@ -94,30 +96,28 @@ constructor(
 
   private fun getIncompleteLocationOfInterestMutationsOnceAndStream(
     selectedLocationOfInterest: Optional<LocationOfInterest>
-  ): Flowable<List<LocationOfInterestMutation>> {
-    return selectedLocationOfInterest
-      .map { (id): LocationOfInterest ->
-        locationOfInterestRepository.getIncompleteLocationOfInterestMutationsOnceAndStream(id)
+  ): Flowable<List<LocationOfInterestMutation>> =
+    selectedLocationOfInterest
+      .map {
+        locationOfInterestRepository.getIncompleteLocationOfInterestMutationsOnceAndStream(it.id)
       }
       .orElse(Flowable.just(listOf()))
-  }
 
   private fun getIncompleteSubmissionMutationsOnceAndStream(
     selectedLocationOfInterest: Optional<LocationOfInterest>
-  ): Flowable<List<SubmissionMutation>> {
-    return selectedLocationOfInterest
+  ): Flowable<List<SubmissionMutation>> =
+    selectedLocationOfInterest
       .map { (id, surveyId): LocationOfInterest ->
         submissionRepository.getIncompleteSubmissionMutationsOnceAndStream(surveyId, id)
       }
       .orElse(Flowable.just(listOf()))
-  }
 
-  val selectedLocationOfInterestOnceAndStream: LiveData<Optional<LocationOfInterest>>
-    /**
-     * Returns a LiveData that immediately emits the selected LOI (or empty) on if none selected to
-     * each new observer.
-     */
-    get() = selectedLocationOfInterest.toLiveData()
+  /**
+   * Returns a LiveData that immediately emits the selected LOI (or empty) on if none selected to
+   * each new observer.
+   */
+  fun getSelectedLocationOfInterestOnceAndStream(): LiveData<Optional<LocationOfInterest>> =
+    selectedLocationOfInterest.toLiveData()
 
   fun onLocationOfInterestSelected(locationOfInterest: Optional<LocationOfInterest>) {
     selectedLocationOfInterest.onNext(locationOfInterest)

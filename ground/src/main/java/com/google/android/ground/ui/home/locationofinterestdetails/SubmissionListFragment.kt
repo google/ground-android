@@ -33,7 +33,7 @@ import javax.inject.Inject
 @AndroidEntryPoint(AbstractFragment::class)
 class SubmissionListFragment : Hilt_SubmissionListFragment() {
 
-  @Inject private lateinit var navigator: Navigator
+  @Inject lateinit var navigator: Navigator
 
   private lateinit var binding: SubmissionListFragBinding
   private lateinit var locationOfInterestDetailsViewModel: LocationOfInterestDetailsViewModel
@@ -45,7 +45,7 @@ class SubmissionListFragment : Hilt_SubmissionListFragment() {
     viewModel = getViewModel(SubmissionListViewModel::class.java)
     locationOfInterestDetailsViewModel =
       getViewModel(LocationOfInterestDetailsViewModel::class.java)
-    submissionListAdapter.itemClicks.observe(this) { submission: Submission ->
+    submissionListAdapter.getItemClicks().observe(this) { submission: Submission ->
       onItemClick(submission)
     }
   }
@@ -69,8 +69,8 @@ class SubmissionListFragment : Hilt_SubmissionListFragment() {
     submissionList.adapter = submissionListAdapter
     locationOfInterestDetailsViewModel.getSelectedLocationOfInterestOnceAndStream().observe(
       viewLifecycleOwner
-    ) { locationOfInterest: Optional<LocationOfInterest> ->
-      onLocationOfInterestSelected(locationOfInterest)
+    ) {
+      onLocationOfInterestSelected(it)
     }
   }
 
@@ -82,9 +82,7 @@ class SubmissionListFragment : Hilt_SubmissionListFragment() {
   @Deprecated("Deprecated in Java")
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
-    viewModel.submissions.observe(viewLifecycleOwner) { submissionList: List<Submission?>? ->
-      submissionListAdapter.update(submissionList)
-    }
+    viewModel.submissions.observe(viewLifecycleOwner) { submissionListAdapter.update(it) }
   }
 
   private fun onItemClick(submission: Submission) {

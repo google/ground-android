@@ -21,7 +21,6 @@ import androidx.lifecycle.toLiveData
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 import io.reactivex.Single
@@ -29,15 +28,14 @@ import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import java8.util.Optional
 import javax.inject.Inject
-import timber.log.Timber
 
-class SubmissionListViewModel
-@Inject
-constructor(private val submissionRepository: SubmissionRepository) : AbstractViewModel() {
-  @JvmField val isLoading: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData(false)
+class SubmissionListViewModel @Inject constructor() : AbstractViewModel() {
+
   private val submissionListRequests: @Hot FlowableProcessor<SubmissionListRequest> =
     PublishProcessor.create()
-  val submissions: LiveData<List<Submission?>?>
+
+  val submissions: LiveData<List<Submission>>
+  val isLoading: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData(false)
 
   init {
     submissions =
@@ -57,19 +55,13 @@ constructor(private val submissionRepository: SubmissionRepository) : AbstractVi
     )
   }
 
-  private fun getSubmissions(req: SubmissionListRequest): Single<List<Submission?>?> {
+  private fun getSubmissions(req: SubmissionListRequest): Single<List<Submission>> {
     if (req.taskId.isEmpty) {
       // Do nothing. No task defined for this layer.
       // TODO(#354): Show message or special treatment for layer with no task.
-      return Single.just(listOf<Submission>())
+      return Single.just(listOf())
     }
     throw UnsupportedOperationException("Convert to Kotlin and use appropriate method")
-  }
-
-  private fun onGetSubmissionsError(t: Throwable): Single<List<Submission>> {
-    // TODO: Show an appropriate error message to the user.
-    Timber.e(t, "Failed to fetch submission list.")
-    return Single.just(listOf())
   }
 
   private fun loadSubmissions(
@@ -80,7 +72,7 @@ constructor(private val submissionRepository: SubmissionRepository) : AbstractVi
     submissionListRequests.onNext(SubmissionListRequest(surveyId, locationOfInterestId, taskId))
   }
 
-  internal class SubmissionListRequest(
+  data class SubmissionListRequest(
     val surveyId: String,
     val locationOfInterestId: String,
     val taskId: Optional<String>

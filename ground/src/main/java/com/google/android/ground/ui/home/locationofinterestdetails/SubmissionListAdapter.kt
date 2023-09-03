@@ -51,13 +51,9 @@ internal class SubmissionListAdapter(private val viewModelFactory: ViewModelFact
     holder.bind(viewModel, submissionList[position])
   }
 
-  override fun getItemCount(): Int {
-    return submissionList.size
-  }
+  override fun getItemCount(): Int = submissionList.size
 
-  fun getItemClicks(): LiveData<Submission> {
-    return itemClicks
-  }
+  fun getItemClicks(): LiveData<Submission> = itemClicks
 
   fun clear() {
     submissionList = emptyList()

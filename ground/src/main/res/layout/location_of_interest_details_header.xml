@@ -103,7 +103,7 @@
         android:background="@drawable/bg_location_of_interest_details_icon"
         android:outlineProvider="none"
         android:scaleType="center"
-        app:src="@{viewModel.getMarkerBitmap()}" />
+        app:src="@{viewModel.markerBitmap}" />
 
       <ImageView
         android:layout_width="18dp"
