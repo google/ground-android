@@ -13,67 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.home.locationofinterestdetails
 
-package com.google.android.ground.ui.home.locationofinterestdetails;
+import android.app.Application
+import android.text.format.DateFormat
+import android.view.View
+import androidx.lifecycle.MutableLiveData
+import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.ui.common.AbstractViewModel
+import com.google.common.base.Preconditions
+import java8.util.function.Consumer
+import javax.inject.Inject
 
-import static com.google.common.base.Preconditions.checkNotNull;
+class SubmissionListItemViewModel
+@Inject
+internal constructor(private val application: Application) :
+  AbstractViewModel(), View.OnClickListener {
 
-import android.app.Application;
-import android.text.format.DateFormat;
-import android.view.View;
-import android.view.View.OnClickListener;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.MutableLiveData;
-import com.google.android.ground.model.AuditInfo;
-import com.google.android.ground.model.User;
-import com.google.android.ground.model.submission.Submission;
-import com.google.android.ground.rx.annotations.Hot;
-import com.google.android.ground.ui.common.AbstractViewModel;
-import java.util.Date;
-import java8.util.function.Consumer;
-import javax.inject.Inject;
+  @JvmField val userName: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
+  @JvmField val modifiedDate: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
+  @JvmField val modifiedTime: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
+  private var submissionCallback: Consumer<Submission?>? = null
+  private val selectedSubmission: @Hot(replays = true) MutableLiveData<Submission> =
+    MutableLiveData()
 
-public class SubmissionListItemViewModel extends AbstractViewModel implements OnClickListener {
-
-  @Hot(replays = true)
-  public final MutableLiveData<String> userName = new MutableLiveData<>();
-
-  @Hot(replays = true)
-  public final MutableLiveData<String> modifiedDate = new MutableLiveData<>();
-
-  @Hot(replays = true)
-  public final MutableLiveData<String> modifiedTime = new MutableLiveData<>();
-
-  private final Application application;
-
-  @Nullable private Consumer<Submission> submissionCallback;
-
-  @Hot(replays = true)
-  private final MutableLiveData<Submission> selectedSubmission = new MutableLiveData<>();
-
-  @Inject
-  SubmissionListItemViewModel(Application application) {
-    this.application = application;
+  override fun onClick(view: View) {
+    Preconditions.checkNotNull(submissionCallback, "submissionCallback is null")
+    submissionCallback!!.accept(selectedSubmission.value)
   }
 
-  @Override
-  public void onClick(View view) {
-    checkNotNull(submissionCallback, "submissionCallback is null");
-    submissionCallback.accept(selectedSubmission.getValue());
+  fun setSubmission(submission: Submission) {
+    selectedSubmission.postValue(submission)
+    val (createdBy, creationTime) = submission.created
+    userName.value = createdBy.displayName
+    modifiedDate.value = DateFormat.getMediumDateFormat(application).format(creationTime)
+    modifiedTime.value = DateFormat.getTimeFormat(application).format(creationTime)
   }
 
-  public void setSubmission(Submission submission) {
-    selectedSubmission.postValue(submission);
-
-    AuditInfo created = submission.getCreated();
-    User createdBy = created.getUser();
-    Date creationTime = created.getClientTimestamp();
-    userName.setValue(createdBy.getDisplayName());
-    modifiedDate.setValue(DateFormat.getMediumDateFormat(application).format(creationTime));
-    modifiedTime.setValue(DateFormat.getTimeFormat(application).format(creationTime));
-  }
-
-  void setSubmissionCallback(Consumer<Submission> submissionCallback) {
-    this.submissionCallback = submissionCallback;
+  fun setSubmissionCallback(submissionCallback: Consumer<Submission?>?) {
+    this.submissionCallback = submissionCallback
   }
 }

@@ -13,126 +13,113 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.home.locationofinterestdetails
 
-package com.google.android.ground.ui.home.locationofinterestdetails;
-
-import static com.google.android.ground.Config.DEFAULT_LOI_ZOOM_LEVEL;
-
-import android.graphics.Bitmap;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.LiveDataReactiveStreams;
-import androidx.lifecycle.ViewModel;
-import com.google.android.ground.R;
-import com.google.android.ground.model.locationofinterest.LocationOfInterest;
-import com.google.android.ground.model.mutation.LocationOfInterestMutation;
-import com.google.android.ground.model.mutation.SubmissionMutation;
-import com.google.android.ground.repository.LocationOfInterestRepository;
-import com.google.android.ground.repository.SubmissionRepository;
-import com.google.android.ground.rx.annotations.Hot;
-import com.google.android.ground.ui.MarkerIconFactory;
-import com.google.android.ground.ui.common.LocationOfInterestHelper;
-import com.google.android.ground.ui.common.SharedViewModel;
-import com.google.android.ground.ui.util.DrawableUtil;
-import io.reactivex.Flowable;
-import io.reactivex.processors.BehaviorProcessor;
-import io.reactivex.processors.FlowableProcessor;
-import java.util.List;
-import java8.util.Optional;
-import javax.inject.Inject;
+import android.graphics.Bitmap
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.toLiveData
+import com.google.android.ground.Config.DEFAULT_LOI_ZOOM_LEVEL
+import com.google.android.ground.R
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.mutation.LocationOfInterestMutation
+import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.repository.LocationOfInterestRepository
+import com.google.android.ground.repository.SubmissionRepository
+import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.ui.MarkerIconFactory
+import com.google.android.ground.ui.common.LocationOfInterestHelper
+import com.google.android.ground.ui.common.SharedViewModel
+import com.google.android.ground.ui.util.DrawableUtil
+import io.reactivex.Flowable
+import io.reactivex.processors.BehaviorProcessor
+import io.reactivex.processors.FlowableProcessor
+import java8.util.Optional
+import javax.inject.Inject
 
 @SharedViewModel
-public class LocationOfInterestDetailsViewModel extends ViewModel {
+class LocationOfInterestDetailsViewModel
+@Inject
+constructor(
+  markerIconFactory: MarkerIconFactory,
+  drawableUtil: DrawableUtil,
+  locationOfInterestHelper: LocationOfInterestHelper,
+  private val locationOfInterestRepository: LocationOfInterestRepository,
+  private val submissionRepository: SubmissionRepository
+) : ViewModel() {
+  private val selectedLocationOfInterest: @Hot FlowableProcessor<Optional<LocationOfInterest>> =
+    BehaviorProcessor.createDefault(Optional.empty())
+  @JvmField val markerBitmap: Bitmap
+  @JvmField val title: LiveData<String>
+  @JvmField val subtitle: LiveData<String>
+  val isUploadPendingIconVisible: LiveData<Boolean>
 
-  @Hot
-  private final FlowableProcessor<Optional<LocationOfInterest>> selectedLocationOfInterest =
-      BehaviorProcessor.createDefault(Optional.empty());
-
-  private final LocationOfInterestRepository locationOfInterestRepository;
-  private final SubmissionRepository submissionRepository;
-  private final Bitmap markerBitmap;
-  private final LiveData<String> title;
-  private final LiveData<String> subtitle;
-  private final LiveData<Boolean> showUploadPendingIcon;
-
-  @Inject
-  public LocationOfInterestDetailsViewModel(
-      MarkerIconFactory markerIconFactory,
-      DrawableUtil drawableUtil,
-      LocationOfInterestHelper locationOfInterestHelper,
-      LocationOfInterestRepository locationOfInterestRepository,
-      SubmissionRepository submissionRepository) {
-    this.locationOfInterestRepository = locationOfInterestRepository;
-    this.submissionRepository = submissionRepository;
-    this.markerBitmap =
-        markerIconFactory.getMarkerBitmap(
-            drawableUtil.getColor(R.color.md_theme_onSurfaceVariant),
-            DEFAULT_LOI_ZOOM_LEVEL,
-            false);
-    this.title =
-        LiveDataReactiveStreams.fromPublisher(
-            selectedLocationOfInterest.map(locationOfInterestHelper::getLabel));
-    this.subtitle =
-        LiveDataReactiveStreams.fromPublisher(
-            selectedLocationOfInterest.map(locationOfInterestHelper::getSubtitle));
-    Flowable<List<LocationOfInterestMutation>> locationOfInterestMutations =
-        selectedLocationOfInterest.switchMap(
-            this::getIncompleteLocationOfInterestMutationsOnceAndStream);
-    Flowable<List<SubmissionMutation>> submissionMutations =
-        selectedLocationOfInterest.switchMap(this::getIncompleteSubmissionMutationsOnceAndStream);
-    this.showUploadPendingIcon =
-        LiveDataReactiveStreams.fromPublisher(
-            Flowable.combineLatest(
-                locationOfInterestMutations,
-                submissionMutations,
-                (f, o) -> !f.isEmpty() && !o.isEmpty()));
+  init {
+    markerBitmap =
+      markerIconFactory.getMarkerBitmap(
+        drawableUtil.getColor(R.color.md_theme_onSurfaceVariant),
+        DEFAULT_LOI_ZOOM_LEVEL,
+        false
+      )
+    title =
+      selectedLocationOfInterest
+        .map { locationOfInterest: Optional<LocationOfInterest>? ->
+          locationOfInterestHelper.getLabel(locationOfInterest!!)
+        }
+        .toLiveData()
+    subtitle =
+      selectedLocationOfInterest
+        .map { locationOfInterest: Optional<LocationOfInterest>? ->
+          locationOfInterestHelper.getSubtitle(locationOfInterest!!)
+        }
+        .toLiveData()
+    val locationOfInterestMutations =
+      selectedLocationOfInterest.switchMap {
+        selectedLocationOfInterest: Optional<LocationOfInterest> ->
+        getIncompleteLocationOfInterestMutationsOnceAndStream(selectedLocationOfInterest)
+      }
+    val submissionMutations =
+      selectedLocationOfInterest.switchMap {
+        selectedLocationOfInterest: Optional<LocationOfInterest> ->
+        getIncompleteSubmissionMutationsOnceAndStream(selectedLocationOfInterest)
+      }
+    isUploadPendingIconVisible =
+      Flowable.combineLatest(locationOfInterestMutations, submissionMutations) {
+          f: List<LocationOfInterestMutation>,
+          o: List<SubmissionMutation> ->
+          f.isNotEmpty() && o.isNotEmpty()
+        }
+        .toLiveData()
   }
 
-  private Flowable<List<LocationOfInterestMutation>>
-      getIncompleteLocationOfInterestMutationsOnceAndStream(
-          Optional<LocationOfInterest> selectedLocationOfInterest) {
+  private fun getIncompleteLocationOfInterestMutationsOnceAndStream(
+    selectedLocationOfInterest: Optional<LocationOfInterest>
+  ): Flowable<List<LocationOfInterestMutation>> {
     return selectedLocationOfInterest
-        .map(
-            locationOfInterest ->
-                locationOfInterestRepository.getIncompleteLocationOfInterestMutationsOnceAndStream(
-                    locationOfInterest.getId()))
-        .orElse(Flowable.just(List.of()));
+      .map { (id): LocationOfInterest ->
+        locationOfInterestRepository.getIncompleteLocationOfInterestMutationsOnceAndStream(id)
+      }
+      .orElse(Flowable.just(listOf()))
   }
 
-  private Flowable<List<SubmissionMutation>> getIncompleteSubmissionMutationsOnceAndStream(
-      Optional<LocationOfInterest> selectedLocationOfInterest) {
+  private fun getIncompleteSubmissionMutationsOnceAndStream(
+    selectedLocationOfInterest: Optional<LocationOfInterest>
+  ): Flowable<List<SubmissionMutation>> {
     return selectedLocationOfInterest
-        .map(
-            locationOfInterest ->
-                submissionRepository.getIncompleteSubmissionMutationsOnceAndStream(
-                    locationOfInterest.getSurveyId(), locationOfInterest.getId()))
-        .orElse(Flowable.just(List.of()));
+      .map { (id, surveyId): LocationOfInterest ->
+        submissionRepository.getIncompleteSubmissionMutationsOnceAndStream(surveyId, id)
+      }
+      .orElse(Flowable.just(listOf()))
   }
 
-  /**
-   * Returns a LiveData that immediately emits the selected LOI (or empty) on if none selected to
-   * each new observer.
-   */
-  public LiveData<Optional<LocationOfInterest>> getSelectedLocationOfInterestOnceAndStream() {
-    return LiveDataReactiveStreams.fromPublisher(selectedLocationOfInterest);
-  }
+  val selectedLocationOfInterestOnceAndStream: LiveData<Optional<LocationOfInterest>>
+    /**
+     * Returns a LiveData that immediately emits the selected LOI (or empty) on if none selected to
+     * each new observer.
+     */
+    get() = selectedLocationOfInterest.toLiveData()
 
-  public void onLocationOfInterestSelected(Optional<LocationOfInterest> locationOfInterest) {
-    selectedLocationOfInterest.onNext(locationOfInterest);
-  }
-
-  public Bitmap getMarkerBitmap() {
-    return markerBitmap;
-  }
-
-  public LiveData<String> getTitle() {
-    return title;
-  }
-
-  public LiveData<String> getSubtitle() {
-    return subtitle;
-  }
-
-  public LiveData<Boolean> isUploadPendingIconVisible() {
-    return showUploadPendingIcon;
+  fun onLocationOfInterestSelected(locationOfInterest: Optional<LocationOfInterest>) {
+    selectedLocationOfInterest.onNext(locationOfInterest)
   }
 }

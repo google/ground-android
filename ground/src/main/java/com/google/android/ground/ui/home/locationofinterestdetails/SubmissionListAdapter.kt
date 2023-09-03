@@ -13,72 +13,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.home.locationofinterestdetails
 
-package com.google.android.ground.ui.home.locationofinterestdetails;
-
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.ground.databinding.SubmissionListItemBinding;
-import com.google.android.ground.model.submission.Submission;
-import com.google.android.ground.rx.annotations.Hot;
-import com.google.android.ground.ui.common.ViewModelFactory;
-import java.util.Collections;
-import java.util.List;
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.ground.databinding.SubmissionListItemBinding
+import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.ui.common.ViewModelFactory
 
 // TODO: Consider passing in ViewModel and using DataBinding like todoapp example.
-class SubmissionListAdapter extends RecyclerView.Adapter<SubmissionListItemViewHolder> {
+internal class SubmissionListAdapter(private val viewModelFactory: ViewModelFactory) :
+  RecyclerView.Adapter<SubmissionListItemViewHolder>() {
 
-  private final ViewModelFactory viewModelFactory;
-  private List<Submission> submissionList;
+  private var submissionList: List<Submission>
+  private val itemClicks: @Hot(replays = true) MutableLiveData<Submission> = MutableLiveData()
 
-  @Hot(replays = true)
-  private final MutableLiveData<Submission> itemClicks = new MutableLiveData<>();
-
-  public SubmissionListAdapter(ViewModelFactory viewModelFactory) {
-    this.viewModelFactory = viewModelFactory;
-    submissionList = Collections.emptyList();
+  init {
+    submissionList = emptyList()
   }
 
-  @NonNull
-  @Override
-  public SubmissionListItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-    SubmissionListItemBinding itemBinding =
-        SubmissionListItemBinding.inflate(inflater, parent, false);
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SubmissionListItemViewHolder {
+    val inflater = LayoutInflater.from(parent.context)
+    val itemBinding = SubmissionListItemBinding.inflate(inflater, parent, false)
     // Note: Before using Android Data Binding for this component, holder must implement
     // LifecycleOwner and be passed to itemBinding.setLifecycleOwner().
-    return new SubmissionListItemViewHolder(itemBinding);
+    return SubmissionListItemViewHolder(itemBinding)
   }
 
-  @Override
-  public void onBindViewHolder(@NonNull SubmissionListItemViewHolder holder, int position) {
-    SubmissionListItemViewModel viewModel =
-        viewModelFactory.create(SubmissionListItemViewModel.class);
-    viewModel.setSubmission(submissionList.get(position));
-    viewModel.setSubmissionCallback(submission -> itemClicks.postValue(submission));
-    holder.bind(viewModel, submissionList.get(position));
+  override fun onBindViewHolder(holder: SubmissionListItemViewHolder, position: Int) {
+    val viewModel = viewModelFactory.create(SubmissionListItemViewModel::class.java)
+    viewModel.setSubmission(submissionList[position])
+    viewModel.setSubmissionCallback { itemClicks.postValue(it) }
+    holder.bind(viewModel, submissionList[position])
   }
 
-  @Override
-  public int getItemCount() {
-    return submissionList.size();
+  override fun getItemCount(): Int {
+    return submissionList.size
   }
 
-  LiveData<Submission> getItemClicks() {
-    return itemClicks;
+  fun getItemClicks(): LiveData<Submission> {
+    return itemClicks
   }
 
-  void clear() {
-    this.submissionList = Collections.emptyList();
-    notifyDataSetChanged();
+  fun clear() {
+    submissionList = emptyList()
+    notifyDataSetChanged()
   }
 
-  void update(List<Submission> submissionList) {
-    this.submissionList = submissionList;
-    notifyDataSetChanged();
+  fun update(submissionList: List<Submission>) {
+    this.submissionList = submissionList
+    notifyDataSetChanged()
   }
 }

@@ -13,48 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.home.locationofinterestdetails
 
-package com.google.android.ground.ui.home.locationofinterestdetails;
-
-import android.content.Context;
-import android.util.AttributeSet;
-import android.view.View;
-import android.view.ViewGroup;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import com.google.android.ground.R;
-import com.google.android.ground.ui.home.BottomSheetDependentBehavior;
-import com.google.android.ground.ui.home.BottomSheetMetrics;
-import timber.log.Timber;
+import android.content.Context
+import android.util.AttributeSet
+import android.view.View
+import android.view.ViewGroup
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.google.android.ground.R
+import com.google.android.ground.ui.home.BottomSheetDependentBehavior
+import com.google.android.ground.ui.home.BottomSheetMetrics
+import timber.log.Timber
 
 /**
  * Defines behavior of the LOI details UI elements (bottom sheet and chrome) when the bottom sheet
  * is scrolled, collapsed, or expanded.
  */
-public class LocationOfInterestDetailsChromeBehavior
-    extends BottomSheetDependentBehavior<ViewGroup> {
-
-  public LocationOfInterestDetailsChromeBehavior(Context context, AttributeSet attrs) {
-    super(context, attrs);
-  }
-
-  @Override
-  protected void onBottomSheetChanged(
-      CoordinatorLayout parent, ViewGroup layout, BottomSheetMetrics metrics) {
-    Timber.d("onBottomSheetChanged");
-    ViewGroup toolbarWrapper = layout.findViewById(R.id.toolbar_wrapper);
-    View bottomSheetScrim = layout.findViewById(R.id.bottom_sheet_bottom_inset_scrim);
-    View hamburgerButton = parent.findViewById(R.id.hamburger_btn);
-    View mapScrim = parent.findViewById(R.id.map_scrim);
+class LocationOfInterestDetailsChromeBehavior(context: Context, attrs: AttributeSet) :
+  BottomSheetDependentBehavior<ViewGroup>(context, attrs) {
+  override fun onBottomSheetChanged(
+    parent: CoordinatorLayout,
+    child: ViewGroup,
+    metrics: BottomSheetMetrics
+  ) {
+    Timber.d("onBottomSheetChanged")
+    val toolbarWrapper = child.findViewById<ViewGroup>(R.id.toolbar_wrapper)
+    val bottomSheetScrim = child.findViewById<View>(R.id.bottom_sheet_bottom_inset_scrim)
+    val hamburgerButton = parent.findViewById<View>(R.id.hamburger_btn)
+    val mapScrim = parent.findViewById<View>(R.id.map_scrim)
 
     // Fade in the bottom scrim and "Add Submission" button, with both being fully visible as soon
     // as the top of the bottom sheet passes the top of the "Add Submission" button.
-    float revealRatio = metrics.getRevealRatio();
-    float hideRatio = 1.0f - revealRatio;
-    layout.setAlpha(revealRatio);
-    mapScrim.setAlpha(metrics.getExpansionRatio());
-    bottomSheetScrim.setAlpha(revealRatio);
-    toolbarWrapper.setAlpha(revealRatio);
-    toolbarWrapper.setTranslationY(-toolbarWrapper.getHeight() * hideRatio);
-    hamburgerButton.setAlpha(hideRatio);
+    val revealRatio = metrics.revealRatio
+    val hideRatio = 1.0f - revealRatio
+    child.alpha = revealRatio
+    mapScrim.alpha = metrics.expansionRatio
+    bottomSheetScrim.alpha = revealRatio
+    toolbarWrapper.alpha = revealRatio
+    toolbarWrapper.translationY = -toolbarWrapper.height * hideRatio
+    hamburgerButton.alpha = hideRatio
   }
 }

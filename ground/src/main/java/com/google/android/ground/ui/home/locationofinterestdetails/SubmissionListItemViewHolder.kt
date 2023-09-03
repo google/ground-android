@@ -13,76 +13,66 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.home.locationofinterestdetails
 
-package com.google.android.ground.ui.home.locationofinterestdetails;
+import android.text.TextUtils
+import android.widget.TextView
+import androidx.annotation.StyleRes
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.ground.R
+import com.google.android.ground.databinding.SubmissionListItemBinding
+import com.google.android.ground.model.submission.Submission
 
-import android.content.Context;
-import android.content.res.Resources;
-import android.text.TextUtils;
-import android.widget.TextView;
-import androidx.annotation.NonNull;
-import androidx.annotation.StyleRes;
-import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.ground.R;
-import com.google.android.ground.databinding.SubmissionListItemBinding;
-import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.submission.Submission;
-import com.google.android.ground.model.submission.TaskData;
-import com.google.android.ground.model.task.Task;
-import java.util.List;
-
-class SubmissionListItemViewHolder extends RecyclerView.ViewHolder {
-
-  private static final int MAX_COLUMNS = 4;
-
-  private final SubmissionListItemBinding binding;
-
-  SubmissionListItemViewHolder(@NonNull SubmissionListItemBinding binding) {
-    super(binding.getRoot());
-    this.binding = binding;
-  }
-
-  public void bind(SubmissionListItemViewModel viewModel, Submission submission) {
-    binding.setViewModel(viewModel);
-    binding.executePendingBindings();
+internal class SubmissionListItemViewHolder(private val binding: SubmissionListItemBinding) :
+  RecyclerView.ViewHolder(binding.root) {
+  fun bind(viewModel: SubmissionListItemViewModel?, submission: Submission) {
+    binding.viewModel = viewModel
+    binding.executePendingBindings()
 
     // Add UI elements for each task with data.
-    addTasksFromSubmission(submission);
+    addTasksFromSubmission(submission)
   }
 
-  private void addTasksFromSubmission(Submission submission) {
-    binding.taskLabelRow.removeAllViews();
-    binding.taskValueRow.removeAllViews();
-
-    Job job = submission.getJob();
+  private fun addTasksFromSubmission(submission: Submission) {
+    binding.taskLabelRow.removeAllViews()
+    binding.taskValueRow.removeAllViews()
+    val job = submission.job
     // TODO: Clean this up.
-    List<Task> tasks = job.getTasksSorted();
-    for (int i = 0; i < MAX_COLUMNS && i < tasks.size(); i++) {
-      Task task = tasks.get(i);
-      TaskData response = submission.getResponses().getResponse(task.getId());
-      binding.taskLabelRow.addView(
-          newTextView(task.getLabel(), R.style.SubmissionListText_TaskLabel));
+    val tasks = job.tasksSorted
+    var i = 0
+    while (i < MAX_COLUMNS && i < tasks.size) {
+      val (id, _, _, label) = tasks[i]
+      val response = submission.responses.getResponse(id)
+      binding.taskLabelRow.addView(newTextView(label, R.style.SubmissionListText_TaskLabel))
       binding.taskValueRow.addView(
-          newTextView(response == null ? "" : response.getDetailsText(),
-              R.style.SubmissionListText_Task));
+        newTextView(response?.getDetailsText() ?: "", R.style.SubmissionListText_Task)
+      )
+      i++
     }
   }
 
-  @NonNull
-  private TextView newTextView(String text, @StyleRes int textAppearance) {
-    Context context = binding.getRoot().getContext();
-    Resources resources = context.getResources();
-    TextView v = new TextView(context);
-    v.setTextAppearance(context, textAppearance);
+  private fun newTextView(text: String, @StyleRes textAppearance: Int): TextView {
+    val context = binding.root.context
+    val resources = context.resources
+    val v = TextView(context)
+    v.setTextAppearance(context, textAppearance)
     // NOTE: These attributes don't work when applying text appearance programmatically, so we set
     // them here individually instead.
     v.setPadding(
-        0, 0, resources.getDimensionPixelSize(R.dimen.submission_summary_text_padding_right), 0);
-    v.setMaxWidth(resources.getDimensionPixelSize(R.dimen.submission_summary_text_max_width));
-    v.setMaxLines(1);
-    v.setSingleLine();
-    v.setEllipsize(TextUtils.TruncateAt.END);
-    v.setText(text);
-    return v;
+      0,
+      0,
+      resources.getDimensionPixelSize(R.dimen.submission_summary_text_padding_right),
+      0
+    )
+    v.maxWidth = resources.getDimensionPixelSize(R.dimen.submission_summary_text_max_width)
+    v.maxLines = 1
+    v.setSingleLine()
+    v.ellipsize = TextUtils.TruncateAt.END
+    v.text = text
+    return v
+  }
+
+  companion object {
+    private const val MAX_COLUMNS = 4
   }
 }
