@@ -16,18 +16,20 @@
 package com.google.android.ground.ui.map
 
 import android.location.Location
+import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.system.LocationManager
+import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
-import io.reactivex.Flowable
-import java8.util.Optional
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.TestDispatcher
@@ -47,10 +49,11 @@ import org.robolectric.RobolectricTestRunner
 class MapControllerTest : BaseHiltTest() {
   @Mock lateinit var locationManager: LocationManager
   @Mock lateinit var locationOfInterestRepository: LocationOfInterestRepository
-  @Mock lateinit var surveyRepository: SurveyRepository
   @Mock lateinit var mapStateRepository: MapStateRepository
 
   @Inject lateinit var dispatcher: TestDispatcher
+  @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
+  @Inject lateinit var surveyRepository: SurveyRepository
 
   private val locationSharedFlow: MutableSharedFlow<Location> = MutableSharedFlow()
 
@@ -65,57 +68,54 @@ class MapControllerTest : BaseHiltTest() {
         locationOfInterestRepository,
         surveyRepository,
         mapStateRepository,
-        dispatcher
+        externalScope
       )
     `when`(locationManager.locationUpdates).thenReturn(locationSharedFlow)
   }
 
   @Test
-  fun testGetCameraUpdates_returnsNothing() {
-    `when`(surveyRepository.activeSurveyFlowable).thenReturn(Flowable.empty())
-
-    mapController.getCameraUpdates().test().assertValueCount(0)
+  fun testGetCameraUpdates_returnsNothing() = runWithTestDispatcher {
+    mapController.getCameraUpdates().test { expectNoEvents() }
   }
 
   @Test
-  fun testGetCameraUpdates_whenPanAndZoomCamera() {
-    `when`(surveyRepository.activeSurveyFlowable).thenReturn(Flowable.empty())
-
-    val cameraUpdatesSubscriber = mapController.getCameraUpdates().test()
-
+  fun testGetCameraUpdates_whenPanAndZoomCamera() = runWithTestDispatcher {
     mapController.panAndZoomCamera(TEST_COORDINATE)
 
-    cameraUpdatesSubscriber.assertValues(CameraPosition(TEST_COORDINATE, 18.0f))
+    mapController.getCameraUpdates().test {
+      assertThat(expectMostRecentItem()).isEqualTo(CameraPosition(TEST_COORDINATE, 18.0f))
+    }
   }
 
   @Test
   fun testGetCameraUpdates_whenLocationUpdates() = runWithTestDispatcher {
-    `when`(surveyRepository.activeSurveyFlowable).thenReturn(Flowable.empty())
-    val cameraUpdates = mapController.getCameraUpdates().test()
     locationSharedFlow.emit(
       Location("test provider").apply {
         latitude = TEST_COORDINATE.lat
         longitude = TEST_COORDINATE.lng
       }
     )
+
     advanceUntilIdle()
 
-    cameraUpdates.assertValues(CameraPosition(TEST_COORDINATE, 18.0f))
+    mapController.getCameraUpdates().test {
+      assertThat(expectMostRecentItem()).isEqualTo(CameraPosition(TEST_COORDINATE, 18.0f))
+    }
   }
 
   @Test
-  fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationNotAvailableAndNoLois_returnsNothing() {
-    `when`(surveyRepository.activeSurveyFlowable).thenReturn(Flowable.just(TEST_SURVEY))
-    `when`(mapStateRepository.getCameraPosition(any())).thenReturn(null)
+  fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationNotAvailableAndNoLois_returnsNothing() =
+    runWithTestDispatcher {
+      `when`(mapStateRepository.getCameraPosition(any())).thenReturn(null)
 
-    mapController.getCameraUpdates().test().assertNoValues().assertNotComplete()
-  }
+      mapController.getCameraUpdates().test { expectNoEvents() }
+    }
 
   @Ignore("MapController returns a result when debugger is attached, otherwise not. Fix this!")
   @Test
   fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationNotAvailableAndHasLois_returnsNothing() =
     runWithTestDispatcher {
-      `when`(surveyRepository.activeSurveyFlowable).thenReturn(Flowable.just(TEST_SURVEY))
+      surveyRepository.activeSurvey = TEST_SURVEY
       `when`(mapStateRepository.getCameraPosition(any())).thenReturn(null)
       `when`(locationOfInterestRepository.getAllGeometries(any()))
         .thenReturn(
@@ -125,22 +125,27 @@ class MapControllerTest : BaseHiltTest() {
             Point(Coordinates(30.0, 30.0))
           )
         )
+
       advanceUntilIdle()
 
-      mapController.getCameraUpdates().test().assertValues(CameraPosition(TEST_COORDINATE, 18.0f))
+      mapController.getCameraUpdates().test {
+        assertThat(expectMostRecentItem()).isEqualTo(CameraPosition(TEST_COORDINATE, 18.0f))
+      }
     }
 
   @Test
-  fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationAvailable() {
-    `when`(surveyRepository.activeSurveyFlowable).thenReturn(Flowable.just(TEST_SURVEY))
+  fun testGetCameraUpdates_whenSurveyChanges_whenLastLocationAvailable() = runWithTestDispatcher {
+    surveyRepository.activeSurvey = TEST_SURVEY
     `when`(mapStateRepository.getCameraPosition(any())).thenReturn(TEST_POSITION)
 
-    mapController.getCameraUpdates().test().assertValues(TEST_POSITION.copy(isAllowZoomOut = true))
+    mapController.getCameraUpdates().test {
+      assertThat(expectMostRecentItem()).isEqualTo(TEST_POSITION.copy(isAllowZoomOut = true))
+    }
   }
 
   companion object {
     private val TEST_COORDINATE = Coordinates(20.0, 30.0)
     private val TEST_POSITION = CameraPosition(TEST_COORDINATE)
-    private val TEST_SURVEY = Optional.of(FakeData.SURVEY)
+    private val TEST_SURVEY = FakeData.SURVEY
   }
 }
