@@ -293,16 +293,14 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   }
 
   private fun removeStaleFeatures(features: Set<Feature>) {
-    removeStalePoints(features)
+    Timber.d("Removing stale features from map")
+    clusterManager.removeStaleFeatures(features)
     polylineRenderer.removeStaleFeatures(features)
     polygonRenderer.removeStaleFeatures(features)
   }
 
-  private fun removeStalePoints(features: Set<Feature>) {
-    clusterManager.removeStaleFeatures(features)
-  }
-
   private fun removeAllFeatures() {
+    Timber.d("Removing all features from map")
     clusterManager.removeAllFeatures()
     polylineRenderer.removeAllFeatures()
     polygonRenderer.removeAllFeatures()
@@ -320,10 +318,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
 
   override fun renderFeatures(features: Set<Feature>) {
     // Re-cluster and re-render
+    Timber.v("renderFeatures() called with ${features.size} locations of interest")
     if (features.isNotEmpty()) {
-      Timber.v("renderFeatures() called with ${features.size} locations of interest")
       removeStaleFeatures(features)
-      Timber.v("Updating ${features.size} features")
+      Timber.d("Updating ${features.size} features")
       features.forEach(this::addOrUpdateLocationOfInterest)
     } else {
       removeAllFeatures()
@@ -331,7 +329,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     clusterManager.cluster()
   }
 
-  override fun refresh() = renderFeatures(clusterManager.getManagedFeatures())
+  override fun refresh() {
+    Timber.v("Refresh features")
+    renderFeatures(clusterManager.getManagedFeatures())
+  }
 
   private fun onCameraIdle() {
     clusterRenderer.zoom = map.cameraPosition.zoom
@@ -386,7 +387,14 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     tileOverlays.clear()
   }
 
+  override fun clear() {
+    Timber.d("Removes all markers, overlays, polylines and polygons from the map.")
+    map.clear()
+  }
+
   override fun setActiveLocationOfInterest(newLoiId: String?) {
+    if (newLoiId == clusterManager.activeLocationOfInterest) return
+
     clusterRenderer.previousActiveLoiId = clusterManager.activeLocationOfInterest
     clusterManager.activeLocationOfInterest = newLoiId
 

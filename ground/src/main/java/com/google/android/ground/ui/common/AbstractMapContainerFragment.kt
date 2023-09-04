@@ -46,6 +46,9 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   private fun onMapAttached(map: Map) {
+    // Removes all markers, overlays, polylines and polygons from the map.
+    map.clear()
+
     map.cameraMovedEvents
       .onBackpressureLatest()
       .`as`(RxAutoDispose.disposeOnDestroy(this))
