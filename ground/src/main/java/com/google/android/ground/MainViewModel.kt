@@ -94,7 +94,7 @@ constructor(
   }
 
   private fun onUserSignInError(error: Throwable): NavDirections {
-    Timber.e(error, "SignIn failed")
+    Timber.e(error, "Sign in failed")
     return if (error.isPermissionDeniedException()) {
       SignInFragmentDirections.showPermissionDeniedDialogFragment()
     } else {
