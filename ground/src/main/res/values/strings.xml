@@ -77,8 +77,6 @@
   <string name="sign_out">Sign out</string>
   <string name="change_survey">Change survey</string>
   <string name="collect_data">Collect data</string>
-  <string name="question_data_collection_title">Question</string>
-  <string name="task_number">Task %1$s:</string>
 
   <!-- Untranslated strings -->
   <string name="offline_base_maps">Offline base maps</string>
