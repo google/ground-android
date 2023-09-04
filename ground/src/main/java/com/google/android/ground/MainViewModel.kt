@@ -30,7 +30,6 @@ import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.system.auth.SignInState
 import com.google.android.ground.ui.common.AbstractViewModel
-import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
@@ -55,7 +54,6 @@ constructor(
   private val userRepository: UserRepository,
   private val termsOfServiceRepository: TermsOfServiceRepository,
   private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
-  private val popups: EphemeralPopups,
   @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   navigator: Navigator,
@@ -95,15 +93,15 @@ constructor(
     )
   }
 
-  private fun onUserSignInError(error: Throwable): NavDirections =
-    if (error.isPermissionDeniedException()) {
+  private fun onUserSignInError(error: Throwable): NavDirections {
+    Timber.e(error, "Sign in failed")
+    return if (error.isPermissionDeniedException()) {
       SignInFragmentDirections.showPermissionDeniedDialogFragment()
     } else {
-      // TODO(#1808): Handle this case more gracefully instead of abruptly closing the app.
-      Timber.e(error, "Sign in failed")
-      popups.showError(R.string.sign_in_unsuccessful)
+      // TODO(#1808): Display some error dialog to the user with a helpful user-readable messagez.
       onUserSignedOut()
     }
+  }
 
   private fun onUserSignedOut(): NavDirections {
     // Scope of subscription is until view model is cleared. Dispose it manually otherwise, firebase

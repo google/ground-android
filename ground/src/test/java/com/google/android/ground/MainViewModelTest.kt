@@ -42,7 +42,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
-import org.robolectric.shadows.ShadowToast
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -193,7 +192,6 @@ class MainViewModelTest : BaseHiltTest() {
     fakeAuthenticationManager.setState(error(Exception()))
     Shadows.shadowOf(Looper.getMainLooper()).idle()
 
-    assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo("Sign in unsuccessful")
     verifyProgressDialogVisible(false)
     verifyNavigationRequested(SignInFragmentDirections.showSignInScreen())
     verifyUserPreferencesCleared()
