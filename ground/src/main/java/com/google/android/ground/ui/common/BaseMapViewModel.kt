@@ -26,7 +26,6 @@ import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.rx.Event
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.FINE_LOCATION_UPDATES_REQUEST
 import com.google.android.ground.system.LocationManager
@@ -61,7 +60,7 @@ constructor(
   private val settingsManager: SettingsManager,
   private val offlineAreaRepository: OfflineAreaRepository,
   private val permissionsManager: PermissionsManager,
-  mapController: MapController,
+  private val mapController: MapController,
   surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
@@ -91,7 +90,6 @@ constructor(
         else LOCATION_LOCK_ICON_DISABLED
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, LOCATION_LOCK_ICON_DISABLED)
-  val cameraUpdateRequests: LiveData<Event<CameraPosition>>
 
   val locationAccuracy: StateFlow<Float?> =
     locationLock
@@ -108,13 +106,14 @@ constructor(
   val offlineImageryEnabled: Flow<Boolean> = mapStateRepository.offlineImageryFlow
 
   init {
-    cameraUpdateRequests = mapController.getCameraUpdates().map { Event.create(it) }.toLiveData()
     mapType = mapStateRepository.mapTypeFlowable.toLiveData()
     tileOverlays =
       surveyRepository.activeSurveyFlow
         .mapNotNull { it?.tileSources?.mapNotNull(this::toLocalTileSource) ?: listOf() }
         .asLiveData()
   }
+
+  fun cameraUpdates(): Flow<CameraPosition> = mapController.getCameraUpdates()
 
   // TODO(#1790): Maybe create a new data class object which is not of type TileSource.
   private fun toLocalTileSource(tileSource: TileSource): TileSource? {

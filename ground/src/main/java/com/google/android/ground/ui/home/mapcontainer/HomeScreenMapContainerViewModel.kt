@@ -163,7 +163,7 @@ internal constructor(
     val geometry = features[0].geometry
 
     if (geometry is Point) {
-      mapController.panAndZoomCamera(geometry.coordinates)
+      panAndZoomCamera(geometry)
     }
   }
 
