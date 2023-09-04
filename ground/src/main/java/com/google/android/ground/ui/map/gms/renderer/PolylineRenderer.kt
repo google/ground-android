@@ -25,6 +25,7 @@ import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.gms.toLatLng
+import timber.log.Timber
 
 class PolylineRenderer(
   map: GoogleMap,
@@ -47,6 +48,8 @@ class PolylineRenderer(
   }
 
   private fun render(feature: Feature, points: List<Coordinates>) {
+    Timber.d("Adding Polyline $feature")
+
     val options = PolylineOptions()
     options.clickable(false)
 

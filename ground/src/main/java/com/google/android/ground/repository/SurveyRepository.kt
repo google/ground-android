@@ -78,6 +78,7 @@ constructor(
    * active or local db isn't up-to-date.
    */
   // TODO(#1593): Update callers to use [activeSurveyFlow] and delete this member.
+  @Deprecated("Use activeSurveyFlow instead")
   val activeSurveyFlowable: @Cold Flowable<Optional<Survey>> =
     activeSurveyFlow.map { if (it == null) Optional.empty() else Optional.of(it) }.asFlowable()
 
