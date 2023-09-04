@@ -74,7 +74,6 @@
   <string name="save_submission_button_label">Save</string>
   <string name="saving">Saving&#8230;</string>
   <string name="google_api_install_failed">Google Play Services installation failed</string>
-  <string name="sign_in_unsuccessful">Sign in unsuccessful</string>
   <string name="sign_out">Sign out</string>
   <string name="change_survey">Change survey</string>
   <string name="collect_data">Collect data</string>

@@ -73,7 +73,6 @@
   <string name="save_submission_button_label">Guardar</string>
   <string name="saving">Guardando&#8230;</string>
   <string name="google_api_install_failed">Falló la instalación de los servicios de Google Play</string>
-  <string name="sign_in_unsuccessful">Iniciar sesión sin éxito</string>
   <string name="sign_out">Salir</string>
 
   <!-- Untranslated strings -->
