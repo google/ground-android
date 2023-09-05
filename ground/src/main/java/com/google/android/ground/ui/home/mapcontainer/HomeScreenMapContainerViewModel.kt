@@ -20,6 +20,7 @@ import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -163,12 +164,12 @@ internal constructor(
     val geometry = features[0].geometry
 
     if (geometry is Point) {
-      panAndZoomCamera(geometry)
+      panAndZoomCamera(geometry.coordinates)
     }
   }
 
-  fun panAndZoomCamera(position: Point) {
-    mapController.panAndZoomCamera(position.coordinates)
+  fun panAndZoomCamera(coordinates: Coordinates) {
+    mapController.panAndZoomCamera(coordinates)
   }
 
   fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed
