@@ -20,7 +20,7 @@ import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
-import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -37,12 +37,12 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.MapController
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -59,13 +59,13 @@ class HomeScreenMapContainerViewModel
 @Inject
 internal constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
-  private val mapController: MapController,
   private val mapStateRepository: MapStateRepository,
   locationManager: LocationManager,
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
   surveyRepository: SurveyRepository,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) :
   BaseMapViewModel(
     locationManager,
@@ -73,8 +73,9 @@ internal constructor(
     settingsManager,
     offlineAreaRepository,
     permissionsManager,
-    mapController,
-    surveyRepository
+    surveyRepository,
+    locationOfInterestRepository,
+    ioDispatcher
   ) {
 
   val mapLocationOfInterestFeatures: StateFlow<Set<Feature>>
@@ -166,10 +167,6 @@ internal constructor(
     if (geometry is Point) {
       panAndZoomCamera(geometry.coordinates)
     }
-  }
-
-  fun panAndZoomCamera(coordinates: Coordinates) {
-    mapController.panAndZoomCamera(coordinates)
   }
 
   fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed

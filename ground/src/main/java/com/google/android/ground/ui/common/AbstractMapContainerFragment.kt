@@ -63,7 +63,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     }
     getMapViewModel().mapType.observe(viewLifecycleOwner) { map.mapType = it }
     lifecycleScope.launch {
-      getMapViewModel().cameraUpdates().collect { onCameraUpdateRequest(it, map) }
+      getMapViewModel().getCameraUpdates().collect { onCameraUpdateRequest(it, map) }
     }
 
     // Enable map controls

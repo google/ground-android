@@ -21,8 +21,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.android.ground.Config.DEFAULT_LOI_ZOOM_LEVEL
 import com.google.android.ground.R
+import com.google.android.ground.coroutines.IoDispatcher
+import com.google.android.ground.model.Survey
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.imagery.TileSource
+import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -34,21 +39,26 @@ import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.MapController
 import com.google.android.ground.ui.map.MapType
+import com.google.android.ground.ui.map.gms.GmsExt.toBounds
+import com.google.android.ground.ui.map.gms.toCoordinates
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -60,10 +70,12 @@ constructor(
   private val settingsManager: SettingsManager,
   private val offlineAreaRepository: OfflineAreaRepository,
   private val permissionsManager: PermissionsManager,
-  private val mapController: MapController,
-  surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepository,
+  private val locationOfInterestRepository: LocationOfInterestRepository,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : AbstractViewModel() {
 
+  private val _cameraPosition = MutableStateFlow<CameraPosition?>(null)
   private val cameraZoomSubject: @Hot Subject<Float> = PublishSubject.create()
   val cameraZoomUpdates: Flowable<Float> = cameraZoomSubject.toFlowable(BackpressureStrategy.LATEST)
 
@@ -111,9 +123,14 @@ constructor(
       surveyRepository.activeSurveyFlow
         .mapNotNull { it?.tileSources?.mapNotNull(this::toLocalTileSource) ?: listOf() }
         .asLiveData()
-  }
 
-  fun cameraUpdates(): Flow<CameraPosition> = mapController.getCameraUpdates()
+    viewModelScope.launch(ioDispatcher) {
+      getCameraUpdatesFromLocationChanges().collect { panAndZoomCamera(it) }
+    }
+    viewModelScope.launch(ioDispatcher) {
+      getCameraUpdatedFromSurveyChanges().collect { panAndZoomCamera(it) }
+    }
+  }
 
   // TODO(#1790): Maybe create a new data class object which is not of type TileSource.
   private fun toLocalTileSource(tileSource: TileSource): TileSource? {
@@ -172,6 +189,47 @@ constructor(
       Timber.d("User dragged map. Disabling location lock")
       viewModelScope.launch { disableLocationLock() }
     }
+  }
+
+  /** Emits a stream of camera update requests. */
+  fun getCameraUpdates(): Flow<CameraPosition> = _cameraPosition.filterNotNull()
+
+  /**
+   * Emits a stream of camera update requests due to location changes. The first update pans and
+   * zooms the camera to the appropriate zoom level and subsequent ones only pan the map.
+   */
+  private fun getCameraUpdatesFromLocationChanges(): Flow<CameraPosition> =
+    locationManager.locationUpdates.withIndex().transform { (index, location) ->
+      val coordinates = location.toCoordinates()
+      val zoomLevel = if (index == 0) DEFAULT_LOI_ZOOM_LEVEL else null
+      emit(CameraPosition(coordinates, zoomLevel))
+    }
+
+  /** Emits a stream of camera update requests due to active survey changes. */
+  private fun getCameraUpdatedFromSurveyChanges(): Flow<CameraPosition> =
+    surveyRepository.activeSurveyFlow.filterNotNull().transform {
+      getLastSavedPositionOrDefaultBounds(it)?.let { position -> emit(position) }
+    }
+
+  private suspend fun getLastSavedPositionOrDefaultBounds(survey: Survey): CameraPosition? {
+    // Attempt to fetch last saved position from local storage.
+    val savedPosition = mapStateRepository.getCameraPosition(survey.id)?.copy(isAllowZoomOut = true)
+    if (savedPosition != null) {
+      return savedPosition
+    }
+
+    // Compute the default viewport which includes all LOIs in the given survey.
+    val geometries = locationOfInterestRepository.getAllGeometries(survey)
+    return geometries.toBounds()?.let { CameraPosition(bounds = it) }
+  }
+
+  /** Requests moving the map camera to [coordinates] with zoom level [DEFAULT_LOI_ZOOM_LEVEL]. */
+  fun panAndZoomCamera(coordinates: Coordinates) {
+    panAndZoomCamera(CameraPosition(coordinates, DEFAULT_LOI_ZOOM_LEVEL))
+  }
+
+  private fun panAndZoomCamera(cameraPosition: CameraPosition) {
+    _cameraPosition.value = cameraPosition
   }
 
   /** Called when the map camera is moved. */
