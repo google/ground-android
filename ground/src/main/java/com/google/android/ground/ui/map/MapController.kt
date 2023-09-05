@@ -50,12 +50,12 @@ constructor(
   @ApplicationScope private val externalScope: CoroutineScope
 ) {
 
-  private val _cameraUpdates = MutableStateFlow<CameraPosition?>(null)
+  private val _cameraPosition = MutableStateFlow<CameraPosition?>(null)
 
   /** Emits a combined stream of camera update requests. */
   fun getCameraUpdates(): SharedFlow<CameraPosition> =
     merge(
-        _cameraUpdates.filterNotNull(),
+        _cameraPosition.filterNotNull(),
         getCameraUpdatesFromLocationChanges(),
         getCameraUpdatedFromSurveyChanges(),
       )
@@ -94,6 +94,6 @@ constructor(
 
   /** Requests moving the map camera to [position] with zoom level [DEFAULT_LOI_ZOOM_LEVEL]. */
   fun panAndZoomCamera(position: Coordinates) {
-    _cameraUpdates.value = CameraPosition(position, DEFAULT_LOI_ZOOM_LEVEL)
+    _cameraPosition.value = CameraPosition(position, DEFAULT_LOI_ZOOM_LEVEL)
   }
 }
