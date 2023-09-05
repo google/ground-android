@@ -32,15 +32,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.withIndex
 
 @Singleton
 class MapController
@@ -69,10 +66,12 @@ constructor(
     val locationUpdates = locationManager.locationUpdates.map { it.toCoordinates() }
     // The first update pans and zooms the camera to the appropriate zoom level;
     // subsequent ones only pan the map.
-    return locationUpdates
-      .take(1)
-      .map { CameraPosition(it, DEFAULT_LOI_ZOOM_LEVEL) }
-      .onCompletion { emitAll(locationUpdates.map { CameraPosition(it) }.drop(1)) }
+    return locationUpdates.withIndex().transform { (index, location) ->
+      emit(
+        if (index == 0) CameraPosition(location, DEFAULT_LOI_ZOOM_LEVEL)
+        else CameraPosition(location)
+      )
+    }
   }
 
   /** Emits a stream of camera update requests due to active survey changes. */
