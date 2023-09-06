@@ -71,7 +71,14 @@ constructor(
   }
 
   private suspend fun saveLoi(geometry: Geometry, job: Job, surveyId: String): LocationOfInterest {
-    val loi = locationOfInterestRepository.createLocationOfInterest(geometry, job, surveyId)
+    // TODO(jsunde): Add isOpportunistic field as well as owner field
+    val loi =
+      locationOfInterestRepository.createLocationOfInterest(
+        geometry,
+        job,
+        surveyId,
+        authManager.currentUser.email
+      )
     locationOfInterestRepository.applyAndEnqueue(
       loi.toMutation(Mutation.Type.CREATE, authManager.currentUser.id)
     )

@@ -32,5 +32,7 @@ data class LocationOfInterestEntity(
   @Embedded(prefix = "created_") val created: AuditInfoEntity,
   @Embedded(prefix = "modified_") val lastModified: AuditInfoEntity,
   val geometry: GeometryWrapper?,
-  val submissionCount: Int
+  val submissionCount: Int,
+  val ownerEmail: String?,
+  val isOpportunistic: Boolean
 )
