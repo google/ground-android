@@ -24,6 +24,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.ground.Config.DEFAULT_LOI_ZOOM_LEVEL
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.IoDispatcher
+import com.google.android.ground.model.Survey
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.repository.LocationOfInterestRepository
@@ -210,18 +211,20 @@ constructor(
   private suspend fun updateCameraPositionOnSurveyChange() {
     surveyRepository.activeSurveyFlow
       .filterNotNull()
-      .transform { survey ->
-        // Attempt to fetch last saved position from local storage.
-        val savedPosition = mapStateRepository.getCameraPosition(survey.id)
-        if (savedPosition != null) {
-          emit(savedPosition.copy(isAllowZoomOut = true))
-        } else {
-          // Compute the default viewport which includes all LOIs in the given survey.
-          val geometries = locationOfInterestRepository.getAllGeometries(survey)
-          geometries.toBounds()?.let { emit(CameraPosition(bounds = it)) }
-        }
-      }
+      .transform { getLastSavedPositionOrDefaultBounds(it)?.apply { emit(this) } }
       .collect { updatePosition(it) }
+  }
+
+  private suspend fun getLastSavedPositionOrDefaultBounds(survey: Survey): CameraPosition? {
+    // Attempt to fetch last saved position from local storage.
+    val savedPosition = mapStateRepository.getCameraPosition(survey.id)
+    if (savedPosition != null) {
+      return savedPosition.copy(isAllowZoomOut = true)
+    }
+
+    // Compute the default viewport which includes all LOIs in the given survey.
+    val geometries = locationOfInterestRepository.getAllGeometries(survey)
+    return geometries.toBounds()?.let { CameraPosition(bounds = it) }
   }
 
   /** Requests moving the map camera to [coordinates]. */
