@@ -49,7 +49,7 @@ data class LocationOfInterest(
   val ownerEmail: String? = null,
   /**
    * Whether this LOI was created opportunistically by the user through the Suggest LOI flow, or
-   * false if the LOI was created by the survey organizer
+   * false if the LOI was created by the survey organizer.
    */
   val isOpportunistic: Boolean = false
 ) {
