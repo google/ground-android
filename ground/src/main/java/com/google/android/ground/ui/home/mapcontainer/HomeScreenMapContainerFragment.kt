@@ -204,7 +204,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
         state.locationOfInterest
           ?.geometry
           ?.takeIf { it is Point }
-          ?.let { mapContainerViewModel.panAndZoomCamera(Point(it.center())) }
+          ?.let { mapContainerViewModel.panAndZoomCamera(it.center()) }
       }
       BottomSheetState.Visibility.HIDDEN -> {
         map.enableGestures()

@@ -18,7 +18,9 @@ package com.google.android.ground.ui.offlinebasemap.viewer
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.toLiveData
+import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.imagery.OfflineArea
+import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -28,13 +30,13 @@ import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.map.MapController
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
 import java.lang.ref.WeakReference
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
 import timber.log.Timber
 
 /**
@@ -50,8 +52,9 @@ constructor(
   mapStateRepository: MapStateRepository,
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
-  mapController: MapController,
-  surveyRepository: SurveyRepository
+  surveyRepository: SurveyRepository,
+  locationOfInterestRepository: LocationOfInterestRepository,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) :
   BaseMapViewModel(
     locationManager,
@@ -59,8 +62,9 @@ constructor(
     settingsManager,
     offlineAreaRepository,
     permissionsManager,
-    mapController,
-    surveyRepository
+    surveyRepository,
+    locationOfInterestRepository,
+    ioDispatcher
   ) {
 
   private val fragmentArgs: @Hot(replays = true) PublishSubject<OfflineAreaViewerFragmentArgs> =

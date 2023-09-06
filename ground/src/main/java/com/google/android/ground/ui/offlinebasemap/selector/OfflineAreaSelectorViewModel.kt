@@ -19,6 +19,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.imagery.TileSource
+import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -30,7 +31,6 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.Map
-import com.google.android.ground.ui.map.MapController
 import com.google.android.ground.ui.map.MapType
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -49,7 +49,7 @@ internal constructor(
   mapStateRepository: MapStateRepository,
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
-  mapController: MapController,
+  locationOfInterestRepository: LocationOfInterestRepository
 ) :
   BaseMapViewModel(
     locationManager,
@@ -57,8 +57,9 @@ internal constructor(
     settingsManager,
     offlineAreaRepository,
     permissionsManager,
-    mapController,
-    surveyRepository
+    surveyRepository,
+    locationOfInterestRepository,
+    ioDispatcher
   ) {
   enum class DownloadMessage {
     STARTED,
