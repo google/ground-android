@@ -81,6 +81,30 @@ internal constructor(
   /** True if the submission is being added, false if editing an existing one. */
   private var isNew = false
 
+  val draftResponses: Serializable
+    get() = HashMap(responses)
+
+  private val responseDeltas: List<TaskDataDelta>
+    get() {
+      if (originalSubmission == null) {
+        Timber.e("TaskData diff attempted before submission loaded")
+        return listOf()
+      }
+      val result: MutableList<TaskDataDelta> = ArrayList()
+      val originalResponses = originalSubmission!!.responses
+      Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses)
+      for ((taskId, _, type) in originalSubmission!!.job.tasksSorted) {
+        val originalResponse = originalResponses.getResponse(taskId)
+        val currentResponse = getResponse(taskId)
+        if (currentResponse != null && currentResponse == originalResponse) {
+          continue
+        }
+        result.add(TaskDataDelta(taskId, type, currentResponse))
+      }
+      Timber.v("Deltas: %s", result)
+      return result
+    }
+
   init {
     job =
       viewArgs
@@ -89,22 +113,13 @@ internal constructor(
     saveResults = saveClicks.toObservable().switchMapSingle { onSave() }
   }
 
-  fun getToolbarTitle(): LiveData<String> {
-    return toolbarTitle
-  }
-
-  val surveyId: String?
-    get() = if (originalSubmission == null) null else originalSubmission!!.surveyId
-  val submissionId: String?
-    get() = if (originalSubmission == null) null else originalSubmission!!.id
+  fun getToolbarTitle(): LiveData<String> = toolbarTitle
 
   fun initialize(args: EditSubmissionFragmentArgs) {
     viewArgs.onNext(args)
   }
 
-  private fun getResponse(taskId: String): TaskData? {
-    return responses[taskId]
-  }
+  private fun getResponse(taskId: String): TaskData? = responses[taskId]
 
   /**
    * Update the current value of a taskData. Called what tasks are initialized and on each
@@ -163,17 +178,15 @@ internal constructor(
     isLoading.postValue(false)
   }
 
-  private fun createSubmission(args: EditSubmissionFragmentArgs): Single<Submission> {
-    return submissionRepository
+  private fun createSubmission(args: EditSubmissionFragmentArgs): Single<Submission> =
+    submissionRepository
       .createSubmission(args.surveyId, args.locationOfInterestId)
       .onErrorResumeNext { throwable: Throwable -> onError(throwable) }
-  }
 
-  private fun loadSubmission(args: EditSubmissionFragmentArgs): Single<Submission> {
-    return submissionRepository
+  private fun loadSubmission(args: EditSubmissionFragmentArgs): Single<Submission> =
+    submissionRepository
       .getSubmission(args.surveyId, args.locationOfInterestId, args.submissionId)
       .onErrorResumeNext { throwable: Throwable -> onError(throwable) }
-  }
 
   private fun onSave(): Single<SaveResult?> {
     if (originalSubmission == null) {
@@ -194,8 +207,8 @@ internal constructor(
     return Single.never()
   }
 
-  private fun save(): Single<SaveResult?> {
-    return if (originalSubmission == null) {
+  private fun save(): Single<SaveResult?> =
+    if (originalSubmission == null) {
       Single.error(IllegalStateException("Submission is null"))
     } else
       submissionRepository
@@ -203,39 +216,11 @@ internal constructor(
         .doOnSubscribe { isSaving.postValue(true) }
         .doOnComplete { isSaving.postValue(false) }
         .toSingleDefault(SaveResult.SAVED)
-  }
 
-  private val responseDeltas: List<TaskDataDelta>
-    get() {
-      if (originalSubmission == null) {
-        Timber.e("TaskData diff attempted before submission loaded")
-        return listOf()
-      }
-      val result: MutableList<TaskDataDelta> = ArrayList()
-      val originalResponses = originalSubmission!!.responses
-      Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses)
-      for ((taskId, _, type) in originalSubmission!!.job.tasksSorted) {
-        val originalResponse = originalResponses.getResponse(taskId)
-        val currentResponse = getResponse(taskId)
-        if (currentResponse != null && currentResponse == originalResponse) {
-          continue
-        }
-        result.add(TaskDataDelta(taskId, type, currentResponse))
-      }
-      Timber.v("Deltas: %s", result)
-      return result
-    }
+  fun hasUnsavedChanges(): Boolean = responseDeltas.isNotEmpty()
 
-  fun hasUnsavedChanges(): Boolean {
-    return responseDeltas.isNotEmpty()
-  }
-
-  private fun hasValidationErrors(): Boolean {
-    return validationErrors != null && validationErrors!!.isNotEmpty()
-  }
-
-  val draftResponses: Serializable
-    get() = HashMap(responses)
+  private fun hasValidationErrors(): Boolean =
+    validationErrors != null && validationErrors!!.isNotEmpty()
 
   /** Possible outcomes of user clicking "Save". */
   enum class SaveResult {
@@ -244,9 +229,6 @@ internal constructor(
     SAVED
   }
 
-  companion object {
-    private fun isAddSubmissionRequest(args: EditSubmissionFragmentArgs): Boolean {
-      return args.submissionId.isEmpty()
-    }
-  }
+  private fun isAddSubmissionRequest(args: EditSubmissionFragmentArgs): Boolean =
+    args.submissionId.isEmpty()
 }

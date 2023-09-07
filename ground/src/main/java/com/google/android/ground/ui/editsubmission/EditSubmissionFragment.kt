@@ -26,7 +26,6 @@ import androidx.core.os.bundleOf
 import com.google.android.ground.MainActivity
 import com.google.android.ground.R
 import com.google.android.ground.databinding.EditSubmissionFragBinding
-import com.google.android.ground.model.job.Job
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.common.AbstractFragment
@@ -56,6 +55,18 @@ class EditSubmissionFragment : Hilt_EditSubmissionFragment(), BackPressListener 
   private lateinit var viewModel: EditSubmissionViewModel
   private lateinit var binding: EditSubmissionFragBinding
 
+  private val validationErrors: Map<String, String>
+    get() {
+      val errors = HashMap<String, String>()
+      for (fieldViewModel in taskViewModels) {
+        val error = fieldViewModel.validate()
+        if (error != null) {
+          errors[fieldViewModel.task.id] = error
+        }
+      }
+      return errors
+    }
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(EditSubmissionViewModel::class.java)
@@ -77,10 +88,10 @@ class EditSubmissionFragment : Hilt_EditSubmissionFragment(), BackPressListener 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     val toolbar = binding.editSubmissionToolbar
-    (activity as MainActivity?)!!.setActionBar(toolbar, R.drawable.ic_close_black_24dp)
+    (activity as? MainActivity)!!.setActionBar(toolbar, R.drawable.ic_close_black_24dp)
     toolbar.setNavigationOnClickListener { onCloseButtonClick() }
     // Observe state changes.
-    viewModel.job.observe(viewLifecycleOwner) { job: Job -> rebuildForm(job) }
+    viewModel.job.observe(viewLifecycleOwner) { rebuildForm() }
 
     // Initialize view model.
     val args: Bundle? = arguments
@@ -111,19 +122,7 @@ class EditSubmissionFragment : Hilt_EditSubmissionFragment(), BackPressListener 
     }
   }
 
-  private val validationErrors: Map<String, String>
-    get() {
-      val errors = HashMap<String, String>()
-      for (fieldViewModel in taskViewModels) {
-        val error = fieldViewModel.validate()
-        if (error != null) {
-          errors[fieldViewModel.task.id] = error
-        }
-      }
-      return errors
-    }
-
-  private fun rebuildForm(job: Job) {
+  private fun rebuildForm() {
     val formLayout = binding.editSubmissionLayout
     formLayout.removeAllViews()
     taskViewModels.clear()
