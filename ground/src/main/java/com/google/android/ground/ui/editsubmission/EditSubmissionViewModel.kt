@@ -13,74 +13,65 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.editsubmission
 
-package com.google.android.ground.ui.editsubmission;
+import android.content.res.Resources
+import android.net.Uri
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.toLiveData
+import com.google.android.ground.R
+import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.TaskDataDelta
+import com.google.android.ground.model.task.Task
+import com.google.android.ground.repository.SubmissionRepository
+import com.google.android.ground.rx.Nil
+import com.google.android.ground.rx.annotations.Hot
+import com.google.android.ground.ui.common.AbstractViewModel
+import com.google.android.ground.ui.datacollection.tasks.photo.PhotoResult
+import com.google.android.ground.ui.util.BitmapUtil
+import io.reactivex.Observable
+import io.reactivex.Single
+import io.reactivex.processors.BehaviorProcessor
+import io.reactivex.processors.FlowableProcessor
+import io.reactivex.processors.PublishProcessor
+import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.Subject
+import java.io.IOException
+import java.io.Serializable
+import java8.util.Optional
+import javax.inject.Inject
+import timber.log.Timber
 
-import static androidx.lifecycle.LiveDataReactiveStreams.fromPublisher;
-
-import android.content.res.Resources;
-import android.net.Uri;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import com.google.android.ground.R;
-import com.google.android.ground.model.job.Job;
-import com.google.android.ground.model.submission.Submission;
-import com.google.android.ground.model.submission.TaskData;
-import com.google.android.ground.model.submission.TaskDataDelta;
-import com.google.android.ground.model.submission.TaskDataMap;
-import com.google.android.ground.model.task.Task;
-import com.google.android.ground.repository.SubmissionRepository;
-import com.google.android.ground.rx.Nil;
-import com.google.android.ground.rx.annotations.Hot;
-import com.google.android.ground.ui.common.AbstractViewModel;
-import com.google.android.ground.ui.datacollection.tasks.photo.PhotoResult;
-import com.google.android.ground.ui.util.BitmapUtil;
-import io.reactivex.Observable;
-import io.reactivex.Single;
-import io.reactivex.processors.BehaviorProcessor;
-import io.reactivex.processors.FlowableProcessor;
-import io.reactivex.processors.PublishProcessor;
-import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.Subject;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java8.util.Optional;
-import javax.annotation.Nullable;
-import javax.inject.Inject;
-import timber.log.Timber;
-
-public class EditSubmissionViewModel extends AbstractViewModel {
+class EditSubmissionViewModel
+@Inject
+internal constructor(
+  private val resources: Resources,
+  private val submissionRepository: SubmissionRepository, // States.
+  private val bitmapUtil: BitmapUtil
+) : AbstractViewModel() {
 
   // Injected dependencies.
-
   /** True if submission is currently being loaded, otherwise false. */
-  @Hot(replays = true)
-  public final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
+  @JvmField val isLoading: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData(false)
+
   /** True if submission is currently being saved, otherwise false. */
-  @Hot(replays = true)
-  public final MutableLiveData<Boolean> isSaving = new MutableLiveData<>(false);
+  val isSaving: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData(false)
 
-  private final SubmissionRepository submissionRepository;
-  private final Resources resources;
-
-  // States.
-  private final BitmapUtil bitmapUtil;
   /** Job definition, loaded when view is initialized. */
-  private final LiveData<Job> job;
+  val job: LiveData<Job>
 
   /** Toolbar title, based on whether user is adding new or editing existing submission. */
-  @Hot(replays = true)
-  private final MutableLiveData<String> toolbarTitle = new MutableLiveData<>();
+  private val toolbarTitle: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
 
   /** Current task responses. */
-  private final Map<String, TaskData> responses = new HashMap<>();
+  private val responses: MutableMap<String, TaskData> = HashMap()
+
   /** Arguments passed in from view on initialize(). */
-  @Hot(replays = true)
-  private final FlowableProcessor<EditSubmissionFragmentArgs> viewArgs = BehaviorProcessor.create();
+  private val viewArgs: @Hot(replays = true) FlowableProcessor<EditSubmissionFragmentArgs> =
+    BehaviorProcessor.create()
   // TODO(#1146): Reduce duplicate photo capture logic between here and PhotoTaskViewModel.
   //  Note: This may be unnecessary since the EditSubmissionFragment may be removed altogether in
   //  favor of an "Edit" mode for the Data Collection Flow.
@@ -89,24 +80,28 @@ public class EditSubmissionViewModel extends AbstractViewModel {
    * value is emitted on each subscription because {@see #onPhotoResult} is called before
    * subscribers are created.
    */
-  private final Subject<PhotoResult> lastPhotoResult = BehaviorSubject.create();
-  /** "Save" button clicks. */
-  @Hot private final PublishProcessor<Nil> saveClicks = PublishProcessor.create();
-  /** Outcome of user clicking "Save". */
-  private final Observable<SaveResult> saveResults;
-  /** Task validation errors, updated when existing for loaded and when responses change. */
-  @Nullable private Map<String, String> validationErrors;
+  private val lastPhotoResult: Subject<PhotoResult> = BehaviorSubject.create()
 
+  /** "Save" button clicks. */
+  private val saveClicks: @Hot PublishProcessor<Nil> = PublishProcessor.create()
+
+  /** Outcome of user clicking "Save". */
+  private val saveResults: Observable<SaveResult?>
+
+  /** Task validation errors, updated when existing for loaded and when responses change. */
+  private var validationErrors: Map<String, String>? = null
   // Events.
   /** Submission state loaded when view is initialized. */
-  @Nullable private Submission originalSubmission;
+  private var originalSubmission: Submission? = null
+
   /** True if the submission is being added, false if editing an existing one. */
-  private boolean isNew;
+  private var isNew = false
+
   /**
    * Task id waiting for a photo taskData. As only 1 photo result is returned at a time, we can
    * directly map it 1:1 with the task waiting for a photo taskData.
    */
-  @Nullable private String taskWaitingForPhoto;
+  private var taskWaitingForPhoto: String? = null
 
   /**
    * Full path of the captured photo in local storage. In case of selecting a photo from storage,
@@ -114,247 +109,219 @@ public class EditSubmissionViewModel extends AbstractViewModel {
    * result returns true/false based on whether the operation passed or not. As only 1 photo result
    * is returned at a time, we can directly map it 1:1 with the path of the captured photo.
    */
-  @Nullable private String capturedPhotoPath;
+  private var capturedPhotoPath: String? = null
 
-  @Inject
-  EditSubmissionViewModel(
-      Resources resources, SubmissionRepository submissionRepository, BitmapUtil bitmapUtil) {
-    this.resources = resources;
-    this.submissionRepository = submissionRepository;
-    this.bitmapUtil = bitmapUtil;
-    this.job = fromPublisher(viewArgs.switchMapSingle(this::onInitialize));
-    this.saveResults = saveClicks.toObservable().switchMapSingle(__ -> onSave());
+  init {
+    job =
+      viewArgs
+        .switchMapSingle { viewArgs: EditSubmissionFragmentArgs -> onInitialize(viewArgs) }
+        .toLiveData()
+    saveResults = saveClicks.toObservable().switchMapSingle { onSave() }
   }
 
-  private static boolean isAddSubmissionRequest(EditSubmissionFragmentArgs args) {
-    return args.getSubmissionId().isEmpty();
+  fun getToolbarTitle(): LiveData<String> {
+    return toolbarTitle
   }
 
-  public LiveData<Job> getJob() {
-    return job;
+  val surveyId: String?
+    get() = if (originalSubmission == null) null else originalSubmission!!.surveyId
+  val submissionId: String?
+    get() = if (originalSubmission == null) null else originalSubmission!!.id
+
+  fun initialize(args: EditSubmissionFragmentArgs) {
+    viewArgs.onNext(args)
   }
 
-  public LiveData<String> getToolbarTitle() {
-    return toolbarTitle;
-  }
-
-  Observable<SaveResult> getSaveResults() {
-    return saveResults;
-  }
-
-  public @Nullable String getSurveyId() {
-    return originalSubmission == null ? null : originalSubmission.getSurveyId();
-  }
-
-  public @Nullable String getSubmissionId() {
-    return originalSubmission == null ? null : originalSubmission.getId();
-  }
-
-  void initialize(EditSubmissionFragmentArgs args) {
-    viewArgs.onNext(args);
-  }
-
-  @Nullable
-  TaskData getResponse(String taskId) {
-    return responses.get(taskId);
+  private fun getResponse(taskId: String): TaskData? {
+    return responses[taskId]
   }
 
   /**
    * Update the current value of a taskData. Called what tasks are initialized and on each
    * subsequent change.
    */
-  void setResponse(Task task, Optional<TaskData> newResponse) {
-    newResponse.ifPresentOrElse(
-        r -> responses.put(task.getId(), r), () -> responses.remove(task.getId()));
-  }
-
-  public void onSaveClick(Map<String, String> validationErrors) {
-    this.validationErrors = validationErrors;
-    saveClicks.onNext(Nil.NIL);
-  }
-
-  private Single<Job> onInitialize(EditSubmissionFragmentArgs viewArgs) {
-    isLoading.setValue(true);
-    isNew = isAddSubmissionRequest(viewArgs);
-    Single<Submission> submissionSingle;
-    if (isNew) {
-      toolbarTitle.setValue(resources.getString(R.string.add_submission_toolbar_title));
-      submissionSingle = createSubmission(viewArgs);
-    } else {
-      toolbarTitle.setValue(resources.getString(R.string.edit_submission));
-      submissionSingle = loadSubmission(viewArgs);
+  fun setResponse(task: Task, newResponse: Optional<TaskData>) {
+    newResponse.ifPresentOrElse({ r: TaskData -> responses[task.id] = r }) {
+      responses.remove(task.id)
     }
-    HashMap<String, TaskData> restoredResponses = viewArgs.getRestoredResponses();
-    return submissionSingle
-        .doOnSuccess(loadedSubmission -> onSubmissionLoaded(loadedSubmission, restoredResponses))
-        .map(Submission::getJob);
   }
 
-  private void onSubmissionLoaded(
-      Submission submission, @Nullable Map<String, TaskData> restoredResponses) {
-    Timber.v("Submission loaded");
-    this.originalSubmission = submission;
-    responses.clear();
+  fun onSaveClick(validationErrors: Map<String, String>?) {
+    this.validationErrors = validationErrors
+    saveClicks.onNext(Nil.NIL)
+  }
+
+  private fun onInitialize(viewArgs: EditSubmissionFragmentArgs): Single<Job> {
+    isLoading.value = true
+    isNew = isAddSubmissionRequest(viewArgs)
+    val submissionSingle: Single<Submission> =
+      if (isNew) {
+        toolbarTitle.value = resources.getString(R.string.add_submission_toolbar_title)
+        createSubmission(viewArgs)
+      } else {
+        toolbarTitle.setValue(resources.getString(R.string.edit_submission))
+        loadSubmission(viewArgs)
+      }
+    val restoredResponses: HashMap<String, TaskData>? =
+      viewArgs.restoredResponses as? HashMap<String, TaskData>
+    return submissionSingle
+      .doOnSuccess { loadedSubmission: Submission ->
+        onSubmissionLoaded(loadedSubmission, restoredResponses)
+      }
+      .map(Submission::job)
+  }
+
+  private fun onSubmissionLoaded(
+    submission: Submission,
+    restoredResponses: Map<String, TaskData>?
+  ) {
+    Timber.v("Submission loaded")
+    originalSubmission = submission
+    responses.clear()
     if (restoredResponses == null) {
-      TaskDataMap taskDataMap = submission.getResponses();
-      for (String taskId : taskDataMap.taskIds()) {
-        TaskData taskData = taskDataMap.getResponse(taskId);
+      val taskDataMap = submission.responses
+      for (taskId in taskDataMap.taskIds()) {
+        val taskData = taskDataMap.getResponse(taskId)
         if (taskData != null) {
-          responses.put(taskId, taskData);
+          responses[taskId] = taskData
         }
       }
     } else {
-      Timber.v("Restoring responses from bundle");
-      responses.putAll(restoredResponses);
+      Timber.v("Restoring responses from bundle")
+      responses.putAll(restoredResponses)
     }
-    isLoading.postValue(false);
+    isLoading.postValue(false)
   }
 
-  private Single<Submission> createSubmission(EditSubmissionFragmentArgs args) {
+  private fun createSubmission(args: EditSubmissionFragmentArgs): Single<Submission> {
     return submissionRepository
-        .createSubmission(args.getSurveyId(), args.getLocationOfInterestId())
-        .onErrorResumeNext(this::onError);
+      .createSubmission(args.surveyId, args.locationOfInterestId)
+      .onErrorResumeNext { throwable: Throwable -> onError(throwable) }
   }
 
-  private Single<Submission> loadSubmission(EditSubmissionFragmentArgs args) {
+  private fun loadSubmission(args: EditSubmissionFragmentArgs): Single<Submission> {
     return submissionRepository
-        .getSubmission(args.getSurveyId(), args.getLocationOfInterestId(), args.getSubmissionId())
-        .onErrorResumeNext(this::onError);
+      .getSubmission(args.surveyId, args.locationOfInterestId, args.submissionId)
+      .onErrorResumeNext { throwable: Throwable -> onError(throwable) }
   }
 
-  private Single<SaveResult> onSave() {
+  private fun onSave(): Single<SaveResult?> {
     if (originalSubmission == null) {
-      Timber.e("Save attempted before submission loaded");
-      return Single.just(SaveResult.NO_CHANGES_TO_SAVE);
+      Timber.e("Save attempted before submission loaded")
+      return Single.just(SaveResult.NO_CHANGES_TO_SAVE)
     }
-
     if (hasValidationErrors()) {
-      return Single.just(SaveResult.HAS_VALIDATION_ERRORS);
+      return Single.just(SaveResult.HAS_VALIDATION_ERRORS)
     }
-    if (!hasUnsavedChanges()) {
-      return Single.just(SaveResult.NO_CHANGES_TO_SAVE);
-    }
-    return save();
+    return if (!hasUnsavedChanges()) {
+      Single.just(SaveResult.NO_CHANGES_TO_SAVE)
+    } else save()
   }
 
-  private <T> Single<T> onError(Throwable throwable) {
+  private fun <T> onError(throwable: Throwable): Single<T> {
     // TODO: Refactor and stream to UI.
-    Timber.e(throwable, "Error");
-    return Single.never();
+    Timber.e(throwable, "Error")
+    return Single.never()
   }
 
-  private Single<SaveResult> save() {
-    if (originalSubmission == null) {
-      return Single.error(new IllegalStateException("Submission is null"));
-    }
-
-    return submissionRepository
-        .createOrUpdateSubmission(originalSubmission, getResponseDeltas(), isNew)
-        .doOnSubscribe(__ -> isSaving.postValue(true))
-        .doOnComplete(() -> isSaving.postValue(false))
-        .toSingleDefault(SaveResult.SAVED);
+  private fun save(): Single<SaveResult?> {
+    return if (originalSubmission == null) {
+      Single.error(IllegalStateException("Submission is null"))
+    } else
+      submissionRepository
+        .createOrUpdateSubmission(originalSubmission!!, responseDeltas, isNew)
+        .doOnSubscribe { isSaving.postValue(true) }
+        .doOnComplete { isSaving.postValue(false) }
+        .toSingleDefault(SaveResult.SAVED)
   }
 
-  private List<TaskDataDelta> getResponseDeltas() {
-    if (originalSubmission == null) {
-      Timber.e("TaskData diff attempted before submission loaded");
-      return List.of();
-    }
-    List<TaskDataDelta> result = new ArrayList<>();
-    TaskDataMap originalResponses = originalSubmission.getResponses();
-    Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses);
-    for (Task task : originalSubmission.getJob().getTasksSorted()) {
-      String taskId = task.getId();
-      TaskData originalResponse = originalResponses.getResponse(taskId);
-      TaskData currentResponse = getResponse(taskId);
-      if (currentResponse != null && currentResponse.equals(originalResponse)) {
-        continue;
+  private val responseDeltas: List<TaskDataDelta>
+    get() {
+      if (originalSubmission == null) {
+        Timber.e("TaskData diff attempted before submission loaded")
+        return listOf()
       }
-      result.add(new TaskDataDelta(taskId, task.getType(), currentResponse));
+      val result: MutableList<TaskDataDelta> = ArrayList()
+      val originalResponses = originalSubmission!!.responses
+      Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses)
+      for ((taskId, _, type) in originalSubmission!!.job.tasksSorted) {
+        val originalResponse = originalResponses.getResponse(taskId)
+        val currentResponse = getResponse(taskId)
+        if (currentResponse != null && currentResponse == originalResponse) {
+          continue
+        }
+        result.add(TaskDataDelta(taskId, type, currentResponse))
+      }
+      Timber.v("Deltas: %s", result)
+      return result
     }
-    Timber.v("Deltas: %s", result);
-    return result;
+
+  fun hasUnsavedChanges(): Boolean {
+    return responseDeltas.isNotEmpty()
   }
 
-  boolean hasUnsavedChanges() {
-    return !getResponseDeltas().isEmpty();
+  private fun hasValidationErrors(): Boolean {
+    return validationErrors != null && validationErrors!!.isNotEmpty()
   }
 
-  private boolean hasValidationErrors() {
-    return validationErrors != null && !validationErrors.isEmpty();
+  val draftResponses: Serializable
+    get() = HashMap(responses)
+
+  fun getLastPhotoResult(): Observable<PhotoResult> {
+    return lastPhotoResult
   }
 
-  public Serializable getDraftResponses() {
-    return new HashMap<>(responses);
-  }
-
-  @Nullable
-  public String getTaskWaitingForPhoto() {
-    return taskWaitingForPhoto;
-  }
-
-  public void setTaskWaitingForPhoto(@Nullable String taskWaitingForPhoto) {
-    this.taskWaitingForPhoto = taskWaitingForPhoto;
-  }
-
-  @Nullable
-  public String getCapturedPhotoPath() {
-    return capturedPhotoPath;
-  }
-
-  public void setCapturedPhotoPath(@Nullable String photoUri) {
-    this.capturedPhotoPath = photoUri;
-  }
-
-  public Observable<PhotoResult> getLastPhotoResult() {
-    return lastPhotoResult;
-  }
-
-  public void onSelectPhotoResult(Uri uri) {
+  fun onSelectPhotoResult(uri: Uri?) {
     if (uri == null) {
-      Timber.v("Select photo failed or canceled");
-      return;
+      Timber.v("Select photo failed or canceled")
+      return
     }
     if (taskWaitingForPhoto == null) {
-      Timber.e("Photo captured but no task waiting for the result");
-      return;
+      Timber.e("Photo captured but no task waiting for the result")
+      return
     }
     try {
-      onPhotoResult(new PhotoResult(taskWaitingForPhoto, bitmapUtil.fromUri(uri)));
-      Timber.v("Select photo result returned");
-    } catch (IOException e) {
-      Timber.e(e, "Error getting photo selected from storage");
+      onPhotoResult(PhotoResult(taskWaitingForPhoto!!, bitmapUtil.fromUri(uri)))
+      Timber.v("Select photo result returned")
+    } catch (e: IOException) {
+      Timber.e(e, "Error getting photo selected from storage")
     }
   }
 
-  public void onCapturePhotoResult(boolean result) {
+  fun onCapturePhotoResult(result: Boolean) {
     if (!result) {
-      Timber.v("Capture photo failed or canceled");
+      Timber.v("Capture photo failed or canceled")
       // TODO: Cleanup created file if it exists.
-      return;
+      return
     }
     if (taskWaitingForPhoto == null) {
-      Timber.e("Photo captured but no task waiting for the result");
-      return;
+      Timber.e("Photo captured but no task waiting for the result")
+      return
     }
     if (capturedPhotoPath == null) {
-      Timber.e("Photo captured but no path available to read the result");
-      return;
+      Timber.e("Photo captured but no path available to read the result")
+      return
     }
-    onPhotoResult(new PhotoResult(taskWaitingForPhoto, /* bitmap=*/ null, capturedPhotoPath));
-    Timber.v("Photo capture result returned");
+    onPhotoResult(PhotoResult(taskWaitingForPhoto!!, /* bitmap=*/ null, capturedPhotoPath))
+    Timber.v("Photo capture result returned")
   }
 
-  private void onPhotoResult(PhotoResult result) {
-    capturedPhotoPath = null;
-    taskWaitingForPhoto = null;
-    lastPhotoResult.onNext(result);
+  private fun onPhotoResult(result: PhotoResult) {
+    capturedPhotoPath = null
+    taskWaitingForPhoto = null
+    lastPhotoResult.onNext(result)
   }
 
   /** Possible outcomes of user clicking "Save". */
-  enum SaveResult {
+  enum class SaveResult {
     HAS_VALIDATION_ERRORS,
     NO_CHANGES_TO_SAVE,
     SAVED
+  }
+
+  companion object {
+    private fun isAddSubmissionRequest(args: EditSubmissionFragmentArgs): Boolean {
+      return args.submissionId.isEmpty()
+    }
   }
 }

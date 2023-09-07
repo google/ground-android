@@ -13,153 +13,144 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.editsubmission
 
-package com.google.android.ground.ui.editsubmission;
+import android.content.Context
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AlertDialog
+import androidx.core.os.bundleOf
+import com.google.android.ground.MainActivity
+import com.google.android.ground.R
+import com.google.android.ground.databinding.EditSubmissionFragBinding
+import com.google.android.ground.model.job.Job
+import com.google.android.ground.repository.UserMediaRepository
+import com.google.android.ground.rx.Schedulers
+import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.common.BackPressListener
+import com.google.android.ground.ui.common.EphemeralPopups
+import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-import android.content.Context;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.LinearLayout;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import com.google.android.ground.MainActivity;
-import com.google.android.ground.R;
-import com.google.android.ground.databinding.EditSubmissionFragBinding;
-import com.google.android.ground.model.job.Job;
-import com.google.android.ground.repository.UserMediaRepository;
-import com.google.android.ground.rx.Schedulers;
-import com.google.android.ground.ui.common.AbstractFragment;
-import com.google.android.ground.ui.common.BackPressListener;
-import com.google.android.ground.ui.common.EphemeralPopups;
-import com.google.android.ground.ui.common.Navigator;
-import com.google.android.ground.ui.common.TwoLineToolbar;
-import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel;
-import dagger.hilt.android.AndroidEntryPoint;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.inject.Inject;
-
-@AndroidEntryPoint(AbstractFragment.class)
-public class EditSubmissionFragment extends Hilt_EditSubmissionFragment implements
-    BackPressListener {
+@AndroidEntryPoint(AbstractFragment::class)
+class EditSubmissionFragment : Hilt_EditSubmissionFragment(), BackPressListener {
 
   /** String constant keys used for persisting state in {@see Bundle} objects. */
-  private static final class BundleKeys {
-
+  private object BundleKeys {
     /** Key used to store unsaved responses across activity re-creation. */
-    private static final String RESTORED_RESPONSES = "restoredResponses";
+    const val RESTORED_RESPONSES = "restoredResponses"
   }
 
-  private final List<AbstractTaskViewModel> taskViewModels = new ArrayList<>();
+  private val taskViewModels: MutableList<AbstractTaskViewModel> = ArrayList()
 
-  @Inject Navigator navigator;
-  @Inject EphemeralPopups popups;
-  @Inject Schedulers schedulers;
-  @Inject UserMediaRepository userMediaRepository;
+  @Inject lateinit var navigator: Navigator
+  @Inject lateinit var popups: EphemeralPopups
+  @Inject lateinit var schedulers: Schedulers
+  @Inject lateinit var userMediaRepository: UserMediaRepository
 
-  private EditSubmissionViewModel viewModel;
-  private EditSubmissionFragBinding binding;
+  private lateinit var viewModel: EditSubmissionViewModel
+  private lateinit var binding: EditSubmissionFragBinding
 
-  @Override
-  public void onCreate(@Nullable Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    viewModel = getViewModel(EditSubmissionViewModel.class);
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    viewModel = getViewModel(EditSubmissionViewModel::class.java)
   }
 
-  @Override
-  public View onCreateView(
-      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    binding = EditSubmissionFragBinding.inflate(inflater, container, false);
-    binding.setLifecycleOwner(this);
-    binding.setViewModel(viewModel);
-    binding.setFragment(this);
-    binding.saveSubmissionBtn.setOnClickListener(this::onSaveClick);
-    return binding.getRoot();
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View {
+    binding = EditSubmissionFragBinding.inflate(inflater, container, false)
+    binding.lifecycleOwner = this
+    binding.viewModel = viewModel
+    binding.fragment = this
+    binding.saveSubmissionBtn.setOnClickListener { view: View -> onSaveClick(view) }
+    return binding.root
   }
 
-  @Override
-  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-    super.onViewCreated(view, savedInstanceState);
-    TwoLineToolbar toolbar = binding.editSubmissionToolbar;
-    ((MainActivity) getActivity()).setActionBar(toolbar, R.drawable.ic_close_black_24dp);
-    toolbar.setNavigationOnClickListener(__ -> onCloseButtonClick());
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    val toolbar = binding.editSubmissionToolbar
+    (activity as MainActivity?)!!.setActionBar(toolbar, R.drawable.ic_close_black_24dp)
+    toolbar.setNavigationOnClickListener { onCloseButtonClick() }
     // Observe state changes.
-    viewModel.getJob().observe(getViewLifecycleOwner(), this::rebuildForm);
+    viewModel.job.observe(viewLifecycleOwner) { job: Job -> rebuildForm(job) }
 
     // Initialize view model.
-    Bundle args = getArguments();
+    val args: Bundle? = arguments
     if (savedInstanceState != null) {
-      args.putSerializable(
-          BundleKeys.RESTORED_RESPONSES,
-          savedInstanceState.getSerializable(BundleKeys.RESTORED_RESPONSES));
+      args?.putSerializable(
+        BundleKeys.RESTORED_RESPONSES,
+        savedInstanceState.getSerializable(BundleKeys.RESTORED_RESPONSES)
+      )
     }
-    viewModel.initialize(EditSubmissionFragmentArgs.fromBundle(args));
+    viewModel.initialize(EditSubmissionFragmentArgs.fromBundle(args ?: bundleOf()))
   }
 
-  @Override
-  public void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-    outState.putSerializable(BundleKeys.RESTORED_RESPONSES, viewModel.getDraftResponses());
+  override fun onSaveInstanceState(outState: Bundle) {
+    super.onSaveInstanceState(outState)
+    outState.putSerializable(BundleKeys.RESTORED_RESPONSES, viewModel.draftResponses)
   }
 
-  public void onSaveClick(View view) {
-    hideKeyboard(view);
-    viewModel.onSaveClick(getValidationErrors());
+  private fun onSaveClick(view: View) {
+    hideKeyboard(view)
+    viewModel.onSaveClick(validationErrors)
   }
 
-  private void hideKeyboard(View view) {
-    if (getActivity() != null) {
-      InputMethodManager inputMethodManager =
-          (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-      inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+  private fun hideKeyboard(view: View) {
+    if (activity != null) {
+      val inputMethodManager =
+        requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+      inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
   }
 
-  private Map<String, String> getValidationErrors() {
-    HashMap<String, String> errors = new HashMap<>();
-    for (AbstractTaskViewModel fieldViewModel : taskViewModels) {
-      String error = fieldViewModel.validate();
-      if (error != null) {
-        errors.put(fieldViewModel.getTask().getId(), error);
+  private val validationErrors: Map<String, String>
+    get() {
+      val errors = HashMap<String, String>()
+      for (fieldViewModel in taskViewModels) {
+        val error = fieldViewModel.validate()
+        if (error != null) {
+          errors[fieldViewModel.task.id] = error
+        }
       }
+      return errors
     }
-    return errors;
+
+  private fun rebuildForm(job: Job) {
+    val formLayout = binding.editSubmissionLayout
+    formLayout.removeAllViews()
+    taskViewModels.clear()
   }
 
-  private void rebuildForm(Job job) {
-    LinearLayout formLayout = binding.editSubmissionLayout;
-    formLayout.removeAllViews();
-    taskViewModels.clear();
-  }
-
-  @Override
-  public boolean onBack() {
+  override fun onBack(): Boolean {
     if (viewModel.hasUnsavedChanges()) {
-      showUnsavedChangesDialog();
-      return true;
+      showUnsavedChangesDialog()
+      return true
     }
-    return false;
+    return false
   }
 
-  private void onCloseButtonClick() {
+  private fun onCloseButtonClick() {
     if (viewModel.hasUnsavedChanges()) {
-      showUnsavedChangesDialog();
+      showUnsavedChangesDialog()
     } else {
-      navigator.navigateUp();
+      navigator.navigateUp()
     }
   }
 
-  private void showUnsavedChangesDialog() {
-    new AlertDialog.Builder(requireContext())
-        .setMessage(R.string.unsaved_changes)
-        .setPositiveButton(R.string.discard_changes, (d, i) -> navigator.navigateUp())
-        .setNegativeButton(R.string.continue_editing, (d, i) -> {})
-        .create()
-        .show();
+  private fun showUnsavedChangesDialog() {
+    AlertDialog.Builder(requireContext())
+      .setMessage(R.string.unsaved_changes)
+      .setPositiveButton(R.string.discard_changes) { _, _ -> navigator.navigateUp() }
+      .setNegativeButton(R.string.continue_editing) { _, _ -> }
+      .create()
+      .show()
   }
 }
