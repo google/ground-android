@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.editsubmission
 
 import android.content.res.Resources
-import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.toLiveData
@@ -30,16 +29,11 @@ import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
-import com.google.android.ground.ui.datacollection.tasks.photo.PhotoResult
-import com.google.android.ground.ui.util.BitmapUtil
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.Subject
-import java.io.IOException
 import java.io.Serializable
 import java8.util.Optional
 import javax.inject.Inject
@@ -49,8 +43,7 @@ class EditSubmissionViewModel
 @Inject
 internal constructor(
   private val resources: Resources,
-  private val submissionRepository: SubmissionRepository, // States.
-  private val bitmapUtil: BitmapUtil
+  private val submissionRepository: SubmissionRepository
 ) : AbstractViewModel() {
 
   // Injected dependencies.
@@ -72,15 +65,6 @@ internal constructor(
   /** Arguments passed in from view on initialize(). */
   private val viewArgs: @Hot(replays = true) FlowableProcessor<EditSubmissionFragmentArgs> =
     BehaviorProcessor.create()
-  // TODO(#1146): Reduce duplicate photo capture logic between here and PhotoTaskViewModel.
-  //  Note: This may be unnecessary since the EditSubmissionFragment may be removed altogether in
-  //  favor of an "Edit" mode for the Data Collection Flow.
-  /**
-   * Emits the last photo task id updated and either its photo result, or empty if removed. The last
-   * value is emitted on each subscription because {@see #onPhotoResult} is called before
-   * subscribers are created.
-   */
-  private val lastPhotoResult: Subject<PhotoResult> = BehaviorSubject.create()
 
   /** "Save" button clicks. */
   private val saveClicks: @Hot PublishProcessor<Nil> = PublishProcessor.create()
@@ -96,20 +80,6 @@ internal constructor(
 
   /** True if the submission is being added, false if editing an existing one. */
   private var isNew = false
-
-  /**
-   * Task id waiting for a photo taskData. As only 1 photo result is returned at a time, we can
-   * directly map it 1:1 with the task waiting for a photo taskData.
-   */
-  private var taskWaitingForPhoto: String? = null
-
-  /**
-   * Full path of the captured photo in local storage. In case of selecting a photo from storage,
-   * URI is returned. But when capturing a photo using camera, we need to pass a valid URI and the
-   * result returns true/false based on whether the operation passed or not. As only 1 photo result
-   * is returned at a time, we can directly map it 1:1 with the path of the captured photo.
-   */
-  private var capturedPhotoPath: String? = null
 
   init {
     job =
@@ -266,51 +236,6 @@ internal constructor(
 
   val draftResponses: Serializable
     get() = HashMap(responses)
-
-  fun getLastPhotoResult(): Observable<PhotoResult> {
-    return lastPhotoResult
-  }
-
-  fun onSelectPhotoResult(uri: Uri?) {
-    if (uri == null) {
-      Timber.v("Select photo failed or canceled")
-      return
-    }
-    if (taskWaitingForPhoto == null) {
-      Timber.e("Photo captured but no task waiting for the result")
-      return
-    }
-    try {
-      onPhotoResult(PhotoResult(taskWaitingForPhoto!!, bitmapUtil.fromUri(uri)))
-      Timber.v("Select photo result returned")
-    } catch (e: IOException) {
-      Timber.e(e, "Error getting photo selected from storage")
-    }
-  }
-
-  fun onCapturePhotoResult(result: Boolean) {
-    if (!result) {
-      Timber.v("Capture photo failed or canceled")
-      // TODO: Cleanup created file if it exists.
-      return
-    }
-    if (taskWaitingForPhoto == null) {
-      Timber.e("Photo captured but no task waiting for the result")
-      return
-    }
-    if (capturedPhotoPath == null) {
-      Timber.e("Photo captured but no path available to read the result")
-      return
-    }
-    onPhotoResult(PhotoResult(taskWaitingForPhoto!!, /* bitmap=*/ null, capturedPhotoPath))
-    Timber.v("Photo capture result returned")
-  }
-
-  private fun onPhotoResult(result: PhotoResult) {
-    capturedPhotoPath = null
-    taskWaitingForPhoto = null
-    lastPhotoResult.onNext(result)
-  }
 
   /** Possible outcomes of user clicking "Save". */
   enum class SaveResult {
