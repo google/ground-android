@@ -20,6 +20,8 @@
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
+    <import type="com.google.android.ground.R" />
+    <import type="android.view.View" />
     <variable
       name="viewModel"
       type="com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel" />
@@ -70,10 +72,43 @@
           app:backgroundTint="@color/colorMapAccent"
           app:chipIcon="@drawable/ic_area_download"
           app:icon="@drawable/ic_area_download"
+          android:enabled="@{viewModel.downloadButtonEnabled}"
           app:layout_constraintBottom_toBottomOf="parent"
           app:layout_constraintEnd_toEndOf="parent"
           app:useCompatPadding="true" />
       </com.google.android.ground.ui.common.TwoLineToolbar>
+      <TextView
+        android:id="@+id/size_on_disk_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:textColor="@color/textOverMap"
+        android:fontFamily="Google Sans Text"
+        android:layout_marginLeft="16sp"
+        android:layout_marginRight="16sp"
+        android:layout_marginBottom="24sp"
+        android:visibility="@{viewModel.visibleBottomTextView == R.id.size_on_disk_text_view ? View.VISIBLE : View.GONE}"
+        android:text="@{@string/selected_area_size_on_disk(viewModel.sizeOnDisk)}"/>
+      <TextView
+        android:id="@+id/area_too_large_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:textColor="@color/textOverMap"
+        android:fontFamily="Google Sans Text"
+        android:layout_marginLeft="16sp"
+        android:layout_marginRight="16sp"
+        android:layout_marginBottom="24sp"
+        android:visibility="@{viewModel.visibleBottomTextView == R.id.area_too_large_text_view ? View.VISIBLE : View.GONE}"
+        android:text="@string/selected_area_too_large"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
   </FrameLayout>
 </layout>

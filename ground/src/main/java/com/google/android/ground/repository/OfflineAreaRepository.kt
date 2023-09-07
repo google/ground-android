@@ -114,4 +114,10 @@ constructor(
   private fun getFirstTileSourceUrl() =
     surveyRepository.activeSurvey?.tileSources?.firstOrNull()?.url
       ?: error("Survey has no tile sources")
+
+  suspend fun estimateSizeOnDisk(bounds: Bounds): Int {
+    val client = getMogClient()
+    val requests = client.buildTilesRequests(bounds.toGoogleMapsObject())
+    return requests.sumOf { it.totalBytes }
+  }
 }

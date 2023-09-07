@@ -17,6 +17,7 @@ package com.google.android.ground.ui.offlinebasemap.selector
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.android.ground.R
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.repository.LocationOfInterestRepository
@@ -30,11 +31,16 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.Bounds
+import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Map
 import com.google.android.ground.ui.map.MapType
 import javax.inject.Inject
+import kotlin.math.ceil
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
+
+private const val MIN_DOWNLOAD_ZOOM_LEVEL = 10
+private const val MAX_AREA_DOWNLOAD_SIZE_MB = 50
 
 /** States and behaviors of Map UI used to select areas for download and viewing offline. */
 @SharedViewModel
@@ -67,6 +73,9 @@ internal constructor(
   val isDownloadProgressVisible = MutableLiveData(false)
   val downloadProgressMax = MutableLiveData(0)
   val downloadProgress = MutableLiveData(0)
+  val sizeOnDisk = MutableLiveData<String>(null)
+  val visibleBottomTextView = MutableLiveData<Int>(null)
+  val downloadButtonEnabled = MutableLiveData(false)
 
   init {
     tileSources = surveyRepository.activeSurvey!!.tileSources
@@ -81,11 +90,11 @@ internal constructor(
     isDownloadProgressVisible.value = true
     downloadProgress.value = 0
     viewModelScope.launch(ioDispatcher) {
-      offlineAreaRepository.downloadTiles(viewport!!).collect { (byteDownloaded, totalBytes) ->
+      offlineAreaRepository.downloadTiles(viewport!!).collect { (bytesDownloaded, totalBytes) ->
         // Set total bytes / max value on first iteration.
         if (downloadProgressMax.value != totalBytes) downloadProgressMax.postValue(totalBytes)
         // Add number of bytes downloaded to progress.
-        downloadProgress.postValue(byteDownloaded)
+        downloadProgress.postValue(bytesDownloaded)
       }
       isDownloadProgressVisible.postValue(false)
       navigator.navigateUp()
@@ -96,5 +105,38 @@ internal constructor(
     map.mapType = MapType.TERRAIN
     tileSources.forEach { map.addTileOverlay(it) }
     disposeOnClear(cameraBoundUpdates.subscribe { viewport = it })
+  }
+
+  override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
+    super.onMapCameraMoved(newCameraPosition)
+    val (_, zoomLevel, _, bounds) = newCameraPosition
+    if (bounds == null || zoomLevel == null) return
+    if (zoomLevel < MIN_DOWNLOAD_ZOOM_LEVEL) {
+      onLargeAreaSelected()
+      return
+    }
+    sizeOnDisk.value = "…"
+    visibleBottomTextView.value = R.id.size_on_disk_text_view
+    viewModelScope.launch(ioDispatcher) { updateDownloadSize(bounds) }
+  }
+
+  private suspend fun updateDownloadSize(bounds: Bounds) {
+    val sizeInMb = offlineAreaRepository.estimateSizeOnDisk(bounds) / (1024f * 1024f)
+    if (sizeInMb > MAX_AREA_DOWNLOAD_SIZE_MB) {
+      onLargeAreaSelected()
+    } else {
+      onDownloadableAreaSelected(sizeInMb)
+    }
+  }
+
+  private fun onDownloadableAreaSelected(sizeInMb: Float) {
+    val sizeString = if (sizeInMb < 1f) "<1" else ceil(sizeInMb).toInt().toString()
+    sizeOnDisk.postValue(sizeString)
+    downloadButtonEnabled.postValue(true)
+  }
+
+  private fun onLargeAreaSelected() {
+    visibleBottomTextView.value = R.id.area_too_large_text_view
+    downloadButtonEnabled.value = false
   }
 }
