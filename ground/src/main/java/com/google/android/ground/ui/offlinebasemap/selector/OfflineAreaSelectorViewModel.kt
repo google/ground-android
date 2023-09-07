@@ -61,10 +61,6 @@ internal constructor(
     locationOfInterestRepository,
     ioDispatcher
   ) {
-  enum class DownloadMessage {
-    STARTED,
-    FAILURE
-  }
 
   val tileSources: List<TileSource>
   private var viewport: Bounds? = null
