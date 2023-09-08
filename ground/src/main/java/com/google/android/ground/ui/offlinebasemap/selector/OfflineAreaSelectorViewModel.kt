@@ -119,10 +119,7 @@ internal constructor(
       return
     }
 
-    viewModelScope.launch(ioDispatcher) {
-      onStartEstimatingDownloadSize()
-      updateDownloadSize(bounds)
-    }
+    viewModelScope.launch(ioDispatcher) { updateDownloadSize(bounds) }
   }
 
   private fun onStartEstimatingDownloadSize() {
@@ -131,6 +128,7 @@ internal constructor(
   }
 
   private suspend fun updateDownloadSize(bounds: Bounds) {
+    onStartEstimatingDownloadSize()
     val sizeInMb = offlineAreaRepository.estimateSizeOnDisk(bounds) / (1024f * 1024f)
     if (sizeInMb > MAX_AREA_DOWNLOAD_SIZE_MB) {
       onLargeAreaSelected()
