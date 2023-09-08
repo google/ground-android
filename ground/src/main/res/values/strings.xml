@@ -163,6 +163,7 @@
   <string name="contact_survey_organizer_to_obtain_access">Contact your system administrator to request access</string>
   <string name="close_app">Close app</string>
   <string name="warning_sign_out">Warning: If you sign out, all unsaved data will be lost </string>
-  <string name="selected_area_size_on_disk">The selected area may take up to %s\u00A0MB of space on your device</string>
-  <string name="selected_area_too_large">Zoom in and select a smaller area to download to your device</string>
+  <string name="selected_offline_area_size">The selected area may take up to %s\u00A0MB of space on your device</string>
+  <string name="selected_offline_area_too_large">Zoom in and select a smaller area to download to your device</string>
+  <string name="offline_area_size_loading_symbol">…</string>
 </resources>

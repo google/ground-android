@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.offlinebasemap.selector
 
+import android.content.res.Resources
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
@@ -50,6 +51,7 @@ internal constructor(
   private val offlineAreaRepository: OfflineAreaRepository,
   private val navigator: Navigator,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+  private val resources: Resources,
   locationManager: LocationManager,
   surveyRepository: SurveyRepository,
   mapStateRepository: MapStateRepository,
@@ -115,7 +117,7 @@ internal constructor(
       onLargeAreaSelected()
       return
     }
-    sizeOnDisk.value = "…"
+    sizeOnDisk.value = resources.getString(R.string.offline_area_size_loading_symbol)
     visibleBottomTextView.value = R.id.size_on_disk_text_view
     viewModelScope.launch(ioDispatcher) { updateDownloadSize(bounds) }
   }
