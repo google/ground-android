@@ -71,6 +71,11 @@
     <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 
+  <style name="CenteredToolbarTitle">
+    <item name="android:textColor">?attr/colorOnSurface</item>
+    <item name="android:textSize">22sp</item>
+  </style>
+
   <style name="ToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
     <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
     <item name="android:textSize">12sp</item>
@@ -139,10 +144,19 @@
     <item name="chipStartPadding">@dimen/chip_button_padding</item>
     <item name="chipEndPadding">@dimen/chip_button_padding</item>
     <item name="chipMinHeight">@dimen/chip_button_min_height</item>
+    <item name="android:textAlignment">center</item>
+
     <!-- textColor inside textAppearance stopped working in 28.0.0-rc02. -->
     <item name="chipIconTint">?attr/colorSurface</item>
     <item name="android:textColor">?attr/colorSurface</item>
     <item name="android:textAppearance">@style/ChipButtonText</item>
+  </style>
+
+  <style name="ChipButton.Secondary" parent="ChipButton">
+    <item name="chipBackgroundColor">?attr/colorSurface</item>
+    <item name="android:textColor">?attr/colorPrimary</item>
+    <item name="chipStrokeColor">?attr/colorOutline</item>
+    <item name="chipStrokeWidth">1dp</item>
   </style>
 
   <style name="ChipButton.Toolbar">
@@ -154,7 +168,6 @@
 
   <style name="ChipButtonText">
     <item name="android:textSize">@dimen/chip_button_text_size</item>
-    <item name="android:textStyle">bold</item>
   </style>
 
   <!-- NavDrawer Header -->
