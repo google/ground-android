@@ -114,7 +114,7 @@ internal constructor(
     val bounds = newCameraPosition.bounds
     val zoomLevel = newCameraPosition.zoomLevel
     if (bounds == null || zoomLevel == null) return
-    if (zoomLevel < MIN_DOWNLOFix AD_ZOOM_LEVEL) {
+    if (zoomLevel < MIN_DOWNLOAD_ZOOM_LEVEL) {
       onLargeAreaSelected()
       return
     }
