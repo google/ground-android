@@ -24,16 +24,16 @@ import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
-import com.google.android.ground.system.auth.AuthenticationManager
+import com.google.android.ground.repository.UserRepository
 import javax.inject.Inject
 import timber.log.Timber
 
 class SubmitDataUseCase
 @Inject
 constructor(
-  private val authManager: AuthenticationManager,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val submissionRepository: SubmissionRepository,
+  private val userRepository: UserRepository
 ) {
 
   /**
@@ -71,16 +71,9 @@ constructor(
   }
 
   private suspend fun saveLoi(geometry: Geometry, job: Job, surveyId: String): LocationOfInterest {
-    // TODO(jsunde): Add isOpportunistic field as well as owner field
-    val loi =
-      locationOfInterestRepository.createLocationOfInterest(
-        geometry,
-        job,
-        surveyId,
-        authManager.currentUser.email
-      )
+    val loi = locationOfInterestRepository.createLocationOfInterest(geometry, job, surveyId)
     locationOfInterestRepository.applyAndEnqueue(
-      loi.toMutation(Mutation.Type.CREATE, authManager.currentUser.id)
+      loi.toMutation(Mutation.Type.CREATE, userRepository.currentUser.id)
     )
     return loi
   }

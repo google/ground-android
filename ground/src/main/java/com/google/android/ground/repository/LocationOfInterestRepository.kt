@@ -87,12 +87,7 @@ constructor(
         Single.error { NotFoundException("Location of interest not found $locationOfInterest") }
       )
 
-  fun createLocationOfInterest(
-    geometry: Geometry,
-    job: Job,
-    surveyId: String,
-    ownerEmail: String
-  ): LocationOfInterest {
+  fun createLocationOfInterest(geometry: Geometry, job: Job, surveyId: String): LocationOfInterest {
     val auditInfo = AuditInfo(authManager.currentUser)
     return LocationOfInterest(
       id = uuidGenerator.generateUuid(),
@@ -101,7 +96,7 @@ constructor(
       job = job,
       created = auditInfo,
       lastModified = auditInfo,
-      ownerEmail = ownerEmail,
+      ownerEmail = authManager.currentUser.email,
       isOpportunistic = true
     )
   }
