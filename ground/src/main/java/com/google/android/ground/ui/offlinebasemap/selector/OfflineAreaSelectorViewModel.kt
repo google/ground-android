@@ -103,6 +103,10 @@ internal constructor(
     }
   }
 
+  fun onCancelClick() {
+    navigator.navigateUp()
+  }
+
   fun onMapReady(map: Map) {
     map.mapType = MapType.TERRAIN
     tileSources.forEach { map.addTileOverlay(it) }

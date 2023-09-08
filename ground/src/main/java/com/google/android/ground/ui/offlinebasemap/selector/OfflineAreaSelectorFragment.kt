@@ -56,7 +56,6 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
     val binding = OfflineBaseMapSelectorFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
-    getAbstractActivity().setActionBar(binding.offlineAreaSelectorToolbar, true)
     return binding.root
   }
 
