@@ -97,7 +97,6 @@ internal constructor(
   }
 
   fun onMapReady(map: Map) {
-    map.mapType = MapType.TERRAIN
     tileSources.forEach { map.addTileOverlay(it) }
     disposeOnClear(cameraBoundUpdates.subscribe { viewport = it })
   }
