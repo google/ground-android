@@ -118,9 +118,16 @@ internal constructor(
       onLargeAreaSelected()
       return
     }
-    sizeOnDisk.value = resources.getString(R.string.offline_area_size_loading_symbol)
-    visibleBottomTextViewId.value = R.id.size_on_disk_text_view
-    viewModelScope.launch(ioDispatcher) { updateDownloadSize(bounds) }
+
+    viewModelScope.launch(ioDispatcher) {
+      onStartEstimatingDownloadSize()
+      updateDownloadSize(bounds)
+    }
+  }
+
+  private fun onStartEstimatingDownloadSize() {
+    sizeOnDisk.postValue(resources.getString(R.string.offline_area_size_loading_symbol))
+    visibleBottomTextViewId.postValue(R.id.size_on_disk_text_view)
   }
 
   private suspend fun updateDownloadSize(bounds: Bounds) {
