@@ -74,6 +74,53 @@
           app:layout_constraintEnd_toEndOf="parent"
           app:useCompatPadding="true" />
       </com.google.android.ground.ui.common.TwoLineToolbar>
+
+      <View
+        android:id="@+id/top_mask"
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:background="@color/blackMapOverlay"
+        android:alpha="0.4"
+        app:layout_constraintTop_toBottomOf="@+id/offline_area_selector_toolbar" />
+
+      <View
+        android:id="@+id/bottom_mask"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@color/blackMapOverlay"
+        android:alpha="0.4"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+      <View
+        android:id="@+id/right_mask"
+        android:layout_width="24dp"
+        android:layout_height="0dp"
+        android:alpha="0.4"
+        android:background="@color/blackMapOverlay"
+        app:layout_constraintTop_toBottomOf="@id/top_mask"
+        app:layout_constraintBottom_toTopOf="@id/bottom_mask"
+        app:layout_constraintRight_toRightOf="parent" />
+
+      <View
+        android:id="@+id/left_mask"
+        android:layout_width="24dp"
+        android:layout_height="0dp"
+        android:background="@color/blackMapOverlay"
+        android:alpha="0.4"
+        app:layout_constraintTop_toBottomOf="@id/top_mask"
+        app:layout_constraintBottom_toTopOf="@id/bottom_mask"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+      <View
+        android:id="@+id/viewport_outline"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/offline_area_viewport_outline"
+        app:layout_constraintTop_toBottomOf="@id/top_mask"
+        app:layout_constraintBottom_toTopOf="@id/bottom_mask"
+        app:layout_constraintLeft_toRightOf="@id/left_mask"
+        app:layout_constraintRight_toLeftOf="@id/right_mask"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
   </FrameLayout>
 </layout>
