@@ -40,7 +40,7 @@ import kotlin.math.ceil
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 
-private const val MIN_DOWNLOAD_ZOOM_LEVEL = 10
+private const val MIN_DOWNLOAD_ZOOM_LEVEL = 9
 private const val MAX_AREA_DOWNLOAD_SIZE_MB = 50
 
 /** States and behaviors of Map UI used to select areas for download and viewing offline. */
