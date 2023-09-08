@@ -91,7 +91,7 @@
         android:layout_marginLeft="16sp"
         android:layout_marginRight="16sp"
         android:layout_marginBottom="24sp"
-        android:visibility="@{viewModel.visibleBottomTextView == R.id.size_on_disk_text_view ? View.VISIBLE : View.GONE}"
+        android:visibility="@{viewModel.visibleBottomTextViewId == R.id.size_on_disk_text_view ? View.VISIBLE : View.GONE}"
         android:text="@{@string/selected_offline_area_size(viewModel.sizeOnDisk)}"/>
       <TextView
         android:id="@+id/area_too_large_text_view"
@@ -107,7 +107,7 @@
         android:layout_marginLeft="16sp"
         android:layout_marginRight="16sp"
         android:layout_marginBottom="24sp"
-        android:visibility="@{viewModel.visibleBottomTextView == R.id.area_too_large_text_view ? View.VISIBLE : View.GONE}"
+        android:visibility="@{viewModel.visibleBottomTextViewId == R.id.area_too_large_text_view ? View.VISIBLE : View.GONE}"
         android:text="@string/selected_offline_area_too_large"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
   </FrameLayout>

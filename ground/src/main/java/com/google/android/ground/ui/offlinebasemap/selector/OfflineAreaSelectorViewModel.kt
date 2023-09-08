@@ -76,7 +76,7 @@ internal constructor(
   val downloadProgressMax = MutableLiveData(0)
   val downloadProgress = MutableLiveData(0)
   val sizeOnDisk = MutableLiveData<String>(null)
-  val visibleBottomTextView = MutableLiveData<Int>(null)
+  val visibleBottomTextViewId = MutableLiveData<Int>(null)
   val downloadButtonEnabled = MutableLiveData(false)
 
   init {
@@ -119,7 +119,7 @@ internal constructor(
       return
     }
     sizeOnDisk.value = resources.getString(R.string.offline_area_size_loading_symbol)
-    visibleBottomTextView.value = R.id.size_on_disk_text_view
+    visibleBottomTextViewId.value = R.id.size_on_disk_text_view
     viewModelScope.launch(ioDispatcher) { updateDownloadSize(bounds) }
   }
 
@@ -139,7 +139,7 @@ internal constructor(
   }
 
   private fun onLargeAreaSelected() {
-    visibleBottomTextView.value = R.id.area_too_large_text_view
+    visibleBottomTextViewId.value = R.id.area_too_large_text_view
     downloadButtonEnabled.value = false
   }
 }
