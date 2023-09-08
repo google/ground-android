@@ -148,7 +148,7 @@ internal constructor(
   }
 
   private fun onLargeAreaSelected() {
-    visibleBottomTextViewId.value = R.id.area_too_large_text_view
-    downloadButtonEnabled.value = false
+    visibleBottomTextViewId.postValue(R.id.area_too_large_text_view)
+    downloadButtonEnabled.postValue(false)
   }
 }

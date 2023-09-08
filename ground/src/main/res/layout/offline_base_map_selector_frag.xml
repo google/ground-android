@@ -121,8 +121,9 @@
           android:layout_height="wrap_content"
           android:layout_gravity="center"
           android:textAlignment="center"
-          android:textSize="20sp"
+          android:textSize="14sp"
           android:textColor="@color/textOverMap"
+          android:layout_marginHorizontal="64dp"
           android:visibility="@{viewModel.visibleBottomTextViewId == R.id.size_on_disk_text_view ? View.VISIBLE : View.GONE}"
           android:text="@{@string/selected_offline_area_size(viewModel.sizeOnDisk)}"/>
 
@@ -132,8 +133,9 @@
           android:layout_height="wrap_content"
           android:layout_gravity="center"
           android:textAlignment="center"
-          android:textSize="20sp"
+          android:textSize="14sp"
           android:textColor="@color/textOverMap"
+          android:layout_marginHorizontal="64dp"
           android:visibility="@{viewModel.visibleBottomTextViewId == R.id.area_too_large_text_view ? View.VISIBLE : View.GONE}"
           android:text="@string/selected_offline_area_too_large"/>
       </FrameLayout>
