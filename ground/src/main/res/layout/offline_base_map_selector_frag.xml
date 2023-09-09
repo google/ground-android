@@ -20,6 +20,8 @@
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
+    <import type="com.google.android.ground.R" />
+    <import type="android.view.View" />
     <variable
       name="viewModel"
       type="com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel" />
@@ -72,14 +74,6 @@
         app:layout_constraintTop_toBottomOf="@+id/offline_area_selector_toolbar" />
 
       <View
-        android:id="@+id/bottom_mask"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:background="@color/blackMapOverlay"
-        android:alpha="0.4"
-        app:layout_constraintBottom_toTopOf="@id/button_buttons" />
-
-      <View
         android:id="@+id/right_mask"
         android:layout_width="24dp"
         android:layout_height="0dp"
@@ -108,6 +102,43 @@
         app:layout_constraintBottom_toTopOf="@id/bottom_mask"
         app:layout_constraintLeft_toRightOf="@id/left_mask"
         app:layout_constraintRight_toLeftOf="@id/right_mask"/>
+
+      <FrameLayout
+        android:id="@+id/bottom_mask"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        app:layout_constraintBottom_toTopOf="@id/button_buttons">
+
+        <View
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:background="@color/blackMapOverlay"
+          android:alpha="0.4"/>
+
+        <TextView
+          android:id="@+id/size_on_disk_text_view"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:textAlignment="center"
+          android:textSize="14sp"
+          android:textColor="@color/textOverMap"
+          android:layout_marginHorizontal="64dp"
+          android:visibility="@{viewModel.visibleBottomTextViewId == R.id.size_on_disk_text_view ? View.VISIBLE : View.GONE}"
+          android:text="@{@string/selected_offline_area_size(viewModel.sizeOnDisk)}"/>
+
+        <TextView
+          android:id="@+id/area_too_large_text_view"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:textAlignment="center"
+          android:textSize="14sp"
+          android:textColor="@color/textOverMap"
+          android:layout_marginHorizontal="64dp"
+          android:visibility="@{viewModel.visibleBottomTextViewId == R.id.area_too_large_text_view ? View.VISIBLE : View.GONE}"
+          android:text="@string/selected_offline_area_too_large"/>
+      </FrameLayout>
 
       <LinearLayout
         android:id="@+id/button_buttons"
