@@ -26,12 +26,12 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface OfflineAreaDao : BaseDao<OfflineAreaEntity> {
   @Deprecated("Use getAllFlow() instead")
-  @Query("SELECT * FROM offline_base_map")
+  @Query("SELECT * FROM offline_area")
   fun findAllOnceAndStream(): Flowable<List<OfflineAreaEntity>>
 
-  @Query("SELECT * FROM offline_base_map")
+  @Query("SELECT * FROM offline_area")
   fun getAllFlow(): Flow<List<OfflineAreaEntity>>
 
-  @Query("SELECT * FROM offline_base_map WHERE id = :id")
+  @Query("SELECT * FROM offline_area WHERE id = :id")
   fun findById(id: String): Maybe<OfflineAreaEntity>
 }
