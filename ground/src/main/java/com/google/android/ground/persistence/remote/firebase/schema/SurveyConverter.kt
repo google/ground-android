@@ -56,8 +56,6 @@ internal object SurveyConverter {
   }
 
   private fun convertTileSources(pd: SurveyDocument, builder: MutableList<TileSource>) {
-    pd.tileSources
-      ?.mapNotNull { it.url }
-      ?.forEach { url -> builder.add(TileSource(url, TileSource.fromFileExtension(url))) }
+    pd.tileSources?.mapNotNull { it.url }?.forEach { url -> builder.add(TileSource.fromUrl(url)) }
   }
 }

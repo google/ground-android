@@ -24,7 +24,7 @@ data class TileSource(val url: String, val type: Type) {
   }
 
   companion object {
-    fun fromFileExtension(url: String) =
-      if (url.endsWith(".png")) Type.TILED_WEB_MAP else Type.MOG_COLLECTION
+    fun fromUrl(url: String) =
+      TileSource(url, if (url.endsWith(".png")) Type.TILED_WEB_MAP else Type.MOG_COLLECTION)
   }
 }
