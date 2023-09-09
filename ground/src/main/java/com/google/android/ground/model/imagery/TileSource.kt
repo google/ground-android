@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.model.imagery
 
-import org.apache.commons.io.FilenameUtils
-
 /** Represents a single source of tiled map imagery. */
 data class TileSource(val url: String, val type: Type) {
   enum class Type {
@@ -27,6 +25,6 @@ data class TileSource(val url: String, val type: Type) {
 
   companion object {
     fun fromFileExtension(url: String) =
-      if (FilenameUtils.getExtension(url) == "png") Type.TILED_WEB_MAP else Type.MOG_COLLECTION
+      if (url.endsWith(".png")) Type.TILED_WEB_MAP else Type.MOG_COLLECTION
   }
 }
