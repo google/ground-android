@@ -19,9 +19,12 @@ package com.google.android.ground.ui.map.gms.mog
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import java.lang.Math.PI
+import java.lang.Math.toDegrees
 import kotlin.math.abs
+import kotlin.math.atan
 import kotlin.math.cos
 import kotlin.math.ln
+import kotlin.math.sinh
 import kotlin.math.tan
 
 /**
@@ -37,6 +40,19 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
   }
 
   override fun toString(): String = "($x, $y) at zoom $zoom"
+
+  /**
+   * Returns the latitude and longitude of a specific pixel at the specified offset within the
+   * specified tile.
+   */
+  fun getLatLngAtPixelOffset(xOffset: Int, yOffset: Int): LatLng {
+    val tileSize = 256.0
+    val mercatorX = (x * tileSize + xOffset) / tileSize - 0.5
+    val mercatorY = 0.5 - (y * tileSize + yOffset) / tileSize
+    val longitude = mercatorX * 360.0
+    val latitude = toDegrees(atan(sinh(2.0 * PI * mercatorY)))
+    return LatLng(latitude, longitude)
+  }
 
   companion object {
     /**
