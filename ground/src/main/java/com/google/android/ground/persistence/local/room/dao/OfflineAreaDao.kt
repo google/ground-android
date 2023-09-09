@@ -20,12 +20,17 @@ import androidx.room.Query
 import com.google.android.ground.persistence.local.room.entity.OfflineAreaEntity
 import io.reactivex.Flowable
 import io.reactivex.Maybe
+import kotlinx.coroutines.flow.Flow
 
 /** Provides read/write operations for writing [OfflineAreaEntity] to the local db. */
 @Dao
 interface OfflineAreaDao : BaseDao<OfflineAreaEntity> {
+  @Deprecated("Use getAllFlow() instead")
   @Query("SELECT * FROM offline_base_map")
   fun findAllOnceAndStream(): Flowable<List<OfflineAreaEntity>>
+
+  @Query("SELECT * FROM offline_base_map")
+  fun getAllFlow(): Flow<List<OfflineAreaEntity>>
 
   @Query("SELECT * FROM offline_base_map WHERE id = :id")
   fun findById(id: String): Maybe<OfflineAreaEntity>

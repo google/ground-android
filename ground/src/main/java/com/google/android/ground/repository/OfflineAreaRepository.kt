@@ -96,6 +96,9 @@ constructor(
   // TODO(#1730): Generate local tiles path based on source base path.
   fun getLocalTileSourcePath(): String = File(fileUtil.filesDir.path, "tiles").path
 
+  fun getOfflineAreaBoundsFlow(): Flow<List<Bounds>> =
+    localOfflineAreaStore.getOfflineAreasFlow().transform { list -> list.map { it.bounds } }
+
   /**
    * Uses the first tile source URL of the currently active survey and returns a [MogClient], or
    * throws an error if no survey is active or if no tile sources are defined.

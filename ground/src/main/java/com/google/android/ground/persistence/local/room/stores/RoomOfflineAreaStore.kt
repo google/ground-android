@@ -26,6 +26,8 @@ import com.google.android.ground.rx.Schedulers
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.transform
 import javax.inject.Inject
 import javax.inject.Singleton
 import timber.log.Timber
@@ -38,11 +40,17 @@ class RoomOfflineAreaStore @Inject internal constructor() : LocalOfflineAreaStor
   override suspend fun insertOrUpdate(area: OfflineArea) =
     offlineAreaDao.insertOrUpdate(area.toOfflineAreaEntity())
 
+  @Deprecated("Use getOfflineAreasFlow() instead")
   override fun offlineAreasOnceAndStream(): Flowable<List<OfflineArea>> =
     offlineAreaDao
       .findAllOnceAndStream()
       .map { areas: List<OfflineAreaEntity> -> areas.map { it.toModelObject() } }
       .subscribeOn(schedulers.io())
+
+  override fun getOfflineAreasFlow(): Flow<List<OfflineArea>> =
+    offlineAreaDao
+      .getAllFlow()
+      .transform { areas: List<OfflineAreaEntity> -> areas.map { it.toModelObject() } }
 
   override fun getOfflineAreaById(id: String): Single<OfflineArea> =
     offlineAreaDao.findById(id).map { it.toModelObject() }.toSingle().subscribeOn(schedulers.io())
