@@ -62,4 +62,21 @@ class TileCoordinatesTest {
         TileCoordinates(543, 483, 10),
       )
   }
+
+  @Test
+  fun `getLatLngAtPixelOffset() returns correct coords`() {
+    // TODO: Test these cases.
+    //    println(TileCoordinates(0, 0, 0).getLatLngAtPixelOffset(0,0))
+    //    println(TileCoordinates(0, 0, 0).getLatLngAtPixelOffset(128,128))
+    //    println(TileCoordinates(0, 0, 0).getLatLngAtPixelOffset(255,255))
+    //    println(TileCoordinates(0, 0, 1).getLatLngAtPixelOffset(0,0))
+    //    println(TileCoordinates(0, 0, 1).getLatLngAtPixelOffset(511,511))
+    //    println(TileCoordinates(1, 1, 1).getLatLngAtPixelOffset(0,0))
+    //    println(TileCoordinates(1, 1, 1).getLatLngAtPixelOffset(511,511))
+    // https://www.maptiler.com/google-maps-coordinates-tile-bounds-projection/#6/-37.07/-6.97
+    println(TileCoordinates(25, 33, 6).getLatLngAtPixelOffset(0, 0))
+    println(TileCoordinates(25, 33, 6).tileCoordsAndOffsetToLatLon(0, 0))
+    println(TileCoordinates(25, 33, 6).toCoords(0, 0))
+
+  }
 }

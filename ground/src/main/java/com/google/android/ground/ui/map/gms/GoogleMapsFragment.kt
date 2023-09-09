@@ -353,14 +353,16 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     }
   }
 
-  private fun addTemplateUrlTileOverlay(url: String) {
-    addTileOverlay(TemplateUrlTileProvider(url))
+  private fun addOfflineTileOverlay(url: String, bounds: List<Bounds>) {
+    addTileOverlay(
+      ClippingTileProvider(TemplateUrlTileProvider(url), bounds.map { it.toGoogleMapsObject() })
+    )
   }
 
   override fun addTileOverlay(tileSource: TileSource) =
     when (tileSource.type) {
       MOG_COLLECTION -> addMogCollectionTileOverlay(tileSource.url)
-      TILED_WEB_MAP -> addTemplateUrlTileOverlay(tileSource.url)
+      TILED_WEB_MAP -> addOfflineTileOverlay(tileSource.url, tileSource.clipBounds!!)
       else -> error("Unsupported tile source type ${tileSource.type}")
     }
 

@@ -31,6 +31,8 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactive.asFlow
+import timber.log.Timber
 
 /**
  * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
@@ -98,21 +100,26 @@ constructor(
   private fun getLocalTileSourcePath(): String = File(fileUtil.filesDir.path, "tiles").path
 
   fun getOfflineTileSources(): Flow<List<TileSource>> =
-    surveyRepository.activeSurveyFlow.mapNotNull {
-      it?.tileSources?.mapNotNull(this::toLocalTileSource) ?: listOf()
-    }
-  // TODO(#1790): Maybe create a new data class object which is not of type TileSource.
+    surveyRepository.activeSurveyFlow
+      .onEach { Timber.e("!!! Survey ${it?.id}") }
+      // TODO(#1593): Room's equivalent Flow never emits a value, perhaps due to using incorrect
+      // scheduler?
+      .combine(getOfflineAreaBounds().asFlow()) { survey, bounds ->
+        survey?.tileSources?.mapNotNull { tileSource -> toOfflineTileSource(tileSource, bounds) }
+          ?: listOf()
+      }
 
-  private fun toLocalTileSource(tileSource: TileSource): TileSource? {
+  private fun toOfflineTileSource(tileSource: TileSource, clipBounds: List<Bounds>?): TileSource? {
     if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
     return TileSource(
       "file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg",
-      TileSource.Type.TILED_WEB_MAP
+      TileSource.Type.TILED_WEB_MAP,
+      clipBounds
     )
   }
 
-  private fun getOfflineAreaBoundsFlow(): Flow<List<Bounds>> =
-    localOfflineAreaStore.getOfflineAreasFlow().transform { list -> list.map { it.bounds } }
+  private fun getOfflineAreaBounds(): Flowable<List<Bounds>> =
+    localOfflineAreaStore.offlineAreasOnceAndStream().map { list -> list.map { it.bounds } }
 
   /**
    * Uses the first tile source URL of the currently active survey and returns a [MogClient], or

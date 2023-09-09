@@ -23,6 +23,7 @@ import java.lang.Math.toDegrees
 import kotlin.math.abs
 import kotlin.math.atan
 import kotlin.math.cos
+import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.sinh
 import kotlin.math.tan
@@ -40,6 +41,27 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
   }
 
   override fun toString(): String = "($x, $y) at zoom $zoom"
+  fun toCoords(xOffset: Int, yOffset: Int): LatLng {
+    val w = 256 / 2
+    val a = (w / PI) * (1 shl zoom)
+    var lon = (x / a) - PI
+    var lat = (atan(exp(PI - (y / a))) - (PI / 4)) * 2
+    lat = toDegrees(lat)
+    lon = toDegrees(lon)
+    return LatLng(lat, lon)
+  }
+
+
+  fun tileCoordsAndOffsetToLatLon(offsetX: Int, offsetY: Int): Pair<Double, Double> {
+    val tileSize = 256.0  // Tile size for Web Mercator projection
+    val pixelX = x * tileSize + offsetX
+    val pixelY = y * tileSize + offsetY
+    val mercatorX = (pixelX / tileSize - 0.5) * (1 shl zoom)
+    val mercatorY = (0.5 - pixelY / tileSize) * (1 shl zoom)
+    val longitude = mercatorX * 360.0
+    val latitude = Math.toDegrees(atan(sinh(mercatorY * PI)))
+    return Pair(latitude, longitude)
+  }
 
   /**
    * Returns the latitude and longitude of a specific pixel at the specified offset within the

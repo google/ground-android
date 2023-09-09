@@ -129,7 +129,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
     surveyWithoutBasemap.copy(
       tileSources =
         listOf(
-          TileSource("http://google.com", TileSource.Type.MOG_COLLECTION),
+          TileSource("http://google.com", TileSource.Type.MOG_COLLECTION, null),
         ),
       id = "BASEMAPS"
     )

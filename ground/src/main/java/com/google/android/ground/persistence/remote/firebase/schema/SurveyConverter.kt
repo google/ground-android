@@ -56,6 +56,8 @@ internal object SurveyConverter {
   }
 
   private fun convertTileSources(pd: SurveyDocument, builder: MutableList<TileSource>) {
-    pd.tileSources?.mapNotNull { it.url }?.forEach { url -> builder.add(TileSource.fromUrl(url)) }
+    pd.tileSources
+      ?.mapNotNull { it.url }
+      ?.forEach { url -> builder.add(TileSource(url, TileSource.Type.MOG_COLLECTION, null)) }
   }
 }

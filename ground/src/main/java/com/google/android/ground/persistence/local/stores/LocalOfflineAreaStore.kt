@@ -30,7 +30,6 @@ interface LocalOfflineAreaStore {
   suspend fun insertOrUpdate(area: OfflineArea)
 
   /** Returns all queued, failed, and completed offline areas from the local data store. */
-  @Deprecated("Use getOfflineAreasFlow() instead")
   fun offlineAreasOnceAndStream(): @Cold(terminates = false) Flowable<List<OfflineArea>>
 
   /** Delete an offline area and any associated tiles that are no longer needed. */
@@ -38,7 +37,4 @@ interface LocalOfflineAreaStore {
 
   /** Returns the offline area with the specified id. */
   fun getOfflineAreaById(id: String): Single<OfflineArea>
-
-  /** Returns all available offline areas from the local data store once, and on each change. */
-  fun getOfflineAreasFlow(): Flow<List<OfflineArea>>
 }

@@ -24,13 +24,14 @@ import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
 import com.google.android.gms.maps.model.TileProvider.NO_TILE
 import com.google.android.ground.ui.map.gms.mog.TileCoordinates
+import timber.log.Timber
 import java.io.ByteArrayOutputStream
 
 class ClippingTileProvider(
   private val sourceTileProvider: TileProvider,
   private val clipBounds: List<LatLngBounds>
 ) : TileProvider {
-  override fun getTile(x: Int, y: Int, zoom: Int): Tile? {
+  override fun getTile(x: Int, y: Int, zoom: Int): Tile {
     val sourceTile = sourceTileProvider.getTile(x, y, zoom) ?: NO_TILE
     if (sourceTile == NO_TILE) return sourceTile
     // TODO: Optimization: return NO_TILE immediately if we known tile is completely out of clip
@@ -44,6 +45,7 @@ class ClippingTileProvider(
     opts.inMutable = true
     val bitmap = BitmapFactory.decodeByteArray(tile.data, 0, tile.data!!.size, opts)
     bitmap.setHasAlpha(true)
+    Timber.e("!!! $tileCoords, " + tileCoords.getLatLngAtPixelOffset(0, 0)+ ", $clipBounds")
     for (y in 0 until bitmap.height) {
       for (x in 0 until bitmap.width) {
         val pixelCoords = tileCoords.getLatLngAtPixelOffset(x, y)

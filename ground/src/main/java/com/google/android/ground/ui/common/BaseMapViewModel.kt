@@ -120,7 +120,7 @@ constructor(
     offlineTileSources =
       offlineAreaRepository
         .getOfflineTileSources()
-        .combine(mapStateRepository.offlineImageryFlow) { offlineSources, enabled ->
+        .combine(mapStateRepository.offlineImageryEnabledFlow) { offlineSources, enabled ->
           if (enabled) offlineSources else listOf()
         }
         .asLiveData()
