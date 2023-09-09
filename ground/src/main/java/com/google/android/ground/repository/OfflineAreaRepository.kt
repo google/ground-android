@@ -17,6 +17,7 @@ package com.google.android.ground.repository
 
 import com.google.android.ground.Config
 import com.google.android.ground.model.imagery.OfflineArea
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Cold
@@ -94,9 +95,23 @@ constructor(
   }
 
   // TODO(#1730): Generate local tiles path based on source base path.
-  fun getLocalTileSourcePath(): String = File(fileUtil.filesDir.path, "tiles").path
+  private fun getLocalTileSourcePath(): String = File(fileUtil.filesDir.path, "tiles").path
 
-  fun getOfflineAreaBoundsFlow(): Flow<List<Bounds>> =
+  fun getOfflineTileSources(): Flow<List<TileSource>> =
+    surveyRepository.activeSurveyFlow.mapNotNull {
+      it?.tileSources?.mapNotNull(this::toLocalTileSource) ?: listOf()
+    }
+  // TODO(#1790): Maybe create a new data class object which is not of type TileSource.
+
+  private fun toLocalTileSource(tileSource: TileSource): TileSource? {
+    if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
+    return TileSource(
+      "file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg",
+      TileSource.Type.TILED_WEB_MAP
+    )
+  }
+
+  private fun getOfflineAreaBoundsFlow(): Flow<List<Bounds>> =
     localOfflineAreaStore.getOfflineAreasFlow().transform { list -> list.map { it.bounds } }
 
   /**

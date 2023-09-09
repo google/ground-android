@@ -16,4 +16,4 @@
 package com.google.android.ground.ui.common
 
 /** Configuration to apply on the rendered base map. */
-data class MapConfig(val showTileOverlays: Boolean)
+data class MapConfig(val showOfflineTileOverlays: Boolean)

@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.common
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -46,6 +45,8 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   private fun onMapAttached(map: Map) {
+    val viewModel = getMapViewModel()
+
     // Removes all markers, overlays, polylines and polygons from the map.
     map.clear()
 
@@ -56,39 +57,26 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     map.startDragEvents
       .onBackpressureLatest()
       .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe { getMapViewModel().onMapDragged() }
+      .subscribe { viewModel.onMapDragged() }
 
+    lifecycleScope.launch { viewModel.locationLock.collect { onLocationLockStateChange(it, map) } }
+    viewModel.mapType.observe(viewLifecycleOwner) { map.mapType = it }
     lifecycleScope.launch {
-      getMapViewModel().locationLock.collect { onLocationLockStateChange(it, map) }
-    }
-    getMapViewModel().mapType.observe(viewLifecycleOwner) { map.mapType = it }
-    lifecycleScope.launch {
-      getMapViewModel().getCameraUpdates().collect { onCameraUpdateRequest(it, map) }
+      viewModel.getCameraUpdates().collect { onCameraUpdateRequest(it, map) }
     }
 
-    // Enable map controls
-    getMapViewModel().setLocationLockEnabled(true)
+    // Enable map controls.
+    viewModel.setLocationLockEnabled(true)
 
-    // Offline imagery
-    if (getMapConfig().showTileOverlays) {
-      lifecycleScope.launch {
-        getMapViewModel().offlineImageryEnabled.collect { enabled ->
-          if (enabled) addTileOverlays() else map.clearTileOverlays()
-        }
+    // Tile overlays.
+    if (getMapConfig().showOfflineTileOverlays) {
+      viewModel.offlineTileSources.observe(viewLifecycleOwner) {
+        map.clearTileOverlays()
+        it.forEach(map::addTileOverlay)
       }
     }
 
     onMapReady(map)
-  }
-
-  @SuppressLint("FragmentLiveDataObserve")
-  private fun addTileOverlays() {
-    // TODO(#1756): Clear tile overlays on change to stop accumulating them on map.
-
-    // TODO(#1782): Changing the owner to `viewLifecycleOwner` in observe() causes a crash in task
-    //  fragment and converting live data to flow results in clear tiles not working. Figure out a
-    //  better way to fix the IDE warning.
-    getMapViewModel().tileOverlays.observe(this) { it.forEach(map::addTileOverlay) }
   }
 
   /** Opens a dialog for selecting a [MapType] for the basemap layer. */
@@ -160,6 +148,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   protected open fun getMapConfig(): MapConfig = DEFAULT_MAP_CONFIG
 
   companion object {
-    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showTileOverlays = true)
+    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showOfflineTileOverlays = true)
   }
 }
