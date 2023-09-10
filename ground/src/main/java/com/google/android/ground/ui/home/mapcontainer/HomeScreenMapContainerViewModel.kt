@@ -41,12 +41,9 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -93,7 +90,9 @@ internal constructor(
   val loisWithinMapBoundsAtVisibleZoomLevel: StateFlow<List<LocationOfInterest>> =
     _loisWithinMapBoundsAtVisibleZoomLevel.stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
-  val suggestLoiJobs: Flow<List<Job>>
+  private val _suggestLoiJobs: MutableStateFlow<List<Job>> = MutableStateFlow(listOf())
+  val suggestLoiJobs: StateFlow<List<Job>> =
+    _suggestLoiJobs.stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
@@ -102,22 +101,12 @@ internal constructor(
     //  into the repository.
 
     viewModelScope.launch { surveyRepository.activeSurveyFlow.collect { refreshMapFeatures(it) } }
-
-    suggestLoiJobs =
-      surveyRepository.activeSurveyFlow
-        .combine(cameraZoomUpdates.asFlow()) { survey, zoomLevel ->
-          if (zoomLevel < CLUSTERING_ZOOM_THRESHOLD) {
-            listOf()
-          } else {
-            survey?.jobs?.filter { job -> job.suggestLoiTaskType != null }?.toList() ?: listOf()
-          }
-        }
-        .distinctUntilChanged()
   }
 
   private suspend fun refreshMapFeatures(survey: Survey?) {
     updateMapFeatures(survey)
     updateMapLois(survey)
+    updateSuggestLoiJobs(survey)
   }
 
   private suspend fun updateMapFeatures(survey: Survey?) {
@@ -131,15 +120,24 @@ internal constructor(
 
   private suspend fun updateMapLois(survey: Survey?) {
     val bounds = currentCameraPosition?.bounds
-    val zoomLevel = currentCameraPosition?.zoomLevel
-    if (
-      bounds == null || survey == null || zoomLevel == null || zoomLevel < CLUSTERING_ZOOM_THRESHOLD
-    ) {
+    val isZoomLevelLessThanThreshold =
+      currentCameraPosition.isLessThanThreshold(CLUSTERING_ZOOM_THRESHOLD)
+    if (bounds == null || survey == null || isZoomLevelLessThanThreshold) {
       _loisWithinMapBoundsAtVisibleZoomLevel.value = listOf()
     } else {
       _loisWithinMapBoundsAtVisibleZoomLevel.emitAll(
         locationOfInterestRepository.getWithinBoundsOnceAndStream(survey, bounds).asFlow()
       )
+    }
+  }
+
+  private fun updateSuggestLoiJobs(survey: Survey?) {
+    val isZoomLevelLessThanThreshold =
+      currentCameraPosition.isLessThanThreshold(CLUSTERING_ZOOM_THRESHOLD)
+    if (survey == null || isZoomLevelLessThanThreshold) {
+      _suggestLoiJobs.value = listOf()
+    } else {
+      _suggestLoiJobs.value = survey.jobs.filter { it.suggestLoiTaskType != null }.toList()
     }
   }
 
@@ -174,4 +172,7 @@ internal constructor(
   }
 
   fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed
+
+  private fun CameraPosition?.isLessThanThreshold(threshold: Float): Boolean =
+    this?.zoomLevel?.let { it < threshold } ?: true
 }
