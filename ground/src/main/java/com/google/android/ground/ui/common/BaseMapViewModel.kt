@@ -180,7 +180,7 @@ constructor(
   }
 
   /** Called when the map starts to move by the user. */
-  fun onMapDragged() {
+  open fun onMapDragged() {
     if (locationLock.value.getOrDefault(false)) {
       Timber.d("User dragged map. Disabling location lock")
       viewModelScope.launch { disableLocationLock() }

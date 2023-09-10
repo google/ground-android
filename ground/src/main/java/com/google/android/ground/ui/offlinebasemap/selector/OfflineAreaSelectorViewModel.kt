@@ -111,8 +111,14 @@ internal constructor(
     disposeOnClear(cameraBoundUpdates.subscribe { viewport = it })
   }
 
+  override fun onMapDragged() {
+    onStartEstimatingDownloadSize()
+    super.onMapDragged()
+  }
+
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     super.onMapCameraMoved(newCameraPosition)
+
     val bounds = newCameraPosition.bounds
     val zoomLevel = newCameraPosition.zoomLevel
     if (bounds == null || zoomLevel == null) return
@@ -131,7 +137,6 @@ internal constructor(
   }
 
   private suspend fun updateDownloadSize(bounds: Bounds) {
-    onStartEstimatingDownloadSize()
     val sizeInMb = offlineAreaRepository.estimateSizeOnDisk(bounds) / (1024f * 1024f)
     if (sizeInMb > MAX_AREA_DOWNLOAD_SIZE_MB) {
       onLargeAreaSelected()
