@@ -59,7 +59,9 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
       .`as`(RxAutoDispose.disposeOnDestroy(this))
       .subscribe { viewModel.onMapDragged() }
 
-    lifecycleScope.launch { viewModel.locationLock.collect { onLocationLockStateChange(it, map) } }
+    lifecycleScope.launch {
+      getMapViewModel().locationLock.collect { onLocationLockStateChange(it, map) }
+    }
     viewModel.mapType.observe(viewLifecycleOwner) { map.mapType = it }
     lifecycleScope.launch {
       viewModel.getCameraUpdates().collect { onCameraUpdateRequest(it, map) }
@@ -68,15 +70,28 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     // Enable map controls.
     viewModel.setLocationLockEnabled(true)
 
+    applyMapConfig(map)
+    onMapReady(map)
+  }
+
+  private fun applyMapConfig(map: Map) {
+    val config = getMapConfig()
+
+    // Map Type
+    if (config.overrideMapType != null) {
+      map.mapType = config.overrideMapType
+    } else {
+      getMapViewModel().mapType.observe(viewLifecycleOwner) { map.mapType = it }
+    }
+
+    // Offline imagery
     // Tile overlays.
     if (getMapConfig().showOfflineTileOverlays) {
-      viewModel.offlineTileSources.observe(viewLifecycleOwner) {
+      getMapViewModel().offlineTileSources.observe(viewLifecycleOwner) {
         map.clearTileOverlays()
         it.forEach(map::addTileOverlay)
       }
     }
-
-    onMapReady(map)
   }
 
   /** Opens a dialog for selecting a [MapType] for the basemap layer. */
@@ -144,10 +159,12 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   /** Provides an implementation of [BaseMapViewModel]. */
   protected abstract fun getMapViewModel(): BaseMapViewModel
 
+  // TODO: Should this be moved to BaseMapViewModel?
   /** Configuration to enable/disable base map features. */
   protected open fun getMapConfig(): MapConfig = DEFAULT_MAP_CONFIG
 
   companion object {
-    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showOfflineTileOverlays = true)
+    private val DEFAULT_MAP_CONFIG: MapConfig =
+      MapConfig(showOfflineTileOverlays = true, overrideMapType = null)
   }
 }

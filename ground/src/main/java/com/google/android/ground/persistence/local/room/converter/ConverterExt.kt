@@ -130,7 +130,9 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     created = created.toLocalDataStoreObject(),
     lastModified = lastModified.toLocalDataStoreObject(),
     geometry = geometry.toLocalDataStoreObject(),
-    submissionCount = submissionCount
+    submissionCount = submissionCount,
+    ownerEmail = ownerEmail,
+    isOpportunistic = isOpportunistic
   )
 
 fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
@@ -172,7 +174,9 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(user: User): LocationOfInt
     created = auditInfo,
     lastModified = auditInfo,
     geometry = geometry?.toLocalDataStoreObject(),
-    submissionCount = submissionCount
+    submissionCount = submissionCount,
+    ownerEmail = ownerEmail,
+    isOpportunistic = isOpportunistic
   )
 }
 
