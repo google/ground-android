@@ -150,10 +150,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     } else {
       error("Must have either target or bounds set")
     }
-
-    // Manually notify that the camera has moved as `map.cameraMovedEvents` only returns
-    // an event when the map is moved by the user (REASON_GESTURE).
-    onMapCameraMoved(newPosition)
   }
 
   /** Called when the map camera is moved by the user or due to current location/survey changes. */
