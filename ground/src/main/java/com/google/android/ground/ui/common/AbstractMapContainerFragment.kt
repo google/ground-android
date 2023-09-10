@@ -84,7 +84,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
       getMapViewModel().mapType.observe(viewLifecycleOwner) { map.mapType = it }
     }
 
-    // Offline imagery
     // Tile overlays.
     if (getMapConfig().showOfflineTileOverlays) {
       getMapViewModel().offlineTileSources.observe(viewLifecycleOwner) {
