@@ -20,12 +20,17 @@ import android.content.res.Resources
 import android.location.Location
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.system.FINE_LOCATION_UPDATES_REQUEST
 import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinates
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import javax.inject.Inject
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class GpsTaskViewModel
@@ -41,12 +46,14 @@ constructor(
 
   init {
     viewModelScope.launch {
-      locationManager.locationUpdates.collect {
-        val newDisplayText = displayText(it)
-        if (locationUpdates.value != newDisplayText) {
-          locationUpdates.value = newDisplayText
+      locationManager.locationUpdates
+        .map { it.toGpsLocation().displayText() }
+        .collect {
+          val newDisplayText = it
+          if (locationUpdates.value != newDisplayText) {
+            locationUpdates.value = newDisplayText
+          }
         }
-      }
     }
   }
 
@@ -60,16 +67,25 @@ constructor(
     locationManager.disableLocationUpdates()
   }
 
-  private fun displayText(location: Location?): String =
-    if (location == null) ""
-    else
-      location.accuracy.toString() +
-        "\n" +
-        location.altitude +
-        "\n" +
-        location.bearing +
-        "\n" +
-        location.latitude +
-        "\n" +
-        location.longitude
+  data class GpsLocation(
+    val coordinates: Coordinates,
+    val altitude: Double?, // in metres
+    val accuracy: Float? // in metres
+  )
+
+  companion object {
+    private fun Location.toGpsLocation(): GpsLocation {
+      val altitude = if (hasAltitude()) altitude else null
+      val accuracy = if (hasAccuracy()) accuracy else null
+      return GpsLocation(Coordinates(latitude, longitude), altitude, accuracy)
+    }
+
+    private fun GpsLocation.displayText(): String {
+      val df = DecimalFormat("#.##")
+      df.roundingMode = RoundingMode.DOWN
+      return "Location: ${processCoordinates(coordinates)}\n" +
+        "Altitude: ${df.format(altitude)}m\n" +
+        "Accuracy: ${df.format(accuracy)}m"
+    }
+  }
 }
