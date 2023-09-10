@@ -19,7 +19,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
@@ -88,7 +87,6 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
 
     lifecycleScope.launch {
       mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel
-        .asFlow()
         .combine(mapContainerViewModel.suggestLoiJobs) { lois, jobs ->
           val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
           val jobCards = jobs.map { MapCardUiData.SuggestLoiCardUiData(it) }

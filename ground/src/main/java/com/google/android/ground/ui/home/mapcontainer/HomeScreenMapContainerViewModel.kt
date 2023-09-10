@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.ui.home.mapcontainer
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
@@ -38,7 +36,6 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
-import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
@@ -91,7 +88,10 @@ internal constructor(
    * List of [LocationOfInterest] for the active survey that are present within the map bounds and
    * zoom level is clustering threshold or higher.
    */
-  val loisWithinMapBoundsAtVisibleZoomLevel: LiveData<List<LocationOfInterest>>
+  private val _loisWithinMapBoundsAtVisibleZoomLevel: MutableStateFlow<List<LocationOfInterest>> =
+    MutableStateFlow(listOf())
+  val loisWithinMapBoundsAtVisibleZoomLevel: StateFlow<List<LocationOfInterest>> =
+    _loisWithinMapBoundsAtVisibleZoomLevel.stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
   val suggestLoiJobs: Flow<List<Job>>
 
@@ -102,20 +102,6 @@ internal constructor(
     //  into the repository.
 
     viewModelScope.launch { surveyRepository.activeSurveyFlow.collect { refreshMapFeatures(it) } }
-
-    loisWithinMapBoundsAtVisibleZoomLevel =
-      surveyRepository.activeSurveyFlowable
-        .switchMap { survey ->
-          cameraZoomUpdates.switchMap { zoomLevel ->
-            if (zoomLevel >= CLUSTERING_ZOOM_THRESHOLD && survey.isPresent)
-              locationOfInterestRepository.getWithinBoundsOnceAndStream(
-                survey.get(),
-                cameraBoundUpdates
-              )
-            else Flowable.just(listOf())
-          }
-        }
-        .toLiveData()
 
     suggestLoiJobs =
       surveyRepository.activeSurveyFlow
@@ -130,11 +116,30 @@ internal constructor(
   }
 
   private suspend fun refreshMapFeatures(survey: Survey?) {
+    updateMapFeatures(survey)
+    updateMapLois(survey)
+  }
+
+  private suspend fun updateMapFeatures(survey: Survey?) {
     if (survey == null) {
       _mapLoiFeatures.value = setOf()
     } else {
       // LOIs that are persisted to the local and remote dbs.
       _mapLoiFeatures.emitAll(locationOfInterestRepository.findLocationsOfInterestFeatures(survey))
+    }
+  }
+
+  private suspend fun updateMapLois(survey: Survey?) {
+    val bounds = currentCameraPosition?.bounds
+    val zoomLevel = currentCameraPosition?.zoomLevel
+    if (
+      bounds == null || survey == null || zoomLevel == null || zoomLevel < CLUSTERING_ZOOM_THRESHOLD
+    ) {
+      _loisWithinMapBoundsAtVisibleZoomLevel.value = listOf()
+    } else {
+      _loisWithinMapBoundsAtVisibleZoomLevel.emitAll(
+        locationOfInterestRepository.getWithinBoundsOnceAndStream(survey, bounds).asFlow()
+      )
     }
   }
 
