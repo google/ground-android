@@ -18,8 +18,12 @@ package com.google.android.ground.ui.datacollection.tasks.gps
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.google.android.ground.R
 import com.google.android.ground.databinding.GpsTaskFragBinding
+import com.google.android.ground.model.submission.isNotNullOrEmpty
+import com.google.android.ground.model.submission.isNullOrEmpty
+import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
@@ -42,7 +46,16 @@ class GpsTaskFragment : Hilt_GpsTaskFragment<GpsTaskViewModel>() {
   }
 
   override fun onCreateActionButtons() {
-    super.onCreateActionButtons()
+    addSkipButton()
     addUndoButton()
+    addButton(ButtonAction.CAPTURE_LOCATION)
+      .setOnClickListener {
+        Toast.makeText(requireContext(), "Captured", Toast.LENGTH_SHORT).show()
+      }
+      .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNullOrEmpty()) }
+    addButton(ButtonAction.CONTINUE)
+      .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
+      .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
+      .hide()
   }
 }
