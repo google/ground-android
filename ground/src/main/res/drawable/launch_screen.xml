@@ -19,13 +19,7 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android"
   android:opacity="opaque">
 
-  <item android:drawable="@android:color/white" />
-
-  <item>
-    <bitmap
-      android:gravity="fill"
-      android:src="@drawable/splash_background" />
-  </item>
+  <item android:drawable="@color/lightBackground" />
 
   <item>
     <bitmap
