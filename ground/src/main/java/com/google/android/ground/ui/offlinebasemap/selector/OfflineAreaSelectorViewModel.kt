@@ -113,7 +113,6 @@ internal constructor(
 
   fun onMapReady(map: Map) {
     tileSources.forEach { map.addTileOverlay(it) }
-    disposeOnClear(cameraBoundUpdates.subscribe { viewport = it })
   }
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
@@ -126,6 +125,7 @@ internal constructor(
       return
     }
 
+    viewport = bounds
     viewModelScope.launch(ioDispatcher) { updateDownloadSize(bounds) }
   }
 
