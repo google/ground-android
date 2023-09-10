@@ -37,15 +37,10 @@ import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
-import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.toCoordinates
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -76,12 +71,6 @@ constructor(
 ) : AbstractViewModel() {
 
   private val _cameraPosition = MutableStateFlow<CameraPosition?>(null)
-  private val cameraZoomSubject: @Hot Subject<Float> = PublishSubject.create()
-  val cameraZoomUpdates: Flowable<Float> = cameraZoomSubject.toFlowable(BackpressureStrategy.LATEST)
-
-  private val cameraBoundsSubject: @Hot Subject<Bounds> = PublishSubject.create()
-  val cameraBoundUpdates: Flowable<Bounds> =
-    cameraBoundsSubject.toFlowable(BackpressureStrategy.LATEST)
 
   val locationLock: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
@@ -253,10 +242,7 @@ constructor(
   }
 
   /** Called when the map camera is moved. */
-  open fun onMapCameraMoved(newCameraPosition: CameraPosition) {
-    newCameraPosition.zoomLevel?.let { cameraZoomSubject.onNext(it) }
-    newCameraPosition.bounds?.let { cameraBoundsSubject.onNext(it) }
-  }
+  open fun onMapCameraMoved(newCameraPosition: CameraPosition) {}
 
   companion object {
     private val LOCATION_LOCK_ICON_TINT_ENABLED = R.color.md_theme_primary
