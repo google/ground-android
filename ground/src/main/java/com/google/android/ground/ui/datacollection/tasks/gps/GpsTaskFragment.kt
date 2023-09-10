@@ -19,6 +19,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.databinding.GpsTaskFragBinding
 import com.google.android.ground.model.submission.isNotNullOrEmpty
@@ -28,6 +29,7 @@ import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint(AbstractTaskFragment::class)
 class GpsTaskFragment : Hilt_GpsTaskFragment<GpsTaskViewModel>() {
@@ -57,5 +59,15 @@ class GpsTaskFragment : Hilt_GpsTaskFragment<GpsTaskViewModel>() {
       .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
       .hide()
+  }
+
+  override fun onResume() {
+    super.onResume()
+    viewLifecycleOwner.lifecycleScope.launch { viewModel.enableLocationUpdates() }
+  }
+
+  override fun onPause() {
+    viewLifecycleOwner.lifecycleScope.launch { viewModel.disableLocationUpdates() }
+    super.onPause()
   }
 }
