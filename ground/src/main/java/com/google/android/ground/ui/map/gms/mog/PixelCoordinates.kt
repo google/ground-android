@@ -34,6 +34,5 @@ fun LatLng.toPixelCoordinates(zoom: Int): PixelCoordinates {
   return PixelCoordinates((x * 256.0).toInt(), (y * 256.0).toInt(), zoom)
 }
 
-fun TileCoordinates.toPixelCoordinate(xOffset: Int, yOffset: Int): PixelCoordinates {
-  return PixelCoordinates(x * 256 + xOffset, y * 256 + yOffset, zoom)
-}
+fun TileCoordinates.toPixelCoordinate(xOffset: Int, yOffset: Int) =
+  PixelCoordinates(x * 256 + xOffset, y * 256 + yOffset, zoom)

@@ -19,7 +19,7 @@ import kotlin.math.abs
 import kotlin.math.cos
 
 /**
- * Returns the value shifted left [n] bits when [n] is positive, or right [-n] bits when negative.]
+ * Returns the value shifted left [n] bits when [n] is positive, or right [-n] bits when negative.
  */
 fun Int.shiftLeft(n: Int) = if (n >= 0) this shl n else this shr abs(n)
 
