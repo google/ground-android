@@ -32,7 +32,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
-import timber.log.Timber
 
 /**
  * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
@@ -101,7 +100,6 @@ constructor(
 
   fun getOfflineTileSources(): Flow<List<TileSource>> =
     surveyRepository.activeSurveyFlow
-      .onEach { Timber.e("!!! Survey ${it?.id}") }
       // TODO(#1593): Room's equivalent Flow never emits a value, perhaps due to using incorrect
       // scheduler?
       .combine(getOfflineAreaBounds().asFlow()) { survey, bounds ->

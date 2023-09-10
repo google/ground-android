@@ -20,7 +20,6 @@ import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
-import kotlinx.coroutines.flow.Flow
 
 interface LocalOfflineAreaStore {
   /**

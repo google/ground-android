@@ -74,9 +74,9 @@ class TileCoordinatesTest {
     //    println(TileCoordinates(1, 1, 1).getLatLngAtPixelOffset(0,0))
     //    println(TileCoordinates(1, 1, 1).getLatLngAtPixelOffset(511,511))
     // https://www.maptiler.com/google-maps-coordinates-tile-bounds-projection/#6/-37.07/-6.97
-    println(TileCoordinates(25, 33, 6).getLatLngAtPixelOffset(0, 0))
+    //    println(TileCoordinates(25, 33, 6).getLatLngAtPixelOffset(0, 0))
     println(TileCoordinates(25, 33, 6).tileCoordsAndOffsetToLatLon(0, 0))
-    println(TileCoordinates(25, 33, 6).toCoords(0, 0))
+    //    println(TileCoordinates(25, 33, 6).toCoords(0, 0))
 
   }
 }

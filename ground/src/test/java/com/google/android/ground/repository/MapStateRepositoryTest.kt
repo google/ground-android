@@ -73,6 +73,8 @@ class MapStateRepositoryTest : BaseHiltTest() {
   fun isOfflineImageryEnabled_whenEnabled_returnsTrue() = runWithTestDispatcher {
     mapStateRepository.isOfflineImageryEnabled = true
 
-    mapStateRepository.offlineImageryEnabledFlow.test { assertThat(expectMostRecentItem()).isTrue() }
+    mapStateRepository.offlineImageryEnabledFlow.test {
+      assertThat(expectMostRecentItem()).isTrue()
+    }
   }
 }
