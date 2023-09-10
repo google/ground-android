@@ -41,7 +41,17 @@ data class LocationOfInterest(
   /** Geometry associated with this LOI. */
   val geometry: Geometry,
   /** The number of submissions that have been made for this LOI. */
-  val submissionCount: Int = 0
+  val submissionCount: Int = 0,
+  /**
+   * The email of the owner of this LOI, set to the current user's email when an LOI is created by
+   * the user.
+   */
+  val ownerEmail: String? = null,
+  /**
+   * Whether this LOI was created opportunistically by the user through the Suggest LOI flow, or
+   * false if the LOI was created by the survey organizer.
+   */
+  val isOpportunistic: Boolean = false
 ) {
 
   /**
@@ -59,6 +69,8 @@ data class LocationOfInterest(
       clientTimestamp = lastModified.clientTimestamp,
       geometry = geometry,
       caption = caption,
-      submissionCount = submissionCount
+      submissionCount = submissionCount,
+      ownerEmail = ownerEmail,
+      isOpportunistic = isOpportunistic
     )
 }
