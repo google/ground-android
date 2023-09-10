@@ -74,6 +74,8 @@ internal constructor(
     ioDispatcher
   ) {
 
+  private var _survey: Survey? = null
+
   private val _mapLoiFeatures: MutableStateFlow<Set<Feature>> = MutableStateFlow(setOf())
   val mapLoiFeatures: StateFlow<Set<Feature>> =
     _mapLoiFeatures.stateIn(viewModelScope, SharingStarted.Lazily, setOf())
@@ -100,13 +102,22 @@ internal constructor(
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     //  into the repository.
 
-    viewModelScope.launch { surveyRepository.activeSurveyFlow.collect { refreshMapFeatures(it) } }
+    viewModelScope.launch {
+      surveyRepository.activeSurveyFlow.collect {
+        _survey = it
+        refreshMapFeaturesAndCards(it)
+      }
+    }
   }
 
-  private suspend fun refreshMapFeatures(survey: Survey?) {
+  private suspend fun refreshMapFeaturesAndCards(survey: Survey?) {
     updateMapFeatures(survey)
-    updateMapLois(survey)
-    updateSuggestLoiJobs(survey)
+    updateLoisAndJobs(survey, currentCameraPosition)
+  }
+
+  private suspend fun updateLoisAndJobs(survey: Survey?, cameraPosition: CameraPosition?) {
+    updateMapLois(survey, cameraPosition)
+    updateSuggestLoiJobs(survey, cameraPosition)
   }
 
   private suspend fun updateMapFeatures(survey: Survey?) {
@@ -118,10 +129,9 @@ internal constructor(
     }
   }
 
-  private suspend fun updateMapLois(survey: Survey?) {
-    val bounds = currentCameraPosition?.bounds
-    val isZoomLevelLessThanThreshold =
-      currentCameraPosition.isLessThanThreshold(CLUSTERING_ZOOM_THRESHOLD)
+  private suspend fun updateMapLois(survey: Survey?, cameraPosition: CameraPosition?) {
+    val bounds = cameraPosition?.bounds
+    val isZoomLevelLessThanThreshold = cameraPosition.isLessThanThreshold(CLUSTERING_ZOOM_THRESHOLD)
     if (bounds == null || survey == null || isZoomLevelLessThanThreshold) {
       _loisWithinMapBoundsAtVisibleZoomLevel.value = listOf()
     } else {
@@ -131,9 +141,8 @@ internal constructor(
     }
   }
 
-  private fun updateSuggestLoiJobs(survey: Survey?) {
-    val isZoomLevelLessThanThreshold =
-      currentCameraPosition.isLessThanThreshold(CLUSTERING_ZOOM_THRESHOLD)
+  private fun updateSuggestLoiJobs(survey: Survey?, cameraPosition: CameraPosition?) {
+    val isZoomLevelLessThanThreshold = cameraPosition.isLessThanThreshold(CLUSTERING_ZOOM_THRESHOLD)
     if (survey == null || isZoomLevelLessThanThreshold) {
       _suggestLoiJobs.value = listOf()
     } else {
@@ -146,6 +155,8 @@ internal constructor(
     Timber.d("Setting position to $newCameraPosition")
     onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
     mapStateRepository.setCameraPosition(newCameraPosition)
+
+    viewModelScope.launch { updateLoisAndJobs(_survey, newCameraPosition) }
   }
 
   private fun onZoomChange(oldZoomLevel: Float?, newZoomLevel: Float?) {
