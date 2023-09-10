@@ -40,8 +40,8 @@ class ClippingTileProvider(
   override fun getTile(x: Int, y: Int, zoom: Int): Tile {
     val sourceTile = sourceTileProvider.getTile(x, y, zoom) ?: NO_TILE
     if (sourceTile == NO_TILE) return sourceTile
-    // TODO: Optimization: return NO_TILE immediately if we known tile is completely out of clip
-    // bounds.
+    // We assume if a tile is returned by the source provider that at least some pixels are within
+    // the clip bounds, so there's no need to optimize by checking before clipping.
     return clipToBounds(TileCoordinates(x, y, zoom), sourceTile)
   }
 
