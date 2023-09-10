@@ -75,7 +75,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   private fun applyMapConfig(map: Map) {
     val config = getMapViewModel().mapConfig
 
-    // Map Type
+    // Map type
     if (config.overrideMapType != null) {
       map.mapType = config.overrideMapType
     } else {
@@ -89,6 +89,13 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
           if (enabled) addTileOverlays() else map.clearTileOverlays()
         }
       }
+    }
+
+    // Map gestures
+    if (config.disableGestures) {
+      map.disableGestures()
+    } else {
+      map.enableGestures()
     }
   }
 
@@ -158,7 +165,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   /** Called when the map is attached to the fragment. */
-  protected abstract fun onMapReady(map: Map)
+  protected open fun onMapReady(map: Map) {}
 
   /** Provides an implementation of [BaseMapViewModel]. */
   protected abstract fun getMapViewModel(): BaseMapViewModel

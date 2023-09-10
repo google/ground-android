@@ -39,7 +39,7 @@ internal class OfflineAreaListAdapter(private val navigator: Navigator) :
     }
 
     override fun onClick(v: View) {
-      if (areas.size > 0) {
+      if (areas.isNotEmpty()) {
         val id = areas[adapterPosition].id
         navigator.navigate(OfflineAreasFragmentDirections.viewOfflineArea(id))
       }

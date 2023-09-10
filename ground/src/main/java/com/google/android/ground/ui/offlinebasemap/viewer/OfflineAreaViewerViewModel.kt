@@ -82,7 +82,12 @@ constructor(
   private var offlineAreaId: String? = null
 
   override val mapConfig: MapConfig
-    get() = super.mapConfig.copy(showTileOverlays = false, overrideMapType = MapType.ROAD)
+    get() =
+      super.mapConfig.copy(
+        showTileOverlays = false,
+        overrideMapType = MapType.ROAD,
+        disableGestures = true
+      )
 
   init {
     this.context = WeakReference(context)
