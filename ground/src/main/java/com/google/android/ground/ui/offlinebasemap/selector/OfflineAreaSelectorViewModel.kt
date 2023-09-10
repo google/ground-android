@@ -125,6 +125,7 @@ internal constructor(
   }
 
   private fun onStartEstimatingDownloadSize() {
+    downloadButtonEnabled.postValue(false)
     sizeOnDisk.postValue(resources.getString(R.string.offline_area_size_loading_symbol))
     visibleBottomTextViewId.postValue(R.id.size_on_disk_text_view)
   }
