@@ -16,17 +16,14 @@
 
 package com.google.android.ground.ui.map.gms
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Color
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
 import com.google.android.gms.maps.model.TileProvider.NO_TILE
+import com.google.android.ground.ui.map.gms.mog.ImageEditor
 import com.google.android.ground.ui.map.gms.mog.TileCoordinates
 import com.google.android.ground.ui.map.gms.mog.toPixelBounds
 import com.google.android.ground.ui.map.gms.mog.toPixelCoordinate
-import java.io.ByteArrayOutputStream
 
 private const val MAX_ZOOM = 19
 
@@ -47,24 +44,11 @@ class ClippingTileProvider(
 
   private fun clipToBounds(tileCoords: TileCoordinates, tile: Tile): Tile {
     if (tile.data == null) return NO_TILE
-    val opts = BitmapFactory.Options()
-    opts.inMutable = true
-    val bitmap = BitmapFactory.decodeByteArray(tile.data, 0, tile.data!!.size, opts)
-    bitmap.setHasAlpha(true)
-    for (y in 0 until bitmap.height) {
-      for (x in 0 until bitmap.width) {
+    val output =
+      ImageEditor.setTransparentIf(tile.data!!) { _, x, y ->
         val pixelCoords = tileCoords.toPixelCoordinate(x, y)
-        if (pixelBounds.none { it.contains(pixelCoords) }) {
-          bitmap.setPixel(x, y, Color.TRANSPARENT)
-        }
+        pixelBounds.none { it.contains(pixelCoords) }
       }
-    }
-    // Android doesn't implement encoders for uncompressed format, so we must compress the returned
-    // tile so that it can be later encoded by Maps SDK. Experimentally, decompressing JPG and
-    // compressing WEBP each tile adds on the order of 1ms to each tile which we can consider
-    // negligible.
-    val stream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.WEBP, 100, stream)
-    return Tile(tile.width, tile.height, stream.toByteArray())
+    return Tile(tile.width, tile.height, output)
   }
 }
