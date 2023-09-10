@@ -31,7 +31,6 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.Map
-import com.google.android.ground.ui.map.MapType
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
@@ -101,7 +100,6 @@ internal constructor(
   }
 
   fun onMapReady(map: Map) {
-    map.mapType = MapType.TERRAIN
     tileSources.forEach { map.addTileOverlay(it) }
     disposeOnClear(cameraBoundUpdates.subscribe { viewport = it })
   }
