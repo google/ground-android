@@ -32,12 +32,14 @@ class DownloadProgressDialogFragment : Hilt_DownloadProgressDialogFragment() {
     val binding = DownloadProgressDialogFragBinding.inflate(inflater)
     binding.lifecycleOwner = this
     binding.viewModel = getViewModel(OfflineAreaSelectorViewModel::class.java)
-    return AlertDialog.Builder(requireActivity())
+    val dialog = AlertDialog.Builder(requireActivity())
       .setTitle("Download progress")
       .setMessage(getString(R.string.offline_map_imagery_download_progress_dialog_message))
       .setView(binding.root)
       .setCancelable(false)
       .create()
+    dialog.setCanceledOnTouchOutside(false)
+    return dialog
   }
 
   fun setVisibility(childFragmentManager: FragmentManager, newVisibility: Boolean) {
