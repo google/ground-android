@@ -23,9 +23,7 @@ import com.google.android.ground.databinding.OfflineBaseMapViewerFragBinding
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.common.MapConfig
 import com.google.android.ground.ui.map.Map
-import com.google.android.ground.ui.map.MapType
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -62,9 +60,6 @@ class OfflineAreaViewerFragment @Inject constructor() : Hilt_OfflineAreaViewerFr
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
-
-  override fun getMapConfig(): MapConfig =
-    super.getMapConfig().copy(showTileOverlays = false, overrideMapType = MapType.ROAD)
 
   private fun panMap(offlineArea: OfflineArea) {
     map.viewport = offlineArea.bounds

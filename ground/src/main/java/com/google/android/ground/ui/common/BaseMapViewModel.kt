@@ -117,6 +117,9 @@ constructor(
   val tileOverlays: LiveData<List<TileSource>>
   val offlineImageryEnabled: Flow<Boolean> = mapStateRepository.offlineImageryFlow
 
+  /** Configuration to enable/disable base map features. */
+  open val mapConfig: MapConfig = DEFAULT_MAP_CONFIG
+
   init {
     mapType = mapStateRepository.mapTypeFlowable.toLiveData()
     tileOverlays =
@@ -254,5 +257,8 @@ constructor(
     // TODO(#1789): Consider adding another icon for representing "GPS disabled" state.
     private val LOCATION_LOCK_ICON_ENABLED = R.drawable.ic_gps_lock
     private val LOCATION_LOCK_ICON_DISABLED = R.drawable.ic_gps_lock_not_fixed
+
+    private val DEFAULT_MAP_CONFIG: MapConfig =
+      MapConfig(showTileOverlays = true, overrideMapType = null)
   }
 }

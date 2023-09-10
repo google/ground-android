@@ -73,7 +73,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   private fun applyMapConfig(map: Map) {
-    val config = getMapConfig()
+    val config = getMapViewModel().mapConfig
 
     // Map Type
     if (config.overrideMapType != null) {
@@ -166,13 +166,4 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   /** Provides an implementation of [BaseMapViewModel]. */
   protected abstract fun getMapViewModel(): BaseMapViewModel
-
-  // TODO: Should this be moved to BaseMapViewModel?
-  /** Configuration to enable/disable base map features. */
-  protected open fun getMapConfig(): MapConfig = DEFAULT_MAP_CONFIG
-
-  companion object {
-    private val DEFAULT_MAP_CONFIG: MapConfig =
-      MapConfig(showTileOverlays = true, overrideMapType = null)
-  }
 }
