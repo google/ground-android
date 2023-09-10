@@ -120,6 +120,13 @@ constructor(
   /** Configuration to enable/disable base map features. */
   open val mapConfig: MapConfig = DEFAULT_MAP_CONFIG
 
+  /** Current camera position. */
+  val currentCameraPosition: CameraPosition? = _cameraPosition.value
+
+  /** Last camera position. */
+  var lastCameraPosition: CameraPosition? = null
+    private set
+
   init {
     mapType = mapStateRepository.mapTypeFlowable.toLiveData()
     tileOverlays =
@@ -241,6 +248,7 @@ constructor(
   }
 
   private fun updatePosition(cameraPosition: CameraPosition) {
+    lastCameraPosition = _cameraPosition.value
     _cameraPosition.value = cameraPosition
   }
 

@@ -80,8 +80,6 @@ internal constructor(
 
   val mapLocationOfInterestFeatures: StateFlow<Set<Feature>>
 
-  private var lastCameraPosition: CameraPosition? = null
-
   /* UI Clicks */
   private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
 
@@ -143,7 +141,6 @@ internal constructor(
     Timber.d("Setting position to $newCameraPosition")
     onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
     mapStateRepository.setCameraPosition(newCameraPosition)
-    lastCameraPosition = newCameraPosition
   }
 
   private fun onZoomChange(oldZoomLevel: Float?, newZoomLevel: Float?) {
