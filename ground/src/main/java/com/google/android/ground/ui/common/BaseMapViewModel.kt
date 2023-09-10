@@ -119,7 +119,7 @@ constructor(
     mapType = mapStateRepository.mapTypeFlowable.toLiveData()
     offlineTileSources =
       offlineAreaRepository
-        .getOfflineTileSources()
+        .getOfflineTileSourcesFlow()
         .combine(mapStateRepository.offlineImageryEnabledFlow) { offlineSources, enabled ->
           if (enabled) offlineSources else listOf()
         }

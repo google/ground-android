@@ -98,14 +98,15 @@ constructor(
   // TODO(#1730): Generate local tiles path based on source base path.
   private fun getLocalTileSourcePath(): String = File(fileUtil.filesDir.path, "tiles").path
 
-  fun getOfflineTileSources(): Flow<List<TileSource>> =
+  fun getOfflineTileSourcesFlow(): Flow<List<TileSource>> =
     surveyRepository.activeSurveyFlow
-      // TODO(#1593): Room's equivalent Flow never emits a value, perhaps due to using incorrect
-      // scheduler?
+      // TODO(#1593): Use Room DAO's Flow once we figure out why it never emits a value.
       .combine(getOfflineAreaBounds().asFlow()) { survey, bounds ->
-        survey?.tileSources?.mapNotNull { tileSource -> toOfflineTileSource(tileSource, bounds) }
-          ?: listOf()
+        applyBounds(survey?.tileSources, bounds)
       }
+
+  private fun applyBounds(tileSources: List<TileSource>?, bounds: List<Bounds>): List<TileSource> =
+    tileSources?.mapNotNull { tileSource -> toOfflineTileSource(tileSource, bounds) } ?: listOf()
 
   private fun toOfflineTileSource(tileSource: TileSource, clipBounds: List<Bounds>?): TileSource? {
     if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
