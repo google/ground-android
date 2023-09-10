@@ -23,6 +23,7 @@
   <color name="textOverMap">#FCFDF7</color>
   <color name="blackMapOverlay">#000000</color>
   <color name="lightBackground">#EDEEE9</color>
+  <color name="material_dynamic_neutral50">#747679</color>
 
   <!-- Updated Color palette -->
   <color name="md_theme_primary">#006E2C</color>
