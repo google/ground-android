@@ -21,6 +21,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.coroutines.IoDispatcher
+import com.google.android.ground.model.Survey
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -44,13 +45,14 @@ import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
 import timber.log.Timber
 
@@ -78,7 +80,9 @@ internal constructor(
     ioDispatcher
   ) {
 
-  val mapLocationOfInterestFeatures: StateFlow<Set<Feature>>
+  private val _mapLoiFeatures: MutableStateFlow<Set<Feature>> = MutableStateFlow(setOf())
+  val mapLoiFeatures: StateFlow<Set<Feature>> =
+    _mapLoiFeatures.stateIn(viewModelScope, SharingStarted.Lazily, setOf())
 
   /* UI Clicks */
   private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
@@ -97,18 +101,7 @@ internal constructor(
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     //  into the repository.
 
-    // LOIs that are persisted to the local and remote dbs.
-    mapLocationOfInterestFeatures =
-      surveyRepository.activeSurveyFlow
-        .transform { survey ->
-          if (survey == null) {
-            emit(setOf())
-          } else {
-            emitAll(locationOfInterestRepository.findLocationsOfInterestFeatures(survey))
-          }
-        }
-        .distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.Lazily, setOf())
+    viewModelScope.launch { surveyRepository.activeSurveyFlow.collect { refreshMapFeatures(it) } }
 
     loisWithinMapBoundsAtVisibleZoomLevel =
       surveyRepository.activeSurveyFlowable
@@ -134,6 +127,15 @@ internal constructor(
           }
         }
         .distinctUntilChanged()
+  }
+
+  private suspend fun refreshMapFeatures(survey: Survey?) {
+    if (survey == null) {
+      _mapLoiFeatures.value = setOf()
+    } else {
+      // LOIs that are persisted to the local and remote dbs.
+      _mapLoiFeatures.emitAll(locationOfInterestRepository.findLocationsOfInterestFeatures(survey))
+    }
   }
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {

@@ -176,7 +176,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
   override fun onMapReady(map: Map) {
     // Observe events emitted by the ViewModel.
     viewLifecycleOwner.lifecycleScope.launch {
-      mapContainerViewModel.mapLocationOfInterestFeatures.collect { map.renderFeatures(it) }
+      mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
     }
 
     homeScreenViewModel.bottomSheetState.observe(this) { state: BottomSheetState ->
