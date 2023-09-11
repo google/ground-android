@@ -87,10 +87,10 @@ internal constructor(
    * List of [LocationOfInterest] for the active survey that are present within the viewport and
    * zoom level is clustering threshold or higher.
    */
-  private val _loisInViewportAtVisibleZoomLevel: MutableStateFlow<List<LocationOfInterest>> =
+  private val _loisInViewport: MutableStateFlow<List<LocationOfInterest>> =
     MutableStateFlow(listOf())
-  val loisInViewportAtVisibleZoomLevel: StateFlow<List<LocationOfInterest>> =
-    _loisInViewportAtVisibleZoomLevel.stateIn(viewModelScope, SharingStarted.Lazily, listOf())
+  val loisInViewport: StateFlow<List<LocationOfInterest>> =
+    _loisInViewport.stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
   private val _suggestLoiJobs: MutableStateFlow<List<Job>> = MutableStateFlow(listOf())
   val suggestLoiJobs: StateFlow<List<Job>> =
@@ -132,9 +132,9 @@ internal constructor(
   private suspend fun updateMapLois(survey: Survey?, cameraPosition: CameraPosition?) {
     val bounds = cameraPosition?.bounds
     if (bounds == null || survey == null || cameraPosition.isBelowClusteringZoomThreshold()) {
-      _loisInViewportAtVisibleZoomLevel.value = listOf()
+      _loisInViewport.value = listOf()
     } else {
-      _loisInViewportAtVisibleZoomLevel.emitAll(
+      _loisInViewport.emitAll(
         locationOfInterestRepository.getWithinBoundsOnceAndStream(survey, bounds).asFlow()
       )
     }
