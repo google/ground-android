@@ -31,7 +31,7 @@ class SurveyConverterTest {
     val snapshot = createSurveyDocumentSnapshot(doc)
 
     assertThat(SurveyConverter.toSurvey(snapshot).tileSources)
-      .containsExactly(TileSource(testUrl, TileSource.Type.MOG_COLLECTION, null))
+      .containsExactly(TileSource(testUrl, TileSource.Type.MOG_COLLECTION))
   }
 
   @Test

@@ -108,7 +108,7 @@ constructor(
   private fun applyBounds(tileSources: List<TileSource>?, bounds: List<Bounds>): List<TileSource> =
     tileSources?.mapNotNull { tileSource -> toOfflineTileSource(tileSource, bounds) } ?: listOf()
 
-  private fun toOfflineTileSource(tileSource: TileSource, clipBounds: List<Bounds>?): TileSource? {
+  private fun toOfflineTileSource(tileSource: TileSource, clipBounds: List<Bounds>): TileSource? {
     if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
     return TileSource(
       "file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg",

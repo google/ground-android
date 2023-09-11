@@ -362,7 +362,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   override fun addTileOverlay(tileSource: TileSource) =
     when (tileSource.type) {
       MOG_COLLECTION -> addMogCollectionTileOverlay(tileSource.url)
-      TILED_WEB_MAP -> addOfflineTileOverlay(tileSource.url, tileSource.clipBounds!!)
+      TILED_WEB_MAP -> addOfflineTileOverlay(tileSource.url, tileSource.clipBounds)
       else -> error("Unsupported tile source type ${tileSource.type}")
     }
 

@@ -73,7 +73,7 @@ private fun TileSourceEntity.TileSourceEntityType.toModelObject() =
 fun TileSource.toLocalDataStoreObject(surveyId: String) =
   TileSourceEntity(surveyId = surveyId, url = url, type = type.toLocalDataStoreObject())
 
-fun TileSourceEntity.toModelObject() = TileSource(url = url, type = type.toModelObject(), null)
+fun TileSourceEntity.toModelObject() = TileSource(url = url, type = type.toModelObject())
 
 fun Geometry.toLocalDataStoreObject() = GeometryWrapper.fromGeometry(this)
 
