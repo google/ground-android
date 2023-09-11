@@ -59,7 +59,7 @@ internal constructor(
       offlineAreas.map { if (it.isEmpty()) View.VISIBLE else View.GONE }.toLiveData()
   }
 
-  /** Navigate to the offline area selector UI from the offline basemaps UI. */
+  /** Navigate to the area selector for offline map imagery. */
   fun showOfflineAreaSelector() {
     navigator.navigate(OfflineAreasFragmentDirections.showOfflineAreaSelector())
   }
