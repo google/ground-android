@@ -135,7 +135,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
     )
 
   @Test
-  fun offlineBasemapMenuIsDisabledWhenActiveSurveyHasNoBasemap() = runWithTestDispatcher {
+  fun offlineMapImageryMenuIsDisabledWhenActiveSurveyHasNoBasemap() = runWithTestDispatcher {
     surveyRepository.activeSurvey = surveyWithoutBasemap
     advanceUntilIdle()
 
@@ -144,7 +144,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
   }
 
   @Test
-  fun offlineBasemapMenuIsEnabledWhenActiveSurveyHasBasemap() = runWithTestDispatcher {
+  fun offlineMapImageryMenuIsEnabledWhenActiveSurveyHasBasemap() = runWithTestDispatcher {
     surveyRepository.activeSurvey = surveyWithTileSources
     advanceUntilIdle()
 
