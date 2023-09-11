@@ -23,12 +23,13 @@ import timber.log.Timber
 /**
  * Fetches tile imagery from a server according to a formatted URL.
  *
- * Tile URLs should have the format: host/z/x/y
+ * `[urlTemplate]` may contain `{z}`, `{x}`, and `{y}`, which is replaced with the coordinates of
+ * the tile being rendered.
  */
-class TemplateUrlTileProvider(private val template: String) : UrlTileProvider(256, 256) {
+class TemplateUrlTileProvider(private val urlTemplate: String) : UrlTileProvider(256, 256) {
   override fun getTileUrl(x: Int, y: Int, z: Int): URL? {
     val url =
-      template
+      urlTemplate
         .replace("{z}", z.toString())
         .replace("{x}", x.toString())
         .replace("{y}", y.toString())

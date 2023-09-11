@@ -69,7 +69,7 @@ internal constructor(
     ioDispatcher
   ) {
 
-  val tileSources: List<TileSource>
+  val remoteTileSources: List<TileSource>
   private var viewport: Bounds? = null
   val isDownloadProgressVisible = MutableLiveData(false)
   val downloadProgressMax = MutableLiveData(0)
@@ -79,7 +79,7 @@ internal constructor(
   val downloadButtonEnabled = MutableLiveData(false)
 
   init {
-    tileSources = surveyRepository.activeSurvey!!.tileSources
+    remoteTileSources = surveyRepository.activeSurvey!!.tileSources
   }
 
   fun onDownloadClick() {
@@ -107,7 +107,7 @@ internal constructor(
   }
 
   fun onMapReady(map: Map) {
-    tileSources.forEach { map.addTileOverlay(it) }
+    remoteTileSources.forEach { map.addTileOverlay(it) }
     disposeOnClear(cameraBoundUpdates.subscribe { viewport = it })
   }
 

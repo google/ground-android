@@ -22,7 +22,7 @@ import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.persistence.local.room.fields.OfflineAreaEntityState
 
 /** Represents a [OfflineArea] in the local data store. */
-@Entity(tableName = "offline_base_map")
+@Entity(tableName = "offline_area")
 data class OfflineAreaEntity(
   @ColumnInfo(name = "id") @PrimaryKey val id: String,
   @ColumnInfo(name = "name") val name: String,

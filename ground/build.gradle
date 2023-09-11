@@ -32,7 +32,7 @@ project.ext {
     fragmentVersion = "1.5.7"
     hiltJetpackVersion = "1.0.0"
     lifecycleVersion = "2.6.1"
-    roomVersion = "2.5.1"
+    roomVersion = "2.5.2"
     rxBindingVersion = "2.2.0"
     workVersion = "2.8.1"
     mockitoVersion = "4.5.1"
@@ -250,9 +250,6 @@ dependencies {
 
     implementation "com.uber.autodispose:autodispose-android:$project.autoDisposeVersion"
     implementation "com.uber.autodispose:autodispose-android-archcomponents:$project.autoDisposeVersion"
-
-    // Apache Commons IO
-    implementation 'commons-io:commons-io:2.8.0'
 
     // Testing
     testImplementation 'junit:junit:4.13.2'

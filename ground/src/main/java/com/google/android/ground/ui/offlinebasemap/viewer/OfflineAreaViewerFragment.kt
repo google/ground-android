@@ -64,7 +64,7 @@ class OfflineAreaViewerFragment @Inject constructor() : Hilt_OfflineAreaViewerFr
   override fun getMapViewModel(): BaseMapViewModel = viewModel
 
   override fun getMapConfig(): MapConfig =
-    super.getMapConfig().copy(showTileOverlays = false, overrideMapType = MapType.ROAD)
+    super.getMapConfig().copy(showOfflineTileOverlays = false, overrideMapType = MapType.ROAD)
 
   private fun panMap(offlineArea: OfflineArea) {
     map.viewport = offlineArea.bounds
