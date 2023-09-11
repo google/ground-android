@@ -131,8 +131,7 @@ internal constructor(
 
   private suspend fun updateMapLois(survey: Survey?, cameraPosition: CameraPosition?) {
     val bounds = cameraPosition?.bounds
-    val isZoomLevelLessThanThreshold = cameraPosition.isLessThanThreshold(CLUSTERING_ZOOM_THRESHOLD)
-    if (bounds == null || survey == null || isZoomLevelLessThanThreshold) {
+    if (bounds == null || survey == null || cameraPosition.isBelowClusteringZoomThreshold()) {
       _loisInViewportAtVisibleZoomLevel.value = listOf()
     } else {
       _loisInViewportAtVisibleZoomLevel.emitAll(
@@ -142,8 +141,7 @@ internal constructor(
   }
 
   private fun updateSuggestLoiJobs(survey: Survey?, cameraPosition: CameraPosition?) {
-    val isZoomLevelLessThanThreshold = cameraPosition.isLessThanThreshold(CLUSTERING_ZOOM_THRESHOLD)
-    if (survey == null || isZoomLevelLessThanThreshold) {
+    if (survey == null || cameraPosition.isBelowClusteringZoomThreshold()) {
       _suggestLoiJobs.value = listOf()
     } else {
       _suggestLoiJobs.value = survey.jobs.filter { it.suggestLoiTaskType != null }.toList()
@@ -184,6 +182,6 @@ internal constructor(
 
   fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed
 
-  private fun CameraPosition?.isLessThanThreshold(threshold: Float): Boolean =
-    this?.zoomLevel?.let { it < threshold } ?: true
+  private fun CameraPosition?.isBelowClusteringZoomThreshold() =
+    this?.zoomLevel?.let { it < CLUSTERING_ZOOM_THRESHOLD } ?: true
 }
