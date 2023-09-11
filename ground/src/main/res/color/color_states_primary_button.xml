@@ -16,6 +16,6 @@
   ~ limitations under the License.
   -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-  <item android:color="@color/material_dynamic_neutral50" android:state_enabled="false" />
+  <item android:color="@color/md_theme_on_surface_disabled" android:state_enabled="false"/>
   <item android:color="?attr/colorPrimary" />
 </selector>
