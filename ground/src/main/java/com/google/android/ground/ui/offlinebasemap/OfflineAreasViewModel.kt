@@ -36,14 +36,15 @@ internal constructor(
 ) : AbstractViewModel() {
 
   /**
-   * Returns the current list of downloaded offline basemaps available for viewing. If an unexpected
-   * error accessing the local store is encountered, emits an empty list, circumventing the error.
+   * Returns the current list of downloaded offline map imagery areas available for viewing. If an
+   * unexpected error accessing the local store is encountered, emits an empty list, circumventing
+   * the error.
    */
   val offlineAreas: LiveData<List<OfflineArea>>
 
   /**
-   * Returns the visibility of a "no area" message based on the current number of available offline
-   * basemaps.
+   * Returns the visibility of the "no area" message based on the current number of available
+   * offline areas.
    */
   val noAreasMessageVisibility: LiveData<Int>
 

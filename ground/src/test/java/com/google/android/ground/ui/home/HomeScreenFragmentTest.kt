@@ -125,13 +125,13 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
       mapOf(Pair(FakeData.USER.email, "data-collector"))
     )
 
-  private val surveyWithBasemap: Survey =
+  private val surveyWithTileSources: Survey =
     surveyWithoutBasemap.copy(
       tileSources =
         listOf(
           TileSource("http://google.com", TileSource.Type.MOG_COLLECTION),
         ),
-      id = "BASEMAPS"
+      id = "SURVEY_WITH_TILE_SOURCES"
     )
 
   @Test
@@ -145,7 +145,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
   @Test
   fun offlineBasemapMenuIsEnabledWhenActiveSurveyHasBasemap() = runWithTestDispatcher {
-    surveyRepository.activeSurvey = surveyWithBasemap
+    surveyRepository.activeSurvey = surveyWithTileSources
     advanceUntilIdle()
 
     openDrawer()
@@ -183,7 +183,7 @@ class NavigationDrawerItemClickTest(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
         ),
         arrayOf("Sync status", HomeScreenFragmentDirections.showSyncStatus()),
-        arrayOf("Offline base maps", HomeScreenFragmentDirections.showOfflineAreas()),
+        arrayOf("Offline map imagery", HomeScreenFragmentDirections.showOfflineAreas()),
         arrayOf(
           "Settings",
           HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity()
