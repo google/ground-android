@@ -70,7 +70,7 @@ internal constructor(
     ioDispatcher
   ) {
 
-  val tileSources: List<TileSource>
+  val remoteTileSources: List<TileSource>
   private var viewport: Bounds? = null
   val isDownloadProgressVisible = MutableLiveData(false)
   val downloadProgressMax = MutableLiveData(0)
@@ -80,10 +80,10 @@ internal constructor(
   val downloadButtonEnabled = MutableLiveData(false)
 
   override val mapConfig: MapConfig
-    get() = super.mapConfig.copy(showTileOverlays = false, overrideMapType = MapType.ROAD)
+    get() = super.mapConfig.copy(showOfflineTileOverlays = false, overrideMapType = MapType.ROAD)
 
   init {
-    tileSources = surveyRepository.activeSurvey!!.tileSources
+    remoteTileSources = surveyRepository.activeSurvey!!.tileSources
   }
 
   fun onDownloadClick() {

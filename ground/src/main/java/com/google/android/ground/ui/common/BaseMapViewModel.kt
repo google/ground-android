@@ -50,7 +50,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.withIndex
@@ -103,8 +102,7 @@ constructor(
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-  val tileOverlays: LiveData<List<TileSource>>
-  val offlineImageryEnabled: Flow<Boolean> = mapStateRepository.offlineImageryFlow
+  val offlineTileSources: LiveData<List<TileSource>>
 
   /** Configuration to enable/disable base map features. */
   open val mapConfig: MapConfig = DEFAULT_MAP_CONFIG
@@ -118,22 +116,16 @@ constructor(
 
   init {
     mapType = mapStateRepository.mapTypeFlowable.toLiveData()
-    tileOverlays =
-      surveyRepository.activeSurveyFlow
-        .mapNotNull { it?.tileSources?.mapNotNull(this::toLocalTileSource) ?: listOf() }
+    offlineTileSources =
+      offlineAreaRepository
+        .getOfflineTileSourcesFlow()
+        .combine(mapStateRepository.offlineImageryEnabledFlow) { offlineSources, enabled ->
+          if (enabled) offlineSources else listOf()
+        }
         .asLiveData()
 
     viewModelScope.launch(ioDispatcher) { updateCameraPositionOnLocationChange() }
     viewModelScope.launch(ioDispatcher) { updateCameraPositionOnSurveyChange() }
-  }
-
-  // TODO(#1790): Maybe create a new data class object which is not of type TileSource.
-  private fun toLocalTileSource(tileSource: TileSource): TileSource? {
-    if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
-    return TileSource(
-      "file://${offlineAreaRepository.getLocalTileSourcePath()}/{z}/{x}/{y}.jpg",
-      TileSource.Type.TILED_WEB_MAP
-    )
   }
 
   private suspend fun toggleLocationLock() {

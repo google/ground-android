@@ -30,7 +30,7 @@ class MapStateRepository @Inject constructor(private val localValueStore: LocalV
   val mapTypeFlowable: Flowable<MapType> by localValueStore::mapTypeFlowable
   var mapType: MapType by localValueStore::mapType
   var isLocationLockEnabled: Boolean by localValueStore::isLocationLockEnabled
-  val offlineImageryFlow: Flow<Boolean> by localValueStore::offlineImageryEnabledFlow
+  val offlineImageryEnabledFlow: Flow<Boolean> by localValueStore::offlineImageryEnabledFlow
   var isOfflineImageryEnabled: Boolean by localValueStore::isOfflineImageryEnabled
 
   fun setCameraPosition(cameraPosition: CameraPosition) =
