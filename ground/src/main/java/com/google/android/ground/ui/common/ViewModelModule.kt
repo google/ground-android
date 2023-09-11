@@ -33,9 +33,9 @@ import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionLis
 import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListViewModel
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.home.mapcontainer.MapTypeViewModel
-import com.google.android.ground.ui.offlinebasemap.OfflineAreasViewModel
-import com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel
-import com.google.android.ground.ui.offlinebasemap.viewer.OfflineAreaViewerViewModel
+import com.google.android.ground.ui.offlineareas.OfflineAreasViewModel
+import com.google.android.ground.ui.offlineareas.selector.OfflineAreaSelectorViewModel
+import com.google.android.ground.ui.offlineareas.viewer.OfflineAreaViewerViewModel
 import com.google.android.ground.ui.signin.SignInViewModel
 import com.google.android.ground.ui.submissiondetails.SubmissionDetailsViewModel
 import com.google.android.ground.ui.surveyselector.SurveySelectorViewModel

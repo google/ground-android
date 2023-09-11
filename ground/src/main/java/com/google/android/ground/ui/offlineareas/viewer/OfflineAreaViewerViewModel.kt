@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.offlinebasemap.viewer
+package com.google.android.ground.ui.offlineareas.viewer
 
 import android.content.Context
 import androidx.lifecycle.LiveData

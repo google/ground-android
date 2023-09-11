@@ -149,7 +149,7 @@
   </navigation>
   <fragment
     android:id="@+id/offline_areas_fragment"
-    android:name="com.google.android.ground.ui.offlinebasemap.OfflineAreasFragment"
+    android:name="com.google.android.ground.ui.offlineareas.OfflineAreasFragment"
     android:label="@string/offline_map_imagery"
     tools:layout="@layout/offline_areas_frag">
     <action
@@ -164,7 +164,7 @@
   </fragment>
   <fragment
     android:id="@+id/offline_area_selector_fragment"
-    android:name="com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorFragment"
+    android:name="com.google.android.ground.ui.offlineareas.selector.OfflineAreaSelectorFragment"
     android:label="@string/offline_area_selector"
     tools:layout="@layout/offline_area_selector_frag">
     <action
@@ -173,7 +173,7 @@
   </fragment>
   <fragment
     android:id="@+id/offline_area_viewer_fragment"
-    android:name="com.google.android.ground.ui.offlinebasemap.viewer.OfflineAreaViewerFragment"
+    android:name="com.google.android.ground.ui.offlineareas.viewer.OfflineAreaViewerFragment"
     android:label="@string/offline_area_viewer_title"
     tools:layout="@layout/offline_area_viewer_frag">
     <argument
