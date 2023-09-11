@@ -16,11 +16,8 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import com.google.android.gms.maps.model.Tile
-import java.io.ByteArrayOutputStream
 
 /** Metadata and image data for a single tile. */
 class MogTile(val metadata: MogTileMetadata, val data: ByteArray) {
@@ -31,32 +28,15 @@ class MogTile(val metadata: MogTileMetadata, val data: ByteArray) {
       .toByteArray()
 
   fun toGmsTile(): Tile {
+    val noData = metadata.noDataValue
     val imageData =
-      if (metadata.noDataValue == null) buildJfifFile()
-      else maskNoDataValues(buildJfifFile(), metadata.noDataValue)
+      if (noData == null) buildJfifFile()
+      else maskNoDataValues(buildJfifFile(), Color.rgb(noData, noData, noData))
     return Tile(metadata.width, metadata.height, imageData)
   }
 
-  private fun maskNoDataValues(jfifData: ByteArray, noDataValue: Int): ByteArray {
-    val opts = BitmapFactory.Options()
-    opts.inMutable = true
-    val bitmap = BitmapFactory.decodeByteArray(jfifData, 0, jfifData.size, opts)
-    bitmap.setHasAlpha(true)
-    for (y in 0 until bitmap.height) {
-      for (x in 0 until bitmap.width) {
-        if (bitmap.getPixel(x, y) == Color.rgb(noDataValue, noDataValue, noDataValue)) {
-          bitmap.setPixel(x, y, Color.TRANSPARENT)
-        }
-      }
-    }
-    // Android doesn't implement encoders for uncompressed format, so we must compress the returned
-    // tile so that it can be later encoded by Maps SDK. Experimentally, decompressing JPG and
-    // compressing WEBP each tile adds on the order of 1ms to each tile which we can consider
-    // negligible.
-    val stream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.WEBP, 100, stream)
-    return stream.toByteArray()
-  }
+  private fun maskNoDataValues(jfifData: ByteArray, noDataColor: Int): ByteArray =
+    ImageEditor.setTransparentIf(jfifData) { bitmap, x, y -> bitmap.getPixel(x, y) == noDataColor }
 
   private fun buildJfifFile(): ByteArray =
     START_OF_IMAGE +

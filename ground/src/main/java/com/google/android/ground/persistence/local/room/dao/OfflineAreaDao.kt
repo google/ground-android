@@ -24,9 +24,8 @@ import io.reactivex.Maybe
 /** Provides read/write operations for writing [OfflineAreaEntity] to the local db. */
 @Dao
 interface OfflineAreaDao : BaseDao<OfflineAreaEntity> {
-  @Query("SELECT * FROM offline_base_map")
-  fun findAllOnceAndStream(): Flowable<List<OfflineAreaEntity>>
+  @Query("SELECT * FROM offline_area") fun findAllOnceAndStream(): Flowable<List<OfflineAreaEntity>>
 
-  @Query("SELECT * FROM offline_base_map WHERE id = :id")
+  @Query("SELECT * FROM offline_area WHERE id = :id")
   fun findById(id: String): Maybe<OfflineAreaEntity>
 }

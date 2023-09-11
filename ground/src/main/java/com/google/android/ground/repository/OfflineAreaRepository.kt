@@ -17,6 +17,7 @@ package com.google.android.ground.repository
 
 import com.google.android.ground.Config
 import com.google.android.ground.model.imagery.OfflineArea
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Cold
@@ -30,6 +31,7 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactive.asFlow
 
 /**
  * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
@@ -94,7 +96,29 @@ constructor(
   }
 
   // TODO(#1730): Generate local tiles path based on source base path.
-  fun getLocalTileSourcePath(): String = File(fileUtil.filesDir.path, "tiles").path
+  private fun getLocalTileSourcePath(): String = File(fileUtil.filesDir.path, "tiles").path
+
+  fun getOfflineTileSourcesFlow(): Flow<List<TileSource>> =
+    surveyRepository.activeSurveyFlow
+      // TODO(#1593): Use Room DAO's Flow once we figure out why it never emits a value.
+      .combine(getOfflineAreaBounds().asFlow()) { survey, bounds ->
+        applyBounds(survey?.tileSources, bounds)
+      }
+
+  private fun applyBounds(tileSources: List<TileSource>?, bounds: List<Bounds>): List<TileSource> =
+    tileSources?.mapNotNull { tileSource -> toOfflineTileSource(tileSource, bounds) } ?: listOf()
+
+  private fun toOfflineTileSource(tileSource: TileSource, clipBounds: List<Bounds>): TileSource? {
+    if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
+    return TileSource(
+      "file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg",
+      TileSource.Type.TILED_WEB_MAP,
+      clipBounds
+    )
+  }
+
+  private fun getOfflineAreaBounds(): Flowable<List<Bounds>> =
+    localOfflineAreaStore.offlineAreasOnceAndStream().map { list -> list.map { it.bounds } }
 
   /**
    * Uses the first tile source URL of the currently active survey and returns a [MogClient], or

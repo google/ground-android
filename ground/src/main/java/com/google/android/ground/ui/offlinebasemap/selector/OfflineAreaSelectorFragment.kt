@@ -65,5 +65,5 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
   override fun getMapViewModel(): BaseMapViewModel = viewModel
 
   override fun getMapConfig(): MapConfig =
-    super.getMapConfig().copy(showTileOverlays = false, overrideMapType = MapType.ROAD)
+    super.getMapConfig().copy(showOfflineTileOverlays = false, overrideMapType = MapType.ROAD)
 }
