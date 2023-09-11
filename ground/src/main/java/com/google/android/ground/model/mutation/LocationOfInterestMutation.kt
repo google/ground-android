@@ -31,5 +31,7 @@ data class LocationOfInterestMutation(
   val jobId: String = "",
   val geometry: Geometry? = null,
   val caption: String? = null,
-  val submissionCount: Int = 0
+  val submissionCount: Int = 0,
+  val ownerEmail: String? = null,
+  val isOpportunistic: Boolean = false
 ) : Mutation()

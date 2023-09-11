@@ -26,6 +26,7 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.MapConfig
 import com.google.android.ground.ui.map.Map
+import com.google.android.ground.ui.map.MapType
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -56,7 +57,6 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
     val binding = OfflineAreaSelectorFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
-    getAbstractActivity().setActionBar(binding.offlineAreaSelectorToolbar, true)
     return binding.root
   }
 
@@ -64,5 +64,6 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
 
-  override fun getMapConfig(): MapConfig = super.getMapConfig().copy(showTileOverlays = false)
+  override fun getMapConfig(): MapConfig =
+    super.getMapConfig().copy(showOfflineTileOverlays = false, overrideMapType = MapType.ROAD)
 }

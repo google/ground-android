@@ -95,7 +95,9 @@ constructor(
       geometry = geometry,
       job = job,
       created = auditInfo,
-      lastModified = auditInfo
+      lastModified = auditInfo,
+      ownerEmail = authManager.currentUser.email,
+      isOpportunistic = true
     )
   }
 
