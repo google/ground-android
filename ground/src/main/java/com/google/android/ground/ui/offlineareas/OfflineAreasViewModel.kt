@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.offlinebasemap
+package com.google.android.ground.ui.offlineareas
 
 import android.view.View
 import androidx.lifecycle.LiveData
@@ -36,14 +36,15 @@ internal constructor(
 ) : AbstractViewModel() {
 
   /**
-   * Returns the current list of downloaded offline basemaps available for viewing. If an unexpected
-   * error accessing the local store is encountered, emits an empty list, circumventing the error.
+   * Returns the current list of downloaded offline map imagery areas available for viewing. If an
+   * unexpected error accessing the local store is encountered, emits an empty list, circumventing
+   * the error.
    */
   val offlineAreas: LiveData<List<OfflineArea>>
 
   /**
-   * Returns the visibility of a "no area" message based on the current number of available offline
-   * basemaps.
+   * Returns the visibility of the "no area" message based on the current number of available
+   * offline areas.
    */
   val noAreasMessageVisibility: LiveData<Int>
 
@@ -58,7 +59,7 @@ internal constructor(
       offlineAreas.map { if (it.isEmpty()) View.VISIBLE else View.GONE }.toLiveData()
   }
 
-  /** Navigate to the offline area selector UI from the offline basemaps UI. */
+  /** Navigate to the area selector for offline map imagery. */
   fun showOfflineAreaSelector() {
     navigator.navigate(OfflineAreasFragmentDirections.showOfflineAreaSelector())
   }

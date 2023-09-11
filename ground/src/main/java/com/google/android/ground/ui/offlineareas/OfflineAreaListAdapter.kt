@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.offlinebasemap
+package com.google.android.ground.ui.offlineareas
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.ground.databinding.OfflineBaseMapListItemBinding
+import com.google.android.ground.databinding.OfflineAreasListItemBinding
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.ui.common.Navigator
 
@@ -30,7 +30,7 @@ internal class OfflineAreaListAdapter(private val navigator: Navigator) :
 
   class ViewHolder
   internal constructor(
-    var binding: OfflineBaseMapListItemBinding,
+    var binding: OfflineAreasListItemBinding,
     var areas: List<OfflineArea>,
     private val navigator: Navigator
   ) : RecyclerView.ViewHolder(binding.root), View.OnClickListener {
@@ -48,7 +48,7 @@ internal class OfflineAreaListAdapter(private val navigator: Navigator) :
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
     val offlineAreasListItemBinding =
-      OfflineBaseMapListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+      OfflineAreasListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
     return ViewHolder(offlineAreasListItemBinding, offlineAreas, navigator)
   }
 

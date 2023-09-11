@@ -76,11 +76,10 @@
   <string name="sign_out">Salir</string>
 
   <!-- Untranslated strings -->
-  <string name="offline_base_maps">Mapas base sin conexión</string>
   <string name="add_submission_toolbar_title">Agregar registro</string>
-  <string name="offline_base_map_selector">Seleccionar área para descargar</string>
-  <string name="offline_base_map_selector_prompt">Seleccione un mapa base para usarlo sin conexión</string>
-  <string name="offline_base_map_selector_download">Descargar</string>
+  <string name="offline_area_selector">Seleccionar área para descargar</string>
+  <string name="offline_area_selector_prompt">Seleccione un mapa base para usarlo sin conexión</string>
+  <string name="offline_area_selector_download">Descargar</string>
   <string name="photo_preview">Vista previa</string>
   <string name="starting">Iniciando</string>
   <string name="in_progress">En curso</string>
@@ -88,12 +87,12 @@
   <string name="completed">Completado</string>
   <string name="failed">Fallido</string>
   <string name="settings">Ajustes</string>
-  <string name="offline_base_map_viewer_title">Área del mapa base sin conexión</string>
-  <string name="offline_base_map_viewer_remove_button">Eliminar</string>
+  <string name="offline_area_viewer_title">Área del mapa base sin conexión</string>
+  <string name="offline_area_viewer_remove_button">Eliminar</string>
   <string name="unnamed_area">Área sin nombre</string>
   <string name="added_by">Añadido por %s</string>
   <!-- Label of button used enter the offline area selector. -->
-  <string name="offline_base_map_selector_select">Seleccionar y descargar</string>
+  <string name="offline_area_selector_select">Seleccionar y descargar</string>
   <string name="no_basemaps_downloaded">No se descargaron mapas base.</string>
   <string name="signing_in">Iniciando sesión</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->
