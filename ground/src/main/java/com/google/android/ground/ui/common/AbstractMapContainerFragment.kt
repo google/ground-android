@@ -76,7 +76,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   private fun applyMapConfig(map: Map) {
     val viewModel = getMapViewModel()
-
     val config = viewModel.mapConfig
 
     // Map type
@@ -87,7 +86,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     }
 
     // Tile overlays.
-    if (getMapConfig().showOfflineTileOverlays) {
+    if (config.showOfflineTileOverlays) {
       viewModel.offlineTileSources.observe(viewLifecycleOwner) {
         map.clearTileOverlays()
         it.forEach(map::addTileOverlay)

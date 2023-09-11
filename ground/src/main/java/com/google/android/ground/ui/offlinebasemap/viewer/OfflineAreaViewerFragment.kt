@@ -23,7 +23,6 @@ import com.google.android.ground.databinding.OfflineBaseMapViewerFragBinding
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.map.Map
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -53,10 +52,6 @@ class OfflineAreaViewerFragment @Inject constructor() : Hilt_OfflineAreaViewerFr
     binding.removeButton.setOnClickListener { onRemoveClick() }
     getAbstractActivity().setActionBar(binding.offlineAreaViewerToolbar, true)
     return binding.root
-  }
-
-  override fun onMapReady(map: Map) {
-    viewModel.remoteTileSources.forEach { map.addTileOverlay(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
