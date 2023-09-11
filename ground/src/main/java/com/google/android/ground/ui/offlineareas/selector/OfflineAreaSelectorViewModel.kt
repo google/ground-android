@@ -110,11 +110,6 @@ internal constructor(
     navigator.navigateUp()
   }
 
-  fun onMapReady(map: Map) {
-    remoteTileSources.forEach { map.addTileOverlay(it) }
-    disposeOnClear(cameraBoundUpdates.subscribe { viewport = it })
-  }
-
   override fun onMapDragged() {
     onStartEstimatingDownloadSize()
     super.onMapDragged()
