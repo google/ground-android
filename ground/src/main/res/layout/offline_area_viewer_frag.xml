@@ -39,7 +39,7 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:title="@string/offline_base_map_viewer_title" />
+      app:title="@string/offline_area_viewer_title" />
 
     <FrameLayout
       android:id="@+id/offline_area_viewer_map_frame"
@@ -90,7 +90,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:background="?attr/colorError"
-        android:text="@string/offline_base_map_viewer_remove_button"
+        android:text="@string/offline_area_viewer_remove_button"
         app:chipBackgroundColor="?attr/colorError"
         app:chipIcon="@android:drawable/ic_menu_delete"
         app:layout_constraintEnd_toEndOf="parent"

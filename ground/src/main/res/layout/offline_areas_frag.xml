@@ -39,7 +39,7 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:title="@string/offline_base_maps" />
+      app:title="@string/offline_map_imagery" />
 
     <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/offline_areas_list"
@@ -58,10 +58,10 @@
       android:layout_marginEnd="@dimen/chip_button_margin_right"
       android:layout_marginBottom="@dimen/map_btn_margin_bottom"
       android:clickable="true"
-      android:contentDescription="@string/offline_base_map_selector_prompt"
+      android:contentDescription="@string/offline_area_selector_prompt"
       android:focusable="true"
       android:onClick="@{() -> viewModel.showOfflineAreaSelector()}"
-      android:text="@string/offline_base_map_selector_select"
+      android:text="@string/offline_area_selector_select"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent" />
     <TextView
@@ -71,7 +71,7 @@
       android:layout_marginEnd="@dimen/chip_button_margin_right"
       android:layout_marginBottom="@dimen/map_btn_margin_bottom"
       android:clickable="false"
-      android:contentDescription="@string/offline_base_map_selector_prompt"
+      android:contentDescription="@string/offline_area_selector_prompt"
       android:focusable="true"
       android:onClick="@{() -> viewModel.showOfflineAreaSelector()}"
       android:text="@string/no_basemaps_downloaded"
