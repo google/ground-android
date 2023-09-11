@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.gps
+package com.google.android.ground.ui.datacollection.tasks.location
 
 import android.view.LayoutInflater
 import android.view.View
@@ -21,7 +21,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
-import com.google.android.ground.databinding.GpsTaskFragBinding
+import com.google.android.ground.databinding.CaptureLocationTaskFragBinding
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.datacollection.components.ButtonAction
@@ -32,16 +32,17 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint(AbstractTaskFragment::class)
-class GpsTaskFragment : Hilt_GpsTaskFragment<GpsTaskViewModel>() {
+class CaptureLocationTaskFragment :
+  Hilt_CaptureLocationTaskFragment<CaptureLocationTaskViewModel>() {
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
     TaskViewFactory.createWithCombinedHeader(
       inflater,
       R.drawable.outline_pin_drop,
-      R.string.capture_gps
+      R.string.capture_location
     )
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    val taskBinding = GpsTaskFragBinding.inflate(inflater)
+    val taskBinding = CaptureLocationTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
     taskBinding.viewModel = viewModel
     return taskBinding.root

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.gps
+package com.google.android.ground.ui.datacollection.tasks.location
 
 import android.Manifest
 import android.content.res.Resources
@@ -33,7 +33,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class GpsTaskViewModel
+class CaptureLocationTaskViewModel
 @Inject
 constructor(
   private val locationManager: LocationManager,
@@ -47,7 +47,7 @@ constructor(
   init {
     viewModelScope.launch {
       locationManager.locationUpdates
-        .map { it.toGpsLocation().displayText() }
+        .map { it.toTaskData().displayText() }
         .collect {
           val newDisplayText = it
           if (locationUpdates.value != newDisplayText) {
@@ -67,20 +67,20 @@ constructor(
     locationManager.disableLocationUpdates()
   }
 
-  data class GpsLocation(
+  data class TaskData(
     val coordinates: Coordinates,
     val altitude: Double?, // in metres
     val accuracy: Float? // in metres
   )
 
   companion object {
-    private fun Location.toGpsLocation(): GpsLocation {
+    private fun Location.toTaskData(): TaskData {
       val altitude = if (hasAltitude()) altitude else null
       val accuracy = if (hasAccuracy()) accuracy else null
-      return GpsLocation(Coordinates(latitude, longitude), altitude, accuracy)
+      return TaskData(Coordinates(latitude, longitude), altitude, accuracy)
     }
 
-    private fun GpsLocation.displayText(): String {
+    private fun TaskData.displayText(): String {
       val df = DecimalFormat("#.##")
       df.roundingMode = RoundingMode.DOWN
       return "Location: ${processCoordinates(coordinates)}\n" +

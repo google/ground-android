@@ -19,7 +19,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.ground.MainViewModel
 import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
-import com.google.android.ground.ui.datacollection.tasks.gps.GpsTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskViewModel
@@ -149,8 +149,8 @@ abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(GpsTaskViewModel::class)
-  abstract fun bindGpsTaskViewModel(viewModel: GpsTaskViewModel): ViewModel
+  @ViewModelKey(CaptureLocationTaskViewModel::class)
+  abstract fun bindGpsTaskViewModel(viewModel: CaptureLocationTaskViewModel): ViewModel
 
   @Binds
   @IntoMap
