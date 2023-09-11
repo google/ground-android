@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.offlinebasemap.selector
+package com.google.android.ground.ui.offlineareas.selector
 
 import android.app.AlertDialog
 import android.app.Dialog
