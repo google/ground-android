@@ -86,7 +86,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
     }
 
     lifecycleScope.launch {
-      mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel
+      mapContainerViewModel.loisInViewportAtVisibleZoomLevel
         .combine(mapContainerViewModel.suggestLoiJobs) { lois, jobs ->
           val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
           val jobCards = jobs.map { MapCardUiData.SuggestLoiCardUiData(it) }
