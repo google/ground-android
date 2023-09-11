@@ -108,7 +108,6 @@ internal constructor(
   }
 
   fun onMapReady(map: Map) {
-    map.mapType = MapType.TERRAIN
     remoteTileSources.forEach { map.addTileOverlay(it) }
     disposeOnClear(cameraBoundUpdates.subscribe { viewport = it })
   }
