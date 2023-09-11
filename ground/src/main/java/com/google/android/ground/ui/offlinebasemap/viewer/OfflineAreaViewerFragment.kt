@@ -19,7 +19,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.ground.databinding.OfflineBaseMapViewerFragBinding
+import com.google.android.ground.databinding.OfflineAreaViewerFragBinding
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
@@ -48,7 +48,7 @@ class OfflineAreaViewerFragment @Inject constructor() : Hilt_OfflineAreaViewerFr
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = OfflineBaseMapViewerFragBinding.inflate(inflater, container, false)
+    val binding = OfflineAreaViewerFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
     binding.removeButton.setOnClickListener { onRemoveClick() }

@@ -21,7 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.ground.MainActivity
-import com.google.android.ground.databinding.OfflineBaseMapsFragBinding
+import com.google.android.ground.databinding.OfflineAreasFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
@@ -53,7 +53,7 @@ class OfflineAreasFragment : Hilt_OfflineAreasFragment() {
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = OfflineBaseMapsFragBinding.inflate(inflater, container, false)
+    val binding = OfflineAreasFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
 
