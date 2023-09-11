@@ -15,12 +15,11 @@
  */
 package com.google.android.ground.ui.home.mapcontainer
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.coroutines.IoDispatcher
+import com.google.android.ground.model.Survey
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -37,20 +36,17 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
-import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
 import timber.log.Timber
 
@@ -78,20 +74,27 @@ internal constructor(
     ioDispatcher
   ) {
 
-  val mapLocationOfInterestFeatures: StateFlow<Set<Feature>>
+  private var _survey: Survey? = null
 
-  private var lastCameraPosition: CameraPosition? = null
+  private val _mapLoiFeatures: MutableStateFlow<Set<Feature>> = MutableStateFlow(setOf())
+  val mapLoiFeatures: StateFlow<Set<Feature>> =
+    _mapLoiFeatures.stateIn(viewModelScope, SharingStarted.Lazily, setOf())
 
   /* UI Clicks */
   private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
 
   /**
-   * List of [LocationOfInterest] for the active survey that are present within the map bounds and
+   * List of [LocationOfInterest] for the active survey that are present within the viewport and
    * zoom level is clustering threshold or higher.
    */
-  val loisWithinMapBoundsAtVisibleZoomLevel: LiveData<List<LocationOfInterest>>
+  private val _loisInViewport: MutableStateFlow<List<LocationOfInterest>> =
+    MutableStateFlow(listOf())
+  val loisInViewport: StateFlow<List<LocationOfInterest>> =
+    _loisInViewport.stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
-  val suggestLoiJobs: Flow<List<Job>>
+  private val _suggestLoiJobs: MutableStateFlow<List<Job>> = MutableStateFlow(listOf())
+  val suggestLoiJobs: StateFlow<List<Job>> =
+    _suggestLoiJobs.stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
@@ -99,43 +102,50 @@ internal constructor(
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     //  into the repository.
 
-    // LOIs that are persisted to the local and remote dbs.
-    mapLocationOfInterestFeatures =
-      surveyRepository.activeSurveyFlow
-        .transform { survey ->
-          if (survey == null) {
-            emit(setOf())
-          } else {
-            emitAll(locationOfInterestRepository.findLocationsOfInterestFeatures(survey))
-          }
-        }
-        .distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.Lazily, setOf())
+    viewModelScope.launch {
+      surveyRepository.activeSurveyFlow.collect {
+        _survey = it
+        refreshMapFeaturesAndCards(it)
+      }
+    }
+  }
 
-    loisWithinMapBoundsAtVisibleZoomLevel =
-      surveyRepository.activeSurveyFlowable
-        .switchMap { survey ->
-          cameraZoomUpdates.switchMap { zoomLevel ->
-            if (zoomLevel >= CLUSTERING_ZOOM_THRESHOLD && survey.isPresent)
-              locationOfInterestRepository.getWithinBoundsOnceAndStream(
-                survey.get(),
-                cameraBoundUpdates
-              )
-            else Flowable.just(listOf())
-          }
-        }
-        .toLiveData()
+  private suspend fun refreshMapFeaturesAndCards(survey: Survey?) {
+    updateMapFeatures(survey)
+    updateLoisAndJobs(survey, currentCameraPosition)
+  }
 
-    suggestLoiJobs =
-      surveyRepository.activeSurveyFlow
-        .combine(cameraZoomUpdates.asFlow()) { survey, zoomLevel ->
-          if (zoomLevel < CLUSTERING_ZOOM_THRESHOLD) {
-            listOf()
-          } else {
-            survey?.jobs?.filter { job -> job.suggestLoiTaskType != null }?.toList() ?: listOf()
-          }
-        }
-        .distinctUntilChanged()
+  private suspend fun updateLoisAndJobs(survey: Survey?, cameraPosition: CameraPosition?) {
+    updateMapLois(survey, cameraPosition)
+    updateSuggestLoiJobs(survey, cameraPosition)
+  }
+
+  private suspend fun updateMapFeatures(survey: Survey?) {
+    if (survey == null) {
+      _mapLoiFeatures.value = setOf()
+    } else {
+      // LOIs that are persisted to the local and remote dbs.
+      _mapLoiFeatures.emitAll(locationOfInterestRepository.findLocationsOfInterestFeatures(survey))
+    }
+  }
+
+  private suspend fun updateMapLois(survey: Survey?, cameraPosition: CameraPosition?) {
+    val bounds = cameraPosition?.bounds
+    if (bounds == null || survey == null || cameraPosition.isBelowClusteringZoomThreshold()) {
+      _loisInViewport.value = listOf()
+    } else {
+      _loisInViewport.emitAll(
+        locationOfInterestRepository.getWithinBoundsOnceAndStream(survey, bounds).asFlow()
+      )
+    }
+  }
+
+  private fun updateSuggestLoiJobs(survey: Survey?, cameraPosition: CameraPosition?) {
+    if (survey == null || cameraPosition.isBelowClusteringZoomThreshold()) {
+      _suggestLoiJobs.value = listOf()
+    } else {
+      _suggestLoiJobs.value = survey.jobs.filter { it.suggestLoiTaskType != null }.toList()
+    }
   }
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
@@ -143,7 +153,8 @@ internal constructor(
     Timber.d("Setting position to $newCameraPosition")
     onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
     mapStateRepository.setCameraPosition(newCameraPosition)
-    lastCameraPosition = newCameraPosition
+
+    viewModelScope.launch { updateLoisAndJobs(_survey, newCameraPosition) }
   }
 
   private fun onZoomChange(oldZoomLevel: Float?, newZoomLevel: Float?) {
@@ -170,4 +181,7 @@ internal constructor(
   }
 
   fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed
+
+  private fun CameraPosition?.isBelowClusteringZoomThreshold() =
+    this?.zoomLevel?.let { it < CLUSTERING_ZOOM_THRESHOLD } ?: true
 }

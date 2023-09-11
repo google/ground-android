@@ -19,7 +19,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
@@ -87,8 +86,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
     }
 
     lifecycleScope.launch {
-      mapContainerViewModel.loisWithinMapBoundsAtVisibleZoomLevel
-        .asFlow()
+      mapContainerViewModel.loisInViewport
         .combine(mapContainerViewModel.suggestLoiJobs) { lois, jobs ->
           val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
           val jobCards = jobs.map { MapCardUiData.SuggestLoiCardUiData(it) }
@@ -176,7 +174,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
   override fun onMapReady(map: Map) {
     // Observe events emitted by the ViewModel.
     viewLifecycleOwner.lifecycleScope.launch {
-      mapContainerViewModel.mapLocationOfInterestFeatures.collect { map.renderFeatures(it) }
+      mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
     }
 
     homeScreenViewModel.bottomSheetState.observe(this) { state: BottomSheetState ->
