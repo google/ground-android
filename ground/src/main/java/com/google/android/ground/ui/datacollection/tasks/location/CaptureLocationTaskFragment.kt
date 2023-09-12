@@ -18,7 +18,6 @@ package com.google.android.ground.ui.datacollection.tasks.location
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.databinding.CaptureLocationTaskFragBinding
@@ -53,7 +52,7 @@ class CaptureLocationTaskFragment :
     addUndoButton()
     addButton(ButtonAction.CAPTURE_LOCATION)
       .setOnClickListener {
-        Toast.makeText(requireContext(), "Captured", Toast.LENGTH_SHORT).show()
+        // TODO(#774): Persist to db
       }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNullOrEmpty()) }
     addButton(ButtonAction.CONTINUE)
