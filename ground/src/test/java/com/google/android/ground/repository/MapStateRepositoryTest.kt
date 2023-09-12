@@ -66,7 +66,7 @@ class MapStateRepositoryTest : BaseHiltTest() {
 
   @Test
   fun isOfflineImageryEnabled_default() = runWithTestDispatcher {
-    assertThat(mapStateRepository.isOfflineImageryEnabled).isFalse()
+    assertThat(mapStateRepository.isOfflineImageryEnabled).isTrue()
   }
 
   @Test
