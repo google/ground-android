@@ -85,7 +85,7 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
 
   /** Whether to overlay offline map imagery. */
   var isOfflineImageryEnabled: Boolean
-    get() = allowThreadDiskReads { preferences.getBoolean(OFFLINE_MAP_IMAGERY, false) }
+    get() = allowThreadDiskReads { preferences.getBoolean(OFFLINE_MAP_IMAGERY, true) }
     set(value) = allowThreadDiskReads {
       preferences.edit().putBoolean(OFFLINE_MAP_IMAGERY, value).apply()
       _offlineImageryEnabled.value = value
