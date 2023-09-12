@@ -24,7 +24,7 @@
     <import type="android.view.View" />
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorViewModel" />
+      type="com.google.android.ground.ui.offlineareas.selector.OfflineAreaSelectorViewModel" />
   </data>
 
   <FrameLayout
@@ -101,7 +101,7 @@
         app:layout_constraintTop_toBottomOf="@id/top_mask"
         app:layout_constraintBottom_toTopOf="@id/bottom_mask"
         app:layout_constraintLeft_toRightOf="@id/left_mask"
-        app:layout_constraintRight_toLeftOf="@id/right_mask"/>
+        app:layout_constraintRight_toLeftOf="@id/right_mask" />
 
       <FrameLayout
         android:id="@+id/bottom_mask"
@@ -113,7 +113,7 @@
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:background="@color/blackMapOverlay"
-          android:alpha="0.4"/>
+          android:alpha="0.4" />
 
         <TextView
           android:id="@+id/size_on_disk_text_view"
@@ -125,7 +125,7 @@
           android:textColor="@color/textOverMap"
           android:layout_marginHorizontal="64dp"
           android:visibility="@{viewModel.visibleBottomTextViewId == R.id.size_on_disk_text_view ? View.VISIBLE : View.GONE}"
-          android:text="@{@string/selected_offline_area_size(viewModel.sizeOnDisk)}"/>
+          android:text="@{@string/selected_offline_area_size(viewModel.sizeOnDisk)}" />
 
         <TextView
           android:id="@+id/area_too_large_text_view"
@@ -137,7 +137,7 @@
           android:textColor="@color/textOverMap"
           android:layout_marginHorizontal="64dp"
           android:visibility="@{viewModel.visibleBottomTextViewId == R.id.area_too_large_text_view ? View.VISIBLE : View.GONE}"
-          android:text="@string/selected_offline_area_too_large"/>
+          android:text="@string/selected_offline_area_too_large" />
       </FrameLayout>
 
       <LinearLayout
@@ -165,11 +165,13 @@
           android:layout_height="wrap_content"
           style="@style/ChipButton"
           android:id="@+id/download_button"
-          android:text="@string/offline_base_map_selector_download"
+          android:text="@string/offline_area_selector_download"
           android:layout_weight="0.5"
           android:layout_marginStart="8dp"
           android:layout_marginEnd="16dp"
           android:layout_marginTop="16dp"
+          android:enabled="@{viewModel.downloadButtonEnabled}"
+          android:clickable="@{viewModel.downloadButtonEnabled}"
           android:onClick="@{() -> viewModel.onDownloadClick()}" />
       </LinearLayout>
 

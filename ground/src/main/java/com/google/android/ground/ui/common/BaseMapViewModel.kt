@@ -37,15 +37,10 @@ import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
-import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.toCoordinates
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -55,7 +50,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.withIndex
@@ -76,12 +70,6 @@ constructor(
 ) : AbstractViewModel() {
 
   private val _cameraPosition = MutableStateFlow<CameraPosition?>(null)
-  private val cameraZoomSubject: @Hot Subject<Float> = PublishSubject.create()
-  val cameraZoomUpdates: Flowable<Float> = cameraZoomSubject.toFlowable(BackpressureStrategy.LATEST)
-
-  private val cameraBoundsSubject: @Hot Subject<Bounds> = PublishSubject.create()
-  val cameraBoundUpdates: Flowable<Bounds> =
-    cameraBoundsSubject.toFlowable(BackpressureStrategy.LATEST)
 
   val locationLock: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
@@ -114,27 +102,30 @@ constructor(
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-  val tileOverlays: LiveData<List<TileSource>>
-  val offlineImageryEnabled: Flow<Boolean> = mapStateRepository.offlineImageryFlow
+  val offlineTileSources: LiveData<List<TileSource>>
+
+  /** Configuration to enable/disable base map features. */
+  open val mapConfig: MapConfig = DEFAULT_MAP_CONFIG
+
+  /** Current camera position. */
+  val currentCameraPosition: CameraPosition? = _cameraPosition.value
+
+  /** Last camera position. */
+  var lastCameraPosition: CameraPosition? = null
+    private set
 
   init {
     mapType = mapStateRepository.mapTypeFlowable.toLiveData()
-    tileOverlays =
-      surveyRepository.activeSurveyFlow
-        .mapNotNull { it?.tileSources?.mapNotNull(this::toLocalTileSource) ?: listOf() }
+    offlineTileSources =
+      offlineAreaRepository
+        .getOfflineTileSourcesFlow()
+        .combine(mapStateRepository.offlineImageryEnabledFlow) { offlineSources, enabled ->
+          if (enabled) offlineSources else listOf()
+        }
         .asLiveData()
 
     viewModelScope.launch(ioDispatcher) { updateCameraPositionOnLocationChange() }
     viewModelScope.launch(ioDispatcher) { updateCameraPositionOnSurveyChange() }
-  }
-
-  // TODO(#1790): Maybe create a new data class object which is not of type TileSource.
-  private fun toLocalTileSource(tileSource: TileSource): TileSource? {
-    if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
-    return TileSource(
-      "file://${offlineAreaRepository.getLocalTileSourcePath()}/{z}/{x}/{y}.jpg",
-      TileSource.Type.TILED_WEB_MAP
-    )
   }
 
   private suspend fun toggleLocationLock() {
@@ -180,7 +171,7 @@ constructor(
   }
 
   /** Called when the map starts to move by the user. */
-  fun onMapDragged() {
+  open fun onMapDragged() {
     if (locationLock.value.getOrDefault(false)) {
       Timber.d("User dragged map. Disabling location lock")
       viewModelScope.launch { disableLocationLock() }
@@ -238,14 +229,12 @@ constructor(
   }
 
   private fun updatePosition(cameraPosition: CameraPosition) {
+    lastCameraPosition = _cameraPosition.value
     _cameraPosition.value = cameraPosition
   }
 
   /** Called when the map camera is moved. */
-  open fun onMapCameraMoved(newCameraPosition: CameraPosition) {
-    newCameraPosition.zoomLevel?.let { cameraZoomSubject.onNext(it) }
-    newCameraPosition.bounds?.let { cameraBoundsSubject.onNext(it) }
-  }
+  open fun onMapCameraMoved(newCameraPosition: CameraPosition) {}
 
   companion object {
     private val LOCATION_LOCK_ICON_TINT_ENABLED = R.color.md_theme_primary
@@ -254,5 +243,7 @@ constructor(
     // TODO(#1789): Consider adding another icon for representing "GPS disabled" state.
     private val LOCATION_LOCK_ICON_ENABLED = R.drawable.ic_gps_lock
     private val LOCATION_LOCK_ICON_DISABLED = R.drawable.ic_gps_lock_not_fixed
+
+    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showOfflineTileOverlays = true)
   }
 }

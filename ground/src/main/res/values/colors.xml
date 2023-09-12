@@ -22,7 +22,6 @@
   <color name="polyLineColor">#55ffffff</color>
   <color name="textOverMap">#FCFDF7</color>
   <color name="blackMapOverlay">#000000</color>
-  <color name="lightBackground">#EDEEE9</color>
 
   <!-- Updated Color palette -->
   <color name="md_theme_primary">#006E2C</color>

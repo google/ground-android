@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.offlinebasemap.selector
+package com.google.android.ground.ui.offlineareas.selector
 
 import android.content.res.Resources
 import androidx.lifecycle.MutableLiveData
@@ -29,11 +29,12 @@ import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.common.MapConfig
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.Map
+import com.google.android.ground.ui.map.MapType
 import javax.inject.Inject
 import kotlin.math.ceil
 import kotlinx.coroutines.CoroutineDispatcher
@@ -69,7 +70,7 @@ internal constructor(
     ioDispatcher
   ) {
 
-  val tileSources: List<TileSource>
+  val remoteTileSources: List<TileSource>
   private var viewport: Bounds? = null
   val isDownloadProgressVisible = MutableLiveData(false)
   val downloadProgressMax = MutableLiveData(0)
@@ -78,8 +79,11 @@ internal constructor(
   val visibleBottomTextViewId = MutableLiveData<Int>(null)
   val downloadButtonEnabled = MutableLiveData(false)
 
+  override val mapConfig: MapConfig
+    get() = super.mapConfig.copy(showOfflineTileOverlays = false, overrideMapType = MapType.ROAD)
+
   init {
-    tileSources = surveyRepository.activeSurvey!!.tileSources
+    remoteTileSources = surveyRepository.activeSurvey!!.tileSources
   }
 
   fun onDownloadClick() {
@@ -106,13 +110,14 @@ internal constructor(
     navigator.navigateUp()
   }
 
-  fun onMapReady(map: Map) {
-    tileSources.forEach { map.addTileOverlay(it) }
-    disposeOnClear(cameraBoundUpdates.subscribe { viewport = it })
+  override fun onMapDragged() {
+    onStartEstimatingDownloadSize()
+    super.onMapDragged()
   }
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     super.onMapCameraMoved(newCameraPosition)
+
     val bounds = newCameraPosition.bounds
     val zoomLevel = newCameraPosition.zoomLevel
     if (bounds == null || zoomLevel == null) return
@@ -121,16 +126,17 @@ internal constructor(
       return
     }
 
+    viewport = bounds
     viewModelScope.launch(ioDispatcher) { updateDownloadSize(bounds) }
   }
 
   private fun onStartEstimatingDownloadSize() {
+    downloadButtonEnabled.postValue(false)
     sizeOnDisk.postValue(resources.getString(R.string.offline_area_size_loading_symbol))
     visibleBottomTextViewId.postValue(R.id.size_on_disk_text_view)
   }
 
   private suspend fun updateDownloadSize(bounds: Bounds) {
-    onStartEstimatingDownloadSize()
     val sizeInMb = offlineAreaRepository.estimateSizeOnDisk(bounds) / (1024f * 1024f)
     if (sizeInMb > MAX_AREA_DOWNLOAD_SIZE_MB) {
       onLargeAreaSelected()

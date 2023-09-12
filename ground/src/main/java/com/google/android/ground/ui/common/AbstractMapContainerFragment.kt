@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.common
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -46,6 +45,8 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   private fun onMapAttached(map: Map) {
+    val viewModel = getMapViewModel()
+
     // Removes all markers, overlays, polylines and polygons from the map.
     map.clear()
 
@@ -56,50 +57,48 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     map.startDragEvents
       .onBackpressureLatest()
       .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe { getMapViewModel().onMapDragged() }
+      .subscribe { viewModel.onMapDragged() }
 
     lifecycleScope.launch {
       getMapViewModel().locationLock.collect { onLocationLockStateChange(it, map) }
     }
+    viewModel.mapType.observe(viewLifecycleOwner) { map.mapType = it }
     lifecycleScope.launch {
-      getMapViewModel().getCameraUpdates().collect { onCameraUpdateRequest(it, map) }
+      viewModel.getCameraUpdates().collect { onCameraUpdateRequest(it, map) }
     }
 
-    // Enable map controls
-    getMapViewModel().setLocationLockEnabled(true)
+    // Enable map controls.
+    viewModel.setLocationLockEnabled(true)
 
     applyMapConfig(map)
     onMapReady(map)
   }
 
   private fun applyMapConfig(map: Map) {
-    val config = getMapConfig()
+    val viewModel = getMapViewModel()
+    val config = viewModel.mapConfig
 
-    // Map Type
+    // Map type
     if (config.overrideMapType != null) {
       map.mapType = config.overrideMapType
     } else {
-      getMapViewModel().mapType.observe(viewLifecycleOwner) { map.mapType = it }
+      viewModel.mapType.observe(viewLifecycleOwner) { map.mapType = it }
     }
 
-    // Offline imagery
-    if (config.showTileOverlays) {
-      lifecycleScope.launch {
-        getMapViewModel().offlineImageryEnabled.collect { enabled ->
-          if (enabled) addTileOverlays() else map.clearTileOverlays()
-        }
+    // Tile overlays.
+    if (config.showOfflineTileOverlays) {
+      viewModel.offlineTileSources.observe(viewLifecycleOwner) {
+        map.clearTileOverlays()
+        it.forEach(map::addTileOverlay)
       }
     }
-  }
 
-  @SuppressLint("FragmentLiveDataObserve")
-  private fun addTileOverlays() {
-    // TODO(#1756): Clear tile overlays on change to stop accumulating them on map.
-
-    // TODO(#1782): Changing the owner to `viewLifecycleOwner` in observe() causes a crash in task
-    //  fragment and converting live data to flow results in clear tiles not working. Figure out a
-    //  better way to fix the IDE warning.
-    getMapViewModel().tileOverlays.observe(this) { it.forEach(map::addTileOverlay) }
+    // Map gestures
+    if (config.disableGestures) {
+      map.disableGestures()
+    } else {
+      map.enableGestures()
+    }
   }
 
   /** Opens a dialog for selecting a [MapType] for the basemap layer. */
@@ -150,10 +149,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     } else {
       error("Must have either target or bounds set")
     }
-
-    // Manually notify that the camera has moved as `map.cameraMovedEvents` only returns
-    // an event when the map is moved by the user (REASON_GESTURE).
-    onMapCameraMoved(newPosition)
   }
 
   /** Called when the map camera is moved by the user or due to current location/survey changes. */
@@ -162,17 +157,8 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   /** Called when the map is attached to the fragment. */
-  protected abstract fun onMapReady(map: Map)
+  protected open fun onMapReady(map: Map) {}
 
   /** Provides an implementation of [BaseMapViewModel]. */
   protected abstract fun getMapViewModel(): BaseMapViewModel
-
-  // TODO: Should this be moved to BaseMapViewModel?
-  /** Configuration to enable/disable base map features. */
-  protected open fun getMapConfig(): MapConfig = DEFAULT_MAP_CONFIG
-
-  companion object {
-    private val DEFAULT_MAP_CONFIG: MapConfig =
-      MapConfig(showTileOverlays = true, overrideMapType = null)
-  }
 }

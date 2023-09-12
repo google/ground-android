@@ -149,9 +149,9 @@
   </navigation>
   <fragment
     android:id="@+id/offline_areas_fragment"
-    android:name="com.google.android.ground.ui.offlinebasemap.OfflineAreasFragment"
-    android:label="@string/offline_base_maps"
-    tools:layout="@layout/offline_base_maps_frag">
+    android:name="com.google.android.ground.ui.offlineareas.OfflineAreasFragment"
+    android:label="@string/offline_map_imagery"
+    tools:layout="@layout/offline_areas_frag">
     <action
       android:id="@+id/showOfflineAreaSelector"
       app:destination="@id/offline_area_selector_fragment" />
@@ -164,18 +164,18 @@
   </fragment>
   <fragment
     android:id="@+id/offline_area_selector_fragment"
-    android:name="com.google.android.ground.ui.offlinebasemap.selector.OfflineAreaSelectorFragment"
-    android:label="@string/offline_base_map_selector"
-    tools:layout="@layout/offline_base_map_selector_frag">
+    android:name="com.google.android.ground.ui.offlineareas.selector.OfflineAreaSelectorFragment"
+    android:label="@string/offline_area_selector"
+    tools:layout="@layout/offline_area_selector_frag">
     <action
       android:id="@+id/backToOfflineAreas"
       app:destination="@id/offline_areas_fragment" />
   </fragment>
   <fragment
     android:id="@+id/offline_area_viewer_fragment"
-    android:name="com.google.android.ground.ui.offlinebasemap.viewer.OfflineAreaViewerFragment"
-    android:label="@string/offline_base_map_viewer_title"
-    tools:layout="@layout/offline_base_map_viewer_frag">
+    android:name="com.google.android.ground.ui.offlineareas.viewer.OfflineAreaViewerFragment"
+    android:label="@string/offline_area_viewer_title"
+    tools:layout="@layout/offline_area_viewer_frag">
     <argument
       android:name="offlineAreaId"
       app:argType="string" />

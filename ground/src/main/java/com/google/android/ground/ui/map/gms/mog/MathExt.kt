@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.imagery
+package com.google.android.ground.ui.map.gms.mog
 
-import com.google.android.ground.ui.map.Bounds
+import kotlin.math.abs
+import kotlin.math.cos
 
-/** Represents a single source of tiled map imagery. */
-data class TileSource(val url: String, val type: Type, val clipBounds: List<Bounds> = listOf()) {
-  // TODO(#1790): Consider creating specialized classes for each type of TileSource.
-  enum class Type {
-    TILED_WEB_MAP,
-    MOG_COLLECTION,
-    UNKNOWN,
-  }
-}
+/**
+ * Returns the value shifted left [n] bits when [n] is positive, or right [-n] bits when negative.
+ */
+fun Int.shiftLeft(n: Int) = if (n >= 0) this shl n else this shr abs(n)
+
+/** Returns the secant of angle `x` given in radians. */
+fun sec(x: Double) = 1 / cos(x)
+
+/** Converts degrees into radians. */
+fun Double.toRadians() = this * (Math.PI / 180)

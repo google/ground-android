@@ -13,34 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.offlinebasemap.viewer
+
+package com.google.android.ground.ui.offlineareas.selector
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.ground.databinding.OfflineBaseMapViewerFragBinding
-import com.google.android.ground.model.imagery.OfflineArea
+import com.google.android.ground.databinding.OfflineAreaSelectorFragBinding
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.common.MapConfig
+import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.map.Map
-import com.google.android.ground.ui.map.MapType
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-/** The fragment provides a UI for managing a single offline area on the user's device. */
+/** Map UI used to select areas for download and viewing offline. */
 @AndroidEntryPoint(AbstractMapContainerFragment::class)
-class OfflineAreaViewerFragment @Inject constructor() : Hilt_OfflineAreaViewerFragment() {
+class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
 
-  private lateinit var viewModel: OfflineAreaViewerViewModel
+  @Inject lateinit var popups: EphemeralPopups
+
+  private lateinit var viewModel: OfflineAreaSelectorViewModel
+
+  private var downloadProgressDialogFragment = DownloadProgressDialogFragment()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    val args = OfflineAreaViewerFragmentArgs.fromBundle(requireNotNull(arguments))
-    viewModel = getViewModel(OfflineAreaViewerViewModel::class.java)
-    viewModel.loadOfflineArea(args)
-    viewModel.offlineArea.observe(this) { offlineArea: OfflineArea -> panMap(offlineArea) }
+    viewModel = getViewModel(OfflineAreaSelectorViewModel::class.java)
+    viewModel.isDownloadProgressVisible.observe(this) {
+      downloadProgressDialogFragment.setVisibility(childFragmentManager, it)
+    }
   }
 
   override fun onCreateView(
@@ -49,29 +52,15 @@ class OfflineAreaViewerFragment @Inject constructor() : Hilt_OfflineAreaViewerFr
     savedInstanceState: Bundle?
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = OfflineBaseMapViewerFragBinding.inflate(inflater, container, false)
+    val binding = OfflineAreaSelectorFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
-    binding.removeButton.setOnClickListener { onRemoveClick() }
-    getAbstractActivity().setActionBar(binding.offlineAreaViewerToolbar, true)
     return binding.root
   }
 
   override fun onMapReady(map: Map) {
-    map.disableGestures()
+    viewModel.remoteTileSources.forEach { map.addTileOverlay(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
-
-  override fun getMapConfig(): MapConfig =
-    super.getMapConfig().copy(showTileOverlays = false, overrideMapType = MapType.ROAD)
-
-  private fun panMap(offlineArea: OfflineArea) {
-    map.viewport = offlineArea.bounds
-  }
-
-  /** Removes the area associated with this fragment from the user's device. */
-  private fun onRemoveClick() {
-    viewModel.removeArea()
-  }
 }

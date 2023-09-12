@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.offlinebasemap.viewer
+package com.google.android.ground.ui.offlineareas.viewer
 
 import android.content.Context
 import androidx.lifecycle.LiveData
@@ -30,6 +30,8 @@ import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.common.MapConfig
+import com.google.android.ground.ui.map.MapType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -78,6 +80,14 @@ constructor(
   @JvmField var areaName: LiveData<String>
 
   private var offlineAreaId: String? = null
+
+  override val mapConfig: MapConfig
+    get() =
+      super.mapConfig.copy(
+        showOfflineTileOverlays = false,
+        overrideMapType = MapType.ROAD,
+        disableGestures = true
+      )
 
   init {
     this.context = WeakReference(context)
