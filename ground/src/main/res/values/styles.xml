@@ -234,7 +234,7 @@
     <item name="android:layout_marginTop">@dimen/loi_card_item_margin</item>
   </style>
 
-  <style name="Widget.App.Button.Light" parent="Widget.Material3.Button">
+  <style name="Widget.App.Button.Inverse" parent="Widget.Material3.Button">
     <item name="android:backgroundTint">?colorPrimaryInverse</item>
     <item name="android:textColor">?attr/colorOnSecondaryContainer</item>
   </style>
