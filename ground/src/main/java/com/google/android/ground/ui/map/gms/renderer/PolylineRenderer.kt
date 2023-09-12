@@ -24,7 +24,7 @@ import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.gms.toLatLng
+import com.google.android.ground.ui.map.gms.toLatLngList
 import timber.log.Timber
 
 class PolylineRenderer(
@@ -51,18 +51,19 @@ class PolylineRenderer(
     Timber.d("Adding Polyline $feature")
 
     val options = PolylineOptions()
-    options.clickable(false)
-
-    val shellVertices = points.map { it.toLatLng() }
-    options.addAll(shellVertices)
-
-    val polyline: Polyline = map.addPolyline(options)
-    polyline.tag = feature.tag
-    polyline.startCap = customCap
-    polyline.endCap = customCap
-    polyline.width = strokeWidth
-    polyline.color = strokeColor
-    polyline.jointType = JointType.ROUND
+    with(options) {
+      clickable(false)
+      addAll(points.toLatLngList())
+    }
+    val polyline = map.addPolyline(options)
+    with(polyline) {
+      tag = feature.tag
+      startCap = customCap
+      endCap = customCap
+      width = strokeWidth
+      color = strokeColor
+      jointType = JointType.ROUND
+    }
 
     polylines.getOrPut(feature) { mutableListOf() }.add(polyline)
   }

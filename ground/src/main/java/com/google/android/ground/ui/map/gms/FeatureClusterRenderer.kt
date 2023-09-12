@@ -62,7 +62,10 @@ class FeatureClusterRenderer(
 
   /** Sets appropriate styling for clustered markers prior to rendering. */
   override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
-    markerOptions.icon(getMarkerIcon(item.isSelected(), item.style.color))
+    with(markerOptions) {
+      icon(getMarkerIcon(item.isSelected(), item.style.color))
+      zIndex(MARKER_Z)
+    }
   }
 
   override fun onClusterItemUpdated(item: FeatureClusterItem, marker: Marker) {
@@ -74,7 +77,7 @@ class FeatureClusterRenderer(
    * Creates the marker with a label indicating the number of jobs with submissions over the total
    * number of jobs in the cluster.
    */
-  private fun createMarker(cluster: Cluster<FeatureClusterItem>): BitmapDescriptor {
+  private fun createMarkerIcon(cluster: Cluster<FeatureClusterItem>): BitmapDescriptor {
     val totalWithData = cluster.items.count { it.feature.tag.flag }
     return markerIconFactory.getClusterIcon(
       markerColor,
@@ -89,12 +92,15 @@ class FeatureClusterRenderer(
   ) {
     super.onBeforeClusterRendered(cluster, markerOptions)
     Timber.d("MARKER_RENDER: onBeforeClusterRendered")
-    markerOptions.icon(createMarker(cluster))
+    with(markerOptions) {
+      icon(createMarkerIcon(cluster))
+      zIndex(CLUSTER_Z)
+    }
   }
 
   override fun onClusterUpdated(cluster: Cluster<FeatureClusterItem>, marker: Marker) {
     super.onClusterUpdated(cluster, marker)
-    marker.setIcon(createMarker(cluster))
+    marker.setIcon(createMarkerIcon(cluster))
   }
 
   /**
