@@ -139,7 +139,7 @@
   </style>
 
   <style name="ChipButton" parent="Widget.MaterialComponents.Chip.Action">
-    <item name="chipBackgroundColor">?attr/colorPrimary</item>
+    <item name="chipBackgroundColor">@color/color_states_primary_button</item>
     <item name="chipCornerRadius">@dimen/chip_button_corner_radius</item>
     <item name="chipStartPadding">@dimen/chip_button_padding</item>
     <item name="chipEndPadding">@dimen/chip_button_padding</item>

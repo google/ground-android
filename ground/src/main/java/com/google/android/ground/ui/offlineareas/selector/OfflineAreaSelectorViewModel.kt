@@ -110,8 +110,14 @@ internal constructor(
     navigator.navigateUp()
   }
 
+  override fun onMapDragged() {
+    onStartEstimatingDownloadSize()
+    super.onMapDragged()
+  }
+
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     super.onMapCameraMoved(newCameraPosition)
+
     val bounds = newCameraPosition.bounds
     val zoomLevel = newCameraPosition.zoomLevel
     if (bounds == null || zoomLevel == null) return
@@ -125,12 +131,12 @@ internal constructor(
   }
 
   private fun onStartEstimatingDownloadSize() {
+    downloadButtonEnabled.postValue(false)
     sizeOnDisk.postValue(resources.getString(R.string.offline_area_size_loading_symbol))
     visibleBottomTextViewId.postValue(R.id.size_on_disk_text_view)
   }
 
   private suspend fun updateDownloadSize(bounds: Bounds) {
-    onStartEstimatingDownloadSize()
     val sizeInMb = offlineAreaRepository.estimateSizeOnDisk(bounds) / (1024f * 1024f)
     if (sizeInMb > MAX_AREA_DOWNLOAD_SIZE_MB) {
       onLargeAreaSelected()
