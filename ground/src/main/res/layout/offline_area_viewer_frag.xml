@@ -83,15 +83,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-      <com.google.android.material.chip.Chip
+      <Button
         android:id="@+id/remove_button"
-        style="@style/ChipButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:background="?attr/colorError"
         android:text="@string/offline_area_viewer_remove_button"
-        app:chipBackgroundColor="?attr/colorError"
         app:chipIcon="@android:drawable/ic_menu_delete"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

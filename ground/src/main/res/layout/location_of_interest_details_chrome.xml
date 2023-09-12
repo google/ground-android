@@ -47,9 +47,9 @@
 
     </FrameLayout>
 
-    <com.google.android.material.chip.Chip
+    <Button
+      style="@style/Widget.Material3.Button.Icon"
       android:id="@+id/add_submission_btn"
-      style="@style/ChipButton"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_above="@id/bottom_sheet_bottom_inset_scrim"
@@ -59,7 +59,7 @@
       android:elevation="6dp"
       android:text="@string/add_submission_button_label"
       android:visibility="@{viewModel.isSubmissionButtonVisible ? View.VISIBLE : View.GONE}"
-      app:chipIcon="@drawable/ic_add"
+      app:icon="@drawable/ic_add"
       app:useCompatPadding="true" />
 
     <!-- Prevents locationOfInterest sheet UI from bleeding through to navigation buttons when expanded. -->
