@@ -377,7 +377,8 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   }
 
   private fun addTileOverlay(tileProvider: TileProvider) {
-    val tileOverlay = map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider).zIndex(TILE_OVERLAY_Z))
+    val tileOverlay =
+      map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider).zIndex(TILE_OVERLAY_Z))
     if (tileOverlay == null) {
       Timber.e("Unable to add tile overlay $tileProvider")
       return
