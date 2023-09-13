@@ -25,7 +25,6 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.persistence.remote.firebase.schema.GroundFirestore
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.ktx.Firebase
@@ -44,16 +43,18 @@ class FirestoreDataStore
 @Inject
 internal constructor(
   private val firebaseFunctions: FirebaseFunctions,
-  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  val db: GroundFirestore,
+  private val groundFirestoreProvider: GroundFirestoreProvider,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : RemoteDataStore {
 
+  private suspend fun db() = groundFirestoreProvider.get()
+
   override suspend fun loadSurvey(surveyId: String): Survey =
-    withContext(ioDispatcher) { db.surveys().survey(surveyId).get() }
+    withContext(ioDispatcher) { db().surveys().survey(surveyId).get() }
 
   override suspend fun loadSubmissions(locationOfInterest: LocationOfInterest): List<Submission> =
     withContext(ioDispatcher) {
-      db
+      db()
         .surveys()
         .survey(locationOfInterest.surveyId)
         .submissions()
@@ -61,13 +62,13 @@ internal constructor(
     }
 
   override suspend fun loadTermsOfService(): TermsOfService? =
-    withContext(ioDispatcher) { db.termsOfService().terms().get() }
+    withContext(ioDispatcher) { db().termsOfService().terms().get() }
 
   override suspend fun loadSurveySummaries(user: User): List<Survey> =
-    withContext(ioDispatcher) { db.surveys().getReadable(user) }
+    withContext(ioDispatcher) { db().surveys().getReadable(user) }
 
   override suspend fun loadLocationsOfInterest(survey: Survey) =
-    db.surveys().survey(survey.id).lois().locationsOfInterest(survey)
+    db().surveys().survey(survey.id).lois().locationsOfInterest(survey)
 
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {
     Timber.d("Subscribing to FCM topic $surveyId")
@@ -80,7 +81,7 @@ internal constructor(
   }
 
   override suspend fun applyMutations(mutations: List<Mutation>, user: User) {
-    val batch = db.batch()
+    val batch = db().batch()
     for (mutation in mutations) {
       when (mutation) {
         is LocationOfInterestMutation -> addLocationOfInterestMutationToBatch(mutation, user, batch)
@@ -90,12 +91,12 @@ internal constructor(
     batch.commit().await()
   }
 
-  private fun addLocationOfInterestMutationToBatch(
+  private suspend fun addLocationOfInterestMutationToBatch(
     mutation: LocationOfInterestMutation,
     user: User,
     batch: WriteBatch
   ) {
-    db
+    db()
       .surveys()
       .survey(mutation.surveyId)
       .lois()
@@ -103,12 +104,12 @@ internal constructor(
       .addMutationToBatch(mutation, user, batch)
   }
 
-  private fun addSubmissionMutationToBatch(
+  private suspend fun addSubmissionMutationToBatch(
     mutation: SubmissionMutation,
     user: User,
     batch: WriteBatch
   ) {
-    db
+    db()
       .surveys()
       .survey(mutation.surveyId)
       .submissions()

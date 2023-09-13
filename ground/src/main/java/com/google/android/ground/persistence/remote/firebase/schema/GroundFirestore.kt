@@ -17,12 +17,9 @@ package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.persistence.remote.firebase.base.FluentFirestore
 import com.google.firebase.firestore.FirebaseFirestore
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /** Object representation of Ground Firestore database. */
-@Singleton
-class GroundFirestore @Inject internal constructor(db: FirebaseFirestore) : FluentFirestore(db) {
+class GroundFirestore(db: FirebaseFirestore) : FluentFirestore(db) {
   fun surveys(): SurveysCollectionReference = SurveysCollectionReference(db().collection(SURVEYS))
 
   fun termsOfService(): TermsOfServiceCollectionReference =
