@@ -26,11 +26,13 @@ import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import io.reactivex.Flowable
 import java.util.*
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -123,12 +125,20 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   // TODO(#1373): Add tests for getLocationsOfInterest once new LOI sync implemented.
 
   @Test
+  fun testLoiWithinBounds_whenBoundsNotAvailable_returnsNothing() = runTest {
+    locationOfInterestRepository
+      .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.empty())
+      .test()
+      .assertNoValues()
+  }
+
+  @Test
   fun testLoiWithinBounds_whenOutOfBounds_returnsEmptyList() {
     val southwest = Coordinates(-60.0, -60.0)
     val northeast = Coordinates(-50.0, -50.0)
 
     locationOfInterestRepository
-      .getWithinBoundsOnceAndStream(TEST_SURVEY, Bounds(southwest, northeast))
+      .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(Bounds(southwest, northeast)))
       .test()
       .assertValues(listOf())
   }
@@ -139,7 +149,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     val northeast = Coordinates(-10.0, -10.0)
 
     locationOfInterestRepository
-      .getWithinBoundsOnceAndStream(TEST_SURVEY, Bounds(southwest, northeast))
+      .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(Bounds(southwest, northeast)))
       .test()
       .assertValues(listOf(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_1))
   }
@@ -150,7 +160,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     val northeast = Coordinates(20.0, 20.0)
 
     locationOfInterestRepository
-      .getWithinBoundsOnceAndStream(TEST_SURVEY, Bounds(southwest, northeast))
+      .getWithinBoundsOnceAndStream(TEST_SURVEY, Flowable.just(Bounds(southwest, northeast)))
       .test()
       .assertValues(
         listOf(

@@ -75,29 +75,21 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   private fun applyMapConfig(map: Map) {
-    val viewModel = getMapViewModel()
-    val config = viewModel.mapConfig
+    val config = getMapConfig()
 
-    // Map type
+    // Map Type
     if (config.overrideMapType != null) {
       map.mapType = config.overrideMapType
     } else {
-      viewModel.mapType.observe(viewLifecycleOwner) { map.mapType = it }
+      getMapViewModel().mapType.observe(viewLifecycleOwner) { map.mapType = it }
     }
 
     // Tile overlays.
-    if (config.showOfflineTileOverlays) {
-      viewModel.offlineTileSources.observe(viewLifecycleOwner) {
+    if (getMapConfig().showOfflineTileOverlays) {
+      getMapViewModel().offlineTileSources.observe(viewLifecycleOwner) {
         map.clearTileOverlays()
         it.forEach(map::addTileOverlay)
       }
-    }
-
-    // Map gestures
-    if (config.disableGestures) {
-      map.disableGestures()
-    } else {
-      map.enableGestures()
     }
   }
 
@@ -149,6 +141,10 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     } else {
       error("Must have either target or bounds set")
     }
+
+    // Manually notify that the camera has moved as `map.cameraMovedEvents` only returns
+    // an event when the map is moved by the user (REASON_GESTURE).
+    onMapCameraMoved(newPosition)
   }
 
   /** Called when the map camera is moved by the user or due to current location/survey changes. */
@@ -157,8 +153,17 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   /** Called when the map is attached to the fragment. */
-  protected open fun onMapReady(map: Map) {}
+  protected abstract fun onMapReady(map: Map)
 
   /** Provides an implementation of [BaseMapViewModel]. */
   protected abstract fun getMapViewModel(): BaseMapViewModel
+
+  // TODO: Should this be moved to BaseMapViewModel?
+  /** Configuration to enable/disable base map features. */
+  protected open fun getMapConfig(): MapConfig = DEFAULT_MAP_CONFIG
+
+  companion object {
+    private val DEFAULT_MAP_CONFIG: MapConfig =
+      MapConfig(showOfflineTileOverlays = true, overrideMapType = null)
+  }
 }
