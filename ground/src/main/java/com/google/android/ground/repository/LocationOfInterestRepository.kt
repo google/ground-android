@@ -165,9 +165,13 @@ constructor(
   /** Returns a flowable of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBoundsOnceAndStream(
     survey: Survey,
-    bounds: Bounds
+    cameraBoundUpdates: Flowable<Bounds>
   ): Flowable<List<LocationOfInterest>> =
-    getLocationsOfInterestOnceAndStream(survey)
-      .map { lois -> lois.filter { bounds.contains(it.geometry) } }
+    cameraBoundUpdates
+      .switchMap { bounds ->
+        getLocationsOfInterestOnceAndStream(survey).map { lois ->
+          lois.filter { bounds.contains(it.geometry) }
+        }
+      }
       .distinctUntilChanged()
 }
