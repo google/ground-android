@@ -17,7 +17,7 @@
 package com.google.android.ground.persistence.remote.firebase
 
 import com.google.android.ground.persistence.remote.firebase.schema.GroundFirestore
-import com.google.android.ground.util.AsyncProvider
+import com.google.android.ground.util.AsyncSingletonProvider
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,4 +25,4 @@ import javax.inject.Singleton
 class GroundFirestoreProvider
 @Inject
 constructor(firebaseFirestoreProvider: FirebaseFirestoreProvider) :
-  AsyncProvider<GroundFirestore>({ GroundFirestore(firebaseFirestoreProvider.get()) })
+  AsyncSingletonProvider<GroundFirestore>({ GroundFirestore(firebaseFirestoreProvider.get()) })

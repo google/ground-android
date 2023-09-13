@@ -19,10 +19,16 @@ package com.google.android.ground.util
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-open class AsyncProvider<T>(private val providerFunction: suspend () -> T) {
+/** Base class for providers for singletons which need to be initialized asynchronously. */
+open class AsyncSingletonProvider<T>(private val providerFunction: suspend () -> T) {
   private var instance: T? = null
   private val mutex = Mutex()
 
+  /**
+   * Returns the singleton instance of the provided class, calling the [providerFunction] on the
+   * first call to construct and initialize the object. Thread-safe; concurrent callers will block
+   * until the singleton is created and returned.
+   */
   suspend fun get(): T =
     mutex.withLock {
       if (instance == null) {

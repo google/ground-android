@@ -17,7 +17,7 @@
 package com.google.android.ground.persistence.remote.firebase
 
 import com.google.android.ground.Config
-import com.google.android.ground.util.AsyncProvider
+import com.google.android.ground.util.AsyncSingletonProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import javax.inject.Inject
@@ -25,7 +25,7 @@ import javax.inject.Singleton
 
 @Singleton
 class FirebaseFirestoreProvider @Inject constructor(settings: FirebaseFirestoreSettings) :
-  AsyncProvider<FirebaseFirestore>({
+  AsyncSingletonProvider<FirebaseFirestore>({
     FirebaseFirestore.getInstance().also {
       it.firestoreSettings = settings
       FirebaseFirestore.setLoggingEnabled(Config.FIRESTORE_LOGGING_ENABLED)
