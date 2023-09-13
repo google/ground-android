@@ -60,7 +60,9 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
     return binding.root
   }
 
-  override fun onMapReady(map: Map) = viewModel.onMapReady(map)
+  override fun onMapReady(map: Map) {
+    viewModel.remoteTileSources.forEach { map.addTileOverlay(it) }
+  }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
 
