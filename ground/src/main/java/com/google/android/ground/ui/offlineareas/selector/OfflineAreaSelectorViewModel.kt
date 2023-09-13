@@ -33,7 +33,6 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.Map
 import javax.inject.Inject
 import kotlin.math.ceil
 import kotlinx.coroutines.CoroutineDispatcher
