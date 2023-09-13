@@ -23,26 +23,34 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.ground.R
+import com.google.android.ground.coroutines.ApplicationScope
+import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.User
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.ActivityResult
 import com.google.android.ground.system.ActivityStreams
 import com.google.firebase.auth.*
-import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.asFlow
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 private val SIGN_IN_REQUEST_CODE = AuthenticationManager::class.java.hashCode() and 0xffff
 
 class GoogleAuthenticationManager
 @Inject
-constructor(resources: Resources, private val activityStreams: ActivityStreams) :
-  AuthenticationManager {
+constructor(
+  resources: Resources,
+  private val activityStreams: ActivityStreams,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+  @ApplicationScope private val externalScope: CoroutineScope
+) : AuthenticationManager {
 
-  private val activityResultsSubscription: Disposable
-  private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
   private val googleSignInOptions: GoogleSignInOptions
 
   init {
@@ -53,11 +61,14 @@ constructor(resources: Resources, private val activityStreams: ActivityStreams) 
         .requestProfile()
         .build()
 
-    // TODO: Dispose the subscription when object is destroyed
-    activityResultsSubscription =
-      activityStreams.getActivityResults(SIGN_IN_REQUEST_CODE).subscribe { onActivityResult(it) }
+    externalScope.launch {
+      activityStreams.getActivityResults(SIGN_IN_REQUEST_CODE).asFlow().collect {
+        onActivityResult(it)
+      }
+    }
   }
 
+  private suspend fun getFirebaseAuth() = withContext(ioDispatcher) { FirebaseAuth.getInstance() }
   override val signInState: @Hot(replays = true) Subject<SignInState> = BehaviorSubject.create()
 
   /**
@@ -72,9 +83,11 @@ constructor(resources: Resources, private val activityStreams: ActivityStreams) 
         .blockingFirst() // TODO: Should this be blocking?
 
   override fun init() {
-    signInState.onNext(
-      getFirebaseUser()?.let { SignInState.signedIn(it) } ?: SignInState.signedOut()
-    )
+    externalScope.launch {
+      signInState.onNext(
+        getFirebaseUser()?.let { SignInState.signedIn(it) } ?: SignInState.signedOut()
+      )
+    }
   }
 
   override fun signIn() {
@@ -86,16 +99,18 @@ constructor(resources: Resources, private val activityStreams: ActivityStreams) 
   }
 
   override fun signOut() {
-    firebaseAuth.signOut()
-    signInState.onNext(SignInState.signedOut())
-    activityStreams.withActivity { getGoogleSignInClient(it).signOut() }
+    externalScope.launch {
+      getFirebaseAuth().signOut()
+      signInState.onNext(SignInState.signedOut())
+      activityStreams.withActivity { getGoogleSignInClient(it).signOut() }
+    }
   }
 
   private fun getGoogleSignInClient(activity: Activity): GoogleSignInClient =
     // TODO: Use app context instead of activity?
     GoogleSignIn.getClient(activity, googleSignInOptions)
 
-  private fun onActivityResult(activityResult: ActivityResult) {
+  private suspend fun onActivityResult(activityResult: ActivityResult) {
     // The Task returned from getSignedInAccountFromIntent is always completed, so no need to
     // attach a listener.
     try {
@@ -107,8 +122,8 @@ constructor(resources: Resources, private val activityStreams: ActivityStreams) 
     }
   }
 
-  private fun onGoogleSignIn(googleAccount: GoogleSignInAccount) =
-    firebaseAuth
+  private suspend fun onGoogleSignIn(googleAccount: GoogleSignInAccount) =
+    getFirebaseAuth()
       .signInWithCredential(getFirebaseAuthCredential(googleAccount))
       .addOnSuccessListener { authResult: AuthResult -> onFirebaseAuthSuccess(authResult) }
       .addOnFailureListener { signInState.onNext(SignInState.error(it)) }
@@ -121,7 +136,7 @@ constructor(resources: Resources, private val activityStreams: ActivityStreams) 
   private fun getFirebaseAuthCredential(googleAccount: GoogleSignInAccount): AuthCredential =
     GoogleAuthProvider.getCredential(googleAccount.idToken, null)
 
-  private fun getFirebaseUser(): User? = firebaseAuth.currentUser?.toUser()
+  private suspend fun getFirebaseUser(): User? = getFirebaseAuth().currentUser?.toUser()
 
   private fun FirebaseUser.toUser(): User =
     User(uid, email.orEmpty(), displayName.orEmpty(), photoUrl.toString())
