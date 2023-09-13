@@ -66,6 +66,10 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import timber.log.Timber
 
+const val TILE_OVERLAY_Z = 0f
+const val POLYGON_Z = 1f
+const val CLUSTER_Z = 2f
+const val MARKER_Z = 3f
 /**
  * Customization of Google Maps API Fragment that automatically adjusts the Google watermark based
  * on window insets.
@@ -373,7 +377,8 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
   }
 
   private fun addTileOverlay(tileProvider: TileProvider) {
-    val tileOverlay = map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider))
+    val tileOverlay =
+      map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider).zIndex(TILE_OVERLAY_Z))
     if (tileOverlay == null) {
       Timber.e("Unable to add tile overlay $tileProvider")
       return

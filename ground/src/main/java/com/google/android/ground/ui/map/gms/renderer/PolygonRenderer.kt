@@ -24,7 +24,9 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
+import com.google.android.ground.ui.map.gms.POLYGON_Z
 import com.google.android.ground.ui.map.gms.toLatLng
+import com.google.android.ground.ui.map.gms.toLatLngList
 import timber.log.Timber
 
 class PolygonRenderer(
@@ -51,21 +53,22 @@ class PolygonRenderer(
     Timber.d("Adding polygon $feature")
 
     val options = PolygonOptions()
-    options.clickable(false)
+    with(options) {
+      clickable(false)
+      addAll(polygon.getShellCoordinates().map { it.toLatLng() })
+    }
 
-    val shellVertices = polygon.getShellCoordinates().map { it.toLatLng() }
-    options.addAll(shellVertices)
-
-    val holes = polygon.holes.map { hole -> hole.coordinates.map { it.toLatLng() } }
-    holes.forEach { options.addHole(it) }
+    polygon.holes.forEach { options.addHole(it.coordinates.toLatLngList()) }
 
     val mapsPolygon = map.addPolygon(options)
-    mapsPolygon.tag = Pair(feature.tag.id, LocationOfInterest::javaClass)
-    mapsPolygon.strokeWidth = strokeWidth
-    mapsPolygon.fillColor = fillColor
-    mapsPolygon.strokeColor = strokeColor
-    mapsPolygon.strokeJointType = JointType.ROUND
-
+    with(mapsPolygon) {
+      tag = Pair(feature.tag.id, LocationOfInterest::javaClass)
+      strokeWidth = strokeWidth
+      fillColor = fillColor
+      strokeColor = strokeColor
+      strokeJointType = JointType.ROUND
+      zIndex = POLYGON_Z
+    }
     polygons.getOrPut(feature) { mutableListOf() }.add(mapsPolygon)
   }
 

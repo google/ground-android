@@ -35,4 +35,6 @@ fun LatLng.toCoordinates(): Coordinates = Coordinates(latitude, longitude)
 
 fun Coordinates.toLatLng(): LatLng = LatLng(lat, lng)
 
+fun List<Coordinates>.toLatLngList(): List<LatLng> = map { it.toLatLng() }
+
 fun Location.toCoordinates(): Coordinates = Coordinates(latitude, longitude)
