@@ -18,8 +18,8 @@ package com.google.android.ground.ui.datacollection.tasks.location
 import android.Manifest
 import android.content.res.Resources
 import android.location.Location
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.system.FINE_LOCATION_UPDATES_REQUEST
 import com.google.android.ground.system.LocationManager
@@ -30,8 +30,8 @@ import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.p
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import javax.inject.Inject
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
 class CaptureLocationTaskViewModel
 @Inject
@@ -42,20 +42,11 @@ constructor(
   resources: Resources
 ) : AbstractTaskViewModel(resources) {
 
-  val locationUpdates: MutableLiveData<String?> = MutableLiveData(null)
-
-  init {
-    viewModelScope.launch {
-      locationManager.locationUpdates
-        .map { it.toTaskData().displayText() }
-        .collect {
-          val newDisplayText = it
-          if (locationUpdates.value != newDisplayText) {
-            locationUpdates.value = newDisplayText
-          }
-        }
-    }
-  }
+  val locationUpdates: LiveData<String> =
+    locationManager.locationUpdates
+      .map { it.toTaskData().displayText() }
+      .distinctUntilChanged()
+      .asLiveData()
 
   suspend fun enableLocationUpdates() {
     permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
