@@ -29,10 +29,12 @@ import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.common.MapConfig
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.MapType
 import javax.inject.Inject
 import kotlin.math.ceil
 import kotlinx.coroutines.CoroutineDispatcher
@@ -76,6 +78,9 @@ internal constructor(
   val sizeOnDisk = MutableLiveData<String>(null)
   val visibleBottomTextViewId = MutableLiveData<Int>(null)
   val downloadButtonEnabled = MutableLiveData(false)
+
+  override val mapConfig: MapConfig
+    get() = super.mapConfig.copy(showOfflineTileOverlays = false, overrideMapType = MapType.ROAD)
 
   init {
     remoteTileSources = surveyRepository.activeSurvey!!.tileSources
@@ -121,6 +126,7 @@ internal constructor(
       return
     }
 
+    viewport = bounds
     viewModelScope.launch(ioDispatcher) { updateDownloadSize(bounds) }
   }
 
