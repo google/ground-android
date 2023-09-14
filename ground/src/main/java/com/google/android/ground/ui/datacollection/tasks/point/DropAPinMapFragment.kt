@@ -31,7 +31,7 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.components.TaskHeaderPopupView
 import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinates
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.Map
+import com.google.android.ground.ui.map.MapView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -99,7 +99,7 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
     }
   }
 
-  override fun onMapReady(map: Map) {
+  override fun onMapReady(map: MapView) {
     viewModel.features.observe(this) { map.renderFeatures(it) }
   }
 
@@ -111,7 +111,7 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
   }
 
   companion object {
-    fun newInstance(viewModel: DropAPinTaskViewModel, map: Map) =
+    fun newInstance(viewModel: DropAPinTaskViewModel, map: MapView) =
       DropAPinMapFragment(viewModel).apply { this.map = map }
   }
 }

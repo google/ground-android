@@ -27,8 +27,8 @@ import io.reactivex.Flowable
 import java8.util.function.Consumer
 import kotlinx.coroutines.flow.SharedFlow
 
-/** Interface for a Fragment that renders a map view. */
-interface Map {
+/** Generalization of a map view. */
+interface MapView {
   /** A list of map types supported by the map implementation. */
   val supportedMapTypes: List<MapType>
 
@@ -59,11 +59,11 @@ interface Map {
    */
   val cameraMovedEvents: @Hot Flowable<CameraPosition>
 
-  /** Adds the [Map] to a fragment. */
+  /** Adds the [MapView] to a fragment. */
   fun attachToFragment(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
-    onMapReadyCallback: Consumer<Map>
+    onMapReadyCallback: Consumer<MapView>
   )
 
   /** Enables map gestures like pan and zoom. */

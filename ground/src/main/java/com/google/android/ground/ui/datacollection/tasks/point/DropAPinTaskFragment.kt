@@ -27,7 +27,7 @@ import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.ground.ui.map.Map
+import com.google.android.ground.ui.map.MapView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -35,7 +35,7 @@ import javax.inject.Inject
 class DropAPinTaskFragment : Hilt_DropAPinTaskFragment<DropAPinTaskViewModel>() {
 
   @Inject lateinit var markerIconFactory: MarkerIconFactory
-  @Inject lateinit var map: Map
+  @Inject lateinit var map: MapView
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
     TaskViewFactory.createWithCombinedHeader(

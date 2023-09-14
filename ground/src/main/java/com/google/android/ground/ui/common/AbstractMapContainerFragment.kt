@@ -26,17 +26,17 @@ import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.Map
+import com.google.android.ground.ui.map.MapView
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import kotlin.math.max
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-/** Injects a [Map] in the container with id "map" and provides shared map functionality. */
+/** Injects a [MapView] in the container with id "map" and provides shared map functionality. */
 abstract class AbstractMapContainerFragment : AbstractFragment() {
 
-  @Inject lateinit var map: Map
+  @Inject lateinit var map: MapView
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var geocodingManager: GeocodingManager
 
@@ -45,7 +45,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     map.attachToFragment(this, R.id.map) { onMapAttached(it) }
   }
 
-  private fun onMapAttached(map: Map) {
+  private fun onMapAttached(map: MapView) {
     val viewModel = getMapViewModel()
 
     // Removes all markers, overlays, polylines and polygons from the map.
@@ -76,7 +76,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     onMapReady(map)
   }
 
-  private fun applyMapConfig(map: Map) {
+  private fun applyMapConfig(map: MapView) {
     val viewModel = getMapViewModel()
     val config = viewModel.mapConfig
 
@@ -109,7 +109,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     navigator.navigate(MapTypeDialogFragmentDirections.showMapTypeDialogFragment(types))
   }
 
-  private fun onLocationLockStateChange(result: Result<Boolean>, map: Map) {
+  private fun onLocationLockStateChange(result: Result<Boolean>, map: MapView) {
     result.fold(
       onSuccess = {
         Timber.d("Location lock: $it")
@@ -131,7 +131,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     Toast.makeText(context, messageId, Toast.LENGTH_LONG).show()
   }
 
-  private fun onCameraUpdateRequest(newPosition: CameraPosition, map: Map) {
+  private fun onCameraUpdateRequest(newPosition: CameraPosition, map: MapView) {
     Timber.v("Update camera: %s", newPosition)
     val bounds = newPosition.bounds
     val target = newPosition.target
@@ -159,7 +159,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   /** Called when the map is attached to the fragment. */
-  protected open fun onMapReady(map: Map) {}
+  protected open fun onMapReady(map: MapView) {}
 
   /** Provides an implementation of [BaseMapViewModel]. */
   protected abstract fun getMapViewModel(): BaseMapViewModel
