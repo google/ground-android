@@ -111,7 +111,7 @@ internal constructor(
 
     loisInViewport =
       activeSurvey
-        .combine(isZoomedInFlow) { a, b -> Pair(a, b) }
+        .combine(isZoomedInFlow) { survey, isZoomedIn -> Pair(survey, isZoomedIn) }
         .flatMapLatest { (survey, isZoomedIn) ->
           val bounds = currentCameraPosition.value?.bounds
           if (bounds == null || survey == null || !isZoomedIn) flowOf(listOf())
@@ -120,7 +120,7 @@ internal constructor(
 
     suggestLoiJobs =
       activeSurvey
-        .combine(isZoomedInFlow) { a, b -> Pair(a, b) }
+        .combine(isZoomedInFlow) { survey, isZoomedIn -> Pair(survey, isZoomedIn) }
         .flatMapLatest { (survey, isZoomedIn) ->
           flowOf(
             if (survey == null || !isZoomedIn) listOf()
