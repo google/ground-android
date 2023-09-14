@@ -21,6 +21,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.ground.Config.DEFAULT_LOI_ZOOM_LEVEL
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.IoDispatcher
@@ -140,11 +141,20 @@ constructor(
         enableLocationLock()
 
         locationManager.requestLocationUpdates()
-      } catch (e: PermissionDeniedException) {
-        locationLock.value = Result.failure(e)
-        locationManager.disableLocationUpdates()
+      } catch (e: Exception) {
+        when (e) {
+          is PermissionDeniedException,
+          is ResolvableApiException -> handleRequestLocationUpdateFailed(e)
+          else -> throw e
+        }
       }
     }
+  }
+
+  private suspend fun handleRequestLocationUpdateFailed(e: Exception) {
+    Timber.e(e)
+    locationLock.value = Result.failure(e)
+    locationManager.disableLocationUpdates()
   }
 
   private fun enableLocationLock() = onLockStateChanged(true)
