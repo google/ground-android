@@ -18,8 +18,4 @@ package com.google.android.ground.ui.common
 import com.google.android.ground.ui.map.MapType
 
 /** Configuration to apply on the rendered base map. */
-data class MapConfig(
-  val showOfflineTileOverlays: Boolean,
-  val overrideMapType: MapType? = null,
-  val disableGestures: Boolean = false
-)
+data class MapConfig(val showOfflineTileOverlays: Boolean, val overrideMapType: MapType?)
