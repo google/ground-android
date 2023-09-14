@@ -317,14 +317,16 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapView {
   }
 
   private fun onCameraIdle() {
-    clusterRenderer.zoom = map.cameraPosition.zoom
+    val cameraPosition = map.cameraPosition
+    val projection = map.projection
+    clusterRenderer.zoom = cameraPosition.zoom
     clusterManager.onCameraIdle()
     cameraMovedEvents.tryEmit(
       CameraPosition(
-        map.cameraPosition.target.toCoordinates(),
-        map.cameraPosition.zoom,
+        cameraPosition.target.toCoordinates(),
+        cameraPosition.zoom,
         false,
-        map.projection.visibleRegion.latLngBounds.toModelObject()
+        projection.visibleRegion.latLngBounds.toModelObject()
       )
     )
   }
