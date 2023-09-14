@@ -130,8 +130,6 @@ constructor(
       .addOnFailureListener { signInState.onNext(SignInState.error(it)) }
 
   private fun onFirebaseAuthSuccess(authResult: AuthResult) =
-    // TODO: Store/update user profile in Firestore.
-    // TODO: Store/update user profile and image locally.
     signInState.onNext(SignInState.signedIn(authResult.user!!.toUser()))
 
   private fun getFirebaseAuthCredential(googleAccount: GoogleSignInAccount): AuthCredential =
