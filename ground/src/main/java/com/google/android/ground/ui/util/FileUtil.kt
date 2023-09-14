@@ -16,12 +16,21 @@
 package com.google.android.ground.ui.util
 
 import android.content.Context
+import com.google.android.ground.coroutines.IoDispatcher
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 
-class FileUtil @Inject constructor(@ApplicationContext private val context: Context) {
-  val filesDir = context.filesDir
+class FileUtil
+@Inject
+constructor(
+  @ApplicationContext private val context: Context,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+) {
+
+  suspend fun getFilesDir(): File = withContext(ioDispatcher) { context.filesDir }
 
   /**
    * Get a file by name relative to the app's file directory
