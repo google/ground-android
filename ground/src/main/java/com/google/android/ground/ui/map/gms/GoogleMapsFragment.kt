@@ -228,32 +228,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     return true
   }
 
-  // Handle taps on ambiguous features.
-  private fun handleAmbiguity(latLng: LatLng) {
-    val candidates = mutableListOf<Feature>()
-    val processed = ArrayList<String>()
-
-    for ((feature, value) in polygonRenderer.getPolygonsWithLoi()) {
-      val loiId = feature.tag.id
-
-      if (processed.contains(loiId)) {
-        continue
-      }
-
-      if (value.any { PolyUtil.containsLocation(latLng, it.points, false) }) {
-        candidates.add(feature)
-      }
-
-      processed.add(loiId)
-    }
-
-    val result = candidates.toPersistentList()
-
-    if (!result.isEmpty()) {
-      locationOfInterestInteractionSubject.onNext(result)
-    }
-  }
-
   override fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double {
     val projection = map.projection
     val loc1 = projection.toScreenLocation(coordinates1.toGoogleMapsObject())
@@ -287,7 +261,26 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     return checkNotNull(customCap)
   }
 
-  private fun onMapClick(latLng: LatLng) = handleAmbiguity(latLng)
+  private fun onMapClick(latLng: LatLng) {
+    val clickTargets = mutableListOf<Feature>()
+    val processed = ArrayList<String>()
+    for ((feature, value) in polygonRenderer.getPolygonsWithLoi()) {
+      val loiId = feature.tag.id
+
+      if (processed.contains(loiId)) {
+        continue
+      }
+
+      if (value.any { PolyUtil.containsLocation(latLng, it.points, false) }) {
+        clickTargets.add(feature)
+      }
+
+      processed.add(loiId)
+    }
+    if (clickTargets.isNotEmpty()) {
+      locationOfInterestInteractionSubject.onNext(clickTargets.toPersistentList())
+    }
+  }
 
   @SuppressLint("MissingPermission")
   override fun enableCurrentLocationIndicator() {

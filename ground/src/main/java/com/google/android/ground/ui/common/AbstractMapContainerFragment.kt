@@ -27,6 +27,7 @@ import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Map
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import kotlin.math.max
 import kotlinx.coroutines.launch
@@ -52,6 +53,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
     map.cameraMovedEvents
       .onBackpressureLatest()
+      .subscribeOn(Schedulers.computation())
       .`as`(RxAutoDispose.disposeOnDestroy(this))
       .subscribe { onMapCameraMoved(it) }
     map.startDragEvents
