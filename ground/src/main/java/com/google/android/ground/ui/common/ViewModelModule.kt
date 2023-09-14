@@ -150,7 +150,7 @@ abstract class ViewModelModule {
   @Binds
   @IntoMap
   @ViewModelKey(CaptureLocationTaskViewModel::class)
-  abstract fun bindGpsTaskViewModel(viewModel: CaptureLocationTaskViewModel): ViewModel
+  abstract fun bindCaptureLocationTaskViewModel(viewModel: CaptureLocationTaskViewModel): ViewModel
 
   @Binds
   @IntoMap

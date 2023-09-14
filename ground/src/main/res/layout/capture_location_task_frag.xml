@@ -16,7 +16,8 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools">
 
   <data>
     <variable
@@ -30,5 +31,6 @@
     android:layout_height="match_parent"
     android:padding="10dp"
     android:text="@{viewModel.locationUpdates}"
-    android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+    tools:text="Sample location" />
 </layout>

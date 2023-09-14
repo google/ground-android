@@ -39,7 +39,7 @@ enum class ButtonAction(
   ADD_POINT(Type.TEXT, Theme.OUTLINED, textId = R.string.add_point),
   COMPLETE(Type.TEXT, Theme.LIGHT_GREEN, textId = R.string.complete_polygon),
 
-  // GPS location task
+  // Capture location task
   CAPTURE_LOCATION(Type.TEXT, Theme.OUTLINED, textId = R.string.capture);
 
   enum class Type {
