@@ -20,7 +20,6 @@ import com.google.android.ground.persistence.remote.firebase.FirebaseStorageMana
 import com.google.android.ground.persistence.remote.firebase.FirestoreDataStore
 import com.google.android.ground.persistence.remote.firebase.FirestoreUuidGenerator
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.ktx.functions
@@ -56,15 +55,6 @@ abstract class RemotePersistenceModule {
       return FirebaseFirestoreSettings.Builder()
         .setPersistenceEnabled(Config.FIRESTORE_PERSISTENCE_ENABLED)
         .build()
-    }
-
-    @Provides
-    @Singleton
-    fun firebaseFirestore(settings: FirebaseFirestoreSettings): FirebaseFirestore {
-      val firestore = FirebaseFirestore.getInstance()
-      firestore.firestoreSettings = settings
-      FirebaseFirestore.setLoggingEnabled(Config.FIRESTORE_LOGGING_ENABLED)
-      return firestore
     }
 
     /** Returns a reference to the default Storage bucket. */

@@ -138,38 +138,6 @@
     <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
   </style>
 
-  <style name="ChipButton" parent="Widget.MaterialComponents.Chip.Action">
-    <item name="chipBackgroundColor">@color/color_states_primary_button</item>
-    <item name="chipCornerRadius">@dimen/chip_button_corner_radius</item>
-    <item name="chipStartPadding">@dimen/chip_button_padding</item>
-    <item name="chipEndPadding">@dimen/chip_button_padding</item>
-    <item name="chipMinHeight">@dimen/chip_button_min_height</item>
-    <item name="android:textAlignment">center</item>
-
-    <!-- textColor inside textAppearance stopped working in 28.0.0-rc02. -->
-    <item name="chipIconTint">?attr/colorSurface</item>
-    <item name="android:textColor">?attr/colorSurface</item>
-    <item name="android:textAppearance">@style/ChipButtonText</item>
-  </style>
-
-  <style name="ChipButton.Secondary" parent="ChipButton">
-    <item name="chipBackgroundColor">?attr/colorSurface</item>
-    <item name="android:textColor">?attr/colorPrimary</item>
-    <item name="chipStrokeColor">?attr/colorOutline</item>
-    <item name="chipStrokeWidth">1dp</item>
-  </style>
-
-  <style name="ChipButton.Toolbar">
-    <item name="chipCornerRadius">@dimen/chip_toolbar_button_corner_radius</item>
-    <item name="chipStartPadding">@dimen/chip_toolbar_button_padding</item>
-    <item name="chipEndPadding">@dimen/chip_toolbar_button_padding</item>
-    <item name="chipMinHeight">@dimen/chip_toolbar_button_min_height</item>
-  </style>
-
-  <style name="ChipButtonText">
-    <item name="android:textSize">@dimen/chip_button_text_size</item>
-  </style>
-
   <!-- NavDrawer Header -->
   <style name="ShapeAppearanceOverlay.App.CornerSize50Percent" parent="">
     <item name="cornerSize">50%</item>
@@ -266,14 +234,7 @@
     <item name="android:layout_marginTop">@dimen/loi_card_item_margin</item>
   </style>
 
-  <style name="JobButton" parent="ChipButton">
-    <item name="android:backgroundTint">?attr/colorPrimary</item>
-    <item name="android:textColor">?attr/colorSurface</item>
-    <item name="android:textSize">13sp</item>
-    <item name="android:layout_marginTop">12dp</item>
-  </style>
-
-  <style name="JobButton.Light">
+  <style name="Widget.App.Button.Inverse" parent="Widget.Material3.Button">
     <item name="android:backgroundTint">?colorPrimaryInverse</item>
     <item name="android:textColor">?attr/colorOnSecondaryContainer</item>
   </style>
