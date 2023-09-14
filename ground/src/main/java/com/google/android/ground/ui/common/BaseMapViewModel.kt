@@ -21,6 +21,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.ground.Config.DEFAULT_LOI_ZOOM_LEVEL
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.IoDispatcher
@@ -107,8 +108,9 @@ constructor(
   /** Configuration to enable/disable base map features. */
   open val mapConfig: MapConfig = DEFAULT_MAP_CONFIG
 
-  /** Current camera position. */
-  val currentCameraPosition: CameraPosition? = _cameraPosition.value
+  /** Flow of current position of camera. */
+  var currentCameraPosition = MutableStateFlow<CameraPosition?>(null)
+    private set
 
   /** Last camera position. */
   var lastCameraPosition: CameraPosition? = null
@@ -139,11 +141,20 @@ constructor(
         enableLocationLock()
 
         locationManager.requestLocationUpdates()
-      } catch (e: PermissionDeniedException) {
-        locationLock.value = Result.failure(e)
-        locationManager.disableLocationUpdates()
+      } catch (e: Exception) {
+        when (e) {
+          is PermissionDeniedException,
+          is ResolvableApiException -> handleRequestLocationUpdateFailed(e)
+          else -> throw e
+        }
       }
     }
+  }
+
+  private suspend fun handleRequestLocationUpdateFailed(e: Exception) {
+    Timber.e(e)
+    locationLock.value = Result.failure(e)
+    locationManager.disableLocationUpdates()
   }
 
   private fun enableLocationLock() = onLockStateChanged(true)
@@ -179,7 +190,10 @@ constructor(
   }
 
   /** Emits a stream of camera update requests. */
-  fun getCameraUpdates(): Flow<CameraPosition> = _cameraPosition.filterNotNull()
+  fun getCameraUpdateRequests(): Flow<CameraPosition> = _cameraPosition.filterNotNull()
+
+  /** Emits a stream of current camera position. */
+  fun getCurrentCameraPosition(): Flow<CameraPosition> = currentCameraPosition.filterNotNull()
 
   /**
    * Updates map camera when location changes. The first update pans and zooms the camera to the
@@ -203,7 +217,7 @@ constructor(
     surveyRepository.activeSurveyFlow
       .filterNotNull()
       .transform { getLastSavedPositionOrDefaultBounds(it)?.apply { emit(this) } }
-      .collect { updatePosition(it) }
+      .collect { updateMapCamera(it) }
   }
 
   private suspend fun getLastSavedPositionOrDefaultBounds(survey: Survey): CameraPosition? {
@@ -220,21 +234,23 @@ constructor(
 
   /** Requests moving the map camera to [coordinates]. */
   private fun panCamera(coordinates: Coordinates) {
-    updatePosition(CameraPosition(coordinates))
+    updateMapCamera(CameraPosition(coordinates))
   }
 
   /** Requests moving the map camera to [coordinates] with zoom level [DEFAULT_LOI_ZOOM_LEVEL]. */
   fun panAndZoomCamera(coordinates: Coordinates) {
-    updatePosition(CameraPosition(coordinates, DEFAULT_LOI_ZOOM_LEVEL))
+    updateMapCamera(CameraPosition(coordinates, DEFAULT_LOI_ZOOM_LEVEL))
   }
 
-  private fun updatePosition(cameraPosition: CameraPosition) {
-    lastCameraPosition = _cameraPosition.value
+  private fun updateMapCamera(cameraPosition: CameraPosition) {
     _cameraPosition.value = cameraPosition
   }
 
   /** Called when the map camera is moved. */
-  open fun onMapCameraMoved(newCameraPosition: CameraPosition) {}
+  open fun onMapCameraMoved(newCameraPosition: CameraPosition) {
+    lastCameraPosition = currentCameraPosition.value
+    currentCameraPosition.value = newCameraPosition
+  }
 
   companion object {
     private val LOCATION_LOCK_ICON_TINT_ENABLED = R.color.md_theme_primary
