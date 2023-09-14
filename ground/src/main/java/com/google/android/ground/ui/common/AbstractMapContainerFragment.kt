@@ -18,19 +18,22 @@ package com.google.android.ground.ui.common
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
-import com.google.android.ground.rx.RxAutoDispose
+import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapView
-import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import kotlin.math.max
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /** Injects a [MapView] in the container with id "map" and provides shared map functionality. */
@@ -39,10 +42,14 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   @Inject lateinit var map: MapView
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var geocodingManager: GeocodingManager
+  @Inject @DefaultDispatcher lateinit var defaultDispatcher: CoroutineDispatcher
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     map.attachToFragment(this, R.id.map) { onMapAttached(it) }
+  }
+  private fun launchWhenStarted(fn: suspend () -> Unit) {
+    lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.STARTED) { fn.invoke() } }
   }
 
   private fun onMapAttached(map: MapView) {
@@ -51,25 +58,14 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     // Removes all markers, overlays, polylines and polygons from the map.
     map.clear()
 
-    map.cameraMovedEvents
-      .onBackpressureLatest()
-      .subscribeOn(Schedulers.computation())
-      .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe { onMapCameraMoved(it) }
-    map.startDragEvents
-      .onBackpressureLatest()
-      .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe { viewModel.onMapDragged() }
-
-    lifecycleScope.launch {
-      getMapViewModel().locationLock.collect { onLocationLockStateChange(it, map) }
+    launchWhenStarted {
+      withContext(defaultDispatcher) { map.cameraMovedEvents.collect { onMapCameraMoved(it) } }
     }
+    launchWhenStarted { map.startDragEvents.collect { viewModel.onMapDragged() } }
+    launchWhenStarted { viewModel.locationLock.collect { onLocationLockStateChange(it, map) } }
+    launchWhenStarted { viewModel.getCameraUpdates().collect { onCameraUpdateRequest(it, map) } }
     viewModel.mapType.observe(viewLifecycleOwner) { map.mapType = it }
-    lifecycleScope.launch {
-      viewModel.getCameraUpdates().collect { onCameraUpdateRequest(it, map) }
-    }
 
-    // Enable map controls.
     viewModel.setLocationLockEnabled(true)
 
     applyMapConfig(map)

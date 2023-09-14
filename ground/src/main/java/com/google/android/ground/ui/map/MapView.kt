@@ -20,10 +20,7 @@ import androidx.annotation.IdRes
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.rx.Nil
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
-import io.reactivex.Flowable
 import java8.util.function.Consumer
 import kotlinx.coroutines.flow.SharedFlow
 
@@ -47,17 +44,13 @@ interface MapView {
    */
   val featureClicks: SharedFlow<Set<Feature>>
 
-  /**
-   * Returns map drag events. Emits an empty event when the map starts to move by the user.
-   * Subscribers that can't keep up receive the latest event ([Flowable.onBackpressureLatest]).
-   */
-  val startDragEvents: @Hot Flowable<Nil>
+  /** Emits as the user begins dragging the map. */
+  val startDragEvents: SharedFlow<Unit>
 
   /**
    * Returns camera movement events. Emits the new camera position each time the map stops moving.
-   * Subscribers that can't keep up receive the latest event ([Flowable.onBackpressureLatest]).
    */
-  val cameraMovedEvents: @Hot Flowable<CameraPosition>
+  val cameraMovedEvents: SharedFlow<CameraPosition>
 
   /** Adds the [MapView] to a fragment. */
   fun attachToFragment(

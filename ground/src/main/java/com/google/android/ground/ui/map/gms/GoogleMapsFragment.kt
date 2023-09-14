@@ -38,8 +38,6 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.imagery.TileSource.Type.MOG_COLLECTION
 import com.google.android.ground.model.imagery.TileSource.Type.TILED_WEB_MAP
-import com.google.android.ground.rx.Nil
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
@@ -54,9 +52,6 @@ import com.google.android.ground.util.invert
 import com.google.maps.android.PolyUtil
 import com.google.maps.android.clustering.Cluster
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.Flowable
-import io.reactivex.processors.FlowableProcessor
-import io.reactivex.processors.PublishProcessor
 import java8.util.function.Consumer
 import javax.inject.Inject
 import kotlin.math.min
@@ -83,15 +78,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapView {
   private lateinit var clusterRenderer: FeatureClusterRenderer
 
   /** Map drag events. Emits items when the map drag has started. */
-  private val startDragEventsProcessor: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
-
-  override val startDragEvents: @Hot Flowable<Nil> = this.startDragEventsProcessor
+  override val startDragEvents = MutableSharedFlow<Unit>()
 
   /** Camera move events. Emits items after the camera has stopped moving. */
-  private val cameraMovedEventsProcessor: @Hot FlowableProcessor<CameraPosition> =
-    PublishProcessor.create()
-
-  override val cameraMovedEvents: @Hot Flowable<CameraPosition> = cameraMovedEventsProcessor
+  override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
 
   private lateinit var polylineRenderer: PolylineRenderer
   private lateinit var polygonRenderer: PolygonRenderer
@@ -207,11 +197,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapView {
         resources.getColor(R.color.polyLineColor),
         featureColor
       )
-
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
 
-    map.setOnMapClickListener { lifecycleScope.launch(defaultDispatcher) { onMapClick(it) } }
+    map.setOnMapClickListener { onMapClick(it) }
 
     with(map.uiSettings) {
       isRotateGesturesEnabled = true
@@ -262,12 +251,13 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapView {
     return checkNotNull(customCap)
   }
 
-  private suspend fun onMapClick(latLng: LatLng) {
-    val clickedPolygons = getPolygonFeaturesContaining(latLng)
-    if (clickedPolygons.isNotEmpty()) {
-      featureClicks.emit(clickedPolygons)
+  private fun onMapClick(latLng: LatLng) =
+    lifecycleScope.launch(defaultDispatcher) {
+      val clickedPolygons = getPolygonFeaturesContaining(latLng)
+      if (clickedPolygons.isNotEmpty()) {
+        featureClicks.emit(clickedPolygons)
+      }
     }
-  }
 
   private fun getPolygonFeaturesContaining(latLng: LatLng) =
     polygonRenderer
@@ -329,7 +319,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapView {
   private fun onCameraIdle() {
     clusterRenderer.zoom = map.cameraPosition.zoom
     clusterManager.onCameraIdle()
-    cameraMovedEventsProcessor.onNext(
+    cameraMovedEvents.tryEmit(
       CameraPosition(
         map.cameraPosition.target.toCoordinates(),
         map.cameraPosition.zoom,
@@ -341,7 +331,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapView {
 
   private fun onCameraMoveStarted(reason: Int) {
     if (reason == OnCameraMoveStartedListener.REASON_GESTURE) {
-      this.startDragEventsProcessor.onNext(Nil.NIL)
+      startDragEvents.tryEmit(Unit)
     }
   }
 
