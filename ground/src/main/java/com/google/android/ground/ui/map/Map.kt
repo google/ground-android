@@ -24,8 +24,8 @@ import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
 import io.reactivex.Flowable
-import io.reactivex.Observable
 import java8.util.function.Consumer
+import kotlinx.coroutines.flow.SharedFlow
 
 /** Interface for a Fragment that renders a map view. */
 interface Map {
@@ -41,8 +41,11 @@ interface Map {
   /** Get or set the bounds of the currently visible viewport. */
   var viewport: Bounds
 
-  /** A stream of interaction events on rendered location of interest [Feature]s. */
-  val locationOfInterestInteractions: @Hot Observable<List<Feature>>
+  /**
+   * Clicks on [Feature] on the maps. A set with multiple items is emitted when multiple overlapping
+   * geometries overlap the click location.
+   */
+  val featureClicks: SharedFlow<Set<Feature>>
 
   /**
    * Returns map drag events. Emits an empty event when the map starts to move by the user.

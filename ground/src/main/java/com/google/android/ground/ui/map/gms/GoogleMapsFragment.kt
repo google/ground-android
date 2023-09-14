@@ -25,6 +25,7 @@ import android.widget.RelativeLayout
 import androidx.annotation.IdRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
@@ -54,16 +55,16 @@ import com.google.maps.android.PolyUtil
 import com.google.maps.android.clustering.Cluster
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.Flowable
-import io.reactivex.Observable
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
-import io.reactivex.subjects.PublishSubject
 import java8.util.function.Consumer
 import javax.inject.Inject
 import kotlin.math.min
 import kotlin.math.sqrt
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 const val TILE_OVERLAY_Z = 0f
@@ -76,6 +77,9 @@ const val MARKER_Z = 3f
  */
 @AndroidEntryPoint(SupportMapFragment::class)
 class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
+  // TODO: Inject dispatchers.
+  private val defaultDispatcher = Dispatchers.Default
+
   private lateinit var clusterRenderer: FeatureClusterRenderer
 
   /** Map drag events. Emits items when the map drag has started. */
@@ -106,13 +110,9 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
 
   override val supportedMapTypes: List<MapType> = IDS_BY_MAP_TYPE.keys.toList()
 
-  private val locationOfInterestInteractionSubject: @Hot PublishSubject<List<Feature>> =
-    PublishSubject.create()
-
   private val tileOverlays = mutableListOf<TileOverlay>()
 
-  override val locationOfInterestInteractions: @Hot Observable<List<Feature>> =
-    locationOfInterestInteractionSubject
+  override val featureClicks = MutableSharedFlow<Set<Feature>>()
 
   private val polylineStrokeWidth: Float
     get() = resources.getDimension(R.dimen.polyline_stroke_width)
@@ -210,7 +210,8 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
-    map.setOnMapClickListener(this::onMapClick)
+
+    map.setOnMapClickListener { lifecycleScope.launch(defaultDispatcher) { onMapClick(it) } }
 
     with(map.uiSettings) {
       isRotateGesturesEnabled = true
@@ -261,26 +262,20 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), Map {
     return checkNotNull(customCap)
   }
 
-  private fun onMapClick(latLng: LatLng) {
-    val clickTargets = mutableListOf<Feature>()
-    val processed = ArrayList<String>()
-    for ((feature, value) in polygonRenderer.getPolygonsWithLoi()) {
-      val loiId = feature.tag.id
-
-      if (processed.contains(loiId)) {
-        continue
-      }
-
-      if (value.any { PolyUtil.containsLocation(latLng, it.points, false) }) {
-        clickTargets.add(feature)
-      }
-
-      processed.add(loiId)
-    }
-    if (clickTargets.isNotEmpty()) {
-      locationOfInterestInteractionSubject.onNext(clickTargets.toPersistentList())
+  private suspend fun onMapClick(latLng: LatLng) {
+    val clickedPolygons = getPolygonFeaturesContaining(latLng)
+    if (clickedPolygons.isNotEmpty()) {
+      featureClicks.emit(clickedPolygons)
     }
   }
+
+  private fun getPolygonFeaturesContaining(latLng: LatLng) =
+    polygonRenderer
+      .getPolygonsByFeature()
+      .filterValues { polygons ->
+        polygons.any { PolyUtil.containsLocation(latLng, it.points, false) }
+      }
+      .keys
 
   @SuppressLint("MissingPermission")
   override fun enableCurrentLocationIndicator() {

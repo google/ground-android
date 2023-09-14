@@ -172,8 +172,9 @@ internal constructor(
    * Intended as a callback for when a specific map [Feature] is clicked. If the click is ambiguous,
    * (list of features > 1), it chooses the first [Feature].
    */
-  fun onFeatureClick(features: List<Feature>) {
-    val geometry = features[0].geometry
+  fun onFeatureClick(features: Set<Feature>) {
+    // TODO: Handle polygon clicks.
+    val geometry = features.first().geometry
 
     if (geometry is Point) {
       panAndZoomCamera(geometry.coordinates)

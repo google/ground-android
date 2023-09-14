@@ -43,6 +43,7 @@ import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.Map
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -64,9 +65,8 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    map.locationOfInterestInteractions.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
-      mapContainerViewModel.onFeatureClick(it)
-    }
+
+    lifecycleScope.launch { map.featureClicks.collect { mapContainerViewModel.onFeatureClick(it) } }
 
     mapContainerViewModel
       .getZoomThresholdCrossed()
