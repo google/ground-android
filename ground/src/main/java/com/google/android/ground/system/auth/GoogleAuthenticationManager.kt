@@ -68,7 +68,6 @@ constructor(
     }
   }
 
-  private suspend fun getFirebaseAuth() = withContext(ioDispatcher) { FirebaseAuth.getInstance() }
   override val signInState: @Hot(replays = true) Subject<SignInState> = BehaviorSubject.create()
 
   /**
@@ -105,6 +104,8 @@ constructor(
       activityStreams.withActivity { getGoogleSignInClient(it).signOut() }
     }
   }
+
+  private suspend fun getFirebaseAuth() = withContext(ioDispatcher) { FirebaseAuth.getInstance() }
 
   private fun getGoogleSignInClient(activity: Activity): GoogleSignInClient =
     // TODO: Use app context instead of activity?
