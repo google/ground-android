@@ -95,9 +95,8 @@
 
     <!-- TODO: Center chip horizontally. -->
     <!-- TODO: Move into toolbar, maybe use showAsAction in menu xml w/custom style. -->
-    <com.google.android.material.chip.Chip
+    <Button
       android:id="@+id/save_submission_btn"
-      style="@style/ChipButton.Toolbar"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="top|end"

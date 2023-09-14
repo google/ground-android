@@ -70,7 +70,7 @@
         tools:text="Add new site and submit related data" />
       <Button
         android:id="@+id/collectData"
-        style="@style/JobButton.Light"
+        style="@style/Widget.App.Button.Inverse"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="false"
