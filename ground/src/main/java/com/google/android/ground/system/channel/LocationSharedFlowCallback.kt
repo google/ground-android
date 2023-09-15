@@ -23,6 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /** Implementation of [LocationCallback] linked to a [MutableStateFlow]. */
 class LocationSharedFlowCallback(
@@ -30,7 +31,12 @@ class LocationSharedFlowCallback(
   private val coroutineScope: CoroutineScope
 ) : LocationCallback() {
   override fun onLocationResult(locationResult: LocationResult) {
-    coroutineScope.launch { locationResult.lastLocation?.let { locationUpdates.emit(it) } }
+    coroutineScope.launch {
+      locationResult.lastLocation?.let {
+        Timber.d("Location updated")
+        locationUpdates.emit(it)
+      }
+    }
   }
 
   override fun onLocationAvailability(p0: LocationAvailability) {

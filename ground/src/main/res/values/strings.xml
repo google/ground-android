@@ -167,4 +167,6 @@
   <string name="offline_area_size_loading_symbol">…</string>
   <string name="offline_area_select_cancel_button">Cancel</string>
   <string name="offline_area_selector_title">Download this area?</string>
+  <string name="capture_location">Capture location</string>
+  <string name="capture">Capture</string>
 </resources>

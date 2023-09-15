@@ -37,7 +37,10 @@ enum class ButtonAction(
 
   // Draw a polygon task
   ADD_POINT(Type.TEXT, Theme.OUTLINED, textId = R.string.add_point),
-  COMPLETE(Type.TEXT, Theme.LIGHT_GREEN, textId = R.string.complete_polygon);
+  COMPLETE(Type.TEXT, Theme.LIGHT_GREEN, textId = R.string.complete_polygon),
+
+  // Capture location task
+  CAPTURE_LOCATION(Type.TEXT, Theme.OUTLINED, textId = R.string.capture);
 
   enum class Type {
     TEXT,
