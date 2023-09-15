@@ -16,7 +16,6 @@
 package com.google.android.ground
 
 import android.os.StrictMode
-import android.os.StrictMode.ThreadPolicy
 import android.os.StrictMode.VmPolicy
 import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
@@ -56,7 +55,10 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
     Configuration.Builder().setWorkerFactory(workerFactory).build()
 
   private fun setStrictMode() {
-    StrictMode.setThreadPolicy(ThreadPolicy.Builder().detectAll().penaltyLog().build())
+    // NOTE: Enabling strict thread policy causes Maps SDK to lag on pan and zoom. Enabled
+    // only as needed when debugging.
+    // https://github.com/google/ground-android/issues/1758#issuecomment-1720243538
+    // StrictMode.setThreadPolicy(ThreadPolicy.Builder().detectAll().penaltyLog().build())
     StrictMode.setVmPolicy(VmPolicy.Builder().detectLeakedSqlLiteObjects().penaltyLog().build())
   }
 
