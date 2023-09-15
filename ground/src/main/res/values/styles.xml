@@ -62,6 +62,13 @@
     <item name="colorPrimaryInverse">@color/md_theme_inversePrimary</item>
   </style>
 
+  <style name="AppTitle">
+    <item name="android:textColor">?attr/colorOnPrimary</item>
+    <item name="android:fontFamily">@font/manrope_bold</item>
+    <item name="android:textSize">60sp</item>
+    <item name="android:letterSpacing">0.01</item>
+  </style>
+
   <style name="LocationOfInterestDetailsToolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
     <item name="colorControlNormal">?attr/colorSurface</item>
     <item name="android:textColor">?attr/colorOnSurface</item>
