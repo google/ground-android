@@ -25,7 +25,7 @@ import java8.util.function.Consumer
 import kotlinx.coroutines.flow.SharedFlow
 
 /** Generalization of a map view. */
-interface MapView {
+interface MapUi {
   /** A list of map types supported by the map implementation. */
   val supportedMapTypes: List<MapType>
 
@@ -52,11 +52,11 @@ interface MapView {
    */
   val cameraMovedEvents: SharedFlow<CameraPosition>
 
-  /** Adds the [MapView] to a fragment. */
+  /** Adds the [MapUi] to a fragment. */
   fun attachToFragment(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
-    onMapReadyCallback: Consumer<MapView>
+    onMapReadyCallback: Consumer<MapUi>
   )
 
   /** Enables map gestures like pan and zoom. */

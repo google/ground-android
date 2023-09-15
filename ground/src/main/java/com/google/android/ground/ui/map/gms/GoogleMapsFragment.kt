@@ -42,7 +42,7 @@ import com.google.android.ground.model.imagery.TileSource.Type.TILED_WEB_MAP
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.MapView
+import com.google.android.ground.ui.map.MapUi
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.mog.MogCollection
 import com.google.android.ground.ui.map.gms.mog.MogTileProvider
@@ -72,7 +72,7 @@ const val MARKER_Z = 3f
  * on window insets.
  */
 @AndroidEntryPoint(SupportMapFragment::class)
-class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapView {
+class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapUi {
 
   @Inject @DefaultDispatcher lateinit var defaultDispatcher: CoroutineDispatcher
 
@@ -163,7 +163,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapView {
   override fun attachToFragment(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
-    onMapReadyCallback: Consumer<MapView>
+    onMapReadyCallback: Consumer<MapUi>
   ) {
     containerFragment.replaceFragment(containerId, this)
     getMapAsync { googleMap: GoogleMap ->

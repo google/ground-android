@@ -28,7 +28,7 @@ import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.MapView
+import com.google.android.ground.ui.map.MapUi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -79,7 +79,7 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
     }
   }
 
-  override fun onMapReady(map: MapView) {
+  override fun onMapReady(map: MapUi) {
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.featureValue.collect { feature: Feature? ->
         map.renderFeatures(if (feature == null) setOf() else setOf(feature))
@@ -99,7 +99,7 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
   }
 
   companion object {
-    fun newInstance(viewModel: PolygonDrawingViewModel, map: MapView) =
+    fun newInstance(viewModel: PolygonDrawingViewModel, map: MapUi) =
       PolygonDrawingMapFragment(viewModel).apply { this.map = map }
   }
 }
