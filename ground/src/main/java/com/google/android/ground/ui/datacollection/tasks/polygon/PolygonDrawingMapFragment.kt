@@ -60,6 +60,12 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
       }
     }
 
+    viewLifecycleOwner.lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        mapViewModel.getCurrentCameraPosition().collect { onMapCameraMoved(it) }
+      }
+    }
+
     return binding.root
   }
 
@@ -84,7 +90,6 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   fun onMapCameraMoved(position: CameraPosition) {
-    super.getMapViewModel().onMapCameraMoved(position)
     if (!viewModel.isMarkedComplete()) {
       val mapCenter = position.target!!
       viewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->

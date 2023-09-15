@@ -33,6 +33,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.ground.Config
 import com.google.android.ground.R
+import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.imagery.TileSource
@@ -57,7 +58,7 @@ import javax.inject.Inject
 import kotlin.math.min
 import kotlin.math.sqrt
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -72,8 +73,8 @@ const val MARKER_Z = 3f
  */
 @AndroidEntryPoint(SupportMapFragment::class)
 class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapView {
-  // TODO: Inject dispatchers.
-  private val defaultDispatcher = Dispatchers.Default
+
+  @Inject @DefaultDispatcher lateinit var defaultDispatcher: CoroutineDispatcher
 
   private lateinit var clusterRenderer: FeatureClusterRenderer
 

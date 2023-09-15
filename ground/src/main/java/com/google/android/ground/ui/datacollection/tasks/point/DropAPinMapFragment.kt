@@ -76,6 +76,12 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
       }
     }
 
+    viewLifecycleOwner.lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        mapViewModel.getCurrentCameraPosition().collect { onMapCameraMoved(it) }
+      }
+    }
+
     return binding.root
   }
 
@@ -106,7 +112,6 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   fun onMapCameraMoved(position: CameraPosition) {
-    super.getMapViewModel().onMapCameraMoved(position)
     viewModel.updateCameraPosition(position)
   }
 
