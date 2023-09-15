@@ -16,74 +16,76 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:tools="http://schemas.android.com/tools"
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
   <data>
     <variable
       name="viewModel"
       type="com.google.android.ground.ui.signin.SignInViewModel" />
   </data>
-    <FrameLayout
+
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
       android:layout_width="match_parent"
-      android:layout_height="match_parent">
+      android:layout_height="match_parent"
+      android:scaleType="centerCrop"
+      app:layout_constraintHeight="match_parent"
+      app:layout_constraintWidth="match_parent"
+      app:srcCompat="@drawable/splash_background" />
 
-      <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        app:srcCompat="@drawable/splash_background" />
+    <ImageView
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:alpha="0.40"
+      android:background="#146C2E"
+      app:layout_constraintHeight="match_parent"
+      app:layout_constraintWidth="match_parent" />
 
+    <ImageView
+      android:layout_width="528dp"
+      android:layout_height="match_parent"
+      android:background="@drawable/green_gradient"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintWidth="match_parent" />
 
-      <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#146C2E"
-        android:alpha="0.40"/>
+    <ImageView
+      android:id="@+id/imageView"
+      android:layout_width="120dp"
+      android:layout_height="120dp"
+      android:layout_marginTop="180dp"
+      android:scaleType="fitCenter"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:srcCompat="@drawable/ground_logo" />
 
-      <ImageView
-        android:layout_width="528dp"
-        android:layout_height="match_parent"
-        android:background="@drawable/green_gradient"
-        android:layout_gravity="bottom"  />
+    <TextView
+      android:id="@+id/appTitle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/app_name"
+      android:textAppearance="@style/AppTitle"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
-      <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <com.google.android.gms.common.SignInButton
+      android:id="@+id/sign_in_button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:buttonSize="wide"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/appTitle"
+      app:onClick="@{__ -> viewModel.onSignInButtonClick()}" />
 
-        <ImageView
-          android:id="@+id/imageView"
-          android:layout_width="120dp"
-          android:layout_height="120dp"
-          android:layout_marginTop="180dp"
-          android:scaleType="fitCenter"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toTopOf="parent"
-          app:srcCompat="@drawable/ground_logo" />
-        <TextView
-          android:id="@+id/appTitle"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="@string/app_name"
-          android:textAppearance="@style/AppTitle"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/imageView" />
-
-        <com.google.android.gms.common.SignInButton
-          android:id="@+id/sign_in_button"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          app:buttonSize="wide"
-          app:layout_constraintBottom_toBottomOf="parent"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@+id/appTitle"
-          app:onClick="@{__ -> viewModel.onSignInButtonClick()}" />
-
-      </androidx.constraintlayout.widget.ConstraintLayout>
-    </FrameLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>
