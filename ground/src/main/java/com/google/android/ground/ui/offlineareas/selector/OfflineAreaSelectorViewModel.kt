@@ -113,7 +113,7 @@ internal constructor(
 
   override fun onMapDragged() {
     downloadButtonEnabled.postValue(false)
-    sizeOnDisk.postValue(offlineAreaSizeLoadingSymbol)
+    visibleBottomTextViewId.postValue(0)
     super.onMapDragged()
   }
 
@@ -137,6 +137,8 @@ internal constructor(
       onUnavailableAreaSelected()
       return
     }
+    sizeOnDisk.postValue(offlineAreaSizeLoadingSymbol)
+    visibleBottomTextViewId.postValue(R.id.size_on_disk_text_view)
     val sizeInMb = offlineAreaRepository.estimateSizeOnDisk(bounds) / (1024f * 1024f)
     if (sizeInMb > MAX_AREA_DOWNLOAD_SIZE_MB) {
       onLargeAreaSelected()

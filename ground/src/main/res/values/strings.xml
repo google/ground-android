@@ -169,5 +169,5 @@
   <string name="offline_area_selector_title">Download this area?</string>
   <string name="capture_location">Capture location</string>
   <string name="capture">Capture</string>
-  <string name="no_imagery_available_for_area">No offline map imagery available for the selected area</string>
+  <string name="no_imagery_available_for_area">Imagery unavailable. Select another area to download to your device</string>
 </resources>
