@@ -25,7 +25,6 @@ import android.widget.RelativeLayout
 import androidx.annotation.IdRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
@@ -60,7 +59,6 @@ import kotlin.math.sqrt
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 const val TILE_OVERLAY_Z = 0f
@@ -252,13 +250,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapView {
     return checkNotNull(customCap)
   }
 
-  private fun onMapClick(latLng: LatLng) =
-    lifecycleScope.launch(defaultDispatcher) {
-      val clickedPolygons = getPolygonFeaturesContaining(latLng)
-      if (clickedPolygons.isNotEmpty()) {
-        featureClicks.emit(clickedPolygons)
-      }
+  private fun onMapClick(latLng: LatLng) {
+    val clickedPolygons = getPolygonFeaturesContaining(latLng)
+    if (clickedPolygons.isNotEmpty()) {
+      featureClicks.tryEmit(clickedPolygons)
     }
+  }
 
   private fun getPolygonFeaturesContaining(latLng: LatLng) =
     polygonRenderer
