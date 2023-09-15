@@ -137,6 +137,10 @@ internal constructor(
   }
 
   private suspend fun updateDownloadSize(bounds: Bounds) {
+    if (!offlineAreaRepository.hasHiResImagery(bounds)) {
+      onUnavailableAreaSelected()
+      return
+    }
     val sizeInMb = offlineAreaRepository.estimateSizeOnDisk(bounds) / (1024f * 1024f)
     if (sizeInMb > MAX_AREA_DOWNLOAD_SIZE_MB) {
       onLargeAreaSelected()
@@ -145,9 +149,15 @@ internal constructor(
     }
   }
 
+  private fun onUnavailableAreaSelected() {
+    visibleBottomTextViewId.postValue(R.id.no_imagery_available_text_view)
+    downloadButtonEnabled.postValue(false)
+  }
+
   private fun onDownloadableAreaSelected(sizeInMb: Float) {
     val sizeString = if (sizeInMb < 1f) "<1" else ceil(sizeInMb).toInt().toString()
     sizeOnDisk.postValue(sizeString)
+    visibleBottomTextViewId.postValue(R.id.size_on_disk_text_view)
     downloadButtonEnabled.postValue(true)
   }
 

@@ -147,6 +147,12 @@ constructor(
     surveyRepository.activeSurvey?.tileSources?.firstOrNull()?.url
       ?: error("Survey has no tile sources")
 
+  suspend fun hasHiResImagery(bounds: Bounds): Boolean {
+    val client = getMogClient()
+    val maxZoom = client.collection.maxZoom
+    return client.buildTilesRequests(bounds.toGoogleMapsObject(), maxZoom..maxZoom).isNotEmpty()
+  }
+
   suspend fun estimateSizeOnDisk(bounds: Bounds): Int {
     val client = getMogClient()
     val requests = client.buildTilesRequests(bounds.toGoogleMapsObject())

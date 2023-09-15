@@ -40,8 +40,8 @@
         android:id="@+id/offline_area_selector_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
         android:elevation="@dimen/toolbar_elevation"
+        android:minHeight="?attr/actionBarSize"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
@@ -69,8 +69,8 @@
         android:id="@+id/top_mask"
         android:layout_width="match_parent"
         android:layout_height="24dp"
-        android:background="@color/blackMapOverlay"
         android:alpha="0.4"
+        android:background="@color/blackMapOverlay"
         app:layout_constraintTop_toBottomOf="@+id/offline_area_selector_toolbar" />
 
       <View
@@ -79,29 +79,29 @@
         android:layout_height="0dp"
         android:alpha="0.4"
         android:background="@color/blackMapOverlay"
-        app:layout_constraintTop_toBottomOf="@id/top_mask"
         app:layout_constraintBottom_toTopOf="@id/bottom_mask"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_mask" />
 
       <View
         android:id="@+id/left_mask"
         android:layout_width="24dp"
         android:layout_height="0dp"
-        android:background="@color/blackMapOverlay"
         android:alpha="0.4"
-        app:layout_constraintTop_toBottomOf="@id/top_mask"
+        android:background="@color/blackMapOverlay"
         app:layout_constraintBottom_toTopOf="@id/bottom_mask"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_mask" />
 
       <View
         android:id="@+id/viewport_outline"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/offline_area_viewport_outline"
-        app:layout_constraintTop_toBottomOf="@id/top_mask"
         app:layout_constraintBottom_toTopOf="@id/bottom_mask"
         app:layout_constraintLeft_toRightOf="@id/left_mask"
-        app:layout_constraintRight_toLeftOf="@id/right_mask" />
+        app:layout_constraintRight_toLeftOf="@id/right_mask"
+        app:layout_constraintTop_toBottomOf="@id/top_mask" />
 
       <FrameLayout
         android:id="@+id/bottom_mask"
@@ -112,66 +112,78 @@
         <View
           android:layout_width="match_parent"
           android:layout_height="match_parent"
-          android:background="@color/blackMapOverlay"
-          android:alpha="0.4" />
+          android:alpha="0.4"
+          android:background="@color/blackMapOverlay" />
+
+        <TextView
+          android:id="@+id/no_imagery_available_text_view"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:layout_marginHorizontal="64dp"
+          android:text="@string/no_imagery_available_for_area"
+          android:textAlignment="center"
+          android:textColor="@color/textOverMap"
+          android:textSize="14sp"
+          android:visibility="@{viewModel.visibleBottomTextViewId == R.id.no_imagery_available_text_view ? View.VISIBLE : View.GONE}" />
 
         <TextView
           android:id="@+id/size_on_disk_text_view"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_gravity="center"
-          android:textAlignment="center"
-          android:textSize="14sp"
-          android:textColor="@color/textOverMap"
           android:layout_marginHorizontal="64dp"
-          android:visibility="@{viewModel.visibleBottomTextViewId == R.id.size_on_disk_text_view ? View.VISIBLE : View.GONE}"
-          android:text="@{@string/selected_offline_area_size(viewModel.sizeOnDisk)}" />
+          android:text="@{@string/selected_offline_area_size(viewModel.sizeOnDisk)}"
+          android:textAlignment="center"
+          android:textColor="@color/textOverMap"
+          android:textSize="14sp"
+          android:visibility="@{viewModel.visibleBottomTextViewId == R.id.size_on_disk_text_view ? View.VISIBLE : View.GONE}" />
 
         <TextView
           android:id="@+id/area_too_large_text_view"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_gravity="center"
-          android:textAlignment="center"
-          android:textSize="14sp"
-          android:textColor="@color/textOverMap"
           android:layout_marginHorizontal="64dp"
-          android:visibility="@{viewModel.visibleBottomTextViewId == R.id.area_too_large_text_view ? View.VISIBLE : View.GONE}"
-          android:text="@string/selected_offline_area_too_large" />
+          android:text="@string/selected_offline_area_too_large"
+          android:textAlignment="center"
+          android:textColor="@color/textOverMap"
+          android:textSize="14sp"
+          android:visibility="@{viewModel.visibleBottomTextViewId == R.id.area_too_large_text_view ? View.VISIBLE : View.GONE}" />
       </FrameLayout>
 
       <LinearLayout
         android:id="@+id/button_buttons"
         android:layout_width="match_parent"
         android:layout_height="90dp"
-        android:orientation="horizontal"
-        android:gravity="top"
         android:background="@color/md_theme_background"
+        android:gravity="top"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <Button
+          style="?attr/materialButtonOutlinedStyle"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          style="?attr/materialButtonOutlinedStyle"
-          android:layout_weight="0.5"
           android:layout_marginStart="16dp"
-          android:layout_marginEnd="8dp"
           android:layout_marginTop="16dp"
-          android:text="@string/offline_area_select_cancel_button"
-          android:onClick="@{() -> viewModel.onCancelClick()}" />
+          android:layout_marginEnd="8dp"
+          android:layout_weight="0.5"
+          android:onClick="@{() -> viewModel.onCancelClick()}"
+          android:text="@string/offline_area_select_cancel_button" />
 
         <Button
+          android:id="@+id/download_button"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:id="@+id/download_button"
-          android:text="@string/offline_area_selector_download"
-          android:layout_weight="0.5"
           android:layout_marginStart="8dp"
-          android:layout_marginEnd="16dp"
           android:layout_marginTop="16dp"
-          android:enabled="@{viewModel.downloadButtonEnabled}"
+          android:layout_marginEnd="16dp"
+          android:layout_weight="0.5"
           android:clickable="@{viewModel.downloadButtonEnabled}"
-          android:onClick="@{() -> viewModel.onDownloadClick()}" />
+          android:enabled="@{viewModel.downloadButtonEnabled}"
+          android:onClick="@{() -> viewModel.onDownloadClick()}"
+          android:text="@string/offline_area_selector_download" />
       </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
