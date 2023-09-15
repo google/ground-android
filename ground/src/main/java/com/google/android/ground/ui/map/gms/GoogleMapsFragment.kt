@@ -25,6 +25,7 @@ import android.widget.RelativeLayout
 import androidx.annotation.IdRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
@@ -59,6 +60,7 @@ import kotlin.math.sqrt
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 const val TILE_OVERLAY_Z = 0f
@@ -253,7 +255,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapView {
   private fun onMapClick(latLng: LatLng) {
     val clickedPolygons = getPolygonFeaturesContaining(latLng)
     if (clickedPolygons.isNotEmpty()) {
-      featureClicks.tryEmit(clickedPolygons)
+      viewLifecycleOwner.lifecycleScope.launch { featureClicks.emit(clickedPolygons) }
     }
   }
 
@@ -319,19 +321,21 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapView {
     val projection = map.projection
     clusterRenderer.zoom = cameraPosition.zoom
     clusterManager.onCameraIdle()
-    cameraMovedEvents.tryEmit(
-      CameraPosition(
-        cameraPosition.target.toCoordinates(),
-        cameraPosition.zoom,
-        false,
-        projection.visibleRegion.latLngBounds.toModelObject()
+    viewLifecycleOwner.lifecycleScope.launch {
+      cameraMovedEvents.emit(
+        CameraPosition(
+          cameraPosition.target.toCoordinates(),
+          cameraPosition.zoom,
+          false,
+          projection.visibleRegion.latLngBounds.toModelObject()
+        )
       )
-    )
+    }
   }
 
   private fun onCameraMoveStarted(reason: Int) {
     if (reason == OnCameraMoveStartedListener.REASON_GESTURE) {
-      startDragEvents.tryEmit(Unit)
+      viewLifecycleOwner.lifecycleScope.launch { startDragEvents.emit(Unit) }
     }
   }
 
