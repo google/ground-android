@@ -33,7 +33,6 @@ import javax.inject.Inject
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /** Injects a [MapView] in the container with id "map" and provides shared map functionality. */
@@ -58,9 +57,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     // Removes all markers, overlays, polylines and polygons from the map.
     map.clear()
 
-    launchWhenStarted {
-      withContext(defaultDispatcher) { map.cameraMovedEvents.collect { onMapCameraMoved(it) } }
-    }
+    launchWhenStarted { map.cameraMovedEvents.collect { viewModel.onMapCameraMoved(it) } }
     launchWhenStarted { map.startDragEvents.collect { viewModel.onMapDragged() } }
     launchWhenStarted { viewModel.locationLock.collect { onLocationLockStateChange(it, map) } }
     launchWhenStarted {
@@ -149,11 +146,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     } else {
       error("Must have either target or bounds set")
     }
-  }
-
-  /** Called when the map camera is moved by the user or due to current location/survey changes. */
-  protected open fun onMapCameraMoved(position: CameraPosition) {
-    getMapViewModel().onMapCameraMoved(position)
   }
 
   /** Called when the map is attached to the fragment. */

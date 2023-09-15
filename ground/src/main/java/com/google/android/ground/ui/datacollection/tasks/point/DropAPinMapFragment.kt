@@ -105,8 +105,8 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
-  override fun onMapCameraMoved(position: CameraPosition) {
-    super.onMapCameraMoved(position)
+  fun onMapCameraMoved(position: CameraPosition) {
+    super.getMapViewModel().onMapCameraMoved(position)
     viewModel.updateCameraPosition(position)
   }
 
