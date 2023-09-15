@@ -78,6 +78,7 @@ internal constructor(
   val sizeOnDisk = MutableLiveData<String>(null)
   val visibleBottomTextViewId = MutableLiveData<Int>(null)
   val downloadButtonEnabled = MutableLiveData(false)
+  val offlineAreaSizeLoadingSymbol = resources.getString(R.string.offline_area_size_loading_symbol)
 
   override val mapConfig: MapConfig
     get() = super.mapConfig.copy(showOfflineTileOverlays = false, overrideMapType = MapType.ROAD)
@@ -111,7 +112,8 @@ internal constructor(
   }
 
   override fun onMapDragged() {
-    onStartEstimatingDownloadSize()
+    downloadButtonEnabled.postValue(false)
+    sizeOnDisk.postValue(offlineAreaSizeLoadingSymbol)
     super.onMapDragged()
   }
 
@@ -128,12 +130,6 @@ internal constructor(
 
     viewport = bounds
     viewModelScope.launch(ioDispatcher) { updateDownloadSize(bounds) }
-  }
-
-  private fun onStartEstimatingDownloadSize() {
-    downloadButtonEnabled.postValue(false)
-    sizeOnDisk.postValue(resources.getString(R.string.offline_area_size_loading_symbol))
-    visibleBottomTextViewId.postValue(R.id.size_on_disk_text_view)
   }
 
   private suspend fun updateDownloadSize(bounds: Bounds) {
