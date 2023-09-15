@@ -62,7 +62,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     lifecycleScope.launch {
       getMapViewModel().locationLock.collect { onLocationLockStateChange(it, map) }
     }
-    viewModel.mapType.observe(viewLifecycleOwner) { map.mapType = it }
     lifecycleScope.launch {
       viewModel.getCameraUpdateRequests().collect { onCameraUpdateRequest(it, map) }
     }
