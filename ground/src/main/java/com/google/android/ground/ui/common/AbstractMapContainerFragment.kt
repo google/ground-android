@@ -63,7 +63,9 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     }
     launchWhenStarted { map.startDragEvents.collect { viewModel.onMapDragged() } }
     launchWhenStarted { viewModel.locationLock.collect { onLocationLockStateChange(it, map) } }
-    launchWhenStarted { viewModel.getCameraUpdates().collect { onCameraUpdateRequest(it, map) } }
+    launchWhenStarted {
+      viewModel.getCameraUpdateRequests().collect { onCameraUpdateRequest(it, map) }
+    }
     viewModel.mapType.observe(viewLifecycleOwner) { map.mapType = it }
 
     viewModel.setLocationLockEnabled(true)
