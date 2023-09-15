@@ -57,9 +57,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     // Removes all markers, overlays, polylines and polygons from the map.
     map.clear()
 
-    launchWhenStarted { map.cameraMovedEvents.collect {
-      viewModel.onMapCameraMoved(it)
-    } }
+    launchWhenStarted { map.cameraMovedEvents.collect { viewModel.onMapCameraMoved(it) } }
     launchWhenStarted { map.startDragEvents.collect { viewModel.onMapDragged() } }
     launchWhenStarted { viewModel.locationLock.collect { onLocationLockStateChange(it, map) } }
     launchWhenStarted {
