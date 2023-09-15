@@ -16,7 +16,6 @@
 package com.google.android.ground
 
 import android.os.StrictMode
-import android.os.StrictMode.ThreadPolicy
 import android.os.StrictMode.VmPolicy
 import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
