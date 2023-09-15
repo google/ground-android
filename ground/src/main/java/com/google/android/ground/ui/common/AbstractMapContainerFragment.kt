@@ -63,7 +63,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     launchWhenStarted {
       viewModel.getCameraUpdateRequests().collect { onCameraUpdateRequest(it, map) }
     }
-    viewModel.mapType.observe(viewLifecycleOwner) { map.mapType = it }
 
     viewModel.setLocationLockEnabled(true)
 
