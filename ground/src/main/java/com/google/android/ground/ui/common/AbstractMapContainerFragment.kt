@@ -18,62 +18,59 @@ package com.google.android.ground.ui.common
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
-import com.google.android.ground.rx.RxAutoDispose
+import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.Map
+import com.google.android.ground.ui.map.MapUi
 import javax.inject.Inject
 import kotlin.math.max
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-/** Injects a [Map] in the container with id "map" and provides shared map functionality. */
+/** Injects a [MapUi] in the container with id "map" and provides shared map functionality. */
 abstract class AbstractMapContainerFragment : AbstractFragment() {
 
-  @Inject lateinit var map: Map
+  @Inject lateinit var map: MapUi
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var geocodingManager: GeocodingManager
+  @Inject @DefaultDispatcher lateinit var defaultDispatcher: CoroutineDispatcher
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     map.attachToFragment(this, R.id.map) { onMapAttached(it) }
   }
+  private fun launchWhenStarted(fn: suspend () -> Unit) {
+    lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.STARTED) { fn.invoke() } }
+  }
 
-  private fun onMapAttached(map: Map) {
+  private fun onMapAttached(map: MapUi) {
     val viewModel = getMapViewModel()
 
     // Removes all markers, overlays, polylines and polygons from the map.
     map.clear()
 
-    map.cameraMovedEvents
-      .onBackpressureLatest()
-      .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe { onMapCameraMoved(it) }
-    map.startDragEvents
-      .onBackpressureLatest()
-      .`as`(RxAutoDispose.disposeOnDestroy(this))
-      .subscribe { viewModel.onMapDragged() }
-
-    lifecycleScope.launch {
-      getMapViewModel().locationLock.collect { onLocationLockStateChange(it, map) }
-    }
-    lifecycleScope.launch {
+    launchWhenStarted { map.cameraMovedEvents.collect { viewModel.onMapCameraMoved(it) } }
+    launchWhenStarted { map.startDragEvents.collect { viewModel.onMapDragged() } }
+    launchWhenStarted { viewModel.locationLock.collect { onLocationLockStateChange(it, map) } }
+    launchWhenStarted {
       viewModel.getCameraUpdateRequests().collect { onCameraUpdateRequest(it, map) }
     }
 
-    // Enable map controls.
     viewModel.setLocationLockEnabled(true)
 
     applyMapConfig(map)
     onMapReady(map)
   }
 
-  private fun applyMapConfig(map: Map) {
+  private fun applyMapConfig(map: MapUi) {
     val viewModel = getMapViewModel()
     val config = viewModel.mapConfig
 
@@ -106,7 +103,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     navigator.navigate(MapTypeDialogFragmentDirections.showMapTypeDialogFragment(types))
   }
 
-  private fun onLocationLockStateChange(result: Result<Boolean>, map: Map) {
+  private fun onLocationLockStateChange(result: Result<Boolean>, map: MapUi) {
     result.fold(
       onSuccess = {
         Timber.d("Location lock: $it")
@@ -128,7 +125,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     Toast.makeText(context, messageId, Toast.LENGTH_LONG).show()
   }
 
-  private fun onCameraUpdateRequest(newPosition: CameraPosition, map: Map) {
+  private fun onCameraUpdateRequest(newPosition: CameraPosition, map: MapUi) {
     Timber.v("Update camera: %s", newPosition)
     val bounds = newPosition.bounds
     val target = newPosition.target
@@ -150,13 +147,8 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     }
   }
 
-  /** Called when the map camera is moved by the user or due to current location/survey changes. */
-  protected open fun onMapCameraMoved(position: CameraPosition) {
-    getMapViewModel().onMapCameraMoved(position)
-  }
-
   /** Called when the map is attached to the fragment. */
-  protected open fun onMapReady(map: Map) {}
+  protected open fun onMapReady(map: MapUi) {}
 
   /** Provides an implementation of [BaseMapViewModel]. */
   protected abstract fun getMapViewModel(): BaseMapViewModel
