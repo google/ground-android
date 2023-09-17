@@ -31,13 +31,13 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
 
   /** Manage a given map feature and add it to an appropriate cluster. */
   fun addOrUpdateLocationOfInterestFeature(feature: Feature) {
-    // TODO(#1152): Add support for polygons.
+    // TODO(#1895): Move this method to GoogleMapsFragment.
     if (feature.geometry !is Point) {
       Timber.d("can't manage a non-point")
       return
     }
 
-    // TODO(#1352): Re-evaluate the rendering of points for non LOI tag types.
+    // TODO(#1895): Rename this method to addOrUpdateFeature and let caller filter by type.
     if (
       feature.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal ||
         feature.tag.type == FeatureType.USER_POINT.ordinal
@@ -54,6 +54,7 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
 
   /** Removes stale features from this manager's clusters. */
   fun removeStaleFeatures(features: Set<Feature>) {
+    // TODO(#1895): Move this method to GoogleMapsFragment.
     val deletedIds = algorithm.items.map { it.feature.tag.id } - features.map { it.tag.id }.toSet()
     val deletedFeatures = algorithm.items.filter { deletedIds.contains(it.feature.tag.id) }
 
@@ -63,6 +64,7 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
 
   /** Removes all features from this manager's clusters. */
   fun removeAllFeatures() {
+    // TODO(#1895): Move this method to GoogleMapsFragment.
     val deletedFeatures = algorithm.items
 
     Timber.d("removing points: $deletedFeatures")
@@ -70,5 +72,6 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
   }
 
   /** Returns all of the map [Feature]s currently managed by this cluster manager. */
+  // TODO(#1895): Move this method to GoogleMapsFragment.
   fun getManagedFeatures() = algorithm.items.map { it.feature }.toPersistentSet()
 }
