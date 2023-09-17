@@ -20,6 +20,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.MarkerIconFactory
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
@@ -62,15 +63,21 @@ class FeatureClusterRenderer(
 
   /** Sets appropriate styling for clustered markers prior to rendering. */
   override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
-    with(markerOptions) {
-      icon(getMarkerIcon(item.isSelected(), item.style.color))
-      zIndex(MARKER_Z)
+    if (item.feature.geometry is Point) {
+      with(markerOptions) {
+        icon(getMarkerIcon(item.isSelected(), item.style.color))
+        zIndex(MARKER_Z)
+      }
+    } else {
+      markerOptions.visible(false)
     }
   }
 
   override fun onClusterItemUpdated(item: FeatureClusterItem, marker: Marker) {
-    super.onClusterItemUpdated(item, marker)
-    marker.setIcon(getMarkerIcon(item.isSelected(), item.style.color))
+    if (item.feature.geometry is Point) {
+      super.onClusterItemUpdated(item, marker)
+      marker.setIcon(getMarkerIcon(item.isSelected(), item.style.color))
+    }
   }
 
   /**

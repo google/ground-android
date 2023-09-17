@@ -290,7 +290,8 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapUi {
       is LineString,
       is LinearRing -> polylineRenderer.addFeature(feature)
       is Polygon,
-      is MultiPolygon -> polygonRenderer.addFeature(feature)
+      is MultiPolygon -> clusterManager.addOrUpdateLocationOfInterestFeature(feature)
+    // polygonRenderer.addFeature(feature)
     }
   }
 

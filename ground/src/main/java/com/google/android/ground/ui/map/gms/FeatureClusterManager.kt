@@ -17,7 +17,6 @@ package com.google.android.ground.ui.map.gms
 
 import android.content.Context
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.maps.android.clustering.ClusterManager
@@ -31,10 +30,10 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
 
   /** Manage a given map feature and add it to an appropriate cluster. */
   fun addOrUpdateLocationOfInterestFeature(feature: Feature) {
-    if (feature.geometry !is Point) {
-      Timber.d("can't manage a non-point")
-      return
-    }
+    //    if (feature.geometry !is Point) {
+    //      Timber.d("can't manage a non-point")
+    //      return
+    //    }
 
     if (
       feature.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal ||
