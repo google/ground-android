@@ -31,13 +31,11 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
 
   /** Manage a given map feature and add it to an appropriate cluster. */
   fun addOrUpdateLocationOfInterestFeature(feature: Feature) {
-    // TODO(#1895): Move this method to GoogleMapsFragment.
     if (feature.geometry !is Point) {
       Timber.d("can't manage a non-point")
       return
     }
 
-    // TODO(#1895): Rename this method to addOrUpdateFeature and let caller filter by type.
     if (
       feature.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal ||
         feature.tag.type == FeatureType.USER_POINT.ordinal
@@ -54,7 +52,6 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
 
   /** Removes stale features from this manager's clusters. */
   fun removeStaleFeatures(features: Set<Feature>) {
-    // TODO(#1895): Move this method to GoogleMapsFragment.
     val deletedIds = algorithm.items.map { it.feature.tag.id } - features.map { it.tag.id }.toSet()
     val deletedFeatures = algorithm.items.filter { deletedIds.contains(it.feature.tag.id) }
 
