@@ -84,4 +84,10 @@ class PolygonRenderer(
     polygonsByFeature.values.forEach { it.forEach(MapsPolygon::remove) }
     polygonsByFeature.clear()
   }
+
+  fun removeFeature(feature: Feature) {
+    polygonsByFeature.remove(feature)?.let { polygons -> polygons.forEach { it.remove() } }
+  }
+
+  fun exists(feature: Feature) = polygonsByFeature.contains(feature)
 }

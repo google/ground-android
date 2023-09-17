@@ -30,11 +30,6 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
 
   /** Manage a given map feature and add it to an appropriate cluster. */
   fun addOrUpdateLocationOfInterestFeature(feature: Feature) {
-    //    if (feature.geometry !is Point) {
-    //      Timber.d("can't manage a non-point")
-    //      return
-    //    }
-
     if (
       feature.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal ||
         feature.tag.type == FeatureType.USER_POINT.ordinal
