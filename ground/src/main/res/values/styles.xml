@@ -63,7 +63,7 @@
   </style>
 
   <style name="AppTitle">
-    <item name="android:textColor">?attr/colorOnPrimary</item>
+    <item name="android:textColor">@android:color/white</item>
     <item name="android:fontFamily">@font/manrope_bold</item>
     <item name="android:textSize">60sp</item>
     <item name="android:letterSpacing">0.01</item>
