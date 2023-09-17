@@ -55,11 +55,10 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
     Configuration.Builder().setWorkerFactory(workerFactory).build()
 
   private fun setStrictMode() {
-    // `permitDiskReads()` is required to present Maps and Firebase SDKs from lagging and from
-    // generating log warnings.
-    StrictMode.setThreadPolicy(
-      StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().permitDiskReads().build()
-    )
+    // NOTE: Enabling strict thread policy causes Maps SDK to lag on pan and zoom. Enabled
+    // only as needed when debugging.
+    // https://github.com/google/ground-android/issues/1758#issuecomment-1720243538
+    // StrictMode.setThreadPolicy(ThreadPolicy.Builder().detectAll().penaltyLog().build())
     StrictMode.setVmPolicy(VmPolicy.Builder().detectLeakedSqlLiteObjects().penaltyLog().build())
   }
 
