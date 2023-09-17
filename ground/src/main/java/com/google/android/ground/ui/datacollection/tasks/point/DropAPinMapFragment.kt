@@ -31,7 +31,7 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.components.TaskHeaderPopupView
 import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinates
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.Map
+import com.google.android.ground.ui.map.MapUi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -76,6 +76,12 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
       }
     }
 
+    viewLifecycleOwner.lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        mapViewModel.getCurrentCameraPosition().collect { onMapCameraMoved(it) }
+      }
+    }
+
     return binding.root
   }
 
@@ -99,19 +105,18 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
     }
   }
 
-  override fun onMapReady(map: Map) {
+  override fun onMapReady(map: MapUi) {
     viewModel.features.observe(this) { map.renderFeatures(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
-  override fun onMapCameraMoved(position: CameraPosition) {
-    super.onMapCameraMoved(position)
+  fun onMapCameraMoved(position: CameraPosition) {
     viewModel.updateCameraPosition(position)
   }
 
   companion object {
-    fun newInstance(viewModel: DropAPinTaskViewModel, map: Map) =
+    fun newInstance(viewModel: DropAPinTaskViewModel, map: MapUi) =
       DropAPinMapFragment(viewModel).apply { this.map = map }
   }
 }

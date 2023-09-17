@@ -23,7 +23,6 @@ import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.gms.POLYGON_Z
 import com.google.android.ground.ui.map.gms.toLatLng
 import com.google.android.ground.ui.map.gms.toLatLngList
@@ -36,7 +35,7 @@ class PolygonRenderer(
   private val strokeColor: Int
 ) : FeatureRenderer(map) {
 
-  private val polygons: MutableMap<Feature, MutableList<MapsPolygon>> = HashMap()
+  private val polygonsByFeature: MutableMap<Feature, MutableList<MapsPolygon>> = HashMap()
 
   override fun addFeature(feature: Feature) {
     when (feature.geometry) {
@@ -69,21 +68,20 @@ class PolygonRenderer(
       strokeJointType = JointType.ROUND
       zIndex = POLYGON_Z
     }
-    polygons.getOrPut(feature) { mutableListOf() }.add(mapsPolygon)
+    polygonsByFeature.getOrPut(feature) { mutableListOf() }.add(mapsPolygon)
   }
 
-  fun getPolygonsWithLoi(): Map<Feature, MutableList<MapsPolygon>> =
-    polygons.filter { it.key.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal }
+  fun getPolygonsByFeature(): Map<Feature, MutableList<MapsPolygon>> = polygonsByFeature
 
   override fun removeStaleFeatures(features: Set<Feature>) {
-    val deletedIds = polygons.keys.map { it.tag.id } - features.map { it.tag.id }.toSet()
-    val deletedPolygons = polygons.filter { deletedIds.contains(it.key.tag.id) }
+    val deletedIds = polygonsByFeature.keys.map { it.tag.id } - features.map { it.tag.id }.toSet()
+    val deletedPolygons = polygonsByFeature.filter { deletedIds.contains(it.key.tag.id) }
     deletedPolygons.values.forEach { it.forEach(MapsPolygon::remove) }
-    polygons.minusAssign(deletedPolygons.keys)
+    polygonsByFeature.minusAssign(deletedPolygons.keys)
   }
 
   override fun removeAllFeatures() {
-    polygons.values.forEach { it.forEach(MapsPolygon::remove) }
-    polygons.clear()
+    polygonsByFeature.values.forEach { it.forEach(MapsPolygon::remove) }
+    polygonsByFeature.clear()
   }
 }

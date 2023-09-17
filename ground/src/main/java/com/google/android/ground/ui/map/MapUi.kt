@@ -20,15 +20,12 @@ import androidx.annotation.IdRes
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.rx.Nil
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractFragment
-import io.reactivex.Flowable
-import io.reactivex.Observable
 import java8.util.function.Consumer
+import kotlinx.coroutines.flow.SharedFlow
 
-/** Interface for a Fragment that renders a map view. */
-interface Map {
+/** Generalization of a map view. */
+interface MapUi {
   /** A list of map types supported by the map implementation. */
   val supportedMapTypes: List<MapType>
 
@@ -41,26 +38,25 @@ interface Map {
   /** Get or set the bounds of the currently visible viewport. */
   var viewport: Bounds
 
-  /** A stream of interaction events on rendered location of interest [Feature]s. */
-  val locationOfInterestInteractions: @Hot Observable<List<Feature>>
-
   /**
-   * Returns map drag events. Emits an empty event when the map starts to move by the user.
-   * Subscribers that can't keep up receive the latest event ([Flowable.onBackpressureLatest]).
+   * Clicks on [Feature] on the maps. A set with multiple items is emitted when multiple overlapping
+   * geometries overlap the click location.
    */
-  val startDragEvents: @Hot Flowable<Nil>
+  val featureClicks: SharedFlow<Set<Feature>>
+
+  /** Emits as the user begins dragging the map. */
+  val startDragEvents: SharedFlow<Unit>
 
   /**
    * Returns camera movement events. Emits the new camera position each time the map stops moving.
-   * Subscribers that can't keep up receive the latest event ([Flowable.onBackpressureLatest]).
    */
-  val cameraMovedEvents: @Hot Flowable<CameraPosition>
+  val cameraMovedEvents: SharedFlow<CameraPosition>
 
-  /** Adds the [Map] to a fragment. */
+  /** Adds the [MapUi] to a fragment. */
   fun attachToFragment(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
-    onMapReadyCallback: Consumer<Map>
+    onMapReadyCallback: Consumer<MapUi>
   )
 
   /** Enables map gestures like pan and zoom. */

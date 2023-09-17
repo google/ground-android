@@ -40,7 +40,7 @@ import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
-import com.google.android.ground.ui.map.Map
+import com.google.android.ground.ui.map.MapUi
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.combine
@@ -64,9 +64,8 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    map.locationOfInterestInteractions.`as`(RxAutoDispose.disposeOnDestroy(this)).subscribe {
-      mapContainerViewModel.onFeatureClick(it)
-    }
+
+    lifecycleScope.launch { map.featureClicks.collect { mapContainerViewModel.onFeatureClick(it) } }
 
     mapContainerViewModel
       .getZoomThresholdCrossed()
@@ -171,7 +170,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
     }
   }
 
-  override fun onMapReady(map: Map) {
+  override fun onMapReady(map: MapUi) {
     // Observe events emitted by the ViewModel.
     viewLifecycleOwner.lifecycleScope.launch {
       mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
@@ -192,7 +191,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
 
   override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel
 
-  private fun onBottomSheetStateChange(state: BottomSheetState, map: Map) {
+  private fun onBottomSheetStateChange(state: BottomSheetState, map: MapUi) {
     when (state.visibility) {
       BottomSheetState.Visibility.VISIBLE -> {
         map.disableGestures()

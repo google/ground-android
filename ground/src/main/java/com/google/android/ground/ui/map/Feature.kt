@@ -28,10 +28,7 @@ data class Feature(val tag: Tag, val geometry: Geometry, val style: Style) {
     style: Style = Style()
   ) : this(Tag(id, type, flag), geometry, style)
 
-  /**
-   * Denotes the kind of entity this map feature represents and contains any additional data it
-   * carries.
-   */
+  /** Tag used to uniquely identifier a feature on the map. */
   data class Tag(
     /** A unique identifier for the model object that this feature represents. */
     val id: String,
@@ -41,6 +38,7 @@ data class Feature(val tag: Tag, val geometry: Geometry, val style: Style) {
      */
     val type: Int,
     /** An arbitrary slot for boolean flag. The interpretation of this field is type-dependent. */
+    // TODO: This is not part of the unique identifer for the feature - should not live in Tag!
     val flag: Boolean = false
   )
 }
