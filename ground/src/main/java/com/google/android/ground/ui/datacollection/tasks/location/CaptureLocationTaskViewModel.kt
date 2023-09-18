@@ -74,7 +74,7 @@ constructor(
     private fun TaskData.displayText(): String {
       val df = DecimalFormat("#.##")
       df.roundingMode = RoundingMode.DOWN
-      return "Location: ${processCoordinates(coordinates)}\n" +
+      return "${processCoordinates(coordinates)}\n\n" +
         "Altitude: ${df.format(altitude)}m\n" +
         "Accuracy: ${df.format(accuracy)}m"
     }
