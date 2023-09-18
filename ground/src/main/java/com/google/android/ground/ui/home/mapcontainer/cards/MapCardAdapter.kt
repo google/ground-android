@@ -19,26 +19,20 @@ package com.google.android.ground.ui.home.mapcontainer.cards
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
 import com.google.android.ground.databinding.LoiCardItemBinding
 import com.google.android.ground.databinding.SuggestLoiCardItemBinding
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.material.card.MaterialCardView
-import kotlinx.coroutines.launch
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [LocationOfInterest] data with the
  * [ViewHolder] views.
  */
-class MapCardAdapter(
-  private val submissionRepository: SubmissionRepository,
-  private val lifecycleScope: LifecycleCoroutineScope,
-  private val canUserSubmitData: Boolean
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MapCardAdapter(private val canUserSubmitData: Boolean) :
+  RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
   private var focusedIndex: Int = 0
   private var indexOfLastLoi: Int = -1
@@ -70,7 +64,7 @@ class MapCardAdapter(
   /** Binds [LocationOfInterest] data to [LoiViewHolder] or [SuggestLoiViewHolder]. */
   override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
     val uiData = itemsList[position]
-    val cardHolder = bindViewHolder(submissionRepository, lifecycleScope, uiData, holder)
+    val cardHolder = bindViewHolder(uiData, holder)
     if (focusedIndex == position) {
       cardFocusedListener?.invoke(uiData)
     }
@@ -106,14 +100,12 @@ class MapCardAdapter(
   }
 
   private fun bindViewHolder(
-    submissionRepository: SubmissionRepository,
-    lifecycleScope: LifecycleCoroutineScope,
     uiData: MapCardUiData,
     holder: RecyclerView.ViewHolder
   ): CardViewHolder =
     when (uiData) {
       is MapCardUiData.LoiCardUiData -> {
-        (holder as LoiViewHolder).apply { bind(submissionRepository, lifecycleScope, uiData.loi) }
+        (holder as LoiViewHolder).apply { bind(uiData.loi) }
       }
       is MapCardUiData.SuggestLoiCardUiData -> {
         (holder as SuggestLoiViewHolder).apply { bind(uiData.job) }
@@ -132,20 +124,13 @@ class MapCardAdapter(
     internal val binding: LoiCardItemBinding,
     private val canUserSubmitData: Boolean
   ) : CardViewHolder(binding.root, binding.loiCard) {
-    fun bind(
-      submissionRepository: SubmissionRepository,
-      lifecycleScope: LifecycleCoroutineScope,
-      loi: LocationOfInterest
-    ) {
+    fun bind(loi: LocationOfInterest) {
       with(binding) {
         loiName.text = LoiCardUtil.getDisplayLoiName(loi)
         jobName.text = LoiCardUtil.getJobName(loi)
         collectData.visibility = if (canUserSubmitData) View.VISIBLE else View.GONE
 
-        lifecycleScope.launch {
-          val count = submissionRepository.getSubmissions(loi).size
-          submissions.text = LoiCardUtil.getSubmissionsText(count)
-        }
+        submissions.text = LoiCardUtil.getSubmissionsText(loi.submissionCount)
       }
     }
   }

@@ -73,7 +73,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
       .subscribe { onZoomThresholdCrossed() }
 
     val canUserSubmitData = userRepository.canUserSubmitData()
-    adapter = MapCardAdapter(submissionRepository, lifecycleScope, canUserSubmitData)
+    adapter = MapCardAdapter(canUserSubmitData)
     adapter.setCollectDataListener {
       if (canUserSubmitData) {
         navigateToDataCollectionFragment(it)
