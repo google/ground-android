@@ -45,9 +45,7 @@ class FeatureClusterManagerTest : BaseHiltTest() {
 
   @Test
   fun addOrUpdateLocationOfInterest_addsALocationOfInterest() {
-    featureClusterManager.addFeature(
-      FakeData.LOCATION_OF_INTEREST_FEATURE
-    )
+    featureClusterManager.addFeature(FakeData.LOCATION_OF_INTEREST_FEATURE)
     assertThat(featureClusterManager.algorithm.items)
       .contains(FakeData.LOCATION_OF_INTEREST_CLUSTER_ITEM)
   }
