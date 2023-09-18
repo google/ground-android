@@ -25,62 +25,87 @@
       type="com.google.android.ground.ui.signin.SignInViewModel" />
   </data>
 
-  <androidx.coordinatorlayout.widget.CoordinatorLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:navigationBarColor="?attr/colorOutline"
-    app:statusBarBackground="?attr/colorOutline">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
       android:layout_width="match_parent"
-      android:layout_height="match_parent">
+      android:layout_height="match_parent"
+      android:scaleType="centerCrop"
+      app:layout_constraintHeight="match_parent"
+      app:layout_constraintWidth="match_parent"
+      app:srcCompat="@drawable/splash_background" />
+
+    <View
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:alpha="0.40"
+      android:background="#146C2E"
+      app:layout_constraintHeight="match_parent"
+      app:layout_constraintWidth="match_parent" />
+
+    <View
+      android:id="@+id/bottom_gradient_spacer"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      app:layout_constraintBottom_toTopOf="@id/bottom_gradient"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintWidth="match_parent" />
+
+    <View
+      android:id="@+id/bottom_gradient"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:background="@drawable/green_gradient"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/bottom_gradient_spacer" />
+
+
+    <View
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+
+      />
+
+    <LinearLayout
+      android:id="@+id/logo_and_title"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:gravity="center_horizontal"
+      android:orientation="vertical"
+      app:layout_constraintBottom_toTopOf="@id/sign_in_button"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintVertical_bias="0.5">
 
       <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="112dp"
-        android:layout_height="109dp"
-        android:layout_marginTop="120dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:scaleType="fitCenter"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@mipmap/ic_launcher_round"/>
+        app:srcCompat="@drawable/ground_logo" />
 
       <TextView
-        android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:text="@string/app_name"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView"/>
+        android:textAppearance="@style/AppTitle" />
+    </LinearLayout>
 
-      <com.google.android.gms.common.SignInButton
-        android:id="@+id/sign_in_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="156dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        app:onClick="@{__ -> viewModel.onSignInButtonClick()}"
-        app:buttonSize="wide"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2"
-        app:layout_constraintVertical_bias="1.0"/>
+    <com.google.android.gms.common.SignInButton
+      android:id="@+id/sign_in_button"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:buttonSize="wide"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/logo_and_title"
+      app:layout_constraintVertical_bias="0.5"
+      app:onClick="@{__ -> viewModel.onSignInButtonClick()}" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-  </androidx.coordinatorlayout.widget.CoordinatorLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>
