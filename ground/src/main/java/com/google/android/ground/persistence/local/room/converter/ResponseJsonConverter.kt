@@ -99,6 +99,11 @@ internal object ResponseJsonConverter {
           GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
         )
       }
+      Task.Type.CAPTURE_LOCATION -> {
+        // TODO(#774): Don't use string for data persistence
+        DataStoreException.checkType(String::class.java, obj)
+        TextTaskData.fromString(obj as String)
+      }
       Task.Type.UNKNOWN -> {
         throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
       }
