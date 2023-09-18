@@ -19,25 +19,20 @@ package com.google.android.ground.ui.home.mapcontainer.cards
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
 import com.google.android.ground.databinding.LoiCardItemBinding
 import com.google.android.ground.databinding.SuggestLoiCardItemBinding
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.material.card.MaterialCardView
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [LocationOfInterest] data with the
  * [ViewHolder] views.
  */
-class MapCardAdapter(
-  private val submissionRepository: SubmissionRepository,
-  private val lifecycleScope: LifecycleCoroutineScope,
-  private val canUserSubmitData: Boolean
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MapCardAdapter(private val canUserSubmitData: Boolean) :
+  RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
   private var focusedIndex: Int = 0
   private var indexOfLastLoi: Int = -1
