@@ -92,14 +92,11 @@ class FeatureClusterRenderer(
   override fun onClusterItemUpdated(item: FeatureClusterItem, marker: Marker) {
     val feature = item.feature
     when (feature.geometry) {
-      is Point -> {
-        marker.setIcon(getMarkerIcon(item.isSelected(), item.style.color))
-      }
+      is Point -> marker.setIcon(getMarkerIcon(item.isSelected(), item.style.color))
       is Polygon,
-      is MultiPolygon -> {
+      is MultiPolygon ->
         // Update polygon or multi-polygon on change.
         polygonRenderer.updateFeature(feature)
-      }
       else ->
         throw UnsupportedOperationException(
           "Unsupported feature type ${feature.geometry.javaClass.simpleName}"
