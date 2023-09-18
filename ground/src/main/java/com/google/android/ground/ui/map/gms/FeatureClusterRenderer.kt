@@ -67,8 +67,7 @@ class FeatureClusterRenderer(
 
   /** Sets appropriate styling for clustered items prior to rendering. */
   override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
-    val geometry = item.feature.geometry
-    when (geometry) {
+    when (item.feature.geometry) {
       is Point -> {
         with(markerOptions) {
           icon(getMarkerIcon(item.isSelected(), item.style.color))
@@ -84,9 +83,10 @@ class FeatureClusterRenderer(
       }
       else -> {
         throw UnsupportedOperationException(
-          "Unsupported feature type ${geometry.javaClass.simpleName}"
+          "Unsupported feature type ${item.feature.geometry.javaClass.simpleName}"
         )
       }
+    }
   }
 
   override fun onClusterItemUpdated(item: FeatureClusterItem, marker: Marker) {
@@ -107,6 +107,7 @@ class FeatureClusterRenderer(
     }
     super.onClusterItemUpdated(item, marker)
   }
+
   /**
    * Creates the marker with a label indicating the number of jobs with submissions over the total
    * number of jobs in the cluster.
