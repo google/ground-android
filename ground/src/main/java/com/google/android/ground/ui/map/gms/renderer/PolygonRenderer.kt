@@ -90,4 +90,9 @@ class PolygonRenderer(
   }
 
   fun exists(feature: Feature) = polygonsByFeature.contains(feature)
+
+  fun updateFeature(feature: Feature) {
+    removeFeature(feature)
+    addFeature(feature)
+  }
 }

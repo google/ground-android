@@ -67,14 +67,24 @@ class FeatureClusterRenderer(
 
   /** Sets appropriate styling for clustered items prior to rendering. */
   override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
-    if (item.feature.geometry is Point) {
-      with(markerOptions) {
-        icon(getMarkerIcon(item.isSelected(), item.style.color))
-        zIndex(MARKER_Z)
+    val geometry = item.feature.geometry
+    when (geometry) {
+      is Point ->
+        with(markerOptions) {
+          icon(getMarkerIcon(item.isSelected(), item.style.color))
+          zIndex(MARKER_Z)
+        }
+      is Polygon,
+      is MultiPolygon -> {
+        // Don't render marker if this item is a polygon.
+        markerOptions.visible(false)
+        // Add polygon or multi-polygon when zooming in.
+        polygonRenderer.addFeature(item.feature)
       }
-    } else {
-      // Don't render marker if this item is a polygon.
-      markerOptions.visible(false)
+      else ->
+        throw UnsupportedOperationException(
+          "Unsupported feature type ${geometry.javaClass.simpleName}"
+        )
     }
   }
 
@@ -82,21 +92,19 @@ class FeatureClusterRenderer(
     val feature = item.feature
     when (feature.geometry) {
       is Point -> {
-        super.onClusterItemUpdated(item, marker)
         marker.setIcon(getMarkerIcon(item.isSelected(), item.style.color))
       }
       is Polygon,
       is MultiPolygon -> {
-        // Add polygon or multi-polygon when zooming in.
-        if (!polygonRenderer.exists(feature)) {
-          polygonRenderer.addFeature(feature)
-        }
+        // Update polygon or multi-polygon on change.
+        polygonRenderer.updateFeature(feature)
       }
       else ->
         throw UnsupportedOperationException(
           "Unsupported feature type ${feature.geometry.javaClass.simpleName}"
         )
     }
+    super.onClusterItemUpdated(item, marker)
   }
   /**
    * Creates the marker with a label indicating the number of jobs with submissions over the total
