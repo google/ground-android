@@ -69,7 +69,7 @@ class MapCardAdapter(
   /** Binds [LocationOfInterest] data to [LoiViewHolder] or [SuggestLoiViewHolder]. */
   override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
     val uiData = itemsList[position]
-    val cardHolder = bindViewHolder(submissionRepository, lifecycleScope, uiData, holder)
+    val cardHolder = bindViewHolder(uiData, holder)
     if (focusedIndex == position) {
       cardFocusedListener?.invoke(uiData)
     }
@@ -105,8 +105,6 @@ class MapCardAdapter(
   }
 
   private fun bindViewHolder(
-    submissionRepository: SubmissionRepository,
-    lifecycleScope: LifecycleCoroutineScope,
     uiData: MapCardUiData,
     holder: RecyclerView.ViewHolder
   ): CardViewHolder =
