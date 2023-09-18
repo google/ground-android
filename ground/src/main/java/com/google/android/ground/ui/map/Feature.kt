@@ -19,14 +19,15 @@ import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Style
 
 /** Represents an individual feature on a map with a given [Geometry] and [Tag]. */
-data class Feature(val tag: Tag, val geometry: Geometry, val style: Style) {
+data class Feature(val tag: Tag, val geometry: Geometry, val style: Style, val clusterable: Boolean) {
   constructor(
     id: String,
     type: Int,
     geometry: Geometry,
     flag: Boolean = false,
-    style: Style = Style()
-  ) : this(Tag(id, type, flag), geometry, style)
+    style: Style = Style(),
+    clusterable: Boolean
+  ) : this(Tag(id, type, flag), geometry, style, clusterable)
 
   /** Tag used to uniquely identifier a feature on the map. */
   data class Tag(

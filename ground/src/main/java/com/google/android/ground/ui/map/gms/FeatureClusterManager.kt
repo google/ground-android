@@ -18,7 +18,6 @@ package com.google.android.ground.ui.map.gms
 import android.content.Context
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.FeatureType
 import com.google.maps.android.clustering.ClusterManager
 import kotlinx.collections.immutable.toPersistentSet
 import timber.log.Timber
@@ -29,18 +28,13 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
   var activeLocationOfInterest: String? = null
 
   /** Manage a given map feature and add it to an appropriate cluster. */
-  fun addOrUpdateLocationOfInterestFeature(feature: Feature) {
-    if (
-      feature.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal ||
-        feature.tag.type == FeatureType.USER_POINT.ordinal
-    ) {
-      val clusterItem = algorithm.items.find { it.feature.tag.id == feature.tag.id }
-      if (clusterItem != null) {
-        updateItem(clusterItem)
-      } else {
-        Timber.d("adding loi to cluster manager: $feature")
-        addItem(FeatureClusterItem(feature))
-      }
+  fun addFeature(feature: Feature) {
+    val clusterItem = algorithm.items.find { it.feature.tag.id == feature.tag.id }
+    if (clusterItem != null) {
+      updateItem(clusterItem)
+    } else {
+      Timber.d("adding loi to cluster manager: $feature")
+      addItem(FeatureClusterItem(feature))
     }
   }
 

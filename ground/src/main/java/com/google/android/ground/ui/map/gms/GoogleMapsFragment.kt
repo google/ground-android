@@ -286,14 +286,18 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapUi {
     polygonRenderer.removeAllFeatures()
   }
 
-  private fun addOrUpdateLocationOfInterest(feature: Feature) {
+  private fun addOrUpdateFeature(feature: Feature) {
+    if (feature.clusterable) {
+      clusterManager.addFeature(feature)
+      return
+    }
     when (feature.geometry) {
-      is Point -> clusterManager.addOrUpdateLocationOfInterestFeature(feature)
+      // TODO(#1907): Stop clustering unclustered points.
+      is Point -> clusterManager.addFeature(feature)
       is LineString,
       is LinearRing -> polylineRenderer.addFeature(feature)
       is Polygon,
-      is MultiPolygon -> clusterManager.addOrUpdateLocationOfInterestFeature(feature)
-    // polygonRenderer.addFeature(feature)
+      is MultiPolygon -> polygonRenderer.addFeature(feature)
     }
   }
 
@@ -303,7 +307,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapUi {
     if (features.isNotEmpty()) {
       removeStaleFeatures(features)
       Timber.d("Updating ${features.size} features")
-      features.forEach(this::addOrUpdateLocationOfInterest)
+      features.forEach(this::addOrUpdateFeature)
     } else {
       removeAllFeatures()
     }
