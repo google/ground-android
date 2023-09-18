@@ -105,8 +105,6 @@ class MapCardAdapter(
   }
 
   private fun bindViewHolder(
-    submissionRepository: SubmissionRepository,
-    lifecycleScope: LifecycleCoroutineScope,
     uiData: MapCardUiData,
     holder: RecyclerView.ViewHolder
   ): CardViewHolder =

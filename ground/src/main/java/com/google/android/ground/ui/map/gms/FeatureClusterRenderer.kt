@@ -69,11 +69,12 @@ class FeatureClusterRenderer(
   override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
     val geometry = item.feature.geometry
     when (geometry) {
-      is Point ->
+      is Point -> {
         with(markerOptions) {
           icon(getMarkerIcon(item.isSelected(), item.style.color))
           zIndex(MARKER_Z)
         }
+      }
       is Polygon,
       is MultiPolygon -> {
         // Don't render marker if this item is a polygon.
@@ -81,11 +82,11 @@ class FeatureClusterRenderer(
         // Add polygon or multi-polygon when zooming in.
         polygonRenderer.addFeature(item.feature)
       }
-      else ->
+      else -> {
         throw UnsupportedOperationException(
           "Unsupported feature type ${geometry.javaClass.simpleName}"
         )
-    }
+      }
   }
 
   override fun onClusterItemUpdated(item: FeatureClusterItem, marker: Marker) {
