@@ -71,7 +71,8 @@ object FakeData {
     Feature(
       id = LOCATION_OF_INTEREST.id,
       type = FeatureType.LOCATION_OF_INTEREST.ordinal,
-      geometry = LOCATION_OF_INTEREST.geometry
+      geometry = LOCATION_OF_INTEREST.geometry,
+      clusterable = true
     )
 
   val LOCATION_OF_INTEREST_CLUSTER_ITEM = FeatureClusterItem(LOCATION_OF_INTEREST_FEATURE)

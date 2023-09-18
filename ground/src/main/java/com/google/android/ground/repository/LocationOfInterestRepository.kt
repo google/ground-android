@@ -153,7 +153,8 @@ constructor(
           type = FeatureType.LOCATION_OF_INTEREST.ordinal,
           flag = submissionCount > 0,
           geometry = it.geometry,
-          style = it.job.style
+          style = it.job.style,
+          clusterable = true
         )
       }
       .toPersistentSet()

@@ -54,7 +54,8 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
     Feature(
       id = uuidGenerator.generateUuid(),
       type = FeatureType.USER_POINT.ordinal,
-      geometry = point
+      geometry = point,
+      clusterable = false
     )
 
   fun dropPin() {
