@@ -26,6 +26,8 @@ import kotlinx.coroutines.flow.SharedFlow
 
 /** Implementation of Fragment which supports displaying a map. */
 interface MapFragment {
+  val viewModel: MapViewModel
+
   /** A list of map types supported by the map implementation. */
   val supportedMapTypes: List<MapType>
 

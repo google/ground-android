@@ -39,6 +39,7 @@ import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.imagery.TileSource.Type.MOG_COLLECTION
 import com.google.android.ground.model.imagery.TileSource.Type.TILED_WEB_MAP
 import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
@@ -71,6 +72,10 @@ const val MARKER_Z = 3f
  */
 @AndroidEntryPoint(SupportMapFragment::class)
 class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
+  @Inject lateinit var viewModelFactory: ViewModelFactory
+
+  override val viewModel: MapViewModel
+    get() = viewModelFactory.get(this, MapViewModel::class.java)
 
   private lateinit var clusterRenderer: FeatureClusterRenderer
 
@@ -82,7 +87,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   private lateinit var polylineRenderer: PolylineRenderer
   private lateinit var polygonRenderer: PolygonRenderer
-
   @Inject lateinit var bitmapUtil: BitmapUtil
 
   private lateinit var map: GoogleMap
