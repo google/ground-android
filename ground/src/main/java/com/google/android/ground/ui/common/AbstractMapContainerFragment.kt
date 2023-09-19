@@ -45,7 +45,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    map.attachToFragment(this, R.id.map) { onMapAttached(it) }
+    map.attachToParent(this, R.id.map) { onMapAttached(it) }
   }
   private fun launchWhenStarted(fn: suspend () -> Unit) {
     lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.STARTED) { fn.invoke() } }

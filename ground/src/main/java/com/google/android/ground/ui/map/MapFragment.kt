@@ -53,7 +53,7 @@ interface MapFragment {
   val cameraMovedEvents: SharedFlow<CameraPosition>
 
   /** Attaches this [MapFragment] to its parent [Fragment]. */
-  fun attachToFragment(
+  fun attachToParent(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
     onMapReadyCallback: Consumer<MapFragment>

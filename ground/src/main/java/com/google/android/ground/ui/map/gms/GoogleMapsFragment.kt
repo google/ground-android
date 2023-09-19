@@ -156,7 +156,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
       }
     }
 
-  override fun attachToFragment(
+  override fun attachToParent(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
     onMapReadyCallback: Consumer<MapFragment>
