@@ -99,13 +99,11 @@ constructor(
   private suspend fun getLocalTileSourcePath(): String = File(fileUtil.getFilesDir(), "tiles").path
 
   fun getOfflineTileSourcesFlow() =
-    flow<List<TileSource>> {
-      surveyRepository.activeSurveyFlow
-        // TODO(#1593): Use Room DAO's Flow once we figure out why it never emits a value.
-        .combine(getOfflineAreaBounds().asFlow()) { survey, bounds ->
-          applyBounds(survey?.tileSources, bounds)
-        }
-    }
+    surveyRepository.activeSurveyFlow
+      // TODO(#1593): Use Room DAO's Flow once we figure out why it never emits a value.
+      .combine(getOfflineAreaBounds().asFlow()) { survey, bounds ->
+        applyBounds(survey?.tileSources, bounds)
+      }
 
   private suspend fun applyBounds(
     tileSources: List<TileSource>?,
