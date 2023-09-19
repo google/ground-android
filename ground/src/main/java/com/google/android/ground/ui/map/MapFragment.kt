@@ -24,8 +24,8 @@ import com.google.android.ground.ui.common.AbstractFragment
 import java8.util.function.Consumer
 import kotlinx.coroutines.flow.SharedFlow
 
-/** Generalization of a map view. */
-interface MapUi {
+/** Implementation of Fragment which supports displaying a map. */
+interface MapFragment {
   /** A list of map types supported by the map implementation. */
   val supportedMapTypes: List<MapType>
 
@@ -52,11 +52,11 @@ interface MapUi {
    */
   val cameraMovedEvents: SharedFlow<CameraPosition>
 
-  /** Adds the [MapUi] to a fragment. */
+  /** Attaches this [MapFragment] to its parent [Fragment]. */
   fun attachToFragment(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
-    onMapReadyCallback: Consumer<MapUi>
+    onMapReadyCallback: Consumer<MapFragment>
   )
 
   /** Enables map gestures like pan and zoom. */

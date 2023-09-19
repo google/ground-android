@@ -24,7 +24,7 @@ import com.google.android.ground.databinding.OfflineAreaSelectorFragBinding
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
-import com.google.android.ground.ui.map.MapUi
+import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -58,7 +58,7 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
     return binding.root
   }
 
-  override fun onMapReady(map: MapUi) {
+  override fun onMapReady(map: MapFragment) {
     viewModel.remoteTileSources.forEach { map.addTileOverlay(it) }
   }
 
