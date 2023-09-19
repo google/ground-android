@@ -155,7 +155,8 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
         Feature(
           id = uuidGenerator.generateUuid(),
           type = FeatureType.USER_POLYGON.ordinal,
-          geometry = createGeometry(points, isMarkedComplete)
+          geometry = createGeometry(points, isMarkedComplete),
+          clusterable = false
         )
       }
   }

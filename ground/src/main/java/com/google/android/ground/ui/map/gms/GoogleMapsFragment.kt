@@ -173,19 +173,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapUi {
 
     val featureColor = resources.getColor(R.color.clusterColor)
 
-    clusterManager = FeatureClusterManager(context, map)
-    clusterRenderer =
-      FeatureClusterRenderer(
-        requireContext(),
-        map,
-        clusterManager,
-        Config.CLUSTERING_ZOOM_THRESHOLD,
-        map.cameraPosition.zoom,
-        featureColor
-      )
-    clusterManager.setOnClusterClickListener(this::onClusterItemClick)
-    clusterManager.renderer = clusterRenderer
-
     polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth, featureColor)
     polygonRenderer =
       PolygonRenderer(
@@ -194,6 +181,21 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapUi {
         resources.getColor(R.color.polyLineColor),
         featureColor
       )
+
+    clusterManager = FeatureClusterManager(context, map)
+    clusterRenderer =
+      FeatureClusterRenderer(
+        requireContext(),
+        map,
+        clusterManager,
+        polygonRenderer,
+        Config.CLUSTERING_ZOOM_THRESHOLD,
+        map.cameraPosition.zoom,
+        featureColor
+      )
+    clusterManager.setOnClusterClickListener(this::onClusterItemClick)
+    clusterManager.renderer = clusterRenderer
+
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
 
@@ -284,9 +286,14 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapUi {
     polygonRenderer.removeAllFeatures()
   }
 
-  private fun addOrUpdateLocationOfInterest(feature: Feature) {
+  private fun addOrUpdateFeature(feature: Feature) {
+    if (feature.clusterable) {
+      clusterManager.addFeature(feature)
+      return
+    }
     when (feature.geometry) {
-      is Point -> clusterManager.addOrUpdateLocationOfInterestFeature(feature)
+      // TODO(#1907): Stop clustering unclustered points.
+      is Point -> clusterManager.addFeature(feature)
       is LineString,
       is LinearRing -> polylineRenderer.addFeature(feature)
       is Polygon,
@@ -300,7 +307,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapUi {
     if (features.isNotEmpty()) {
       removeStaleFeatures(features)
       Timber.d("Updating ${features.size} features")
-      features.forEach(this::addOrUpdateLocationOfInterest)
+      features.forEach(this::addOrUpdateFeature)
     } else {
       removeAllFeatures()
     }
