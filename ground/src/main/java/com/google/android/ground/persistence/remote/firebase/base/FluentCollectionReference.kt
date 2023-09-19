@@ -24,6 +24,7 @@ import java8.util.function.Function
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import timber.log.Timber
 
 open class FluentCollectionReference
 protected constructor(
@@ -45,8 +46,21 @@ protected constructor(
   ): List<T> {
     requireActiveNetwork(context)
     val querySnapshot = query.get().await()
-    return querySnapshot.documents.filter { it.exists() }.map { mappingFunction.apply(it) }
+    return querySnapshot.documents
+      .filter { it.exists() }
+      .mapNotNull { applyFunctionAndIgnoreFailures(it, mappingFunction) }
   }
+
+  private fun <T> applyFunctionAndIgnoreFailures(
+    value: DocumentSnapshot,
+    mappingFunction: Function<DocumentSnapshot, T>
+  ): T? =
+    try {
+      mappingFunction.apply(value)
+    } catch (e: Throwable) {
+      Timber.e(e, "Skipping corrupt remote document: ${value.id}")
+      null
+    }
 
   protected fun reference(): CollectionReference = reference
 
