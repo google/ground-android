@@ -48,13 +48,9 @@ internal object LoiMutationConverter {
         // Holes are excluded since they're not supported in the polygon drawing feature.
       {
         val polygonFirestoreMap =
-          GeometryConverter.toFirestoreMap(geometry).getOrNull()
-            ?: throw IllegalStateException("Unable to convert geometry to FirestoreMap")
+          GeometryConverter.toFirestoreMap(geometry).getOrThrow()
 
-        map.addGeometryCoordinates(
-          polygonFirestoreMap,
-          LoiConverter.POLYGON_TYPE
-        )
+        map[LoiConverter.GEOMETRY] = polygonFirestoreMap
       }
       else -> {}
     }
