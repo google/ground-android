@@ -46,11 +46,7 @@ internal object LoiMutationConverter {
         map.addGeometryCoordinates(geometry.coordinates.toGeoPoint(), LoiConverter.POINT_TYPE)
       is Polygon ->
         // Holes are excluded since they're not supported in the polygon drawing feature.
-      {
-        val polygonFirestoreMap = GeometryConverter.toFirestoreMap(geometry).getOrThrow()
-
-        map[LoiConverter.GEOMETRY] = polygonFirestoreMap
-      }
+        map[LoiConverter.GEOMETRY] = GeometryConverter.toFirestoreMap(geometry).getOrThrow()
       else -> {}
     }
 
