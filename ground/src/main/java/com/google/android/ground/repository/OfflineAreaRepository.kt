@@ -50,14 +50,15 @@ constructor(
   private val offlineUuidGenerator: OfflineUuidGenerator
 ) {
 
-  private suspend fun addOfflineArea(bounds: Bounds) {
+  private suspend fun addOfflineArea(bounds: Bounds, zoomRange: IntRange) {
     val areaName = geocodingManager.getAreaName(bounds.shrink(AREA_NAME_SENSITIVITY))
     localOfflineAreaStore.insertOrUpdate(
       OfflineArea(
         offlineUuidGenerator.generateUuid(),
         OfflineArea.State.DOWNLOADED,
         bounds,
-        areaName
+        areaName,
+        zoomRange
       )
     )
   }
@@ -91,7 +92,8 @@ constructor(
       emit(Pair(bytesDownloaded, totalBytes))
     }
     if (bytesDownloaded > 0) {
-      addOfflineArea(bounds)
+      // TODO: Get range of actual tiles.
+      addOfflineArea(bounds, 0..14)
     }
   }
 
@@ -156,5 +158,18 @@ constructor(
     val client = getMogClient()
     val requests = client.buildTilesRequests(bounds.toGoogleMapsObject())
     return requests.sumOf { it.totalBytes }
+  }
+
+  suspend fun actualSizeOnDisk(offlineArea: OfflineArea): Int =
+    offlineArea.zoomRange.sumOf { zoomLevel ->
+      // TODO: Why doesn't withinBounds() accept Bounds directly?
+      TileCoordinates.withinBounds(offlineArea.bounds.toGoogleMapsObject(), zoomLevel).sumOf {
+        actualSizeOnDisk(it)
+      }
+    }
+
+  suspend fun actualSizeOnDisk(tileCoordinates: TileCoordinates): Int {
+    // TODO: Read size of file.
+    return 0
   }
 }
