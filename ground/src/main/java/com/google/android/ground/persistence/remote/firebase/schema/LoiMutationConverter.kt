@@ -83,6 +83,4 @@ internal object LoiMutationConverter {
   }
 
   private fun Coordinates.toGeoPoint() = GeoPoint(lat, lng)
-
-  private fun List<Coordinates>.toGeoPointList(): List<GeoPoint> = this.map { it.toGeoPoint() }
 }
