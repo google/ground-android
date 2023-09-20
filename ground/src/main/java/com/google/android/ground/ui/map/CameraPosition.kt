@@ -64,5 +64,6 @@ data class CameraPosition(
   }
 }
 
-fun com.google.android.gms.maps.model.CameraPosition.toModelObject() =
-  CameraPosition(target.toCoordinates(), zoom)
+// TODO(#1712): Remove [isAllowZoomOut] and [bounds] from CameraPosition class.
+  fun com.google.android.gms.maps.model.CameraPosition.toModelObject(isAllowZoomOut: Boolean, bounds: Bounds) =
+  CameraPosition(target.toCoordinates(), zoom, isAllowZoomOut, bounds)

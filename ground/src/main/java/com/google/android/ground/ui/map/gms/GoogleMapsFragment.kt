@@ -204,6 +204,8 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
     map.setOnMapClickListener { onMapClick(it) }
 
+    // TODO: Initialize VM with desired MapType before calling this.
+    viewModel.mapType.observe(viewLifecycleOwner) { if (mapType != it) mapType = it }
     with(map.uiSettings) {
       isRotateGesturesEnabled = true
       isTiltGesturesEnabled = true
@@ -327,22 +329,15 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     val projection = map.projection
     clusterRenderer.zoom = cameraPosition.zoom
     clusterManager.onCameraIdle()
-    viewModel.onCameraMoveFinished(cameraPosition.toModelObject())
-    viewLifecycleOwner.lifecycleScope.launch {
-      cameraMovedEvents.emit(
-        CameraPosition(
-          cameraPosition.target.toCoordinates(),
-          cameraPosition.zoom,
-          false,
-          projection.visibleRegion.latLngBounds.toModelObject()
-        )
-      )
-    }
+    val newPosition =
+      cameraPosition.toModelObject(false, projection.visibleRegion.latLngBounds.toModelObject())
+    viewModel.onCameraIdle(newPosition)
+    viewLifecycleOwner.lifecycleScope.launch { cameraMovedEvents.emit(newPosition) }
   }
 
   private fun onCameraMoveStarted(reason: Int) {
     if (reason == OnCameraMoveStartedListener.REASON_GESTURE) {
-      viewModel.onCameraMoveGesture()
+      viewModel.onCameraMoveStartGesture()
       viewLifecycleOwner.lifecycleScope.launch { startDragEvents.emit(Unit) }
     }
   }

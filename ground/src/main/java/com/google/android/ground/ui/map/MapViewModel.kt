@@ -24,16 +24,18 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
 class MapViewModel : ViewModel() {
-  private val _cameraPosition = MutableLiveData<CameraPosition>()
-  val cameraPosition: LiveData<CameraPosition> by this::_cameraPosition
+  private val _mapType = MutableLiveData<MapType>()
+  val mapType: LiveData<MapType> by this::_mapType
 
-  private val _startCameraMoveGestureEvents =
+  private val _cameraMoveStartGestureEvents =
     MutableSharedFlow<Unit>(onBufferOverflow = BufferOverflow.DROP_OLDEST)
-  val startCameraMoveGestureEvents = _startCameraMoveGestureEvents.asSharedFlow()
+  val cameraMoveStartGestureEvents = _cameraMoveStartGestureEvents.asSharedFlow()
 
-  fun onCameraMoveGesture() = _startCameraMoveGestureEvents.tryEmit(Unit)
+  private val _cameraIdleEvents =
+    MutableSharedFlow<CameraPosition>(onBufferOverflow = BufferOverflow.DROP_OLDEST)
+  val cameraIdleEvents = _cameraIdleEvents.asSharedFlow()
 
-  fun onCameraMoveFinished(newPosition: CameraPosition) {
-    _cameraPosition.value = newPosition
-  }
+  fun onCameraMoveStartGesture() = _cameraMoveStartGestureEvents.tryEmit(Unit)
+
+  fun onCameraIdle(cameraPosition: CameraPosition) = _cameraIdleEvents.tryEmit(cameraPosition)
 }
