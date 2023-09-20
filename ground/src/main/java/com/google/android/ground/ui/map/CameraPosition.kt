@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.map
 
 import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.ui.map.gms.toCoordinates
 
 // TODO(#1712): Fix duplicate parameters, (target, zoomLevel) & bounds model the same info and
 //  isAllowZoomOut doesn't even belong here.
@@ -62,3 +63,6 @@ data class CameraPosition(
     }
   }
 }
+
+fun com.google.android.gms.maps.model.CameraPosition.toModelObject() =
+  CameraPosition(target.toCoordinates(), zoom)

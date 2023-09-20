@@ -199,7 +199,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
       )
     clusterManager.setOnClusterClickListener(this::onClusterItemClick)
     clusterManager.renderer = clusterRenderer
-
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
 
@@ -328,6 +327,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     val projection = map.projection
     clusterRenderer.zoom = cameraPosition.zoom
     clusterManager.onCameraIdle()
+    viewModel.onCameraMoveFinished(cameraPosition.toModelObject())
     viewLifecycleOwner.lifecycleScope.launch {
       cameraMovedEvents.emit(
         CameraPosition(
@@ -342,6 +342,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   private fun onCameraMoveStarted(reason: Int) {
     if (reason == OnCameraMoveStartedListener.REASON_GESTURE) {
+      viewModel.onCameraMoveGesture()
       viewLifecycleOwner.lifecycleScope.launch { startDragEvents.emit(Unit) }
     }
   }

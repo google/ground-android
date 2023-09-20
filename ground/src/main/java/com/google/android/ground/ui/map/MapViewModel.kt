@@ -16,6 +16,24 @@
 
 package com.google.android.ground.ui.map
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
-class MapViewModel : ViewModel() {}
+class MapViewModel : ViewModel() {
+  private val _cameraPosition = MutableLiveData<CameraPosition>()
+  val cameraPosition: LiveData<CameraPosition> by this::_cameraPosition
+
+  private val _startCameraMoveGestureEvents =
+    MutableSharedFlow<Unit>(onBufferOverflow = BufferOverflow.DROP_OLDEST)
+  val startCameraMoveGestureEvents = _startCameraMoveGestureEvents.asSharedFlow()
+
+  fun onCameraMoveGesture() = _startCameraMoveGestureEvents.tryEmit(Unit)
+
+  fun onCameraMoveFinished(newPosition: CameraPosition) {
+    _cameraPosition.value = newPosition
+  }
+}
