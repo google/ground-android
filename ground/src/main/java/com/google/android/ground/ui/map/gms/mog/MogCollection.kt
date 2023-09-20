@@ -17,9 +17,6 @@
 package com.google.android.ground.ui.map.gms.mog
 
 /** A collection of Maps Optimized GeoTIFFs (MOGs). */
-class MogCollection(private val mogSources: List<MogSource>) {
-  val minZoom = mogSources.minOf { it.zoomRange.first }
-  val maxZoom = mogSources.maxOf { it.zoomRange.last }
-
-  fun getMogSource(zoom: Int) = mogSources.firstOrNull { it.zoomRange.contains(zoom) }
+class MogCollection(val sources: List<MogSource>) {
+  fun getMogSource(zoom: Int) = sources.firstOrNull { it.zoomRange.contains(zoom) }
 }

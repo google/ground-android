@@ -44,14 +44,14 @@ class MogClient(val collection: MogCollection) {
    * specified [tileBounds] and [zoomRange]s.
    *
    * @param tileBounds the bounds used to constrain which tiles are retrieved. Only requests for
-   * tiles within or overlapping these bounds are returned.
+   *   tiles within or overlapping these bounds are returned.
    * @param zoomRange the min. and max. zoom levels for which tile requests should be returned.
-   * Defaults to all available zoom levels in the collection ([MogCollection.minZoom] to
-   * [MogCollection.maxZoom]).
+   *   Defaults to all available zoom levels in the collection ([MogCollection.minZoom] to
+   *   [MogCollection.maxZoom]).
    */
   suspend fun buildTilesRequests(
     tileBounds: LatLngBounds,
-    zoomRange: IntRange = IntRange(collection.minZoom, collection.maxZoom)
+    zoomRange: IntRange = collection.sources.zoomRange()
   ) =
     zoomRange
       .flatMap { zoom -> buildTileRequests(tileBounds, zoom) }

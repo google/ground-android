@@ -131,11 +131,12 @@ constructor(
    * throws an error if no survey is active or if no tile sources are defined.
    */
   private fun getMogClient(): MogClient {
-    val baseUrl = getFirstTileSourceUrl()
-    val mogCollection = MogCollection(Config.getMogSources(baseUrl))
+    val mogCollection = MogCollection(getMogSources())
     // TODO(#1754): Create a factory and inject rather than instantiating here. Add tests.
     return MogClient(mogCollection)
   }
+
+  private fun getMogSources(): List<MogSource> = Config.getMogSources(getFirstTileSourceUrl())
 
   /**
    * Returns the URL of the first tile source in the current survey, or throws an error if no survey
@@ -147,7 +148,7 @@ constructor(
 
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
     val client = getMogClient()
-    val maxZoom = client.collection.maxZoom
+    val maxZoom = client.collection.sources.maxZoom()
     return client.buildTilesRequests(bounds.toGoogleMapsObject(), maxZoom..maxZoom).isNotEmpty()
   }
 
