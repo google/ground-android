@@ -23,6 +23,7 @@ import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.colorInt
 import com.google.android.ground.ui.map.gms.POLYGON_Z
 import com.google.android.ground.ui.map.gms.toLatLng
 import com.google.android.ground.ui.map.gms.toLatLngList
@@ -32,15 +33,14 @@ class PolygonRenderer(
   map: GoogleMap,
   private val strokeWidth: Float,
   private val fillColor: Int,
-  private val strokeColor: Int
 ) : FeatureRenderer(map) {
 
   private val polygonsByFeature: MutableMap<Feature, MutableList<MapsPolygon>> = HashMap()
 
   override fun addFeature(feature: Feature) {
     when (feature.geometry) {
-      is Polygon -> render(feature, feature.geometry)
-      is MultiPolygon -> feature.geometry.polygons.map { render(feature, it) }
+      is Polygon -> render(feature, feature.geometry, feature.colorInt())
+      is MultiPolygon -> feature.geometry.polygons.map { render(feature, it, feature.colorInt()) }
       else ->
         throw IllegalArgumentException(
           "PolylineRendered expected Polygon or MultiPolygon, but got ${feature.geometry::class.simpleName}"
@@ -48,7 +48,7 @@ class PolygonRenderer(
     }
   }
 
-  private fun render(feature: Feature, polygon: Polygon) {
+  private fun render(feature: Feature, polygon: Polygon, color: Int) {
     Timber.d("Adding polygon $feature")
 
     val options = PolygonOptions()
@@ -62,9 +62,9 @@ class PolygonRenderer(
     val mapsPolygon = map.addPolygon(options)
     with(mapsPolygon) {
       tag = Pair(feature.tag.id, LocationOfInterest::javaClass)
-      strokeWidth = strokeWidth
-      fillColor = fillColor
-      strokeColor = strokeColor
+      strokeWidth = this@PolygonRenderer.strokeWidth
+      fillColor = this@PolygonRenderer.fillColor
+      strokeColor = color
       strokeJointType = JointType.ROUND
       zIndex = POLYGON_Z
     }

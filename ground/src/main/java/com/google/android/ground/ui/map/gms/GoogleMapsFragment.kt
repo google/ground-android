@@ -173,13 +173,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
     val featureColor = resources.getColor(R.color.clusterColor)
 
-    polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth, featureColor)
+    polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth)
     polygonRenderer =
       PolygonRenderer(
         map,
         polylineStrokeWidth,
-        resources.getColor(R.color.polyLineColor),
-        featureColor
+        resources.getColor(R.color.polyLineColor)
       )
 
     clusterManager = FeatureClusterManager(context, map)

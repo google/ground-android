@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.map
 
+import android.graphics.Color
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Style
 
@@ -48,3 +49,5 @@ data class Feature(
     val flag: Boolean = false
   )
 }
+
+fun Feature.colorInt(): Int = Color.parseColor(style.color)
