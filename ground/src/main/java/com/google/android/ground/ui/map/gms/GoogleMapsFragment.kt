@@ -175,11 +175,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
     polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth)
     polygonRenderer =
-      PolygonRenderer(
-        map,
-        polylineStrokeWidth,
-        resources.getColor(R.color.polyLineColor)
-      )
+      PolygonRenderer(map, polylineStrokeWidth, resources.getColor(R.color.polyLineColor))
 
     clusterManager = FeatureClusterManager(context, map)
     clusterRenderer =
