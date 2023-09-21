@@ -168,8 +168,6 @@ constructor(
       }
     }
 
-  suspend fun actualSizeOnDisk(tileCoordinates: TileCoordinates): Int {
-    // TODO: Read size of file.
-    return 0
-  }
+  suspend fun actualSizeOnDisk(tileCoordinates: TileCoordinates): Int =
+    File(getLocalTileSourcePath(), tileCoordinates.getTilePath()).length() as Int
 }
