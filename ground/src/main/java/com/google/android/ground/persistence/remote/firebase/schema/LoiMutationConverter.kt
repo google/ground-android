@@ -45,11 +45,8 @@ internal object LoiMutationConverter {
       is Point ->
         map.addGeometryCoordinates(geometry.coordinates.toGeoPoint(), LoiConverter.POINT_TYPE)
       is Polygon ->
-        // Holes are included since they're not supported in the polygon drawing feature.
-        map.addGeometryCoordinates(
-          geometry.getShellCoordinates().toGeoPointList(),
-          LoiConverter.POLYGON_TYPE
-        )
+        // Holes are excluded since they're not supported in the polygon drawing feature.
+        map[LoiConverter.GEOMETRY] = GeometryConverter.toFirestoreMap(geometry).getOrThrow()
       else -> {}
     }
 
@@ -81,6 +78,4 @@ internal object LoiMutationConverter {
   }
 
   private fun Coordinates.toGeoPoint() = GeoPoint(lat, lng)
-
-  private fun List<Coordinates>.toGeoPointList(): List<GeoPoint> = this.map { it.toGeoPoint() }
 }
