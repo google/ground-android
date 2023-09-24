@@ -15,6 +15,8 @@
  */
 package com.google.android.ground.model.submission
 
+import android.location.Location
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter
@@ -40,5 +42,15 @@ data class LocationTaskData(
 
   override fun isEmpty(): Boolean {
     return false
+  }
+
+  companion object {
+    fun fromLocation(location: Location): LocationTaskData {
+      with(location) {
+        val altitude = if (hasAltitude()) altitude else null
+        val accuracy = if (hasAccuracy()) accuracy else null
+        return LocationTaskData(Point(Coordinates(latitude, longitude)), altitude, accuracy)
+      }
+    }
   }
 }

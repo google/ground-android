@@ -17,11 +17,10 @@ package com.google.android.ground.ui.datacollection.tasks.location
 
 import android.Manifest
 import android.content.res.Resources
-import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.model.geometry.Point
+import androidx.lifecycle.viewModelScope
+import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.submission.LocationTaskData
 import com.google.android.ground.system.FINE_LOCATION_UPDATES_REQUEST
 import com.google.android.ground.system.LocationManager
@@ -29,8 +28,11 @@ import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 class CaptureLocationTaskViewModel
 @Inject
@@ -38,14 +40,24 @@ constructor(
   private val locationManager: LocationManager,
   private val permissionsManager: PermissionsManager,
   private val settingsManager: SettingsManager,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   resources: Resources
 ) : AbstractTaskViewModel(resources) {
 
-  val locationUpdates: LiveData<String> =
+  private val lastLocation = MutableStateFlow<LocationTaskData?>(null)
+
+  val locationDetailsText: LiveData<String?> =
+    lastLocation.map { it?.getDetailsText() }.distinctUntilChanged().asLiveData()
+
+  init {
+    viewModelScope.launch(ioDispatcher) { listenToLocationUpdates() }
+  }
+
+  private suspend fun listenToLocationUpdates() {
     locationManager.locationUpdates
-      .map { it.toTaskData().getDetailsText() }
-      .distinctUntilChanged()
-      .asLiveData()
+      .map { LocationTaskData.fromLocation(it) }
+      .collect { lastLocation.emit(it) }
+  }
 
   suspend fun enableLocationUpdates() {
     permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -57,11 +69,7 @@ constructor(
     locationManager.disableLocationUpdates()
   }
 
-  companion object {
-    private fun Location.toTaskData(): LocationTaskData {
-      val altitude = if (hasAltitude()) altitude else null
-      val accuracy = if (hasAccuracy()) accuracy else null
-      return LocationTaskData(Point(Coordinates(latitude, longitude)), altitude, accuracy)
-    }
+  fun updateResponse() {
+    setResponse(lastLocation.value)
   }
 }

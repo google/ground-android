@@ -30,7 +30,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="10dp"
-    android:text="@{viewModel.locationUpdates}"
+    android:text="@{viewModel.locationDetailsText}"
     android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
     tools:text="Sample location" />
 </layout>

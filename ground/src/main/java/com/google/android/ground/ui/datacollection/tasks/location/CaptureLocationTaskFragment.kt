@@ -49,25 +49,40 @@ class CaptureLocationTaskFragment :
 
   override fun onCreateActionButtons() {
     addSkipButton()
-    addUndoButton()
+    addUndoButton().setOnClickListener {
+      viewModel.clearResponse()
+      enableLocationUpdates()
+    }
     addButton(ButtonAction.CAPTURE_LOCATION)
       .setOnClickListener {
-        // TODO(#774): Persist to db
+        disableLocationUpdates()
+        viewLifecycleOwner.lifecycleScope.launch { viewModel.updateResponse() }
       }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNullOrEmpty()) }
     addButton(ButtonAction.CONTINUE)
-      .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
+      .setOnClickListener {
+        disableLocationUpdates()
+        dataCollectionViewModel.onContinueClicked()
+      }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
       .hide()
   }
 
-  override fun onResume() {
-    super.onResume()
+  private fun enableLocationUpdates() {
     viewLifecycleOwner.lifecycleScope.launch { viewModel.enableLocationUpdates() }
   }
 
-  override fun onPause() {
+  private fun disableLocationUpdates() {
     viewLifecycleOwner.lifecycleScope.launch { viewModel.disableLocationUpdates() }
+  }
+
+  override fun onResume() {
+    super.onResume()
+    enableLocationUpdates()
+  }
+
+  override fun onPause() {
+    disableLocationUpdates()
     super.onPause()
   }
 }
