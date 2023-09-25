@@ -26,6 +26,7 @@
     <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
     <item name="android:windowTranslucentStatus">true</item>
     <item name="android:windowTranslucentNavigation">true</item>
+    <item name="fontFamily">@font/text_500</item>
   </style>
 
   <style name="AppTheme.Launcher">
@@ -214,15 +215,38 @@
     <item name="iconTint">?attr/colorPrimary</item>
   </style>
 
-  <style name="SurveyCardTitle" parent="AppTheme.Base">
-    <item name="android:textColor">?attr/colorOnSurface</item>
-    <item name="android:textSize">18sp</item>
-    <item name="android:textStyle">bold</item>
+  <style name="TextAppearance.Ground.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+    <item name="fontFamily">@font/text_700</item>
   </style>
 
-  <style name="SurveyCardDescription" parent="AppTheme.Base">
+  <style name="TextAppearance.Ground.TitleMedium.OnSurfaceContainer">
     <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
-    <item name="android:textSize">14sp</item>
+  </style>
+
+  <style name="TextAppearance.Ground.TitleMedium.OnSurface">
+    <item name="android:textColor">?attr/colorOnSurface</item>
+  </style>
+
+  <style name="TextAppearance.Ground.BodySmall" parent="TextAppearance.Material3.BodySmall">
+    <item name="fontFamily">@font/text_500</item>
+  </style>
+
+  <style name="TextAppearance.Ground.BodySmall.OnSurfaceContainer">
+    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+  </style>
+
+  <style name="TextAppearance.Ground.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+    <item name="fontFamily">@font/text_500</item>
+  </style>
+
+  <style name="TextAppearance.Ground.BodyMedium.OnSurface">
+    <item name="android:textColor">?attr/colorOnSurface</item>
+  </style>
+
+  <style name="SurveyCardItem" parent="Widget.Material3.CardView.Filled">
+    <item name="cardBackgroundColor">?attr/colorSurfaceContainerLowest</item>
+    <item name="cardCornerRadius">12dp</item>
+    <item name="elevation">0dp</item>
   </style>
 
   <style name="JobCardTitle" parent="AppTheme.Base">
@@ -255,11 +279,5 @@
     <item name="android:padding">6dp</item>
     <item name="android:textColor">@android:color/black</item>
     <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-  </style>
-
-  <style name="SurveyCardItem" parent="Widget.Material3.CardView.Filled">
-    <item name="cardBackgroundColor">?attr/colorSurfaceContainerLowest</item>
-    <item name="cardCornerRadius">12dp</item>
-    <item name="elevation">0dp</item>
   </style>
 </resources>
