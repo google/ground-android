@@ -39,7 +39,7 @@
     android:layout_marginStart="24dp"
     android:layout_marginTop="16dp"
     android:layout_marginEnd="24dp"
-    style="@style/SurveyCardItem"
+    style="@style/Widget.Ground.CardView.SurfaceContainer.Lowest"
     android:clickable="true"
     android:focusable="true"
     android:onClick="@{() -> viewModel.activateSurvey(item.surveyId)}"
@@ -60,7 +60,6 @@
         app:layout_constraintEnd_toStartOf="@id/offlineIcon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/offlineIcon"
         tools:text="Deforestation tracker" />
       <ImageView
         android:id="@+id/offlineIcon"
@@ -70,7 +69,6 @@
         android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@+id/overflowMenu"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/title"
         app:srcCompat="@drawable/baseline_offline_pin_24"
         app:visible="@{item.isAvailableOffline}" />
       <TextView

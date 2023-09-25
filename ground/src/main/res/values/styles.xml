@@ -243,10 +243,12 @@
     <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 
-  <style name="SurveyCardItem" parent="Widget.Material3.CardView.Filled">
-    <item name="cardBackgroundColor">?attr/colorSurfaceContainerLowest</item>
+  <style name="Widget.Ground.CardView" parent="Base.Widget.Material3.CardView">
     <item name="cardCornerRadius">12dp</item>
-    <item name="elevation">0dp</item>
+  </style>
+
+  <style name="Widget.Ground.CardView.SurfaceContainer.Lowest" parent="Widget.Material3.CardView.Filled">
+    <item name="cardBackgroundColor">?attr/colorSurfaceContainerLowest</item>
   </style>
 
   <style name="JobCardTitle" parent="AppTheme.Base">
