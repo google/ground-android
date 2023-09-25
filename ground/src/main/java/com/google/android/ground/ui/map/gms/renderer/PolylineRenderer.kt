@@ -24,14 +24,14 @@ import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.colorInt
 import com.google.android.ground.ui.map.gms.toLatLngList
 import timber.log.Timber
 
 class PolylineRenderer(
   map: GoogleMap,
   private val customCap: CustomCap,
-  private val strokeWidth: Float,
-  private val strokeColor: Int
+  private val strokeWidth: Float
 ) : FeatureRenderer(map) {
 
   private val polylines: MutableMap<Feature, MutableList<Polyline>> = HashMap()
@@ -61,7 +61,7 @@ class PolylineRenderer(
       startCap = customCap
       endCap = customCap
       width = strokeWidth
-      color = strokeColor
+      this.color = feature.colorInt()
       jointType = JointType.ROUND
     }
 

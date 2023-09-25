@@ -54,10 +54,10 @@
       <TextView
         android:id="@+id/title"
         style="@style/TextAppearance.Ground.TitleMedium.OnSurface"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="108dp"
         android:text="@{item.surveyTitle}"
+        app:layout_constraintEnd_toStartOf="@id/offlineIcon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintRight_toLeftOf="@id/offlineIcon"
