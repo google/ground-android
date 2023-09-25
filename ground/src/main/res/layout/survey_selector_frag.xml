@@ -44,7 +44,7 @@
       android:layout_marginEnd="20dp"
       android:text="@string/select_survey_title"
       android:textColorHighlight="#FFFF00"
-      android:theme="?attr/textAppearanceTitleMedium"
+      style="?attr/textAppearanceTitleMedium"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
@@ -55,7 +55,7 @@
       android:layout_marginTop="20dp"
       android:text="@string/survey_sync_hint"
       android:textColorHighlight="#FFFF00"
-      android:theme="?attr/textAppearanceBodySmall"
+      style="?attr/textAppearanceBodySmall"
       app:layout_constraintStart_toStartOf="@id/title"
       app:layout_constraintTop_toBottomOf="@id/title" />
 
