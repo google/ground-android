@@ -88,7 +88,7 @@ internal constructor(
   private val job: Job =
     activeSurvey.getJob(requireNotNull(savedStateHandle["jobId"])) ?: error("empty job")
   val tasks: List<Task> = buildList {
-    if (job.suggestLoiTaskType != null) {
+    if (job.suggestLoiTaskType != null && loiId == null) {
       add(createSuggestLoiTask(job.suggestLoiTaskType))
     }
     addAll(job.tasksSorted)
