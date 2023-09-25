@@ -170,4 +170,6 @@
   <string name="offline_area_selector_title">Download this area?</string>
   <string name="capture_location">Capture location</string>
   <string name="capture">Capture</string>
+  <string name="surveys">Surveys</string>
+  <string name="offline_icon_description">Icon shown when the survey is available offline</string>
 </resources>

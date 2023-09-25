@@ -78,6 +78,8 @@
 
   <style name="ToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
     <item name="android:textColor">?attr/colorOnSurface</item>
+    <item name="fontFamily">@font/display_700</item>
+    <item name="android:textSize">22sp</item>
   </style>
 
   <style name="CenteredToolbarTitle">
@@ -215,6 +217,11 @@
     <item name="iconTint">?attr/colorPrimary</item>
   </style>
 
+  <style name="TextAppearance.App.TitleLarge.Toolbar" parent="TextAppearance.Material3.TitleLarge">
+    <item name="android:textAlignment">center</item>
+    <item name="fontFamily">@font/text_500</item>
+  </style>
+
   <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
     <item name="fontFamily">@font/text_700</item>
   </style>
@@ -241,6 +248,11 @@
 
   <style name="TextAppearance.App.BodyMedium.OnSurface">
     <item name="android:textColor">?attr/colorOnSurface</item>
+  </style>
+
+  <style name="Widget.App.Button.IconButton" parent="Widget.Material3.Button.IconButton">
+    <item name="iconSize">24sp</item>
+    <item name="iconTint">?attr/colorOnSurface</item>
   </style>
 
   <style name="Widget.App.CardView" parent="Base.Widget.Material3.CardView">

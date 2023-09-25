@@ -72,7 +72,7 @@ internal constructor(
     SurveyItem(
       surveyId = survey.id,
       surveyTitle = survey.title,
-      surveyDescription = survey.description.ifEmpty { "Description Missing" },
+      surveyDescription = survey.description,
       isAvailableOffline = localSurveys.any { it.id == survey.id }
     )
 
