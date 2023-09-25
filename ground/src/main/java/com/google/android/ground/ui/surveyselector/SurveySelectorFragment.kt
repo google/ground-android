@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.surveyselector
 
 import android.app.ProgressDialog
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -71,10 +72,13 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
   fun showPopupMenu(view: View, surveyId: String) {
     with(PopupMenu(requireContext(), view)) {
       inflate(R.menu.survey_options_menu)
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        setForceShowIcon(true)
+      }
       setOnMenuItemClickListener(
         object : PopupMenu.OnMenuItemClickListener {
           override fun onMenuItemClick(item: MenuItem): Boolean {
-            if (item.itemId == R.id.delete) {
+            if (item.itemId == R.id.remove_survey) {
               viewModel.deleteSurvey(surveyId)
               return true
             }

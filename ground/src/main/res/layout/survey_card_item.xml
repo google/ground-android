@@ -87,7 +87,7 @@
         app:layout_constraintBottom_toBottomOf="@id/overflowMenu"
         app:layout_constraintEnd_toStartOf="@+id/overflowMenu"
         android:gravity="center"
-        android:translationX="8dp"
+        android:translationX="12dp"
         app:srcCompat="@drawable/baseline_offline_pin_24"
         app:visible="@{item.isAvailableOffline}"
         android:contentDescription="@string/offline_icon_description" />
@@ -100,6 +100,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:translationX="4dp"
         android:onClick="@{(view) -> fragment.showPopupMenu(view, item.surveyId)}"
         app:visible="@{item.isAvailableOffline}"
         app:icon="@drawable/ic_more_vert" />

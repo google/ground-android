@@ -172,4 +172,5 @@
   <string name="capture">Capture</string>
   <string name="surveys">Surveys</string>
   <string name="offline_icon_description">Icon shown when the survey is available offline</string>
+  <string name="remove_survey">Remove offline access</string>
 </resources>
