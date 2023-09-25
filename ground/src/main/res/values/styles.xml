@@ -215,39 +215,39 @@
     <item name="iconTint">?attr/colorPrimary</item>
   </style>
 
-  <style name="TextAppearance.Ground.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+  <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
     <item name="fontFamily">@font/text_700</item>
   </style>
 
-  <style name="TextAppearance.Ground.TitleMedium.OnSurfaceContainer">
+  <style name="TextAppearance.App.TitleMedium.OnSurfaceContainer">
     <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
   </style>
 
-  <style name="TextAppearance.Ground.TitleMedium.OnSurface">
+  <style name="TextAppearance.App.TitleMedium.OnSurface">
     <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 
-  <style name="TextAppearance.Ground.BodySmall" parent="TextAppearance.Material3.BodySmall">
+  <style name="TextAppearance.App.BodySmall" parent="TextAppearance.Material3.BodySmall">
     <item name="fontFamily">@font/text_500</item>
   </style>
 
-  <style name="TextAppearance.Ground.BodySmall.OnSurfaceContainer">
+  <style name="TextAppearance.App.BodySmall.OnSurfaceContainer">
     <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
   </style>
 
-  <style name="TextAppearance.Ground.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+  <style name="TextAppearance.App.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
     <item name="fontFamily">@font/text_500</item>
   </style>
 
-  <style name="TextAppearance.Ground.BodyMedium.OnSurface">
+  <style name="TextAppearance.App.BodyMedium.OnSurface">
     <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 
-  <style name="Widget.Ground.CardView" parent="Base.Widget.Material3.CardView">
+  <style name="Widget.App.CardView" parent="Base.Widget.Material3.CardView">
     <item name="cardCornerRadius">12dp</item>
   </style>
 
-  <style name="Widget.Ground.CardView.SurfaceContainer.Lowest" parent="Widget.Material3.CardView.Filled">
+  <style name="Widget.App.CardView.SurfaceContainer.Lowest" parent="Widget.Material3.CardView.Filled">
     <item name="cardBackgroundColor">?attr/colorSurfaceContainerLowest</item>
   </style>
 

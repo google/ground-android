@@ -43,7 +43,7 @@
       android:layout_marginTop="20dp"
       android:layout_marginEnd="20dp"
       android:text="@string/select_survey_title"
-      style="@style/TextAppearance.Ground.TitleMedium.OnSurfaceContainer"
+      style="@style/TextAppearance.App.TitleMedium.OnSurfaceContainer"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
@@ -55,7 +55,7 @@
       android:layout_marginTop="4dp"
       android:layout_marginEnd="20dp"
       android:text="@string/survey_sync_hint"
-      style="@style/TextAppearance.Ground.BodySmall.OnSurfaceContainer"
+      style="@style/TextAppearance.App.BodySmall.OnSurfaceContainer"
       app:layout_constraintStart_toStartOf="@id/title"
       app:layout_constraintTop_toBottomOf="@id/title" />
 

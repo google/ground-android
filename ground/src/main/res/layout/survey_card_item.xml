@@ -39,7 +39,7 @@
     android:layout_marginStart="24dp"
     android:layout_marginTop="16dp"
     android:layout_marginEnd="24dp"
-    style="@style/Widget.Ground.CardView.SurfaceContainer.Lowest"
+    style="@style/Widget.App.CardView.SurfaceContainer.Lowest"
     android:clickable="true"
     android:focusable="true"
     android:onClick="@{() -> viewModel.activateSurvey(item.surveyId)}"
@@ -53,7 +53,7 @@
       android:padding="16dp">
       <TextView
         android:id="@+id/title"
-        style="@style/TextAppearance.Ground.TitleMedium.OnSurface"
+        style="@style/TextAppearance.App.TitleMedium.OnSurface"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@{item.surveyTitle}"
@@ -73,7 +73,7 @@
         app:visible="@{item.isAvailableOffline}" />
       <TextView
         android:id="@+id/description"
-        style="@style/TextAppearance.Ground.BodyMedium.OnSurface"
+        style="@style/TextAppearance.App.BodyMedium.OnSurface"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
