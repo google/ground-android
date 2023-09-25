@@ -40,12 +40,11 @@
     android:layout_marginTop="@dimen/loi_card_item_margin"
     android:layout_marginEnd="20dp"
     android:layout_marginBottom="@dimen/loi_card_item_margin"
+    style="@style/SurveyCardItem"
     android:clickable="true"
     android:focusable="true"
     android:onClick="@{() -> viewModel.activateSurvey(item.surveyId)}"
-    android:orientation="vertical"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
       android:id="@+id/wrapper_view"

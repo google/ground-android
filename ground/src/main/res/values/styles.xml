@@ -256,4 +256,10 @@
     <item name="android:textColor">@android:color/black</item>
     <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
   </style>
+
+  <style name="SurveyCardItem" parent="Widget.Material3.CardView.Filled">
+    <item name="cardBackgroundColor">?attr/colorSurfaceContainerLowest</item>
+    <item name="cardCornerRadius">12dp</item>
+    <item name="elevation">0dp</item>
+  </style>
 </resources>
