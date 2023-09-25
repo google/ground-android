@@ -18,14 +18,14 @@ package com.google.android.ground.ui.surveyselector
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
+import android.widget.Button
 import android.widget.PopupMenu
-import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
 import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.*
@@ -124,7 +124,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
     // Click second item
     onView(withId(R.id.recycler_view))
-      .perform(RecyclerViewActions.actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(1, click()))
+      .perform(actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(1, click()))
     advanceUntilIdle()
 
     // Assert survey is activated.
@@ -154,7 +154,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun deleteSurveyOnOverflowMenuClick() = runWithTestDispatcher {
+  fun `remove offline survey on menu item click`() = runWithTestDispatcher {
     setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setOfflineSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setUpFragment()
@@ -162,9 +162,9 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     // Click second item's overflow menu
     onView(withId(R.id.recycler_view))
       .perform(
-        RecyclerViewActions.actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(
+        actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(
           1,
-          recyclerChildAction<TextView>(R.id.overflowMenu) { performClick() }
+          recyclerChildAction<Button>(R.id.overflowMenu) { performClick() }
         )
       )
     advanceUntilIdle()
@@ -174,8 +174,8 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     val menu: Menu = latestPopupMenu.menu
     assertThat(menu.hasVisibleItems()).isTrue()
 
-    // Click delete item
-    onView(withText("Delete")).inRoot(isPlatformPopup()).perform(click())
+    // Click "remove" menu item.
+    onView(withText("Remove offline access")).inRoot(isPlatformPopup()).perform(click())
     advanceUntilIdle()
 
     // Assert survey is deleted

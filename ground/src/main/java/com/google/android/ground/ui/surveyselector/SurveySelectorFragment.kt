@@ -78,7 +78,7 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
       setOnMenuItemClickListener(
         object : PopupMenu.OnMenuItemClickListener {
           override fun onMenuItemClick(item: MenuItem): Boolean {
-            if (item.itemId == R.id.remove_survey) {
+            if (item.itemId == R.id.remove_offline_access_menu_item) {
               viewModel.deleteSurvey(surveyId)
               return true
             }
