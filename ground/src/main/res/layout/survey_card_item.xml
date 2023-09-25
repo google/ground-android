@@ -56,10 +56,11 @@
       <TextView
         android:id="@+id/title"
         style="@style/SurveyCardTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@{item.surveyTitle}"
+        app:layout_constraintEnd_toStartOf="@id/offlineIcon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Map the terrain" />
