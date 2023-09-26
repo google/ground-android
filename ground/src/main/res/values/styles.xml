@@ -252,10 +252,12 @@
 
   <style name="Widget.App.CardView" parent="Base.Widget.Material3.CardView">
     <item name="cardCornerRadius">12dp</item>
+    <item name="strokeWidth">0dp</item>
   </style>
 
-  <style name="Widget.App.CardView.SurfaceContainer.Lowest" parent="Widget.Material3.CardView.Filled">
+  <style name="Widget.App.CardView.SurfaceContainerLowest">
     <item name="cardBackgroundColor">?attr/colorSurfaceContainerLowest</item>
+    <item name="cardElevation">0dp</item>
   </style>
 
   <style name="JobCardTitle" parent="AppTheme.Base">
