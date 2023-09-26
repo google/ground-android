@@ -16,12 +16,14 @@
 package com.google.android.ground.ui.surveyselector
 
 import android.app.ProgressDialog
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.databinding.SurveySelectorFragBinding
@@ -63,16 +65,20 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     binding.recyclerView.adapter = adapter
-    getAbstractActivity().setActionBar(binding.toolbar, true)
+    getAbstractActivity().setSupportActionBar(binding.toolbar)
+    (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
   }
 
   fun showPopupMenu(view: View, surveyId: String) {
     with(PopupMenu(requireContext(), view)) {
       inflate(R.menu.survey_options_menu)
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        setForceShowIcon(true)
+      }
       setOnMenuItemClickListener(
         object : PopupMenu.OnMenuItemClickListener {
           override fun onMenuItemClick(item: MenuItem): Boolean {
-            if (item.itemId == R.id.delete) {
+            if (item.itemId == R.id.remove_offline_access_menu_item) {
               viewModel.deleteSurvey(surveyId)
               return true
             }
