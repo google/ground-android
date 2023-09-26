@@ -252,7 +252,8 @@ fun OfflineAreaEntity.toModelObject(): OfflineArea {
   val northEast = Coordinates(this.north, this.east)
   val southWest = Coordinates(this.south, this.west)
   val bounds = Bounds(southWest, northEast)
-  return OfflineArea(this.id, this.state.toModelObject(), bounds, this.name)
+  // TODO: Deserialize.
+  return OfflineArea(this.id, this.state.toModelObject(), bounds, this.name, 0..14)
 }
 
 fun Option.toLocalDataStoreObject(taskId: String) =

@@ -164,10 +164,7 @@ constructor(
     offlineArea.zoomRange.sumOf { zoomLevel ->
       // TODO: Why doesn't withinBounds() accept Bounds directly?
       TileCoordinates.withinBounds(offlineArea.bounds.toGoogleMapsObject(), zoomLevel).sumOf {
-        actualSizeOnDisk(it)
+        File(getLocalTileSourcePath(), it.getTilePath()).length().toInt()
       }
     }
-
-  suspend fun actualSizeOnDisk(tileCoordinates: TileCoordinates): Int =
-    File(getLocalTileSourcePath(), tileCoordinates.getTilePath()).length() as Int
 }
