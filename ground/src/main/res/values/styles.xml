@@ -217,11 +217,6 @@
     <item name="iconTint">?attr/colorPrimary</item>
   </style>
 
-  <style name="TextAppearance.App.TitleLarge.Toolbar" parent="TextAppearance.Material3.TitleLarge">
-    <item name="android:textAlignment">center</item>
-    <item name="fontFamily">@font/text_500</item>
-  </style>
-
   <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
     <item name="fontFamily">@font/text_700</item>
   </style>
