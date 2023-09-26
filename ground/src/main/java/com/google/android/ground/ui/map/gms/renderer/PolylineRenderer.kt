@@ -36,10 +36,10 @@ class PolylineRenderer(
 
   private val polylines: MutableMap<Feature, MutableList<Polyline>> = HashMap()
 
-  override fun addFeature(feature: Feature) {
+  override fun addFeature(feature: Feature, isSelected: Boolean) {
     when (feature.geometry) {
-      is LineString -> render(feature, feature.geometry.coordinates)
-      is LinearRing -> render(feature, feature.geometry.coordinates)
+      is LineString -> render(feature, feature.geometry.coordinates, isSelected)
+      is LinearRing -> render(feature, feature.geometry.coordinates, isSelected)
       else ->
         throw IllegalArgumentException(
           "PolylineRendered expected LineString or LinearRing, but got ${feature.geometry::class.simpleName}"
@@ -47,7 +47,7 @@ class PolylineRenderer(
     }
   }
 
-  private fun render(feature: Feature, points: List<Coordinates>) {
+  private fun render(feature: Feature, points: List<Coordinates>, isSelected: Boolean) {
     Timber.d("Adding Polyline $feature")
 
     val options = PolylineOptions()
@@ -56,11 +56,12 @@ class PolylineRenderer(
       addAll(points.toLatLngList())
     }
     val polyline = map.addPolyline(options)
+    val strokeScale = if (isSelected) 2f else 1f
     with(polyline) {
       tag = feature.tag
       startCap = customCap
       endCap = customCap
-      width = strokeWidth
+      width = strokeWidth * strokeScale
       this.color = feature.colorInt()
       jointType = JointType.ROUND
     }

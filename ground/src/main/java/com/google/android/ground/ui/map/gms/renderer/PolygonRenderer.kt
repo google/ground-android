@@ -37,10 +37,11 @@ class PolygonRenderer(
 
   private val polygonsByFeature: MutableMap<Feature, MutableList<MapsPolygon>> = HashMap()
 
-  override fun addFeature(feature: Feature) {
+  override fun addFeature(feature: Feature, isSelected: Boolean) {
     when (feature.geometry) {
-      is Polygon -> render(feature, feature.geometry, feature.colorInt())
-      is MultiPolygon -> feature.geometry.polygons.map { render(feature, it, feature.colorInt()) }
+      is Polygon -> render(feature, feature.geometry, feature.colorInt(), isSelected)
+      is MultiPolygon ->
+        feature.geometry.polygons.map { render(feature, it, feature.colorInt(), isSelected) }
       else ->
         throw IllegalArgumentException(
           "PolylineRendered expected Polygon or MultiPolygon, but got ${feature.geometry::class.simpleName}"
@@ -48,7 +49,7 @@ class PolygonRenderer(
     }
   }
 
-  private fun render(feature: Feature, polygon: Polygon, color: Int) {
+  private fun render(feature: Feature, polygon: Polygon, color: Int, isSelected: Boolean) {
     Timber.d("Adding polygon $feature")
 
     val options = PolygonOptions()
@@ -60,9 +61,10 @@ class PolygonRenderer(
     polygon.holes.forEach { options.addHole(it.coordinates.toLatLngList()) }
 
     val mapsPolygon = map.addPolygon(options)
+    val strokeScale = if (isSelected) 2f else 1f
     with(mapsPolygon) {
       tag = Pair(feature.tag.id, LocationOfInterest::javaClass)
-      strokeWidth = this@PolygonRenderer.strokeWidth
+      strokeWidth = this@PolygonRenderer.strokeWidth * strokeScale
       fillColor = this@PolygonRenderer.fillColor
       strokeColor = color
       strokeJointType = JointType.ROUND
@@ -91,8 +93,8 @@ class PolygonRenderer(
 
   fun exists(feature: Feature) = polygonsByFeature.contains(feature)
 
-  fun updateFeature(feature: Feature) {
+  fun updateFeature(feature: Feature, isSelected: Boolean) {
     removeFeature(feature)
-    addFeature(feature)
+    addFeature(feature, isSelected)
   }
 }

@@ -79,7 +79,7 @@ class FeatureClusterRenderer(
         // Don't render marker if this item is a polygon.
         markerOptions.visible(false)
         // Add polygon or multi-polygon when zooming in.
-        polygonRenderer.addFeature(item.feature)
+        polygonRenderer.addFeature(item.feature, item.isSelected())
       }
       else -> {
         throw UnsupportedOperationException(
@@ -96,7 +96,7 @@ class FeatureClusterRenderer(
       is Polygon,
       is MultiPolygon ->
         // Update polygon or multi-polygon on change.
-        polygonRenderer.updateFeature(feature)
+        polygonRenderer.updateFeature(feature, item.isSelected())
       else ->
         throw UnsupportedOperationException(
           "Unsupported feature type ${feature.geometry.javaClass.simpleName}"
