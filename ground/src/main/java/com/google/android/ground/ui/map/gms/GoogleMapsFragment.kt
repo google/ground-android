@@ -375,7 +375,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   }
 
   override fun clear() {
-    Timber.d("Removes all markers, overlays, polylines and polygons from the map.")
     map.clear()
   }
 
