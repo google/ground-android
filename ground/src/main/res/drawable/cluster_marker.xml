@@ -15,14 +15,23 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+  <item>
+    <shape android:shape="oval">
+      <solid android:color="#4B6DDD81" />
+      <size
+        android:width="68dp"
+        android:height="68dp" />
+    </shape>
+  </item>
+  <item
+    android:bottom="12dp"
+    android:left="12dp"
+    android:right="12dp"
+    android:top="12dp">
+    <shape android:shape="oval">
+      <solid android:color="?attr/colorPrimary" />
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-  android:shape="oval">
-
-  <solid android:color="?attr/colorPrimary"/>
-
-  <size
-    android:width="26dp"
-    android:height="26dp"/>
-
-</shape>
+    </shape>
+  </item>
+</layer-list>
