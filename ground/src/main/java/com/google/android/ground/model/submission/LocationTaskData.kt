@@ -35,7 +35,7 @@ data class LocationTaskData(
 
     val df = DecimalFormat("#.##")
     df.roundingMode = RoundingMode.DOWN
-    return "${LatLngConverter.processCoordinates(geometry.coordinates)}\n\n" +
+    return "${LatLngConverter.processCoordinates(geometry.coordinates)}\n" +
       "Altitude: ${df.format(altitude)}m\n" +
       "Accuracy: ${df.format(accuracy)}m"
   }

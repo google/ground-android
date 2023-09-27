@@ -41,7 +41,7 @@ object LocationTaskDataConverter {
     Result.runCatching {
       val accuracy = map?.get(ACCURACY_KEY) as? Double
       val altitude = map?.get(ALTITUDE_KEY) as? Double
-      val geometry = GeometryConverter.fromFirestoreMap(map?.get(GEOMETRY_KEY) as Map<String, *>?)
+      val geometry = GeometryConverter.fromFirestoreMap(map?.get(GEOMETRY_KEY) as? Map<String, *>)
       LocationTaskData(geometry.getOrThrow(), altitude, accuracy)
     }
 
