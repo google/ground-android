@@ -40,6 +40,6 @@ class LoiCollectionReference internal constructor(ref: CollectionReference) :
       snapshot.documents
         .map { toLoi(survey, it) }
         // Filter out bad results and log.
-        .mapNotNull { it.onFailure { t -> Timber.e(t) }.getOrNull() }
+        .mapNotNull { it.onFailure { t -> Timber.w("Invalid LOI in remote db", t) }.getOrNull() }
     }
 }
