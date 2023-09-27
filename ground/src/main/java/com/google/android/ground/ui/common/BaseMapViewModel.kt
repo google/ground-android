@@ -196,12 +196,14 @@ constructor(
   /** Emits a stream of current camera position. */
   fun getCurrentCameraPosition(): Flow<CameraPosition> = currentCameraPosition.filterNotNull()
 
+  fun getLocationUpdates() = locationManager.locationUpdates
+
   /**
    * Updates map camera when location changes. The first update pans and zooms the camera to the
    * appropriate zoom level and subsequent ones only pan the map.
    */
   private suspend fun updateCameraPositionOnLocationChange() {
-    locationManager.locationUpdates
+    getLocationUpdates()
       .map { it.toCoordinates() }
       .withIndex()
       .collect { (index, coordinates) ->

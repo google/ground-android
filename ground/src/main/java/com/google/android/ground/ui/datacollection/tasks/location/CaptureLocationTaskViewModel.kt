@@ -15,58 +15,27 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.location
 
-import android.Manifest
 import android.content.res.Resources
+import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
-import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.submission.LocationTaskData
-import com.google.android.ground.system.FINE_LOCATION_UPDATES_REQUEST
-import com.google.android.ground.system.LocationManager
-import com.google.android.ground.system.PermissionsManager
-import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
-class CaptureLocationTaskViewModel
-@Inject
-constructor(
-  private val locationManager: LocationManager,
-  private val permissionsManager: PermissionsManager,
-  private val settingsManager: SettingsManager,
-  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  resources: Resources
-) : AbstractTaskViewModel(resources) {
+class CaptureLocationTaskViewModel @Inject constructor(resources: Resources) :
+  AbstractTaskViewModel(resources) {
 
   private val lastLocation = MutableStateFlow<LocationTaskData?>(null)
 
   val locationDetailsText: LiveData<String?> =
     lastLocation.map { it?.getDetailsText() }.distinctUntilChanged().asLiveData()
 
-  init {
-    viewModelScope.launch(ioDispatcher) { listenToLocationUpdates() }
-  }
-
-  private suspend fun listenToLocationUpdates() {
-    locationManager.locationUpdates
-      .map { LocationTaskData.fromLocation(it) }
-      .collect { lastLocation.emit(it) }
-  }
-
-  suspend fun enableLocationUpdates() {
-    permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST)
-    locationManager.requestLocationUpdates()
-  }
-
-  suspend fun disableLocationUpdates() {
-    locationManager.disableLocationUpdates()
+  suspend fun updateLocation(location: Location) {
+    lastLocation.emit(LocationTaskData.fromLocation(location))
   }
 
   fun updateResponse() {
