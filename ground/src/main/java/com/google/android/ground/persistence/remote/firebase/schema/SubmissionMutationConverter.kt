@@ -87,11 +87,7 @@ internal object SubmissionMutationConverter {
         GeometryConverter.toFirestoreMap(taskData.geometry).getOrThrow()
       }
       is LocationTaskData -> {
-        mapOf(
-          "accuracy" to taskData.accuracy,
-          "altitude" to taskData.altitude,
-          "geometry" to GeometryConverter.toFirestoreMap(taskData.geometry!!).getOrThrow()
-        )
+        LocationTaskDataConverter.toFirestoreMap(taskData).getOrThrow()
       }
       else -> {
         Timber.e("Unknown taskData type: %s", taskData?.javaClass?.name)

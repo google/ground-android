@@ -97,6 +97,7 @@ internal object SubmissionConverter {
       Task.Type.TIME -> putTimeResponse(taskId, obj, responses)
       Task.Type.DROP_A_PIN -> putDropAPinResponse(taskId, obj, responses)
       Task.Type.DRAW_POLYGON -> putDrawPolygonResponse(taskId, obj, responses)
+      Task.Type.CAPTURE_LOCATION -> putCaptureLocationResponse(taskId, obj, responses)
       else -> throw DataStoreException("Unknown type " + task.type)
     }
   }
@@ -144,6 +145,18 @@ internal object SubmissionConverter {
     val result = GeometryConverter.fromFirestoreMap(map).getOrNull()
     if (result != null) {
       responses[taskId] = GeometryData(result)
+    }
+  }
+
+  private fun putCaptureLocationResponse(
+    taskId: String,
+    obj: Any,
+    responses: MutableMap<String, TaskData>
+  ) {
+    val map = obj as HashMap<String, *>
+    val result = LocationTaskDataConverter.fromFirestoreMap(map).getOrNull()
+    if (result != null) {
+      responses[taskId] = result
     }
   }
 

@@ -26,6 +26,7 @@ import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.android.ground.persistence.remote.firebase.schema.LocationTaskDataConverter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -106,12 +107,7 @@ internal object ResponseJsonConverter {
       }
       Task.Type.CAPTURE_LOCATION -> {
         DataStoreException.checkType(JSONObject::class.java, obj)
-        val data = obj as JSONObject
-        val accuracy = data.getDouble("accuracy")
-        val altitude = data.getDouble("altitude")
-        val geometry =
-          GeometryWrapperTypeConverter.fromString(data.getString("geometry"))?.getGeometry()
-        LocationTaskData(geometry, accuracy, altitude)
+        LocationTaskDataConverter.fromJsonObject(obj as JSONObject).getOrThrow()
       }
       Task.Type.UNKNOWN -> {
         throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
