@@ -36,36 +36,30 @@ import javax.inject.Singleton
 @Singleton
 class MarkerIconFactory @Inject constructor(@ApplicationContext private val context: Context) {
   /** Create a scaled bitmap based on the dimensions of a given [Drawable]. */
-  private fun createBitmap(
-    drawable: Drawable,
-    zoomLevel: Float,
-    isSelected: Boolean = false,
-  ): Bitmap {
-    // TODO: Adjust size based on selection state.
-    var scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
-
-    if (zoomLevel >= Config.ZOOM_LEVEL_THRESHOLD) {
-      // Scale the drawable when we cross the app's zoom level threshold.
-      scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
-    }
-
-    if (isSelected) {
-      // TODO: Revisit scale for selected markers
-      scale += 1
-    }
-
+  private fun createBitmap(drawable: Drawable, scale: Float = 1f): Bitmap {
     val width = (drawable.intrinsicWidth * scale).toInt()
     val height = (drawable.intrinsicHeight * scale).toInt()
 
     return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
   }
 
-  /** Returns a [Bitmap] representing an individual marker on the map. */
+  /** Returns a [Bitmap] representing an individual marker pin on the map. */
   fun getMarkerBitmap(color: Int, currentZoomLevel: Float, isSelected: Boolean = false): Bitmap {
     val outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline)
     val fill = AppCompatResources.getDrawable(context, R.drawable.ic_marker_fill)
     val overlay = AppCompatResources.getDrawable(context, R.drawable.ic_marker_overlay)
-    val bitmap = createBitmap(outline!!, currentZoomLevel, isSelected)
+
+    var scale =
+      if (currentZoomLevel >= Config.ZOOM_LEVEL_THRESHOLD)
+        ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
+      else ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
+
+    if (isSelected) {
+      // TODO: Revisit scale for selected markers
+      scale += 1
+    }
+
+    val bitmap = createBitmap(outline!!, scale)
     val canvas = Canvas(bitmap)
 
     outline.setBounds(0, 0, bitmap.width, bitmap.height)
@@ -92,11 +86,10 @@ class MarkerIconFactory @Inject constructor(@ApplicationContext private val cont
   /** Returns a [BitmapDescriptor] for representing a marker cluster on the map. */
   fun getClusterIcon(
     @ColorInt color: Int,
-    currentZoomLevel: Float,
     text: String,
   ): BitmapDescriptor {
     val fill = AppCompatResources.getDrawable(context, R.drawable.cluster_marker)
-    val bitmap = createBitmap(fill!!, currentZoomLevel, false)
+    val bitmap = createBitmap(fill!!)
     val canvas = Canvas(bitmap)
 
     val textPaint =

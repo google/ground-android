@@ -112,11 +112,7 @@ class FeatureClusterRenderer(
   private fun createClusterIcon(cluster: Cluster<FeatureClusterItem>): BitmapDescriptor {
     val itemsWithFlag = cluster.items.count { it.feature.tag.flag }
     val totalItems = cluster.items.size
-    return markerIconFactory.getClusterIcon(
-      clusterBalloonColor,
-      getCurrentZoomLevel(),
-      "$itemsWithFlag/$totalItems"
-    )
+    return markerIconFactory.getClusterIcon(clusterBalloonColor, "$itemsWithFlag/$totalItems")
   }
 
   override fun onBeforeClusterRendered(
