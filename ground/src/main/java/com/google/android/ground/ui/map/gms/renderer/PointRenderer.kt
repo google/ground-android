@@ -20,11 +20,12 @@ import android.content.Context
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.gms.MARKER_Z
 import com.google.android.ground.ui.map.gms.parseColor
-import com.google.maps.android.geometry.Point
+import com.google.android.ground.ui.map.gms.toLatLng
 
 class PointRenderer(map: GoogleMap, val context: Context) : FeatureRenderer(map) {
   private val markerIconFactory: IconFactory = IconFactory(context)
@@ -33,6 +34,7 @@ class PointRenderer(map: GoogleMap, val context: Context) : FeatureRenderer(map)
     if (feature.geometry !is Point)
       error("Invalid geometry type ${feature.geometry.javaClass.simpleName}")
     val markerOptions = MarkerOptions()
+    markerOptions.position(feature.geometry.coordinates.toLatLng())
     setMarkerOptions(markerOptions, isSelected, feature.style.color)
     map.addMarker(markerOptions)
   }
