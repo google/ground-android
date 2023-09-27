@@ -15,69 +15,17 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import com.google.android.ground.R
-import com.google.android.ground.databinding.MapTaskFragBinding
-import com.google.android.ground.ui.common.AbstractMapContainerFragment
-import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint(AbstractMapContainerFragment::class)
+@AndroidEntryPoint(AbstractMapFragmentWithControls::class)
 class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) :
   Hilt_PolygonDrawingMapFragment() {
-
-  private lateinit var binding: MapTaskFragBinding
-  private lateinit var mapViewModel: BaseMapViewModel
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    mapViewModel = getViewModel(BaseMapViewModel::class.java)
-  }
-
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View {
-    binding = MapTaskFragBinding.inflate(inflater, container, false)
-    binding.fragment = this
-    binding.viewModel = mapViewModel
-    binding.lifecycleOwner = this
-
-    viewLifecycleOwner.lifecycleScope.launch {
-      repeatOnLifecycle(Lifecycle.State.STARTED) {
-        mapViewModel.location.collect { updateInfoCard(it?.accuracy) }
-      }
-    }
-
-    viewLifecycleOwner.lifecycleScope.launch {
-      repeatOnLifecycle(Lifecycle.State.STARTED) {
-        mapViewModel.getCurrentCameraPosition().collect { onMapCameraMoved(it) }
-      }
-    }
-
-    return binding.root
-  }
-
-  private fun updateInfoCard(locationAccuracy: Float?) {
-    if (locationAccuracy == null) {
-      binding.infoCard.visibility = View.GONE
-    } else {
-      binding.cardTitle.setText(R.string.accuracy)
-      binding.cardValue.text = getString(R.string.location_accuracy, locationAccuracy)
-      binding.infoCard.visibility = View.VISIBLE
-    }
-  }
 
   override fun onMapReady(map: MapFragment) {
     viewLifecycleOwner.lifecycleScope.launch {
@@ -87,9 +35,7 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
     }
   }
 
-  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
-
-  fun onMapCameraMoved(position: CameraPosition) {
+  override fun onMapCameraMoved(position: CameraPosition) {
     if (!viewModel.isMarkedComplete()) {
       val mapCenter = position.target!!
       viewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->

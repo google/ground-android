@@ -39,6 +39,8 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
   @Inject lateinit var markerIconFactory: MarkerIconFactory
   @Inject lateinit var map: MapFragment
 
+  private lateinit var polygonDrawingMapFragment: PolygonDrawingMapFragment
+
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
     TaskViewFactory.createWithCombinedHeader(
       inflater,
@@ -48,13 +50,10 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
+    polygonDrawingMapFragment = PolygonDrawingMapFragment.newInstance(viewModel, map)
     parentFragmentManager
       .beginTransaction()
-      .add(
-        rowLayout.id,
-        PolygonDrawingMapFragment.newInstance(viewModel, map),
-        "Draw a polygon fragment"
-      )
+      .add(rowLayout.id, polygonDrawingMapFragment, "Draw a polygon fragment")
       .commit()
     return rowLayout
   }
@@ -63,7 +62,10 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
     addSkipButton()
     addUndoButton()
     addContinueButton()
-    addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
+    addButton(ButtonAction.ADD_POINT).setOnClickListener {
+      val point = viewModel.addLastVertex()
+      polygonDrawingMapFragment.setDroppedPinAsInfoCard(point, R.string.dropped_pin)
+    }
     addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.onCompletePolygonButtonClick() }
   }
 

@@ -81,7 +81,7 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
     }
   }
 
-  protected fun setDroppedPinAsInfoCard(point: Point?, textResId: Int) {
+  fun setDroppedPinAsInfoCard(point: Point?, textResId: Int) {
     if (point == null) {
       binding.infoCard.visibility = View.GONE
     } else {
