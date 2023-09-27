@@ -16,7 +16,10 @@
 package com.google.android.ground.ui
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.PorterDuff
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import androidx.annotation.ColorInt
 import androidx.appcompat.content.res.AppCompatResources
@@ -25,6 +28,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.ground.Config
 import com.google.android.ground.R
+import com.google.android.ground.ui.util.obtainTextPaintFromStyle
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -94,13 +98,13 @@ class MarkerIconFactory @Inject constructor(@ApplicationContext private val cont
     val fill = AppCompatResources.getDrawable(context, R.drawable.cluster_marker)
     val bitmap = createBitmap(fill!!, currentZoomLevel, false)
     val canvas = Canvas(bitmap)
-    val style = Paint()
 
-    style.color = Color.BLACK
-    style.textSize = 40.0.toFloat()
-
+    val textPaint =
+      context.applicationContext.obtainTextPaintFromStyle(
+        R.style.TextAppearance_App_MapClusterLabel
+      )
     val bounds = Rect()
-    style.getTextBounds(text, 0, text.length, bounds)
+    textPaint.getTextBounds(text, 0, text.length, bounds)
     val x = (bitmap.width - bounds.width()) / 2
     val y = (bitmap.height + bounds.height()) / 2
 
@@ -108,7 +112,7 @@ class MarkerIconFactory @Inject constructor(@ApplicationContext private val cont
     fill.setBounds(0, 0, bitmap.width, bitmap.height)
     fill.draw(canvas)
 
-    canvas.drawText(text, x.toFloat(), y.toFloat(), style)
+    canvas.drawText(text, x.toFloat(), y.toFloat(), textPaint)
 
     return BitmapDescriptorFactory.fromBitmap(bitmap)
   }

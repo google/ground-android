@@ -115,7 +115,7 @@ class FeatureClusterRenderer(
     return markerIconFactory.getClusterIcon(
       clusterBalloonColor,
       getCurrentZoomLevel(),
-      "$itemsWithFlag / $totalItems"
+      "$itemsWithFlag/$totalItems"
     )
   }
 
