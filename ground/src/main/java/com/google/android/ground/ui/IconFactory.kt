@@ -85,10 +85,7 @@ class IconFactory @Inject constructor(@ApplicationContext private val context: C
   }
 
   /** Returns a [BitmapDescriptor] for representing a marker cluster on the map. */
-  fun getClusterIcon(
-    @ColorInt color: Int,
-    text: String,
-  ): BitmapDescriptor {
+  fun getClusterIcon(text: String): BitmapDescriptor {
     val fill = AppCompatResources.getDrawable(context, R.drawable.cluster_marker)
     val bitmap = createBitmap(fill!!)
     val canvas = Canvas(bitmap)
@@ -102,7 +99,6 @@ class IconFactory @Inject constructor(@ApplicationContext private val context: C
     val x = (bitmap.width - bounds.width()) / 2
     val y = (bitmap.height + bounds.height()) / 2
 
-    fill.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
     fill.setBounds(0, 0, bitmap.width, bitmap.height)
     fill.draw(canvas)
 

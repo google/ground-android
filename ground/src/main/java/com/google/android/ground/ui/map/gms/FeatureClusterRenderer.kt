@@ -49,8 +49,7 @@ class FeatureClusterRenderer(
    * attempt to use the map instance initially passed to the renderer, as renderer methods may not
    * run on the main thread.
    */
-  var zoom: Float,
-  private val clusterBalloonColor: Int
+  var zoom: Float
 ) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
 
   var previousActiveLoiId: String? = null
@@ -112,7 +111,7 @@ class FeatureClusterRenderer(
   private fun createClusterIcon(cluster: Cluster<FeatureClusterItem>): BitmapDescriptor {
     val itemsWithFlag = cluster.items.count { it.feature.tag.flag }
     val totalItems = cluster.items.size
-    return markerIconFactory.getClusterIcon(clusterBalloonColor, "$itemsWithFlag/$totalItems")
+    return markerIconFactory.getClusterIcon("$itemsWithFlag/$totalItems")
   }
 
   override fun onBeforeClusterRendered(
