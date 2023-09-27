@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.common
 
 import android.Manifest
+import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
@@ -92,11 +93,11 @@ constructor(
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, LOCATION_LOCK_ICON_DISABLED)
 
-  val locationAccuracy: StateFlow<Float?> =
+  val location: StateFlow<Location?> =
     locationLock
       .combine(locationManager.locationUpdates) { locationLock, latestLocation ->
         if (locationLock.getOrDefault(false)) {
-          latestLocation.accuracy
+          latestLocation
         } else {
           null
         }

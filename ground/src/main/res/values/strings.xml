@@ -145,6 +145,7 @@
   <string name="drop_a_pin_tooltip_text">Drag your map until the center pin is on the desired location</string>
   <string name="draw_an_area">Draw an area</string>
   <string name="accuracy">Accuracy</string>
+  <string name="current_location">Current Location</string>
   <string name="dropped_pin">Dropped pin</string>
   <string name="loading">Loading…</string>
   <string name="skip_dialog_title">Skip this step?</string>

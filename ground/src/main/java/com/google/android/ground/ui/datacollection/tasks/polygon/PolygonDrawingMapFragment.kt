@@ -56,7 +56,7 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
 
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
-        mapViewModel.locationAccuracy.collect { updateInfoCard(it) }
+        mapViewModel.location.collect { updateInfoCard(it?.accuracy) }
       }
     }
 

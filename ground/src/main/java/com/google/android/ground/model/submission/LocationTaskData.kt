@@ -33,6 +33,7 @@ data class LocationTaskData(
       return "Invalid geometry type: Expected POINT, Found ${geometry?.javaClass?.name}"
     }
 
+    // TODO: Move to strings.xml for i18n
     val df = DecimalFormat("#.##")
     df.roundingMode = RoundingMode.DOWN
     return "${LatLngConverter.processCoordinates(geometry.coordinates)}\n" +

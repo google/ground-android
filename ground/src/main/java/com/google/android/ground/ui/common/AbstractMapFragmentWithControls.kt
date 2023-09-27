@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.common
 
+import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -25,6 +26,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTaskFragBinding
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.submission.LocationTaskData
 import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
@@ -56,7 +58,7 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
 
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
-        mapViewModel.locationAccuracy.collect { setLocationAccuracyAsInfoCard(it) }
+        mapViewModel.location.collect { setCurrentLocationAsInfoCard(it) }
       }
     }
 
@@ -69,12 +71,12 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
     return binding.root
   }
 
-  private fun setLocationAccuracyAsInfoCard(locationAccuracy: Float?) {
-    if (locationAccuracy == null) {
+  private fun setCurrentLocationAsInfoCard(location: Location?) {
+    if (location == null) {
       binding.infoCard.visibility = View.GONE
     } else {
-      binding.cardTitle.setText(R.string.accuracy)
-      binding.cardValue.text = getString(R.string.location_accuracy, locationAccuracy)
+      binding.cardTitle.setText(R.string.current_location)
+      binding.cardValue.text = LocationTaskData.fromLocation(location).getDetailsText()
       binding.infoCard.visibility = View.VISIBLE
     }
   }
