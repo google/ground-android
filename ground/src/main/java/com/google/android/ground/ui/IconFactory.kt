@@ -33,8 +33,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/** Responsible for building dynamically generated icon bitmaps. */
 @Singleton
-class MarkerIconFactory @Inject constructor(@ApplicationContext private val context: Context) {
+class IconFactory @Inject constructor(@ApplicationContext private val context: Context) {
   /** Create a scaled bitmap based on the dimensions of a given [Drawable]. */
   private fun createBitmap(drawable: Drawable, scale: Float = 1f): Bitmap {
     val width = (drawable.intrinsicWidth * scale).toInt()

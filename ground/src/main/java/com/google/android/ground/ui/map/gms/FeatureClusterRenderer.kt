@@ -23,7 +23,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.ui.MarkerIconFactory
+import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
@@ -54,7 +54,7 @@ class FeatureClusterRenderer(
 ) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
 
   var previousActiveLoiId: String? = null
-  private val markerIconFactory: MarkerIconFactory = MarkerIconFactory(context)
+  private val markerIconFactory: IconFactory = IconFactory(context)
 
   private fun getCurrentZoomLevel() = map.cameraPosition.zoom
 
