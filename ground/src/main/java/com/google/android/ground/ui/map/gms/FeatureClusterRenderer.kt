@@ -23,7 +23,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.ui.MarkerIconFactory
+import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
@@ -49,12 +49,11 @@ class FeatureClusterRenderer(
    * attempt to use the map instance initially passed to the renderer, as renderer methods may not
    * run on the main thread.
    */
-  var zoom: Float,
-  private val markerColor: Int
+  var zoom: Float
 ) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
 
   var previousActiveLoiId: String? = null
-  private val markerIconFactory: MarkerIconFactory = MarkerIconFactory(context)
+  private val markerIconFactory: IconFactory = IconFactory(context)
 
   private fun getCurrentZoomLevel() = map.cameraPosition.zoom
 
@@ -106,16 +105,13 @@ class FeatureClusterRenderer(
   }
 
   /**
-   * Creates the marker with a label indicating the number of jobs with submissions over the total
-   * number of jobs in the cluster.
+   * Creates an icon with a label indicating the number of features with [flag] set over the total
+   * number of features in the cluster.
    */
-  private fun createMarkerIcon(cluster: Cluster<FeatureClusterItem>): BitmapDescriptor {
-    val totalWithData = cluster.items.count { it.feature.tag.flag }
-    return markerIconFactory.getClusterIcon(
-      markerColor,
-      getCurrentZoomLevel(),
-      "$totalWithData/" + cluster.items.size
-    )
+  private fun createClusterIcon(cluster: Cluster<FeatureClusterItem>): BitmapDescriptor {
+    val itemsWithFlag = cluster.items.count { it.feature.tag.flag }
+    val totalItems = cluster.items.size
+    return markerIconFactory.getClusterIcon("$itemsWithFlag/$totalItems")
   }
 
   override fun onBeforeClusterRendered(
@@ -130,14 +126,14 @@ class FeatureClusterRenderer(
     super.onBeforeClusterRendered(cluster, markerOptions)
     Timber.d("MARKER_RENDER: onBeforeClusterRendered")
     with(markerOptions) {
-      icon(createMarkerIcon(cluster))
+      icon(createClusterIcon(cluster))
       zIndex(CLUSTER_Z)
     }
   }
 
   override fun onClusterUpdated(cluster: Cluster<FeatureClusterItem>, marker: Marker) {
     super.onClusterUpdated(cluster, marker)
-    marker.setIcon(createMarkerIcon(cluster))
+    marker.setIcon(createClusterIcon(cluster))
   }
 
   /**
