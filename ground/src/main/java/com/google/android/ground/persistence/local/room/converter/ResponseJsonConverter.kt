@@ -18,13 +18,13 @@ package com.google.android.ground.persistence.local.room.converter
 
 import com.google.android.ground.model.submission.DateTaskData
 import com.google.android.ground.model.submission.GeometryData
+import com.google.android.ground.model.submission.LocationTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.persistence.local.room.entity.GeometryWrapper
 import com.google.android.ground.persistence.remote.DataStoreException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -48,8 +48,13 @@ internal object ResponseJsonConverter {
       is NumberTaskData -> taskData.value
       is DateTaskData -> dateToIsoString(taskData.date)
       is TimeTaskData -> dateToIsoString(taskData.time)
-      is GeometryData ->
-        GeometryWrapperTypeConverter.toString(GeometryWrapper.fromGeometry(taskData.geometry))
+      is GeometryData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
+      is LocationTaskData ->
+        JSONObject().apply {
+          put("accuracy", taskData.accuracy)
+          put("altitude", taskData.altitude)
+          put("geometry", GeometryWrapperTypeConverter.toString(taskData.geometry))
+        }
       else -> throw UnsupportedOperationException("Unimplemented taskData ${taskData.javaClass}")
     }
   }
@@ -100,9 +105,13 @@ internal object ResponseJsonConverter {
         )
       }
       Task.Type.CAPTURE_LOCATION -> {
-        // TODO(#774): Don't use string for data persistence
-        DataStoreException.checkType(String::class.java, obj)
-        TextTaskData.fromString(obj as String)
+        DataStoreException.checkType(JSONObject::class.java, obj)
+        val data = obj as JSONObject
+        val accuracy = data.getDouble("accuracy")
+        val altitude = data.getDouble("altitude")
+        val geometry =
+          GeometryWrapperTypeConverter.fromString(data.getString("geometry"))?.getGeometry()
+        LocationTaskData(geometry, accuracy, altitude)
       }
       Task.Type.UNKNOWN -> {
         throw DataStoreException("Unknown type in task: " + obj.javaClass.name)

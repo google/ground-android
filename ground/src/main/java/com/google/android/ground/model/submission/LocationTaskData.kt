@@ -24,13 +24,13 @@ import java.math.RoundingMode
 import java.text.DecimalFormat
 
 data class LocationTaskData(
-  val geometry: Geometry,
+  val geometry: Geometry?,
   val altitude: Double?, // in metres
-  val accuracy: Float? // in metres
+  val accuracy: Double? // in metres
 ) : TaskData {
   override fun getDetailsText(): String {
     if (geometry !is Point) {
-      return "Invalid geometry type: Expected POINT, Found ${geometry.javaClass.name}"
+      return "Invalid geometry type: Expected POINT, Found ${geometry?.javaClass?.name}"
     }
 
     val df = DecimalFormat("#.##")
@@ -40,16 +40,18 @@ data class LocationTaskData(
       "Accuracy: ${df.format(accuracy)}m"
   }
 
-  override fun isEmpty(): Boolean {
-    return false
-  }
+  override fun isEmpty(): Boolean = geometry == null
 
   companion object {
     fun fromLocation(location: Location): LocationTaskData {
       with(location) {
         val altitude = if (hasAltitude()) altitude else null
         val accuracy = if (hasAccuracy()) accuracy else null
-        return LocationTaskData(Point(Coordinates(latitude, longitude)), altitude, accuracy)
+        return LocationTaskData(
+          Point(Coordinates(latitude, longitude)),
+          altitude,
+          accuracy?.toDouble()
+        )
       }
     }
   }

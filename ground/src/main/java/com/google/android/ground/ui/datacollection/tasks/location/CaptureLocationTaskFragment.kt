@@ -56,7 +56,7 @@ class CaptureLocationTaskFragment :
     addButton(ButtonAction.CAPTURE_LOCATION)
       .setOnClickListener {
         disableLocationUpdates()
-        viewLifecycleOwner.lifecycleScope.launch { viewModel.updateResponse() }
+        viewModel.updateResponse()
       }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNullOrEmpty()) }
     addButton(ButtonAction.CONTINUE)
