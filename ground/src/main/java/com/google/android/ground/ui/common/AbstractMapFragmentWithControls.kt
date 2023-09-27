@@ -39,13 +39,7 @@ import org.jetbrains.annotations.MustBeInvokedByOverriders
  */
 abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() {
 
-  private lateinit var mapViewModel: BaseMapViewModel
   protected lateinit var binding: MapTaskFragBinding
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    mapViewModel = getViewModel(BaseMapViewModel::class.java)
-  }
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -54,18 +48,18 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
   ): View {
     binding = MapTaskFragBinding.inflate(inflater, container, false)
     binding.fragment = this
-    binding.viewModel = mapViewModel
+    binding.viewModel = getMapViewModel()
     binding.lifecycleOwner = this
 
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
-        mapViewModel.location.collect { setCurrentLocationAsInfoCard(it) }
+        getMapViewModel().location.collect { setCurrentLocationAsInfoCard(it) }
       }
     }
 
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
-        mapViewModel.getCurrentCameraPosition().collect { onMapCameraMoved(it) }
+        getMapViewModel().getCurrentCameraPosition().collect { onMapCameraMoved(it) }
       }
     }
 
@@ -82,7 +76,7 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
     }
   }
 
-  fun setDroppedPinAsInfoCard(point: Point?, textResId: Int) {
+  private fun setDroppedPinAsInfoCard(point: Point?, textResId: Int) {
     if (point == null) {
       binding.infoCard.visibility = View.GONE
     } else {
@@ -92,11 +86,9 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
     }
   }
 
-  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
-
   @MustBeInvokedByOverriders
   protected open fun onMapCameraMoved(position: CameraPosition) {
-    if (mapViewModel.locationLock.value.getOrDefault(false)) {
+    if (getMapViewModel().locationLock.value.getOrDefault(false)) {
       // Don't update the info card as it is already showing current location
       return
     }

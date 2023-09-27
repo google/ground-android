@@ -20,6 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.google.android.ground.R
+import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
@@ -62,5 +63,8 @@ class CaptureLocationTaskFragment :
       .setOnClickListener { viewModel.updateResponse() }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNullOrEmpty()) }
     addButton(ButtonAction.CONTINUE)
+      .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
+      .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
+      .hide()
   }
 }

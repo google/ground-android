@@ -15,8 +15,10 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
+import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
+import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
@@ -26,6 +28,15 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint(AbstractMapFragmentWithControls::class)
 class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) :
   Hilt_PolygonDrawingMapFragment() {
+
+  private lateinit var mapViewModel: BaseMapViewModel
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    mapViewModel = getViewModel(BaseMapViewModel::class.java)
+  }
+
+  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   override fun onMapReady(map: MapFragment) {
     viewLifecycleOwner.lifecycleScope.launch {

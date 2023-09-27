@@ -21,6 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.R
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
+import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.components.TaskHeaderPopupView
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
@@ -29,6 +30,13 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint(AbstractMapFragmentWithControls::class)
 class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
   Hilt_DropAPinMapFragment() {
+
+  private lateinit var mapViewModel: BaseMapViewModel
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    mapViewModel = getViewModel(BaseMapViewModel::class.java)
+  }
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -43,6 +51,8 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
     binding.hintIcon.visibility = View.VISIBLE
     return root
   }
+
+  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   override fun onMapReady(map: MapFragment) {
     viewModel.features.observe(this) { map.renderFeatures(it) }
