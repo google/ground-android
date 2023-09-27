@@ -45,6 +45,7 @@ import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.mog.MogCollection
 import com.google.android.ground.ui.map.gms.mog.MogTileProvider
+import com.google.android.ground.ui.map.gms.renderer.PointRenderer
 import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
 import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
 import com.google.android.ground.ui.util.BitmapUtil
@@ -80,6 +81,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   /** Camera move events. Emits items after the camera has stopped moving. */
   override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
 
+  private lateinit var pointRenderer: PointRenderer
   private lateinit var polylineRenderer: PolylineRenderer
   private lateinit var polygonRenderer: PolygonRenderer
 
@@ -172,7 +174,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     this.map = map
 
     val featureColor = resources.getColor(R.color.clusterColor)
-
+    pointRenderer = PointRenderer(map, context!!)
     polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth)
     polygonRenderer =
       PolygonRenderer(map, polylineStrokeWidth, resources.getColor(R.color.polyLineColor))
@@ -183,6 +185,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
         requireContext(),
         map,
         clusterManager,
+        pointRenderer,
         polygonRenderer,
         Config.CLUSTERING_ZOOM_THRESHOLD,
         map.cameraPosition.zoom,
@@ -287,8 +290,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
       return
     }
     when (feature.geometry) {
-      // TODO(#1907): Stop clustering unclustered points.
-      is Point -> clusterManager.addFeature(feature)
+      is Point -> pointRenderer.addFeature(feature)
       is LineString,
       is LinearRing -> polylineRenderer.addFeature(feature)
       is Polygon,
