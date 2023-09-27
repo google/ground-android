@@ -50,7 +50,7 @@ class FeatureClusterRenderer(
    * run on the main thread.
    */
   var zoom: Float,
-  private val markerColor: Int
+  private val clusterBalloonColor: Int
 ) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
 
   var previousActiveLoiId: String? = null
@@ -110,11 +110,12 @@ class FeatureClusterRenderer(
    * number of features in the cluster.
    */
   private fun createClusterIcon(cluster: Cluster<FeatureClusterItem>): BitmapDescriptor {
-    val totalWithData = cluster.items.count { it.feature.tag.flag }
+    val itemsWithFlag = cluster.items.count { it.feature.tag.flag }
+    val totalItems = cluster.items.size
     return markerIconFactory.getClusterIcon(
-      markerColor,
+      clusterBalloonColor,
       getCurrentZoomLevel(),
-      "$totalWithData/" + cluster.items.size
+      "$itemsWithFlag / $totalItems"
     )
   }
 
