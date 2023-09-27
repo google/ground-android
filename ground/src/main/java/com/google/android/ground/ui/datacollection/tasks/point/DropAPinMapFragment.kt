@@ -23,39 +23,26 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
-import com.google.android.ground.databinding.MapTaskFragBinding
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.submission.GeometryData
-import com.google.android.ground.ui.common.AbstractMapContainerFragment
-import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.datacollection.components.TaskHeaderPopupView
-import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinates
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint(AbstractMapContainerFragment::class)
+@AndroidEntryPoint(AbstractMapFragmentWithControls::class)
 class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
   Hilt_DropAPinMapFragment() {
-
-  private lateinit var binding: MapTaskFragBinding
-  private lateinit var mapViewModel: BaseMapViewModel
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    mapViewModel = getViewModel(BaseMapViewModel::class.java)
-  }
 
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    binding = MapTaskFragBinding.inflate(inflater, container, false)
-    binding.fragment = this
-    binding.viewModel = mapViewModel
-    binding.lifecycleOwner = this
+    val root = super.onCreateView(inflater, container, savedInstanceState)
+
     binding.hintIcon.setOnClickListener {
       TaskHeaderPopupView(requireContext())
         .show(binding.hintIcon, getString(R.string.drop_a_pin_tooltip_text))
@@ -64,54 +51,20 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
 
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
-        mapViewModel.locationAccuracy.collect { setLocationAccuracyAsInfoCard(it) }
-      }
-    }
-
-    viewLifecycleOwner.lifecycleScope.launch {
-      repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.taskDataValue.collect {
-          setDroppedPinAsInfoCard((it as? GeometryData)?.geometry as? Point)
+          setDroppedPinAsInfoCard((it as? GeometryData)?.geometry as? Point, R.string.dropped_pin)
         }
       }
     }
 
-    viewLifecycleOwner.lifecycleScope.launch {
-      repeatOnLifecycle(Lifecycle.State.STARTED) {
-        mapViewModel.getCurrentCameraPosition().collect { onMapCameraMoved(it) }
-      }
-    }
-
-    return binding.root
-  }
-
-  private fun setLocationAccuracyAsInfoCard(locationAccuracy: Float?) {
-    if (locationAccuracy == null) {
-      binding.infoCard.visibility = View.GONE
-    } else {
-      binding.cardTitle.setText(R.string.accuracy)
-      binding.cardValue.text = getString(R.string.location_accuracy, locationAccuracy)
-      binding.infoCard.visibility = View.VISIBLE
-    }
-  }
-
-  private fun setDroppedPinAsInfoCard(point: Point?) {
-    if (point == null) {
-      binding.infoCard.visibility = View.GONE
-    } else {
-      binding.cardTitle.setText(R.string.dropped_pin)
-      binding.cardValue.text = processCoordinates(point.coordinates)
-      binding.infoCard.visibility = View.VISIBLE
-    }
+    return root
   }
 
   override fun onMapReady(map: MapFragment) {
     viewModel.features.observe(this) { map.renderFeatures(it) }
   }
 
-  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
-
-  fun onMapCameraMoved(position: CameraPosition) {
+  override fun onMapCameraMoved(position: CameraPosition) {
     viewModel.updateCameraPosition(position)
   }
 
