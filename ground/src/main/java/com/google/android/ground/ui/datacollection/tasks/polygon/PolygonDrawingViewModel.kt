@@ -105,10 +105,9 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   }
 
   /** Adds the last vertex to the polygon. */
-  fun addLastVertex(): Point? {
+  fun addLastVertex() {
     check(!isMarkedComplete) { "Attempted to add last vertex after completing the drawing" }
     vertices.lastOrNull()?.let { addVertex(it.coordinates, false) }
-    return vertices.lastOrNull()
   }
 
   /**

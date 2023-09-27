@@ -31,6 +31,7 @@ import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import kotlinx.coroutines.launch
+import org.jetbrains.annotations.MustBeInvokedByOverriders
 
 /**
  * Injects a [MapFragment] in the container with id "map" and provides shared map functionality
@@ -93,5 +94,16 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
-  protected open fun onMapCameraMoved(position: CameraPosition) {}
+  @MustBeInvokedByOverriders
+  protected open fun onMapCameraMoved(position: CameraPosition) {
+    if (mapViewModel.locationLock.value.getOrDefault(false)) {
+      // Don't update the info card as it is already showing current location
+      return
+    }
+
+    val target = position.target
+    if (target != null) {
+      setDroppedPinAsInfoCard(Point(target), R.string.dropped_pin)
+    }
+  }
 }

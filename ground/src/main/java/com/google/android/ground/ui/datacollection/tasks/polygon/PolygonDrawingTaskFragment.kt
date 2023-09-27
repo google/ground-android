@@ -62,10 +62,7 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
     addSkipButton()
     addUndoButton()
     addContinueButton()
-    addButton(ButtonAction.ADD_POINT).setOnClickListener {
-      val point = viewModel.addLastVertex()
-      polygonDrawingMapFragment.setDroppedPinAsInfoCard(point, R.string.dropped_pin)
-    }
+    addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
     addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.onCompletePolygonButtonClick() }
   }
 

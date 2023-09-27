@@ -36,6 +36,7 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
   }
 
   override fun onMapCameraMoved(position: CameraPosition) {
+    super.onMapCameraMoved(position)
     if (!viewModel.isMarkedComplete()) {
       val mapCenter = position.target!!
       viewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->
