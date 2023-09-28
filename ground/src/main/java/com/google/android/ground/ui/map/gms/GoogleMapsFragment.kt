@@ -80,9 +80,9 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   /** Camera move events. Emits items after the camera has stopped moving. */
   override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
 
-  @Inject lateinit var pointRenderer: PointFeatureManager
-  @Inject lateinit var polylineRenderer: PolylineFeatureManager
-  @Inject lateinit var polygonRenderer: PolygonFeatureManager
+  @Inject lateinit var pointFeatureManager: PointFeatureManager
+  @Inject lateinit var polylineFeatureManager: PolylineFeatureManager
+  @Inject lateinit var polygonFeatureManager: PolygonFeatureManager
 
   @Inject lateinit var bitmapUtil: BitmapUtil
 
@@ -169,9 +169,9 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun onMapReady(map: GoogleMap) {
     this.map = map
 
-    pointRenderer.map = map
-    polylineRenderer.map = map
-    polygonRenderer.map = map
+    pointFeatureManager.map = map
+    polylineFeatureManager.map = map
+    polygonFeatureManager.map = map
 
     clusterManager = FeatureClusterManager(requireContext(), map)
     clusterRenderer =
@@ -179,8 +179,8 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
         requireContext(),
         map,
         clusterManager,
-        pointRenderer,
-        polygonRenderer,
+        pointFeatureManager,
+        polygonFeatureManager,
         Config.CLUSTERING_ZOOM_THRESHOLD,
         map.cameraPosition.zoom
       )
@@ -241,7 +241,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   }
 
   private fun getPolygonFeaturesContaining(latLng: LatLng) =
-    polygonRenderer
+    polygonFeatureManager
       .getPolygonsByFeature()
       .filterValues { polygons ->
         polygons.any { PolyUtil.containsLocation(latLng, it.points, false) }
@@ -258,17 +258,17 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun removeStaleFeatures(features: Set<Feature>) {
     Timber.d("Removing stale features from map")
     clusterManager.removeStaleFeatures(features)
-    pointRenderer.removeStaleFeatures(features)
-    polylineRenderer.removeStaleFeatures(features)
-    polygonRenderer.removeStaleFeatures(features)
+    pointFeatureManager.removeStaleFeatures(features)
+    polylineFeatureManager.removeStaleFeatures(features)
+    polygonFeatureManager.removeStaleFeatures(features)
   }
 
   private fun removeAllFeatures() {
     Timber.d("Removing all features from map")
     clusterManager.removeAllFeatures()
-    pointRenderer.removeAllFeatures()
-    polylineRenderer.removeAllFeatures()
-    polygonRenderer.removeAllFeatures()
+    pointFeatureManager.removeAllFeatures()
+    polylineFeatureManager.removeAllFeatures()
+    polygonFeatureManager.removeAllFeatures()
   }
 
   private fun addOrUpdateFeature(feature: Feature) {
@@ -277,11 +277,11 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
       return
     }
     when (feature.geometry) {
-      is Point -> pointRenderer.addFeature(feature)
+      is Point -> pointFeatureManager.addFeature(feature)
       is LineString,
-      is LinearRing -> polylineRenderer.addFeature(feature)
+      is LinearRing -> polylineFeatureManager.addFeature(feature)
       is Polygon,
-      is MultiPolygon -> polygonRenderer.addFeature(feature)
+      is MultiPolygon -> polygonFeatureManager.addFeature(feature)
     }
   }
 
