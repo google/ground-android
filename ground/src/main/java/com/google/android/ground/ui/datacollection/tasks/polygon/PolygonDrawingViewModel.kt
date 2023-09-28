@@ -156,8 +156,8 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
           id = uuidGenerator.generateUuid(),
           type = FeatureType.USER_POLYGON.ordinal,
           geometry = createGeometry(points, isMarkedComplete),
-          // TODO: Set correct pin color.
-          style = Feature.Style(0),
+          // TODO: Set correct color.
+          style = Feature.Style(0, Feature.VertexStyle.CIRCLE),
           clusterable = false
         )
       }

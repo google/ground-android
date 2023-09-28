@@ -116,7 +116,11 @@ fun JobEntityAndRelations.toModelObject(): Job {
   )
 }
 
-fun StyleEntity.toModelObject() = color?.let { Style(it) } ?: Style()
+/**
+ * Returns the equivalent model object, setting the style color to #000 if it was missing in the
+ * local db.
+ */
+fun StyleEntity.toModelObject() = color?.let { Style(it) } ?: Style("#000000")
 
 fun Style.toLocalDataStoreObject() = StyleEntity(color)
 
@@ -147,7 +151,8 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       caption = caption,
       geometry = geometry.getGeometry(),
       submissionCount = submissionCount,
-      job = survey.getJob(jobId = jobId)
+      job =
+        survey.getJob(jobId = jobId)
           ?: throw LocalDataConsistencyException(
             "Unknown jobId ${this.jobId} in location of interest ${this.id}"
           )
