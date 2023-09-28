@@ -271,6 +271,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun removeStaleFeatures(features: Set<Feature>) {
     Timber.d("Removing stale features from map")
     clusterManager.removeStaleFeatures(features)
+    pointRenderer.removeStaleFeatures(features)
     polylineRenderer.removeStaleFeatures(features)
     polygonRenderer.removeStaleFeatures(features)
   }
@@ -278,6 +279,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun removeAllFeatures() {
     Timber.d("Removing all features from map")
     clusterManager.removeAllFeatures()
+    pointRenderer.removeAllFeatures()
     polylineRenderer.removeAllFeatures()
     polygonRenderer.removeAllFeatures()
   }
@@ -297,8 +299,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   }
 
   override fun renderFeatures(features: Set<Feature>) {
-    // Re-cluster and re-render
-    Timber.v("renderFeatures() called with ${features.size} locations of interest")
+    Timber.v("renderFeatures() called with ${features.size} features")
     if (features.isNotEmpty()) {
       removeStaleFeatures(features)
       Timber.d("Updating ${features.size} features")
