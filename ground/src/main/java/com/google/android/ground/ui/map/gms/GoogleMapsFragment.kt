@@ -32,7 +32,6 @@ import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.ground.Config
-import com.google.android.ground.R
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.imagery.TileSource
@@ -81,9 +80,9 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   /** Camera move events. Emits items after the camera has stopped moving. */
   override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
 
-  private lateinit var pointRenderer: PointRenderer
-  private lateinit var polylineRenderer: PolylineRenderer
-  private lateinit var polygonRenderer: PolygonRenderer
+  @Inject lateinit var pointRenderer: PointRenderer
+  @Inject lateinit var polylineRenderer: PolylineRenderer
+  @Inject lateinit var polygonRenderer: PolygonRenderer
 
   @Inject lateinit var bitmapUtil: BitmapUtil
 
@@ -102,9 +101,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private val tileOverlays = mutableListOf<TileOverlay>()
 
   override val featureClicks = MutableSharedFlow<Set<Feature>>()
-
-  private val polylineStrokeWidth: Float
-    get() = resources.getDimension(R.dimen.polyline_stroke_width)
 
   override var mapType: MapType
     get() = MAP_TYPES_BY_ID[map.mapType]!!
@@ -173,10 +169,9 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun onMapReady(map: GoogleMap) {
     this.map = map
 
-    pointRenderer = PointRenderer(requireContext(), map)
-    polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth)
-    polygonRenderer =
-      PolygonRenderer(map, polylineStrokeWidth, resources.getColor(R.color.polyLineColor))
+    pointRenderer.map = map
+    polylineRenderer.map = map
+    polygonRenderer.map = map
 
     clusterManager = FeatureClusterManager(requireContext(), map)
     clusterRenderer =
@@ -236,14 +231,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   override fun moveCamera(bounds: Bounds) {
     map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 100))
-  }
-
-  private fun getCustomCap(): CustomCap {
-    if (customCap == null) {
-      val bitmap = bitmapUtil.fromVector(R.drawable.ic_endpoint)
-      customCap = CustomCap(BitmapDescriptorFactory.fromBitmap(bitmap))
-    }
-    return checkNotNull(customCap)
   }
 
   private fun onMapClick(latLng: LatLng) {

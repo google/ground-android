@@ -72,6 +72,7 @@ object FakeData {
       id = LOCATION_OF_INTEREST.id,
       type = FeatureType.LOCATION_OF_INTEREST.ordinal,
       geometry = LOCATION_OF_INTEREST.geometry,
+      style = Feature.Style(0),
       clusterable = true
     )
 

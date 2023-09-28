@@ -55,6 +55,8 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
       id = uuidGenerator.generateUuid(),
       type = FeatureType.USER_POINT.ordinal,
       geometry = point,
+      // TODO: Set correct pin color.
+      style = Feature.Style(0),
       clusterable = false
     )
 

@@ -17,7 +17,7 @@
 package com.google.android.ground.ui.map.gms.renderer
 
 import android.content.Context
-import com.google.android.gms.maps.GoogleMap
+import androidx.annotation.ColorInt
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -25,10 +25,12 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.gms.MARKER_Z
-import com.google.android.ground.ui.map.gms.parseColor
 import com.google.android.ground.ui.map.gms.toLatLng
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-class PointRenderer(val context: Context, map: GoogleMap) : FeatureRenderer(map) {
+class PointRenderer @Inject constructor(@ApplicationContext val context: Context) :
+  FeatureRenderer() {
   private val markerIconFactory: IconFactory = IconFactory(context)
   private val markersByTag = HashMap<Feature.Tag, Marker>()
 
@@ -43,19 +45,15 @@ class PointRenderer(val context: Context, map: GoogleMap) : FeatureRenderer(map)
     markersByTag[feature.tag] = marker
   }
 
-  fun setMarkerOptions(markerOptions: MarkerOptions, isSelected: Boolean, color: String) {
+  fun setMarkerOptions(markerOptions: MarkerOptions, isSelected: Boolean, @ColorInt color: Int) {
     with(markerOptions) {
       icon(getMarkerIcon(isSelected, color))
       zIndex(MARKER_Z)
     }
   }
 
-  fun getMarkerIcon(isSelected: Boolean = false, color: String): BitmapDescriptor =
-    markerIconFactory.getMarkerIcon(
-      color.parseColor(context.resources),
-      map.cameraPosition.zoom,
-      isSelected
-    )
+  fun getMarkerIcon(isSelected: Boolean = false, @ColorInt color: Int): BitmapDescriptor =
+    markerIconFactory.getMarkerIcon(color, map.cameraPosition.zoom, isSelected)
 
   override fun removeStaleFeatures(features: Set<Feature>) =
     (markersByTag.keys - features.map { it.tag }.toSet()).forEach { remove(it) }

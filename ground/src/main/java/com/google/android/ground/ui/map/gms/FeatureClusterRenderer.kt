@@ -38,9 +38,8 @@ import timber.log.Timber
  * individual markers for each cluster item.
  */
 class FeatureClusterRenderer(
-  // TODO: Inject.
   context: Context,
-  private val map: GoogleMap,
+  map: GoogleMap,
   private val clusterManager: FeatureClusterManager,
   private val pointRenderer: PointRenderer,
   private val polygonRenderer: PolygonRenderer,

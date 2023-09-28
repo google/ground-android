@@ -15,10 +15,12 @@
  */
 package com.google.android.ground.repository
 
+import android.graphics.Color
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
@@ -153,11 +155,13 @@ constructor(
           type = FeatureType.LOCATION_OF_INTEREST.ordinal,
           flag = submissionCount > 0,
           geometry = it.geometry,
-          style = it.job.style,
+          style = toFeatureStyle(it.job.style),
           clusterable = true
         )
       }
       .toPersistentSet()
+
+  private fun toFeatureStyle(style: Style) = Feature.Style(Color.parseColor(style.color))
 
   /** Returns a list of geometries associated with the given [Survey]. */
   suspend fun getAllGeometries(survey: Survey): List<Geometry> =

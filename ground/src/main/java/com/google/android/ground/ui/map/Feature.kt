@@ -15,9 +15,8 @@
  */
 package com.google.android.ground.ui.map
 
-import android.graphics.Color
+import androidx.annotation.ColorInt
 import com.google.android.ground.model.geometry.Geometry
-import com.google.android.ground.model.job.Style
 
 /** Represents an individual feature on a map with a given [Geometry] and [Tag]. */
 data class Feature(
@@ -31,7 +30,7 @@ data class Feature(
     type: Int,
     geometry: Geometry,
     flag: Boolean = false,
-    style: Style = Style(),
+    style: Style,
     clusterable: Boolean
   ) : this(Tag(id, type, flag), geometry, style, clusterable)
 
@@ -45,9 +44,14 @@ data class Feature(
      */
     val type: Int,
     /** An arbitrary slot for boolean flag. The interpretation of this field is type-dependent. */
-    // TODO: This is not part of the unique identifer for the feature - should not live in Tag!
+    // TODO: This is not part of the unique identifier for the feature - should not live in Tag!
     val flag: Boolean = false
   )
-}
 
-fun Feature.colorInt(): Int = Color.parseColor(style.color)
+  data class Style(@ColorInt val color: Int, val jointType: JointType? = JointType.NONE)
+
+  enum class JointType {
+    NONE,
+    CIRCLE
+  }
+}
