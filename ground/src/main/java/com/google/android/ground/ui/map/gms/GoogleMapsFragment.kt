@@ -44,6 +44,7 @@ import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.mog.MogCollection
 import com.google.android.ground.ui.map.gms.mog.MogTileProvider
+import com.google.android.ground.ui.map.gms.renderer.FeatureManager
 import com.google.android.ground.ui.map.gms.renderer.PointFeatureManager
 import com.google.android.ground.ui.map.gms.renderer.PolygonFeatureManager
 import com.google.android.ground.ui.map.gms.renderer.PolylineFeatureManager
@@ -84,8 +85,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   @Inject lateinit var pointFeatureManager: PointFeatureManager
   @Inject lateinit var polylineFeatureManager: PolylineFeatureManager
   @Inject lateinit var polygonFeatureManager: PolygonFeatureManager
-
   @Inject lateinit var bitmapUtil: BitmapUtil
+
+  private val featureManagers: List<FeatureManager>
+    get() = listOf(pointFeatureManager, polylineFeatureManager, polygonFeatureManager)
 
   private lateinit var map: GoogleMap
 
@@ -164,10 +167,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun onMapReady(map: GoogleMap) {
     this.map = map
 
-    pointFeatureManager.map = map
-    polylineFeatureManager.map = map
-    polygonFeatureManager.map = map
-
+    featureManagers.forEach { it.onMapReady(map) }
     clusterManager = FeatureClusterManager(requireContext(), map)
     clusterRenderer =
       FeatureClusterRenderer(
@@ -253,17 +253,13 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun removeStaleFeatures(features: Set<Feature>) {
     Timber.d("Removing stale features from map")
     clusterManager.removeStaleFeatures(features)
-    pointFeatureManager.removeStaleFeatures(features)
-    polylineFeatureManager.removeStaleFeatures(features)
-    polygonFeatureManager.removeStaleFeatures(features)
+    featureManagers.forEach { it.removeStaleFeatures(features) }
   }
 
   private fun removeAllFeatures() {
     Timber.d("Removing all features from map")
     clusterManager.removeAllFeatures()
-    pointFeatureManager.removeAllFeatures()
-    polylineFeatureManager.removeAllFeatures()
-    polygonFeatureManager.removeAllFeatures()
+    featureManagers.forEach { it.removeAllFeatures() }
   }
 
   private fun addOrUpdateFeature(feature: Feature) {
