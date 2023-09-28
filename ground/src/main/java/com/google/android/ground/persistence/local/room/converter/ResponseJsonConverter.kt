@@ -26,7 +26,9 @@ import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.android.ground.persistence.remote.firebase.schema.LocationTaskDataConverter
+import com.google.android.ground.persistence.remote.firebase.schema.LocationTaskDataConverter.ACCURACY_KEY
+import com.google.android.ground.persistence.remote.firebase.schema.LocationTaskDataConverter.ALTITUDE_KEY
+import com.google.android.ground.persistence.remote.firebase.schema.LocationTaskDataConverter.GEOMETRY_KEY
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -107,13 +109,22 @@ internal object ResponseJsonConverter {
       }
       Task.Type.CAPTURE_LOCATION -> {
         DataStoreException.checkType(JSONObject::class.java, obj)
-        LocationTaskDataConverter.fromJsonObject(obj as JSONObject).getOrThrow()
+        locationTaskDataFromJsonObject(obj as JSONObject).getOrThrow()
       }
       Task.Type.UNKNOWN -> {
         throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
       }
     }
   }
+
+  private fun locationTaskDataFromJsonObject(data: JSONObject): Result<LocationTaskData> =
+    Result.runCatching {
+      val accuracy = data.getDouble(ACCURACY_KEY)
+      val altitude = data.getDouble(ALTITUDE_KEY)
+      val geometry =
+        GeometryWrapperTypeConverter.fromString(data.getString(GEOMETRY_KEY))?.getGeometry()
+      LocationTaskData(geometry, accuracy, altitude)
+    }
 
   private fun toList(jsonArray: JSONArray): List<String> {
     val list: MutableList<String> = ArrayList(jsonArray.length())
