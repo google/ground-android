@@ -68,7 +68,7 @@ constructor(@ApplicationContext context: Context, bitmapUtil: BitmapUtil) : Feat
     val style = feature.style
     with(polyline) {
       tag = feature.tag
-      if (style.jointType == Feature.JointType.CIRCLE) {
+      if (style.vertexStyle == Feature.VertexStyle.CIRCLE) {
         startCap = circleCap
         endCap = circleCap
       }

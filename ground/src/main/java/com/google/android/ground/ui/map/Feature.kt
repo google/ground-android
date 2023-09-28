@@ -48,9 +48,9 @@ data class Feature(
     val flag: Boolean = false
   )
 
-  data class Style(@ColorInt val color: Int, val jointType: JointType? = JointType.NONE)
+  data class Style(@ColorInt val color: Int, val vertexStyle: VertexStyle? = VertexStyle.NONE)
 
-  enum class JointType {
+  enum class VertexStyle {
     NONE,
     CIRCLE
   }
