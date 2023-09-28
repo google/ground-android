@@ -37,7 +37,7 @@ import org.robolectric.RobolectricTestRunner
 class MarkerIconFactoryTest : BaseHiltTest() {
   @Inject @ApplicationContext lateinit var context: Context
 
-  @Inject lateinit var markerIconFactory: MarkerIconFactory
+  @Inject lateinit var markerIconFactory: IconFactory
   private var markerUnscaledWidth = 0
   private var markerUnscaledHeight = 0
 

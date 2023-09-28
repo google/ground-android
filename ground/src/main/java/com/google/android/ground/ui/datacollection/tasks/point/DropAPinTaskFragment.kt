@@ -22,7 +22,7 @@ import android.widget.LinearLayout
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
-import com.google.android.ground.ui.MarkerIconFactory
+import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
@@ -34,7 +34,7 @@ import javax.inject.Inject
 @AndroidEntryPoint(AbstractTaskFragment::class)
 class DropAPinTaskFragment : Hilt_DropAPinTaskFragment<DropAPinTaskViewModel>() {
 
-  @Inject lateinit var markerIconFactory: MarkerIconFactory
+  @Inject lateinit var markerIconFactory: IconFactory
   @Inject lateinit var map: MapFragment
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =

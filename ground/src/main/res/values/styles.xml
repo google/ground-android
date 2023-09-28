@@ -291,4 +291,9 @@
     <item name="android:textColor">@android:color/black</item>
     <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
   </style>
+
+  <style name="TextAppearance.App.MapClusterLabel" parent="TextAppearance.Material3.LabelMedium">
+    <item name="android:textColor">@color/blackMapOverlay</item>
+    <item name="android:fontFamily">@font/text_700</item>
+  </style>
 </resources>
