@@ -44,7 +44,8 @@ data class LocationTaskData(
   override fun isEmpty(): Boolean = geometry == null
 
   companion object {
-    fun fromLocation(location: Location): LocationTaskData {
+    fun fromLocation(location: Location?): LocationTaskData? {
+      if (location == null) return null
       with(location) {
         val altitude = if (hasAltitude()) altitude else null
         val accuracy = if (hasAccuracy()) accuracy else null

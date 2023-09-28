@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.common
 
-import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -25,7 +24,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTaskFragBinding
-import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.submission.LocationTaskData
 import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter
 import com.google.android.ground.ui.map.CameraPosition
@@ -53,7 +51,11 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
 
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
-        getMapViewModel().location.collect { setCurrentLocationAsInfoCard(it) }
+        getMapViewModel().location.collect {
+          val locationTaskData = LocationTaskData.fromLocation(it)
+          val locationText = locationTaskData?.getDetailsText()
+          setCurrentLocationAsInfoCard(locationText)
+        }
       }
     }
 
@@ -66,22 +68,12 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
     return binding.root
   }
 
-  private fun setCurrentLocationAsInfoCard(location: Location?) {
-    if (location == null) {
+  private fun setCurrentLocationAsInfoCard(locationText: String?) {
+    if (locationText.isNullOrEmpty()) {
       binding.infoCard.visibility = View.GONE
     } else {
       binding.cardTitle.setText(R.string.current_location)
-      binding.cardValue.text = LocationTaskData.fromLocation(location).getDetailsText()
-      binding.infoCard.visibility = View.VISIBLE
-    }
-  }
-
-  private fun setDroppedPinAsInfoCard(point: Point?, textResId: Int) {
-    if (point == null) {
-      binding.infoCard.visibility = View.GONE
-    } else {
-      binding.cardTitle.setText(textResId)
-      binding.cardValue.text = LatLngConverter.processCoordinates(point.coordinates)
+      binding.cardValue.text = locationText
       binding.infoCard.visibility = View.VISIBLE
     }
   }
@@ -92,10 +84,8 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
       // Don't update the info card as it is already showing current location
       return
     }
-
     val target = position.target
-    if (target != null) {
-      setDroppedPinAsInfoCard(Point(target), R.string.dropped_pin)
-    }
+    val processedCoordinates = LatLngConverter.processCoordinates(target)
+    setCurrentLocationAsInfoCard(processedCoordinates)
   }
 }
