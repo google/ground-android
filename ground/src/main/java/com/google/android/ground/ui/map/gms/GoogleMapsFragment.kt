@@ -65,6 +65,7 @@ const val TILE_OVERLAY_Z = 0f
 const val POLYGON_Z = 1f
 const val CLUSTER_Z = 2f
 const val MARKER_Z = 3f
+
 /**
  * Customization of Google Maps API Fragment that automatically adjusts the Google watermark based
  * on window insets.
@@ -89,12 +90,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private lateinit var map: GoogleMap
 
   private lateinit var clusterManager: FeatureClusterManager
-
-  /**
-   * References to Google Maps SDK CustomCap present on the map. Used to set the custom drawable to
-   * start and end of polygon.
-   */
-  private var customCap: CustomCap? = null
 
   override val supportedMapTypes: List<MapType> = IDS_BY_MAP_TYPE.keys.toList()
 
