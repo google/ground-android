@@ -173,13 +173,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun onMapReady(map: GoogleMap) {
     this.map = map
 
-    val featureColor = resources.getColor(R.color.clusterColor)
-    pointRenderer = PointRenderer(map, context!!)
+    pointRenderer = PointRenderer(requireContext(), map)
     polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth)
     polygonRenderer =
       PolygonRenderer(map, polylineStrokeWidth, resources.getColor(R.color.polyLineColor))
 
-    clusterManager = FeatureClusterManager(context, map)
+    clusterManager = FeatureClusterManager(requireContext(), map)
     clusterRenderer =
       FeatureClusterRenderer(
         requireContext(),
@@ -188,8 +187,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
         pointRenderer,
         polygonRenderer,
         Config.CLUSTERING_ZOOM_THRESHOLD,
-        map.cameraPosition.zoom,
-        featureColor
+        map.cameraPosition.zoom
       )
     clusterManager.setOnClusterClickListener(this::onClusterItemClick)
     clusterManager.renderer = clusterRenderer

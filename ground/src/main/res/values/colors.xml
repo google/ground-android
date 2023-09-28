@@ -18,7 +18,10 @@
 
 <resources>
   <color name="colorMapAccent">#ff9131</color>
-  <color name="clusterColor">#6DDD81</color>
+  <!-- 100% opacity for cluster body. -->
+  <color name="clusterBalloonFillColor">#6DDD81</color>
+  <!-- 29% opacity for cluster's outer ring. -->
+  <color name="clusterBalloonStrokeColor">#4B6DDD81</color>
   <color name="polyLineColor">#55ffffff</color>
   <color name="textOverMap">#FCFDF7</color>
   <color name="blackMapOverlay">#000000</color>

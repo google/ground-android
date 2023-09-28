@@ -27,7 +27,7 @@ import com.google.android.ground.ui.map.gms.MARKER_Z
 import com.google.android.ground.ui.map.gms.parseColor
 import com.google.android.ground.ui.map.gms.toLatLng
 
-class PointRenderer(map: GoogleMap, val context: Context) : FeatureRenderer(map) {
+class PointRenderer(val context: Context, map: GoogleMap) : FeatureRenderer(map) {
   private val markerIconFactory: IconFactory = IconFactory(context)
 
   override fun addFeature(feature: Feature, isSelected: Boolean) {
