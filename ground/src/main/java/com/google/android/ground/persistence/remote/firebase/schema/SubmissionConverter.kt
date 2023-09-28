@@ -152,13 +152,10 @@ internal object SubmissionConverter {
     taskId: String,
     obj: Any,
     responses: MutableMap<String, TaskData>
-  ) {
-    val map = obj as HashMap<String, *>
-    val result = LocationTaskDataConverter.fromFirestoreMap(map).getOrNull()
-    if (result != null) {
-      responses[taskId] = result
+  ) =
+    LocationTaskDataConverter.fromFirestoreMap(obj as Map<String, *>).onSuccess {
+      responses[taskId] = it
     }
-  }
 
   private fun putMultipleChoiceResponse(
     taskId: String,

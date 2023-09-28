@@ -50,7 +50,7 @@ class CaptureLocationTaskFragment :
       .add(
         rowLayout.id,
         CaptureLocationMapFragment.newInstance(viewModel, map),
-        "Drop a pin fragment"
+        CaptureLocationMapFragment::class.java.simpleName
       )
       .commit()
     return rowLayout

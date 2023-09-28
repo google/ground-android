@@ -53,7 +53,11 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
     polygonDrawingMapFragment = PolygonDrawingMapFragment.newInstance(viewModel, map)
     parentFragmentManager
       .beginTransaction()
-      .add(rowLayout.id, polygonDrawingMapFragment, "Draw a polygon fragment")
+      .add(
+        rowLayout.id,
+        polygonDrawingMapFragment,
+        PolygonDrawingMapFragment::class.java.simpleName
+      )
       .commit()
     return rowLayout
   }

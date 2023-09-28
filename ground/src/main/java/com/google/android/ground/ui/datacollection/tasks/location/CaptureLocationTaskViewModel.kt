@@ -17,22 +17,15 @@ package com.google.android.ground.ui.datacollection.tasks.location
 
 import android.content.res.Resources
 import android.location.Location
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import com.google.android.ground.model.submission.LocationTaskData
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 
 class CaptureLocationTaskViewModel @Inject constructor(resources: Resources) :
   AbstractTaskViewModel(resources) {
 
   private val lastLocation = MutableStateFlow<LocationTaskData?>(null)
-
-  val locationDetailsText: LiveData<String?> =
-    lastLocation.map { it?.getDetailsText() }.distinctUntilChanged().asLiveData()
 
   suspend fun updateLocation(location: Location) {
     lastLocation.emit(LocationTaskData.fromLocation(location))

@@ -24,8 +24,6 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.firebase.firestore.GeoPoint
-import java.lang.ClassCastException
-import timber.log.Timber
 
 /** Alias for maps whose keys represent an index in an ordered data structure like a [List]. */
 typealias IndexedMap<T> = Map<String, T>
@@ -95,19 +93,12 @@ object GeometryConverter {
    */
   @Suppress("UNCHECKED_CAST")
   private fun fromFirestoreGeometry(type: Any?, coordinates: Any?): Geometry =
-    try {
-      when (type) {
-        POINT_TYPE -> geoPointToPoint(coordinates as GeoPoint)
-        POLYGON_TYPE -> nestedIndexedMapToPolygon(coordinates as IndexedMap<IndexedMap<GeoPoint>>)
-        MULTI_POLYGON_TYPE ->
-          nestedIndexedMapToMultiPolygon(
-            coordinates as IndexedMap<IndexedMap<IndexedMap<GeoPoint>>>
-          )
-        else -> throw DataStoreException("Invalid geometry type '$type'")
-      }
-    } catch (e: ClassCastException) {
-      Timber.e(e, "Invalid geometry format: $type, $coordinates")
-      throw e
+    when (type) {
+      POINT_TYPE -> geoPointToPoint(coordinates as GeoPoint)
+      POLYGON_TYPE -> nestedIndexedMapToPolygon(coordinates as IndexedMap<IndexedMap<GeoPoint>>)
+      MULTI_POLYGON_TYPE ->
+        nestedIndexedMapToMultiPolygon(coordinates as IndexedMap<IndexedMap<IndexedMap<GeoPoint>>>)
+      else -> throw DataStoreException("Invalid geometry type '$type'")
     }
 
   private fun geoPointToPoint(geoPoint: GeoPoint): Point = Point(geoPointToCoordinates(geoPoint))
