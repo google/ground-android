@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.datacollection.tasks.point
 
 import android.content.res.Resources
+import android.graphics.Color
 import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.submission.GeometryData
@@ -56,7 +57,7 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
       type = FeatureType.USER_POINT.ordinal,
       geometry = point,
       // TODO: Set correct pin color.
-      style = Feature.Style(0),
+      style = Feature.Style(Color.CYAN),
       clusterable = false
     )
 

@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import android.content.res.Resources
+import android.graphics.Color
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Geometry
@@ -157,7 +158,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
           type = FeatureType.USER_POLYGON.ordinal,
           geometry = createGeometry(points, isMarkedComplete),
           // TODO: Set correct color.
-          style = Feature.Style(0, Feature.VertexStyle.CIRCLE),
+          style = Feature.Style(Color.CYAN, Feature.VertexStyle.CIRCLE),
           clusterable = false
         )
       }
