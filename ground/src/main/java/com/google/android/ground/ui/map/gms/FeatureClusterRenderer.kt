@@ -24,8 +24,8 @@ import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.IconFactory
-import com.google.android.ground.ui.map.gms.renderer.PointRenderer
-import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
+import com.google.android.ground.ui.map.gms.renderer.PointFeatureManager
+import com.google.android.ground.ui.map.gms.renderer.PolygonFeatureManager
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import timber.log.Timber
@@ -41,8 +41,8 @@ class FeatureClusterRenderer(
   context: Context,
   map: GoogleMap,
   private val clusterManager: FeatureClusterManager,
-  private val pointRenderer: PointRenderer,
-  private val polygonRenderer: PolygonRenderer,
+  private val pointRenderer: PointFeatureManager,
+  private val polygonRenderer: PolygonFeatureManager,
   private val clusteringZoomThreshold: Float,
   /**
    * The current zoom level to compare against the renderer's threshold.

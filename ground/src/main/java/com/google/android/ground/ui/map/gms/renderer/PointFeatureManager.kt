@@ -29,8 +29,8 @@ import com.google.android.ground.ui.map.gms.toLatLng
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-class PointRenderer @Inject constructor(@ApplicationContext val context: Context) :
-  FeatureRenderer() {
+class PointFeatureManager @Inject constructor(@ApplicationContext val context: Context) :
+  FeatureManager() {
   private val markerIconFactory: IconFactory = IconFactory(context)
   private val markersByTag = HashMap<Feature.Tag, Marker>()
 

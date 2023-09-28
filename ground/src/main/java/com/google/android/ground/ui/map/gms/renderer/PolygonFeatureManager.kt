@@ -31,8 +31,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import timber.log.Timber
 
-class PolygonRenderer @Inject constructor(@ApplicationContext context: Context) :
-  FeatureRenderer() {
+class PolygonFeatureManager @Inject constructor(@ApplicationContext context: Context) :
+  FeatureManager() {
   private val polygonsByFeature: MutableMap<Feature, MutableList<MapsPolygon>> = HashMap()
   private val lineWidth = context.resources.getDimension(R.dimen.line_geometry_width)
 

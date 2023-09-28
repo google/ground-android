@@ -44,9 +44,9 @@ import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.mog.MogCollection
 import com.google.android.ground.ui.map.gms.mog.MogTileProvider
-import com.google.android.ground.ui.map.gms.renderer.PointRenderer
-import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
-import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
+import com.google.android.ground.ui.map.gms.renderer.PointFeatureManager
+import com.google.android.ground.ui.map.gms.renderer.PolygonFeatureManager
+import com.google.android.ground.ui.map.gms.renderer.PolylineFeatureManager
 import com.google.android.ground.ui.util.BitmapUtil
 import com.google.android.ground.util.invert
 import com.google.maps.android.PolyUtil
@@ -80,9 +80,9 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   /** Camera move events. Emits items after the camera has stopped moving. */
   override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
 
-  @Inject lateinit var pointRenderer: PointRenderer
-  @Inject lateinit var polylineRenderer: PolylineRenderer
-  @Inject lateinit var polygonRenderer: PolygonRenderer
+  @Inject lateinit var pointRenderer: PointFeatureManager
+  @Inject lateinit var polylineRenderer: PolylineFeatureManager
+  @Inject lateinit var polygonRenderer: PolygonFeatureManager
 
   @Inject lateinit var bitmapUtil: BitmapUtil
 

@@ -32,9 +32,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import timber.log.Timber
 
-class PolylineRenderer
+class PolylineFeatureManager
 @Inject
-constructor(@ApplicationContext context: Context, bitmapUtil: BitmapUtil) : FeatureRenderer() {
+constructor(@ApplicationContext context: Context, bitmapUtil: BitmapUtil) : FeatureManager() {
   private val polylines: MutableMap<Feature, MutableList<Polyline>> = HashMap()
   private val lineWidth = context.resources.getDimension(R.dimen.line_geometry_width)
   private val circleCap by lazy {
