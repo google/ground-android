@@ -19,6 +19,7 @@ package com.google.android.ground.ui.map.gms.renderer
 import android.content.Context
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.IconFactory
@@ -29,6 +30,7 @@ import com.google.android.ground.ui.map.gms.toLatLng
 
 class PointRenderer(val context: Context, map: GoogleMap) : FeatureRenderer(map) {
   private val markerIconFactory: IconFactory = IconFactory(context)
+  private val markersByTag = HashMap<Feature.Tag, Marker>()
 
   override fun addFeature(feature: Feature, isSelected: Boolean) {
     if (feature.geometry !is Point)
@@ -36,7 +38,9 @@ class PointRenderer(val context: Context, map: GoogleMap) : FeatureRenderer(map)
     val markerOptions = MarkerOptions()
     markerOptions.position(feature.geometry.coordinates.toLatLng())
     setMarkerOptions(markerOptions, isSelected, feature.style.color)
-    map.addMarker(markerOptions)
+    val marker = map.addMarker(markerOptions) ?: error("Failed to create marker")
+    marker.tag = feature.tag
+    markersByTag[feature.tag] = marker
   }
 
   fun setMarkerOptions(markerOptions: MarkerOptions, isSelected: Boolean, color: String) {
@@ -53,11 +57,13 @@ class PointRenderer(val context: Context, map: GoogleMap) : FeatureRenderer(map)
       isSelected
     )
 
-  override fun removeStaleFeatures(features: Set<Feature>) {
-    TODO("Not yet implemented")
+  override fun removeStaleFeatures(features: Set<Feature>) =
+    (markersByTag.keys - features.map { it.tag }.toSet()).forEach { remove(it) }
+
+  private fun remove(tag: Feature.Tag) {
+    markersByTag[tag]?.remove()
+    markersByTag.remove(tag)
   }
 
-  override fun removeAllFeatures() {
-    TODO("Not yet implemented")
-  }
+  override fun removeAllFeatures() = markersByTag.keys.forEach { remove(it) }
 }
