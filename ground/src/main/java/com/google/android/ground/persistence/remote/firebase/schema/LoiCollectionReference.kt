@@ -39,9 +39,7 @@ class LoiCollectionReference internal constructor(ref: CollectionReference) :
     withContext(defaultDispatcher) {
       snapshot.documents.mapNotNull {
         toLoi(survey, it)
-          .onFailure { t ->
-            Timber.e(t, "Unable to load loi(${it.id}) for survey(${survey.title}-${survey.id})")
-          }
+          .onFailure { t -> Timber.w(t, "LOI ${it.id} in remote survey ${survey.id} is invalid") }
           .getOrNull()
       }
     }
