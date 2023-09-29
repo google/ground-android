@@ -42,17 +42,14 @@ constructor(
   override fun isEmpty(): Boolean = geometry == null
 
   companion object {
-    fun fromLocation(location: Location?): LocationTaskData? {
-      if (location == null) return null
-      with(location) {
-        val altitude = if (hasAltitude()) altitude else null
-        val accuracy = if (hasAccuracy()) accuracy else null
-        return LocationTaskData(
-          Point(Coordinates(latitude, longitude)),
-          altitude,
-          accuracy?.toDouble()
-        )
-      }
+    fun Location.toTaskData(): LocationTaskData {
+      val altitude = if (hasAltitude()) altitude else null
+      val accuracy = if (hasAccuracy()) accuracy else null
+      return LocationTaskData(
+        Point(Coordinates(latitude, longitude)),
+        altitude,
+        accuracy?.toDouble()
+      )
     }
   }
 }

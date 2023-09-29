@@ -18,6 +18,7 @@ package com.google.android.ground.ui.datacollection.tasks.location
 import android.content.res.Resources
 import android.location.Location
 import com.google.android.ground.model.submission.LocationTaskData
+import com.google.android.ground.model.submission.LocationTaskData.Companion.toTaskData
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +29,7 @@ class CaptureLocationTaskViewModel @Inject constructor(resources: Resources) :
   private val lastLocation = MutableStateFlow<LocationTaskData?>(null)
 
   suspend fun updateLocation(location: Location) {
-    lastLocation.emit(LocationTaskData.fromLocation(location))
+    lastLocation.emit(location.toTaskData())
   }
 
   fun updateResponse() {
