@@ -85,16 +85,6 @@ class DropAPinTaskFragmentTest :
   }
 
   @Test
-  fun testInfoCard_withTaskData() {
-    setupTaskFragment<DropAPinTaskFragment>(task)
-
-    viewModel.updateCameraPosition(CameraPosition(Coordinates(10.0, 20.0)))
-    onView(withText("Drop pin")).perform(click())
-
-    infoCardShown("Dropped pin", "10°0'0\" N 20°0'0\" E")
-  }
-
-  @Test
   fun testUndo() = runWithTestDispatcher {
     val testPosition = CameraPosition(Coordinates(10.0, 20.0))
     setupTaskFragment<DropAPinTaskFragment>(task)

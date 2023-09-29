@@ -32,7 +32,7 @@ class DropAPinTaskViewModel
 constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerator) :
   AbstractTaskViewModel(resources) {
 
-  var lastCameraPosition: CameraPosition? = null
+  private var lastCameraPosition: CameraPosition? = null
   val features: @Hot MutableLiveData<Set<Feature>> = MutableLiveData()
 
   fun updateCameraPosition(position: CameraPosition) {
