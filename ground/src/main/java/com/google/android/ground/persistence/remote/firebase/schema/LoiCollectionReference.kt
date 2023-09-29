@@ -37,9 +37,10 @@ class LoiCollectionReference internal constructor(ref: CollectionReference) :
 
   private suspend fun toLois(survey: Survey, snapshot: QuerySnapshot): List<LocationOfInterest> =
     withContext(defaultDispatcher) {
-      snapshot.documents
-        .map { toLoi(survey, it) }
-        // Filter out bad results and log.
-        .mapNotNull { it.onFailure { t -> Timber.e(t) }.getOrNull() }
+      snapshot.documents.mapNotNull {
+        toLoi(survey, it)
+          .onFailure { t -> Timber.w(t, "LOI ${it.id} in remote survey ${survey.id} is invalid") }
+          .getOrNull()
+      }
     }
 }

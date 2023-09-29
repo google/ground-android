@@ -119,7 +119,6 @@
   <string name="add_point">Add point</string>
   <string name="complete_polygon">Complete</string>
   <string name="add_polygon_instructions">Drag the map and tap “Add point“ to add points to your polygon. To finish, return to the original point and tap “Complete“.</string>
-  <string name="location_accuracy">%.2fm</string>
 
   <string name="delete_button_label">Delete</string>
   <string name="cancel_button_label">Cancel</string>
@@ -144,8 +143,7 @@
   <string name="drop_a_pin">Drop a pin</string>
   <string name="drop_a_pin_tooltip_text">Drag your map until the center pin is on the desired location</string>
   <string name="draw_an_area">Draw an area</string>
-  <string name="accuracy">Accuracy</string>
-  <string name="dropped_pin">Dropped pin</string>
+  <string name="current_location">Current location</string>
   <string name="loading">Loading…</string>
   <string name="skip_dialog_title">Skip this step?</string>
   <string name="data_deletion_warning">Data you entered in this step won’t be saved. Are you sure you want to continue?</string>

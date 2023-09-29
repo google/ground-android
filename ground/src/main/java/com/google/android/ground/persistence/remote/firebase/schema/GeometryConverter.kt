@@ -16,7 +16,12 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.model.geometry.Geometry
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.MultiPolygon
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.firebase.firestore.GeoPoint
 
@@ -28,7 +33,7 @@ typealias IndexedMap<T> = Map<String, T>
  * modified GeoJSON representation:
  * * The GeoJSON map hierarchy is converted to a Firestore nested map.
  * * Since Firestore does not allow nested arrays, arrays are replaced with nested maps, keyed by
- * integer array index.
+ * * integer array index.
  * * Coordinates (two-element double arrays) are represented as a Firestore GeoPoint.
  *
  * Only `Point`, `Polygon`, and `MultiPolygon` are supported; behavior for other geometry types is
@@ -87,7 +92,7 @@ object GeometryConverter {
    * upstream accordingly.
    */
   @Suppress("UNCHECKED_CAST")
-  private fun fromFirestoreGeometry(type: Any?, coordinates: Any?) =
+  private fun fromFirestoreGeometry(type: Any?, coordinates: Any?): Geometry =
     when (type) {
       POINT_TYPE -> geoPointToPoint(coordinates as GeoPoint)
       POLYGON_TYPE -> nestedIndexedMapToPolygon(coordinates as IndexedMap<IndexedMap<GeoPoint>>)
