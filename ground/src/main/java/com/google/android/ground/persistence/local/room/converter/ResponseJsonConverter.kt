@@ -16,6 +16,7 @@
 
 package com.google.android.ground.persistence.local.room.converter
 
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.submission.DateTaskData
 import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.model.submission.LocationTaskData
@@ -123,7 +124,7 @@ internal object ResponseJsonConverter {
       val altitude = data.getDouble(ALTITUDE_KEY)
       val geometry =
         GeometryWrapperTypeConverter.fromString(data.getString(GEOMETRY_KEY))?.getGeometry()
-      LocationTaskData(geometry, accuracy, altitude)
+      LocationTaskData(geometry as Point, accuracy, altitude)
     }
 
   private fun toList(jsonArray: JSONArray): List<String> {

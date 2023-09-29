@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.persistence.remote.firebase.schema
 
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.submission.LocationTaskData
 
 /**
@@ -40,6 +41,6 @@ object LocationTaskDataConverter {
       val accuracy = map?.get(ACCURACY_KEY) as? Double
       val altitude = map?.get(ALTITUDE_KEY) as? Double
       val geometry = GeometryConverter.fromFirestoreMap(map?.get(GEOMETRY_KEY) as? Map<String, *>)
-      LocationTaskData(geometry.getOrThrow(), altitude, accuracy)
+      LocationTaskData(geometry.getOrThrow() as Point, altitude, accuracy)
     }
 }

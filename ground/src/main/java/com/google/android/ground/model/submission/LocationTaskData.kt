@@ -17,21 +17,19 @@ package com.google.android.ground.model.submission
 
 import android.location.Location
 import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
-data class LocationTaskData(
-  val geometry: Geometry?,
+data class LocationTaskData
+constructor(
+  val geometry: Point?,
   val altitude: Double?, // in metres
   val accuracy: Double? // in metres
 ) : TaskData {
   override fun getDetailsText(): String {
-    if (geometry !is Point) {
-      return "Invalid geometry type: Expected POINT, Found ${geometry?.javaClass?.name}"
-    }
+    if (geometry == null) return ""
 
     // TODO: Move to strings.xml for i18n
     val df = DecimalFormat("#.##")
