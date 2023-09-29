@@ -45,6 +45,7 @@ import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.mog.MogCollection
 import com.google.android.ground.ui.map.gms.mog.MogTileProvider
+import com.google.android.ground.ui.map.gms.renderer.PointRenderer
 import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
 import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
 import com.google.android.ground.ui.util.BitmapUtil
@@ -80,6 +81,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   /** Camera move events. Emits items after the camera has stopped moving. */
   override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
 
+  private lateinit var pointRenderer: PointRenderer
   private lateinit var polylineRenderer: PolylineRenderer
   private lateinit var polygonRenderer: PolygonRenderer
 
@@ -171,16 +173,18 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun onMapReady(map: GoogleMap) {
     this.map = map
 
+    pointRenderer = PointRenderer(requireContext(), map)
     polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth)
     polygonRenderer =
       PolygonRenderer(map, polylineStrokeWidth, resources.getColor(R.color.polyLineColor))
 
-    clusterManager = FeatureClusterManager(context, map)
+    clusterManager = FeatureClusterManager(requireContext(), map)
     clusterRenderer =
       FeatureClusterRenderer(
         requireContext(),
         map,
         clusterManager,
+        pointRenderer,
         polygonRenderer,
         Config.CLUSTERING_ZOOM_THRESHOLD,
         map.cameraPosition.zoom
@@ -267,6 +271,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun removeStaleFeatures(features: Set<Feature>) {
     Timber.d("Removing stale features from map")
     clusterManager.removeStaleFeatures(features)
+    pointRenderer.removeStaleFeatures(features)
     polylineRenderer.removeStaleFeatures(features)
     polygonRenderer.removeStaleFeatures(features)
   }
@@ -274,6 +279,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun removeAllFeatures() {
     Timber.d("Removing all features from map")
     clusterManager.removeAllFeatures()
+    pointRenderer.removeAllFeatures()
     polylineRenderer.removeAllFeatures()
     polygonRenderer.removeAllFeatures()
   }
@@ -284,8 +290,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
       return
     }
     when (feature.geometry) {
-      // TODO(#1907): Stop clustering unclustered points.
-      is Point -> clusterManager.addFeature(feature)
+      is Point -> pointRenderer.addFeature(feature)
       is LineString,
       is LinearRing -> polylineRenderer.addFeature(feature)
       is Polygon,
@@ -294,8 +299,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   }
 
   override fun renderFeatures(features: Set<Feature>) {
-    // Re-cluster and re-render
-    Timber.v("renderFeatures() called with ${features.size} locations of interest")
+    Timber.v("renderFeatures() called with ${features.size} features")
     if (features.isNotEmpty()) {
       removeStaleFeatures(features)
       Timber.d("Updating ${features.size} features")

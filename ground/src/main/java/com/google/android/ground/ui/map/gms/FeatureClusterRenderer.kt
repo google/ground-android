@@ -24,6 +24,7 @@ import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.IconFactory
+import com.google.android.ground.ui.map.gms.renderer.PointRenderer
 import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
@@ -37,9 +38,11 @@ import timber.log.Timber
  * individual markers for each cluster item.
  */
 class FeatureClusterRenderer(
-  private val context: Context,
+  // TODO: Inject.
+  context: Context,
   private val map: GoogleMap,
   private val clusterManager: FeatureClusterManager,
+  private val pointRenderer: PointRenderer,
   private val polygonRenderer: PolygonRenderer,
   private val clusteringZoomThreshold: Float,
   /**
@@ -55,23 +58,11 @@ class FeatureClusterRenderer(
   var previousActiveLoiId: String? = null
   private val markerIconFactory: IconFactory = IconFactory(context)
 
-  private fun getCurrentZoomLevel() = map.cameraPosition.zoom
-
-  private fun getMarkerIcon(isSelected: Boolean = false, color: String): BitmapDescriptor =
-    markerIconFactory.getMarkerIcon(
-      color.parseColor(context.resources),
-      getCurrentZoomLevel(),
-      isSelected
-    )
-
   /** Sets appropriate styling for clustered items prior to rendering. */
   override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
     when (item.feature.geometry) {
       is Point -> {
-        with(markerOptions) {
-          icon(getMarkerIcon(item.isSelected(), item.style.color))
-          zIndex(MARKER_Z)
-        }
+        pointRenderer.setMarkerOptions(markerOptions, item.isSelected(), item.style.color)
       }
       is Polygon,
       is MultiPolygon -> {
@@ -91,7 +82,7 @@ class FeatureClusterRenderer(
   override fun onClusterItemUpdated(item: FeatureClusterItem, marker: Marker) {
     val feature = item.feature
     when (feature.geometry) {
-      is Point -> marker.setIcon(getMarkerIcon(item.isSelected(), item.style.color))
+      is Point -> marker.setIcon(pointRenderer.getMarkerIcon(item.isSelected(), item.style.color))
       is Polygon,
       is MultiPolygon ->
         // Update polygon or multi-polygon on change.
