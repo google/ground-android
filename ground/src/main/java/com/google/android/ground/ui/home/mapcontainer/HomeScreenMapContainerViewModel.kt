@@ -19,7 +19,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.coroutines.IoDispatcher
-import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
@@ -161,13 +160,7 @@ internal constructor(
    * (list of features > 1), it chooses the first [Feature].
    */
   fun onFeatureClicked(features: Set<Feature>) {
-    // TODO: Handle polygon clicks.
     val geometry = features.first().geometry
-
-    if (geometry is Point) {
-      panAndZoomCamera(geometry.coordinates)
-    }
-
     for (loi in loisInViewport.value) {
       if (loi.geometry == geometry) {
         loiClicks.value = loi
