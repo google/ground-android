@@ -152,7 +152,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     viewGroup: ViewGroup?,
     bundle: Bundle?
   ): View =
-    super.onCreateView(layoutInflater, viewGroup, bundle)!!.apply {
+    super.onCreateView(layoutInflater, viewGroup, bundle).apply {
       ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
         onApplyWindowInsets(view, insets)
       }
@@ -209,7 +209,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   private fun onClusterItemClick(cluster: Cluster<FeatureClusterItem>): Boolean {
     // Move the camera to point to LOIs within the current cluster
-    cluster.items.map { it.feature.geometry }.toBounds()?.let { moveCamera(it) }
+    cluster.items.map { it.feature.geometry }.toBounds()?.let { moveCamera(it, true) }
     return true
   }
 
