@@ -15,9 +15,9 @@
  */
 package com.google.android.ground.ui.home.mapcontainer.cards
 
+import android.content.Context
+import com.google.android.ground.R
 import com.google.android.ground.model.geometry.Geometry
-import com.google.android.ground.model.geometry.LineString
-import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
@@ -26,7 +26,20 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 /** Helper class for creating user-visible text. */
 object LoiCardUtil {
 
-  fun getDisplayLoiName(loi: LocationOfInterest): String = loi.caption ?: loi.geometry.type()
+  fun getDisplayLoiName(context: Context, loi: LocationOfInterest): String {
+    val caption = loi.caption
+    val customId = loi.customId
+    val geometry = loi.geometry
+    return if (caption.isNotNullOrEmpty() && customId.isNotNullOrEmpty()) {
+      "$caption ($customId)"
+    } else if (caption.isNotNullOrEmpty()) {
+      "$caption"
+    } else if (customId.isNotNullOrEmpty()) {
+      "${geometry.toType(context)} ($customId)"
+    } else {
+      geometry.toDefaultName(context)
+    }
+  }
 
   fun getJobName(loi: LocationOfInterest): String? = loi.job.name
 
@@ -38,12 +51,22 @@ object LoiCardUtil {
     }
 
   /** Returns a user-visible string representing the type of the geometry. */
-  private fun Geometry.type() =
+  private fun Geometry.toType(context: Context): String =
     when (this) {
-      is Point -> "Point"
-      is Polygon -> "Polygon"
-      is LinearRing -> "LinearRing"
-      is LineString -> "LineString"
-      is MultiPolygon -> "MultiPolygon"
+      is Point -> context.getString(R.string.point)
+      is Polygon,
+      is MultiPolygon -> context.getString(R.string.area)
+      else -> throw IllegalArgumentException("Unsupported geometry type $this")
     }
+
+  /** Returns a default user-visible name for the geometry. */
+  private fun Geometry.toDefaultName(context: Context): String =
+    when (this) {
+      is Point -> context.getString(R.string.unnamed_point)
+      is Polygon,
+      is MultiPolygon -> context.getString(R.string.unnamed_area)
+      else -> throw IllegalArgumentException("Unsupported geometry type $this")
+    }
+
+  private fun String?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()
 }
