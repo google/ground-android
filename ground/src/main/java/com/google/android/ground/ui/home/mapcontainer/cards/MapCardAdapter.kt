@@ -126,7 +126,7 @@ class MapCardAdapter(private val canUserSubmitData: Boolean) :
   ) : CardViewHolder(binding.root, binding.loiCard) {
     fun bind(loi: LocationOfInterest) {
       with(binding) {
-        loiName.text = LoiCardUtil.getDisplayLoiName(loi)
+        loiName.text = LoiCardUtil.getDisplayLoiName(binding.wrapperView.context, loi)
         jobName.text = LoiCardUtil.getJobName(loi)
         collectData.visibility = if (canUserSubmitData) View.VISIBLE else View.GONE
 
