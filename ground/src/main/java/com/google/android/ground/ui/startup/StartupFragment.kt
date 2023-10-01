@@ -21,7 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
-import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.GoogleApiManager
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.EphemeralPopups
@@ -33,9 +32,14 @@ import timber.log.Timber
 @AndroidEntryPoint(AbstractFragment::class)
 class StartupFragment : Hilt_StartupFragment() {
 
-  @Inject lateinit var googleApiManager: GoogleApiManager
   @Inject lateinit var popups: EphemeralPopups
-  @Inject lateinit var userRepository: UserRepository
+
+  private lateinit var viewModel: StartupViewModel
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    viewModel = getViewModel(StartupViewModel::class.java)
+  }
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -47,21 +51,18 @@ class StartupFragment : Hilt_StartupFragment() {
     super.onResume()
     viewLifecycleOwner.lifecycleScope.launch {
       try {
-        googleApiManager.installGooglePlayServices()
-        onGooglePlayServicesReady()
+        viewModel.initializeLogin()
       } catch (t: Throwable) {
-        onGooglePlayServicesFailed(t)
+        onInitFailed(t)
       }
     }
   }
 
-  private fun onGooglePlayServicesReady() {
-    userRepository.init()
-  }
-
-  private fun onGooglePlayServicesFailed(t: Throwable) {
-    Timber.e(t, "Google Play Services install failed")
-    popups.showError(R.string.google_api_install_failed)
+  private fun onInitFailed(t: Throwable) {
+    Timber.e(t, "Failed to launch app")
+    if (t is GoogleApiManager.GooglePlayServicesMissingException) {
+      popups.showError(R.string.google_api_install_failed)
+    }
     requireActivity().finish()
   }
 }

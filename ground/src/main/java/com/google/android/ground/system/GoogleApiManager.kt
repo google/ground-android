@@ -20,13 +20,13 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.ground.rx.RxCompletable
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.scopes.ActivityScoped
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.rx2.await
 
 private val INSTALL_API_REQUEST_CODE = GoogleApiAvailability::class.java.hashCode() and 0xffff
 
-@ActivityScoped
+@Singleton
 class GoogleApiManager
 @Inject
 constructor(
@@ -44,7 +44,7 @@ constructor(
     if (status == ConnectionResult.SUCCESS) return
 
     val requestCode = INSTALL_API_REQUEST_CODE
-    startResolution(status, requestCode, Exception("Google play services not available"))
+    startResolution(status, requestCode, GooglePlayServicesMissingException())
     getNextResult(requestCode)
   }
 
@@ -66,4 +66,6 @@ constructor(
         )
       }
       .await()
+
+  class GooglePlayServicesMissingException : Error("Google play services not available")
 }
