@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.startup
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -43,8 +42,8 @@ class StartupFragment : Hilt_StartupFragment() {
     savedInstanceState: Bundle?
   ): View? = inflater.inflate(R.layout.startup_frag, container, false)
 
-  override fun onAttach(context: Context) {
-    super.onAttach(context)
+  override fun onResume() {
+    super.onResume()
     googleApiManager
       .installGooglePlayServices()
       .`as`(RxAutoDispose.autoDisposable<Any>(requireActivity()))
