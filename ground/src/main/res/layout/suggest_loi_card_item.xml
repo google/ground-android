@@ -28,9 +28,9 @@
     android:layout_marginEnd="@dimen/job_card_start_end_margin"
     android:backgroundTint="?attr/colorSecondaryContainer"
     android:orientation="vertical"
-    app:strokeWidth="0dp"
     app:cardCornerRadius="@dimen/job_card_corner_radius"
-    app:cardElevation="2dp">
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
     <androidx.constraintlayout.widget.ConstraintLayout
       android:id="@+id/wrapper_view"
       android:layout_width="match_parent"
@@ -39,40 +39,42 @@
       android:padding="16dp">
       <TextView
         android:id="@+id/jobName"
+        style="@style/JobCardTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/JobCardTitle"
         app:layout_constraintBottom_toTopOf="@+id/newSite"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Map the terrain" />
       <TextView
         android:id="@+id/newSite"
+        style="@style/JobCardDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:text="@string/new_site"
-        style="@style/JobCardDescription"
-        android:layout_marginTop="@dimen/loi_card_item_margin"
         android:textColor="?attr/colorOnSurface"
+        app:layout_constraintBottom_toTopOf="@+id/newSiteHintText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/jobName"
-        app:layout_constraintBottom_toTopOf="@+id/newSiteHintText"
         tools:text="Suggest area of interest" />
       <TextView
         android:id="@+id/newSiteHintText"
+        style="@style/JobCardAdditionalText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:text="@string/new_site_hint_text"
-        style="@style/JobCardAdditionalText"
+        app:layout_constraintBottom_toTopOf="@+id/collectData"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/newSite"
-        app:layout_constraintBottom_toTopOf="@+id/collectData"
         tools:text="Add new site and submit related data" />
       <Button
         android:id="@+id/collectData"
         style="@style/Widget.App.Button.Inverse"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:clickable="false"
         android:text="@string/collect_data"
         app:layout_constraintBottom_toBottomOf="parent"
