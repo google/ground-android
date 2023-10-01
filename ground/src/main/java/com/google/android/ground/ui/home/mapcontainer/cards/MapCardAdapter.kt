@@ -112,6 +112,16 @@ class MapCardAdapter(private val canUserSubmitData: Boolean) :
       }
     }
 
+  /** Returns index of job card with the given [LocationOfInterest]. */
+  fun getIndex(loi: LocationOfInterest): Int {
+    for ((index, item) in itemsList.withIndex()) {
+      if (item is MapCardUiData.LoiCardUiData && item.loi == loi) {
+        return index
+      }
+    }
+    return -1
+  }
+
   abstract class CardViewHolder(itemView: View, private val cardView: MaterialCardView) :
     RecyclerView.ViewHolder(itemView) {
     fun setOnClickListener(callback: () -> Unit) {
