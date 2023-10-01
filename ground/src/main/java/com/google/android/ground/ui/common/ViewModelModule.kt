@@ -39,6 +39,7 @@ import com.google.android.ground.ui.offlineareas.OfflineAreasViewModel
 import com.google.android.ground.ui.offlineareas.selector.OfflineAreaSelectorViewModel
 import com.google.android.ground.ui.offlineareas.viewer.OfflineAreaViewerViewModel
 import com.google.android.ground.ui.signin.SignInViewModel
+import com.google.android.ground.ui.startup.StartupViewModel
 import com.google.android.ground.ui.submissiondetails.SubmissionDetailsViewModel
 import com.google.android.ground.ui.surveyselector.SurveySelectorViewModel
 import com.google.android.ground.ui.syncstatus.SyncStatusViewModel
@@ -188,6 +189,11 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(CaptureLocationMapViewModel::class)
   abstract fun bindCaptureLocationMapViewModel(viewModel: CaptureLocationMapViewModel): ViewModel
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(StartupViewModel::class)
+  abstract fun bindStartupViewModel(viewModel: StartupViewModel): ViewModel
 
   @Binds abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
 }
