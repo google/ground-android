@@ -16,9 +16,9 @@
 package com.google.android.ground.ui.datacollection.tasks.location
 
 import android.location.Location
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.submission.LocationTaskData
@@ -69,9 +69,9 @@ class CaptureLocationTaskFragmentTest :
     setupTaskFragment<CaptureLocationTaskFragment>(task)
 
     viewModel.updateLocation(location)
-    Espresso.onView(ViewMatchers.withText("Capture")).perform(ViewActions.click())
+    onView(withText("Capture")).perform(click())
 
-    hasTaskData(LocationTaskData(Point(Coordinates(10.0, 20.0)), 200.0, 10.0))
+    hasTaskData(TASK_DATA)
     buttonIsEnabled("Continue")
     buttonIsEnabled(ButtonAction.UNDO)
     buttonIsHidden("Capture")
@@ -90,7 +90,7 @@ class CaptureLocationTaskFragmentTest :
     setupTaskFragment<CaptureLocationTaskFragment>(task)
 
     viewModel.updateLocation(location)
-    Espresso.onView(ViewMatchers.withText("Capture")).perform(ViewActions.click())
+    onView(withText("Capture")).perform(click())
     getButton(ButtonAction.UNDO).performClick()
 
     hasTaskData(null)
@@ -134,9 +134,18 @@ class CaptureLocationTaskFragmentTest :
     mock<Location>().apply {
       whenever(hasAltitude()).thenReturn(true)
       whenever(hasAccuracy()).thenReturn(true)
-      whenever(longitude).thenReturn(20.0)
-      whenever(latitude).thenReturn(10.0)
-      whenever(altitude).thenReturn(200.0)
-      whenever(accuracy).thenReturn(10.0f)
+      whenever(longitude).thenReturn(LONGITUDE)
+      whenever(latitude).thenReturn(LATITUDE)
+      whenever(altitude).thenReturn(ALTITUDE)
+      whenever(accuracy).thenReturn(ACCURACY.toFloat())
     }
+
+  companion object {
+    private const val LATITUDE = 10.0
+    private const val LONGITUDE = 20.0
+    private const val ACCURACY = 5.0
+    private const val ALTITUDE = 150.0
+    private val GEOMETRY = Point(Coordinates(LATITUDE, LONGITUDE))
+    private val TASK_DATA = LocationTaskData(GEOMETRY, ALTITUDE, ACCURACY)
+  }
 }
