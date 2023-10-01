@@ -19,14 +19,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.repository.UserRepository
-import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.system.GoogleApiManager
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.EphemeralPopups
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @AndroidEntryPoint(AbstractFragment::class)
@@ -44,10 +45,14 @@ class StartupFragment : Hilt_StartupFragment() {
 
   override fun onResume() {
     super.onResume()
-    googleApiManager
-      .installGooglePlayServices()
-      .`as`(RxAutoDispose.autoDisposable<Any>(requireActivity()))
-      .subscribe({ onGooglePlayServicesReady() }) { t: Throwable -> onGooglePlayServicesFailed(t) }
+    viewLifecycleOwner.lifecycleScope.launch {
+      try {
+        googleApiManager.installGooglePlayServices()
+        onGooglePlayServicesReady()
+      } catch (t: Throwable) {
+        onGooglePlayServicesFailed(t)
+      }
+    }
   }
 
   private fun onGooglePlayServicesReady() {

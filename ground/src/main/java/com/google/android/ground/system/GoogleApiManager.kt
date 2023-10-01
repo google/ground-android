@@ -21,9 +21,8 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.ground.rx.RxCompletable
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityScoped
-import io.reactivex.Completable
-import io.reactivex.CompletableEmitter
 import javax.inject.Inject
+import kotlinx.coroutines.rx2.await
 
 private val INSTALL_API_REQUEST_CODE = GoogleApiAvailability::class.java.hashCode() and 0xffff
 
@@ -37,34 +36,34 @@ constructor(
 ) {
 
   /**
-   * Returns a stream that either completes immediately if Google Play Services are already
-   * installed, otherwise shows install dialog. Terminates with error if install not possible or
-   * cancelled.
+   * Displays a dialog to install Google Play Services, if missing. Throws an error if install not
+   * possible or cancelled.
    */
-  fun installGooglePlayServices(): Completable =
-    requestInstallOrComplete().ambWith(getNextInstallApiResult())
+  suspend fun installGooglePlayServices() {
+    val status = googleApiAvailability.isGooglePlayServicesAvailable(context)
+    if (status == ConnectionResult.SUCCESS) return
 
-  private fun requestInstallOrComplete(): Completable =
-    Completable.create { emitter: CompletableEmitter ->
-      val status = googleApiAvailability.isGooglePlayServicesAvailable(context)
-      if (status == ConnectionResult.SUCCESS) {
-        emitter.onComplete()
-      } else if (googleApiAvailability.isUserResolvableError(status)) {
-        activityStreams.withActivity {
-          googleApiAvailability.showErrorDialogFragment(it, status, INSTALL_API_REQUEST_CODE) {
-            emitter.onError(Exception("Google play services not available"))
-          }
-        }
-      } else {
-        emitter.onError(Exception("Google play services not available"))
+    val requestCode = INSTALL_API_REQUEST_CODE
+    startResolution(status, requestCode, Exception("Google play services not available"))
+    getNextResult(requestCode)
+  }
+
+  private fun startResolution(status: Int, requestCode: Int, throwable: Throwable) {
+    if (!googleApiAvailability.isUserResolvableError(status)) throw throwable
+
+    activityStreams.withActivity {
+      googleApiAvailability.showErrorDialogFragment(it, status, requestCode) { throw throwable }
+    }
+  }
+
+  private suspend fun getNextResult(requestCode: Int) =
+    activityStreams
+      .getNextActivityResult(requestCode)
+      .flatMapCompletable {
+        RxCompletable.completeOrError(
+          { it.isOk() },
+          Exception::class.java // TODO: Throw appropriate Exception.
+        )
       }
-    }
-
-  private fun getNextInstallApiResult(): Completable =
-    activityStreams.getNextActivityResult(INSTALL_API_REQUEST_CODE).flatMapCompletable {
-      RxCompletable.completeOrError(
-        { it.isOk() },
-        Exception::class.java // TODO: Throw appropriate Exception.
-      )
-    }
+      .await()
 }
