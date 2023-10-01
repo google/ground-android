@@ -130,14 +130,13 @@ class CaptureLocationTaskFragmentTest :
     buttonIsEnabled("Capture")
   }
 
-  private fun setupLocation(): Location {
-    val location = mock<Location>()
-    whenever(location.hasAltitude()).thenReturn(true)
-    whenever(location.hasAccuracy()).thenReturn(true)
-    whenever(location.longitude).thenReturn(20.0)
-    whenever(location.latitude).thenReturn(10.0)
-    whenever(location.altitude).thenReturn(200.0)
-    whenever(location.accuracy).thenReturn(10.0f)
-    return location
-  }
+  private fun setupLocation(): Location =
+    mock<Location>().apply {
+      whenever(hasAltitude()).thenReturn(true)
+      whenever(hasAccuracy()).thenReturn(true)
+      whenever(longitude).thenReturn(20.0)
+      whenever(latitude).thenReturn(10.0)
+      whenever(altitude).thenReturn(200.0)
+      whenever(accuracy).thenReturn(10.0f)
+    }
 }
