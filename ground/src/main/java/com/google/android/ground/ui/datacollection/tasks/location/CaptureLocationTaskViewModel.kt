@@ -58,20 +58,20 @@ constructor(
     locationManager.disableLocationUpdates()
   }
 
-  data class TaskData(
+  data class CapturedLocation(
     val coordinates: Coordinates,
     val altitude: Double?, // in metres
     val accuracy: Float? // in metres
   )
 
   companion object {
-    private fun Location.toTaskData(): TaskData {
+    private fun Location.toTaskData(): CapturedLocation {
       val altitude = if (hasAltitude()) altitude else null
       val accuracy = if (hasAccuracy()) accuracy else null
-      return TaskData(Coordinates(latitude, longitude), altitude, accuracy)
+      return CapturedLocation(Coordinates(latitude, longitude), altitude, accuracy)
     }
 
-    private fun TaskData.displayText(): String {
+    private fun CapturedLocation.displayText(): String {
       val df = DecimalFormat("#.##")
       df.roundingMode = RoundingMode.DOWN
       return "Location: ${processCoordinates(coordinates)}\n" +
