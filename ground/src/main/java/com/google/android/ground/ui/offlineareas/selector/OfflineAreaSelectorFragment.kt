@@ -20,12 +20,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.databinding.OfflineAreaSelectorFragBinding
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
+import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /** Map UI used to select areas for download and viewing offline. */
@@ -35,11 +38,13 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
   @Inject lateinit var popups: EphemeralPopups
 
   private lateinit var viewModel: OfflineAreaSelectorViewModel
+  private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
 
   private var downloadProgressDialogFragment = DownloadProgressDialogFragment()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     viewModel = getViewModel(OfflineAreaSelectorViewModel::class.java)
     viewModel.isDownloadProgressVisible.observe(this) {
       downloadProgressDialogFragment.setVisibility(childFragmentManager, it)
@@ -59,6 +64,10 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
   }
 
   override fun onMapReady(map: MapFragment) {
+    // Observe events emitted by the ViewModel.
+    viewLifecycleOwner.lifecycleScope.launch {
+      mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
+    }
     viewModel.remoteTileSources.forEach { map.addTileOverlay(it) }
   }
 

@@ -26,6 +26,7 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTaskFragBinding
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
@@ -38,9 +39,11 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
 
   private lateinit var binding: MapTaskFragBinding
   private lateinit var mapViewModel: BaseMapViewModel
+  private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
   }
 
@@ -80,6 +83,11 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
   }
 
   override fun onMapReady(map: MapFragment) {
+    // Observe events emitted by the ViewModel.
+    viewLifecycleOwner.lifecycleScope.launch {
+      mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
+    }
+
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.featureValue.collect { feature: Feature? ->
         map.renderFeatures(if (feature == null) setOf() else setOf(feature))

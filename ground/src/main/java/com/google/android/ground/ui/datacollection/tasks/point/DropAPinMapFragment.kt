@@ -30,6 +30,7 @@ import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.components.TaskHeaderPopupView
 import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.processCoordinates
+import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,9 +42,11 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
 
   private lateinit var binding: MapTaskFragBinding
   private lateinit var mapViewModel: BaseMapViewModel
+  private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
   }
 
@@ -106,6 +109,11 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
   }
 
   override fun onMapReady(map: MapFragment) {
+    // Observe events emitted by the ViewModel.
+    viewLifecycleOwner.lifecycleScope.launch {
+      mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
+    }
+
     viewModel.features.observe(this) { map.renderFeatures(it) }
   }
 
