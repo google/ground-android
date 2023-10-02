@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import android.content.res.Resources
-import android.graphics.Color
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Geometry

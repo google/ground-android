@@ -280,7 +280,7 @@ class SubmissionLocalDataStoreConverterTest {
 
   private fun setUpTestSurvey(jobId: String, loiId: String, vararg tasks: Task) {
     val taskMap = tasks.associateBy { it.id }
-    job = Job(jobId, Style(), "JOB_NAME", taskMap)
+    job = Job(jobId, TEST_STYLE, "JOB_NAME", taskMap)
     locationOfInterest =
       FakeData.LOCATION_OF_INTEREST.copy(id = loiId, surveyId = TEST_SURVEY_ID, job = job)
   }
@@ -312,5 +312,6 @@ class SubmissionLocalDataStoreConverterTest {
       )
     private const val SUBMISSION_ID = "submission123"
     private const val TEST_SURVEY_ID = "survey001"
+    private val TEST_STYLE = Style("#112233")
   }
 }

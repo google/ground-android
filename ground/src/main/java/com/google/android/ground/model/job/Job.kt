@@ -22,11 +22,11 @@ import timber.log.Timber
 
 /**
  * @param suggestLoiTaskType the type of task used to suggest the LOI for this Job. Null if the job
- *   is already associated with an LOI.
+ * is already associated with an LOI.
  */
 data class Job(
   val id: String,
-  val style: Style?,
+  val style: Style? = null,
   val name: String? = null,
   val tasks: Map<String, Task> = mapOf(),
   val suggestLoiTaskType: Task.Type? = null,

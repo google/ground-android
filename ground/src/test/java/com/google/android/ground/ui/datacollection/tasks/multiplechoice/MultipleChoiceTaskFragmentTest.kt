@@ -22,6 +22,7 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.R
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
@@ -66,6 +67,7 @@ class MultipleChoiceTaskFragmentTest :
       isRequired = false,
       multipleChoice = MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE)
     )
+  private val job = Job(id = "job1")
 
   private val options =
     persistentListOf(
@@ -76,13 +78,13 @@ class MultipleChoiceTaskFragmentTest :
   @Test
   fun taskFails_whenMultipleChoiceIsNull() {
     assertThrows(NullPointerException::class.java) {
-      setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(multipleChoice = null))
+      setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = null))
     }
   }
 
   @Test
   fun testHeader() {
-    setupTaskFragment<MultipleChoiceTaskFragment>(task)
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)
   }
@@ -90,6 +92,7 @@ class MultipleChoiceTaskFragmentTest :
   @Test
   fun testMultipleChoice_whenSelectOne() {
     setupTaskFragment<MultipleChoiceTaskFragment>(
+      job,
       task.copy(multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE))
     )
 
@@ -101,7 +104,7 @@ class MultipleChoiceTaskFragmentTest :
   @Test
   fun testMultipleChoice_whenSelectOne_click() = runWithTestDispatcher {
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
-    setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(multipleChoice = multipleChoice))
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
     onView(withText("Option 1")).perform(click())
     onView(withText("Option 2")).perform(click())
@@ -113,6 +116,7 @@ class MultipleChoiceTaskFragmentTest :
   @Test
   fun testMultipleChoice_whenSelectMultiple() {
     setupTaskFragment<MultipleChoiceTaskFragment>(
+      job,
       task.copy(
         multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_MULTIPLE)
       )
@@ -126,7 +130,7 @@ class MultipleChoiceTaskFragmentTest :
   @Test
   fun testMultipleChoice_whenSelectMultiple_click() = runWithTestDispatcher {
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_MULTIPLE)
-    setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(multipleChoice = multipleChoice))
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
     onView(withText("Option 1")).perform(click())
     onView(withText("Option 2")).perform(click())
@@ -137,14 +141,14 @@ class MultipleChoiceTaskFragmentTest :
 
   @Test
   fun testActionButtons() {
-    setupTaskFragment<MultipleChoiceTaskFragment>(task)
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
     hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP)
   }
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
-    setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(isRequired = false))
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = false))
 
     buttonIsDisabled("Continue")
     buttonIsEnabled("Skip")
@@ -153,7 +157,7 @@ class MultipleChoiceTaskFragmentTest :
   @Test
   fun testActionButtons_dataEntered_skipButtonTapped_confirmationDialogIsShown() {
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
-    setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(multipleChoice = multipleChoice))
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
     onView(withText("Option 1")).perform(click())
 
@@ -164,7 +168,7 @@ class MultipleChoiceTaskFragmentTest :
   @Test
   fun testActionButtons_noDataEntered_skipButtonTapped_confirmationDialogIsNotShown() {
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
-    setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(multipleChoice = multipleChoice))
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
     onView(withText("Skip")).perform(click())
     assertThat(ShadowAlertDialog.getShownDialogs().isEmpty()).isTrue()
@@ -172,7 +176,7 @@ class MultipleChoiceTaskFragmentTest :
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
-    setupTaskFragment<MultipleChoiceTaskFragment>(task.copy(isRequired = true))
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = true))
 
     buttonIsDisabled("Continue")
     buttonIsHidden("Skip")

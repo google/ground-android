@@ -104,7 +104,7 @@ class LoiLocalDataStoreConverterTest {
 
   private fun setUpTestSurvey(jobId: String, vararg tasks: Task) {
     val taskMap = tasks.associateBy { it.id }
-    val job = Job(jobId, Style(), "JOB_NAME", taskMap)
+    val job = Job(jobId, TEST_STYLE, "JOB_NAME", taskMap)
     survey = Survey("", "", "", mapOf(Pair(job.id, job)))
   }
 
@@ -124,6 +124,7 @@ class LoiLocalDataStoreConverterTest {
     toLoi(survey, loiDocumentSnapshot)
 
   companion object {
+    private val TEST_STYLE = Style("#112233")
     private val AUDIT_INFO_1_NESTED_OBJECT =
       AuditInfoNestedObject(
         UserNestedObject("user1", null, null),
