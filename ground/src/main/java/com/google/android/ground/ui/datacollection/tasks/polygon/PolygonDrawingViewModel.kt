@@ -159,17 +159,16 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   }
 
   /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */
-  private fun refreshFeatures(points: List<Point>, isMarkedComplete: Boolean) {
+  private fun refreshFeatures(vertices: List<Point>, isMarkedComplete: Boolean) {
     featureFlow.value =
-      if (points.isEmpty()) {
+      if (vertices.isEmpty()) {
         null
       } else {
         Feature(
           id = uuidGenerator.generateUuid(),
           type = FeatureType.USER_POLYGON.ordinal,
-          geometry = createGeometry(points, isMarkedComplete),
-          // TODO: Set correct color.
-          style = Feature.Style(Color.CYAN, Feature.VertexStyle.CIRCLE),
+          geometry = createGeometry(vertices, isMarkedComplete),
+          style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
           clusterable = false
         )
       }
