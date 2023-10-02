@@ -26,6 +26,7 @@ import androidx.annotation.IdRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
@@ -41,7 +42,6 @@ import com.google.android.ground.model.imagery.TileSource.Type.TILED_WEB_MAP
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.mog.MogCollection
 import com.google.android.ground.ui.map.gms.mog.MogTileProvider
@@ -152,7 +152,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     viewGroup: ViewGroup?,
     bundle: Bundle?
   ): View =
-    super.onCreateView(layoutInflater, viewGroup, bundle)!!.apply {
+    super.onCreateView(layoutInflater, viewGroup, bundle).apply {
       ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
         onApplyWindowInsets(view, insets)
       }
@@ -209,7 +209,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   private fun onClusterItemClick(cluster: Cluster<FeatureClusterItem>): Boolean {
     // Move the camera to point to LOIs within the current cluster
-    cluster.items.map { it.feature.geometry }.toBounds()?.let { moveCamera(it) }
+    cluster.items.map { it.feature.geometry }.toBounds()?.let { moveCamera(it, true) }
     return true
   }
 
@@ -226,17 +226,20 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   override fun disableGestures() = map.uiSettings.setAllGesturesEnabled(false)
 
-  override fun moveCamera(coordinates: Coordinates) =
-    map.animateCamera(CameraUpdateFactory.newLatLng(coordinates.toGoogleMapsObject()))
+  override fun moveCamera(coordinates: Coordinates, shouldAnimate: Boolean) =
+    moveCamera(CameraUpdateFactory.newLatLng(coordinates.toGoogleMapsObject()), shouldAnimate)
 
-  override fun moveCamera(coordinates: Coordinates, zoomLevel: Float) =
-    map.animateCamera(
-      CameraUpdateFactory.newLatLngZoom(coordinates.toGoogleMapsObject(), zoomLevel)
+  override fun moveCamera(coordinates: Coordinates, zoomLevel: Float, shouldAnimate: Boolean) =
+    moveCamera(
+      CameraUpdateFactory.newLatLngZoom(coordinates.toGoogleMapsObject(), zoomLevel),
+      shouldAnimate
     )
 
-  override fun moveCamera(bounds: Bounds) {
-    map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 100))
-  }
+  override fun moveCamera(bounds: Bounds, shouldAnimate: Boolean) =
+    moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 100), shouldAnimate)
+
+  private fun moveCamera(cameraUpdate: CameraUpdate, shouldAnimate: Boolean) =
+    if (shouldAnimate) map.animateCamera(cameraUpdate) else map.moveCamera(cameraUpdate)
 
   private fun getCustomCap(): CustomCap {
     if (customCap == null) {

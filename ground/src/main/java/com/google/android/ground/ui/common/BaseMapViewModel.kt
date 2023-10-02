@@ -40,6 +40,7 @@ import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.CameraUpdateRequest
 import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.toCoordinates
@@ -71,7 +72,7 @@ constructor(
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : AbstractViewModel() {
 
-  private val _cameraPosition = MutableStateFlow<CameraPosition?>(null)
+  private val _cameraUpdateRequests = MutableStateFlow<CameraUpdateRequest?>(null)
 
   val locationLock: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
@@ -191,7 +192,7 @@ constructor(
   }
 
   /** Emits a stream of camera update requests. */
-  fun getCameraUpdateRequests(): Flow<CameraPosition> = _cameraPosition.filterNotNull()
+  fun getCameraUpdateRequests(): Flow<CameraUpdateRequest> = _cameraUpdateRequests.filterNotNull()
 
   /** Emits a stream of current camera position. */
   fun getCurrentCameraPosition(): Flow<CameraPosition> = currentCameraPosition.filterNotNull()
@@ -220,7 +221,7 @@ constructor(
     surveyRepository.activeSurveyFlow
       .filterNotNull()
       .transform { getLastSavedPositionOrDefaultBounds(it)?.apply { emit(this) } }
-      .collect { updateMapCamera(it) }
+      .collect { setCameraPosition(it, false) }
   }
 
   private suspend fun getLastSavedPositionOrDefaultBounds(survey: Survey): CameraPosition? {
@@ -235,18 +236,22 @@ constructor(
     return geometries.toBounds()?.let { CameraPosition(bounds = it) }
   }
 
-  /** Requests moving the map camera to [coordinates]. */
   private fun panCamera(coordinates: Coordinates) {
-    updateMapCamera(CameraPosition(coordinates))
+    setCameraPosition(CameraPosition(coordinates), true)
   }
 
-  /** Requests moving the map camera to [coordinates] with zoom level [DEFAULT_LOI_ZOOM_LEVEL]. */
-  fun panAndZoomCamera(coordinates: Coordinates) {
-    updateMapCamera(CameraPosition(coordinates, DEFAULT_LOI_ZOOM_LEVEL))
+  private fun panAndZoomCamera(coordinates: Coordinates) {
+    setCameraPosition(CameraPosition(coordinates, DEFAULT_LOI_ZOOM_LEVEL), true)
   }
 
-  private fun updateMapCamera(cameraPosition: CameraPosition) {
-    _cameraPosition.value = cameraPosition
+  /**
+   * Requests moving the map camera to the given position.
+   *
+   * @param cameraPosition new position
+   * @param shouldAnimate whether to animate the map camera or not
+   */
+  fun setCameraPosition(cameraPosition: CameraPosition, shouldAnimate: Boolean) {
+    _cameraUpdateRequests.value = CameraUpdateRequest(cameraPosition, shouldAnimate)
   }
 
   /** Called when the map camera is moved. */

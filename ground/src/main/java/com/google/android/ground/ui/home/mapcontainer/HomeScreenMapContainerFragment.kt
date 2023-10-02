@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
+import com.google.android.ground.Config
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.databinding.BasemapLayoutBinding
@@ -41,6 +42,7 @@ import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
+import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -216,7 +218,12 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
         state.locationOfInterest
           ?.geometry
           ?.takeIf { it is Point }
-          ?.let { mapContainerViewModel.panAndZoomCamera(it.center()) }
+          ?.let {
+            mapContainerViewModel.setCameraPosition(
+              CameraPosition(it.center(), Config.DEFAULT_LOI_ZOOM_LEVEL),
+              false
+            )
+          }
       }
       BottomSheetState.Visibility.HIDDEN -> {
         map.enableGestures()
