@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
+import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.isNotNullOrEmpty
@@ -33,6 +34,7 @@ import com.google.android.ground.ui.datacollection.components.TaskButtonFactory
 import com.google.android.ground.ui.datacollection.components.TaskView
 import java.util.*
 import kotlin.properties.Delegates
+import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
@@ -103,7 +105,9 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** Invoked when the all [ButtonAction]s are added to the current [TaskView]. */
   open fun onActionButtonsCreated() {
-    viewModel.taskData.observe(viewLifecycleOwner) { onTaskDataUpdated(it.orElse(null)) }
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewModel.taskDataValue.collect { onTaskDataUpdated(it) }
+    }
   }
 
   /** Invoked when the data associated with the current task gets modified. */

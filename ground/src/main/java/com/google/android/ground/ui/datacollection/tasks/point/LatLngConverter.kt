@@ -26,8 +26,8 @@ import kotlin.math.abs
 object LatLngConverter {
 
   /** Converts the given coordinates in decimal format to D°M′S″ format. */
-  fun processCoordinates(coordinates: Coordinates): String =
-    "${convertLatToDMS(coordinates.lat)} ${convertLongToDMS(coordinates.lng)}"
+  fun processCoordinates(coordinates: Coordinates?): String? =
+    coordinates?.let { "${convertLatToDMS(it.lat)} ${convertLongToDMS(it.lng)}" }
 
   private fun convertLatToDMS(lat: Double): String {
     val orientation = if (lat > 0) "N" else "S"

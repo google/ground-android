@@ -39,6 +39,8 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
   @Inject lateinit var markerIconFactory: IconFactory
   @Inject lateinit var map: MapFragment
 
+  private lateinit var polygonDrawingMapFragment: PolygonDrawingMapFragment
+
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
     TaskViewFactory.createWithCombinedHeader(
       inflater,
@@ -48,12 +50,13 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
+    polygonDrawingMapFragment = PolygonDrawingMapFragment.newInstance(viewModel, map)
     parentFragmentManager
       .beginTransaction()
       .add(
         rowLayout.id,
-        PolygonDrawingMapFragment.newInstance(viewModel, map),
-        "Draw a polygon fragment"
+        polygonDrawingMapFragment,
+        PolygonDrawingMapFragment::class.java.simpleName
       )
       .commit()
     return rowLayout

@@ -26,7 +26,7 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.map.gms.renderer.PointFeatureManager
 import com.google.android.ground.ui.map.gms.renderer.PolygonFeatureManager
-import com.google.maps.android.clustering.Cluster
+mport com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import timber.log.Timber
 

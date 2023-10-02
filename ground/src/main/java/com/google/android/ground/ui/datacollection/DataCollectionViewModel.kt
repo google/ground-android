@@ -39,6 +39,7 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskViewModel
@@ -219,6 +220,7 @@ internal constructor(
         Task.Type.TIME -> TimeTaskViewModel::class.java
         Task.Type.DROP_A_PIN -> DropAPinTaskViewModel::class.java
         Task.Type.DRAW_POLYGON -> PolygonDrawingViewModel::class.java
+        Task.Type.CAPTURE_LOCATION -> CaptureLocationTaskViewModel::class.java
         Task.Type.UNKNOWN -> throw IllegalArgumentException("Unsupported task type: $taskType")
       }
   }

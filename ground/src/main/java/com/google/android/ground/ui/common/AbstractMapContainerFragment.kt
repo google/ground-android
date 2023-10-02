@@ -27,7 +27,7 @@ import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
-import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.CameraUpdateRequest
 import com.google.android.ground.ui.map.MapFragment
 import javax.inject.Inject
 import kotlin.math.max
@@ -47,6 +47,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     super.onViewCreated(view, savedInstanceState)
     map.attachToParent(this, R.id.map) { onMapAttached(it) }
   }
+
   private fun launchWhenStarted(fn: suspend () -> Unit) {
     lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.STARTED) { fn.invoke() } }
   }
@@ -125,8 +126,10 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     Toast.makeText(context, messageId, Toast.LENGTH_LONG).show()
   }
 
-  private fun onCameraUpdateRequest(newPosition: CameraPosition, map: MapFragment) {
-    Timber.v("Update camera: %s", newPosition)
+  private fun onCameraUpdateRequest(cameraUpdateRequest: CameraUpdateRequest, map: MapFragment) {
+    Timber.v("Update camera: $cameraUpdateRequest")
+    val newPosition = cameraUpdateRequest.cameraPosition
+    val shouldAnimate = cameraUpdateRequest.shouldAnimate
     val bounds = newPosition.bounds
     val target = newPosition.target
     var zoomLevel = newPosition.zoomLevel
@@ -137,11 +140,11 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
     // TODO(#1712): Fix this once CameraPosition is refactored to not contain duplicated state
     if (bounds != null) {
-      map.moveCamera(bounds)
+      map.moveCamera(bounds, shouldAnimate)
     } else if (target != null && zoomLevel != null) {
-      map.moveCamera(target, zoomLevel)
+      map.moveCamera(target, zoomLevel, shouldAnimate)
     } else if (target != null) {
-      map.moveCamera(target)
+      map.moveCamera(target, shouldAnimate)
     } else {
       error("Must have either target or bounds set")
     }
