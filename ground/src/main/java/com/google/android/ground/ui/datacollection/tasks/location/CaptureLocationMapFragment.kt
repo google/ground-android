@@ -13,33 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.point
+package com.google.android.ground.ui.datacollection.tasks.location
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.components.TaskHeaderPopupView
-import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
-import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint(AbstractMapFragmentWithControls::class)
-class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
-  Hilt_DropAPinMapFragment() {
+class CaptureLocationMapFragment(private val viewModel: CaptureLocationTaskViewModel) :
+  Hilt_CaptureLocationMapFragment() {
 
-  private lateinit var mapViewModel: BaseMapViewModel
-  private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
+  private lateinit var mapViewModel: CaptureLocationMapViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
-    mapViewModel = getViewModel(BaseMapViewModel::class.java)
+    mapViewModel = getViewModel(CaptureLocationMapViewModel::class.java)
   }
+
+  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -52,27 +52,21 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
         .show(binding.hintIcon, getString(R.string.drop_a_pin_tooltip_text))
     }
     binding.hintIcon.visibility = View.VISIBLE
+    viewLifecycleOwner.lifecycleScope.launch {
+      getMapViewModel().getLocationUpdates().collect { viewModel.updateLocation(it) }
+    }
     return root
   }
 
-  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
-
   override fun onMapReady(map: MapFragment) {
-    // Observe events emitted by the ViewModel.
-    viewLifecycleOwner.lifecycleScope.launch {
-      mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
+    with(binding.basemap.locationLockBtn) {
+      performClick()
+      isClickable = false
     }
-
-    viewModel.features.observe(this) { map.renderFeatures(it) }
-  }
-
-  override fun onMapCameraMoved(position: CameraPosition) {
-    super.onMapCameraMoved(position)
-    viewModel.updateCameraPosition(position)
   }
 
   companion object {
-    fun newInstance(viewModel: DropAPinTaskViewModel, map: MapFragment) =
-      DropAPinMapFragment(viewModel).apply { this.map = map }
+    fun newInstance(viewModel: CaptureLocationTaskViewModel, map: MapFragment) =
+      CaptureLocationMapFragment(viewModel).apply { this.map = map }
   }
 }

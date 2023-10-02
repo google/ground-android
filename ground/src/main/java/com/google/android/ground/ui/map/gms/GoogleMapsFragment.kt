@@ -26,6 +26,7 @@ import androidx.annotation.IdRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
@@ -41,10 +42,10 @@ import com.google.android.ground.model.imagery.TileSource.Type.TILED_WEB_MAP
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.mog.MogCollection
 import com.google.android.ground.ui.map.gms.mog.MogTileProvider
+import com.google.android.ground.ui.map.gms.renderer.PointRenderer
 import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
 import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
 import com.google.android.ground.ui.util.BitmapUtil
@@ -80,6 +81,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   /** Camera move events. Emits items after the camera has stopped moving. */
   override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
 
+  private lateinit var pointRenderer: PointRenderer
   private lateinit var polylineRenderer: PolylineRenderer
   private lateinit var polygonRenderer: PolygonRenderer
 
@@ -150,7 +152,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     viewGroup: ViewGroup?,
     bundle: Bundle?
   ): View =
-    super.onCreateView(layoutInflater, viewGroup, bundle)!!.apply {
+    super.onCreateView(layoutInflater, viewGroup, bundle).apply {
       ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
         onApplyWindowInsets(view, insets)
       }
@@ -171,16 +173,18 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun onMapReady(map: GoogleMap) {
     this.map = map
 
+    pointRenderer = PointRenderer(requireContext(), map)
     polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth)
     polygonRenderer =
       PolygonRenderer(map, polylineStrokeWidth, resources.getColor(R.color.polyLineColor))
 
-    clusterManager = FeatureClusterManager(context, map)
+    clusterManager = FeatureClusterManager(requireContext(), map)
     clusterRenderer =
       FeatureClusterRenderer(
         requireContext(),
         map,
         clusterManager,
+        pointRenderer,
         polygonRenderer,
         Config.CLUSTERING_ZOOM_THRESHOLD,
         map.cameraPosition.zoom
@@ -205,7 +209,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   private fun onClusterItemClick(cluster: Cluster<FeatureClusterItem>): Boolean {
     // Move the camera to point to LOIs within the current cluster
-    cluster.items.map { it.feature.geometry }.toBounds()?.let { moveCamera(it) }
+    cluster.items.map { it.feature.geometry }.toBounds()?.let { moveCamera(it, true) }
     return true
   }
 
@@ -222,17 +226,20 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   override fun disableGestures() = map.uiSettings.setAllGesturesEnabled(false)
 
-  override fun moveCamera(coordinates: Coordinates) =
-    map.animateCamera(CameraUpdateFactory.newLatLng(coordinates.toGoogleMapsObject()))
+  override fun moveCamera(coordinates: Coordinates, shouldAnimate: Boolean) =
+    moveCamera(CameraUpdateFactory.newLatLng(coordinates.toGoogleMapsObject()), shouldAnimate)
 
-  override fun moveCamera(coordinates: Coordinates, zoomLevel: Float) =
-    map.animateCamera(
-      CameraUpdateFactory.newLatLngZoom(coordinates.toGoogleMapsObject(), zoomLevel)
+  override fun moveCamera(coordinates: Coordinates, zoomLevel: Float, shouldAnimate: Boolean) =
+    moveCamera(
+      CameraUpdateFactory.newLatLngZoom(coordinates.toGoogleMapsObject(), zoomLevel),
+      shouldAnimate
     )
 
-  override fun moveCamera(bounds: Bounds) {
-    map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 100))
-  }
+  override fun moveCamera(bounds: Bounds, shouldAnimate: Boolean) =
+    moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 100), shouldAnimate)
+
+  private fun moveCamera(cameraUpdate: CameraUpdate, shouldAnimate: Boolean) =
+    if (shouldAnimate) map.animateCamera(cameraUpdate) else map.moveCamera(cameraUpdate)
 
   private fun getCustomCap(): CustomCap {
     if (customCap == null) {
@@ -267,6 +274,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun removeStaleFeatures(features: Set<Feature>) {
     Timber.d("Removing stale features from map")
     clusterManager.removeStaleFeatures(features)
+    pointRenderer.removeStaleFeatures(features)
     polylineRenderer.removeStaleFeatures(features)
     polygonRenderer.removeStaleFeatures(features)
   }
@@ -274,6 +282,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun removeAllFeatures() {
     Timber.d("Removing all features from map")
     clusterManager.removeAllFeatures()
+    pointRenderer.removeAllFeatures()
     polylineRenderer.removeAllFeatures()
     polygonRenderer.removeAllFeatures()
   }
@@ -284,8 +293,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
       return
     }
     when (feature.geometry) {
-      // TODO(#1907): Stop clustering unclustered points.
-      is Point -> clusterManager.addFeature(feature)
+      is Point -> pointRenderer.addFeature(feature)
       is LineString,
       is LinearRing -> polylineRenderer.addFeature(feature)
       is Polygon,
@@ -294,8 +302,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   }
 
   override fun renderFeatures(features: Set<Feature>) {
-    // Re-cluster and re-render
-    Timber.v("renderFeatures() called with ${features.size} locations of interest")
+    Timber.v("renderFeatures() called with ${features.size} features")
     if (features.isNotEmpty()) {
       removeStaleFeatures(features)
       Timber.d("Updating ${features.size} features")

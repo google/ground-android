@@ -29,7 +29,7 @@ internal object TaskConverter {
   fun toTask(id: String, em: TaskNestedObject): Task? {
     val type = toTaskType(em.type)
     if (type == Task.Type.UNKNOWN) {
-      Timber.d("Unsupported task type: ${em.type}")
+      Timber.e("Unsupported task type: ${em.type}")
       return null
     }
     // Default index to -1 to degrade gracefully on older dev db instances and surveys.
@@ -56,6 +56,7 @@ internal object TaskConverter {
       "number" -> Task.Type.NUMBER
       "date" -> Task.Type.DATE
       "time" -> Task.Type.TIME
+      "capture_location" -> Task.Type.CAPTURE_LOCATION
       else -> Task.Type.UNKNOWN
     }
 

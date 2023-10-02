@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.ground.MainViewModel
 import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationMapViewModel
 import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskViewModel
@@ -38,6 +39,7 @@ import com.google.android.ground.ui.offlineareas.OfflineAreasViewModel
 import com.google.android.ground.ui.offlineareas.selector.OfflineAreaSelectorViewModel
 import com.google.android.ground.ui.offlineareas.viewer.OfflineAreaViewerViewModel
 import com.google.android.ground.ui.signin.SignInViewModel
+import com.google.android.ground.ui.startup.StartupViewModel
 import com.google.android.ground.ui.submissiondetails.SubmissionDetailsViewModel
 import com.google.android.ground.ui.surveyselector.SurveySelectorViewModel
 import com.google.android.ground.ui.syncstatus.SyncStatusViewModel
@@ -55,42 +57,52 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(PolygonDrawingViewModel::class)
   abstract fun bindPolygonDrawingViewModel(viewModel: PolygonDrawingViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(HomeScreenMapContainerViewModel::class)
   abstract fun bindMapContainerViewModel(viewModel: HomeScreenMapContainerViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(OfflineAreaSelectorViewModel::class)
   abstract fun bindOfflineAreaSelectorViewModel(viewModel: OfflineAreaSelectorViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(SyncStatusViewModel::class)
   abstract fun bindSyncStatusViewModel(viewModel: SyncStatusViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(OfflineAreasViewModel::class)
   abstract fun bindOfflineAreasViewModel(viewModel: OfflineAreasViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(OfflineAreaViewerViewModel::class)
   abstract fun bindOfflineAreaViewerViewModel(viewModel: OfflineAreaViewerViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(MainViewModel::class)
   abstract fun bindMainViewModel(viewModel: MainViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(SignInViewModel::class)
   abstract fun bindSignInVideModel(viewModel: SignInViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(TermsOfServiceViewModel::class)
   abstract fun bindTermsViewModel(viewModel: TermsOfServiceViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(HomeScreenViewModel::class)
   abstract fun bindHomeScreenViewModel(viewModel: HomeScreenViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(LocationOfInterestDetailsViewModel::class)
@@ -102,46 +114,57 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(SurveySelectorViewModel::class)
   abstract fun bindSurveySelectorViewModel(viewModel: SurveySelectorViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(SubmissionListItemViewModel::class)
   abstract fun bindSubmissionListItemViewModel(viewModel: SubmissionListItemViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(SubmissionListViewModel::class)
   abstract fun bindSubmissionListViewModel(viewModel: SubmissionListViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(SubmissionDetailsViewModel::class)
   abstract fun bindSubmissionDetailsViewModel(viewModel: SubmissionDetailsViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(EditSubmissionViewModel::class)
   abstract fun bindEditSubmissionViewModel(viewModel: EditSubmissionViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(PhotoTaskViewModel::class)
   abstract fun bindPhotoTaskViewModel(viewModel: PhotoTaskViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(MultipleChoiceTaskViewModel::class)
   abstract fun bindMultipleChoiceTaskViewModel(viewModel: MultipleChoiceTaskViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(TextTaskViewModel::class)
   abstract fun bindTextTaskViewModel(viewModel: TextTaskViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(NumberTaskViewModel::class)
   abstract fun bindNumberTaskViewModel(viewModel: NumberTaskViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(DateTaskViewModel::class)
   abstract fun bindDateTaskViewModel(viewModel: DateTaskViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(TimeTaskViewModel::class)
   abstract fun bindTimeTaskViewModel(viewModel: TimeTaskViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(DropAPinTaskViewModel::class)
@@ -161,6 +184,16 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(MapTypeViewModel::class)
   abstract fun bindMapTypeViewModel(viewModel: MapTypeViewModel): ViewModel
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(CaptureLocationMapViewModel::class)
+  abstract fun bindCaptureLocationMapViewModel(viewModel: CaptureLocationMapViewModel): ViewModel
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(StartupViewModel::class)
+  abstract fun bindStartupViewModel(viewModel: StartupViewModel): ViewModel
 
   @Binds abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
 }

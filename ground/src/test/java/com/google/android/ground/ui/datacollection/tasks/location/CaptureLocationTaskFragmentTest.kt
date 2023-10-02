@@ -13,36 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.point
+package com.google.android.ground.ui.datacollection.tasks.location
 
+import android.location.Location
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.*
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.submission.GeometryData
+import com.google.android.ground.model.submission.LocationTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
-import com.google.android.ground.ui.map.CameraPosition
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.hamcrest.core.IsNot.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class DropAPinTaskFragmentTest :
-  BaseTaskFragmentTest<DropAPinTaskFragment, DropAPinTaskViewModel>() {
+class CaptureLocationTaskFragmentTest :
+  BaseTaskFragmentTest<CaptureLocationTaskFragment, CaptureLocationTaskViewModel>() {
 
   @BindValue @Mock override lateinit var dataCollectionViewModel: DataCollectionViewModel
   @Inject override lateinit var viewModelFactory: ViewModelFactory
@@ -51,77 +51,101 @@ class DropAPinTaskFragmentTest :
     Task(
       id = "task_1",
       index = 0,
-      type = Task.Type.DROP_A_PIN,
-      label = "Task for dropping a pin",
+      type = Task.Type.CAPTURE_LOCATION,
+      label = "Task for capturing current location",
       isRequired = false
     )
 
   @Test
   fun testHeader() {
-    setupTaskFragment<DropAPinTaskFragment>(task)
+    setupTaskFragment<CaptureLocationTaskFragment>(task)
 
-    hasTaskViewWithoutHeader("Drop a pin")
+    hasTaskViewWithoutHeader("Capture location")
   }
 
   @Test
   fun testDropPin() = runWithTestDispatcher {
-    val testPosition = CameraPosition(Coordinates(10.0, 20.0))
-    setupTaskFragment<DropAPinTaskFragment>(task)
+    val location = setupLocation()
+    setupTaskFragment<CaptureLocationTaskFragment>(task)
 
-    viewModel.updateCameraPosition(testPosition)
-    onView(withText("Drop pin")).perform(click())
+    viewModel.updateLocation(location)
+    onView(withText("Capture")).perform(click())
 
-    hasTaskData(GeometryData(Point(Coordinates(10.0, 20.0))))
+    hasTaskData(TASK_DATA)
     buttonIsEnabled("Continue")
     buttonIsEnabled(ButtonAction.UNDO)
-    buttonIsHidden("Drop pin")
+    buttonIsHidden("Capture")
   }
 
   @Test
   fun testInfoCard_noTaskData() {
-    setupTaskFragment<DropAPinTaskFragment>(task)
+    setupTaskFragment<CaptureLocationTaskFragment>(task)
 
     infoCardHidden()
   }
 
   @Test
   fun testUndo() = runWithTestDispatcher {
-    val testPosition = CameraPosition(Coordinates(10.0, 20.0))
-    setupTaskFragment<DropAPinTaskFragment>(task)
+    val location = setupLocation()
+    setupTaskFragment<CaptureLocationTaskFragment>(task)
 
-    viewModel.updateCameraPosition(testPosition)
-    onView(withText("Drop pin")).perform(click())
+    viewModel.updateLocation(location)
+    onView(withText("Capture")).perform(click())
     getButton(ButtonAction.UNDO).performClick()
 
     hasTaskData(null)
     buttonIsHidden("Continue")
-    buttonIsEnabled("Drop pin")
+    buttonIsEnabled("Capture")
   }
 
   @Test
   fun testActionButtons() {
-    setupTaskFragment<DropAPinTaskFragment>(task)
+    setupTaskFragment<CaptureLocationTaskFragment>(task)
 
-    hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP, ButtonAction.UNDO, ButtonAction.DROP_PIN)
+    hasButtons(
+      ButtonAction.CONTINUE,
+      ButtonAction.SKIP,
+      ButtonAction.UNDO,
+      ButtonAction.CAPTURE_LOCATION
+    )
   }
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
-    setupTaskFragment<DropAPinTaskFragment>(task.copy(isRequired = false))
+    setupTaskFragment<CaptureLocationTaskFragment>(task.copy(isRequired = false))
 
     buttonIsHidden("Continue")
     buttonIsEnabled("Skip")
     buttonIsHidden(ButtonAction.UNDO)
-    buttonIsEnabled("Drop pin")
+    buttonIsEnabled("Capture")
   }
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
-    setupTaskFragment<DropAPinTaskFragment>(task.copy(isRequired = true))
+    setupTaskFragment<CaptureLocationTaskFragment>(task.copy(isRequired = true))
 
     buttonIsHidden("Continue")
     buttonIsHidden("Skip")
     buttonIsHidden(ButtonAction.UNDO)
-    buttonIsEnabled("Drop pin")
+    buttonIsEnabled("Capture")
+  }
+
+  private fun setupLocation(): Location =
+    mock<Location>().apply {
+      whenever(hasAltitude()).thenReturn(true)
+      whenever(hasAccuracy()).thenReturn(true)
+      whenever(longitude).thenReturn(LONGITUDE)
+      whenever(latitude).thenReturn(LATITUDE)
+      whenever(altitude).thenReturn(ALTITUDE)
+      whenever(accuracy).thenReturn(ACCURACY.toFloat())
+    }
+
+  companion object {
+    private const val LATITUDE = 10.0
+    private const val LONGITUDE = 20.0
+    private const val ACCURACY = 5.0
+    private const val ALTITUDE = 150.0
+    private val GEOMETRY = Point(Coordinates(LATITUDE, LONGITUDE))
+    private val TASK_DATA = LocationTaskData(GEOMETRY, ALTITUDE, ACCURACY)
   }
 }

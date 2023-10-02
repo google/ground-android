@@ -17,6 +17,7 @@ package com.google.android.ground.persistence.local.room.converter
 
 import android.util.Base64
 import androidx.room.TypeConverter
+import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.persistence.local.room.entity.GeometryWrapper
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.encodeToByteArray
@@ -38,6 +39,8 @@ object GeometryWrapperTypeConverter {
       Timber.d(e, "Invalid Geometry in db")
       null
     }
+
+  fun toString(geometry: Geometry?): String = toString(GeometryWrapper.fromGeometry(geometry))
 
   fun toString(geometryWrapper: GeometryWrapper?): String =
     Base64.encodeToString(toByteArray(geometryWrapper), Base64.DEFAULT)

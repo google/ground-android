@@ -91,8 +91,6 @@ class PolygonRenderer(
     polygonsByFeature.remove(feature)?.let { polygons -> polygons.forEach { it.remove() } }
   }
 
-  fun exists(feature: Feature) = polygonsByFeature.contains(feature)
-
   fun updateFeature(feature: Feature, isSelected: Boolean) {
     removeFeature(feature)
     addFeature(feature, isSelected)
