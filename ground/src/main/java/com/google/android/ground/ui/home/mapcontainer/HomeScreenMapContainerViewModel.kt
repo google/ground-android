@@ -19,11 +19,14 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.coroutines.IoDispatcher
+import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
+import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
@@ -34,10 +37,12 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.FeatureType
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
+import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -61,6 +66,7 @@ class HomeScreenMapContainerViewModel
 internal constructor(
   private val loiRepository: LocationOfInterestRepository,
   private val mapStateRepository: MapStateRepository,
+  private val submissionRepository: SubmissionRepository,
   locationManager: LocationManager,
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,
@@ -110,7 +116,7 @@ internal constructor(
 
     mapLoiFeatures =
       activeSurvey.flatMapLatest {
-        if (it == null) flowOf(setOf()) else loiRepository.findLocationsOfInterestFeatures(it)
+        if (it == null) flowOf(setOf()) else getLocationOfInterestFeatures(it)
       }
 
     val isZoomedInFlow =
@@ -169,4 +175,21 @@ internal constructor(
   }
 
   fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed
+
+  private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
+    loiRepository.getLocationsOfInterest(survey).map {
+      it.map { loi -> loi.toFeature() }.toPersistentSet()
+    }
+
+  private suspend fun LocationOfInterest.toFeature() =
+    Feature(
+      id = id,
+      type = FeatureType.LOCATION_OF_INTEREST.ordinal,
+      flag =
+        submissionCount + submissionRepository.getPendingCreateCount(id) -
+          submissionRepository.getPendingDeleteCount(id) > 0,
+      geometry = geometry,
+      style = Feature.Style(job.getDefaultColor()),
+      clusterable = true
+    )
 }
