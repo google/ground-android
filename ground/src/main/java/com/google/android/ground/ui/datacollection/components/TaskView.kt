@@ -20,7 +20,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.google.android.ground.databinding.TaskFragWithCombinedHeaderBinding
 import com.google.android.ground.databinding.TaskFragWithHeaderBinding
-import com.google.android.ground.databinding.TaskFragWithoutHeaderBinding
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 
 /** Wrapper class for holding entire task's view (except toolbar). */
@@ -41,23 +40,6 @@ sealed interface TaskView {
 
 /** Implementation of [TaskView] with an embedded header. */
 data class TaskViewWithHeader(private val binding: TaskFragWithHeaderBinding) : TaskView {
-
-  override val actionButtonsContainer = binding.actionButtonsContainer
-
-  override val root = binding.root
-
-  override fun bind(fragment: Fragment, viewModel: AbstractTaskViewModel) {
-    binding.viewModel = viewModel
-    binding.lifecycleOwner = fragment
-  }
-
-  override fun addTaskView(view: View) {
-    binding.taskContainer.addView(view)
-  }
-}
-
-/** Implementation of [TaskView] without an embedded header. */
-data class TaskViewWithoutHeader(private val binding: TaskFragWithoutHeaderBinding) : TaskView {
 
   override val actionButtonsContainer = binding.actionButtonsContainer
 
