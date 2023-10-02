@@ -102,14 +102,14 @@ fun Job.toLocalDataStoreObject(surveyId: String): JobEntity =
     surveyId = surveyId,
     name = name,
     suggestLoiTaskType = suggestLoiTaskType?.toString(),
-    style = style.toLocalDataStoreObject()
+    style = style?.toLocalDataStoreObject()
   )
 
 fun JobEntityAndRelations.toModelObject(): Job {
   val taskMap = taskEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
   return Job(
     jobEntity.id,
-    jobEntity.style.toModelObject(),
+    jobEntity.style?.toModelObject(),
     jobEntity.name,
     taskMap.toPersistentMap(),
     jobEntity.suggestLoiTaskType?.let { Task.Type.valueOf(it) }

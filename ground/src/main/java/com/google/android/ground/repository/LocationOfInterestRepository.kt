@@ -141,6 +141,7 @@ constructor(
   fun findLocationsOfInterestFeatures(survey: Survey) =
     findLocationsOfInterest(survey).map { toLocationOfInterestFeatures(it) }
 
+  // TODO: Refactor: `Feature`s are speciifc to the map UI and don't belong here.
   private suspend fun toLocationOfInterestFeatures(
     locationsOfInterest: Set<LocationOfInterest>
   ): Set<Feature> = // TODO: Add support for polylines similar to mapPins.
@@ -155,13 +156,12 @@ constructor(
           type = FeatureType.LOCATION_OF_INTEREST.ordinal,
           flag = submissionCount > 0,
           geometry = it.geometry,
-          style = toFeatureStyle(it.job.style),
+          // TODO: Reuse Job.getDefaultColor(), remove duplicate toFeatureStyle.
+          style = it.job.style!!.toFeatureStyle(),
           clusterable = true
         )
       }
       .toPersistentSet()
-
-  private fun toFeatureStyle(style: Style) = Feature.Style(Color.parseColor(style.color))
 
   /** Returns a list of geometries associated with the given [Survey]. */
   suspend fun getAllGeometries(survey: Survey): List<Geometry> =
@@ -176,3 +176,5 @@ constructor(
       .map { lois -> lois.filter { bounds.contains(it.geometry) } }
       .distinctUntilChanged()
 }
+
+private fun Style.toFeatureStyle() = Feature.Style(Color.parseColor(color))

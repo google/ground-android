@@ -15,15 +15,18 @@
  */
 package com.google.android.ground.model.job
 
+import android.graphics.Color
 import com.google.android.ground.model.task.Task
+import java.lang.IllegalArgumentException
+import timber.log.Timber
 
 /**
  * @param suggestLoiTaskType the type of task used to suggest the LOI for this Job. Null if the job
- * is already associated with an LOI.
+ *   is already associated with an LOI.
  */
 data class Job(
   val id: String,
-  val style: Style,
+  val style: Style?,
   val name: String? = null,
   val tasks: Map<String, Task> = mapOf(),
   val suggestLoiTaskType: Task.Type? = null,
@@ -35,3 +38,11 @@ data class Job(
 
   fun hasData(): Boolean = tasks.isNotEmpty()
 }
+
+fun Job.getDefaultColor(): Int =
+  try {
+    Color.parseColor(style?.color ?: "")
+  } catch (e: IllegalArgumentException) {
+    Timber.w("Invalid or missing color ${style?.color} in job $id")
+    0
+  }

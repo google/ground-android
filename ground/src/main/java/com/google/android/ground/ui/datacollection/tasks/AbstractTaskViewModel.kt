@@ -21,6 +21,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.model.task.Task
@@ -65,7 +66,7 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   }
 
   // TODO: Add a reference of Task in TaskData for simplification.
-  fun initialize(task: Task, taskData: TaskData?) {
+  open fun initialize(job: Job, task: Task, taskData: TaskData?) {
     this.task = task
     setResponse(taskData)
   }

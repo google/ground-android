@@ -25,7 +25,11 @@ import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.submission.GeometryData
+import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
@@ -61,6 +65,13 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
 
   /** Represents whether the user has completed drawing the polygon or not. */
   private var isMarkedComplete: Boolean = false
+
+  private var strokeColor: Int = 0
+
+  override fun initialize(job: Job, task: Task, taskData: TaskData?) {
+    super.initialize(job, task, taskData)
+    strokeColor = job.getDefaultColor()
+  }
 
   fun isMarkedComplete(): Boolean = isMarkedComplete
 
