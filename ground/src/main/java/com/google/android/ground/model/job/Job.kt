@@ -43,6 +43,6 @@ fun Job.getDefaultColor(): Int =
   try {
     Color.parseColor(style?.color ?: "")
   } catch (e: IllegalArgumentException) {
-    Timber.w("Invalid or missing color ${style?.color} in job $id")
+    Timber.w(e, "Invalid or missing color ${style?.color} in job $id")
     0
   }
