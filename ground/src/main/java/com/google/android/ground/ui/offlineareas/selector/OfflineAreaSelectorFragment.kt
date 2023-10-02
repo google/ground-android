@@ -28,8 +28,8 @@ import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 /** Map UI used to select areas for download and viewing offline. */
 @AndroidEntryPoint(AbstractMapContainerFragment::class)
