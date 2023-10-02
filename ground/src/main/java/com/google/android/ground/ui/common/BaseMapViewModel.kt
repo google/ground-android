@@ -209,9 +209,9 @@ constructor(
       .withIndex()
       .collect { (index, coordinates) ->
         if (index == 0) {
-          panAndZoomCamera(coordinates, true)
+          panAndZoomCamera(coordinates)
         } else {
-          panCamera(coordinates, true)
+          panCamera(coordinates)
         }
       }
   }
@@ -221,7 +221,7 @@ constructor(
     surveyRepository.activeSurveyFlow
       .filterNotNull()
       .transform { getLastSavedPositionOrDefaultBounds(it)?.apply { emit(this) } }
-      .collect { updateMapCamera(it, false) }
+      .collect { setCameraPosition(it, false) }
   }
 
   private suspend fun getLastSavedPositionOrDefaultBounds(survey: Survey): CameraPosition? {
@@ -236,17 +236,21 @@ constructor(
     return geometries.toBounds()?.let { CameraPosition(bounds = it) }
   }
 
-  /** Requests moving the map camera to [coordinates]. */
-  private fun panCamera(coordinates: Coordinates, shouldAnimate: Boolean) {
-    updateMapCamera(CameraPosition(coordinates), shouldAnimate)
+  private fun panCamera(coordinates: Coordinates) {
+    setCameraPosition(CameraPosition(coordinates), true)
   }
 
-  /** Requests moving the map camera to [coordinates] with zoom level [DEFAULT_LOI_ZOOM_LEVEL]. */
-  fun panAndZoomCamera(coordinates: Coordinates, shouldAnimate: Boolean) {
-    updateMapCamera(CameraPosition(coordinates, DEFAULT_LOI_ZOOM_LEVEL), shouldAnimate)
+  private fun panAndZoomCamera(coordinates: Coordinates) {
+    setCameraPosition(CameraPosition(coordinates, DEFAULT_LOI_ZOOM_LEVEL), true)
   }
 
-  private fun updateMapCamera(cameraPosition: CameraPosition, shouldAnimate: Boolean) {
+  /**
+   * Requests moving the map camera to the given position.
+   *
+   * @param cameraPosition new position
+   * @param shouldAnimate whether to animate the map camera or not
+   */
+  fun setCameraPosition(cameraPosition: CameraPosition, shouldAnimate: Boolean) {
     _cameraUpdateRequests.value = CameraUpdateRequest(cameraPosition, shouldAnimate)
   }
 
