@@ -59,7 +59,7 @@ class PolygonDrawingTaskFragmentTest :
   fun testHeader() {
     setupTaskFragment<PolygonDrawingTaskFragment>(task)
 
-    hasTaskViewWithoutHeader("Draw an area")
+    hasTaskViewWithoutHeader("Task for drawing a polygon")
   }
 
   @Test
