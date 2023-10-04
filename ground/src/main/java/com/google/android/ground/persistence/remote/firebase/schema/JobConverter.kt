@@ -33,7 +33,7 @@ internal object JobConverter {
     }
     return Job(
       id,
-      obj.defaultStyle.toStyle(),
+      obj.defaultStyle?.toStyle(),
       obj.name,
       taskMap.toPersistentMap(),
       TaskConverter.toSuggestLoiTaskType(obj.suggestLoiTaskType)

@@ -18,8 +18,17 @@ package com.google.android.ground.ui.map.gms.renderer
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.ui.map.Feature
 
-sealed class FeatureRenderer(val map: GoogleMap) {
+/** Keeps track of features on a map and implement basic related add/remove operations. */
+sealed class FeatureManager {
+  protected lateinit var map: GoogleMap
+
   abstract fun addFeature(feature: Feature, isSelected: Boolean = false)
+
   abstract fun removeStaleFeatures(features: Set<Feature>)
+
   abstract fun removeAllFeatures()
+
+  fun onMapReady(map: GoogleMap) {
+    this.map = map
+  }
 }

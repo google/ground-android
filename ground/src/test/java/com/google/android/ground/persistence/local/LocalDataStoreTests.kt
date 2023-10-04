@@ -95,8 +95,8 @@ class LocalDataStoreTests : BaseHiltTest() {
 
   @Test
   fun testRemovedJobFromSurvey() = runWithTestDispatcher {
-    val job1 = Job("job 1", Style(), "job 1 name")
-    val job2 = Job("job 2", Style(), "job 2 name")
+    val job1 = Job("job 1", TEST_STYLE, "job 1 name")
+    val job2 = Job("job 2", TEST_STYLE, "job 2 name")
     var survey =
       Survey("foo id", "foo survey", "foo survey description", mapOf(Pair(job1.id, job1)))
     localSurveyStore.insertOrUpdateSurvey(survey)
@@ -125,6 +125,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       .test()
       .assertValue { it.geometry == TEST_POINT }
   }
+
   @Test
   fun testApplyAndEnqueue_insertsMutation() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
@@ -371,8 +372,9 @@ class LocalDataStoreTests : BaseHiltTest() {
   companion object {
     private val TEST_USER = User("user id", "user@gmail.com", "user 1")
     private val TEST_TASK = Task("task id", 1, Task.Type.TEXT, "task label", false)
+    private val TEST_STYLE = Style("#112233")
     private val TEST_JOB =
-      Job("job id", Style(), "heading title", mapOf(Pair(TEST_TASK.id, TEST_TASK)))
+      Job("job id", TEST_STYLE, "heading title", mapOf(Pair(TEST_TASK.id, TEST_TASK)))
     private val TEST_SURVEY =
       Survey("survey id", "survey 1", "foo description", mapOf(Pair(TEST_JOB.id, TEST_JOB)))
     private val TEST_POINT = Point(Coordinates(110.0, -23.1))

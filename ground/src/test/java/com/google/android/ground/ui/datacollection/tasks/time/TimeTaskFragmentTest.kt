@@ -20,6 +20,7 @@ import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import com.google.android.ground.R
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -46,17 +47,18 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
 
   private val task =
     Task(id = "task_1", index = 0, type = Task.Type.TIME, label = "Time label", isRequired = false)
+  private val job = Job("job")
 
   @Test
   fun testHeader() {
-    setupTaskFragment<TimeTaskFragment>(task)
+    setupTaskFragment<TimeTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)
   }
 
   @Test
   fun testResponse_defaultIsEmpty() {
-    setupTaskFragment<TimeTaskFragment>(task)
+    setupTaskFragment<TimeTaskFragment>(job, task)
 
     Espresso.onView(ViewMatchers.withId(R.id.user_response_text))
       .check(ViewAssertions.matches(ViewMatchers.withText("")))
@@ -69,7 +71,7 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
 
   @Test
   fun testResponse_onUserInput() {
-    setupTaskFragment<TimeTaskFragment>(task)
+    setupTaskFragment<TimeTaskFragment>(job, task)
 
     Truth.assertThat(fragment.getTimePickerDialog()).isNull()
     Espresso.onView(ViewMatchers.withId(R.id.user_response_text)).perform(ViewActions.click())
@@ -78,14 +80,14 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
 
   @Test
   fun testActionButtons() {
-    setupTaskFragment<TimeTaskFragment>(task)
+    setupTaskFragment<TimeTaskFragment>(job, task)
 
     hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP)
   }
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
-    setupTaskFragment<TimeTaskFragment>(task.copy(isRequired = false))
+    setupTaskFragment<TimeTaskFragment>(job, task.copy(isRequired = false))
 
     buttonIsDisabled("Continue")
     buttonIsEnabled("Skip")
@@ -93,7 +95,7 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
-    setupTaskFragment<TimeTaskFragment>(task.copy(isRequired = true))
+    setupTaskFragment<TimeTaskFragment>(job, task.copy(isRequired = true))
 
     buttonIsDisabled("Continue")
     buttonIsHidden("Skip")

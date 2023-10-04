@@ -15,26 +15,34 @@
  */
 package com.google.android.ground.ui.map.gms.renderer
 
-import com.google.android.gms.maps.GoogleMap
+import android.content.Context
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CustomCap
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.ground.R
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.colorInt
 import com.google.android.ground.ui.map.gms.toLatLngList
+import com.google.android.ground.ui.util.BitmapUtil
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import timber.log.Timber
 
-class PolylineRenderer(
-  map: GoogleMap,
-  private val customCap: CustomCap,
-  private val strokeWidth: Float
-) : FeatureRenderer(map) {
-
+class PolylineFeatureManager
+@Inject
+constructor(@ApplicationContext context: Context, bitmapUtil: BitmapUtil) : FeatureManager() {
   private val polylines: MutableMap<Feature, MutableList<Polyline>> = HashMap()
+  private val lineWidth = context.resources.getDimension(R.dimen.line_geometry_width)
+  private val circleCap by lazy {
+    // This must be done lazily since resources are not available before the app completes
+    // initialization.
+    val bitmap = bitmapUtil.fromVector(R.drawable.ic_endpoint)
+    CustomCap(BitmapDescriptorFactory.fromBitmap(bitmap))
+  }
 
   override fun addFeature(feature: Feature, isSelected: Boolean) {
     when (feature.geometry) {
@@ -57,12 +65,15 @@ class PolylineRenderer(
     }
     val polyline = map.addPolyline(options)
     val strokeScale = if (isSelected) 2f else 1f
+    val style = feature.style
     with(polyline) {
       tag = feature.tag
-      startCap = customCap
-      endCap = customCap
-      width = strokeWidth * strokeScale
-      this.color = feature.colorInt()
+      if (style.vertexStyle == Feature.VertexStyle.CIRCLE) {
+        startCap = circleCap
+        endCap = circleCap
+      }
+      width = lineWidth * strokeScale
+      color = style.color
       jointType = JointType.ROUND
     }
 

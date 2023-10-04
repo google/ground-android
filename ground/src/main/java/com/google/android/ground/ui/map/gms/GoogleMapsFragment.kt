@@ -33,7 +33,6 @@ import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.ground.Config
-import com.google.android.ground.R
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.imagery.TileSource
@@ -45,9 +44,10 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.mog.MogCollection
 import com.google.android.ground.ui.map.gms.mog.MogTileProvider
-import com.google.android.ground.ui.map.gms.renderer.PointRenderer
-import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
-import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
+import com.google.android.ground.ui.map.gms.renderer.FeatureManager
+import com.google.android.ground.ui.map.gms.renderer.PointFeatureManager
+import com.google.android.ground.ui.map.gms.renderer.PolygonFeatureManager
+import com.google.android.ground.ui.map.gms.renderer.PolylineFeatureManager
 import com.google.android.ground.ui.util.BitmapUtil
 import com.google.android.ground.util.invert
 import com.google.maps.android.PolyUtil
@@ -66,6 +66,7 @@ const val TILE_OVERLAY_Z = 0f
 const val POLYGON_Z = 1f
 const val CLUSTER_Z = 2f
 const val MARKER_Z = 3f
+
 /**
  * Customization of Google Maps API Fragment that automatically adjusts the Google watermark based
  * on window insets.
@@ -81,30 +82,23 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   /** Camera move events. Emits items after the camera has stopped moving. */
   override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
 
-  private lateinit var pointRenderer: PointRenderer
-  private lateinit var polylineRenderer: PolylineRenderer
-  private lateinit var polygonRenderer: PolygonRenderer
-
+  @Inject lateinit var pointFeatureManager: PointFeatureManager
+  @Inject lateinit var polylineFeatureManager: PolylineFeatureManager
+  @Inject lateinit var polygonFeatureManager: PolygonFeatureManager
   @Inject lateinit var bitmapUtil: BitmapUtil
+
+  private val featureManagers: List<FeatureManager>
+    get() = listOf(pointFeatureManager, polylineFeatureManager, polygonFeatureManager)
 
   private lateinit var map: GoogleMap
 
   private lateinit var clusterManager: FeatureClusterManager
-
-  /**
-   * References to Google Maps SDK CustomCap present on the map. Used to set the custom drawable to
-   * start and end of polygon.
-   */
-  private var customCap: CustomCap? = null
 
   override val supportedMapTypes: List<MapType> = IDS_BY_MAP_TYPE.keys.toList()
 
   private val tileOverlays = mutableListOf<TileOverlay>()
 
   override val featureClicks = MutableSharedFlow<Set<Feature>>()
-
-  private val polylineStrokeWidth: Float
-    get() = resources.getDimension(R.dimen.polyline_stroke_width)
 
   override var mapType: MapType
     get() = MAP_TYPES_BY_ID[map.mapType]!!
@@ -173,19 +167,15 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun onMapReady(map: GoogleMap) {
     this.map = map
 
-    pointRenderer = PointRenderer(requireContext(), map)
-    polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth)
-    polygonRenderer =
-      PolygonRenderer(map, polylineStrokeWidth, resources.getColor(R.color.polyLineColor))
-
+    featureManagers.forEach { it.onMapReady(map) }
     clusterManager = FeatureClusterManager(requireContext(), map)
     clusterRenderer =
       FeatureClusterRenderer(
         requireContext(),
         map,
         clusterManager,
-        pointRenderer,
-        polygonRenderer,
+        pointFeatureManager,
+        polygonFeatureManager,
         Config.CLUSTERING_ZOOM_THRESHOLD,
         map.cameraPosition.zoom
       )
@@ -241,14 +231,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun moveCamera(cameraUpdate: CameraUpdate, shouldAnimate: Boolean) =
     if (shouldAnimate) map.animateCamera(cameraUpdate) else map.moveCamera(cameraUpdate)
 
-  private fun getCustomCap(): CustomCap {
-    if (customCap == null) {
-      val bitmap = bitmapUtil.fromVector(R.drawable.ic_endpoint)
-      customCap = CustomCap(BitmapDescriptorFactory.fromBitmap(bitmap))
-    }
-    return checkNotNull(customCap)
-  }
-
   private fun onMapClick(latLng: LatLng) {
     val clickedPolygons = getPolygonFeaturesContaining(latLng)
     if (clickedPolygons.isNotEmpty()) {
@@ -257,7 +239,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   }
 
   private fun getPolygonFeaturesContaining(latLng: LatLng) =
-    polygonRenderer
+    polygonFeatureManager
       .getPolygonsByFeature()
       .filterValues { polygons ->
         polygons.any { PolyUtil.containsLocation(latLng, it.points, false) }
@@ -274,17 +256,13 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun removeStaleFeatures(features: Set<Feature>) {
     Timber.d("Removing stale features from map")
     clusterManager.removeStaleFeatures(features)
-    pointRenderer.removeStaleFeatures(features)
-    polylineRenderer.removeStaleFeatures(features)
-    polygonRenderer.removeStaleFeatures(features)
+    featureManagers.forEach { it.removeStaleFeatures(features) }
   }
 
   private fun removeAllFeatures() {
     Timber.d("Removing all features from map")
     clusterManager.removeAllFeatures()
-    pointRenderer.removeAllFeatures()
-    polylineRenderer.removeAllFeatures()
-    polygonRenderer.removeAllFeatures()
+    featureManagers.forEach { it.removeAllFeatures() }
   }
 
   private fun addOrUpdateFeature(feature: Feature) {
@@ -293,11 +271,11 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
       return
     }
     when (feature.geometry) {
-      is Point -> pointRenderer.addFeature(feature)
+      is Point -> pointFeatureManager.addFeature(feature)
       is LineString,
-      is LinearRing -> polylineRenderer.addFeature(feature)
+      is LinearRing -> polylineFeatureManager.addFeature(feature)
       is Polygon,
-      is MultiPolygon -> polygonRenderer.addFeature(feature)
+      is MultiPolygon -> polygonFeatureManager.addFeature(feature)
     }
   }
 

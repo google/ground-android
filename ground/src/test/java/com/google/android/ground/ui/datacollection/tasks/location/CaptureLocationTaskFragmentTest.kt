@@ -21,6 +21,7 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.LocationTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
@@ -55,10 +56,11 @@ class CaptureLocationTaskFragmentTest :
       label = "Task for capturing current location",
       isRequired = false
     )
+  private val job = Job(id = "job1")
 
   @Test
   fun testHeader() {
-    setupTaskFragment<CaptureLocationTaskFragment>(task)
+    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     hasTaskViewWithoutHeader("Capture location")
   }
@@ -66,7 +68,7 @@ class CaptureLocationTaskFragmentTest :
   @Test
   fun testDropPin() = runWithTestDispatcher {
     val location = setupLocation()
-    setupTaskFragment<CaptureLocationTaskFragment>(task)
+    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     viewModel.updateLocation(location)
     onView(withText("Capture")).perform(click())
@@ -79,7 +81,7 @@ class CaptureLocationTaskFragmentTest :
 
   @Test
   fun testInfoCard_noTaskData() {
-    setupTaskFragment<CaptureLocationTaskFragment>(task)
+    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     infoCardHidden()
   }
@@ -87,7 +89,7 @@ class CaptureLocationTaskFragmentTest :
   @Test
   fun testUndo() = runWithTestDispatcher {
     val location = setupLocation()
-    setupTaskFragment<CaptureLocationTaskFragment>(task)
+    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     viewModel.updateLocation(location)
     onView(withText("Capture")).perform(click())
@@ -100,7 +102,7 @@ class CaptureLocationTaskFragmentTest :
 
   @Test
   fun testActionButtons() {
-    setupTaskFragment<CaptureLocationTaskFragment>(task)
+    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     hasButtons(
       ButtonAction.CONTINUE,
@@ -112,7 +114,7 @@ class CaptureLocationTaskFragmentTest :
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
-    setupTaskFragment<CaptureLocationTaskFragment>(task.copy(isRequired = false))
+    setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = false))
 
     buttonIsHidden("Continue")
     buttonIsEnabled("Skip")
@@ -122,7 +124,7 @@ class CaptureLocationTaskFragmentTest :
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
-    setupTaskFragment<CaptureLocationTaskFragment>(task.copy(isRequired = true))
+    setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = true))
 
     buttonIsHidden("Continue")
     buttonIsHidden("Skip")

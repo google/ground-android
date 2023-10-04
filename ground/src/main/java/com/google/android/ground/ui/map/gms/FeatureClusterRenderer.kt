@@ -24,8 +24,8 @@ import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.IconFactory
-import com.google.android.ground.ui.map.gms.renderer.PointRenderer
-import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
+import com.google.android.ground.ui.map.gms.renderer.PointFeatureManager
+import com.google.android.ground.ui.map.gms.renderer.PolygonFeatureManager
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import timber.log.Timber
@@ -38,12 +38,11 @@ import timber.log.Timber
  * individual markers for each cluster item.
  */
 class FeatureClusterRenderer(
-  // TODO: Inject.
   context: Context,
-  private val map: GoogleMap,
+  map: GoogleMap,
   private val clusterManager: FeatureClusterManager,
-  private val pointRenderer: PointRenderer,
-  private val polygonRenderer: PolygonRenderer,
+  private val pointFeatureManager: PointFeatureManager,
+  private val polygonFeatureManager: PolygonFeatureManager,
   private val clusteringZoomThreshold: Float,
   /**
    * The current zoom level to compare against the renderer's threshold.
@@ -62,14 +61,14 @@ class FeatureClusterRenderer(
   override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
     when (item.feature.geometry) {
       is Point -> {
-        pointRenderer.setMarkerOptions(markerOptions, item.isSelected(), item.style.color)
+        pointFeatureManager.setMarkerOptions(markerOptions, item.isSelected(), item.style.color)
       }
       is Polygon,
       is MultiPolygon -> {
         // Don't render marker if this item is a polygon.
         markerOptions.visible(false)
         // Add polygon or multi-polygon when zooming in.
-        polygonRenderer.addFeature(item.feature, item.isSelected())
+        polygonFeatureManager.addFeature(item.feature, item.isSelected())
       }
       else -> {
         throw UnsupportedOperationException(
@@ -82,11 +81,12 @@ class FeatureClusterRenderer(
   override fun onClusterItemUpdated(item: FeatureClusterItem, marker: Marker) {
     val feature = item.feature
     when (feature.geometry) {
-      is Point -> marker.setIcon(pointRenderer.getMarkerIcon(item.isSelected(), item.style.color))
+      is Point ->
+        marker.setIcon(pointFeatureManager.getMarkerIcon(item.isSelected(), item.style.color))
       is Polygon,
       is MultiPolygon ->
         // Update polygon or multi-polygon on change.
-        polygonRenderer.updateFeature(feature, item.isSelected())
+        polygonFeatureManager.updateFeature(feature, item.isSelected())
       else ->
         throw UnsupportedOperationException(
           "Unsupported feature type ${feature.geometry.javaClass.simpleName}"
@@ -113,7 +113,7 @@ class FeatureClusterRenderer(
     cluster.items
       .map { it.feature }
       .filter { it.geometry !is Point }
-      .forEach { feature -> polygonRenderer.removeFeature(feature) }
+      .forEach { feature -> polygonFeatureManager.removeFeature(feature) }
     super.onBeforeClusterRendered(cluster, markerOptions)
     Timber.d("MARKER_RENDER: onBeforeClusterRendered")
     with(markerOptions) {

@@ -148,7 +148,7 @@ internal constructor(
     }
     val viewModel = viewModelFactory.create(getViewModelClass(task.type))
     // TODO(#1146): Pass in the existing taskData if there is one
-    viewModel.initialize(task, null)
+    viewModel.initialize(job, task, null)
     addTaskViewModel(viewModel)
     return viewModel
   }

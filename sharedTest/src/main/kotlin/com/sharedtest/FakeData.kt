@@ -39,7 +39,7 @@ object FakeData {
   val TERMS_OF_SERVICE: TermsOfService =
     TermsOfService("TERMS_OF_SERVICE", "Fake Terms of Service text")
 
-  val JOB = Job(name = "Job", id = "JOB", style = Style())
+  val JOB = Job(name = "Job", id = "JOB", style = Style("#000"))
 
   val USER = User("user_id", "user@gmail.com", "User")
 
@@ -72,6 +72,7 @@ object FakeData {
       id = LOCATION_OF_INTEREST.id,
       type = FeatureType.LOCATION_OF_INTEREST.ordinal,
       geometry = LOCATION_OF_INTEREST.geometry,
+      style = Feature.Style(0),
       clusterable = true
     )
 

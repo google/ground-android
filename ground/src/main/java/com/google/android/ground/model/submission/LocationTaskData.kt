@@ -34,9 +34,10 @@ constructor(
     // TODO: Move to strings.xml for i18n
     val df = DecimalFormat("#.##")
     df.roundingMode = RoundingMode.DOWN
-    return "${LatLngConverter.processCoordinates(geometry.coordinates)}\n" +
-      "Altitude: ${df.format(altitude)}m\n" +
-      "Accuracy: ${df.format(accuracy)}m"
+    val coordinatesString = LatLngConverter.formatCoordinates(geometry.coordinates)
+    val altitudeString = altitude?.let { df.format(it) } ?: "?"
+    val accuracyString = accuracy?.let { df.format(it) } ?: "?"
+    return "$coordinatesString\nAltitude: $altitudeString m\nAccuracy: $accuracyString m"
   }
 
   override fun isEmpty(): Boolean = geometry == null
