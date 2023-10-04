@@ -139,9 +139,7 @@
 
   <string name="new_site">New data collection site</string>
   <string name="new_site_hint_text">Add new site and submit related data</string>
-  <string name="drop_a_pin">Drop a pin</string>
   <string name="drop_a_pin_tooltip_text">Drag your map until the center pin is on the desired location</string>
-  <string name="draw_an_area">Draw an area</string>
   <string name="current_location">Current location</string>
   <string name="loading">Loading…</string>
   <string name="skip_dialog_title">Skip this step?</string>
@@ -165,7 +163,6 @@
   <string name="offline_area_size_loading_symbol">…</string>
   <string name="offline_area_select_cancel_button">Cancel</string>
   <string name="offline_area_selector_title">Download this area?</string>
-  <string name="capture_location">Capture location</string>
   <string name="capture">Capture</string>
   <string name="surveys">Surveys</string>
   <string name="offline_icon_description">Icon shown when the survey is available offline</string>

@@ -42,11 +42,7 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
   private lateinit var polygonDrawingMapFragment: PolygonDrawingMapFragment
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
-    TaskViewFactory.createWithCombinedHeader(
-      inflater,
-      R.drawable.outline_draw,
-      R.string.draw_an_area
-    )
+    TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_draw)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }

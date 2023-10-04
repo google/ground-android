@@ -37,11 +37,7 @@ class CaptureLocationTaskFragment :
   @Inject lateinit var map: MapFragment
 
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
-    TaskViewFactory.createWithCombinedHeader(
-      inflater,
-      R.drawable.outline_pin_drop,
-      R.string.capture_location
-    )
+    TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
