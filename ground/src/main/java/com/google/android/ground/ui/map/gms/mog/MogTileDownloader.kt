@@ -35,8 +35,7 @@ class MogTileDownloader(private val client: MogClient, private val outputBasePat
   suspend fun downloadTiles(requests: List<MogTilesRequest>) = flow {
     client.getTiles(requests).collect { tile ->
       val outFile = File(outputBasePath, tile.metadata.tileCoordinates.getTilePath())
-      // We know parent dir won't be null because it's defined in the extension file in this file.
-      outFile.parentFile!!.mkdirs()
+      outFile.parentFile?.mkdirs()
       val gmsTile = tile.toGmsTile()
       val data = gmsTile.data!!
       outFile.writeBytes(data)
