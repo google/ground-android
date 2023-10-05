@@ -160,7 +160,7 @@ constructor(
     return requests.sumOf { it.totalBytes }
   }
 
-  suspend fun actualSizeOnDisk(offlineArea: OfflineArea): Int =
+  suspend fun sizeOnDevice(offlineArea: OfflineArea): Int =
     offlineArea.tiles.sumOf { File(getLocalTileSourcePath(), it.getTilePath()).length().toInt() }
 
   suspend fun removeFromDevice(offlineArea: OfflineArea) {

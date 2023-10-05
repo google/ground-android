@@ -87,7 +87,7 @@ constructor(
     viewModelScope.launch(ioDispatcher) {
       val thisArea = offlineAreaRepository.getOfflineArea(offlineAreaId!!).await()
       area.postValue(thisArea)
-      areaSize.postValue((offlineAreaRepository.actualSizeOnDisk(thisArea) / (1024f * 1024f)))
+      areaSize.postValue((offlineAreaRepository.sizeOnDevice(thisArea) / (1024f * 1024f)))
     }
   }
 
