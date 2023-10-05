@@ -151,7 +151,8 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       caption = caption,
       geometry = geometry.getGeometry(),
       submissionCount = submissionCount,
-      job = survey.getJob(jobId = jobId)
+      job =
+        survey.getJob(jobId = jobId)
           ?: throw LocalDataConsistencyException(
             "Unknown jobId ${this.jobId} in location of interest ${this.id}"
           )
@@ -249,15 +250,22 @@ fun OfflineArea.toOfflineAreaEntity() =
     north = this.bounds.north,
     east = this.bounds.east,
     south = this.bounds.south,
-    west = this.bounds.west
+    west = this.bounds.west,
+    minZoom = this.zoomRange.first,
+    maxZoom = this.zoomRange.last
   )
 
 fun OfflineAreaEntity.toModelObject(): OfflineArea {
   val northEast = Coordinates(this.north, this.east)
   val southWest = Coordinates(this.south, this.west)
   val bounds = Bounds(southWest, northEast)
-  // TODO: Deserialize.
-  return OfflineArea(this.id, this.state.toModelObject(), bounds, this.name, 0..14)
+  return OfflineArea(
+    this.id,
+    this.state.toModelObject(),
+    bounds,
+    this.name,
+    IntRange(minZoom, maxZoom)
+  )
 }
 
 fun Option.toLocalDataStoreObject(taskId: String) =

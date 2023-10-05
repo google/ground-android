@@ -29,9 +29,12 @@ import io.reactivex.*
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.max
+import kotlin.math.min
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirst
+import timber.log.Timber
 
 /**
  * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
@@ -92,8 +95,8 @@ constructor(
       emit(Pair(bytesDownloaded, totalBytes))
     }
     if (bytesDownloaded > 0) {
-      // TODO: Get range of actual tiles.
-      addOfflineArea(bounds, 0..14)
+      val zoomRange = requests.flatMap { it.tiles }.rangeOf { it.tileCoordinates.zoom }
+      addOfflineArea(bounds, zoomRange)
     }
   }
 
@@ -184,3 +187,8 @@ private fun File?.isEmpty() = this?.listFiles().isNullOrEmpty()
 private fun File?.deleteIfEmpty() {
   if (isEmpty()) this?.delete()
 }
+
+private inline fun <T> Iterable<T>.rangeOf(selector: (T) -> Int): IntRange =
+  map(selector)
+    .map { IntRange(it, it) }
+    .reduce { out, el -> IntRange(min(out.first, el.first), max(out.last, el.last)) }
