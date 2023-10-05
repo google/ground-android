@@ -17,7 +17,6 @@ package com.google.android.ground.persistence.local.stores
 
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 

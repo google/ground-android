@@ -34,7 +34,6 @@ import kotlin.math.min
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirst
-import timber.log.Timber
 
 /**
  * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
