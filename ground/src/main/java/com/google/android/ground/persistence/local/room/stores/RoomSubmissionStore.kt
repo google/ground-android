@@ -225,14 +225,14 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   ): List<SubmissionMutationEntity> =
     submissionMutationDao.findByLocationOfInterestId(loidId, *states)
 
-  override suspend fun getPendingSubmissionCountByLocationOfInterestId(loiId: String): Int =
+  override suspend fun getPendingCreateCount(loiId: String): Int =
     submissionMutationDao.getSubmissionMutationCount(
       loiId,
       MutationEntityType.CREATE,
       MutationEntitySyncStatus.PENDING
     )
 
-  override suspend fun getPendingSubmissionDeletionCountByLocationOfInterestId(loiId: String): Int =
+  override suspend fun getPendingDeleteCount(loiId: String): Int =
     submissionMutationDao.getSubmissionMutationCount(
       loiId,
       MutationEntityType.DELETE,

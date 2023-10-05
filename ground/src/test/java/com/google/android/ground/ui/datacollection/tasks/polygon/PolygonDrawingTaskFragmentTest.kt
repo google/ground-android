@@ -21,6 +21,8 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
@@ -54,24 +56,25 @@ class PolygonDrawingTaskFragmentTest :
       label = "Task for drawing a polygon",
       isRequired = false
     )
+  private val job = Job("job", Style("#112233"))
 
   @Test
   fun testHeader() {
-    setupTaskFragment<PolygonDrawingTaskFragment>(task)
+    setupTaskFragment<PolygonDrawingTaskFragment>(job, task)
 
-    hasTaskViewWithoutHeader("Draw an area")
+    hasTaskViewWithoutHeader(task.label)
   }
 
   @Test
   fun testInfoCard_noTaskData() {
-    setupTaskFragment<PolygonDrawingTaskFragment>(task)
+    setupTaskFragment<PolygonDrawingTaskFragment>(job, task)
 
     infoCardHidden()
   }
 
   @Test
   fun testActionButtons() {
-    setupTaskFragment<PolygonDrawingTaskFragment>(task)
+    setupTaskFragment<PolygonDrawingTaskFragment>(job, task)
 
     hasButtons(
       ButtonAction.CONTINUE,
@@ -84,7 +87,7 @@ class PolygonDrawingTaskFragmentTest :
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
-    setupTaskFragment<PolygonDrawingTaskFragment>(task.copy(isRequired = false))
+    setupTaskFragment<PolygonDrawingTaskFragment>(job, task.copy(isRequired = false))
 
     buttonIsHidden("Continue")
     buttonIsEnabled("Skip")
@@ -95,7 +98,7 @@ class PolygonDrawingTaskFragmentTest :
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
-    setupTaskFragment<PolygonDrawingTaskFragment>(task.copy(isRequired = true))
+    setupTaskFragment<PolygonDrawingTaskFragment>(job, task.copy(isRequired = true))
 
     buttonIsHidden("Continue")
     buttonIsHidden("Skip")
@@ -106,7 +109,7 @@ class PolygonDrawingTaskFragmentTest :
 
   @Test
   fun testDrawPolygon() = runWithTestDispatcher {
-    setupTaskFragment<PolygonDrawingTaskFragment>(task.copy(isRequired = true))
+    setupTaskFragment<PolygonDrawingTaskFragment>(job, task.copy(isRequired = true))
 
     updateLastVertexAndAddPoint(COORDINATE_1)
     updateLastVertexAndAddPoint(COORDINATE_2)

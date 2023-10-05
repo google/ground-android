@@ -26,6 +26,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withInputType
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.*
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
@@ -51,17 +52,18 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
 
   private val task =
     Task(id = "task_1", index = 0, type = Task.Type.TEXT, label = "Text label", isRequired = false)
+  private val job = Job("job")
 
   @Test
   fun testHeader() {
-    setupTaskFragment<TextTaskFragment>(task)
+    setupTaskFragment<TextTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)
   }
 
   @Test
   fun testResponse_defaultIsEmpty() = runWithTestDispatcher {
-    setupTaskFragment<TextTaskFragment>(task)
+    setupTaskFragment<TextTaskFragment>(job, task)
 
     onView(withId(R.id.user_response_text))
       .check(matches(withText("")))
@@ -74,7 +76,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
 
   @Test
   fun testResponse_onUserInput_continueButtonIsEnabled() = runWithTestDispatcher {
-    setupTaskFragment<TextTaskFragment>(task)
+    setupTaskFragment<TextTaskFragment>(job, task)
 
     onView(withId(R.id.user_response_text))
       .check(matches(withInputType(InputType.TYPE_CLASS_TEXT)))
@@ -86,14 +88,14 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
 
   @Test
   fun testActionButtons() {
-    setupTaskFragment<TextTaskFragment>(task)
+    setupTaskFragment<TextTaskFragment>(job, task)
 
     hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP)
   }
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
-    setupTaskFragment<TextTaskFragment>(task.copy(isRequired = false))
+    setupTaskFragment<TextTaskFragment>(job, task.copy(isRequired = false))
 
     buttonIsDisabled("Continue")
     buttonIsEnabled("Skip")
@@ -101,7 +103,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
-    setupTaskFragment<TextTaskFragment>(task.copy(isRequired = true))
+    setupTaskFragment<TextTaskFragment>(job, task.copy(isRequired = true))
 
     buttonIsDisabled("Continue")
     buttonIsHidden("Skip")

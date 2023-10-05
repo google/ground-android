@@ -15,15 +15,18 @@
  */
 package com.google.android.ground.ui.home.mapcontainer
 
+import androidx.lifecycle.viewModelScope
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.coroutines.IoDispatcher
-import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
+import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
 import com.google.android.ground.rx.annotations.Hot
@@ -34,19 +37,25 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.FeatureType
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
+import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.reactive.asFlow
 import timber.log.Timber
 
@@ -57,6 +66,7 @@ class HomeScreenMapContainerViewModel
 internal constructor(
   private val loiRepository: LocationOfInterestRepository,
   private val mapStateRepository: MapStateRepository,
+  private val submissionRepository: SubmissionRepository,
   locationManager: LocationManager,
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,
@@ -82,7 +92,10 @@ internal constructor(
    * List of [LocationOfInterest] for the active survey that are present within the viewport and
    * zoom level is clustering threshold or higher.
    */
-  val loisInViewport: Flow<List<LocationOfInterest>>
+  val loisInViewport: StateFlow<List<LocationOfInterest>>
+
+  /** [LocationOfInterest] clicked by the user. */
+  val loiClicks: MutableStateFlow<LocationOfInterest?> = MutableStateFlow(null)
 
   /**
    * List of [Job] within the active survey of `suggestLoiType` and zoom level is clustering
@@ -103,7 +116,7 @@ internal constructor(
 
     mapLoiFeatures =
       activeSurvey.flatMapLatest {
-        if (it == null) flowOf(setOf()) else loiRepository.findLocationsOfInterestFeatures(it)
+        if (it == null) flowOf(setOf()) else getLocationOfInterestFeatures(it)
       }
 
     val isZoomedInFlow =
@@ -117,6 +130,7 @@ internal constructor(
           if (bounds == null || survey == null || !isZoomedIn) flowOf(listOf())
           else loiRepository.getWithinBoundsOnceAndStream(survey, bounds).asFlow()
         }
+        .stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
     suggestLoiJobs =
       activeSurvey
@@ -151,14 +165,31 @@ internal constructor(
    * Intended as a callback for when a specific map [Feature] is clicked. If the click is ambiguous,
    * (list of features > 1), it chooses the first [Feature].
    */
-  fun onFeatureClick(features: Set<Feature>) {
-    // TODO: Handle polygon clicks.
+  fun onFeatureClicked(features: Set<Feature>) {
     val geometry = features.first().geometry
-
-    if (geometry is Point) {
-      panAndZoomCamera(geometry.coordinates)
+    for (loi in loisInViewport.value) {
+      if (loi.geometry == geometry) {
+        loiClicks.value = loi
+      }
     }
   }
 
   fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed
+
+  private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
+    loiRepository.getLocationsOfInterest(survey).map {
+      it.map { loi -> loi.toFeature() }.toPersistentSet()
+    }
+
+  private suspend fun LocationOfInterest.toFeature() =
+    Feature(
+      id = id,
+      type = FeatureType.LOCATION_OF_INTEREST.ordinal,
+      flag =
+        submissionCount + submissionRepository.getPendingCreateCount(id) -
+          submissionRepository.getPendingDeleteCount(id) > 0,
+      geometry = geometry,
+      style = Feature.Style(job.getDefaultColor()),
+      clusterable = true
+    )
 }

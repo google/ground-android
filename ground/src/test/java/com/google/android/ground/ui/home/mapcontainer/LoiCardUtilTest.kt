@@ -15,6 +15,8 @@
  */
 package com.google.android.ground.ui.home.mapcontainer
 
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil.getDisplayLoiName
 import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil.getJobName
 import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil.getSubmissionsText
@@ -27,19 +29,22 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class LoiCardUtilTest {
 
+  private val context: Context = ApplicationProvider.getApplicationContext()
+
   @Test
   fun testLoiNameWithPoint_whenCaptionIsNull() {
-    assertThat(getDisplayLoiName(TEST_LOI.copy(caption = null))).isEqualTo("Point")
+    assertThat(getDisplayLoiName(context, TEST_LOI.copy(caption = null))).isEqualTo("Unnamed point")
   }
 
   @Test
   fun testLoiNameWithPolygon_whenCaptionIsNull() {
-    assertThat(getDisplayLoiName(TEST_AREA.copy(caption = null))).isEqualTo("Polygon")
+    assertThat(getDisplayLoiName(context, TEST_AREA.copy(caption = null))).isEqualTo("Unnamed area")
   }
 
   @Test
   fun testLoiName_whenCaptionIsAvailable() {
-    assertThat(getDisplayLoiName(TEST_LOI.copy(caption = "some value"))).isEqualTo("some value")
+    assertThat(getDisplayLoiName(context, TEST_LOI.copy(caption = "some value")))
+      .isEqualTo("some value")
   }
 
   @Test

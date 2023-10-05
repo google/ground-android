@@ -59,11 +59,11 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
     vararg states: MutationEntitySyncStatus
   ): List<SubmissionMutationEntity>
 
-  suspend fun getPendingSubmissionCountByLocationOfInterestId(
+  suspend fun getPendingCreateCount(
     loiId: String,
   ): Int
 
-  suspend fun getPendingSubmissionDeletionCountByLocationOfInterestId(
+  suspend fun getPendingDeleteCount(
     loiId: String,
   ): Int
 }

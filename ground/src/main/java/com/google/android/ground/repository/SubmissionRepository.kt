@@ -182,4 +182,10 @@ constructor(
           MutationEntitySyncStatus.FAILED
         )
       }
+
+  suspend fun getPendingCreateCount(loiId: String) =
+    localSubmissionStore.getPendingCreateCount(loiId)
+
+  suspend fun getPendingDeleteCount(loiId: String) =
+    localSubmissionStore.getPendingDeleteCount(loiId)
 }

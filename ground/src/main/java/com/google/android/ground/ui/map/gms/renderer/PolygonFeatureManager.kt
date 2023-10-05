@@ -15,32 +15,32 @@
  */
 package com.google.android.ground.ui.map.gms.renderer
 
-import com.google.android.gms.maps.GoogleMap
+import android.content.Context
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.gms.maps.model.PolygonOptions
+import com.google.android.ground.R
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.colorInt
 import com.google.android.ground.ui.map.gms.POLYGON_Z
 import com.google.android.ground.ui.map.gms.toLatLng
 import com.google.android.ground.ui.map.gms.toLatLngList
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import timber.log.Timber
 
-class PolygonRenderer(
-  map: GoogleMap,
-  private val strokeWidth: Float,
-  private val fillColor: Int,
-) : FeatureRenderer(map) {
-
+class PolygonFeatureManager @Inject constructor(@ApplicationContext context: Context) :
+  FeatureManager() {
   private val polygonsByFeature: MutableMap<Feature, MutableList<MapsPolygon>> = HashMap()
+  private val lineWidth = context.resources.getDimension(R.dimen.line_geometry_width)
 
-  override fun addFeature(feature: Feature) {
+  override fun addFeature(feature: Feature, isSelected: Boolean) {
     when (feature.geometry) {
-      is Polygon -> render(feature, feature.geometry, feature.colorInt())
-      is MultiPolygon -> feature.geometry.polygons.map { render(feature, it, feature.colorInt()) }
+      is Polygon -> render(feature, feature.geometry, feature.style.color, isSelected)
+      is MultiPolygon ->
+        feature.geometry.polygons.map { render(feature, it, feature.style.color, isSelected) }
       else ->
         throw IllegalArgumentException(
           "PolylineRendered expected Polygon or MultiPolygon, but got ${feature.geometry::class.simpleName}"
@@ -48,7 +48,7 @@ class PolygonRenderer(
     }
   }
 
-  private fun render(feature: Feature, polygon: Polygon, color: Int) {
+  private fun render(feature: Feature, polygon: Polygon, color: Int, isSelected: Boolean) {
     Timber.d("Adding polygon $feature")
 
     val options = PolygonOptions()
@@ -60,10 +60,10 @@ class PolygonRenderer(
     polygon.holes.forEach { options.addHole(it.coordinates.toLatLngList()) }
 
     val mapsPolygon = map.addPolygon(options)
+    val strokeScale = if (isSelected) 2f else 1f
     with(mapsPolygon) {
       tag = Pair(feature.tag.id, LocationOfInterest::javaClass)
-      strokeWidth = this@PolygonRenderer.strokeWidth
-      fillColor = this@PolygonRenderer.fillColor
+      strokeWidth = lineWidth * strokeScale
       strokeColor = color
       strokeJointType = JointType.ROUND
       zIndex = POLYGON_Z
@@ -89,10 +89,8 @@ class PolygonRenderer(
     polygonsByFeature.remove(feature)?.let { polygons -> polygons.forEach { it.remove() } }
   }
 
-  fun exists(feature: Feature) = polygonsByFeature.contains(feature)
-
-  fun updateFeature(feature: Feature) {
+  fun updateFeature(feature: Feature, isSelected: Boolean) {
     removeFeature(feature)
-    addFeature(feature)
+    addFeature(feature, isSelected)
   }
 }

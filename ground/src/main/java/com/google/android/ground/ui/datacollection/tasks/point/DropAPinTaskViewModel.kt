@@ -18,7 +18,11 @@ package com.google.android.ground.ui.datacollection.tasks.point
 import android.content.res.Resources
 import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.submission.GeometryData
+import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
@@ -32,8 +36,14 @@ class DropAPinTaskViewModel
 constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerator) :
   AbstractTaskViewModel(resources) {
 
-  var lastCameraPosition: CameraPosition? = null
+  private var pinColor: Int = 0
+  private var lastCameraPosition: CameraPosition? = null
   val features: @Hot MutableLiveData<Set<Feature>> = MutableLiveData()
+
+  override fun initialize(job: Job, task: Task, taskData: TaskData?) {
+    super.initialize(job, task, taskData)
+    pinColor = job.getDefaultColor()
+  }
 
   fun updateCameraPosition(position: CameraPosition) {
     lastCameraPosition = position
@@ -55,6 +65,8 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
       id = uuidGenerator.generateUuid(),
       type = FeatureType.USER_POINT.ordinal,
       geometry = point,
+      // TODO: Set correct pin color.
+      style = Feature.Style(pinColor),
       clusterable = false
     )
 

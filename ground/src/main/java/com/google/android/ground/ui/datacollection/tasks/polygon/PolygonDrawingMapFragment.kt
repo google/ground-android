@@ -16,70 +16,37 @@
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import com.google.android.ground.R
-import com.google.android.ground.databinding.MapTaskFragBinding
-import com.google.android.ground.ui.common.AbstractMapContainerFragment
+import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint(AbstractMapContainerFragment::class)
+@AndroidEntryPoint(AbstractMapFragmentWithControls::class)
 class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) :
   Hilt_PolygonDrawingMapFragment() {
 
-  private lateinit var binding: MapTaskFragBinding
   private lateinit var mapViewModel: BaseMapViewModel
+  private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
   }
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View {
-    binding = MapTaskFragBinding.inflate(inflater, container, false)
-    binding.fragment = this
-    binding.viewModel = mapViewModel
-    binding.lifecycleOwner = this
-
-    viewLifecycleOwner.lifecycleScope.launch {
-      repeatOnLifecycle(Lifecycle.State.STARTED) {
-        mapViewModel.locationAccuracy.collect { updateInfoCard(it) }
-      }
-    }
-
-    viewLifecycleOwner.lifecycleScope.launch {
-      repeatOnLifecycle(Lifecycle.State.STARTED) {
-        mapViewModel.getCurrentCameraPosition().collect { onMapCameraMoved(it) }
-      }
-    }
-
-    return binding.root
-  }
-
-  private fun updateInfoCard(locationAccuracy: Float?) {
-    if (locationAccuracy == null) {
-      binding.infoCard.visibility = View.GONE
-    } else {
-      binding.cardTitle.setText(R.string.accuracy)
-      binding.cardValue.text = getString(R.string.location_accuracy, locationAccuracy)
-      binding.infoCard.visibility = View.VISIBLE
-    }
-  }
+  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   override fun onMapReady(map: MapFragment) {
+    // Observe events emitted by the ViewModel.
+    viewLifecycleOwner.lifecycleScope.launch {
+      mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
+    }
+
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.featureValue.collect { feature: Feature? ->
         map.renderFeatures(if (feature == null) setOf() else setOf(feature))
@@ -87,9 +54,8 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
     }
   }
 
-  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
-
-  fun onMapCameraMoved(position: CameraPosition) {
+  override fun onMapCameraMoved(position: CameraPosition) {
+    super.onMapCameraMoved(position)
     if (!viewModel.isMarkedComplete()) {
       val mapCenter = position.target!!
       viewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->

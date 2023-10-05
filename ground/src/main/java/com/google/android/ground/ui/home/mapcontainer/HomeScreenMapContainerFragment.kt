@@ -24,7 +24,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
+import com.google.android.ground.Config
 import com.google.android.ground.R
+import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
@@ -40,9 +42,11 @@ import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
+import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -54,6 +58,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
   @Inject lateinit var ephemeralPopups: EphemeralPopups
   @Inject lateinit var submissionRepository: SubmissionRepository
   @Inject lateinit var userRepository: UserRepository
+  @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -64,8 +69,6 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-
-    lifecycleScope.launch { map.featureClicks.collect { mapContainerViewModel.onFeatureClick(it) } }
 
     mapContainerViewModel
       .getZoomThresholdCrossed()
@@ -93,6 +96,10 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
           Pair(loiCards + jobCards, lois.size)
         }
         .collect { (mapCards, loiCount) -> adapter.updateData(mapCards, loiCount - 1) }
+    }
+
+    lifecycleScope.launch(ioDispatcher) {
+      map.featureClicks.collect { mapContainerViewModel.onFeatureClicked(it) }
     }
   }
 
@@ -149,6 +156,16 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
 
     val helper: SnapHelper = PagerSnapHelper()
     helper.attachToRecyclerView(recyclerView)
+
+    lifecycleScope.launch {
+      mapContainerViewModel.loiClicks.collect {
+        val index = it?.let { adapter.getIndex(it) } ?: -1
+        if (index != -1) {
+          recyclerView.scrollToPosition(index)
+          adapter.focusItemAtIndex(index)
+        }
+      }
+    }
   }
 
   private fun navigateToDataCollectionFragment(cardUiData: MapCardUiData) {
@@ -201,7 +218,12 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
         state.locationOfInterest
           ?.geometry
           ?.takeIf { it is Point }
-          ?.let { mapContainerViewModel.panAndZoomCamera(it.center()) }
+          ?.let {
+            mapContainerViewModel.setCameraPosition(
+              CameraPosition(it.center(), Config.DEFAULT_LOI_ZOOM_LEVEL),
+              false
+            )
+          }
       }
       BottomSheetState.Visibility.HIDDEN -> {
         map.enableGestures()

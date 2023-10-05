@@ -16,8 +16,12 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
   <item
-    android:id="@+id/delete"
-    android:title="@string/delete_button_label" />
+    android:id="@+id/remove_offline_access_menu_item"
+    android:icon="@drawable/ic_offline_pin"
+    android:title="@string/remove_offline_access"
+    app:iconTint="?attr/colorOnSurface"
+    app:showAsAction="always|withText" />
 </menu>

@@ -26,7 +26,7 @@ import android.view.WindowManager
 import android.widget.PopupWindow
 import com.google.android.ground.databinding.PopupLayoutBinding
 
-/** PopupView for displaying label for [TaskViewWithoutHeader]. */
+/** PopupView for displaying label for tasks. */
 class TaskHeaderPopupView(val context: Context) {
   private var binding: PopupLayoutBinding
   private var window: PopupWindow

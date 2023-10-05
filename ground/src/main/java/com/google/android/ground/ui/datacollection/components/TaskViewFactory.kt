@@ -21,16 +21,12 @@ import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
 import com.google.android.ground.databinding.TaskFragWithCombinedHeaderBinding
 import com.google.android.ground.databinding.TaskFragWithHeaderBinding
-import com.google.android.ground.databinding.TaskFragWithoutHeaderBinding
 
 /** Factory for creating a [TaskView]. */
 object TaskViewFactory {
 
   fun createWithHeader(layoutInflater: LayoutInflater): TaskView =
     TaskViewWithHeader(TaskFragWithHeaderBinding.inflate(layoutInflater))
-
-  fun createWithoutHeader(layoutInflater: LayoutInflater): TaskView =
-    TaskViewWithoutHeader(TaskFragWithoutHeaderBinding.inflate(layoutInflater))
 
   /** Creates a TaskView with a header that is an extension of the app bar. */
   fun createWithCombinedHeader(
