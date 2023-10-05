@@ -63,7 +63,7 @@ class DropAPinTaskFragmentTest :
   fun testHeader() {
     setupTaskFragment<DropAPinTaskFragment>(job, task)
 
-    hasTaskViewWithoutHeader("Drop a pin")
+    hasTaskViewWithoutHeader(task.label)
   }
 
   @Test

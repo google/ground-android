@@ -62,7 +62,7 @@ class CaptureLocationTaskFragmentTest :
   fun testHeader() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
-    hasTaskViewWithoutHeader("Capture location")
+    hasTaskViewWithoutHeader(task.label)
   }
 
   @Test
