@@ -24,7 +24,6 @@ import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.mog.*
-import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.android.ground.ui.util.FileUtil
 import io.reactivex.*
 import java.io.File
@@ -84,7 +83,7 @@ constructor(
    */
   suspend fun downloadTiles(bounds: Bounds): Flow<Pair<Int, Int>> = flow {
     val client = getMogClient()
-    val requests = client.buildTilesRequests(bounds.toGoogleMapsObject())
+    val requests = client.buildTilesRequests(bounds)
     val totalBytes = requests.sumOf { it.totalBytes }
     var bytesDownloaded = 0
     val tilePath = getLocalTileSourcePath()
@@ -152,12 +151,12 @@ constructor(
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
     val client = getMogClient()
     val maxZoom = client.collection.sources.maxZoom()
-    return client.buildTilesRequests(bounds.toGoogleMapsObject(), maxZoom..maxZoom).isNotEmpty()
+    return client.buildTilesRequests(bounds, maxZoom..maxZoom).isNotEmpty()
   }
 
   suspend fun estimateSizeOnDisk(bounds: Bounds): Int {
     val client = getMogClient()
-    val requests = client.buildTilesRequests(bounds.toGoogleMapsObject())
+    val requests = client.buildTilesRequests(bounds)
     return requests.sumOf { it.totalBytes }
   }
 

@@ -17,7 +17,7 @@
 package com.google.android.ground.ui.map.gms.mog
 
 import android.util.LruCache
-import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.ground.ui.map.Bounds
 import java.io.FileNotFoundException
 import java.io.InputStream
 import kotlinx.coroutines.Deferred
@@ -50,7 +50,7 @@ class MogClient(val collection: MogCollection) {
    *   [MogCollection.maxZoom]).
    */
   suspend fun buildTilesRequests(
-    tileBounds: LatLngBounds,
+    tileBounds: Bounds,
     zoomRange: IntRange = collection.sources.zoomRange()
   ) =
     zoomRange
@@ -58,10 +58,7 @@ class MogClient(val collection: MogCollection) {
       .consolidate(MAX_OVER_FETCH_PER_TILE)
 
   /** Returns requests for tiles in the specified bounds and zoom, one request per tile. */
-  private suspend fun buildTileRequests(
-    tileBounds: LatLngBounds,
-    zoom: Int
-  ): List<MogTilesRequest> {
+  private suspend fun buildTileRequests(tileBounds: Bounds, zoom: Int): List<MogTilesRequest> {
     val mogSource = collection.getMogSource(zoom) ?: return listOf()
     return TileCoordinates.withinBounds(tileBounds, zoom).mapNotNull {
       buildTileRequest(mogSource, it)
@@ -117,7 +114,7 @@ class MogClient(val collection: MogCollection) {
    */
   private fun getTileMetadata(
     mogMetadata: MogMetadata,
-    tileBounds: LatLngBounds,
+    tileBounds: Bounds,
     zoom: Int
   ): List<MogTileMetadata> =
     TileCoordinates.withinBounds(tileBounds, zoom).mapNotNull { tileCoordinates ->
