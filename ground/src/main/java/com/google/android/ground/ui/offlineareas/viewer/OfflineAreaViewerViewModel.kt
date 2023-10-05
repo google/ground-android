@@ -87,18 +87,20 @@ constructor(
     viewModelScope.launch(ioDispatcher) {
       val thisArea = offlineAreaRepository.getOfflineArea(offlineAreaId!!).await()
       area.postValue(thisArea)
-      areaSize.postValue((offlineAreaRepository.sizeOnDevice(thisArea) / (1024f * 1024f)))
+      areaSize.postValue((offlineAreaRepository.sizeOnDevice(thisArea) / 1024f * 1024f))
     }
   }
 
   /** Deletes the area associated with this view model. */
   fun onRemoveButtonClick() {
     progressOverlayVisible.value = true
-    viewModelScope.launch(ioDispatcher) {
-      Timber.d("Removing offline area %s", area.value)
-      val area = area.value ?: return@launch
-      offlineAreaRepository.removeFromDevice(area)
-      navigator.navigateUp()
-    }
+    viewModelScope.launch(ioDispatcher) { removeOfflineArea(area.value) }
+  }
+
+  private suspend fun removeOfflineArea(deletedArea: OfflineArea?) {
+    if (deletedArea == null) return
+    Timber.d("Removing offline area ${deletedArea.name}")
+    offlineAreaRepository.removeFromDevice(deletedArea)
+    navigator.navigateUp()
   }
 }
