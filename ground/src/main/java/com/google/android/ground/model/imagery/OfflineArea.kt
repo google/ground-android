@@ -16,6 +16,8 @@
 package com.google.android.ground.model.imagery
 
 import com.google.android.ground.ui.map.Bounds
+import com.google.android.ground.ui.map.gms.mog.TileCoordinates
+import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 
 /** An area is a contiguous set of tiles that task a geodesic rectangle. */
 data class OfflineArea(
@@ -26,10 +28,15 @@ data class OfflineArea(
   /** The range of zoom levels downloaded. */
   val zoomRange: IntRange
 ) {
+  // TODO: Why doesn't withinBounds() accept Bounds directly?
+  val tiles
+    get() = zoomRange.flatMap { TileCoordinates.withinBounds(bounds.toGoogleMapsObject(), it) }
+
   enum class State {
     PENDING,
     IN_PROGRESS,
     DOWNLOADED,
     FAILED
   }
+
 }

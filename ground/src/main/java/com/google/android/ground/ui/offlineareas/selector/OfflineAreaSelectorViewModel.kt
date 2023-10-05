@@ -36,7 +36,6 @@ import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapType
 import javax.inject.Inject
-import kotlin.math.ceil
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 
@@ -51,7 +50,7 @@ internal constructor(
   private val offlineAreaRepository: OfflineAreaRepository,
   private val navigator: Navigator,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  private val resources: Resources,
+  resources: Resources,
   locationManager: LocationManager,
   surveyRepository: SurveyRepository,
   mapStateRepository: MapStateRepository,
@@ -72,16 +71,17 @@ internal constructor(
 
   val remoteTileSources: List<TileSource>
   private var viewport: Bounds? = null
+  private val offlineAreaSizeLoadingSymbol =
+    resources.getString(R.string.offline_area_size_loading_symbol)
   val isDownloadProgressVisible = MutableLiveData(false)
   val downloadProgressMax = MutableLiveData(0)
   val downloadProgress = MutableLiveData(0)
   val sizeOnDisk = MutableLiveData<String>(null)
   val visibleBottomTextViewId = MutableLiveData<Int>(null)
   val downloadButtonEnabled = MutableLiveData(false)
-  val offlineAreaSizeLoadingSymbol = resources.getString(R.string.offline_area_size_loading_symbol)
 
   override val mapConfig: MapConfig
-    get() = super.mapConfig.copy(showOfflineTileOverlays = false, overrideMapType = MapType.ROAD)
+    get() = super.mapConfig.copy(showOfflineTileOverlays = false, overrideMapType = MapType.TERRAIN)
 
   init {
     remoteTileSources = surveyRepository.activeSurvey!!.tileSources
@@ -153,7 +153,7 @@ internal constructor(
   }
 
   private fun onDownloadableAreaSelected(sizeInMb: Float) {
-    val sizeString = if (sizeInMb < 1f) "<1" else ceil(sizeInMb).toInt().toString()
+    val sizeString = if (sizeInMb < 0.1f) "<0.1" else "%.1f".format(sizeInMb)
     sizeOnDisk.postValue(sizeString)
     visibleBottomTextViewId.postValue(R.id.size_on_disk_text_view)
     downloadButtonEnabled.postValue(true)

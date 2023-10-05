@@ -32,6 +32,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirst
 
 /**
  * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
@@ -161,10 +162,26 @@ constructor(
   }
 
   suspend fun actualSizeOnDisk(offlineArea: OfflineArea): Int =
-    offlineArea.zoomRange.sumOf { zoomLevel ->
-      // TODO: Why doesn't withinBounds() accept Bounds directly?
-      TileCoordinates.withinBounds(offlineArea.bounds.toGoogleMapsObject(), zoomLevel).sumOf {
-        File(getLocalTileSourcePath(), it.getTilePath()).length().toInt()
-      }
+    offlineArea.tiles.sumOf { File(getLocalTileSourcePath(), it.getTilePath()).length().toInt() }
+
+  suspend fun removeFromDevice(offlineArea: OfflineArea) {
+    val tilesInSelectedArea = offlineArea.tiles
+    localOfflineAreaStore.deleteOfflineArea(offlineArea.id)
+    val remainingAreas = localOfflineAreaStore.offlineAreasOnceAndStream().awaitFirst()
+    val remainingTiles = remainingAreas.flatMap { it.tiles }.toSet()
+    val tilesToRemove = tilesInSelectedArea - remainingTiles
+    val tileSourcePath = getLocalTileSourcePath()
+    tilesToRemove.forEach {
+      val tilePath = File(tileSourcePath, it.getTilePath())
+      tilePath.delete()
+      tilePath.parentFile.deleteIfEmpty()
+      tilePath.parentFile?.parentFile.deleteIfEmpty()
     }
+  }
+}
+
+private fun File?.isEmpty() = this?.listFiles().isNullOrEmpty()
+
+private fun File?.deleteIfEmpty() {
+  if (isEmpty()) this?.delete()
 }

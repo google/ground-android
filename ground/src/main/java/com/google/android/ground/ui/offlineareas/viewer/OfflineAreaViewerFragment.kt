@@ -19,12 +19,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.databinding.OfflineAreaViewerFragBinding
-import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 /** The fragment provides a UI for managing a single offline area on the user's device. */
 @AndroidEntryPoint(AbstractMapContainerFragment::class)
@@ -36,8 +40,16 @@ class OfflineAreaViewerFragment @Inject constructor() : Hilt_OfflineAreaViewerFr
     super.onCreate(savedInstanceState)
     val args = OfflineAreaViewerFragmentArgs.fromBundle(requireNotNull(arguments))
     viewModel = getViewModel(OfflineAreaViewerViewModel::class.java)
-    viewModel.loadOfflineArea(args)
-    viewModel.offlineArea.observe(this) { offlineArea: OfflineArea -> panMap(offlineArea) }
+    viewModel.initialize(args)
+  }
+
+  override fun onMapReady(map: MapFragment) {
+    super.onMapReady(map)
+    lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.area.observe(this@OfflineAreaViewerFragment) { map.viewport = it.bounds }
+      }
+    }
   }
 
   override fun onCreateView(
@@ -49,19 +61,9 @@ class OfflineAreaViewerFragment @Inject constructor() : Hilt_OfflineAreaViewerFr
     val binding = OfflineAreaViewerFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
-    binding.removeButton.setOnClickListener { onRemoveClick() }
     getAbstractActivity().setActionBar(binding.offlineAreaViewerToolbar, true)
     return binding.root
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
-
-  private fun panMap(offlineArea: OfflineArea) {
-    map.viewport = offlineArea.bounds
-  }
-
-  /** Removes the area associated with this fragment from the user's device. */
-  private fun onRemoveClick() {
-    viewModel.removeArea()
-  }
 }

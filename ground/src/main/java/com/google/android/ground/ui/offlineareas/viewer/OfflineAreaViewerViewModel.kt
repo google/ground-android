@@ -15,30 +15,26 @@
  */
 package com.google.android.ground.ui.offlineareas.viewer
 
-import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.toLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.rx.Nil
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.MapConfig
+import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.map.MapType
-import dagger.hilt.android.qualifiers.ApplicationContext
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
-import io.reactivex.subjects.PublishSubject
-import java.lang.ref.WeakReference
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 
 /**
@@ -48,8 +44,8 @@ import timber.log.Timber
 class OfflineAreaViewerViewModel
 @Inject
 constructor(
-  offlineAreaRepository: OfflineAreaRepository,
-  @ApplicationContext context: Context,
+  private val offlineAreaRepository: OfflineAreaRepository,
+  private val navigator: Navigator,
   locationManager: LocationManager,
   mapStateRepository: MapStateRepository,
   settingsManager: SettingsManager,
@@ -69,51 +65,40 @@ constructor(
     ioDispatcher
   ) {
 
-  private val fragmentArgs: @Hot(replays = true) PublishSubject<OfflineAreaViewerFragmentArgs> =
-    PublishSubject.create()
-  private val removeAreaClicks: @Hot PublishSubject<Nil> = PublishSubject.create()
-
-  private val context: WeakReference<Context>
-
   /** Returns the offline area associated with this view model. */
-  @JvmField val offlineArea: LiveData<OfflineArea>
-  @JvmField var areaName: LiveData<String>
+  val area = MutableLiveData<OfflineArea>()
+  val areaName = area.map { it.name }
+  val areaSize = MutableLiveData<Float>()
+  val progressOverlayVisible = MutableLiveData<Boolean>()
 
   private var offlineAreaId: String? = null
 
   override val mapConfig: MapConfig
     get() =
       super.mapConfig.copy(
-        showOfflineTileOverlays = false,
-        overrideMapType = MapType.ROAD,
+        showOfflineTileOverlays = true,
+        overrideMapType = MapType.TERRAIN,
         disableGestures = true
       )
 
-  init {
-    this.context = WeakReference(context)
-
-    // We only need to convert this single to a flowable in order to use it with LiveData.
-    // It still only contains a single offline area returned by getOfflineArea.
-    val offlineAreaItemAsFlowable: @Hot Flowable<OfflineArea> =
-      this.fragmentArgs
-        .map(OfflineAreaViewerFragmentArgs::getOfflineAreaId)
-        .flatMapSingle(offlineAreaRepository::getOfflineArea)
-        .doOnError { Timber.e(it, "Couldn't render area %s", offlineAreaId) }
-        .toFlowable(BackpressureStrategy.LATEST)
-
-    areaName = offlineAreaItemAsFlowable.map(OfflineArea::name).toLiveData()
-    offlineArea = offlineAreaItemAsFlowable.toLiveData()
-  }
-
-  /** Gets a single offline area by the id passed to the OfflineAreaViewerFragment's arguments. */
-  fun loadOfflineArea(args: OfflineAreaViewerFragmentArgs) {
-    fragmentArgs.onNext(args)
+  /** Initialize the view model with the given arguments. */
+  fun initialize(args: OfflineAreaViewerFragmentArgs) {
     offlineAreaId = args.offlineAreaId
+    viewModelScope.launch(ioDispatcher) {
+      val thisArea = offlineAreaRepository.getOfflineArea(offlineAreaId!!).await()
+      area.postValue(thisArea)
+      areaSize.postValue((offlineAreaRepository.actualSizeOnDisk(thisArea) / (1024f * 1024f)))
+    }
   }
 
-  /** Deletes the area associated with this viewmodel. */
-  fun removeArea() {
-    Timber.d("Removing offline area %s", offlineArea.value)
-    removeAreaClicks.onNext(Nil.NIL)
+  /** Deletes the area associated with this view model. */
+  fun onRemoveButtonClick() {
+    progressOverlayVisible.value = true
+    viewModelScope.launch(ioDispatcher) {
+      Timber.d("Removing offline area %s", area.value)
+      val area = area.value ?: return@launch
+      offlineAreaRepository.removeFromDevice(area)
+      navigator.navigateUp()
+    }
   }
 }
