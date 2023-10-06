@@ -25,6 +25,7 @@ import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.mog.*
 import com.google.android.ground.ui.util.FileUtil
+import com.google.android.ground.util.ByteCount
 import com.google.android.ground.util.deleteIfEmpty
 import com.google.android.ground.util.rangeOf
 import io.reactivex.*
@@ -162,7 +163,8 @@ constructor(
     return requests.sumOf { it.totalBytes }
   }
 
-  suspend fun sizeOnDevice(offlineArea: OfflineArea): Int =
+  /** Returns the number of bytes occupied by tiles on the local device. */
+  suspend fun sizeOnDevice(offlineArea: OfflineArea): ByteCount =
     offlineArea.tiles.sumOf { File(getLocalTileSourcePath(), it.getTilePath()).length().toInt() }
 
   /**
