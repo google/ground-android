@@ -26,13 +26,13 @@ import androidx.annotation.IdRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.ground.Config
-import com.google.android.ground.R
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.imagery.TileSource
@@ -41,12 +41,13 @@ import com.google.android.ground.model.imagery.TileSource.Type.TILED_WEB_MAP
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.mog.MogCollection
 import com.google.android.ground.ui.map.gms.mog.MogTileProvider
-import com.google.android.ground.ui.map.gms.renderer.PolygonRenderer
-import com.google.android.ground.ui.map.gms.renderer.PolylineRenderer
+import com.google.android.ground.ui.map.gms.renderer.FeatureManager
+import com.google.android.ground.ui.map.gms.renderer.PointFeatureManager
+import com.google.android.ground.ui.map.gms.renderer.PolygonFeatureManager
+import com.google.android.ground.ui.map.gms.renderer.PolylineFeatureManager
 import com.google.android.ground.ui.util.BitmapUtil
 import com.google.android.ground.util.invert
 import com.google.maps.android.PolyUtil
@@ -65,6 +66,7 @@ const val TILE_OVERLAY_Z = 0f
 const val POLYGON_Z = 1f
 const val CLUSTER_Z = 2f
 const val MARKER_Z = 3f
+
 /**
  * Customization of Google Maps API Fragment that automatically adjusts the Google watermark based
  * on window insets.
@@ -80,29 +82,23 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   /** Camera move events. Emits items after the camera has stopped moving. */
   override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
 
-  private lateinit var polylineRenderer: PolylineRenderer
-  private lateinit var polygonRenderer: PolygonRenderer
-
+  @Inject lateinit var pointFeatureManager: PointFeatureManager
+  @Inject lateinit var polylineFeatureManager: PolylineFeatureManager
+  @Inject lateinit var polygonFeatureManager: PolygonFeatureManager
   @Inject lateinit var bitmapUtil: BitmapUtil
+
+  private val featureManagers: List<FeatureManager>
+    get() = listOf(pointFeatureManager, polylineFeatureManager, polygonFeatureManager)
 
   private lateinit var map: GoogleMap
 
   private lateinit var clusterManager: FeatureClusterManager
-
-  /**
-   * References to Google Maps SDK CustomCap present on the map. Used to set the custom drawable to
-   * start and end of polygon.
-   */
-  private var customCap: CustomCap? = null
 
   override val supportedMapTypes: List<MapType> = IDS_BY_MAP_TYPE.keys.toList()
 
   private val tileOverlays = mutableListOf<TileOverlay>()
 
   override val featureClicks = MutableSharedFlow<Set<Feature>>()
-
-  private val polylineStrokeWidth: Float
-    get() = resources.getDimension(R.dimen.polyline_stroke_width)
 
   override var mapType: MapType
     get() = MAP_TYPES_BY_ID[map.mapType]!!
@@ -150,7 +146,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     viewGroup: ViewGroup?,
     bundle: Bundle?
   ): View =
-    super.onCreateView(layoutInflater, viewGroup, bundle)!!.apply {
+    super.onCreateView(layoutInflater, viewGroup, bundle).apply {
       ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
         onApplyWindowInsets(view, insets)
       }
@@ -171,22 +167,17 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun onMapReady(map: GoogleMap) {
     this.map = map
 
-    val featureColor = resources.getColor(R.color.clusterColor)
-
-    polylineRenderer = PolylineRenderer(map, getCustomCap(), polylineStrokeWidth)
-    polygonRenderer =
-      PolygonRenderer(map, polylineStrokeWidth, resources.getColor(R.color.polyLineColor))
-
-    clusterManager = FeatureClusterManager(context, map)
+    featureManagers.forEach { it.onMapReady(map) }
+    clusterManager = FeatureClusterManager(requireContext(), map)
     clusterRenderer =
       FeatureClusterRenderer(
         requireContext(),
         map,
         clusterManager,
-        polygonRenderer,
+        pointFeatureManager,
+        polygonFeatureManager,
         Config.CLUSTERING_ZOOM_THRESHOLD,
-        map.cameraPosition.zoom,
-        featureColor
+        map.cameraPosition.zoom
       )
     clusterManager.setOnClusterClickListener(this::onClusterItemClick)
     clusterManager.renderer = clusterRenderer
@@ -208,7 +199,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   private fun onClusterItemClick(cluster: Cluster<FeatureClusterItem>): Boolean {
     // Move the camera to point to LOIs within the current cluster
-    cluster.items.map { it.feature.geometry }.toBounds()?.let { moveCamera(it) }
+    cluster.items.map { it.feature.geometry }.toBounds()?.let { moveCamera(it, true) }
     return true
   }
 
@@ -225,25 +216,20 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   override fun disableGestures() = map.uiSettings.setAllGesturesEnabled(false)
 
-  override fun moveCamera(coordinates: Coordinates) =
-    map.animateCamera(CameraUpdateFactory.newLatLng(coordinates.toGoogleMapsObject()))
+  override fun moveCamera(coordinates: Coordinates, shouldAnimate: Boolean) =
+    moveCamera(CameraUpdateFactory.newLatLng(coordinates.toGoogleMapsObject()), shouldAnimate)
 
-  override fun moveCamera(coordinates: Coordinates, zoomLevel: Float) =
-    map.animateCamera(
-      CameraUpdateFactory.newLatLngZoom(coordinates.toGoogleMapsObject(), zoomLevel)
+  override fun moveCamera(coordinates: Coordinates, zoomLevel: Float, shouldAnimate: Boolean) =
+    moveCamera(
+      CameraUpdateFactory.newLatLngZoom(coordinates.toGoogleMapsObject(), zoomLevel),
+      shouldAnimate
     )
 
-  override fun moveCamera(bounds: Bounds) {
-    map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 100))
-  }
+  override fun moveCamera(bounds: Bounds, shouldAnimate: Boolean) =
+    moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 100), shouldAnimate)
 
-  private fun getCustomCap(): CustomCap {
-    if (customCap == null) {
-      val bitmap = bitmapUtil.fromVector(R.drawable.ic_endpoint)
-      customCap = CustomCap(BitmapDescriptorFactory.fromBitmap(bitmap))
-    }
-    return checkNotNull(customCap)
-  }
+  private fun moveCamera(cameraUpdate: CameraUpdate, shouldAnimate: Boolean) =
+    if (shouldAnimate) map.animateCamera(cameraUpdate) else map.moveCamera(cameraUpdate)
 
   private fun onMapClick(latLng: LatLng) {
     val clickedPolygons = getPolygonFeaturesContaining(latLng)
@@ -253,7 +239,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   }
 
   private fun getPolygonFeaturesContaining(latLng: LatLng) =
-    polygonRenderer
+    polygonFeatureManager
       .getPolygonsByFeature()
       .filterValues { polygons ->
         polygons.any { PolyUtil.containsLocation(latLng, it.points, false) }
@@ -270,15 +256,13 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun removeStaleFeatures(features: Set<Feature>) {
     Timber.d("Removing stale features from map")
     clusterManager.removeStaleFeatures(features)
-    polylineRenderer.removeStaleFeatures(features)
-    polygonRenderer.removeStaleFeatures(features)
+    featureManagers.forEach { it.removeStaleFeatures(features) }
   }
 
   private fun removeAllFeatures() {
     Timber.d("Removing all features from map")
     clusterManager.removeAllFeatures()
-    polylineRenderer.removeAllFeatures()
-    polygonRenderer.removeAllFeatures()
+    featureManagers.forEach { it.removeAllFeatures() }
   }
 
   private fun addOrUpdateFeature(feature: Feature) {
@@ -287,18 +271,16 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
       return
     }
     when (feature.geometry) {
-      // TODO(#1907): Stop clustering unclustered points.
-      is Point -> clusterManager.addFeature(feature)
+      is Point -> pointFeatureManager.addFeature(feature)
       is LineString,
-      is LinearRing -> polylineRenderer.addFeature(feature)
+      is LinearRing -> polylineFeatureManager.addFeature(feature)
       is Polygon,
-      is MultiPolygon -> polygonRenderer.addFeature(feature)
+      is MultiPolygon -> polygonFeatureManager.addFeature(feature)
     }
   }
 
   override fun renderFeatures(features: Set<Feature>) {
-    // Re-cluster and re-render
-    Timber.v("renderFeatures() called with ${features.size} locations of interest")
+    Timber.v("renderFeatures() called with ${features.size} features")
     if (features.isNotEmpty()) {
       removeStaleFeatures(features)
       Timber.d("Updating ${features.size} features")
@@ -375,7 +357,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   }
 
   override fun clear() {
-    Timber.d("Removes all markers, overlays, polylines and polygons from the map.")
     map.clear()
   }
 

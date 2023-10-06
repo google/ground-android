@@ -18,56 +18,49 @@ package com.google.android.ground.ui.datacollection.tasks.location
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
+import android.widget.LinearLayout
 import com.google.android.ground.R
-import com.google.android.ground.databinding.CaptureLocationTaskFragBinding
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
+import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint(AbstractTaskFragment::class)
 class CaptureLocationTaskFragment :
   Hilt_CaptureLocationTaskFragment<CaptureLocationTaskViewModel>() {
+
+  @Inject lateinit var map: MapFragment
+
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
-    TaskViewFactory.createWithCombinedHeader(
-      inflater,
-      R.drawable.outline_pin_drop,
-      R.string.capture_location
-    )
+    TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    val taskBinding = CaptureLocationTaskFragBinding.inflate(inflater)
-    taskBinding.lifecycleOwner = this
-    taskBinding.viewModel = viewModel
-    return taskBinding.root
+    val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
+    parentFragmentManager
+      .beginTransaction()
+      .add(
+        rowLayout.id,
+        CaptureLocationMapFragment.newInstance(viewModel, map),
+        CaptureLocationMapFragment::class.java.simpleName
+      )
+      .commit()
+    return rowLayout
   }
 
   override fun onCreateActionButtons() {
     addSkipButton()
     addUndoButton()
     addButton(ButtonAction.CAPTURE_LOCATION)
-      .setOnClickListener {
-        // TODO(#774): Persist to db
-      }
+      .setOnClickListener { viewModel.updateResponse() }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNullOrEmpty()) }
     addButton(ButtonAction.CONTINUE)
       .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
       .hide()
-  }
-
-  override fun onResume() {
-    super.onResume()
-    viewLifecycleOwner.lifecycleScope.launch { viewModel.enableLocationUpdates() }
-  }
-
-  override fun onPause() {
-    viewLifecycleOwner.lifecycleScope.launch { viewModel.disableLocationUpdates() }
-    super.onPause()
   }
 }

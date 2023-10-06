@@ -16,8 +16,8 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.ui.map.Bounds
 import kotlin.math.ln
 import kotlin.math.tan
 
@@ -39,10 +39,10 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
      * Returns the coordinates of the tile at a particular zoom containing the specified latitude
      * and longitude coordinates.
      */
-    fun fromLatLng(coordinates: LatLng, zoom: Int): TileCoordinates {
+    fun fromLatLng(coordinates: Coordinates, zoom: Int): TileCoordinates {
       val zoomFactor = 1 shl zoom
-      val latRad = coordinates.latitude.toRadians()
-      val x1 = zoomFactor * (coordinates.longitude + 180) / 360
+      val latRad = coordinates.lat.toRadians()
+      val x1 = zoomFactor * (coordinates.lng + 180) / 360
       val y1 = zoomFactor * (1 - (ln(tan(latRad) + sec(latRad)) / Math.PI)) / 2
       val (x, y) = PixelCoordinates((x1 * 256.0).toInt(), (y1 * 256.0).toInt(), zoom)
       return TileCoordinates(x / 256, y / 256, zoom)
@@ -52,10 +52,10 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
      * Returns all tiles at a particular zoom contained within the specified latitude and longitude
      * bounds.
      */
-    fun withinBounds(bounds: LatLngBounds, zoom: Int): List<TileCoordinates> {
+    fun withinBounds(bounds: Bounds, zoom: Int): List<TileCoordinates> {
       val results = mutableListOf<TileCoordinates>()
-      val nwTile = fromLatLng(bounds.northwest(), zoom)
-      val seTile = fromLatLng(bounds.southeast(), zoom)
+      val nwTile = fromLatLng(bounds.northwest, zoom)
+      val seTile = fromLatLng(bounds.southeast, zoom)
       for (y in nwTile.y..seTile.y) {
         for (x in nwTile.x..seTile.x) {
           results.add(TileCoordinates(x, y, zoom))

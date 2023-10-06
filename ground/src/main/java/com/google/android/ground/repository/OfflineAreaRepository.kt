@@ -24,14 +24,16 @@ import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.mog.*
-import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.android.ground.ui.util.FileUtil
 import io.reactivex.*
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.max
+import kotlin.math.min
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirst
 
 /**
  * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
@@ -83,7 +85,7 @@ constructor(
    */
   suspend fun downloadTiles(bounds: Bounds): Flow<Pair<Int, Int>> = flow {
     val client = getMogClient()
-    val requests = client.buildTilesRequests(bounds.toGoogleMapsObject())
+    val requests = client.buildTilesRequests(bounds)
     val totalBytes = requests.sumOf { it.totalBytes }
     var bytesDownloaded = 0
     val tilePath = getLocalTileSourcePath()
@@ -92,8 +94,8 @@ constructor(
       emit(Pair(bytesDownloaded, totalBytes))
     }
     if (bytesDownloaded > 0) {
-      // TODO: Get range of actual tiles.
-      addOfflineArea(bounds, 0..14)
+      val zoomRange = requests.flatMap { it.tiles }.rangeOf { it.tileCoordinates.zoom }
+      addOfflineArea(bounds, zoomRange)
     }
   }
 
@@ -151,20 +153,41 @@ constructor(
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
     val client = getMogClient()
     val maxZoom = client.collection.sources.maxZoom()
-    return client.buildTilesRequests(bounds.toGoogleMapsObject(), maxZoom..maxZoom).isNotEmpty()
+    return client.buildTilesRequests(bounds, maxZoom..maxZoom).isNotEmpty()
   }
 
   suspend fun estimateSizeOnDisk(bounds: Bounds): Int {
     val client = getMogClient()
-    val requests = client.buildTilesRequests(bounds.toGoogleMapsObject())
+    val requests = client.buildTilesRequests(bounds)
     return requests.sumOf { it.totalBytes }
   }
 
-  suspend fun actualSizeOnDisk(offlineArea: OfflineArea): Int =
-    offlineArea.zoomRange.sumOf { zoomLevel ->
-      // TODO: Why doesn't withinBounds() accept Bounds directly?
-      TileCoordinates.withinBounds(offlineArea.bounds.toGoogleMapsObject(), zoomLevel).sumOf {
-        File(getLocalTileSourcePath(), it.getTilePath()).length().toInt()
-      }
+  suspend fun sizeOnDevice(offlineArea: OfflineArea): Int =
+    offlineArea.tiles.sumOf { File(getLocalTileSourcePath(), it.getTilePath()).length().toInt() }
+
+  suspend fun removeFromDevice(offlineArea: OfflineArea) {
+    val tilesInSelectedArea = offlineArea.tiles
+    localOfflineAreaStore.deleteOfflineArea(offlineArea.id)
+    val remainingAreas = localOfflineAreaStore.offlineAreasOnceAndStream().awaitFirst()
+    val remainingTiles = remainingAreas.flatMap { it.tiles }.toSet()
+    val tilesToRemove = tilesInSelectedArea - remainingTiles
+    val tileSourcePath = getLocalTileSourcePath()
+    tilesToRemove.forEach {
+      val tilePath = File(tileSourcePath, it.getTilePath())
+      tilePath.delete()
+      tilePath.parentFile.deleteIfEmpty()
+      tilePath.parentFile?.parentFile.deleteIfEmpty()
     }
+  }
 }
+
+private fun File?.isEmpty() = this?.listFiles().isNullOrEmpty()
+
+private fun File?.deleteIfEmpty() {
+  if (isEmpty()) this?.delete()
+}
+
+private inline fun <T> Iterable<T>.rangeOf(selector: (T) -> Int): IntRange =
+  map(selector)
+    .map { IntRange(it, it) }
+    .reduce { out, el -> IntRange(min(out.first, el.first), max(out.last, el.last)) }

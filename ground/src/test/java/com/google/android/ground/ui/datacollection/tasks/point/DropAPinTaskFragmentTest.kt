@@ -21,6 +21,8 @@ import androidx.test.espresso.assertion.ViewAssertions.*
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
@@ -55,18 +57,19 @@ class DropAPinTaskFragmentTest :
       label = "Task for dropping a pin",
       isRequired = false
     )
+  private val job = Job("job", Style("#112233"))
 
   @Test
   fun testHeader() {
-    setupTaskFragment<DropAPinTaskFragment>(task)
+    setupTaskFragment<DropAPinTaskFragment>(job, task)
 
-    hasTaskViewWithoutHeader("Drop a pin")
+    hasTaskViewWithoutHeader(task.label)
   }
 
   @Test
   fun testDropPin() = runWithTestDispatcher {
     val testPosition = CameraPosition(Coordinates(10.0, 20.0))
-    setupTaskFragment<DropAPinTaskFragment>(task)
+    setupTaskFragment<DropAPinTaskFragment>(job, task)
 
     viewModel.updateCameraPosition(testPosition)
     onView(withText("Drop pin")).perform(click())
@@ -79,25 +82,15 @@ class DropAPinTaskFragmentTest :
 
   @Test
   fun testInfoCard_noTaskData() {
-    setupTaskFragment<DropAPinTaskFragment>(task)
+    setupTaskFragment<DropAPinTaskFragment>(job, task)
 
     infoCardHidden()
   }
 
   @Test
-  fun testInfoCard_withTaskData() {
-    setupTaskFragment<DropAPinTaskFragment>(task)
-
-    viewModel.updateCameraPosition(CameraPosition(Coordinates(10.0, 20.0)))
-    onView(withText("Drop pin")).perform(click())
-
-    infoCardShown("Dropped pin", "10°0'0\" N 20°0'0\" E")
-  }
-
-  @Test
   fun testUndo() = runWithTestDispatcher {
     val testPosition = CameraPosition(Coordinates(10.0, 20.0))
-    setupTaskFragment<DropAPinTaskFragment>(task)
+    setupTaskFragment<DropAPinTaskFragment>(job, task)
 
     viewModel.updateCameraPosition(testPosition)
     onView(withText("Drop pin")).perform(click())
@@ -110,14 +103,14 @@ class DropAPinTaskFragmentTest :
 
   @Test
   fun testActionButtons() {
-    setupTaskFragment<DropAPinTaskFragment>(task)
+    setupTaskFragment<DropAPinTaskFragment>(job, task)
 
     hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP, ButtonAction.UNDO, ButtonAction.DROP_PIN)
   }
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
-    setupTaskFragment<DropAPinTaskFragment>(task.copy(isRequired = false))
+    setupTaskFragment<DropAPinTaskFragment>(job, task.copy(isRequired = false))
 
     buttonIsHidden("Continue")
     buttonIsEnabled("Skip")
@@ -127,7 +120,7 @@ class DropAPinTaskFragmentTest :
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
-    setupTaskFragment<DropAPinTaskFragment>(task.copy(isRequired = true))
+    setupTaskFragment<DropAPinTaskFragment>(job, task.copy(isRequired = true))
 
     buttonIsHidden("Continue")
     buttonIsHidden("Skip")

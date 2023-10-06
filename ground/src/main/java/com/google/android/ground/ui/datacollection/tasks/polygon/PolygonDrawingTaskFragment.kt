@@ -22,7 +22,7 @@ import android.widget.LinearLayout
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.GeometryValidator.isClosed
-import com.google.android.ground.ui.MarkerIconFactory
+import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
@@ -36,24 +36,23 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint(AbstractTaskFragment::class)
 class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawingViewModel>() {
 
-  @Inject lateinit var markerIconFactory: MarkerIconFactory
+  @Inject lateinit var markerIconFactory: IconFactory
   @Inject lateinit var map: MapFragment
 
+  private lateinit var polygonDrawingMapFragment: PolygonDrawingMapFragment
+
   override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
-    TaskViewFactory.createWithCombinedHeader(
-      inflater,
-      R.drawable.outline_draw,
-      R.string.draw_an_area
-    )
+    TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_draw)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
+    polygonDrawingMapFragment = PolygonDrawingMapFragment.newInstance(viewModel, map)
     parentFragmentManager
       .beginTransaction()
       .add(
         rowLayout.id,
-        PolygonDrawingMapFragment.newInstance(viewModel, map),
-        "Draw a polygon fragment"
+        polygonDrawingMapFragment,
+        PolygonDrawingMapFragment::class.java.simpleName
       )
       .commit()
     return rowLayout

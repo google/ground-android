@@ -26,6 +26,7 @@
     <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
     <item name="android:windowTranslucentStatus">true</item>
     <item name="android:windowTranslucentNavigation">true</item>
+    <item name="fontFamily">@font/text_500</item>
   </style>
 
   <style name="AppTheme.Launcher">
@@ -54,6 +55,7 @@
     <item name="android:colorBackground">@color/md_theme_background</item>
     <item name="colorOnBackground">@color/md_theme_onBackground</item>
     <item name="colorSurface">@color/md_theme_surface</item>
+    <item name="colorSurfaceContainer">@color/md_theme_surfaceContainer</item>
     <item name="colorOnSurface">@color/md_theme_onSurface</item>
     <item name="colorSurfaceVariant">@color/md_theme_surfaceVariant</item>
     <item name="colorOnSurfaceVariant">@color/md_theme_onSurfaceVariant</item>
@@ -64,7 +66,7 @@
 
   <style name="AppTitle">
     <item name="android:textColor">@android:color/white</item>
-    <item name="android:fontFamily">@font/urbanist_medium</item>
+    <item name="android:fontFamily">@font/display_500</item>
     <item name="android:textSize">60sp</item>
     <item name="android:letterSpacing">0.01</item>
   </style>
@@ -76,6 +78,8 @@
 
   <style name="ToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
     <item name="android:textColor">?attr/colorOnSurface</item>
+    <item name="fontFamily">@font/display_700</item>
+    <item name="android:textSize">22sp</item>
   </style>
 
   <style name="CenteredToolbarTitle">
@@ -213,15 +217,61 @@
     <item name="iconTint">?attr/colorPrimary</item>
   </style>
 
-  <style name="SurveyCardTitle" parent="AppTheme.Base">
-    <item name="android:textColor">?attr/colorOnSurface</item>
-    <item name="android:textSize">18sp</item>
-    <item name="android:textStyle">bold</item>
+  <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+    <item name="fontFamily">@font/text_700</item>
   </style>
 
-  <style name="SurveyCardDescription" parent="AppTheme.Base">
+  <style name="TextAppearance.App.TitleMedium.OnSurfaceContainer">
     <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
-    <item name="android:textSize">14sp</item>
+  </style>
+
+  <style name="TextAppearance.App.TitleMedium.OnSurface">
+    <item name="android:textColor">?attr/colorOnSurface</item>
+  </style>
+
+  <style name="TextAppearance.App.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+    <item name="fontFamily">@font/text_700</item>
+  </style>
+
+  <style name="TextAppearance.App.TitleLarge.OnSurface">
+    <item name="android:textColor">?attr/colorOnSurface</item>
+  </style>
+
+  <style name="TextAppearance.App.BodySmall" parent="TextAppearance.Material3.BodySmall">
+    <item name="fontFamily">@font/text_500</item>
+  </style>
+
+  <style name="TextAppearance.App.BodySmall.OnSurfaceContainer">
+    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+  </style>
+
+  <style name="TextAppearance.App.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+    <item name="fontFamily">@font/text_500</item>
+  </style>
+
+  <style name="TextAppearance.App.BodyMedium.OnSurface">
+    <item name="android:textColor">?attr/colorOnSurface</item>
+  </style>
+
+  <style name="Widget.App.Button.IconButton" parent="Widget.Material3.Button.IconButton">
+    <item name="iconSize">24sp</item>
+    <item name="iconTint">?attr/colorOnSurface</item>
+  </style>
+
+  <style name="Widget.App.Button.IconButton.Destructive">
+    <item name="backgroundTint">?attr/colorErrorContainer</item>
+    <item name="iconTint">?attr/colorOnErrorContainer</item>
+    <item name="android:textColor">?attr/colorOnErrorContainer</item>
+  </style>
+
+  <style name="Widget.App.CardView" parent="Base.Widget.Material3.CardView">
+    <item name="cardCornerRadius">12dp</item>
+    <item name="strokeWidth">0dp</item>
+  </style>
+
+  <style name="Widget.App.CardView.SurfaceContainerLowest">
+    <item name="cardBackgroundColor">?attr/colorSurfaceContainerLowest</item>
+    <item name="cardElevation">0dp</item>
   </style>
 
   <style name="JobCardTitle" parent="AppTheme.Base">
@@ -254,5 +304,10 @@
     <item name="android:padding">6dp</item>
     <item name="android:textColor">@android:color/black</item>
     <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+  </style>
+
+  <style name="TextAppearance.App.MapClusterLabel" parent="TextAppearance.Material3.LabelMedium">
+    <item name="android:textColor">@color/blackOverlay</item>
+    <item name="android:fontFamily">@font/text_700</item>
   </style>
 </resources>

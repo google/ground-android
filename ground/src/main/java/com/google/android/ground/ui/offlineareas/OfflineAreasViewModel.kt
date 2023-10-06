@@ -18,13 +18,11 @@ package com.google.android.ground.ui.offlineareas
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.toLiveData
-import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import javax.inject.Inject
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
@@ -54,14 +52,6 @@ internal constructor(
     val offlineAreas =
       offlineAreaRepository
         .offlineAreasOnceAndStream()
-        .doOnNext {
-          viewModelScope.launch {
-            it.forEach { area ->
-              val size = offlineAreaRepository.actualSizeOnDisk(area)
-              Timber.e("!!! ${area.name}  Size: $size")
-            }
-          }
-        }
         .doOnError { Timber.e(it, "Unexpected error loading offline areas from the local db") }
         .onErrorReturnItem(listOf())
 

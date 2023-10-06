@@ -27,7 +27,7 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.annotations.Hot
-import com.google.android.ground.ui.MarkerIconFactory
+import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.util.DrawableUtil
@@ -41,7 +41,7 @@ import javax.inject.Inject
 class LocationOfInterestDetailsViewModel
 @Inject
 constructor(
-  markerIconFactory: MarkerIconFactory,
+  markerIconFactory: IconFactory,
   drawableUtil: DrawableUtil,
   locationOfInterestHelper: LocationOfInterestHelper,
   private val locationOfInterestRepository: LocationOfInterestRepository,

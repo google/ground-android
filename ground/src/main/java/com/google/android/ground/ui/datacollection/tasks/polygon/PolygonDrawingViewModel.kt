@@ -24,7 +24,11 @@ import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.submission.GeometryData
+import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
@@ -60,6 +64,13 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
 
   /** Represents whether the user has completed drawing the polygon or not. */
   private var isMarkedComplete: Boolean = false
+
+  private var strokeColor: Int = 0
+
+  override fun initialize(job: Job, task: Task, taskData: TaskData?) {
+    super.initialize(job, task, taskData)
+    strokeColor = job.getDefaultColor()
+  }
 
   fun isMarkedComplete(): Boolean = isMarkedComplete
 
@@ -147,15 +158,16 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   }
 
   /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */
-  private fun refreshFeatures(points: List<Point>, isMarkedComplete: Boolean) {
+  private fun refreshFeatures(vertices: List<Point>, isMarkedComplete: Boolean) {
     featureFlow.value =
-      if (points.isEmpty()) {
+      if (vertices.isEmpty()) {
         null
       } else {
         Feature(
           id = uuidGenerator.generateUuid(),
           type = FeatureType.USER_POLYGON.ordinal,
-          geometry = createGeometry(points, isMarkedComplete),
+          geometry = createGeometry(vertices, isMarkedComplete),
+          style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
           clusterable = false
         )
       }

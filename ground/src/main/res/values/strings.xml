@@ -92,12 +92,11 @@
   <string name="failed">Failed</string>
   <string name="settings">Settings</string>
   <string name="offline_area_viewer_title">Offline area</string>
-  <string name="offline_area_viewer_remove_button">Remove</string>
-  <string name="unnamed_area">Unnamed area</string>
+  <string name="offline_area_viewer_remove_button">Remove from device</string>
   <string name="added_by">Added by %s</string>
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_area_selector_select">Select and download</string>
-  <string name="no_basemaps_downloaded">No base maps downloaded.</string>
+  <string name="no_basemaps_downloaded">No imagery has been downloaded for offline use. Tap \"Select and download\" to get started.</string>
   <string name="signing_in">Signing in</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Build %s</string>
@@ -119,7 +118,6 @@
   <string name="add_point">Add point</string>
   <string name="complete_polygon">Complete</string>
   <string name="add_polygon_instructions">Drag the map and tap “Add point“ to add points to your polygon. To finish, return to the original point and tap “Complete“.</string>
-  <string name="location_accuracy">%.2fm</string>
 
   <string name="delete_button_label">Delete</string>
   <string name="cancel_button_label">Cancel</string>
@@ -130,8 +128,8 @@
   <string name="satellite">Satellite</string>
   <string name="terrain">Terrain</string>
   <string name="continue_text">Continue</string>
-  <string name="select_survey_title">Select a survey to start collecting data</string>
-  <string name="survey_sync_hint">Surveys are automatically synced</string>
+  <string name="select_survey_title">Select a survey</string>
+  <string name="survey_sync_hint">Once opened, surveys are available offline and synced automatically when online.</string>
   <string name="sync_dialog_subtitle">Your data will be synced shortly.</string>
   <string name="data_collected">Data collected</string>
   <string name="done">Done</string>
@@ -141,11 +139,8 @@
 
   <string name="new_site">New data collection site</string>
   <string name="new_site_hint_text">Add new site and submit related data</string>
-  <string name="drop_a_pin">Drop a pin</string>
   <string name="drop_a_pin_tooltip_text">Drag your map until the center pin is on the desired location</string>
-  <string name="draw_an_area">Draw an area</string>
-  <string name="accuracy">Accuracy</string>
-  <string name="dropped_pin">Dropped pin</string>
+  <string name="current_location">Current location</string>
   <string name="loading">Loading…</string>
   <string name="skip_dialog_title">Skip this step?</string>
   <string name="data_deletion_warning">Data you entered in this step won’t be saved. Are you sure you want to continue?</string>
@@ -168,6 +163,13 @@
   <string name="offline_area_size_loading_symbol">…</string>
   <string name="offline_area_select_cancel_button">Cancel</string>
   <string name="offline_area_selector_title">Download this area?</string>
-  <string name="capture_location">Capture location</string>
   <string name="capture">Capture</string>
+  <string name="surveys">Surveys</string>
+  <string name="offline_icon_description">Icon shown when the survey is available offline</string>
+  <string name="remove_offline_access">Remove offline access</string>
+  <string name="point">Point</string>
+  <string name="area">Area</string>
+  <string name="unnamed_point">Unnamed point</string>
+  <string name="unnamed_area">Unnamed area</string>
+  <string name="offline_area_size_on_disk_mb">%.1f\u00A0MB on disk</string>
 </resources>

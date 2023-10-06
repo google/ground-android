@@ -17,7 +17,6 @@ package com.google.android.ground.persistence.local.stores
 
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 
@@ -32,7 +31,7 @@ interface LocalOfflineAreaStore {
   fun offlineAreasOnceAndStream(): @Cold(terminates = false) Flowable<List<OfflineArea>>
 
   /** Delete an offline area and any associated tiles that are no longer needed. */
-  fun deleteOfflineArea(offlineAreaId: String): @Cold Completable
+  suspend fun deleteOfflineArea(offlineAreaId: String)
 
   /** Returns the offline area with the specified id. */
   fun getOfflineAreaById(id: String): Single<OfflineArea>

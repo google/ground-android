@@ -36,72 +36,83 @@
     android:id="@+id/survey_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="20dp"
-    android:layout_marginTop="@dimen/loi_card_item_margin"
-    android:layout_marginEnd="20dp"
-    android:layout_marginBottom="@dimen/loi_card_item_margin"
+    android:layout_marginStart="24dp"
+    android:layout_marginTop="16dp"
+    android:layout_marginEnd="24dp"
+    style="@style/Widget.App.CardView.SurfaceContainerLowest"
     android:clickable="true"
     android:focusable="true"
     android:onClick="@{() -> viewModel.activateSurvey(item.surveyId)}"
-    android:orientation="vertical"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
       android:id="@+id/wrapper_view"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:orientation="vertical"
-      android:padding="20dp">
+      android:orientation="vertical">
       <TextView
         android:id="@+id/title"
-        style="@style/SurveyCardTitle"
+        style="@style/TextAppearance.App.TitleMedium.OnSurface"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
         android:text="@{item.surveyTitle}"
-        app:layout_constraintEnd_toStartOf="@id/offlineIcon"
+        app:layout_constraintEnd_toStartOf="@id/survey_card_item_widgets"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Map the terrain" />
-      <ImageView
-        android:id="@+id/offlineIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toStartOf="@+id/overflowMenu"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/baseline_offline_pin_24"
-        app:visible="@{item.isAvailableOffline}" />
+        tools:text="Deforestation tracker" />
+
       <TextView
         android:id="@+id/description"
-        style="@style/SurveyCardDescription"
+        style="@style/TextAppearance.App.BodyMedium.OnSurface"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
         android:text="@{item.surveyDescription}"
+        app:layout_constraintLeft_toLeftOf="@id/title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title"
-        tools:text="Some description text" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:text="Report areas of suspected or observed deforestation." />
 
-      <!--Text view for showing the options menu-->
-      <TextView
-        android:id="@+id/overflowMenu"
+      <LinearLayout
+        android:id="@+id/survey_card_item_widgets"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="@{(view) -> fragment.showPopupMenu(view, item.surveyId)}"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:text="@string/overflow_menu"
-        android:textAppearance="?android:textAppearanceLarge"
-        android:textStyle="bold"
-        android:visibility="gone"
-        app:layout_constraintBaseline_toBaselineOf="@id/title"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:orientation="horizontal"
         app:layout_constraintTop_toTopOf="parent"
-        app:visible="@{item.isAvailableOffline}" />
+        app:layout_constraintEnd_toEndOf="parent">
+        <ImageView
+          android:id="@+id/offlineIcon"
+          android:layout_width="24dp"
+          android:layout_height="24dp"
+          android:contentDescription="@string/offline_icon_description"
+          android:gravity="center"
+          android:translationX="12dp"
+          android:translationY="14dp"
+          app:layout_constraintBottom_toBottomOf="@id/overflowMenu"
+          app:layout_constraintEnd_toStartOf="@+id/overflowMenu"
+          app:layout_constraintTop_toTopOf="@id/overflowMenu"
+          app:srcCompat="@drawable/baseline_offline_pin_24"
+          app:visible="@{item.isAvailableOffline}" />
+
+        <!-- Overflow menu "..." affordance. -->
+        <Button
+          android:id="@+id/overflowMenu"
+          style="@style/Widget.App.Button.IconButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:translationX="4dp"
+          android:onClick="@{(view) -> fragment.showPopupMenu(view, item.surveyId)}"
+          app:visible="@{item.isAvailableOffline}"
+          app:icon="@drawable/ic_more_vert" />
+      </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
   </com.google.android.material.card.MaterialCardView>
 </layout>

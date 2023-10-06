@@ -17,7 +17,7 @@
 package com.google.android.ground.ui.map.gms.mog
 
 import android.util.LruCache
-import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.ground.ui.map.Bounds
 import java.io.FileNotFoundException
 import java.io.InputStream
 import kotlinx.coroutines.Deferred
@@ -44,13 +44,13 @@ class MogClient(val collection: MogCollection) {
    * specified [tileBounds] and [zoomRange]s.
    *
    * @param tileBounds the bounds used to constrain which tiles are retrieved. Only requests for
-   *   tiles within or overlapping these bounds are returned.
+   * tiles within or overlapping these bounds are returned.
    * @param zoomRange the min. and max. zoom levels for which tile requests should be returned.
-   *   Defaults to all available zoom levels in the collection ([MogCollection.minZoom] to
-   *   [MogCollection.maxZoom]).
+   * Defaults to all available zoom levels in the collection ([MogCollection.minZoom] to
+   * [MogCollection.maxZoom]).
    */
   suspend fun buildTilesRequests(
-    tileBounds: LatLngBounds,
+    tileBounds: Bounds,
     zoomRange: IntRange = collection.sources.zoomRange()
   ) =
     zoomRange
@@ -58,10 +58,7 @@ class MogClient(val collection: MogCollection) {
       .consolidate(MAX_OVER_FETCH_PER_TILE)
 
   /** Returns requests for tiles in the specified bounds and zoom, one request per tile. */
-  private suspend fun buildTileRequests(
-    tileBounds: LatLngBounds,
-    zoom: Int
-  ): List<MogTilesRequest> {
+  private suspend fun buildTileRequests(tileBounds: Bounds, zoom: Int): List<MogTilesRequest> {
     val mogSource = collection.getMogSource(zoom) ?: return listOf()
     return TileCoordinates.withinBounds(tileBounds, zoom).mapNotNull {
       buildTileRequest(mogSource, it)
@@ -117,7 +114,7 @@ class MogClient(val collection: MogCollection) {
    */
   private fun getTileMetadata(
     mogMetadata: MogMetadata,
-    tileBounds: LatLngBounds,
+    tileBounds: Bounds,
     zoom: Int
   ): List<MogTileMetadata> =
     TileCoordinates.withinBounds(tileBounds, zoom).mapNotNull { tileCoordinates ->

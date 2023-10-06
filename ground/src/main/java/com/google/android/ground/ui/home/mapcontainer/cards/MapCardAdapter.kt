@@ -112,6 +112,16 @@ class MapCardAdapter(private val canUserSubmitData: Boolean) :
       }
     }
 
+  /** Returns index of job card with the given [LocationOfInterest]. */
+  fun getIndex(loi: LocationOfInterest): Int {
+    for ((index, item) in itemsList.withIndex()) {
+      if (item is MapCardUiData.LoiCardUiData && item.loi == loi) {
+        return index
+      }
+    }
+    return -1
+  }
+
   abstract class CardViewHolder(itemView: View, private val cardView: MaterialCardView) :
     RecyclerView.ViewHolder(itemView) {
     fun setOnClickListener(callback: () -> Unit) {
@@ -126,7 +136,7 @@ class MapCardAdapter(private val canUserSubmitData: Boolean) :
   ) : CardViewHolder(binding.root, binding.loiCard) {
     fun bind(loi: LocationOfInterest) {
       with(binding) {
-        loiName.text = LoiCardUtil.getDisplayLoiName(loi)
+        loiName.text = LoiCardUtil.getDisplayLoiName(binding.wrapperView.context, loi)
         jobName.text = LoiCardUtil.getJobName(loi)
         collectData.visibility = if (canUserSubmitData) View.VISIBLE else View.GONE
 

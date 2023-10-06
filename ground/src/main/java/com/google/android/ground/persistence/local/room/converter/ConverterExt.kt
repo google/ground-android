@@ -102,21 +102,25 @@ fun Job.toLocalDataStoreObject(surveyId: String): JobEntity =
     surveyId = surveyId,
     name = name,
     suggestLoiTaskType = suggestLoiTaskType?.toString(),
-    style = style.toLocalDataStoreObject()
+    style = style?.toLocalDataStoreObject()
   )
 
 fun JobEntityAndRelations.toModelObject(): Job {
   val taskMap = taskEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
   return Job(
     jobEntity.id,
-    jobEntity.style.toModelObject(),
+    jobEntity.style?.toModelObject(),
     jobEntity.name,
     taskMap.toPersistentMap(),
     jobEntity.suggestLoiTaskType?.let { Task.Type.valueOf(it) }
   )
 }
 
-fun StyleEntity.toModelObject() = color?.let { Style(it) } ?: Style()
+/**
+ * Returns the equivalent model object, setting the style color to #000 if it was missing in the
+ * local db.
+ */
+fun StyleEntity.toModelObject() = color?.let { Style(it) } ?: Style("#000000")
 
 fun Style.toLocalDataStoreObject() = StyleEntity(color)
 
@@ -245,15 +249,22 @@ fun OfflineArea.toOfflineAreaEntity() =
     north = this.bounds.north,
     east = this.bounds.east,
     south = this.bounds.south,
-    west = this.bounds.west
+    west = this.bounds.west,
+    minZoom = this.zoomRange.first,
+    maxZoom = this.zoomRange.last
   )
 
 fun OfflineAreaEntity.toModelObject(): OfflineArea {
   val northEast = Coordinates(this.north, this.east)
   val southWest = Coordinates(this.south, this.west)
   val bounds = Bounds(southWest, northEast)
-  // TODO: Deserialize.
-  return OfflineArea(this.id, this.state.toModelObject(), bounds, this.name, 0..14)
+  return OfflineArea(
+    this.id,
+    this.state.toModelObject(),
+    bounds,
+    this.name,
+    IntRange(minZoom, maxZoom)
+  )
 }
 
 fun Option.toLocalDataStoreObject(taskId: String) =

@@ -23,6 +23,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.R
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -49,16 +50,18 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   private val task =
     Task(id = "task_1", index = 0, type = Task.Type.DATE, label = "Date label", isRequired = false)
 
+  private val job = Job(id = "job1")
+
   @Test
   fun testHeader() {
-    setupTaskFragment<DateTaskFragment>(task)
+    setupTaskFragment<DateTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)
   }
 
   @Test
   fun testResponse_defaultIsEmpty() {
-    setupTaskFragment<DateTaskFragment>(task)
+    setupTaskFragment<DateTaskFragment>(job, task)
 
     onView(withId(R.id.user_response_text))
       .check(matches(withText("")))
@@ -71,7 +74,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
 
   @Test
   fun testResponse_onUserInput() {
-    setupTaskFragment<DateTaskFragment>(task)
+    setupTaskFragment<DateTaskFragment>(job, task)
 
     assertThat(fragment.getDatePickerDialog()).isNull()
     onView(withId(R.id.user_response_text)).perform(click())
@@ -80,14 +83,14 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
 
   @Test
   fun testActionButtons() {
-    setupTaskFragment<DateTaskFragment>(task)
+    setupTaskFragment<DateTaskFragment>(job, task)
 
     hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP)
   }
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
-    setupTaskFragment<DateTaskFragment>(task.copy(isRequired = false))
+    setupTaskFragment<DateTaskFragment>(job, task.copy(isRequired = false))
 
     buttonIsDisabled("Continue")
     buttonIsEnabled("Skip")
@@ -95,7 +98,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
-    setupTaskFragment<DateTaskFragment>(task.copy(isRequired = true))
+    setupTaskFragment<DateTaskFragment>(job, task.copy(isRequired = true))
 
     buttonIsDisabled("Continue")
     buttonIsHidden("Skip")

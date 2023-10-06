@@ -28,6 +28,7 @@ import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentWithNavController
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
@@ -103,9 +104,9 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     onView(withText(buttonText)).check(matches(isDisplayed())).check(matches(not(isEnabled())))
   }
 
-  protected inline fun <reified T : Fragment> setupTaskFragment(task: Task) {
+  protected inline fun <reified T : Fragment> setupTaskFragment(job: Job, task: Task) {
     viewModel = viewModelFactory.create(DataCollectionViewModel.getViewModelClass(task.type)) as VM
-    viewModel.initialize(task, null)
+    viewModel.initialize(job, task, null)
     whenever(dataCollectionViewModel.getTaskViewModel(task.index)).thenReturn(viewModel)
 
     launchFragmentWithNavController<T>(
