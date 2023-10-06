@@ -65,13 +65,13 @@
       app:layout_constraintEnd_toEndOf="parent" />
     <TextView
       android:id="@+id/no_areas_downloaded_message"
-      style="@style/TextAppearance.App.BodyMedium.OnSurface"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:contentDescription="@string/offline_area_selector_prompt"
       android:padding="16dp"
-      android:text="@string/no_basemaps_downloaded"
       android:textAlignment="center"
+      style="@style/TextAppearance.App.BodyMedium.OnSurface"
+      android:contentDescription="@string/offline_area_selector_prompt"
+      android:text="@string/no_basemaps_downloaded"
       android:visibility="@{viewModel.noAreasMessageVisibility}"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"

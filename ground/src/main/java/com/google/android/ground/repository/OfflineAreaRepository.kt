@@ -35,6 +35,8 @@ import javax.inject.Singleton
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirst
+import timber.log.Timber
 
 /**
  * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
@@ -173,6 +175,7 @@ constructor(
    */
   suspend fun removeFromDevice(offlineArea: OfflineArea) {
     val tilesInSelectedArea = offlineArea.tiles
+    if (tilesInSelectedArea.isEmpty()) Timber.w("No tiles associate with offline area $offlineArea")
     localOfflineAreaStore.deleteOfflineArea(offlineArea.id)
     val remainingAreas = localOfflineAreaStore.offlineAreasOnceAndStream().awaitFirst()
     val remainingTiles = remainingAreas.flatMap { it.tiles }.toSet()
