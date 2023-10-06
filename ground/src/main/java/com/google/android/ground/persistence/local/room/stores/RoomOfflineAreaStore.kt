@@ -23,12 +23,10 @@ import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.room.entity.OfflineAreaEntity
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.rx.Schedulers
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 @Singleton
 class RoomOfflineAreaStore @Inject internal constructor() : LocalOfflineAreaStore {
@@ -47,11 +45,6 @@ class RoomOfflineAreaStore @Inject internal constructor() : LocalOfflineAreaStor
   override fun getOfflineAreaById(id: String): Single<OfflineArea> =
     offlineAreaDao.findById(id).map { it.toModelObject() }.toSingle().subscribeOn(schedulers.io())
 
-  override fun deleteOfflineArea(offlineAreaId: String): Completable =
-    offlineAreaDao
-      .findById(offlineAreaId)
-      .toSingle()
-      .doOnSubscribe { Timber.d("Deleting offline area: $offlineAreaId") }
-      .flatMapCompletable { offlineAreaDao.delete(it) }
-      .subscribeOn(schedulers.io())
+  override suspend fun deleteOfflineArea(offlineAreaId: String) =
+    offlineAreaDao.deleteById(offlineAreaId)
 }

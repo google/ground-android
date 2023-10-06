@@ -24,14 +24,18 @@ import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.mog.*
-import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.android.ground.ui.util.FileUtil
+import com.google.android.ground.util.ByteCount
+import com.google.android.ground.util.deleteIfEmpty
+import com.google.android.ground.util.rangeOf
 import io.reactivex.*
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirst
+import timber.log.Timber
 
 /**
  * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
@@ -50,14 +54,15 @@ constructor(
   private val offlineUuidGenerator: OfflineUuidGenerator
 ) {
 
-  private suspend fun addOfflineArea(bounds: Bounds) {
+  private suspend fun addOfflineArea(bounds: Bounds, zoomRange: IntRange) {
     val areaName = geocodingManager.getAreaName(bounds.shrink(AREA_NAME_SENSITIVITY))
     localOfflineAreaStore.insertOrUpdate(
       OfflineArea(
         offlineUuidGenerator.generateUuid(),
         OfflineArea.State.DOWNLOADED,
         bounds,
-        areaName
+        areaName,
+        zoomRange
       )
     )
   }
@@ -82,7 +87,7 @@ constructor(
    */
   suspend fun downloadTiles(bounds: Bounds): Flow<Pair<Int, Int>> = flow {
     val client = getMogClient()
-    val requests = client.buildTilesRequests(bounds.toGoogleMapsObject())
+    val requests = client.buildTilesRequests(bounds)
     val totalBytes = requests.sumOf { it.totalBytes }
     var bytesDownloaded = 0
     val tilePath = getLocalTileSourcePath()
@@ -91,7 +96,8 @@ constructor(
       emit(Pair(bytesDownloaded, totalBytes))
     }
     if (bytesDownloaded > 0) {
-      addOfflineArea(bounds)
+      val zoomRange = requests.flatMap { it.tiles }.rangeOf { it.tileCoordinates.zoom }
+      addOfflineArea(bounds, zoomRange)
     }
   }
 
@@ -131,11 +137,12 @@ constructor(
    * throws an error if no survey is active or if no tile sources are defined.
    */
   private fun getMogClient(): MogClient {
-    val baseUrl = getFirstTileSourceUrl()
-    val mogCollection = MogCollection(Config.getMogSources(baseUrl))
+    val mogCollection = MogCollection(getMogSources())
     // TODO(#1754): Create a factory and inject rather than instantiating here. Add tests.
     return MogClient(mogCollection)
   }
+
+  private fun getMogSources(): List<MogSource> = Config.getMogSources(getFirstTileSourceUrl())
 
   /**
    * Returns the URL of the first tile source in the current survey, or throws an error if no survey
@@ -147,13 +154,38 @@ constructor(
 
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
     val client = getMogClient()
-    val maxZoom = client.collection.maxZoom
-    return client.buildTilesRequests(bounds.toGoogleMapsObject(), maxZoom..maxZoom).isNotEmpty()
+    val maxZoom = client.collection.sources.maxZoom()
+    return client.buildTilesRequests(bounds, maxZoom..maxZoom).isNotEmpty()
   }
 
   suspend fun estimateSizeOnDisk(bounds: Bounds): Int {
     val client = getMogClient()
-    val requests = client.buildTilesRequests(bounds.toGoogleMapsObject())
+    val requests = client.buildTilesRequests(bounds)
     return requests.sumOf { it.totalBytes }
+  }
+
+  /** Returns the number of bytes occupied by tiles on the local device. */
+  suspend fun sizeOnDevice(offlineArea: OfflineArea): ByteCount =
+    offlineArea.tiles.sumOf { File(getLocalTileSourcePath(), it.getTilePath()).length().toInt() }
+
+  /**
+   * Deletes the provided offline area from the device, including all associated unused tiles on the
+   * local filesystem. Folders containing the deleted tiles are also removed if empty.
+   */
+  suspend fun removeFromDevice(offlineArea: OfflineArea) {
+    val tilesInSelectedArea = offlineArea.tiles
+    if (tilesInSelectedArea.isEmpty()) Timber.w("No tiles associate with offline area $offlineArea")
+    localOfflineAreaStore.deleteOfflineArea(offlineArea.id)
+    val remainingAreas = localOfflineAreaStore.offlineAreasOnceAndStream().awaitFirst()
+    val remainingTiles = remainingAreas.flatMap { it.tiles }.toSet()
+    val tilesToRemove = tilesInSelectedArea - remainingTiles
+    val tileSourcePath = getLocalTileSourcePath()
+    tilesToRemove.forEach {
+      with(File(tileSourcePath, it.getTilePath())) {
+        delete()
+        parentFile?.deleteIfEmpty()
+        parentFile?.parentFile?.deleteIfEmpty()
+      }
+    }
   }
 }

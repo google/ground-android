@@ -54,6 +54,7 @@ internal constructor(
         .offlineAreasOnceAndStream()
         .doOnError { Timber.e(it, "Unexpected error loading offline areas from the local db") }
         .onErrorReturnItem(listOf())
+
     this.offlineAreas = offlineAreas.toLiveData()
     noAreasMessageVisibility =
       offlineAreas.map { if (it.isEmpty()) View.VISIBLE else View.GONE }.toLiveData()

@@ -249,14 +249,22 @@ fun OfflineArea.toOfflineAreaEntity() =
     north = this.bounds.north,
     east = this.bounds.east,
     south = this.bounds.south,
-    west = this.bounds.west
+    west = this.bounds.west,
+    minZoom = this.zoomRange.first,
+    maxZoom = this.zoomRange.last
   )
 
 fun OfflineAreaEntity.toModelObject(): OfflineArea {
   val northEast = Coordinates(this.north, this.east)
   val southWest = Coordinates(this.south, this.west)
   val bounds = Bounds(southWest, northEast)
-  return OfflineArea(this.id, this.state.toModelObject(), bounds, this.name)
+  return OfflineArea(
+    this.id,
+    this.state.toModelObject(),
+    bounds,
+    this.name,
+    IntRange(minZoom, maxZoom)
+  )
 }
 
 fun Option.toLocalDataStoreObject(taskId: String) =

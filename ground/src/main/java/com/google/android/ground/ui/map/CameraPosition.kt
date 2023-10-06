@@ -48,14 +48,14 @@ data class CameraPosition(
       val long = parts[1].trim().toDouble()
       val zoomLevel = parts[2].trim().toFloatOrNull()
       val isAllowZoomOut = parts[3].trim().toBoolean()
-      val swLat = parts[4].trim().toDoubleOrNull()
-      val swLong = parts[5].trim().toDoubleOrNull()
-      val neLat = parts[6].trim().toDoubleOrNull()
-      val neLong = parts[7].trim().toDoubleOrNull()
+      val south = parts[4].trim().toDoubleOrNull()
+      val west = parts[5].trim().toDoubleOrNull()
+      val north = parts[6].trim().toDoubleOrNull()
+      val east = parts[7].trim().toDoubleOrNull()
 
       var bounds: Bounds? = null
-      if (swLat != null && swLong != null && neLat != null && neLong != null) {
-        bounds = Bounds(Coordinates(swLat, swLong), Coordinates(neLat, neLong))
+      if (south != null && west != null && north != null && east != null) {
+        bounds = Bounds(south, west, north, east)
       }
 
       return CameraPosition(Coordinates(lat, long), zoomLevel, isAllowZoomOut, bounds)
