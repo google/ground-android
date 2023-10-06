@@ -165,6 +165,10 @@ constructor(
   suspend fun sizeOnDevice(offlineArea: OfflineArea): Int =
     offlineArea.tiles.sumOf { File(getLocalTileSourcePath(), it.getTilePath()).length().toInt() }
 
+  /**
+   * Deletes the provided offline area from the device, including all associated unused tiles on the
+   * local filesystem. Folders containing the deleted tiles are also removed if empty.
+   */
   suspend fun removeFromDevice(offlineArea: OfflineArea) {
     val tilesInSelectedArea = offlineArea.tiles
     localOfflineAreaStore.deleteOfflineArea(offlineArea.id)

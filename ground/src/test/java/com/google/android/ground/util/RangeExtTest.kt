@@ -16,17 +16,25 @@
 
 package com.google.android.ground.util
 
-import kotlin.math.max
-import kotlin.math.min
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import org.junit.runner.RunWith
+import org.mockito.junit.MockitoJUnitRunner
 
-/**
- * Returns a range containing the smallest and largest among all values produced by the selector
- * function applied to each element in the iterable collection. Returns [IntRange.EMPTY] if the
- * iterator contains no elements.
- */
-inline fun <T> Iterable<T>.rangeOf(selector: (T) -> Int): IntRange =
-  if (!iterator().hasNext()) IntRange.EMPTY
-  else
-    map(selector)
-      .map { IntRange(it, it) }
-      .reduce { out, el -> IntRange(min(out.first, el.first), max(out.last, el.last)) }
+@RunWith(MockitoJUnitRunner::class)
+class RangeExtTest {
+  @Test
+  fun `rangeOf() returns range of multiple elements`() {
+    assertEquals(-10..400, listOf(6, 2, 8, 1, -10, 400).rangeOf { it })
+  }
+
+  @Test
+  fun `rangeOf() returns range on single element`() {
+    assertEquals(42..42, listOf(42).rangeOf { it })
+  }
+
+  @Test
+  fun `rangeOf() returns EMPTY on empty list`() {
+    assertEquals(IntRange.EMPTY, emptyList<Int>().rangeOf { it })
+  }
+}

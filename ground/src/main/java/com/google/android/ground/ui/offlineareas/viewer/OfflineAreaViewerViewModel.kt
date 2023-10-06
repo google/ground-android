@@ -73,7 +73,7 @@ constructor(
   val areaSize = MutableLiveData<String>()
   val progressOverlayVisible = MutableLiveData<Boolean>()
 
-  private var offlineAreaId: String? = null
+  private lateinit var offlineAreaId: String
 
   override val mapConfig: MapConfig
     get() =
@@ -87,7 +87,7 @@ constructor(
   fun initialize(args: OfflineAreaViewerFragmentArgs) {
     offlineAreaId = args.offlineAreaId
     viewModelScope.launch(ioDispatcher) {
-      val thisArea = offlineAreaRepository.getOfflineArea(offlineAreaId!!).await()
+      val thisArea = offlineAreaRepository.getOfflineArea(offlineAreaId).await()
       area.postValue(thisArea)
       areaSize.postValue((offlineAreaRepository.sizeOnDevice(thisArea).toMb().toMbString()))
     }
