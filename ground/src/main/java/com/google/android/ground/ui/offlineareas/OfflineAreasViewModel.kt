@@ -44,7 +44,7 @@ internal constructor(
    */
   val offlineAreas: LiveData<List<OfflineAreaListItemViewModel>>
 
-  val showHeader: LiveData<Boolean>
+  val showList: LiveData<Boolean>
   val showNoAreasMessage: LiveData<Boolean>
   val showProgressSpinner: LiveData<Boolean>
 
@@ -59,7 +59,7 @@ internal constructor(
     this.offlineAreas = offlineAreas.toLiveData()
     showProgressSpinner = offlineAreas.map { false }.startWith(true).toLiveData()
     showNoAreasMessage = offlineAreas.map { it.isEmpty() }.toLiveData()
-    showHeader = offlineAreas.map { it.isNotEmpty() }.startWith(false).toLiveData()
+    showList = offlineAreas.map { it.isNotEmpty() }.startWith(false).toLiveData()
   }
 
   private suspend fun toViewModel(

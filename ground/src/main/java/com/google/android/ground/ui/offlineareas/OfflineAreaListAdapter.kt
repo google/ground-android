@@ -21,8 +21,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.OfflineAreasListItemBinding
 
-internal class OfflineAreaListAdapter() :
-  RecyclerView.Adapter<OfflineAreaListAdapter.ViewHolder>() {
+internal class OfflineAreaListAdapter : RecyclerView.Adapter<OfflineAreaListAdapter.ViewHolder>() {
 
   private var offlineAreas: List<OfflineAreaListItemViewModel> = listOf()
 
