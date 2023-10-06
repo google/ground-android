@@ -33,10 +33,12 @@
 
     <Toolbar
       android:id="@+id/offline_areas_toolbar"
-      android:layout_width="wrap_content"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:elevation="@dimen/toolbar_elevation"
       android:title="@string/offline_map_imagery"
+      android:titleTextAppearance="@style/TextAppearance.App.TitleLarge.OnSurface"
+      android:navigationIcon="@drawable/ic_add"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent" />

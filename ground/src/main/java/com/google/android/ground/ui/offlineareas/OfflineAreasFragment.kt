@@ -59,7 +59,6 @@ class OfflineAreasFragment : Hilt_OfflineAreasFragment() {
     binding.lifecycleOwner = this
 
     val toolbar = binding.offlineAreasToolbar
-    toolbar.setNavigationIcon(R.drawable.ic_info)
     toolbar.setNavigationOnClickListener { navigator.navigateUp() }
 
     val recyclerView = binding.offlineAreasList

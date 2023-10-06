@@ -79,6 +79,7 @@
   <style name="ToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
     <item name="android:textColor">?attr/colorOnSurface</item>
     <item name="fontFamily">@font/display_700</item>
+    <item name="android:layout_gravity">center</item>
     <item name="android:textSize">22sp</item>
   </style>
 
