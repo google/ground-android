@@ -44,6 +44,7 @@
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintLeft_toLeftOf="parent"
       app:layout_constraintTop_toTopOf="parent"
+      android:contentDescription="@string/offline_area_list_item_icon"
       android:src="@drawable/ic_offline_pin"
       app:srcCompat="@drawable/ic_offline_pin"
       app:tint="?attr/colorPrimary" />
@@ -56,6 +57,7 @@
       android:layout_marginStart="16dp"
       android:layout_marginEnd="16dp"
       android:text="@{viewModel.areaName}"
+      app:layout_constraintTop_toTopOf="parent"
       app:layout_constraintLeft_toRightOf="@id/offline_area_list_item_icon"
       tools:text="Region name, Country" />
     <TextView

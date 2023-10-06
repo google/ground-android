@@ -175,4 +175,5 @@
   <string name="offline_area_list_item_size_on_disk_mb">%s\u00A0MB</string>
   <string name="offline_downloaded_areas">Downloaded areas</string>
   <string name="offline_area_list_tip">Available for offline viewing</string>
+  <string name="offline_area_list_item_icon">Offline area list item icon</string>
 </resources>
