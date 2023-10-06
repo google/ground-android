@@ -22,6 +22,8 @@ import com.google.android.ground.model.geometry.Coordinates
  * northeast coordinates.
  */
 data class Bounds(val southwest: Coordinates, val northeast: Coordinates) {
+  // Suppress false-positive on constructor order.
+  @Suppress("detekt:ClassOrdering")
   constructor(
     south: Double,
     west: Double,
