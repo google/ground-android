@@ -21,6 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.ground.MainActivity
+import com.google.android.ground.R
 import com.google.android.ground.databinding.OfflineAreasFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.Navigator
@@ -57,7 +58,8 @@ class OfflineAreasFragment : Hilt_OfflineAreasFragment() {
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
 
-    (requireActivity() as MainActivity).setActionBar(binding.offlineAreasToolbar, true)
+    val toolbar = binding.offlineAreasToolbar
+    toolbar.setNavigationOnClickListener { navigator.navigateUp() }
 
     val recyclerView = binding.offlineAreasList
     recyclerView.setHasFixedSize(true)

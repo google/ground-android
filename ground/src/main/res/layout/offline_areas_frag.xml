@@ -28,18 +28,20 @@
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorSurfaceContainer"
     android:fitsSystemWindows="true">
 
-    <com.google.android.ground.ui.common.TwoLineToolbar
+    <Toolbar
       android:id="@+id/offline_areas_toolbar"
-      android:layout_width="0dp"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:elevation="@dimen/toolbar_elevation"
-      android:theme="@style/PrimaryToolbarTheme"
+      android:title="@string/offline_map_imagery"
+      android:titleTextAppearance="@style/TextAppearance.App.TitleLarge.OnSurface"
+      android:navigationIcon="@drawable/ic_add"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:title="@string/offline_map_imagery" />
+      app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/offline_areas_list"
@@ -65,13 +67,13 @@
       app:layout_constraintEnd_toEndOf="parent" />
     <TextView
       android:id="@+id/no_areas_downloaded_message"
+      style="@style/TextAppearance.App.BodyMedium.OnSurface"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:padding="16dp"
-      android:textAlignment="center"
-      style="@style/TextAppearance.App.BodyMedium.OnSurface"
       android:contentDescription="@string/offline_area_selector_prompt"
+      android:padding="16dp"
       android:text="@string/no_basemaps_downloaded"
+      android:textAlignment="center"
       android:visibility="@{viewModel.noAreasMessageVisibility}"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
