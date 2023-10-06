@@ -31,8 +31,8 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.MapConfig
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.map.MapType
-import com.google.android.ground.util.toMbString
 import com.google.android.ground.util.toMb
+import com.google.android.ground.util.toMbString
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
