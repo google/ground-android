@@ -177,10 +177,11 @@ constructor(
     val tilesToRemove = tilesInSelectedArea - remainingTiles
     val tileSourcePath = getLocalTileSourcePath()
     tilesToRemove.forEach {
-      val tilePath = File(tileSourcePath, it.getTilePath())
-      tilePath.delete()
-      tilePath.parentFile.deleteIfEmpty()
-      tilePath.parentFile?.parentFile.deleteIfEmpty()
+      with(File(tileSourcePath, it.getTilePath())) {
+        delete()
+        parentFile?.deleteIfEmpty()
+        parentFile?.parentFile?.deleteIfEmpty()
+      }
     }
   }
 }

@@ -27,8 +27,8 @@ typealias MegabyteCount = Float
 fun File?.isEmpty() = this?.listFiles().isNullOrEmpty()
 
 /** Deletes the file if itt is non-null and doesn't contain other files. */
-fun File?.deleteIfEmpty() {
-  if (isEmpty()) this?.delete()
+fun File.deleteIfEmpty() {
+  if (isEmpty()) delete()
 }
 
 /** Returns the byte count as an equivalent megabyte count. */
