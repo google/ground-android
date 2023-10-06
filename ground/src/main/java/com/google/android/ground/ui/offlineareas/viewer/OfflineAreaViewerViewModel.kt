@@ -31,6 +31,8 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.MapConfig
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.map.MapType
+import com.google.android.ground.util.toMbString
+import com.google.android.ground.util.toMb
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
@@ -68,7 +70,7 @@ constructor(
   /** Returns the offline area associated with this view model. */
   val area = MutableLiveData<OfflineArea>()
   val areaName = area.map { it.name }
-  val areaSize = MutableLiveData<Float>()
+  val areaSize = MutableLiveData<String>()
   val progressOverlayVisible = MutableLiveData<Boolean>()
 
   private var offlineAreaId: String? = null
@@ -87,7 +89,7 @@ constructor(
     viewModelScope.launch(ioDispatcher) {
       val thisArea = offlineAreaRepository.getOfflineArea(offlineAreaId!!).await()
       area.postValue(thisArea)
-      areaSize.postValue((offlineAreaRepository.sizeOnDevice(thisArea) / 1024f * 1024f))
+      areaSize.postValue((offlineAreaRepository.sizeOnDevice(thisArea).toMb().toMbString()))
     }
   }
 

@@ -25,12 +25,12 @@ import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.mog.*
 import com.google.android.ground.ui.util.FileUtil
+import com.google.android.ground.util.deleteIfEmpty
+import com.google.android.ground.util.rangeOf
 import io.reactivex.*
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.max
-import kotlin.math.min
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirst
@@ -180,14 +180,3 @@ constructor(
     }
   }
 }
-
-private fun File?.isEmpty() = this?.listFiles().isNullOrEmpty()
-
-private fun File?.deleteIfEmpty() {
-  if (isEmpty()) this?.delete()
-}
-
-private inline fun <T> Iterable<T>.rangeOf(selector: (T) -> Int): IntRange =
-  map(selector)
-    .map { IntRange(it, it) }
-    .reduce { out, el -> IntRange(min(out.first, el.first), max(out.last, el.last)) }
