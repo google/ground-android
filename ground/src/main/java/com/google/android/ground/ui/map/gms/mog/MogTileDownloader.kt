@@ -34,11 +34,9 @@ class MogTileDownloader(private val client: MogClient, private val outputBasePat
    */
   suspend fun downloadTiles(requests: List<MogTilesRequest>) = flow {
     client.getTiles(requests).collect { tile ->
-      val (x, y, zoom) = tile.metadata.tileCoordinates
-      val path = File(outputBasePath, "$zoom/$x")
-      path.mkdirs()
+      val outFile = File(outputBasePath, tile.metadata.tileCoordinates.getTilePath())
+      outFile.parentFile?.mkdirs()
       val gmsTile = tile.toGmsTile()
-      val outFile = File(path, "$y.jpg")
       val data = gmsTile.data!!
       outFile.writeBytes(data)
       Timber.d("Saved ${data.size} bytes to ${outFile.path}")
@@ -46,3 +44,5 @@ class MogTileDownloader(private val client: MogClient, private val outputBasePat
     }
   }
 }
+
+fun TileCoordinates.getTilePath() = "$zoom/$x/$y.jpg"

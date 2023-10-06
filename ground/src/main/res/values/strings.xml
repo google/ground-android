@@ -92,11 +92,11 @@
   <string name="failed">Failed</string>
   <string name="settings">Settings</string>
   <string name="offline_area_viewer_title">Offline area</string>
-  <string name="offline_area_viewer_remove_button">Remove</string>
+  <string name="offline_area_viewer_remove_button">Remove from device</string>
   <string name="added_by">Added by %s</string>
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_area_selector_select">Select and download</string>
-  <string name="no_basemaps_downloaded">No base maps downloaded.</string>
+  <string name="no_basemaps_downloaded">No imagery downloaded for offline use. Tap “Select and download” to get started.</string>
   <string name="signing_in">Signing in</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Build %s</string>
@@ -171,4 +171,5 @@
   <string name="area">Area</string>
   <string name="unnamed_point">Unnamed point</string>
   <string name="unnamed_area">Unnamed area</string>
+  <string name="offline_area_size_on_disk_mb">%s\u00A0MB on disk</string>
 </resources>

@@ -17,7 +17,8 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
 
   <data>
     <variable
@@ -25,75 +26,105 @@
       type="com.google.android.ground.ui.offlineareas.viewer.OfflineAreaViewerViewModel" />
   </data>
 
-  <androidx.constraintlayout.widget.ConstraintLayout
+  <FrameLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
-
-    <com.google.android.ground.ui.common.TwoLineToolbar
-      android:id="@+id/offline_area_viewer_toolbar"
+    android:layout_height="match_parent">
+    <LinearLayout
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:elevation="@dimen/toolbar_elevation"
-      android:theme="@style/PrimaryToolbarTheme"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:title="@string/offline_area_viewer_title" />
+      android:layout_height="match_parent"
+      android:background="?attr/colorSurface"
+      android:fitsSystemWindows="true"
+      android:orientation="vertical">
+
+      <com.google.android.ground.ui.common.TwoLineToolbar
+        android:id="@+id/offline_area_viewer_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="@dimen/toolbar_elevation"
+        android:theme="@style/PrimaryToolbarTheme"
+        app:title="@string/offline_area_viewer_title" />
+
+      <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+          android:id="@+id/offline_area_viewer_map_frame"
+          android:layout_width="match_parent"
+          android:layout_height="240dp"
+          android:background="?attr/colorSurfaceVariant"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHorizontal_bias="0.333"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent">
+          <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/map"
+            android:layout_width="220dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            app:layout_behavior="com.google.android.ground.ui.home.mapcontainer.MapLayoutBehavior"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/offline_area_viewer_toolbar" />
+        </FrameLayout>
+
+        <TextView
+          android:id="@+id/offline_area_name_text"
+          style="@style/TextAppearance.App.TitleLarge.OnSurface"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="16dp"
+          android:layout_marginTop="32dp"
+          android:layout_marginEnd="16dp"
+          android:textAlignment="center"
+          android:gravity="center"
+          android:text="@{viewModel.areaName}"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/offline_area_viewer_map_frame"
+          tools:text="Area name, Country" />
+        <TextView
+          android:id="@+id/offline_area_size_on_device"
+          style="@style/TextAppearance.App.BodyMedium.OnSurface"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="12dp"
+          android:text="@{@string/offline_area_size_on_disk_mb(viewModel.areaSize)}"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/offline_area_name_text"
+          app:visible="@{viewModel.areaSize != null}"
+          tools:text="n.n MB on disk" />
+
+        <Button
+          android:id="@+id/remove_button"
+          style="@style/Widget.App.Button.IconButton.Destructive"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="64dp"
+          android:enabled="@{viewModel.area != null}"
+          android:onClick="@{() -> viewModel.onRemoveButtonClick()}"
+          android:text="@string/offline_area_viewer_remove_button"
+          app:icon="@android:drawable/ic_menu_delete"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent" />
+      </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
     <FrameLayout
-      android:id="@+id/offline_area_viewer_map_frame"
+      android:id="@+id/remove_offline_area_progress_overlay"
       android:layout_width="match_parent"
-      android:layout_height="240dp"
-      android:background="?attr/colorSurfaceVariant"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintHorizontal_bias="0.333"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/offline_area_viewer_toolbar">
-      <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/map"
-        android:layout_width="220dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        app:layout_behavior="com.google.android.ground.ui.home.mapcontainer.MapLayoutBehavior"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/offline_area_viewer_toolbar" />
+      android:layout_height="match_parent"
+      android:alpha="0.5"
+      android:background="@color/blackOverlay"
+      app:visible="@{viewModel.progressOverlayVisible}"
+      android:clickable="true"
+      android:focusable="true">
+      <ProgressBar
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="center" />
     </FrameLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-      android:layout_width="match_parent"
-      android:layout_height="0dp"
-      android:background="?attr/colorSurface"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintHorizontal_bias="0.333"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/offline_area_viewer_map_frame"
-      app:layout_constraintVertical_bias="0.533">
-      <TextView
-        android:id="@+id/base_map_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:paddingStart="40dp"
-        android:paddingEnd="40dp"
-        android:text="@{viewModel.areaName}"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-      <Button
-        android:id="@+id/remove_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:background="?attr/colorError"
-        android:text="@string/offline_area_viewer_remove_button"
-        app:chipIcon="@android:drawable/ic_menu_delete"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-  </androidx.constraintlayout.widget.ConstraintLayout>
+  </FrameLayout>
 </layout>

@@ -46,3 +46,9 @@ data class MogSource(val urlTemplate: String, val zoomRange: IntRange) {
     return urlTemplate.replace("{x}", mogBounds.x.toString()).replace("{y}", mogBounds.y.toString())
   }
 }
+
+fun List<MogSource>.minZoom() = minOf { it.zoomRange.first }
+
+fun List<MogSource>.maxZoom() = maxOf { it.zoomRange.last }
+
+fun List<MogSource>.zoomRange() = IntRange(minZoom(), maxZoom())

@@ -28,4 +28,6 @@ interface OfflineAreaDao : BaseDao<OfflineAreaEntity> {
 
   @Query("SELECT * FROM offline_area WHERE id = :id")
   fun findById(id: String): Maybe<OfflineAreaEntity>
+
+  @Query("DELETE FROM offline_area WHERE id = :id") suspend fun deleteById(id: String)
 }

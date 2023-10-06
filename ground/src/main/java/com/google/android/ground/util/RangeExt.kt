@@ -14,9 +14,19 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.map.gms.mog
+package com.google.android.ground.util
 
-/** A collection of Maps Optimized GeoTIFFs (MOGs). */
-class MogCollection(val sources: List<MogSource>) {
-  fun getMogSource(zoom: Int) = sources.firstOrNull { it.zoomRange.contains(zoom) }
-}
+import kotlin.math.max
+import kotlin.math.min
+
+/**
+ * Returns a range containing the smallest and largest among all values produced by the selector
+ * function applied to each element in the iterable collection. Returns [IntRange.EMPTY] if the
+ * iterator contains no elements.
+ */
+inline fun <T> Iterable<T>.rangeOf(selector: (T) -> Int): IntRange =
+  if (!iterator().hasNext()) IntRange.EMPTY
+  else
+    map(selector)
+      .map { IntRange(it, it) }
+      .reduce { out, el -> IntRange(min(out.first, el.first), max(out.last, el.last)) }

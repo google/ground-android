@@ -70,7 +70,7 @@
         android:layout_width="match_parent"
         android:layout_height="24dp"
         android:alpha="0.4"
-        android:background="@color/blackMapOverlay"
+        android:background="@color/blackOverlay"
         app:layout_constraintTop_toBottomOf="@+id/offline_area_selector_toolbar" />
 
       <View
@@ -78,7 +78,7 @@
         android:layout_width="24dp"
         android:layout_height="0dp"
         android:alpha="0.4"
-        android:background="@color/blackMapOverlay"
+        android:background="@color/blackOverlay"
         app:layout_constraintBottom_toTopOf="@id/bottom_mask"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/top_mask" />
@@ -88,7 +88,7 @@
         android:layout_width="24dp"
         android:layout_height="0dp"
         android:alpha="0.4"
-        android:background="@color/blackMapOverlay"
+        android:background="@color/blackOverlay"
         app:layout_constraintBottom_toTopOf="@id/bottom_mask"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/top_mask" />
@@ -113,7 +113,7 @@
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:alpha="0.4"
-          android:background="@color/blackMapOverlay" />
+          android:background="@color/blackOverlay" />
 
         <TextView
           android:id="@+id/no_imagery_available_text_view"

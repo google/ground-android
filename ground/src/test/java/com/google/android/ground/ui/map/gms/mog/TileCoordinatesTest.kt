@@ -15,8 +15,8 @@
  */
 package com.google.android.ground.ui.map.gms.mog
 
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.ui.map.Bounds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,7 +27,7 @@ class TileCoordinatesTest {
 
   @Test
   fun fromLatLng() {
-    assertThat(TileCoordinates.fromLatLng(LatLng(10.5, 20.5), 10))
+    assertThat(TileCoordinates.fromCoordinates(Coordinates(10.5, 20.5), 10))
       .isEqualTo(TileCoordinates(570, 481, 10))
   }
 
@@ -38,8 +38,7 @@ class TileCoordinatesTest {
 
   @Test
   fun withinBounds() {
-    val tiles =
-      TileCoordinates.withinBounds(LatLngBounds(LatLng(10.0, 10.0), LatLng(11.0, 11.0)), 10)
+    val tiles = TileCoordinates.withinBounds(Bounds(10.0, 10.0, 11.0, 11.0), 10)
 
     assertThat(tiles).hasSize(16)
     assertThat(tiles)
