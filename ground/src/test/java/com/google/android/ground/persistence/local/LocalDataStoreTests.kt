@@ -125,6 +125,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       .test()
       .assertValue { it.geometry == TEST_POINT }
   }
+
   @Test
   fun testApplyAndEnqueue_insertsMutation() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
@@ -417,7 +418,8 @@ class LocalDataStoreTests : BaseHiltTest() {
         "id_1",
         OfflineArea.State.PENDING,
         Bounds(Coordinates(0.0, 0.0), Coordinates(0.0, 0.0)),
-        "Test Area"
+        "Test Area",
+        0..14
       )
 
     private fun createTestLocationOfInterestMutation(point: Point): LocationOfInterestMutation =
