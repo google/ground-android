@@ -32,10 +32,10 @@ fun File?.deleteIfEmpty() {
 }
 
 /** Returns the byte count as an equivalent megabyte count. */
-fun ByteCount.toMb(): MegabyteCount = this / 1024f * 1024f
+fun ByteCount.toMb(): MegabyteCount = this / (1024f * 1024f)
 
 /**
  * Returns the number of megabytes a string, replacing smaller sizes with "<1" and rounding up
  * others.
  */
-fun MegabyteCount.toMbString(): String = if (this < 1) "<1" else ceil(this).toString()
+fun MegabyteCount.toMbString(): String = if (this < 1) "<1" else ceil(this).toInt().toString()
