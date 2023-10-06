@@ -46,16 +46,20 @@ import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.toCoordinates
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -71,9 +75,6 @@ constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : AbstractViewModel() {
-
-  /** This is set to true as soon as the location lock is disabled. */
-  private var isLocationLockReset = true
 
   private val _cameraUpdateRequests = MutableStateFlow<CameraUpdateRequest?>(null)
 
@@ -168,7 +169,6 @@ constructor(
   private suspend fun disableLocationLock() {
     onLockStateChanged(false)
     locationManager.disableLocationUpdates()
-    isLocationLockReset = true
   }
 
   private fun onLockStateChanged(isLocked: Boolean) {
@@ -207,12 +207,17 @@ constructor(
    * Updates map camera when location changes. The first update pans and zooms the camera to the
    * appropriate zoom level and subsequent ones only pan the map.
    */
+  @OptIn(ExperimentalCoroutinesApi::class)
   private suspend fun updateCameraPositionOnLocationChange() {
-    getLocationUpdates()
-      .map { it.toCoordinates() }
-      .collect { coordinates ->
-        if (isLocationLockReset) {
-          isLocationLockReset = false
+    locationLock
+      .flatMapLatest { enabled ->
+        getLocationUpdates()
+          .map { it.toCoordinates() }
+          .filter { enabled.getOrDefault(false) }
+          .withIndex()
+      }
+      .collect { (index, coordinates) ->
+        if (index == 0) {
           panAndZoomCamera(coordinates)
         } else {
           panCamera(coordinates)
