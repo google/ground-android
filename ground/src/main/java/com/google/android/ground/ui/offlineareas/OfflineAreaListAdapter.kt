@@ -15,51 +15,34 @@
  */
 package com.google.android.ground.ui.offlineareas
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.OfflineAreasListItemBinding
-import com.google.android.ground.model.imagery.OfflineArea
-import com.google.android.ground.ui.common.Navigator
 
-internal class OfflineAreaListAdapter(private val navigator: Navigator) :
+internal class OfflineAreaListAdapter() :
   RecyclerView.Adapter<OfflineAreaListAdapter.ViewHolder>() {
 
-  private var offlineAreas: List<OfflineArea> = listOf()
+  private var offlineAreas: List<OfflineAreaListItemViewModel> = listOf()
 
-  class ViewHolder
-  internal constructor(
-    var binding: OfflineAreasListItemBinding,
-    var areas: List<OfflineArea>,
-    private val navigator: Navigator
-  ) : RecyclerView.ViewHolder(binding.root), View.OnClickListener {
-    init {
-      binding.offlineAreaName.setOnClickListener(this)
-    }
-
-    override fun onClick(v: View) {
-      if (areas.isNotEmpty()) {
-        val id = areas[adapterPosition].id
-        navigator.navigate(OfflineAreasFragmentDirections.viewOfflineArea(id))
-      }
-    }
-  }
+  class ViewHolder internal constructor(var binding: OfflineAreasListItemBinding) :
+    RecyclerView.ViewHolder(binding.root)
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
     val offlineAreasListItemBinding =
       OfflineAreasListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-    return ViewHolder(offlineAreasListItemBinding, offlineAreas, navigator)
+    return ViewHolder(offlineAreasListItemBinding)
   }
 
   override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-    viewHolder.areas = offlineAreas
-    viewHolder.binding.offlineAreaName.text = offlineAreas[position].name
+    viewHolder.binding.viewModel = offlineAreas[position]
   }
 
   override fun getItemCount(): Int = offlineAreas.size
 
-  fun update(offlineAreas: List<OfflineArea>) {
+  @SuppressLint("NotifyDataSetChanged")
+  fun update(offlineAreas: List<OfflineAreaListItemViewModel>) {
     this.offlineAreas = offlineAreas
     notifyDataSetChanged()
   }

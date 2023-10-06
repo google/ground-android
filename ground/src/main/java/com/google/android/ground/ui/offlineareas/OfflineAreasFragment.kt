@@ -44,7 +44,7 @@ class OfflineAreasFragment : Hilt_OfflineAreasFragment() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(OfflineAreasViewModel::class.java)
-    offlineAreaListAdapter = OfflineAreaListAdapter(navigator)
+    offlineAreaListAdapter = OfflineAreaListAdapter()
     viewModel.offlineAreas.observe(this) { offlineAreaListAdapter.update(it) }
   }
 

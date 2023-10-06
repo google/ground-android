@@ -91,7 +91,7 @@
   <string name="unnamed_area">Area sem nome</string>
   <string name="added_by">Adicionado por %s</string>
   <!-- Label of button used enter the offline area selector. -->
-  <string name="offline_area_selector_select">Selecionar e download</string>
+  <string name="offline_area_selector_select">Selecionar</string>
   <string name="no_basemaps_downloaded">Nenhum mapa carregado.</string>
   <string name="signing_in">Entrar</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->

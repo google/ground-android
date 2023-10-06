@@ -222,14 +222,11 @@
 
   <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
     <item name="fontFamily">@font/text_700</item>
+    <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 
   <style name="TextAppearance.App.TitleMedium.OnSurfaceContainer">
     <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
-  </style>
-
-  <style name="TextAppearance.App.TitleMedium.OnSurface">
-    <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 
   <style name="TextAppearance.App.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
@@ -250,9 +247,11 @@
 
   <style name="TextAppearance.App.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
     <item name="fontFamily">@font/text_500</item>
+    <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 
-  <style name="TextAppearance.App.BodyMedium.OnSurface">
+  <style name="TextAppearance.App.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+    <item name="fontFamily">@font/text_500</item>
     <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 

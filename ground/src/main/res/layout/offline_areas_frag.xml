@@ -35,48 +35,84 @@
       android:id="@+id/offline_areas_toolbar"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      app:navigationIcon="@drawable/ic_arrow_back"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
+      app:navigationIcon="@drawable/ic_arrow_back"
       app:title="@string/offline_map_imagery" />
+    <LinearLayout
+      android:id="@+id/offline_area_list_heading"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="24dp"
+      android:layout_marginTop="16dp"
+      android:layout_marginBottom="8dp"
+      android:layout_marginEnd="24dp"
+      android:orientation="vertical"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/offline_areas_toolbar"
+      app:visible="@{viewModel.showHeader}">
+      <TextView
+        android:id="@+id/offline_areas_list_title"
+        style="@style/TextAppearance.App.TitleMedium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/offline_downloaded_areas" />
+      <TextView
+        android:id="@+id/offline_areas_list_tip"
+        style="@style/TextAppearance.App.BodySmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/offline_area_list_tip"
+        android:textColor="?attr/colorOnSurfaceVariant" />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/offline_areas_list"
       android:layout_width="0dp"
       android:layout_height="0dp"
+      android:layout_marginTop="16dp"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/offline_areas_toolbar" />
+      app:layout_constraintTop_toBottomOf="@+id/offline_area_list_heading" />
 
-    <Button
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
       android:id="@+id/floatingActionButton"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginEnd="@dimen/chip_button_margin_right"
       android:layout_marginBottom="@dimen/map_btn_margin_bottom"
       android:clickable="true"
       android:contentDescription="@string/offline_area_selector_prompt"
       android:focusable="true"
       android:onClick="@{() -> viewModel.showOfflineAreaSelector()}"
       android:text="@string/offline_area_selector_select"
+      app:icon="@drawable/ic_maps_ar"
+      app:iconTint="?attr/colorOnPrimaryContainer"
       app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent" />
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent" />
     <TextView
       android:id="@+id/no_areas_downloaded_message"
+      style="@style/TextAppearance.App.BodyMedium"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:padding="16dp"
-      android:textAlignment="center"
-      style="@style/TextAppearance.App.BodyMedium.OnSurface"
       android:contentDescription="@string/offline_area_selector_prompt"
+      android:padding="48dp"
       android:text="@string/no_basemaps_downloaded"
-      android:visibility="@{viewModel.noAreasMessageVisibility}"
+      android:textAlignment="center"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent" />
-
+      app:layout_constraintTop_toTopOf="parent"
+      app:visible="@{viewModel.showNoAreasMessage}" />
+    <ProgressBar
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:visible="@{viewModel.showProgressSpinner}" />
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
