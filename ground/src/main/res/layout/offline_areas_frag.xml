@@ -44,7 +44,7 @@
       android:id="@+id/offline_area_list_heading"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginStart="24dp"
+      android:layout_marginStart="16dp"
       android:layout_marginTop="16dp"
       android:layout_marginEnd="24dp"
       android:layout_marginBottom="8dp"

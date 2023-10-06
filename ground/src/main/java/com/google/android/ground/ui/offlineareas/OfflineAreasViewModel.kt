@@ -58,7 +58,7 @@ internal constructor(
 
     this.offlineAreas = offlineAreas.toLiveData()
     showProgressSpinner = offlineAreas.map { false }.startWith(true).toLiveData()
-    showNoAreasMessage = offlineAreas.map { it.isEmpty() }.toLiveData()
+    showNoAreasMessage = offlineAreas.map { it.isEmpty() }.startWith(false).toLiveData()
     showList = offlineAreas.map { it.isNotEmpty() }.startWith(false).toLiveData()
   }
 

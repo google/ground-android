@@ -35,7 +35,6 @@ import javax.inject.Singleton
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.reactive.awaitFirst
 import timber.log.Timber
 
 /**
