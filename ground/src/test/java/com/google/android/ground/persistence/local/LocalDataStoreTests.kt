@@ -415,13 +415,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         userId = "user id"
       )
     private val TEST_OFFLINE_AREA =
-      OfflineArea(
-        "id_1",
-        OfflineArea.State.PENDING,
-        Bounds(Coordinates(0.0, 0.0), Coordinates(0.0, 0.0)),
-        "Test Area",
-        0..14
-      )
+      OfflineArea("id_1", OfflineArea.State.PENDING, Bounds(0.0, 0.0, 0.0, 0.0), "Test Area", 0..14)
 
     private fun createTestLocationOfInterestMutation(point: Point): LocationOfInterestMutation =
       LocationOfInterestMutation(

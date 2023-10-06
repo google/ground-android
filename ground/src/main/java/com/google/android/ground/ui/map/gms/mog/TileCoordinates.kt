@@ -39,7 +39,7 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
      * Returns the coordinates of the tile at a particular zoom containing the specified latitude
      * and longitude coordinates.
      */
-    fun fromLatLng(coordinates: Coordinates, zoom: Int): TileCoordinates {
+    fun fromCoordinates(coordinates: Coordinates, zoom: Int): TileCoordinates {
       val zoomFactor = 1 shl zoom
       val latRad = coordinates.lat.toRadians()
       val x1 = zoomFactor * (coordinates.lng + 180) / 360
@@ -54,8 +54,8 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
      */
     fun withinBounds(bounds: Bounds, zoom: Int): List<TileCoordinates> {
       val results = mutableListOf<TileCoordinates>()
-      val nwTile = fromLatLng(bounds.northwest, zoom)
-      val seTile = fromLatLng(bounds.southeast, zoom)
+      val nwTile = fromCoordinates(bounds.northwest, zoom)
+      val seTile = fromCoordinates(bounds.southeast, zoom)
       for (y in nwTile.y..seTile.y) {
         for (x in nwTile.x..seTile.x) {
           results.add(TileCoordinates(x, y, zoom))

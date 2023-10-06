@@ -22,16 +22,28 @@ import com.google.android.ground.model.geometry.Coordinates
  * northeast coordinates.
  */
 data class Bounds(val southwest: Coordinates, val northeast: Coordinates) {
+  constructor(
+    south: Double,
+    west: Double,
+    north: Double,
+    east: Double
+  ) : this(Coordinates(south, west), Coordinates(north, east))
+
   val north
     get() = northeast.lat
+
   val east
     get() = northeast.lng
+
   val south
     get() = southwest.lat
+
   val west
     get() = southwest.lng
+
   val northwest
     get() = Coordinates(north, west)
+
   val southeast
     get() = Coordinates(south, east)
   /**
