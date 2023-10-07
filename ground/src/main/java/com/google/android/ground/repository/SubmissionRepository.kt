@@ -26,7 +26,6 @@ import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Cold
@@ -40,9 +39,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.rx2.rxCompletable
 import kotlinx.coroutines.rx2.rxMaybe
 import kotlinx.coroutines.rx2.rxSingle
-import kotlinx.coroutines.withTimeoutOrNull
-
-private const val LOAD_REMOTE_SUBMISSIONS_TIMEOUT_MILLIS: Long = 15 * 1000
 
 /**
  * Coordinates persistence and retrieval of [Submission] instances from remote, local, and in memory
@@ -55,38 +51,12 @@ class SubmissionRepository
 constructor(
   private val localSurveyStore: LocalSurveyStore,
   private val localSubmissionStore: LocalSubmissionStore,
-  private val remoteDataStore: RemoteDataStore,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val uuidGenerator: OfflineUuidGenerator,
   private val authManager: AuthenticationManager,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
-
-  /**
-   * Retrieves the submissions or the specified survey, location of interest, and task.
-   * 1. Attempt to sync remote submission changes to the local data store. If network is not
-   *
-   * ```
-   *    available or operation times out, this step is skipped.
-   * ```
-   * 2. Relevant submissions are returned directly from the local data store.
-   */
-  suspend fun getSubmissions(locationOfInterest: LocationOfInterest): List<Submission> {
-    // TODO: Only fetch first n fields.
-    syncSubmissionsFromRemote(locationOfInterest)
-    return localSubmissionStore.getSubmissions(locationOfInterest, locationOfInterest.job.id)
-  }
-
-  private suspend fun syncSubmissionsFromRemote(locationOfInterest: LocationOfInterest) {
-    withTimeoutOrNull(LOAD_REMOTE_SUBMISSIONS_TIMEOUT_MILLIS) {
-        remoteDataStore.loadSubmissions(locationOfInterest)
-      }
-      ?.let { mergeRemoteSubmissions(it) }
-  }
-
-  private suspend fun mergeRemoteSubmissions(submissions: List<Submission>) =
-    submissions.forEach { localSubmissionStore.merge(it) }
 
   fun getSubmission(
     surveyId: String,

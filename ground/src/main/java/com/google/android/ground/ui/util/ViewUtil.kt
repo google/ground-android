@@ -44,9 +44,4 @@ object ViewUtil {
     val imm = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(view.windowToken, 0)
   }
-
-  @JvmStatic
-  fun assignGeneratedId(view: View?) {
-    view?.id = View.generateViewId()
-  }
 }

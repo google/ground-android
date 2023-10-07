@@ -17,7 +17,6 @@
   -->
 
 <resources>
-  <color name="colorMapAccent">#ff9131</color>
   <!-- 100% opacity for cluster body. -->
   <color name="clusterBalloonFillColor">#6DDD81</color>
   <!-- 29% opacity for cluster's outer ring. -->

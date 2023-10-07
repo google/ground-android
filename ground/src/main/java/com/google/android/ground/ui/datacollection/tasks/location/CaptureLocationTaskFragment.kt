@@ -17,7 +17,6 @@ package com.google.android.ground.ui.datacollection.tasks.location
 
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.isNotNullOrEmpty
@@ -36,7 +35,7 @@ class CaptureLocationTaskFragment :
 
   @Inject lateinit var map: MapFragment
 
-  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
+  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {

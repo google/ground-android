@@ -19,7 +19,6 @@ import android.app.TimePickerDialog
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import com.google.android.ground.databinding.TimeTaskFragBinding
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
@@ -33,7 +32,7 @@ class TimeTaskFragment : Hilt_TimeTaskFragment<TimeTaskViewModel>() {
 
   private var timePickerDialog: TimePickerDialog? = null
 
-  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
+  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {

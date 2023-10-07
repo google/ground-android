@@ -18,7 +18,6 @@ package com.google.android.ground.ui.datacollection.tasks.date
 import android.app.DatePickerDialog
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import com.google.android.ground.databinding.DateTaskFragBinding
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
@@ -32,7 +31,7 @@ class DateTaskFragment : Hilt_DateTaskFragment<DateTaskViewModel>() {
 
   private var datePickerDialog: DatePickerDialog? = null
 
-  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
+  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {

@@ -17,7 +17,6 @@ package com.google.android.ground.model.job
 
 import android.graphics.Color
 import com.google.android.ground.model.task.Task
-import java.lang.IllegalArgumentException
 import timber.log.Timber
 
 /**
@@ -35,8 +34,6 @@ data class Job(
     get() = tasks.values.sortedBy { it.index }
 
   fun getTask(id: String): Task = tasks[id] ?: error("Unknown task id $id")
-
-  fun hasData(): Boolean = tasks.isNotEmpty()
 }
 
 fun Job.getDefaultColor(): Int =
