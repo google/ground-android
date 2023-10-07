@@ -110,18 +110,6 @@ class MogClient(val collection: MogCollection) {
   }
 
   /**
-   * Returns the metadata for all tiles provided by the specified MOG within the provided bounds.
-   */
-  private fun getTileMetadata(
-    mogMetadata: MogMetadata,
-    tileBounds: Bounds,
-    zoom: Int
-  ): List<MogTileMetadata> =
-    TileCoordinates.withinBounds(tileBounds, zoom).mapNotNull { tileCoordinates ->
-      getTileMetadata(mogMetadata, tileCoordinates)
-    }
-
-  /**
    * Returns the metadata for the tiles with the specified coordinates provided by the specified
    * MOG.
    */

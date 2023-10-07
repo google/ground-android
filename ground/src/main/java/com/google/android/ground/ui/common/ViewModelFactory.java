@@ -16,6 +16,7 @@
 
 package com.google.android.ground.ui.common;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModel;
@@ -31,6 +32,7 @@ import javax.inject.Provider;
  * https://github.com/googlesamples/android-architecture-components/blob/b1a194c1ae267258cd002e2e1c102df7180be473/GithubBrowserSample/app/src/main/java/com/android/example/github/viewmodel/GithubViewModelFactory.java
  */
 public class ViewModelFactory implements ViewModelProvider.Factory {
+
   private final Map<Class<? extends ViewModel>, Provider<ViewModel>> creators;
 
   @Inject
@@ -38,9 +40,12 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     this.creators = creators;
   }
 
-  /** Instantiates a new instance of the specified view model, injecting required dependencies. */
+  /**
+   * Instantiates a new instance of the specified view model, injecting required dependencies.
+   */
+  @NonNull
   @Override
-  public <T extends ViewModel> T create(Class<T> modelClass) {
+  public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
     Provider<? extends ViewModel> creator = creators.get(modelClass);
     if (creator == null) {
       throw new IllegalArgumentException("Unknown model class " + modelClass);
@@ -52,7 +57,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
    * Returns an instance of the specified view model, which is scoped to the activity if annotated
    * with {@link SharedViewModel}, or scoped to the Fragment if not.
    */
-  public <T extends ViewModel> T get(Fragment fragment, Class<T> modelClass) {
+  public <T extends ViewModel> T get(@NonNull Fragment fragment, @NonNull Class<T> modelClass) {
     if (modelClass.getAnnotation(SharedViewModel.class) == null) {
       return ViewModelProviders.of(fragment, this).get(modelClass);
     } else {
@@ -60,8 +65,12 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     }
   }
 
-  /** Returns an instance of the specified view model scoped to the provided activity. */
-  public <T extends ViewModel> T get(FragmentActivity activity, Class<T> modelClass) {
+  /**
+   * Returns an instance of the specified view model scoped to the provided activity.
+   */
+  @NonNull
+  public <T extends ViewModel> T get(@NonNull FragmentActivity activity,
+      @NonNull Class<T> modelClass) {
     return ViewModelProviders.of(activity, this).get(modelClass);
   }
 }

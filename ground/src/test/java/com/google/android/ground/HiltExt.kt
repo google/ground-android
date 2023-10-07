@@ -26,7 +26,6 @@ import androidx.lifecycle.ViewModelStore
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ActivityScenario
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 
 /**
@@ -80,9 +79,7 @@ fun hiltActivityScenario(
   @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
 ): ActivityScenario<HiltTestActivity> {
   val startActivityIntent =
-    Intent.makeMainActivity(
-        ComponentName(ApplicationProvider.getApplicationContext(), HiltTestActivity::class.java)
-      )
+    Intent.makeMainActivity(ComponentName(getApplicationContext(), HiltTestActivity::class.java))
       .putExtra(
         "androidx.fragment.app.testing.FragmentScenario.EmptyFragmentActivity.THEME_EXTRAS_BUNDLE_KEY",
         themeResId

@@ -17,7 +17,6 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
@@ -41,7 +40,7 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
 
   private lateinit var polygonDrawingMapFragment: PolygonDrawingMapFragment
 
-  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
+  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_draw)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {

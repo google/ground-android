@@ -67,7 +67,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     savedInstanceState: Bundle?
   ): View? {
     super.onCreateView(inflater, container, savedInstanceState)
-    taskView = onCreateTaskView(inflater, container)
+    taskView = onCreateTaskView(inflater)
     return taskView.root
   }
 
@@ -89,7 +89,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   /** Creates the view for common task template with/without header. */
-  abstract fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView
+  abstract fun onCreateTaskView(inflater: LayoutInflater): TaskView
 
   /** Creates the view for body of the task. */
   abstract fun onCreateTaskBody(inflater: LayoutInflater): View

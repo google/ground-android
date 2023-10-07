@@ -20,7 +20,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
@@ -53,7 +52,7 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
   private var taskWaitingForPhoto: String? = null
   private var capturedPhotoPath: String? = null
 
-  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
+  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {

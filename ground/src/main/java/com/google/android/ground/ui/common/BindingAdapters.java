@@ -23,6 +23,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ImageView;
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.ImageViewCompat;
 import androidx.databinding.BindingAdapter;
@@ -39,18 +40,19 @@ import java8.util.function.Consumer;
 public class BindingAdapters {
 
   @BindingAdapter("src")
-  public static void bindImageBitmap(ImageView imageView, Bitmap bitmap) {
+  public static void bindImageBitmap(@NonNull ImageView imageView, Bitmap bitmap) {
     imageView.setImageBitmap(bitmap);
   }
 
   @BindingAdapter("onClick")
   public static void bindGoogleSignOnButtonClick(
-      SignInButton button, View.OnClickListener onClickCallback) {
+      @NonNull SignInButton button, View.OnClickListener onClickCallback) {
     button.setOnClickListener(onClickCallback);
   }
 
   @BindingAdapter("onTextChanged")
-  public static void bindTextWatcher(TextInputEditText editText, Consumer onTextChanged) {
+  public static void bindTextWatcher(@NonNull TextInputEditText editText,
+      @NonNull Consumer onTextChanged) {
     editText.addTextChangedListener(
         new TextWatcher() {
           @Override
@@ -59,7 +61,7 @@ public class BindingAdapters {
           }
 
           @Override
-          public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+          public void onTextChanged(@NonNull CharSequence charSequence, int i, int i1, int i2) {
             onTextChanged.accept(charSequence.toString());
           }
 
@@ -81,7 +83,7 @@ public class BindingAdapters {
   }
 
   @BindingAdapter("tint")
-  public static void bindImageTint(ImageView imageView, int colorId) {
+  public static void bindImageTint(@NonNull ImageView imageView, int colorId) {
     if (colorId == 0) {
       // Workaround for default value from uninitialized LiveData.
       return;
@@ -91,7 +93,7 @@ public class BindingAdapters {
   }
 
   @BindingAdapter("visible")
-  public static void bindVisible(View view, boolean visible) {
+  public static void bindVisible(@NonNull View view, boolean visible) {
     view.setVisibility(visible ? View.VISIBLE : View.GONE);
   }
 }
