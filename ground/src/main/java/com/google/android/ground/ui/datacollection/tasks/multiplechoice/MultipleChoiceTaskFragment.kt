@@ -17,7 +17,6 @@ package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
 import com.google.android.ground.model.task.MultipleChoice
@@ -34,7 +33,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MultipleChoiceTaskFragment : Hilt_MultipleChoiceTaskFragment<MultipleChoiceTaskViewModel>() {
   private lateinit var binding: MultipleChoiceTaskFragBinding
 
-  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
+  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {

@@ -144,7 +144,7 @@ internal constructor(
         toolbarTitle.value = resources.getString(R.string.add_submission_toolbar_title)
         createSubmission(viewArgs)
       } else {
-        toolbarTitle.setValue(resources.getString(R.string.edit_submission))
+        toolbarTitle.value = resources.getString(R.string.edit_submission)
         loadSubmission(viewArgs)
       }
     val restoredResponses: HashMap<String, TaskData>? =
