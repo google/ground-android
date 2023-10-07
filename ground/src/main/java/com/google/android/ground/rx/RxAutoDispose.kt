@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.rx
 
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.uber.autodispose.AutoDispose
 import com.uber.autodispose.AutoDisposeConverter
@@ -26,9 +25,4 @@ object RxAutoDispose {
   @JvmStatic
   fun <T> autoDisposable(lifecycleOwner: LifecycleOwner): AutoDisposeConverter<T> =
     AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(lifecycleOwner))
-
-  fun <T> disposeOnDestroy(lifecycleOwner: LifecycleOwner): AutoDisposeConverter<T> =
-    AutoDispose.autoDisposable(
-      AndroidLifecycleScopeProvider.from(lifecycleOwner, Lifecycle.Event.ON_DESTROY)
-    )
 }

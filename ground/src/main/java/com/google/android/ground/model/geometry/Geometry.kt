@@ -19,8 +19,6 @@ import com.google.android.ground.ui.map.gms.GmsExt.center
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
 
 /** A common ancestor for all geometry types. */
 @Serializable
@@ -144,13 +142,3 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
  */
 private fun List<Coordinates>?.centerOrError(): Coordinates =
   this?.map { Point(it) }?.toBounds()?.center() ?: error("missing vertices")
-
-val geometrySerializer = Json {
-  SerializersModule {
-    polymorphic(Geometry::class, Point::class, Point.serializer())
-    polymorphic(Geometry::class, Polygon::class, Polygon.serializer())
-    polymorphic(Geometry::class, MultiPolygon::class, MultiPolygon.serializer())
-    polymorphic(Geometry::class, LineString::class, LineString.serializer())
-    polymorphic(Geometry::class, LinearRing::class, LinearRing.serializer())
-  }
-}
