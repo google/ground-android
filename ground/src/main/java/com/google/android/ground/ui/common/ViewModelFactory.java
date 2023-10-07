@@ -45,7 +45,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
    */
   @NonNull
   @Override
-  public <T extends ViewModel> T create(Class<T> modelClass) {
+  public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
     Provider<? extends ViewModel> creator = creators.get(modelClass);
     if (creator == null) {
       throw new IllegalArgumentException("Unknown model class " + modelClass);
