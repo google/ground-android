@@ -46,12 +46,16 @@ import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.toCoordinates
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
@@ -96,7 +100,7 @@ constructor(
 
   val location: StateFlow<Location?> =
     locationLock
-      .combine(locationManager.locationUpdates) { locationLock, latestLocation ->
+      .combine(getLocationUpdates()) { locationLock, latestLocation ->
         if (locationLock.getOrDefault(false)) {
           latestLocation
         } else {
@@ -197,16 +201,21 @@ constructor(
   /** Emits a stream of current camera position. */
   fun getCurrentCameraPosition(): Flow<CameraPosition> = currentCameraPosition.filterNotNull()
 
-  fun getLocationUpdates() = locationManager.locationUpdates
+  fun getLocationUpdates() = locationManager.locationUpdates.distinctUntilChanged()
 
   /**
    * Updates map camera when location changes. The first update pans and zooms the camera to the
    * appropriate zoom level and subsequent ones only pan the map.
    */
+  @OptIn(ExperimentalCoroutinesApi::class)
   private suspend fun updateCameraPositionOnLocationChange() {
-    getLocationUpdates()
-      .map { it.toCoordinates() }
-      .withIndex()
+    locationLock
+      .flatMapLatest { enabled ->
+        getLocationUpdates()
+          .map { it.toCoordinates() }
+          .filter { enabled.getOrDefault(false) }
+          .withIndex()
+      }
       .collect { (index, coordinates) ->
         if (index == 0) {
           panAndZoomCamera(coordinates)
