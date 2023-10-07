@@ -77,9 +77,6 @@
     <action
       android:id="@+id/action_home_screen_fragment_to_dataCollectionFragment"
       app:destination="@id/data_collection" />
-    <action
-      android:id="@+id/action_home_screen_fragment_to_locationOfInterestSelectorFragment"
-      app:destination="@id/locationOfInterestSelectorFragment" />
   </fragment>
   <fragment
     android:id="@+id/sync_status_fragment"
@@ -290,10 +287,6 @@
       android:name="shouldExitApp"
       app:argType="boolean" />
   </fragment>
-  <dialog
-    android:id="@+id/locationOfInterestSelectorFragment"
-    android:name="com.google.android.ground.ui.home.locationofinterestselector.LocationOfInterestSelectorFragment"
-    android:label="LocationOfInterestSelectorFragment" />
   <dialog
     android:id="@+id/mapTypeDialogFragment"
     android:name="com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragment"
