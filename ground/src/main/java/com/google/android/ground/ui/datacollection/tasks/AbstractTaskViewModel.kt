@@ -89,15 +89,6 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
       Optional.of(resources.getString(R.string.required_task))
     else Optional.empty()
 
-  fun taskLabel(): String =
-    StringBuilder(task.label)
-      .apply {
-        if (task.isRequired) {
-          append(" *")
-        }
-      }
-      .toString()
-
   fun setResponse(taskData: TaskData?) {
     taskDataSubject.onNext(Optional.ofNullable(taskData))
     taskDataFlow.value = taskData

@@ -17,7 +17,6 @@ package com.google.android.ground.ui.datacollection.tasks.text
 
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import com.google.android.ground.databinding.TextTaskFragBinding
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
@@ -28,7 +27,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint(AbstractTaskFragment::class)
 class TextTaskFragment : Hilt_TextTaskFragment<TextTaskViewModel>() {
 
-  override fun onCreateTaskView(inflater: LayoutInflater, container: ViewGroup?): TaskView =
+  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {

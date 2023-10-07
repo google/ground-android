@@ -19,7 +19,6 @@ package com.google.android.ground.domain.usecase
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.domain.usecases.survey.ReactivateLastSurveyUseCase
-import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.repository.SurveyRepository
 import com.sharedtest.FakeData.SURVEY
 import dagger.hilt.android.testing.BindValue
@@ -39,7 +38,6 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class ReactivateLastSurveyUseCaseTest : BaseHiltTest() {
   @Inject lateinit var reactivateLastSurvey: ReactivateLastSurveyUseCase
-  @Inject lateinit var localSurveyStore: LocalSurveyStore
   @Inject lateinit var surveyRepository: SurveyRepository
 
   @BindValue @Mock lateinit var activateSurvey: ActivateSurveyUseCase

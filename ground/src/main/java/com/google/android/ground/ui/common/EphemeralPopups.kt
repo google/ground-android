@@ -26,11 +26,7 @@ import javax.inject.Singleton
 @Singleton
 class EphemeralPopups @Inject constructor(private val context: Application) {
 
-  fun showSuccess(@StringRes messageId: Int) = showLong(messageId)
-
   fun showError(@StringRes messageId: Int) = showLong(messageId)
-
-  fun showFyi(@StringRes messageId: Int) = showLong(messageId)
 
   fun showError(message: String) = showLong(message)
 
