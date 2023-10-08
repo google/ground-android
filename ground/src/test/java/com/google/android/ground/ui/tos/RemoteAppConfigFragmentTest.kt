@@ -23,7 +23,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
-import com.google.android.ground.repository.TermsOfServiceRepository
+import com.google.android.ground.repository.RemoteAppConfigRepository
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.common.truth.Truth.assertThat
@@ -36,10 +36,10 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class TermsOfServiceFragmentTest : BaseHiltTest() {
+class RemoteAppConfigFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var navigator: Navigator
-  @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepository
+  @Inject lateinit var remoteAppConfigRepository: RemoteAppConfigRepository
 
   @Test
   fun termsOfServiceText_shouldBeDisplayed() {
@@ -72,13 +72,13 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
   fun agreeButton_whenPressed_shouldUpdatePrefAndNavigate() {
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf())
 
-    assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isFalse()
+    assertThat(remoteAppConfigRepository.isTermsOfServiceAccepted).isFalse()
     val navDirectionsTestObserver = navigator.getNavigateRequests().test()
 
     onView(withId(R.id.agreeCheckBox)).perform(click())
     onView(withId(R.id.agreeButton)).perform(click())
 
-    assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
+    assertThat(remoteAppConfigRepository.isTermsOfServiceAccepted).isTrue()
     navDirectionsTestObserver.assertValue(
       SurveySelectorFragmentDirections.showSurveySelectorScreen(true)
     )

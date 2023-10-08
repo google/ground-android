@@ -15,8 +15,8 @@
  */
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.TermsOfService
-import com.google.android.ground.persistence.remote.firebase.schema.TermsOfServiceConverter.toTerms
+import com.google.android.ground.model.RemoteAppConfig
+import com.google.android.ground.persistence.remote.firebase.schema.RemoteAppConfigConverter.toRemoteAppConfig
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
 import org.junit.Before
@@ -27,31 +27,31 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
-class TermsOfServiceLocalDataStoreConverterTest {
+class RemoteAppConfigLocalDataStoreConverterTest {
   @Mock private lateinit var termsOfServiceDocumentSnapshot: DocumentSnapshot
 
-  private lateinit var termsOfService: TermsOfService
+  private lateinit var remoteAppConfig: RemoteAppConfig
 
   @Before
   fun setup() {
-    termsOfService = TermsOfService(TEST_TERMS_ID, TEST_TERMS)
+    remoteAppConfig = RemoteAppConfig(TEST_TERMS_ID, TEST_TERMS)
   }
 
   @Test
   fun testTermsOfService() {
-    mockTermsOfServiceDocumentSnapshot(TermsOfServiceDocument(TEST_TERMS))
-    assertThat(toTermsOfService()).isEqualTo(termsOfService)
+    mockTermsOfServiceDocumentSnapshot(RemoteAppConfigDocument(TEST_TERMS))
+    assertThat(toTermsOfService()).isEqualTo(remoteAppConfig)
   }
 
   /** Mock submission document snapshot to return the specified id and object representation. */
-  private fun mockTermsOfServiceDocumentSnapshot(doc: TermsOfServiceDocument) {
+  private fun mockTermsOfServiceDocumentSnapshot(doc: RemoteAppConfigDocument) {
     whenever(termsOfServiceDocumentSnapshot.id).thenReturn(TEST_TERMS_ID)
-    whenever(termsOfServiceDocumentSnapshot.toObject(TermsOfServiceDocument::class.java))
+    whenever(termsOfServiceDocumentSnapshot.toObject(RemoteAppConfigDocument::class.java))
       .thenReturn(doc)
     whenever(termsOfServiceDocumentSnapshot.exists()).thenReturn(true)
   }
 
-  private fun toTermsOfService(): TermsOfService? = toTerms(termsOfServiceDocumentSnapshot)
+  private fun toTermsOfService(): RemoteAppConfig? = toRemoteAppConfig(termsOfServiceDocumentSnapshot)
 
   companion object {
     private const val TEST_TERMS = "TERMS"

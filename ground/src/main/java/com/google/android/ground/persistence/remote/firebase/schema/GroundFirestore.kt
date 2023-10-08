@@ -22,8 +22,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 class GroundFirestore(db: FirebaseFirestore) : FluentFirestore(db) {
   fun surveys(): SurveysCollectionReference = SurveysCollectionReference(db().collection(SURVEYS))
 
-  fun termsOfService(): TermsOfServiceCollectionReference =
-    TermsOfServiceCollectionReference(db().collection(CONFIG))
+  fun config(): RemoteAppConfigReference =
+    RemoteAppConfigReference(db().collection(CONFIG))
 
   companion object {
     private const val SURVEYS = "surveys"

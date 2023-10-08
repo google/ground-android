@@ -16,8 +16,8 @@
 package com.google.android.ground.persistence.remote.firebase
 
 import com.google.android.ground.coroutines.IoDispatcher
+import com.google.android.ground.model.RemoteAppConfig
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
@@ -61,8 +61,8 @@ internal constructor(
         .submissionsByLocationOfInterestId(locationOfInterest)
     }
 
-  override suspend fun loadTermsOfService(): TermsOfService? =
-    withContext(ioDispatcher) { db().termsOfService().terms().get() }
+  override suspend fun loadRemoteAppConfig(): RemoteAppConfig =
+    withContext(ioDispatcher) { db().config().config().get() ?: RemoteAppConfig() }
 
   override suspend fun loadSurveySummaries(user: User): List<Survey> =
     withContext(ioDispatcher) { db().surveys().getReadable(user) }

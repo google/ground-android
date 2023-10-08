@@ -16,7 +16,7 @@
 package com.google.android.ground.ui.tos
 
 import androidx.lifecycle.MutableLiveData
-import com.google.android.ground.repository.TermsOfServiceRepository
+import com.google.android.ground.repository.RemoteAppConfigRepository
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
@@ -27,14 +27,14 @@ class TermsOfServiceViewModel
 @Inject
 constructor(
   private val navigator: Navigator,
-  private val termsOfServiceRepository: TermsOfServiceRepository
+  private val remoteAppConfigRepository: RemoteAppConfigRepository
 ) : AbstractViewModel() {
   // TODO(#1478): Convert to MutableLiveData.
   var termsOfServiceText = ""
   val agreeCheckboxChecked: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
 
   fun onButtonClicked() {
-    termsOfServiceRepository.isTermsOfServiceAccepted = true
+    remoteAppConfigRepository.isTermsOfServiceAccepted = true
     navigator.navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
   }
 }

@@ -13,7 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model
 
-/** If present in remote db, terms of service must be accepted by user after sign in. */
-data class TermsOfService(val id: String, val text: String?)
+package com.google.android.ground.persistence.remote.firebase.schema
+
+import com.google.android.ground.persistence.remote.firebase.base.FluentCollectionReference
+import com.google.firebase.firestore.CollectionReference
+
+private const val COLLECTION_NAME = "config"
+
+class RemoteAppConfigReference internal constructor(ref: CollectionReference) :
+  FluentCollectionReference(ref) {
+
+  fun config() = RemoteAppConfigDocumentReference(reference().document(COLLECTION_NAME))
+}

@@ -16,13 +16,6 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.ground.persistence.remote.firebase.base.FluentCollectionReference
-import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.IgnoreExtraProperties
 
-private const val TOS = "tos"
-
-class TermsOfServiceCollectionReference internal constructor(ref: CollectionReference) :
-  FluentCollectionReference(ref) {
-
-  fun terms() = TermsOfServiceDocumentReference(reference().document(TOS))
-}
+@IgnoreExtraProperties data class RemoteAppConfigDocument constructor(val termsOfServiceText: String? = null)

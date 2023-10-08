@@ -15,8 +15,8 @@
  */
 package com.google.android.ground.persistence.remote
 
+import com.google.android.ground.model.RemoteAppConfig
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
@@ -36,10 +36,10 @@ interface RemoteDataStore {
   suspend fun loadSurvey(surveyId: String): Survey?
 
   /**
-   * Loads the survey terms from the remote data store. Returns `null` if the survey
-   * * is not found. Throws an error if the remote data store is not available.
+   * Loads the app config from the remote data store, or default settings if no remote config is
+   * found. Throws an error if the remote data store is not available.
    */
-  suspend fun loadTermsOfService(): TermsOfService?
+  suspend fun loadRemoteAppConfig(): RemoteAppConfig
 
   /** Returns all LOIs in the specified survey. Main-safe. */
   suspend fun loadLocationsOfInterest(survey: Survey): List<LocationOfInterest>

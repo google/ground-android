@@ -16,18 +16,15 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.TermsOfService
-import com.google.android.ground.persistence.remote.firebase.base.FluentDocumentReference
-import com.google.firebase.firestore.DocumentReference
-import kotlinx.coroutines.tasks.await
+import com.google.android.ground.model.RemoteAppConfig
+import com.google.firebase.firestore.DocumentSnapshot
 
-class TermsOfServiceDocumentReference internal constructor(ref: DocumentReference) :
-  FluentDocumentReference(ref) {
+/** Converts between Firestore documents and [RemoteAppConfig] instances. */
+object RemoteAppConfigConverter {
 
-  fun terms() = TermsOfServiceDocumentReference(reference())
-
-  suspend fun get(): TermsOfService? {
-    val documentSnapshot = reference().get().await()
-    return TermsOfServiceConverter.toTerms(documentSnapshot)
+  fun toRemoteAppConfig(doc: DocumentSnapshot): RemoteAppConfig? {
+    if (!doc.exists()) return null
+    val pd = doc.toObject(RemoteAppConfigDocument::class.java)
+    return RemoteAppConfig(pd?.termsOfServiceText ?: "")
   }
 }

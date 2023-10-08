@@ -30,41 +30,41 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class TermsOfServiceRepositoryTest : BaseHiltTest() {
+class RemoteAppConfigRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
-  @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepository
+  @Inject lateinit var remoteAppConfigRepository: RemoteAppConfigRepository
 
   @Test
   fun testGetTermsOfService() = runBlocking {
-    fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
-    assertThat(termsOfServiceRepository.getTermsOfService()).isEqualTo(FakeData.TERMS_OF_SERVICE)
+    fakeRemoteDataStore.remoteAppConfig = Result.success(FakeData.TERMS_OF_SERVICE)
+    assertThat(remoteAppConfigRepository.getRemoteAppConfig()).isEqualTo(FakeData.TERMS_OF_SERVICE)
   }
 
   @Test
   fun testGetTermsOfService_whenMissing_returnsNull() = runBlocking {
-    assertThat(termsOfServiceRepository.getTermsOfService()).isNull()
+    assertThat(remoteAppConfigRepository.getRemoteAppConfig()).isNull()
   }
 
   @Test
   fun testGetTermsOfService_whenRequestFails_throwsError() {
-    fakeRemoteDataStore.termsOfService =
+    fakeRemoteDataStore.remoteAppConfig =
       Result.failure(
         FirebaseFirestoreException("user error", FirebaseFirestoreException.Code.ABORTED)
       )
     assertThrows(FirebaseFirestoreException::class.java) {
-      runBlocking { termsOfServiceRepository.getTermsOfService() }
+      runBlocking { remoteAppConfigRepository.getRemoteAppConfig() }
     }
   }
 
   @Test
   fun testTermsOfServiceAccepted() {
-    termsOfServiceRepository.isTermsOfServiceAccepted = true
-    assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
+    remoteAppConfigRepository.isTermsOfServiceAccepted = true
+    assertThat(remoteAppConfigRepository.isTermsOfServiceAccepted).isTrue()
   }
 
   @Test
   fun testTermsOfServiceNotAccepted() {
-    assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isFalse()
+    assertThat(remoteAppConfigRepository.isTermsOfServiceAccepted).isFalse()
   }
 }

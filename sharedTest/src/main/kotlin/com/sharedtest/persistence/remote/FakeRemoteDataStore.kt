@@ -16,7 +16,7 @@
 package com.sharedtest.persistence.remote
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.TermsOfService
+import com.google.android.ground.model.RemoteAppConfig
 import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
@@ -33,7 +33,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   var userProfileRefreshCount = 0
     private set
 
-  var termsOfService: Result<TermsOfService?>? = null
+  var remoteAppConfig: Result<RemoteAppConfig?>? = null
   var applyMutationError: Error? = null
 
   private val subscribedSurveyIds = mutableSetOf<String>()
@@ -42,7 +42,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override suspend fun loadSurvey(surveyId: String): Survey? = onLoadSurvey.invoke(surveyId)
 
-  override suspend fun loadTermsOfService(): TermsOfService? = termsOfService?.getOrThrow()
+  override suspend fun loadRemoteAppConfig(): RemoteAppConfig? = remoteAppConfig?.getOrThrow()
 
   override suspend fun loadLocationsOfInterest(survey: Survey) = lois
 

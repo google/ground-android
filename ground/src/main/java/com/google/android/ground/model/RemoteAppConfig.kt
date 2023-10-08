@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model
 
-package com.google.android.ground.persistence.remote.firebase.schema
-
-import com.google.firebase.firestore.IgnoreExtraProperties
-
-@IgnoreExtraProperties data class TermsOfServiceDocument constructor(val text: String? = null)
+data class RemoteAppConfig(
+  /** If present in remote db, terms of service must be accepted by user after sign in. */
+  val termsOfServiceText: String = ""
+)

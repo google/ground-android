@@ -23,8 +23,8 @@ import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.survey.ReactivateLastSurveyUseCase
 import com.google.android.ground.persistence.local.room.LocalDatabase
+import com.google.android.ground.repository.RemoteAppConfigRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.auth.AuthenticationManager
@@ -52,7 +52,7 @@ constructor(
   private val localDatabase: LocalDatabase,
   private val surveyRepository: SurveyRepository,
   private val userRepository: UserRepository,
-  private val termsOfServiceRepository: TermsOfServiceRepository,
+  private val remoteAppConfigRepository: RemoteAppConfigRepository,
   private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
   @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
@@ -120,14 +120,19 @@ constructor(
   private suspend fun onUserSignedIn(): NavDirections =
     try {
       userRepository.saveUserDetails()
-      val tos = termsOfServiceRepository.getTermsOfService()
-      if (tos == null || termsOfServiceRepository.isTermsOfServiceAccepted) {
+      val config = remoteAppConfigRepository.getRemoteAppConfig()
+      if (
+        config.termsOfServiceText.isEmpty() || remoteAppConfigRepository.isTermsOfServiceAccepted
+      ) {
         reactivateLastSurvey()
         getDirectionAfterSignIn()
       } else {
-        SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(tos.text)
+        SignInFragmentDirections.showTermsOfService()
+          .setTermsOfServiceText(config.termsOfServiceText)
       }
     } catch (e: Throwable) {
+      // TODO: Close #1691.
+      // This also captures the case when the remote config can't be fetched.
       onUserSignInError(e)
     }
 

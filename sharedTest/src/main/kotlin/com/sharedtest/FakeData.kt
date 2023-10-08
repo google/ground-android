@@ -17,7 +17,7 @@ package com.sharedtest
 
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.TermsOfService
+import com.google.android.ground.model.RemoteAppConfig
 import com.google.android.ground.model.User
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.job.Job
@@ -36,8 +36,8 @@ import com.google.android.ground.ui.map.gms.FeatureClusterItem
  */
 object FakeData {
   // TODO: Replace constants with calls to newFoo() methods.
-  val TERMS_OF_SERVICE: TermsOfService =
-    TermsOfService("TERMS_OF_SERVICE", "Fake Terms of Service text")
+  val TERMS_OF_SERVICE: RemoteAppConfig =
+    RemoteAppConfig("Fake Terms of Service text")
 
   val JOB = Job(name = "Job", id = "JOB", style = Style("#000"))
 
