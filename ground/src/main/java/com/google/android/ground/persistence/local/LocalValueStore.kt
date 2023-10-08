@@ -47,6 +47,15 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
 
   val offlineImageryEnabledFlow: StateFlow<Boolean> = _offlineImageryEnabled.asStateFlow()
 
+  // TODO: Store tile sources in local db instead of in value store.
+  var defaultTileSourceUrl: String
+    get() = allowThreadDiskReads {
+      preferences.getString(DEFAULT_TILE_SOURCE_URL_KEY, "").orEmpty()
+    }
+    set(id) = allowThreadDiskWrites {
+      preferences.edit().putString(DEFAULT_TILE_SOURCE_URL_KEY, id).apply()
+    }
+
   /**
    * Id of the last survey successfully activated by the user. This value is only updated after the
    * survey activation process is complete.
@@ -131,5 +140,6 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     const val TOS_ACCEPTED = "tos_accepted"
     const val LOCATION_LOCK_ENABLED = "location_lock_enabled"
     const val OFFLINE_MAP_IMAGERY = "offline_map_imagery"
+    const val DEFAULT_TILE_SOURCE_URL_KEY = "tile_source_url"
   }
 }

@@ -41,6 +41,9 @@ constructor(
   suspend fun getRemoteAppConfig(): RemoteAppConfig =
     withTimeout(LOAD_REMOTE_APP_CONFIG_TIMEOUT_MILLIS) {
       Timber.d("Loading remote app config...")
-      remoteDataStore.loadRemoteAppConfig()
+      val config = remoteDataStore.loadRemoteAppConfig()
+      // TODO: Store tile sources in local db instead of in value store.
+      config.tileSources.firstOrNull()?.let { localValueStore.defaultTileSourceUrl = it.url }
+      config
     }
 }
