@@ -17,12 +17,10 @@
 package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.JobConverter.toJob
 import com.google.firebase.firestore.DocumentSnapshot
-import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
 
 /** Converts between Firestore documents and [Survey] instances. */
@@ -40,24 +38,13 @@ internal object SurveyConverter {
       pd.jobs.forEach { (id: String, obj: JobNestedObject) -> jobMap[id] = toJob(id, obj) }
     }
 
-    val tileSources = mutableListOf<TileSource>()
-    if (pd.tileSources != null) {
-      convertTileSources(pd, tileSources)
-    }
-
     return Survey(
       doc.id,
       pd.title.orEmpty(),
       pd.description.orEmpty(),
       jobMap.toPersistentMap(),
-      tileSources.toPersistentList(),
+      pd.tileSources.toTileSources(),
       pd.acl ?: mapOf()
     )
-  }
-
-  private fun convertTileSources(pd: SurveyDocument, builder: MutableList<TileSource>) {
-    pd.tileSources
-      ?.mapNotNull { it.url }
-      ?.forEach { url -> builder.add(TileSource(url, TileSource.Type.MOG_COLLECTION)) }
   }
 }

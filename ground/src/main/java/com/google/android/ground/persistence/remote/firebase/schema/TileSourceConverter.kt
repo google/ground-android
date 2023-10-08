@@ -1,5 +1,9 @@
+package com.google.android.ground.persistence.remote.firebase.schema
+
+import com.google.android.ground.model.imagery.TileSource
+
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +18,5 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.persistence.remote.firebase.schema
-
-import com.google.firebase.firestore.IgnoreExtraProperties
-
-@IgnoreExtraProperties
-data class RemoteAppConfigDocument
-constructor(
-  val termsOfServiceText: String? = null,
-  val tileSources: List<TileSourceNestedObject>? = null
-)
+fun List<TileSourceNestedObject>?.toTileSources() =
+  this?.mapNotNull { it.url }?.map { TileSource(it, TileSource.Type.MOG_COLLECTION) } ?: listOf()

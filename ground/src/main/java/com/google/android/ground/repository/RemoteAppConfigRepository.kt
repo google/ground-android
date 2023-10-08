@@ -19,10 +19,9 @@ package com.google.android.ground.repository
 import com.google.android.ground.model.RemoteAppConfig
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
-import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 
 private const val LOAD_REMOTE_APP_CONFIG_TIMEOUT_MILLIS: Long = 30 * 1000

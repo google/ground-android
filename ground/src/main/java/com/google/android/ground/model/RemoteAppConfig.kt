@@ -15,7 +15,10 @@
  */
 package com.google.android.ground.model
 
+import com.google.android.ground.model.imagery.TileSource
+
 data class RemoteAppConfig(
   /** If present in remote db, terms of service must be accepted by user after sign in. */
-  val termsOfServiceText: String = ""
-)
+  val termsOfServiceText: String = "",
+  val tileSources: List<TileSource> = listOf()
+  )

@@ -25,6 +25,6 @@ object RemoteAppConfigConverter {
   fun toRemoteAppConfig(doc: DocumentSnapshot): RemoteAppConfig? {
     if (!doc.exists()) return null
     val pd = doc.toObject(RemoteAppConfigDocument::class.java)
-    return RemoteAppConfig(pd?.termsOfServiceText ?: "")
+    return RemoteAppConfig(pd?.termsOfServiceText ?: "", pd?.tileSources.toTileSources())
   }
 }
