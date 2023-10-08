@@ -18,6 +18,7 @@ package com.google.android.ground.repository
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
@@ -69,7 +70,17 @@ constructor(
   var activeSurvey: Survey?
     get() = _activeSurvey.value
     set(value) {
-      _activeSurvey.value = value
+      // Hack in default offline tile sources.
+      // TODO: Refactor tile source resolution into separate repo.
+      val defaultTileSourceUrl = localValueStore.defaultTileSourceUrl
+      if (value != null && value.tileSources.isEmpty() && defaultTileSourceUrl != null) {
+        _activeSurvey.value =
+          value.copy(
+            tileSources = listOf(TileSource(defaultTileSourceUrl, TileSource.Type.MOG_COLLECTION))
+          )
+      } else {
+        _activeSurvey.value = value
+      }
       lastActiveSurveyId = value?.id ?: ""
     }
 

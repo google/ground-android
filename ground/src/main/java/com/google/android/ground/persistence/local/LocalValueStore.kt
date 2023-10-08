@@ -48,9 +48,9 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
   val offlineImageryEnabledFlow: StateFlow<Boolean> = _offlineImageryEnabled.asStateFlow()
 
   // TODO: Store tile sources in local db instead of in value store.
-  var defaultTileSourceUrl: String
+  var defaultTileSourceUrl: String?
     get() = allowThreadDiskReads {
-      preferences.getString(DEFAULT_TILE_SOURCE_URL_KEY, "").orEmpty()
+      preferences.getString(DEFAULT_TILE_SOURCE_URL_KEY, null)
     }
     set(id) = allowThreadDiskWrites {
       preferences.edit().putString(DEFAULT_TILE_SOURCE_URL_KEY, id).apply()
