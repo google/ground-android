@@ -27,6 +27,8 @@
     <item name="android:windowTranslucentStatus">true</item>
     <item name="android:windowTranslucentNavigation">true</item>
     <item name="fontFamily">@font/text_500</item>
+    <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
+    <item name="toolbarNavigationButtonStyle">@style/Widget.App.Toolbar.Button.Navigation</item>
   </style>
 
   <style name="AppTheme.Launcher">
@@ -79,6 +81,7 @@
   <style name="ToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
     <item name="android:textColor">?attr/colorOnSurface</item>
     <item name="fontFamily">@font/display_700</item>
+    <item name="android:layout_gravity">center</item>
     <item name="android:textSize">22sp</item>
   </style>
 
@@ -219,14 +222,11 @@
 
   <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
     <item name="fontFamily">@font/text_700</item>
+    <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 
   <style name="TextAppearance.App.TitleMedium.OnSurfaceContainer">
     <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
-  </style>
-
-  <style name="TextAppearance.App.TitleMedium.OnSurface">
-    <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 
   <style name="TextAppearance.App.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
@@ -247,10 +247,22 @@
 
   <style name="TextAppearance.App.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
     <item name="fontFamily">@font/text_500</item>
+    <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 
-  <style name="TextAppearance.App.BodyMedium.OnSurface">
+  <style name="TextAppearance.App.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+    <item name="fontFamily">@font/text_500</item>
     <item name="android:textColor">?attr/colorOnSurface</item>
+  </style>
+
+  <style name="Widget.App.Toolbar" parent="Widget.Material3.Toolbar">
+    <item name="background">?attr/colorSurfaceContainer</item>
+    <item name="android:elevation">@dimen/toolbar_elevation</item>
+    <item name="titleCentered">true</item>
+  </style>
+
+  <style name="Widget.App.Toolbar.Button.Navigation" parent="Widget.AppCompat.Toolbar.Button.Navigation">
+    <item name="tint">?attr/colorOnSurface</item>
   </style>
 
   <style name="Widget.App.Button.IconButton" parent="Widget.Material3.Button.IconButton">

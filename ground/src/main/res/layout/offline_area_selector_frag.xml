@@ -42,6 +42,7 @@
         android:layout_height="wrap_content"
         android:elevation="@dimen/toolbar_elevation"
         android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorSurfaceContainer"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
@@ -156,7 +157,7 @@
         android:id="@+id/button_buttons"
         android:layout_width="match_parent"
         android:layout_height="90dp"
-        android:background="@color/md_theme_background"
+        android:background="?attr/colorSurfaceContainer"
         android:gravity="top"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent">
