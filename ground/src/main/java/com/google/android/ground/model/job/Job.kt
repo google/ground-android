@@ -39,7 +39,7 @@ data class Job(
 fun Job.getDefaultColor(): Int =
   try {
     Color.parseColor(style?.color ?: "")
-  } catch (e: IllegalArgumentException) {
+  } catch (e: Exception) {
     Timber.w(e, "Invalid or missing color ${style?.color} in job $id")
     0
   }
