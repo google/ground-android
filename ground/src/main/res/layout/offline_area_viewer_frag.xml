@@ -85,7 +85,7 @@
           tools:text="Area name, Country" />
         <TextView
           android:id="@+id/offline_area_size_on_device"
-          style="@style/TextAppearance.App.BodyMedium.OnSurface"
+          style="@style/TextAppearance.App.BodyMedium"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginTop="12dp"

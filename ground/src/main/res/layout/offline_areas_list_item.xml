@@ -15,27 +15,62 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  android:layout_width="match_parent"
-  android:layout_height="wrap_content">
+  xmlns:tools="http://schemas.android.com/tools">
+  <data>
+    <variable
+      name="viewModel"
+      type="com.google.android.ground.ui.offlineareas.OfflineAreaListItemViewModel" />
+  </data>
 
-  <TextView
-    android:id="@+id/offline_area_name"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_margin="@dimen/fab_margin"
-    android:drawablePadding="16dp"
-    android:textColor="?attr/colorOnSurface"
-    android:textSize="16sp"
-    app:drawableLeftCompat="@drawable/ic_edit_black"
-    app:drawableStartCompat="@android:drawable/ic_menu_mapmode"
-    app:drawableTint="?attr/colorOnSurfaceVariant" />
-  <View
-    android:id="@+id/divider"
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
-    android:layout_height="1dp"
-    android:background="?android:attr/listDivider" />
+    android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginBottom="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:onClick="@{() -> viewModel.onClick()}">
 
-</FrameLayout>
+    <ImageView
+      android:id="@+id/offline_area_list_item_icon"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:alpha="1.0"
+      app:alpha="1.0"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      android:contentDescription="@string/offline_area_list_item_icon"
+      android:src="@drawable/ic_offline_pin"
+      app:srcCompat="@drawable/ic_offline_pin"
+      app:tint="?attr/colorPrimary" />
+
+    <TextView
+      android:id="@+id/offline_area_list_item_name"
+      style="@style/TextAppearance.App.BodyLarge"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="16dp"
+      android:layout_marginEnd="16dp"
+      android:text="@{viewModel.areaName}"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintLeft_toRightOf="@id/offline_area_list_item_icon"
+      tools:text="Region name, Country" />
+    <TextView
+      android:id="@+id/offline_area_list_item_size"
+      style="@style/TextAppearance.App.BodyMedium"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="4dp"
+      android:text="@{@string/offline_area_list_item_size_on_disk_mb(viewModel.sizeOnDisk)}"
+      android:textColor="?attr/colorOnSurfaceVariant"
+      app:layout_constraintLeft_toLeftOf="@id/offline_area_list_item_name"
+      app:layout_constraintTop_toBottomOf="@id/offline_area_list_item_name"
+      tools:text="12 MB" />
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
