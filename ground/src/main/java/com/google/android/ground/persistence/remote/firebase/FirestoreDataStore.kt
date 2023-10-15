@@ -27,6 +27,7 @@ import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.functions.FirebaseFunctions
+import com.google.firebase.functions.FirebaseFunctionsException
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
 import javax.inject.Inject
@@ -77,7 +78,11 @@ internal constructor(
 
   /** Calls Cloud Function to refresh the current user's profile info in the remote database. */
   override suspend fun refreshUserProfile() {
-    firebaseFunctions.getHttpsCallable(PROFILE_REFRESH_CLOUD_FUNCTION_NAME).call().await()
+    try {
+      firebaseFunctions.getHttpsCallable(PROFILE_REFRESH_CLOUD_FUNCTION_NAME).call().await()
+    } catch (e: FirebaseFunctionsException) {
+      Timber.w(e, "Failed to refresh user data")
+    }
   }
 
   override suspend fun applyMutations(mutations: List<Mutation>, user: User) {

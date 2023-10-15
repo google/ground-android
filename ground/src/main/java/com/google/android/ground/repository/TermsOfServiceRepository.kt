@@ -19,6 +19,7 @@ package com.google.android.ground.repository
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.withTimeoutOrNull
@@ -40,6 +41,14 @@ constructor(
     // TODO(#1691): Maybe parse the exception and display to the user.
     withTimeoutOrNull(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS) {
       Timber.d("Loading Terms of Service")
-      remoteDataStore.loadTermsOfService()
+      try {
+        remoteDataStore.loadTermsOfService()
+      } catch (e: FirebaseFirestoreException) {
+        if (e.code == FirebaseFirestoreException.Code.UNAVAILABLE) {
+          Timber.w(e, "Service unavailable")
+          return@withTimeoutOrNull null
+        }
+        throw e
+      }
     }
 }
