@@ -58,6 +58,16 @@ class TermsOfServiceRepositoryTest : BaseHiltTest() {
   }
 
   @Test
+  fun testGetTermsOfService_whenServiceUnavailable_returnsNull() = runBlocking {
+    fakeRemoteDataStore.termsOfService =
+      Result.failure(
+        FirebaseFirestoreException("device offline", FirebaseFirestoreException.Code.UNAVAILABLE)
+      )
+
+    assertThat(termsOfServiceRepository.getTermsOfService()).isNull()
+  }
+
+  @Test
   fun testTermsOfServiceAccepted() {
     termsOfServiceRepository.isTermsOfServiceAccepted = true
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
