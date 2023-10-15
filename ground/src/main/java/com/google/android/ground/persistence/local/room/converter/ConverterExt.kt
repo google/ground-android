@@ -151,7 +151,8 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       caption = caption,
       geometry = geometry.getGeometry(),
       submissionCount = submissionCount,
-      job = survey.getJob(jobId = jobId)
+      job =
+        survey.getJob(jobId = jobId)
           ?: throw LocalDataConsistencyException(
             "Unknown jobId ${this.jobId} in location of interest ${this.id}"
           )

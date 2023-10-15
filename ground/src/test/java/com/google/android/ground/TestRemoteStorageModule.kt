@@ -37,11 +37,13 @@ abstract class TestRemoteStorageModule {
   @Binds
   @Singleton
   abstract fun bindRemoteDataStore(remoteDataStore: FakeRemoteDataStore): RemoteDataStore
+
   @Binds
   @Singleton
   abstract fun bindRemoteStorageManager(
     remoteStorageManager: FakeRemoteStorageManager
   ): RemoteStorageManager
+
   @Binds
   @Singleton
   abstract fun offlineUuidGenerator(uuidGenerator: FakeUuidGenerator): OfflineUuidGenerator

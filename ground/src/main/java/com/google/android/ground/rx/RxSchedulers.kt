@@ -22,5 +22,6 @@ import javax.inject.Inject
 
 class RxSchedulers @Inject constructor() : Schedulers {
   override fun io(): Scheduler = RxSchedulers.io()
+
   override fun ui(): Scheduler = AndroidSchedulers.mainThread()
 }

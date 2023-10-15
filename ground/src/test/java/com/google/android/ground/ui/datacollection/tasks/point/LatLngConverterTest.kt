@@ -37,11 +37,13 @@ class LatLngConverterTest {
     assertThat(formatCoordinates(Coordinates(-10.555, 10.555)))
       .isEqualTo("10°33'18\" S 10°33'18\" E")
   }
+
   @Test
   fun testProcessCoordinates_nw() {
     assertThat(formatCoordinates(Coordinates(10.555, -10.555)))
       .isEqualTo("10°33'18\" N 10°33'18\" W")
   }
+
   @Test
   fun testProcessCoordinates_sw() {
     assertThat(formatCoordinates(Coordinates(-10.555, -10.555)))

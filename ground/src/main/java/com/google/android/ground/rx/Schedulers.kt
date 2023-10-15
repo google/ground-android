@@ -19,5 +19,6 @@ import io.reactivex.Scheduler
 
 interface Schedulers {
   fun io(): Scheduler
+
   fun ui(): Scheduler
 }

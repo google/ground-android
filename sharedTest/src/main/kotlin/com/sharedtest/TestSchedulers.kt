@@ -29,6 +29,7 @@ import javax.inject.Inject
 class TestSchedulers @Inject internal constructor() : Schedulers {
 
   override fun io(): Scheduler = createCurrentThreadScheduler("Test I/O Scheduler")
+
   override fun ui(): Scheduler = createCurrentThreadScheduler("Test UI Scheduler")
 
   private fun createCurrentThreadScheduler(name: String): Scheduler {

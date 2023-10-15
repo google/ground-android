@@ -23,6 +23,8 @@ interface AuthenticationManager {
   val currentUser: User
 
   fun init()
+
   fun signIn()
+
   fun signOut()
 }

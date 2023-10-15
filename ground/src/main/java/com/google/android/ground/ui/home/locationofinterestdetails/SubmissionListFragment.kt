@@ -39,6 +39,7 @@ class SubmissionListFragment : Hilt_SubmissionListFragment() {
   private lateinit var locationOfInterestDetailsViewModel: LocationOfInterestDetailsViewModel
   private lateinit var submissionListAdapter: SubmissionListAdapter
   private lateinit var viewModel: SubmissionListViewModel
+
   override fun onCreate(savedInstanceState: Bundle?) {
     submissionListAdapter = SubmissionListAdapter(viewModelFactory)
     super.onCreate(savedInstanceState)

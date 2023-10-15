@@ -47,6 +47,7 @@ constructor(
   private val _locationUpdates = MutableSharedFlow<Location>()
   val locationUpdates: SharedFlow<Location>
     get() = _locationUpdates
+
   private val locationCallback = LocationSharedFlowCallback(_locationUpdates, externalScope)
 
   // TODO: Request updates on resume.

@@ -21,6 +21,7 @@ package com.google.android.ground.ui.map.gms.mog
 open class MogTilesRequest(val sourceUrl: String, val tiles: List<MogTileMetadata>) {
   val totalBytes: Int
     get() = tiles.sumOf { it.byteRange.count() }
+
   val byteRange: LongRange
     get() = LongRange(tiles.first().byteRange.first, tiles.last().byteRange.last)
 
