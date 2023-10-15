@@ -40,7 +40,6 @@ constructor(
 
     surveyRepository.activeSurvey =
       surveyRepository.getOfflineSurvey(surveyId)
-        ?: makeSurveyAvailableOffline(surveyId)
-        ?: error("Survey $surveyId not found in remote db")
+        ?: makeSurveyAvailableOffline(surveyId) ?: error("Survey $surveyId not found in remote db")
   }
 }

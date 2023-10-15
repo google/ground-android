@@ -82,7 +82,8 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   ): List<Submission> =
     submissionDao
       .findByLocationOfInterestId(locationOfInterest.id, jobId, EntityState.DEFAULT)
-      ?.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } } ?: listOf()
+      ?.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } }
+      ?: listOf()
 
   override suspend fun merge(model: Submission) {
     submissionMutationDao

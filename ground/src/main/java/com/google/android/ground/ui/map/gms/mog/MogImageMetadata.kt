@@ -87,7 +87,8 @@ data class MogImageMetadata(
         tiffTagToValue[TiffTag.ImageLength] as Int,
         (tiffTagToValue[TiffTag.JPEGTables] as? List<*>)
           ?.map { (it as Int).toByte() }
-          ?.toByteArray() ?: byteArrayOf(),
+          ?.toByteArray()
+          ?: byteArrayOf(),
         (tiffTagToValue[TiffTag.GdalNodata] as? String)?.toIntOrNull()
       )
   }
