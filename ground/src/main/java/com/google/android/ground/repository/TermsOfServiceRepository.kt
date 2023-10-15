@@ -37,18 +37,26 @@ constructor(
 
   var isTermsOfServiceAccepted: Boolean by localValueStore::isTermsOfServiceAccepted
 
-  suspend fun getTermsOfService(): TermsOfService? =
+  /**
+   * @return [TermsOfService] from remote data store. Otherwise null if the request times out or
+   * network is unavailable.
+   */
+  suspend fun getTermsOfService(): TermsOfService? {
     // TODO(#1691): Maybe parse the exception and display to the user.
+    try {
+      return fetchTermsOfService()
+    } catch (e: FirebaseFirestoreException) {
+      if (e.code == FirebaseFirestoreException.Code.UNAVAILABLE) {
+        Timber.w(e, "Service unavailable")
+        return null
+      }
+      throw e
+    }
+  }
+
+  private suspend fun fetchTermsOfService() =
     withTimeoutOrNull(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS) {
       Timber.d("Loading Terms of Service")
-      try {
-        remoteDataStore.loadTermsOfService()
-      } catch (e: FirebaseFirestoreException) {
-        if (e.code == FirebaseFirestoreException.Code.UNAVAILABLE) {
-          Timber.w(e, "Service unavailable")
-          return@withTimeoutOrNull null
-        }
-        throw e
-      }
+      remoteDataStore.loadTermsOfService()
     }
 }
