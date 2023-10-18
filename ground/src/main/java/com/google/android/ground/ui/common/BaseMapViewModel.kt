@@ -47,6 +47,7 @@ import com.google.android.ground.ui.map.gms.toCoordinates
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -221,6 +222,9 @@ constructor(
       .collect { (index, coordinates) ->
         if (index == 0) {
           panAndZoomCamera(coordinates)
+          // Set a small delay before emitting another value to allow previous zoom animation to
+          // finish. Otherwise, the map camera stops at some other zoom level.
+          delay(3000)
         } else {
           panCamera(coordinates)
         }
