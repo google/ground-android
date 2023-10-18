@@ -60,7 +60,11 @@ class CaptureLocationMapFragment(private val viewModel: CaptureLocationTaskViewM
 
   override fun onMapReady(map: MapFragment) {
     with(binding.basemap.locationLockBtn) {
-      performClick()
+      // Enable the location updates if not already enabled
+      if (!isEnabled) {
+        performClick()
+      }
+      // Make the button non-clickable to prevent user from manually disabling it
       isClickable = false
     }
   }
