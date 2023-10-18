@@ -59,10 +59,8 @@ class CaptureLocationMapFragment(private val viewModel: CaptureLocationTaskViewM
   }
 
   override fun onMapReady(map: MapFragment) {
-    with(binding.basemap.locationLockBtn) {
-      performClick()
-      isClickable = false
-    }
+    binding.basemap.locationLockBtn.isClickable = false
+    viewLifecycleOwner.lifecycleScope.launch { mapViewModel.enableLocationLockAndGetUpdates() }
   }
 
   companion object {
