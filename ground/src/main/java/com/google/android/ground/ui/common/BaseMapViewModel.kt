@@ -222,6 +222,9 @@ constructor(
       .collect { (index, coordinates) ->
         if (index == 0) {
           panAndZoomCamera(coordinates)
+          // TODO(#1889): Track the zoom level in a VM associated with the MapFragment and use it in
+          //  panCamera().
+
           // Set a small delay before emitting another value to allow previous zoom animation to
           // finish. Otherwise, the map camera stops at some other zoom level.
           delay(3000)
