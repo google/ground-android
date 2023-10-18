@@ -141,12 +141,7 @@ constructor(
       disableLocationLock()
     } else {
       try {
-        permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST)
-
-        enableLocationLock()
-
-        locationManager.requestLocationUpdates()
+        enableLocationLockAndGetUpdates()
       } catch (e: Exception) {
         when (e) {
           is PermissionDeniedException,
@@ -155,6 +150,13 @@ constructor(
         }
       }
     }
+  }
+
+  suspend fun enableLocationLockAndGetUpdates() {
+    permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST)
+    enableLocationLock()
+    locationManager.requestLocationUpdates()
   }
 
   private suspend fun handleRequestLocationUpdateFailed(e: Exception) {
