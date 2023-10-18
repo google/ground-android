@@ -19,7 +19,7 @@ package com.google.android.ground.repository
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.android.ground.system.NetworkManager
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.withTimeoutOrNull
@@ -31,6 +31,7 @@ private const val LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS: Long = 30 
 class TermsOfServiceRepository
 @Inject
 constructor(
+  private val networkManager: NetworkManager,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore
 ) {
@@ -43,20 +44,13 @@ constructor(
    */
   suspend fun getTermsOfService(): TermsOfService? {
     // TODO(#1691): Maybe parse the exception and display to the user.
-    try {
-      return fetchTermsOfService()
-    } catch (e: FirebaseFirestoreException) {
-      if (e.code == FirebaseFirestoreException.Code.UNAVAILABLE) {
-        Timber.w(e, "Service unavailable")
-        return null
-      }
-      throw e
+    if (!networkManager.isNetworkAvailable()) {
+      return null
     }
-  }
 
-  private suspend fun fetchTermsOfService() =
-    withTimeoutOrNull(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS) {
+    return withTimeoutOrNull(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS) {
       Timber.d("Loading Terms of Service")
       remoteDataStore.loadTermsOfService()
     }
+  }
 }

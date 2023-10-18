@@ -18,22 +18,26 @@ package com.google.android.ground.system
 import android.content.Context
 import android.net.ConnectivityManager
 import androidx.annotation.RequiresPermission
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.net.ConnectException
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /** Abstracts access to network state. */
-object NetworkManager {
+@Singleton
+class NetworkManager @Inject constructor(@ApplicationContext private val context: Context) {
 
   /** Returns true iff the device has internet connectivity, false otherwise. */
   @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
-  private fun isNetworkAvailable(context: Context): Boolean {
+  fun isNetworkAvailable(): Boolean {
     val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val networkInfo = cm.activeNetworkInfo
     return networkInfo?.isConnected ?: false
   }
 
   /** Throws an error if network isn't available. */
-  fun requireActiveNetwork(context: Context) {
-    if (!isNetworkAvailable(context)) {
+  fun requireActiveNetwork() {
+    if (!isNetworkAvailable()) {
       throw ConnectException()
     }
   }

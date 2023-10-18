@@ -25,9 +25,9 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.remote.RemoteDataStore
+import com.google.android.ground.system.NetworkManager
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.functions.FirebaseFunctions
-import com.google.firebase.functions.FirebaseFunctionsException
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
 import javax.inject.Inject
@@ -45,7 +45,8 @@ class FirestoreDataStore
 internal constructor(
   private val firebaseFunctions: FirebaseFunctions,
   private val groundFirestoreProvider: GroundFirestoreProvider,
-  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+  private val networkManager: NetworkManager
 ) : RemoteDataStore {
 
   private suspend fun db() = groundFirestoreProvider.get()
@@ -76,13 +77,16 @@ internal constructor(
     Firebase.messaging.subscribeToTopic(surveyId).await()
   }
 
-  /** Calls Cloud Function to refresh the current user's profile info in the remote database. */
+  /**
+   * Calls Cloud Function to refresh the current user's profile info in the remote database if
+   * network is available.
+   */
   override suspend fun refreshUserProfile() {
-    try {
-      firebaseFunctions.getHttpsCallable(PROFILE_REFRESH_CLOUD_FUNCTION_NAME).call().await()
-    } catch (e: FirebaseFunctionsException) {
-      Timber.w(e, "Failed to refresh user data")
+    if (!networkManager.isNetworkAvailable()) {
+      Timber.d("Skipped refreshing user profile as device is offline.")
+      return
     }
+    firebaseFunctions.getHttpsCallable(PROFILE_REFRESH_CLOUD_FUNCTION_NAME).call().await()
   }
 
   override suspend fun applyMutations(mutations: List<Mutation>, user: User) {

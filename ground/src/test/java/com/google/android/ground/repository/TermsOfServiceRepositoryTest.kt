@@ -16,65 +16,92 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.system.NetworkManager
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class TermsOfServiceRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-
   @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepository
+
+  @BindValue @Mock lateinit var mockNetworkManager: NetworkManager
 
   @Test
   fun testGetTermsOfService() = runBlocking {
+    whenever(mockNetworkManager.isNetworkAvailable()).thenReturn(true)
     fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
+
     assertThat(termsOfServiceRepository.getTermsOfService()).isEqualTo(FakeData.TERMS_OF_SERVICE)
   }
 
   @Test
   fun testGetTermsOfService_whenMissing_returnsNull() = runBlocking {
+    whenever(mockNetworkManager.isNetworkAvailable()).thenReturn(true)
+
     assertThat(termsOfServiceRepository.getTermsOfService()).isNull()
   }
 
   @Test
   fun testGetTermsOfService_whenRequestFails_throwsError() {
+    whenever(mockNetworkManager.isNetworkAvailable()).thenReturn(true)
     fakeRemoteDataStore.termsOfService =
       Result.failure(
         FirebaseFirestoreException("user error", FirebaseFirestoreException.Code.ABORTED)
       )
+
     assertThrows(FirebaseFirestoreException::class.java) {
       runBlocking { termsOfServiceRepository.getTermsOfService() }
     }
   }
 
   @Test
-  fun testGetTermsOfService_whenServiceUnavailable_returnsNull() = runBlocking {
+  fun testGetTermsOfService_whenOffline_returnsNull() = runBlocking {
+    whenever(mockNetworkManager.isNetworkAvailable()).thenReturn(false)
     fakeRemoteDataStore.termsOfService =
       Result.failure(
-        FirebaseFirestoreException("device offline", FirebaseFirestoreException.Code.UNAVAILABLE)
+        FirebaseFirestoreException("user error", FirebaseFirestoreException.Code.ABORTED)
       )
 
     assertThat(termsOfServiceRepository.getTermsOfService()).isNull()
   }
 
   @Test
+  fun testGetTermsOfService_whenServiceUnavailable_throwsError() {
+    whenever(mockNetworkManager.isNetworkAvailable()).thenReturn(true)
+    fakeRemoteDataStore.termsOfService =
+      Result.failure(
+        FirebaseFirestoreException("device offline", FirebaseFirestoreException.Code.UNAVAILABLE)
+      )
+
+    assertThrows(FirebaseFirestoreException::class.java) {
+      runBlocking { termsOfServiceRepository.getTermsOfService() }
+    }
+  }
+
+  @Test
   fun testTermsOfServiceAccepted() {
+    whenever(mockNetworkManager.isNetworkAvailable()).thenReturn(true)
     termsOfServiceRepository.isTermsOfServiceAccepted = true
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
   }
 
   @Test
   fun testTermsOfServiceNotAccepted() {
+    whenever(mockNetworkManager.isNetworkAvailable()).thenReturn(true)
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isFalse()
   }
 }

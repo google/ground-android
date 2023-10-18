@@ -16,7 +16,7 @@
 
 package com.google.android.ground.persistence.remote.firebase.base
 
-import com.google.android.ground.system.NetworkManager.requireActiveNetwork
+import com.google.android.ground.system.NetworkManager
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
@@ -44,7 +44,7 @@ protected constructor(
     query: Query,
     mappingFunction: Function<DocumentSnapshot, T>
   ): List<T> {
-    requireActiveNetwork(context)
+    NetworkManager(context).requireActiveNetwork()
     val querySnapshot = query.get().await()
     return querySnapshot.documents
       .filter { it.exists() }
