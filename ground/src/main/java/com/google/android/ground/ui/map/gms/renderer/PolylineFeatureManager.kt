@@ -26,6 +26,7 @@ import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.gms.POLYLINE_Z
 import com.google.android.ground.ui.map.gms.toLatLngList
 import com.google.android.ground.ui.util.BitmapUtil
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -75,6 +76,7 @@ constructor(@ApplicationContext context: Context, bitmapUtil: BitmapUtil) : Feat
       width = lineWidth * strokeScale
       color = style.color
       jointType = JointType.ROUND
+      zIndex = POLYLINE_Z
     }
 
     polylines.getOrPut(feature) { mutableListOf() }.add(polyline)
