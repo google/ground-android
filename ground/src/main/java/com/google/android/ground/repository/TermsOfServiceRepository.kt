@@ -44,7 +44,7 @@ constructor(
    */
   suspend fun getTermsOfService(): TermsOfService? {
     // TODO(#1691): Maybe parse the exception and display to the user.
-    if (!networkManager.isNetworkAvailable()) {
+    if (!networkManager.isNetworkConnected()) {
       return null
     }
 

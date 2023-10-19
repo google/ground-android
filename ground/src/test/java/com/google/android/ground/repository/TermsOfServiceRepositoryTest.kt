@@ -42,7 +42,7 @@ class TermsOfServiceRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testGetTermsOfService() = runBlocking {
-    whenever(mockNetworkManager.isNetworkAvailable()).thenReturn(true)
+    whenever(mockNetworkManager.isNetworkConnected()).thenReturn(true)
     fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
 
     assertThat(termsOfServiceRepository.getTermsOfService()).isEqualTo(FakeData.TERMS_OF_SERVICE)
@@ -50,14 +50,14 @@ class TermsOfServiceRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testGetTermsOfService_whenMissing_returnsNull() = runBlocking {
-    whenever(mockNetworkManager.isNetworkAvailable()).thenReturn(true)
+    whenever(mockNetworkManager.isNetworkConnected()).thenReturn(true)
 
     assertThat(termsOfServiceRepository.getTermsOfService()).isNull()
   }
 
   @Test
   fun testGetTermsOfService_whenRequestFails_throwsError() {
-    whenever(mockNetworkManager.isNetworkAvailable()).thenReturn(true)
+    whenever(mockNetworkManager.isNetworkConnected()).thenReturn(true)
     fakeRemoteDataStore.termsOfService =
       Result.failure(
         FirebaseFirestoreException("user error", FirebaseFirestoreException.Code.ABORTED)
@@ -70,7 +70,7 @@ class TermsOfServiceRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testGetTermsOfService_whenOffline_returnsNull() = runBlocking {
-    whenever(mockNetworkManager.isNetworkAvailable()).thenReturn(false)
+    whenever(mockNetworkManager.isNetworkConnected()).thenReturn(false)
     fakeRemoteDataStore.termsOfService =
       Result.failure(
         FirebaseFirestoreException("user error", FirebaseFirestoreException.Code.ABORTED)
@@ -81,7 +81,7 @@ class TermsOfServiceRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testGetTermsOfService_whenServiceUnavailable_throwsError() {
-    whenever(mockNetworkManager.isNetworkAvailable()).thenReturn(true)
+    whenever(mockNetworkManager.isNetworkConnected()).thenReturn(true)
     fakeRemoteDataStore.termsOfService =
       Result.failure(
         FirebaseFirestoreException("device offline", FirebaseFirestoreException.Code.UNAVAILABLE)
@@ -94,14 +94,12 @@ class TermsOfServiceRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testTermsOfServiceAccepted() {
-    whenever(mockNetworkManager.isNetworkAvailable()).thenReturn(true)
     termsOfServiceRepository.isTermsOfServiceAccepted = true
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
   }
 
   @Test
   fun testTermsOfServiceNotAccepted() {
-    whenever(mockNetworkManager.isNetworkAvailable()).thenReturn(true)
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isFalse()
   }
 }

@@ -44,7 +44,7 @@ protected constructor(
     query: Query,
     mappingFunction: Function<DocumentSnapshot, T>
   ): List<T> {
-    NetworkManager(context).requireActiveNetwork()
+    NetworkManager(context).requireNetworkConnection()
     val querySnapshot = query.get().await()
     return querySnapshot.documents
       .filter { it.exists() }

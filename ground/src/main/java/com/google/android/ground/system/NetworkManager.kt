@@ -29,15 +29,15 @@ class NetworkManager @Inject constructor(@ApplicationContext private val context
 
   /** Returns true iff the device has internet connectivity, false otherwise. */
   @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
-  fun isNetworkAvailable(): Boolean {
+  fun isNetworkConnected(): Boolean {
     val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val networkInfo = cm.activeNetworkInfo
     return networkInfo?.isConnected ?: false
   }
 
   /** Throws an error if network isn't available. */
-  fun requireActiveNetwork() {
-    if (!isNetworkAvailable()) {
+  fun requireNetworkConnection() {
+    if (!isNetworkConnected()) {
       throw ConnectException()
     }
   }
