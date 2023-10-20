@@ -20,11 +20,18 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
+  <data>
+    <import type="android.view.View" />
+    <variable
+      name="viewModel"
+      type="com.google.android.ground.ui.surveyselector.SurveySelectorViewModel" />
+  </data>
+
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:background="?attr/colorSurfaceContainer">
+    android:background="?attr/colorSurfaceContainer"
+    android:fitsSystemWindows="true">
 
     <com.google.android.ground.ui.common.TwoLineToolbar
       android:id="@+id/toolbar"
@@ -35,41 +42,74 @@
       app:layout_constraintTop_toTopOf="parent"
       app:title="@string/surveys" />
 
-    <TextView
-      android:id="@+id/title"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginStart="20dp"
-      android:layout_marginTop="16dp"
-      android:layout_marginEnd="20dp"
-      android:text="@string/select_survey_title"
-      style="@style/TextAppearance.App.TitleMedium.OnSurfaceContainer"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/toolbar" />
-
-    <TextView
-      android:id="@+id/help_text"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginStart="20dp"
-      android:layout_marginTop="4dp"
-      android:layout_marginEnd="20dp"
-      android:text="@string/survey_sync_hint"
-      style="@style/TextAppearance.App.BodySmall.OnSurfaceContainer"
-      app:layout_constraintStart_toStartOf="@id/title"
-      app:layout_constraintTop_toBottomOf="@id/title" />
-
-    <androidx.recyclerview.widget.RecyclerView
-      android:id="@+id/recycler_view"
+    <LinearLayout
+      android:id="@+id/container"
+      visible="@{viewModel.surveyAvailable}"
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:orientation="vertical"
-      app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/help_text"
-      tools:itemCount="3"
-      tools:listitem="@layout/survey_card_item" />
+      app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+      <TextView
+        android:id="@+id/title"
+        style="@style/TextAppearance.App.TitleMedium.OnSurfaceContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
+        android:text="@string/select_survey_title" />
+
+      <TextView
+        android:id="@+id/help_text"
+        style="@style/TextAppearance.App.BodySmall.OnSurfaceContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="20dp"
+        android:text="@string/survey_sync_hint" />
+
+      <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        tools:itemCount="3"
+        tools:listitem="@layout/survey_card_item" />
+    </LinearLayout>
+
+    <LinearLayout
+      android:id="@+id/emptyContainer"
+      visible="@{!viewModel.surveyAvailable}"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:gravity="center"
+      android:orientation="vertical"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/toolbar">
+      <TextView
+        android:id="@+id/no_surveys_help_text"
+        style="@style/TextAppearance.App.TitleMedium.OnSurfaceContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
+        android:text="@string/no_surveys_available" />
+      <Button
+        android:id="@+id/sign_out_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:onClick="@{() -> viewModel.signOut()}"
+        android:text="@string/sign_out" />
+    </LinearLayout>
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

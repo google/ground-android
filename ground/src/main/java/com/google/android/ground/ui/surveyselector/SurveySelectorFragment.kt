@@ -58,6 +58,7 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
     savedInstanceState: Bundle?
   ): View {
     binding = SurveySelectorFragBinding.inflate(inflater, container, false)
+    binding.viewModel = viewModel
     binding.lifecycleOwner = this
     return binding.root
   }
