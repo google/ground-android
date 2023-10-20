@@ -77,11 +77,10 @@ class SettingsManagerTest : BaseHiltTest() {
 
   @Test
   fun `enableLocationSettings() throws error if non-resolvable`() = runWithTestDispatcher {
-    whenever(settingsClientMock.checkLocationSettings(any())).thenAnswer {
-      throw Error("internal error")
-    }
+    whenever(settingsClientMock.checkLocationSettings(any()))
+      .thenThrow(IllegalStateException::class.java)
 
-    assertThrows(Error::class.java) {
+    assertThrows(IllegalStateException::class.java) {
       runBlocking { settingsManager.enableLocationSettings(testLocationRequest) }
     }
 
