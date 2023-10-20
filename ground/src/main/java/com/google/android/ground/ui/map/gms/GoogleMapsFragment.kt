@@ -64,6 +64,7 @@ import timber.log.Timber
 
 const val TILE_OVERLAY_Z = 0f
 const val POLYGON_Z = 1f
+const val POLYLINE_Z = 1f
 const val CLUSTER_Z = 2f
 const val MARKER_Z = 3f
 
