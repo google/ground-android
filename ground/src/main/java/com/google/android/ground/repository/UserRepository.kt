@@ -20,9 +20,11 @@ import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
+import com.google.android.ground.system.NetworkManager
 import com.google.android.ground.system.auth.AuthenticationManager
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 /**
  * Coordinates persistence of [User] instance in local data store. For more details on this pattern
@@ -35,6 +37,7 @@ constructor(
   private val authenticationManager: AuthenticationManager,
   private val localValueStore: LocalValueStore,
   private val localUserStore: LocalUserStore,
+  private val networkManager: NetworkManager,
   private val surveyRepository: SurveyRepository,
   private val remoteDataStore: RemoteDataStore,
 ) : AuthenticationManager by authenticationManager {
@@ -42,6 +45,15 @@ constructor(
   /** Stores the current user's profile details into the local and remote dbs. */
   suspend fun saveUserDetails() {
     localUserStore.insertOrUpdateUser(authenticationManager.currentUser)
+    updateRemoteUserInfo()
+  }
+
+  /** Attempts to refresh current user's profile in remote database if network is available. */
+  private suspend fun updateRemoteUserInfo() {
+    if (!networkManager.isNetworkConnected()) {
+      Timber.d("Skipped refreshing user profile as device is offline.")
+      return
+    }
     remoteDataStore.refreshUserProfile()
   }
 
