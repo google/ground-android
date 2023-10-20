@@ -75,7 +75,10 @@ internal constructor(
     Firebase.messaging.subscribeToTopic(surveyId).await()
   }
 
-  /** Calls Cloud Function to refresh the current user's profile info in the remote database. */
+  /**
+   * Calls Cloud Function to refresh the current user's profile info in the remote database if
+   * network is available.
+   */
   override suspend fun refreshUserProfile() {
     firebaseFunctions.getHttpsCallable(PROFILE_REFRESH_CLOUD_FUNCTION_NAME).call().await()
   }

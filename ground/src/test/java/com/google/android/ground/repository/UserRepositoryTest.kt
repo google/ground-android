@@ -18,15 +18,19 @@ package com.google.android.ground.repository
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
+import com.google.android.ground.system.NetworkManager
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -39,6 +43,8 @@ class UserRepositoryTest : BaseHiltTest() {
   @Inject lateinit var userRepository: UserRepository
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
+  @BindValue @Mock lateinit var networkManager: NetworkManager
+
   @Test
   fun `currentUser returns current user`() {
     fakeAuthenticationManager.setUser(FakeData.USER)
@@ -49,6 +55,7 @@ class UserRepositoryTest : BaseHiltTest() {
   @Test
   fun `saveUserDetails() updates local user profile`() = runWithTestDispatcher {
     fakeAuthenticationManager.setUser(FakeData.USER)
+    whenever(networkManager.isNetworkConnected()).thenReturn(true)
 
     userRepository.saveUserDetails()
 
@@ -58,11 +65,23 @@ class UserRepositoryTest : BaseHiltTest() {
   @Test
   fun `saveUserDetails() updates remote user profile`() = runWithTestDispatcher {
     fakeAuthenticationManager.setUser(FakeData.USER)
+    whenever(networkManager.isNetworkConnected()).thenReturn(true)
 
     userRepository.saveUserDetails()
 
     assertThat(fakeRemoteDataStore.userProfileRefreshCount).isEqualTo(1)
   }
+
+  @Test
+  fun `saveUserDetails() doesn't update remote user profile when offline `() =
+    runWithTestDispatcher {
+      fakeAuthenticationManager.setUser(FakeData.USER)
+      whenever(networkManager.isNetworkConnected()).thenReturn(false)
+
+      userRepository.saveUserDetails()
+
+      assertThat(fakeRemoteDataStore.userProfileRefreshCount).isEqualTo(0)
+    }
 
   @Test
   fun `clearUserPreferences() clears lastActiveSurveyId`() {

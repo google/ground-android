@@ -28,12 +28,12 @@ data class SignInState(val state: State, val result: Result<User?>) {
 
   companion object {
 
-    @JvmStatic fun signedOut() = SignInState(State.SIGNED_OUT, Result.success(null))
+    fun signedOut() = SignInState(State.SIGNED_OUT, Result.success(null))
 
-    @JvmStatic fun signingIn() = SignInState(State.SIGNING_IN, Result.success(null))
+    fun signingIn() = SignInState(State.SIGNING_IN, Result.success(null))
 
-    @JvmStatic fun signedIn(user: User) = SignInState(State.SIGNED_IN, Result.success(user))
+    fun signedIn(user: User) = SignInState(State.SIGNED_IN, Result.success(user))
 
-    @JvmStatic fun error(error: Throwable) = SignInState(State.ERROR, Result.failure(error))
+    fun error(error: Throwable) = SignInState(State.ERROR, Result.failure(error))
   }
 }
