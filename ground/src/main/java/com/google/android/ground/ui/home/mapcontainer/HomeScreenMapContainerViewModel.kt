@@ -164,8 +164,8 @@ internal constructor(
   /**
    * Intended as a callback for when a specific map [Feature] is clicked. If the click is ambiguous,
    * (list of features > 1), it chooses the [Feature] with the smallest area. If multiple features
-   * have the same area, or in the case of points, no area, the first is chosen. Does nothing
-   * if the list of provided features is empty.
+   * have the same area, or in the case of points, no area, the first is chosen. Does nothing if the
+   * list of provided features is empty.
    */
   fun onFeatureClicked(features: Set<Feature>) {
     val geometry = features.map { it.geometry }.minByOrNull { it.area } ?: return
