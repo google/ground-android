@@ -44,7 +44,7 @@
 
     <LinearLayout
       android:id="@+id/container"
-      visible="@{viewModel.surveyAvailable}"
+      visible="@{viewModel.hasSurveys}"
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:orientation="vertical"
@@ -85,7 +85,7 @@
 
     <LinearLayout
       android:id="@+id/emptyContainer"
-      visible="@{!viewModel.surveyAvailable}"
+      visible="@{!viewModel.hasSurveys}"
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:gravity="center"

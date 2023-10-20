@@ -55,7 +55,7 @@ internal constructor(
 
   val displayProgressDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
   val surveySummaries: Flow<List<SurveyItem>>
-  var surveyAvailable: LiveData<Boolean?>
+  var hasSurveys: LiveData<Boolean>
 
   init {
     surveySummaries =
@@ -67,7 +67,7 @@ internal constructor(
             .sortedByDescending { it.isAvailableOffline }
         }
       }
-    surveyAvailable = surveySummaries.map { it.isNotEmpty() }.onStart { emit(true) }.asLiveData()
+    hasSurveys = surveySummaries.map { it.isNotEmpty() }.onStart { emit(true) }.asLiveData()
   }
 
   private fun offlineSurveys(): Flow<List<Survey>> = surveyRepository.offlineSurveys
