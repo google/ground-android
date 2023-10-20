@@ -17,12 +17,16 @@ package com.google.android.ground.model.geometry
 
 import com.google.android.ground.ui.map.gms.GmsExt.center
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
+import com.google.android.ground.ui.map.gms.toLatLngList
+import com.google.maps.android.SphericalUtil.computeArea
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /** A common ancestor for all geometry types. */
 @Serializable
 sealed interface Geometry {
+  val area: Double
+
   /**
    * Returns the center coordinates of the geometry. It may or may not be within the geometry bounds
    * if the shape is irregular.
@@ -45,6 +49,11 @@ sealed interface Geometry {
 @Serializable
 @SerialName("polygon")
 data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()) : Geometry {
+  override val area: Double
+    get() =
+      computeArea(shell.coordinates.toLatLngList()) -
+        holes.sumOf { computeArea(it.coordinates.toLatLngList()) }
+
   override fun center(): Coordinates = shell.center()
 
   override fun isEmpty() = shell.isEmpty()
@@ -56,6 +65,9 @@ data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()
 @Serializable
 @SerialName("point")
 data class Point(val coordinates: Coordinates) : Geometry {
+  override val area: Double
+    get() = 0.0
+
   override fun center(): Coordinates = coordinates
 
   override fun isEmpty() = false
@@ -65,6 +77,9 @@ data class Point(val coordinates: Coordinates) : Geometry {
 @Serializable
 @SerialName("multi_polygon")
 data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
+  override val area: Double
+    get() = polygons.sumOf { it.area }
+
   override fun center(): Coordinates = polygons.map { it.center() }.centerOrError()
 
   override fun isEmpty() = polygons.all { it.isEmpty() }
@@ -74,6 +89,9 @@ data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
 @Serializable
 @SerialName("line_string")
 data class LineString(val coordinates: List<Coordinates>) : Geometry {
+  override val area: Double
+    get() = 0.0
+
   override fun center(): Coordinates = coordinates.centerOrError()
 
   override fun isEmpty() = coordinates.isEmpty()
@@ -86,6 +104,8 @@ data class LineString(val coordinates: List<Coordinates>) : Geometry {
 @Serializable
 @SerialName("linear_ring")
 data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
+  override val area: Double
+    get() = 0.0
 
   init {
     validate()
