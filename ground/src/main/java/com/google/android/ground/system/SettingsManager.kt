@@ -25,7 +25,7 @@ import javax.inject.Singleton
 import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 
-private val LOCATION_SETTINGS_REQUEST_CODE = SettingsManager::class.java.hashCode() and 0xffff
+val LOCATION_SETTINGS_REQUEST_CODE = SettingsManager::class.java.hashCode() and 0xffff
 
 /**
  * Manages enabling of settings and related flows to/from the Activity.
@@ -51,7 +51,7 @@ constructor(
       LocationSettingsRequest.Builder().addLocationRequest(locationRequest).build()
     try {
       settingsClient.checkLocationSettings(settingsRequest)
-    } catch (e: Error) {
+    } catch (e: Throwable) {
       onCheckSettingsFailure(e)
     }
   }
