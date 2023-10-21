@@ -54,7 +54,6 @@ internal constructor(
   private val userRepository: UserRepository
 ) : AbstractViewModel() {
 
-  val displayProgressDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
   val surveyListState: MutableStateFlow<State?> = MutableStateFlow(null)
   val surveySummaries: Flow<List<SurveyItem>>
   var hasSurveys: LiveData<Boolean>
@@ -70,17 +69,15 @@ internal constructor(
               .sortedByDescending { it.isAvailableOffline }
           }
         }
-        .onEach { surveyListState.value = State.LOADED }
+        .onEach { setLoaded() }
     hasSurveys = surveySummaries.map { it.isNotEmpty() }.onStart { emit(true) }.asLiveData()
   }
 
   private fun offlineSurveys(): Flow<List<Survey>> =
-    surveyRepository.offlineSurveys.onEach { surveyListState.value = State.LOADING }
+    surveyRepository.offlineSurveys.onEach { setLoading() }
 
   private suspend fun allSurveys(): Flow<List<Survey>> =
-    surveyRepository.getSurveySummaries(authManager.currentUser).onEach {
-      surveyListState.value = State.LOADING
-    }
+    surveyRepository.getSurveySummaries(authManager.currentUser).onEach { setLoading() }
 
   private fun createSurveyItem(survey: Survey, localSurveys: List<Survey>): SurveyItem =
     SurveyItem(
@@ -94,9 +91,9 @@ internal constructor(
   fun activateSurvey(surveyId: String) =
     viewModelScope.launch {
       // TODO(#1497): Handle exceptions thrown by activateSurvey().
-      displayProgressDialog.value = true
+      setLoading()
       activateSurveyUseCase(surveyId)
-      displayProgressDialog.value = false
+      setLoaded()
       // TODO(#1490): Show spinner while survey is loading.
       navigateToHomeScreen()
     }
@@ -111,6 +108,14 @@ internal constructor(
 
   fun signOut() {
     userRepository.signOut()
+  }
+
+  private fun setLoading() {
+    surveyListState.value = State.LOADING
+  }
+
+  private fun setLoaded() {
+    surveyListState.value = State.LOADED
   }
 
   enum class State {

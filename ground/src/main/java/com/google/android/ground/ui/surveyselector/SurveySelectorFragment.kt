@@ -48,9 +48,6 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
     adapter = SurveyListAdapter(viewModel, this)
     lifecycleScope.launch { viewModel.surveySummaries.collect { adapter.updateData(it) } }
     lifecycleScope.launch {
-      viewModel.displayProgressDialog.collect { handleDisplayProgressDialog(it) }
-    }
-    lifecycleScope.launch {
       viewModel.surveyListState.collect { state -> state?.let { handleSurveyListState(it) } }
     }
   }
@@ -99,14 +96,6 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
       SurveySelectorViewModel.State.LOADING -> showProgressDialog()
       SurveySelectorViewModel.State.LOADED -> dismissProgressDialog()
     }
-
-  private fun handleDisplayProgressDialog(visible: Boolean) {
-    if (visible) {
-      showProgressDialog()
-    } else {
-      dismissProgressDialog()
-    }
-  }
 
   private fun showProgressDialog() {
     if (progressDialog == null) {
