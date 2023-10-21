@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
@@ -59,21 +60,26 @@ internal constructor(
 
   init {
     surveySummaries =
-      offlineSurveys().flatMapMerge { offlineSurveys: List<Survey> ->
-        allSurveys().map { allSurveys: List<Survey> ->
-          allSurveys
-            .map { createSurveyItem(it, offlineSurveys) }
-            .sortedBy { it.surveyTitle }
-            .sortedByDescending { it.isAvailableOffline }
+      offlineSurveys()
+        .flatMapMerge { offlineSurveys: List<Survey> ->
+          allSurveys().map { allSurveys: List<Survey> ->
+            allSurveys
+              .map { createSurveyItem(it, offlineSurveys) }
+              .sortedBy { it.surveyTitle }
+              .sortedByDescending { it.isAvailableOffline }
+          }
         }
-      }
+        .onEach { displayProgressDialog.value = false }
     hasSurveys = surveySummaries.map { it.isNotEmpty() }.onStart { emit(true) }.asLiveData()
   }
 
-  private fun offlineSurveys(): Flow<List<Survey>> = surveyRepository.offlineSurveys
+  private fun offlineSurveys(): Flow<List<Survey>> =
+    surveyRepository.offlineSurveys.onEach { displayProgressDialog.value = true }
 
   private suspend fun allSurveys(): Flow<List<Survey>> =
-    surveyRepository.getSurveySummaries(authManager.currentUser)
+    surveyRepository.getSurveySummaries(authManager.currentUser).onEach {
+      displayProgressDialog.value = true
+    }
 
   private fun createSurveyItem(survey: Survey, localSurveys: List<Survey>): SurveyItem =
     SurveyItem(
