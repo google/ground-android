@@ -187,9 +187,7 @@ internal constructor(
     Feature(
       id = id,
       type = FeatureType.LOCATION_OF_INTEREST.ordinal,
-      flag =
-        submissionCount + submissionRepository.getPendingCreateCount(id) -
-          submissionRepository.getPendingDeleteCount(id) > 0,
+      flag = submissionRepository.getTotalSubmissionCount(this) > 0,
       geometry = geometry,
       style = Feature.Style(job.getDefaultColor()),
       clusterable = true

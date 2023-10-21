@@ -26,13 +26,18 @@ import com.google.android.ground.databinding.SuggestLoiCardItemBinding
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.material.card.MaterialCardView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [LocationOfInterest] data with the
  * [ViewHolder] views.
  */
-class MapCardAdapter(private val canUserSubmitData: Boolean) :
-  RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MapCardAdapter(
+  private val canUserSubmitData: Boolean,
+  private val coroutineScope: CoroutineScope,
+  private val fetchSubmissionCount: suspend (loi: LocationOfInterest) -> Int
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
   private var focusedIndex: Int = 0
   private var indexOfLastLoi: Int = -1
@@ -45,7 +50,12 @@ class MapCardAdapter(private val canUserSubmitData: Boolean) :
     val layoutInflater = LayoutInflater.from(parent.context)
 
     return if (viewType == R.layout.loi_card_item) {
-      LoiViewHolder(LoiCardItemBinding.inflate(layoutInflater, parent, false), canUserSubmitData)
+      LoiViewHolder(
+        LoiCardItemBinding.inflate(layoutInflater, parent, false),
+        canUserSubmitData,
+        coroutineScope,
+        fetchSubmissionCount
+      )
     } else {
       SuggestLoiViewHolder(
         SuggestLoiCardItemBinding.inflate(layoutInflater, parent, false),
@@ -132,7 +142,9 @@ class MapCardAdapter(private val canUserSubmitData: Boolean) :
   /** View item representing the [LocationOfInterest] data in the list. */
   class LoiViewHolder(
     internal val binding: LoiCardItemBinding,
-    private val canUserSubmitData: Boolean
+    private val canUserSubmitData: Boolean,
+    private val coroutineScope: CoroutineScope,
+    private val fetchSubmissionCount: suspend (loi: LocationOfInterest) -> Int
   ) : CardViewHolder(binding.root, binding.loiCard) {
     fun bind(loi: LocationOfInterest) {
       with(binding) {
@@ -140,7 +152,10 @@ class MapCardAdapter(private val canUserSubmitData: Boolean) :
         jobName.text = LoiCardUtil.getJobName(loi)
         collectData.visibility = if (canUserSubmitData) View.VISIBLE else View.GONE
 
-        submissions.text = LoiCardUtil.getSubmissionsText(loi.submissionCount)
+        coroutineScope.launch {
+          val submissionCount = fetchSubmissionCount(loi)
+          submissions.text = LoiCardUtil.getSubmissionsText(submissionCount)
+        }
       }
     }
   }
