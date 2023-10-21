@@ -56,29 +56,33 @@ internal constructor(
 
   init {
     surveySummaries =
-      offlineSurveys()
-        .flatMapMerge { offlineSurveys: List<Survey> ->
-          allSurveys().map { allSurveys: List<Survey> ->
-            allSurveys
-              .map { createSurveyItem(it, offlineSurveys) }
-              .sortedBy { it.surveyTitle }
-              .sortedByDescending { it.isAvailableOffline }
-          }
+      createSurveySummaries().onEach {
+        if (it.isEmpty()) {
+          setNotFound()
+        } else {
+          setLoaded()
         }
-        .onEach {
-          if (it.isEmpty()) {
-            setNotFound()
-          } else {
-            setLoaded()
-          }
-        }
+      }
   }
 
+  /** Returns a flow of locally stored surveys. */
   private fun offlineSurveys(): Flow<List<Survey>> =
     surveyRepository.offlineSurveys.onEach { setLoading() }
 
+  /** Returns a flow of remotely stored surveys. */
   private suspend fun allSurveys(): Flow<List<Survey>> =
     surveyRepository.getSurveySummaries(authManager.currentUser).onEach { setLoading() }
+
+  /** Returns a flow of [SurveyItem] to be displayed to the user. */
+  private fun createSurveySummaries(): Flow<List<SurveyItem>> =
+    offlineSurveys().flatMapMerge { offlineSurveys: List<Survey> ->
+      allSurveys().map { allSurveys: List<Survey> ->
+        allSurveys
+          .map { createSurveyItem(it, offlineSurveys) }
+          .sortedBy { it.surveyTitle }
+          .sortedByDescending { it.isAvailableOffline }
+      }
+    }
 
   private fun createSurveyItem(survey: Survey, localSurveys: List<Survey>): SurveyItem =
     SurveyItem(
@@ -95,7 +99,6 @@ internal constructor(
       setLoading()
       activateSurveyUseCase(surveyId)
       setLoaded()
-      // TODO(#1490): Show spinner while survey is loading.
       navigateToHomeScreen()
     }
 
