@@ -55,6 +55,7 @@ internal constructor(
 ) : AbstractViewModel() {
 
   val displayProgressDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
+  val surveyListState: MutableStateFlow<State?> = MutableStateFlow(null)
   val surveySummaries: Flow<List<SurveyItem>>
   var hasSurveys: LiveData<Boolean>
 
@@ -69,16 +70,16 @@ internal constructor(
               .sortedByDescending { it.isAvailableOffline }
           }
         }
-        .onEach { displayProgressDialog.value = false }
+        .onEach { surveyListState.value = State.LOADED }
     hasSurveys = surveySummaries.map { it.isNotEmpty() }.onStart { emit(true) }.asLiveData()
   }
 
   private fun offlineSurveys(): Flow<List<Survey>> =
-    surveyRepository.offlineSurveys.onEach { displayProgressDialog.value = true }
+    surveyRepository.offlineSurveys.onEach { surveyListState.value = State.LOADING }
 
   private suspend fun allSurveys(): Flow<List<Survey>> =
     surveyRepository.getSurveySummaries(authManager.currentUser).onEach {
-      displayProgressDialog.value = true
+      surveyListState.value = State.LOADING
     }
 
   private fun createSurveyItem(survey: Survey, localSurveys: List<Survey>): SurveyItem =
@@ -110,5 +111,10 @@ internal constructor(
 
   fun signOut() {
     userRepository.signOut()
+  }
+
+  enum class State {
+    LOADING,
+    LOADED,
   }
 }

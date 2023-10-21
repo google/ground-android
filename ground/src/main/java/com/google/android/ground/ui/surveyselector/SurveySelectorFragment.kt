@@ -50,6 +50,9 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
     lifecycleScope.launch {
       viewModel.displayProgressDialog.collect { handleDisplayProgressDialog(it) }
     }
+    lifecycleScope.launch {
+      viewModel.surveyListState.collect { state -> state?.let { handleSurveyListState(it) } }
+    }
   }
 
   override fun onCreateView(
@@ -90,6 +93,12 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
       show()
     }
   }
+
+  private fun handleSurveyListState(state: SurveySelectorViewModel.State) =
+    when (state) {
+      SurveySelectorViewModel.State.LOADING -> showProgressDialog()
+      SurveySelectorViewModel.State.LOADED -> dismissProgressDialog()
+    }
 
   private fun handleDisplayProgressDialog(visible: Boolean) {
     if (visible) {
