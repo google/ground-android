@@ -94,7 +94,8 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
   private fun handleSurveyListState(state: SurveySelectorViewModel.State) =
     when (state) {
       SurveySelectorViewModel.State.LOADING -> showProgressDialog()
-      SurveySelectorViewModel.State.LOADED -> dismissProgressDialog()
+      SurveySelectorViewModel.State.LOADED,
+      SurveySelectorViewModel.State.NOT_FOUND -> dismissProgressDialog()
     }
 
   private fun showProgressDialog() {

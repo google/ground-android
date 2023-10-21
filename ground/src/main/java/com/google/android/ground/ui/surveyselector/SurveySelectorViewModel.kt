@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.ui.surveyselector
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
@@ -37,7 +35,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 /** Represents view state and behaviors of the survey selector dialog. */
@@ -56,7 +53,6 @@ internal constructor(
 
   val surveyListState: MutableStateFlow<State?> = MutableStateFlow(null)
   val surveySummaries: Flow<List<SurveyItem>>
-  var hasSurveys: LiveData<Boolean>
 
   init {
     surveySummaries =
@@ -69,8 +65,13 @@ internal constructor(
               .sortedByDescending { it.isAvailableOffline }
           }
         }
-        .onEach { setLoaded() }
-    hasSurveys = surveySummaries.map { it.isNotEmpty() }.onStart { emit(true) }.asLiveData()
+        .onEach {
+          if (it.isEmpty()) {
+            setNotFound()
+          } else {
+            setLoaded()
+          }
+        }
   }
 
   private fun offlineSurveys(): Flow<List<Survey>> =
@@ -110,6 +111,10 @@ internal constructor(
     userRepository.signOut()
   }
 
+  private fun setNotFound() {
+    surveyListState.value = State.NOT_FOUND
+  }
+
   private fun setLoading() {
     surveyListState.value = State.LOADING
   }
@@ -119,6 +124,7 @@ internal constructor(
   }
 
   enum class State {
+    NOT_FOUND,
     LOADING,
     LOADED,
   }

@@ -21,6 +21,7 @@
   xmlns:tools="http://schemas.android.com/tools">
 
   <data>
+    <import type="com.google.android.ground.ui.surveyselector.SurveySelectorViewModel.State" />
     <import type="android.view.View" />
     <variable
       name="viewModel"
@@ -44,7 +45,7 @@
 
     <LinearLayout
       android:id="@+id/container"
-      visible="@{viewModel.hasSurveys}"
+      visible="@{viewModel.surveyListState != State.NOT_FOUND}"
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:orientation="vertical"
@@ -85,7 +86,7 @@
 
     <LinearLayout
       android:id="@+id/emptyContainer"
-      visible="@{!viewModel.hasSurveys}"
+      visible="@{viewModel.surveyListState == State.NOT_FOUND}"
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:gravity="center"
