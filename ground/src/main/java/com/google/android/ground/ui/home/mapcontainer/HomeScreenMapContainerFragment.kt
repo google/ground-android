@@ -24,25 +24,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
-import com.google.android.ground.Config
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
-import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
-import com.google.android.ground.ui.home.BottomSheetState
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
-import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -193,10 +189,6 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
       mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
     }
 
-    homeScreenViewModel.bottomSheetState.observe(this) { state: BottomSheetState ->
-      onBottomSheetStateChange(state, map)
-    }
-
     adapter.setLoiCardFocusedListener {
       when (it) {
         is MapCardUiData.LoiCardUiData -> map.setActiveLocationOfInterest(it.loi.id)
@@ -207,29 +199,6 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel
-
-  private fun onBottomSheetStateChange(state: BottomSheetState, map: MapFragment) {
-    when (state.visibility) {
-      BottomSheetState.Visibility.VISIBLE -> {
-        map.disableGestures()
-        // TODO(#358): Once polygon drawing is implemented, pan & zoom to polygon when
-        // selected. This will involve calculating centroid and possibly zoom level based on
-        // vertices.
-        state.locationOfInterest
-          ?.geometry
-          ?.takeIf { it is Point }
-          ?.let {
-            mapContainerViewModel.setCameraPosition(
-              CameraPosition(it.center(), Config.DEFAULT_LOI_ZOOM_LEVEL),
-              false
-            )
-          }
-      }
-      BottomSheetState.Visibility.HIDDEN -> {
-        map.enableGestures()
-      }
-    }
-  }
 
   private fun onZoomThresholdCrossed() {
     Timber.v("Refresh markers after zoom threshold crossed")

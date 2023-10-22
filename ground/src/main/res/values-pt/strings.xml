@@ -59,7 +59,6 @@
 
   <!-- NEW STRINGS FOR TRANSLATION -->
 
-  <string name="add_submission_button_label">Adicionar registro</string>
   <string name="view_submission_details">Ver detalhes do registro</string>
   <string name="map_view">Visão do mapa</string>
   <string name="unexpected_error">Ocorreu um erro inesperado</string>

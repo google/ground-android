@@ -66,7 +66,6 @@
   <!-- Shown when user has refused to enable location services in settings.-->
   <string name="location_disabled_in_settings">Habilite la ubicación en la configuración del sistema</string>
 
-  <string name="add_submission_button_label">Agregar registro</string>
   <string name="view_submission_details">Ver detalles del registro</string>
   <string name="map_view">Vista del mapa</string>
   <string name="unexpected_error">Ha ocurrido un error inesperado</string>
@@ -106,11 +105,6 @@
   <!-- Other strings (to be organized) -->
   <string name="sync_status">Estado de sincronización</string>
   <string name="layer_label_format">Capa: %s</string>
-
-  <!-- Shown in toolbar overflow menu, used to show imported locationOfInterest properties. -->
-  <string name="loi_properties">Propiedades de la característica</string>
-  <!-- Label on button shown to dismiss the locationOfInterest properties dialog. -->
-  <string name="close_loi_properties">OK</string>
 
   <string name="add_point">Agregar punto</string>
   <string name="complete_polygon">Completo</string>

@@ -36,15 +36,13 @@ class SubmissionListFragment : Hilt_SubmissionListFragment() {
   @Inject lateinit var navigator: Navigator
 
   private lateinit var binding: SubmissionListFragBinding
-  private lateinit var locationOfInterestDetailsViewModel: LocationOfInterestDetailsViewModel
   private lateinit var submissionListAdapter: SubmissionListAdapter
   private lateinit var viewModel: SubmissionListViewModel
+
   override fun onCreate(savedInstanceState: Bundle?) {
     submissionListAdapter = SubmissionListAdapter(viewModelFactory)
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(SubmissionListViewModel::class.java)
-    locationOfInterestDetailsViewModel =
-      getViewModel(LocationOfInterestDetailsViewModel::class.java)
     submissionListAdapter.getItemClicks().observe(this) { submission: Submission ->
       onItemClick(submission)
     }
@@ -67,11 +65,10 @@ class SubmissionListFragment : Hilt_SubmissionListFragment() {
     val submissionList = binding.submissionListContainer
     submissionList.layoutManager = LinearLayoutManager(context)
     submissionList.adapter = submissionListAdapter
-    locationOfInterestDetailsViewModel.getSelectedLocationOfInterestOnceAndStream().observe(
-      viewLifecycleOwner
-    ) {
-      onLocationOfInterestSelected(it)
-    }
+
+    // TODO(Shobhit): Once this class is reused, replace with appropriate logic for getting
+    //  currently selected LOI.
+    onLocationOfInterestSelected(Optional.empty())
   }
 
   private fun onLocationOfInterestSelected(locationOfInterest: Optional<LocationOfInterest>) {
