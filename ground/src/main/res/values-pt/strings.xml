@@ -80,11 +80,6 @@
   <string name="offline_area_selector_prompt">Selecionar o mapa de base para uso offline</string>
   <string name="offline_area_selector_download">Download</string>
   <string name="photo_preview">Prévia</string>
-  <string name="starting">Início</string>
-  <string name="in_progress">Em progresso</string>
-  <string name="paused">Pausado</string>
-  <string name="completed">Concluído</string>
-  <string name="failed">Falha</string>
   <string name="settings">Ajustes</string>
   <string name="offline_area_viewer_title">Visualizador offline de Títulos de Base de Mapas</string>
   <string name="offline_area_viewer_remove_button">Remover</string>
