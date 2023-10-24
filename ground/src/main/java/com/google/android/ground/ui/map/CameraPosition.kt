@@ -16,13 +16,12 @@
 package com.google.android.ground.ui.map
 
 import com.google.android.ground.model.geometry.Coordinates
+import timber.log.Timber
 
-// TODO(#1712): Fix duplicate parameters, (target, zoomLevel) & bounds model the same info and
-//  isAllowZoomOut doesn't even belong here.
+// TODO(#1712): Fix duplicate parameters, (target, zoomLevel) & bounds model the same info.
 data class CameraPosition(
   val target: Coordinates? = null,
   val zoomLevel: Float? = null,
-  val isAllowZoomOut: Boolean = false,
   val bounds: Bounds? = null
 ) {
 
@@ -31,7 +30,6 @@ data class CameraPosition(
         target?.lat.toString(),
         target?.lng.toString(),
         zoomLevel.toString(),
-        isAllowZoomOut,
         bounds?.south.toString(),
         bounds?.west.toString(),
         bounds?.north.toString(),
@@ -41,24 +39,29 @@ data class CameraPosition(
 
   companion object {
 
-    fun deserialize(serializedValue: String): CameraPosition? {
-      if (serializedValue.isEmpty()) return null
-      val parts = serializedValue.split(",")
-      val lat = parts[0].trim().toDouble()
-      val long = parts[1].trim().toDouble()
-      val zoomLevel = parts[2].trim().toFloatOrNull()
-      val isAllowZoomOut = parts[3].trim().toBoolean()
-      val south = parts[4].trim().toDoubleOrNull()
-      val west = parts[5].trim().toDoubleOrNull()
-      val north = parts[6].trim().toDoubleOrNull()
-      val east = parts[7].trim().toDoubleOrNull()
+    fun deserialize(serializedValue: String): CameraPosition? =
+      runCatching {
+          if (serializedValue.isEmpty()) return null
+          val parts = serializedValue.split(",")
+          val lat = parts[0].trim().toDouble()
+          val long = parts[1].trim().toDouble()
+          val zoomLevel = parts[2].trim().toFloatOrNull()
+          val south = parts[3].trim().toDoubleOrNull()
+          val west = parts[4].trim().toDoubleOrNull()
+          val north = parts[5].trim().toDoubleOrNull()
+          val east = parts[6].trim().toDoubleOrNull()
 
-      var bounds: Bounds? = null
-      if (south != null && west != null && north != null && east != null) {
-        bounds = Bounds(south, west, north, east)
-      }
+          var bounds: Bounds? = null
+          if (south != null && west != null && north != null && east != null) {
+            bounds = Bounds(south, west, north, east)
+          }
 
-      return CameraPosition(Coordinates(lat, long), zoomLevel, isAllowZoomOut, bounds)
-    }
+          return CameraPosition(Coordinates(lat, long), zoomLevel, bounds)
+        }
+        .getOrElse { exception ->
+          Timber.e(exception)
+          // Prevent app from crashing if we are unable to parse the camera position
+          null
+        }
   }
 }

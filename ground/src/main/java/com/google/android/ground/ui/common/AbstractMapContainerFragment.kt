@@ -130,11 +130,12 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     Timber.v("Update camera: $cameraUpdateRequest")
     val newPosition = cameraUpdateRequest.cameraPosition
     val shouldAnimate = cameraUpdateRequest.shouldAnimate
+    val isAllowZoomOut = cameraUpdateRequest.isAllowZoomOut
     val bounds = newPosition.bounds
     val target = newPosition.target
     var zoomLevel = newPosition.zoomLevel
 
-    if (target != null && zoomLevel != null && !newPosition.isAllowZoomOut) {
+    if (target != null && zoomLevel != null && !isAllowZoomOut) {
       zoomLevel = max(zoomLevel, map.currentZoomLevel)
     }
 
