@@ -85,11 +85,6 @@
   <string name="offline_area_selector_download">Download</string>
   <string name="take_picture">Take a picture</string>
   <string name="photo_preview">Preview</string>
-  <string name="starting">Starting</string>
-  <string name="in_progress">In progress</string>
-  <string name="paused">Paused</string>
-  <string name="completed">Completed</string>
-  <string name="failed">Failed</string>
   <string name="settings">Settings</string>
   <string name="offline_area_viewer_title">Offline area</string>
   <string name="offline_area_viewer_remove_button">Remove from device</string>
