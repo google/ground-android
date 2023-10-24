@@ -80,11 +80,6 @@
   <string name="offline_area_selector_prompt">Seleccione un mapa base para usarlo sin conexión</string>
   <string name="offline_area_selector_download">Descargar</string>
   <string name="photo_preview">Vista previa</string>
-  <string name="starting">Iniciando</string>
-  <string name="in_progress">En curso</string>
-  <string name="paused">Pausado</string>
-  <string name="completed">Completado</string>
-  <string name="failed">Fallido</string>
   <string name="settings">Ajustes</string>
   <string name="offline_area_viewer_title">Área del mapa base sin conexión</string>
   <string name="offline_area_viewer_remove_button">Eliminar</string>
