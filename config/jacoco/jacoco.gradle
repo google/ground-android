@@ -17,7 +17,7 @@
 apply plugin: 'jacoco'
 
 jacoco {
-    toolVersion = "0.8.8"
+    toolVersion = "0.8.9"
 }
 
 tasks.withType(Test).configureEach {
@@ -38,17 +38,11 @@ tasks.register('jacocoTestStagingUnitTestReport', JacocoReport) {
         dir: 'build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/google/android/ground',
         excludes: [
             '**/databinding/*',
-            '**/generated/callback/*',
-            '**/_com_google_android_ground_*',
-            '**/hilt_aggregated_deps',
             '**/local/room/dao/*',
-            '**/AutoOneOf_*',
-            '**/*AutoValue_*',
-            '**/DataBind*',
             '**/*_Factory*',
-            '**/Hilt_*',
-            '**/*FragmentArgs*',
-            '**/*FragmentDirections*',
+            '**/*Hilt*',
+            '**/*Args*',
+            '**/*Directions*',
             '**/LocalDatabase_Impl*',
             '**/*Module*',
         ]
