@@ -307,7 +307,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
         CameraPosition(
           cameraPosition.target.toCoordinates(),
           cameraPosition.zoom,
-          false,
           projection.visibleRegion.latLngBounds.toModelObject()
         )
       )
