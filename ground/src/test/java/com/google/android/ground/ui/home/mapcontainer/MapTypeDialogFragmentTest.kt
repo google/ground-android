@@ -65,7 +65,7 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
 
   @Test
   fun defaultMapType() {
-    assertThat(mapStateRepository.mapType).isEqualTo(MapType.SATELLITE)
+    assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)
   }
 
   @Test

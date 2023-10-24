@@ -35,6 +35,6 @@ enum class MapType(
   SATELLITE(R.string.satellite, R.drawable.map_type_satellite);
 
   companion object {
-    val DEFAULT = SATELLITE
+    val DEFAULT = TERRAIN
   }
 }
