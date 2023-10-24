@@ -32,6 +32,7 @@ import com.google.android.ground.*
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.common.truth.Truth.assertThat
@@ -49,6 +50,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
@@ -61,6 +63,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @BindValue @Mock lateinit var navigator: Navigator
   @BindValue @Mock lateinit var surveyRepository: SurveyRepository
+  @BindValue @Mock lateinit var userRepository: UserRepository
   @BindValue @Mock lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
 
@@ -151,6 +154,25 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
     assertThat(fragment.onBack()).isTrue()
     assertThat(fragment.requireActivity().isFinishing).isTrue()
+  }
+
+  @Test
+  fun `hide sign out button when survey list is not empty`() {
+    setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setOfflineSurveys(listOf())
+    setUpFragment()
+
+    onView(withText("Sign out")).check(matches(not(isDisplayed())))
+  }
+
+  @Test
+  fun `show sign out button when survey list is empty`() {
+    setAllSurveys(listOf())
+    setOfflineSurveys(listOf())
+    setUpFragment()
+
+    onView(withText("Sign out")).check(matches(isDisplayed())).perform(click())
+    verify(userRepository, times(1)).signOut()
   }
 
   @Test
