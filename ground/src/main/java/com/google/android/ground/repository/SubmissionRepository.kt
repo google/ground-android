@@ -153,9 +153,12 @@ constructor(
         )
       }
 
-  suspend fun getPendingCreateCount(loiId: String) =
+  suspend fun getTotalSubmissionCount(loi: LocationOfInterest) =
+    loi.submissionCount + getPendingCreateCount(loi.id) - getPendingDeleteCount(loi.id)
+
+  private suspend fun getPendingCreateCount(loiId: String) =
     localSubmissionStore.getPendingCreateCount(loiId)
 
-  suspend fun getPendingDeleteCount(loiId: String) =
+  private suspend fun getPendingDeleteCount(loiId: String) =
     localSubmissionStore.getPendingDeleteCount(loiId)
 }

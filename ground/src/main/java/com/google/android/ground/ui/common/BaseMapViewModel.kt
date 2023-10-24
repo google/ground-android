@@ -239,19 +239,19 @@ constructor(
     surveyRepository.activeSurveyFlow
       .filterNotNull()
       .transform { getLastSavedPositionOrDefaultBounds(it)?.apply { emit(this) } }
-      .collect { setCameraPosition(it, false) }
+      .collect { setCameraPosition(it) }
   }
 
-  private suspend fun getLastSavedPositionOrDefaultBounds(survey: Survey): CameraPosition? {
+  private suspend fun getLastSavedPositionOrDefaultBounds(survey: Survey): CameraUpdateRequest? {
     // Attempt to fetch last saved position from local storage.
     val savedPosition = mapStateRepository.getCameraPosition(survey.id)
     if (savedPosition != null) {
-      return savedPosition.copy(isAllowZoomOut = true)
+      return CameraUpdateRequest(savedPosition, isAllowZoomOut = true)
     }
 
     // Compute the default viewport which includes all LOIs in the given survey.
     val geometries = locationOfInterestRepository.getAllGeometries(survey)
-    return geometries.toBounds()?.let { CameraPosition(bounds = it) }
+    return geometries.toBounds()?.let { CameraUpdateRequest(CameraPosition(bounds = it)) }
   }
 
   private fun panCamera(coordinates: Coordinates) {
@@ -270,6 +270,10 @@ constructor(
    */
   private fun setCameraPosition(cameraPosition: CameraPosition, shouldAnimate: Boolean) {
     _cameraUpdateRequests.value = CameraUpdateRequest(cameraPosition, shouldAnimate)
+  }
+
+  private fun setCameraPosition(cameraUpdateRequest: CameraUpdateRequest) {
+    _cameraUpdateRequests.value = cameraUpdateRequest
   }
 
   /** Called when the map camera is moved. */

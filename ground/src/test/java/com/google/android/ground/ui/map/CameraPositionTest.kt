@@ -32,18 +32,13 @@ class CameraPositionTest {
   }
 
   @Test
-  fun serialize_deserialize_when_target_and_isAllowZoomOut_are_available() {
-    serializeAndDeserialize(CameraPosition(target = TARGET, isAllowZoomOut = true))
-  }
-
-  @Test
   fun serialize_deserialize_when_target_and_bounds_are_available() {
     serializeAndDeserialize(CameraPosition(target = TARGET, bounds = BOUNDS))
   }
 
   @Test
   fun serialize_deserialize_when_all_fields_present() {
-    serializeAndDeserialize(CameraPosition(TARGET, ZOOM_LEVEL, true, BOUNDS))
+    serializeAndDeserialize(CameraPosition(TARGET, ZOOM_LEVEL, BOUNDS))
   }
 
   private fun serializeAndDeserialize(cameraPosition: CameraPosition) {

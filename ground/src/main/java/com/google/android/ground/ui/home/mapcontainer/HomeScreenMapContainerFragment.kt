@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
 import com.google.android.ground.R
+import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
@@ -43,6 +44,7 @@ import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -55,6 +57,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
   @Inject lateinit var submissionRepository: SubmissionRepository
   @Inject lateinit var userRepository: UserRepository
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
+  @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -72,7 +75,10 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
       .subscribe { onZoomThresholdCrossed() }
 
     val canUserSubmitData = userRepository.canUserSubmitData()
-    adapter = MapCardAdapter(canUserSubmitData)
+    adapter =
+      MapCardAdapter(canUserSubmitData, externalScope) {
+        submissionRepository.getTotalSubmissionCount(it)
+      }
     adapter.setCollectDataListener {
       if (canUserSubmitData) {
         navigateToDataCollectionFragment(it)
