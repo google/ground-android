@@ -37,6 +37,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.asFlow
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -91,10 +92,16 @@ constructor(
 
   override fun signIn() {
     signInState.onNext(SignInState.signingIn())
-    activityStreams.withActivity {
-      val signInIntent = getGoogleSignInClient(it).signInIntent
-      it.startActivityForResult(signInIntent, SIGN_IN_REQUEST_CODE)
+    externalScope.launch {
+      getFirebaseAuth().signInAnonymously().await()
+      signInState.onNext(
+        SignInState.signedIn(User("nobody", "nobody", "Test User"))
+      )
     }
+    //    activityStreams.withActivity {
+    //      val signInIntent = getGoogleSignInClient(it).signInIntent
+    //      it.startActivityForResult(signInIntent, SIGN_IN_REQUEST_CODE)
+    //    }
   }
 
   override fun signOut() {
@@ -105,7 +112,12 @@ constructor(
     }
   }
 
-  private suspend fun getFirebaseAuth() = withContext(ioDispatcher) { FirebaseAuth.getInstance() }
+  private suspend fun getFirebaseAuth() =
+    withContext(ioDispatcher) {
+      val auth = FirebaseAuth.getInstance()
+      auth.useEmulator("10.0.2.2", 9099)
+      auth
+    }
 
   private fun getGoogleSignInClient(activity: Activity): GoogleSignInClient =
     // TODO: Use app context instead of activity?

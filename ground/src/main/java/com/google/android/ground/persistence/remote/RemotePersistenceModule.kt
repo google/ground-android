@@ -53,6 +53,8 @@ abstract class RemotePersistenceModule {
     @Provides
     fun firebaseFirestoreSettings(): FirebaseFirestoreSettings {
       return FirebaseFirestoreSettings.Builder()
+        .setHost("10.0.2.2:8080")
+        .setSslEnabled(false)
         .setPersistenceEnabled(Config.FIRESTORE_PERSISTENCE_ENABLED)
         .build()
     }
