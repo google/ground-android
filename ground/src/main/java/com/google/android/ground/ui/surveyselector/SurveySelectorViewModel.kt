@@ -21,6 +21,7 @@ import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.Survey
 import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
@@ -33,6 +34,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 /** Represents view state and behaviors of the survey selector dialog. */
@@ -45,28 +47,42 @@ internal constructor(
   private val navigator: Navigator,
   private val activateSurveyUseCase: ActivateSurveyUseCase,
   @ApplicationScope private val externalScope: CoroutineScope,
-  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+  private val userRepository: UserRepository
 ) : AbstractViewModel() {
 
-  val displayProgressDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
+  val surveyListState: MutableStateFlow<State?> = MutableStateFlow(null)
   val surveySummaries: Flow<List<SurveyItem>>
 
   init {
     surveySummaries =
-      offlineSurveys().flatMapMerge { offlineSurveys: List<Survey> ->
-        allSurveys().map { allSurveys: List<Survey> ->
-          allSurveys
-            .map { createSurveyItem(it, offlineSurveys) }
-            .sortedBy { it.surveyTitle }
-            .sortedByDescending { it.isAvailableOffline }
+      createSurveySummaries().onEach {
+        if (it.isEmpty()) {
+          setNotFound()
+        } else {
+          setLoaded()
         }
       }
   }
 
-  private fun offlineSurveys(): Flow<List<Survey>> = surveyRepository.offlineSurveys
+  /** Returns a flow of locally stored surveys. */
+  private fun offlineSurveys(): Flow<List<Survey>> =
+    surveyRepository.offlineSurveys.onEach { setLoading() }
 
+  /** Returns a flow of remotely stored surveys. */
   private suspend fun allSurveys(): Flow<List<Survey>> =
-    surveyRepository.getSurveySummaries(authManager.currentUser)
+    surveyRepository.getSurveySummaries(authManager.currentUser).onEach { setLoading() }
+
+  /** Returns a flow of [SurveyItem] to be displayed to the user. */
+  private fun createSurveySummaries(): Flow<List<SurveyItem>> =
+    offlineSurveys().flatMapMerge { offlineSurveys: List<Survey> ->
+      allSurveys().map { allSurveys: List<Survey> ->
+        allSurveys
+          .map { createSurveyItem(it, offlineSurveys) }
+          .sortedBy { it.surveyTitle }
+          .sortedByDescending { it.isAvailableOffline }
+      }
+    }
 
   private fun createSurveyItem(survey: Survey, localSurveys: List<Survey>): SurveyItem =
     SurveyItem(
@@ -80,10 +96,9 @@ internal constructor(
   fun activateSurvey(surveyId: String) =
     viewModelScope.launch {
       // TODO(#1497): Handle exceptions thrown by activateSurvey().
-      displayProgressDialog.value = true
+      setLoading()
       activateSurveyUseCase(surveyId)
-      displayProgressDialog.value = false
-      // TODO(#1490): Show spinner while survey is loading.
+      setLoaded()
       navigateToHomeScreen()
     }
 
@@ -93,5 +108,27 @@ internal constructor(
 
   fun deleteSurvey(surveyId: String) {
     externalScope.launch(ioDispatcher) { surveyRepository.removeOfflineSurvey(surveyId) }
+  }
+
+  fun signOut() {
+    userRepository.signOut()
+  }
+
+  private fun setNotFound() {
+    surveyListState.value = State.NOT_FOUND
+  }
+
+  private fun setLoading() {
+    surveyListState.value = State.LOADING
+  }
+
+  private fun setLoaded() {
+    surveyListState.value = State.LOADED
+  }
+
+  enum class State {
+    NOT_FOUND,
+    LOADING,
+    LOADED,
   }
 }
