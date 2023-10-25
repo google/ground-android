@@ -28,6 +28,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.tasks.await
 
 /** Thin wrapper around [FusedLocationProviderClient] exposing key LOIs as reactive streams. */
+// TODO: Remove Rx from the name of this class since it no longer uses RxJava2.
 class RxFusedLocationProviderClient @Inject constructor(@ApplicationContext context: Context) {
   private val fusedLocationProviderClient: FusedLocationProviderClient
 
@@ -41,9 +42,7 @@ class RxFusedLocationProviderClient @Inject constructor(@ApplicationContext cont
    * clients should check how old the location is to see if it suits their purposes.
    */
   @SuppressLint("MissingPermission")
-  suspend fun getLastLocation(): Location? {
-    return fusedLocationProviderClient.lastLocation.await()
-  }
+  suspend fun getLastLocation(): Location? = fusedLocationProviderClient.lastLocation.await()
 
   @SuppressLint("MissingPermission")
   suspend fun requestLocationUpdates(
