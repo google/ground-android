@@ -15,13 +15,8 @@
  */
 package com.google.android.ground.ui.home
 
-import android.app.AlertDialog
-import android.content.DialogInterface
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import android.widget.FrameLayout
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -35,12 +30,9 @@ import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.common.*
-import com.google.android.ground.ui.util.ViewUtil
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import timber.log.Timber
 
 /**
  * Fragment containing the map container and location of interest sheet fragments and NavigationView
@@ -49,10 +41,7 @@ import timber.log.Timber
  */
 @AndroidEntryPoint(AbstractFragment::class)
 class HomeScreenFragment :
-  Hilt_HomeScreenFragment(),
-  BackPressListener,
-  NavigationView.OnNavigationItemSelectedListener,
-  OnGlobalLayoutListener {
+  Hilt_HomeScreenFragment(), BackPressListener, NavigationView.OnNavigationItemSelectedListener {
 
   // TODO: It's not obvious which locations of interest are in HomeScreen vs MapContainer;
   //  make this more intuitive.
@@ -64,7 +53,6 @@ class HomeScreenFragment :
   @Inject lateinit var userRepository: UserRepository
 
   private lateinit var binding: HomeScreenFragBinding
-  private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
   private lateinit var homeScreenViewModel: HomeScreenViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,7 +62,6 @@ class HomeScreenFragment :
       onApplyWindowInsets(insets)
     }
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    homeScreenViewModel.bottomSheetState.observe(this) { onBottomSheetStateChange(it) }
     homeScreenViewModel.openDrawerRequests.`as`(RxAutoDispose.autoDisposable(this)).subscribe {
       openDrawer()
     }
@@ -87,7 +74,6 @@ class HomeScreenFragment :
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
     binding = HomeScreenFragBinding.inflate(inflater, container, false)
-    binding.locationOfInterestDetailsChrome.viewModel = homeScreenViewModel
     binding.lifecycleOwner = this
     return binding.root
   }
@@ -102,41 +88,13 @@ class HomeScreenFragment :
     }
 
     binding.navView.setNavigationItemSelectedListener(this)
-    requireView().viewTreeObserver.addOnGlobalLayoutListener(this)
     updateNavHeader()
-    setUpBottomSheetBehavior()
   }
 
   private fun updateNavHeader() {
     val navHeader = binding.navView.getHeaderView(0)
     val headerBinding = NavDrawerHeaderBinding.bind(navHeader)
     headerBinding.user = userRepository.currentUser
-  }
-
-  override fun onGlobalLayout() {
-    if (binding.root.findViewById<FrameLayout>(R.id.bottom_sheet_header) == null) return
-
-    bottomSheetBehavior.isFitToContents = false
-
-    // When the bottom sheet is expanded, the bottom edge of the header needs to be aligned with
-    // the bottom edge of the toolbar (the header slides up under it).
-    val metrics = BottomSheetMetrics(binding.bottomSheetLayout)
-    bottomSheetBehavior.expandedOffset = metrics.expandedOffset
-    requireView().viewTreeObserver.removeOnGlobalLayoutListener(this)
-  }
-
-  private fun setUpBottomSheetBehavior() {
-    bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheetLayout)
-    bottomSheetBehavior.isHideable = true
-    bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-    bottomSheetBehavior.setBottomSheetCallback(BottomSheetCallback())
-  }
-
-  @Deprecated("Deprecated in Java")
-  override fun onActivityCreated(savedInstanceState: Bundle?) {
-    super.onActivityCreated(savedInstanceState)
-    setHasOptionsMenu(true)
-    getAbstractActivity().setActionBar(binding.locationOfInterestDetailsChrome.toolbar, false)
   }
 
   private fun openDrawer() {
@@ -147,26 +105,8 @@ class HomeScreenFragment :
     binding.drawerLayout.closeDrawer(GravityCompat.START)
   }
 
-  @Deprecated("Deprecated in Java")
-  override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    if (item.itemId == R.id.loi_properties_menu_item) {
-      showLocationOfInterestProperties()
-      return true
-    }
-    return false
-  }
-
   private fun onApplyWindowInsets(insets: WindowInsetsCompat) {
-    binding.locationOfInterestDetailsChrome.toolbarWrapper.setPadding(
-      0,
-      insets.systemWindowInsetTop,
-      0,
-      0
-    )
-    binding.locationOfInterestDetailsChrome.bottomSheetBottomInsetScrim.minimumHeight =
-      insets.systemWindowInsetBottom
     updateNavViewInsets(insets)
-    updateBottomSheetPeekHeight(insets)
   }
 
   private fun updateNavViewInsets(insets: WindowInsetsCompat) {
@@ -174,49 +114,7 @@ class HomeScreenFragment :
     headerView.setPadding(0, insets.systemWindowInsetTop, 0, 0)
   }
 
-  private fun updateBottomSheetPeekHeight(insets: WindowInsetsCompat) {
-    val width =
-      (ViewUtil.getScreenWidth(requireActivity()) +
-          insets.systemWindowInsetLeft +
-          insets.systemWindowInsetRight)
-        .toDouble()
-    val height =
-      (ViewUtil.getScreenHeight(requireActivity()) +
-          insets.systemWindowInsetTop +
-          insets.systemWindowInsetBottom)
-        .toDouble()
-    var mapHeight = 0.0
-    if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-      mapHeight = width / COLLAPSED_MAP_ASPECT_RATIO
-    } else if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-      mapHeight = height / COLLAPSED_MAP_ASPECT_RATIO
-    }
-    val peekHeight = height - mapHeight
-    bottomSheetBehavior.peekHeight = peekHeight.toInt()
-  }
-
-  private fun onBottomSheetStateChange(state: BottomSheetState) {
-    when (state.visibility) {
-      BottomSheetState.Visibility.VISIBLE -> showBottomSheet()
-      BottomSheetState.Visibility.HIDDEN -> hideBottomSheet()
-    }
-  }
-
-  private fun showBottomSheet() {
-    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-  }
-
-  private fun hideBottomSheet() {
-    bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-  }
-
-  override fun onBack(): Boolean =
-    if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN) {
-      false
-    } else {
-      hideBottomSheet()
-      true
-    }
+  override fun onBack(): Boolean = false
 
   override fun onNavigationItemSelected(item: MenuItem): Boolean {
     when (item.itemId) {
@@ -228,48 +126,5 @@ class HomeScreenFragment :
     }
     closeDrawer()
     return true
-  }
-
-  private fun showLocationOfInterestProperties() {
-    // TODO(#841): Move business logic into view model.
-    val state = homeScreenViewModel.bottomSheetState.value
-    if (state == null) {
-      Timber.e("BottomSheetState is null")
-      return
-    }
-    if (state.locationOfInterest == null) {
-      Timber.e("No locationOfInterest selected")
-      return
-    }
-    val items: MutableList<String> = ArrayList()
-    // TODO(#843): Let properties apply to other locationOfInterest types as well.
-    if (items.isEmpty()) {
-      items.add("No properties defined for this locationOfInterest")
-    }
-    AlertDialog.Builder(requireContext())
-      .setCancelable(true)
-      .setTitle(
-        R.string.loi_properties
-      ) // TODO(#842): Use custom view to format locationOfInterest properties as table.
-      .setItems(arrayOf<String>()) { _: DialogInterface?, _: Int -> }
-      .setPositiveButton(R.string.close_loi_properties) { _: DialogInterface?, _: Int -> }
-      .create()
-      .show()
-  }
-
-  private inner class BottomSheetCallback : BottomSheetBehavior.BottomSheetCallback() {
-    override fun onStateChanged(bottomSheet: View, newState: Int) {
-      if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-        homeScreenViewModel.onBottomSheetHidden()
-      }
-    }
-
-    override fun onSlide(bottomSheet: View, slideOffset: Float) {
-      // no-op.
-    }
-  }
-
-  companion object {
-    private const val COLLAPSED_MAP_ASPECT_RATIO = 3.0f / 2.0f
   }
 }

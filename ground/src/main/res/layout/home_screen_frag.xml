@@ -36,8 +36,7 @@
         android:name="com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
-        app:layout_behavior="com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerLayoutBehavior" />
+        android:layout_gravity="center" />
 
       <FrameLayout
         android:id="@+id/map_scrim"
@@ -47,28 +46,6 @@
         android:background="?attr/colorTertiary"
         android:clickable="false"
         android:focusable="false" />
-
-      <FrameLayout
-        android:id="@+id/bottom_sheet_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/bottom_sheet_behavior">
-
-        <androidx.fragment.app.FragmentContainerView
-          android:id="@+id/location_of_interest_details_frag"
-          android:name="com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsFragment"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          tools:layout="@layout/location_of_interest_details_frag" />
-
-      </FrameLayout>
-
-      <!-- location_of_interest_sheet_chrome contains the fixed widgets that don't scroll -
-      in this case the Add Submission button the shim to obscure
-      the transparent bottom inset -->
-      <include
-        android:id="@+id/location_of_interest_details_chrome"
-        layout="@layout/location_of_interest_details_chrome" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

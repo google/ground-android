@@ -268,7 +268,7 @@ constructor(
    * @param cameraPosition new position
    * @param shouldAnimate whether to animate the map camera or not
    */
-  fun setCameraPosition(cameraPosition: CameraPosition, shouldAnimate: Boolean) {
+  private fun setCameraPosition(cameraPosition: CameraPosition, shouldAnimate: Boolean) {
     _cameraUpdateRequests.value = CameraUpdateRequest(cameraPosition, shouldAnimate)
   }
 

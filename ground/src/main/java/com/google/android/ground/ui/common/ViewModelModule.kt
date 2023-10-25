@@ -30,7 +30,6 @@ import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import com.google.android.ground.ui.editsubmission.*
 import com.google.android.ground.ui.home.HomeScreenViewModel
-import com.google.android.ground.ui.home.locationofinterestdetails.LocationOfInterestDetailsViewModel
 import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListItemViewModel
 import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListViewModel
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
@@ -102,13 +101,6 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(HomeScreenViewModel::class)
   abstract fun bindHomeScreenViewModel(viewModel: HomeScreenViewModel): ViewModel
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(LocationOfInterestDetailsViewModel::class)
-  abstract fun bindLocationOfInterestDetailsViewModel(
-    viewModel: LocationOfInterestDetailsViewModel
-  ): ViewModel
 
   @Binds
   @IntoMap
