@@ -43,6 +43,8 @@ import timber.log.Timber
 
 private val SIGN_IN_REQUEST_CODE = AuthenticationManager::class.java.hashCode() and 0xffff
 
+val NOBODY = User("nobody", "nobody", "Test User")
+
 class GoogleAuthenticationManager
 @Inject
 constructor(
@@ -95,7 +97,7 @@ constructor(
     externalScope.launch {
       getFirebaseAuth().signInAnonymously().await()
       signInState.onNext(
-        SignInState.signedIn(User("nobody", "nobody", "Test User"))
+        SignInState.signedIn(NOBODY)
       )
     }
     //    activityStreams.withActivity {
@@ -147,7 +149,7 @@ constructor(
   private fun getFirebaseAuthCredential(googleAccount: GoogleSignInAccount): AuthCredential =
     GoogleAuthProvider.getCredential(googleAccount.idToken, null)
 
-  private suspend fun getFirebaseUser(): User? = getFirebaseAuth().currentUser?.toUser()
+  private suspend fun getFirebaseUser(): User? = NOBODY //getFirebaseAuth().currentUser?.toUser()
 
   private fun FirebaseUser.toUser(): User =
     User(uid, email.orEmpty(), displayName.orEmpty(), photoUrl.toString())
