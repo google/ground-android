@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.home
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
@@ -24,7 +23,6 @@ import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
-import com.google.android.ground.ui.home.BottomSheetState.Companion.hidden
 import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
 import javax.inject.Inject
@@ -38,23 +36,12 @@ internal constructor(
   private val surveyRepository: SurveyRepository
 ) : AbstractViewModel() {
 
-  @JvmField
-  val isSubmissionButtonVisible: @Hot(replays = true) MutableLiveData<Boolean> =
-    MutableLiveData(false)
-
-  // TODO(#719): Move into LocationOfInterestDetailsViewModel.
   val openDrawerRequests: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
-  val bottomSheetState: @Hot(replays = true) MutableLiveData<BottomSheetState> = MutableLiveData()
   val showOfflineAreaMenuItem: LiveData<Boolean> =
     surveyRepository.activeSurveyFlow.map { it?.tileSources?.isNotEmpty() ?: false }.asLiveData()
 
   fun openNavDrawer() {
     openDrawerRequests.onNext(Nil.NIL)
-  }
-
-  fun onBottomSheetHidden() {
-    bottomSheetState.value = hidden()
-    isSubmissionButtonVisible.value = false
   }
 
   fun showSurveySelector() {

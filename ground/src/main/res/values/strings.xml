@@ -67,7 +67,6 @@
   <!-- Shown when user has refused to enable location services in settings.-->
   <string name="location_disabled_in_settings">Please enable location in system settings</string>
 
-  <string name="add_submission_button_label">Add submission</string>
   <string name="view_submission_details">View submission details</string>
   <string name="map_view">Map view</string>
   <string name="unexpected_error">An unexpected error has occurred</string>
@@ -104,11 +103,6 @@
   <!-- Other strings (to be organized) -->
   <string name="sync_status">Sync status</string>
   <string name="layer_label_format">Job: %s</string>
-
-  <!-- Shown in toolbar overflow menu, used to show imported locationOfInterest properties. -->
-  <string name="loi_properties">LOI properties</string>
-  <!-- Label on button shown to dismiss the locationOfInterest properties dialog. -->
-  <string name="close_loi_properties">OK</string>
 
   <string name="add_point">Add point</string>
   <string name="complete_polygon">Complete</string>

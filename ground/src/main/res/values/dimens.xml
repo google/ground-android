@@ -34,15 +34,8 @@
   <dimen name="map_btn_margin_bottom">48dp</dimen>
   <dimen name="toolbar_button_margin_top">8dp</dimen>
   <dimen name="toolbar_button_margin_right">12dp</dimen>
-  <dimen name="chip_button_margin_bottom">16dp</dimen>
-  <dimen name="chip_button_margin_right">14dp</dimen>
   <dimen name="fab_margin">16dp</dimen>
   <!-- TODO: Make dimensions relative using Android data binding. -->
-  <dimen name="bottom_sheet_margin_top">16dp</dimen>
-  <dimen name="loi_details_icon_bg_diameter">58dp</dimen>
-  <dimen name="loi_details_icon_elevation">5dp</dimen>
-  <dimen name="loi_details_header_padding_top">42dp</dimen>
-  <dimen name="loi_details_header_corner_radius">6dp</dimen>
   <dimen name="submission_list_item_horizontal_margin">14dp</dimen>
   <dimen name="submission_list_item_horizontal_vertical">10dp</dimen>
   <dimen name="submission_list_task_label_size">12sp</dimen>
@@ -50,9 +43,7 @@
   <dimen name="submission_summary_text_padding_right">8dp</dimen>
   <dimen name="submission_summary_text_max_width">128dp</dimen>
   <dimen name="toolbar_elevation">4dp</dimen>
-  <dimen name="loi_details_header_padding_bottom">16dp</dimen>
   <dimen name="submission_list_item_preview_table_right_margin">18dp</dimen>
-  <dimen name="loi_details_header_height">120dp</dimen>
 
   <!-- Navigation drawer -->
   <dimen name="nav_drawer_profile_image_size">64dp</dimen>
