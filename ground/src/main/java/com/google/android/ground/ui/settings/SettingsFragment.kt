@@ -57,11 +57,6 @@ class SettingsFragment :
   }
 
   override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
-    when (preference.key) {
-      Keys.UPLOAD_MEDIA,
-      Keys.OFFLINE_AREAS -> {}
-      else -> {}
-    }
     return true
   }
 

@@ -28,13 +28,6 @@
       app:key="upload_media"
       app:summary="Over Wi-Fi only"
       app:title="Upload media" />
-
-    <SwitchPreferenceCompat
-      app:iconSpaceReserved="false"
-      app:key="offline_areas"
-      app:summary="Over Wi-Fi only"
-      app:title="Offline areas download" />
-
   </PreferenceCategory>
 
   <PreferenceCategory
@@ -51,8 +44,8 @@
     <!-- TODO(https://github.com/google/ground-android/pull/742): Re-enable once the locationOfInterest is implemented -->
     <Preference
       app:iconSpaceReserved="false"
-      app:key="feedback"
       app:isPreferenceVisible="false"
+      app:key="feedback"
       app:summary="Report technical issues or suggest new locationsOfInterest"
       app:title="Send feedback" />
 
