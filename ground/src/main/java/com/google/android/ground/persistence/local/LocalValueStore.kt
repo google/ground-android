@@ -98,11 +98,6 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     preferences.getBoolean(Keys.UPLOAD_MEDIA, false)
   }
 
-  // TODO(#1964): Consider cleaning up this preference if there are no plans to use it anywhere.
-  fun shouldDownloadOfflineAreasOverUnmeteredConnectionOnly(): Boolean = allowThreadDiskReads {
-    preferences.getBoolean(Keys.OFFLINE_AREAS, false)
-  }
-
   fun setLastCameraPosition(surveyId: String, cameraPosition: CameraPosition) =
     allowThreadDiskReads {
       preferences

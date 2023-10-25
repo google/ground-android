@@ -20,11 +20,10 @@ object Keys {
 
   // General
   const val UPLOAD_MEDIA = "upload_media"
-  const val OFFLINE_AREAS = "offline_areas"
 
   // Help
   const val VISIT_WEBSITE = "visit_website"
   const val FEEDBACK = "feedback"
 
-  @JvmField val ALL_KEYS = arrayOf(UPLOAD_MEDIA, OFFLINE_AREAS, VISIT_WEBSITE, FEEDBACK)
+  val ALL_KEYS = arrayOf(UPLOAD_MEDIA, VISIT_WEBSITE, FEEDBACK)
 }
