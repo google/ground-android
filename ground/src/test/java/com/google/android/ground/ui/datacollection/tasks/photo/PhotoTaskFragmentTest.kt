@@ -28,6 +28,7 @@ import javax.inject.Inject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
@@ -46,6 +47,12 @@ class PhotoTaskFragmentTest : BaseTaskFragmentTest<PhotoTaskFragment, PhotoTaskV
       isRequired = false
     )
   private val job = Job("job", Style("#112233"))
+
+  override fun setUp() {
+    super.setUp()
+
+    whenever(dataCollectionViewModel.surveyId).thenReturn("test survey id")
+  }
 
   @Test
   fun testHeader() {
