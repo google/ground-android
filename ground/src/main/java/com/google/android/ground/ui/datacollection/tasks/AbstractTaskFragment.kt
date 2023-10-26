@@ -26,6 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.isNotNullOrEmpty
+import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
@@ -123,9 +124,13 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .setOnTaskUpdated { button, taskData -> button.enableIfTrue(taskData.isNotNullOrEmpty()) }
       .disable()
 
+  /** Skip button is only visible iff, the task is optional and the task data is missing. */
   protected fun addSkipButton() =
     addButton(ButtonAction.SKIP)
       .setOnClickListener { onSkip() }
+      .setOnTaskUpdated { button, taskData ->
+        button.showIfTrue(viewModel.isTaskOptional() && taskData.isNullOrEmpty())
+      }
       .showIfTrue(viewModel.isTaskOptional())
 
   private fun onSkip() {
