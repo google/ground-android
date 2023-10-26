@@ -167,5 +167,5 @@ constructor(
     if (USE_EMULATORS) anonymousUser else getFirebaseAuth().currentUser?.toUser()
 
   private fun FirebaseUser.toUser(): User =
-    User(uid, email.orEmpty(), displayName.orEmpty(), photoUrl.toString())
+    User(uid, email.orEmpty(), displayName.orEmpty(), photoUrl.toString(), isAnonymous)
 }

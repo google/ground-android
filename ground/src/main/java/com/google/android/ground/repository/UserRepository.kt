@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.ground.BuildConfig.USE_EMULATORS
 import com.google.android.ground.model.Role
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
@@ -55,7 +54,7 @@ constructor(
       Timber.d("Skipped refreshing user profile as device is offline.")
       return
     }
-    if (!USE_EMULATORS) {
+    if (!authenticationManager.currentUser.isAnonymous) {
       remoteDataStore.refreshUserProfile()
     }
   }
