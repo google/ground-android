@@ -44,9 +44,10 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-private val SIGN_IN_REQUEST_CODE = AuthenticationManager::class.java.hashCode() and 0xffff
+private val signInRequestCode = AuthenticationManager::class.java.hashCode() and 0xffff
 
-val NOBODY = User("nobody", "nobody", "Test User")
+/** Used when running against local Firebase Emulator Suite. */
+private val anonymousUser = User("nobody", "nobody", "Test User")
 
 class GoogleAuthenticationManager
 @Inject
@@ -68,7 +69,7 @@ constructor(
         .build()
 
     externalScope.launch {
-      activityStreams.getActivityResults(SIGN_IN_REQUEST_CODE).asFlow().collect {
+      activityStreams.getActivityResults(signInRequestCode).asFlow().collect {
         onActivityResult(it)
       }
     }
@@ -107,13 +108,13 @@ constructor(
   private fun signInAnonymously() =
     externalScope.launch {
       getFirebaseAuth().signInAnonymously().await()
-      signInState.onNext(SignInState.signedIn(NOBODY))
+      signInState.onNext(SignInState.signedIn(anonymousUser))
     }
 
   private fun showSignInDialog() =
     activityStreams.withActivity {
       val signInIntent = getGoogleSignInClient(it).signInIntent
-      it.startActivityForResult(signInIntent, SIGN_IN_REQUEST_CODE)
+      it.startActivityForResult(signInIntent, signInRequestCode)
     }
 
   override fun signOut() {
@@ -163,7 +164,7 @@ constructor(
     GoogleAuthProvider.getCredential(googleAccount.idToken, null)
 
   private suspend fun getFirebaseUser(): User? =
-    if (USE_EMULATORS) NOBODY else getFirebaseAuth().currentUser?.toUser()
+    if (USE_EMULATORS) anonymousUser else getFirebaseAuth().currentUser?.toUser()
 
   private fun FirebaseUser.toUser(): User =
     User(uid, email.orEmpty(), displayName.orEmpty(), photoUrl.toString())
