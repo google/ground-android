@@ -124,7 +124,6 @@ constructor(
     onPhotoResult(result)
   }
 
-  @Throws(IOException::class)
   private fun getFileFromResult(result: PhotoResult): File {
     if (result.bitmap != null) {
       return userMediaRepository.savePhoto(result.bitmap, result.taskId)
