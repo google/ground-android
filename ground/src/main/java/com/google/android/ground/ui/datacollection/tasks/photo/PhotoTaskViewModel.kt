@@ -63,27 +63,19 @@ constructor(
    */
   private var capturedPhotoPath: String? = null
 
+  private lateinit var surveyId: String
+
   val uri: LiveData<Uri> =
     taskDataValue.map { userMediaRepository.getDownloadUrl(it?.getDetailsText()) }.asLiveData()
 
   val isPhotoPresent: LiveData<Boolean> = taskDataValue.map { it.isNotNullOrEmpty() }.asLiveData()
 
-  private var surveyId: String? = null
-
-  fun updateResponse(value: String) {
-    setResponse(fromString(value))
-  }
-
-  fun setSurveyId(surveyId: String?) {
+  fun setSurveyId(surveyId: String) {
     this.surveyId = surveyId
   }
 
   fun onPhotoResult(photoResult: PhotoResult) {
     if (photoResult.isHandled) {
-      return
-    }
-    if (surveyId == null) {
-      Timber.e("surveyId not set")
       return
     }
     if (photoResult.taskId != task.id) {
@@ -104,8 +96,8 @@ constructor(
       userMediaRepository.addImageToGallery(path, filename)
 
       // Update taskData.
-      val remoteDestinationPath = getRemoteMediaPath(surveyId!!, filename)
-      updateResponse(remoteDestinationPath)
+      val remoteDestinationPath = getRemoteMediaPath(surveyId, filename)
+      setResponse(fromString(remoteDestinationPath))
     } catch (e: IOException) {
       // TODO: Report error.
       Timber.e(e, "Failed to save photo")
