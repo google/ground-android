@@ -20,7 +20,6 @@
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
-    <import type="android.view.View" />
     <variable
       name="dataCollectionViewModel"
       type="com.google.android.ground.ui.datacollection.DataCollectionViewModel" />
@@ -41,11 +40,11 @@
     <com.google.android.material.button.MaterialButton
       android:id="@+id/btn_take_photo"
       style="@style/TaskChipButton.LightGreen"
+      visible="@{!viewModel.isPhotoPresent()"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:onClick="@{()-> fragment.onTakePhoto()}"
       android:text="@string/take_picture"
-      android:visibility="@{viewModel.isPhotoPresent() ? View.GONE : View.VISIBLE}"
       app:icon="@drawable/outline_photo_camera"
       app:iconTint="?attr/colorOnSurface" />
 
