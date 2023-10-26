@@ -89,8 +89,9 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
   }
 
   override fun onCreateActionButtons() {
-    super.onCreateActionButtons()
     addUndoButton()
+    addSkipButton()
+    addContinueButton()
   }
 
   override fun onResume() {
