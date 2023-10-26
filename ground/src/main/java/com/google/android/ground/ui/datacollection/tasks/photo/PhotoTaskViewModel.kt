@@ -18,8 +18,9 @@ package com.google.android.ground.ui.datacollection.tasks.photo
 import android.content.res.Resources
 import android.net.Uri
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.toLiveData
+import androidx.lifecycle.asLiveData
 import com.google.android.ground.model.submission.TextTaskData.Companion.fromString
+import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager.Companion.getRemoteMediaPath
 import com.google.android.ground.repository.UserMediaRepository
@@ -33,7 +34,7 @@ import io.reactivex.subjects.Subject
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
-import kotlinx.coroutines.rx2.rxSingle
+import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 class PhotoTaskViewModel
@@ -66,11 +67,9 @@ constructor(
   private var capturedPhotoPath: String? = null
 
   val uri: LiveData<Uri> =
-    detailsTextFlowable()
-      .switchMapSingle { rxSingle { userMediaRepository.getDownloadUrl(it) } }
-      .toLiveData()
+    taskDataValue.map { userMediaRepository.getDownloadUrl(it?.getDetailsText()) }.asLiveData()
 
-  val isPhotoPresent: LiveData<Boolean> = detailsTextFlowable().map { it.isNotEmpty() }.toLiveData()
+  val isPhotoPresent: LiveData<Boolean> = taskDataValue.map { it.isNotNullOrEmpty() }.asLiveData()
 
   private var surveyId: String? = null
 
