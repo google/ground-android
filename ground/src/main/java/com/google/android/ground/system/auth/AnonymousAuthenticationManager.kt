@@ -52,12 +52,10 @@ constructor(
         .blockingFirst() // TODO: Should this be blocking?
 
   override fun init() {
-    externalScope.launch {
-      signInState.onNext(
-        if (firebaseAuth.currentUser == null) SignInState.signedOut()
-        else SignInState.signedIn(anonymousUser)
-      )
-    }
+    signInState.onNext(
+      if (firebaseAuth.currentUser == null) SignInState.signedOut()
+      else SignInState.signedIn(anonymousUser)
+    )
   }
 
   override fun signIn() {
@@ -69,9 +67,7 @@ constructor(
   }
 
   override fun signOut() {
-    externalScope.launch {
-      firebaseAuth.signOut()
-      signInState.onNext(SignInState.signedOut())
-    }
+    firebaseAuth.signOut()
+    signInState.onNext(SignInState.signedOut())
   }
 }
