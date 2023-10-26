@@ -48,5 +48,5 @@ tasks.register('jacocoTestStagingUnitTestReport', JacocoReport) {
         ]
     )
     sourceDirectories.from = files('src/main/java/com/google/android/ground')
-    executionData.from = files('build/jacoco/testDebugUnitTest.exec')
+    executionData.from = files('build/jacoco/testDevDebugUnitTest.exec')
 }
