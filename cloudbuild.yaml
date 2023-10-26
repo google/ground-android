@@ -85,11 +85,11 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex assembleDevStaging assembleDevStagingUnitTest -PtestBuildType=devStaging
+        ./gradlew -PdisablePreDex assembleDevStaging assembleDevStagingUnitTest -PtestBuildType=staging
 
   # TODO(#1547): Re-enable once instrumentation tests are fixed.
   #        if [[ "${_PUSH_TO_MASTER}" ]]; then
-  #          ./gradlew -PdisablePreDex assembleDevStagingAndroidTest -PtestBuildType=devStaging
+  #          ./gradlew -PdisablePreDex assembleDevStagingAndroidTest -PtestBuildType=staging
   #        fi
 
   # Run code quality checks
