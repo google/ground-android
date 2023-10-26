@@ -18,7 +18,6 @@ package com.google.android.ground.persistence.local.stores
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
-import io.reactivex.Single
 
 interface LocalOfflineAreaStore {
   /**
@@ -34,5 +33,5 @@ interface LocalOfflineAreaStore {
   suspend fun deleteOfflineArea(offlineAreaId: String)
 
   /** Returns the offline area with the specified id. */
-  fun getOfflineAreaById(id: String): Single<OfflineArea>
+  suspend fun getOfflineAreaById(id: String): OfflineArea?
 }
