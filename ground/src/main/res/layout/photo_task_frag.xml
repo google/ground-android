@@ -25,6 +25,9 @@
       name="dataCollectionViewModel"
       type="com.google.android.ground.ui.datacollection.DataCollectionViewModel" />
     <variable
+      name="fragment"
+      type="com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskFragment" />
+    <variable
       name="viewModel"
       type="com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskViewModel" />
   </data>
@@ -32,19 +35,19 @@
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:paddingStart="8dp"
-    android:paddingEnd="8dp"
-    android:orientation="vertical">
+    android:paddingEnd="8dp">
     <com.google.android.material.button.MaterialButton
       android:id="@+id/btn_take_photo"
       style="@style/TaskChipButton.LightGreen"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      app:icon="@drawable/outline_photo_camera"
-      app:iconTint="?attr/colorOnSurface"
-      android:onClick="@{()-> viewModel.onTakePhotoClick()}"
+      android:onClick="@{()-> fragment.onTakePhoto()}"
       android:text="@string/take_picture"
-      android:visibility="@{viewModel.isPhotoPresent() ? View.GONE : View.VISIBLE}" />
+      android:visibility="@{viewModel.isPhotoPresent() ? View.GONE : View.VISIBLE}"
+      app:icon="@drawable/outline_photo_camera"
+      app:iconTint="?attr/colorOnSurface" />
 
     <include
       android:id="@+id/photo_task"

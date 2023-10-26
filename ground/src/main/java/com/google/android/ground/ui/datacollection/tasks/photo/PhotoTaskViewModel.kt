@@ -21,15 +21,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.model.submission.TextTaskData.Companion.fromString
 import com.google.android.ground.model.submission.isNotNullOrEmpty
-import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager.Companion.getRemoteMediaPath
 import com.google.android.ground.repository.UserMediaRepository
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.util.BitmapUtil
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import java.io.File
 import java.io.IOException
@@ -72,14 +69,6 @@ constructor(
   val isPhotoPresent: LiveData<Boolean> = taskDataValue.map { it.isNotNullOrEmpty() }.asLiveData()
 
   private var surveyId: String? = null
-
-  private val takePhotoClicks: @Hot Subject<Task> = PublishSubject.create()
-
-  fun onTakePhotoClick() {
-    takePhotoClicks.onNext(task)
-  }
-
-  fun getTakePhotoClicks(): @Hot Observable<Task> = takePhotoClicks
 
   fun updateResponse(value: String) {
     setResponse(fromString(value))

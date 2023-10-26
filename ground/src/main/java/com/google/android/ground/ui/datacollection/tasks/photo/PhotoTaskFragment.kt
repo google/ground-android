@@ -58,6 +58,7 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val taskBinding = PhotoTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
+    taskBinding.fragment = this
     taskBinding.dataCollectionViewModel = dataCollectionViewModel
     taskBinding.viewModel = viewModel
     return taskBinding.root
@@ -83,7 +84,6 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
     viewModel.setTaskWaitingForPhoto(taskWaitingForPhoto)
     viewModel.setCapturedPhotoPath(capturedPhotoPath)
 
-    observeSelectPhotoClicks()
     observePhotoResults()
   }
 
@@ -108,12 +108,6 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
     outState.putString(CAPTURED_PHOTO_PATH, viewModel.getCapturedPhotoPath())
   }
 
-  private fun observeSelectPhotoClicks() {
-    viewModel.getTakePhotoClicks().`as`(autoDisposable(viewLifecycleOwner)).subscribe {
-      onTakePhoto()
-    }
-  }
-
   private fun observePhotoResults() {
     viewModel
       .getLastPhotoResult()
@@ -134,7 +128,7 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
     }
   }
 
-  private fun onTakePhoto() {
+  fun onTakePhoto() {
     // TODO(#1600): Launch intent is not invoked if the permission is not granted by default.
     obtainCapturePhotoPermissions { launchPhotoCapture(viewModel.task.id) }
   }
