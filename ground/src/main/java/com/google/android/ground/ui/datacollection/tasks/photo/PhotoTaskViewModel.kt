@@ -53,7 +53,7 @@ constructor(
    * Task id waiting for a photo taskData. As only 1 photo result is returned at a time, we can
    * directly map it 1:1 with the task waiting for a photo taskData.
    */
-  private var taskWaitingForPhoto: String? = null
+  var taskWaitingForPhoto: String? = null
 
   /**
    * Full path of the captured photo in local storage. In case of selecting a photo from storage,
@@ -61,18 +61,14 @@ constructor(
    * result returns true/false based on whether the operation passed or not. As only 1 photo result
    * is returned at a time, we can directly map it 1:1 with the path of the captured photo.
    */
-  private var capturedPhotoPath: String? = null
+  var capturedPhotoPath: String? = null
 
-  private lateinit var surveyId: String
+  lateinit var surveyId: String
 
   val uri: LiveData<Uri> =
     taskDataValue.map { userMediaRepository.getDownloadUrl(it?.getDetailsText()) }.asLiveData()
 
   val isPhotoPresent: LiveData<Boolean> = taskDataValue.map { it.isNotNullOrEmpty() }.asLiveData()
-
-  fun setSurveyId(surveyId: String) {
-    this.surveyId = surveyId
-  }
 
   fun onPhotoResult(photoResult: PhotoResult) {
     if (photoResult.isHandled) {
@@ -102,18 +98,6 @@ constructor(
       // TODO: Report error.
       Timber.e(e, "Failed to save photo")
     }
-  }
-
-  fun getTaskWaitingForPhoto(): String? = taskWaitingForPhoto
-
-  fun setTaskWaitingForPhoto(taskWaitingForPhoto: String?) {
-    this.taskWaitingForPhoto = taskWaitingForPhoto
-  }
-
-  fun getCapturedPhotoPath(): String? = capturedPhotoPath
-
-  fun setCapturedPhotoPath(photoUri: String?) {
-    this.capturedPhotoPath = photoUri
   }
 
   fun getLastPhotoResult(): Observable<PhotoResult?> = lastPhotoResult

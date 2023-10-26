@@ -80,9 +80,9 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
         viewModel.onCapturePhotoResult(result)
       }
 
-    viewModel.setSurveyId(dataCollectionViewModel.surveyId)
-    viewModel.setTaskWaitingForPhoto(taskWaitingForPhoto)
-    viewModel.setCapturedPhotoPath(capturedPhotoPath)
+    viewModel.surveyId = dataCollectionViewModel.surveyId
+    viewModel.taskWaitingForPhoto = taskWaitingForPhoto
+    viewModel.capturedPhotoPath = capturedPhotoPath
 
     observePhotoResults()
   }
@@ -104,8 +104,8 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    outState.putString(TASK_WAITING_FOR_PHOTO, viewModel.getTaskWaitingForPhoto())
-    outState.putString(CAPTURED_PHOTO_PATH, viewModel.getCapturedPhotoPath())
+    outState.putString(TASK_WAITING_FOR_PHOTO, viewModel.taskWaitingForPhoto)
+    outState.putString(CAPTURED_PHOTO_PATH, viewModel.capturedPhotoPath)
   }
 
   private fun observePhotoResults() {
@@ -136,8 +136,8 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
   private fun launchPhotoCapture(taskId: String) {
     val photoFile = userMediaRepository.createImageFile(taskId)
     val uri = FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID, photoFile)
-    viewModel.setTaskWaitingForPhoto(taskId)
-    viewModel.setCapturedPhotoPath(photoFile.absolutePath)
+    viewModel.taskWaitingForPhoto = taskId
+    viewModel.capturedPhotoPath = photoFile.absolutePath
     capturePhotoLauncher.launch(uri)
     Timber.d("Capture photo intent sent")
   }
