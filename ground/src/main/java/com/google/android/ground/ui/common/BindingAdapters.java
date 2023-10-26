@@ -32,6 +32,7 @@ import com.google.android.ground.R;
 import com.google.android.material.textfield.TextInputEditText;
 import com.squareup.picasso.Picasso;
 import java8.util.function.Consumer;
+import timber.log.Timber;
 
 /**
  * Container for adapter methods defining custom data binding behavior. This class cannot be made
@@ -79,7 +80,12 @@ public class BindingAdapters {
 
   @BindingAdapter("imageUri")
   public static void bindUri(ImageView view, Uri uri) {
-    Picasso.get().load(uri).placeholder(R.drawable.ic_photo_grey_600_24dp).into(view);
+    try {
+      Picasso.get().load(uri).placeholder(R.drawable.ic_photo_grey_600_24dp).into(view);
+    } catch (IllegalStateException exception) {
+      // Needed for running unit tests
+      Timber.e(exception);
+    }
   }
 
   @BindingAdapter("tint")

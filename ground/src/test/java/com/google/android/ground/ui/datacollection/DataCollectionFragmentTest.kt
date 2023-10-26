@@ -83,23 +83,23 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun onContinueClicked_noUserInput_buttonDisabled() {
+  fun onNextClicked_noUserInput_buttonDisabled() {
     setupSubmission()
     setupFragment()
 
-    onView(allOf(withText("Continue"), isDisplayed(), isNotEnabled())).perform(click())
+    onView(allOf(withText("Next"), isDisplayed(), isNotEnabled())).perform(click())
 
     onView(withText(TASK_1_NAME)).check(matches(isDisplayed()))
     onView(withText(TASK_2_NAME)).check(matches(not(isDisplayed())))
   }
 
   @Test
-  fun onContinueClicked_newTaskIsShown() {
+  fun onNextClicked_newTaskIsShown() {
     setupSubmission()
     setupFragment()
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
 
-    onView(allOf(withText("Continue"), isDisplayed())).perform(click())
+    onView(allOf(withText("Next"), isDisplayed())).perform(click())
 
     assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
     onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
@@ -107,11 +107,11 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun onContinueClicked_thenOnBack_initialTaskIsShown() {
+  fun onNextClicked_thenOnBack_initialTaskIsShown() {
     setupSubmission()
     setupFragment()
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
-    onView(allOf(withText("Continue"), isDisplayed())).perform(click())
+    onView(allOf(withText("Next"), isDisplayed())).perform(click())
     onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
     onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
 
@@ -123,7 +123,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun onContinueClicked_onFinalTask_resultIsSaved() = runWithTestDispatcher {
+  fun onNextClicked_onFinalTask_resultIsSaved() = runWithTestDispatcher {
     setupSubmission()
     setupFragment()
     val task1Response = "response 1"
@@ -142,13 +142,13 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         ),
       )
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task1Response))
-    onView(allOf(withText("Continue"), isDisplayed())).perform(click())
+    onView(allOf(withText("Next"), isDisplayed())).perform(click())
     onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
     onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
 
-    // Click continue on final task
+    // Click "next" on final task
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task2Response))
-    onView(allOf(withText("Continue"), isDisplayed())).perform(click())
+    onView(allOf(withText("Next"), isDisplayed())).perform(click())
     advanceUntilIdle()
 
     verify(submissionRepository)

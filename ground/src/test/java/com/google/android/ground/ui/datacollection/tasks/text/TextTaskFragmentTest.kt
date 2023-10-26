@@ -71,11 +71,11 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
       .check(matches(isEnabled()))
 
     hasTaskData(null)
-    buttonIsDisabled("Continue")
+    buttonIsDisabled("Next")
   }
 
   @Test
-  fun testResponse_onUserInput_continueButtonIsEnabled() = runWithTestDispatcher {
+  fun testResponse_onUserInput_nextButtonIsEnabled() = runWithTestDispatcher {
     setupTaskFragment<TextTaskFragment>(job, task)
 
     onView(withId(R.id.user_response_text))
@@ -83,21 +83,21 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
       .perform(typeText("Hello world"))
 
     hasTaskData(TextTaskData("Hello world"))
-    buttonIsEnabled("Continue")
+    buttonIsEnabled("Next")
   }
 
   @Test
   fun testActionButtons() {
     setupTaskFragment<TextTaskFragment>(job, task)
 
-    hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP)
+    hasButtons(ButtonAction.NEXT, ButtonAction.SKIP)
   }
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<TextTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsDisabled("Continue")
+    buttonIsDisabled("Next")
     buttonIsEnabled("Skip")
   }
 
@@ -105,7 +105,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<TextTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsDisabled("Continue")
+    buttonIsDisabled("Next")
     buttonIsHidden("Skip")
   }
 }

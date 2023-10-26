@@ -110,7 +110,7 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 2")).perform(click())
 
     hasTaskData(MultipleChoiceTaskData(multipleChoice, listOf("option id 2")))
-    buttonIsEnabled("Continue")
+    buttonIsEnabled("Next")
   }
 
   @Test
@@ -136,33 +136,32 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 2")).perform(click())
 
     hasTaskData(MultipleChoiceTaskData(multipleChoice, listOf("option id 1", "option id 2")))
-    buttonIsEnabled("Continue")
+    buttonIsEnabled("Next")
   }
 
   @Test
   fun testActionButtons() {
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
-    hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP)
+    hasButtons(ButtonAction.NEXT, ButtonAction.SKIP)
   }
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsDisabled("Continue")
+    buttonIsDisabled("Next")
     buttonIsEnabled("Skip")
   }
 
   @Test
-  fun testActionButtons_dataEntered_skipButtonTapped_confirmationDialogIsShown() {
+  fun `Skip button gets hidden on selecting an option`() {
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
     onView(withText("Option 1")).perform(click())
 
-    onView(withText("Skip")).perform(click())
-    assertThat(ShadowAlertDialog.getLatestDialog().isShowing).isTrue()
+    buttonIsHidden("Skip")
   }
 
   @Test
@@ -178,7 +177,7 @@ class MultipleChoiceTaskFragmentTest :
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsDisabled("Continue")
+    buttonIsDisabled("Next")
     buttonIsHidden("Skip")
   }
 }
