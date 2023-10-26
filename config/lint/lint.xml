@@ -60,4 +60,7 @@
   <issue id="UseCompatTextViewDrawableXml" severity="error" />
   <issue id="ValidActionsXml" severity="error" />
   <issue id="WrongThreadInterprocedural" severity="error" />
+  <issue id="usesCleartextTraffic">
+    <ignore path="AndroidManifest.xml"/>
+  </issue>
 </lint>

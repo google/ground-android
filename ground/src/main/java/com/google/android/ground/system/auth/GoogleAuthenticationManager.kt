@@ -24,7 +24,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
-import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.User
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.ActivityResult
@@ -33,21 +32,19 @@ import com.google.firebase.auth.*
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.asFlow
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-private val SIGN_IN_REQUEST_CODE = AuthenticationManager::class.java.hashCode() and 0xffff
+private val signInRequestCode = AuthenticationManager::class.java.hashCode() and 0xffff
 
 class GoogleAuthenticationManager
 @Inject
 constructor(
   resources: Resources,
   private val activityStreams: ActivityStreams,
-  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+  private val firebaseAuth: FirebaseAuth,
   @ApplicationScope private val externalScope: CoroutineScope
 ) : AuthenticationManager {
 
@@ -62,7 +59,7 @@ constructor(
         .build()
 
     externalScope.launch {
-      activityStreams.getActivityResults(SIGN_IN_REQUEST_CODE).asFlow().collect {
+      activityStreams.getActivityResults(signInRequestCode).asFlow().collect {
         onActivityResult(it)
       }
     }
@@ -91,27 +88,28 @@ constructor(
 
   override fun signIn() {
     signInState.onNext(SignInState.signingIn())
+    showSignInDialog()
+  }
+
+  private fun showSignInDialog() =
     activityStreams.withActivity {
       val signInIntent = getGoogleSignInClient(it).signInIntent
-      it.startActivityForResult(signInIntent, SIGN_IN_REQUEST_CODE)
+      it.startActivityForResult(signInIntent, signInRequestCode)
     }
-  }
 
   override fun signOut() {
     externalScope.launch {
-      getFirebaseAuth().signOut()
+      firebaseAuth.signOut()
       signInState.onNext(SignInState.signedOut())
       activityStreams.withActivity { getGoogleSignInClient(it).signOut() }
     }
   }
 
-  private suspend fun getFirebaseAuth() = withContext(ioDispatcher) { FirebaseAuth.getInstance() }
-
   private fun getGoogleSignInClient(activity: Activity): GoogleSignInClient =
     // TODO: Use app context instead of activity?
     GoogleSignIn.getClient(activity, googleSignInOptions)
 
-  private suspend fun onActivityResult(activityResult: ActivityResult) {
+  private fun onActivityResult(activityResult: ActivityResult) {
     // The Task returned from getSignedInAccountFromIntent is always completed, so no need to
     // attach a listener.
     try {
@@ -123,8 +121,8 @@ constructor(
     }
   }
 
-  private suspend fun onGoogleSignIn(googleAccount: GoogleSignInAccount) =
-    getFirebaseAuth()
+  private fun onGoogleSignIn(googleAccount: GoogleSignInAccount) =
+    firebaseAuth
       .signInWithCredential(getFirebaseAuthCredential(googleAccount))
       .addOnSuccessListener { authResult: AuthResult -> onFirebaseAuthSuccess(authResult) }
       .addOnFailureListener { signInState.onNext(SignInState.error(it)) }
@@ -135,7 +133,7 @@ constructor(
   private fun getFirebaseAuthCredential(googleAccount: GoogleSignInAccount): AuthCredential =
     GoogleAuthProvider.getCredential(googleAccount.idToken, null)
 
-  private suspend fun getFirebaseUser(): User? = getFirebaseAuth().currentUser?.toUser()
+  private fun getFirebaseUser(): User? = firebaseAuth.currentUser?.toUser()
 
   private fun FirebaseUser.toUser(): User =
     User(uid, email.orEmpty(), displayName.orEmpty(), photoUrl.toString())

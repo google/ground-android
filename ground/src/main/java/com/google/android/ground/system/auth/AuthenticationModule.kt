@@ -15,17 +15,35 @@
  */
 package com.google.android.ground.system.auth
 
-import dagger.Binds
+import com.google.android.ground.BuildConfig.AUTH_EMULATOR_PORT
+import com.google.android.ground.BuildConfig.EMULATOR_HOST
+import com.google.android.ground.BuildConfig.USE_EMULATORS
+import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-abstract class AuthenticationModule {
-  /** Provides the Google implementation of authentication manager. */
-  @Binds
+class AuthenticationModule {
+  /** Provides appropriate implementation of authentication manager. */
+  @Provides
   @Singleton
-  abstract fun googleAuthenticationManager(gam: GoogleAuthenticationManager): AuthenticationManager
+  fun authenticationManager(
+    anonymousAuthenticationManager: AnonymousAuthenticationManager,
+    googleAuthenticationManager: GoogleAuthenticationManager
+  ): AuthenticationManager =
+    if (USE_EMULATORS) anonymousAuthenticationManager else googleAuthenticationManager
+
+  @Provides
+  fun firebaseAuth(): FirebaseAuth {
+    val auth = FirebaseAuth.getInstance()
+    if (USE_EMULATORS) {
+      // Use the auth emulator so we can sign-in anonymously during dev.
+      auth.useEmulator(EMULATOR_HOST, AUTH_EMULATOR_PORT)
+    }
+    return auth
+  }
 }

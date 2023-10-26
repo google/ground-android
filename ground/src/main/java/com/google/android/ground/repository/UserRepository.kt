@@ -54,7 +54,9 @@ constructor(
       Timber.d("Skipped refreshing user profile as device is offline.")
       return
     }
-    remoteDataStore.refreshUserProfile()
+    if (!authenticationManager.currentUser.isAnonymous) {
+      remoteDataStore.refreshUserProfile()
+    }
   }
 
   suspend fun getUser(userId: String): User = localUserStore.getUser(userId)

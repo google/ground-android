@@ -15,7 +15,9 @@
  */
 package com.google.android.ground.persistence.remote
 
-import com.google.android.ground.Config
+import com.google.android.ground.BuildConfig.EMULATOR_HOST
+import com.google.android.ground.BuildConfig.FIRESTORE_EMULATOR_PORT
+import com.google.android.ground.BuildConfig.USE_EMULATORS
 import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager
 import com.google.android.ground.persistence.remote.firebase.FirestoreDataStore
 import com.google.android.ground.persistence.remote.firebase.FirestoreUuidGenerator
@@ -51,11 +53,15 @@ abstract class RemotePersistenceModule {
 
   companion object {
     @Provides
-    fun firebaseFirestoreSettings(): FirebaseFirestoreSettings {
-      return FirebaseFirestoreSettings.Builder()
-        .setPersistenceEnabled(Config.FIRESTORE_PERSISTENCE_ENABLED)
-        .build()
-    }
+    fun firebaseFirestoreSettings(): FirebaseFirestoreSettings =
+      with(FirebaseFirestoreSettings.Builder()) {
+        if (USE_EMULATORS) {
+          host = "$EMULATOR_HOST:$FIRESTORE_EMULATOR_PORT"
+          isSslEnabled = false
+        }
+        isPersistenceEnabled = false
+        build()
+      }
 
     /** Returns a reference to the default Storage bucket. */
     @Provides

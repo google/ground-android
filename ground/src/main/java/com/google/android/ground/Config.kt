@@ -30,7 +30,6 @@ object Config {
   const val DB_NAME = "ground.db"
 
   // Firebase Cloud Firestore settings.
-  const val FIRESTORE_PERSISTENCE_ENABLED = false
   const val FIRESTORE_LOGGING_ENABLED = true
 
   // Photos
