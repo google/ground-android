@@ -44,14 +44,18 @@ constructor(
   private val locationClient: RxFusedLocationProviderClient,
 ) {
 
-  private val _locationUpdates = MutableSharedFlow<Location>()
+  private val _locationUpdates = MutableSharedFlow<Location>(replay = 1)
   val locationUpdates: SharedFlow<Location>
     get() = _locationUpdates
+
   private val locationCallback = LocationSharedFlowCallback(_locationUpdates, externalScope)
 
   // TODO: Request updates on resume.
-  suspend fun requestLocationUpdates() =
+  /** Immediately emits the last known location (if any) and then subscribes to location updates. */
+  suspend fun requestLocationUpdates() {
+    locationClient.getLastLocation()?.let { _locationUpdates.emit(it) }
     locationClient.requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST, locationCallback)
+  }
 
   // TODO: Remove updates on pause.
   suspend fun disableLocationUpdates() = locationClient.removeLocationUpdates(locationCallback)

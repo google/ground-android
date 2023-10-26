@@ -32,10 +32,7 @@ import com.google.android.ground.R
  *
  * TODO: Create dagger module and support injection into this fragment.
  */
-class SettingsFragment :
-  PreferenceFragmentCompat(),
-  Preference.OnPreferenceChangeListener,
-  Preference.OnPreferenceClickListener {
+class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClickListener {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -51,18 +48,8 @@ class SettingsFragment :
         findPreference<Preference>(key)
           ?: throw IllegalArgumentException("Key not found in preferences.xml: $key")
 
-      preference.onPreferenceChangeListener = this
       preference.onPreferenceClickListener = this
     }
-  }
-
-  override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
-    when (preference.key) {
-      Keys.UPLOAD_MEDIA,
-      Keys.OFFLINE_AREAS -> {}
-      else -> {}
-    }
-    return true
   }
 
   override fun onPreferenceClick(preference: Preference): Boolean {
