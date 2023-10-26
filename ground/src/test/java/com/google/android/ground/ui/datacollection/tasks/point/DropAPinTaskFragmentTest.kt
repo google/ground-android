@@ -75,7 +75,7 @@ class DropAPinTaskFragmentTest :
     onView(withText("Drop pin")).perform(click())
 
     hasTaskData(GeometryData(Point(Coordinates(10.0, 20.0))))
-    buttonIsEnabled("Continue")
+    buttonIsEnabled("Next")
     buttonIsEnabled(ButtonAction.UNDO)
     buttonIsHidden("Drop pin")
   }
@@ -97,7 +97,7 @@ class DropAPinTaskFragmentTest :
     getButton(ButtonAction.UNDO).performClick()
 
     hasTaskData(null)
-    buttonIsHidden("Continue")
+    buttonIsHidden("Next")
     buttonIsEnabled("Drop pin")
   }
 
@@ -105,14 +105,14 @@ class DropAPinTaskFragmentTest :
   fun testActionButtons() {
     setupTaskFragment<DropAPinTaskFragment>(job, task)
 
-    hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP, ButtonAction.UNDO, ButtonAction.DROP_PIN)
+    hasButtons(ButtonAction.NEXT, ButtonAction.SKIP, ButtonAction.UNDO, ButtonAction.DROP_PIN)
   }
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<DropAPinTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsHidden("Continue")
+    buttonIsHidden("Next")
     buttonIsEnabled("Skip")
     buttonIsHidden(ButtonAction.UNDO)
     buttonIsEnabled("Drop pin")
@@ -122,7 +122,7 @@ class DropAPinTaskFragmentTest :
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<DropAPinTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsHidden("Continue")
+    buttonIsHidden("Next")
     buttonIsHidden("Skip")
     buttonIsHidden(ButtonAction.UNDO)
     buttonIsEnabled("Drop pin")

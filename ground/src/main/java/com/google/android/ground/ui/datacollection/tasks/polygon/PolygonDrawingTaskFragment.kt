@@ -60,7 +60,7 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
   override fun onCreateActionButtons() {
     addSkipButton()
     addUndoButton()
-    addContinueButton()
+    addNextButton()
     addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
     addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.onCompletePolygonButtonClick() }
   }
@@ -78,7 +78,7 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
 
     getButton(ButtonAction.ADD_POINT).showIfTrue(!isClosedGeometry)
     getButton(ButtonAction.COMPLETE).showIfTrue(isClosedGeometry && !isMarkedComplete)
-    getButton(ButtonAction.CONTINUE).showIfTrue(isMarkedComplete)
+    getButton(ButtonAction.NEXT).showIfTrue(isMarkedComplete)
     getButton(ButtonAction.UNDO).showIfTrue(!isGeometryEmpty)
   }
 }

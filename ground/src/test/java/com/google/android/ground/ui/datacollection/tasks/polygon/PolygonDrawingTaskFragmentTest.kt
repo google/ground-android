@@ -77,7 +77,7 @@ class PolygonDrawingTaskFragmentTest :
     setupTaskFragment<PolygonDrawingTaskFragment>(job, task)
 
     hasButtons(
-      ButtonAction.CONTINUE,
+      ButtonAction.NEXT,
       ButtonAction.SKIP,
       ButtonAction.UNDO,
       ButtonAction.ADD_POINT,
@@ -89,7 +89,7 @@ class PolygonDrawingTaskFragmentTest :
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<PolygonDrawingTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsHidden("Continue")
+    buttonIsHidden("Next")
     buttonIsEnabled("Skip")
     buttonIsHidden(ButtonAction.UNDO)
     buttonIsEnabled("Add point")
@@ -100,7 +100,7 @@ class PolygonDrawingTaskFragmentTest :
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<PolygonDrawingTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsHidden("Continue")
+    buttonIsHidden("Next")
     buttonIsHidden("Skip")
     buttonIsHidden(ButtonAction.UNDO)
     buttonIsEnabled("Add point")
@@ -131,7 +131,7 @@ class PolygonDrawingTaskFragmentTest :
         )
       )
     )
-    buttonIsEnabled("Continue")
+    buttonIsEnabled("Next")
     buttonIsEnabled(ButtonAction.UNDO)
     buttonIsHidden("Complete")
   }

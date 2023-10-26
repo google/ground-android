@@ -28,7 +28,7 @@ enum class ButtonAction(
 ) {
 
   // All tasks
-  CONTINUE(Type.TEXT, Theme.DARK_GREEN, textId = R.string.continue_text),
+  NEXT(Type.TEXT, Theme.DARK_GREEN, textId = R.string.next),
   SKIP(Type.TEXT, Theme.TRANSPARENT, textId = R.string.skip),
   UNDO(Type.ICON, Theme.LIGHT_GREEN, drawableId = R.drawable.ic_undo_black),
 
