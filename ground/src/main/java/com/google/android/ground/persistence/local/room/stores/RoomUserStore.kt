@@ -44,5 +44,5 @@ class RoomUserStore @Inject internal constructor() : LocalUserStore {
     getUserOrNull(id) ?: throw LocalDataStoreException("Error loading user from local db: $id")
 
   override suspend fun getUserOrNull(id: String): User? =
-    userDao.findByIdSuspend(id)?.toModelObject()
+    userDao.findById(id)?.toModelObject()
 }
