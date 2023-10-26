@@ -24,7 +24,6 @@ import com.google.android.ground.persistence.local.room.entity.OfflineAreaEntity
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.rx.Schedulers
 import io.reactivex.Flowable
-import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -42,8 +41,8 @@ class RoomOfflineAreaStore @Inject internal constructor() : LocalOfflineAreaStor
       .map { areas: List<OfflineAreaEntity> -> areas.map { it.toModelObject() } }
       .subscribeOn(schedulers.io())
 
-  override fun getOfflineAreaById(id: String): Single<OfflineArea> =
-    offlineAreaDao.findById(id).map { it.toModelObject() }.toSingle().subscribeOn(schedulers.io())
+  override suspend fun getOfflineAreaById(id: String): OfflineArea? =
+    offlineAreaDao.findById(id)?.toModelObject()
 
   override suspend fun deleteOfflineArea(offlineAreaId: String) =
     offlineAreaDao.deleteById(offlineAreaId)
