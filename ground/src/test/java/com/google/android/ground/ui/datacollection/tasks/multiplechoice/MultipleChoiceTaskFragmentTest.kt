@@ -155,14 +155,13 @@ class MultipleChoiceTaskFragmentTest :
   }
 
   @Test
-  fun testActionButtons_dataEntered_skipButtonTapped_confirmationDialogIsShown() {
+  fun `Skip button gets hidden on selecting an option`() {
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
     onView(withText("Option 1")).perform(click())
 
-    onView(withText("Skip")).perform(click())
-    assertThat(ShadowAlertDialog.getLatestDialog().isShowing).isTrue()
+    buttonIsHidden("Skip")
   }
 
   @Test

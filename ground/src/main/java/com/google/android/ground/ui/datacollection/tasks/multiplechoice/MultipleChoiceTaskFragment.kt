@@ -42,12 +42,6 @@ class MultipleChoiceTaskFragment : Hilt_MultipleChoiceTaskFragment<MultipleChoic
     return binding.root
   }
 
-  override fun skip() {
-    super.skip()
-
-    setupMultipleChoice(binding.selectOptionList)
-  }
-
   private fun setupMultipleChoice(recyclerView: RecyclerView) {
     val multipleChoice = viewModel.task.multipleChoice!!
     recyclerView.setHasFixedSize(true)

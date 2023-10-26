@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection.tasks
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -124,7 +123,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .setOnTaskUpdated { button, taskData -> button.enableIfTrue(taskData.isNotNullOrEmpty()) }
       .disable()
 
-  /** Skip button is only visible iff, the task is optional and the task data is missing. */
+  /** Skip button is only visible iff the task is optional and the task doesn't contain any data. */
   protected fun addSkipButton() =
     addButton(ButtonAction.SKIP)
       .setOnClickListener { onSkip() }
@@ -134,22 +133,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .showIfTrue(viewModel.isTaskOptional())
 
   private fun onSkip() {
-    if (viewModel.hasNoData()) {
-      skip()
-    } else {
-      AlertDialog.Builder(requireContext())
-        .setCancelable(true)
-        .setTitle(R.string.skip_dialog_title)
-        .setMessage(R.string.data_deletion_warning)
-        .setNegativeButton(R.string.go_back_button_label) { _, _ -> }
-        .setPositiveButton(R.string.confirm_button_label) { _, _ -> skip() }
-        .create()
-        .show()
-    }
-  }
-
-  protected open fun skip() {
-    viewModel.clearResponse()
+    check(viewModel.hasNoData()) { "User should not be able to skip a task with data." }
     dataCollectionViewModel.onContinueClicked()
   }
 
