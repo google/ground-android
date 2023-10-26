@@ -71,9 +71,6 @@ constructor(
   val isPhotoPresent: LiveData<Boolean> = taskDataValue.map { it.isNotNullOrEmpty() }.asLiveData()
 
   fun onPhotoResult(photoResult: PhotoResult) {
-    if (photoResult.isHandled) {
-      return
-    }
     if (photoResult.taskId != task.id) {
       // Update belongs to another task.
       return
@@ -84,7 +81,7 @@ constructor(
       return
     }
     try {
-      val imageFile = getFileFromResult(photoResult.copy(isHandled = true))
+      val imageFile = getFileFromResult(photoResult)
       val filename = imageFile.name
       val path = imageFile.absolutePath
 

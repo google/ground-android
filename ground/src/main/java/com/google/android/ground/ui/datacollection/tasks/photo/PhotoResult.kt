@@ -18,11 +18,6 @@ package com.google.android.ground.ui.datacollection.tasks.photo
 import android.graphics.Bitmap
 
 /** Contains the bitmap or path to the photo a user captured or selected. */
-data class PhotoResult(
-  val taskId: String,
-  val bitmap: Bitmap? = null,
-  val path: String? = null,
-  val isHandled: Boolean = false
-) {
+data class PhotoResult(val taskId: String, val bitmap: Bitmap? = null, val path: String? = null) {
   fun isEmpty(): Boolean = bitmap == null && path == null
 }
