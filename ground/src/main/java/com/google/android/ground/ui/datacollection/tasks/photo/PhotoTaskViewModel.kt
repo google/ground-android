@@ -75,11 +75,6 @@ constructor(
       // Update belongs to another task.
       return
     }
-    if (photoResult.isEmpty()) {
-      clearResponse()
-      Timber.v("Photo cleared")
-      return
-    }
     try {
       val imageFile = getFileFromResult(photoResult)
       val filename = imageFile.name
@@ -110,7 +105,7 @@ constructor(
       return
     }
     try {
-      onPhotoProvided(PhotoResult(currentTask, bitmapUtil.fromUri(uri)))
+      onPhotoProvided(PhotoResult(currentTask, bitmapUtil.fromUri(uri), null))
       Timber.v("Select photo result returned")
     } catch (e: IOException) {
       Timber.e(e, "Error getting photo selected from storage")
@@ -132,7 +127,7 @@ constructor(
       Timber.e("Photo captured but no path available to read the result")
       return
     }
-    onPhotoProvided(PhotoResult(currentTask, /* bitmap=*/ null, capturedPhotoPath))
+    onPhotoProvided(PhotoResult(currentTask, null, capturedPhotoPath))
     Timber.v("Photo capture result returned")
   }
 
