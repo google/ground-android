@@ -18,7 +18,6 @@ package com.google.android.ground.ui.datacollection.tasks.photo
 import android.content.res.Resources
 import android.net.Uri
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.toLiveData
 import com.google.android.ground.model.submission.TextTaskData.Companion.fromString
 import com.google.android.ground.model.task.Task
@@ -76,19 +75,12 @@ constructor(
   private var surveyId: String? = null
 
   private val takePhotoClicks: @Hot Subject<Task> = PublishSubject.create()
-  private val editable: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData(false)
 
   fun onTakePhotoClick() {
     takePhotoClicks.onNext(task)
   }
 
   fun getTakePhotoClicks(): @Hot Observable<Task> = takePhotoClicks
-
-  fun setEditable(enabled: Boolean) {
-    editable.postValue(enabled)
-  }
-
-  fun isEditable(): LiveData<Boolean> = editable
 
   fun updateResponse(value: String) {
     setResponse(fromString(value))
@@ -187,10 +179,6 @@ constructor(
     capturedPhotoPath = null
     taskWaitingForPhoto = null
     lastPhotoResult.onNext(result)
-  }
-
-  fun clearPhoto(taskId: String) {
-    lastPhotoResult.onNext(PhotoResult(taskId))
   }
 
   @Throws(IOException::class)
