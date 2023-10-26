@@ -85,11 +85,11 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex assembleStaging assembleStagingUnitTest -PtestBuildType=staging
+        ./gradlew -PdisablePreDex assembleDevStaging assembleDevStagingUnitTest -PtestBuildType=devStaging
 
   # TODO(#1547): Re-enable once instrumentation tests are fixed.
   #        if [[ "${_PUSH_TO_MASTER}" ]]; then
-  #          ./gradlew -PdisablePreDex assembleStagingAndroidTest -PtestBuildType=staging
+  #          ./gradlew -PdisablePreDex assembleDevStagingAndroidTest -PtestBuildType=devStaging
   #        fi
 
   # Run code quality checks
@@ -114,11 +114,11 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex testStagingUnitTest 2> unit-test-logs.txt || echo "fail" > build-status.txt
+        ./gradlew -PdisablePreDex testDevStagingUnitTest 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
         # TODO: Add a check for _PUSH_TO_MASTER
-        ./gradlew jacocoTestStagingUnitTestReport
+        ./gradlew jacocoTestDevStagingUnitTestReport
 
   - name: 'gcr.io/$PROJECT_ID/android:34'
     id: &authenticate_gcloud 'Authorize gcloud'
