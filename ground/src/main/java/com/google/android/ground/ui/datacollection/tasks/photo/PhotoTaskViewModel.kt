@@ -25,9 +25,6 @@ import com.google.android.ground.persistence.remote.firebase.FirebaseStorageMana
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.util.BitmapUtil
-import io.reactivex.Observable
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.Subject
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
@@ -41,13 +38,6 @@ constructor(
   private val bitmapUtil: BitmapUtil,
   resources: Resources
 ) : AbstractTaskViewModel(resources) {
-
-  /**
-   * Emits the last photo task id updated and either its photo result, or empty if removed. The last
-   * value is emitted on each subscription because {@see #onPhotoResult} is called before
-   * subscribers are created.
-   */
-  private val lastPhotoResult: Subject<PhotoResult> = BehaviorSubject.create()
 
   /**
    * Task id waiting for a photo taskData. As only 1 photo result is returned at a time, we can
@@ -70,7 +60,7 @@ constructor(
 
   val isPhotoPresent: LiveData<Boolean> = taskDataValue.map { it.isNotNullOrEmpty() }.asLiveData()
 
-  fun onPhotoResult(photoResult: PhotoResult) {
+  private fun onPhotoResult(photoResult: PhotoResult) {
     if (photoResult.taskId != task.id) {
       // Update belongs to another task.
       return
@@ -87,12 +77,9 @@ constructor(
       val remoteDestinationPath = getRemoteMediaPath(surveyId, filename)
       setResponse(fromString(remoteDestinationPath))
     } catch (e: IOException) {
-      // TODO: Report error.
       Timber.e(e, "Failed to save photo")
     }
   }
-
-  fun getLastPhotoResult(): Observable<PhotoResult?> = lastPhotoResult
 
   fun onSelectPhotoResult(uri: Uri?) {
     if (uri == null) {
@@ -134,7 +121,7 @@ constructor(
   private fun onPhotoProvided(result: PhotoResult) {
     capturedPhotoPath = null
     taskWaitingForPhoto = null
-    lastPhotoResult.onNext(result)
+    onPhotoResult(result)
   }
 
   @Throws(IOException::class)

@@ -27,7 +27,6 @@ import com.google.android.ground.BuildConfig
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.databinding.PhotoTaskFragBinding
 import com.google.android.ground.repository.UserMediaRepository
-import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.ui.datacollection.components.TaskView
@@ -83,8 +82,6 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
     viewModel.surveyId = dataCollectionViewModel.surveyId
     viewModel.taskWaitingForPhoto = taskWaitingForPhoto
     viewModel.capturedPhotoPath = capturedPhotoPath
-
-    observePhotoResults()
   }
 
   override fun onCreateActionButtons() {
@@ -106,13 +103,6 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
     super.onSaveInstanceState(outState)
     outState.putString(TASK_WAITING_FOR_PHOTO, viewModel.taskWaitingForPhoto)
     outState.putString(CAPTURED_PHOTO_PATH, viewModel.capturedPhotoPath)
-  }
-
-  private fun observePhotoResults() {
-    viewModel
-      .getLastPhotoResult()
-      .`as`(autoDisposable<PhotoResult>(viewLifecycleOwner))
-      .subscribe { photoResult -> viewModel.onPhotoResult(photoResult) }
   }
 
   private fun obtainCapturePhotoPermissions(onPermissionsGranted: () -> Unit = {}) {
