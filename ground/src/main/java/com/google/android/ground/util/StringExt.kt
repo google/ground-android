@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.photo
+package com.google.android.ground.util
 
-import android.graphics.Bitmap
-import com.google.android.ground.util.isNotNullOrEmpty
-
-/** Contains the bitmap or path to the photo a user captured or selected. */
-data class PhotoResult constructor(val taskId: String, val bitmap: Bitmap?, val path: String?) {
-
-  init {
-    check(bitmap != null || path.isNotNullOrEmpty()) {
-      "At-least one of bitmap or path should be non-null, found bitmap=${bitmap != null}, path=${path.isNotNullOrEmpty()}"
-    }
-  }
-}
+fun String?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()
