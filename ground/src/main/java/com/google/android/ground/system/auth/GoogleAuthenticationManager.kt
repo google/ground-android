@@ -22,6 +22,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.ground.BuildConfig.AUTH_EMULATOR_PORT
+import com.google.android.ground.BuildConfig.EMULATOR_HOST
+import com.google.android.ground.BuildConfig.USE_EMULATORS
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
@@ -94,17 +97,24 @@ constructor(
 
   override fun signIn() {
     signInState.onNext(SignInState.signingIn())
+    if (USE_EMULATORS) {
+      signInAnonymously()
+    } else {
+      showSignInDialog()
+    }
+  }
+
+  private fun signInAnonymously() =
     externalScope.launch {
       getFirebaseAuth().signInAnonymously().await()
-      signInState.onNext(
-        SignInState.signedIn(NOBODY)
-      )
+      signInState.onNext(SignInState.signedIn(NOBODY))
     }
-    //    activityStreams.withActivity {
-    //      val signInIntent = getGoogleSignInClient(it).signInIntent
-    //      it.startActivityForResult(signInIntent, SIGN_IN_REQUEST_CODE)
-    //    }
-  }
+
+  private fun showSignInDialog() =
+    activityStreams.withActivity {
+      val signInIntent = getGoogleSignInClient(it).signInIntent
+      it.startActivityForResult(signInIntent, SIGN_IN_REQUEST_CODE)
+    }
 
   override fun signOut() {
     externalScope.launch {
@@ -117,7 +127,10 @@ constructor(
   private suspend fun getFirebaseAuth() =
     withContext(ioDispatcher) {
       val auth = FirebaseAuth.getInstance()
-      auth.useEmulator("10.0.2.2", 9099)
+      if (USE_EMULATORS) {
+        // Use the auth emulator so we can sign-in anonymously during dev.
+        auth.useEmulator(EMULATOR_HOST, AUTH_EMULATOR_PORT)
+      }
       auth
     }
 
@@ -149,7 +162,8 @@ constructor(
   private fun getFirebaseAuthCredential(googleAccount: GoogleSignInAccount): AuthCredential =
     GoogleAuthProvider.getCredential(googleAccount.idToken, null)
 
-  private suspend fun getFirebaseUser(): User? = NOBODY //getFirebaseAuth().currentUser?.toUser()
+  private suspend fun getFirebaseUser(): User? =
+    if (USE_EMULATORS) NOBODY else getFirebaseAuth().currentUser?.toUser()
 
   private fun FirebaseUser.toUser(): User =
     User(uid, email.orEmpty(), displayName.orEmpty(), photoUrl.toString())
