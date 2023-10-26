@@ -32,9 +32,10 @@ class AuthenticationModule {
   @Provides
   @Singleton
   fun authenticationManager(
-    googleAuthMgr: GoogleAuthenticationManager,
-    anonymousAuthMgr: AnonymousAuthenticationManager
-  ): AuthenticationManager = if (USE_EMULATORS) anonymousAuthMgr else googleAuthMgr
+    anonymousAuthenticationManager: AnonymousAuthenticationManager,
+    googleAuthenticationManager: GoogleAuthenticationManager
+  ): AuthenticationManager =
+    if (USE_EMULATORS) anonymousAuthenticationManager else googleAuthenticationManager
 
   @Provides
   fun firebaseAuth(): FirebaseAuth {
