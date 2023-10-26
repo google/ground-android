@@ -66,7 +66,7 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
       .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
 
     Truth.assertThat(viewModel.responseText.value).isEqualTo("")
-    buttonIsDisabled("Continue")
+    buttonIsDisabled("Next")
   }
 
   @Test
@@ -82,14 +82,14 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   fun testActionButtons() {
     setupTaskFragment<TimeTaskFragment>(job, task)
 
-    hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP)
+    hasButtons(ButtonAction.NEXT, ButtonAction.SKIP)
   }
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<TimeTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsDisabled("Continue")
+    buttonIsDisabled("Next")
     buttonIsEnabled("Skip")
   }
 
@@ -97,7 +97,7 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<TimeTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsDisabled("Continue")
+    buttonIsDisabled("Next")
     buttonIsHidden("Skip")
   }
 }

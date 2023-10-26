@@ -54,8 +54,8 @@ class DropAPinTaskFragment : Hilt_DropAPinTaskFragment<DropAPinTaskViewModel>() 
     addButton(ButtonAction.DROP_PIN)
       .setOnClickListener { viewModel.dropPin() }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNullOrEmpty()) }
-    addButton(ButtonAction.CONTINUE)
-      .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
+    addButton(ButtonAction.NEXT)
+      .setOnClickListener { dataCollectionViewModel.onNextClicked() }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
       .hide()
   }

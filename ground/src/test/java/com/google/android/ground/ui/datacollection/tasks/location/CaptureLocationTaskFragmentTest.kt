@@ -74,7 +74,7 @@ class CaptureLocationTaskFragmentTest :
     onView(withText("Capture")).perform(click())
 
     hasTaskData(TASK_DATA)
-    buttonIsEnabled("Continue")
+    buttonIsEnabled("Next")
     buttonIsEnabled(ButtonAction.UNDO)
     buttonIsHidden("Capture")
   }
@@ -96,7 +96,7 @@ class CaptureLocationTaskFragmentTest :
     getButton(ButtonAction.UNDO).performClick()
 
     hasTaskData(null)
-    buttonIsHidden("Continue")
+    buttonIsHidden("Next")
     buttonIsEnabled("Capture")
   }
 
@@ -105,7 +105,7 @@ class CaptureLocationTaskFragmentTest :
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     hasButtons(
-      ButtonAction.CONTINUE,
+      ButtonAction.NEXT,
       ButtonAction.SKIP,
       ButtonAction.UNDO,
       ButtonAction.CAPTURE_LOCATION
@@ -116,7 +116,7 @@ class CaptureLocationTaskFragmentTest :
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsHidden("Continue")
+    buttonIsHidden("Next")
     buttonIsEnabled("Skip")
     buttonIsHidden(ButtonAction.UNDO)
     buttonIsEnabled("Capture")
@@ -126,7 +126,7 @@ class CaptureLocationTaskFragmentTest :
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsHidden("Continue")
+    buttonIsHidden("Next")
     buttonIsHidden("Skip")
     buttonIsHidden(ButtonAction.UNDO)
     buttonIsEnabled("Capture")

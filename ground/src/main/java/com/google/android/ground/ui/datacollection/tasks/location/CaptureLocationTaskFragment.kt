@@ -57,8 +57,8 @@ class CaptureLocationTaskFragment :
     addButton(ButtonAction.CAPTURE_LOCATION)
       .setOnClickListener { viewModel.updateResponse() }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNullOrEmpty()) }
-    addButton(ButtonAction.CONTINUE)
-      .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
+    addButton(ButtonAction.NEXT)
+      .setOnClickListener { dataCollectionViewModel.onNextClicked() }
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
       .hide()
   }

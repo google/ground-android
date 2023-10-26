@@ -110,7 +110,7 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 2")).perform(click())
 
     hasTaskData(MultipleChoiceTaskData(multipleChoice, listOf("option id 2")))
-    buttonIsEnabled("Continue")
+    buttonIsEnabled("Next")
   }
 
   @Test
@@ -136,21 +136,21 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 2")).perform(click())
 
     hasTaskData(MultipleChoiceTaskData(multipleChoice, listOf("option id 1", "option id 2")))
-    buttonIsEnabled("Continue")
+    buttonIsEnabled("Next")
   }
 
   @Test
   fun testActionButtons() {
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
-    hasButtons(ButtonAction.CONTINUE, ButtonAction.SKIP)
+    hasButtons(ButtonAction.NEXT, ButtonAction.SKIP)
   }
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsDisabled("Continue")
+    buttonIsDisabled("Next")
     buttonIsEnabled("Skip")
   }
 
@@ -177,7 +177,7 @@ class MultipleChoiceTaskFragmentTest :
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsDisabled("Continue")
+    buttonIsDisabled("Next")
     buttonIsHidden("Skip")
   }
 }

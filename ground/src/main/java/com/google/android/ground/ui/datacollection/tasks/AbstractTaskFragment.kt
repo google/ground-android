@@ -100,7 +100,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   /** Invoked when the fragment is ready to add buttons to the current [TaskView]. */
   open fun onCreateActionButtons() {
     addSkipButton()
-    addContinueButton()
+    addNextButton()
   }
 
   /** Invoked when the all [ButtonAction]s are added to the current [TaskView]. */
@@ -117,9 +117,9 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  protected fun addContinueButton() =
-    addButton(ButtonAction.CONTINUE)
-      .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
+  protected fun addNextButton() =
+    addButton(ButtonAction.NEXT)
+      .setOnClickListener { dataCollectionViewModel.onNextClicked() }
       .setOnTaskUpdated { button, taskData -> button.enableIfTrue(taskData.isNotNullOrEmpty()) }
       .disable()
 
@@ -134,7 +134,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   private fun onSkip() {
     check(viewModel.hasNoData()) { "User should not be able to skip a task with data." }
-    dataCollectionViewModel.onContinueClicked()
+    dataCollectionViewModel.onNextClicked()
   }
 
   fun addUndoButton() =
