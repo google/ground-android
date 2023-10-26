@@ -23,16 +23,23 @@ import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.ui.map.Bounds
-import com.google.android.ground.ui.map.gms.mog.*
+import com.google.android.ground.ui.map.gms.mog.MogClient
+import com.google.android.ground.ui.map.gms.mog.MogCollection
+import com.google.android.ground.ui.map.gms.mog.MogSource
+import com.google.android.ground.ui.map.gms.mog.MogTileDownloader
+import com.google.android.ground.ui.map.gms.mog.getTilePath
+import com.google.android.ground.ui.map.gms.mog.maxZoom
 import com.google.android.ground.ui.util.FileUtil
 import com.google.android.ground.util.ByteCount
 import com.google.android.ground.util.deleteIfEmpty
 import com.google.android.ground.util.rangeOf
-import io.reactivex.*
+import io.reactivex.Flowable
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirst
 import timber.log.Timber
@@ -74,11 +81,8 @@ constructor(
   fun offlineAreasOnceAndStream(): @Cold(terminates = false) Flowable<List<OfflineArea>> =
     localOfflineAreaStore.offlineAreasOnceAndStream()
 
-  /**
-   * Fetches a single offline area by ID. Triggers `onError` when the area is not found. Triggers
-   * `onSuccess` when the area is found.
-   */
-  fun getOfflineArea(offlineAreaId: String): @Cold Single<OfflineArea> =
+  /** Fetches a single offline area by ID. */
+  suspend fun getOfflineArea(offlineAreaId: String): OfflineArea? =
     localOfflineAreaStore.getOfflineAreaById(offlineAreaId)
 
   /**

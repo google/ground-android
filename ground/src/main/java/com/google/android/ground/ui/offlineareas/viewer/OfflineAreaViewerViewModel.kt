@@ -36,7 +36,6 @@ import com.google.android.ground.util.toMbString
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 
 /**
@@ -87,7 +86,7 @@ constructor(
   fun initialize(args: OfflineAreaViewerFragmentArgs) {
     offlineAreaId = args.offlineAreaId
     viewModelScope.launch(ioDispatcher) {
-      val thisArea = offlineAreaRepository.getOfflineArea(offlineAreaId).await()
+      val thisArea = offlineAreaRepository.getOfflineArea(offlineAreaId)!!
       area.postValue(thisArea)
       areaSize.postValue(offlineAreaRepository.sizeOnDevice(thisArea).toMb().toMbString())
     }
