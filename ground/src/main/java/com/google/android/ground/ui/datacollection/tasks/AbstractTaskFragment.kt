@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection.tasks
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +25,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.isNotNullOrEmpty
+import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
@@ -100,7 +100,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   /** Invoked when the fragment is ready to add buttons to the current [TaskView]. */
   open fun onCreateActionButtons() {
     addSkipButton()
-    addContinueButton()
+    addNextButton()
   }
 
   /** Invoked when the all [ButtonAction]s are added to the current [TaskView]. */
@@ -117,35 +117,24 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  protected fun addContinueButton() =
-    addButton(ButtonAction.CONTINUE)
-      .setOnClickListener { dataCollectionViewModel.onContinueClicked() }
+  protected fun addNextButton() =
+    addButton(ButtonAction.NEXT)
+      .setOnClickListener { dataCollectionViewModel.onNextClicked() }
       .setOnTaskUpdated { button, taskData -> button.enableIfTrue(taskData.isNotNullOrEmpty()) }
       .disable()
 
+  /** Skip button is only visible iff the task is optional and the task doesn't contain any data. */
   protected fun addSkipButton() =
     addButton(ButtonAction.SKIP)
       .setOnClickListener { onSkip() }
+      .setOnTaskUpdated { button, taskData ->
+        button.showIfTrue(viewModel.isTaskOptional() && taskData.isNullOrEmpty())
+      }
       .showIfTrue(viewModel.isTaskOptional())
 
   private fun onSkip() {
-    if (viewModel.hasNoData()) {
-      skip()
-    } else {
-      AlertDialog.Builder(requireContext())
-        .setCancelable(true)
-        .setTitle(R.string.skip_dialog_title)
-        .setMessage(R.string.data_deletion_warning)
-        .setNegativeButton(R.string.go_back_button_label) { _, _ -> }
-        .setPositiveButton(R.string.confirm_button_label) { _, _ -> skip() }
-        .create()
-        .show()
-    }
-  }
-
-  protected open fun skip() {
-    viewModel.clearResponse()
-    dataCollectionViewModel.onContinueClicked()
+    check(viewModel.hasNoData()) { "User should not be able to skip a task with data." }
+    dataCollectionViewModel.onNextClicked()
   }
 
   fun addUndoButton() =

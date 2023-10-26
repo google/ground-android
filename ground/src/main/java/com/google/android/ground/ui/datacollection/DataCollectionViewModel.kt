@@ -162,7 +162,7 @@ internal constructor(
    * Validates the user's input and displays an error if the user input was invalid. Progresses to
    * the next Data Collection screen if the user input was valid.
    */
-  fun onContinueClicked() {
+  fun onNextClicked() {
     val currentTask = currentTaskViewModel ?: return
 
     val validationError = currentTask.validate()
