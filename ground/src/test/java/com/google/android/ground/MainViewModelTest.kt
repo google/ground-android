@@ -18,6 +18,7 @@ package com.google.android.ground
 import android.content.SharedPreferences
 import android.os.Looper
 import androidx.navigation.NavDirections
+import app.cash.turbine.test
 import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
@@ -32,7 +33,6 @@ import com.sharedtest.TestObservers.observeUntilFirstChange
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
-import io.reactivex.observers.TestObserver
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -56,16 +56,11 @@ class MainViewModelTest : BaseHiltTest() {
   @Inject lateinit var tosRepository: TermsOfServiceRepository
   @Inject lateinit var userRepository: UserRepository
 
-  private lateinit var navDirectionsTestObserver: TestObserver<NavDirections>
-
   @Before
   override fun setUp() {
     super.setUp()
 
     fakeAuthenticationManager.setUser(FakeData.USER)
-
-    // Subscribe to navigation requests
-    navDirectionsTestObserver = navigator.getNavigateRequests().test()
   }
 
   private fun setupUserPreferences() {
@@ -89,11 +84,12 @@ class MainViewModelTest : BaseHiltTest() {
     assertThat(viewModel.signInProgressDialogVisibility.value).isEqualTo(visible)
   }
 
-  private fun verifyNavigationRequested(vararg navDirections: NavDirections) {
-    navDirectionsTestObserver.assertNoErrors()
-    navDirectionsTestObserver.assertNotComplete()
-    navDirectionsTestObserver.assertValues(*navDirections)
-  }
+  private fun verifyNavigationRequested(navDirections: NavDirections? = null) =
+    runWithTestDispatcher {
+      navigator.getNavigateRequests().test {
+        assertThat(expectMostRecentItem()).isEqualTo(navDirections)
+      }
+    }
 
   @Test
   fun testSignInStateChanged_onSignedOut() {
