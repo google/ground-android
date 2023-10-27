@@ -32,7 +32,6 @@ import com.google.android.ground.ui.common.*
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.function.Consumer
 import javax.inject.Inject
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -69,13 +68,9 @@ class MainActivity : Hilt_MainActivity() {
       callback.accept(this)
     }
 
-    lifecycleScope.launch {
-      navigator.getNavigateRequests().filterNotNull().collect { onNavigate(it) }
-    }
-    lifecycleScope.launch {
-      navigator.getNavigateUpRequests().filterNotNull().collect { navigateUp() }
-    }
-    lifecycleScope.launch { navigator.getFinishRequests().filterNotNull().collect { finish() } }
+    lifecycleScope.launch { navigator.getNavigateRequests().collect { onNavigate(it) } }
+    lifecycleScope.launch { navigator.getNavigateUpRequests().collect { navigateUp() } }
+    lifecycleScope.launch { navigator.getFinishRequests().collect { finish() } }
 
     val binding = MainActBinding.inflate(layoutInflater)
     setContentView(binding.root)

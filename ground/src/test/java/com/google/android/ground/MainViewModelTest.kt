@@ -87,7 +87,11 @@ class MainViewModelTest : BaseHiltTest() {
   private fun verifyNavigationRequested(navDirections: NavDirections? = null) =
     runWithTestDispatcher {
       navigator.getNavigateRequests().test {
-        assertThat(expectMostRecentItem()).isEqualTo(navDirections)
+        if (navDirections == null) {
+          expectNoEvents()
+        } else {
+          assertThat(expectMostRecentItem()).isEqualTo(navDirections)
+        }
       }
     }
 

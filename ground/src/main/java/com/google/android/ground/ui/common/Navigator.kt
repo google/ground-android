@@ -20,8 +20,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 /**
@@ -35,11 +36,11 @@ class Navigator @Inject constructor() {
   private val finishRequests: MutableStateFlow<Any?> = MutableStateFlow(null)
 
   /** Stream of navigation requests for fulfillment by the view layer. */
-  fun getNavigateRequests(): StateFlow<NavDirections?> = navigateRequests
+  fun getNavigateRequests(): Flow<NavDirections> = navigateRequests.filterNotNull()
 
-  fun getNavigateUpRequests(): StateFlow<Any?> = navigateUpRequests
+  fun getNavigateUpRequests(): Flow<Any> = navigateUpRequests.filterNotNull()
 
-  fun getFinishRequests(): StateFlow<Any?> = finishRequests
+  fun getFinishRequests(): Flow<Any> = finishRequests.filterNotNull()
 
   /** Navigates up one level on the back stack. */
   fun navigateUp() {
