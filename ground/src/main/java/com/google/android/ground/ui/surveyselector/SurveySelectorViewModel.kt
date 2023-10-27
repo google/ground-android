@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 
 /** Represents view state and behaviors of the survey selector dialog. */
@@ -54,6 +55,8 @@ internal constructor(
   val surveyListState: MutableStateFlow<State?> = MutableStateFlow(null)
   val surveySummaries: Flow<List<SurveyItem>>
 
+  private var shouldListenToRemoteChanges = true
+
   init {
     surveySummaries =
       createSurveySummaries().onEach {
@@ -71,7 +74,10 @@ internal constructor(
 
   /** Returns a flow of remotely stored surveys. */
   private suspend fun allSurveys(): Flow<List<Survey>> =
-    surveyRepository.getSurveySummaries(authManager.currentUser).onEach { setLoading() }
+    surveyRepository
+      .getSurveySummaries(authManager.currentUser)
+      .onEach { setLoading() }
+      .takeWhile { shouldListenToRemoteChanges }
 
   /** Returns a flow of [SurveyItem] to be displayed to the user. */
   private fun createSurveySummaries(): Flow<List<SurveyItem>> =
@@ -97,6 +103,10 @@ internal constructor(
     viewModelScope.launch {
       // TODO(#1497): Handle exceptions thrown by activateSurvey().
       setLoading()
+
+      // Disable listening to remote changes to prevent multiple progress loading spinners
+      shouldListenToRemoteChanges = false
+
       activateSurveyUseCase(surveyId)
       setLoaded()
       navigateToHomeScreen()
