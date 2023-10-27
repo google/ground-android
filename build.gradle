@@ -96,7 +96,7 @@ detekt {
 }
 
 task checkCode(type: GradleBuild) {
-    tasks = ['checkstyle', 'lintDebug', 'ktfmtCheck', 'detekt']
+    tasks = ['checkstyle', 'lintLocalDebug', 'ktfmtCheck', 'detekt']
 }
 
 task clean(type: Delete) {
