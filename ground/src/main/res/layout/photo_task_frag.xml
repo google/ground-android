@@ -40,7 +40,7 @@
     <com.google.android.material.button.MaterialButton
       android:id="@+id/btn_take_photo"
       style="@style/TaskChipButton.LightGreen"
-      visible="@{!viewModel.isPhotoPresent()"
+      visible="@{!viewModel.isPhotoPresent()}"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:onClick="@{()-> fragment.onTakePhoto()}"
