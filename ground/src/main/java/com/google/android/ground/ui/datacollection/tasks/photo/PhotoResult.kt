@@ -23,7 +23,7 @@ data class PhotoResult constructor(val taskId: String, val bitmap: Bitmap?, val 
 
   init {
     check(bitmap != null || path.isNotNullOrEmpty()) {
-      "At-least one of bitmap or path should be non-null, found " +
+      "At least one of bitmap or path should be non-null, found " +
         "bitmap=${bitmap != null}, " +
         "path=${path.isNotNullOrEmpty()}"
     }
