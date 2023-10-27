@@ -43,14 +43,5 @@
       android:scaleType="centerCrop"
       app:imageUri="@{viewModel.uri}"
       tools:src="@drawable/splash_background" />
-    <ImageButton
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="top|end"
-      android:onClick="@{() -> viewModel.clearPhoto(viewModel.getTask().getId())}"
-      android:visibility="@{viewModel.isEditable() ? View.VISIBLE : View.GONE}"
-      app:backgroundTint="@android:color/transparent"
-      app:srcCompat="@drawable/ic_baseline_delete_24"
-      app:tint="?attr/colorSurfaceVariant" />
   </FrameLayout>
 </layout>

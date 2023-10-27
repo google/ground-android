@@ -71,7 +71,7 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
     setResponse(taskData)
   }
 
-  protected fun detailsTextFlowable(): @Cold(stateful = true, terminates = false) Flowable<String> =
+  private fun detailsTextFlowable(): @Cold(stateful = true, terminates = false) Flowable<String> =
     taskDataSubject.distinctUntilChanged().map { taskDataOptional: Optional<TaskData> ->
       taskDataOptional.map { it.getDetailsText() }.orElse("")
     }

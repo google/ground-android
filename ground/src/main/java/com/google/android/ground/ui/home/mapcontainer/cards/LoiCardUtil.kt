@@ -22,6 +22,7 @@ import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.util.isNotNullOrEmpty
 
 /** Helper class for creating user-visible text. */
 object LoiCardUtil {
@@ -67,6 +68,4 @@ object LoiCardUtil {
       is MultiPolygon -> context.getString(R.string.unnamed_area)
       else -> throw IllegalArgumentException("Unsupported geometry type $this")
     }
-
-  private fun String?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()
 }
