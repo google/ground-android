@@ -68,10 +68,6 @@ class MainActivity : Hilt_MainActivity() {
       callback.accept(this)
     }
 
-    lifecycleScope.launch { navigator.getNavigateRequests().collect { onNavigate(it) } }
-    lifecycleScope.launch { navigator.getNavigateUpRequests().collect { navigateUp() } }
-    lifecycleScope.launch { navigator.getFinishRequests().collect { finish() } }
-
     val binding = MainActBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
@@ -82,6 +78,10 @@ class MainActivity : Hilt_MainActivity() {
     viewModel.signInProgressDialogVisibility.observe(this) { visible: Boolean ->
       onSignInProgress(visible)
     }
+
+    lifecycleScope.launch { navigator.getNavigateRequests().collect { onNavigate(it) } }
+    lifecycleScope.launch { navigator.getNavigateUpRequests().collect { navigateUp() } }
+    lifecycleScope.launch { navigator.getFinishRequests().collect { finish() } }
   }
 
   override fun onWindowInsetChanged(insets: WindowInsetsCompat) {
