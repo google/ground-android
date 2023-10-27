@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.rx2.asFlowable
@@ -117,12 +116,10 @@ constructor(
 
   suspend fun getSurveySummaries(user: User): Flow<List<Survey>> =
     try {
-      val surveys =
-        withTimeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_MILLIS) {
-          Timber.d("Loading survey list from remote")
-          remoteDataStore.loadSurveySummaries(user)
-        }
-      listOf(surveys).asFlow()
+      withTimeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_MILLIS) {
+        Timber.d("Loading survey list from remote")
+        remoteDataStore.loadSurveySummaries(user)
+      }
     } catch (e: Throwable) {
       Timber.d(e, "Failed to load survey list from remote")
       offlineSurveys

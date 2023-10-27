@@ -20,9 +20,15 @@ import com.google.android.ground.system.NetworkManager
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
 import java8.util.function.Function
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 
@@ -46,10 +52,33 @@ protected constructor(
   ): List<T> {
     NetworkManager(context).requireNetworkConnection()
     val querySnapshot = query.get().await()
-    return querySnapshot.documents
+    return parseSnapshot(querySnapshot, mappingFunction)
+  }
+
+  protected fun <T> runQueryFlow(
+    query: Query,
+    mappingFunction: Function<DocumentSnapshot, T>
+  ): Flow<List<T>> {
+    NetworkManager(context).requireNetworkConnection()
+    val surveyFlow = MutableStateFlow<List<T>?>(null)
+    query.addSnapshotListener { querySnapshot, error ->
+      if (error != null) {
+        Timber.e(error)
+      } else if (querySnapshot != null) {
+        val documents: List<T> = parseSnapshot(querySnapshot, mappingFunction)
+        CoroutineScope(ioDispatcher).launch { surveyFlow.emit(documents) }
+      }
+    }
+    return surveyFlow.filterNotNull()
+  }
+
+  private fun <T> parseSnapshot(
+    querySnapshot: QuerySnapshot,
+    mappingFunction: Function<DocumentSnapshot, T>
+  ): List<T> =
+    querySnapshot.documents
       .filter { it.exists() }
       .mapNotNull { applyFunctionAndIgnoreFailures(it, mappingFunction) }
-  }
 
   private fun <T> applyFunctionAndIgnoreFailures(
     value: DocumentSnapshot,
