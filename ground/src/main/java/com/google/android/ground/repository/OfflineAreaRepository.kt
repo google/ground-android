@@ -38,9 +38,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitFirst
 import timber.log.Timber
 
 /**
@@ -178,7 +178,7 @@ constructor(
     val tilesInSelectedArea = offlineArea.tiles
     if (tilesInSelectedArea.isEmpty()) Timber.w("No tiles associate with offline area $offlineArea")
     localOfflineAreaStore.deleteOfflineArea(offlineArea.id)
-    val remainingAreas = localOfflineAreaStore.offlineAreasOnceAndStream().awaitFirst()
+    val remainingAreas = localOfflineAreaStore.offlineAreas().first()
     val remainingTiles = remainingAreas.flatMap { it.tiles }.toSet()
     val tilesToRemove = tilesInSelectedArea - remainingTiles
     val tileSourcePath = getLocalTileSourcePath()
