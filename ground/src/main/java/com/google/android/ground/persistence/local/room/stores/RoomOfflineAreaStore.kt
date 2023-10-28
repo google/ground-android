@@ -22,8 +22,6 @@ import com.google.android.ground.persistence.local.room.dao.OfflineAreaDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.room.entity.OfflineAreaEntity
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
-import com.google.android.ground.rx.Schedulers
-import io.reactivex.Flowable
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
@@ -32,16 +30,9 @@ import kotlinx.coroutines.flow.map
 @Singleton
 class RoomOfflineAreaStore @Inject internal constructor() : LocalOfflineAreaStore {
   @Inject lateinit var offlineAreaDao: OfflineAreaDao
-  @Inject lateinit var schedulers: Schedulers
 
   override suspend fun insertOrUpdate(area: OfflineArea) =
     offlineAreaDao.insertOrUpdate(area.toOfflineAreaEntity())
-
-  override fun offlineAreasOnceAndStream(): Flowable<List<OfflineArea>> =
-    offlineAreaDao
-      .findAllOnceAndStream()
-      .map { areas: List<OfflineAreaEntity> -> areas.map { it.toModelObject() } }
-      .subscribeOn(schedulers.io())
 
   override fun offlineAreas(): Flow<List<OfflineArea>> =
     offlineAreaDao.findAll().map { areas: List<OfflineAreaEntity> ->

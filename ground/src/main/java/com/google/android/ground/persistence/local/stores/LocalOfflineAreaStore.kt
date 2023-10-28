@@ -16,8 +16,6 @@
 package com.google.android.ground.persistence.local.stores
 
 import com.google.android.ground.model.imagery.OfflineArea
-import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Flowable
 import kotlinx.coroutines.flow.Flow
 
 interface LocalOfflineAreaStore {
@@ -26,9 +24,6 @@ interface LocalOfflineAreaStore {
    * the area into the local data store.
    */
   suspend fun insertOrUpdate(area: OfflineArea)
-
-  /** Returns all queued, failed, and completed offline areas from the local data store. */
-  fun offlineAreasOnceAndStream(): @Cold(terminates = false) Flowable<List<OfflineArea>>
 
   /** Returns all queued, failed, and completed offline areas from the local data store. */
   fun offlineAreas(): Flow<List<OfflineArea>>
