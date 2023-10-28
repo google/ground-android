@@ -20,7 +20,6 @@ import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.mog.MogClient
@@ -76,10 +75,9 @@ constructor(
 
   /**
    * Retrieves all offline areas from the local store and continually streams the list as the local
-   * store is updated. Triggers `onError` only if there is a problem accessing the local store.
+   * store is updated.
    */
-  fun offlineAreasOnceAndStream(): @Cold(terminates = false) Flowable<List<OfflineArea>> =
-    localOfflineAreaStore.offlineAreasOnceAndStream()
+  fun offlineAreas(): Flow<List<OfflineArea>> = localOfflineAreaStore.offlineAreas()
 
   /** Fetches a single offline area by ID. */
   suspend fun getOfflineArea(offlineAreaId: String): OfflineArea? =

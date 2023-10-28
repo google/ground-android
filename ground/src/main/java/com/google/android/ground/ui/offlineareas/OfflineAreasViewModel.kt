@@ -16,7 +16,7 @@
 package com.google.android.ground.ui.offlineareas
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.toLiveData
+import androidx.lifecycle.asLiveData
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.ui.common.AbstractViewModel
@@ -24,8 +24,8 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.util.toMb
 import com.google.android.ground.util.toMbString
 import javax.inject.Inject
-import kotlinx.coroutines.rx2.rxSingle
-import timber.log.Timber
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 
 /**
  * View model for the offline area manager fragment. Handles the current list of downloaded areas.
@@ -49,17 +49,11 @@ internal constructor(
   val showProgressSpinner: LiveData<Boolean>
 
   init {
-    val offlineAreas =
-      offlineAreaRepository
-        .offlineAreasOnceAndStream()
-        .switchMapSingle { rxSingle { toViewModel(it) } }
-        .doOnError { Timber.e(it, "Unexpected error loading offline areas from the local db") }
-        .onErrorReturnItem(listOf())
-
-    this.offlineAreas = offlineAreas.toLiveData()
-    showProgressSpinner = offlineAreas.map { false }.startWith(true).toLiveData()
-    showNoAreasMessage = offlineAreas.map { it.isEmpty() }.startWith(false).toLiveData()
-    showList = offlineAreas.map { it.isNotEmpty() }.startWith(false).toLiveData()
+    val offlineAreas = offlineAreaRepository.offlineAreas().map { toViewModel(it) }
+    this.offlineAreas = offlineAreas.asLiveData()
+    showProgressSpinner = offlineAreas.map { false }.onStart { emit(true) }.asLiveData()
+    showNoAreasMessage = offlineAreas.map { it.isEmpty() }.onStart { emit(false) }.asLiveData()
+    showList = offlineAreas.map { it.isNotEmpty() }.onStart { emit(false) }.asLiveData()
   }
 
   private suspend fun toViewModel(

@@ -26,6 +26,8 @@ import com.google.android.ground.rx.Schedulers
 import io.reactivex.Flowable
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 @Singleton
 class RoomOfflineAreaStore @Inject internal constructor() : LocalOfflineAreaStore {
@@ -40,6 +42,11 @@ class RoomOfflineAreaStore @Inject internal constructor() : LocalOfflineAreaStor
       .findAllOnceAndStream()
       .map { areas: List<OfflineAreaEntity> -> areas.map { it.toModelObject() } }
       .subscribeOn(schedulers.io())
+
+  override fun offlineAreas(): Flow<List<OfflineArea>> =
+    offlineAreaDao.findAll().map { areas: List<OfflineAreaEntity> ->
+      areas.map { it.toModelObject() }
+    }
 
   override suspend fun getOfflineAreaById(id: String): OfflineArea? =
     offlineAreaDao.findById(id)?.toModelObject()

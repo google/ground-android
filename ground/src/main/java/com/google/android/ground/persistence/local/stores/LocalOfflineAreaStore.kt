@@ -18,6 +18,7 @@ package com.google.android.ground.persistence.local.stores
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.rx.annotations.Cold
 import io.reactivex.Flowable
+import kotlinx.coroutines.flow.Flow
 
 interface LocalOfflineAreaStore {
   /**
@@ -28,6 +29,9 @@ interface LocalOfflineAreaStore {
 
   /** Returns all queued, failed, and completed offline areas from the local data store. */
   fun offlineAreasOnceAndStream(): @Cold(terminates = false) Flowable<List<OfflineArea>>
+
+  /** Returns all queued, failed, and completed offline areas from the local data store. */
+  fun offlineAreas(): Flow<List<OfflineArea>>
 
   /** Delete an offline area and any associated tiles that are no longer needed. */
   suspend fun deleteOfflineArea(offlineAreaId: String)
