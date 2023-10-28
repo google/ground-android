@@ -20,7 +20,6 @@ import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.mog.MogClient
@@ -33,15 +32,14 @@ import com.google.android.ground.ui.util.FileUtil
 import com.google.android.ground.util.ByteCount
 import com.google.android.ground.util.deleteIfEmpty
 import com.google.android.ground.util.rangeOf
-import io.reactivex.Flowable
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 /**
@@ -76,10 +74,9 @@ constructor(
 
   /**
    * Retrieves all offline areas from the local store and continually streams the list as the local
-   * store is updated. Triggers `onError` only if there is a problem accessing the local store.
+   * store is updated.
    */
-  fun offlineAreasOnceAndStream(): @Cold(terminates = false) Flowable<List<OfflineArea>> =
-    localOfflineAreaStore.offlineAreasOnceAndStream()
+  fun offlineAreas(): Flow<List<OfflineArea>> = localOfflineAreaStore.offlineAreas()
 
   /** Fetches a single offline area by ID. */
   suspend fun getOfflineArea(offlineAreaId: String): OfflineArea? =
@@ -109,11 +106,9 @@ constructor(
   private suspend fun getLocalTileSourcePath(): String = File(fileUtil.getFilesDir(), "tiles").path
 
   fun getOfflineTileSourcesFlow() =
-    surveyRepository.activeSurveyFlow
-      // TODO(#1593): Use Room DAO's Flow once we figure out why it never emits a value.
-      .combine(getOfflineAreaBounds().asFlow()) { survey, bounds ->
-        applyBounds(survey?.tileSources, bounds)
-      }
+    surveyRepository.activeSurveyFlow.combine(getOfflineAreaBounds()) { survey, bounds ->
+      applyBounds(survey?.tileSources, bounds)
+    }
 
   private suspend fun applyBounds(
     tileSources: List<TileSource>?,
@@ -133,8 +128,8 @@ constructor(
     )
   }
 
-  private fun getOfflineAreaBounds(): Flowable<List<Bounds>> =
-    localOfflineAreaStore.offlineAreasOnceAndStream().map { list -> list.map { it.bounds } }
+  private fun getOfflineAreaBounds(): Flow<List<Bounds>> =
+    localOfflineAreaStore.offlineAreas().map { list -> list.map { it.bounds } }
 
   /**
    * Uses the first tile source URL of the currently active survey and returns a [MogClient], or
@@ -180,7 +175,7 @@ constructor(
     val tilesInSelectedArea = offlineArea.tiles
     if (tilesInSelectedArea.isEmpty()) Timber.w("No tiles associate with offline area $offlineArea")
     localOfflineAreaStore.deleteOfflineArea(offlineArea.id)
-    val remainingAreas = localOfflineAreaStore.offlineAreasOnceAndStream().awaitFirst()
+    val remainingAreas = localOfflineAreaStore.offlineAreas().first()
     val remainingTiles = remainingAreas.flatMap { it.tiles }.toSet()
     val tilesToRemove = tilesInSelectedArea - remainingTiles
     val tileSourcePath = getLocalTileSourcePath()

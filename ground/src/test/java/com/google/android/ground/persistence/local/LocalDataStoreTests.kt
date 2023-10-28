@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.persistence.local
 
+import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
@@ -345,7 +346,9 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Test
   fun testGetOfflineAreas() = runWithTestDispatcher {
     localOfflineAreaStore.insertOrUpdate(TEST_OFFLINE_AREA)
-    localOfflineAreaStore.offlineAreasOnceAndStream().test().assertValue(listOf(TEST_OFFLINE_AREA))
+    localOfflineAreaStore.offlineAreas().test {
+      assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_OFFLINE_AREA))
+    }
   }
 
   @Test
