@@ -32,7 +32,6 @@ import com.google.android.ground.ui.util.FileUtil
 import com.google.android.ground.util.ByteCount
 import com.google.android.ground.util.deleteIfEmpty
 import com.google.android.ground.util.rangeOf
-import io.reactivex.Flowable
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -40,7 +39,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 /**
@@ -107,11 +106,9 @@ constructor(
   private suspend fun getLocalTileSourcePath(): String = File(fileUtil.getFilesDir(), "tiles").path
 
   fun getOfflineTileSourcesFlow() =
-    surveyRepository.activeSurveyFlow
-      // TODO(#1593): Use Room DAO's Flow once we figure out why it never emits a value.
-      .combine(getOfflineAreaBounds().asFlow()) { survey, bounds ->
-        applyBounds(survey?.tileSources, bounds)
-      }
+    surveyRepository.activeSurveyFlow.combine(getOfflineAreaBounds()) { survey, bounds ->
+      applyBounds(survey?.tileSources, bounds)
+    }
 
   private suspend fun applyBounds(
     tileSources: List<TileSource>?,
@@ -131,8 +128,8 @@ constructor(
     )
   }
 
-  private fun getOfflineAreaBounds(): Flowable<List<Bounds>> =
-    localOfflineAreaStore.offlineAreasOnceAndStream().map { list -> list.map { it.bounds } }
+  private fun getOfflineAreaBounds(): Flow<List<Bounds>> =
+    localOfflineAreaStore.offlineAreas().map { list -> list.map { it.bounds } }
 
   /**
    * Uses the first tile source URL of the currently active survey and returns a [MogClient], or
