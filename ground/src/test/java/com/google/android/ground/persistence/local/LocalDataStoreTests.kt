@@ -173,14 +173,16 @@ class LocalDataStoreTests : BaseHiltTest() {
   }
 
   @Test
-  fun testGetLoisOnceAndStream() = runWithTestDispatcher {
+  fun testFindLocationsOfInterest() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
-    val subscriber = localLoiStore.getLocationsOfInterestOnceAndStream(TEST_SURVEY).test()
-    subscriber.assertValue(setOf())
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
+
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    subscriber.assertValueSet(setOf(setOf(), setOf(loi)))
+
+    localLoiStore.findLocationsOfInterest(TEST_SURVEY).test {
+      assertThat(expectMostRecentItem()).isEqualTo(setOf(loi))
+    }
   }
 
   @Test
@@ -312,11 +314,12 @@ class LocalDataStoreTests : BaseHiltTest() {
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
     localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION)
-    val subscriber = localLoiStore.getLocationsOfInterestOnceAndStream(TEST_SURVEY).test()
 
     // Assert that one LOI is streamed.
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    subscriber.assertValueAt(0, setOf(loi))
+    localLoiStore.findLocationsOfInterest(TEST_SURVEY).test {
+      assertThat(expectMostRecentItem()).isEqualTo(setOf(loi))
+    }
     val mutation = TEST_LOI_MUTATION.copy(id = null, type = Mutation.Type.DELETE)
 
     // Calling applyAndEnqueue marks the local LOI as deleted.
@@ -329,7 +332,9 @@ class LocalDataStoreTests : BaseHiltTest() {
     }
 
     // Verify that the local LOI is now removed from the latest LOI stream.
-    subscriber.assertValueAt(1, setOf())
+    localLoiStore.findLocationsOfInterest(TEST_SURVEY).test {
+      assertThat(expectMostRecentItem()).isEmpty()
+    }
 
     // After successful remote sync, delete LOI is called by LocalMutationSyncWorker.
     localLoiStore.deleteLocationOfInterest("loi id")
