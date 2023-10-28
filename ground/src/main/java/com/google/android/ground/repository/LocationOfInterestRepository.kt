@@ -37,6 +37,9 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.awaitFirst
 
 /**
@@ -133,12 +136,10 @@ constructor(
   suspend fun getAllGeometries(survey: Survey): List<Geometry> =
     getLocationsOfInterestOnceAndStream(survey).awaitFirst().map { it.geometry }
 
-  /** Returns a flowable of all [LocationOfInterest] within the map bounds (viewport). */
-  fun getWithinBoundsOnceAndStream(
-    survey: Survey,
-    bounds: Bounds
-  ): Flowable<List<LocationOfInterest>> =
-    getLocationsOfInterestOnceAndStream(survey)
+  /** Returns a flow of all [LocationOfInterest] within the map bounds (viewport). */
+  fun getWithinBounds(survey: Survey, bounds: Bounds): Flow<List<LocationOfInterest>> =
+    localLoiStore
+      .findLocationsOfInterest(survey)
       .map { lois -> lois.filter { bounds.contains(it.geometry) } }
       .distinctUntilChanged()
 }
