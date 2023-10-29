@@ -116,10 +116,9 @@ internal constructor(
 
   private val responses: MutableMap<Task, TaskData?> = LinkedHashMap()
 
-  private val currentPositionKey = "currentPosition"
-  // Tracks the user's current position in the list of tasks for the current Job
+  // Tracks the task's current position in the list of tasks for the current job
   var currentPosition: @Hot(replays = true) MutableLiveData<Int> =
-    savedStateHandle.getLiveData(currentPositionKey, 0)
+    savedStateHandle.getLiveData(TASK_POSITION_KEY, 0)
 
   var currentTaskData: TaskData? = null
 
@@ -171,16 +170,10 @@ internal constructor(
       return
     }
 
-    val currentTaskPosition = currentPosition.value!!
-    val finalTaskPosition = tasks.size - 1
-
-    assert(finalTaskPosition >= 0)
-    assert(currentTaskPosition in 0..finalTaskPosition)
-
     responses[currentTask.task] = currentTaskData
 
-    if (currentTaskPosition != finalTaskPosition) {
-      setCurrentPosition(currentPosition.value!! + 1)
+    if (!isLastPosition()) {
+      updateCurrentPosition(getCurrentPosition() + 1)
     } else {
       val taskDataDeltas =
         responses.map { (task, taskData) -> TaskDataDelta(task.id, task.type, taskData) }
@@ -202,14 +195,28 @@ internal constructor(
     }
   }
 
-  fun setCurrentPosition(position: Int) {
-    savedStateHandle[currentPositionKey] = position
+  private fun getCurrentPosition() = currentPosition.value!!
+
+  fun updateCurrentPosition(position: Int) {
+    savedStateHandle[TASK_POSITION_KEY] = position
+  }
+
+  fun isLastPosition(): Boolean {
+    val currentTaskPosition = getCurrentPosition()
+    val finalTaskPosition = tasks.size - 1
+
+    assert(finalTaskPosition >= 0)
+    assert(currentTaskPosition in 0..finalTaskPosition)
+
+    return currentTaskPosition == finalTaskPosition
   }
 
   private fun createSuggestLoiTask(taskType: Task.Type): Task =
     Task(id = "-1", index = -1, taskType, resources.getString(R.string.new_site), isRequired = true)
 
   companion object {
+    private const val TASK_POSITION_KEY = "currentPosition"
+
     fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
       when (taskType) {
         Task.Type.TEXT -> TextTaskViewModel::class.java
