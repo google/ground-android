@@ -45,6 +45,8 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowAlertDialog
 
@@ -144,6 +146,14 @@ class MultipleChoiceTaskFragmentTest :
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
     hasButtons(ButtonAction.NEXT, ButtonAction.SKIP)
+  }
+
+  @Test
+  fun testActionButtons_whenLastTask() {
+    whenever(dataCollectionViewModel.isLastPosition(any())).thenReturn(true)
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
+
+    hasButtons(ButtonAction.DONE, ButtonAction.SKIP)
   }
 
   @Test
