@@ -172,8 +172,8 @@ internal constructor(
 
     responses[currentTask.task] = currentTaskData
 
-    if (!isLastPosition()) {
-      updateCurrentPosition(getCurrentPosition() + 1)
+    if (!isLastPosition(getVisibleTaskPosition())) {
+      updateCurrentPosition(getVisibleTaskPosition() + 1)
     } else {
       val taskDataDeltas =
         responses.map { (task, taskData) -> TaskDataDelta(task.id, task.type, taskData) }
@@ -195,20 +195,22 @@ internal constructor(
     }
   }
 
-  private fun getCurrentPosition() = currentPosition.value!!
+  /** Returns the position of the task fragment visible to the user. */
+  private fun getVisibleTaskPosition() = currentPosition.value!!
 
+  /** Displays the task at the given position to the user. */
   fun updateCurrentPosition(position: Int) {
     savedStateHandle[TASK_POSITION_KEY] = position
   }
 
-  fun isLastPosition(): Boolean {
-    val currentTaskPosition = getCurrentPosition()
+  /** Returns true if the given task position is last. */
+  fun isLastPosition(taskPosition: Int): Boolean {
     val finalTaskPosition = tasks.size - 1
 
     assert(finalTaskPosition >= 0)
-    assert(currentTaskPosition in 0..finalTaskPosition)
+    assert(taskPosition in 0..finalTaskPosition)
 
-    return currentTaskPosition == finalTaskPosition
+    return taskPosition == finalTaskPosition
   }
 
   private fun createSuggestLoiTask(taskType: Task.Type): Task =

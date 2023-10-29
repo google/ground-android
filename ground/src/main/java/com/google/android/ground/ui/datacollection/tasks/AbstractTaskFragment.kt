@@ -145,15 +145,26 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   protected fun addButton(action: ButtonAction): TaskButton {
     check(!buttons.contains(action)) { "Button $action already bound" }
+    val updatedAction = maybeOverrideButton(action)
     val button =
       TaskButtonFactory.createAndAttachButton(
-        action,
+        updatedAction,
         taskView.actionButtonsContainer,
         layoutInflater
       )
-    buttons[action] = button
+    buttons[updatedAction] = button
     return button
   }
+
+  /**
+   * Changes the button from "Next" to "Done" if the current task fragment is last in it's position.
+   */
+  private fun maybeOverrideButton(action: ButtonAction): ButtonAction =
+    if (action != ButtonAction.NEXT || !dataCollectionViewModel.isLastPosition(position)) {
+      action
+    } else {
+      ButtonAction.DONE
+    }
 
   @TestOnly fun getButtons() = buttons
 
