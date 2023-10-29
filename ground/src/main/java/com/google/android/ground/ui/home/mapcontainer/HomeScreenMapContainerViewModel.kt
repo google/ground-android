@@ -178,7 +178,7 @@ internal constructor(
   fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
-    loiRepository.getLocationsOfInterest(survey).map {
+    loiRepository.getLocationsOfInterests(survey).map {
       it.map { loi -> loi.toFeature() }.toPersistentSet()
     }
 

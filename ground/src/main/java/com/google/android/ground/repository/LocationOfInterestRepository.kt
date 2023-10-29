@@ -125,16 +125,17 @@ constructor(
       MutationEntitySyncStatus.FAILED
     )
 
-  fun getLocationsOfInterest(survey: Survey) = localLoiStore.findLocationsOfInterest(survey)
+  /** Returns a flow of all [LocationOfInterest] associated with the given [Survey]. */
+  fun getLocationsOfInterests(survey: Survey): Flow<Set<LocationOfInterest>> =
+    localLoiStore.findLocationsOfInterest(survey)
 
   /** Returns a list of geometries associated with the given [Survey]. */
   suspend fun getAllGeometries(survey: Survey): List<Geometry> =
-    localLoiStore.findLocationsOfInterest(survey).first().map { it.geometry }
+    getLocationsOfInterests(survey).first().map { it.geometry }
 
   /** Returns a flow of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBounds(survey: Survey, bounds: Bounds): Flow<List<LocationOfInterest>> =
-    localLoiStore
-      .findLocationsOfInterest(survey)
+    getLocationsOfInterests(survey)
       .map { lois -> lois.filter { bounds.contains(it.geometry) } }
       .distinctUntilChanged()
 }
