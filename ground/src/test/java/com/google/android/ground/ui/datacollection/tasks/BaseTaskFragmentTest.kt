@@ -35,6 +35,7 @@ import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.hamcrest.core.IsNot.not
 import org.mockito.kotlin.whenever
 
@@ -73,8 +74,14 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
   }
 
   protected fun hasButtons(vararg buttonActions: ButtonAction) {
-    // TODO: Also check for order of action buttons.
+    // Verify the list matches (in any order)
     assertThat(fragment.getButtons().keys).containsExactlyElementsIn(buttonActions)
+
+    // Verify the position of each button
+    buttonActions.withIndex().forEach { (index, expected) ->
+      val actual = fragment.getButtonsIndex()[index]
+      assertWithMessage("Incorrect button order").that(actual).isEqualTo(expected)
+    }
   }
 
   protected fun getButton(buttonAction: ButtonAction): View =

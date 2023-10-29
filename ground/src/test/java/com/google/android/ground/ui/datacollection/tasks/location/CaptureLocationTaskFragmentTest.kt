@@ -105,10 +105,10 @@ class CaptureLocationTaskFragmentTest :
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     hasButtons(
-      ButtonAction.NEXT,
       ButtonAction.SKIP,
       ButtonAction.UNDO,
-      ButtonAction.CAPTURE_LOCATION
+      ButtonAction.CAPTURE_LOCATION,
+      ButtonAction.NEXT
     )
   }
 

@@ -43,6 +43,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     hiltNavGraphViewModels(R.id.data_collection)
 
   private val buttons: EnumMap<ButtonAction, TaskButton> = EnumMap(ButtonAction::class.java)
+  private val buttonsIndex: MutableMap<Int, ButtonAction> = mutableMapOf()
   private lateinit var taskView: TaskView
   protected lateinit var viewModel: T
 
@@ -151,11 +152,14 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
         taskView.actionButtonsContainer,
         layoutInflater
       )
+    buttonsIndex[buttons.size] = action
     buttons[action] = button
     return button
   }
 
   @TestOnly fun getButtons() = buttons
+
+  @TestOnly fun getButtonsIndex() = buttonsIndex
 
   protected fun getButton(action: ButtonAction): TaskButton {
     check(buttons.contains(action)) { "Expected key $action in $buttons" }
