@@ -161,7 +161,7 @@ internal constructor(
    * Validates the user's input and displays an error if the user input was invalid. Progresses to
    * the next Data Collection screen if the user input was valid.
    */
-  fun onNextClicked() {
+  fun onNextClicked(position: Int) {
     val currentTask = currentTaskViewModel ?: return
 
     val validationError = currentTask.validate()
@@ -172,8 +172,8 @@ internal constructor(
 
     responses[currentTask.task] = currentTaskData
 
-    if (!isLastPosition(getVisibleTaskPosition())) {
-      updateCurrentPosition(getVisibleTaskPosition() + 1)
+    if (!isLastPosition(position)) {
+      updateCurrentPosition(position + 1)
     } else {
       val taskDataDeltas =
         responses.map { (task, taskData) -> TaskDataDelta(task.id, task.type, taskData) }
@@ -196,7 +196,7 @@ internal constructor(
   }
 
   /** Returns the position of the task fragment visible to the user. */
-  private fun getVisibleTaskPosition() = currentPosition.value!!
+  fun getVisibleTaskPosition() = currentPosition.value!!
 
   /** Displays the task at the given position to the user. */
   fun updateCurrentPosition(position: Int) {

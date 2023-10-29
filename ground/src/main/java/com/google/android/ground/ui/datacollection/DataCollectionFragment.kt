@@ -129,7 +129,7 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
       false
     } else {
       // Otherwise, select the previous step.
-      viewModel.updateCurrentPosition(viewModel.currentPosition.value!! - 1)
+      viewModel.updateCurrentPosition(viewModel.getVisibleTaskPosition() - 1)
       true
     }
 

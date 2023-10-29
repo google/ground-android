@@ -119,7 +119,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   protected fun addNextButton() =
     addButton(ButtonAction.NEXT)
-      .setOnClickListener { dataCollectionViewModel.onNextClicked() }
+      .setOnClickListener { moveToNext() }
       .setOnTaskUpdated { button, taskData -> button.enableIfTrue(taskData.isNotNullOrEmpty()) }
       .disable()
 
@@ -134,7 +134,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   private fun onSkip() {
     check(viewModel.hasNoData()) { "User should not be able to skip a task with data." }
-    dataCollectionViewModel.onNextClicked()
+    moveToNext()
+  }
+
+  fun moveToNext() {
+    dataCollectionViewModel.onNextClicked(position)
   }
 
   fun addUndoButton() =
