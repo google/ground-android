@@ -153,7 +153,7 @@ class MultipleChoiceTaskFragmentTest :
     whenever(dataCollectionViewModel.isLastPosition(any())).thenReturn(true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
-    hasButtons(ButtonAction.DONE, ButtonAction.SKIP)
+    hasButtons(ButtonAction.SKIP, ButtonAction.DONE)
   }
 
   @Test
