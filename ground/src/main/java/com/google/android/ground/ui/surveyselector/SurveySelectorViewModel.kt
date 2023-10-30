@@ -32,9 +32,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 /** Represents view state and behaviors of the survey selector dialog. */
@@ -56,7 +56,7 @@ internal constructor(
 
   init {
     surveySummaries =
-      createSurveySummaries().onEach {
+      getSurveyList().onEach {
         if (it.isEmpty()) {
           setNotFound()
         } else {
@@ -67,29 +67,26 @@ internal constructor(
 
   /** Returns a flow of locally stored surveys. */
   private fun offlineSurveys(): Flow<List<Survey>> =
-    surveyRepository.offlineSurveys.onEach { setLoading() }
-
-  /** Returns a flow of remotely stored surveys. */
-  private suspend fun allSurveys(): Flow<List<Survey>> =
-    surveyRepository.getSurveySummaries(authManager.currentUser).onEach { setLoading() }
+    surveyRepository.localSurveysFlow.onEach { setLoading() }
 
   /** Returns a flow of [SurveyItem] to be displayed to the user. */
-  private fun createSurveySummaries(): Flow<List<SurveyItem>> =
-    offlineSurveys().flatMapMerge { offlineSurveys: List<Survey> ->
-      allSurveys().map { allSurveys: List<Survey> ->
-        allSurveys
-          .map { createSurveyItem(it, offlineSurveys) }
+  private fun getSurveyList(): Flow<List<SurveyItem>> =
+    surveyRepository
+      .getSurveyList(authManager.currentUser)
+      .onStart { setLoading() }
+      .map { surveys: List<Pair<Survey, Boolean>> ->
+        surveys
+          .map { createSurveyItem(it.first, it.second) }
           .sortedBy { it.surveyTitle }
           .sortedByDescending { it.isAvailableOffline }
       }
-    }
 
-  private fun createSurveyItem(survey: Survey, localSurveys: List<Survey>): SurveyItem =
+  private fun createSurveyItem(survey: Survey, isAvailableOffline: Boolean): SurveyItem =
     SurveyItem(
       surveyId = survey.id,
       surveyTitle = survey.title,
       surveyDescription = survey.description,
-      isAvailableOffline = localSurveys.any { it.id == survey.id }
+      isAvailableOffline = isAvailableOffline
     )
 
   /** Triggers the specified survey to be loaded and activated. */

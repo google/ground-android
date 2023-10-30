@@ -77,7 +77,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun created_surveysAvailable_whenNoSurveySynced() {
-    setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setOfflineSurveys(listOf())
     setUpFragment()
 
@@ -99,7 +99,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun created_surveysAvailable_whenOneSurveySynced() {
-    setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setOfflineSurveys(listOf(TEST_SURVEY_2))
     setUpFragment()
 
@@ -121,7 +121,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun click_activatesSurvey() = runWithTestDispatcher {
-    setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setOfflineSurveys(listOf())
     setUpFragment()
 
@@ -138,7 +138,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun shouldExitAppOnBackPress_defaultFalse() {
-    setAllSurveys(listOf())
+    setSurveyList(listOf())
     setOfflineSurveys(listOf())
     setUpFragment()
 
@@ -148,7 +148,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun shouldExitAppOnBackPress_whenArgIsPresent() {
-    setAllSurveys(listOf())
+    setSurveyList(listOf())
     setOfflineSurveys(listOf())
     setUpFragment(bundleOf(Pair("shouldExitApp", true)))
 
@@ -158,7 +158,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun `hide sign out button when survey list is not empty`() {
-    setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setOfflineSurveys(listOf())
     setUpFragment()
 
@@ -167,7 +167,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun `show sign out button when survey list is empty`() {
-    setAllSurveys(listOf())
+    setSurveyList(listOf())
     setOfflineSurveys(listOf())
     setUpFragment()
 
@@ -177,7 +177,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun `remove offline survey on menu item click`() = runWithTestDispatcher {
-    setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setOfflineSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setUpFragment()
 
@@ -210,13 +210,13 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     }
   }
 
-  private fun setAllSurveys(surveys: List<Survey>) = runWithTestDispatcher {
-    whenever(surveyRepository.getSurveySummaries(FakeData.USER))
+  private fun setSurveyList(surveys: List<Pair<Survey, Boolean>>) = runWithTestDispatcher {
+    whenever(surveyRepository.getSurveyList(FakeData.USER))
       .thenReturn(listOf(surveys).asFlow())
   }
 
   private fun setOfflineSurveys(surveys: List<Survey>) {
-    whenever(surveyRepository.offlineSurveys).thenReturn(listOf(surveys).asFlow())
+    whenever(surveyRepository.localSurveysFlow).thenReturn(listOf(surveys).asFlow())
   }
 
   private fun getViewHolder(index: Int): SurveyListAdapter.ViewHolder {

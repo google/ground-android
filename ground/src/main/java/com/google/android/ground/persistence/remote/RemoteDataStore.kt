@@ -21,13 +21,15 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Defines API for accessing data in a remote data store. Implementations must ensure all
  * subscriptions are run in a background thread (i.e., not the Android main thread).
  */
 interface RemoteDataStore {
-  suspend fun loadSurveySummaries(user: User): List<Survey>
+  // TODO: Refactor SurveyItem into model class SurveyListItem and return from here.
+  fun getSurveyList(user: User): Flow<List<Survey>>
 
   /**
    * Loads the survey with the specified id from the remote data store. Returns `null` if the survey

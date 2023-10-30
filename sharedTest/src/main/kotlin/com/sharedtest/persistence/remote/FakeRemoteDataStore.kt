@@ -22,6 +22,8 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.remote.RemoteDataStore
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,7 +40,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   private val subscribedSurveyIds = mutableSetOf<String>()
 
-  override suspend fun loadSurveySummaries(user: User): List<Survey> = surveys
+  override suspend fun getSurveyList(user: User): Flow<List<Survey>> = flowOf(surveys)
 
   override suspend fun loadSurvey(surveyId: String): Survey? = onLoadSurvey.invoke(surveyId)
 

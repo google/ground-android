@@ -32,6 +32,9 @@ import com.google.firebase.messaging.ktx.messaging
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -64,8 +67,9 @@ internal constructor(
   override suspend fun loadTermsOfService(): TermsOfService? =
     withContext(ioDispatcher) { db().termsOfService().terms().get() }
 
-  override suspend fun loadSurveySummaries(user: User): List<Survey> =
-    withContext(ioDispatcher) { db().surveys().getReadable(user) }
+  override fun getSurveyList(user: User): Flow<List<Survey>> = flow {
+    emitAll(db().surveys().getReadable(user))
+  }
 
   override suspend fun loadLocationsOfInterest(survey: Survey) =
     db().surveys().survey(survey.id).lois().locationsOfInterest(survey)
