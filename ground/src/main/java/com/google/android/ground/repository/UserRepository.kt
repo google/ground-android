@@ -72,7 +72,7 @@ constructor(
     try {
       surveyRepository.activeSurvey?.getRole(currentUser.email) != Role.VIEWER
     } catch (e: IllegalStateException) {
-      Timber.e(e, "Failed to check permissions for user $currentUser")
+      Timber.e(e, "Error getting role for user $currentUser")
       false
     }
 }
