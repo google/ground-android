@@ -17,7 +17,6 @@ package com.google.android.ground.model
 
 /** Represents a single application user. */
 data class User
-@JvmOverloads
 constructor(
   val id: String,
   val email: String,

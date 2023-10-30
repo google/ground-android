@@ -69,5 +69,10 @@ constructor(
    * survey. If no survey is active at the moment, then it returns false.
    */
   fun canUserSubmitData(): Boolean =
-    surveyRepository.activeSurvey?.getRole(currentUser.email) != Role.VIEWER
+    try {
+      surveyRepository.activeSurvey?.getRole(currentUser.email) != Role.VIEWER
+    } catch (e: IllegalStateException) {
+      Timber.e(e, "Error getting role for user $currentUser")
+      false
+    }
 }
