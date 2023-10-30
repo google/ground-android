@@ -17,6 +17,7 @@ package com.google.android.ground.persistence.remote.firebase
 
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -35,6 +36,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -67,8 +69,13 @@ internal constructor(
   override suspend fun loadTermsOfService(): TermsOfService? =
     withContext(ioDispatcher) { db().termsOfService().terms().get() }
 
-  override fun getSurveyList(user: User): Flow<List<Survey>> = flow {
-    emitAll(db().surveys().getReadable(user))
+  override fun getSurveyList(user: User): Flow<List<SurveyListItem>> = flow {
+    emitAll(
+      db().surveys().getReadable(user).map { list ->
+        // TODO(#2031): Return SurveyListItem from getReadable(), only fetch required fields.
+        list.map { SurveyListItem(it.id, it.title, it.description, false) }
+      }
+    )
   }
 
   override suspend fun loadLocationsOfInterest(survey: Survey) =

@@ -16,6 +16,7 @@
 package com.google.android.ground.persistence.remote
 
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -28,8 +29,7 @@ import kotlinx.coroutines.flow.Flow
  * subscriptions are run in a background thread (i.e., not the Android main thread).
  */
 interface RemoteDataStore {
-  // TODO: Refactor SurveyItem into model class SurveyListItem and return from here.
-  fun getSurveyList(user: User): Flow<List<Survey>>
+  fun getSurveyList(user: User): Flow<List<SurveyListItem>>
 
   /**
    * Loads the survey with the specified id from the remote data store. Returns `null` if the survey
