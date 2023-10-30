@@ -68,12 +68,11 @@ constructor(
    * Returns true if the currently logged in user has permissions to write data to the active
    * survey. If no survey is active at the moment, then it returns false.
    */
-  fun canUserSubmitData(): Boolean {
-    return try {
+  fun canUserSubmitData(): Boolean =
+    try {
       surveyRepository.activeSurvey?.getRole(currentUser.email) != Role.VIEWER
     } catch (e: IllegalStateException) {
       Timber.e(e, "Failed to check permissions for user $currentUser")
       false
     }
-  }
 }
