@@ -76,10 +76,10 @@ class PolygonDrawingTaskFragmentTest :
   fun testActionButtons() {
     setupTaskFragment<PolygonDrawingTaskFragment>(job, task)
 
-    hasButtons(
-      ButtonAction.NEXT,
+    assertFragmentHasButtons(
       ButtonAction.SKIP,
       ButtonAction.UNDO,
+      ButtonAction.NEXT,
       ButtonAction.ADD_POINT,
       ButtonAction.COMPLETE
     )

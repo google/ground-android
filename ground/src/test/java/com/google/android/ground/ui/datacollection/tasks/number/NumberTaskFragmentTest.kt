@@ -96,7 +96,7 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   fun testActionButtons() {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
-    hasButtons(ButtonAction.NEXT, ButtonAction.SKIP)
+    assertFragmentHasButtons(ButtonAction.SKIP, ButtonAction.NEXT)
   }
 
   @Test
