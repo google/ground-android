@@ -20,21 +20,18 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import app.cash.turbine.test
 import com.google.android.ground.*
 import com.google.android.ground.NavGraphDirections.ShowMapTypeDialogFragment
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.map.MapType
-import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class HomeScreenMapContainerFragmentTest : BaseHiltTest() {
@@ -48,13 +45,13 @@ class HomeScreenMapContainerFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun clickMapType_launchesMapTypeDialogFragment() = runWithTestDispatcher {
+  fun clickMapType_launchesMapTypeDialogFragment() {
+    val navDirectionsTestObserver = navigator.getNavigateRequests().test()
+
     onView(withId(R.id.map_type_btn)).perform(click()).check(matches(isEnabled()))
 
-    navigator.getNavigateRequests().test {
-      val result = expectMostRecentItem()
-      assertThat(result).isInstanceOf(ShowMapTypeDialogFragment::class.java)
-      assertThat((result as ShowMapTypeDialogFragment).mapTypes).isEqualTo(MapType.values())
+    navDirectionsTestObserver.assertValue {
+      it is ShowMapTypeDialogFragment && it.mapTypes.contentEquals(MapType.values())
     }
   }
 }

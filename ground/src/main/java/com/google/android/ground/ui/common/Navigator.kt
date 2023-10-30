@@ -16,42 +16,44 @@
 package com.google.android.ground.ui.common
 
 import androidx.navigation.NavDirections
+import com.google.android.ground.rx.annotations.Hot
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 /**
  * Responsible for abstracting navigation from fragment to fragment. Exposes various actions to
- * ViewModels that cause a NavDirections to be emitted to the flow.
+ * ViewModels that cause a NavDirections to be emitted to the observer (in this case, the [ ], which
+ * is expected to pass it to the current [ ].
  */
 @Singleton
 class Navigator @Inject constructor() {
-  private val navigateRequests: MutableStateFlow<NavDirections?> = MutableStateFlow(null)
-  private val navigateUpRequests: MutableStateFlow<Any?> = MutableStateFlow(null)
-  private val finishRequests: MutableStateFlow<Any?> = MutableStateFlow(null)
+  private val navigateRequests: @Hot Subject<NavDirections> = PublishSubject.create()
+  private val navigateUpRequests: @Hot Subject<Any> = PublishSubject.create()
+  private val finishRequests: @Hot Subject<Any> = PublishSubject.create()
 
   /** Stream of navigation requests for fulfillment by the view layer. */
-  fun getNavigateRequests(): Flow<NavDirections> = navigateRequests.filterNotNull()
+  fun getNavigateRequests(): Observable<NavDirections> = navigateRequests
 
-  fun getNavigateUpRequests(): Flow<Any> = navigateUpRequests.filterNotNull()
+  fun getNavigateUpRequests(): Observable<Any> = navigateUpRequests
 
-  fun getFinishRequests(): Flow<Any> = finishRequests.filterNotNull()
+  fun getFinishRequests(): Observable<Any> = finishRequests
 
   /** Navigates up one level on the back stack. */
   fun navigateUp() {
-    CoroutineScope(Main).launch { navigateUpRequests.emit(Any()) }
+    navigateUpRequests.onNext(Any())
   }
 
   fun navigate(directions: NavDirections) {
-    CoroutineScope(Main).launch { navigateRequests.emit(directions) }
+    CoroutineScope(Main).launch { navigateRequests.onNext(directions) }
   }
 
   fun finishApp() {
-    CoroutineScope(Main).launch { finishRequests.emit(Any()) }
+    finishRequests.onNext(Any())
   }
 }
