@@ -28,14 +28,6 @@ import kotlinx.coroutines.flow.Flow
 interface LocalLocationOfInterestStore :
   LocalMutationStore<LocationOfInterestMutation, LocationOfInterest> {
   /**
-   * Returns a long-lived stream that emits the full set of LOIs for a survey on subscribe, and
-   * continues to return the full set each time a LOI is added/changed/removed.
-   */
-  fun getLocationsOfInterestOnceAndStream(
-    survey: Survey
-  ): @Cold(terminates = false) Flowable<Set<LocationOfInterest>>
-
-  /**
    * Returns a main-safe flow that emits the full set of LOIs for a survey on subscribe, and
    * continues to return the full set each time a LOI is added/changed/removed.
    */

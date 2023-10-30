@@ -37,7 +37,10 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
@@ -122,23 +125,17 @@ constructor(
       MutationEntitySyncStatus.FAILED
     )
 
-  /** Returns a flowable of all [LocationOfInterest] for the given [Survey]. */
-  private fun getLocationsOfInterestOnceAndStream(
-    survey: Survey
-  ): Flowable<Set<LocationOfInterest>> = localLoiStore.getLocationsOfInterestOnceAndStream(survey)
-
-  fun getLocationsOfInterest(survey: Survey) = localLoiStore.findLocationsOfInterest(survey)
+  /** Returns a flow of all [LocationOfInterest] associated with the given [Survey]. */
+  fun getLocationsOfInterests(survey: Survey): Flow<Set<LocationOfInterest>> =
+    localLoiStore.findLocationsOfInterest(survey)
 
   /** Returns a list of geometries associated with the given [Survey]. */
   suspend fun getAllGeometries(survey: Survey): List<Geometry> =
-    getLocationsOfInterestOnceAndStream(survey).awaitFirst().map { it.geometry }
+    getLocationsOfInterests(survey).first().map { it.geometry }
 
-  /** Returns a flowable of all [LocationOfInterest] within the map bounds (viewport). */
-  fun getWithinBoundsOnceAndStream(
-    survey: Survey,
-    bounds: Bounds
-  ): Flowable<List<LocationOfInterest>> =
-    getLocationsOfInterestOnceAndStream(survey)
+  /** Returns a flow of all [LocationOfInterest] within the map bounds (viewport). */
+  fun getWithinBounds(survey: Survey, bounds: Bounds): Flow<List<LocationOfInterest>> =
+    getLocationsOfInterests(survey)
       .map { lois -> lois.filter { bounds.contains(it.geometry) } }
       .distinctUntilChanged()
 }

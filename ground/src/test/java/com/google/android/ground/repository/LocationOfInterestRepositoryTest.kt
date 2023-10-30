@@ -15,18 +15,22 @@
  */
 package com.google.android.ground.repository
 
+import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
-import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.Mutation.Type.CREATE
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.ui.map.Bounds
+import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import java.util.*
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,8 +38,11 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.*
-import org.mockito.Mockito.*
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mock
+import org.mockito.Mockito.`when`
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
@@ -123,44 +130,43 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   // TODO(#1373): Add tests for getLocationsOfInterest once new LOI sync implemented.
 
   @Test
-  fun testLoiWithinBounds_whenOutOfBounds_returnsEmptyList() {
+  fun testLoiWithinBounds_whenOutOfBounds_returnsEmptyList() = runWithTestDispatcher {
     val southwest = Coordinates(-60.0, -60.0)
     val northeast = Coordinates(-50.0, -50.0)
 
-    locationOfInterestRepository
-      .getWithinBoundsOnceAndStream(TEST_SURVEY, Bounds(southwest, northeast))
-      .test()
-      .assertValues(listOf())
+    locationOfInterestRepository.getWithinBounds(TEST_SURVEY, Bounds(southwest, northeast)).test {
+      assertThat(expectMostRecentItem()).isEmpty()
+    }
   }
 
   @Test
-  fun testLoiWithinBounds_whenSomeLOIsInsideBounds_returnsPartialList() {
+  fun testLoiWithinBounds_whenSomeLOIsInsideBounds_returnsPartialList() = runWithTestDispatcher {
     val southwest = Coordinates(-20.0, -20.0)
     val northeast = Coordinates(-10.0, -10.0)
 
-    locationOfInterestRepository
-      .getWithinBoundsOnceAndStream(TEST_SURVEY, Bounds(southwest, northeast))
-      .test()
-      .assertValues(listOf(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_1))
+    locationOfInterestRepository.getWithinBounds(TEST_SURVEY, Bounds(southwest, northeast)).test {
+      assertThat(expectMostRecentItem())
+        .isEqualTo(listOf(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_1))
+    }
   }
 
   @Test
-  fun testLoiWithinBounds_whenAllLOIsInsideBounds_returnsCompleteList() {
+  fun testLoiWithinBounds_whenAllLOIsInsideBounds_returnsCompleteList() = runWithTestDispatcher {
     val southwest = Coordinates(-20.0, -20.0)
     val northeast = Coordinates(20.0, 20.0)
 
-    locationOfInterestRepository
-      .getWithinBoundsOnceAndStream(TEST_SURVEY, Bounds(southwest, northeast))
-      .test()
-      .assertValues(
-        listOf(
-          TEST_POINT_OF_INTEREST_1,
-          TEST_POINT_OF_INTEREST_2,
-          TEST_POINT_OF_INTEREST_3,
-          TEST_AREA_OF_INTEREST_1,
-          TEST_AREA_OF_INTEREST_2
+    locationOfInterestRepository.getWithinBounds(TEST_SURVEY, Bounds(southwest, northeast)).test {
+      assertThat(expectMostRecentItem())
+        .isEqualTo(
+          listOf(
+            TEST_POINT_OF_INTEREST_1,
+            TEST_POINT_OF_INTEREST_2,
+            TEST_POINT_OF_INTEREST_3,
+            TEST_AREA_OF_INTEREST_1,
+            TEST_AREA_OF_INTEREST_2
+          )
         )
-      )
+    }
   }
 
   companion object {

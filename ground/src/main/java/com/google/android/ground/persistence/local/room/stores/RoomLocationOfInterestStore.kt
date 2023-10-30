@@ -52,14 +52,6 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
    * local database and returns a [Flowable] that continually emits the complete set anew any time
    * the underlying table changes (insertions, deletions, updates).
    */
-  override fun getLocationsOfInterestOnceAndStream(
-    survey: Survey
-  ): Flowable<Set<LocationOfInterest>> =
-    locationOfInterestDao
-      .findOnceAndStream(survey.id, EntityState.DEFAULT)
-      .map { toLocationsOfInterest(survey, it) }
-      .subscribeOn(schedulers.io())
-
   override fun findLocationsOfInterest(survey: Survey) =
     locationOfInterestDao.findByState(survey.id, EntityState.DEFAULT).map {
       toLocationsOfInterest(survey, it)
