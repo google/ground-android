@@ -18,7 +18,6 @@ package com.google.android.ground.persistence.local.room.dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Update
-import io.reactivex.Completable
 
 /**
  * Base interface for DAOs that implement operations on a specific entity type.
@@ -27,18 +26,13 @@ import io.reactivex.Completable
  */
 interface BaseDao<E> {
 
-  /** Insert entity into local db. Main-safe. */
   @Insert suspend fun insert(entity: E)
 
-  /** Update entity in local db. Main-safe. */
   @Update suspend fun update(entity: E): Int
 
   @Update suspend fun updateAll(entities: List<E>)
 
-  @Deprecated("Replace usage with deleteSuspend") @Delete fun delete(entity: E): Completable
-
-  // TODO(#1581): Rename to delete once all existing usages are migrated to coroutine.
-  @Delete suspend fun deleteSuspend(entity: E)
+  @Delete suspend fun delete(entity: E)
 }
 
 /** Try to update the specified entity, and if it doesn't yet exist, create it. Main-safe. */
