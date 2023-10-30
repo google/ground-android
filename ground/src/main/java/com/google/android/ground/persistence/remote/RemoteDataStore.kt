@@ -21,6 +21,7 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -28,7 +29,10 @@ import kotlinx.coroutines.flow.Flow
  * subscriptions are run in a background thread (i.e., not the Android main thread).
  */
 interface RemoteDataStore {
-  suspend fun loadSurveySummaries(user: User): Flow<List<Survey>>
+  suspend fun loadSurveySummaries(
+    user: User,
+    cancelRegistrationCallback: (listenerRegistration: ListenerRegistration) -> Unit
+  ): Flow<List<Survey>>
 
   /**
    * Loads the survey with the specified id from the remote data store. Returns `null` if the survey

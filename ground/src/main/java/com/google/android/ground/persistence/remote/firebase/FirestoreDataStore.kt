@@ -25,6 +25,7 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.remote.RemoteDataStore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.ktx.Firebase
@@ -65,8 +66,11 @@ internal constructor(
   override suspend fun loadTermsOfService(): TermsOfService? =
     withContext(ioDispatcher) { db().termsOfService().terms().get() }
 
-  override suspend fun loadSurveySummaries(user: User): Flow<List<Survey>> =
-    withContext(ioDispatcher) { db().surveys().getReadable(user) }
+  override suspend fun loadSurveySummaries(
+    user: User,
+    cancelRegistrationCallback: (listenerRegistration: ListenerRegistration) -> Unit
+  ): Flow<List<Survey>> =
+    withContext(ioDispatcher) { db().surveys().getReadable(user, cancelRegistrationCallback) }
 
   override suspend fun loadLocationsOfInterest(survey: Survey) =
     db().surveys().survey(survey.id).lois().locationsOfInterest(survey)

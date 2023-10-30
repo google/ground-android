@@ -22,6 +22,7 @@ import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
+import com.google.firebase.firestore.ListenerRegistration
 import io.reactivex.Flowable
 import java8.util.Optional
 import javax.inject.Inject
@@ -114,11 +115,14 @@ constructor(
     activeSurvey = null
   }
 
-  suspend fun getSurveySummaries(user: User): Flow<List<Survey>> =
+  suspend fun getSurveySummaries(
+    user: User,
+    cancelRegistrationCallback: (listenerRegistration: ListenerRegistration) -> Unit
+  ): Flow<List<Survey>> =
     try {
       withTimeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_MILLIS) {
         Timber.d("Loading survey list from remote")
-        remoteDataStore.loadSurveySummaries(user)
+        remoteDataStore.loadSurveySummaries(user, cancelRegistrationCallback)
       }
     } catch (e: Throwable) {
       Timber.d(e, "Failed to load survey list from remote")

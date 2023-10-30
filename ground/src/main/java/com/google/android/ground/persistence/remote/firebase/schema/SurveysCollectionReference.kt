@@ -23,6 +23,7 @@ import com.google.android.ground.persistence.remote.firebase.base.FluentCollecti
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldPath
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.flow.Flow
 
 private const val ACL_FIELD = "acl"
@@ -32,9 +33,14 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
 
   fun survey(id: String) = SurveyDocumentReference(reference().document(id))
 
-  fun getReadable(user: User): Flow<List<Survey>> =
-    runQueryFlow(reference().whereIn(FieldPath.of(ACL_FIELD, user.email), Role.valueStrings())) {
-      doc: DocumentSnapshot ->
+  fun getReadable(
+    user: User,
+    cancelRegistrationCallback: (listenerRegistration: ListenerRegistration) -> Unit
+  ): Flow<List<Survey>> =
+    runQueryFlow(
+      reference().whereIn(FieldPath.of(ACL_FIELD, user.email), Role.valueStrings()),
+      cancelRegistrationCallback
+    ) { doc: DocumentSnapshot ->
       SurveyConverter.toSurvey(doc)
     }
 }

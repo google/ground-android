@@ -26,6 +26,7 @@ import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
+import com.google.firebase.firestore.ListenerRegistration
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -56,6 +57,7 @@ internal constructor(
   val surveySummaries: Flow<List<SurveyItem>>
 
   private var shouldListenToRemoteChanges = true
+  private var listenerRegistration: ListenerRegistration? = null
 
   init {
     surveySummaries =
@@ -75,7 +77,7 @@ internal constructor(
   /** Returns a flow of remotely stored surveys. */
   private suspend fun allSurveys(): Flow<List<Survey>> =
     surveyRepository
-      .getSurveySummaries(authManager.currentUser)
+      .getSurveySummaries(authManager.currentUser) { listenerRegistration = it }
       .onEach { setLoading() }
       .takeWhile { shouldListenToRemoteChanges }
 
@@ -106,6 +108,7 @@ internal constructor(
 
       // Disable listening to remote changes to prevent multiple progress loading spinners
       shouldListenToRemoteChanges = false
+      listenerRegistration?.remove()
 
       activateSurveyUseCase(surveyId)
       setLoaded()

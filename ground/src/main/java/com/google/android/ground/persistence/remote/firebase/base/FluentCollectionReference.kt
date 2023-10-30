@@ -16,9 +16,11 @@
 
 package com.google.android.ground.persistence.remote.firebase.base
 
+import android.widget.Toast
 import com.google.android.ground.system.NetworkManager
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import java8.util.function.Function
@@ -57,18 +59,26 @@ protected constructor(
 
   protected fun <T> runQueryFlow(
     query: Query,
+    cancelRegistrationCallback: (listenerRegistration: ListenerRegistration) -> Unit,
     mappingFunction: Function<DocumentSnapshot, T>
   ): Flow<List<T>> {
+    var counter = 0
     NetworkManager(context).requireNetworkConnection()
     val surveyFlow = MutableStateFlow<List<T>?>(null)
-    query.addSnapshotListener { querySnapshot, error ->
-      if (error != null) {
-        Timber.e(error)
-      } else if (querySnapshot != null) {
-        val documents: List<T> = parseSnapshot(querySnapshot, mappingFunction)
-        CoroutineScope(ioDispatcher).launch { surveyFlow.emit(documents) }
+    val registration =
+      query.addSnapshotListener { querySnapshot, error ->
+        if (error != null) {
+          Timber.e(error)
+        } else if (querySnapshot != null) {
+          val documents: List<T> = parseSnapshot(querySnapshot, mappingFunction)
+          CoroutineScope(ioDispatcher).launch {
+            // TODO: Remove the toast before submitting the PR.
+            Toast.makeText(context, "List updated ${counter++}", Toast.LENGTH_SHORT).show()
+            surveyFlow.emit(documents)
+          }
+        }
       }
-    }
+    cancelRegistrationCallback(registration)
     return surveyFlow.filterNotNull()
   }
 
