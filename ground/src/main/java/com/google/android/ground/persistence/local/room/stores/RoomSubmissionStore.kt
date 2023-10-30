@@ -192,7 +192,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   }
 
   override suspend fun deleteSubmission(submissionId: String) {
-    submissionDao.findByIdSuspend(submissionId)?.let { submissionDao.deleteSuspend(it) }
+    submissionDao.findByIdSuspend(submissionId)?.let { submissionDao.delete(it) }
   }
 
   override fun getSubmissionMutationsByLocationOfInterestIdOnceAndStream(

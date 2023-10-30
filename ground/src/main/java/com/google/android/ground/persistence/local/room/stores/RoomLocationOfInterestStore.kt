@@ -129,7 +129,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   override suspend fun deleteLocationOfInterest(locationOfInterestId: String) {
     Timber.d("Deleting local location of interest : $locationOfInterestId")
     locationOfInterestDao.findByIdSuspend(locationOfInterestId)?.let {
-      locationOfInterestDao.deleteSuspend(it)
+      locationOfInterestDao.delete(it)
     }
   }
 
