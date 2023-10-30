@@ -117,7 +117,7 @@ constructor(
   fun clearActiveSurvey() {
     activeSurvey = null
   }
-  //  offlineSurveys.any { it.id == survey.id }
+
   fun getSurveyList(user: User): Flow<List<Pair<Survey, Boolean>>> =
     @OptIn(ExperimentalCoroutinesApi::class)
     networkManager.networkStatusFlow.flatMapLatest { networkStatus ->
