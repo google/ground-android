@@ -27,7 +27,6 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
@@ -35,7 +34,6 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.Navigator
-import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -43,6 +41,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.CoreMatchers.not
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -154,7 +153,6 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
   }
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class NavigationDrawerItemClickTest(
@@ -165,13 +163,13 @@ class NavigationDrawerItemClickTest(
   @Inject lateinit var navigator: Navigator
 
   @Test
-  fun clickDrawerMenuItem() = runWithTestDispatcher {
+  fun clickDrawerMenuItem() {
+    val navDirectionsTestObserver = navigator.getNavigateRequests().test()
+
     openDrawer()
     onView(withText(menuItemLabel)).check(matches(isEnabled())).perform(click())
 
-    navigator.getNavigateRequests().test {
-      assertThat(expectMostRecentItem()).isEqualTo(expectedNavDirection)
-    }
+    navDirectionsTestObserver.assertValue(expectedNavDirection)
     verifyDrawerClosed()
   }
 
