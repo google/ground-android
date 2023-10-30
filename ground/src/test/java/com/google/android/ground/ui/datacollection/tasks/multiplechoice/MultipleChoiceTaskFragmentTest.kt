@@ -143,7 +143,7 @@ class MultipleChoiceTaskFragmentTest :
   fun testActionButtons() {
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
-    hasButtons(ButtonAction.SKIP, ButtonAction.NEXT)
+    assertFragmentHasButtons(ButtonAction.SKIP, ButtonAction.NEXT)
   }
 
   @Test

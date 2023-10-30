@@ -90,7 +90,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   fun testActionButtons() {
     setupTaskFragment<TextTaskFragment>(job, task)
 
-    hasButtons(ButtonAction.SKIP, ButtonAction.NEXT)
+    assertFragmentHasButtons(ButtonAction.SKIP, ButtonAction.NEXT)
   }
 
   @Test

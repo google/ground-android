@@ -82,7 +82,7 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   fun testActionButtons() {
     setupTaskFragment<TimeTaskFragment>(job, task)
 
-    hasButtons(ButtonAction.SKIP, ButtonAction.NEXT)
+    assertFragmentHasButtons(ButtonAction.SKIP, ButtonAction.NEXT)
   }
 
   @Test

@@ -73,11 +73,9 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     viewModel.taskDataFlow.test { assertThat(expectMostRecentItem()).isEqualTo(taskData) }
   }
 
-  protected fun hasButtons(vararg buttonActions: ButtonAction) {
-    // Verify the list matches (in any order)
+  /** Asserts that the task fragment has the given list of buttons in the exact same order. */
+  protected fun assertFragmentHasButtons(vararg buttonActions: ButtonAction) {
     assertThat(fragment.getButtons().keys).containsExactlyElementsIn(buttonActions)
-
-    // Verify the position of each button
     buttonActions.withIndex().forEach { (index, expected) ->
       val actual = fragment.getButtonsIndex()[index]
       assertWithMessage("Incorrect button order").that(actual).isEqualTo(expected)

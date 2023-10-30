@@ -105,7 +105,12 @@ class DropAPinTaskFragmentTest :
   fun testActionButtons() {
     setupTaskFragment<DropAPinTaskFragment>(job, task)
 
-    hasButtons(ButtonAction.SKIP, ButtonAction.UNDO, ButtonAction.DROP_PIN, ButtonAction.NEXT)
+    assertFragmentHasButtons(
+      ButtonAction.SKIP,
+      ButtonAction.UNDO,
+      ButtonAction.DROP_PIN,
+      ButtonAction.NEXT
+    )
   }
 
   @Test

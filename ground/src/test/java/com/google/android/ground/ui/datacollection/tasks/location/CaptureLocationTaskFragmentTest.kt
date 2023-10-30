@@ -104,7 +104,7 @@ class CaptureLocationTaskFragmentTest :
   fun testActionButtons() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
-    hasButtons(
+    assertFragmentHasButtons(
       ButtonAction.SKIP,
       ButtonAction.UNDO,
       ButtonAction.CAPTURE_LOCATION,
