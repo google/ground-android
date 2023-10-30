@@ -22,3 +22,6 @@ data class SurveyListItem(
   val description: String,
   val availableOffline: Boolean
 )
+
+fun Survey.toListItem(availableOffline: Boolean): SurveyListItem =
+  SurveyListItem(id, title, description, availableOffline)

@@ -25,6 +25,7 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.functions.FirebaseFunctions
@@ -73,7 +74,7 @@ internal constructor(
     emitAll(
       db().surveys().getReadable(user).map { list ->
         // TODO(#2031): Return SurveyListItem from getReadable(), only fetch required fields.
-        list.map { SurveyListItem(it.id, it.title, it.description, false) }
+        list.map { it.toListItem(false) }
       }
     )
   }

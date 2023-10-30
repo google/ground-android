@@ -19,6 +19,7 @@ import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.model.User
+import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
@@ -86,8 +87,8 @@ constructor(
   val activeSurveyFlowable: @Cold Flowable<Optional<Survey>> =
     activeSurveyFlow.map { if (it == null) Optional.empty() else Optional.of(it) }.asFlowable()
 
-  val localSurveysFlow: Flow<List<Survey>>
-    get() = localSurveyStore.surveys
+  val localSurveyListFlow: Flow<List<SurveyListItem>>
+    get() = localSurveyStore.surveys.map { list -> list.map { it.toListItem(true) } }
 
   var lastActiveSurveyId: String by localValueStore::lastActiveSurveyId
     internal set
@@ -125,20 +126,16 @@ constructor(
       if (networkStatus == NetworkStatus.AVAILABLE) {
         getRemoteSurveyList(user)
       } else {
-        getLocalSurveyList()
+        localSurveyListFlow
       }
     }
 
   private fun getRemoteSurveyList(user: User): Flow<List<SurveyListItem>> =
-    remoteDataStore.getSurveyList(user).combine(localSurveysFlow) { remoteSurveys, localSurveys ->
+    remoteDataStore.getSurveyList(user).combine(localSurveyListFlow) { remoteSurveys, localSurveys
+      ->
       remoteSurveys.map { remoteSurvey ->
         remoteSurvey.copy(availableOffline = localSurveys.any { it.id == remoteSurvey.id })
       }
-    }
-
-  private fun getLocalSurveyList(): Flow<List<SurveyListItem>> =
-    localSurveysFlow.map { localSurveys ->
-      localSurveys.map { SurveyListItem(it.id, it.title, it.description, true) }
     }
 
   /** Attempts to remove the locally synced survey. Doesn't throw an error if it doesn't exist. */

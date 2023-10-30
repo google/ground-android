@@ -79,7 +79,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
     advanceUntilIdle()
 
     // Verify survey is deleted
-    surveyRepository.localSurveysFlow.test { assertThat(expectMostRecentItem()).isEmpty() }
+    surveyRepository.localSurveyListFlow.test { assertThat(expectMostRecentItem()).isEmpty() }
     // Verify survey deactivated
     assertThat(surveyRepository.activeSurvey).isNull()
   }
@@ -103,7 +103,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
     // Verify active survey isn't cleared
     assertThat(surveyRepository.activeSurvey).isEqualTo(survey1)
     // Verify survey is deleted
-    surveyRepository.localSurveysFlow.test {
+    surveyRepository.localSurveyListFlow.test {
       assertThat(expectMostRecentItem()).isEqualTo(listOf(survey1))
     }
   }
