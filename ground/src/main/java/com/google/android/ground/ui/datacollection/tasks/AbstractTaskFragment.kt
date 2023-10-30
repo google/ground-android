@@ -147,28 +147,22 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
       .hide()
 
-  protected fun addButton(action: ButtonAction): TaskButton {
+  protected fun addButton(buttonAction: ButtonAction): TaskButton {
+    val action = if (buttonAction.shouldReplaceWithDoneButton()) ButtonAction.DONE else buttonAction
     check(!buttons.contains(action)) { "Button $action already bound" }
-    val updatedAction = maybeOverrideButton(action)
     val button =
       TaskButtonFactory.createAndAttachButton(
-        updatedAction,
+        action,
         taskView.actionButtonsContainer,
         layoutInflater
       )
-    buttons[updatedAction] = button
+    buttons[action] = button
     return button
   }
 
-  /**
-   * Changes the button from "Next" to "Done" if the current task fragment is last in it's position.
-   */
-  private fun maybeOverrideButton(action: ButtonAction): ButtonAction =
-    if (action != ButtonAction.NEXT || !dataCollectionViewModel.isLastPosition(position)) {
-      action
-    } else {
-      ButtonAction.DONE
-    }
+  /** Returns true if the given [ButtonAction] should be replace with "Done" button. */
+  private fun ButtonAction.shouldReplaceWithDoneButton() =
+    this == ButtonAction.NEXT && dataCollectionViewModel.isLastPosition(position)
 
   @TestOnly fun getButtons() = buttons
 
