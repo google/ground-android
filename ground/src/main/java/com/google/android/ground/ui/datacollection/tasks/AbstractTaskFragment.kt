@@ -120,7 +120,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   protected fun addNextButton() =
     addButton(ButtonAction.NEXT)
-      .setOnClickListener { dataCollectionViewModel.onNextClicked() }
+      .setOnClickListener { moveToNext() }
       .setOnTaskUpdated { button, taskData -> button.enableIfTrue(taskData.isNotNullOrEmpty()) }
       .disable()
 
@@ -135,7 +135,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   private fun onSkip() {
     check(viewModel.hasNoData()) { "User should not be able to skip a task with data." }
-    dataCollectionViewModel.onNextClicked()
+    moveToNext()
+  }
+
+  fun moveToNext() {
+    dataCollectionViewModel.onNextClicked(position)
   }
 
   fun addUndoButton() =
@@ -144,7 +148,8 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
       .hide()
 
-  protected fun addButton(action: ButtonAction): TaskButton {
+  protected fun addButton(buttonAction: ButtonAction): TaskButton {
+    val action = if (buttonAction.shouldReplaceWithDoneButton()) ButtonAction.DONE else buttonAction
     check(!buttons.contains(action)) { "Button $action already bound" }
     val button =
       TaskButtonFactory.createAndAttachButton(
@@ -156,6 +161,10 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     buttons[action] = button
     return button
   }
+
+  /** Returns true if the given [ButtonAction] should be replace with "Done" button. */
+  private fun ButtonAction.shouldReplaceWithDoneButton() =
+    this == ButtonAction.NEXT && dataCollectionViewModel.isLastPosition(position)
 
   @TestOnly fun getButtons() = buttons
 

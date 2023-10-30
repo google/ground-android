@@ -146,9 +146,9 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
     onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
 
-    // Click "next" on final task
+    // Click "done" on final task
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task2Response))
-    onView(allOf(withText("Next"), isDisplayed())).perform(click())
+    onView(allOf(withText("Done"), isDisplayed())).perform(click())
     advanceUntilIdle()
 
     verify(submissionRepository)
