@@ -18,6 +18,7 @@ package com.google.android.ground.repository
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
+import com.google.android.ground.model.toListItem
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.JOB
 import com.sharedtest.FakeData.SURVEY
@@ -104,7 +105,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
     assertThat(surveyRepository.activeSurvey).isEqualTo(survey1)
     // Verify survey is deleted
     surveyRepository.localSurveyListFlow.test {
-      assertThat(expectMostRecentItem()).isEqualTo(listOf(survey1))
+      assertThat(expectMostRecentItem()).isEqualTo(listOf(survey1.toListItem(true)))
     }
   }
 

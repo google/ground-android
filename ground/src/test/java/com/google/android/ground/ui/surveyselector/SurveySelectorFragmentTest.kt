@@ -100,7 +100,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun created_surveysAvailable_whenOneSurveySynced() {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setLocalSurveys(listOf(TEST_SURVEY_2))
+    setLocalSurveys(listOf(TEST_SURVEY_2.copy(availableOffline = true)))
     setUpFragment()
 
     // Assert that 2 surveys are displayed
