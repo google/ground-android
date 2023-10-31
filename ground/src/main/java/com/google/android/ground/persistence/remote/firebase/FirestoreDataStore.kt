@@ -17,6 +17,7 @@ package com.google.android.ground.persistence.remote.firebase
 
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -24,6 +25,7 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.functions.FirebaseFunctions
@@ -32,6 +34,10 @@ import com.google.firebase.messaging.ktx.messaging
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -64,8 +70,14 @@ internal constructor(
   override suspend fun loadTermsOfService(): TermsOfService? =
     withContext(ioDispatcher) { db().termsOfService().terms().get() }
 
-  override suspend fun loadSurveySummaries(user: User): List<Survey> =
-    withContext(ioDispatcher) { db().surveys().getReadable(user) }
+  override fun getSurveyList(user: User): Flow<List<SurveyListItem>> = flow {
+    emitAll(
+      db().surveys().getReadable(user).map { list ->
+        // TODO(#2031): Return SurveyListItem from getReadable(), only fetch required fields.
+        list.map { it.toListItem(false) }
+      }
+    )
+  }
 
   override suspend fun loadLocationsOfInterest(survey: Survey) =
     db().surveys().survey(survey.id).lois().locationsOfInterest(survey)

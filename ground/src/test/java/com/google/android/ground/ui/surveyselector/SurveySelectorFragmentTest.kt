@@ -30,7 +30,7 @@ import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.*
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
-import com.google.android.ground.model.Survey
+import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.Navigator
@@ -77,8 +77,8 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun created_surveysAvailable_whenNoSurveySynced() {
-    setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setOfflineSurveys(listOf())
+    setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setLocalSurveys(listOf())
     setUpFragment()
 
     // Assert that 2 surveys are displayed
@@ -99,30 +99,34 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun created_surveysAvailable_whenOneSurveySynced() {
-    setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setOfflineSurveys(listOf(TEST_SURVEY_2))
+    val syncedSurvey = TEST_SURVEY_2.copy(availableOffline = true)
+    val unsyncedSurvey = TEST_SURVEY_1
+    setSurveyList(listOf(syncedSurvey, unsyncedSurvey))
+    setLocalSurveys(listOf(syncedSurvey))
     setUpFragment()
 
-    // Assert that 2 surveys are displayed
+    // Assert that 2 surveys are displayed.
     onView(withId(R.id.recycler_view)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
 
+    // The survey which is available offline should appear first.
+
     var viewHolder = getViewHolder(0)
-    assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_2.title)
-    assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_2.description)
+    assertThat(viewHolder.binding.title.text).isEqualTo(syncedSurvey.title)
+    assertThat(viewHolder.binding.description.text).isEqualTo(syncedSurvey.description)
     assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.VISIBLE)
     assertThat(viewHolder.binding.overflowMenu.visibility).isEqualTo(View.VISIBLE)
 
     viewHolder = getViewHolder(1)
-    assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_1.title)
-    assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_1.description)
+    assertThat(viewHolder.binding.title.text).isEqualTo(unsyncedSurvey.title)
+    assertThat(viewHolder.binding.description.text).isEqualTo(unsyncedSurvey.description)
     assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.GONE)
     assertThat(viewHolder.binding.overflowMenu.visibility).isEqualTo(View.GONE)
   }
 
   @Test
   fun click_activatesSurvey() = runWithTestDispatcher {
-    setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setOfflineSurveys(listOf())
+    setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setLocalSurveys(listOf())
     setUpFragment()
 
     // Click second item
@@ -138,8 +142,8 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun shouldExitAppOnBackPress_defaultFalse() {
-    setAllSurveys(listOf())
-    setOfflineSurveys(listOf())
+    setSurveyList(listOf())
+    setLocalSurveys(listOf())
     setUpFragment()
 
     assertThat(fragment.onBack()).isFalse()
@@ -148,8 +152,8 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun shouldExitAppOnBackPress_whenArgIsPresent() {
-    setAllSurveys(listOf())
-    setOfflineSurveys(listOf())
+    setSurveyList(listOf())
+    setLocalSurveys(listOf())
     setUpFragment(bundleOf(Pair("shouldExitApp", true)))
 
     assertThat(fragment.onBack()).isTrue()
@@ -158,8 +162,8 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun `hide sign out button when survey list is not empty`() {
-    setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setOfflineSurveys(listOf())
+    setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setLocalSurveys(listOf())
     setUpFragment()
 
     onView(withText("Sign out")).check(matches(not(isDisplayed())))
@@ -167,8 +171,8 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun `show sign out button when survey list is empty`() {
-    setAllSurveys(listOf())
-    setOfflineSurveys(listOf())
+    setSurveyList(listOf())
+    setLocalSurveys(listOf())
     setUpFragment()
 
     onView(withText("Sign out")).check(matches(isDisplayed())).perform(click())
@@ -177,8 +181,8 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun `remove offline survey on menu item click`() = runWithTestDispatcher {
-    setAllSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setOfflineSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setLocalSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setUpFragment()
 
     // Click second item's overflow menu
@@ -210,13 +214,12 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     }
   }
 
-  private fun setAllSurveys(surveys: List<Survey>) = runWithTestDispatcher {
-    whenever(surveyRepository.getSurveySummaries(FakeData.USER))
-      .thenReturn(listOf(surveys).asFlow())
+  private fun setSurveyList(surveys: List<SurveyListItem>) = runWithTestDispatcher {
+    whenever(surveyRepository.getSurveyList(FakeData.USER)).thenReturn(listOf(surveys).asFlow())
   }
 
-  private fun setOfflineSurveys(surveys: List<Survey>) {
-    whenever(surveyRepository.offlineSurveys).thenReturn(listOf(surveys).asFlow())
+  private fun setLocalSurveys(surveys: List<SurveyListItem>) {
+    whenever(surveyRepository.localSurveyListFlow).thenReturn(listOf(surveys).asFlow())
   }
 
   private fun getViewHolder(index: Int): SurveyListAdapter.ViewHolder {
@@ -228,8 +231,8 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   companion object {
     private val TEST_USER = FakeData.USER
     private val TEST_SURVEY_1 =
-      FakeData.SURVEY.copy(id = "1", title = "survey 1", description = "description 1")
+      SurveyListItem(id = "1", title = "survey 1", description = "description 1", false)
     private val TEST_SURVEY_2 =
-      FakeData.SURVEY.copy(id = "2", title = "survey 2", description = "description 2")
+      SurveyListItem(id = "2", title = "survey 2", description = "description 2", false)
   }
 }

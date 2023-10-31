@@ -16,14 +16,18 @@
 package com.sharedtest.persistence.remote
 
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 @Singleton
 class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
@@ -38,7 +42,8 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   private val subscribedSurveyIds = mutableSetOf<String>()
 
-  override suspend fun loadSurveySummaries(user: User): List<Survey> = surveys
+  override fun getSurveyList(user: User): Flow<List<SurveyListItem>> =
+    flowOf(surveys.map { it.toListItem(false) })
 
   override suspend fun loadSurvey(surveyId: String): Survey? = onLoadSurvey.invoke(surveyId)
 

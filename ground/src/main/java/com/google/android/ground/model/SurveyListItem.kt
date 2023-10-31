@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.surveyselector
+package com.google.android.ground.model
 
-data class SurveyItem(
-  val surveyId: String,
-  val surveyTitle: String,
-  val surveyDescription: String,
-  val isAvailableOffline: Boolean
+data class SurveyListItem(
+  val id: String,
+  val title: String,
+  val description: String,
+  val availableOffline: Boolean
 )
+
+fun Survey.toListItem(availableOffline: Boolean): SurveyListItem =
+  SurveyListItem(id, title, description, availableOffline)
