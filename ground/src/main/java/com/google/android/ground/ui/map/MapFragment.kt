@@ -93,7 +93,7 @@ interface MapFragment {
   /** Update UI of rendered [LocationOfInterest]. */
   fun setActiveLocationOfInterest(newLoiId: String?)
 
-  fun addTileSource(tileSource: TileSource)
+  fun addTileOverlay(source: TileSource)
 
   /** Remove all tile overlays from the map. */
   fun clearTileOverlays()

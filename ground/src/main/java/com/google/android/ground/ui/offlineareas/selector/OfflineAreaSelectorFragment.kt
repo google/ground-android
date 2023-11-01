@@ -68,7 +68,7 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
     viewLifecycleOwner.lifecycleScope.launch {
       mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
     }
-    viewModel.remoteTileSources.forEach { map.addTileSource(it) }
+    viewModel.remoteTileSources.forEach { map.addTileOverlay(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
