@@ -86,7 +86,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     if (config.showOfflineTileOverlays) {
       viewModel.offlineTileSources.observe(viewLifecycleOwner) {
         map.clearTileOverlays()
-        it.forEach(map::addTileOverlay)
+        it.forEach(map::addTileSource)
       }
     }
 

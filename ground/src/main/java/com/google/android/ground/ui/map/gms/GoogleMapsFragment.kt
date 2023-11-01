@@ -320,12 +320,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   }
 
   private fun addOfflineTileOverlay(url: String, bounds: List<Bounds>) {
-    addTileOverlay(
+    addTileSource(
       ClippingTileProvider(TemplateUrlTileProvider(url), bounds.map { it.toGoogleMapsObject() })
     )
   }
 
-  override fun addTileOverlay(tileSource: TileSource) =
+  override fun addTileSource(tileSource: TileSource) =
     when (tileSource.type) {
       MOG_COLLECTION -> addMogCollectionTileOverlay(tileSource.url)
       TILED_WEB_MAP -> addOfflineTileOverlay(tileSource.url, tileSource.clipBounds)
@@ -335,10 +335,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun addMogCollectionTileOverlay(url: String) {
     // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
     val mogCollection = MogCollection(Config.getMogSources(url))
-    addTileOverlay(MogTileProvider(mogCollection))
+    addTileSource(MogTileProvider(mogCollection))
   }
 
-  private fun addTileOverlay(tileProvider: TileProvider) {
+  private fun addTileSource(tileProvider: TileProvider) {
     val tileOverlay =
       map.addTileOverlay(TileOverlayOptions().tileProvider(tileProvider).zIndex(TILE_OVERLAY_Z))
     if (tileOverlay == null) {
