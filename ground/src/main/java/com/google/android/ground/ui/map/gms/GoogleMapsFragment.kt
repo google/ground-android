@@ -319,20 +319,20 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     }
   }
 
-  private fun addOfflineTileOverlay(url: String, bounds: List<Bounds>) {
+  private fun addLocalTileOverlay(url: String, bounds: List<Bounds>) {
     addTileOverlay(
       ClippingTileProvider(TemplateUrlTileProvider(url), bounds.map { it.toGoogleMapsObject() })
     )
   }
 
-  override fun addTileOverlay(tileSource: TileSource) =
-    when (tileSource.type) {
-      MOG_COLLECTION -> addMogCollectionTileOverlay(tileSource.url)
-      TILED_WEB_MAP -> addOfflineTileOverlay(tileSource.url, tileSource.clipBounds)
-      else -> error("Unsupported tile source type ${tileSource.type}")
+  override fun addTileOverlay(source: TileSource) =
+    when (source.type) {
+      MOG_COLLECTION -> addRemoteMogTileOverlay(source.url)
+      TILED_WEB_MAP -> addLocalTileOverlay(source.url, source.clipBounds)
+      else -> error("Unsupported tile source type ${source.type}")
     }
 
-  private fun addMogCollectionTileOverlay(url: String) {
+  private fun addRemoteMogTileOverlay(url: String) {
     // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
     val mogCollection = MogCollection(Config.getMogSources(url))
     addTileOverlay(MogTileProvider(mogCollection))

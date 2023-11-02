@@ -290,6 +290,6 @@ constructor(
     private val LOCATION_LOCK_ICON_ENABLED = R.drawable.ic_gps_lock
     private val LOCATION_LOCK_ICON_DISABLED = R.drawable.ic_gps_lock_not_fixed
 
-    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showOfflineTileOverlays = true)
+    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showOfflineImagery = true)
   }
 }
