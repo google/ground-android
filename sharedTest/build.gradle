@@ -42,6 +42,12 @@ android {
         dev {
             dimension "backend"
         }
+        sig {
+            dimension "backend"
+        }
+        ecam {
+            dimension "backend"
+        }
     }
 }
 

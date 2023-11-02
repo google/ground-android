@@ -40,13 +40,11 @@ project.ext {
     coroutinesVersion = "1.6.4"
 }
 
-// Load secrets.properties
-def secretsFile = file('secrets.properties')
-def secrets = new Properties()
-if (secretsFile.exists()) {
-    secrets.load(new FileInputStream(secretsFile))
-}
-def googleMapsApiKey = secrets.getProperty('GOOGLE_MAPS_API_KEY', '')
+// Extract API key from google-services.json for use with Google Maps SDK.
+import groovy.json.JsonSlurper
+def inputFile = new File("ground/src/debug/dev/google-services.json")
+def json = new JsonSlurper().parseText(inputFile.text)
+def googleMapsApiKey = json.client[0].api_key[0].current_key
 
 def getCommitSha1 = { ->
     def stdout = new ByteArrayOutputStream()
@@ -74,6 +72,7 @@ android {
         buildConfigField "String", "EMULATOR_HOST", "\"10.0.2.2\""
         buildConfigField "int", "FIRESTORE_EMULATOR_PORT", "8080"
         buildConfigField "int", "AUTH_EMULATOR_PORT", "9099"
+        manifestPlaceholders.usesCleartextTraffic = true
     }
 
     // Use flag -PtestBuildType with desired variant to change default behavior.
@@ -127,7 +126,16 @@ android {
             dimension "backend"
             versionNameSuffix "-dev"
             buildConfigField "boolean", "USE_EMULATORS", "false"
-            manifestPlaceholders.usesCleartextTraffic = false
+        }
+        sig {
+            dimension "backend"
+            versionNameSuffix "-sig"
+            buildConfigField "boolean", "USE_EMULATORS", "false"
+        }
+        ecam {
+            dimension "backend"
+            versionNameSuffix "-ecam"
+            buildConfigField "boolean", "USE_EMULATORS", "false"
         }
     }
 
