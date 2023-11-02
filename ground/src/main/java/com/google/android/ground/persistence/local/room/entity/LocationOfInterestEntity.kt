@@ -28,11 +28,12 @@ data class LocationOfInterestEntity(
   @ColumnInfo(name = "survey_id") val surveyId: String,
   @ColumnInfo(name = "job_id") val jobId: String,
   @ColumnInfo(name = "state") val state: EntityState, // TODO: Rename to DeletionState.
-  @ColumnInfo(name = "caption") val caption: String?,
   @Embedded(prefix = "created_") val created: AuditInfoEntity,
   @Embedded(prefix = "modified_") val lastModified: AuditInfoEntity,
   val geometry: GeometryWrapper?,
+  val customId: String?,
   val submissionCount: Int,
   val ownerEmail: String?,
-  val isOpportunistic: Boolean
+  val isOpportunistic: Boolean,
+  val properties: Map<String, Any>?,
 )

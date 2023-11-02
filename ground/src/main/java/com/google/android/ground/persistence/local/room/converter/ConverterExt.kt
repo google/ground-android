@@ -130,13 +130,14 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     surveyId = surveyId,
     jobId = job.id,
     state = EntityState.DEFAULT,
-    caption = caption,
     created = created.toLocalDataStoreObject(),
     lastModified = lastModified.toLocalDataStoreObject(),
     geometry = geometry.toLocalDataStoreObject(),
+    customId = customId,
     submissionCount = submissionCount,
     ownerEmail = ownerEmail,
-    isOpportunistic = isOpportunistic
+    isOpportunistic = isOpportunistic,
+    properties = properties,
   )
 
 fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
@@ -148,9 +149,10 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       surveyId = surveyId,
       created = created.toModelObject(),
       lastModified = lastModified.toModelObject(),
-      caption = caption,
+      customId = customId,
       geometry = geometry.getGeometry(),
       submissionCount = submissionCount,
+      properties = properties,
       job = survey.getJob(jobId = jobId)
           ?: throw LocalDataConsistencyException(
             "Unknown jobId ${this.jobId} in location of interest ${this.id}"
@@ -173,14 +175,15 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(user: User): LocationOfInt
     surveyId = surveyId,
     jobId = jobId,
     state = EntityState.DEFAULT,
-    caption = caption,
     // TODO(#1562): Preserve creation audit info for UPDATE mutations.
     created = auditInfo,
     lastModified = auditInfo,
     geometry = geometry?.toLocalDataStoreObject(),
+    customId = customId,
     submissionCount = submissionCount,
     ownerEmail = ownerEmail,
-    isOpportunistic = isOpportunistic
+    isOpportunistic = isOpportunistic,
+    properties = properties
   )
 }
 
@@ -191,13 +194,14 @@ fun LocationOfInterestMutation.toLocalDataStoreObject() =
     jobId = jobId,
     type = MutationEntityType.fromMutationType(type),
     newGeometry = geometry?.toLocalDataStoreObject(),
-    caption = caption,
+    newCustomId = customId,
     userId = userId,
     locationOfInterestId = locationOfInterestId,
     syncStatus = MutationEntitySyncStatus.fromMutationSyncStatus(syncStatus),
     clientTimestamp = clientTimestamp.time,
     lastError = lastError,
-    retryCount = retryCount
+    retryCount = retryCount,
+    newProperties = properties
   )
 
 fun LocationOfInterestMutationEntity.toModelObject() =
@@ -207,13 +211,14 @@ fun LocationOfInterestMutationEntity.toModelObject() =
     jobId = jobId,
     type = type.toMutationType(),
     geometry = newGeometry?.getGeometry(),
-    caption = caption,
+    customId = newCustomId,
     userId = userId,
     locationOfInterestId = locationOfInterestId,
     syncStatus = syncStatus.toMutationSyncStatus(),
     clientTimestamp = Date(clientTimestamp),
     lastError = lastError,
     retryCount = retryCount,
+    properties = newProperties
   )
 
 fun MultipleChoiceEntity.toModelObject(optionEntities: List<OptionEntity>): MultipleChoice {

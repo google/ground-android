@@ -29,9 +29,10 @@ data class LocationOfInterestMutation(
   override val retryCount: Long = 0,
   override val lastError: String = "",
   val jobId: String = "",
+  val customId: String? = null,
   val geometry: Geometry? = null,
-  val caption: String? = null,
   val submissionCount: Int = 0,
   val ownerEmail: String? = null,
-  val isOpportunistic: Boolean = false
+  val isOpportunistic: Boolean = false,
+  val properties: Map<String, Any>? = null,
 ) : Mutation()

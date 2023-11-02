@@ -23,6 +23,7 @@ import com.google.android.ground.persistence.local.room.converter.GeometryWrappe
 import com.google.android.ground.persistence.local.room.converter.JsonArrayTypeConverter
 import com.google.android.ground.persistence.local.room.converter.JsonObjectTypeConverter
 import com.google.android.ground.persistence.local.room.converter.StyleTypeConverter
+import com.google.android.ground.persistence.local.room.converter.LoiPropertiesMapConverter
 import com.google.android.ground.persistence.local.room.dao.*
 import com.google.android.ground.persistence.local.room.entity.*
 import com.google.android.ground.persistence.local.room.fields.*
@@ -64,7 +65,8 @@ import com.google.android.ground.persistence.local.room.fields.*
   MutationEntitySyncStatus::class,
   OfflineAreaEntityState::class,
   StyleTypeConverter::class,
-  TileSetEntityState::class
+  TileSetEntityState::class,
+  LoiPropertiesMapConverter::class,
 )
 abstract class LocalDatabase : RoomDatabase() {
   abstract fun locationOfInterestDao(): LocationOfInterestDao

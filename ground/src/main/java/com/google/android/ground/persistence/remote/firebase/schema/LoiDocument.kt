@@ -24,11 +24,11 @@ import com.google.firebase.firestore.IgnoreExtraProperties
 data class LoiDocument(
   val jobId: String? = null,
   val customId: String? = null,
-  val caption: String? = null,
   val location: GeoPoint? = null,
   val geoJson: String? = null,
   val geometry: Map<String, Any>? = null,
   val created: AuditInfoNestedObject? = null,
   val lastModified: AuditInfoNestedObject? = null,
-  val submissionCount: Int? = null
+  val submissionCount: Int? = null,
+  val properties: Map<String, Any>? = null,
 )

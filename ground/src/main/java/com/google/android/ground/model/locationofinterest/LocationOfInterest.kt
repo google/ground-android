@@ -32,8 +32,6 @@ data class LocationOfInterest(
   val job: Job,
   /** A user-specified ID for this location of interest. */
   val customId: String? = null,
-  /** A human readable caption for this location of interest. */
-  val caption: String? = null,
   /** User and time audit info pertaining to the creation of this LOI. */
   val created: AuditInfo,
   /** User and time audit info pertaining to the last modification of this LOI. */
@@ -51,7 +49,9 @@ data class LocationOfInterest(
    * Whether this LOI was created opportunistically by the user through the Suggest LOI flow, or
    * false if the LOI was created by the survey organizer.
    */
-  val isOpportunistic: Boolean = false
+  val isOpportunistic: Boolean = false,
+  /** Custom map of properties for this LOI. Corresponds to the properties field in GeoJSON */
+  val properties: Map<String, Any>? = null,
 ) {
 
   /**
@@ -66,11 +66,12 @@ data class LocationOfInterest(
       surveyId = surveyId,
       locationOfInterestId = id,
       userId = userId,
+      customId = customId,
       clientTimestamp = lastModified.clientTimestamp,
       geometry = geometry,
-      caption = caption,
       submissionCount = submissionCount,
       ownerEmail = ownerEmail,
-      isOpportunistic = isOpportunistic
+      isOpportunistic = isOpportunistic,
+      properties = properties
     )
 }

@@ -60,11 +60,10 @@ object FakeData {
       "loi id",
       SURVEY.id,
       JOB,
-      null,
-      LOI_NAME,
-      AuditInfo(USER),
-      AuditInfo(USER),
-      Point(Coordinates(0.0, 0.0))
+      customId = null,
+      created = AuditInfo(USER),
+      lastModified = AuditInfo(USER),
+      geometry = Point(Coordinates(0.0, 0.0)),
     )
 
   val LOCATION_OF_INTEREST_FEATURE =
@@ -93,7 +92,6 @@ object FakeData {
       "loi id",
       SURVEY.id,
       JOB,
-      "",
       "",
       AUDIT_INFO,
       AUDIT_INFO,

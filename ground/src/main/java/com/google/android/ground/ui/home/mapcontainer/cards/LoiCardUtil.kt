@@ -27,15 +27,15 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 object LoiCardUtil {
 
   fun getDisplayLoiName(context: Context, loi: LocationOfInterest): String {
-    val caption = loi.caption
-    val customId = loi.customId
+    val loiId = loi.customId ?: loi.properties?.get("id")?.toString()
     val geometry = loi.geometry
-    return if (caption.isNotNullOrEmpty() && customId.isNotNullOrEmpty()) {
-      "$caption ($customId)"
-    } else if (caption.isNotNullOrEmpty()) {
-      "$caption"
-    } else if (customId.isNotNullOrEmpty()) {
-      "${geometry.toType(context)} ($customId)"
+    val name: String? = loi.properties?.get("name")?.toString()
+    return if (name.isNotNullOrEmpty() && loiId.isNotNullOrEmpty()) {
+      "$name ($loiId)"
+    } else if (name.isNotNullOrEmpty()) {
+      "$name"
+    } else if (loiId.isNotNullOrEmpty()) {
+      "${geometry.toType(context)} ($loiId)"
     } else {
       geometry.toDefaultName(context)
     }
