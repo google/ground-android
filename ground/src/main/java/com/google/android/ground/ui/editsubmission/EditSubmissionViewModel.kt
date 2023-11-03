@@ -91,7 +91,7 @@ internal constructor(
         return listOf()
       }
       val result: MutableList<TaskDataDelta> = ArrayList()
-      val originalResponses = originalSubmission!!.responses
+      val originalResponses = originalSubmission!!.data
       Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses)
       for ((taskId, _, type) in originalSubmission!!.job.tasksSorted) {
         val originalResponse = originalResponses.getResponse(taskId)
@@ -164,7 +164,7 @@ internal constructor(
     originalSubmission = submission
     responses.clear()
     if (restoredResponses == null) {
-      val taskDataMap = submission.responses
+      val taskDataMap = submission.data
       for (taskId in taskDataMap.taskIds()) {
         val taskData = taskDataMap.getResponse(taskId)
         if (taskData != null) {

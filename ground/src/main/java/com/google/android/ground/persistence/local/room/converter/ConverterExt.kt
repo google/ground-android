@@ -151,7 +151,8 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       caption = caption,
       geometry = geometry.getGeometry(),
       submissionCount = submissionCount,
-      job = survey.getJob(jobId = jobId)
+      job =
+        survey.getJob(jobId = jobId)
           ?: throw LocalDataConsistencyException(
             "Unknown jobId ${this.jobId} in location of interest ${this.id}"
           )
@@ -289,7 +290,7 @@ fun SubmissionEntity.toModelObject(loi: LocationOfInterest): Submission {
     job = job,
     created = this.created.toModelObject(),
     lastModified = this.lastModified.toModelObject(),
-    responses = ResponseMapConverter.fromString(job, this.responses)
+    data = ResponseMapConverter.fromString(job, this.responses)
   )
 }
 
@@ -299,7 +300,7 @@ fun Submission.toLocalDataStoreObject() =
     jobId = this.job.id,
     locationOfInterestId = this.locationOfInterest.id,
     state = EntityState.DEFAULT,
-    responses = ResponseMapConverter.toString(this.responses),
+    responses = ResponseMapConverter.toString(this.data),
     created = this.created.toLocalDataStoreObject(),
     lastModified = this.lastModified.toLocalDataStoreObject(),
   )

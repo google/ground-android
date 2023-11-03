@@ -273,9 +273,9 @@ class LocalDataStoreTests : BaseHiltTest() {
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
     val taskDataMap = TaskDataMap(mapOf(Pair("task id", TextTaskData.fromString("foo value"))))
     val submission =
-      localSubmissionStore.getSubmission(loi, "submission id").copy(responses = taskDataMap)
+      localSubmissionStore.getSubmission(loi, "submission id").copy(data = taskDataMap)
     localSubmissionStore.merge(submission)
-    val responses = localSubmissionStore.getSubmission(loi, submission.id).responses
+    val responses = localSubmissionStore.getSubmission(loi, submission.id).data
     assertThat(responses.getResponse("task id"))
       .isEqualTo(TextTaskData.fromString("updated taskData"))
   }
@@ -462,7 +462,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       assertThat(mutation.userId).isEqualTo(submission.created.user.id)
       MatcherAssert.assertThat(
         TaskDataMap().copyWithDeltas(mutation.taskDataDeltas),
-        Matchers.samePropertyValuesAs(submission.responses)
+        Matchers.samePropertyValuesAs(submission.data)
       )
     }
   }

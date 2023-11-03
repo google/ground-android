@@ -24,7 +24,7 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
  *
  * @property created the user and time audit info pertaining to the creation of this submission.
  * @property lastModified the user and time audit info pertaining to the last modification of this
- * submission.
+ *   submission.
  */
 data class Submission
 @JvmOverloads
@@ -35,5 +35,5 @@ constructor(
   val job: Job,
   val created: AuditInfo,
   val lastModified: AuditInfo,
-  val responses: TaskDataMap = TaskDataMap()
+  val data: TaskDataMap = TaskDataMap()
 )
