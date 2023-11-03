@@ -21,8 +21,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.toLiveData
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.submission.Response
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
@@ -60,7 +60,7 @@ internal constructor(
   private val toolbarTitle: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
 
   /** Current task responses. */
-  private val responses: MutableMap<String, TaskData> = HashMap()
+  private val responses: MutableMap<String, Response> = HashMap()
 
   /** Arguments passed in from view on initialize(). */
   private val viewArgs: @Hot(replays = true) FlowableProcessor<EditSubmissionFragmentArgs> =
@@ -119,14 +119,14 @@ internal constructor(
     viewArgs.onNext(args)
   }
 
-  private fun getResponse(taskId: String): TaskData? = responses[taskId]
+  private fun getResponse(taskId: String): Response? = responses[taskId]
 
   /**
    * Update the current value of a taskData. Called what tasks are initialized and on each
    * subsequent change.
    */
-  fun setResponse(task: Task, newResponse: Optional<TaskData>) {
-    newResponse.ifPresentOrElse({ r: TaskData -> responses[task.id] = r }) {
+  fun setResponse(task: Task, newResponse: Optional<Response>) {
+    newResponse.ifPresentOrElse({ r: Response -> responses[task.id] = r }) {
       responses.remove(task.id)
     }
   }
@@ -147,8 +147,8 @@ internal constructor(
         toolbarTitle.value = resources.getString(R.string.edit_submission)
         loadSubmission(viewArgs)
       }
-    val restoredResponses: HashMap<String, TaskData>? =
-      viewArgs.restoredResponses as? HashMap<String, TaskData>
+    val restoredResponses: HashMap<String, Response>? =
+      viewArgs.restoredResponses as? HashMap<String, Response>
     return submissionSingle
       .doOnSuccess { loadedSubmission: Submission ->
         onSubmissionLoaded(loadedSubmission, restoredResponses)
@@ -158,7 +158,7 @@ internal constructor(
 
   private fun onSubmissionLoaded(
     submission: Submission,
-    restoredResponses: Map<String, TaskData>?
+    restoredResponses: Map<String, Response>?
   ) {
     Timber.v("Submission loaded")
     originalSubmission = submission

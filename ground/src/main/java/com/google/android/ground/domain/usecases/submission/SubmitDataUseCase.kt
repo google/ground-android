@@ -20,7 +20,7 @@ import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.submission.GeometryData
+import com.google.android.ground.model.submission.GeometryTaskResponse
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
@@ -56,7 +56,8 @@ constructor(
     if (loiId == null) {
       // loiIds are null for Suggest LOI data collection flows
       when (val suggestLoiTaskData = taskDataDeltasToSubmit.removeAt(0).newTaskData) {
-        is GeometryData -> loiIdToSubmit = saveLoi(suggestLoiTaskData.geometry, job, surveyId).id
+        is GeometryTaskResponse ->
+          loiIdToSubmit = saveLoi(suggestLoiTaskData.geometry, job, surveyId).id
         else -> error("No suggest LOI Task found when loi ID was null")
       }
     }

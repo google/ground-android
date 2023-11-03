@@ -19,13 +19,13 @@ import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.model.submission.DateTaskData
-import com.google.android.ground.model.submission.GeometryData
-import com.google.android.ground.model.submission.MultipleChoiceTaskData
-import com.google.android.ground.model.submission.NumberTaskData
-import com.google.android.ground.model.submission.TaskData
-import com.google.android.ground.model.submission.TextTaskData
-import com.google.android.ground.model.submission.TimeTaskData
+import com.google.android.ground.model.submission.DateResponse
+import com.google.android.ground.model.submission.GeometryTaskResponse
+import com.google.android.ground.model.submission.MultipleChoiceResponse
+import com.google.android.ground.model.submission.NumberResponse
+import com.google.android.ground.model.submission.Response
+import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.TimeResponse
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
@@ -41,7 +41,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class ResponseJsonConverterTest(
   private val task: Task,
-  private val taskData: TaskData,
+  private val taskData: Response,
   private val responseObject: Any
 ) {
 
@@ -69,7 +69,7 @@ class ResponseJsonConverterTest(
       )
 
     private val singleChoiceTaskData =
-      MultipleChoiceTaskData.fromList(
+      MultipleChoiceResponse.fromList(
         MultipleChoice(multipleChoiceOptions, MultipleChoice.Cardinality.SELECT_ONE),
         listOf("option id 1")
       )
@@ -77,7 +77,7 @@ class ResponseJsonConverterTest(
     private val singleChoiceTaskDataResponse = JSONArray().apply { put("option id 1") }
 
     private val multipleChoiceTaskData =
-      MultipleChoiceTaskData.fromList(
+      MultipleChoiceResponse.fromList(
         MultipleChoice(multipleChoiceOptions, MultipleChoice.Cardinality.SELECT_MULTIPLE),
         listOf("option id 1", "option id 2")
       )
@@ -88,12 +88,13 @@ class ResponseJsonConverterTest(
         put("option id 2")
       }
 
-    private val pointGeometryTaskData = GeometryData.fromGeometry(Point(Coordinates(10.0, 20.0)))
+    private val pointGeometryTaskData =
+      GeometryTaskResponse.fromGeometry(Point(Coordinates(10.0, 20.0)))
 
     private const val pointGeometryTaskDataResponse = "HQoFcG9pbnQSFAoSCQAAAAAAACRAEQAAAAAAADRA\n"
 
     private val polygonGeometryTaskData =
-      GeometryData.fromGeometry(
+      GeometryTaskResponse.fromGeometry(
         Polygon(
           LinearRing(
             listOf(
@@ -116,7 +117,7 @@ class ResponseJsonConverterTest(
       listOf(
         arrayOf(
           FakeData.newTask(type = Task.Type.TEXT),
-          TextTaskData.fromString("sample text"),
+          TextResponse.fromString("sample text"),
           "sample text"
         ),
         arrayOf(
@@ -131,11 +132,11 @@ class ResponseJsonConverterTest(
         ),
         arrayOf(
           FakeData.newTask(type = Task.Type.NUMBER),
-          NumberTaskData.fromNumber("12345.0"),
+          NumberResponse.fromNumber("12345.0"),
           12345.0
         ),
-        arrayOf(FakeData.newTask(type = Task.Type.DATE), DateTaskData.fromDate(DATE), DATE_STRING),
-        arrayOf(FakeData.newTask(type = Task.Type.TIME), TimeTaskData.fromDate(DATE), DATE_STRING),
+        arrayOf(FakeData.newTask(type = Task.Type.DATE), DateResponse.fromDate(DATE), DATE_STRING),
+        arrayOf(FakeData.newTask(type = Task.Type.TIME), TimeResponse.fromDate(DATE), DATE_STRING),
         arrayOf(
           FakeData.newTask(type = Task.Type.DROP_A_PIN),
           pointGeometryTaskData,

@@ -26,7 +26,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.CustomViewActions.forceTypeText
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.NumberTaskData
+import com.google.android.ground.model.submission.NumberResponse
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -88,7 +88,7 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
       .check(matches(withInputType(InputType.TYPE_CLASS_NUMBER)))
       .perform(forceTypeText("123"))
 
-    hasTaskData(NumberTaskData("123"))
+    hasTaskData(NumberResponse("123"))
     buttonIsEnabled("Next")
   }
 

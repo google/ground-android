@@ -22,13 +22,13 @@ package com.google.android.ground.model.submission
  * exposed outside this class.
  */
 // TODO: Merge into Submission?
-data class SubmissionData(private val data: Map<String, TaskData?> = mapOf()) {
+data class SubmissionData(private val data: Map<String, Response?> = mapOf()) {
 
   /**
    * Returns the submitted value for the task with the given id, or empty if the user did not
    * specify a value.
    */
-  fun getValue(taskId: String): TaskData? = data[taskId]
+  fun getValue(taskId: String): Response? = data[taskId]
 
   /** Returns an Iterable over the task ids in this map. */
   fun taskIds(): Iterable<String> = data.keys

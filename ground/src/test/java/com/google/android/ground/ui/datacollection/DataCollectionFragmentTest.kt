@@ -24,7 +24,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.*
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.submission.TaskDataDelta
-import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.submission.TextResponse
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.common.truth.Truth.assertThat
@@ -133,12 +133,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         TaskDataDelta(
           SUBMISSION.job.tasksSorted[0].id,
           Task.Type.TEXT,
-          TextTaskData.fromString(task1Response)
+          TextResponse.fromString(task1Response)
         ),
         TaskDataDelta(
           SUBMISSION.job.tasksSorted[1].id,
           Task.Type.TEXT,
-          TextTaskData.fromString(task2Response)
+          TextResponse.fromString(task2Response)
         ),
       )
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task1Response))

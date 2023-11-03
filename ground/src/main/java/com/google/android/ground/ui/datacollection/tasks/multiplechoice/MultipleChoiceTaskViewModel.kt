@@ -16,7 +16,7 @@
 package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
 import android.content.res.Resources
-import com.google.android.ground.model.submission.MultipleChoiceTaskData.Companion.fromList
+import com.google.android.ground.model.submission.MultipleChoiceResponse.Companion.fromList
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import javax.inject.Inject

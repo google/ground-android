@@ -23,7 +23,7 @@ import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
-import com.google.android.ground.model.submission.GeometryData
+import com.google.android.ground.model.submission.GeometryTaskResponse
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -74,7 +74,7 @@ class DropAPinTaskFragmentTest :
     viewModel.updateCameraPosition(testPosition)
     onView(withText("Drop pin")).perform(click())
 
-    hasTaskData(GeometryData(Point(Coordinates(10.0, 20.0))))
+    hasTaskData(GeometryTaskResponse(Point(Coordinates(10.0, 20.0))))
     buttonIsEnabled("Next")
     buttonIsEnabled(ButtonAction.UNDO)
     buttonIsHidden("Drop pin")

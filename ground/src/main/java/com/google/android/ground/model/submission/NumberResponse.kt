@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,18 @@ package com.google.android.ground.model.submission
 
 import kotlinx.serialization.Serializable
 
-/** A user provided taskData to a text question task. */
+/** A user provided response to a number question task. */
 @Serializable
-data class TextTaskData(val text: String) : TaskData {
-  override fun getDetailsText(): String = text
+data class NumberResponse constructor(private val number: String) : Response {
+  val value: Double
+    get() = number.toDouble()
 
-  override fun isEmpty(): Boolean = text.trim { it <= ' ' }.isEmpty()
+  override fun getDetailsText(): String = number
 
-  override fun toString(): String = text
+  override fun isEmpty(): Boolean = number.isEmpty()
 
   companion object {
-    fun fromString(text: String): TaskData? = if (text.isEmpty()) null else TextTaskData(text)
+    fun fromNumber(number: String): Response? =
+      if (number.isEmpty()) null else NumberResponse(number)
   }
 }

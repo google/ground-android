@@ -22,7 +22,7 @@ import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.Response
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.rx.annotations.Cold
@@ -41,12 +41,12 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   AbstractViewModel() {
 
   /** Current value. */
-  @Deprecated("Use taskDataValue instead") val taskData: LiveData<Optional<TaskData>>
+  @Deprecated("Use taskDataValue instead") val taskData: LiveData<Optional<Response>>
 
-  val taskDataFlow: MutableStateFlow<TaskData?> = MutableStateFlow(null)
+  val taskDataFlow: MutableStateFlow<Response?> = MutableStateFlow(null)
 
   // TODO(Shobhit): Rename to taskData once legacy taskData is cleaned up.
-  val taskDataValue: StateFlow<TaskData?> =
+  val taskDataValue: StateFlow<Response?> =
     taskDataFlow.stateIn(viewModelScope, SharingStarted.Lazily, null)
 
   /** Transcoded text to be displayed for the current [AbstractTaskViewModel.taskData]. */
@@ -55,7 +55,7 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   /** Error message to be displayed for the current [AbstractTaskViewModel.taskData]. */
   val error: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
 
-  private val taskDataSubject: @Hot(replays = true) BehaviorProcessor<Optional<TaskData>> =
+  private val taskDataSubject: @Hot(replays = true) BehaviorProcessor<Optional<Response>> =
     BehaviorProcessor.create()
 
   lateinit var task: Task
@@ -66,13 +66,13 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   }
 
   // TODO: Add a reference of Task in TaskData for simplification.
-  open fun initialize(job: Job, task: Task, taskData: TaskData?) {
+  open fun initialize(job: Job, task: Task, taskData: Response?) {
     this.task = task
     setResponse(taskData)
   }
 
   private fun detailsTextFlowable(): @Cold(stateful = true, terminates = false) Flowable<String> =
-    taskDataSubject.distinctUntilChanged().map { taskDataOptional: Optional<TaskData> ->
+    taskDataSubject.distinctUntilChanged().map { taskDataOptional: Optional<Response> ->
       taskDataOptional.map { it.getDetailsText() }.orElse("")
     }
 
@@ -84,12 +84,12 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   }
 
   // TODO: Check valid taskData values
-  private fun validate(task: Task, taskData: Optional<TaskData>?): Optional<String> =
+  private fun validate(task: Task, taskData: Optional<Response>?): Optional<String> =
     if (task.isRequired && (taskData == null || taskData.isEmpty))
       Optional.of(resources.getString(R.string.required_task))
     else Optional.empty()
 
-  fun setResponse(taskData: TaskData?) {
+  fun setResponse(taskData: Response?) {
     taskDataSubject.onNext(Optional.ofNullable(taskData))
     taskDataFlow.value = taskData
   }

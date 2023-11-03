@@ -16,7 +16,7 @@
 package com.google.android.ground.ui.editsubmission
 
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.submission.TimeTaskData.Companion.fromDate
+import com.google.android.ground.model.submission.TimeResponse.Companion.fromDate
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.TestObservers.observeUntilFirstChange

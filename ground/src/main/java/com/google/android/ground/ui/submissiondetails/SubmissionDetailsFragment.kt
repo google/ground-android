@@ -24,8 +24,8 @@ import com.google.android.ground.databinding.PhotoTaskBinding
 import com.google.android.ground.databinding.SubmissionDetailsFragBinding
 import com.google.android.ground.databinding.SubmissionDetailsFragBindingImpl
 import com.google.android.ground.databinding.SubmissionDetailsTaskBindingImpl
+import com.google.android.ground.model.submission.Response
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.ui.common.AbstractFragment
@@ -106,7 +106,7 @@ class SubmissionDetailsFragment : Hilt_SubmissionDetailsFragment() {
     binding.task = task
     binding.lifecycleOwner = this
     this.binding.submissionDetailsLayout.addView(binding.root)
-    submission.data.getValue(task.id)?.let { taskData: TaskData ->
+    submission.data.getValue(task.id)?.let { taskData: Response ->
       if (task.type === Task.Type.PHOTO) {
         binding.taskValue.visibility = View.GONE
         addPhotoTask(binding.root as ViewGroup, taskData)
@@ -116,7 +116,7 @@ class SubmissionDetailsFragment : Hilt_SubmissionDetailsFragment() {
     }
   }
 
-  private fun addPhotoTask(container: ViewGroup, taskData: TaskData) {
+  private fun addPhotoTask(container: ViewGroup, taskData: Response) {
     val photoFieldViewModel = viewModelFactory.create(PhotoTaskViewModel::class.java)
     photoFieldViewModel.setResponse(taskData)
     val photoFieldBinding = PhotoTaskBinding.inflate(layoutInflater)

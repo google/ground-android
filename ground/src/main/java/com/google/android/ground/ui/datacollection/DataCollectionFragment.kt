@@ -27,7 +27,7 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
-import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.Response
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.common.AbstractFragment
@@ -118,7 +118,7 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
     progressAnimator.start()
   }
 
-  private fun onTaskDataUpdated(taskData: Optional<TaskData>) {
+  private fun onTaskDataUpdated(taskData: Optional<Response>) {
     viewModel.currentTaskData = taskData.orElse(null)
   }
 

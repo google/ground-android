@@ -22,8 +22,8 @@ import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 
-/** A user provided response to a geometry based task. */
-data class GeometryData(val geometry: Geometry) : TaskData {
+/** A user-provided response to a geometry-based task ("drop a pin" or "draw an area"). */
+data class GeometryTaskResponse(val geometry: Geometry) : Response {
 
   // TODO(#1733): Figure out what should be the user visible text for geometry data.
   override fun getDetailsText(): String =
@@ -38,6 +38,7 @@ data class GeometryData(val geometry: Geometry) : TaskData {
   override fun isEmpty(): Boolean = false
 
   companion object {
-    fun fromGeometry(geometry: Geometry?): GeometryData? = geometry?.let { GeometryData(it) }
+    fun fromGeometry(geometry: Geometry?): GeometryTaskResponse? =
+      geometry?.let { GeometryTaskResponse(it) }
   }
 }

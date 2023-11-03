@@ -66,27 +66,27 @@ internal object SubmissionMutationConverter {
     return map.toPersistentMap()
   }
 
-  private fun toObject(taskData: TaskData?): Any? =
+  private fun toObject(taskData: Response?): Any? =
     when (taskData) {
-      is TextTaskData -> {
+      is TextResponse -> {
         taskData.text
       }
-      is MultipleChoiceTaskData -> {
+      is MultipleChoiceResponse -> {
         taskData.selectedOptionIds
       }
-      is NumberTaskData -> {
+      is NumberResponse -> {
         taskData.value
       }
-      is TimeTaskData -> {
+      is TimeResponse -> {
         taskData.time
       }
-      is DateTaskData -> {
+      is DateResponse -> {
         taskData.date
       }
-      is GeometryData -> {
+      is GeometryTaskResponse -> {
         GeometryConverter.toFirestoreMap(taskData.geometry).getOrThrow()
       }
-      is LocationTaskData -> {
+      is CaptureLocationResponse -> {
         LocationTaskDataConverter.toFirestoreMap(taskData).getOrThrow()
       }
       else -> {

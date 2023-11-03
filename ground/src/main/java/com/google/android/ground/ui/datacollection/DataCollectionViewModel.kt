@@ -26,7 +26,7 @@ import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.submission.SubmitDataUseCase
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.Response
 import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.LocationOfInterestRepository
@@ -114,13 +114,13 @@ internal constructor(
     MutableLiveData<MutableList<AbstractTaskViewModel>> =
     MutableLiveData(mutableListOf())
 
-  private val responses: MutableMap<Task, TaskData?> = LinkedHashMap()
+  private val responses: MutableMap<Task, Response?> = LinkedHashMap()
 
   // Tracks the task's current position in the list of tasks for the current job
   var currentPosition: @Hot(replays = true) MutableLiveData<Int> =
     savedStateHandle.getLiveData(TASK_POSITION_KEY, 0)
 
-  var currentTaskData: TaskData? = null
+  var currentTaskData: Response? = null
 
   private var currentTaskViewModel: AbstractTaskViewModel? = null
 

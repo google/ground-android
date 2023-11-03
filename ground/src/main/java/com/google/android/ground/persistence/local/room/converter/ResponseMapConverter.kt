@@ -17,8 +17,8 @@
 package com.google.android.ground.persistence.local.room.converter
 
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.submission.Response
 import com.google.android.ground.model.submission.SubmissionData
-import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
 import kotlinx.collections.immutable.toPersistentMap
 import org.json.JSONException
@@ -47,7 +47,7 @@ object ResponseMapConverter {
     if (jsonString == null) {
       return SubmissionData()
     }
-    val map = mutableMapOf<String, TaskData>()
+    val map = mutableMapOf<String, Response>()
     try {
       val jsonObject = JSONObject(jsonString)
       val keys = jsonObject.keys()

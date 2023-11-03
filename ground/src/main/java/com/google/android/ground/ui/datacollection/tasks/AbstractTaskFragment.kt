@@ -23,7 +23,7 @@ import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
-import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.Response
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.common.AbstractFragment
@@ -112,7 +112,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   /** Invoked when the data associated with the current task gets modified. */
-  protected open fun onTaskDataUpdated(taskData: TaskData?) {
+  protected open fun onTaskDataUpdated(taskData: Response?) {
     for ((_, button) in buttons) {
       button.onTaskDataUpdated(taskData)
     }

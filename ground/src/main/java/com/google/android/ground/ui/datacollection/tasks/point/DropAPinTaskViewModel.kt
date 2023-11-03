@@ -20,8 +20,8 @@ import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
-import com.google.android.ground.model.submission.GeometryData
-import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.GeometryTaskResponse
+import com.google.android.ground.model.submission.Response
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Hot
@@ -40,7 +40,7 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
   private var lastCameraPosition: CameraPosition? = null
   val features: @Hot MutableLiveData<Set<Feature>> = MutableLiveData()
 
-  override fun initialize(job: Job, task: Task, taskData: TaskData?) {
+  override fun initialize(job: Job, task: Task, taskData: Response?) {
     super.initialize(job, task, taskData)
     pinColor = job.getDefaultColor()
   }
@@ -55,7 +55,7 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
   }
 
   fun updateResponse(point: Point) {
-    setResponse(GeometryData(point))
+    setResponse(GeometryTaskResponse(point))
     features.postValue(setOf(createFeature(point)))
   }
 

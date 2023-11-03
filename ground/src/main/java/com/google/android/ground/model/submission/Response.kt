@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.number
+package com.google.android.ground.model.submission
 
-import android.content.res.Resources
-import com.google.android.ground.model.submission.NumberResponse.Companion.fromNumber
-import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
-import javax.inject.Inject
+/** User-provided response to a single data collection [Task]. */
+interface Response {
+  fun getDetailsText(): String
 
-class NumberTaskViewModel @Inject constructor(resources: Resources) :
-  AbstractTaskViewModel(resources) {
-
-  fun updateResponse(number: String) {
-    setResponse(fromNumber(number))
-  }
+  fun isEmpty(): Boolean
 }
+
+fun Response?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true
+
+fun Response?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()

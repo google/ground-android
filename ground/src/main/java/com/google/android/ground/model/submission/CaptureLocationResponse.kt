@@ -22,12 +22,14 @@ import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
-data class LocationTaskData
+/** User-provided response to a "capture location" data collection [Task]. */
+// TODO(#2039): Refactor into DropPinResponse and CaptureLocationResponse.
+data class CaptureLocationResponse
 constructor(
   val geometry: Point?,
   val altitude: Double?, // in metres
   val accuracy: Double? // in metres
-) : TaskData {
+) : Response {
   override fun getDetailsText(): String {
     if (geometry == null) return ""
 
@@ -43,10 +45,10 @@ constructor(
   override fun isEmpty(): Boolean = geometry == null
 
   companion object {
-    fun Location.toTaskData(): LocationTaskData {
+    fun Location.toTaskData(): CaptureLocationResponse {
       val altitude = if (hasAltitude()) altitude else null
       val accuracy = if (hasAccuracy()) accuracy else null
-      return LocationTaskData(
+      return CaptureLocationResponse(
         Point(Coordinates(latitude, longitude)),
         altitude,
         accuracy?.toDouble()

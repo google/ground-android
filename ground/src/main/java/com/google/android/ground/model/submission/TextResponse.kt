@@ -15,14 +15,18 @@
  */
 package com.google.android.ground.model.submission
 
-/** User-provided data corresponding to a single [Task]. */
-// TODO: Nest inside Submission?
-interface TaskData {
-  fun getDetailsText(): String
+import kotlinx.serialization.Serializable
 
-  fun isEmpty(): Boolean
+/** A user-provided value to a text question task. */
+@Serializable
+data class TextResponse(val text: String) : Response {
+  override fun getDetailsText(): String = text
+
+  override fun isEmpty(): Boolean = text.trim { it <= ' ' }.isEmpty()
+
+  override fun toString(): String = text
+
+  companion object {
+    fun fromString(text: String): Response? = if (text.isEmpty()) null else TextResponse(text)
+  }
 }
-
-fun TaskData?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true
-
-fun TaskData?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()

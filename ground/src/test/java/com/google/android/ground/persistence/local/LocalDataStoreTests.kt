@@ -33,7 +33,7 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.SubmissionData
 import com.google.android.ground.model.submission.TaskDataDelta
-import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.submission.TextResponse
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.persistence.local.room.converter.formatVertices
@@ -237,7 +237,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         TaskDataDelta(
           "task id",
           Task.Type.TEXT,
-          TextTaskData.fromString("value for the really new task")
+          TextResponse.fromString("value for the really new task")
         )
       )
     val mutation =
@@ -271,11 +271,11 @@ class LocalDataStoreTests : BaseHiltTest() {
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
     localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION)
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    val data = SubmissionData(mapOf(Pair("task id", TextTaskData.fromString("foo value"))))
+    val data = SubmissionData(mapOf(Pair("task id", TextResponse.fromString("foo value"))))
     val submission = localSubmissionStore.getSubmission(loi, "submission id").copy(data = data)
     localSubmissionStore.merge(submission)
     val responses = localSubmissionStore.getSubmission(loi, submission.id).data
-    assertThat(responses.getValue("task id")).isEqualTo(TextTaskData.fromString("updated taskData"))
+    assertThat(responses.getValue("task id")).isEqualTo(TextResponse.fromString("updated taskData"))
   }
 
   @Test
@@ -411,7 +411,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         submissionId = "submission id",
         taskDataDeltas =
           listOf(
-            TaskDataDelta("task id", Task.Type.TEXT, TextTaskData.fromString("updated taskData"))
+            TaskDataDelta("task id", Task.Type.TEXT, TextResponse.fromString("updated taskData"))
           ),
         id = 1L,
         type = Mutation.Type.CREATE,

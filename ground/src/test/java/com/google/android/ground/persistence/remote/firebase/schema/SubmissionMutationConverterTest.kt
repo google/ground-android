@@ -21,11 +21,11 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.GeometryData
-import com.google.android.ground.model.submission.MultipleChoiceTaskData
-import com.google.android.ground.model.submission.NumberTaskData
+import com.google.android.ground.model.submission.GeometryTaskResponse
+import com.google.android.ground.model.submission.MultipleChoiceResponse
+import com.google.android.ground.model.submission.NumberResponse
 import com.google.android.ground.model.submission.TaskDataDelta
-import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.submission.TextResponse
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
@@ -49,10 +49,10 @@ class SubmissionMutationConverterTest {
   private val loiId = "loi_id_1"
   private val clientTimestamp = Date()
 
-  private val textTaskData = TextTaskData.fromString("some data")
+  private val textTaskData = TextResponse.fromString("some data")
 
   private val singleChoiceTaskData =
-    MultipleChoiceTaskData.fromList(
+    MultipleChoiceResponse.fromList(
       MultipleChoice(
         persistentListOf(
           Option("option id 1", "code1", "Option 1"),
@@ -64,7 +64,7 @@ class SubmissionMutationConverterTest {
     )
 
   private val multipleChoiceTaskData =
-    MultipleChoiceTaskData.fromList(
+    MultipleChoiceResponse.fromList(
       MultipleChoice(
         persistentListOf(
           Option("option id 1", "code1", "Option 1"),
@@ -75,12 +75,12 @@ class SubmissionMutationConverterTest {
       ids = listOf("option id 1", "option id 2")
     )
 
-  private val numberTaskData = NumberTaskData.fromNumber("123")
+  private val numberTaskData = NumberResponse.fromNumber("123")
 
-  private val pointTaskData = GeometryData(Point(Coordinates(10.0, 20.0)))
+  private val pointTaskData = GeometryTaskResponse(Point(Coordinates(10.0, 20.0)))
 
   private val polygonTaskData =
-    GeometryData(
+    GeometryTaskResponse(
       Polygon(
         LinearRing(
           listOf(

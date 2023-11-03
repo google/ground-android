@@ -16,7 +16,7 @@
 package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.submission.LocationTaskData
+import com.google.android.ground.model.submission.CaptureLocationResponse
 
 /**
  * Converts between `LocationTaskData` and it's equivalent remote representation using JSON
@@ -27,7 +27,7 @@ object LocationTaskDataConverter {
   const val ALTITUDE_KEY = "altitude"
   const val GEOMETRY_KEY = "geometry"
 
-  fun toFirestoreMap(taskData: LocationTaskData): Result<Map<String, Any>> =
+  fun toFirestoreMap(taskData: CaptureLocationResponse): Result<Map<String, Any>> =
     Result.runCatching {
       mapOf(
         ACCURACY_KEY to taskData.accuracy!!,
@@ -36,11 +36,11 @@ object LocationTaskDataConverter {
       )
     }
 
-  fun fromFirestoreMap(map: Map<String, *>?): Result<LocationTaskData> =
+  fun fromFirestoreMap(map: Map<String, *>?): Result<CaptureLocationResponse> =
     Result.runCatching {
       val accuracy = map?.get(ACCURACY_KEY) as? Double
       val altitude = map?.get(ALTITUDE_KEY) as? Double
       val geometry = GeometryConverter.fromFirestoreMap(map?.get(GEOMETRY_KEY) as? Map<String, *>)
-      LocationTaskData(geometry.getOrThrow() as Point, altitude, accuracy)
+      CaptureLocationResponse(geometry.getOrThrow() as Point, altitude, accuracy)
     }
 }

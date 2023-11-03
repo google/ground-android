@@ -24,11 +24,11 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.submission.GeometryData
-import com.google.android.ground.model.submission.MultipleChoiceTaskData
+import com.google.android.ground.model.submission.GeometryTaskResponse
+import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.SubmissionData
-import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.submission.TextResponse
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
@@ -118,26 +118,26 @@ class SubmissionLocalDataStoreConverterTest {
           AUDIT_INFO_2,
           SubmissionData(
             mapOf(
-              Pair("task1", TextTaskData("Text taskData")),
+              Pair("task1", TextResponse("Text taskData")),
               Pair(
                 "task2",
-                MultipleChoiceTaskData(
+                MultipleChoiceResponse(
                   MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
                   listOf("option2")
                 )
               ),
               Pair(
                 "task3",
-                MultipleChoiceTaskData(
+                MultipleChoiceResponse(
                   MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
                   listOf("optionA", "optionB")
                 )
               ),
-              Pair("task4", TextTaskData("Photo URL")),
-              Pair("task5", GeometryData(Point(Coordinates(10.0, 20.0)))),
+              Pair("task4", TextResponse("Photo URL")),
+              Pair("task5", GeometryTaskResponse(Point(Coordinates(10.0, 20.0)))),
               Pair(
                 "task6",
-                GeometryData(
+                GeometryTaskResponse(
                   Polygon(
                     LinearRing(
                       listOf(
@@ -273,7 +273,7 @@ class SubmissionLocalDataStoreConverterTest {
           AUDIT_INFO_1,
           AUDIT_INFO_2,
           // Field "task1" with unknown field type ignored.
-          SubmissionData(mapOf(Pair("task2", TextTaskData("Text taskData"))))
+          SubmissionData(mapOf(Pair("task2", TextResponse("Text taskData"))))
         )
       )
   }
