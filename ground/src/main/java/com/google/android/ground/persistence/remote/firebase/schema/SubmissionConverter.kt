@@ -23,8 +23,8 @@ import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.SubmissionData
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.MultipleChoice
