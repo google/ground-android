@@ -71,42 +71,8 @@ class SubmissionLocalDataStoreConverterTest {
       newTask("task5", Task.Type.DROP_A_PIN),
       newTask("task6", Task.Type.DRAW_POLYGON),
     )
-    mockSubmissionDocumentSnapshot(
-      SUBMISSION_ID,
-      SubmissionDocument(
-        "loi001",
-        "task001",
-        AUDIT_INFO_1_NESTED_OBJECT,
-        AUDIT_INFO_2_NESTED_OBJECT,
-        mapOf(
-          Pair("task1", "Text response"),
-          Pair("task2", listOf("option2")),
-          Pair("task3", listOf("optionA", "optionB")),
-          Pair("task4", "Photo URL"),
-          Pair("task5", mapOf(Pair("type", "Point"), Pair("coordinates", GeoPoint(10.0, 20.0)))),
-          Pair(
-            "task6",
-            mapOf(
-              Pair("type", "Polygon"),
-              Pair(
-                "coordinates",
-                mapOf(
-                  Pair(
-                    "0",
-                    mapOf(
-                      Pair("0", GeoPoint(10.0, 20.0)),
-                      Pair("1", GeoPoint(20.0, 30.0)),
-                      Pair("2", GeoPoint(30.0, 20.0)),
-                      Pair("3", GeoPoint(10.0, 20.0))
-                    )
-                  )
-                )
-              )
-            )
-          ),
-        )
-      )
-    )
+    mockSubmissionDocumentSnapshot(SUBMISSION_ID, TEST_SUBMISSION_DOCUMENT)
+
     assertThat(toSubmission())
       .isEqualTo(
         Submission(
@@ -116,42 +82,7 @@ class SubmissionLocalDataStoreConverterTest {
           job,
           AUDIT_INFO_1,
           AUDIT_INFO_2,
-          SubmissionData(
-            mapOf(
-              Pair("task1", TextResponse("Text response")),
-              Pair(
-                "task2",
-                MultipleChoiceResponse(
-                  MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
-                  listOf("option2")
-                )
-              ),
-              Pair(
-                "task3",
-                MultipleChoiceResponse(
-                  MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
-                  listOf("optionA", "optionB")
-                )
-              ),
-              Pair("task4", TextResponse("Photo URL")),
-              Pair("task5", GeometryTaskResponse(Point(Coordinates(10.0, 20.0)))),
-              Pair(
-                "task6",
-                GeometryTaskResponse(
-                  Polygon(
-                    LinearRing(
-                      listOf(
-                        Coordinates(10.0, 20.0),
-                        Coordinates(20.0, 30.0),
-                        Coordinates(30.0, 20.0),
-                        Coordinates(10.0, 20.0)
-                      )
-                    )
-                  )
-                )
-              ),
-            )
-          )
+          TEST_SUBMISSION_DATA
         )
       )
   }
@@ -313,5 +244,64 @@ class SubmissionLocalDataStoreConverterTest {
     private const val SUBMISSION_ID = "submission123"
     private const val TEST_SURVEY_ID = "survey001"
     private val TEST_STYLE = Style("#112233")
+    private val TEST_SUBMISSION_DATA =
+      SubmissionData(
+        mapOf(
+          "task1" to TextResponse("Text response"),
+          "task2" to
+            MultipleChoiceResponse(
+              MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
+              listOf("option2")
+            ),
+          "task3" to
+            MultipleChoiceResponse(
+              MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
+              listOf("optionA", "optionB")
+            ),
+          "task4" to TextResponse("Photo URL"),
+          "task5" to GeometryTaskResponse(Point(Coordinates(10.0, 20.0))),
+          "task6" to
+            GeometryTaskResponse(
+              Polygon(
+                LinearRing(
+                  listOf(
+                    Coordinates(10.0, 20.0),
+                    Coordinates(20.0, 30.0),
+                    Coordinates(30.0, 20.0),
+                    Coordinates(10.0, 20.0)
+                  )
+                )
+              )
+            )
+        )
+      )
+    private val TEST_SUBMISSION_DOCUMENT =
+      SubmissionDocument(
+        "loi001",
+        "task001",
+        AUDIT_INFO_1_NESTED_OBJECT,
+        AUDIT_INFO_2_NESTED_OBJECT,
+        mapOf(
+          "task1" to "Text response",
+          "task2" to listOf("option2"),
+          "task3" to listOf("optionA", "optionB"),
+          "task4" to "Photo URL",
+          "task5" to mapOf("type" to "Point", "coordinates" to GeoPoint(10.0, 20.0)),
+          "task6" to
+            mapOf(
+              "type" to "Polygon",
+              "coordinates" to
+                mapOf(
+                  "0" to
+                    mapOf(
+                      "0" to GeoPoint(10.0, 20.0),
+                      "1" to GeoPoint(20.0, 30.0),
+                      "2" to GeoPoint(30.0, 20.0),
+                      "3" to GeoPoint(10.0, 20.0)
+                    )
+                )
+            )
+        )
+      )
   }
 }

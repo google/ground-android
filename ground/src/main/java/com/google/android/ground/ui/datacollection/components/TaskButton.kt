@@ -20,7 +20,7 @@ import com.google.android.ground.model.submission.Value
 import org.jetbrains.annotations.TestOnly
 
 /** Wrapper class for holding a button. */
-data class TaskButton(private val view: View) {
+class TaskButton(private val view: View) {
 
   private var taskUpdatedCallback: ((button: TaskButton, value: Value?) -> Unit)? = null
 

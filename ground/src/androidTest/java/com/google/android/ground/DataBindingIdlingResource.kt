@@ -38,16 +38,7 @@ class DataBindingIdlingResource : IdlingResource {
   override fun getName(): String = String.format(Locale.getDefault(), "DataBinding $ID")
 
   override fun isIdleNow(): Boolean {
-    var idle = false
-    for (b in bindings()) {
-      if (b == null) {
-        continue
-      }
-      if (!b.hasPendingBindings()) {
-        idle = true
-        break
-      }
-    }
+    val idle = bindings().none { it?.hasPendingBindings() ?: false }
     if (idle) {
       if (wasNotIdle) {
         // Notify observers to avoid Espresso race detector.
