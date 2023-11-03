@@ -57,11 +57,11 @@ internal object SubmissionConverter {
       job,
       AuditInfoConverter.toAuditInfo(created!!),
       AuditInfoConverter.toAuditInfo(lastModified!!),
-      toResponseMap(snapshot.id, job, doc.responses)
+      toSubmissionDataMap(snapshot.id, job, doc.data)
     )
   }
 
-  private fun toResponseMap(
+  private fun toSubmissionDataMap(
     submissionId: String,
     job: Job,
     docResponses: Map<String, Any>?

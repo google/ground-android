@@ -94,7 +94,7 @@ internal constructor(
       val originalResponses = originalSubmission!!.data
       Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses)
       for ((taskId, _, type) in originalSubmission!!.job.tasksSorted) {
-        val originalResponse = originalResponses.getResponse(taskId)
+        val originalResponse = originalResponses.getValue(taskId)
         val currentResponse = getResponse(taskId)
         if (currentResponse != null && currentResponse == originalResponse) {
           continue
@@ -166,7 +166,7 @@ internal constructor(
     if (restoredResponses == null) {
       val taskDataMap = submission.data
       for (taskId in taskDataMap.taskIds()) {
-        val taskData = taskDataMap.getResponse(taskId)
+        val taskData = taskDataMap.getValue(taskId)
         if (taskData != null) {
           responses[taskId] = taskData
         }

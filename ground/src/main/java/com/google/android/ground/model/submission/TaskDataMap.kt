@@ -16,25 +16,26 @@
 package com.google.android.ground.model.submission
 
 /**
- * An immutable map of task ids to related user taskDatas.
+ * An immutable map of task ids to submitted data values.
  *
- * @property taskDatas A map from task id to taskData. This map is mutable and therefore should
- * never be exposed outside this class.
+ * @property data A map from task id to values. This map is mutable and therefore should never be
+ *   exposed outside this class.
  */
-data class TaskDataMap(private val taskDatas: Map<String, TaskData?> = mapOf()) {
+// TODO: Merge into Submission?
+data class TaskDataMap(private val data: Map<String, TaskData?> = mapOf()) {
 
   /**
-   * Returns the user taskData for the given task id, or empty if the user did not specify a
-   * taskData.
+   * Returns the submitted value for the task with the given id, or empty if the user did not
+   * specify a value.
    */
-  fun getResponse(taskId: String): TaskData? = taskDatas[taskId]
+  fun getValue(taskId: String): TaskData? = data[taskId]
 
   /** Returns an Iterable over the task ids in this map. */
-  fun taskIds(): Iterable<String> = taskDatas.keys
+  fun taskIds(): Iterable<String> = data.keys
 
   /** Adds, replaces, and/or removes taskDatas based on the provided list of deltas. */
   fun copyWithDeltas(taskDataDeltas: List<TaskDataDelta>): TaskDataMap {
-    val newResponses = taskDatas.toMutableMap()
+    val newResponses = data.toMutableMap()
     taskDataDeltas.forEach {
       if (it.newTaskData.isNotNullOrEmpty()) {
         newResponses[it.taskId] = it.newTaskData
