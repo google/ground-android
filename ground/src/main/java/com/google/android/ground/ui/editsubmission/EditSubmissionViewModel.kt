@@ -164,9 +164,9 @@ internal constructor(
     originalSubmission = submission
     responses.clear()
     if (restoredResponses == null) {
-      val taskDataMap = submission.data
-      for (taskId in taskDataMap.taskIds()) {
-        val taskData = taskDataMap.getValue(taskId)
+      val data = submission.data
+      for (taskId in data.taskIds()) {
+        val taskData = data.getValue(taskId)
         if (taskData != null) {
           responses[taskId] = taskData
         }

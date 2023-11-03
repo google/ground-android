@@ -31,8 +31,8 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
+import com.google.android.ground.model.submission.SubmissionData
 import com.google.android.ground.model.submission.TaskDataDelta
-import com.google.android.ground.model.submission.TaskDataMap
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.LocalDataStoreException
@@ -271,9 +271,8 @@ class LocalDataStoreTests : BaseHiltTest() {
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
     localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION)
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    val taskDataMap = TaskDataMap(mapOf(Pair("task id", TextTaskData.fromString("foo value"))))
-    val submission =
-      localSubmissionStore.getSubmission(loi, "submission id").copy(data = taskDataMap)
+    val data = SubmissionData(mapOf(Pair("task id", TextTaskData.fromString("foo value"))))
+    val submission = localSubmissionStore.getSubmission(loi, "submission id").copy(data = data)
     localSubmissionStore.merge(submission)
     val responses = localSubmissionStore.getSubmission(loi, submission.id).data
     assertThat(responses.getValue("task id")).isEqualTo(TextTaskData.fromString("updated taskData"))
@@ -460,7 +459,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       assertThat(mutation.userId).isEqualTo(submission.lastModified.user.id)
       assertThat(mutation.userId).isEqualTo(submission.created.user.id)
       MatcherAssert.assertThat(
-        TaskDataMap().copyWithDeltas(mutation.taskDataDeltas),
+        SubmissionData().copyWithDeltas(mutation.taskDataDeltas),
         Matchers.samePropertyValuesAs(submission.data)
       )
     }

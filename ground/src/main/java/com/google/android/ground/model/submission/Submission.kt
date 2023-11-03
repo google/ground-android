@@ -35,5 +35,5 @@ constructor(
   val job: Job,
   val created: AuditInfo,
   val lastModified: AuditInfo,
-  val data: TaskDataMap = TaskDataMap()
+  val data: SubmissionData = SubmissionData()
 )

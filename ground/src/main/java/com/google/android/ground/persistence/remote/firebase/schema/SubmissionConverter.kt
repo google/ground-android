@@ -24,7 +24,7 @@ import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.TaskData
-import com.google.android.ground.model.submission.TaskDataMap
+import com.google.android.ground.model.submission.SubmissionData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.MultipleChoice
@@ -65,9 +65,9 @@ internal object SubmissionConverter {
     submissionId: String,
     job: Job,
     docResponses: Map<String, Any>?
-  ): TaskDataMap {
+  ): SubmissionData {
     if (docResponses == null) {
-      return TaskDataMap()
+      return SubmissionData()
     }
     val responses = mutableMapOf<String, TaskData>()
     for ((taskId, value) in docResponses) {
@@ -77,7 +77,7 @@ internal object SubmissionConverter {
         Timber.e(e, "Task $taskId in remote db in submission $submissionId")
       }
     }
-    return TaskDataMap(responses.toPersistentMap())
+    return SubmissionData(responses.toPersistentMap())
   }
 
   private fun putResponse(

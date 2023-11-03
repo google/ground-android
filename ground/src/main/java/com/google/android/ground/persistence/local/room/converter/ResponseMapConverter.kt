@@ -18,18 +18,18 @@ package com.google.android.ground.persistence.local.room.converter
 
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.TaskData
-import com.google.android.ground.model.submission.TaskDataMap
+import com.google.android.ground.model.submission.SubmissionData
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
 import kotlinx.collections.immutable.toPersistentMap
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
 
-/** Converts between [TaskDataMap] and JSON strings used to represent them in the local db. */
+/** Converts between [SubmissionData] and JSON strings used to represent them in the local db. */
 object ResponseMapConverter {
 
   @JvmStatic
-  fun toString(responseDeltas: TaskDataMap): String =
+  fun toString(responseDeltas: SubmissionData): String =
     JSONObject()
       .apply {
         for (taskId in responseDeltas.taskIds()) {
@@ -43,9 +43,9 @@ object ResponseMapConverter {
       .toString()
 
   @JvmStatic
-  fun fromString(job: Job, jsonString: String?): TaskDataMap {
+  fun fromString(job: Job, jsonString: String?): SubmissionData {
     if (jsonString == null) {
-      return TaskDataMap()
+      return SubmissionData()
     }
     val map = mutableMapOf<String, TaskData>()
     try {
@@ -63,6 +63,6 @@ object ResponseMapConverter {
     } catch (e: JSONException) {
       Timber.e(e, "Error parsing JSON string")
     }
-    return TaskDataMap(map.toPersistentMap())
+    return SubmissionData(map.toPersistentMap())
   }
 }

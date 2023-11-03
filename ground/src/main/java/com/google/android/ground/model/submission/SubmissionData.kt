@@ -22,7 +22,7 @@ package com.google.android.ground.model.submission
  *   exposed outside this class.
  */
 // TODO: Merge into Submission?
-data class TaskDataMap(private val data: Map<String, TaskData?> = mapOf()) {
+data class SubmissionData(private val data: Map<String, TaskData?> = mapOf()) {
 
   /**
    * Returns the submitted value for the task with the given id, or empty if the user did not
@@ -34,7 +34,7 @@ data class TaskDataMap(private val data: Map<String, TaskData?> = mapOf()) {
   fun taskIds(): Iterable<String> = data.keys
 
   /** Adds, replaces, and/or removes taskDatas based on the provided list of deltas. */
-  fun copyWithDeltas(taskDataDeltas: List<TaskDataDelta>): TaskDataMap {
+  fun copyWithDeltas(taskDataDeltas: List<TaskDataDelta>): SubmissionData {
     val newResponses = data.toMutableMap()
     taskDataDeltas.forEach {
       if (it.newTaskData.isNotNullOrEmpty()) {
@@ -44,6 +44,6 @@ data class TaskDataMap(private val data: Map<String, TaskData?> = mapOf()) {
       }
     }
 
-    return TaskDataMap(newResponses)
+    return SubmissionData(newResponses)
   }
 }

@@ -27,7 +27,7 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.GeometryData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.submission.TaskDataMap
+import com.google.android.ground.model.submission.SubmissionData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
@@ -116,7 +116,7 @@ class SubmissionLocalDataStoreConverterTest {
           job,
           AUDIT_INFO_1,
           AUDIT_INFO_2,
-          TaskDataMap(
+          SubmissionData(
             mapOf(
               Pair("task1", TextTaskData("Text taskData")),
               Pair(
@@ -273,7 +273,7 @@ class SubmissionLocalDataStoreConverterTest {
           AUDIT_INFO_1,
           AUDIT_INFO_2,
           // Field "task1" with unknown field type ignored.
-          TaskDataMap(mapOf(Pair("task2", TextTaskData("Text taskData"))))
+          SubmissionData(mapOf(Pair("task2", TextTaskData("Text taskData"))))
         )
       )
   }

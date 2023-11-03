@@ -27,7 +27,7 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.submission.TaskDataMap
+import com.google.android.ground.model.submission.SubmissionData
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
@@ -313,7 +313,7 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
     jobId = this.job.id,
     locationOfInterestId = this.locationOfInterestId,
     state = EntityState.DEFAULT,
-    responses = ResponseMapConverter.toString(TaskDataMap().copyWithDeltas(this.taskDataDeltas)),
+    responses = ResponseMapConverter.toString(SubmissionData().copyWithDeltas(this.taskDataDeltas)),
     // TODO(#1562): Preserve creation audit info for UPDATE mutations.
     created = auditInfo,
     lastModified = auditInfo
