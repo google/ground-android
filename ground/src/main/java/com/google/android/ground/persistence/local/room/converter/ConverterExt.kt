@@ -151,7 +151,8 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       caption = caption,
       geometry = geometry.getGeometry(),
       submissionCount = submissionCount,
-      job = survey.getJob(jobId = jobId)
+      job =
+        survey.getJob(jobId = jobId)
           ?: throw LocalDataConsistencyException(
             "Unknown jobId ${this.jobId} in location of interest ${this.id}"
           )
@@ -312,7 +313,7 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
     jobId = this.job.id,
     locationOfInterestId = this.locationOfInterestId,
     state = EntityState.DEFAULT,
-    responses = ResponseMapConverter.toString(SubmissionData().copyWithDeltas(this.taskDataDeltas)),
+    responses = ResponseMapConverter.toString(SubmissionData().copyWithDeltas(this.deltas)),
     // TODO(#1562): Preserve creation audit info for UPDATE mutations.
     created = auditInfo,
     lastModified = auditInfo
@@ -328,7 +329,7 @@ fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
   return SubmissionMutation(
     job = job,
     submissionId = submissionId,
-    taskDataDeltas = ResponseDeltasConverter.fromString(job, responseDeltas),
+    deltas = ResponseDeltasConverter.fromString(job, responseDeltas),
     id = id,
     surveyId = surveyId,
     locationOfInterestId = locationOfInterestId,
@@ -350,7 +351,7 @@ fun SubmissionMutation.toLocalDataStoreObject() =
     submissionId = submissionId,
     type = MutationEntityType.fromMutationType(type),
     syncStatus = MutationEntitySyncStatus.fromMutationSyncStatus(syncStatus),
-    responseDeltas = ResponseDeltasConverter.toString(taskDataDeltas),
+    responseDeltas = ResponseDeltasConverter.toString(deltas),
     retryCount = retryCount,
     lastError = lastError,
     userId = userId,

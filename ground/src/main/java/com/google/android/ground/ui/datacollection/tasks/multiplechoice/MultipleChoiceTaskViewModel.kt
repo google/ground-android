@@ -25,6 +25,6 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
   AbstractTaskViewModel(resources) {
 
   fun updateResponse(options: List<Option>) {
-    setResponse(fromList(task.multipleChoice, options.map(Option::id)))
+    setValue(fromList(task.multipleChoice, options.map(Option::id)))
   }
 }

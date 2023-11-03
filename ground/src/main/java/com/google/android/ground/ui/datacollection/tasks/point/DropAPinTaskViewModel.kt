@@ -21,7 +21,7 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.submission.GeometryTaskResponse
-import com.google.android.ground.model.submission.Response
+import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Hot
@@ -40,8 +40,8 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
   private var lastCameraPosition: CameraPosition? = null
   val features: @Hot MutableLiveData<Set<Feature>> = MutableLiveData()
 
-  override fun initialize(job: Job, task: Task, taskData: Response?) {
-    super.initialize(job, task, taskData)
+  override fun initialize(job: Job, task: Task, value: Value?) {
+    super.initialize(job, task, value)
     pinColor = job.getDefaultColor()
   }
 
@@ -55,7 +55,7 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
   }
 
   fun updateResponse(point: Point) {
-    setResponse(GeometryTaskResponse(point))
+    setValue(GeometryTaskResponse(point))
     features.postValue(setOf(createFeature(point)))
   }
 

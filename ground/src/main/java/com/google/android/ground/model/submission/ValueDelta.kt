@@ -15,13 +15,13 @@
  */
 package com.google.android.ground.model.submission
 
-/** User-provided response to a single data collection [Task]. */
-interface Response {
-  fun getDetailsText(): String
+import com.google.android.ground.model.task.Task
 
-  fun isEmpty(): Boolean
-}
-
-fun Response?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true
-
-fun Response?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()
+/**
+ * Represents a change to an individual value in a submission.
+ *
+ * @property taskId the id of the task task being updated.
+ * @property taskType the type of task being updated.
+ * @property newValue the new value of the value, or empty if removed.
+ */
+data class ValueDelta(val taskId: String, val taskType: Task.Type, val newValue: Value?)

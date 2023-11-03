@@ -54,43 +54,43 @@ internal object SubmissionMutationConverter {
     }
     map[LOI_ID] = mutation.locationOfInterestId
     map[JOB_ID] = mutation.job.id
-    map[RESPONSES] = toMap(mutation.taskDataDeltas)
+    map[RESPONSES] = toMap(mutation.deltas)
     return map.toPersistentMap()
   }
 
-  private fun toMap(taskDataDeltas: List<TaskDataDelta>): Map<String, Any> {
+  private fun toMap(deltas: List<ValueDelta>): Map<String, Any> {
     val map = mutableMapOf<String, Any>()
-    for (delta in taskDataDeltas) {
-      map[delta.taskId] = toObject(delta.newTaskData) ?: FieldValue.delete()
+    for (delta in deltas) {
+      map[delta.taskId] = toObject(delta.newValue) ?: FieldValue.delete()
     }
     return map.toPersistentMap()
   }
 
-  private fun toObject(taskData: Response?): Any? =
-    when (taskData) {
+  private fun toObject(value: Value?): Any? =
+    when (value) {
       is TextResponse -> {
-        taskData.text
+        value.text
       }
       is MultipleChoiceResponse -> {
-        taskData.selectedOptionIds
+        value.selectedOptionIds
       }
       is NumberResponse -> {
-        taskData.value
+        value.value
       }
       is TimeResponse -> {
-        taskData.time
+        value.time
       }
       is DateResponse -> {
-        taskData.date
+        value.date
       }
       is GeometryTaskResponse -> {
-        GeometryConverter.toFirestoreMap(taskData.geometry).getOrThrow()
+        GeometryConverter.toFirestoreMap(value.geometry).getOrThrow()
       }
-      is CaptureLocationResponse -> {
-        LocationTaskDataConverter.toFirestoreMap(taskData).getOrThrow()
+      is CaptureLocationResult -> {
+        CaptureLocationResultConverter.toFirestoreMap(value).getOrThrow()
       }
       else -> {
-        Timber.e("Unknown taskData type: %s", taskData?.javaClass?.name)
+        Timber.e("Unknown value type: %s", value?.javaClass?.name)
         null
       }
     }

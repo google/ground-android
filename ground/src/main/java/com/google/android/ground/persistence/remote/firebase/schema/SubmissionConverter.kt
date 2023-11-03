@@ -22,11 +22,11 @@ import com.google.android.ground.model.submission.DateResponse
 import com.google.android.ground.model.submission.GeometryTaskResponse
 import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.NumberResponse
-import com.google.android.ground.model.submission.Response
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.SubmissionData
 import com.google.android.ground.model.submission.TextResponse
 import com.google.android.ground.model.submission.TimeResponse
+import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
@@ -69,7 +69,7 @@ internal object SubmissionConverter {
     if (docResponses == null) {
       return SubmissionData()
     }
-    val responses = mutableMapOf<String, Response>()
+    val responses = mutableMapOf<String, Value>()
     for ((taskId, value) in docResponses) {
       try {
         putResponse(taskId, job, value, responses)
@@ -84,7 +84,7 @@ internal object SubmissionConverter {
     taskId: String,
     job: Job,
     obj: Any,
-    responses: MutableMap<String, Response>
+    responses: MutableMap<String, Value>
   ) {
     val task = job.getTask(taskId)
     when (task.type) {
@@ -102,31 +102,27 @@ internal object SubmissionConverter {
     }
   }
 
-  private fun putNumberResponse(taskId: String, obj: Any, responses: MutableMap<String, Response>) {
+  private fun putNumberResponse(taskId: String, obj: Any, responses: MutableMap<String, Value>) {
     val value = DataStoreException.checkType(Double::class.java, obj) as Double
-    NumberResponse.fromNumber(value.toString())?.let { r: Response -> responses[taskId] = r }
+    NumberResponse.fromNumber(value.toString())?.let { r: Value -> responses[taskId] = r }
   }
 
-  private fun putTextResponse(taskId: String, obj: Any, responses: MutableMap<String, Response>) {
+  private fun putTextResponse(taskId: String, obj: Any, responses: MutableMap<String, Value>) {
     val value = DataStoreException.checkType(String::class.java, obj) as String
-    TextResponse.fromString(value.trim { it <= ' ' })?.let { r: Response -> responses[taskId] = r }
+    TextResponse.fromString(value.trim { it <= ' ' })?.let { r: Value -> responses[taskId] = r }
   }
 
-  private fun putDateResponse(taskId: String, obj: Any, responses: MutableMap<String, Response>) {
+  private fun putDateResponse(taskId: String, obj: Any, responses: MutableMap<String, Value>) {
     val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
-    DateResponse.fromDate(value.toDate())?.let { r: Response -> responses[taskId] = r }
+    DateResponse.fromDate(value.toDate())?.let { r: Value -> responses[taskId] = r }
   }
 
-  private fun putTimeResponse(taskId: String, obj: Any, responses: MutableMap<String, Response>) {
+  private fun putTimeResponse(taskId: String, obj: Any, responses: MutableMap<String, Value>) {
     val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
-    TimeResponse.fromDate(value.toDate())?.let { r: Response -> responses[taskId] = r }
+    TimeResponse.fromDate(value.toDate())?.let { r: Value -> responses[taskId] = r }
   }
 
-  private fun putDropAPinResponse(
-    taskId: String,
-    obj: Any,
-    responses: MutableMap<String, Response>
-  ) {
+  private fun putDropAPinResponse(taskId: String, obj: Any, responses: MutableMap<String, Value>) {
     val map = obj as HashMap<String, *>
     check(map["type"] == "Point")
     val result = GeometryConverter.fromFirestoreMap(map).getOrNull()
@@ -138,7 +134,7 @@ internal object SubmissionConverter {
   private fun putDrawPolygonResponse(
     taskId: String,
     obj: Any,
-    responses: MutableMap<String, Response>
+    responses: MutableMap<String, Value>
   ) {
     val map = obj as HashMap<String, *>
     check(map["type"] == "Polygon")
@@ -151,9 +147,9 @@ internal object SubmissionConverter {
   private fun putCaptureLocationResponse(
     taskId: String,
     obj: Any,
-    responses: MutableMap<String, Response>
+    responses: MutableMap<String, Value>
   ) =
-    LocationTaskDataConverter.fromFirestoreMap(obj as Map<String, *>).onSuccess {
+    CaptureLocationResultConverter.fromFirestoreMap(obj as Map<String, *>).onSuccess {
       responses[taskId] = it
     }
 
@@ -161,7 +157,7 @@ internal object SubmissionConverter {
     taskId: String,
     multipleChoice: MultipleChoice?,
     obj: Any,
-    responses: MutableMap<String, Response>
+    responses: MutableMap<String, Value>
   ) {
     val values = DataStoreException.checkType(MutableList::class.java, obj) as List<*>
     values.forEach { DataStoreException.checkType(String::class.java, it as Any) }

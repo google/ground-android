@@ -16,7 +16,7 @@
 package com.google.android.ground.model.mutation
 
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.TaskDataDelta
+import com.google.android.ground.model.submission.ValueDelta
 import java.util.Date
 
 data class SubmissionMutation(
@@ -31,8 +31,8 @@ data class SubmissionMutation(
   override val lastError: String = "",
   val job: Job,
   val submissionId: String = "",
-  val taskDataDeltas: List<TaskDataDelta> = listOf()
+  val deltas: List<ValueDelta> = listOf()
 ) : Mutation() {
 
-  override fun toString(): String = super.toString() + "deltas= $taskDataDeltas"
+  override fun toString(): String = super.toString() + "deltas= $deltas"
 }

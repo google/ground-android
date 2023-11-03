@@ -76,7 +76,7 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
       .check(matches(isDisplayed()))
       .check(matches(isEnabled()))
 
-    hasTaskData(null)
+    hasValue(null)
     buttonIsDisabled("Next")
   }
 
@@ -88,7 +88,7 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
       .check(matches(withInputType(InputType.TYPE_CLASS_NUMBER)))
       .perform(forceTypeText("123"))
 
-    hasTaskData(NumberResponse("123"))
+    hasValue(NumberResponse("123"))
     buttonIsEnabled("Next")
   }
 

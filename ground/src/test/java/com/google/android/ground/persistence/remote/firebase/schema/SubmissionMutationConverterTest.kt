@@ -24,8 +24,8 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.GeometryTaskResponse
 import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.NumberResponse
-import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
@@ -49,9 +49,9 @@ class SubmissionMutationConverterTest {
   private val loiId = "loi_id_1"
   private val clientTimestamp = Date()
 
-  private val textTaskData = TextResponse.fromString("some data")
+  private val textResponse = TextResponse.fromString("some data")
 
-  private val singleChoiceTaskData =
+  private val singleChoiceResponse =
     MultipleChoiceResponse.fromList(
       MultipleChoice(
         persistentListOf(
@@ -63,7 +63,7 @@ class SubmissionMutationConverterTest {
       ids = listOf("option id 1")
     )
 
-  private val multipleChoiceTaskData =
+  private val multipleChoiceResponse =
     MultipleChoiceResponse.fromList(
       MultipleChoice(
         persistentListOf(
@@ -75,11 +75,11 @@ class SubmissionMutationConverterTest {
       ids = listOf("option id 1", "option id 2")
     )
 
-  private val numberTaskData = NumberResponse.fromNumber("123")
+  private val numberResponse = NumberResponse.fromNumber("123")
 
-  private val pointTaskData = GeometryTaskResponse(Point(Coordinates(10.0, 20.0)))
+  private val pointGeometryTaskResponse = GeometryTaskResponse(Point(Coordinates(10.0, 20.0)))
 
-  private val polygonTaskData =
+  private val polygonGeometryTaskResponse =
     GeometryTaskResponse(
       Polygon(
         LinearRing(
@@ -101,37 +101,33 @@ class SubmissionMutationConverterTest {
       userId = user.id,
       clientTimestamp = clientTimestamp,
       job = job,
-      taskDataDeltas =
+      deltas =
         listOf(
-          TaskDataDelta(
-            taskId = "text_task",
-            taskType = Task.Type.TEXT,
-            newTaskData = textTaskData
-          ),
-          TaskDataDelta(
+          ValueDelta(taskId = "text_task", taskType = Task.Type.TEXT, newValue = textResponse),
+          ValueDelta(
             taskId = "single_choice_task",
             taskType = Task.Type.MULTIPLE_CHOICE,
-            newTaskData = singleChoiceTaskData
+            newValue = singleChoiceResponse
           ),
-          TaskDataDelta(
+          ValueDelta(
             taskId = "multiple_choice_task",
             taskType = Task.Type.MULTIPLE_CHOICE,
-            newTaskData = multipleChoiceTaskData
+            newValue = multipleChoiceResponse
           ),
-          TaskDataDelta(
+          ValueDelta(
             taskId = "number_task",
             taskType = Task.Type.NUMBER,
-            newTaskData = numberTaskData
+            newValue = numberResponse
           ),
-          TaskDataDelta(
+          ValueDelta(
             taskId = "drop_a_pin_task",
             taskType = Task.Type.DROP_A_PIN,
-            newTaskData = pointTaskData
+            newValue = pointGeometryTaskResponse
           ),
-          TaskDataDelta(
+          ValueDelta(
             taskId = "draw_polygon_task",
             taskType = Task.Type.DRAW_POLYGON,
-            newTaskData = polygonTaskData
+            newValue = polygonGeometryTaskResponse
           )
         )
     )

@@ -24,7 +24,7 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.SubmissionData
-import com.google.android.ground.model.submission.TaskDataDelta
+import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.persistence.local.room.converter.ResponseDeltasConverter
 import com.google.android.ground.persistence.local.room.converter.ResponseMapConverter
@@ -82,8 +82,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   ): List<Submission> =
     submissionDao
       .findByLocationOfInterestId(locationOfInterest.id, jobId, EntityState.DEFAULT)
-      ?.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } }
-      ?: listOf()
+      ?.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } } ?: listOf()
 
   override suspend fun merge(model: Submission) {
     submissionMutationDao
@@ -102,7 +101,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
    * Applies mutation to submission in database or creates a new one.
    *
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
-   * exist, or if type is "CREATE" and entity already exists.
+   *   exist, or if type is "CREATE" and entity already exists.
    */
   override suspend fun apply(mutation: SubmissionMutation) {
     when (mutation.type) {
@@ -183,7 +182,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     mutations: List<SubmissionMutationEntity>
   ): SubmissionData {
     val responseMap = ResponseMapConverter.fromString(job!!, submission.responses)
-    val deltas = mutableListOf<TaskDataDelta>()
+    val deltas = mutableListOf<ValueDelta>()
     for (mutation in mutations) {
       // Merge changes to responses.
       deltas.addAll(ResponseDeltasConverter.fromString(job, mutation.responseDeltas))

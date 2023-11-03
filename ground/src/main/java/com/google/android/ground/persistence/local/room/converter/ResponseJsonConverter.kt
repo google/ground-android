@@ -17,19 +17,19 @@
 package com.google.android.ground.persistence.local.room.converter
 
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.submission.CaptureLocationResponse
+import com.google.android.ground.model.submission.CaptureLocationResult
 import com.google.android.ground.model.submission.DateResponse
 import com.google.android.ground.model.submission.GeometryTaskResponse
 import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.NumberResponse
-import com.google.android.ground.model.submission.Response
 import com.google.android.ground.model.submission.TextResponse
 import com.google.android.ground.model.submission.TimeResponse
+import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.android.ground.persistence.remote.firebase.schema.LocationTaskDataConverter.ACCURACY_KEY
-import com.google.android.ground.persistence.remote.firebase.schema.LocationTaskDataConverter.ALTITUDE_KEY
-import com.google.android.ground.persistence.remote.firebase.schema.LocationTaskDataConverter.GEOMETRY_KEY
+import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.ACCURACY_KEY
+import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.ALTITUDE_KEY
+import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.GEOMETRY_KEY
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -44,22 +44,22 @@ internal object ResponseJsonConverter {
 
   private const val ISO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mmZ"
 
-  fun toJsonObject(taskData: Response?): Any {
-    if (taskData == null) return JSONObject.NULL
-    return when (taskData) {
-      is TextResponse -> taskData.text
-      is MultipleChoiceResponse -> toJsonArray(taskData)
-      is NumberResponse -> taskData.value
-      is DateResponse -> dateToIsoString(taskData.date)
-      is TimeResponse -> dateToIsoString(taskData.time)
-      is GeometryTaskResponse -> GeometryWrapperTypeConverter.toString(taskData.geometry)
-      is CaptureLocationResponse ->
+  fun toJsonObject(value: Value?): Any {
+    if (value == null) return JSONObject.NULL
+    return when (value) {
+      is TextResponse -> value.text
+      is MultipleChoiceResponse -> toJsonArray(value)
+      is NumberResponse -> value.value
+      is DateResponse -> dateToIsoString(value.date)
+      is TimeResponse -> dateToIsoString(value.time)
+      is GeometryTaskResponse -> GeometryWrapperTypeConverter.toString(value.geometry)
+      is CaptureLocationResult ->
         JSONObject().apply {
-          put("accuracy", taskData.accuracy)
-          put("altitude", taskData.altitude)
-          put("geometry", GeometryWrapperTypeConverter.toString(taskData.geometry))
+          put("accuracy", value.accuracy)
+          put("altitude", value.altitude)
+          put("geometry", GeometryWrapperTypeConverter.toString(value.geometry))
         }
-      else -> throw UnsupportedOperationException("Unimplemented taskData ${taskData.javaClass}")
+      else -> throw UnsupportedOperationException("Unimplemented value class ${value.javaClass}")
     }
   }
 
@@ -76,7 +76,7 @@ internal object ResponseJsonConverter {
   private fun toJsonArray(response: MultipleChoiceResponse): JSONArray =
     JSONArray().apply { response.selectedOptionIds.forEach { this.put(it) } }
 
-  fun toResponse(task: Task, obj: Any): Response? {
+  fun toResponse(task: Task, obj: Any): Value? {
     if (JSONObject.NULL === obj) {
       return null
     }
@@ -110,7 +110,7 @@ internal object ResponseJsonConverter {
       }
       Task.Type.CAPTURE_LOCATION -> {
         DataStoreException.checkType(JSONObject::class.java, obj)
-        locationTaskDataFromJsonObject(obj as JSONObject).getOrThrow()
+        captureLocationResultFromJsonObject(obj as JSONObject).getOrThrow()
       }
       Task.Type.UNKNOWN -> {
         throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
@@ -118,13 +118,13 @@ internal object ResponseJsonConverter {
     }
   }
 
-  private fun locationTaskDataFromJsonObject(data: JSONObject): Result<CaptureLocationResponse> =
+  private fun captureLocationResultFromJsonObject(data: JSONObject): Result<CaptureLocationResult> =
     Result.runCatching {
       val accuracy = data.getDouble(ACCURACY_KEY)
       val altitude = data.getDouble(ALTITUDE_KEY)
       val geometry =
         GeometryWrapperTypeConverter.fromString(data.getString(GEOMETRY_KEY))?.getGeometry()
-      CaptureLocationResponse(geometry as Point, accuracy, altitude)
+      CaptureLocationResult(geometry as Point, accuracy, altitude)
     }
 
   private fun toList(jsonArray: JSONArray): List<String> {

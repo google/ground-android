@@ -24,6 +24,6 @@ class TextTaskViewModel @Inject constructor(resources: Resources) :
   AbstractTaskViewModel(resources) {
 
   fun updateResponse(text: String) {
-    setResponse(fromString(text))
+    setValue(fromString(text))
   }
 }

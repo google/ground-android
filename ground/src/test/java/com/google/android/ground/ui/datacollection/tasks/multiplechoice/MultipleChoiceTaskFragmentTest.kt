@@ -111,7 +111,7 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 1")).perform(click())
     onView(withText("Option 2")).perform(click())
 
-    hasTaskData(MultipleChoiceResponse(multipleChoice, listOf("option id 2")))
+    hasValue(MultipleChoiceResponse(multipleChoice, listOf("option id 2")))
     buttonIsEnabled("Next")
   }
 
@@ -137,7 +137,7 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 1")).perform(click())
     onView(withText("Option 2")).perform(click())
 
-    hasTaskData(MultipleChoiceResponse(multipleChoice, listOf("option id 1", "option id 2")))
+    hasValue(MultipleChoiceResponse(multipleChoice, listOf("option id 1", "option id 2")))
     buttonIsEnabled("Next")
   }
 

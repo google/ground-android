@@ -36,8 +36,8 @@ class TimeTaskViewModelTest : BaseHiltTest() {
   fun testUpdateResponse() {
     timeFieldViewModel.updateResponse(TEST_DATE)
 
-    observeUntilFirstChange(timeFieldViewModel.taskData)
-    assertThat(timeFieldViewModel.taskData.value?.get()).isEqualTo(fromDate(TEST_DATE))
+    observeUntilFirstChange(timeFieldViewModel.valueLiveData)
+    assertThat(timeFieldViewModel.valueLiveData.value?.get()).isEqualTo(fromDate(TEST_DATE))
   }
 
   companion object {

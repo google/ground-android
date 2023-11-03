@@ -27,7 +27,7 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
-import com.google.android.ground.model.submission.Response
+import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.common.AbstractFragment
@@ -75,7 +75,7 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
 
     loadTasks(viewModel.tasks)
     viewModel.currentPosition.observe(viewLifecycleOwner) { onTaskChanged(it) }
-    viewModel.currentTaskDataLiveData.observe(viewLifecycleOwner) { onTaskDataUpdated(it) }
+    viewModel.currentValueLiveData.observe(viewLifecycleOwner) { onValueUpdated(it) }
 
     viewPager.registerOnPageChangeCallback(
       object : ViewPager2.OnPageChangeCallback() {
@@ -118,8 +118,8 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
     progressAnimator.start()
   }
 
-  private fun onTaskDataUpdated(taskData: Optional<Response>) {
-    viewModel.currentTaskData = taskData.orElse(null)
+  private fun onValueUpdated(value: Optional<Value>) {
+    viewModel.currentValue = value.orElse(null)
   }
 
   override fun onBack(): Boolean =

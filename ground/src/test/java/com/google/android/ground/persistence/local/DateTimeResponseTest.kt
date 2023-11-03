@@ -24,7 +24,7 @@ import java.time.ZoneId
 import java.util.*
 import org.junit.Test
 
-class DateTimeTaskDataTest {
+class DateTimeResponseTest {
   @Test
   fun testTimeResponse_textDetails() {
     val instant = LocalDate.now().atTime(7, 30, 45).atZone(ZoneId.systemDefault()).toInstant()

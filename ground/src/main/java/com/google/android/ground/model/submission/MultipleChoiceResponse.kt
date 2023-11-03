@@ -24,7 +24,7 @@ import kotlinx.serialization.Serializable
 class MultipleChoiceResponse(
   private val multipleChoice: MultipleChoice?,
   val selectedOptionIds: List<String>
-) : Response {
+) : Value {
 
   // TODO: Make these inner classes non-static and access Task directly.
   override fun getDetailsText(): String =
@@ -48,7 +48,7 @@ class MultipleChoiceResponse(
   override fun toString(): String = selectedOptionIds.sorted().joinToString()
 
   companion object {
-    fun fromList(multipleChoice: MultipleChoice?, ids: List<String>): Response? =
+    fun fromList(multipleChoice: MultipleChoice?, ids: List<String>): Value? =
       if (ids.isEmpty()) {
         null
       } else {

@@ -27,7 +27,7 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.submission.GeometryTaskResponse
-import com.google.android.ground.model.submission.Response
+import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.ui.common.SharedViewModel
@@ -67,8 +67,8 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
 
   private var strokeColor: Int = 0
 
-  override fun initialize(job: Job, task: Task, taskData: Response?) {
-    super.initialize(job, task, taskData)
+  override fun initialize(job: Job, task: Task, value: Value?) {
+    super.initialize(job, task, value)
     strokeColor = job.getDefaultColor()
   }
 
@@ -154,7 +154,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     isMarkedComplete = true
 
     refreshFeatures(vertices, true)
-    setResponse(GeometryTaskResponse(createGeometry(vertices, true)))
+    setValue(GeometryTaskResponse(createGeometry(vertices, true)))
   }
 
   /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */

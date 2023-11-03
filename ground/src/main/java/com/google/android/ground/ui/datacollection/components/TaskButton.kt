@@ -16,13 +16,13 @@
 package com.google.android.ground.ui.datacollection.components
 
 import android.view.View
-import com.google.android.ground.model.submission.Response
+import com.google.android.ground.model.submission.Value
 import org.jetbrains.annotations.TestOnly
 
 /** Wrapper class for holding a button. */
 data class TaskButton(private val view: View) {
 
-  private var taskUpdatedCallback: ((button: TaskButton, taskData: Response?) -> Unit)? = null
+  private var taskUpdatedCallback: ((button: TaskButton, value: Value?) -> Unit)? = null
 
   init {
     view.id = View.generateViewId()
@@ -62,14 +62,14 @@ data class TaskButton(private val view: View) {
     return this
   }
 
-  /** Register a callback to be invoked when [Response] is updated. */
-  fun setOnTaskUpdated(block: (button: TaskButton, taskData: Response?) -> Unit): TaskButton {
+  /** Register a callback to be invoked when [Value] is updated. */
+  fun setOnValueChanged(block: (button: TaskButton, value: Value?) -> Unit): TaskButton {
     this.taskUpdatedCallback = block
     return this
   }
 
-  /** Must be called when a new [Response] is available. */
-  fun onTaskDataUpdated(taskData: Response?) {
-    taskUpdatedCallback?.let { it(this, taskData) }
+  /** Must be called when a new [Value] is available. */
+  fun onValueChanged(value: Value?) {
+    taskUpdatedCallback?.let { it(this, value) }
   }
 }

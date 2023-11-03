@@ -79,7 +79,7 @@ class SubmissionLocalDataStoreConverterTest {
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
         mapOf(
-          Pair("task1", "Text taskData"),
+          Pair("task1", "Text response"),
           Pair("task2", listOf("option2")),
           Pair("task3", listOf("optionA", "optionB")),
           Pair("task4", "Photo URL"),
@@ -118,7 +118,7 @@ class SubmissionLocalDataStoreConverterTest {
           AUDIT_INFO_2,
           SubmissionData(
             mapOf(
-              Pair("task1", TextResponse("Text taskData")),
+              Pair("task1", TextResponse("Text response")),
               Pair(
                 "task2",
                 MultipleChoiceResponse(
@@ -260,7 +260,7 @@ class SubmissionLocalDataStoreConverterTest {
         "task001",
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
-        mapOf(Pair("task1", "Unknown"), Pair("task2", "Text taskData"))
+        mapOf(Pair("task1", "Unknown"), Pair("task2", "Text response"))
       )
     )
     assertThat(toSubmission())
@@ -273,7 +273,7 @@ class SubmissionLocalDataStoreConverterTest {
           AUDIT_INFO_1,
           AUDIT_INFO_2,
           // Field "task1" with unknown field type ignored.
-          SubmissionData(mapOf(Pair("task2", TextResponse("Text taskData"))))
+          SubmissionData(mapOf(Pair("task2", TextResponse("Text response"))))
         )
       )
   }

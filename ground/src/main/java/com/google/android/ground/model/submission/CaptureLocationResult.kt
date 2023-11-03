@@ -24,12 +24,13 @@ import java.text.DecimalFormat
 
 /** User-provided response to a "capture location" data collection [Task]. */
 // TODO(#2039): Refactor into DropPinResponse and CaptureLocationResponse.
-data class CaptureLocationResponse
+data class CaptureLocationResult
 constructor(
+  // TODO(#2041): Replace with `Coordinates`.
   val geometry: Point?,
   val altitude: Double?, // in metres
   val accuracy: Double? // in metres
-) : Response {
+) : Value {
   override fun getDetailsText(): String {
     if (geometry == null) return ""
 
@@ -45,10 +46,10 @@ constructor(
   override fun isEmpty(): Boolean = geometry == null
 
   companion object {
-    fun Location.toTaskData(): CaptureLocationResponse {
+    fun Location.toCaptureLocationResult(): CaptureLocationResult {
       val altitude = if (hasAltitude()) altitude else null
       val accuracy = if (hasAccuracy()) accuracy else null
-      return CaptureLocationResponse(
+      return CaptureLocationResult(
         Point(Coordinates(latitude, longitude)),
         altitude,
         accuracy?.toDouble()

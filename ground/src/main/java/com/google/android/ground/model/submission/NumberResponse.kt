@@ -19,7 +19,7 @@ import kotlinx.serialization.Serializable
 
 /** A user provided response to a number question task. */
 @Serializable
-data class NumberResponse constructor(private val number: String) : Response {
+data class NumberResponse constructor(private val number: String) : Value {
   val value: Double
     get() = number.toDouble()
 
@@ -28,7 +28,6 @@ data class NumberResponse constructor(private val number: String) : Response {
   override fun isEmpty(): Boolean = number.isEmpty()
 
   companion object {
-    fun fromNumber(number: String): Response? =
-      if (number.isEmpty()) null else NumberResponse(number)
+    fun fromNumber(number: String): Value? = if (number.isEmpty()) null else NumberResponse(number)
   }
 }

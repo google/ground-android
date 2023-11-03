@@ -32,8 +32,8 @@ import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.SubmissionData
-import com.google.android.ground.model.submission.TaskDataDelta
 import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.persistence.local.room.converter.formatVertices
@@ -234,14 +234,14 @@ class LocalDataStoreTests : BaseHiltTest() {
     // now update the inserted submission with new responses
     val deltas =
       listOf(
-        TaskDataDelta(
+        ValueDelta(
           "task id",
           Task.Type.TEXT,
           TextResponse.fromString("value for the really new task")
         )
       )
     val mutation =
-      TEST_SUBMISSION_MUTATION.copy(taskDataDeltas = deltas, id = 2L, type = Mutation.Type.UPDATE)
+      TEST_SUBMISSION_MUTATION.copy(deltas = deltas, id = 2L, type = Mutation.Type.UPDATE)
 
     localSubmissionStore.applyAndEnqueue(mutation)
 
@@ -275,7 +275,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     val submission = localSubmissionStore.getSubmission(loi, "submission id").copy(data = data)
     localSubmissionStore.merge(submission)
     val responses = localSubmissionStore.getSubmission(loi, submission.id).data
-    assertThat(responses.getValue("task id")).isEqualTo(TextResponse.fromString("updated taskData"))
+    assertThat(responses.getValue("task id")).isEqualTo(TextResponse.fromString("updated value"))
   }
 
   @Test
@@ -409,10 +409,8 @@ class LocalDataStoreTests : BaseHiltTest() {
       SubmissionMutation(
         job = TEST_JOB,
         submissionId = "submission id",
-        taskDataDeltas =
-          listOf(
-            TaskDataDelta("task id", Task.Type.TEXT, TextResponse.fromString("updated taskData"))
-          ),
+        deltas =
+          listOf(ValueDelta("task id", Task.Type.TEXT, TextResponse.fromString("updated value"))),
         id = 1L,
         type = Mutation.Type.CREATE,
         syncStatus = SyncStatus.PENDING,
@@ -459,7 +457,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       assertThat(mutation.userId).isEqualTo(submission.lastModified.user.id)
       assertThat(mutation.userId).isEqualTo(submission.created.user.id)
       MatcherAssert.assertThat(
-        SubmissionData().copyWithDeltas(mutation.taskDataDeltas),
+        SubmissionData().copyWithDeltas(mutation.deltas),
         Matchers.samePropertyValuesAs(submission.data)
       )
     }

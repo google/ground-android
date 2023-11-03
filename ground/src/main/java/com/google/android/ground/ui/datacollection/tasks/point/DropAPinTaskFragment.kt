@@ -53,10 +53,10 @@ class DropAPinTaskFragment : Hilt_DropAPinTaskFragment<DropAPinTaskViewModel>() 
     addUndoButton()
     addButton(ButtonAction.DROP_PIN)
       .setOnClickListener { viewModel.dropPin() }
-      .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNullOrEmpty()) }
+      .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
     addButton(ButtonAction.NEXT)
       .setOnClickListener { moveToNext() }
-      .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
+      .setOnValueChanged { button, value -> button.showIfTrue(value.isNotNullOrEmpty()) }
       .hide()
   }
 }

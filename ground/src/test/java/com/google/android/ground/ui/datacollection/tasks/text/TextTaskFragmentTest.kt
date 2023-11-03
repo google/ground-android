@@ -70,7 +70,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
       .check(matches(isDisplayed()))
       .check(matches(isEnabled()))
 
-    hasTaskData(null)
+    hasValue(null)
     buttonIsDisabled("Next")
   }
 
@@ -82,7 +82,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
       .check(matches(withInputType(InputType.TYPE_CLASS_TEXT)))
       .perform(typeText("Hello world"))
 
-    hasTaskData(TextResponse("Hello world"))
+    hasValue(TextResponse("Hello world"))
     buttonIsEnabled("Next")
   }
 

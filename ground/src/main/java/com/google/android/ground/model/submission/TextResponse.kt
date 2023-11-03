@@ -19,7 +19,7 @@ import kotlinx.serialization.Serializable
 
 /** A user-provided value to a text question task. */
 @Serializable
-data class TextResponse(val text: String) : Response {
+data class TextResponse(val text: String) : Value {
   override fun getDetailsText(): String = text
 
   override fun isEmpty(): Boolean = text.trim { it <= ' ' }.isEmpty()
@@ -27,6 +27,6 @@ data class TextResponse(val text: String) : Response {
   override fun toString(): String = text
 
   companion object {
-    fun fromString(text: String): Response? = if (text.isEmpty()) null else TextResponse(text)
+    fun fromString(text: String): Value? = if (text.isEmpty()) null else TextResponse(text)
   }
 }

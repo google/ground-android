@@ -66,7 +66,7 @@ class PolygonDrawingTaskFragmentTest :
   }
 
   @Test
-  fun testInfoCard_noTaskData() {
+  fun testInfoCard_noValue() {
     setupTaskFragment<PolygonDrawingTaskFragment>(job, task)
 
     infoCardHidden()
@@ -117,7 +117,7 @@ class PolygonDrawingTaskFragmentTest :
     updateLastVertex(COORDINATE_4, true)
     onView(withText("Complete")).perform(click())
 
-    hasTaskData(
+    hasValue(
       GeometryTaskResponse(
         Polygon(
           LinearRing(

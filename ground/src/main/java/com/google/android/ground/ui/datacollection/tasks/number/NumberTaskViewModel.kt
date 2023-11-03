@@ -24,6 +24,6 @@ class NumberTaskViewModel @Inject constructor(resources: Resources) :
   AbstractTaskViewModel(resources) {
 
   fun updateResponse(number: String) {
-    setResponse(fromNumber(number))
+    setValue(fromNumber(number))
   }
 }

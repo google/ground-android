@@ -25,6 +25,6 @@ class DateTaskViewModel @Inject constructor(resources: Resources) :
   AbstractTaskViewModel(resources) {
 
   fun updateResponse(date: Date) {
-    setResponse(fromDate(date))
+    setValue(fromDate(date))
   }
 }

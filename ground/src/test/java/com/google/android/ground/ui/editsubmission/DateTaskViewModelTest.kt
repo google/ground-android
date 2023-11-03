@@ -36,8 +36,8 @@ class DateTaskViewModelTest : BaseHiltTest() {
   fun testUpdateResponse() {
     dateTaskViewModel.updateResponse(TEST_DATE)
 
-    observeUntilFirstChange(dateTaskViewModel.taskData)
-    assertThat(dateTaskViewModel.taskData.value?.get()).isEqualTo(fromDate(TEST_DATE))
+    observeUntilFirstChange(dateTaskViewModel.valueLiveData)
+    assertThat(dateTaskViewModel.valueLiveData.value?.get()).isEqualTo(fromDate(TEST_DATE))
   }
 
   companion object {

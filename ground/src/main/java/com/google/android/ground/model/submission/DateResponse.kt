@@ -24,7 +24,7 @@ import kotlinx.serialization.Serializable
 
 /** A user-provided response to a date question task. */
 @Serializable
-data class DateResponse(val date: @Contextual Date) : Response {
+data class DateResponse(val date: @Contextual Date) : Value {
   // TODO(#752): Use device localization preferences.
   private val dateFormat: @Contextual DateFormat =
     SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -34,7 +34,7 @@ data class DateResponse(val date: @Contextual Date) : Response {
   override fun isEmpty(): Boolean = date.time == 0L
 
   companion object {
-    fun fromDate(date: Date?): Response? =
+    fun fromDate(date: Date?): Value? =
       if (date == null || date.time == 0L) null else DateResponse(date)
   }
 }

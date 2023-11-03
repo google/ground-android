@@ -22,9 +22,9 @@ import java.util.Locale
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
-/** A user-provided time taskData. */
+/** A user-provided response to a time question task. */
 @Serializable
-data class TimeResponse(val time: @Contextual Date) : Response {
+data class TimeResponse(val time: @Contextual Date) : Value {
   // TODO(#752): Use device localization preferences.
   private val timeFormat: @Contextual DateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
@@ -36,7 +36,7 @@ data class TimeResponse(val time: @Contextual Date) : Response {
   override fun isEmpty(): Boolean = time.time == 0L
 
   companion object {
-    fun fromDate(time: Date?): Response? =
+    fun fromDate(time: Date?): Value? =
       if (time == null || time.time == 0L) null else TimeResponse(time)
   }
 }
