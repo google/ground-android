@@ -22,7 +22,7 @@ import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.rx.annotations.Cold
@@ -41,64 +41,61 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   AbstractViewModel() {
 
   /** Current value. */
-  @Deprecated("Use taskDataValue instead") val taskData: LiveData<Optional<TaskData>>
+  @Deprecated("Use value instead") val valueLiveData: LiveData<Optional<Value>>
 
-  val taskDataFlow: MutableStateFlow<TaskData?> = MutableStateFlow(null)
+  val valueFlow: MutableStateFlow<Value?> = MutableStateFlow(null)
 
-  // TODO(Shobhit): Rename to taskData once legacy taskData is cleaned up.
-  val taskDataValue: StateFlow<TaskData?> =
-    taskDataFlow.stateIn(viewModelScope, SharingStarted.Lazily, null)
+  val value: StateFlow<Value?> = valueFlow.stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-  /** Transcoded text to be displayed for the current [AbstractTaskViewModel.taskData]. */
+  /** Transcoded text to be displayed for the current [AbstractTaskViewModel.valueLiveData]. */
   val responseText: LiveData<String>
 
-  /** Error message to be displayed for the current [AbstractTaskViewModel.taskData]. */
+  /** Error message to be displayed for the current [AbstractTaskViewModel.valueLiveData]. */
   val error: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
 
-  private val taskDataSubject: @Hot(replays = true) BehaviorProcessor<Optional<TaskData>> =
+  private val valueSubject: @Hot(replays = true) BehaviorProcessor<Optional<Value>> =
     BehaviorProcessor.create()
 
   lateinit var task: Task
 
   init {
-    taskData = taskDataSubject.distinctUntilChanged().startWith(Optional.empty()).toLiveData()
+    valueLiveData = valueSubject.distinctUntilChanged().startWith(Optional.empty()).toLiveData()
     responseText = detailsTextFlowable().toLiveData()
   }
 
-  // TODO: Add a reference of Task in TaskData for simplification.
-  open fun initialize(job: Job, task: Task, taskData: TaskData?) {
+  open fun initialize(job: Job, task: Task, value: Value?) {
     this.task = task
-    setResponse(taskData)
+    setValue(value)
   }
 
   private fun detailsTextFlowable(): @Cold(stateful = true, terminates = false) Flowable<String> =
-    taskDataSubject.distinctUntilChanged().map { taskDataOptional: Optional<TaskData> ->
-      taskDataOptional.map { it.getDetailsText() }.orElse("")
+    valueSubject.distinctUntilChanged().map { value: Optional<Value> ->
+      value.map { it.getDetailsText() }.orElse("")
     }
 
-  /** Checks if the current taskData is valid and updates error value. */
+  /** Checks if the current value is valid and updates error value. */
   fun validate(): String? {
-    val result = validate(task, taskDataSubject.value).orElse(null)
+    val result = validate(task, valueSubject.value).orElse(null)
     error.postValue(result)
     return result
   }
 
-  // TODO: Check valid taskData values
-  private fun validate(task: Task, taskData: Optional<TaskData>?): Optional<String> =
-    if (task.isRequired && (taskData == null || taskData.isEmpty))
+  // TODO: Check valid values.
+  private fun validate(task: Task, value: Optional<Value>?): Optional<String> =
+    if (task.isRequired && (value == null || value.isEmpty))
       Optional.of(resources.getString(R.string.required_task))
     else Optional.empty()
 
-  fun setResponse(taskData: TaskData?) {
-    taskDataSubject.onNext(Optional.ofNullable(taskData))
-    taskDataFlow.value = taskData
+  fun setValue(value: Value?) {
+    valueSubject.onNext(Optional.ofNullable(value))
+    valueFlow.value = value
   }
 
   open fun clearResponse() {
-    setResponse(null)
+    setValue(null)
   }
 
   fun isTaskOptional(): Boolean = !task.isRequired
 
-  fun hasNoData(): Boolean = taskDataFlow.value.isNullOrEmpty()
+  fun hasNoData(): Boolean = valueFlow.value.isNullOrEmpty()
 }

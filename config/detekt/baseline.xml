@@ -2,8 +2,14 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>DataClassShouldBeImmutable:TaskButton.kt$TaskButton$private var taskUpdatedCallback: ((button: TaskButton, taskData: TaskData?) -&gt; Unit)? = null</ID>
-    <ID>LongMethod:SubmissionLocalDataStoreConverterTest.kt$SubmissionLocalDataStoreConverterTest$@Test fun testToSubmission()</ID>
-    <ID>LoopWithTooManyJumpStatements:DataBindingIdlingResource.kt$DataBindingIdlingResource$for</ID>
+    <ID>DataClassShouldBeImmutable:TaskButton.kt$TaskButton$private var taskUpdatedCallback:
+      ((button: TaskButton, value: Value?) -&gt; Unit)? = null
+    </ID>
+    <ID>
+      LongMethod:SubmissionLocalDataStoreConverterTest.kt$SubmissionLocalDataStoreConverterTest$@Test
+      fun testToSubmission()
+    </ID>
+    <ID>LoopWithTooManyJumpStatements:DataBindingIdlingResource.kt$DataBindingIdlingResource$for
+    </ID>
   </CurrentIssues>
 </SmellBaseline>

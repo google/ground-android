@@ -19,13 +19,13 @@ import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.model.submission.DateTaskData
-import com.google.android.ground.model.submission.GeometryData
-import com.google.android.ground.model.submission.MultipleChoiceTaskData
-import com.google.android.ground.model.submission.NumberTaskData
-import com.google.android.ground.model.submission.TaskData
-import com.google.android.ground.model.submission.TextTaskData
-import com.google.android.ground.model.submission.TimeTaskData
+import com.google.android.ground.model.submission.DateResponse
+import com.google.android.ground.model.submission.GeometryTaskResponse
+import com.google.android.ground.model.submission.MultipleChoiceResponse
+import com.google.android.ground.model.submission.NumberResponse
+import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.TimeResponse
+import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
@@ -41,18 +41,18 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class ResponseJsonConverterTest(
   private val task: Task,
-  private val taskData: TaskData,
+  private val value: Value,
   private val responseObject: Any
 ) {
 
   @Test
   fun testToJsonObject() {
-    assertThat(ResponseJsonConverter.toJsonObject(taskData)).isEqualTo(responseObject)
+    assertThat(ResponseJsonConverter.toJsonObject(value)).isEqualTo(responseObject)
   }
 
   @Test
   fun testToResponse() {
-    assertThat(ResponseJsonConverter.toResponse(task, responseObject)).isEqualTo(taskData)
+    assertThat(ResponseJsonConverter.toResponse(task, responseObject)).isEqualTo(value)
   }
 
   companion object {
@@ -68,32 +68,33 @@ class ResponseJsonConverterTest(
         Option("option id 2", "code2", "Option 2"),
       )
 
-    private val singleChoiceTaskData =
-      MultipleChoiceTaskData.fromList(
+    private val singleChoiceResponse =
+      MultipleChoiceResponse.fromList(
         MultipleChoice(multipleChoiceOptions, MultipleChoice.Cardinality.SELECT_ONE),
         listOf("option id 1")
       )
 
-    private val singleChoiceTaskDataResponse = JSONArray().apply { put("option id 1") }
+    private val singleChoiceResponseJson = JSONArray().apply { put("option id 1") }
 
-    private val multipleChoiceTaskData =
-      MultipleChoiceTaskData.fromList(
+    private val multipleChoiceResponse =
+      MultipleChoiceResponse.fromList(
         MultipleChoice(multipleChoiceOptions, MultipleChoice.Cardinality.SELECT_MULTIPLE),
         listOf("option id 1", "option id 2")
       )
 
-    private val multipleChoiceTaskDataResponse =
+    private val multipleChoiceResponseJson =
       JSONArray().apply {
         put("option id 1")
         put("option id 2")
       }
 
-    private val pointGeometryTaskData = GeometryData.fromGeometry(Point(Coordinates(10.0, 20.0)))
+    private val pointGeometryTaskResponse =
+      GeometryTaskResponse.fromGeometry(Point(Coordinates(10.0, 20.0)))
 
-    private const val pointGeometryTaskDataResponse = "HQoFcG9pbnQSFAoSCQAAAAAAACRAEQAAAAAAADRA\n"
+    private const val pointGeometryTaskResponseString = "HQoFcG9pbnQSFAoSCQAAAAAAACRAEQAAAAAAADRA\n"
 
-    private val polygonGeometryTaskData =
-      GeometryData.fromGeometry(
+    private val polygonGeometryTaskResponse =
+      GeometryTaskResponse.fromGeometry(
         Polygon(
           LinearRing(
             listOf(
@@ -106,7 +107,7 @@ class ResponseJsonConverterTest(
         )
       )
 
-    private const val polygonGeometryTaskDataResponse =
+    private const val polygonGeometryTaskResponseString =
       "XQoHcG9seWdvbhJSClAKEgkAAAAAAAAkQBEAAAAAAAA0QAoSCQAAAAAAADRAEQAAAAAAAD5AChIJ\n" +
         "AAAAAAAAPkARAAAAAAAAREAKEgkAAAAAAAAkQBEAAAAAAAA0QA==\n"
 
@@ -116,35 +117,35 @@ class ResponseJsonConverterTest(
       listOf(
         arrayOf(
           FakeData.newTask(type = Task.Type.TEXT),
-          TextTaskData.fromString("sample text"),
+          TextResponse.fromString("sample text"),
           "sample text"
         ),
         arrayOf(
           FakeData.newTask(type = Task.Type.MULTIPLE_CHOICE),
-          singleChoiceTaskData,
-          singleChoiceTaskDataResponse
+          singleChoiceResponse,
+          singleChoiceResponseJson
         ),
         arrayOf(
           FakeData.newTask(type = Task.Type.MULTIPLE_CHOICE),
-          multipleChoiceTaskData,
-          multipleChoiceTaskDataResponse
+          multipleChoiceResponse,
+          multipleChoiceResponseJson
         ),
         arrayOf(
           FakeData.newTask(type = Task.Type.NUMBER),
-          NumberTaskData.fromNumber("12345.0"),
+          NumberResponse.fromNumber("12345.0"),
           12345.0
         ),
-        arrayOf(FakeData.newTask(type = Task.Type.DATE), DateTaskData.fromDate(DATE), DATE_STRING),
-        arrayOf(FakeData.newTask(type = Task.Type.TIME), TimeTaskData.fromDate(DATE), DATE_STRING),
+        arrayOf(FakeData.newTask(type = Task.Type.DATE), DateResponse.fromDate(DATE), DATE_STRING),
+        arrayOf(FakeData.newTask(type = Task.Type.TIME), TimeResponse.fromDate(DATE), DATE_STRING),
         arrayOf(
           FakeData.newTask(type = Task.Type.DROP_A_PIN),
-          pointGeometryTaskData,
-          pointGeometryTaskDataResponse
+          pointGeometryTaskResponse,
+          pointGeometryTaskResponseString
         ),
         arrayOf(
           FakeData.newTask(type = Task.Type.DRAW_POLYGON),
-          polygonGeometryTaskData,
-          polygonGeometryTaskDataResponse
+          polygonGeometryTaskResponse,
+          polygonGeometryTaskResponseString
         ),
       )
   }

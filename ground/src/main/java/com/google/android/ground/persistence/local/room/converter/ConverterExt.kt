@@ -27,7 +27,7 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.submission.TaskDataMap
+import com.google.android.ground.model.submission.SubmissionData
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
@@ -289,7 +289,7 @@ fun SubmissionEntity.toModelObject(loi: LocationOfInterest): Submission {
     job = job,
     created = this.created.toModelObject(),
     lastModified = this.lastModified.toModelObject(),
-    responses = ResponseMapConverter.fromString(job, this.responses)
+    data = ResponseMapConverter.fromString(job, this.responses)
   )
 }
 
@@ -299,7 +299,7 @@ fun Submission.toLocalDataStoreObject() =
     jobId = this.job.id,
     locationOfInterestId = this.locationOfInterest.id,
     state = EntityState.DEFAULT,
-    responses = ResponseMapConverter.toString(this.responses),
+    responses = ResponseMapConverter.toString(this.data),
     created = this.created.toLocalDataStoreObject(),
     lastModified = this.lastModified.toLocalDataStoreObject(),
   )
@@ -312,7 +312,7 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
     jobId = this.job.id,
     locationOfInterestId = this.locationOfInterestId,
     state = EntityState.DEFAULT,
-    responses = ResponseMapConverter.toString(TaskDataMap().copyWithDeltas(this.taskDataDeltas)),
+    responses = ResponseMapConverter.toString(SubmissionData().copyWithDeltas(this.deltas)),
     // TODO(#1562): Preserve creation audit info for UPDATE mutations.
     created = auditInfo,
     lastModified = auditInfo
@@ -328,7 +328,7 @@ fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
   return SubmissionMutation(
     job = job,
     submissionId = submissionId,
-    taskDataDeltas = ResponseDeltasConverter.fromString(job, responseDeltas),
+    deltas = ResponseDeltasConverter.fromString(job, responseDeltas),
     id = id,
     surveyId = surveyId,
     locationOfInterestId = locationOfInterestId,
@@ -350,7 +350,7 @@ fun SubmissionMutation.toLocalDataStoreObject() =
     submissionId = submissionId,
     type = MutationEntityType.fromMutationType(type),
     syncStatus = MutationEntitySyncStatus.fromMutationSyncStatus(syncStatus),
-    responseDeltas = ResponseDeltasConverter.toString(taskDataDeltas),
+    responseDeltas = ResponseDeltasConverter.toString(deltas),
     retryCount = retryCount,
     lastError = lastError,
     userId = userId,

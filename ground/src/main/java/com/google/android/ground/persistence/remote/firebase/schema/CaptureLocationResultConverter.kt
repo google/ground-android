@@ -16,31 +16,28 @@
 package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.submission.LocationTaskData
+import com.google.android.ground.model.submission.CaptureLocationResult
 
-/**
- * Converts between `LocationTaskData` and it's equivalent remote representation using JSON
- * representation.
- */
-object LocationTaskDataConverter {
+/** Converts between [CaptureLocationResult] and its equivalent remote representation. */
+object CaptureLocationResultConverter {
   const val ACCURACY_KEY = "accuracy"
   const val ALTITUDE_KEY = "altitude"
   const val GEOMETRY_KEY = "geometry"
 
-  fun toFirestoreMap(taskData: LocationTaskData): Result<Map<String, Any>> =
+  fun toFirestoreMap(result: CaptureLocationResult): Result<Map<String, Any>> =
     Result.runCatching {
       mapOf(
-        ACCURACY_KEY to taskData.accuracy!!,
-        ALTITUDE_KEY to taskData.altitude!!,
-        GEOMETRY_KEY to GeometryConverter.toFirestoreMap(taskData.geometry!!).getOrThrow()
+        ACCURACY_KEY to result.accuracy!!,
+        ALTITUDE_KEY to result.altitude!!,
+        GEOMETRY_KEY to GeometryConverter.toFirestoreMap(result.geometry!!).getOrThrow()
       )
     }
 
-  fun fromFirestoreMap(map: Map<String, *>?): Result<LocationTaskData> =
+  fun fromFirestoreMap(map: Map<String, *>?): Result<CaptureLocationResult> =
     Result.runCatching {
       val accuracy = map?.get(ACCURACY_KEY) as? Double
       val altitude = map?.get(ALTITUDE_KEY) as? Double
       val geometry = GeometryConverter.fromFirestoreMap(map?.get(GEOMETRY_KEY) as? Map<String, *>)
-      LocationTaskData(geometry.getOrThrow() as Point, altitude, accuracy)
+      CaptureLocationResult(geometry.getOrThrow() as Point, altitude, accuracy)
     }
 }

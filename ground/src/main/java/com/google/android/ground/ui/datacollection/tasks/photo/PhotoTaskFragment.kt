@@ -133,7 +133,7 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
   }
 
   companion object {
-    /** Key used to store field ID waiting for photo taskData across activity re-creation. */
+    /** Key used to store field ID waiting for photo result across activity re-creation. */
     private const val TASK_WAITING_FOR_PHOTO = "dataCollectionPhotoFieldId"
 
     /** Key used to store captured photo Uri across activity re-creation. */

@@ -56,10 +56,10 @@ class CaptureLocationTaskFragment :
     addUndoButton()
     addButton(ButtonAction.CAPTURE_LOCATION)
       .setOnClickListener { viewModel.updateResponse() }
-      .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNullOrEmpty()) }
+      .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
     addButton(ButtonAction.NEXT)
       .setOnClickListener { moveToNext() }
-      .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
+      .setOnValueChanged { button, value -> button.showIfTrue(value.isNotNullOrEmpty()) }
       .hide()
   }
 }

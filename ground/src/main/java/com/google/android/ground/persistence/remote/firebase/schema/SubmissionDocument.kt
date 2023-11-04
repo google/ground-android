@@ -18,6 +18,8 @@ package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.firebase.firestore.IgnoreExtraProperties
 
+typealias SubmissionDataNestedMap = Map<String, Any>
+
 /** Submission entity stored in Firestore. */
 @IgnoreExtraProperties
 data class SubmissionDocument(
@@ -25,5 +27,5 @@ data class SubmissionDocument(
   val jobId: String? = null,
   val created: AuditInfoNestedObject? = null,
   val lastModified: AuditInfoNestedObject? = null,
-  val responses: Map<String, Any>? = null
+  val data: SubmissionDataNestedMap? = null
 )

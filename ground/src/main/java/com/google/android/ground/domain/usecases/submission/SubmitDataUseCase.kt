@@ -20,8 +20,8 @@ import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.submission.GeometryData
-import com.google.android.ground.model.submission.TaskDataDelta
+import com.google.android.ground.model.submission.GeometryTaskResponse
+import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.UserRepository
@@ -37,9 +37,9 @@ constructor(
 ) {
 
   /**
-   * Creates a Submission for the given [job] with the user's responses from the [taskDataDeltas].
-   * If [loiId] is null a new LOI is created based on the first [TaskDataDelta] since the Suggest
-   * LOI task is the first task in the Data Collection flow when a new LOI is being suggested.
+   * Creates a Submission for the given [job] with the user's responses from the [ValueDelta]s. If
+   * [loiId] is null a new LOI is created based on the first [ValueDelta] since the Suggest LOI task
+   * is the first task in the Data Collection flow when a new LOI is being suggested.
    */
   @Transaction
   @Suppress("UseIfInsteadOfWhen")
@@ -47,16 +47,17 @@ constructor(
     loiId: String?,
     job: Job,
     surveyId: String,
-    taskDataDeltas: List<TaskDataDelta>
+    deltas: List<ValueDelta>
   ) {
     Timber.v("Submitting data for loi: $loiId")
     var loiIdToSubmit = loiId
-    val taskDataDeltasToSubmit = taskDataDeltas.toMutableList()
+    val deltasToSubmit = deltas.toMutableList()
 
     if (loiId == null) {
       // loiIds are null for Suggest LOI data collection flows
-      when (val suggestLoiTaskData = taskDataDeltasToSubmit.removeAt(0).newTaskData) {
-        is GeometryData -> loiIdToSubmit = saveLoi(suggestLoiTaskData.geometry, job, surveyId).id
+      when (val suggestLoiValue = deltasToSubmit.removeAt(0).newValue) {
+        is GeometryTaskResponse ->
+          loiIdToSubmit = saveLoi(suggestLoiValue.geometry, job, surveyId).id
         else -> error("No suggest LOI Task found when loi ID was null")
       }
     }
@@ -65,7 +66,7 @@ constructor(
       .saveSubmission(
         surveyId,
         requireNotNull(loiIdToSubmit) { "No LOI found present for submission" },
-        taskDataDeltasToSubmit
+        deltasToSubmit
       )
       .blockingAwait()
   }

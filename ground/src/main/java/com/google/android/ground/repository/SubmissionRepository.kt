@@ -22,7 +22,7 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.submission.TaskDataDelta
+import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
@@ -101,14 +101,14 @@ constructor(
 
   fun createOrUpdateSubmission(
     submission: Submission,
-    taskDataDeltas: List<TaskDataDelta>,
+    deltas: List<ValueDelta>,
     isNew: Boolean
   ): @Cold Completable =
     applyAndEnqueue(
       SubmissionMutation(
         job = submission.job,
         submissionId = submission.id,
-        taskDataDeltas = taskDataDeltas,
+        deltas = deltas,
         type = if (isNew) Mutation.Type.CREATE else Mutation.Type.UPDATE,
         syncStatus = SyncStatus.PENDING,
         surveyId = submission.surveyId,
@@ -120,10 +120,10 @@ constructor(
   fun saveSubmission(
     surveyId: String,
     locationOfInterestId: String,
-    taskDataDeltas: List<TaskDataDelta>
+    deltas: List<ValueDelta>
   ): @Cold Completable =
     createSubmission(surveyId, locationOfInterestId).flatMapCompletable {
-      createOrUpdateSubmission(it, taskDataDeltas, isNew = true)
+      createOrUpdateSubmission(it, deltas, isNew = true)
     }
 
   private fun applyAndEnqueue(mutation: SubmissionMutation) =

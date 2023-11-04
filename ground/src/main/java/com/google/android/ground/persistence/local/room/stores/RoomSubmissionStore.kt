@@ -23,8 +23,8 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.submission.TaskDataDelta
-import com.google.android.ground.model.submission.TaskDataMap
+import com.google.android.ground.model.submission.SubmissionData
+import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.persistence.local.room.converter.ResponseDeltasConverter
 import com.google.android.ground.persistence.local.room.converter.ResponseMapConverter
@@ -181,9 +181,9 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     job: Job?,
     submission: SubmissionEntity,
     mutations: List<SubmissionMutationEntity>
-  ): TaskDataMap {
+  ): SubmissionData {
     val responseMap = ResponseMapConverter.fromString(job!!, submission.responses)
-    val deltas = mutableListOf<TaskDataDelta>()
+    val deltas = mutableListOf<ValueDelta>()
     for (mutation in mutations) {
       // Merge changes to responses.
       deltas.addAll(ResponseDeltasConverter.fromString(job, mutation.responseDeltas))

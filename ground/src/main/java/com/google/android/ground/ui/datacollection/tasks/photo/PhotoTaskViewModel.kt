@@ -19,7 +19,7 @@ import android.content.res.Resources
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import com.google.android.ground.model.submission.TextTaskData.Companion.fromString
+import com.google.android.ground.model.submission.TextResponse.Companion.fromString
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager.Companion.getRemoteMediaPath
 import com.google.android.ground.repository.UserMediaRepository
@@ -40,8 +40,8 @@ constructor(
 ) : AbstractTaskViewModel(resources) {
 
   /**
-   * Task id waiting for a photo taskData. As only 1 photo result is returned at a time, we can
-   * directly map it 1:1 with the task waiting for a photo taskData.
+   * Task id waiting for a photo result. As only one photo result is returned at a time, we can
+   * directly map it 1:1 with the task waiting for a photo result.
    */
   var taskWaitingForPhoto: String? = null
 
@@ -56,9 +56,9 @@ constructor(
   lateinit var surveyId: String
 
   val uri: LiveData<Uri> =
-    taskDataValue.map { userMediaRepository.getDownloadUrl(it?.getDetailsText()) }.asLiveData()
+    value.map { userMediaRepository.getDownloadUrl(it?.getDetailsText()) }.asLiveData()
 
-  val isPhotoPresent: LiveData<Boolean> = taskDataValue.map { it.isNotNullOrEmpty() }.asLiveData()
+  val isPhotoPresent: LiveData<Boolean> = value.map { it.isNotNullOrEmpty() }.asLiveData()
 
   private fun onPhotoResult(photoResult: PhotoResult) {
     if (photoResult.taskId != task.id) {
@@ -73,9 +73,9 @@ constructor(
       // Add image to gallery.
       userMediaRepository.addImageToGallery(path, filename)
 
-      // Update taskData.
+      // Update value..
       val remoteDestinationPath = getRemoteMediaPath(surveyId, filename)
-      setResponse(fromString(remoteDestinationPath))
+      setValue(fromString(remoteDestinationPath))
     } catch (e: IOException) {
       Timber.e(e, "Failed to save photo")
     }
