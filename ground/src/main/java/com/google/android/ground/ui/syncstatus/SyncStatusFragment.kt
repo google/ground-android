@@ -49,7 +49,7 @@ class SyncStatusFragment : Hilt_SyncStatusFragment() {
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
 
-    (requireActivity() as MainActivity).setActionBar(binding.syncStatusToolbar, true)
+    getAbstractActivity().setSupportActionBar(binding.syncStatusToolbar)
 
     val syncStatusListAdapter = SyncStatusListAdapter(requireContext(), locationOfInterestHelper)
     val recyclerView = binding.syncStatusList
