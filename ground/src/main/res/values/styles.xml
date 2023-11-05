@@ -73,30 +73,6 @@
     <item name="android:letterSpacing">0.01</item>
   </style>
 
-  <style name="ToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
-    <item name="android:textColor">?attr/colorOnSurface</item>
-    <item name="fontFamily">@font/display_700</item>
-    <item name="android:layout_gravity">center</item>
-    <item name="android:textSize">22sp</item>
-  </style>
-
-  <style name="CenteredToolbarTitle">
-    <item name="android:textColor">?attr/colorOnSurface</item>
-    <item name="android:textSize">22sp</item>
-  </style>
-
-  <style name="ToolbarSubtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
-    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
-    <item name="android:textSize">12sp</item>
-  </style>
-
-  <style name="PrimaryToolbarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
-    <item name="android:background">?attr/colorSurface</item>
-    <item name="gndToolbarTitleStyle">@style/ToolbarTitle</item>
-    <item name="gndToolbarSubtitleStyle">@style/ToolbarSubtitle</item>
-    <item name="colorControlNormal">?attr/colorPrimary</item>
-  </style>
-
   <style name="SubmissionListText">
     <item name="android:textSize">@dimen/submission_list_text_size</item>
   </style>
