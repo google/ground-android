@@ -30,15 +30,14 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <com.google.android.ground.ui.common.TwoLineToolbar
+    <com.google.android.material.appbar.MaterialToolbar
       android:id="@+id/sync_status_toolbar"
-      android:layout_width="0dp"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:elevation="@dimen/toolbar_elevation"
-      android:theme="@style/PrimaryToolbarTheme"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
+      app:navigationIcon="@drawable/ic_arrow_back"
       app:title="@string/sync_status" />
 
     <androidx.recyclerview.widget.RecyclerView

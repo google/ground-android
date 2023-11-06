@@ -61,7 +61,7 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
     viewPager = binding.pager
     progressBar = binding.progressBar
     guideline = binding.progressBarGuideline
-    getAbstractActivity().setActionBar(binding.dataCollectionToolbar, showTitle = false)
+    getAbstractActivity().setSupportActionBar(binding.dataCollectionToolbar)
     return binding.root
   }
 

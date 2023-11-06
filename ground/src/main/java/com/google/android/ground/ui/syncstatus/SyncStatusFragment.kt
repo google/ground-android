@@ -20,7 +20,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.ground.MainActivity
 import com.google.android.ground.databinding.SyncStatusFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.LocationOfInterestHelper
@@ -49,7 +48,7 @@ class SyncStatusFragment : Hilt_SyncStatusFragment() {
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
 
-    (requireActivity() as MainActivity).setActionBar(binding.syncStatusToolbar, true)
+    getAbstractActivity().setSupportActionBar(binding.syncStatusToolbar)
 
     val syncStatusListAdapter = SyncStatusListAdapter(requireContext(), locationOfInterestHelper)
     val recyclerView = binding.syncStatusList

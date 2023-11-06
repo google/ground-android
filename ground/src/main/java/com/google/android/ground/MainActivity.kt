@@ -139,10 +139,6 @@ class MainActivity : Hilt_MainActivity() {
     return navController.navigateUp()
   }
 
-  override fun onToolbarUpClicked() {
-    if (!dispatchBackPressed()) navigateUp()
-  }
-
   @Deprecated("Deprecated in Java")
   override fun onBackPressed() {
     if (!dispatchBackPressed()) super.onBackPressed()

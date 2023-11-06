@@ -61,7 +61,7 @@ class OfflineAreaViewerFragment @Inject constructor() : Hilt_OfflineAreaViewerFr
     val binding = OfflineAreaViewerFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
-    getAbstractActivity().setActionBar(binding.offlineAreaViewerToolbar, true)
+    getAbstractActivity().setSupportActionBar(binding.offlineAreaViewerToolbar)
     return binding.root
   }
 
