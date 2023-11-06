@@ -16,6 +16,7 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.*
+import com.google.android.ground.model.locationofinterest.LoiProperties
 import com.google.android.ground.persistence.local.room.fields.EntityState
 
 /**
@@ -31,9 +32,9 @@ data class LocationOfInterestEntity(
   @Embedded(prefix = "created_") val created: AuditInfoEntity,
   @Embedded(prefix = "modified_") val lastModified: AuditInfoEntity,
   val geometry: GeometryWrapper?,
-  val customId: String?,
+  val customId: String,
   val submissionCount: Int,
   val ownerEmail: String?,
   val isOpportunistic: Boolean,
-  val properties: Map<String, Any>?,
+  val properties: LoiProperties,
 )

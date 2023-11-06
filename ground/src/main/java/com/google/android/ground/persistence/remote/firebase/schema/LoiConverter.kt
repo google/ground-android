@@ -64,14 +64,14 @@ object LoiConverter {
     return LocationOfInterest(
       id = loiId,
       surveyId = survey.id,
-      customId = loiDoc.customId,
+      customId = loiDoc.customId ?: "",
       job = job,
       created = AuditInfoConverter.toAuditInfo(created),
       lastModified = AuditInfoConverter.toAuditInfo(lastModified),
       // TODO(#929): Set geometry once LOI has been updated to use our own model.
       geometry = geometry,
       submissionCount = submissionCount,
-      properties = loiDoc.properties
+      properties = loiDoc.properties ?: mapOf()
     )
   }
 }

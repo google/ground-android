@@ -22,6 +22,9 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 
+/** Alias for a map of properties with string names.*/
+typealias LoiProperties = Map<String, Any>
+
 /** User-defined locations of interest (LOI) shown on the map. */
 data class LocationOfInterest(
   /** A system-defined ID for this LOI. */
@@ -31,7 +34,7 @@ data class LocationOfInterest(
   /** The job associated with this LOI. */
   val job: Job,
   /** A user-specified ID for this location of interest. */
-  val customId: String? = null,
+  val customId: String = "",
   /** User and time audit info pertaining to the creation of this LOI. */
   val created: AuditInfo,
   /** User and time audit info pertaining to the last modification of this LOI. */
@@ -51,7 +54,7 @@ data class LocationOfInterest(
    */
   val isOpportunistic: Boolean = false,
   /** Custom map of properties for this LOI. Corresponds to the properties field in GeoJSON */
-  val properties: Map<String, Any>? = null,
+  val properties: LoiProperties = mapOf(),
 ) {
 
   /**

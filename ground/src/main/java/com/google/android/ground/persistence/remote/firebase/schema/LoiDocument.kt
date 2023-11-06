@@ -16,6 +16,7 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
+import com.google.android.ground.model.locationofinterest.LoiProperties
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.IgnoreExtraProperties
 
@@ -30,5 +31,5 @@ data class LoiDocument(
   val created: AuditInfoNestedObject? = null,
   val lastModified: AuditInfoNestedObject? = null,
   val submissionCount: Int? = null,
-  val properties: Map<String, Any>? = null,
+  val properties: LoiProperties? = null,
 )

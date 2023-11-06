@@ -22,8 +22,8 @@ import com.google.android.ground.Config
 import com.google.android.ground.persistence.local.room.converter.GeometryWrapperTypeConverter
 import com.google.android.ground.persistence.local.room.converter.JsonArrayTypeConverter
 import com.google.android.ground.persistence.local.room.converter.JsonObjectTypeConverter
-import com.google.android.ground.persistence.local.room.converter.StyleTypeConverter
 import com.google.android.ground.persistence.local.room.converter.LoiPropertiesMapConverter
+import com.google.android.ground.persistence.local.room.converter.StyleTypeConverter
 import com.google.android.ground.persistence.local.room.dao.*
 import com.google.android.ground.persistence.local.room.entity.*
 import com.google.android.ground.persistence.local.room.fields.*
