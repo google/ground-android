@@ -27,11 +27,10 @@ import com.google.android.ground.persistence.local.room.fields.MutationEntitySyn
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import com.google.android.ground.rx.Schedulers
-import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Flowable
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 
 /**
  * Coordinates persistence of mutations across [LocationOfInterestMutation] and [SubmissionMutation]
@@ -44,33 +43,17 @@ constructor(
   private val localSurveyStore: LocalSurveyStore,
   private val localLocationOfInterestStore: LocalLocationOfInterestStore,
   private val localSubmissionStore: LocalSubmissionStore,
-  private val schedulers: Schedulers
 ) {
   /**
    * Returns a long-lived stream that emits the full list of mutations for specified survey on
    * subscribe and a new list on each subsequent change.
    */
-  fun getMutationsOnceAndStream(
-    survey: Survey
-  ): @Cold(terminates = false) Flowable<List<Mutation>> {
+  fun getSurveyMutationsFlow(survey: Survey): Flow<List<Mutation>> {
     // TODO: Show mutations for all surveys, not just current one.
-    val locationOfInterestMutations =
-      localLocationOfInterestStore
-        .getAllMutationsAndStream()
-        .map { it.filter { it.surveyId == survey.id }.map { it.toModelObject() } }
-        .subscribeOn(schedulers.io())
-    val submissionMutations =
-      localSubmissionStore
-        .getAllMutationsAndStream()
-        .map { list: List<SubmissionMutationEntity> ->
-          list.filter { it.surveyId == survey.id }.map { it.toModelObject(survey) }
-        }
-        .subscribeOn(schedulers.io())
-    return Flowable.combineLatest(
-      locationOfInterestMutations,
-      submissionMutations,
-      this::combineAndSortMutations
-    )
+    val locationOfInterestMutations = localLocationOfInterestStore.getAllSurveyMutations(survey)
+    val submissionMutations = localSubmissionStore.getAllSurveyMutations(survey)
+
+    return locationOfInterestMutations.combine(submissionMutations, this::combineAndSortMutations)
   }
 
   /**

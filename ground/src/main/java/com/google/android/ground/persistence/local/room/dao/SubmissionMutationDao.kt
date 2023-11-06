@@ -20,14 +20,13 @@ import androidx.room.Query
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.room.fields.MutationEntityType
-import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Flowable
+import kotlinx.coroutines.flow.Flow
 
 /** Data access object for database operations related to [SubmissionMutationEntity]. */
 @Dao
 interface SubmissionMutationDao : BaseDao<SubmissionMutationEntity> {
   @Query("SELECT * FROM submission_mutation")
-  fun loadAllOnceAndStream(): Flowable<List<SubmissionMutationEntity>>
+  fun getAllMutations(): Flow<List<SubmissionMutationEntity>>
 
   @Query(
     "SELECT * FROM submission_mutation " +
@@ -62,8 +61,8 @@ interface SubmissionMutationDao : BaseDao<SubmissionMutationEntity> {
     "SELECT * FROM submission_mutation " +
       "WHERE location_of_interest_id = :locationOfInterestId AND state IN (:allowedStates)"
   )
-  fun findByLocationOfInterestIdOnceAndStream(
+  fun findByLocationOfInterestIdFlow(
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
-  ): @Cold(terminates = false) Flowable<List<SubmissionMutationEntity>>
+  ): Flow<List<SubmissionMutationEntity>>
 }

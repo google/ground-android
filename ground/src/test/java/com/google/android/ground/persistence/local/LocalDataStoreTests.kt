@@ -137,12 +137,8 @@ class LocalDataStoreTests : BaseHiltTest() {
     advanceUntilIdle()
 
     localLoiStore
-      .getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
-        TEST_LOI_MUTATION.locationOfInterestId,
-        MutationEntitySyncStatus.PENDING
-      )
-      .test()
-      .assertValue(listOf(TEST_LOI_MUTATION))
+      .getMutationsFlow(TEST_LOI_MUTATION.locationOfInterestId, MutationEntitySyncStatus.PENDING)
+      .test { assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_LOI_MUTATION)) }
   }
 
   @Test
@@ -165,12 +161,11 @@ class LocalDataStoreTests : BaseHiltTest() {
     localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION)
 
     localLoiStore
-      .getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
+      .getMutationsFlow(
         TEST_POLYGON_LOI_MUTATION.locationOfInterestId,
         MutationEntitySyncStatus.PENDING
       )
-      .test()
-      .assertValue(listOf(TEST_POLYGON_LOI_MUTATION))
+      .test { assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_POLYGON_LOI_MUTATION)) }
   }
 
   @Test
@@ -226,8 +221,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         TEST_LOI_MUTATION.locationOfInterestId,
         MutationEntitySyncStatus.PENDING
       )
-      .test()
-      .assertValue(listOf(TEST_SUBMISSION_MUTATION))
+      .test { assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_SUBMISSION_MUTATION)) }
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
     var submission = localSubmissionStore.getSubmission(loi, "submission id")
     assertEquivalent(TEST_SUBMISSION_MUTATION, submission)
@@ -252,8 +246,9 @@ class LocalDataStoreTests : BaseHiltTest() {
         TEST_LOI_MUTATION.locationOfInterestId,
         MutationEntitySyncStatus.PENDING
       )
-      .test()
-      .assertValue(listOf(TEST_SUBMISSION_MUTATION, mutation))
+      .test {
+        assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_SUBMISSION_MUTATION, mutation))
+      }
 
     // check if the submission was updated in the local database
     submission = localSubmissionStore.getSubmission(loi, "submission id")

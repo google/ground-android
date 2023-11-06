@@ -17,18 +17,19 @@ package com.google.android.ground.ui.syncstatus
 
 import android.util.Pair
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.toLiveData
-import com.google.android.ground.model.Survey
+import androidx.lifecycle.asLiveData
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.AbstractViewModel
-import io.reactivex.Flowable
-import io.reactivex.Single
-import java8.util.Optional
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 
 /**
  * View model for the offline area manager fragment. Handles the current list of downloaded areas.
@@ -41,31 +42,32 @@ internal constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository
 ) : AbstractViewModel() {
 
-  val mutations: LiveData<List<Pair<LocationOfInterest, Mutation>>>
+  /** [Flow] of latest mutations for the active [Survey]. */
+  @OptIn(ExperimentalCoroutinesApi::class)
+  private val mutationsFlow: Flow<List<Mutation>> =
+    surveyRepository.activeSurveyFlow.filterNotNull().flatMapLatest {
+      mutationRepository.getSurveyMutationsFlow(it)
+    }
 
-  init {
-    mutations = mutationsOnceAndStream.switchMap { loadLocationsOfInterestAndPair(it) }.toLiveData()
-  }
+  /**
+   * List of current local [Mutation]s executed by the user, with their corresponding
+   * [LocationOfInterest].
+   */
+  val mutations: LiveData<List<Pair<LocationOfInterest, Mutation>>> =
+    mutationsFlow.map { loadLocationsOfInterestAndPair(it) }.asLiveData()
 
-  private val mutationsOnceAndStream: Flowable<List<Mutation>>
-    get() =
-      surveyRepository.activeSurveyFlowable.switchMap { survey: Optional<Survey> ->
-        survey
-          .map { mutationRepository.getMutationsOnceAndStream(it) }
-          .orElse(Flowable.just(listOf()))
-      }
-
-  // TODO: Replace with kotlin coroutine
-  private fun loadLocationsOfInterestAndPair(
+  private suspend fun loadLocationsOfInterestAndPair(
     mutations: List<Mutation>
-  ): Flowable<List<Pair<LocationOfInterest, Mutation>>> =
-    Single.merge(mutations.map { loadLocationOfInterestAndPair(it) }).toList().toFlowable()
+  ): List<Pair<LocationOfInterest, Mutation>> = mutations.map { loadLocationOfInterestAndPair(it) }
 
-  // TODO: Replace with kotlin coroutine
-  private fun loadLocationOfInterestAndPair(
+  private suspend fun loadLocationOfInterestAndPair(
     mutation: Mutation
-  ): Single<Pair<LocationOfInterest, Mutation>> =
-    locationOfInterestRepository
-      .getOfflineLocationOfInterest(mutation.surveyId, mutation.locationOfInterestId)
-      .map { locationOfInterest: LocationOfInterest -> Pair.create(locationOfInterest, mutation) }
+  ): Pair<LocationOfInterest, Mutation> {
+    val loi =
+      locationOfInterestRepository.getOfflineLocationOfInterestSuspend(
+        mutation.surveyId,
+        mutation.locationOfInterestId
+      )
+    return Pair(loi, mutation)
+  }
 }

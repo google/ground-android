@@ -19,8 +19,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Flowable
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Provides low-level read/write operations of [LocationOfInterestMutationEntity] to/from the local
@@ -29,14 +28,14 @@ import io.reactivex.Flowable
 @Dao
 interface LocationOfInterestMutationDao : BaseDao<LocationOfInterestMutationEntity> {
   @Query("SELECT * FROM location_of_interest_mutation")
-  fun loadAllOnceAndStream(): Flowable<List<LocationOfInterestMutationEntity>>
+  fun getAllMutations(): Flow<List<LocationOfInterestMutationEntity>>
 
   @Query(
     "SELECT * FROM location_of_interest_mutation " +
       "WHERE location_of_interest_id = :locationOfInterestId " +
       "AND state IN (:allowedStates)"
   )
-  suspend fun findByLocationOfInterestId(
+  suspend fun getMutations(
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
   ): List<LocationOfInterestMutationEntity>?
@@ -46,8 +45,8 @@ interface LocationOfInterestMutationDao : BaseDao<LocationOfInterestMutationEnti
       "WHERE location_of_interest_id = :locationOfInterestId " +
       "AND state IN (:allowedStates)"
   )
-  fun findByLocationOfInterestIdOnceAndStream(
+  fun getMutationsFlow(
     locationOfInterestId: String,
-    vararg allowedStates: MutationEntitySyncStatus
-  ): @Cold(terminates = false) Flowable<List<LocationOfInterestMutationEntity>>
+    vararg allowedStates: MutationEntitySyncStatus,
+  ): Flow<List<LocationOfInterestMutationEntity>>
 }

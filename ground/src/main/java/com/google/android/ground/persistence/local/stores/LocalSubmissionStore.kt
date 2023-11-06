@@ -21,7 +21,7 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import io.reactivex.Flowable
+import kotlinx.coroutines.flow.Flow
 
 interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submission> {
   /**
@@ -43,16 +43,20 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
   suspend fun deleteSubmission(submissionId: String)
 
   /**
-   * Emits the list of [SubmissionMutation] instances for a given LOI which match the provided
-   * `allowedStates`. A new list is emitted on each subsequent change.
+   * Returns a [Flow] that emits the list of [SubmissionMutation] instances for a given LOI which
+   * match the provided `allowedStates`. A new list is emitted on each subsequent change.
    */
   fun getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
     survey: Survey,
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
-  ): Flowable<List<SubmissionMutation>>
+  ): Flow<List<SubmissionMutation>>
 
-  fun getAllMutationsAndStream(): Flowable<List<SubmissionMutationEntity>>
+  /**
+   * Returns a [Flow] that emits a list of all [SubmissionMutation]s associated with a given
+   * [Survey]. The list is newly emitted each time the underlying local data changes.
+   */
+  fun getAllSurveyMutations(survey: Survey): Flow<List<SubmissionMutation>>
 
   suspend fun findByLocationOfInterestId(
     loidId: String,

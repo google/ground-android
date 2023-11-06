@@ -31,13 +31,13 @@ import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.auth.AuthenticationManager
 import io.reactivex.Completable
-import io.reactivex.Flowable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.rx2.rxCompletable
-import kotlinx.coroutines.rx2.rxMaybe
 import kotlinx.coroutines.rx2.rxSingle
 
 /**
@@ -137,21 +137,24 @@ constructor(
    * been marked as [SyncStatus.COMPLETED], including pending, in progress, and failed mutations. A
    * new list is emitted on each subsequent change.
    */
-  fun getIncompleteSubmissionMutationsOnceAndStream(
+  suspend fun getIncompleteSubmissionMutationsOnceAndStream(
     surveyId: String,
     locationOfInterestId: String
-  ): Flowable<List<SubmissionMutation>> =
-    rxMaybe { localSurveyStore.getSurveyByIdSuspend(surveyId) }
-      .toFlowable()
-      .flatMap {
-        localSubmissionStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
-          it,
-          locationOfInterestId,
-          MutationEntitySyncStatus.PENDING,
-          MutationEntitySyncStatus.IN_PROGRESS,
-          MutationEntitySyncStatus.FAILED
-        )
-      }
+  ): Flow<List<SubmissionMutation>> {
+    val survey = localSurveyStore.getSurveyByIdSuspend(surveyId)
+
+    return if (survey != null) {
+      localSubmissionStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+        survey,
+        locationOfInterestId,
+        MutationEntitySyncStatus.PENDING,
+        MutationEntitySyncStatus.IN_PROGRESS,
+        MutationEntitySyncStatus.FAILED
+      )
+    } else {
+      flow {}
+    }
+  }
 
   suspend fun getTotalSubmissionCount(loi: LocationOfInterest) =
     loi.submissionCount + getPendingCreateCount(loi.id) - getPendingDeleteCount(loi.id)
