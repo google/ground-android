@@ -22,6 +22,14 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 
+interface LoiPropertyValue<T> {
+  val value: T
+}
+
+data class StringPropertyValue(override val value: String) : LoiPropertyValue<String>
+
+data class NumberPropertyValue(override val value: Number) : LoiPropertyValue<Number>
+
 /** User-defined locations of interest (LOI) shown on the map. */
 data class LocationOfInterest(
   /** A system-defined ID for this LOI. */
