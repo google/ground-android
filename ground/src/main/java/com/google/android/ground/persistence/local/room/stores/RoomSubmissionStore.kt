@@ -44,11 +44,12 @@ import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.Debug.logOnFailure
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.Flowable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 /** Manages access to [Submission] objects persisted in local storage. */
@@ -195,14 +196,15 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     submissionDao.findByIdSuspend(submissionId)?.let { submissionDao.delete(it) }
   }
 
-  override fun getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+  override fun getSubmissionMutationsByLoiIdFlow(
     survey: Survey,
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
-  ): Flowable<List<SubmissionMutation>> =
-    submissionMutationDao
-      .findByLocationOfInterestIdOnceAndStream(locationOfInterestId, *allowedStates)
-      .map { list: List<SubmissionMutationEntity> -> list.map { it.toModelObject(survey) } }
+  ): Flow<List<SubmissionMutation>> =
+    submissionMutationDao.findByLoiIdFlow(locationOfInterestId, *allowedStates).map {
+      list: List<SubmissionMutationEntity> ->
+      list.map { it.toModelObject(survey) }
+    }
 
   override suspend fun applyAndEnqueue(mutation: SubmissionMutation) {
     try {
@@ -216,8 +218,10 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     }
   }
 
-  override fun getAllMutationsAndStream(): Flowable<List<SubmissionMutationEntity>> =
-    submissionMutationDao.loadAllOnceAndStream()
+  override fun getAllSurveyMutationsFlow(survey: Survey): Flow<List<SubmissionMutation>> =
+    submissionMutationDao.getAllMutationsFlow().map { mutations ->
+      mutations.filter { it.surveyId == survey.id }.map { it.toModelObject(survey) }
+    }
 
   override suspend fun findByLocationOfInterestId(
     loidId: String,

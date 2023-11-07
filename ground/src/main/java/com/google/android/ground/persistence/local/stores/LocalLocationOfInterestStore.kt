@@ -21,7 +21,6 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Flowable
 import io.reactivex.Maybe
 import kotlinx.coroutines.flow.Flow
 
@@ -46,12 +45,17 @@ interface LocalLocationOfInterestStore :
    * Emits the list of [LocationOfInterestMutation] instances for a given LOI which match the
    * provided `allowedStates`. A new list is emitted on each subsequent change.
    */
-  fun getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
+  fun getMutationsFlow(
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
-  ): Flowable<List<LocationOfInterestMutation>>
+  ): Flow<List<LocationOfInterestMutation>>
 
-  fun getAllMutationsAndStream(): Flowable<List<LocationOfInterestMutationEntity>>
+  /**
+   * Returns a [Flow] that emits a [List] of all [LocationOfInterestMutation]s stored in the local
+   * db related to a given [Survey]. A new [List] is emitted on each change to the underlying saved
+   * data.
+   */
+  fun getAllSurveyMutations(survey: Survey): Flow<List<LocationOfInterestMutation>>
 
   suspend fun findByLocationOfInterestId(
     id: String,

@@ -99,7 +99,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     locationOfInterestRepository.applyAndEnqueue(mutation)
 
     locationOfInterestRepository
-      .getIncompleteLocationOfInterestMutationsOnceAndStream(LOCATION_OF_INTEREST.id)
+      .getIncompleteLoiMutationsOnceAndStream(LOCATION_OF_INTEREST.id)
       .test()
       .assertNoErrors()
       .assertValue(listOf(mutation.copy(id = 1)))
