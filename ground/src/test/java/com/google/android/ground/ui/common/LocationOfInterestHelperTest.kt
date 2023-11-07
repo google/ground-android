@@ -86,7 +86,6 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
 
   companion object {
     private const val TEST_USER_NAME = "some user name"
-    private const val TEST_CAPTION = "some caption text"
     private const val TEST_JOB_NAME = "some job name"
   }
 }
