@@ -16,18 +16,20 @@
 package com.google.android.ground.persistence.remote
 
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Defines API for accessing data in a remote data store. Implementations must ensure all
  * subscriptions are run in a background thread (i.e., not the Android main thread).
  */
 interface RemoteDataStore {
-  suspend fun loadSurveySummaries(user: User): List<Survey>
+  fun getSurveyList(user: User): Flow<List<SurveyListItem>>
 
   /**
    * Loads the survey with the specified id from the remote data store. Returns `null` if the survey

@@ -16,6 +16,7 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.model.Role
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.system.NetworkManager
@@ -40,6 +41,7 @@ class UserRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var localUserStore: LocalUserStore
   @Inject lateinit var localValueStore: LocalValueStore
+  @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var userRepository: UserRepository
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
@@ -90,5 +92,35 @@ class UserRepositoryTest : BaseHiltTest() {
     userRepository.clearUserPreferences()
 
     assertThat(localValueStore.lastActiveSurveyId).isEmpty()
+  }
+
+  @Test
+  fun `canUserSubmitData() when user has permissions returns true`() {
+    val user = FakeData.USER
+    val survey = FakeData.SURVEY.copy(acl = mapOf(Pair(user.email, Role.OWNER.toString())))
+    fakeAuthenticationManager.setUser(user)
+    surveyRepository.activeSurvey = survey
+
+    assertThat(userRepository.canUserSubmitData()).isTrue()
+  }
+
+  @Test
+  fun `canUserSubmitData() when user doesn't have permissions returns false`() {
+    val user = FakeData.USER
+    val survey = FakeData.SURVEY.copy(acl = mapOf())
+    fakeAuthenticationManager.setUser(user)
+    surveyRepository.activeSurvey = survey
+
+    assertThat(userRepository.canUserSubmitData()).isFalse()
+  }
+
+  @Test
+  fun `canUserSubmitData() when user email is empty returns false`() {
+    val user = FakeData.USER.copy(email = "")
+    val survey = FakeData.SURVEY.copy(acl = mapOf(Pair("user@gmail.com", Role.OWNER.toString())))
+    fakeAuthenticationManager.setUser(user)
+    surveyRepository.activeSurvey = survey
+
+    assertThat(userRepository.canUserSubmitData()).isFalse()
   }
 }

@@ -15,13 +15,18 @@
  */
 package com.google.android.ground.model.submission
 
-import com.google.android.ground.model.task.Task
+import kotlinx.serialization.Serializable
 
-/**
- * Represents a change to an individual taskData in a submission.
- *
- * @property taskId the id of the task task being updated.
- * @property taskType the type of task being updated.
- * @property newTaskData the new value of the taskData, or empty if removed.
- */
-data class TaskDataDelta(val taskId: String, val taskType: Task.Type, val newTaskData: TaskData?)
+/** A user-provided value to a text question task. */
+@Serializable
+data class TextResponse(val text: String) : Value {
+  override fun getDetailsText(): String = text
+
+  override fun isEmpty(): Boolean = text.trim { it <= ' ' }.isEmpty()
+
+  override fun toString(): String = text
+
+  companion object {
+    fun fromString(text: String): Value? = if (text.isEmpty()) null else TextResponse(text)
+  }
+}

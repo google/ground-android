@@ -17,24 +17,24 @@
 package com.google.android.ground.persistence.local.room.converter
 
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.TaskData
-import com.google.android.ground.model.submission.TaskDataMap
+import com.google.android.ground.model.submission.SubmissionData
+import com.google.android.ground.model.submission.Value
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
 import kotlinx.collections.immutable.toPersistentMap
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
 
-/** Converts between [TaskDataMap] and JSON strings used to represent them in the local db. */
+/** Converts between [SubmissionData] and JSON strings used to represent them in the local db. */
 object ResponseMapConverter {
 
   @JvmStatic
-  fun toString(responseDeltas: TaskDataMap): String =
+  fun toString(responseDeltas: SubmissionData): String =
     JSONObject()
       .apply {
         for (taskId in responseDeltas.taskIds()) {
           try {
-            put(taskId, ResponseJsonConverter.toJsonObject(responseDeltas.getResponse(taskId)))
+            put(taskId, ResponseJsonConverter.toJsonObject(responseDeltas.getValue(taskId)))
           } catch (e: JSONException) {
             Timber.e(e, "Error building JSON")
           }
@@ -43,11 +43,11 @@ object ResponseMapConverter {
       .toString()
 
   @JvmStatic
-  fun fromString(job: Job, jsonString: String?): TaskDataMap {
+  fun fromString(job: Job, jsonString: String?): SubmissionData {
     if (jsonString == null) {
-      return TaskDataMap()
+      return SubmissionData()
     }
-    val map = mutableMapOf<String, TaskData>()
+    val map = mutableMapOf<String, Value>()
     try {
       val jsonObject = JSONObject(jsonString)
       val keys = jsonObject.keys()
@@ -57,12 +57,12 @@ object ResponseMapConverter {
           val task = job.getTask(taskId)
           ResponseJsonConverter.toResponse(task, jsonObject[taskId])?.let { map[taskId] = it }
         } catch (e: LocalDataConsistencyException) {
-          Timber.d("Bad taskData in local db: ${e.message}")
+          Timber.d("Bad submission data in local db: ${e.message}")
         }
       }
     } catch (e: JSONException) {
       Timber.e(e, "Error parsing JSON string")
     }
-    return TaskDataMap(map.toPersistentMap())
+    return SubmissionData(map.toPersistentMap())
   }
 }

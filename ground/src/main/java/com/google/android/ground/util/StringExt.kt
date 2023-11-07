@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.util
 
-package com.google.android.ground.persistence.remote.firebase.schema
-
-import com.google.firebase.firestore.IgnoreExtraProperties
-
-typealias SubmissionDataNestedMap = Map<String, Any>
-
-/** Submission entity stored in Firestore. */
-@IgnoreExtraProperties
-data class SubmissionDocument(
-  val loiId: String? = null,
-  val jobId: String? = null,
-  val created: AuditInfoNestedObject? = null,
-  val lastModified: AuditInfoNestedObject? = null,
-  val data: SubmissionDataNestedMap? = null
-)
+fun String?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()

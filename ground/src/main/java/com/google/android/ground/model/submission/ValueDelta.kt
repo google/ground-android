@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model.submission
 
-package com.google.android.ground.ui.surveyselector
+import com.google.android.ground.model.task.Task
 
-data class SurveyItem(
-  val surveyId: String,
-  val surveyTitle: String,
-  val surveyDescription: String,
-  val isAvailableOffline: Boolean
-)
+/**
+ * Represents a change to an individual value in a submission.
+ *
+ * @property taskId the id of the task task being updated.
+ * @property taskType the type of task being updated.
+ * @property newValue the new value of the value, or empty if removed.
+ */
+data class ValueDelta(val taskId: String, val taskType: Task.Type, val newValue: Value?)

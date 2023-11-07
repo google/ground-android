@@ -23,7 +23,7 @@ import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
-import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.common.AbstractFragment
@@ -43,6 +43,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     hiltNavGraphViewModels(R.id.data_collection)
 
   private val buttons: EnumMap<ButtonAction, TaskButton> = EnumMap(ButtonAction::class.java)
+  private val buttonsIndex: MutableMap<Int, ButtonAction> = mutableMapOf()
   private lateinit var taskView: TaskView
   protected lateinit var viewModel: T
 
@@ -105,45 +106,48 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** Invoked when the all [ButtonAction]s are added to the current [TaskView]. */
   open fun onActionButtonsCreated() {
-    viewLifecycleOwner.lifecycleScope.launch {
-      viewModel.taskDataValue.collect { onTaskDataUpdated(it) }
-    }
+    viewLifecycleOwner.lifecycleScope.launch { viewModel.value.collect { onValueChanged(it) } }
   }
 
   /** Invoked when the data associated with the current task gets modified. */
-  protected open fun onTaskDataUpdated(taskData: TaskData?) {
+  protected open fun onValueChanged(value: Value?) {
     for ((_, button) in buttons) {
-      button.onTaskDataUpdated(taskData)
+      button.onValueChanged(value)
     }
   }
 
   protected fun addNextButton() =
     addButton(ButtonAction.NEXT)
-      .setOnClickListener { dataCollectionViewModel.onNextClicked() }
-      .setOnTaskUpdated { button, taskData -> button.enableIfTrue(taskData.isNotNullOrEmpty()) }
+      .setOnClickListener { moveToNext() }
+      .setOnValueChanged { button, value -> button.enableIfTrue(value.isNotNullOrEmpty()) }
       .disable()
 
   /** Skip button is only visible iff the task is optional and the task doesn't contain any data. */
   protected fun addSkipButton() =
     addButton(ButtonAction.SKIP)
       .setOnClickListener { onSkip() }
-      .setOnTaskUpdated { button, taskData ->
-        button.showIfTrue(viewModel.isTaskOptional() && taskData.isNullOrEmpty())
+      .setOnValueChanged { button, value ->
+        button.showIfTrue(viewModel.isTaskOptional() && value.isNullOrEmpty())
       }
       .showIfTrue(viewModel.isTaskOptional())
 
   private fun onSkip() {
     check(viewModel.hasNoData()) { "User should not be able to skip a task with data." }
-    dataCollectionViewModel.onNextClicked()
+    moveToNext()
+  }
+
+  fun moveToNext() {
+    dataCollectionViewModel.onNextClicked(position)
   }
 
   fun addUndoButton() =
     addButton(ButtonAction.UNDO)
       .setOnClickListener { viewModel.clearResponse() }
-      .setOnTaskUpdated { button, taskData -> button.showIfTrue(taskData.isNotNullOrEmpty()) }
+      .setOnValueChanged { button, value -> button.showIfTrue(value.isNotNullOrEmpty()) }
       .hide()
 
-  protected fun addButton(action: ButtonAction): TaskButton {
+  protected fun addButton(buttonAction: ButtonAction): TaskButton {
+    val action = if (buttonAction.shouldReplaceWithDoneButton()) ButtonAction.DONE else buttonAction
     check(!buttons.contains(action)) { "Button $action already bound" }
     val button =
       TaskButtonFactory.createAndAttachButton(
@@ -151,11 +155,18 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
         taskView.actionButtonsContainer,
         layoutInflater
       )
+    buttonsIndex[buttons.size] = action
     buttons[action] = button
     return button
   }
 
+  /** Returns true if the given [ButtonAction] should be replace with "Done" button. */
+  private fun ButtonAction.shouldReplaceWithDoneButton() =
+    this == ButtonAction.NEXT && dataCollectionViewModel.isLastPosition(position)
+
   @TestOnly fun getButtons() = buttons
+
+  @TestOnly fun getButtonsIndex() = buttonsIndex
 
   protected fun getButton(action: ButtonAction): TaskButton {
     check(buttons.contains(action)) { "Expected key $action in $buttons" }

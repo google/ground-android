@@ -23,8 +23,8 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.*
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
-import com.google.android.ground.model.submission.TaskDataDelta
-import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.common.truth.Truth.assertThat
@@ -61,7 +61,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @BindValue @Mock lateinit var submissionRepository: SubmissionRepository
-  @Captor lateinit var taskDataDeltaCaptor: ArgumentCaptor<List<TaskDataDelta>>
+  @Captor lateinit var deltaCaptor: ArgumentCaptor<List<ValueDelta>>
   lateinit var fragment: DataCollectionFragment
 
   @Test
@@ -129,17 +129,17 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupFragment()
     val task1Response = "response 1"
     val task2Response = "response 2"
-    val expectedTaskDataDeltas =
+    val expectedDeltas =
       listOf(
-        TaskDataDelta(
+        ValueDelta(
           SUBMISSION.job.tasksSorted[0].id,
           Task.Type.TEXT,
-          TextTaskData.fromString(task1Response)
+          TextResponse.fromString(task1Response)
         ),
-        TaskDataDelta(
+        ValueDelta(
           SUBMISSION.job.tasksSorted[1].id,
           Task.Type.TEXT,
-          TextTaskData.fromString(task2Response)
+          TextResponse.fromString(task2Response)
         ),
       )
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task1Response))
@@ -147,16 +147,14 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
     onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
 
-    // Click "next" on final task
+    // Click "done" on final task
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task2Response))
-    onView(allOf(withText("Next"), isDisplayed())).perform(click())
+    onView(allOf(withText("Done"), isDisplayed())).perform(click())
     advanceUntilIdle()
 
     verify(submissionRepository)
-      .saveSubmission(eq(SURVEY.id), eq(LOCATION_OF_INTEREST.id), capture(taskDataDeltaCaptor))
-    expectedTaskDataDeltas.forEach { taskData ->
-      assertThat(taskDataDeltaCaptor.value).contains(taskData)
-    }
+      .saveSubmission(eq(SURVEY.id), eq(LOCATION_OF_INTEREST.id), capture(deltaCaptor))
+    expectedDeltas.forEach { value -> assertThat(deltaCaptor.value).contains(value) }
   }
 
   @Test

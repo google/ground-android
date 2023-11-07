@@ -27,7 +27,6 @@ import com.google.android.ground.BuildConfig
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.databinding.PhotoTaskFragBinding
 import com.google.android.ground.repository.UserMediaRepository
-import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.ui.datacollection.components.TaskView
@@ -58,6 +57,7 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val taskBinding = PhotoTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
+    taskBinding.fragment = this
     taskBinding.dataCollectionViewModel = dataCollectionViewModel
     taskBinding.viewModel = viewModel
     return taskBinding.root
@@ -79,13 +79,9 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
         viewModel.onCapturePhotoResult(result)
       }
 
-    viewModel.setEditable(true)
-    viewModel.setSurveyId(dataCollectionViewModel.surveyId)
-    viewModel.setTaskWaitingForPhoto(taskWaitingForPhoto)
-    viewModel.setCapturedPhotoPath(capturedPhotoPath)
-
-    observeSelectPhotoClicks()
-    observePhotoResults()
+    viewModel.surveyId = dataCollectionViewModel.surveyId
+    viewModel.taskWaitingForPhoto = taskWaitingForPhoto
+    viewModel.capturedPhotoPath = capturedPhotoPath
   }
 
   override fun onCreateActionButtons() {
@@ -105,21 +101,8 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    outState.putString(TASK_WAITING_FOR_PHOTO, viewModel.getTaskWaitingForPhoto())
-    outState.putString(CAPTURED_PHOTO_PATH, viewModel.getCapturedPhotoPath())
-  }
-
-  private fun observeSelectPhotoClicks() {
-    viewModel.getTakePhotoClicks().`as`(autoDisposable(viewLifecycleOwner)).subscribe {
-      onTakePhoto()
-    }
-  }
-
-  private fun observePhotoResults() {
-    viewModel
-      .getLastPhotoResult()
-      .`as`(autoDisposable<PhotoResult>(viewLifecycleOwner))
-      .subscribe { photoResult -> viewModel.onPhotoResult(photoResult) }
+    outState.putString(TASK_WAITING_FOR_PHOTO, viewModel.taskWaitingForPhoto)
+    outState.putString(CAPTURED_PHOTO_PATH, viewModel.capturedPhotoPath)
   }
 
   private fun obtainCapturePhotoPermissions(onPermissionsGranted: () -> Unit = {}) {
@@ -135,7 +118,7 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
     }
   }
 
-  private fun onTakePhoto() {
+  fun onTakePhoto() {
     // TODO(#1600): Launch intent is not invoked if the permission is not granted by default.
     obtainCapturePhotoPermissions { launchPhotoCapture(viewModel.task.id) }
   }
@@ -143,14 +126,14 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
   private fun launchPhotoCapture(taskId: String) {
     val photoFile = userMediaRepository.createImageFile(taskId)
     val uri = FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID, photoFile)
-    viewModel.setTaskWaitingForPhoto(taskId)
-    viewModel.setCapturedPhotoPath(photoFile.absolutePath)
+    viewModel.taskWaitingForPhoto = taskId
+    viewModel.capturedPhotoPath = photoFile.absolutePath
     capturePhotoLauncher.launch(uri)
     Timber.d("Capture photo intent sent")
   }
 
   companion object {
-    /** Key used to store field ID waiting for photo taskData across activity re-creation. */
+    /** Key used to store field ID waiting for photo result across activity re-creation. */
     private const val TASK_WAITING_FOR_PHOTO = "dataCollectionPhotoFieldId"
 
     /** Key used to store captured photo Uri across activity re-creation. */

@@ -23,7 +23,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.MultipleChoiceTaskData
+import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
@@ -45,6 +45,8 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowAlertDialog
 
@@ -109,7 +111,7 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 1")).perform(click())
     onView(withText("Option 2")).perform(click())
 
-    hasTaskData(MultipleChoiceTaskData(multipleChoice, listOf("option id 2")))
+    hasValue(MultipleChoiceResponse(multipleChoice, listOf("option id 2")))
     buttonIsEnabled("Next")
   }
 
@@ -135,7 +137,7 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 1")).perform(click())
     onView(withText("Option 2")).perform(click())
 
-    hasTaskData(MultipleChoiceTaskData(multipleChoice, listOf("option id 1", "option id 2")))
+    hasValue(MultipleChoiceResponse(multipleChoice, listOf("option id 1", "option id 2")))
     buttonIsEnabled("Next")
   }
 
@@ -143,7 +145,15 @@ class MultipleChoiceTaskFragmentTest :
   fun testActionButtons() {
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
-    hasButtons(ButtonAction.NEXT, ButtonAction.SKIP)
+    assertFragmentHasButtons(ButtonAction.SKIP, ButtonAction.NEXT)
+  }
+
+  @Test
+  fun testActionButtons_whenLastTask() {
+    whenever(dataCollectionViewModel.isLastPosition(any())).thenReturn(true)
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
+
+    assertFragmentHasButtons(ButtonAction.SKIP, ButtonAction.DONE)
   }
 
   @Test

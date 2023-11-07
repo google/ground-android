@@ -77,7 +77,7 @@ constructor(
   override val mapConfig: MapConfig
     get() =
       super.mapConfig.copy(
-        showOfflineTileOverlays = true,
+        showOfflineImagery = true,
         overrideMapType = MapType.TERRAIN,
         disableGestures = true
       )

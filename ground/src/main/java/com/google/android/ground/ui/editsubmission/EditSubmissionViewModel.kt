@@ -22,8 +22,8 @@ import androidx.lifecycle.toLiveData
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.submission.TaskData
-import com.google.android.ground.model.submission.TaskDataDelta
+import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.rx.Nil
@@ -60,7 +60,7 @@ internal constructor(
   private val toolbarTitle: @Hot(replays = true) MutableLiveData<String> = MutableLiveData()
 
   /** Current task responses. */
-  private val responses: MutableMap<String, TaskData> = HashMap()
+  private val responses: MutableMap<String, Value> = HashMap()
 
   /** Arguments passed in from view on initialize(). */
   private val viewArgs: @Hot(replays = true) FlowableProcessor<EditSubmissionFragmentArgs> =
@@ -84,22 +84,22 @@ internal constructor(
   val draftResponses: Serializable
     get() = HashMap(responses)
 
-  private val responseDeltas: List<TaskDataDelta>
+  private val responseDeltas: List<ValueDelta>
     get() {
       if (originalSubmission == null) {
-        Timber.e("TaskData diff attempted before submission loaded")
+        Timber.e("Value diff attempted before submission loaded")
         return listOf()
       }
-      val result: MutableList<TaskDataDelta> = ArrayList()
-      val originalResponses = originalSubmission!!.responses
+      val result: MutableList<ValueDelta> = ArrayList()
+      val originalResponses = originalSubmission!!.data
       Timber.v("Responses:\n Before: %s \nAfter:  %s", originalResponses, responses)
       for ((taskId, _, type) in originalSubmission!!.job.tasksSorted) {
-        val originalResponse = originalResponses.getResponse(taskId)
+        val originalResponse = originalResponses.getValue(taskId)
         val currentResponse = getResponse(taskId)
         if (currentResponse != null && currentResponse == originalResponse) {
           continue
         }
-        result.add(TaskDataDelta(taskId, type, currentResponse))
+        result.add(ValueDelta(taskId, type, currentResponse))
       }
       Timber.v("Deltas: %s", result)
       return result
@@ -119,14 +119,11 @@ internal constructor(
     viewArgs.onNext(args)
   }
 
-  private fun getResponse(taskId: String): TaskData? = responses[taskId]
+  private fun getResponse(taskId: String): Value? = responses[taskId]
 
-  /**
-   * Update the current value of a taskData. Called what tasks are initialized and on each
-   * subsequent change.
-   */
-  fun setResponse(task: Task, newResponse: Optional<TaskData>) {
-    newResponse.ifPresentOrElse({ r: TaskData -> responses[task.id] = r }) {
+  /** Update the current value. Called when tasks are initialized and on each subsequent change. */
+  fun setResponse(task: Task, newResponse: Optional<Value>) {
+    newResponse.ifPresentOrElse({ r: Value -> responses[task.id] = r }) {
       responses.remove(task.id)
     }
   }
@@ -147,8 +144,8 @@ internal constructor(
         toolbarTitle.value = resources.getString(R.string.edit_submission)
         loadSubmission(viewArgs)
       }
-    val restoredResponses: HashMap<String, TaskData>? =
-      viewArgs.restoredResponses as? HashMap<String, TaskData>
+    val restoredResponses: HashMap<String, Value>? =
+      viewArgs.restoredResponses as? HashMap<String, Value>
     return submissionSingle
       .doOnSuccess { loadedSubmission: Submission ->
         onSubmissionLoaded(loadedSubmission, restoredResponses)
@@ -156,19 +153,16 @@ internal constructor(
       .map(Submission::job)
   }
 
-  private fun onSubmissionLoaded(
-    submission: Submission,
-    restoredResponses: Map<String, TaskData>?
-  ) {
+  private fun onSubmissionLoaded(submission: Submission, restoredResponses: Map<String, Value>?) {
     Timber.v("Submission loaded")
     originalSubmission = submission
     responses.clear()
     if (restoredResponses == null) {
-      val taskDataMap = submission.responses
-      for (taskId in taskDataMap.taskIds()) {
-        val taskData = taskDataMap.getResponse(taskId)
-        if (taskData != null) {
-          responses[taskId] = taskData
+      val data = submission.data
+      for (taskId in data.taskIds()) {
+        val value = data.getValue(taskId)
+        if (value != null) {
+          responses[taskId] = value
         }
       }
     } else {

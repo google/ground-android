@@ -79,7 +79,7 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
 
   /** Deletes the provided [Survey] from the local database, if it exists in the database. */
   override suspend fun deleteSurvey(survey: Survey) =
-    surveyDao.deleteSuspend(survey.toLocalDataStoreObject())
+    surveyDao.delete(survey.toLocalDataStoreObject())
 
   private suspend fun insertOrUpdateOption(taskId: String, option: Option) =
     optionDao.insertOrUpdate(option.toLocalDataStoreObject(taskId))

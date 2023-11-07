@@ -23,7 +23,7 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
-import com.google.android.ground.model.submission.GeometryData
+import com.google.android.ground.model.submission.GeometryTaskResponse
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -66,7 +66,7 @@ class PolygonDrawingTaskFragmentTest :
   }
 
   @Test
-  fun testInfoCard_noTaskData() {
+  fun testInfoCard_noValue() {
     setupTaskFragment<PolygonDrawingTaskFragment>(job, task)
 
     infoCardHidden()
@@ -76,10 +76,10 @@ class PolygonDrawingTaskFragmentTest :
   fun testActionButtons() {
     setupTaskFragment<PolygonDrawingTaskFragment>(job, task)
 
-    hasButtons(
-      ButtonAction.NEXT,
+    assertFragmentHasButtons(
       ButtonAction.SKIP,
       ButtonAction.UNDO,
+      ButtonAction.NEXT,
       ButtonAction.ADD_POINT,
       ButtonAction.COMPLETE
     )
@@ -117,8 +117,8 @@ class PolygonDrawingTaskFragmentTest :
     updateLastVertex(COORDINATE_4, true)
     onView(withText("Complete")).perform(click())
 
-    hasTaskData(
-      GeometryData(
+    hasValue(
+      GeometryTaskResponse(
         Polygon(
           LinearRing(
             listOf(

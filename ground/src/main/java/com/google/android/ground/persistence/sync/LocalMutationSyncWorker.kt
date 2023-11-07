@@ -23,7 +23,7 @@ import androidx.work.WorkerParameters
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.TaskDataDelta
+import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
@@ -137,12 +137,12 @@ constructor(
   private fun processPhotoFieldMutations(mutations: List<Mutation>) =
     mutations
       .filterIsInstance<SubmissionMutation>()
-      .flatMap { mutation: Mutation -> (mutation as SubmissionMutation).taskDataDeltas }
-      .filter { (_, taskType, newResponse): TaskDataDelta ->
+      .flatMap { mutation: Mutation -> (mutation as SubmissionMutation).deltas }
+      .filter { (_, taskType, newResponse): ValueDelta ->
         taskType === Task.Type.PHOTO && newResponse.isNotNullOrEmpty()
       }
-      // TODO: Instead of using toString(), add a method getSerializedValue() in TaskData.
-      .map { (_, _, newResponse): TaskDataDelta -> newResponse.toString() }
+      // TODO: Instead of using toString(), add a method getSerializedValue() in Value.
+      .map { (_, _, newResponse): ValueDelta -> newResponse.toString() }
       .forEach { remotePath: String -> photoSyncWorkManager.enqueueSyncWorker(remotePath) }
 
   private suspend fun getUser(userId: String): User? {

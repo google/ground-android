@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.persistence.local
 
+import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
@@ -23,6 +24,7 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.imagery.OfflineArea
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
@@ -30,9 +32,9 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.submission.TaskDataDelta
-import com.google.android.ground.model.submission.TaskDataMap
-import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.submission.SubmissionData
+import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.persistence.local.room.converter.formatVertices
@@ -135,12 +137,8 @@ class LocalDataStoreTests : BaseHiltTest() {
     advanceUntilIdle()
 
     localLoiStore
-      .getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
-        TEST_LOI_MUTATION.locationOfInterestId,
-        MutationEntitySyncStatus.PENDING
-      )
-      .test()
-      .assertValue(listOf(TEST_LOI_MUTATION))
+      .getMutationsFlow(TEST_LOI_MUTATION.locationOfInterestId, MutationEntitySyncStatus.PENDING)
+      .test { assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_LOI_MUTATION)) }
   }
 
   @Test
@@ -163,23 +161,24 @@ class LocalDataStoreTests : BaseHiltTest() {
     localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION)
 
     localLoiStore
-      .getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
+      .getMutationsFlow(
         TEST_POLYGON_LOI_MUTATION.locationOfInterestId,
         MutationEntitySyncStatus.PENDING
       )
-      .test()
-      .assertValue(listOf(TEST_POLYGON_LOI_MUTATION))
+      .test { assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_POLYGON_LOI_MUTATION)) }
   }
 
   @Test
-  fun testGetLoisOnceAndStream() = runWithTestDispatcher {
+  fun testFindLocationsOfInterest() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
-    val subscriber = localLoiStore.getLocationsOfInterestOnceAndStream(TEST_SURVEY).test()
-    subscriber.assertValue(setOf())
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
+
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    subscriber.assertValueSet(setOf(setOf(), setOf(loi)))
+
+    localLoiStore.findLocationsOfInterest(TEST_SURVEY).test {
+      assertThat(expectMostRecentItem()).isEqualTo(setOf(loi))
+    }
   }
 
   @Test
@@ -217,13 +216,12 @@ class LocalDataStoreTests : BaseHiltTest() {
     localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION)
 
     localSubmissionStore
-      .getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+      .getSubmissionMutationsByLoiIdFlow(
         TEST_SURVEY,
         TEST_LOI_MUTATION.locationOfInterestId,
         MutationEntitySyncStatus.PENDING
       )
-      .test()
-      .assertValue(listOf(TEST_SUBMISSION_MUTATION))
+      .test { assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_SUBMISSION_MUTATION)) }
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
     var submission = localSubmissionStore.getSubmission(loi, "submission id")
     assertEquivalent(TEST_SUBMISSION_MUTATION, submission)
@@ -231,25 +229,26 @@ class LocalDataStoreTests : BaseHiltTest() {
     // now update the inserted submission with new responses
     val deltas =
       listOf(
-        TaskDataDelta(
+        ValueDelta(
           "task id",
           Task.Type.TEXT,
-          TextTaskData.fromString("value for the really new task")
+          TextResponse.fromString("value for the really new task")
         )
       )
     val mutation =
-      TEST_SUBMISSION_MUTATION.copy(taskDataDeltas = deltas, id = 2L, type = Mutation.Type.UPDATE)
+      TEST_SUBMISSION_MUTATION.copy(deltas = deltas, id = 2L, type = Mutation.Type.UPDATE)
 
     localSubmissionStore.applyAndEnqueue(mutation)
 
     localSubmissionStore
-      .getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+      .getSubmissionMutationsByLoiIdFlow(
         TEST_SURVEY,
         TEST_LOI_MUTATION.locationOfInterestId,
         MutationEntitySyncStatus.PENDING
       )
-      .test()
-      .assertValue(listOf(TEST_SUBMISSION_MUTATION, mutation))
+      .test {
+        assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_SUBMISSION_MUTATION, mutation))
+      }
 
     // check if the submission was updated in the local database
     submission = localSubmissionStore.getSubmission(loi, "submission id")
@@ -268,13 +267,11 @@ class LocalDataStoreTests : BaseHiltTest() {
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
     localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION)
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    val taskDataMap = TaskDataMap(mapOf(Pair("task id", TextTaskData.fromString("foo value"))))
-    val submission =
-      localSubmissionStore.getSubmission(loi, "submission id").copy(responses = taskDataMap)
+    val data = SubmissionData(mapOf(Pair("task id", TextResponse.fromString("foo value"))))
+    val submission = localSubmissionStore.getSubmission(loi, "submission id").copy(data = data)
     localSubmissionStore.merge(submission)
-    val responses = localSubmissionStore.getSubmission(loi, submission.id).responses
-    assertThat(responses.getResponse("task id"))
-      .isEqualTo(TextTaskData.fromString("updated taskData"))
+    val responses = localSubmissionStore.getSubmission(loi, submission.id).data
+    assertThat(responses.getValue("task id")).isEqualTo(TextResponse.fromString("updated value"))
   }
 
   @Test
@@ -311,11 +308,12 @@ class LocalDataStoreTests : BaseHiltTest() {
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
     localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION)
-    val subscriber = localLoiStore.getLocationsOfInterestOnceAndStream(TEST_SURVEY).test()
 
     // Assert that one LOI is streamed.
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
-    subscriber.assertValueAt(0, setOf(loi))
+    localLoiStore.findLocationsOfInterest(TEST_SURVEY).test {
+      assertThat(expectMostRecentItem()).isEqualTo(setOf(loi))
+    }
     val mutation = TEST_LOI_MUTATION.copy(id = null, type = Mutation.Type.DELETE)
 
     // Calling applyAndEnqueue marks the local LOI as deleted.
@@ -328,7 +326,9 @@ class LocalDataStoreTests : BaseHiltTest() {
     }
 
     // Verify that the local LOI is now removed from the latest LOI stream.
-    subscriber.assertValueAt(1, setOf())
+    localLoiStore.findLocationsOfInterest(TEST_SURVEY).test {
+      assertThat(expectMostRecentItem()).isEmpty()
+    }
 
     // After successful remote sync, delete LOI is called by LocalMutationSyncWorker.
     localLoiStore.deleteLocationOfInterest("loi id")
@@ -345,7 +345,9 @@ class LocalDataStoreTests : BaseHiltTest() {
   @Test
   fun testGetOfflineAreas() = runWithTestDispatcher {
     localOfflineAreaStore.insertOrUpdate(TEST_OFFLINE_AREA)
-    localOfflineAreaStore.offlineAreasOnceAndStream().test().assertValue(listOf(TEST_OFFLINE_AREA))
+    localOfflineAreaStore.offlineAreas().test {
+      assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_OFFLINE_AREA))
+    }
   }
 
   @Test
@@ -369,6 +371,12 @@ class LocalDataStoreTests : BaseHiltTest() {
     assertThat(localValueStore.isTermsOfServiceAccepted).isFalse()
   }
 
+  @Test
+  fun testInsertOrUpdateSurvey_usesUniqueKeyForTileSources() = runWithTestDispatcher {
+    // Should not throw.
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY_WITH_TILE_SOURCES)
+  }
+
   companion object {
     private val TEST_USER = User("user id", "user@gmail.com", "user 1")
     private val TEST_TASK = Task("task id", 1, Task.Type.TEXT, "task label", false)
@@ -377,6 +385,14 @@ class LocalDataStoreTests : BaseHiltTest() {
       Job("job id", TEST_STYLE, "heading title", mapOf(Pair(TEST_TASK.id, TEST_TASK)))
     private val TEST_SURVEY =
       Survey("survey id", "survey 1", "foo description", mapOf(Pair(TEST_JOB.id, TEST_JOB)))
+    private val TEST_SURVEY_WITH_TILE_SOURCES =
+      TEST_SURVEY.copy(
+        tileSources =
+          listOf(
+            TileSource(url = "dummy URL", type = TileSource.Type.TILED_WEB_MAP),
+            TileSource(url = "other dummy URL", type = TileSource.Type.TILED_WEB_MAP)
+          )
+      )
     private val TEST_POINT = Point(Coordinates(110.0, -23.1))
     private val TEST_POINT_2 = Point(Coordinates(51.0, 44.0))
     private val TEST_POLYGON_1 =
@@ -403,10 +419,8 @@ class LocalDataStoreTests : BaseHiltTest() {
       SubmissionMutation(
         job = TEST_JOB,
         submissionId = "submission id",
-        taskDataDeltas =
-          listOf(
-            TaskDataDelta("task id", Task.Type.TEXT, TextTaskData.fromString("updated taskData"))
-          ),
+        deltas =
+          listOf(ValueDelta("task id", Task.Type.TEXT, TextResponse.fromString("updated value"))),
         id = 1L,
         type = Mutation.Type.CREATE,
         syncStatus = SyncStatus.PENDING,
@@ -453,8 +467,8 @@ class LocalDataStoreTests : BaseHiltTest() {
       assertThat(mutation.userId).isEqualTo(submission.lastModified.user.id)
       assertThat(mutation.userId).isEqualTo(submission.created.user.id)
       MatcherAssert.assertThat(
-        TaskDataMap().copyWithDeltas(mutation.taskDataDeltas),
-        Matchers.samePropertyValuesAs(submission.responses)
+        SubmissionData().copyWithDeltas(mutation.deltas),
+        Matchers.samePropertyValuesAs(submission.data)
       )
     }
   }

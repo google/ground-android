@@ -27,7 +27,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withInputType
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.*
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.submission.TextResponse
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -70,7 +70,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
       .check(matches(isDisplayed()))
       .check(matches(isEnabled()))
 
-    hasTaskData(null)
+    hasValue(null)
     buttonIsDisabled("Next")
   }
 
@@ -82,7 +82,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
       .check(matches(withInputType(InputType.TYPE_CLASS_TEXT)))
       .perform(typeText("Hello world"))
 
-    hasTaskData(TextTaskData("Hello world"))
+    hasValue(TextResponse("Hello world"))
     buttonIsEnabled("Next")
   }
 
@@ -90,7 +90,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   fun testActionButtons() {
     setupTaskFragment<TextTaskFragment>(job, task)
 
-    hasButtons(ButtonAction.NEXT, ButtonAction.SKIP)
+    assertFragmentHasButtons(ButtonAction.SKIP, ButtonAction.NEXT)
   }
 
   @Test

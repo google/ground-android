@@ -23,7 +23,7 @@
   <data>
     <variable
       name="item"
-      type="com.google.android.ground.ui.surveyselector.SurveyItem" />
+      type="com.google.android.ground.model.SurveyListItem" />
     <variable
       name="fragment"
       type="com.google.android.ground.ui.surveyselector.SurveySelectorFragment" />
@@ -42,7 +42,7 @@
     style="@style/Widget.App.CardView.SurfaceContainerLowest"
     android:clickable="true"
     android:focusable="true"
-    android:onClick="@{() -> viewModel.activateSurvey(item.surveyId)}"
+    android:onClick="@{() -> viewModel.activateSurvey(item.id)}"
     android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -58,7 +58,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
-        android:text="@{item.surveyTitle}"
+        android:text="@{item.title}"
         app:layout_constraintEnd_toStartOf="@id/survey_card_item_widgets"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -74,7 +74,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
-        android:text="@{item.surveyDescription}"
+        android:text="@{item.description}"
         app:layout_constraintLeft_toLeftOf="@id/title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -101,7 +101,7 @@
           app:layout_constraintEnd_toStartOf="@+id/overflowMenu"
           app:layout_constraintTop_toTopOf="@id/overflowMenu"
           app:srcCompat="@drawable/ic_offline_pin"
-          app:visible="@{item.isAvailableOffline}" />
+          app:visible="@{item.availableOffline}" />
 
         <!-- Overflow menu "..." affordance. -->
         <Button
@@ -110,8 +110,8 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:translationX="4dp"
-          android:onClick="@{(view) -> fragment.showPopupMenu(view, item.surveyId)}"
-          app:visible="@{item.isAvailableOffline}"
+          android:onClick="@{(view) -> fragment.showPopupMenu(view, item.id)}"
+          app:visible="@{item.availableOffline}"
           app:icon="@drawable/ic_more_vert" />
       </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

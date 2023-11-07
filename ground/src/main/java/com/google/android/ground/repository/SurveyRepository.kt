@@ -17,30 +17,34 @@ package com.google.android.ground.repository
 
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.model.User
+import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.rx.annotations.Cold
+import com.google.android.ground.system.NetworkManager
+import com.google.android.ground.system.NetworkStatus
 import io.reactivex.Flowable
 import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.rx2.asFlowable
-import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000
-private const val LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_MILLIS: Long = 30 * 1000
 
 /**
  * Coordinates persistence and retrieval of [Survey] instances from remote, local, and in memory
@@ -54,6 +58,7 @@ constructor(
   private val localSurveyStore: LocalSurveyStore,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
+  private val networkManager: NetworkManager,
   @ApplicationScope private val externalScope: CoroutineScope
 ) {
   private val _activeSurvey = MutableStateFlow<Survey?>(null)
@@ -82,8 +87,8 @@ constructor(
   val activeSurveyFlowable: @Cold Flowable<Optional<Survey>> =
     activeSurveyFlow.map { if (it == null) Optional.empty() else Optional.of(it) }.asFlowable()
 
-  val offlineSurveys: Flow<List<Survey>>
-    get() = localSurveyStore.surveys
+  val localSurveyListFlow: Flow<List<SurveyListItem>>
+    get() = localSurveyStore.surveys.map { list -> list.map { it.toListItem(true) } }
 
   var lastActiveSurveyId: String by localValueStore::lastActiveSurveyId
     internal set
@@ -115,17 +120,22 @@ constructor(
     activeSurvey = null
   }
 
-  suspend fun getSurveySummaries(user: User): Flow<List<Survey>> =
-    try {
-      val surveys =
-        withTimeout(LOAD_REMOTE_SURVEY_SUMMARIES_TIMEOUT_MILLIS) {
-          Timber.d("Loading survey list from remote")
-          remoteDataStore.loadSurveySummaries(user)
-        }
-      listOf(surveys).asFlow()
-    } catch (e: Throwable) {
-      Timber.d(e, "Failed to load survey list from remote")
-      offlineSurveys
+  fun getSurveyList(user: User): Flow<List<SurveyListItem>> =
+    @OptIn(ExperimentalCoroutinesApi::class)
+    networkManager.networkStatusFlow.flatMapLatest { networkStatus ->
+      if (networkStatus == NetworkStatus.AVAILABLE) {
+        getRemoteSurveyList(user)
+      } else {
+        localSurveyListFlow
+      }
+    }
+
+  private fun getRemoteSurveyList(user: User): Flow<List<SurveyListItem>> =
+    remoteDataStore.getSurveyList(user).combine(localSurveyListFlow) { remoteSurveys, localSurveys
+      ->
+      remoteSurveys.map { remoteSurvey ->
+        remoteSurvey.copy(availableOffline = localSurveys.any { it.id == remoteSurvey.id })
+      }
     }
 
   /** Attempts to remove the locally synced survey. Doesn't throw an error if it doesn't exist. */

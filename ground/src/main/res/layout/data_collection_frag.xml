@@ -30,19 +30,16 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <com.google.android.ground.ui.common.TwoLineToolbar
+    <com.google.android.material.appbar.MaterialToolbar
       android:id="@+id/data_collection_toolbar"
-      android:layout_width="0dp"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:elevation="@dimen/toolbar_elevation"
-      android:theme="@style/PrimaryToolbarTheme"
-      app:layout_constraintBottom_toTopOf="@+id/pager"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintVertical_bias="0"
-      app:layout_constraintVertical_chainStyle="packed"
+      app:navigationIcon="@drawable/ic_arrow_back"
       app:subtitle="@{viewModel.loiName}"
+      app:subtitleCentered="true"
       app:title="@{viewModel.jobName}" />
 
     <androidx.viewpager2.widget.ViewPager2

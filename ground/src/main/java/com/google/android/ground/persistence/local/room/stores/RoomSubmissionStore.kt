@@ -23,8 +23,8 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.submission.TaskDataDelta
-import com.google.android.ground.model.submission.TaskDataMap
+import com.google.android.ground.model.submission.SubmissionData
+import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.persistence.local.room.converter.ResponseDeltasConverter
 import com.google.android.ground.persistence.local.room.converter.ResponseMapConverter
@@ -44,11 +44,12 @@ import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.Debug.logOnFailure
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.Flowable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 /** Manages access to [Submission] objects persisted in local storage. */
@@ -181,9 +182,9 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     job: Job?,
     submission: SubmissionEntity,
     mutations: List<SubmissionMutationEntity>
-  ): TaskDataMap {
+  ): SubmissionData {
     val responseMap = ResponseMapConverter.fromString(job!!, submission.responses)
-    val deltas = mutableListOf<TaskDataDelta>()
+    val deltas = mutableListOf<ValueDelta>()
     for (mutation in mutations) {
       // Merge changes to responses.
       deltas.addAll(ResponseDeltasConverter.fromString(job, mutation.responseDeltas))
@@ -192,17 +193,18 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   }
 
   override suspend fun deleteSubmission(submissionId: String) {
-    submissionDao.findByIdSuspend(submissionId)?.let { submissionDao.deleteSuspend(it) }
+    submissionDao.findByIdSuspend(submissionId)?.let { submissionDao.delete(it) }
   }
 
-  override fun getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+  override fun getSubmissionMutationsByLoiIdFlow(
     survey: Survey,
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
-  ): Flowable<List<SubmissionMutation>> =
-    submissionMutationDao
-      .findByLocationOfInterestIdOnceAndStream(locationOfInterestId, *allowedStates)
-      .map { list: List<SubmissionMutationEntity> -> list.map { it.toModelObject(survey) } }
+  ): Flow<List<SubmissionMutation>> =
+    submissionMutationDao.findByLoiIdFlow(locationOfInterestId, *allowedStates).map {
+      list: List<SubmissionMutationEntity> ->
+      list.map { it.toModelObject(survey) }
+    }
 
   override suspend fun applyAndEnqueue(mutation: SubmissionMutation) {
     try {
@@ -216,8 +218,10 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     }
   }
 
-  override fun getAllMutationsAndStream(): Flowable<List<SubmissionMutationEntity>> =
-    submissionMutationDao.loadAllOnceAndStream()
+  override fun getAllSurveyMutationsFlow(survey: Survey): Flow<List<SubmissionMutation>> =
+    submissionMutationDao.getAllMutationsFlow().map { mutations ->
+      mutations.filter { it.surveyId == survey.id }.map { it.toModelObject(survey) }
+    }
 
   override suspend fun findByLocationOfInterestId(
     loidId: String,

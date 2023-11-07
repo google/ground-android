@@ -20,10 +20,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.SurveyCardItemBinding
+import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.ui.surveyselector.SurveyListAdapter.ViewHolder
 
 /**
- * An implementation of [RecyclerView.Adapter] that associates [SurveyItem] data with the
+ * An implementation of [RecyclerView.Adapter] that associates [SurveyListItem] data with the
  * [ViewHolder] views.
  */
 class SurveyListAdapter(
@@ -31,7 +32,7 @@ class SurveyListAdapter(
   private val fragment: SurveySelectorFragment
 ) : RecyclerView.Adapter<ViewHolder>() {
 
-  private val surveys: MutableList<SurveyItem> = mutableListOf()
+  private val surveys: MutableList<SurveyListItem> = mutableListOf()
 
   /** Creates a new [ViewHolder] item without any data. */
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -39,9 +40,9 @@ class SurveyListAdapter(
     return ViewHolder(binding)
   }
 
-  /** Binds [SurveyItem] data to [ViewHolder]. */
+  /** Binds [SurveyListItem] data to [ViewHolder]. */
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    val item: SurveyItem = surveys[position]
+    val item: SurveyListItem = surveys[position]
     holder.binding.item = item
     holder.binding.viewModel = viewModel
     holder.binding.fragment = fragment
@@ -51,13 +52,13 @@ class SurveyListAdapter(
   override fun getItemCount() = surveys.size
 
   /** Overwrites existing cards. */
-  fun updateData(newItemsList: List<SurveyItem>) {
+  fun updateData(newItemsList: List<SurveyListItem>) {
     surveys.clear()
     surveys.addAll(newItemsList)
     notifyDataSetChanged()
   }
 
-  /** View item representing the [SurveyItem] data in the list. */
+  /** View item representing the [SurveyListItem] data in the list. */
   class ViewHolder(internal val binding: SurveyCardItemBinding) :
     RecyclerView.ViewHolder(binding.root)
 }

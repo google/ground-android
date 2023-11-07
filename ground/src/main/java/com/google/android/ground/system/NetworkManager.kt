@@ -17,15 +17,49 @@ package com.google.android.ground.system
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
+import android.net.NetworkRequest
 import androidx.annotation.RequiresPermission
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.net.ConnectException
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 
+enum class NetworkStatus {
+  AVAILABLE,
+  UNAVAILABLE
+}
 /** Abstracts access to network state. */
 @Singleton
 class NetworkManager @Inject constructor(@ApplicationContext private val context: Context) {
+  val networkStatusFlow = initNetworkStatusFlow()
+
+  fun initNetworkStatusFlow(): Flow<NetworkStatus> {
+    val connectivityManager = context.getSystemService(ConnectivityManager::class.java)
+    return callbackFlow {
+      val callback =
+        object : ConnectivityManager.NetworkCallback() {
+          override fun onAvailable(network: Network) {
+            trySend(NetworkStatus.AVAILABLE)
+          }
+
+          override fun onLost(network: Network) {
+            trySend(NetworkStatus.UNAVAILABLE)
+          }
+        }
+
+      val request = NetworkRequest.Builder().addCapability(NET_CAPABILITY_INTERNET).build()
+      // Emit initial state.
+      trySend(if (isNetworkConnected()) NetworkStatus.AVAILABLE else NetworkStatus.UNAVAILABLE)
+      connectivityManager.registerNetworkCallback(request, callback)
+
+      awaitClose { connectivityManager.unregisterNetworkCallback(callback) }
+    }
+  }
 
   /** Returns true iff the device has internet connectivity, false otherwise. */
   @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")

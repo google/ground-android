@@ -26,8 +26,8 @@ import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.submission.SubmitDataUseCase
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.TaskData
-import com.google.android.ground.model.submission.TaskDataDelta
+import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -114,14 +114,13 @@ internal constructor(
     MutableLiveData<MutableList<AbstractTaskViewModel>> =
     MutableLiveData(mutableListOf())
 
-  private val responses: MutableMap<Task, TaskData?> = LinkedHashMap()
+  private val responses: MutableMap<Task, Value?> = LinkedHashMap()
 
-  private val currentPositionKey = "currentPosition"
-  // Tracks the user's current position in the list of tasks for the current Job
+  // Tracks the task's current position in the list of tasks for the current job
   var currentPosition: @Hot(replays = true) MutableLiveData<Int> =
-    savedStateHandle.getLiveData(currentPositionKey, 0)
+    savedStateHandle.getLiveData(TASK_POSITION_KEY, 0)
 
-  var currentTaskData: TaskData? = null
+  var currentValue: Value? = null
 
   private var currentTaskViewModel: AbstractTaskViewModel? = null
 
@@ -134,7 +133,7 @@ internal constructor(
       currentTaskViewModel
     }
 
-  val currentTaskDataLiveData = currentTaskViewModelLiveData.switchMap { it?.taskData }
+  val currentValueLiveData = currentTaskViewModelLiveData.switchMap { it?.valueLiveData }
 
   lateinit var submissionId: String
 
@@ -147,7 +146,7 @@ internal constructor(
       return viewModels[position]
     }
     val viewModel = viewModelFactory.create(getViewModelClass(task.type))
-    // TODO(#1146): Pass in the existing taskData if there is one
+    // TODO(#1146): Pass in the existing value if there is one.
     viewModel.initialize(job, task, null)
     addTaskViewModel(viewModel)
     return viewModel
@@ -162,7 +161,7 @@ internal constructor(
    * Validates the user's input and displays an error if the user input was invalid. Progresses to
    * the next Data Collection screen if the user input was valid.
    */
-  fun onNextClicked() {
+  fun onNextClicked(position: Int) {
     val currentTask = currentTaskViewModel ?: return
 
     val validationError = currentTask.validate()
@@ -171,20 +170,13 @@ internal constructor(
       return
     }
 
-    val currentTaskPosition = currentPosition.value!!
-    val finalTaskPosition = tasks.size - 1
+    responses[currentTask.task] = currentValue
 
-    assert(finalTaskPosition >= 0)
-    assert(currentTaskPosition in 0..finalTaskPosition)
-
-    responses[currentTask.task] = currentTaskData
-
-    if (currentTaskPosition != finalTaskPosition) {
-      setCurrentPosition(currentPosition.value!! + 1)
+    if (!isLastPosition(position)) {
+      updateCurrentPosition(position + 1)
     } else {
-      val taskDataDeltas =
-        responses.map { (task, taskData) -> TaskDataDelta(task.id, task.type, taskData) }
-      saveChanges(taskDataDeltas)
+      val deltas = responses.map { (task, value) -> ValueDelta(task.id, task.type, value) }
+      saveChanges(deltas)
 
       // Move to home screen and display a confirmation dialog after that.
       navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
@@ -196,20 +188,34 @@ internal constructor(
   }
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
-  private fun saveChanges(taskDataDeltas: List<TaskDataDelta>) {
-    externalScope.launch(ioDispatcher) {
-      submitDataUseCase.invoke(loiId, job, surveyId, taskDataDeltas)
-    }
+  private fun saveChanges(deltas: List<ValueDelta>) {
+    externalScope.launch(ioDispatcher) { submitDataUseCase.invoke(loiId, job, surveyId, deltas) }
   }
 
-  fun setCurrentPosition(position: Int) {
-    savedStateHandle[currentPositionKey] = position
+  /** Returns the position of the task fragment visible to the user. */
+  fun getVisibleTaskPosition() = currentPosition.value!!
+
+  /** Displays the task at the given position to the user. */
+  fun updateCurrentPosition(position: Int) {
+    savedStateHandle[TASK_POSITION_KEY] = position
+  }
+
+  /** Returns true if the given task position is last. */
+  fun isLastPosition(taskPosition: Int): Boolean {
+    val finalTaskPosition = tasks.size - 1
+
+    assert(finalTaskPosition >= 0)
+    assert(taskPosition in 0..finalTaskPosition)
+
+    return taskPosition == finalTaskPosition
   }
 
   private fun createSuggestLoiTask(taskType: Task.Type): Task =
     Task(id = "-1", index = -1, taskType, resources.getString(R.string.new_site), isRequired = true)
 
   companion object {
+    private const val TASK_POSITION_KEY = "currentPosition"
+
     fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
       when (taskType) {
         Task.Type.TEXT -> TextTaskViewModel::class.java

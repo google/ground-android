@@ -15,28 +15,19 @@
  */
 package com.google.android.ground.model.submission
 
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
-/** A user-provided time taskData. */
+/** A user provided response to a number question task. */
 @Serializable
-data class TimeTaskData(val time: @Contextual Date) : TaskData {
-  // TODO(#752): Use device localization preferences.
-  private val timeFormat: @Contextual DateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+data class NumberResponse constructor(private val number: String) : Value {
+  val value: Double
+    get() = number.toDouble()
 
-  override fun getDetailsText(): String =
-    synchronized(timeFormat) {
-      return timeFormat.format(time)
-    }
+  override fun getDetailsText(): String = number
 
-  override fun isEmpty(): Boolean = time.time == 0L
+  override fun isEmpty(): Boolean = number.isEmpty()
 
   companion object {
-    fun fromDate(time: Date?): TaskData? =
-      if (time == null || time.time == 0L) null else TimeTaskData(time)
+    fun fromNumber(number: String): Value? = if (number.isEmpty()) null else NumberResponse(number)
   }
 }

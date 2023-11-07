@@ -54,43 +54,43 @@ internal object SubmissionMutationConverter {
     }
     map[LOI_ID] = mutation.locationOfInterestId
     map[JOB_ID] = mutation.job.id
-    map[RESPONSES] = toMap(mutation.taskDataDeltas)
+    map[RESPONSES] = toMap(mutation.deltas)
     return map.toPersistentMap()
   }
 
-  private fun toMap(taskDataDeltas: List<TaskDataDelta>): Map<String, Any> {
+  private fun toMap(deltas: List<ValueDelta>): Map<String, Any> {
     val map = mutableMapOf<String, Any>()
-    for (delta in taskDataDeltas) {
-      map[delta.taskId] = toObject(delta.newTaskData) ?: FieldValue.delete()
+    for (delta in deltas) {
+      map[delta.taskId] = toObject(delta.newValue) ?: FieldValue.delete()
     }
     return map.toPersistentMap()
   }
 
-  private fun toObject(taskData: TaskData?): Any? =
-    when (taskData) {
-      is TextTaskData -> {
-        taskData.text
+  private fun toObject(value: Value?): Any? =
+    when (value) {
+      is TextResponse -> {
+        value.text
       }
-      is MultipleChoiceTaskData -> {
-        taskData.selectedOptionIds
+      is MultipleChoiceResponse -> {
+        value.selectedOptionIds
       }
-      is NumberTaskData -> {
-        taskData.value
+      is NumberResponse -> {
+        value.value
       }
-      is TimeTaskData -> {
-        taskData.time
+      is TimeResponse -> {
+        value.time
       }
-      is DateTaskData -> {
-        taskData.date
+      is DateResponse -> {
+        value.date
       }
-      is GeometryData -> {
-        GeometryConverter.toFirestoreMap(taskData.geometry).getOrThrow()
+      is GeometryTaskResponse -> {
+        GeometryConverter.toFirestoreMap(value.geometry).getOrThrow()
       }
-      is LocationTaskData -> {
-        LocationTaskDataConverter.toFirestoreMap(taskData).getOrThrow()
+      is CaptureLocationResult -> {
+        CaptureLocationResultConverter.toFirestoreMap(value).getOrThrow()
       }
       else -> {
-        Timber.e("Unknown taskData type: %s", taskData?.javaClass?.name)
+        Timber.e("Unknown value type: %s", value?.javaClass?.name)
         null
       }
     }

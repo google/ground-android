@@ -1,12 +1,7 @@
 .*
 !.gitignore
 !gradle/
-**/google_maps_api.xml
 **/google-services.json
-**/secrets.properties
-
-# Blank config. Needed for Cloud builds.
-!ground/google-services.json
 
 # Taken from Android.gitignore https://github.com/github/gitignore/blob/master/Android.gitignore
 #

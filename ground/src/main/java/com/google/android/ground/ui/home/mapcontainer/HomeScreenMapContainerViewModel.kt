@@ -56,7 +56,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.reactive.asFlow
 import timber.log.Timber
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -128,7 +127,7 @@ internal constructor(
         .flatMapLatest { (survey, isZoomedIn) ->
           val bounds = currentCameraPosition.value?.bounds
           if (bounds == null || survey == null || !isZoomedIn) flowOf(listOf())
-          else loiRepository.getWithinBoundsOnceAndStream(survey, bounds).asFlow()
+          else loiRepository.getWithinBounds(survey, bounds)
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
@@ -179,7 +178,7 @@ internal constructor(
   fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
-    loiRepository.getLocationsOfInterest(survey).map {
+    loiRepository.getLocationsOfInterests(survey).map {
       it.map { loi -> loi.toFeature() }.toPersistentSet()
     }
 

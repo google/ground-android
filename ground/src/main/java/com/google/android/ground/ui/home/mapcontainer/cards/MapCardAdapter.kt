@@ -27,7 +27,9 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [LocationOfInterest] data with the
@@ -154,7 +156,9 @@ class MapCardAdapter(
 
         coroutineScope.launch {
           val submissionCount = fetchSubmissionCount(loi)
-          submissions.text = LoiCardUtil.getSubmissionsText(submissionCount)
+          withContext(Dispatchers.Main) {
+            submissions.text = LoiCardUtil.getSubmissionsText(submissionCount)
+          }
         }
       }
     }

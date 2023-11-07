@@ -56,7 +56,6 @@ class FirebaseStorageManager @Inject constructor() : RemoteStorageManager {
      * user-media/surveys/{survey_id}/submissions/{field_id-uuid.jpg}
      */
     // TODO: Refactor this into MediaStorageRepository.
-    @JvmStatic
     fun getRemoteMediaPath(surveyId: String, filename: String): String =
       StringJoiner(File.separator)
         .add(MEDIA_ROOT_DIR)

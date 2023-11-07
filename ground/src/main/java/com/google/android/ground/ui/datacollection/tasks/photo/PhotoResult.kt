@@ -16,15 +16,16 @@
 package com.google.android.ground.ui.datacollection.tasks.photo
 
 import android.graphics.Bitmap
+import com.google.android.ground.util.isNotNullOrEmpty
 
 /** Contains the bitmap or path to the photo a user captured or selected. */
-data class PhotoResult
-@JvmOverloads
-constructor(
-  val taskId: String,
-  val bitmap: Bitmap? = null,
-  val path: String? = null,
-  val isHandled: Boolean = false
-) {
-  fun isEmpty(): Boolean = bitmap == null && path == null
+data class PhotoResult constructor(val taskId: String, val bitmap: Bitmap?, val path: String?) {
+
+  init {
+    check(bitmap != null || path.isNotNullOrEmpty()) {
+      "At least one of bitmap or path should be non-null, found " +
+        "bitmap=${bitmap != null}, " +
+        "path=${path.isNotNullOrEmpty()}"
+    }
+  }
 }

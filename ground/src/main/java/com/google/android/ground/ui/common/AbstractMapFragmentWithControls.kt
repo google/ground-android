@@ -24,7 +24,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTaskFragBinding
-import com.google.android.ground.model.submission.LocationTaskData.Companion.toTaskData
+import com.google.android.ground.model.submission.CaptureLocationResult.Companion.toCaptureLocationResult
 import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
@@ -52,7 +52,7 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
         getMapViewModel().location.collect {
-          val locationText = it?.toTaskData()?.getDetailsText()
+          val locationText = it?.toCaptureLocationResult()?.getDetailsText()
           setCurrentLocationAsInfoCard(locationText)
         }
       }

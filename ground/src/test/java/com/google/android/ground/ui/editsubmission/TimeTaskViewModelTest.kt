@@ -16,7 +16,7 @@
 package com.google.android.ground.ui.editsubmission
 
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.submission.TimeTaskData.Companion.fromDate
+import com.google.android.ground.model.submission.TimeResponse.Companion.fromDate
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.TestObservers.observeUntilFirstChange
@@ -36,8 +36,8 @@ class TimeTaskViewModelTest : BaseHiltTest() {
   fun testUpdateResponse() {
     timeFieldViewModel.updateResponse(TEST_DATE)
 
-    observeUntilFirstChange(timeFieldViewModel.taskData)
-    assertThat(timeFieldViewModel.taskData.value?.get()).isEqualTo(fromDate(TEST_DATE))
+    observeUntilFirstChange(timeFieldViewModel.valueLiveData)
+    assertThat(timeFieldViewModel.valueLiveData.value?.get()).isEqualTo(fromDate(TEST_DATE))
   }
 
   companion object {

@@ -29,12 +29,13 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.hamcrest.core.IsNot.not
 import org.mockito.kotlin.whenever
 
@@ -68,13 +69,17 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     onView(withId(R.id.card_value)).check(matches(withText(value)))
   }
 
-  protected suspend fun hasTaskData(taskData: TaskData?) {
-    viewModel.taskDataFlow.test { assertThat(expectMostRecentItem()).isEqualTo(taskData) }
+  protected suspend fun hasValue(value: Value?) {
+    viewModel.valueFlow.test { assertThat(expectMostRecentItem()).isEqualTo(value) }
   }
 
-  protected fun hasButtons(vararg buttonActions: ButtonAction) {
-    // TODO: Also check for order of action buttons.
+  /** Asserts that the task fragment has the given list of buttons in the exact same order. */
+  protected fun assertFragmentHasButtons(vararg buttonActions: ButtonAction) {
     assertThat(fragment.getButtons().keys).containsExactlyElementsIn(buttonActions)
+    buttonActions.withIndex().forEach { (index, expected) ->
+      val actual = fragment.getButtonsIndex()[index]
+      assertWithMessage("Incorrect button order").that(actual).isEqualTo(expected)
+    }
   }
 
   protected fun getButton(buttonAction: ButtonAction): View =

@@ -54,12 +54,12 @@
           android:layout_height="wrap_content"
           android:orientation="vertical">
 
-          <com.google.android.ground.ui.common.TwoLineToolbar
+          <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/edit_submission_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="wrap_content"
             android:layout_gravity="top"
-            android:theme="@style/PrimaryToolbarTheme"
+            app:navigationIcon="@drawable/ic_close_black_24dp"
             app:title="@{viewModel.toolbarTitle}" />
 
         </LinearLayout>

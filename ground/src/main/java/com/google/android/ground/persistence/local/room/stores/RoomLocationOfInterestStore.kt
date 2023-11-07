@@ -36,6 +36,7 @@ import io.reactivex.Flowable
 import io.reactivex.Maybe
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
@@ -52,14 +53,6 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
    * local database and returns a [Flowable] that continually emits the complete set anew any time
    * the underlying table changes (insertions, deletions, updates).
    */
-  override fun getLocationsOfInterestOnceAndStream(
-    survey: Survey
-  ): Flowable<Set<LocationOfInterest>> =
-    locationOfInterestDao
-      .findOnceAndStream(survey.id, EntityState.DEFAULT)
-      .map { toLocationsOfInterest(survey, it) }
-      .subscribeOn(schedulers.io())
-
   override fun findLocationsOfInterest(survey: Survey) =
     locationOfInterestDao.findByState(survey.id, EntityState.DEFAULT).map {
       toLocationsOfInterest(survey, it)
@@ -129,26 +122,29 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   override suspend fun deleteLocationOfInterest(locationOfInterestId: String) {
     Timber.d("Deleting local location of interest : $locationOfInterestId")
     locationOfInterestDao.findByIdSuspend(locationOfInterestId)?.let {
-      locationOfInterestDao.deleteSuspend(it)
+      locationOfInterestDao.delete(it)
     }
   }
 
-  override fun getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
+  override fun getMutationsFlow(
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
-  ): Flowable<List<LocationOfInterestMutation>> =
-    locationOfInterestMutationDao
-      .findByLocationOfInterestIdOnceAndStream(locationOfInterestId, *allowedStates)
-      .map { list: List<LocationOfInterestMutationEntity> -> list.map { it.toModelObject() } }
+  ): Flow<List<LocationOfInterestMutation>> =
+    locationOfInterestMutationDao.getMutationsFlow(locationOfInterestId, *allowedStates).map {
+      mutations ->
+      mutations.map { it.toModelObject() }
+    }
 
-  override fun getAllMutationsAndStream(): Flowable<List<LocationOfInterestMutationEntity>> =
-    locationOfInterestMutationDao.loadAllOnceAndStream()
+  override fun getAllSurveyMutations(survey: Survey): Flow<List<LocationOfInterestMutation>> =
+    locationOfInterestMutationDao.getAllMutationsFlow().map { mutations ->
+      mutations.filter { it.surveyId == survey.id }.map { it.toModelObject() }
+    }
 
   override suspend fun findByLocationOfInterestId(
     id: String,
     vararg states: MutationEntitySyncStatus
   ): List<LocationOfInterestMutationEntity> =
-    locationOfInterestMutationDao.findByLocationOfInterestId(id, *states) ?: listOf()
+    locationOfInterestMutationDao.getMutations(id, *states) ?: listOf()
 
   override suspend fun insertOrUpdate(loi: LocationOfInterest) =
     locationOfInterestDao.insertOrUpdate(loi.toLocalDataStoreObject())

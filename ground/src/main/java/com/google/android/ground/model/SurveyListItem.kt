@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.submission
 
-import kotlinx.serialization.Serializable
+package com.google.android.ground.model
 
-/** A user provided taskData to a text question task. */
-@Serializable
-data class TextTaskData(val text: String) : TaskData {
-  override fun getDetailsText(): String = text
+data class SurveyListItem(
+  val id: String,
+  val title: String,
+  val description: String,
+  val availableOffline: Boolean
+)
 
-  override fun isEmpty(): Boolean = text.trim { it <= ' ' }.isEmpty()
-
-  override fun toString(): String = text
-
-  companion object {
-    fun fromString(text: String): TaskData? = if (text.isEmpty()) null else TextTaskData(text)
-  }
-}
+fun Survey.toListItem(availableOffline: Boolean): SurveyListItem =
+  SurveyListItem(id, title, description, availableOffline)

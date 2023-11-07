@@ -18,23 +18,17 @@ package com.google.android.ground.ui.datacollection.tasks.photo
 import android.content.res.Resources
 import android.net.Uri
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.toLiveData
-import com.google.android.ground.model.submission.TextTaskData.Companion.fromString
-import com.google.android.ground.model.task.Task
+import androidx.lifecycle.asLiveData
+import com.google.android.ground.model.submission.TextResponse.Companion.fromString
+import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager.Companion.getRemoteMediaPath
 import com.google.android.ground.repository.UserMediaRepository
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.util.BitmapUtil
-import io.reactivex.Observable
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
-import kotlinx.coroutines.rx2.rxSingle
+import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 class PhotoTaskViewModel
@@ -46,17 +40,10 @@ constructor(
 ) : AbstractTaskViewModel(resources) {
 
   /**
-   * Emits the last photo task id updated and either its photo result, or empty if removed. The last
-   * value is emitted on each subscription because {@see #onPhotoResult} is called before
-   * subscribers are created.
+   * Task id waiting for a photo result. As only one photo result is returned at a time, we can
+   * directly map it 1:1 with the task waiting for a photo result.
    */
-  private val lastPhotoResult: Subject<PhotoResult> = BehaviorSubject.create()
-
-  /**
-   * Task id waiting for a photo taskData. As only 1 photo result is returned at a time, we can
-   * directly map it 1:1 with the task waiting for a photo taskData.
-   */
-  private var taskWaitingForPhoto: String? = null
+  var taskWaitingForPhoto: String? = null
 
   /**
    * Full path of the captured photo in local storage. In case of selecting a photo from storage,
@@ -64,87 +51,35 @@ constructor(
    * result returns true/false based on whether the operation passed or not. As only 1 photo result
    * is returned at a time, we can directly map it 1:1 with the path of the captured photo.
    */
-  private var capturedPhotoPath: String? = null
+  var capturedPhotoPath: String? = null
+
+  lateinit var surveyId: String
 
   val uri: LiveData<Uri> =
-    detailsTextFlowable()
-      .switchMapSingle { rxSingle { userMediaRepository.getDownloadUrl(it) } }
-      .toLiveData()
+    value.map { userMediaRepository.getDownloadUrl(it?.getDetailsText()) }.asLiveData()
 
-  val isPhotoPresent: LiveData<Boolean> = detailsTextFlowable().map { it.isNotEmpty() }.toLiveData()
+  val isPhotoPresent: LiveData<Boolean> = value.map { it.isNotNullOrEmpty() }.asLiveData()
 
-  private var surveyId: String? = null
-
-  private val takePhotoClicks: @Hot Subject<Task> = PublishSubject.create()
-  private val editable: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData(false)
-
-  fun onTakePhotoClick() {
-    takePhotoClicks.onNext(task)
-  }
-
-  fun getTakePhotoClicks(): @Hot Observable<Task> = takePhotoClicks
-
-  fun setEditable(enabled: Boolean) {
-    editable.postValue(enabled)
-  }
-
-  fun isEditable(): LiveData<Boolean> = editable
-
-  fun updateResponse(value: String) {
-    setResponse(fromString(value))
-  }
-
-  fun setSurveyId(surveyId: String?) {
-    this.surveyId = surveyId
-  }
-
-  fun onPhotoResult(photoResult: PhotoResult) {
-    if (photoResult.isHandled) {
-      return
-    }
-    if (surveyId == null) {
-      Timber.e("surveyId not set")
-      return
-    }
+  private fun onPhotoResult(photoResult: PhotoResult) {
     if (photoResult.taskId != task.id) {
       // Update belongs to another task.
       return
     }
-    if (photoResult.isEmpty()) {
-      clearResponse()
-      Timber.v("Photo cleared")
-      return
-    }
     try {
-      val imageFile = getFileFromResult(photoResult.copy(isHandled = true))
+      val imageFile = getFileFromResult(photoResult)
       val filename = imageFile.name
       val path = imageFile.absolutePath
 
       // Add image to gallery.
       userMediaRepository.addImageToGallery(path, filename)
 
-      // Update taskData.
-      val remoteDestinationPath = getRemoteMediaPath(surveyId!!, filename)
-      updateResponse(remoteDestinationPath)
+      // Update value..
+      val remoteDestinationPath = getRemoteMediaPath(surveyId, filename)
+      setValue(fromString(remoteDestinationPath))
     } catch (e: IOException) {
-      // TODO: Report error.
       Timber.e(e, "Failed to save photo")
     }
   }
-
-  fun getTaskWaitingForPhoto(): String? = taskWaitingForPhoto
-
-  fun setTaskWaitingForPhoto(taskWaitingForPhoto: String?) {
-    this.taskWaitingForPhoto = taskWaitingForPhoto
-  }
-
-  fun getCapturedPhotoPath(): String? = capturedPhotoPath
-
-  fun setCapturedPhotoPath(photoUri: String?) {
-    this.capturedPhotoPath = photoUri
-  }
-
-  fun getLastPhotoResult(): Observable<PhotoResult?> = lastPhotoResult
 
   fun onSelectPhotoResult(uri: Uri?) {
     if (uri == null) {
@@ -157,7 +92,7 @@ constructor(
       return
     }
     try {
-      onPhotoProvided(PhotoResult(currentTask, bitmapUtil.fromUri(uri)))
+      onPhotoProvided(PhotoResult(currentTask, bitmapUtil.fromUri(uri), null))
       Timber.v("Select photo result returned")
     } catch (e: IOException) {
       Timber.e(e, "Error getting photo selected from storage")
@@ -179,21 +114,16 @@ constructor(
       Timber.e("Photo captured but no path available to read the result")
       return
     }
-    onPhotoProvided(PhotoResult(currentTask, /* bitmap=*/ null, capturedPhotoPath))
+    onPhotoProvided(PhotoResult(currentTask, null, capturedPhotoPath))
     Timber.v("Photo capture result returned")
   }
 
   private fun onPhotoProvided(result: PhotoResult) {
     capturedPhotoPath = null
     taskWaitingForPhoto = null
-    lastPhotoResult.onNext(result)
+    onPhotoResult(result)
   }
 
-  fun clearPhoto(taskId: String) {
-    lastPhotoResult.onNext(PhotoResult(taskId))
-  }
-
-  @Throws(IOException::class)
   private fun getFileFromResult(result: PhotoResult): File {
     if (result.bitmap != null) {
       return userMediaRepository.savePhoto(result.bitmap, result.taskId)
