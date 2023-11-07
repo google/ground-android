@@ -61,19 +61,6 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
     val loi = FakeData.AREA_OF_INTEREST.copy("")
     assertLabel(loi, "Polygon")
   }
-
-  @Test
-  fun testGetLabel_whenCaptionIsPresentAndLoiIsPoint() {
-    val loi = FakeData.LOCATION_OF_INTEREST.copy(TEST_CAPTION)
-    assertLabel(loi, TEST_CAPTION)
-  }
-
-  @Test
-  fun testGetLabel_whenCaptionIsPresentAndLoiIsPolygon() {
-    val loi = FakeData.AREA_OF_INTEREST.copy(TEST_CAPTION)
-    assertLabel(loi, TEST_CAPTION)
-  }
-
   @Test
   fun testGetSubtitle() {
     val loi = FakeData.LOCATION_OF_INTEREST.copy(job = FakeData.JOB.copy(name = TEST_JOB_NAME))

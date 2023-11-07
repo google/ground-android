@@ -22,7 +22,7 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 
-/** Alias for a map of properties with string names.*/
+/** Alias for a map of properties with string names. */
 typealias LoiProperties = Map<String, Any>
 
 /** User-defined locations of interest (LOI) shown on the map. */
