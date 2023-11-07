@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SubmissionMutationDao : BaseDao<SubmissionMutationEntity> {
   @Query("SELECT * FROM submission_mutation")
-  fun getAllMutations(): Flow<List<SubmissionMutationEntity>>
+  fun getAllMutationsFlow(): Flow<List<SubmissionMutationEntity>>
 
   @Query(
     "SELECT * FROM submission_mutation " +
@@ -61,7 +61,7 @@ interface SubmissionMutationDao : BaseDao<SubmissionMutationEntity> {
     "SELECT * FROM submission_mutation " +
       "WHERE location_of_interest_id = :locationOfInterestId AND state IN (:allowedStates)"
   )
-  fun findByLocationOfInterestIdFlow(
+  fun findByLoiIdFlow(
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
   ): Flow<List<SubmissionMutationEntity>>

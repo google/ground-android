@@ -36,7 +36,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.rx2.rxCompletable
 import kotlinx.coroutines.rx2.rxSingle
 
@@ -141,19 +141,15 @@ constructor(
     surveyId: String,
     locationOfInterestId: String
   ): Flow<List<SubmissionMutation>> {
-    val survey = localSurveyStore.getSurveyByIdSuspend(surveyId)
+    val survey = localSurveyStore.getSurveyByIdSuspend(surveyId) ?: return flowOf()
 
-    return if (survey != null) {
-      localSubmissionStore.getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
-        survey,
-        locationOfInterestId,
-        MutationEntitySyncStatus.PENDING,
-        MutationEntitySyncStatus.IN_PROGRESS,
-        MutationEntitySyncStatus.FAILED
-      )
-    } else {
-      flow {}
-    }
+    return localSubmissionStore.getSubmissionMutationsByLoiIdFlow(
+      survey,
+      locationOfInterestId,
+      MutationEntitySyncStatus.PENDING,
+      MutationEntitySyncStatus.IN_PROGRESS,
+      MutationEntitySyncStatus.FAILED
+    )
   }
 
   suspend fun getTotalSubmissionCount(loi: LocationOfInterest) =

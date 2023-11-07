@@ -196,14 +196,15 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     submissionDao.findByIdSuspend(submissionId)?.let { submissionDao.delete(it) }
   }
 
-  override fun getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+  override fun getSubmissionMutationsByLoiIdFlow(
     survey: Survey,
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
   ): Flow<List<SubmissionMutation>> =
-    submissionMutationDao
-      .findByLocationOfInterestIdFlow(locationOfInterestId, *allowedStates)
-      .map { list: List<SubmissionMutationEntity> -> list.map { it.toModelObject(survey) } }
+    submissionMutationDao.findByLoiIdFlow(locationOfInterestId, *allowedStates).map {
+      list: List<SubmissionMutationEntity> ->
+      list.map { it.toModelObject(survey) }
+    }
 
   override suspend fun applyAndEnqueue(mutation: SubmissionMutation) {
     try {
@@ -217,8 +218,8 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     }
   }
 
-  override fun getAllSurveyMutations(survey: Survey): Flow<List<SubmissionMutation>> =
-    submissionMutationDao.getAllMutations().map { mutations ->
+  override fun getAllSurveyMutationsFlow(survey: Survey): Flow<List<SubmissionMutation>> =
+    submissionMutationDao.getAllMutationsFlow().map { mutations ->
       mutations.filter { it.surveyId == survey.id }.map { it.toModelObject(survey) }
     }
 

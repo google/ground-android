@@ -216,7 +216,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION)
 
     localSubmissionStore
-      .getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+      .getSubmissionMutationsByLoiIdFlow(
         TEST_SURVEY,
         TEST_LOI_MUTATION.locationOfInterestId,
         MutationEntitySyncStatus.PENDING
@@ -241,7 +241,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     localSubmissionStore.applyAndEnqueue(mutation)
 
     localSubmissionStore
-      .getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+      .getSubmissionMutationsByLoiIdFlow(
         TEST_SURVEY,
         TEST_LOI_MUTATION.locationOfInterestId,
         MutationEntitySyncStatus.PENDING

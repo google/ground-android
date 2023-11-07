@@ -51,7 +51,7 @@ constructor(
   fun getSurveyMutationsFlow(survey: Survey): Flow<List<Mutation>> {
     // TODO: Show mutations for all surveys, not just current one.
     val locationOfInterestMutations = localLocationOfInterestStore.getAllSurveyMutations(survey)
-    val submissionMutations = localSubmissionStore.getAllSurveyMutations(survey)
+    val submissionMutations = localSubmissionStore.getAllSurveyMutationsFlow(survey)
 
     return locationOfInterestMutations.combine(submissionMutations, this::combineAndSortMutations)
   }

@@ -87,7 +87,7 @@ constructor(
         Single.error { NotFoundException("Location of interest not found $locationOfInterest") }
       )
 
-  suspend fun getOfflineLocationOfInterestSuspend(
+  suspend fun getOfflineLoiSuspend(
     surveyId: String,
     locationOfInterest: String
   ): LocationOfInterest =
@@ -127,7 +127,7 @@ constructor(
    * have not yet been marked as [SyncStatus.COMPLETED], including pending, in progress, and failed
    * mutations. A new list is emitted on each subsequent change.
    */
-  fun getIncompleteLocationOfInterestMutationsOnceAndStream(
+  fun getIncompleteLoiMutationsOnceAndStream(
     locationOfInterestId: String
   ): Flowable<List<LocationOfInterestMutation>> =
     localLoiStore

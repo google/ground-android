@@ -136,7 +136,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     }
 
   override fun getAllSurveyMutations(survey: Survey): Flow<List<LocationOfInterestMutation>> =
-    locationOfInterestMutationDao.getAllMutations().map { mutations ->
+    locationOfInterestMutationDao.getAllMutationsFlow().map { mutations ->
       mutations.filter { it.surveyId == survey.id }.map { it.toModelObject() }
     }
 

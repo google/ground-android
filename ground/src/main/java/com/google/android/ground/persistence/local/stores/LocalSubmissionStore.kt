@@ -46,7 +46,7 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
    * Returns a [Flow] that emits the list of [SubmissionMutation] instances for a given LOI which
    * match the provided `allowedStates`. A new list is emitted on each subsequent change.
    */
-  fun getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+  fun getSubmissionMutationsByLoiIdFlow(
     survey: Survey,
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
@@ -56,7 +56,7 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
    * Returns a [Flow] that emits a list of all [SubmissionMutation]s associated with a given
    * [Survey]. The list is newly emitted each time the underlying local data changes.
    */
-  fun getAllSurveyMutations(survey: Survey): Flow<List<SubmissionMutation>>
+  fun getAllSurveyMutationsFlow(survey: Survey): Flow<List<SubmissionMutation>>
 
   suspend fun findByLocationOfInterestId(
     loidId: String,

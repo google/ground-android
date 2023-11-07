@@ -64,7 +64,7 @@ internal constructor(
     mutation: Mutation
   ): Pair<LocationOfInterest, Mutation> {
     val loi =
-      locationOfInterestRepository.getOfflineLocationOfInterestSuspend(
+      locationOfInterestRepository.getOfflineLoiSuspend(
         mutation.surveyId,
         mutation.locationOfInterestId
       )

@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface LocationOfInterestMutationDao : BaseDao<LocationOfInterestMutationEntity> {
   @Query("SELECT * FROM location_of_interest_mutation")
-  fun getAllMutations(): Flow<List<LocationOfInterestMutationEntity>>
+  fun getAllMutationsFlow(): Flow<List<LocationOfInterestMutationEntity>>
 
   @Query(
     "SELECT * FROM location_of_interest_mutation " +
