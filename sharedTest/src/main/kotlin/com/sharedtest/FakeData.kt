@@ -60,7 +60,7 @@ object FakeData {
       "loi id",
       SURVEY.id,
       JOB,
-      customId = null,
+      customId = "",
       created = AuditInfo(USER),
       lastModified = AuditInfo(USER),
       geometry = Point(Coordinates(0.0, 0.0)),

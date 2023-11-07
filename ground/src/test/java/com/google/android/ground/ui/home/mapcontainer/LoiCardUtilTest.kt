@@ -33,12 +33,14 @@ class LoiCardUtilTest {
 
   @Test
   fun testLoiNameWithPoint_whenCustomIdAndPropertiesAreNull() {
-    assertThat(getDisplayLoiName(context, TEST_LOI.copy(customId = null, properties = null))).isEqualTo("Unnamed point")
+    assertThat(getDisplayLoiName(context, TEST_LOI.copy(customId = "", properties = mapOf())))
+      .isEqualTo("Unnamed point")
   }
 
   @Test
   fun testLoiNameWithPolygon_whenCustomIdAndPropertiesAreNull() {
-    assertThat(getDisplayLoiName(context, TEST_AREA.copy(customId = null, properties = null))).isEqualTo("Unnamed area")
+    assertThat(getDisplayLoiName(context, TEST_AREA.copy(customId = "", properties = mapOf())))
+      .isEqualTo("Unnamed area")
   }
 
   @Test
@@ -55,25 +57,42 @@ class LoiCardUtilTest {
 
   @Test
   fun testArea_whenCustomIdIsNotAvailable_usesPropertiesId() {
-    assertThat(getDisplayLoiName(context, TEST_AREA.copy(customId = null, properties = mapOf("id" to "property id"))))
+    assertThat(
+        getDisplayLoiName(
+          context,
+          TEST_AREA.copy(customId = "", properties = mapOf("id" to "property id"))
+        )
+      )
       .isEqualTo("Area (property id)")
   }
 
   @Test
   fun testLoiName_whenPropertiesNameIsAvailable() {
-    assertThat(getDisplayLoiName(context, TEST_LOI.copy(properties = mapOf("name" to "custom name"))))
+    assertThat(
+        getDisplayLoiName(context, TEST_LOI.copy(properties = mapOf("name" to "custom name")))
+      )
       .isEqualTo("custom name")
   }
 
   @Test
   fun testLoiName_whenCustomIdAndPropertiesNameIsAvailable() {
-    assertThat(getDisplayLoiName(context, TEST_LOI.copy(customId = "some value",properties = mapOf("name" to "custom name") )))
+    assertThat(
+        getDisplayLoiName(
+          context,
+          TEST_LOI.copy(customId = "some value", properties = mapOf("name" to "custom name"))
+        )
+      )
       .isEqualTo("custom name (some value)")
   }
 
   @Test
   fun testLoiName_whenPropertiesDoesNotContainName() {
-    assertThat(getDisplayLoiName(context, TEST_LOI.copy(customId = null, properties = mapOf("not" to "a name field"))))
+    assertThat(
+        getDisplayLoiName(
+          context,
+          TEST_LOI.copy(customId = "", properties = mapOf("not" to "a name field"))
+        )
+      )
       .isEqualTo("Unnamed point")
   }
 

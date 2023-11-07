@@ -58,7 +58,7 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
 
   @Test
   fun testGetLabel_whenCaptionIsEmptyAndLoiIsPolygon() {
-    val loi = FakeData.AREA_OF_INTEREST.copy( "")
+    val loi = FakeData.AREA_OF_INTEREST.copy("")
     assertLabel(loi, "Polygon")
   }
 
