@@ -21,13 +21,13 @@ import com.google.protobuf.GeneratedMessageLite
 import timber.log.Timber
 
 fun <T : GeneratedMessageLite<*, *>> DocumentSnapshot.copyInto(proto: T?): T? {
-  val o = proto ?: return null
+  proto ?: return null
   val map = data
   // TODO: Replace `id` with `uuid`?
   map?.set("id", id)
   map?.forEach { (key, value) ->
     try {
-      val field = o::class.java.getDeclaredField(key + "_")
+      val field = proto::class.java.getDeclaredField(key + "_")
       field.isAccessible = true
       // TODO: Handle maps, arrays, GeoPoint, and other types.
       field.set(proto, value)
