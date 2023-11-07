@@ -21,7 +21,7 @@ apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.google.dagger.hilt.android'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.google.firebase.crashlytics'
-
+apply plugin: 'com.google.protobuf'
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
 apply from: '../config/jacoco/jacoco.gradle'
@@ -321,6 +321,11 @@ dependencies {
     stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
 
     implementation "com.google.guava:guava:31.1-android"
+
+    api("com.google.protobuf:protobuf-kotlin-lite:3.25.0")
+    // TODO: Move protos into shared module and set correct path here.
+//    testProtobuf(files("lib/protos-test.tar.gz"))
+//    implementation("com.google.protobuf:protobuf-java-util:3.25.0")
 }
 
 // Allow references to generated code.
@@ -336,4 +341,29 @@ apply plugin: 'com.google.gms.google-services'
 
 kotlin {
     jvmToolchain rootProject.jvmToolchainVersion
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.25.0"
+    }
+    plugins {
+        create("java") {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.59.0"
+        }
+    }
+    generateProtoTasks {
+        all().each {
+            it.plugins {
+                create("java") {
+                    option("lite")
+                }
+            }
+            it.builtins {
+                create("kotlin") {
+                    option("lite")
+                }
+            }
+        }
+    }
 }
