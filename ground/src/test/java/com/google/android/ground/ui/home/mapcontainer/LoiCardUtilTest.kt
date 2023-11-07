@@ -32,19 +32,68 @@ class LoiCardUtilTest {
   private val context: Context = ApplicationProvider.getApplicationContext()
 
   @Test
-  fun testLoiNameWithPoint_whenCaptionIsNull() {
-    assertThat(getDisplayLoiName(context, TEST_LOI.copy(caption = null))).isEqualTo("Unnamed point")
+  fun testLoiNameWithPoint_whenCustomIdAndPropertiesAreNull() {
+    assertThat(getDisplayLoiName(context, TEST_LOI.copy(customId = "", properties = mapOf())))
+      .isEqualTo("Unnamed point")
   }
 
   @Test
-  fun testLoiNameWithPolygon_whenCaptionIsNull() {
-    assertThat(getDisplayLoiName(context, TEST_AREA.copy(caption = null))).isEqualTo("Unnamed area")
+  fun testLoiNameWithPolygon_whenCustomIdAndPropertiesAreNull() {
+    assertThat(getDisplayLoiName(context, TEST_AREA.copy(customId = "", properties = mapOf())))
+      .isEqualTo("Unnamed area")
   }
 
   @Test
-  fun testLoiName_whenCaptionIsAvailable() {
-    assertThat(getDisplayLoiName(context, TEST_LOI.copy(caption = "some value")))
-      .isEqualTo("some value")
+  fun testLoiName_whenCustomIdIsAvailable() {
+    assertThat(getDisplayLoiName(context, TEST_LOI.copy(customId = "some value")))
+      .isEqualTo("Point (some value)")
+  }
+
+  @Test
+  fun testArea_whenCustomIdIsAvailable() {
+    assertThat(getDisplayLoiName(context, TEST_AREA.copy(customId = "some value")))
+      .isEqualTo("Area (some value)")
+  }
+
+  @Test
+  fun testArea_whenCustomIdIsNotAvailable_usesPropertiesId() {
+    assertThat(
+        getDisplayLoiName(
+          context,
+          TEST_AREA.copy(customId = "", properties = mapOf("id" to "property id"))
+        )
+      )
+      .isEqualTo("Area (property id)")
+  }
+
+  @Test
+  fun testLoiName_whenPropertiesNameIsAvailable() {
+    assertThat(
+        getDisplayLoiName(context, TEST_LOI.copy(properties = mapOf("name" to "custom name")))
+      )
+      .isEqualTo("custom name")
+  }
+
+  @Test
+  fun testLoiName_whenCustomIdAndPropertiesNameIsAvailable() {
+    assertThat(
+        getDisplayLoiName(
+          context,
+          TEST_LOI.copy(customId = "some value", properties = mapOf("name" to "custom name"))
+        )
+      )
+      .isEqualTo("custom name (some value)")
+  }
+
+  @Test
+  fun testLoiName_whenPropertiesDoesNotContainName() {
+    assertThat(
+        getDisplayLoiName(
+          context,
+          TEST_LOI.copy(customId = "", properties = mapOf("not" to "a name field"))
+        )
+      )
+      .isEqualTo("Unnamed point")
   }
 
   @Test
@@ -75,7 +124,7 @@ class LoiCardUtilTest {
   }
 
   companion object {
-    private val TEST_LOI = FakeData.LOCATION_OF_INTEREST.copy(caption = null)
-    private val TEST_AREA = FakeData.AREA_OF_INTEREST.copy(caption = null)
+    private val TEST_LOI = FakeData.LOCATION_OF_INTEREST.copy()
+    private val TEST_AREA = FakeData.AREA_OF_INTEREST.copy()
   }
 }

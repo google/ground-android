@@ -69,7 +69,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupSubmission()
     setupFragment()
 
-    onView(withText(LOCATION_OF_INTEREST.caption)).check(matches(isDisplayed()))
+    // TODO(#2046): Update this test to match new LOI label format
+    onView(withText("Point")).check(matches(isDisplayed()))
     onView(withText(JOB.name)).check(matches(isDisplayed()))
   }
 

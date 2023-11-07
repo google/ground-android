@@ -34,7 +34,8 @@ class LocationOfInterestHelper @Inject internal constructor(private val resource
     locationOfInterest.map(::getLabel).orElse("")
 
   fun getLabel(loi: LocationOfInterest): String {
-    val caption = loi.caption?.trim { it <= ' ' } ?: ""
+    // TODO(#2046): Reuse logic from card util to display LOI label
+    val caption = loi.customId?.trim { it <= ' ' } ?: ""
     return caption.ifEmpty { getLocationOfInterestType(loi) }
   }
 

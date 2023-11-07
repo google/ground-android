@@ -80,8 +80,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     // TODO(#1559): Remove once customId and caption are handled consistently.
     val loi =
       LOCATION_OF_INTEREST.copy(
-        customId = null,
-        caption = null,
+        customId = "",
         // TODO(#1562): Remove once creation time is preserved in local db.
         lastModified = LOCATION_OF_INTEREST.created
       )
@@ -201,8 +200,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         id = id,
         geometry = Point(coordinate),
         surveyId = TEST_SURVEY.id,
-        caption = null,
-        customId = null
+        customId = ""
       )
 
     private fun createPolygon(id: String, coordinates: List<Coordinates>) =
@@ -210,8 +208,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         id = id,
         geometry = Polygon(LinearRing(coordinates)),
         surveyId = TEST_SURVEY.id,
-        caption = null,
-        customId = null
+        customId = ""
       )
   }
 }
