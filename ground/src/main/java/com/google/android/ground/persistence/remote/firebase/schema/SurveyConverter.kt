@@ -21,7 +21,6 @@ import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.copyInto
-import com.google.android.ground.persistence.remote.firebase.proto.copyInto
 import com.google.android.ground.persistence.remote.firebase.schema.JobConverter.toJob
 import com.google.android.ground.proto.survey
 import com.google.firebase.firestore.DocumentSnapshot
