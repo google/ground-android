@@ -28,7 +28,8 @@ import com.google.android.ground.util.isNotNullOrEmpty
 object LoiCardUtil {
 
   fun getDisplayLoiName(context: Context, loi: LocationOfInterest): String {
-    val loiId = loi.customId ?: loi.properties?.get("id")?.toString()
+    val loiId =
+      if (loi.customId.isNotNullOrEmpty()) loi.customId else loi.properties?.get("id")?.toString()
     val geometry = loi.geometry
     val name: String? = loi.properties?.get("name")?.toString()
     return if (name.isNotNullOrEmpty() && loiId.isNotNullOrEmpty()) {
