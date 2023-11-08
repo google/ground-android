@@ -17,6 +17,7 @@ package com.google.android.ground.ui.map
 
 import android.annotation.SuppressLint
 import androidx.annotation.IdRes
+import androidx.lifecycle.LiveData
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -45,12 +46,12 @@ interface MapFragment {
   val featureClicks: SharedFlow<Set<Feature>>
 
   /** Emits as the user begins dragging the map. */
-  val startDragEvents: SharedFlow<Unit>
+  val startDragEvents: LiveData<Unit>
 
   /**
    * Returns camera movement events. Emits the new camera position each time the map stops moving.
    */
-  val cameraMovedEvents: SharedFlow<CameraPosition>
+  val cameraMovedEvents: LiveData<CameraPosition>
 
   /** Attaches this [MapFragment] to its parent [Fragment]. */
   fun attachToParent(

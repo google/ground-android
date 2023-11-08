@@ -198,8 +198,12 @@ constructor(
     }
   }
 
+  /** Emits a stream of location lock state. */
+  fun getLocationLockStatus(): LiveData<Result<Boolean>> = locationLock.asLiveData()
+
   /** Emits a stream of camera update requests. */
-  fun getCameraUpdateRequests(): Flow<CameraUpdateRequest> = _cameraUpdateRequests.filterNotNull()
+  fun getCameraUpdateRequests(): LiveData<CameraUpdateRequest> =
+    _cameraUpdateRequests.filterNotNull().asLiveData()
 
   /** Emits a stream of current camera position. */
   fun getCurrentCameraPosition(): Flow<CameraPosition> = currentCameraPosition.filterNotNull()
@@ -278,6 +282,7 @@ constructor(
 
   /** Called when the map camera is moved. */
   open fun onMapCameraMoved(newCameraPosition: CameraPosition) {
+    Timber.d("Camera moved : ${newCameraPosition.target}")
     lastCameraPosition = currentCameraPosition.value
     currentCameraPosition.value = newCameraPosition
   }
