@@ -59,15 +59,15 @@ object FakeData {
   private const val LOI_NAME = "loi name"
 
   val LOCATION_OF_INTEREST =
-      LocationOfInterest(
-          "loi id",
-          SURVEY.id,
-          JOB,
-          null,
-          LOI_NAME,
-          AuditInfo(USER),
-          AuditInfo(USER),
-          Point(Coordinates(0.0, 0.0)))
+    LocationOfInterest(
+      "loi id",
+      SURVEY.id,
+      JOB,
+      customId = "",
+      created = AuditInfo(USER),
+      lastModified = AuditInfo(USER),
+      geometry = Point(Coordinates(0.0, 0.0)),
+    )
 
   val LOCATION_OF_INTEREST_FEATURE =
       Feature(
@@ -90,16 +90,15 @@ object FakeData {
   private val AUDIT_INFO = AuditInfo(USER)
 
   val AREA_OF_INTEREST: LocationOfInterest =
-      LocationOfInterest(
-          "loi id",
-          SURVEY.id,
-          JOB,
-          "",
-          "",
-          AUDIT_INFO,
-          AUDIT_INFO,
-          Polygon(LinearRing(VERTICES.map { it.coordinates })),
-      )
+    LocationOfInterest(
+      "loi id",
+      SURVEY.id,
+      JOB,
+      "",
+      AUDIT_INFO,
+      AUDIT_INFO,
+      Polygon(LinearRing(VERTICES.map { it.coordinates })),
+    )
 
   val COORDINATES = Coordinates(42.0, 18.0)
 

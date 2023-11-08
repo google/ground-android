@@ -28,15 +28,16 @@ import com.google.android.ground.util.isNotNullOrEmpty
 object LoiCardUtil {
 
   fun getDisplayLoiName(context: Context, loi: LocationOfInterest): String {
-    val caption = loi.caption
-    val customId = loi.customId
+    val loiId =
+      if (loi.customId.isNotNullOrEmpty()) loi.customId else loi.properties?.get("id")?.toString()
     val geometry = loi.geometry
-    return if (caption.isNotNullOrEmpty() && customId.isNotNullOrEmpty()) {
-      "$caption ($customId)"
-    } else if (caption.isNotNullOrEmpty()) {
-      "$caption"
-    } else if (customId.isNotNullOrEmpty()) {
-      "${geometry.toType(context)} ($customId)"
+    val name: String? = loi.properties?.get("name")?.toString()
+    return if (name.isNotNullOrEmpty() && loiId.isNotNullOrEmpty()) {
+      "$name ($loiId)"
+    } else if (name.isNotNullOrEmpty()) {
+      "$name"
+    } else if (loiId.isNotNullOrEmpty()) {
+      "${geometry.toType(context)} ($loiId)"
     } else {
       geometry.toDefaultName(context)
     }
