@@ -77,7 +77,7 @@ constructor(
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : AbstractViewModel() {
 
-  private val _cameraUpdateRequests = MutableStateFlow<CameraUpdateRequest?>(null)
+  private val _cameraUpdateRequests = MutableLiveData<CameraUpdateRequest>()
 
   val locationLock: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
@@ -202,8 +202,7 @@ constructor(
   fun getLocationLockStatus(): LiveData<Result<Boolean>> = locationLock.asLiveData()
 
   /** Emits a stream of camera update requests. */
-  fun getCameraUpdateRequests(): LiveData<CameraUpdateRequest> =
-    _cameraUpdateRequests.filterNotNull().asLiveData()
+  fun getCameraUpdateRequests(): LiveData<CameraUpdateRequest> = _cameraUpdateRequests
 
   /** Emits a stream of current camera position. */
   fun getCurrentCameraPosition(): Flow<CameraPosition> = currentCameraPosition.filterNotNull()
@@ -273,11 +272,11 @@ constructor(
    * @param shouldAnimate whether to animate the map camera or not
    */
   private fun setCameraPosition(cameraPosition: CameraPosition, shouldAnimate: Boolean) {
-    _cameraUpdateRequests.value = CameraUpdateRequest(cameraPosition, shouldAnimate)
+    _cameraUpdateRequests.postValue(CameraUpdateRequest(cameraPosition, shouldAnimate))
   }
 
   private fun setCameraPosition(cameraUpdateRequest: CameraUpdateRequest) {
-    _cameraUpdateRequests.value = cameraUpdateRequest
+    _cameraUpdateRequests.postValue(cameraUpdateRequest)
   }
 
   /** Called when the map camera is moved. */
