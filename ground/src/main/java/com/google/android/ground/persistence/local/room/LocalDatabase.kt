@@ -23,9 +23,41 @@ import com.google.android.ground.persistence.local.room.converter.GeometryWrappe
 import com.google.android.ground.persistence.local.room.converter.JsonArrayTypeConverter
 import com.google.android.ground.persistence.local.room.converter.JsonObjectTypeConverter
 import com.google.android.ground.persistence.local.room.converter.StyleTypeConverter
-import com.google.android.ground.persistence.local.room.dao.*
-import com.google.android.ground.persistence.local.room.entity.*
-import com.google.android.ground.persistence.local.room.fields.*
+import com.google.android.ground.persistence.local.room.dao.JobDao
+import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao
+import com.google.android.ground.persistence.local.room.dao.LocationOfInterestMutationDao
+import com.google.android.ground.persistence.local.room.dao.MultipleChoiceDao
+import com.google.android.ground.persistence.local.room.dao.OfflineAreaDao
+import com.google.android.ground.persistence.local.room.dao.OptionDao
+import com.google.android.ground.persistence.local.room.dao.PhotoDao
+import com.google.android.ground.persistence.local.room.dao.PhotoMutationDao
+import com.google.android.ground.persistence.local.room.dao.SubmissionDao
+import com.google.android.ground.persistence.local.room.dao.SubmissionMutationDao
+import com.google.android.ground.persistence.local.room.dao.SurveyDao
+import com.google.android.ground.persistence.local.room.dao.TaskDao
+import com.google.android.ground.persistence.local.room.dao.TileSourceDao
+import com.google.android.ground.persistence.local.room.dao.UserDao
+import com.google.android.ground.persistence.local.room.entity.JobEntity
+import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
+import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
+import com.google.android.ground.persistence.local.room.entity.MultipleChoiceEntity
+import com.google.android.ground.persistence.local.room.entity.OfflineAreaEntity
+import com.google.android.ground.persistence.local.room.entity.OptionEntity
+import com.google.android.ground.persistence.local.room.entity.PhotoEntity
+import com.google.android.ground.persistence.local.room.entity.PhotoMutationEntity
+import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
+import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
+import com.google.android.ground.persistence.local.room.entity.SurveyEntity
+import com.google.android.ground.persistence.local.room.entity.TaskEntity
+import com.google.android.ground.persistence.local.room.entity.TileSourceEntity
+import com.google.android.ground.persistence.local.room.entity.UserEntity
+import com.google.android.ground.persistence.local.room.fields.EntityState
+import com.google.android.ground.persistence.local.room.fields.MultipleChoiceEntityType
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.room.fields.MutationEntityType
+import com.google.android.ground.persistence.local.room.fields.OfflineAreaEntityState
+import com.google.android.ground.persistence.local.room.fields.TaskEntityType
+import com.google.android.ground.persistence.local.room.fields.TileSetEntityState
 
 /**
  * Main entry point to local database API, exposing data access objects (DAOs) for interacting with
@@ -48,7 +80,9 @@ import com.google.android.ground.persistence.local.room.fields.*
       SubmissionEntity::class,
       SubmissionMutationEntity::class,
       OfflineAreaEntity::class,
-      UserEntity::class
+      UserEntity::class,
+      PhotoEntity::class,
+      PhotoMutationEntity::class
     ],
   version = Config.DB_VERSION,
   exportSchema = false
@@ -68,15 +102,30 @@ import com.google.android.ground.persistence.local.room.fields.*
 )
 abstract class LocalDatabase : RoomDatabase() {
   abstract fun locationOfInterestDao(): LocationOfInterestDao
+
   abstract fun locationOfInterestMutationDao(): LocationOfInterestMutationDao
+
   abstract fun taskDao(): TaskDao
+
   abstract fun jobDao(): JobDao
+
   abstract fun multipleChoiceDao(): MultipleChoiceDao
+
   abstract fun optionDao(): OptionDao
+
   abstract fun surveyDao(): SurveyDao
+
   abstract fun tileSourceDao(): TileSourceDao
+
   abstract fun submissionDao(): SubmissionDao
+
   abstract fun submissionMutationDao(): SubmissionMutationDao
+
   abstract fun offlineAreaDao(): OfflineAreaDao
+
   abstract fun userDao(): UserDao
+
+  abstract fun photoDao(): PhotoDao
+
+  abstract fun photoMutationDao(): PhotoMutationDao
 }

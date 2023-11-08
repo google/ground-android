@@ -35,11 +35,15 @@ abstract class LocalDataStoreModule {
   abstract fun localLocationOfInterestStore(
     store: RoomLocationOfInterestStore
   ): LocalLocationOfInterestStore
+
   @Binds
   @Singleton
   abstract fun offlineAreaStore(store: RoomOfflineAreaStore): LocalOfflineAreaStore
+
   @Binds @Singleton abstract fun submissionStore(store: RoomSubmissionStore): LocalSubmissionStore
+
   @Binds @Singleton abstract fun surveyStore(store: RoomSurveyStore): LocalSurveyStore
+
   @Binds @Singleton abstract fun userStore(store: RoomUserStore): LocalUserStore
 
   companion object {
@@ -101,6 +105,16 @@ abstract class LocalDataStoreModule {
     @Provides
     fun userDao(localDatabase: LocalDatabase): UserDao {
       return localDatabase.userDao()
+    }
+
+    @Provides
+    fun photoDao(localDatabase: LocalDatabase): PhotoDao {
+      return localDatabase.photoDao()
+    }
+
+    @Provides
+    fun photoMutationDao(localDatabase: LocalDatabase): PhotoMutationDao {
+      return localDatabase.photoMutationDao()
     }
   }
 }

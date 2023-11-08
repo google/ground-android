@@ -16,6 +16,7 @@
 package com.google.android.ground.persistence.local.room.converter
 
 import com.google.android.ground.model.AuditInfo
+import com.google.android.ground.model.Photo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.model.geometry.*
@@ -421,3 +422,25 @@ fun User.toLocalDataStoreObject() =
 
 fun UserEntity.toModelObject() =
   User(id = id, email = email, displayName = displayName, photoUrl = photoUrl)
+
+fun PhotoEntity.toModelObject() =
+  Photo(
+    id = id,
+    jobId = jobId,
+    locationOfInterestId = locationOfInterestId,
+    surveyId = surveyId,
+    created = created.toModelObject(),
+    lastModified = modified.toModelObject(),
+    name = name,
+  )
+
+fun Photo.toLocalDataStoreObject() =
+  PhotoEntity(
+    id = id,
+    jobId = jobId,
+    locationOfInterestId = locationOfInterestId,
+    surveyId = surveyId,
+    modified = lastModified.toLocalDataStoreObject(),
+    created = created.toLocalDataStoreObject(),
+    name = name,
+  )

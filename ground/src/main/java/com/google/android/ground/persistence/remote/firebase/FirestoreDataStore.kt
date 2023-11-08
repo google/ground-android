@@ -23,6 +23,7 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.PhotoMutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.toListItem
@@ -101,6 +102,7 @@ internal constructor(
       when (mutation) {
         is LocationOfInterestMutation -> addLocationOfInterestMutationToBatch(mutation, user, batch)
         is SubmissionMutation -> addSubmissionMutationToBatch(mutation, user, batch)
+        is PhotoMutation -> TODO("not yet implemented")
       }
     }
     batch.commit().await()

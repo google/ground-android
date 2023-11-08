@@ -15,22 +15,22 @@
  */
 package com.google.android.ground.model.mutation
 
-import java.util.*
+import java.util.Date
 
 /**
  * Represents a mutation that can be applied to local data and queued for sync with the remote data
  * store.
  */
 sealed class Mutation {
-  abstract val id: Long?
-  abstract val type: Type
-  abstract val syncStatus: SyncStatus
-  abstract val surveyId: String
-  abstract val locationOfInterestId: String
-  abstract val userId: String
-  abstract val clientTimestamp: Date
-  abstract val retryCount: Long
-  abstract val lastError: String
+  open val id: Long? = 0
+  open val type: Type = Type.UNKNOWN
+  open val syncStatus: SyncStatus = SyncStatus.UNKNOWN
+  open val surveyId: String = ""
+  open val locationOfInterestId: String = ""
+  open val userId: String = ""
+  open val clientTimestamp: Date = Date()
+  open val retryCount: Long = 0
+  open val lastError: String = ""
 
   enum class Type {
     /** Indicates a new entity should be created. */
