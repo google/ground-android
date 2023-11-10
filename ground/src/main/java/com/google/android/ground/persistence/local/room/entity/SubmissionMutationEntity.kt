@@ -55,10 +55,10 @@ data class SubmissionMutationEntity(
   @ColumnInfo(name = "submission_id") val submissionId: String,
   /**
    * For mutations of type [MutationEntityType.CREATE] and [MutationEntityType.UPDATE], returns a
-   * [JSONObject] with the new values of modified task responses, with `null` values representing
-   * responses that were removed/cleared.
+   * [JSONObject] with the new values of modified submission data, with `null` values representing
+   * values which were removed or unset.
    *
    * This method returns `null` for mutation type [MutationEntityType.DELETE].
    */
-  @ColumnInfo(name = "response_deltas") val responseDeltas: String?
+  @ColumnInfo(name = "deltas") val deltas: String?
 )

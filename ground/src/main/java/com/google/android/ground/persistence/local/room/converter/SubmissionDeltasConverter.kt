@@ -28,7 +28,7 @@ import org.json.JSONObject
 import timber.log.Timber
 
 /** Converts between [ValueDelta] and JSON strings used to represent them in the local db. */
-object ResponseDeltasConverter {
+object SubmissionDeltasConverter {
 
   private const val KEY_TASK_TYPE = "taskType"
   private const val KEY_NEW_VALUE = "newValue"
@@ -43,7 +43,7 @@ object ResponseDeltasConverter {
               delta.taskId,
               JSONObject()
                 .put(KEY_TASK_TYPE, delta.taskType.name)
-                .put(KEY_NEW_VALUE, ResponseJsonConverter.toJsonObject(delta.newValue))
+                .put(KEY_NEW_VALUE, ValueJsonConverter.toJsonObject(delta.newValue))
             )
           } catch (e: JSONException) {
             Timber.e(e, "Error building JSON")
@@ -70,7 +70,7 @@ object ResponseDeltasConverter {
             ValueDelta(
               taskId,
               toEnum(Task.Type::class.java, jsonDelta.getString(KEY_TASK_TYPE)),
-              ResponseJsonConverter.toResponse(task, jsonDelta[KEY_NEW_VALUE])
+              ValueJsonConverter.toResponse(task, jsonDelta[KEY_NEW_VALUE])
             )
           )
         } catch (e: LocalDataConsistencyException) {

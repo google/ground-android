@@ -132,7 +132,7 @@ class SubmissionMutationConverterTest {
         )
     )
 
-  private val expectedResponses =
+  private val expected =
     mapOf(
       Pair("text_task", "some data"),
       Pair("single_choice_task", listOf("option id 1")),
@@ -180,7 +180,7 @@ class SubmissionMutationConverterTest {
           Pair("lastModified", auditInfoObject),
           Pair("loiId", loiId),
           Pair("jobId", job.id),
-          Pair("data", expectedResponses)
+          Pair("data", expected)
         )
       )
   }
@@ -198,7 +198,7 @@ class SubmissionMutationConverterTest {
           Pair("lastModified", auditInfoObject),
           Pair("loiId", loiId),
           Pair("jobId", job.id),
-          Pair("data", expectedResponses)
+          Pair("data", expected)
         )
       )
   }
