@@ -28,10 +28,7 @@ import com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskViewM
 import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
-import com.google.android.ground.ui.editsubmission.*
 import com.google.android.ground.ui.home.HomeScreenViewModel
-import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListItemViewModel
-import com.google.android.ground.ui.home.locationofinterestdetails.SubmissionListViewModel
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.home.mapcontainer.MapTypeViewModel
 import com.google.android.ground.ui.offlineareas.OfflineAreasViewModel
@@ -39,7 +36,6 @@ import com.google.android.ground.ui.offlineareas.selector.OfflineAreaSelectorVie
 import com.google.android.ground.ui.offlineareas.viewer.OfflineAreaViewerViewModel
 import com.google.android.ground.ui.signin.SignInViewModel
 import com.google.android.ground.ui.startup.StartupViewModel
-import com.google.android.ground.ui.submissiondetails.SubmissionDetailsViewModel
 import com.google.android.ground.ui.surveyselector.SurveySelectorViewModel
 import com.google.android.ground.ui.syncstatus.SyncStatusViewModel
 import com.google.android.ground.ui.tos.TermsOfServiceViewModel
@@ -106,26 +102,6 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(SurveySelectorViewModel::class)
   abstract fun bindSurveySelectorViewModel(viewModel: SurveySelectorViewModel): ViewModel
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(SubmissionListItemViewModel::class)
-  abstract fun bindSubmissionListItemViewModel(viewModel: SubmissionListItemViewModel): ViewModel
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(SubmissionListViewModel::class)
-  abstract fun bindSubmissionListViewModel(viewModel: SubmissionListViewModel): ViewModel
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(SubmissionDetailsViewModel::class)
-  abstract fun bindSubmissionDetailsViewModel(viewModel: SubmissionDetailsViewModel): ViewModel
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(EditSubmissionViewModel::class)
-  abstract fun bindEditSubmissionViewModel(viewModel: EditSubmissionViewModel): ViewModel
 
   @Binds
   @IntoMap

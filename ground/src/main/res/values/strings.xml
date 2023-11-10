@@ -19,41 +19,11 @@
 <resources>
 
   <!--
-    ADD/EDIT LOI DATA
-  -->
-
-  <!-- Shown when leaving edit mode without saving changes. -->
-  <string name="unsaved_changes">Save changes before closing?</string>
-  <!--
-    Shown when the user attempts to close the task without saving. If tapped, unsaved
-    changes will be saved.
-  -->
-  <string name="continue_editing">Continue editing</string>
-  <!--
-    Shown when the user attempts to close the task without saving. If tapped, unsaved
-    changes will be lost.
-  -->
-  <string name="discard_changes">Discard changes</string>
-
-  <!--
     LOI DATA FORMS
   -->
 
   <!-- Shown below fields that are required but left empty (TBD). -->
   <string name="required_task">This field is required</string>
-
-  <!--
-    VIEW LOI DATA
-  -->
-
-  <!-- Shown in submission overflow menu to open popup dialog to edit locationOfInterest metadata. -->
-  <string name="edit_submission">Edit submission</string>
-  <!-- Shown in submission overflow menu to delete a submission. -->
-  <string name="delete_submission">Delete submission</string>
-
-  <!--
-    IN BOTH ADD/EDIT AND VIEW LOI SCREENS
-  -->
 
   <!--
     LOCATION (GPS/CELL/WIFI) UPDATE ERROR MESSAGES
@@ -67,18 +37,14 @@
   <!-- Shown when user has refused to enable location services in settings.-->
   <string name="location_disabled_in_settings">Please enable location in system settings</string>
 
-  <string name="view_submission_details">View submission details</string>
   <string name="map_view">Map view</string>
   <string name="unexpected_error">An unexpected error has occurred</string>
-  <string name="save_submission_button_label">Save</string>
-  <string name="saving">Saving&#8230;</string>
   <string name="google_api_install_failed">Google Play Services installation failed</string>
   <string name="sign_out">Sign out</string>
   <string name="change_survey">Change survey</string>
   <string name="collect_data">Collect data</string>
 
   <!-- Untranslated strings -->
-  <string name="add_submission_toolbar_title">Add submission</string>
   <string name="offline_area_selector">Select area to download</string>
   <string name="offline_area_selector_prompt">Select a base map for offline use</string>
   <string name="offline_area_selector_download">Download</string>
@@ -107,11 +73,6 @@
   <string name="add_point">Add point</string>
   <string name="complete_polygon">Complete</string>
   <string name="add_polygon_instructions">Drag the map and tap “Add point“ to add points to your polygon. To finish, return to the original point and tap “Complete“.</string>
-
-  <string name="delete_button_label">Delete</string>
-  <string name="cancel_button_label">Cancel</string>
-  <string name="submission_delete_confirmation_dialog_title">Delete this submission?"</string>
-  <string name="submission_delete_confirmation_dialog_message">This submission will disappear from the map. This change cannot be undone. Are you sure?</string>
 
   <string name="road_map">Road map</string>
   <string name="satellite">Satellite</string>
