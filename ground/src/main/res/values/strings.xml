@@ -85,7 +85,7 @@
   <string name="take_picture">Take a picture</string>
   <string name="photo_preview">Preview</string>
   <string name="settings">Settings</string>
-  <string name="offline_area_viewer_title">Offline area</string>
+  <string name="offline_area_viewer_title">Downloaded area</string>
   <string name="offline_area_viewer_remove_button">Remove from device</string>
   <string name="added_by">Added by %s</string>
   <!-- Label of button used enter the offline area selector. -->
