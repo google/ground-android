@@ -67,8 +67,7 @@ internal constructor(
     offlineAreaRepository,
     permissionsManager,
     surveyRepository,
-    locationOfInterestRepository,
-    ioDispatcher
+    locationOfInterestRepository
   ) {
 
   val remoteTileSources: List<TileSource>

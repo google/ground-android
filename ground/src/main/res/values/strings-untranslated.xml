@@ -19,7 +19,6 @@
 <resources>
 
   <string name="app_name" translatable="false">Ground</string>
-  <string name="text_separator" translatable="false">·</string>
   <string name="ground_website" translatable="false">https://groundplatform.org/</string>
 
 </resources>

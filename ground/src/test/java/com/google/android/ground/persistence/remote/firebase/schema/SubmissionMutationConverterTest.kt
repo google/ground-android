@@ -180,7 +180,7 @@ class SubmissionMutationConverterTest {
           Pair("lastModified", auditInfoObject),
           Pair("loiId", loiId),
           Pair("jobId", job.id),
-          Pair("responses", expectedResponses)
+          Pair("data", expectedResponses)
         )
       )
   }
@@ -198,7 +198,7 @@ class SubmissionMutationConverterTest {
           Pair("lastModified", auditInfoObject),
           Pair("loiId", loiId),
           Pair("jobId", job.id),
-          Pair("responses", expectedResponses)
+          Pair("data", expectedResponses)
         )
       )
   }
