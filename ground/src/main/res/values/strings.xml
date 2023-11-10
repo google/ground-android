@@ -48,8 +48,6 @@
 
   <!-- Shown in submission overflow menu to open popup dialog to edit locationOfInterest metadata. -->
   <string name="edit_submission">Edit submission</string>
-  <!-- Shown in submission overflow menu to delete a submission. -->
-  <string name="delete_submission">Delete submission</string>
 
   <!--
     IN BOTH ADD/EDIT AND VIEW LOI SCREENS
@@ -67,7 +65,6 @@
   <!-- Shown when user has refused to enable location services in settings.-->
   <string name="location_disabled_in_settings">Please enable location in system settings</string>
 
-  <string name="view_submission_details">View submission details</string>
   <string name="map_view">Map view</string>
   <string name="unexpected_error">An unexpected error has occurred</string>
   <string name="save_submission_button_label">Save</string>
@@ -107,11 +104,6 @@
   <string name="add_point">Add point</string>
   <string name="complete_polygon">Complete</string>
   <string name="add_polygon_instructions">Drag the map and tap “Add point“ to add points to your polygon. To finish, return to the original point and tap “Complete“.</string>
-
-  <string name="delete_button_label">Delete</string>
-  <string name="cancel_button_label">Cancel</string>
-  <string name="submission_delete_confirmation_dialog_title">Delete this submission?"</string>
-  <string name="submission_delete_confirmation_dialog_message">This submission will disappear from the map. This change cannot be undone. Are you sure?</string>
 
   <string name="road_map">Road map</string>
   <string name="satellite">Satellite</string>

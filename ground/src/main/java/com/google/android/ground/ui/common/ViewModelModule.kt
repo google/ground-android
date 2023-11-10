@@ -37,7 +37,6 @@ import com.google.android.ground.ui.offlineareas.selector.OfflineAreaSelectorVie
 import com.google.android.ground.ui.offlineareas.viewer.OfflineAreaViewerViewModel
 import com.google.android.ground.ui.signin.SignInViewModel
 import com.google.android.ground.ui.startup.StartupViewModel
-import com.google.android.ground.ui.submissiondetails.SubmissionDetailsViewModel
 import com.google.android.ground.ui.surveyselector.SurveySelectorViewModel
 import com.google.android.ground.ui.syncstatus.SyncStatusViewModel
 import com.google.android.ground.ui.tos.TermsOfServiceViewModel
@@ -104,11 +103,6 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(SurveySelectorViewModel::class)
   abstract fun bindSurveySelectorViewModel(viewModel: SurveySelectorViewModel): ViewModel
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(SubmissionDetailsViewModel::class)
-  abstract fun bindSubmissionDetailsViewModel(viewModel: SubmissionDetailsViewModel): ViewModel
 
   @Binds
   @IntoMap

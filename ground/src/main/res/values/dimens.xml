@@ -23,12 +23,7 @@
   <item name="marker_bitmap_zoomed_scale" format="float" type="dimen">2.5</item>
 
   <!-- Task -->
-  <dimen name="task_label_text_size">14sp</dimen>
-  <dimen name="task_value_text_size">18sp</dimen>
-  <dimen name="task_horizontal_padding">16dp</dimen>
-  <dimen name="task_top_padding">18dp</dimen>
   <dimen name="task_value_top_padding">4dp</dimen>
-  <dimen name="task_bottom_padding">0dp</dimen>
 
   <!-- Task selection tabs -->
   <dimen name="map_btn_margin_bottom">48dp</dimen>

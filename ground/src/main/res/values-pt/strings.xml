@@ -39,8 +39,6 @@
 
   <!-- Shown in submission overflow menu to open popup dialog to edit locationOfInterest metadata. -->
   <string name="edit_submission">Editar registro</string>
-  <!-- Shown in submission overflow menu to delete a submission. -->
-  <string name="delete_submission">Apagar registro</string>
 
   <!--
     IN BOTH ADD/EDIT AND VIEW LOI SCREENS
@@ -59,7 +57,6 @@
 
   <!-- NEW STRINGS FOR TRANSLATION -->
 
-  <string name="view_submission_details">Ver detalhes do registro</string>
   <string name="map_view">Visão do mapa</string>
   <string name="unexpected_error">Ocorreu um erro inesperado</string>
   <string name="save_submission_button_label">Salve</string>

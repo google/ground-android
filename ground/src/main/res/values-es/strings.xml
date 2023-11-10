@@ -48,8 +48,6 @@
 
   <!-- Shown in submission overflow menu to open popup dialog to edit locationOfInterest metadata. -->
   <string name="edit_submission">Editar registro</string>
-  <!-- Shown in submission overflow menu to delete a submission. -->
-  <string name="delete_submission">Eliminar registro</string>
 
   <!--
     IN BOTH ADD/EDIT AND VIEW LOI SCREENS
@@ -66,7 +64,6 @@
   <!-- Shown when user has refused to enable location services in settings.-->
   <string name="location_disabled_in_settings">Habilite la ubicación en la configuración del sistema</string>
 
-  <string name="view_submission_details">Ver detalles del registro</string>
   <string name="map_view">Vista del mapa</string>
   <string name="unexpected_error">Ha ocurrido un error inesperado</string>
   <string name="save_submission_button_label">Guardar</string>
@@ -104,9 +101,4 @@
   <string name="add_point">Agregar punto</string>
   <string name="complete_polygon">Completo</string>
   <string name="add_polygon_instructions">Arrastra el mapa y toca “Agregar punto“ para agregar puntos a tu polígono. Para terminar, regrese al punto original y toque “Completar“.</string>
-
-  <string name="delete_button_label">Borrar</string>
-  <string name="cancel_button_label">Cancelar</string>
-  <string name="submission_delete_confirmation_dialog_title">Eliminar este registro?"</string>
-  <string name="submission_delete_confirmation_dialog_message">Este registro desaparecerá del mapa. Este cambio no se puede deshacer. ¿Está seguro?</string>
 </resources>
