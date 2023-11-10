@@ -226,7 +226,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     var submission = localSubmissionStore.getSubmission(loi, "submission id")
     assertEquivalent(TEST_SUBMISSION_MUTATION, submission)
 
-    // now update the inserted submission with new responses
+    // Now update the inserted submission with new data.
     val deltas =
       listOf(
         ValueDelta(
@@ -270,8 +270,8 @@ class LocalDataStoreTests : BaseHiltTest() {
     val data = SubmissionData(mapOf(Pair("task id", TextResponse.fromString("foo value"))))
     val submission = localSubmissionStore.getSubmission(loi, "submission id").copy(data = data)
     localSubmissionStore.merge(submission)
-    val responses = localSubmissionStore.getSubmission(loi, submission.id).data
-    assertThat(responses.getValue("task id")).isEqualTo(TextResponse.fromString("updated value"))
+    val mergedData = localSubmissionStore.getSubmission(loi, submission.id).data
+    assertThat(mergedData.getValue("task id")).isEqualTo(TextResponse.fromString("updated value"))
   }
 
   @Test

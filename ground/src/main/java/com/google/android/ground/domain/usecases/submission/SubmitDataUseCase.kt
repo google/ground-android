@@ -37,9 +37,10 @@ constructor(
 ) {
 
   /**
-   * Creates a Submission for the given [job] with the user's responses from the [ValueDelta]s. If
-   * [loiId] is null a new LOI is created based on the first [ValueDelta] since the Suggest LOI task
-   * is the first task in the Data Collection flow when a new LOI is being suggested.
+   * Creates a Submission for the given [job] with collected data defines as a collection of
+   * [ValueDelta]s. If [loiId] is null a new LOI is created based on the first [ValueDelta] since
+   * the Suggest LOI task is the first task in the Data Collection flow when a new LOI is being
+   * suggested.
    */
   @Transaction
   @Suppress("UseIfInsteadOfWhen")

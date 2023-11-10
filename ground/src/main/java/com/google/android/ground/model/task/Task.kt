@@ -15,7 +15,12 @@
  */
 package com.google.android.ground.model.task
 
-/** Describes a user-defined task. Does not contain actual task responses (see [Value] instead. */
+/**
+ * Describes a user-defined task.
+ *
+ * This contains the task definition only. Data collected for tasks in job are stored in
+ * [com.google.android.ground.model.submission.Submission].
+ */
 data class Task
 @JvmOverloads
 constructor(

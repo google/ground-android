@@ -35,15 +35,15 @@ data class SubmissionData(private val data: Map<String, Value?> = mapOf()) {
 
   /** Adds, replaces, and/or removes values based on the provided list of deltas. */
   fun copyWithDeltas(deltas: List<ValueDelta>): SubmissionData {
-    val newResponses = data.toMutableMap()
+    val newData = data.toMutableMap()
     deltas.forEach {
       if (it.newValue.isNotNullOrEmpty()) {
-        newResponses[it.taskId] = it.newValue
+        newData[it.taskId] = it.newValue
       } else {
-        newResponses.remove(it.taskId)
+        newData.remove(it.taskId)
       }
     }
 
-    return SubmissionData(newResponses)
+    return SubmissionData(newData)
   }
 }

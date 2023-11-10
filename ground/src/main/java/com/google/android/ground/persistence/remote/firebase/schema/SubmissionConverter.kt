@@ -58,112 +58,98 @@ internal object SubmissionConverter {
       AuditInfoConverter.toAuditInfo(created!!),
       AuditInfoConverter.toAuditInfo(lastModified!!),
       // TODO(#2058): Remove reference to `responses` once dev dbs updated or reset.
-      toSubmissionDataMap(snapshot.id, job, doc.data ?: doc.responses)
+      toSubmissionData(snapshot.id, job, doc.data ?: doc.responses)
     )
   }
 
-  private fun toSubmissionDataMap(
+  private fun toSubmissionData(
     submissionId: String,
     job: Job,
-    docResponses: Map<String, Any>?
+    firestoreMap: Map<String, Any>?
   ): SubmissionData {
-    if (docResponses == null) {
+    if (firestoreMap == null) {
       return SubmissionData()
     }
-    val responses = mutableMapOf<String, Value>()
-    for ((taskId, value) in docResponses) {
+    val data = mutableMapOf<String, Value>()
+    for ((taskId, value) in firestoreMap) {
       try {
-        putResponse(taskId, job, value, responses)
+        putValue(taskId, job, value, data)
       } catch (e: DataStoreException) {
         Timber.e(e, "Task $taskId in remote db in submission $submissionId")
       }
     }
-    return SubmissionData(responses.toPersistentMap())
+    return SubmissionData(data.toPersistentMap())
   }
 
-  private fun putResponse(
-    taskId: String,
-    job: Job,
-    obj: Any,
-    responses: MutableMap<String, Value>
-  ) {
+  private fun putValue(taskId: String, job: Job, obj: Any, data: MutableMap<String, Value>) {
     val task = job.getTask(taskId)
     when (task.type) {
       Task.Type.PHOTO,
-      Task.Type.TEXT -> putTextResponse(taskId, obj, responses)
-      Task.Type.MULTIPLE_CHOICE ->
-        putMultipleChoiceResponse(taskId, task.multipleChoice, obj, responses)
-      Task.Type.NUMBER -> putNumberResponse(taskId, obj, responses)
-      Task.Type.DATE -> putDateResponse(taskId, obj, responses)
-      Task.Type.TIME -> putTimeResponse(taskId, obj, responses)
-      Task.Type.DROP_A_PIN -> putDropAPinResponse(taskId, obj, responses)
-      Task.Type.DRAW_POLYGON -> putDrawPolygonResponse(taskId, obj, responses)
-      Task.Type.CAPTURE_LOCATION -> putCaptureLocationResponse(taskId, obj, responses)
+      Task.Type.TEXT -> putTextResponse(taskId, obj, data)
+      Task.Type.MULTIPLE_CHOICE -> putMultipleChoiceResponse(taskId, task.multipleChoice, obj, data)
+      Task.Type.NUMBER -> putNumberResponse(taskId, obj, data)
+      Task.Type.DATE -> putDateResponse(taskId, obj, data)
+      Task.Type.TIME -> putTimeResponse(taskId, obj, data)
+      Task.Type.DROP_A_PIN -> putDropAPinResponse(taskId, obj, data)
+      Task.Type.DRAW_POLYGON -> putGeometryTaskResponse(taskId, obj, data)
+      Task.Type.CAPTURE_LOCATION -> putCaptureLocationResult(taskId, obj, data)
       else -> throw DataStoreException("Unknown type " + task.type)
     }
   }
 
-  private fun putNumberResponse(taskId: String, obj: Any, responses: MutableMap<String, Value>) {
+  private fun putNumberResponse(taskId: String, obj: Any, data: MutableMap<String, Value>) {
     val value = DataStoreException.checkType(Double::class.java, obj) as Double
-    NumberResponse.fromNumber(value.toString())?.let { r: Value -> responses[taskId] = r }
+    NumberResponse.fromNumber(value.toString())?.let { r: Value -> data[taskId] = r }
   }
 
-  private fun putTextResponse(taskId: String, obj: Any, responses: MutableMap<String, Value>) {
+  private fun putTextResponse(taskId: String, obj: Any, data: MutableMap<String, Value>) {
     val value = DataStoreException.checkType(String::class.java, obj) as String
-    TextResponse.fromString(value.trim { it <= ' ' })?.let { r: Value -> responses[taskId] = r }
+    TextResponse.fromString(value.trim { it <= ' ' })?.let { r: Value -> data[taskId] = r }
   }
 
-  private fun putDateResponse(taskId: String, obj: Any, responses: MutableMap<String, Value>) {
+  private fun putDateResponse(taskId: String, obj: Any, data: MutableMap<String, Value>) {
     val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
-    DateResponse.fromDate(value.toDate())?.let { r: Value -> responses[taskId] = r }
+    DateResponse.fromDate(value.toDate())?.let { r: Value -> data[taskId] = r }
   }
 
-  private fun putTimeResponse(taskId: String, obj: Any, responses: MutableMap<String, Value>) {
+  private fun putTimeResponse(taskId: String, obj: Any, data: MutableMap<String, Value>) {
     val value = DataStoreException.checkType(Timestamp::class.java, obj) as Timestamp
-    TimeResponse.fromDate(value.toDate())?.let { r: Value -> responses[taskId] = r }
+    TimeResponse.fromDate(value.toDate())?.let { r: Value -> data[taskId] = r }
   }
 
-  private fun putDropAPinResponse(taskId: String, obj: Any, responses: MutableMap<String, Value>) {
+  private fun putDropAPinResponse(taskId: String, obj: Any, data: MutableMap<String, Value>) {
     val map = obj as HashMap<String, *>
     check(map["type"] == "Point")
     val result = GeometryConverter.fromFirestoreMap(map).getOrNull()
     if (result != null) {
-      responses[taskId] = GeometryTaskResponse(result)
+      data[taskId] = GeometryTaskResponse(result)
     }
   }
 
-  private fun putDrawPolygonResponse(
-    taskId: String,
-    obj: Any,
-    responses: MutableMap<String, Value>
-  ) {
+  private fun putGeometryTaskResponse(taskId: String, obj: Any, data: MutableMap<String, Value>) {
     val map = obj as HashMap<String, *>
     check(map["type"] == "Polygon")
     val result = GeometryConverter.fromFirestoreMap(map).getOrNull()
     if (result != null) {
-      responses[taskId] = GeometryTaskResponse(result)
+      data[taskId] = GeometryTaskResponse(result)
     }
   }
 
-  private fun putCaptureLocationResponse(
-    taskId: String,
-    obj: Any,
-    responses: MutableMap<String, Value>
-  ) =
+  private fun putCaptureLocationResult(taskId: String, obj: Any, data: MutableMap<String, Value>) =
     CaptureLocationResultConverter.fromFirestoreMap(obj as Map<String, *>).onSuccess {
-      responses[taskId] = it
+      data[taskId] = it
     }
 
   private fun putMultipleChoiceResponse(
     taskId: String,
     multipleChoice: MultipleChoice?,
     obj: Any,
-    responses: MutableMap<String, Value>
+    data: MutableMap<String, Value>
   ) {
     val values = DataStoreException.checkType(MutableList::class.java, obj) as List<*>
     values.forEach { DataStoreException.checkType(String::class.java, it as Any) }
     MultipleChoiceResponse.fromList(multipleChoice, values as List<String>)?.let {
-      responses[taskId] = it
+      data[taskId] = it
     }
   }
 }

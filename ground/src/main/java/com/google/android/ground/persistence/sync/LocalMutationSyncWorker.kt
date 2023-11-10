@@ -138,11 +138,11 @@ constructor(
     mutations
       .filterIsInstance<SubmissionMutation>()
       .flatMap { mutation: Mutation -> (mutation as SubmissionMutation).deltas }
-      .filter { (_, taskType, newResponse): ValueDelta ->
-        taskType === Task.Type.PHOTO && newResponse.isNotNullOrEmpty()
+      .filter { (_, taskType, newValue): ValueDelta ->
+        taskType === Task.Type.PHOTO && newValue.isNotNullOrEmpty()
       }
       // TODO: Instead of using toString(), add a method getSerializedValue() in Value.
-      .map { (_, _, newResponse): ValueDelta -> newResponse.toString() }
+      .map { (_, _, newValue): ValueDelta -> newValue.toString() }
       .forEach { remotePath: String -> photoSyncWorkManager.enqueueSyncWorker(remotePath) }
 
   private suspend fun getUser(userId: String): User? {
