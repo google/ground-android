@@ -25,7 +25,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.ground.Config.DEFAULT_LOI_ZOOM_LEVEL
 import com.google.android.ground.R
-import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.imagery.TileSource
@@ -45,11 +44,11 @@ import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.toCoordinates
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -58,6 +57,8 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.withIndex
@@ -73,11 +74,8 @@ constructor(
   private val offlineAreaRepository: OfflineAreaRepository,
   private val permissionsManager: PermissionsManager,
   private val surveyRepository: SurveyRepository,
-  private val locationOfInterestRepository: LocationOfInterestRepository,
-  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+  private val locationOfInterestRepository: LocationOfInterestRepository
 ) : AbstractViewModel() {
-
-  private val _cameraUpdateRequests = MutableStateFlow<CameraUpdateRequest?>(null)
 
   val locationLock: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
@@ -132,9 +130,6 @@ constructor(
           if (enabled) offlineSources else listOf()
         }
         .asLiveData()
-
-    viewModelScope.launch(ioDispatcher) { updateCameraPositionOnLocationChange() }
-    viewModelScope.launch(ioDispatcher) { updateCameraPositionOnSurveyChange() }
   }
 
   private suspend fun toggleLocationLock() {
@@ -199,7 +194,9 @@ constructor(
   }
 
   /** Emits a stream of camera update requests. */
-  fun getCameraUpdateRequests(): Flow<CameraUpdateRequest> = _cameraUpdateRequests.filterNotNull()
+  fun getCameraUpdateRequests(): SharedFlow<CameraUpdateRequest> =
+    merge(updateCameraPositionOnSurveyChange(), updateCameraPositionOnLocationChange())
+      .shareIn(viewModelScope, SharingStarted.Eagerly, replay = 0)
 
   /** Emits a stream of current camera position. */
   fun getCurrentCameraPosition(): Flow<CameraPosition> = currentCameraPosition.filterNotNull()
@@ -211,7 +208,7 @@ constructor(
    * appropriate zoom level and subsequent ones only pan the map.
    */
   @OptIn(ExperimentalCoroutinesApi::class)
-  private suspend fun updateCameraPositionOnLocationChange() {
+  private fun updateCameraPositionOnLocationChange(): Flow<CameraUpdateRequest> =
     locationLock
       .flatMapLatest { enabled ->
         getLocationUpdates()
@@ -219,28 +216,27 @@ constructor(
           .filter { enabled.getOrDefault(false) }
           .withIndex()
       }
-      .collect { (index, coordinates) ->
-        if (index == 0) {
-          panAndZoomCamera(coordinates)
-          // TODO(#1889): Track the zoom level in a VM associated with the MapFragment and use it in
-          //  panCamera().
+      .map { (index, coordinates) -> onLocationUpdate(index, coordinates) }
 
-          // Set a small delay before emitting another value to allow previous zoom animation to
-          // finish. Otherwise, the map camera stops at some other zoom level.
-          delay(3000)
-        } else {
-          panCamera(coordinates)
-        }
+  private suspend fun onLocationUpdate(index: Int, coordinates: Coordinates): CameraUpdateRequest =
+    if (index == 0) {
+      CameraUpdateRequest(CameraPosition(coordinates, DEFAULT_LOI_ZOOM_LEVEL), true)
+    } else {
+      // Set a small delay before emitting another value to allow previous zoom animation to
+      // finish. Otherwise, the map camera stops at some other zoom level.
+      if (index == 1) {
+        delay(3000)
       }
-  }
+
+      // TODO(#1889): Track the zoom level in a VM associated with the MapFragment and use here
+      CameraUpdateRequest(CameraPosition(coordinates), true)
+    }
 
   /** Updates map camera when active survey changes. */
-  private suspend fun updateCameraPositionOnSurveyChange() {
-    surveyRepository.activeSurveyFlow
-      .filterNotNull()
-      .transform { getLastSavedPositionOrDefaultBounds(it)?.apply { emit(this) } }
-      .collect { setCameraPosition(it) }
-  }
+  private fun updateCameraPositionOnSurveyChange(): Flow<CameraUpdateRequest> =
+    surveyRepository.activeSurveyFlow.filterNotNull().transform {
+      getLastSavedPositionOrDefaultBounds(it)?.apply { emit(this) }
+    }
 
   private suspend fun getLastSavedPositionOrDefaultBounds(survey: Survey): CameraUpdateRequest? {
     // Attempt to fetch last saved position from local storage.
@@ -254,30 +250,9 @@ constructor(
     return geometries.toBounds()?.let { CameraUpdateRequest(CameraPosition(bounds = it)) }
   }
 
-  private fun panCamera(coordinates: Coordinates) {
-    setCameraPosition(CameraPosition(coordinates), true)
-  }
-
-  private fun panAndZoomCamera(coordinates: Coordinates) {
-    setCameraPosition(CameraPosition(coordinates, DEFAULT_LOI_ZOOM_LEVEL), true)
-  }
-
-  /**
-   * Requests moving the map camera to the given position.
-   *
-   * @param cameraPosition new position
-   * @param shouldAnimate whether to animate the map camera or not
-   */
-  private fun setCameraPosition(cameraPosition: CameraPosition, shouldAnimate: Boolean) {
-    _cameraUpdateRequests.value = CameraUpdateRequest(cameraPosition, shouldAnimate)
-  }
-
-  private fun setCameraPosition(cameraUpdateRequest: CameraUpdateRequest) {
-    _cameraUpdateRequests.value = cameraUpdateRequest
-  }
-
   /** Called when the map camera is moved. */
   open fun onMapCameraMoved(newCameraPosition: CameraPosition) {
+    Timber.d("Camera moved : ${newCameraPosition.target}")
     lastCameraPosition = currentCameraPosition.value
     currentCameraPosition.value = newCameraPosition
   }

@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.location
 
-import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
@@ -26,12 +25,10 @@ import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.MapConfig
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineDispatcher
 
 class CaptureLocationMapViewModel
 @Inject
 internal constructor(
-  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   offlineAreaRepository: OfflineAreaRepository,
   locationManager: LocationManager,
   surveyRepository: SurveyRepository,
@@ -47,8 +44,7 @@ internal constructor(
     offlineAreaRepository,
     permissionsManager,
     surveyRepository,
-    locationOfInterestRepository,
-    ioDispatcher
+    locationOfInterestRepository
   ) {
 
   override val mapConfig: MapConfig

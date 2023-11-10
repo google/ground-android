@@ -62,8 +62,7 @@ constructor(
     offlineAreaRepository,
     permissionsManager,
     surveyRepository,
-    locationOfInterestRepository,
-    ioDispatcher
+    locationOfInterestRepository
   ) {
 
   /** Returns the offline area associated with this view model. */
