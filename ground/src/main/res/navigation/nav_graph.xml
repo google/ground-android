@@ -51,13 +51,6 @@
     android:label="@string/map_view"
     tools:layout="@layout/home_screen_frag">
     <action
-      android:id="@+id/showSubmissionDetails"
-      app:destination="@id/submission_details_fragment"
-      app:enterAnim="@anim/nav_default_enter_anim"
-      app:exitAnim="@anim/nav_default_exit_anim"
-      app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-      app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-    <action
       android:id="@+id/fromHomeScreenToSignInScreen"
       app:destination="@id/sign_in_fragment"
       app:popUpTo="@id/navGraph"
@@ -88,8 +81,8 @@
     app:startDestination="@id/data_collection_fragment">
     <argument
       android:name="locationOfInterestId"
-      app:nullable="true"
-      type="string" />
+      type="string"
+      app:nullable="true" />
     <argument
       android:name="jobId"
       type="string" />
@@ -101,8 +94,8 @@
       tools:layout="@layout/data_collection_frag">
       <argument
         android:name="locationOfInterestId"
-        app:nullable="true"
-        type="string" />
+        type="string"
+        app:nullable="true" />
       <argument
         android:name="jobId"
         type="string" />
@@ -176,55 +169,6 @@
     <argument
       android:name="offlineAreaId"
       app:argType="string" />
-  </fragment>
-  <fragment
-    android:id="@+id/submission_details_fragment"
-    android:name="com.google.android.ground.ui.submissiondetails.SubmissionDetailsFragment"
-    android:label="@string/view_submission_details"
-    tools:layout="@layout/submission_details_frag">
-    <argument
-      android:name="surveyId"
-      type="string" />
-    <argument
-      android:name="locationOfInterestId"
-      type="string" />
-    <argument
-      android:name="submissionId"
-      type="string" />
-    <action
-      android:id="@+id/editSubmission"
-      app:destination="@id/edit_submission_fragment"
-      app:enterAnim="@anim/nav_default_enter_anim"
-      app:exitAnim="@anim/nav_default_exit_anim"
-      app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-      app:popExitAnim="@anim/nav_default_pop_exit_anim">
-      <argument
-        android:name="jobId"
-        android:defaultValue="N/A" />
-    </action>
-  </fragment>
-  <fragment
-    android:id="@+id/edit_submission_fragment"
-    android:name="com.google.android.ground.ui.editsubmission.EditSubmissionFragment"
-    android:label="edit_submission_frag"
-    tools:layout="@layout/edit_submission_frag">
-    <argument
-      android:name="surveyId"
-      type="string" />
-    <argument
-      android:name="locationOfInterestId"
-      type="string" />
-    <argument
-      android:name="submissionId"
-      type="string" />
-    <argument
-      android:name="jobId"
-      type="string" />
-    <argument
-      android:name="restoredResponses"
-      android:defaultValue="@null"
-      app:argType="java.util.HashMap"
-      app:nullable="true" />
   </fragment>
   <fragment
     android:id="@+id/sign_in_fragment"
