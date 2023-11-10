@@ -73,37 +73,6 @@
     <item name="android:letterSpacing">0.01</item>
   </style>
 
-  <style name="SubmissionListText">
-    <item name="android:textSize">@dimen/submission_list_text_size</item>
-  </style>
-
-  <style name="SubmissionListText.CreatorName">
-    <item name="android:textColor">?android:textColorPrimary</item>
-    <item name="android:textStyle">bold</item>
-  </style>
-
-  <style name="SubmissionListText.Separator">
-    <item name="android:textColor">?android:textColorPrimary</item>
-  </style>
-
-  <style name="SubmissionListText.Timestamp">
-    <item name="android:textColor">?android:textColorPrimary</item>
-    <item name="android:textStyle">bold</item>
-  </style>
-
-  <style name="SubmissionListText.TaskLabel">
-    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
-    <item name="android:textSize">@dimen/submission_list_task_label_size</item>
-  </style>
-
-  <!--
-    NOTE: Most attributes do not work when style is set programmatically, so individual layout
-    attributes are set in SubmissionListAdapter instead.
-    -->
-  <style name="SubmissionListText.Task">
-    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
-  </style>
-
   <style name="SubmissionDetails.Task.Label" parent="AppTheme.Base">
     <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
     <item name="android:textSize">@dimen/task_label_text_size</item>
@@ -116,11 +85,6 @@
 
   <style name="EditSubmission.Task.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
     <item name="boxStrokeColor">?attr/colorPrimary</item>
-  </style>
-
-  <style name="ImageButton" parent="Widget.AppCompat.ImageButton">
-    <item name="android:tint">?attr/colorPrimary</item>
-    <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
   </style>
 
   <!-- NavDrawer Header -->

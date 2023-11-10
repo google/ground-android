@@ -36,14 +36,7 @@
   <dimen name="toolbar_button_margin_right">12dp</dimen>
   <dimen name="fab_margin">16dp</dimen>
   <!-- TODO: Make dimensions relative using Android data binding. -->
-  <dimen name="submission_list_item_horizontal_margin">14dp</dimen>
-  <dimen name="submission_list_item_horizontal_vertical">10dp</dimen>
-  <dimen name="submission_list_task_label_size">12sp</dimen>
-  <dimen name="submission_list_text_size">14sp</dimen>
-  <dimen name="submission_summary_text_padding_right">8dp</dimen>
-  <dimen name="submission_summary_text_max_width">128dp</dimen>
   <dimen name="toolbar_elevation">4dp</dimen>
-  <dimen name="submission_list_item_preview_table_right_margin">18dp</dimen>
 
   <!-- Navigation drawer -->
   <dimen name="nav_drawer_profile_image_size">64dp</dimen>
