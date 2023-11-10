@@ -78,7 +78,7 @@
   </style>
 
   <style name="EditSubmission.Task.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
-    <item name="boxStrokeColor">?attr/colorPrimary</item>F5F5F0
+    <item name="boxStrokeColor">?attr/colorPrimary</item>
   </style>
 
   <!-- NavDrawer Header -->
