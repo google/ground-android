@@ -57,7 +57,8 @@ internal object SubmissionConverter {
       job,
       AuditInfoConverter.toAuditInfo(created!!),
       AuditInfoConverter.toAuditInfo(lastModified!!),
-      toSubmissionDataMap(snapshot.id, job, doc.data)
+      // TODO(#2058): Remove reference to `responses` once dev dbs updated or reset.
+      toSubmissionDataMap(snapshot.id, job, doc.data ?: doc.responses)
     )
   }
 
