@@ -25,7 +25,6 @@ import android.widget.RelativeLayout
 import androidx.annotation.IdRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -79,10 +78,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private lateinit var clusterRenderer: FeatureClusterRenderer
 
   /** Map drag events. Emits items when the map drag has started. */
-  override val startDragEvents = MutableLiveData<Unit>()
+  override val startDragEvents = MutableSharedFlow<Unit>()
 
   /** Camera move events. Emits items after the camera has stopped moving. */
-  override val cameraMovedEvents = MutableLiveData<CameraPosition>()
+  override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
 
   @Inject lateinit var pointFeatureManager: PointFeatureManager
   @Inject lateinit var polylineFeatureManager: PolylineFeatureManager
@@ -303,17 +302,20 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     val projection = map.projection
     clusterRenderer.zoom = cameraPosition.zoom
     clusterManager.onCameraIdle()
-    cameraMovedEvents.value =
-      CameraPosition(
-        cameraPosition.target.toCoordinates(),
-        cameraPosition.zoom,
-        projection.visibleRegion.latLngBounds.toModelObject()
+    viewLifecycleOwner.lifecycleScope.launch {
+      cameraMovedEvents.emit(
+        CameraPosition(
+          cameraPosition.target.toCoordinates(),
+          cameraPosition.zoom,
+          projection.visibleRegion.latLngBounds.toModelObject()
+        )
       )
+    }
   }
 
   private fun onCameraMoveStarted(reason: Int) {
     if (reason == OnCameraMoveStartedListener.REASON_GESTURE) {
-      startDragEvents.value = Unit
+      viewLifecycleOwner.lifecycleScope.launch { startDragEvents.emit(Unit) }
     }
   }
 

@@ -18,6 +18,9 @@ package com.google.android.ground.ui.common
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.system.GeocodingManager
@@ -29,6 +32,7 @@ import com.google.android.ground.ui.map.MapFragment
 import javax.inject.Inject
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /** Injects a [MapFragment] in the container with id "map" and provides shared map functionality. */
@@ -44,17 +48,21 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     map.attachToParent(this, R.id.map) { onMapAttached(it) }
   }
 
+  private fun launchWhenStarted(fn: suspend () -> Unit) {
+    lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.STARTED) { fn.invoke() } }
+  }
+
   private fun onMapAttached(map: MapFragment) {
     val viewModel = getMapViewModel()
 
     // Removes all markers, overlays, polylines and polygons from the map.
     map.clear()
 
-    with(viewLifecycleOwner) {
-      map.cameraMovedEvents.observe(this) { viewModel.onMapCameraMoved(it) }
-      map.startDragEvents.observe(this) { viewModel.onMapDragged() }
-      viewModel.getLocationLockStatus().observe(this) { onLocationLockStateChange(it, map) }
-      viewModel.getCameraUpdateRequests().observe(this) { onCameraUpdateRequest(it, map) }
+    launchWhenStarted { map.cameraMovedEvents.collect { viewModel.onMapCameraMoved(it) } }
+    launchWhenStarted { map.startDragEvents.collect { viewModel.onMapDragged() } }
+    launchWhenStarted { viewModel.locationLock.collect { onLocationLockStateChange(it, map) } }
+    launchWhenStarted {
+      viewModel.getCameraUpdateRequests().collect { onCameraUpdateRequest(it, map) }
     }
 
     viewModel.setLocationLockEnabled(true)
