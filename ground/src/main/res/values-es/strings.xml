@@ -19,39 +19,11 @@
 <resources>
 
   <!--
-    ADD/EDIT LOI DATA
-  -->
-
-  <!-- Shown when leaving edit mode without saving changes. -->
-  <string name="unsaved_changes">Guardar cambios antes de cerrar?</string>
-  <!--
-    Shown when the user attempts to close the task without saving. If tapped, unsaved
-    changes will be saved.
-  -->
-  <string name="continue_editing">Continuar editando</string>
-  <!--
-    Shown when the user attempts to close the task without saving. If tapped, unsaved
-    changes will be lost.
-  -->
-  <string name="discard_changes">Descartar cambios</string>
-
-  <!--
     LOI DATA FORMS
   -->
 
   <!-- Shown below fields that are required but left empty (TBD). -->
   <string name="required_task">Este campo es obligatorio</string>
-
-  <!--
-    VIEW LOI DATA
-  -->
-
-  <!-- Shown in submission overflow menu to open popup dialog to edit locationOfInterest metadata. -->
-  <string name="edit_submission">Editar registro</string>
-
-  <!--
-    IN BOTH ADD/EDIT AND VIEW LOI SCREENS
-  -->
 
   <!--
     LOCATION (GPS/CELL/WIFI) UPDATE ERROR MESSAGES
@@ -66,13 +38,10 @@
 
   <string name="map_view">Vista del mapa</string>
   <string name="unexpected_error">Ha ocurrido un error inesperado</string>
-  <string name="save_submission_button_label">Guardar</string>
-  <string name="saving">Guardando&#8230;</string>
   <string name="google_api_install_failed">Falló la instalación de los servicios de Google Play</string>
   <string name="sign_out">Salir</string>
 
   <!-- Untranslated strings -->
-  <string name="add_submission_toolbar_title">Agregar registro</string>
   <string name="offline_area_selector">Seleccionar área para descargar</string>
   <string name="offline_area_selector_prompt">Seleccione un mapa base para usarlo sin conexión</string>
   <string name="offline_area_selector_download">Descargar</string>

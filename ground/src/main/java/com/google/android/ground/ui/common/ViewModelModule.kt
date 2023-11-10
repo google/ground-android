@@ -28,7 +28,6 @@ import com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskViewM
 import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
-import com.google.android.ground.ui.editsubmission.*
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.home.mapcontainer.MapTypeViewModel
@@ -103,11 +102,6 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(SurveySelectorViewModel::class)
   abstract fun bindSurveySelectorViewModel(viewModel: SurveySelectorViewModel): ViewModel
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(EditSubmissionViewModel::class)
-  abstract fun bindEditSubmissionViewModel(viewModel: EditSubmissionViewModel): ViewModel
 
   @Binds
   @IntoMap
