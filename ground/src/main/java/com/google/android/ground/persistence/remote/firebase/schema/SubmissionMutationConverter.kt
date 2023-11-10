@@ -31,7 +31,7 @@ internal object SubmissionMutationConverter {
 
   const val LOI_ID = "loiId"
   private const val JOB_ID = "jobId"
-  private const val RESPONSES = "responses"
+  private const val DATA = "data"
   private const val CREATED = "created"
   private const val LAST_MODIFIED = "lastModified"
 
@@ -54,7 +54,7 @@ internal object SubmissionMutationConverter {
     }
     map[LOI_ID] = mutation.locationOfInterestId
     map[JOB_ID] = mutation.job.id
-    map[RESPONSES] = toMap(mutation.deltas)
+    map[DATA] = toMap(mutation.deltas)
     return map.toPersistentMap()
   }
 
