@@ -26,6 +26,7 @@ import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.ground.Config.DEFAULT_LOI_ZOOM_LEVEL
 import com.google.android.ground.R
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
@@ -215,20 +216,21 @@ constructor(
           .filter { enabled.getOrDefault(false) }
           .withIndex()
       }
-      .map { (index, coordinates) ->
-        if (index == 0) {
-          CameraUpdateRequest(CameraPosition(coordinates, DEFAULT_LOI_ZOOM_LEVEL), true)
-        } else {
-          // Set a small delay before emitting another value to allow previous zoom animation to
-          // finish. Otherwise, the map camera stops at some other zoom level.
-          if (index == 1) {
-            delay(3000)
-          }
+      .map { (index, coordinates) -> onLocationUpdate(index, coordinates) }
 
-          // TODO(#1889): Track the zoom level in a VM associated with the MapFragment and use here
-          CameraUpdateRequest(CameraPosition(coordinates), true)
-        }
+  private suspend fun onLocationUpdate(index: Int, coordinates: Coordinates): CameraUpdateRequest =
+    if (index == 0) {
+      CameraUpdateRequest(CameraPosition(coordinates, DEFAULT_LOI_ZOOM_LEVEL), true)
+    } else {
+      // Set a small delay before emitting another value to allow previous zoom animation to
+      // finish. Otherwise, the map camera stops at some other zoom level.
+      if (index == 1) {
+        delay(3000)
       }
+
+      // TODO(#1889): Track the zoom level in a VM associated with the MapFragment and use here
+      CameraUpdateRequest(CameraPosition(coordinates), true)
+    }
 
   /** Updates map camera when active survey changes. */
   private fun updateCameraPositionOnSurveyChange(): Flow<CameraUpdateRequest> =
