@@ -29,12 +29,11 @@
       android:fitsSystemWindows="true"
       android:orientation="vertical">
 
-      <com.google.android.ground.ui.common.TwoLineToolbar
+      <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/settings_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="@dimen/toolbar_elevation"
-        android:theme="@style/PrimaryToolbarTheme"
+        app:navigationIcon="@drawable/ic_arrow_back"
         app:title="@string/settings" />
 
       <androidx.fragment.app.FragmentContainerView

@@ -27,6 +27,9 @@ class SettingsActivity : Hilt_SettingsActivity() {
     val binding = SettingsActivityBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
-    setActionBar(binding.settingsToolbar, true)
+    with(binding.settingsToolbar) {
+      setSupportActionBar(this)
+      setNavigationOnClickListener { finish() }
+    }
   }
 }

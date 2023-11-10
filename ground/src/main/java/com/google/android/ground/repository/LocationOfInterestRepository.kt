@@ -41,6 +41,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.rx2.asFlowable
+import kotlinx.coroutines.rx2.awaitSingleOrNull
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
@@ -73,6 +75,7 @@ constructor(
   }
 
   /** This only works if the survey and location of interests are already cached to local db. */
+  @Deprecated("Prefer getOfflineLocationOfInterestSuspend")
   fun getOfflineLocationOfInterest(
     surveyId: String,
     locationOfInterest: String
@@ -83,6 +86,15 @@ constructor(
       .switchIfEmpty(
         Single.error { NotFoundException("Location of interest not found $locationOfInterest") }
       )
+
+  suspend fun getOfflineLoiSuspend(
+    surveyId: String,
+    locationOfInterest: String
+  ): LocationOfInterest =
+    localSurveyStore.getSurveyByIdSuspend(surveyId)?.let {
+      localLoiStore.getLocationOfInterest(it, locationOfInterest).awaitSingleOrNull()
+    }
+      ?: throw NotFoundException("Location of interest not found $locationOfInterest")
 
   fun createLocationOfInterest(geometry: Geometry, job: Job, surveyId: String): LocationOfInterest {
     val auditInfo = AuditInfo(authManager.currentUser)
@@ -115,15 +127,17 @@ constructor(
    * have not yet been marked as [SyncStatus.COMPLETED], including pending, in progress, and failed
    * mutations. A new list is emitted on each subsequent change.
    */
-  fun getIncompleteLocationOfInterestMutationsOnceAndStream(
+  fun getIncompleteLoiMutationsOnceAndStream(
     locationOfInterestId: String
   ): Flowable<List<LocationOfInterestMutation>> =
-    localLoiStore.getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
-      locationOfInterestId,
-      MutationEntitySyncStatus.PENDING,
-      MutationEntitySyncStatus.IN_PROGRESS,
-      MutationEntitySyncStatus.FAILED
-    )
+    localLoiStore
+      .getMutationsFlow(
+        locationOfInterestId,
+        MutationEntitySyncStatus.PENDING,
+        MutationEntitySyncStatus.IN_PROGRESS,
+        MutationEntitySyncStatus.FAILED
+      )
+      .asFlowable()
 
   /** Returns a flow of all [LocationOfInterest] associated with the given [Survey]. */
   fun getLocationsOfInterests(survey: Survey): Flow<Set<LocationOfInterest>> =

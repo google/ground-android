@@ -18,7 +18,6 @@ package com.google.android.ground.ui.home.mapcontainer
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
-import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
@@ -43,7 +42,6 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -70,8 +68,7 @@ internal constructor(
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
-  surveyRepository: SurveyRepository,
-  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+  surveyRepository: SurveyRepository
 ) :
   BaseMapViewModel(
     locationManager,
@@ -80,8 +77,7 @@ internal constructor(
     offlineAreaRepository,
     permissionsManager,
     surveyRepository,
-    loiRepository,
-    ioDispatcher
+    loiRepository
   ) {
 
   /** Set of [Feature] to render on the map. */

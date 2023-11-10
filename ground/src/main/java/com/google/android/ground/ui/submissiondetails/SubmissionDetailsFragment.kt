@@ -70,7 +70,7 @@ class SubmissionDetailsFragment : Hilt_SubmissionDetailsFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    getAbstractActivity().setActionBar(binding.submissionDetailsToolbar, false)
+    getAbstractActivity().setSupportActionBar(binding.submissionDetailsToolbar)
   }
 
   @Deprecated("Deprecated in Java")

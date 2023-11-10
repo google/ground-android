@@ -24,6 +24,7 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.imagery.OfflineArea
+import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
@@ -136,12 +137,8 @@ class LocalDataStoreTests : BaseHiltTest() {
     advanceUntilIdle()
 
     localLoiStore
-      .getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
-        TEST_LOI_MUTATION.locationOfInterestId,
-        MutationEntitySyncStatus.PENDING
-      )
-      .test()
-      .assertValue(listOf(TEST_LOI_MUTATION))
+      .getMutationsFlow(TEST_LOI_MUTATION.locationOfInterestId, MutationEntitySyncStatus.PENDING)
+      .test { assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_LOI_MUTATION)) }
   }
 
   @Test
@@ -164,12 +161,11 @@ class LocalDataStoreTests : BaseHiltTest() {
     localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION)
 
     localLoiStore
-      .getLocationOfInterestMutationsByLocationOfInterestIdOnceAndStream(
+      .getMutationsFlow(
         TEST_POLYGON_LOI_MUTATION.locationOfInterestId,
         MutationEntitySyncStatus.PENDING
       )
-      .test()
-      .assertValue(listOf(TEST_POLYGON_LOI_MUTATION))
+      .test { assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_POLYGON_LOI_MUTATION)) }
   }
 
   @Test
@@ -220,13 +216,12 @@ class LocalDataStoreTests : BaseHiltTest() {
     localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION)
 
     localSubmissionStore
-      .getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+      .getSubmissionMutationsByLoiIdFlow(
         TEST_SURVEY,
         TEST_LOI_MUTATION.locationOfInterestId,
         MutationEntitySyncStatus.PENDING
       )
-      .test()
-      .assertValue(listOf(TEST_SUBMISSION_MUTATION))
+      .test { assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_SUBMISSION_MUTATION)) }
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, "loi id").blockingGet()
     var submission = localSubmissionStore.getSubmission(loi, "submission id")
     assertEquivalent(TEST_SUBMISSION_MUTATION, submission)
@@ -246,13 +241,14 @@ class LocalDataStoreTests : BaseHiltTest() {
     localSubmissionStore.applyAndEnqueue(mutation)
 
     localSubmissionStore
-      .getSubmissionMutationsByLocationOfInterestIdOnceAndStream(
+      .getSubmissionMutationsByLoiIdFlow(
         TEST_SURVEY,
         TEST_LOI_MUTATION.locationOfInterestId,
         MutationEntitySyncStatus.PENDING
       )
-      .test()
-      .assertValue(listOf(TEST_SUBMISSION_MUTATION, mutation))
+      .test {
+        assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_SUBMISSION_MUTATION, mutation))
+      }
 
     // check if the submission was updated in the local database
     submission = localSubmissionStore.getSubmission(loi, "submission id")
@@ -375,6 +371,12 @@ class LocalDataStoreTests : BaseHiltTest() {
     assertThat(localValueStore.isTermsOfServiceAccepted).isFalse()
   }
 
+  @Test
+  fun testInsertOrUpdateSurvey_usesUniqueKeyForTileSources() = runWithTestDispatcher {
+    // Should not throw.
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY_WITH_TILE_SOURCES)
+  }
+
   companion object {
     private val TEST_USER = User("user id", "user@gmail.com", "user 1")
     private val TEST_TASK = Task("task id", 1, Task.Type.TEXT, "task label", false)
@@ -383,6 +385,14 @@ class LocalDataStoreTests : BaseHiltTest() {
       Job("job id", TEST_STYLE, "heading title", mapOf(Pair(TEST_TASK.id, TEST_TASK)))
     private val TEST_SURVEY =
       Survey("survey id", "survey 1", "foo description", mapOf(Pair(TEST_JOB.id, TEST_JOB)))
+    private val TEST_SURVEY_WITH_TILE_SOURCES =
+      TEST_SURVEY.copy(
+        tileSources =
+          listOf(
+            TileSource(url = "dummy URL", type = TileSource.Type.TILED_WEB_MAP),
+            TileSource(url = "other dummy URL", type = TileSource.Type.TILED_WEB_MAP)
+          )
+      )
     private val TEST_POINT = Point(Coordinates(110.0, -23.1))
     private val TEST_POINT_2 = Point(Coordinates(51.0, 44.0))
     private val TEST_POLYGON_1 =

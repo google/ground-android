@@ -16,6 +16,7 @@
 package com.google.android.ground.model.mutation
 
 import com.google.android.ground.model.geometry.Geometry
+import com.google.android.ground.model.locationofinterest.LoiProperties
 import java.util.Date
 
 data class LocationOfInterestMutation(
@@ -29,9 +30,10 @@ data class LocationOfInterestMutation(
   override val retryCount: Long = 0,
   override val lastError: String = "",
   val jobId: String = "",
+  val customId: String = "",
   val geometry: Geometry? = null,
-  val caption: String? = null,
   val submissionCount: Int = 0,
   val ownerEmail: String? = null,
-  val isOpportunistic: Boolean = false
+  val isOpportunistic: Boolean = false,
+  val properties: LoiProperties = mapOf(),
 ) : Mutation()

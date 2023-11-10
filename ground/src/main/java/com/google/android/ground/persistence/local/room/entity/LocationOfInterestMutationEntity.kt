@@ -16,6 +16,7 @@
 package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.*
+import com.google.android.ground.model.locationofinterest.LoiProperties
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.room.fields.MutationEntityType
 
@@ -48,7 +49,8 @@ data class LocationOfInterestMutationEntity(
   @ColumnInfo(name = "client_timestamp") val clientTimestamp: Long,
   @ColumnInfo(name = "location_of_interest_id") val locationOfInterestId: String,
   @ColumnInfo(name = "job_id") val jobId: String,
-  @ColumnInfo(name = "caption") val caption: String?,
   /** Non-null if the LOI's geometry was updated, null if unchanged. */
   val newGeometry: GeometryWrapper?,
+  val newProperties: LoiProperties,
+  val newCustomId: String
 )

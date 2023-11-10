@@ -58,15 +58,13 @@ class LoiLocalDataStoreConverterTest {
     mockLoiDocumentSnapshot(
       "loi001",
       LoiDocument(
-        /* jobId */
-        "job001", /* customId */
-        null, /* caption */
-        null, /* location */
-        null, /* geoJson */
-        null, /* geometry */
-        null, /* created */
-        AUDIT_INFO_1_NESTED_OBJECT, /* lastModified */
-        AUDIT_INFO_2_NESTED_OBJECT
+        /* jobId */ "job001",
+        /* customId */ null,
+        /* location */ null,
+        /* geoJson */ null,
+        /* geometry */ null,
+        /* created */ AUDIT_INFO_1_NESTED_OBJECT,
+        /* lastModified */ AUDIT_INFO_2_NESTED_OBJECT
       )
     )
     assertThat(toLocationOfInterest().isFailure).isTrue()
@@ -90,7 +88,6 @@ class LoiLocalDataStoreConverterTest {
       "loi001",
       LoiDocument(
         "job001",
-        null,
         null,
         null,
         null,

@@ -23,7 +23,6 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
-import com.google.android.ground.MainActivity
 import com.google.android.ground.R
 import com.google.android.ground.databinding.EditSubmissionFragBinding
 import com.google.android.ground.repository.UserMediaRepository
@@ -87,9 +86,10 @@ class EditSubmissionFragment : Hilt_EditSubmissionFragment(), BackPressListener 
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    val toolbar = binding.editSubmissionToolbar
-    (activity as? MainActivity)!!.setActionBar(toolbar, R.drawable.ic_close_black_24dp)
-    toolbar.setNavigationOnClickListener { onCloseButtonClick() }
+    with(binding.editSubmissionToolbar) {
+      getAbstractActivity().setSupportActionBar(this)
+      setNavigationOnClickListener { onCloseButtonClick() }
+    }
     // Observe state changes.
     viewModel.job.observe(viewLifecycleOwner) { rebuildForm() }
 

@@ -36,23 +36,14 @@
       android:layout_height="match_parent"
       android:fitsSystemWindows="true">
 
-      <Toolbar
+      <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/offline_area_selector_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="@dimen/toolbar_elevation"
-        android:minHeight="?attr/actionBarSize"
-        android:background="?attr/colorSurfaceContainer"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:gravity="center"
-          android:text="@string/offline_area_selector_title"
-          android:theme="@style/CenteredToolbarTitle" />
-      </Toolbar>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="@string/offline_area_selector_title" />
 
       <androidx.fragment.app.FragmentContainerView
         android:id="@+id/map"

@@ -22,9 +22,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.ground.databinding.OfflineAreasFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 /**
  * Fragment containing a list of downloaded areas on the device. An area is a set of offline raster
@@ -33,8 +31,6 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint(AbstractFragment::class)
 class OfflineAreasFragment : Hilt_OfflineAreasFragment() {
-
-  @Inject lateinit var navigator: Navigator
 
   private lateinit var offlineAreaListAdapter: OfflineAreaListAdapter
   private lateinit var viewModel: OfflineAreasViewModel
@@ -56,8 +52,7 @@ class OfflineAreasFragment : Hilt_OfflineAreasFragment() {
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
 
-    val toolbar = binding.offlineAreasToolbar
-    toolbar.setNavigationOnClickListener { navigator.navigateUp() }
+    getAbstractActivity().setSupportActionBar(binding.offlineAreasToolbar)
 
     val recyclerView = binding.offlineAreasList
     recyclerView.setHasFixedSize(true)
