@@ -77,6 +77,7 @@ class PolygonDrawingTaskFragmentTest :
     setupTaskFragment<PolygonDrawingTaskFragment>(job, task)
 
     assertFragmentHasButtons(
+      ButtonAction.PREVIOUS,
       ButtonAction.SKIP,
       ButtonAction.UNDO,
       ButtonAction.NEXT,

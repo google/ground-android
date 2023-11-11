@@ -158,6 +158,22 @@ internal constructor(
   }
 
   /**
+   * Validates the user's input and displays an error if the user input was invalid. Moves back to
+   * the previous Data Collection screen if the user input was valid.
+   */
+  fun onPreviousClicked(position: Int) {
+    check(position != 0)
+
+    val validationError = currentTaskViewModel?.validate()
+    if (validationError != null) {
+      popups.get().showError(validationError)
+      return
+    }
+
+    updateCurrentPosition(position - 1)
+  }
+
+  /**
    * Validates the user's input and displays an error if the user input was invalid. Progresses to
    * the next Data Collection screen if the user input was valid.
    */

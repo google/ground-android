@@ -111,16 +111,43 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   fun onNextClicked_thenOnBack_initialTaskIsShown() {
     setupSubmission()
     setupFragment()
+
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
     onView(allOf(withText("Next"), isDisplayed())).perform(click())
-    onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
-    onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
-
     assertThat(fragment.onBack()).isTrue()
 
     assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
     onView(withText(TASK_1_NAME)).check(matches(isDisplayed()))
     onView(withText(TASK_2_NAME)).check(matches(not(isDisplayed())))
+  }
+
+  @Test
+  fun `Click previous button shows initial task`() {
+    setupSubmission()
+    setupFragment()
+
+    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
+    onView(allOf(withText("Next"), isDisplayed())).perform(click())
+    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
+    onView(allOf(withText("Previous"), isDisplayed(), isEnabled())).perform(click())
+
+    assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
+    onView(withText(TASK_1_NAME)).check(matches(isDisplayed()))
+    onView(withText(TASK_2_NAME)).check(matches(not(isDisplayed())))
+  }
+
+  @Test
+  fun `Click previous button does not show initial task if validation failed`() {
+    setupSubmission()
+    setupFragment()
+
+    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
+    onView(allOf(withText("Next"), isDisplayed())).perform(click())
+    onView(allOf(withText("Previous"), isDisplayed(), isEnabled())).perform(click())
+
+    assertThat(ShadowToast.shownToastCount()).isEqualTo(1)
+    onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
+    onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
   }
 
   @Test
