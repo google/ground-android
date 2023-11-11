@@ -37,7 +37,6 @@ import com.sharedtest.FakeData.TASK_2_NAME
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import io.reactivex.Single
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -165,7 +164,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     assertThat(fragment.onBack()).isFalse()
   }
 
-  private fun setupSubmission(tasks: Map<String, Task>? = null) {
+  private fun setupSubmission(tasks: Map<String, Task>? = null) = runWithTestDispatcher {
     var submission = SUBMISSION
     var job = SUBMISSION.job
     if (tasks != null) {
@@ -174,7 +173,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     }
 
     whenever(submissionRepository.createSubmission(SURVEY.id, LOCATION_OF_INTEREST.id))
-      .thenReturn(Single.just(submission))
+      .thenReturn(submission)
 
     runWithTestDispatcher {
       // Setup survey and LOIs

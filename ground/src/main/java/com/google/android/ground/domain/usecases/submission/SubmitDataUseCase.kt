@@ -63,13 +63,11 @@ constructor(
       }
     }
 
-    submissionRepository
-      .saveSubmission(
-        surveyId,
-        requireNotNull(loiIdToSubmit) { "No LOI found present for submission" },
-        deltasToSubmit
-      )
-      .blockingAwait()
+    submissionRepository.saveSubmission(
+      surveyId,
+      requireNotNull(loiIdToSubmit) { "No LOI found present for submission" },
+      deltasToSubmit
+    )
   }
 
   private suspend fun saveLoi(geometry: Geometry, job: Job, surveyId: String): LocationOfInterest {

@@ -30,7 +30,6 @@ import com.google.android.ground.persistence.local.room.entity.LocationOfInteres
 import com.google.android.ground.persistence.local.room.fields.EntityState
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
-import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.Debug.logOnFailure
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -46,7 +45,6 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
   @Inject lateinit var locationOfInterestMutationDao: LocationOfInterestMutationDao
   @Inject lateinit var userStore: RoomUserStore
-  @Inject lateinit var schedulers: Schedulers
 
   /**
    * Retrieves the complete set of [LocationOfInterest] associated with the given [Survey] from the
@@ -64,14 +62,11 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
    * interest isn't found and that succeeds with the location of interest otherwise (and then
    * completes). Does not stream subsequent data changes.
    */
-  override fun getLocationOfInterest(
+  override suspend fun getLocationOfInterest(
     survey: Survey,
     locationOfInterestId: String
-  ): Maybe<LocationOfInterest> =
-    locationOfInterestDao
-      .findById(locationOfInterestId)
-      .map { it.toModelObject(survey) }
-      .subscribeOn(schedulers.io())
+  ): LocationOfInterest? =
+    locationOfInterestDao.findById(locationOfInterestId)?.toModelObject(survey)
 
   // TODO(#706): Apply pending local mutations before saving.
   override suspend fun merge(model: LocationOfInterest) {
@@ -91,7 +86,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       }
       Mutation.Type.DELETE -> {
         val loiId = mutation.locationOfInterestId
-        val entity = checkNotNull(locationOfInterestDao.findByIdSuspend(loiId))
+        val entity = checkNotNull(locationOfInterestDao.findById(loiId))
         locationOfInterestDao.update(entity.copy(state = EntityState.DELETED))
       }
       Mutation.Type.UNKNOWN -> {
@@ -121,9 +116,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
 
   override suspend fun deleteLocationOfInterest(locationOfInterestId: String) {
     Timber.d("Deleting local location of interest : $locationOfInterestId")
-    locationOfInterestDao.findByIdSuspend(locationOfInterestId)?.let {
-      locationOfInterestDao.delete(it)
-    }
+    locationOfInterestDao.findById(locationOfInterestId)?.let { locationOfInterestDao.delete(it) }
   }
 
   override fun getMutationsFlow(
