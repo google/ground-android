@@ -38,7 +38,7 @@ data class SubmissionEntity(
   @ColumnInfo(name = "location_of_interest_id") val locationOfInterestId: String,
   @ColumnInfo(name = "job_id") val jobId: String,
   @ColumnInfo(name = "state") val state: EntityState,
-  @ColumnInfo(name = "responses") val responses: String?,
+  @ColumnInfo(name = "data") val data: String?,
   @Embedded(prefix = "created_") val created: AuditInfoEntity,
   @Embedded(prefix = "modified_") val lastModified: AuditInfoEntity,
 )

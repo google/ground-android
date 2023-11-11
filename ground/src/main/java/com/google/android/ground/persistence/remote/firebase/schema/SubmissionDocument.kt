@@ -28,6 +28,6 @@ data class SubmissionDocument(
   val created: AuditInfoNestedObject? = null,
   val lastModified: AuditInfoNestedObject? = null,
   // TODO(#2058): Remove after dev databases are updated to use `data` field.
-  val responses: SubmissionDataNestedMap? = null,
-  val data: SubmissionDataNestedMap? = null
+  val data: SubmissionDataNestedMap? = null,
+  val responses: SubmissionDataNestedMap? = null
 )

@@ -114,7 +114,7 @@ internal constructor(
     MutableLiveData<MutableList<AbstractTaskViewModel>> =
     MutableLiveData(mutableListOf())
 
-  private val responses: MutableMap<Task, Value?> = LinkedHashMap()
+  private val data: MutableMap<Task, Value?> = LinkedHashMap()
 
   // Tracks the task's current position in the list of tasks for the current job
   var currentPosition: @Hot(replays = true) MutableLiveData<Int> =
@@ -170,12 +170,12 @@ internal constructor(
       return
     }
 
-    responses[currentTask.task] = currentValue
+    data[currentTask.task] = currentValue
 
     if (!isLastPosition(position)) {
       updateCurrentPosition(position + 1)
     } else {
-      val deltas = responses.map { (task, value) -> ValueDelta(task.id, task.type, value) }
+      val deltas = data.map { (task, value) -> ValueDelta(task.id, task.type, value) }
       saveChanges(deltas)
 
       // Move to home screen and display a confirmation dialog after that.

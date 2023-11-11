@@ -294,7 +294,7 @@ fun SubmissionEntity.toModelObject(loi: LocationOfInterest): Submission {
     job = job,
     created = this.created.toModelObject(),
     lastModified = this.lastModified.toModelObject(),
-    data = ResponseMapConverter.fromString(job, this.responses)
+    data = SubmissionDataConverter.fromString(job, this.data)
   )
 }
 
@@ -304,7 +304,7 @@ fun Submission.toLocalDataStoreObject() =
     jobId = this.job.id,
     locationOfInterestId = this.locationOfInterest.id,
     state = EntityState.DEFAULT,
-    responses = ResponseMapConverter.toString(this.data),
+    data = SubmissionDataConverter.toString(this.data),
     created = this.created.toLocalDataStoreObject(),
     lastModified = this.lastModified.toLocalDataStoreObject(),
   )
@@ -317,7 +317,7 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
     jobId = this.job.id,
     locationOfInterestId = this.locationOfInterestId,
     state = EntityState.DEFAULT,
-    responses = ResponseMapConverter.toString(SubmissionData().copyWithDeltas(this.deltas)),
+    data = SubmissionDataConverter.toString(SubmissionData().copyWithDeltas(this.deltas)),
     // TODO(#1562): Preserve creation audit info for UPDATE mutations.
     created = auditInfo,
     lastModified = auditInfo
@@ -333,7 +333,7 @@ fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
   return SubmissionMutation(
     job = job,
     submissionId = submissionId,
-    deltas = ResponseDeltasConverter.fromString(job, responseDeltas),
+    deltas = SubmissionDeltasConverter.fromString(job, deltas),
     id = id,
     surveyId = surveyId,
     locationOfInterestId = locationOfInterestId,
@@ -355,7 +355,7 @@ fun SubmissionMutation.toLocalDataStoreObject() =
     submissionId = submissionId,
     type = MutationEntityType.fromMutationType(type),
     syncStatus = MutationEntitySyncStatus.fromMutationSyncStatus(syncStatus),
-    responseDeltas = ResponseDeltasConverter.toString(deltas),
+    deltas = SubmissionDeltasConverter.toString(deltas),
     retryCount = retryCount,
     lastError = lastError,
     userId = userId,

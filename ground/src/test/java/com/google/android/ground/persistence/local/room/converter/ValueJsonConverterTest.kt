@@ -39,20 +39,20 @@ import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
-class ResponseJsonConverterTest(
+class ValueJsonConverterTest(
   private val task: Task,
   private val value: Value,
-  private val responseObject: Any
+  private val input: Any
 ) {
 
   @Test
   fun testToJsonObject() {
-    assertThat(ResponseJsonConverter.toJsonObject(value)).isEqualTo(responseObject)
+    assertThat(ValueJsonConverter.toJsonObject(value)).isEqualTo(input)
   }
 
   @Test
   fun testToResponse() {
-    assertThat(ResponseJsonConverter.toResponse(task, responseObject)).isEqualTo(value)
+    assertThat(ValueJsonConverter.toResponse(task, input)).isEqualTo(value)
   }
 
   companion object {

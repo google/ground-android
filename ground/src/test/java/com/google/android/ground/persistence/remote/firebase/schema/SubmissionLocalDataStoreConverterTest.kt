@@ -104,7 +104,7 @@ class SubmissionLocalDataStoreConverterTest {
   }
 
   @Test
-  fun testToSubmission_nullResponses() {
+  fun testToSubmission_nullData() {
     setUpTestSurvey("job001", "loi001", newTask("task1"))
     mockSubmissionDocumentSnapshot(
       SUBMISSION_ID,
