@@ -79,7 +79,7 @@ constructor(
   val locationLock: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
-  val mapType: LiveData<MapType> = mapStateRepository.mapTypeFlow.asLiveData()
+  val mapType: Flow<MapType> = mapStateRepository.mapTypeFlow
 
   val locationLockIconTint =
     locationLock
