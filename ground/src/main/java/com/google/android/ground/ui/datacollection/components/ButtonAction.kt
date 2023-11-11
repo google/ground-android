@@ -24,12 +24,14 @@ enum class ButtonAction(
   val type: Type,
   val theme: Theme,
   @StringRes val textId: Int? = null,
-  @DrawableRes val drawableId: Int? = null
+  @DrawableRes val drawableId: Int? = null,
+  val location: Location = Location.END
 ) {
 
   // All tasks
   DONE(Type.TEXT, Theme.DARK_GREEN, textId = R.string.done),
   NEXT(Type.TEXT, Theme.DARK_GREEN, textId = R.string.next),
+  PREVIOUS(Type.TEXT, Theme.TRANSPARENT, textId = R.string.previous, null, Location.START),
   SKIP(Type.TEXT, Theme.TRANSPARENT, textId = R.string.skip),
   UNDO(Type.ICON, Theme.LIGHT_GREEN, drawableId = R.drawable.ic_undo_black),
 
@@ -54,5 +56,10 @@ enum class ButtonAction(
     LIGHT_GREEN,
     OUTLINED,
     TRANSPARENT,
+  }
+
+  enum class Location {
+    START,
+    END,
   }
 }

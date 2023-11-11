@@ -65,7 +65,12 @@ class PhotoTaskFragmentTest : BaseTaskFragmentTest<PhotoTaskFragment, PhotoTaskV
   fun testActionButtons() {
     setupTaskFragment<PhotoTaskFragment>(job, task)
 
-    assertFragmentHasButtons(ButtonAction.UNDO, ButtonAction.SKIP, ButtonAction.NEXT)
+    assertFragmentHasButtons(
+      ButtonAction.PREVIOUS,
+      ButtonAction.UNDO,
+      ButtonAction.SKIP,
+      ButtonAction.NEXT
+    )
   }
 
   @Test
