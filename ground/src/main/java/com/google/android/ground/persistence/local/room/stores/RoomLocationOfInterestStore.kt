@@ -31,8 +31,6 @@ import com.google.android.ground.persistence.local.room.fields.EntityState
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.util.Debug.logOnFailure
-import io.reactivex.Flowable
-import io.reactivex.Maybe
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
@@ -48,8 +46,8 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
 
   /**
    * Retrieves the complete set of [LocationOfInterest] associated with the given [Survey] from the
-   * local database and returns a [Flowable] that continually emits the complete set anew any time
-   * the underlying table changes (insertions, deletions, updates).
+   * local database and returns a [Flow] that continually emits the complete set anew any time the
+   * underlying table changes (insertions, deletions, updates).
    */
   override fun findLocationsOfInterest(survey: Survey) =
     locationOfInterestDao.findByState(survey.id, EntityState.DEFAULT).map {
@@ -58,9 +56,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
 
   /**
    * Attempts to retrieve the [LocationOfInterest] with the given ID that's associated with the
-   * given [Survey]. Returns a [Maybe] that completes immediately (with no data) if the location of
-   * interest isn't found and that succeeds with the location of interest otherwise (and then
-   * completes). Does not stream subsequent data changes.
+   * given [Survey].
    */
   override suspend fun getLocationOfInterest(
     survey: Survey,

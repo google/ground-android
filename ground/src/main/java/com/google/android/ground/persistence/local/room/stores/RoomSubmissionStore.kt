@@ -43,7 +43,6 @@ import com.google.android.ground.persistence.local.room.fields.UserDetails
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.util.Debug.logOnFailure
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentList
@@ -72,8 +71,8 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
 
   /**
    * Attempts to retrieve the complete list of [Submission]s associated with the given Job ID and
-   * [LocationOfInterest]. Returns a [Single] that contains an exception if no such Submission exist
-   * or the list of submissions otherwise. Does not stream subsequent data changes.
+   * [LocationOfInterest]. Returns an empty list if no such submissions exist or the list of
+   * submissions otherwise.
    */
   override suspend fun getSubmissions(
     locationOfInterest: LocationOfInterest,
