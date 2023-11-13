@@ -16,6 +16,7 @@
 package com.google.android.ground
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.google.android.ground.persistence.local.room.LocalDatabase
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltTestApplication
 import javax.annotation.OverridingMethodsMustInvokeSuper
@@ -24,6 +25,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.mockito.junit.MockitoJUnit
@@ -43,6 +45,7 @@ open class BaseHiltTest {
   /* Allows creating mocks using @Mock annotation. */
   @get:Rule(order = 2) var rule: MockitoRule = MockitoJUnit.rule()
 
+  @Inject lateinit var database: LocalDatabase
   @Inject lateinit var testDispatcher: TestDispatcher
 
   open fun runWithTestDispatcher(testBody: suspend TestScope.() -> Unit) =
@@ -52,5 +55,10 @@ open class BaseHiltTest {
   @OverridingMethodsMustInvokeSuper
   open fun setUp() {
     hiltRule.inject()
+  }
+
+  @After
+  fun closeDb() {
+    database.close()
   }
 }
