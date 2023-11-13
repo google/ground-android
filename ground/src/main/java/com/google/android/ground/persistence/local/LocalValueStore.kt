@@ -21,8 +21,6 @@ import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.ui.settings.Keys
 import com.google.android.ground.util.allowThreadDiskReads
 import com.google.android.ground.util.allowThreadDiskWrites
-import io.reactivex.Flowable
-import io.reactivex.processors.BehaviorProcessor
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,14 +35,10 @@ import timber.log.Timber
  */
 @Singleton
 class LocalValueStore @Inject constructor(private val preferences: SharedPreferences) {
-  private val mapTypeProcessor: BehaviorProcessor<MapType> =
-    BehaviorProcessor.createDefault(mapType)
-
+  private val _mapType = MutableStateFlow(mapType)
   private val _offlineImageryEnabled = MutableStateFlow(isOfflineImageryEnabled)
 
-  val mapTypeFlowable: Flowable<MapType>
-    get() = allowThreadDiskReads { mapTypeProcessor }
-
+  val mapTypeFlow: StateFlow<MapType> = _mapType.asStateFlow()
   val offlineImageryEnabledFlow: StateFlow<Boolean> = _offlineImageryEnabled.asStateFlow()
 
   /**
@@ -66,7 +60,7 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     }
     set(value) = allowThreadDiskWrites {
       preferences.edit().putInt(MAP_TYPE, value.ordinal).apply()
-      mapTypeProcessor.onNext(value)
+      _mapType.value = value
     }
 
   /** Whether location lock is enabled or not. */

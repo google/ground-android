@@ -46,10 +46,12 @@ class MapStateRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun mapTypeFlowable_whenTerrain_returnsTerrain() {
+  fun mapTypeFlowable_whenTerrain_returnsTerrain() = runWithTestDispatcher {
     mapStateRepository.mapType = MapType.TERRAIN
 
-    assertThat(mapStateRepository.mapTypeFlowable.blockingFirst()).isEqualTo(MapType.TERRAIN)
+    mapStateRepository.mapTypeFlow.test {
+      assertThat(expectMostRecentItem()).isEqualTo(MapType.TERRAIN)
+    }
   }
 
   @Test
