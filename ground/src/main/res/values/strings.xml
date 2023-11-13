@@ -124,4 +124,5 @@
   <string name="offline_area_list_item_icon">Offline area list item icon</string>
   <string name="no_surveys_available">No surveys available. Contact your survey organizer to get access.</string>
   <string name="previous">Previous</string>
+  <string name="network_error_when_signing_in">Connect to the internet to sign in</string>
 </resources>

@@ -19,14 +19,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
+import com.google.android.ground.R
 import com.google.android.ground.databinding.SignInFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint(AbstractFragment::class)
 class SignInFragment : Hilt_SignInFragment(), BackPressListener {
 
+  private lateinit var binding: SignInFragBinding
   private lateinit var viewModel: SignInViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,10 +44,32 @@ class SignInFragment : Hilt_SignInFragment(), BackPressListener {
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    val binding = SignInFragBinding.inflate(inflater, container, false)
+    binding = SignInFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
     return binding.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+
+    lifecycleScope.launch {
+      viewModel.getNetworkFlow().collect { connected ->
+        if (!connected) {
+          displayNetworkError()
+        }
+        binding.signInButton.isEnabled = connected
+      }
+    }
+  }
+
+  private fun displayNetworkError() {
+    Snackbar.make(
+        requireView(),
+        getString(R.string.network_error_when_signing_in),
+        Snackbar.LENGTH_LONG
+      )
+      .show()
   }
 
   override fun onBack(): Boolean {

@@ -15,12 +15,31 @@
  */
 package com.google.android.ground.ui.signin
 
+import androidx.lifecycle.viewModelScope
 import com.google.android.ground.repository.UserRepository
+import com.google.android.ground.system.NetworkManager
+import com.google.android.ground.system.NetworkStatus
 import com.google.android.ground.ui.common.AbstractViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.shareIn
 
-class SignInViewModel @Inject internal constructor(private val userRepository: UserRepository) :
-  AbstractViewModel() {
+class SignInViewModel
+@Inject
+internal constructor(
+  private val networkManager: NetworkManager,
+  private val userRepository: UserRepository
+) : AbstractViewModel() {
+
+  @OptIn(ExperimentalCoroutinesApi::class)
+  fun getNetworkFlow(): Flow<Boolean> =
+    networkManager.networkStatusFlow
+      .mapLatest { it == NetworkStatus.AVAILABLE }
+      .shareIn(viewModelScope, SharingStarted.Lazily, replay = 0)
+
   fun onSignInButtonClick() {
     userRepository.signIn()
   }
