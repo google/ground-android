@@ -38,7 +38,7 @@ enum class NetworkStatus {
 class NetworkManager @Inject constructor(@ApplicationContext private val context: Context) {
   val networkStatusFlow = initNetworkStatusFlow()
 
-  fun initNetworkStatusFlow(): Flow<NetworkStatus> {
+  private fun initNetworkStatusFlow(): Flow<NetworkStatus> {
     val connectivityManager = context.getSystemService(ConnectivityManager::class.java)
     return callbackFlow {
       val callback =
