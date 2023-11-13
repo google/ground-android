@@ -20,8 +20,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Maybe
 import kotlinx.coroutines.flow.Flow
 
 interface LocalLocationOfInterestStore :
@@ -33,10 +31,10 @@ interface LocalLocationOfInterestStore :
   fun findLocationsOfInterest(survey: Survey): Flow<Set<LocationOfInterest>>
 
   /** Returns the LOI with the specified UUID from the local data store, if found. */
-  fun getLocationOfInterest(
+  suspend fun getLocationOfInterest(
     survey: Survey,
     locationOfInterestId: String
-  ): @Cold Maybe<LocationOfInterest>
+  ): LocationOfInterest?
 
   /** Deletes LOI from local database. */
   suspend fun deleteLocationOfInterest(locationOfInterestId: String)

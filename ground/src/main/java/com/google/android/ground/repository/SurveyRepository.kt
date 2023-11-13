@@ -100,8 +100,7 @@ constructor(
   /**
    * Returns the survey with the specified id from the local db, or `null` if not available offline.
    */
-  suspend fun getOfflineSurvey(surveyId: String): Survey? =
-    localSurveyStore.getSurveyByIdSuspend(surveyId)
+  suspend fun getOfflineSurvey(surveyId: String): Survey? = localSurveyStore.getSurveyById(surveyId)
 
   /**
    * Loads the survey with the specified id from remote and writes to local db. If the survey isn't
@@ -140,7 +139,7 @@ constructor(
 
   /** Attempts to remove the locally synced survey. Doesn't throw an error if it doesn't exist. */
   suspend fun removeOfflineSurvey(surveyId: String) {
-    val survey = localSurveyStore.getSurveyByIdSuspend(surveyId)
+    val survey = localSurveyStore.getSurveyById(surveyId)
     survey?.let { localSurveyStore.deleteSurvey(survey) }
     if (activeSurvey?.id == surveyId) {
       clearActiveSurvey()

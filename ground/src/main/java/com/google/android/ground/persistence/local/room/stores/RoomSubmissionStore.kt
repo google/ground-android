@@ -41,10 +41,8 @@ import com.google.android.ground.persistence.local.room.fields.MutationEntitySyn
 import com.google.android.ground.persistence.local.room.fields.MutationEntityType
 import com.google.android.ground.persistence.local.room.fields.UserDetails
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
-import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.Debug.logOnFailure
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentList
@@ -58,7 +56,6 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   @Inject lateinit var submissionDao: SubmissionDao
   @Inject lateinit var submissionMutationDao: SubmissionMutationDao
   @Inject lateinit var userStore: RoomUserStore
-  @Inject lateinit var schedulers: Schedulers
 
   /**
    * Attempts to retrieve the [Submission] associated with the given ID and [LocationOfInterest].
@@ -69,13 +66,13 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     locationOfInterest: LocationOfInterest,
     submissionId: String
   ): Submission =
-    submissionDao.findByIdSuspend(submissionId)?.toModelObject(locationOfInterest)
+    submissionDao.findById(submissionId)?.toModelObject(locationOfInterest)
       ?: throw LocalDataStoreException("Submission not found $submissionId")
 
   /**
    * Attempts to retrieve the complete list of [Submission]s associated with the given Job ID and
-   * [LocationOfInterest]. Returns a [Single] that contains an exception if no such Submission exist
-   * or the list of submissions otherwise. Does not stream subsequent data changes.
+   * [LocationOfInterest]. Returns an empty list if no such submissions exist or the list of
+   * submissions otherwise.
    */
   override suspend fun getSubmissions(
     locationOfInterest: LocationOfInterest,
@@ -117,7 +114,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
         updateSubmission(mutation, user)
       }
       Mutation.Type.DELETE -> {
-        val entity = checkNotNull(submissionDao.findByIdSuspend(mutation.submissionId))
+        val entity = checkNotNull(submissionDao.findById(mutation.submissionId))
         submissionDao.update(entity.copy(state = EntityState.DELETED))
       }
       Mutation.Type.UNKNOWN -> {
@@ -133,8 +130,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   private suspend fun updateSubmission(mutation: SubmissionMutation, user: User) {
     Timber.v("Applying mutation: $mutation")
     val mutationEntity = mutation.toLocalDataStoreObject()
-    val entity =
-      submissionDao.findByIdSuspend(mutation.submissionId) ?: fallbackSubmission(mutation)
+    val entity = submissionDao.findById(mutation.submissionId) ?: fallbackSubmission(mutation)
     commitMutations(mutation.job, entity, listOf(mutationEntity), user)
     submissionDao.insertOrUpdate(entity)
   }
@@ -193,7 +189,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   }
 
   override suspend fun deleteSubmission(submissionId: String) {
-    submissionDao.findByIdSuspend(submissionId)?.let { submissionDao.delete(it) }
+    submissionDao.findById(submissionId)?.let { submissionDao.delete(it) }
   }
 
   override fun getSubmissionMutationsByLoiIdFlow(
