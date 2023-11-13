@@ -65,7 +65,7 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
    * fails.
    */
   override suspend fun getSurveyById(id: String): Survey? =
-    surveyDao.getSurveyById(id)?.toModelObject()
+    surveyDao.findSurveyById(id)?.toModelObject()
 
   /** Deletes the provided [Survey] from the local database, if it exists in the database. */
   override suspend fun deleteSurvey(survey: Survey) =
