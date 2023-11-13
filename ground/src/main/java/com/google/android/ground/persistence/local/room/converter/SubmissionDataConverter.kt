@@ -26,7 +26,7 @@ import org.json.JSONObject
 import timber.log.Timber
 
 /** Converts between [SubmissionData] and JSON strings used to represent them in the local db. */
-object ResponseMapConverter {
+object SubmissionDataConverter {
 
   @JvmStatic
   fun toString(responseDeltas: SubmissionData): String =
@@ -34,7 +34,7 @@ object ResponseMapConverter {
       .apply {
         for (taskId in responseDeltas.taskIds()) {
           try {
-            put(taskId, ResponseJsonConverter.toJsonObject(responseDeltas.getValue(taskId)))
+            put(taskId, ValueJsonConverter.toJsonObject(responseDeltas.getValue(taskId)))
           } catch (e: JSONException) {
             Timber.e(e, "Error building JSON")
           }
@@ -55,7 +55,7 @@ object ResponseMapConverter {
         try {
           val taskId = keys.next()
           val task = job.getTask(taskId)
-          ResponseJsonConverter.toResponse(task, jsonObject[taskId])?.let { map[taskId] = it }
+          ValueJsonConverter.toResponse(task, jsonObject[taskId])?.let { map[taskId] = it }
         } catch (e: LocalDataConsistencyException) {
           Timber.d("Bad submission data in local db: ${e.message}")
         }

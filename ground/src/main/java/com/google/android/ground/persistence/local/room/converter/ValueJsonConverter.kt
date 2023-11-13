@@ -40,7 +40,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
 
-internal object ResponseJsonConverter {
+internal object ValueJsonConverter {
 
   private const val ISO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mmZ"
 

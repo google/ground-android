@@ -26,8 +26,8 @@ import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.SubmissionData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.persistence.local.room.LocalDataStoreException
-import com.google.android.ground.persistence.local.room.converter.ResponseDeltasConverter
-import com.google.android.ground.persistence.local.room.converter.ResponseMapConverter
+import com.google.android.ground.persistence.local.room.converter.SubmissionDataConverter
+import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
 import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.SubmissionDao
@@ -173,7 +173,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     Timber.v("Merging submission $this with mutations $mutations")
 
     return submission.copy(
-      responses = ResponseMapConverter.toString(commitMutations(job, submission, mutations)),
+      data = SubmissionDataConverter.toString(commitMutations(job, submission, mutations)),
       lastModified = AuditInfoEntity(UserDetails.fromUser(user), clientTimestamp)
     )
   }
@@ -183,11 +183,11 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     submission: SubmissionEntity,
     mutations: List<SubmissionMutationEntity>
   ): SubmissionData {
-    val responseMap = ResponseMapConverter.fromString(job!!, submission.responses)
+    val responseMap = SubmissionDataConverter.fromString(job!!, submission.data)
     val deltas = mutableListOf<ValueDelta>()
     for (mutation in mutations) {
-      // Merge changes to responses.
-      deltas.addAll(ResponseDeltasConverter.fromString(job, mutation.responseDeltas))
+      // Merge changes to submission data.
+      deltas.addAll(SubmissionDeltasConverter.fromString(job, mutation.deltas))
     }
     return responseMap.copyWithDeltas(deltas.toPersistentList())
   }
