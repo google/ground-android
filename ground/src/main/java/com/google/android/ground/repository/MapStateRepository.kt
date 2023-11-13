@@ -18,7 +18,6 @@ package com.google.android.ground.repository
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapType
-import io.reactivex.Flowable
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
@@ -27,7 +26,7 @@ import kotlinx.coroutines.flow.Flow
 @Singleton
 class MapStateRepository @Inject constructor(private val localValueStore: LocalValueStore) {
 
-  val mapTypeFlowable: Flowable<MapType> by localValueStore::mapTypeFlowable
+  val mapTypeFlow: Flow<MapType> by localValueStore::mapTypeFlow
   var mapType: MapType by localValueStore::mapType
   var isLocationLockEnabled: Boolean by localValueStore::isLocationLockEnabled
   val offlineImageryEnabledFlow: Flow<Boolean> by localValueStore::offlineImageryEnabledFlow

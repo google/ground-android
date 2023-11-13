@@ -20,7 +20,6 @@ import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.toLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.ground.Config.DEFAULT_LOI_ZOOM_LEVEL
@@ -80,7 +79,7 @@ constructor(
   val locationLock: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
   private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
-  val mapType: LiveData<MapType>
+  val mapType: Flow<MapType> = mapStateRepository.mapTypeFlow
 
   val locationLockIconTint =
     locationLock
@@ -122,7 +121,6 @@ constructor(
     private set
 
   init {
-    mapType = mapStateRepository.mapTypeFlowable.toLiveData()
     offlineTileSources =
       offlineAreaRepository
         .getOfflineTileSourcesFlow()
