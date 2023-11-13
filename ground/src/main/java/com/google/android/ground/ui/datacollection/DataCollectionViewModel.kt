@@ -18,6 +18,7 @@ package com.google.android.ground.ui.datacollection
 import android.content.res.Resources
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
@@ -132,7 +133,7 @@ internal constructor(
       currentTaskViewModel
     }
 
-  val currentValueLiveData = currentTaskViewModelLiveData.switchMap { it?.valueLiveData }
+  val currentValueLiveData = currentTaskViewModelLiveData.switchMap { it?.value?.asLiveData() }
 
   lateinit var submissionId: String
 

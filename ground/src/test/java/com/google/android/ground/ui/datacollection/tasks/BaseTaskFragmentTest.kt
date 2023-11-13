@@ -70,7 +70,7 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
   }
 
   protected suspend fun hasValue(value: Value?) {
-    viewModel.valueFlow.test { assertThat(expectMostRecentItem()).isEqualTo(value) }
+    viewModel.value.test { assertThat(expectMostRecentItem()).isEqualTo(value) }
   }
 
   /** Asserts that the task fragment has the given list of buttons in the exact same order. */

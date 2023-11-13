@@ -33,7 +33,6 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
-import java8.util.Optional
 import javax.inject.Inject
 
 /** Fragment allowing the user to collect data to complete a task. */
@@ -116,8 +115,8 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
     progressAnimator.start()
   }
 
-  private fun onValueUpdated(value: Optional<Value>) {
-    viewModel.currentValue = value.orElse(null)
+  private fun onValueUpdated(value: Value?) {
+    viewModel.currentValue = value
   }
 
   override fun onBack(): Boolean =
