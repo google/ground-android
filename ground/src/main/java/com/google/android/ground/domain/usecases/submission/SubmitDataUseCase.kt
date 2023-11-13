@@ -65,7 +65,9 @@ constructor(
 
     submissionRepository.saveSubmission(
       surveyId,
-      requireNotNull(loiIdToSubmit) { "No LOI found present for submission" },
+      requireNotNull(loiIdToSubmit) {
+        "No LOI found present for submission, surveyId: $surveyId, jobId: ${job.id}"
+      },
       deltasToSubmit
     )
   }
