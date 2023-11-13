@@ -26,6 +26,7 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint(AbstractFragment::class)
@@ -53,7 +54,7 @@ class SignInFragment : Hilt_SignInFragment(), BackPressListener {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    lifecycleScope.launch {
+    lifecycleScope.launch(Dispatchers.Main) {
       viewModel.getNetworkFlow().collect { connected ->
         if (!connected) {
           displayNetworkError()
