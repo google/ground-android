@@ -179,10 +179,10 @@ class NavigationDrawerItemClickTest(
     fun data() =
       listOf(
         arrayOf(
-          "Change survey",
+          "Surveys",
           HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
         ),
-        arrayOf("Sync status", HomeScreenFragmentDirections.showSyncStatus()),
+        arrayOf("History and sync status", HomeScreenFragmentDirections.showSyncStatus()),
         arrayOf("Offline map imagery", HomeScreenFragmentDirections.showOfflineAreas()),
         arrayOf(
           "Settings",
