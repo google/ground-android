@@ -22,7 +22,6 @@ import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.UserDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.stores.LocalUserStore
-import com.google.android.ground.rx.Schedulers
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,7 +29,6 @@ import javax.inject.Singleton
 @Singleton
 class RoomUserStore @Inject internal constructor() : LocalUserStore {
   @Inject lateinit var userDao: UserDao
-  @Inject lateinit var schedulers: Schedulers
 
   /**
    * Attempts to update persisted data associated with a [User] in the local database. If the

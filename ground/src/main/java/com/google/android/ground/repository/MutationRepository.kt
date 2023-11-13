@@ -77,7 +77,7 @@ constructor(
 
   private suspend fun SubmissionMutationEntity.toSubmissionMutation(): SubmissionMutation =
     toModelObject(
-      localSurveyStore.getSurveyByIdSuspend(surveyId)
+      localSurveyStore.getSurveyById(surveyId)
         ?: error("Survey missing $surveyId. Unable to fetch pending submission mutations.")
     )
 

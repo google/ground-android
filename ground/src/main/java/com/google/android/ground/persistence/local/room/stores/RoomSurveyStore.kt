@@ -30,8 +30,6 @@ import com.google.android.ground.persistence.local.room.dao.TaskDao
 import com.google.android.ground.persistence.local.room.dao.TileSourceDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import com.google.android.ground.rx.Schedulers
-import io.reactivex.Maybe
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
@@ -46,7 +44,6 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
   @Inject lateinit var jobDao: JobDao
   @Inject lateinit var surveyDao: SurveyDao
   @Inject lateinit var tileSourceDao: TileSourceDao
-  @Inject lateinit var schedulers: Schedulers
 
   override val surveys: Flow<List<Survey>>
     get() = surveyDao.getAll().map { surveyEntities -> surveyEntities.map { it.toModelObject() } }
@@ -64,18 +61,11 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
   }
 
   /**
-   * Attempts to retrieve the [Survey] with the given ID from the local database. If retrieval
-   * fails, returns a [NoSuchElementException].
-   */
-  override fun getSurveyById(id: String): Maybe<Survey> =
-    surveyDao.getSurveyById(id).map { it.toModelObject() }.subscribeOn(schedulers.io())
-
-  /**
    * Returns the [Survey] with the given ID from the local database. Returns `null` if retrieval
    * fails.
    */
-  override suspend fun getSurveyByIdSuspend(id: String): Survey? =
-    surveyDao.getSurveyByIdSuspend(id)?.toModelObject()
+  override suspend fun getSurveyById(id: String): Survey? =
+    surveyDao.findSurveyById(id)?.toModelObject()
 
   /** Deletes the provided [Survey] from the local database, if it exists in the database. */
   override suspend fun deleteSurvey(survey: Survey) =

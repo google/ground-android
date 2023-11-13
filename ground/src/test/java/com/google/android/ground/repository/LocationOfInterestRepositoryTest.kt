@@ -86,11 +86,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       )
     locationOfInterestRepository.applyAndEnqueue(loi.toMutation(CREATE, TEST_USER.id))
 
-    locationOfInterestRepository
-      .getOfflineLocationOfInterest(TEST_SURVEY.id, loi.id)
-      .test()
-      .assertNoErrors()
-      .assertValue(loi)
+    assertThat(locationOfInterestRepository.getOfflineLoi(TEST_SURVEY.id, loi.id)).isEqualTo(loi)
   }
 
   @Test

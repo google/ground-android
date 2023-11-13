@@ -29,7 +29,6 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
@@ -41,7 +40,6 @@ import javax.inject.Inject
 @AndroidEntryPoint(AbstractFragment::class)
 class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener {
   @Inject lateinit var navigator: Navigator
-  @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
   private val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)

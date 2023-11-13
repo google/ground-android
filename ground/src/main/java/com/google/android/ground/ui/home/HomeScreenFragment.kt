@@ -28,7 +28,6 @@ import com.google.android.ground.databinding.NavDrawerHeaderBinding
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.rx.RxAutoDispose
-import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.ui.common.*
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,7 +48,6 @@ class HomeScreenFragment :
   @Inject lateinit var locationOfInterestHelper: LocationOfInterestHelper
   @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
   @Inject lateinit var popups: EphemeralPopups
-  @Inject lateinit var schedulers: Schedulers
   @Inject lateinit var userRepository: UserRepository
 
   private lateinit var binding: HomeScreenFragBinding

@@ -16,8 +16,6 @@
 package com.google.android.ground.persistence.local.stores
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.rx.annotations.Cold
-import io.reactivex.Maybe
 import kotlinx.coroutines.flow.Flow
 
 /** Provides access to [Survey] data in local storage. */
@@ -26,12 +24,7 @@ interface LocalSurveyStore {
   val surveys: Flow<List<Survey>>
 
   /** Load last active survey, if any. */
-  @Deprecated("Use getSurveyByIdSuspend() instead")
-  fun getSurveyById(id: String): @Cold Maybe<Survey>
-
-  /** Load last active survey, if any. */
-  // TODO(#1581): Rename to getSurveyById once all existing usages are migrated to kotlin coroutine.
-  suspend fun getSurveyByIdSuspend(id: String): Survey?
+  suspend fun getSurveyById(id: String): Survey?
 
   /** Delete stored survey from database. */
   suspend fun deleteSurvey(survey: Survey)
