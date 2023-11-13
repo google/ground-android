@@ -60,11 +60,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.reactive.asFlow
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -102,11 +101,11 @@ internal constructor(
   val loiName: StateFlow<String> =
     (if (loiId == null) flowOf("")
       else
-        locationOfInterestRepository
-          .getOfflineLocationOfInterest(surveyId, loiId)
-          .toFlowable()
-          .asFlow()
-          .map { locationOfInterestHelper.getLabel(it) })
+        flow {
+          val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
+          val label = locationOfInterestHelper.getLabel(loi)
+          emit(label)
+        })
       .stateIn(viewModelScope, SharingStarted.Lazily, "")
 
   private val taskViewModels:
