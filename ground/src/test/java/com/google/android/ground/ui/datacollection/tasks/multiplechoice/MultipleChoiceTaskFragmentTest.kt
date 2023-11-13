@@ -38,7 +38,6 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.instanceOf
 import org.junit.Assert.assertThrows
@@ -50,7 +49,6 @@ import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowAlertDialog
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MultipleChoiceTaskFragmentTest :
@@ -145,7 +143,7 @@ class MultipleChoiceTaskFragmentTest :
   fun testActionButtons() {
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
-    assertFragmentHasButtons(ButtonAction.SKIP, ButtonAction.NEXT)
+    assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)
   }
 
   @Test
@@ -153,13 +151,14 @@ class MultipleChoiceTaskFragmentTest :
     whenever(dataCollectionViewModel.isLastPosition(any())).thenReturn(true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
-    assertFragmentHasButtons(ButtonAction.SKIP, ButtonAction.DONE)
+    assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.DONE)
   }
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = false))
 
+    buttonIsHidden("Previous")
     buttonIsDisabled("Next")
     buttonIsEnabled("Skip")
   }
@@ -187,7 +186,17 @@ class MultipleChoiceTaskFragmentTest :
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = true))
 
+    buttonIsHidden("Previous")
     buttonIsDisabled("Next")
     buttonIsHidden("Skip")
+  }
+
+  @Test
+  fun testActionButtons_whenTaskIsSecond() {
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(index = 1))
+
+    buttonIsEnabled("Previous")
+    buttonIsDisabled("Next")
+    buttonIsEnabled("Skip")
   }
 }
