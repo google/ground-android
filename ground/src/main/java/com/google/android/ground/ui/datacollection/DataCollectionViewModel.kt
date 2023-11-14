@@ -59,7 +59,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -153,10 +152,10 @@ internal constructor(
    * Validates the user's input and displays an error if the user input was invalid. Moves back to
    * the previous Data Collection screen if the user input was valid.
    */
-  suspend fun onPreviousClicked(position: Int) {
+  fun onPreviousClicked(position: Int, taskViewModel: AbstractTaskViewModel) {
     check(position != 0)
 
-    val validationError = _currentTaskViewModelFlow.firstOrNull()?.validate()
+    val validationError = taskViewModel.validate()
     if (validationError != null) {
       popups.get().showError(validationError)
       return
@@ -169,16 +168,14 @@ internal constructor(
    * Validates the user's input and displays an error if the user input was invalid. Progresses to
    * the next Data Collection screen if the user input was valid.
    */
-  suspend fun onNextClicked(position: Int) {
-    val currentTask = _currentTaskViewModelFlow.firstOrNull() ?: return
-
-    val validationError = currentTask.validate()
+  fun onNextClicked(position: Int, taskViewModel: AbstractTaskViewModel) {
+    val validationError = taskViewModel.validate()
     if (validationError != null) {
       popups.get().showError(validationError)
       return
     }
 
-    data[currentTask.task] = currentValue
+    data[taskViewModel.task] = currentValue
 
     if (!isLastPosition(position)) {
       updateCurrentPosition(position + 1)
