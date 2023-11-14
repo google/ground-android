@@ -80,10 +80,11 @@ internal constructor(
   surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
-  private val loiId: String? = savedStateHandle["locationOfInterestId"]
+  private val jobId: String? = savedStateHandle[TASK_JOB_ID_KEY]
+  private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
+
   private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
-  private val job: Job =
-    activeSurvey.getJob(requireNotNull(savedStateHandle["jobId"])) ?: error("empty job")
+  private val job: Job = activeSurvey.getJob(requireNotNull(jobId)) ?: error("empty job")
   val tasks: List<Task> = buildList {
     if (job.suggestLoiTaskType != null && loiId == null) {
       add(createSuggestLoiTask(job.suggestLoiTaskType))
@@ -205,6 +206,8 @@ internal constructor(
     Task(id = "-1", index = -1, taskType, resources.getString(R.string.new_site), isRequired = true)
 
   companion object {
+    private const val TASK_JOB_ID_KEY = "jobId"
+    private const val TASK_LOI_ID_KEY = "locationOfInterestId"
     private const val TASK_POSITION_KEY = "currentPosition"
 
     fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
