@@ -24,6 +24,7 @@ import android.widget.ProgressBar
 import androidx.constraintlayout.widget.Guideline
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
@@ -34,6 +35,7 @@ import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint(AbstractFragment::class)
@@ -71,8 +73,8 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
     viewPager.offscreenPageLimit = 1
 
     loadTasks(viewModel.tasks)
-    viewModel.currentPosition.observe(viewLifecycleOwner) { onTaskChanged(it) }
-    viewModel.currentValueLiveData.observe(viewLifecycleOwner) { onValueUpdated(it) }
+    lifecycleScope.launch { viewModel.currentPosition.collect { onTaskChanged(it) } }
+    lifecycleScope.launch { viewModel.currentValueFlow.collect { onValueUpdated(it) } }
 
     viewPager.registerOnPageChangeCallback(
       object : ViewPager2.OnPageChangeCallback() {

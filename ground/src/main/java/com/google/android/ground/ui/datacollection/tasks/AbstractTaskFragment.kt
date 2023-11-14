@@ -143,11 +143,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   private fun moveToPrevious() {
-    dataCollectionViewModel.onPreviousClicked(position)
+    lifecycleScope.launch { dataCollectionViewModel.onPreviousClicked(position) }
   }
 
   fun moveToNext() {
-    dataCollectionViewModel.onNextClicked(position)
+    lifecycleScope.launch { dataCollectionViewModel.onNextClicked(position) }
   }
 
   fun addUndoButton() =
