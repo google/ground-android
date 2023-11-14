@@ -53,13 +53,10 @@ import kotlin.collections.component2
 import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
@@ -116,17 +113,6 @@ internal constructor(
   // Tracks the task's current position in the list of tasks for the current job
   var currentPosition: StateFlow<Int> = savedStateHandle.getStateFlow(TASK_POSITION_KEY, 0)
 
-  var currentValue: Value? = null
-
-  private val _currentTaskViewModelFlow: StateFlow<AbstractTaskViewModel?> =
-    currentPosition
-      .combine(taskViewModels) { position, viewModels -> viewModels[position] }
-      .stateIn(viewModelScope, SharingStarted.Lazily, null)
-
-  @OptIn(ExperimentalCoroutinesApi::class)
-  val currentValueFlow: Flow<Value?> =
-    _currentTaskViewModelFlow.flatMapLatest { it?.value ?: flowOf(null) }
-
   lateinit var submissionId: String
 
   fun getTaskViewModel(position: Int): AbstractTaskViewModel {
@@ -168,14 +154,14 @@ internal constructor(
    * Validates the user's input and displays an error if the user input was invalid. Progresses to
    * the next Data Collection screen if the user input was valid.
    */
-  fun onNextClicked(position: Int, taskViewModel: AbstractTaskViewModel) {
+  suspend fun onNextClicked(position: Int, taskViewModel: AbstractTaskViewModel) {
     val validationError = taskViewModel.validate()
     if (validationError != null) {
       popups.get().showError(validationError)
       return
     }
 
-    data[taskViewModel.task] = currentValue
+    data[taskViewModel.task] = taskViewModel.value.firstOrNull()
 
     if (!isLastPosition(position)) {
       updateCurrentPosition(position + 1)

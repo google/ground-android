@@ -28,7 +28,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
-import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
@@ -74,7 +73,6 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
 
     loadTasks(viewModel.tasks)
     lifecycleScope.launch { viewModel.currentPosition.collect { onTaskChanged(it) } }
-    lifecycleScope.launch { viewModel.currentValueFlow.collect { onValueUpdated(it) } }
 
     viewPager.registerOnPageChangeCallback(
       object : ViewPager2.OnPageChangeCallback() {
@@ -115,10 +113,6 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
     progressAnimator.addUpdateListener { progressBar.progress = it.animatedValue as Int }
 
     progressAnimator.start()
-  }
-
-  private fun onValueUpdated(value: Value?) {
-    viewModel.currentValue = value
   }
 
   override fun onBack(): Boolean =
