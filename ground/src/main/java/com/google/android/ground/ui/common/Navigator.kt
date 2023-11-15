@@ -16,44 +16,52 @@
 package com.google.android.ground.ui.common
 
 import androidx.navigation.NavDirections
-import com.google.android.ground.rx.annotations.Hot
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
+import com.google.android.ground.coroutines.MainDispatcher
+import com.google.android.ground.coroutines.MainScope
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
 /**
  * Responsible for abstracting navigation from fragment to fragment. Exposes various actions to
- * ViewModels that cause a NavDirections to be emitted to the observer (in this case, the [ ], which
- * is expected to pass it to the current [ ].
+ * ViewModels that cause a NavDirections to be emitted to the observer (in this case, the
+ * [com.google.android.ground.MainActivity], which is expected to pass it to the current
+ * [androidx.navigation.NavController].
  */
 @Singleton
-class Navigator @Inject constructor() {
-  private val navigateRequests: @Hot Subject<NavDirections> = PublishSubject.create()
-  private val navigateUpRequests: @Hot Subject<Any> = PublishSubject.create()
-  private val finishRequests: @Hot Subject<Any> = PublishSubject.create()
+class Navigator
+@Inject
+constructor(
+  @MainDispatcher private val dispatcher: CoroutineDispatcher,
+  @MainScope private val coroutineScope: CoroutineScope
+) {
+  private val _navigateRequests = MutableSharedFlow<NavigationRequest>()
 
   /** Stream of navigation requests for fulfillment by the view layer. */
-  fun getNavigateRequests(): Observable<NavDirections> = navigateRequests
-
-  fun getNavigateUpRequests(): Observable<Any> = navigateUpRequests
-
-  fun getFinishRequests(): Observable<Any> = finishRequests
+  fun getNavigateRequests(): SharedFlow<NavigationRequest> =
+    _navigateRequests.shareIn(coroutineScope, SharingStarted.Lazily, replay = 0)
 
   /** Navigates up one level on the back stack. */
   fun navigateUp() {
-    navigateUpRequests.onNext(Any())
+    requestNavigation(NavigateUp)
   }
 
   fun navigate(directions: NavDirections) {
-    CoroutineScope(Main).launch { navigateRequests.onNext(directions) }
+    requestNavigation(NavigateTo(directions))
   }
 
   fun finishApp() {
-    finishRequests.onNext(Any())
+    requestNavigation(FinishApp)
+  }
+
+  private fun requestNavigation(request: NavigationRequest) {
+    CoroutineScope(dispatcher).launch { _navigateRequests.emit(request) }
   }
 }

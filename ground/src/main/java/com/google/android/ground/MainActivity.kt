@@ -20,18 +20,18 @@ import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.core.view.WindowInsetsCompat
-import androidx.navigation.NavDirections
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.databinding.MainActBinding
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.rx.RxAutoDispose.autoDisposable
-import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.ActivityStreams
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.*
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.function.Consumer
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
@@ -40,18 +40,11 @@ import timber.log.Timber
 @AndroidEntryPoint(AbstractActivity::class)
 class MainActivity : Hilt_MainActivity() {
   @Inject lateinit var activityStreams: ActivityStreams
-
   @Inject lateinit var viewModelFactory: ViewModelFactory
-
   @Inject lateinit var settingsManager: SettingsManager
-
   @Inject lateinit var navigator: Navigator
-
   @Inject lateinit var userRepository: UserRepository
-
   @Inject lateinit var popups: EphemeralPopups
-
-  @Inject lateinit var schedulers: Schedulers
 
   private lateinit var viewModel: MainViewModel
   private lateinit var navHostFragment: NavHostFragment
@@ -69,21 +62,7 @@ class MainActivity : Hilt_MainActivity() {
       callback.accept(this)
     }
 
-    navigator
-      .getNavigateRequests()
-      .observeOn(schedulers.ui())
-      .`as`(autoDisposable(this))
-      .subscribe { navDirections: NavDirections -> onNavigate(navDirections) }
-
-    navigator
-      .getNavigateUpRequests()
-      .observeOn(schedulers.ui())
-      .`as`(autoDisposable(this))
-      .subscribe { navigateUp() }
-
-    navigator.getFinishRequests().observeOn(schedulers.ui()).`as`(autoDisposable(this)).subscribe {
-      finish()
-    }
+    lifecycleScope.launch { navigator.getNavigateRequests().collect { onNavigate(it) } }
 
     val binding = MainActBinding.inflate(layoutInflater)
     setContentView(binding.root)
@@ -102,9 +81,12 @@ class MainActivity : Hilt_MainActivity() {
     viewModel.windowInsets.postValue(insets)
   }
 
-  private fun onNavigate(navDirections: NavDirections) {
-    val navController = navHostFragment.navController
-    navController.navigate(navDirections)
+  private fun onNavigate(navRequest: NavigationRequest) {
+    when (navRequest) {
+      is NavigateTo -> navHostFragment.navController.navigate(navRequest.directions)
+      is NavigateUp -> navigateUp()
+      is FinishApp -> finish()
+    }
   }
 
   /**
