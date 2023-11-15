@@ -2,14 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>DataClassShouldBeImmutable:TaskButton.kt$TaskButton$private var taskUpdatedCallback:
-      ((button: TaskButton, value: Value?) -&gt; Unit)? = null
-    </ID>
-    <ID>
-      LongMethod:SubmissionLocalDataStoreConverterTest.kt$SubmissionLocalDataStoreConverterTest$@Test
-      fun testToSubmission()
-    </ID>
-    <ID>LoopWithTooManyJumpStatements:DataBindingIdlingResource.kt$DataBindingIdlingResource$for
-    </ID>
+    <ID>UnusedPrivateProperty:HomeScreenFragmentTest.kt$NavigationDrawerItemClickTest$private val testLabel: String</ID>
   </CurrentIssues>
 </SmellBaseline>

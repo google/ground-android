@@ -33,6 +33,7 @@ import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.testMaybeNavigateTo
 import com.google.android.ground.ui.common.Navigator
 import com.sharedtest.FakeData
 import com.squareup.picasso.Picasso
@@ -41,7 +42,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.CoreMatchers.not
-import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -81,6 +81,11 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
     computeScrollForDrawerLayout()
     onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isOpen(Gravity.START)))
     onView(withId(R.id.nav_view)).check(matches(ViewMatchers.isDisplayed()))
+  }
+
+  protected fun verifyDrawerOpen() {
+    computeScrollForDrawerLayout()
+    onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isOpen()))
   }
 
   protected fun verifyDrawerClosed() {
@@ -153,40 +158,84 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
   }
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class NavigationDrawerItemClickTest(
   private val menuItemLabel: String,
-  private val expectedNavDirection: NavDirections?
+  private val survey: Survey,
+  private val expectedNavDirection: NavDirections?,
+  private val shouldDrawerCloseAfterClick: Boolean,
+  private val testLabel: String
 ) : AbstractHomeScreenFragmentTest() {
 
   @Inject lateinit var navigator: Navigator
+  @Inject lateinit var surveyRepository: SurveyRepository
 
   @Test
-  fun clickDrawerMenuItem() {
-    val navDirectionsTestObserver = navigator.getNavigateRequests().test()
+  fun clickDrawerMenuItem() = runWithTestDispatcher {
+    surveyRepository.activeSurvey = survey
+    advanceUntilIdle()
 
     openDrawer()
-    onView(withText(menuItemLabel)).check(matches(isEnabled())).perform(click())
 
-    navDirectionsTestObserver.assertValue(expectedNavDirection)
-    verifyDrawerClosed()
+    testMaybeNavigateTo(navigator.getNavigateRequests(), expectedNavDirection) {
+      onView(withText(menuItemLabel)).check(matches(isEnabled())).perform(click())
+    }
+
+    if (shouldDrawerCloseAfterClick) {
+      verifyDrawerClosed()
+    } else {
+      verifyDrawerOpen()
+    }
   }
 
   companion object {
+    private val TEST_SURVEY_WITHOUT_OFFLINE_TILES = FakeData.SURVEY.copy(tileSources = listOf())
+
+    private val TEST_SURVEY_WITH_OFFLINE_TILES =
+      FakeData.SURVEY.copy(
+        tileSources = listOf(TileSource(url = "url1", type = TileSource.Type.MOG_COLLECTION))
+      )
+
     @JvmStatic
-    @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
+    @ParameterizedRobolectricTestRunner.Parameters(name = "{4}")
     fun data() =
       listOf(
         arrayOf(
           "Change survey",
-          HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
+          TEST_SURVEY_WITHOUT_OFFLINE_TILES,
+          HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false),
+          true,
+          "Clicking 'change survey' should navigate to fragment"
         ),
-        arrayOf("Sync status", HomeScreenFragmentDirections.showSyncStatus()),
-        arrayOf("Offline map imagery", HomeScreenFragmentDirections.showOfflineAreas()),
+        arrayOf(
+          "Sync status",
+          TEST_SURVEY_WITHOUT_OFFLINE_TILES,
+          HomeScreenFragmentDirections.showSyncStatus(),
+          true,
+          "Clicking 'sync status' should navigate to fragment"
+        ),
+        arrayOf(
+          "Offline map imagery",
+          TEST_SURVEY_WITHOUT_OFFLINE_TILES,
+          null,
+          false,
+          "Clicking 'offline map imagery' when survey doesn't have offline tiles should do nothing"
+        ),
+        arrayOf(
+          "Offline map imagery",
+          TEST_SURVEY_WITH_OFFLINE_TILES,
+          HomeScreenFragmentDirections.showOfflineAreas(),
+          true,
+          "Clicking 'offline map imagery' when survey has offline tiles should navigate to fragment"
+        ),
         arrayOf(
           "Settings",
-          HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity()
+          TEST_SURVEY_WITHOUT_OFFLINE_TILES,
+          HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity(),
+          true,
+          "Clicking 'settings' should navigate to fragment"
         )
       )
   }
