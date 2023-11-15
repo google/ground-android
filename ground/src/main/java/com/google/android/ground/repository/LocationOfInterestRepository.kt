@@ -21,8 +21,6 @@ import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
-import com.google.android.ground.model.mutation.Mutation.SyncStatus
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.NotFoundException
@@ -32,14 +30,12 @@ import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.GmsExt.contains
-import io.reactivex.Flowable
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.rx2.asFlowable
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
@@ -103,23 +99,6 @@ constructor(
     localLoiStore.applyAndEnqueue(mutation)
     mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
   }
-
-  /**
-   * Emits the list of [LocationOfInterestMutation] instances for a given location of interest which
-   * have not yet been marked as [SyncStatus.COMPLETED], including pending, in progress, and failed
-   * mutations. A new list is emitted on each subsequent change.
-   */
-  fun getIncompleteLoiMutationsOnceAndStream(
-    locationOfInterestId: String
-  ): Flowable<List<LocationOfInterestMutation>> =
-    localLoiStore
-      .getMutationsFlow(
-        locationOfInterestId,
-        MutationEntitySyncStatus.PENDING,
-        MutationEntitySyncStatus.IN_PROGRESS,
-        MutationEntitySyncStatus.FAILED
-      )
-      .asFlowable()
 
   /** Returns a flow of all [LocationOfInterest] associated with the given [Survey]. */
   fun getLocationsOfInterests(survey: Survey): Flow<Set<LocationOfInterest>> =

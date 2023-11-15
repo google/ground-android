@@ -137,9 +137,9 @@ class LocalDataStoreTests : BaseHiltTest() {
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
     advanceUntilIdle()
 
-    localLoiStore
-      .getMutationsFlow(TEST_LOI_MUTATION.locationOfInterestId, MutationEntitySyncStatus.PENDING)
-      .test { assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_LOI_MUTATION)) }
+    localLoiStore.getAllSurveyMutations(TEST_SURVEY).test {
+      assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_LOI_MUTATION))
+    }
   }
 
   @Test
@@ -163,12 +163,9 @@ class LocalDataStoreTests : BaseHiltTest() {
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION)
 
-    localLoiStore
-      .getMutationsFlow(
-        TEST_POLYGON_LOI_MUTATION.locationOfInterestId,
-        MutationEntitySyncStatus.PENDING
-      )
-      .test { assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_POLYGON_LOI_MUTATION)) }
+    localLoiStore.getAllSurveyMutations(TEST_SURVEY).test {
+      assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_POLYGON_LOI_MUTATION))
+    }
   }
 
   @Test

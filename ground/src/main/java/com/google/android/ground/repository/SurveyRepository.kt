@@ -23,11 +23,8 @@ import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.NetworkManager
 import com.google.android.ground.system.NetworkStatus
-import io.reactivex.Flowable
-import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -40,7 +37,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 
@@ -77,15 +73,6 @@ constructor(
       _activeSurvey.value = value
       lastActiveSurveyId = value?.id ?: ""
     }
-
-  /**
-   * Emits the currently active survey on subscribe and on change. Emits `empty()` when no survey is
-   * active or local db isn't up-to-date.
-   */
-  // TODO(#1593): Update callers to use [activeSurveyFlow] and delete this member.
-  @Deprecated("Use activeSurveyFlow instead")
-  val activeSurveyFlowable: @Cold Flowable<Optional<Survey>> =
-    activeSurveyFlow.map { if (it == null) Optional.empty() else Optional.of(it) }.asFlowable()
 
   val localSurveyListFlow: Flow<List<SurveyListItem>>
     get() = localSurveyStore.surveys.map { list -> list.map { it.toListItem(true) } }
