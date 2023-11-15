@@ -40,15 +40,6 @@ interface LocalLocationOfInterestStore :
   suspend fun deleteLocationOfInterest(locationOfInterestId: String)
 
   /**
-   * Emits the list of [LocationOfInterestMutation] instances for a given LOI which match the
-   * provided `allowedStates`. A new list is emitted on each subsequent change.
-   */
-  fun getMutationsFlow(
-    locationOfInterestId: String,
-    vararg allowedStates: MutationEntitySyncStatus
-  ): Flow<List<LocationOfInterestMutation>>
-
-  /**
    * Returns a [Flow] that emits a [List] of all [LocationOfInterestMutation]s stored in the local
    * db related to a given [Survey]. A new [List] is emitted on each change to the underlying saved
    * data.
