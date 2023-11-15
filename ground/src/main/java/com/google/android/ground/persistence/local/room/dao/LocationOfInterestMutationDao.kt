@@ -39,14 +39,4 @@ interface LocationOfInterestMutationDao : BaseDao<LocationOfInterestMutationEnti
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus
   ): List<LocationOfInterestMutationEntity>?
-
-  @Query(
-    "SELECT * FROM location_of_interest_mutation " +
-      "WHERE location_of_interest_id = :locationOfInterestId " +
-      "AND state IN (:allowedStates)"
-  )
-  fun getMutationsFlow(
-    locationOfInterestId: String,
-    vararg allowedStates: MutationEntitySyncStatus,
-  ): Flow<List<LocationOfInterestMutationEntity>>
 }
