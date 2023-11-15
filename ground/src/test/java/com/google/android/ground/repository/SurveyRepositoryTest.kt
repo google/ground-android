@@ -24,7 +24,6 @@ import com.sharedtest.FakeData.JOB
 import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
-import java8.util.Optional
 import javax.inject.Inject
 import kotlin.test.assertFails
 import kotlin.test.assertNull
@@ -45,19 +44,19 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
 
   @Test
-  fun activeSurveyFlowable_emitsValueOnSetActiveSurvey() = runWithTestDispatcher {
+  fun activeSurveyFlow_emitsValueOnSetActiveSurvey() = runWithTestDispatcher {
     surveyRepository.activeSurvey = SURVEY
     advanceUntilIdle()
 
-    surveyRepository.activeSurveyFlowable.test().assertValues(Optional.of(SURVEY))
+    surveyRepository.activeSurveyFlow.test { assertThat(expectMostRecentItem()).isEqualTo(SURVEY) }
   }
 
   @Test
-  fun activeSurveyFlowable_emitsEmptyOnClearActiveSurvey() = runWithTestDispatcher {
+  fun activeSurveyFlow_emitsEmptyOnClearActiveSurvey() = runWithTestDispatcher {
     surveyRepository.clearActiveSurvey()
     advanceUntilIdle()
 
-    surveyRepository.activeSurveyFlowable.test().assertValues(Optional.empty())
+    surveyRepository.activeSurveyFlow.test { assertThat(expectMostRecentItem()).isNull() }
   }
 
   @Test
