@@ -18,11 +18,9 @@ package com.google.android.ground.system
 import android.content.Context
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.ground.rx.RxCompletable
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.rx2.await
 
 private val INSTALL_API_REQUEST_CODE = GoogleApiAvailability::class.java.hashCode() and 0xffff
 
@@ -56,16 +54,12 @@ constructor(
     }
   }
 
-  private suspend fun getNextResult(requestCode: Int) =
-    activityStreams
-      .getNextActivityResult(requestCode)
-      .flatMapCompletable {
-        RxCompletable.completeOrError(
-          { it.isOk() },
-          Exception::class.java // TODO: Throw appropriate Exception.
-        )
-      }
-      .await()
+  private suspend fun getNextResult(requestCode: Int) {
+    val result = activityStreams.getNextActivityResult(requestCode)
+    if (!result.isOk()) {
+      error("Activity result failed: requestCode = $requestCode, result = $result")
+    }
+  }
 
   class GooglePlayServicesMissingException : Error("Google play services not available")
 }

@@ -23,9 +23,7 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.system.rx.RxSettingsClient
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import io.reactivex.Observable
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -37,7 +35,6 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SettingsManagerTest : BaseHiltTest() {
@@ -61,9 +58,7 @@ class SettingsManagerTest : BaseHiltTest() {
   @Test
   fun `enableLocationSettings() attempts to resolve error if resolvable`() = runWithTestDispatcher {
     whenever(activityStreamsMock.getNextActivityResult(LOCATION_SETTINGS_REQUEST_CODE))
-      .thenReturn(
-        Observable.just(ActivityResult(LOCATION_SETTINGS_REQUEST_CODE, Activity.RESULT_OK, null))
-      )
+      .thenReturn(ActivityResult(LOCATION_SETTINGS_REQUEST_CODE, Activity.RESULT_OK, null))
 
     whenever(settingsClientMock.checkLocationSettings(any())).thenAnswer {
       throw ResolvableApiException(Status.RESULT_INTERNAL_ERROR)

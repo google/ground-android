@@ -26,9 +26,12 @@ import java8.util.function.Consumer
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /** Bridge between the [Activity] and various `Manager` classes. */
@@ -40,7 +43,7 @@ class ActivityStreams @Inject constructor(@ApplicationScope private val scope: C
   val activityRequests: SharedFlow<Consumer<Activity>> = _activityRequestsFlow.asSharedFlow()
 
   /** Emits [Activity.onActivityResult] events. */
-  private val activityResults: @Hot Subject<ActivityResult> = PublishSubject.create()
+  private val _activityResults: MutableSharedFlow<ActivityResult> = MutableSharedFlow()
 
   /** Emits [Activity.onRequestPermissionsResult] events. */
   private val requestPermissionsResults: @Hot Subject<RequestPermissionsResult> =
@@ -57,8 +60,9 @@ class ActivityStreams @Inject constructor(@ApplicationScope private val scope: C
   /**
    * Callback used to communicate [Activity.onActivityResult] events with various `Manager` classes.
    */
-  fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) =
-    activityResults.onNext(ActivityResult(requestCode, resultCode, data))
+  fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    scope.launch { _activityResults.emit(ActivityResult(requestCode, resultCode, data)) }
+  }
 
   /**
    * Callback used to communicate [Activity.onRequestPermissionsResult] events with various
@@ -74,15 +78,15 @@ class ActivityStreams @Inject constructor(@ApplicationScope private val scope: C
     )
 
   /** Emits [Activity.onActivityResult] events where `requestCode` matches the specified value. */
-  fun getActivityResults(requestCode: Int): @Hot Observable<ActivityResult> =
-    activityResults.filter { it.requestCode == requestCode }
+  fun getActivityResults(requestCode: Int): Flow<ActivityResult> =
+    _activityResults.filter { it.requestCode == requestCode }
 
   /**
    * Emits the next [Activity.onActivityResult] event where `requestCode` matches the specified
    * value.
    */
-  fun getNextActivityResult(requestCode: Int): @Hot Observable<ActivityResult> =
-    getActivityResults(requestCode).take(1) // TODO(#723): Define and handle timeouts.
+  suspend fun getNextActivityResult(requestCode: Int): ActivityResult =
+    getActivityResults(requestCode).first() // TODO(#723): Define and handle timeouts.
 
   /**
    * Emits the next [Activity.onRequestPermissionsResult] event where `requestCode` matches the
