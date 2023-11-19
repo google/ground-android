@@ -17,6 +17,7 @@ package com.google.android.ground.system
 
 import android.app.Activity
 import android.content.Intent
+import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.rx.annotations.Hot
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -24,13 +25,19 @@ import io.reactivex.subjects.Subject
 import java8.util.function.Consumer
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 
 /** Bridge between the [Activity] and various `Manager` classes. */
 @Singleton
-class ActivityStreams @Inject constructor() {
+class ActivityStreams @Inject constructor(@ApplicationScope private val scope: CoroutineScope) {
 
   /** Emits [Consumer]s to be executed in the context of the [Activity]. */
-  val activityRequests: @Hot Subject<Consumer<Activity>> = PublishSubject.create()
+  private val _activityRequestsFlow: MutableSharedFlow<Consumer<Activity>> = MutableSharedFlow()
+  val activityRequests: SharedFlow<Consumer<Activity>> = _activityRequestsFlow.asSharedFlow()
 
   /** Emits [Activity.onActivityResult] events. */
   private val activityResults: @Hot Subject<ActivityResult> = PublishSubject.create()
@@ -43,7 +50,9 @@ class ActivityStreams @Inject constructor() {
    * Queues the specified [Consumer] for execution. An instance of the current [ ] is provided to
    * the `Consumer` when called.
    */
-  fun withActivity(callback: Consumer<Activity>) = activityRequests.onNext(callback)
+  fun withActivity(callback: Consumer<Activity>) {
+    scope.launch { _activityRequestsFlow.emit(callback) }
+  }
 
   /**
    * Callback used to communicate [Activity.onActivityResult] events with various `Manager` classes.

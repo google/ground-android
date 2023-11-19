@@ -24,7 +24,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.databinding.MainActBinding
 import com.google.android.ground.repository.UserRepository
-import com.google.android.ground.rx.RxAutoDispose.autoDisposable
 import com.google.android.ground.system.ActivityStreams
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.*
@@ -57,9 +56,10 @@ class MainActivity : Hilt_MainActivity() {
     super.onCreate(savedInstanceState)
 
     // Set up event streams first. Navigator must be listening when auth is first initialized.
-    activityStreams.activityRequests.`as`(autoDisposable(this)).subscribe {
-      callback: Consumer<Activity> ->
-      callback.accept(this)
+    lifecycleScope.launch {
+      activityStreams.activityRequests.collect { callback: Consumer<Activity> ->
+        callback.accept(this@MainActivity)
+      }
     }
 
     lifecycleScope.launch { navigator.getNavigateRequests().collect { onNavigate(it) } }
