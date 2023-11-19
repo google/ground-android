@@ -20,6 +20,7 @@ import android.view.*
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.MainViewModel
 import com.google.android.ground.R
@@ -27,11 +28,11 @@ import com.google.android.ground.databinding.HomeScreenFragBinding
 import com.google.android.ground.databinding.NavDrawerHeaderBinding
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.UserRepository
-import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.ui.common.*
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 /**
  * Fragment containing the map container and location of interest sheet fragments and NavigationView
@@ -60,9 +61,7 @@ class HomeScreenFragment :
       onApplyWindowInsets(insets)
     }
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    homeScreenViewModel.openDrawerRequests.`as`(RxAutoDispose.autoDisposable(this)).subscribe {
-      openDrawer()
-    }
+    lifecycleScope.launch { homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() } }
   }
 
   override fun onCreateView(

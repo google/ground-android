@@ -17,16 +17,19 @@ package com.google.android.ground.ui.home
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
-import io.reactivex.processors.FlowableProcessor
-import io.reactivex.processors.PublishProcessor
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.launch
 
 @SharedViewModel
 class HomeScreenViewModel
@@ -36,12 +39,15 @@ internal constructor(
   private val surveyRepository: SurveyRepository
 ) : AbstractViewModel() {
 
-  val openDrawerRequests: @Hot FlowableProcessor<Nil> = PublishProcessor.create()
+  private val _openDrawerRequests: MutableSharedFlow<Nil> = MutableSharedFlow()
+  val openDrawerRequestsFlow: SharedFlow<Nil> =
+    _openDrawerRequests.shareIn(viewModelScope, SharingStarted.Lazily, replay = 0)
+
   val showOfflineAreaMenuItem: LiveData<Boolean> =
     surveyRepository.activeSurveyFlow.map { it?.tileSources?.isNotEmpty() ?: false }.asLiveData()
 
   fun openNavDrawer() {
-    openDrawerRequests.onNext(Nil.NIL)
+    viewModelScope.launch { _openDrawerRequests.emit(Nil.NIL) }
   }
 
   fun showSurveySelector() {
