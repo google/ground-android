@@ -22,7 +22,6 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.system.PermissionsManager.Companion.PERMISSIONS_REQUEST_CODE
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import io.reactivex.Observable
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -69,16 +68,14 @@ class PermissionsManagerTest : BaseHiltTest() {
     }
   }
 
-  private fun setupPermissionResult(granted: Boolean) {
+  private fun setupPermissionResult(granted: Boolean) = runWithTestDispatcher {
     whenever(activityStreamsMock.getNextRequestPermissionsResult(PERMISSIONS_REQUEST_CODE))
       .thenReturn(
-        Observable.just(
-          RequestPermissionsResult(
-            PERMISSIONS_REQUEST_CODE,
-            arrayOf(testPermission),
-            intArrayOf(
-              if (granted) PackageManager.PERMISSION_GRANTED else PackageManager.PERMISSION_DENIED
-            )
+        RequestPermissionsResult(
+          PERMISSIONS_REQUEST_CODE,
+          arrayOf(testPermission),
+          intArrayOf(
+            if (granted) PackageManager.PERMISSION_GRANTED else PackageManager.PERMISSION_DENIED
           )
         )
       )

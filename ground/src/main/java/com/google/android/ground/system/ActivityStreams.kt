@@ -18,10 +18,6 @@ package com.google.android.ground.system
 import android.app.Activity
 import android.content.Intent
 import com.google.android.ground.coroutines.ApplicationScope
-import com.google.android.ground.rx.annotations.Hot
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import java8.util.function.Consumer
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -46,8 +42,8 @@ class ActivityStreams @Inject constructor(@ApplicationScope private val scope: C
   private val _activityResults: MutableSharedFlow<ActivityResult> = MutableSharedFlow()
 
   /** Emits [Activity.onRequestPermissionsResult] events. */
-  private val requestPermissionsResults: @Hot Subject<RequestPermissionsResult> =
-    PublishSubject.create()
+  private val _requestPermissionsResults: MutableSharedFlow<RequestPermissionsResult> =
+    MutableSharedFlow()
 
   /**
    * Queues the specified [Consumer] for execution. An instance of the current [ ] is provided to
@@ -72,10 +68,13 @@ class ActivityStreams @Inject constructor(@ApplicationScope private val scope: C
     requestCode: Int,
     permissions: Array<String>,
     grantResults: IntArray
-  ) =
-    requestPermissionsResults.onNext(
-      RequestPermissionsResult(requestCode, permissions, grantResults)
-    )
+  ) {
+    scope.launch {
+      _requestPermissionsResults.emit(
+        RequestPermissionsResult(requestCode, permissions, grantResults)
+      )
+    }
+  }
 
   /** Emits [Activity.onActivityResult] events where `requestCode` matches the specified value. */
   fun getActivityResults(requestCode: Int): Flow<ActivityResult> =
@@ -92,8 +91,8 @@ class ActivityStreams @Inject constructor(@ApplicationScope private val scope: C
    * Emits the next [Activity.onRequestPermissionsResult] event where `requestCode` matches the
    * specified value.
    */
-  fun getNextRequestPermissionsResult(requestCode: Int): Observable<RequestPermissionsResult> =
-    requestPermissionsResults
+  suspend fun getNextRequestPermissionsResult(requestCode: Int): RequestPermissionsResult =
+    _requestPermissionsResults
       .filter { it.requestCode == requestCode }
-      .take(1) // TODO(#723): Define and handle timeouts.
+      .first() // TODO(#723): Define and handle timeouts.
 }
