@@ -16,7 +16,6 @@
 package com.google.android.ground
 
 import android.content.SharedPreferences
-import android.os.Looper
 import androidx.navigation.NavDirections
 import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.repository.TermsOfServiceRepository
@@ -32,16 +31,13 @@ import com.sharedtest.TestObservers.observeUntilFirstChange
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
-import io.reactivex.observers.TestObserver
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -56,16 +52,11 @@ class MainViewModelTest : BaseHiltTest() {
   @Inject lateinit var tosRepository: TermsOfServiceRepository
   @Inject lateinit var userRepository: UserRepository
 
-  private lateinit var navDirectionsTestObserver: TestObserver<NavDirections>
-
   @Before
   override fun setUp() {
     super.setUp()
 
     fakeAuthenticationManager.setUser(FakeData.USER)
-
-    // Subscribe to navigation requests
-    navDirectionsTestObserver = navigator.getNavigateRequests().test()
   }
 
   private fun setupUserPreferences() {
@@ -89,32 +80,27 @@ class MainViewModelTest : BaseHiltTest() {
     assertThat(viewModel.signInProgressDialogVisibility.value).isEqualTo(visible)
   }
 
-  private fun verifyNavigationRequested(vararg navDirections: NavDirections) {
-    navDirectionsTestObserver.assertNoErrors()
-    navDirectionsTestObserver.assertNotComplete()
-    navDirectionsTestObserver.assertValues(*navDirections)
-  }
-
   @Test
-  fun testSignInStateChanged_onSignedOut() {
+  fun testSignInStateChanged_onSignedOut() = runWithTestDispatcher {
     setupUserPreferences()
-    fakeAuthenticationManager.signOut()
-    Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+    testNavigateTo(navigator.getNavigateRequests(), SignInFragmentDirections.showSignInScreen()) {
+      fakeAuthenticationManager.signOut()
+    }
 
     verifyProgressDialogVisible(false)
-    verifyNavigationRequested(SignInFragmentDirections.showSignInScreen())
     verifyUserPreferencesCleared()
     verifyUserNotSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
   }
 
   @Test
-  fun testSignInStateChanged_onSigningIn() {
-    fakeAuthenticationManager.setState(signingIn())
-    Shadows.shadowOf(Looper.getMainLooper()).idle()
+  fun testSignInStateChanged_onSigningIn() = runWithTestDispatcher {
+    testNoNavigation(navigator.getNavigateRequests()) {
+      fakeAuthenticationManager.setState(signingIn())
+    }
 
     verifyProgressDialogVisible(true)
-    verifyNavigationRequested()
     verifyUserNotSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
   }
@@ -126,14 +112,16 @@ class MainViewModelTest : BaseHiltTest() {
   fun testSignInStateChanged_onSignedIn_whenTosNotAccepted() = runWithTestDispatcher {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
-    fakeAuthenticationManager.signIn()
-    advanceUntilIdle()
-    Shadows.shadowOf(Looper.getMainLooper()).idle()
-    verifyProgressDialogVisible(false)
-    verifyNavigationRequested(
+
+    testNavigateTo(
+      navigator.getNavigateRequests(),
       SignInFragmentDirections.showTermsOfService()
         .setTermsOfServiceText(FakeData.TERMS_OF_SERVICE.text) as NavDirections
-    )
+    ) {
+      fakeAuthenticationManager.signIn()
+    }
+
+    verifyProgressDialogVisible(false)
     verifyUserSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
   }
@@ -142,12 +130,15 @@ class MainViewModelTest : BaseHiltTest() {
   fun testSignInStateChanged_onSignedIn_getTos_whenTosMissing() = runWithTestDispatcher {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService = null
-    fakeAuthenticationManager.signIn()
-    advanceUntilIdle()
-    Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+    testNavigateTo(
+      navigator.getNavigateRequests(),
+      SignInFragmentDirections.showSurveySelectorScreen(true)
+    ) {
+      fakeAuthenticationManager.signIn()
+    }
 
     verifyProgressDialogVisible(false)
-    verifyNavigationRequested(SignInFragmentDirections.showSurveySelectorScreen(true))
     verifyUserSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
   }
@@ -162,12 +153,15 @@ class MainViewModelTest : BaseHiltTest() {
           FirebaseFirestoreException.Code.PERMISSION_DENIED
         )
       )
-    fakeAuthenticationManager.signIn()
-    advanceUntilIdle()
-    Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+    testNavigateTo(
+      navigator.getNavigateRequests(),
+      SignInFragmentDirections.showPermissionDeniedDialogFragment()
+    ) {
+      fakeAuthenticationManager.signIn()
+    }
 
     verifyProgressDialogVisible(false)
-    verifyNavigationRequested(SignInFragmentDirections.showPermissionDeniedDialogFragment())
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
   }
 
@@ -176,24 +170,24 @@ class MainViewModelTest : BaseHiltTest() {
     runWithTestDispatcher {
       tosRepository.isTermsOfServiceAccepted = false
       fakeRemoteDataStore.termsOfService = Result.failure(Error("user error"))
-      fakeAuthenticationManager.signIn()
-      advanceUntilIdle()
-      Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+      testNavigateTo(navigator.getNavigateRequests(), SignInFragmentDirections.showSignInScreen()) {
+        fakeAuthenticationManager.signIn()
+      }
 
       verifyProgressDialogVisible(false)
-      verifyNavigationRequested(SignInFragmentDirections.showSignInScreen())
       assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
     }
 
   @Test
-  fun testSignInStateChanged_onSignInError() {
+  fun testSignInStateChanged_onSignInError() = runWithTestDispatcher {
     setupUserPreferences()
 
-    fakeAuthenticationManager.setState(error(Exception()))
-    Shadows.shadowOf(Looper.getMainLooper()).idle()
+    testNavigateTo(navigator.getNavigateRequests(), SignInFragmentDirections.showSignInScreen()) {
+      fakeAuthenticationManager.setState(error(Exception()))
+    }
 
     verifyProgressDialogVisible(false)
-    verifyNavigationRequested(SignInFragmentDirections.showSignInScreen())
     verifyUserPreferencesCleared()
     verifyUserNotSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()

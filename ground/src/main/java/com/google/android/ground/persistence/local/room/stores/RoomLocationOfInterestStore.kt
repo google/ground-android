@@ -30,10 +30,7 @@ import com.google.android.ground.persistence.local.room.entity.LocationOfInteres
 import com.google.android.ground.persistence.local.room.fields.EntityState
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
-import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.util.Debug.logOnFailure
-import io.reactivex.Flowable
-import io.reactivex.Maybe
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
@@ -46,12 +43,11 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
   @Inject lateinit var locationOfInterestMutationDao: LocationOfInterestMutationDao
   @Inject lateinit var userStore: RoomUserStore
-  @Inject lateinit var schedulers: Schedulers
 
   /**
    * Retrieves the complete set of [LocationOfInterest] associated with the given [Survey] from the
-   * local database and returns a [Flowable] that continually emits the complete set anew any time
-   * the underlying table changes (insertions, deletions, updates).
+   * local database and returns a [Flow] that continually emits the complete set anew any time the
+   * underlying table changes (insertions, deletions, updates).
    */
   override fun findLocationsOfInterest(survey: Survey) =
     locationOfInterestDao.findByState(survey.id, EntityState.DEFAULT).map {
@@ -60,18 +56,13 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
 
   /**
    * Attempts to retrieve the [LocationOfInterest] with the given ID that's associated with the
-   * given [Survey]. Returns a [Maybe] that completes immediately (with no data) if the location of
-   * interest isn't found and that succeeds with the location of interest otherwise (and then
-   * completes). Does not stream subsequent data changes.
+   * given [Survey].
    */
-  override fun getLocationOfInterest(
+  override suspend fun getLocationOfInterest(
     survey: Survey,
     locationOfInterestId: String
-  ): Maybe<LocationOfInterest> =
-    locationOfInterestDao
-      .findById(locationOfInterestId)
-      .map { it.toModelObject(survey) }
-      .subscribeOn(schedulers.io())
+  ): LocationOfInterest? =
+    locationOfInterestDao.findById(locationOfInterestId)?.toModelObject(survey)
 
   // TODO(#706): Apply pending local mutations before saving.
   override suspend fun merge(model: LocationOfInterest) {
@@ -91,7 +82,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       }
       Mutation.Type.DELETE -> {
         val loiId = mutation.locationOfInterestId
-        val entity = checkNotNull(locationOfInterestDao.findByIdSuspend(loiId))
+        val entity = checkNotNull(locationOfInterestDao.findById(loiId))
         locationOfInterestDao.update(entity.copy(state = EntityState.DELETED))
       }
       Mutation.Type.UNKNOWN -> {
@@ -121,19 +112,8 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
 
   override suspend fun deleteLocationOfInterest(locationOfInterestId: String) {
     Timber.d("Deleting local location of interest : $locationOfInterestId")
-    locationOfInterestDao.findByIdSuspend(locationOfInterestId)?.let {
-      locationOfInterestDao.delete(it)
-    }
+    locationOfInterestDao.findById(locationOfInterestId)?.let { locationOfInterestDao.delete(it) }
   }
-
-  override fun getMutationsFlow(
-    locationOfInterestId: String,
-    vararg allowedStates: MutationEntitySyncStatus
-  ): Flow<List<LocationOfInterestMutation>> =
-    locationOfInterestMutationDao.getMutationsFlow(locationOfInterestId, *allowedStates).map {
-      mutations ->
-      mutations.map { it.toModelObject() }
-    }
 
   override fun getAllSurveyMutations(survey: Survey): Flow<List<LocationOfInterestMutation>> =
     locationOfInterestMutationDao.getAllMutationsFlow().map { mutations ->

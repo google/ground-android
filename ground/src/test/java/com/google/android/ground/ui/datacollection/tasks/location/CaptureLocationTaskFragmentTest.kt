@@ -105,6 +105,7 @@ class CaptureLocationTaskFragmentTest :
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     assertFragmentHasButtons(
+      ButtonAction.PREVIOUS,
       ButtonAction.SKIP,
       ButtonAction.UNDO,
       ButtonAction.CAPTURE_LOCATION,

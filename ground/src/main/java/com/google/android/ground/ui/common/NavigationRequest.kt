@@ -13,22 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.persistence.local.stores
+package com.google.android.ground.ui.common
 
-import com.google.android.ground.model.Survey
-import kotlinx.coroutines.flow.Flow
+import androidx.navigation.NavDirections
 
-/** Provides access to [Survey] data in local storage. */
-interface LocalSurveyStore {
-  /** Load surveys stored in local database. */
-  val surveys: Flow<List<Survey>>
+sealed interface NavigationRequest
 
-  /** Load last active survey, if any. */
-  suspend fun getSurveyById(id: String): Survey?
+data class NavigateTo(val directions: NavDirections) : NavigationRequest
 
-  /** Delete stored survey from database. */
-  suspend fun deleteSurvey(survey: Survey)
+object NavigateUp : NavigationRequest
 
-  /** Add survey to the database. */
-  suspend fun insertOrUpdateSurvey(survey: Survey)
-}
+object FinishApp : NavigationRequest

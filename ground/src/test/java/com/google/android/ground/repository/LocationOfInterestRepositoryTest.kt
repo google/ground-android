@@ -54,6 +54,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
+  @Inject lateinit var mutationRepository: MutationRepository
   @Inject lateinit var userRepository: UserRepository
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
 
@@ -86,22 +87,16 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       )
     locationOfInterestRepository.applyAndEnqueue(loi.toMutation(CREATE, TEST_USER.id))
 
-    locationOfInterestRepository
-      .getOfflineLocationOfInterest(TEST_SURVEY.id, loi.id)
-      .test()
-      .assertNoErrors()
-      .assertValue(loi)
+    assertThat(locationOfInterestRepository.getOfflineLoi(TEST_SURVEY.id, loi.id)).isEqualTo(loi)
   }
 
   @Test
   fun testApplyAndEnqueue_enqueuesLoiMutation() = runWithTestDispatcher {
     locationOfInterestRepository.applyAndEnqueue(mutation)
 
-    locationOfInterestRepository
-      .getIncompleteLoiMutationsOnceAndStream(LOCATION_OF_INTEREST.id)
-      .test()
-      .assertNoErrors()
-      .assertValue(listOf(mutation.copy(id = 1)))
+    mutationRepository.getSurveyMutationsFlow(TEST_SURVEY).test {
+      assertThat(expectMostRecentItem()).isEqualTo(listOf(mutation.copy(id = 1)))
+    }
   }
 
   @Test

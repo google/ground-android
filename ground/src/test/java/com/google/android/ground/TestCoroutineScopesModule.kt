@@ -17,23 +17,27 @@ package com.google.android.ground
 
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.CoroutinesScopesModule
+import com.google.android.ground.coroutines.MainScope
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 
 @Module
 @TestInstallIn(components = [SingletonComponent::class], replaces = [CoroutinesScopesModule::class])
 object TestCoroutineScopesModule {
-  @OptIn(ExperimentalCoroutinesApi::class)
   @ApplicationScope
   @Singleton
   @Provides
   fun provideCoroutineScope(testDispatcher: TestDispatcher): CoroutineScope =
+    TestScope(testDispatcher)
+
+  @MainScope
+  @Provides
+  fun provideMainCoroutineScope(testDispatcher: TestDispatcher): CoroutineScope =
     TestScope(testDispatcher)
 }

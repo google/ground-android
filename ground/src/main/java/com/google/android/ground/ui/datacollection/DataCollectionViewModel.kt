@@ -60,11 +60,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.reactive.asFlow
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -102,11 +101,11 @@ internal constructor(
   val loiName: StateFlow<String> =
     (if (loiId == null) flowOf("")
       else
-        locationOfInterestRepository
-          .getOfflineLocationOfInterest(surveyId, loiId)
-          .toFlowable()
-          .asFlow()
-          .map { locationOfInterestHelper.getLabel(it) })
+        flow {
+          val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
+          val label = locationOfInterestHelper.getLabel(loi)
+          emit(label)
+        })
       .stateIn(viewModelScope, SharingStarted.Lazily, "")
 
   private val taskViewModels:
@@ -155,6 +154,22 @@ internal constructor(
   private fun addTaskViewModel(taskViewModel: AbstractTaskViewModel) {
     taskViewModels.value?.add(taskViewModel)
     taskViewModels.value = taskViewModels.value
+  }
+
+  /**
+   * Validates the user's input and displays an error if the user input was invalid. Moves back to
+   * the previous Data Collection screen if the user input was valid.
+   */
+  fun onPreviousClicked(position: Int) {
+    check(position != 0)
+
+    val validationError = currentTaskViewModel?.validate()
+    if (validationError != null) {
+      popups.get().showError(validationError)
+      return
+    }
+
+    updateCurrentPosition(position - 1)
   }
 
   /**

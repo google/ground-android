@@ -24,16 +24,19 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.repository.TermsOfServiceRepository
+import com.google.android.ground.testNavigateTo
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.hamcrest.Matchers.not
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class TermsOfServiceFragmentTest : BaseHiltTest() {
@@ -69,19 +72,20 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun agreeButton_whenPressed_shouldUpdatePrefAndNavigate() {
+  fun agreeButton_whenPressed_shouldUpdatePrefAndNavigate() = runWithTestDispatcher {
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf())
 
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isFalse()
-    val navDirectionsTestObserver = navigator.getNavigateRequests().test()
 
-    onView(withId(R.id.agreeCheckBox)).perform(click())
-    onView(withId(R.id.agreeButton)).perform(click())
+    testNavigateTo(
+      navigator.getNavigateRequests(),
+      SurveySelectorFragmentDirections.showSurveySelectorScreen(true),
+    ) {
+      onView(withId(R.id.agreeCheckBox)).perform(click())
+      onView(withId(R.id.agreeButton)).perform(click())
+    }
 
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
-    navDirectionsTestObserver.assertValue(
-      SurveySelectorFragmentDirections.showSurveySelectorScreen(true)
-    )
   }
 
   @Test

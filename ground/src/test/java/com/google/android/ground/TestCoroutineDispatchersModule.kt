@@ -15,17 +15,19 @@
  */
 package com.google.android.ground
 
-import com.google.android.ground.coroutines.*
+import com.google.android.ground.coroutines.CoroutineDispatchersModule
+import com.google.android.ground.coroutines.DefaultDispatcher
+import com.google.android.ground.coroutines.IoDispatcher
+import com.google.android.ground.coroutines.MainDispatcher
+import com.google.android.ground.coroutines.MainImmediateDispatcher
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @Module
 @TestInstallIn(
   components = [SingletonComponent::class],

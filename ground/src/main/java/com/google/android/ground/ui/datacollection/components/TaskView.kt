@@ -16,8 +16,8 @@
 package com.google.android.ground.ui.datacollection.components
 
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.google.android.ground.databinding.TaskFragActionButtonsBinding
 import com.google.android.ground.databinding.TaskFragWithCombinedHeaderBinding
 import com.google.android.ground.databinding.TaskFragWithHeaderBinding
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
@@ -26,7 +26,7 @@ import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 sealed interface TaskView {
 
   /** Container for adding the action buttons for the task. */
-  val actionButtonsContainer: ViewGroup
+  val actionButtonsContainer: TaskFragActionButtonsBinding
 
   /** Root-level view for the current task. */
   val root: View
@@ -41,7 +41,7 @@ sealed interface TaskView {
 /** Implementation of [TaskView] with an embedded header. */
 data class TaskViewWithHeader(private val binding: TaskFragWithHeaderBinding) : TaskView {
 
-  override val actionButtonsContainer = binding.actionButtonsContainer
+  override val actionButtonsContainer = binding.actionButtons
 
   override val root = binding.root
 
@@ -59,7 +59,7 @@ data class TaskViewWithHeader(private val binding: TaskFragWithHeaderBinding) : 
 data class TaskViewWithCombinedHeader(private val binding: TaskFragWithCombinedHeaderBinding) :
   TaskView {
 
-  override val actionButtonsContainer = binding.actionButtonsContainer
+  override val actionButtonsContainer = binding.actionButtons
 
   override val root = binding.root
 

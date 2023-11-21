@@ -19,29 +19,17 @@ import androidx.room.Dao
 import androidx.room.Query
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
 import com.google.android.ground.persistence.local.room.fields.EntityState
-import io.reactivex.Flowable
-import io.reactivex.Maybe
 import kotlinx.coroutines.flow.Flow
 
 /** Provides low-level read/write operations of [LocationOfInterestEntity] to/from the local db. */
 @Dao
 interface LocationOfInterestDao : BaseDao<LocationOfInterestEntity> {
-  @Query("SELECT * FROM location_of_interest WHERE survey_id = :surveyId AND state = :state")
-  fun findOnceAndStream(
-    surveyId: String,
-    state: EntityState
-  ): Flowable<List<LocationOfInterestEntity>>
 
   @Query("SELECT * FROM location_of_interest WHERE survey_id = :surveyId AND state = :state")
   fun findByState(surveyId: String, state: EntityState): Flow<List<LocationOfInterestEntity>>
 
   @Query("SELECT * FROM location_of_interest WHERE id = :id")
-  @Deprecated("Use findByIdSuspend instead")
-  fun findById(id: String): Maybe<LocationOfInterestEntity>
-
-  // TODO(#1581): Rename to findById
-  @Query("SELECT * FROM location_of_interest WHERE id = :id")
-  suspend fun findByIdSuspend(id: String): LocationOfInterestEntity?
+  suspend fun findById(id: String): LocationOfInterestEntity?
 
   /**
    * Deletes all LOIs in specified survey whose IDs are not present in the specified list..

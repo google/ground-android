@@ -79,7 +79,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     if (config.overrideMapType != null) {
       map.mapType = config.overrideMapType
     } else {
-      viewModel.mapType.observe(viewLifecycleOwner) { map.mapType = it }
+      launchWhenStarted { viewModel.mapType.collect { map.mapType = it } }
     }
 
     // Tile overlays.

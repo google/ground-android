@@ -35,6 +35,10 @@ object CoroutinesScopesModule {
   fun provideCoroutineScope(): CoroutineScope {
     return CoroutineScope(SupervisorJob() + Dispatchers.Default)
   }
+
+  @MainScope
+  @Provides
+  fun provideMainCoroutineScope(): CoroutineScope = kotlinx.coroutines.MainScope()
 }
 
 /**
@@ -42,3 +46,5 @@ object CoroutinesScopesModule {
  * bind jobs to the application's lifecycle instead.
  */
 @Retention(AnnotationRetention.RUNTIME) @Qualifier annotation class ApplicationScope
+
+@Retention(AnnotationRetention.RUNTIME) @Qualifier annotation class MainScope

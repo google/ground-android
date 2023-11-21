@@ -82,6 +82,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       taskView.addTaskView(onCreateTaskBody(layoutInflater))
 
       // Add actions buttons after the view model is bound to the view.
+      addPreviousButton()
       onCreateActionButtons()
       onActionButtonsCreated()
 
@@ -116,6 +117,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
+  private fun addPreviousButton() =
+    addButton(ButtonAction.PREVIOUS)
+      .setOnClickListener { moveToPrevious() }
+      .showIfTrue(position != 0)
+
   protected fun addNextButton() =
     addButton(ButtonAction.NEXT)
       .setOnClickListener { moveToNext() }
@@ -136,6 +142,10 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     moveToNext()
   }
 
+  private fun moveToPrevious() {
+    dataCollectionViewModel.onPreviousClicked(position)
+  }
+
   fun moveToNext() {
     dataCollectionViewModel.onNextClicked(position)
   }
@@ -152,7 +162,10 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     val button =
       TaskButtonFactory.createAndAttachButton(
         action,
-        taskView.actionButtonsContainer,
+        when (buttonAction.location) {
+          ButtonAction.Location.START -> taskView.actionButtonsContainer.startButtons
+          ButtonAction.Location.END -> taskView.actionButtonsContainer.endButtons
+        },
         layoutInflater
       )
     buttonsIndex[buttons.size] = action

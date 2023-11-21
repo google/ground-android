@@ -23,11 +23,8 @@ import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.rx.annotations.Cold
 import com.google.android.ground.system.NetworkManager
 import com.google.android.ground.system.NetworkStatus
-import io.reactivex.Flowable
-import java8.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -40,7 +37,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 
@@ -78,15 +74,6 @@ constructor(
       lastActiveSurveyId = value?.id ?: ""
     }
 
-  /**
-   * Emits the currently active survey on subscribe and on change. Emits `empty()` when no survey is
-   * active or local db isn't up-to-date.
-   */
-  // TODO(#1593): Update callers to use [activeSurveyFlow] and delete this member.
-  @Deprecated("Use activeSurveyFlow instead")
-  val activeSurveyFlowable: @Cold Flowable<Optional<Survey>> =
-    activeSurveyFlow.map { if (it == null) Optional.empty() else Optional.of(it) }.asFlowable()
-
   val localSurveyListFlow: Flow<List<SurveyListItem>>
     get() = localSurveyStore.surveys.map { list -> list.map { it.toListItem(true) } }
 
@@ -100,8 +87,7 @@ constructor(
   /**
    * Returns the survey with the specified id from the local db, or `null` if not available offline.
    */
-  suspend fun getOfflineSurvey(surveyId: String): Survey? =
-    localSurveyStore.getSurveyByIdSuspend(surveyId)
+  suspend fun getOfflineSurvey(surveyId: String): Survey? = localSurveyStore.getSurveyById(surveyId)
 
   /**
    * Loads the survey with the specified id from remote and writes to local db. If the survey isn't
@@ -140,7 +126,7 @@ constructor(
 
   /** Attempts to remove the locally synced survey. Doesn't throw an error if it doesn't exist. */
   suspend fun removeOfflineSurvey(surveyId: String) {
-    val survey = localSurveyStore.getSurveyByIdSuspend(surveyId)
+    val survey = localSurveyStore.getSurveyById(surveyId)
     survey?.let { localSurveyStore.deleteSurvey(survey) }
     if (activeSurvey?.id == surveyId) {
       clearActiveSurvey()

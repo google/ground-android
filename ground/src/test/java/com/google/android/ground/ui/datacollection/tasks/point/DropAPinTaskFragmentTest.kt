@@ -106,6 +106,7 @@ class DropAPinTaskFragmentTest :
     setupTaskFragment<DropAPinTaskFragment>(job, task)
 
     assertFragmentHasButtons(
+      ButtonAction.PREVIOUS,
       ButtonAction.SKIP,
       ButtonAction.UNDO,
       ButtonAction.DROP_PIN,
