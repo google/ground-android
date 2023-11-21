@@ -73,10 +73,6 @@
     <item name="android:letterSpacing">0.01</item>
   </style>
 
-  <style name="Widget.App.DrawerLayout" parent="Widget.Material3.DrawerLayout">
-    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
-  </style>
-
   <style name="EditSubmission.Task.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
     <item name="boxStrokeColor">?attr/colorPrimary</item>
   </style>
