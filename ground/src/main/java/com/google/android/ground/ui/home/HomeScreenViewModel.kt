@@ -26,9 +26,8 @@ import com.google.android.ground.ui.common.SharedViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
 @SharedViewModel
@@ -40,8 +39,7 @@ internal constructor(
 ) : AbstractViewModel() {
 
   private val _openDrawerRequests: MutableSharedFlow<Nil> = MutableSharedFlow()
-  val openDrawerRequestsFlow: SharedFlow<Nil> =
-    _openDrawerRequests.shareIn(viewModelScope, SharingStarted.Lazily, replay = 0)
+  val openDrawerRequestsFlow: SharedFlow<Nil> = _openDrawerRequests.asSharedFlow()
 
   val showOfflineAreaMenuItem: LiveData<Boolean> =
     surveyRepository.activeSurveyFlow.map { it?.tileSources?.isNotEmpty() ?: false }.asLiveData()
