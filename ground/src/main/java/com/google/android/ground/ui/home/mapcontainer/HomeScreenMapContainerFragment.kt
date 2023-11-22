@@ -32,7 +32,6 @@ import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.UserRepository
-import com.google.android.ground.rx.RxAutoDispose
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
@@ -69,10 +68,9 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
 
-    mapContainerViewModel
-      .getZoomThresholdCrossed()
-      .`as`(RxAutoDispose.autoDisposable(this))
-      .subscribe { onZoomThresholdCrossed() }
+    lifecycleScope.launch {
+      mapContainerViewModel.getZoomThresholdCrossed().collect { onZoomThresholdCrossed() }
+    }
 
     val canUserSubmitData = userRepository.canUserSubmitData()
     adapter =

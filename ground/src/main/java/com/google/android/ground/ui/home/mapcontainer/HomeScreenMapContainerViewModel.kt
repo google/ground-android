@@ -28,7 +28,6 @@ import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.rx.Nil
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
@@ -37,16 +36,16 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
@@ -54,6 +53,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -99,7 +99,7 @@ internal constructor(
   val suggestLoiJobs: Flow<List<Job>>
 
   /* UI Clicks */
-  private val zoomThresholdCrossed: @Hot Subject<Nil> = PublishSubject.create()
+  private val _zoomThresholdCrossed: MutableSharedFlow<Nil> = MutableSharedFlow()
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
@@ -152,7 +152,7 @@ internal constructor(
       oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD ||
         oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD
     if (zoomThresholdCrossed) {
-      this.zoomThresholdCrossed.onNext(Nil.NIL)
+      viewModelScope.launch { _zoomThresholdCrossed.emit(Nil.NIL) }
     }
   }
 
@@ -171,7 +171,7 @@ internal constructor(
     }
   }
 
-  fun getZoomThresholdCrossed(): Observable<Nil> = zoomThresholdCrossed
+  fun getZoomThresholdCrossed(): SharedFlow<Nil> = _zoomThresholdCrossed.asSharedFlow()
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
     loiRepository.getLocationsOfInterests(survey).map {
