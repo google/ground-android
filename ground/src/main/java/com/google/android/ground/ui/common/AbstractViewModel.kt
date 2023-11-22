@@ -16,14 +16,5 @@
 package com.google.android.ground.ui.common
 
 import androidx.lifecycle.ViewModel
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 
-abstract class AbstractViewModel : ViewModel() {
-
-  private val disposables = CompositeDisposable()
-
-  protected fun disposeOnClear(subscription: Disposable) = disposables.add(subscription)
-
-  override fun onCleared() = disposables.clear()
-}
+abstract class AbstractViewModel : ViewModel()
