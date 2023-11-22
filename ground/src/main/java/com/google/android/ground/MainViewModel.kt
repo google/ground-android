@@ -19,14 +19,12 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavDirections
-import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.survey.ReactivateLastSurveyUseCase
 import com.google.android.ground.persistence.local.room.LocalDatabase
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
-import com.google.android.ground.rx.Schedulers
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.system.auth.SignInState
 import com.google.android.ground.ui.common.AbstractViewModel
@@ -36,11 +34,10 @@ import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.signin.SignInFragmentDirections
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.android.ground.util.isPermissionDeniedException
-import io.reactivex.Observable
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.rxObservable
+import kotlinx.coroutines.rx2.asFlow
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -54,11 +51,9 @@ constructor(
   private val userRepository: UserRepository,
   private val termsOfServiceRepository: TermsOfServiceRepository,
   private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
-  @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   navigator: Navigator,
   authenticationManager: AuthenticationManager,
-  schedulers: Schedulers,
 ) : AbstractViewModel() {
 
   /** The window insets determined by the activity. */
@@ -68,28 +63,28 @@ constructor(
   val signInProgressDialogVisibility: MutableLiveData<Boolean> = MutableLiveData()
 
   init {
-    disposeOnClear(
-      authenticationManager.signInState
-        .observeOn(schedulers.ui())
-        .switchMap { signInState: SignInState -> onSignInStateChange(signInState) }
-        .subscribe { directions: NavDirections -> navigator.navigate(directions) }
-    )
+    viewModelScope.launch {
+      // TODO: Check auth status whenever fragments resumes
+      authenticationManager.signInState.asFlow().collect {
+        val nextState = onSignInStateChange(it)
+        nextState?.let { navigator.navigate(nextState) }
+      }
+    }
   }
 
-  private fun onSignInStateChange(signInState: SignInState): Observable<NavDirections> {
+  private suspend fun onSignInStateChange(signInState: SignInState): NavDirections? {
     // Display progress only when signing in.
     signInProgressDialogVisibility.postValue(signInState.state == SignInState.State.SIGNING_IN)
 
-    // TODO: Check auth status whenever fragments resumes
     return signInState.result.fold(
       {
         when (signInState.state) {
-          SignInState.State.SIGNED_IN -> rxObservable(defaultDispatcher) { send(onUserSignedIn()) }
-          SignInState.State.SIGNED_OUT -> Observable.just(onUserSignedOut())
-          else -> Observable.never()
+          SignInState.State.SIGNED_IN -> onUserSignedIn()
+          SignInState.State.SIGNED_OUT -> onUserSignedOut()
+          else -> null
         }
       },
-      { Observable.just(onUserSignInError(it)) }
+      { onUserSignInError(it) }
     )
   }
 
