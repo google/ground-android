@@ -19,26 +19,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
   <item
     android:id="@+id/nav_change_survey"
-    android:icon="@drawable/ic_add"
+    android:icon="@drawable/ic_content_paste"
     android:title="@string/change_survey" />
-  <group
-    android:id="@+id/group_other"
-    android:checkableBehavior="none">
-    <item
-      android:id="@+id/sync_status"
-      android:icon="@drawable/ic_sync"
-      android:title="@string/sync_status" />
-    <item
-      android:id="@+id/nav_offline_areas"
-      android:icon="@drawable/ic_cloud_offline"
-      android:title="@string/offline_map_imagery" />
-    <item
-      android:id="@+id/nav_settings"
-      android:icon="@drawable/ic_settings"
-      android:title="@string/settings" />
-    <item
-      android:id="@+id/nav_sign_out"
-      android:icon="@drawable/ic_sign_out"
-      android:title="@string/sign_out" />
-  </group>
+  <item
+    android:id="@+id/sync_status"
+    android:icon="@drawable/ic_history"
+    android:title="@string/sync_status" />
+  <item
+    android:id="@+id/nav_offline_areas"
+    android:icon="@drawable/ic_satellite"
+    android:title="@string/offline_map_imagery" />
+  <item
+    android:id="@+id/nav_settings"
+    android:icon="@drawable/ic_settings"
+    android:title="@string/settings" />
+  <item
+    android:id="@+id/nav_sign_out"
+    android:icon="@drawable/ic_sign_out"
+    android:title="@string/sign_out" />
 </menu>
