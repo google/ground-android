@@ -20,12 +20,10 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
-import com.google.android.ground.rx.RxCompletable.completeOrError
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.reactivex.Completable
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 
 /** Provides access to obtain and check the app's permissions. */
@@ -72,12 +70,10 @@ constructor(
    * with error [PermissionDeniedException] if the requested permission was denied.
    */
   private suspend fun getPermissionsResult(permission: String) {
-    activityStreams
-      .getNextRequestPermissionsResult(PERMISSIONS_REQUEST_CODE)
-      .flatMapCompletable { r: RequestPermissionsResult ->
-        completeOrError({ r.isGranted(permission) }, PermissionDeniedException::class.java)
-      }
-      .await()
+    val result = activityStreams.getNextRequestPermissionsResult(PERMISSIONS_REQUEST_CODE)
+    if (!result.isGranted(permission)) {
+      throw PermissionDeniedException()
+    }
   }
 
   companion object {

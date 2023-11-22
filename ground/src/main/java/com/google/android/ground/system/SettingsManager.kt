@@ -18,11 +18,9 @@ package com.google.android.ground.system
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationSettingsRequest
-import com.google.android.ground.rx.RxCompletable.completeOrError
 import com.google.android.ground.system.rx.RxSettingsClient
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.rx2.await
 import timber.log.Timber
 
 val LOCATION_SETTINGS_REQUEST_CODE = SettingsManager::class.java.hashCode() and 0xffff
@@ -70,13 +68,12 @@ constructor(
     activityStreams.withActivity { resolvableException.startResolutionForResult(it, requestCode) }
   }
 
-  private suspend fun getNextResult(requestCode: Int) =
-    activityStreams
-      .getNextActivityResult(requestCode)
-      .flatMapCompletable {
-        completeOrError({ it.isOk() }, SettingsChangeRequestCanceled::class.java)
-      }
-      .await()
+  private suspend fun getNextResult(requestCode: Int) {
+    val result = activityStreams.getNextActivityResult(requestCode)
+    if (!result.isOk()) {
+      throw SettingsChangeRequestCanceled()
+    }
+  }
 }
 
 class SettingsChangeRequestCanceled : Exception()

@@ -28,13 +28,16 @@ import com.google.android.ground.model.User
 import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.ActivityResult
 import com.google.android.ground.system.ActivityStreams
-import com.google.firebase.auth.*
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.asFlow
 import timber.log.Timber
 
 private val signInRequestCode = AuthenticationManager::class.java.hashCode() and 0xffff
@@ -59,9 +62,7 @@ constructor(
         .build()
 
     externalScope.launch {
-      activityStreams.getActivityResults(signInRequestCode).asFlow().collect {
-        onActivityResult(it)
-      }
+      activityStreams.getActivityResults(signInRequestCode).collect { onActivityResult(it) }
     }
   }
 
