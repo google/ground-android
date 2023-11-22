@@ -145,6 +145,14 @@
     <item name="iconTint">?attr/colorPrimary</item>
   </style>
 
+  <style name="TextAppearance.App.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+    <item name="fontFamily">@font/text_700</item>
+  </style>
+
+  <style name="TextAppearance.App.TitleSmall.OnSurfaceContainer">
+    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+  </style>
+
   <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
     <item name="fontFamily">@font/text_700</item>
     <item name="android:textColor">?attr/colorOnSurface</item>

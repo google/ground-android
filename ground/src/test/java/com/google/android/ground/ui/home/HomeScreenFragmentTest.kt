@@ -203,14 +203,14 @@ class NavigationDrawerItemClickTest(
     fun data() =
       listOf(
         arrayOf(
-          "Change survey",
+          "Surveys",
           TEST_SURVEY_WITHOUT_OFFLINE_TILES,
           HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false),
           true,
           "Clicking 'change survey' should navigate to fragment"
         ),
         arrayOf(
-          "Sync status",
+          "History and sync status",
           TEST_SURVEY_WITHOUT_OFFLINE_TILES,
           HomeScreenFragmentDirections.showSyncStatus(),
           true,
