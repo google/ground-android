@@ -56,9 +56,9 @@ constructor(
   lateinit var surveyId: String
 
   val uri: LiveData<Uri> =
-    value.map { userMediaRepository.getDownloadUrl(it?.getDetailsText()) }.asLiveData()
+    taskValue.map { userMediaRepository.getDownloadUrl(it?.getDetailsText()) }.asLiveData()
 
-  val isPhotoPresent: LiveData<Boolean> = value.map { it.isNotNullOrEmpty() }.asLiveData()
+  val isPhotoPresent: LiveData<Boolean> = taskValue.map { it.isNotNullOrEmpty() }.asLiveData()
 
   private fun onPhotoResult(photoResult: PhotoResult) {
     if (photoResult.taskId != task.id) {

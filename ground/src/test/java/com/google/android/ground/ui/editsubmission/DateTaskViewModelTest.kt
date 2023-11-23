@@ -36,7 +36,7 @@ class DateTaskViewModelTest : BaseHiltTest() {
   fun testUpdateResponse() = runWithTestDispatcher {
     dateTaskViewModel.updateResponse(TEST_DATE)
 
-    dateTaskViewModel.value.test {
+    dateTaskViewModel.taskValue.test {
       assertThat(expectMostRecentItem()).isEqualTo(fromDate(TEST_DATE))
     }
   }

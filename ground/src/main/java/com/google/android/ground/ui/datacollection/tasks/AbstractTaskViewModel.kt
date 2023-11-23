@@ -39,7 +39,7 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
 
   /** Current value. */
   private val _valueFlow: MutableStateFlow<Value?> = MutableStateFlow(null)
-  val value: StateFlow<Value?> = _valueFlow.asStateFlow()
+  val taskValue: StateFlow<Value?> = _valueFlow.asStateFlow()
 
   /** Transcoded text to be displayed for the current [Value]. */
   val responseText: LiveData<String>
@@ -58,11 +58,11 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
     setValue(value)
   }
 
-  private fun detailsTextFlow(): Flow<String> = value.map { it?.getDetailsText() ?: "" }
+  private fun detailsTextFlow(): Flow<String> = taskValue.map { it?.getDetailsText() ?: "" }
 
   /** Checks if the current value is valid and updates error value. */
   fun validate(): String? {
-    val result = validate(task, value.value).orElse(null)
+    val result = validate(task, taskValue.value).orElse(null)
     error.postValue(result)
     return result
   }
@@ -83,5 +83,5 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
 
   fun isTaskOptional(): Boolean = !task.isRequired
 
-  fun hasNoData(): Boolean = value.value.isNullOrEmpty()
+  fun hasNoData(): Boolean = taskValue.value.isNullOrEmpty()
 }

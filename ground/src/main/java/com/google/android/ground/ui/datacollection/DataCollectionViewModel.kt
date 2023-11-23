@@ -162,7 +162,7 @@ internal constructor(
       return
     }
 
-    data[taskViewModel.task] = taskViewModel.value.firstOrNull()
+    data[taskViewModel.task] = taskViewModel.taskValue.firstOrNull()
 
     if (!isLastPosition(position)) {
       updateCurrentPosition(position + 1)

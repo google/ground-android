@@ -36,7 +36,7 @@ class TimeTaskViewModelTest : BaseHiltTest() {
   fun testUpdateResponse() = runWithTestDispatcher {
     timeFieldViewModel.updateResponse(TEST_DATE)
 
-    timeFieldViewModel.value.test {
+    timeFieldViewModel.taskValue.test {
       assertThat(expectMostRecentItem()).isEqualTo(fromDate(TEST_DATE))
     }
   }
