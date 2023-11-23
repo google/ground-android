@@ -19,7 +19,6 @@ import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.Value
@@ -30,10 +29,9 @@ import com.google.android.ground.ui.common.AbstractViewModel
 import java8.util.Optional
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 
 /** Defines the state of an inflated [Task] and controls its UI. */
 open class AbstractTaskViewModel internal constructor(private val resources: Resources) :
@@ -41,7 +39,7 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
 
   /** Current value. */
   private val _valueFlow: MutableStateFlow<Value?> = MutableStateFlow(null)
-  val value: StateFlow<Value?> = _valueFlow.stateIn(viewModelScope, SharingStarted.Lazily, null)
+  val value: StateFlow<Value?> = _valueFlow.asStateFlow()
 
   /** Transcoded text to be displayed for the current [Value]. */
   val responseText: LiveData<String>
