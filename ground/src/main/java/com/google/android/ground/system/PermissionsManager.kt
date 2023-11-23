@@ -21,7 +21,6 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.reactivex.Completable
 import javax.inject.Inject
 import javax.inject.Singleton
 import timber.log.Timber
@@ -65,10 +64,7 @@ constructor(
   private fun isGranted(permission: String): Boolean =
     checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
 
-  /**
-   * Returns a [Completable] that completes once the specified permission is granted or terminates
-   * with error [PermissionDeniedException] if the requested permission was denied.
-   */
+  /** Throws an error [PermissionDeniedException] if the request permission was denied. */
   private suspend fun getPermissionsResult(permission: String) {
     val result = activityStreams.getNextRequestPermissionsResult(PERMISSIONS_REQUEST_CODE)
     if (!result.isGranted(permission)) {
