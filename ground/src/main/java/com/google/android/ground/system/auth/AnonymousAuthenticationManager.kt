@@ -18,13 +18,12 @@ package com.google.android.ground.system.auth
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.User
 import com.google.android.ground.rx.annotations.Hot
-import com.google.firebase.auth.*
+import com.google.firebase.auth.FirebaseAuth
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.tasks.await
 
 private val anonymousUser = User("nobody", "nobody", "Anonymous user ", null, true)

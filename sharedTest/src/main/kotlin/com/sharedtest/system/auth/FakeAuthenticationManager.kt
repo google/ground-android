@@ -52,4 +52,6 @@ class FakeAuthenticationManager @Inject constructor() : AuthenticationManager {
   override fun signIn() = behaviourSubject.onNext(signedIn(currentUser))
 
   override fun signOut() = behaviourSubject.onNext(signedOut())
+
+  override suspend fun getAuthenticatedUser(): User = currentUser
 }
