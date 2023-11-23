@@ -39,17 +39,6 @@ constructor(
 ) : AuthenticationManager {
   override val signInState: @Hot(replays = true) Subject<SignInState> = BehaviorSubject.create()
 
-  /**
-   * Returns the current user, blocking until a user logs in. Only call from code where user is
-   * guaranteed to be authenticated.
-   */
-  override val currentUser: User
-    get() =
-      signInState
-        .filter { it.state == SignInState.State.SIGNED_IN }
-        .map { it.result.getOrNull()!! }
-        .blockingFirst() // TODO: Should this be blocking?
-
   override fun init() {
     signInState.onNext(
       if (firebaseAuth.currentUser == null) SignInState.signedOut()

@@ -25,7 +25,6 @@ import kotlinx.coroutines.rx2.asFlow
 
 interface AuthenticationManager {
   val signInState: Observable<SignInState>
-  @Deprecated("Use getAuthenticatedUser() instead") val currentUser: User
 
   fun init()
 
@@ -33,6 +32,7 @@ interface AuthenticationManager {
 
   fun signOut()
 
+  /** Returns the logged-in user. */
   suspend fun getAuthenticatedUser(): User =
     signInState
       .asFlow()

@@ -17,6 +17,7 @@ package com.google.android.ground.repository
 
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.User
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -27,7 +28,6 @@ import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.GmsExt.contains
 import javax.inject.Inject
@@ -50,7 +50,6 @@ constructor(
   private val localLoiStore: LocalLocationOfInterestStore,
   private val remoteDataStore: RemoteDataStore,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
-  private val authManager: AuthenticationManager,
   private val uuidGenerator: OfflineUuidGenerator
 ) {
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
@@ -74,8 +73,13 @@ constructor(
     }
       ?: throw NotFoundException("Location of interest not found $locationOfInterest")
 
-  fun createLocationOfInterest(geometry: Geometry, job: Job, surveyId: String): LocationOfInterest {
-    val auditInfo = AuditInfo(authManager.currentUser)
+  fun createLocationOfInterest(
+    geometry: Geometry,
+    job: Job,
+    surveyId: String,
+    user: User
+  ): LocationOfInterest {
+    val auditInfo = AuditInfo(user)
     return LocationOfInterest(
       id = uuidGenerator.generateUuid(),
       surveyId = surveyId,
@@ -83,7 +87,7 @@ constructor(
       job = job,
       created = auditInfo,
       lastModified = auditInfo,
-      ownerEmail = authManager.currentUser.email,
+      ownerEmail = user.email,
       isOpportunistic = true
     )
   }

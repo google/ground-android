@@ -49,26 +49,22 @@ internal constructor(
   private val userRepository: UserRepository
 ) : AbstractViewModel() {
 
+  // TODO: Expose non-mutable state flow.
   val surveyListState: MutableStateFlow<State?> = MutableStateFlow(null)
-  val surveySummaries: Flow<List<SurveyListItem>>
 
-  init {
-    surveySummaries =
-      getSurveyList().onEach {
+  /** Returns a flow of [SurveyListItem] to be displayed to the user. */
+  suspend fun getSurveyList(): Flow<List<SurveyListItem>> =
+    surveyRepository
+      .getSurveyList(authManager.getAuthenticatedUser())
+      .onStart { setLoading() }
+      .map { surveys -> surveys.sortedBy { it.title }.sortedByDescending { it.availableOffline } }
+      .onEach {
         if (it.isEmpty()) {
           setNotFound()
         } else {
           setLoaded()
         }
       }
-  }
-
-  /** Returns a flow of [SurveyListItem] to be displayed to the user. */
-  private fun getSurveyList(): Flow<List<SurveyListItem>> =
-    surveyRepository
-      .getSurveyList(authManager.currentUser)
-      .onStart { setLoading() }
-      .map { surveys -> surveys.sortedBy { it.title }.sortedByDescending { it.availableOffline } }
 
   /** Triggers the specified survey to be loaded and activated. */
   fun activateSurvey(surveyId: String) =

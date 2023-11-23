@@ -72,18 +72,21 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
       mapContainerViewModel.getZoomThresholdCrossed().collect { onZoomThresholdCrossed() }
     }
 
-    val canUserSubmitData = userRepository.canUserSubmitData()
-    adapter =
-      MapCardAdapter(canUserSubmitData, externalScope) {
-        submissionRepository.getTotalSubmissionCount(it)
-      }
-    adapter.setCollectDataListener {
-      if (canUserSubmitData) {
-        navigateToDataCollectionFragment(it)
-      } else {
-        // Skip data collection screen if the user can't submit any data
-        // TODO(#1667): Revisit UX for displaying view only mode
-        ephemeralPopups.showError(getString(R.string.collect_data_viewer_error))
+    lifecycleScope.launch {
+      val canUserSubmitData = userRepository.canUserSubmitData()
+      // TODO: Pull launching coroutine out of MapCardAdapter
+      adapter =
+        MapCardAdapter(canUserSubmitData, externalScope) {
+          submissionRepository.getTotalSubmissionCount(it)
+        }
+      adapter.setCollectDataListener {
+        if (canUserSubmitData) {
+          navigateToDataCollectionFragment(it)
+        } else {
+          // Skip data collection screen if the user can't submit any data
+          // TODO(#1667): Revisit UX for displaying view only mode
+          ephemeralPopups.showError(getString(R.string.collect_data_viewer_error))
+        }
       }
     }
 

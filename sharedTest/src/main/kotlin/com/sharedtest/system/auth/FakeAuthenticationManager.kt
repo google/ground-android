@@ -35,8 +35,7 @@ class FakeAuthenticationManager @Inject constructor() : AuthenticationManager {
 
   // TODO: Remove default user once instrumentation tests can set it during the test. Currently, the
   // activity gets launched before the user can be set in setUp()
-  override var currentUser: User = FakeData.USER
-    private set
+  private var currentUser: User = FakeData.USER
 
   override val signInState: Observable<SignInState>
     get() = behaviourSubject
