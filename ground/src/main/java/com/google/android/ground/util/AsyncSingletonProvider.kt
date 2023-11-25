@@ -30,10 +30,8 @@ open class AsyncSingletonProvider<T>(private val providerFunction: suspend () ->
    * first call to construct and initialize the object. Thread-safe; concurrent callers will block
    * until the singleton is created and returned.
    */
-  suspend fun get(): T {
-    return instance ?: mutex.withLock {
-      instance ?: providerFunction()
-        .also { instance = it }
+  suspend fun get(): T = instance
+    ?: mutex.withLock {
+      instance ?: providerFunction().also { instance = it }
     }
-  }
 }
