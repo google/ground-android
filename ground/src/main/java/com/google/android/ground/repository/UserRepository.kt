@@ -44,7 +44,7 @@ constructor(
 
   /** Stores the current user's profile details into the local and remote dbs. */
   suspend fun saveUserDetails() {
-    localUserStore.insertOrUpdateUser(authenticationManager.currentUser)
+    localUserStore.insertOrUpdateUser(authenticationManager.getAuthenticatedUser())
     updateRemoteUserInfo()
   }
 
@@ -54,7 +54,7 @@ constructor(
       Timber.d("Skipped refreshing user profile as device is offline.")
       return
     }
-    if (!authenticationManager.currentUser.isAnonymous) {
+    if (!authenticationManager.getAuthenticatedUser().isAnonymous) {
       remoteDataStore.refreshUserProfile()
     }
   }
@@ -68,11 +68,13 @@ constructor(
    * Returns true if the currently logged in user has permissions to write data to the active
    * survey. If no survey is active at the moment, then it returns false.
    */
-  fun canUserSubmitData(): Boolean =
-    try {
-      surveyRepository.activeSurvey?.getRole(currentUser.email) != Role.VIEWER
+  suspend fun canUserSubmitData(): Boolean {
+    val user = getAuthenticatedUser()
+    return try {
+      surveyRepository.activeSurvey?.getRole(user.email) != Role.VIEWER
     } catch (e: IllegalStateException) {
-      Timber.e(e, "Error getting role for user $currentUser")
+      Timber.e(e, "Error getting role for user $user")
       false
     }
+  }
 }

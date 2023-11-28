@@ -18,13 +18,12 @@ package com.google.android.ground.system.auth
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.User
 import com.google.android.ground.rx.annotations.Hot
-import com.google.firebase.auth.*
+import com.google.firebase.auth.FirebaseAuth
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.tasks.await
 
 private val anonymousUser = User("nobody", "nobody", "Anonymous user ", null, true)
@@ -39,17 +38,6 @@ constructor(
   @ApplicationScope private val externalScope: CoroutineScope
 ) : AuthenticationManager {
   override val signInState: @Hot(replays = true) Subject<SignInState> = BehaviorSubject.create()
-
-  /**
-   * Returns the current user, blocking until a user logs in. Only call from code where user is
-   * guaranteed to be authenticated.
-   */
-  override val currentUser: User
-    get() =
-      signInState
-        .filter { it.state == SignInState.State.SIGNED_IN }
-        .map { it.result.getOrNull()!! }
-        .blockingFirst() // TODO: Should this be blocking?
 
   override fun init() {
     signInState.onNext(

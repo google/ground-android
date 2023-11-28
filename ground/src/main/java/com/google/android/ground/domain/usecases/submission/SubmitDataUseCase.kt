@@ -73,10 +73,9 @@ constructor(
   }
 
   private suspend fun saveLoi(geometry: Geometry, job: Job, surveyId: String): LocationOfInterest {
-    val loi = locationOfInterestRepository.createLocationOfInterest(geometry, job, surveyId)
-    locationOfInterestRepository.applyAndEnqueue(
-      loi.toMutation(Mutation.Type.CREATE, userRepository.currentUser.id)
-    )
+    val user = userRepository.getAuthenticatedUser()
+    val loi = locationOfInterestRepository.createLocationOfInterest(geometry, job, surveyId, user)
+    locationOfInterestRepository.applyAndEnqueue(loi.toMutation(Mutation.Type.CREATE, user.id))
     return loi
   }
 }
