@@ -24,17 +24,17 @@ import android.widget.ProgressBar
 import androidx.constraintlayout.widget.Guideline
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
-import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
-import java8.util.Optional
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint(AbstractFragment::class)
@@ -72,8 +72,7 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
     viewPager.offscreenPageLimit = 1
 
     loadTasks(viewModel.tasks)
-    viewModel.currentPosition.observe(viewLifecycleOwner) { onTaskChanged(it) }
-    viewModel.currentValueLiveData.observe(viewLifecycleOwner) { onValueUpdated(it) }
+    lifecycleScope.launch { viewModel.currentPosition.collect { onTaskChanged(it) } }
 
     viewPager.registerOnPageChangeCallback(
       object : ViewPager2.OnPageChangeCallback() {
@@ -114,10 +113,6 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
     progressAnimator.addUpdateListener { progressBar.progress = it.animatedValue as Int }
 
     progressAnimator.start()
-  }
-
-  private fun onValueUpdated(value: Optional<Value>) {
-    viewModel.currentValue = value.orElse(null)
   }
 
   override fun onBack(): Boolean =

@@ -15,11 +15,11 @@
  */
 package com.google.android.ground.ui.editsubmission
 
+import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.submission.TimeResponse.Companion.fromDate
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.TestObservers.observeUntilFirstChange
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.*
 import javax.inject.Inject
@@ -33,11 +33,12 @@ class TimeTaskViewModelTest : BaseHiltTest() {
   @Inject lateinit var timeFieldViewModel: TimeTaskViewModel
 
   @Test
-  fun testUpdateResponse() {
+  fun testUpdateResponse() = runWithTestDispatcher {
     timeFieldViewModel.updateResponse(TEST_DATE)
 
-    observeUntilFirstChange(timeFieldViewModel.valueLiveData)
-    assertThat(timeFieldViewModel.valueLiveData.value?.get()).isEqualTo(fromDate(TEST_DATE))
+    timeFieldViewModel.taskValue.test {
+      assertThat(expectMostRecentItem()).isEqualTo(fromDate(TEST_DATE))
+    }
   }
 
   companion object {
