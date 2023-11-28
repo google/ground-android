@@ -27,14 +27,12 @@ import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class UserRepositoryTest : BaseHiltTest() {
@@ -48,10 +46,10 @@ class UserRepositoryTest : BaseHiltTest() {
   @BindValue @Mock lateinit var networkManager: NetworkManager
 
   @Test
-  fun `currentUser returns current user`() {
+  fun `currentUser returns current user`() = runWithTestDispatcher {
     fakeAuthenticationManager.setUser(FakeData.USER)
 
-    assertThat(userRepository.currentUser).isEqualTo(FakeData.USER)
+    assertThat(userRepository.getAuthenticatedUser()).isEqualTo(FakeData.USER)
   }
 
   @Test
@@ -95,7 +93,7 @@ class UserRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun `canUserSubmitData() when user has permissions returns true`() {
+  fun `canUserSubmitData() when user has permissions returns true`() = runWithTestDispatcher {
     val user = FakeData.USER
     val survey = FakeData.SURVEY.copy(acl = mapOf(Pair(user.email, Role.OWNER.toString())))
     fakeAuthenticationManager.setUser(user)
@@ -105,17 +103,18 @@ class UserRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun `canUserSubmitData() when user doesn't have permissions returns false`() {
-    val user = FakeData.USER
-    val survey = FakeData.SURVEY.copy(acl = mapOf())
-    fakeAuthenticationManager.setUser(user)
-    surveyRepository.activeSurvey = survey
+  fun `canUserSubmitData() when user doesn't have permissions returns false`() =
+    runWithTestDispatcher {
+      val user = FakeData.USER
+      val survey = FakeData.SURVEY.copy(acl = mapOf())
+      fakeAuthenticationManager.setUser(user)
+      surveyRepository.activeSurvey = survey
 
-    assertThat(userRepository.canUserSubmitData()).isFalse()
-  }
+      assertThat(userRepository.canUserSubmitData()).isFalse()
+    }
 
   @Test
-  fun `canUserSubmitData() when user email is empty returns false`() {
+  fun `canUserSubmitData() when user email is empty returns false`() = runWithTestDispatcher {
     val user = FakeData.USER.copy(email = "")
     val survey = FakeData.SURVEY.copy(acl = mapOf(Pair("user@gmail.com", Role.OWNER.toString())))
     fakeAuthenticationManager.setUser(user)

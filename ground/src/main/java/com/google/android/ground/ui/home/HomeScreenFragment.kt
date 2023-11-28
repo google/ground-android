@@ -88,11 +88,12 @@ class HomeScreenFragment :
     updateNavHeader()
   }
 
-  private fun updateNavHeader() {
-    val navHeader = binding.navView.getHeaderView(0)
-    val headerBinding = NavDrawerHeaderBinding.bind(navHeader)
-    headerBinding.user = userRepository.currentUser
-  }
+  private fun updateNavHeader() =
+    lifecycleScope.launch {
+      val navHeader = binding.navView.getHeaderView(0)
+      val headerBinding = NavDrawerHeaderBinding.bind(navHeader)
+      headerBinding.user = userRepository.getAuthenticatedUser()
+    }
 
   private fun openDrawer() {
     binding.drawerLayout.openDrawer(GravityCompat.START)

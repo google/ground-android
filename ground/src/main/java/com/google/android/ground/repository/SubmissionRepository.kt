@@ -25,7 +25,6 @@ import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.google.android.ground.system.auth.AuthenticationManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -41,12 +40,12 @@ constructor(
   private val localSubmissionStore: LocalSubmissionStore,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
-  private val uuidGenerator: OfflineUuidGenerator,
-  private val authManager: AuthenticationManager
+  private val userRepository: UserRepository,
+  private val uuidGenerator: OfflineUuidGenerator
 ) {
 
   suspend fun createSubmission(surveyId: String, locationOfInterestId: String): Submission {
-    val auditInfo = AuditInfo(authManager.currentUser)
+    val auditInfo = AuditInfo(userRepository.getAuthenticatedUser())
     val loi = locationOfInterestRepository.getOfflineLoi(surveyId, locationOfInterestId)
     return Submission(uuidGenerator.generateUuid(), surveyId, loi, loi.job, auditInfo, auditInfo)
   }
@@ -65,7 +64,7 @@ constructor(
         syncStatus = SyncStatus.PENDING,
         surveyId = submission.surveyId,
         locationOfInterestId = submission.locationOfInterest.id,
-        userId = authManager.currentUser.id
+        userId = submission.lastModified.user.id
       )
     )
 
