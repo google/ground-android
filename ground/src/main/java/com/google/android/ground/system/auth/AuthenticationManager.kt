@@ -18,9 +18,8 @@ package com.google.android.ground.system.auth
 import com.google.android.ground.model.User
 import io.reactivex.Observable
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.rx2.asFlow
 
 interface AuthenticationManager {
@@ -37,7 +36,6 @@ interface AuthenticationManager {
     signInState
       .asFlow()
       .filter { it.state == SignInState.State.SIGNED_IN }
-      .map { it.result.getOrNull() }
-      .filterNotNull()
+      .mapNotNull { it.result.getOrNull() }
       .first()
 }

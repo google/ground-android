@@ -74,7 +74,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
 
     lifecycleScope.launch {
       val canUserSubmitData = userRepository.canUserSubmitData()
-      // TODO: Pull launching coroutine out of MapCardAdapter
+      // TODO(#2080): Pull launching coroutine out of MapCardAdapter
       adapter =
         MapCardAdapter(canUserSubmitData, externalScope) {
           submissionRepository.getTotalSubmissionCount(it)
