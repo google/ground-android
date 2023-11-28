@@ -107,7 +107,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** Invoked when the all [ButtonAction]s are added to the current [TaskView]. */
   open fun onActionButtonsCreated() {
-    viewLifecycleOwner.lifecycleScope.launch { viewModel.value.collect { onValueChanged(it) } }
+    viewLifecycleOwner.lifecycleScope.launch { viewModel.taskValue.collect { onValueChanged(it) } }
   }
 
   /** Invoked when the data associated with the current task gets modified. */
@@ -143,11 +143,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   private fun moveToPrevious() {
-    dataCollectionViewModel.onPreviousClicked(position)
+    dataCollectionViewModel.onPreviousClicked(position, viewModel)
   }
 
   fun moveToNext() {
-    dataCollectionViewModel.onNextClicked(position)
+    lifecycleScope.launch { dataCollectionViewModel.onNextClicked(position, viewModel) }
   }
 
   fun addUndoButton() =

@@ -16,9 +16,7 @@
 package com.google.android.ground.ui.datacollection
 
 import android.content.res.Resources
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
@@ -31,7 +29,6 @@ import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
@@ -48,7 +45,6 @@ import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingV
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
-import com.google.android.ground.util.combineWith
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import javax.inject.Provider
@@ -60,6 +56,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
@@ -83,10 +80,12 @@ internal constructor(
   surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
-  private val loiId: String? = savedStateHandle["locationOfInterestId"]
+  private val jobId: String? = savedStateHandle[TASK_JOB_ID_KEY]
+  private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
+
   private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
   private val job: Job =
-    activeSurvey.getJob(requireNotNull(savedStateHandle["jobId"])) ?: error("empty job")
+    activeSurvey.getJob(requireNotNull(jobId)) ?: error("couldn't retrieve job for $jobId")
   val tasks: List<Task> = buildList {
     if (job.suggestLoiTaskType != null && loiId == null) {
       add(createSuggestLoiTask(job.suggestLoiTaskType))
@@ -108,37 +107,18 @@ internal constructor(
         })
       .stateIn(viewModelScope, SharingStarted.Lazily, "")
 
-  private val taskViewModels:
-    @Hot(replays = true)
-    MutableLiveData<MutableList<AbstractTaskViewModel>> =
-    MutableLiveData(mutableListOf())
+  private val taskViewModels: MutableStateFlow<MutableList<AbstractTaskViewModel>> =
+    MutableStateFlow(mutableListOf())
 
   private val data: MutableMap<Task, Value?> = LinkedHashMap()
 
   // Tracks the task's current position in the list of tasks for the current job
-  var currentPosition: @Hot(replays = true) MutableLiveData<Int> =
-    savedStateHandle.getLiveData(TASK_POSITION_KEY, 0)
-
-  var currentValue: Value? = null
-
-  private var currentTaskViewModel: AbstractTaskViewModel? = null
-
-  private val currentTaskViewModelLiveData =
-    currentPosition.combineWith(taskViewModels) { position, viewModels ->
-      if (position!! < viewModels!!.size) {
-        currentTaskViewModel = viewModels[position]
-      }
-
-      currentTaskViewModel
-    }
-
-  val currentValueLiveData = currentTaskViewModelLiveData.switchMap { it?.valueLiveData }
+  var currentPosition: StateFlow<Int> = savedStateHandle.getStateFlow(TASK_POSITION_KEY, 0)
 
   lateinit var submissionId: String
 
   fun getTaskViewModel(position: Int): AbstractTaskViewModel {
     val viewModels = taskViewModels.value
-    requireNotNull(viewModels)
 
     val task = tasks[position]
     if (position < viewModels.size) {
@@ -152,7 +132,7 @@ internal constructor(
   }
 
   private fun addTaskViewModel(taskViewModel: AbstractTaskViewModel) {
-    taskViewModels.value?.add(taskViewModel)
+    taskViewModels.value.add(taskViewModel)
     taskViewModels.value = taskViewModels.value
   }
 
@@ -160,10 +140,10 @@ internal constructor(
    * Validates the user's input and displays an error if the user input was invalid. Moves back to
    * the previous Data Collection screen if the user input was valid.
    */
-  fun onPreviousClicked(position: Int) {
+  fun onPreviousClicked(position: Int, taskViewModel: AbstractTaskViewModel) {
     check(position != 0)
 
-    val validationError = currentTaskViewModel?.validate()
+    val validationError = taskViewModel.validate()
     if (validationError != null) {
       popups.get().showError(validationError)
       return
@@ -176,16 +156,14 @@ internal constructor(
    * Validates the user's input and displays an error if the user input was invalid. Progresses to
    * the next Data Collection screen if the user input was valid.
    */
-  fun onNextClicked(position: Int) {
-    val currentTask = currentTaskViewModel ?: return
-
-    val validationError = currentTask.validate()
+  suspend fun onNextClicked(position: Int, taskViewModel: AbstractTaskViewModel) {
+    val validationError = taskViewModel.validate()
     if (validationError != null) {
       popups.get().showError(validationError)
       return
     }
 
-    data[currentTask.task] = currentValue
+    data[taskViewModel.task] = taskViewModel.taskValue.firstOrNull()
 
     if (!isLastPosition(position)) {
       updateCurrentPosition(position + 1)
@@ -208,7 +186,7 @@ internal constructor(
   }
 
   /** Returns the position of the task fragment visible to the user. */
-  fun getVisibleTaskPosition() = currentPosition.value!!
+  fun getVisibleTaskPosition() = currentPosition.value
 
   /** Displays the task at the given position to the user. */
   fun updateCurrentPosition(position: Int) {
@@ -229,6 +207,8 @@ internal constructor(
     Task(id = "-1", index = -1, taskType, resources.getString(R.string.new_site), isRequired = true)
 
   companion object {
+    private const val TASK_JOB_ID_KEY = "jobId"
+    private const val TASK_LOI_ID_KEY = "locationOfInterestId"
     private const val TASK_POSITION_KEY = "currentPosition"
 
     fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
