@@ -31,6 +31,8 @@ enum class MutationEntitySyncStatus(private val intValue: Int, private val enumV
   /** Pending includes failed sync attempts pending retry. */
   PENDING(1, SyncStatus.PENDING),
   IN_PROGRESS(2, SyncStatus.IN_PROGRESS),
+  MEDIA_UPLOAD_PENDING(5, SyncStatus.MEDIA_UPLOAD_PENDING),
+  MEDIA_UPLOAD_IN_PROGRESS(6, SyncStatus.MEDIA_UPLOAD_IN_PROGRESS),
   COMPLETED(3, SyncStatus.COMPLETED),
 
   /** Failed indicates all retries have failed. */

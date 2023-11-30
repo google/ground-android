@@ -82,7 +82,7 @@ constructor(
     )
 
   /** Updates the provided list of mutations. */
-  private suspend fun updateMutations(mutations: List<Mutation>) {
+  suspend fun updateMutations(mutations: List<Mutation>) {
     val loiMutations = mutations.filterIsInstance<LocationOfInterestMutation>()
     localLocationOfInterestStore.updateAll(loiMutations)
 
@@ -91,12 +91,12 @@ constructor(
   }
 
   /**
-   * Mark pending mutations as complete. If the mutation is of type DELETE, also removes the
-   * corresponding submission or LOI.
+   * Mark pending mutations as ready for media upload. If the mutation is of type DELETE, also
+   * removes the corresponding submission or LOI.
    */
-  suspend fun finalizePendingMutations(mutations: List<Mutation>) {
+  suspend fun finalizePendingMutationsForMediaUpload(mutations: List<Mutation>) {
     finalizeDeletions(mutations)
-    markComplete(mutations)
+    markForMediaUpload(mutations)
   }
 
   private suspend fun finalizeDeletions(mutations: List<Mutation>) =
@@ -119,6 +119,10 @@ constructor(
 
   suspend fun markAsFailed(mutations: List<Mutation>, error: Throwable) {
     updateMutations(mutations.updateMutationStatus(Mutation.SyncStatus.FAILED, error))
+  }
+
+  private suspend fun markForMediaUpload(mutations: List<Mutation>) {
+    updateMutations(mutations.updateMutationStatus(Mutation.SyncStatus.MEDIA_UPLOAD_PENDING))
   }
 
   private suspend fun markComplete(mutations: List<Mutation>) {
