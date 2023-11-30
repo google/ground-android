@@ -120,12 +120,12 @@ class SubmissionMutationConverterTest {
             newValue = numberResponse
           ),
           ValueDelta(
-            taskId = "drop_a_pin_task",
+            taskId = "drop_pin_task",
             taskType = Task.Type.DROP_PIN,
             newValue = pointGeometryTaskResponse
           ),
           ValueDelta(
-            taskId = "draw_polygon_task",
+            taskId = "draw_area_task",
             taskType = Task.Type.DRAW_AREA,
             newValue = polygonGeometryTaskResponse
           )
@@ -139,11 +139,11 @@ class SubmissionMutationConverterTest {
       Pair("multiple_choice_task", listOf("option id 1", "option id 2")),
       Pair("number_task", 123.0),
       Pair(
-        "drop_a_pin_task",
+        "drop_pin_task",
         mapOf(Pair("type", "Point"), Pair("coordinates", GeoPoint(10.0, 20.0)))
       ),
       Pair(
-        "draw_polygon_task",
+        "draw_area_task",
         mapOf(
           Pair("type", "Polygon"),
           Pair(
