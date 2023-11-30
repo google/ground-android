@@ -52,7 +52,7 @@ internal object TaskConverter {
       "multiple_choice" -> Task.Type.MULTIPLE_CHOICE
       "photo" -> Task.Type.PHOTO
       "drop_pin" -> Task.Type.DROP_A_PIN
-      "polygon" -> Task.Type.DRAW_POLYGON
+      "draw_area" -> Task.Type.DRAW_POLYGON
       "number" -> Task.Type.NUMBER
       "date" -> Task.Type.DATE
       "time" -> Task.Type.TIME
