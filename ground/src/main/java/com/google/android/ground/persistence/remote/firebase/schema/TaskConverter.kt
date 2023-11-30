@@ -51,7 +51,7 @@ internal object TaskConverter {
       "text_field" -> Task.Type.TEXT
       "multiple_choice" -> Task.Type.MULTIPLE_CHOICE
       "photo" -> Task.Type.PHOTO
-      "point" -> Task.Type.DROP_A_PIN
+      "drop_pin" -> Task.Type.DROP_A_PIN
       "polygon" -> Task.Type.DRAW_POLYGON
       "number" -> Task.Type.NUMBER
       "date" -> Task.Type.DATE
