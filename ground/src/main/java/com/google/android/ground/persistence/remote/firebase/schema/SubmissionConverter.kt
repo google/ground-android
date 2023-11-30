@@ -90,7 +90,7 @@ internal object SubmissionConverter {
       Task.Type.NUMBER -> putNumberResponse(taskId, obj, data)
       Task.Type.DATE -> putDateResponse(taskId, obj, data)
       Task.Type.TIME -> putTimeResponse(taskId, obj, data)
-      Task.Type.DROP_A_PIN -> putDropAPinResponse(taskId, obj, data)
+      Task.Type.DROP_PIN -> putDropAPinResponse(taskId, obj, data)
       Task.Type.DRAW_POLYGON -> putGeometryTaskResponse(taskId, obj, data)
       Task.Type.CAPTURE_LOCATION -> putCaptureLocationResult(taskId, obj, data)
       else -> throw DataStoreException("Unknown type " + task.type)

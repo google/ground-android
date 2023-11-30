@@ -103,7 +103,7 @@ internal object ValueJsonConverter {
         TimeResponse.fromDate(isoStringToDate(obj as String))
       }
       Task.Type.DRAW_POLYGON,
-      Task.Type.DROP_A_PIN -> {
+      Task.Type.DROP_PIN -> {
         GeometryTaskResponse.fromGeometry(
           GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
         )

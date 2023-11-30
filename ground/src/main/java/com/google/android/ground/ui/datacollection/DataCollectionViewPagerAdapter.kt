@@ -49,7 +49,7 @@ constructor(
         Task.Type.TEXT -> TextTaskFragment()
         Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskFragment()
         Task.Type.PHOTO -> PhotoTaskFragment()
-        Task.Type.DROP_A_PIN -> DropAPinTaskFragment()
+        Task.Type.DROP_PIN -> DropAPinTaskFragment()
         Task.Type.DRAW_POLYGON -> PolygonDrawingTaskFragment()
         Task.Type.NUMBER -> NumberTaskFragment()
         Task.Type.DATE -> DateTaskFragment()

@@ -239,7 +239,7 @@ internal constructor(
         Task.Type.NUMBER -> NumberTaskViewModel::class.java
         Task.Type.DATE -> DateTaskViewModel::class.java
         Task.Type.TIME -> TimeTaskViewModel::class.java
-        Task.Type.DROP_A_PIN -> DropAPinTaskViewModel::class.java
+        Task.Type.DROP_PIN -> DropAPinTaskViewModel::class.java
         Task.Type.DRAW_POLYGON -> PolygonDrawingViewModel::class.java
         Task.Type.CAPTURE_LOCATION -> CaptureLocationTaskViewModel::class.java
         Task.Type.UNKNOWN -> throw IllegalArgumentException("Unsupported task type: $taskType")

@@ -24,7 +24,7 @@ import timber.log.Timber
 /** Converts between Firestore nested objects and [Task] instances. */
 internal object TaskConverter {
 
-  private val suggestLoiTaskTypes = setOf(Task.Type.DROP_A_PIN, Task.Type.DRAW_POLYGON)
+  private val suggestLoiTaskTypes = setOf(Task.Type.DROP_PIN, Task.Type.DRAW_POLYGON)
 
   fun toTask(id: String, em: TaskNestedObject): Task? {
     val type = toTaskType(em.type)
@@ -51,7 +51,7 @@ internal object TaskConverter {
       "text_field" -> Task.Type.TEXT
       "multiple_choice" -> Task.Type.MULTIPLE_CHOICE
       "photo" -> Task.Type.PHOTO
-      "drop_pin" -> Task.Type.DROP_A_PIN
+      "drop_pin" -> Task.Type.DROP_PIN
       "draw_area" -> Task.Type.DRAW_POLYGON
       "number" -> Task.Type.NUMBER
       "date" -> Task.Type.DATE

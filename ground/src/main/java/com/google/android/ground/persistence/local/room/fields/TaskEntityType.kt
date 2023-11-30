@@ -44,7 +44,7 @@ enum class TaskEntityType(private val intValue: Int) : IntEnum {
         Pair(NUMBER, Task.Type.NUMBER),
         Pair(DATE, Task.Type.DATE),
         Pair(TIME, Task.Type.TIME),
-        Pair(POINT, Task.Type.DROP_A_PIN),
+        Pair(POINT, Task.Type.DROP_PIN),
         Pair(POLYGON, Task.Type.DRAW_POLYGON),
         Pair(CAPTURE_LOCATION, Task.Type.CAPTURE_LOCATION)
       )

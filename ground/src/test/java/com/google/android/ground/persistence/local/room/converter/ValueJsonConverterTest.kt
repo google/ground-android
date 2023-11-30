@@ -138,7 +138,7 @@ class ValueJsonConverterTest(
         arrayOf(FakeData.newTask(type = Task.Type.DATE), DateResponse.fromDate(DATE), DATE_STRING),
         arrayOf(FakeData.newTask(type = Task.Type.TIME), TimeResponse.fromDate(DATE), DATE_STRING),
         arrayOf(
-          FakeData.newTask(type = Task.Type.DROP_A_PIN),
+          FakeData.newTask(type = Task.Type.DROP_PIN),
           pointGeometryTaskResponse,
           pointGeometryTaskResponseString
         ),

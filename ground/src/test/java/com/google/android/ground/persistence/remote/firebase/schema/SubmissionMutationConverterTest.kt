@@ -121,7 +121,7 @@ class SubmissionMutationConverterTest {
           ),
           ValueDelta(
             taskId = "drop_a_pin_task",
-            taskType = Task.Type.DROP_A_PIN,
+            taskType = Task.Type.DROP_PIN,
             newValue = pointGeometryTaskResponse
           ),
           ValueDelta(
