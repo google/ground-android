@@ -126,7 +126,7 @@ class SubmissionMutationConverterTest {
           ),
           ValueDelta(
             taskId = "draw_polygon_task",
-            taskType = Task.Type.DRAW_POLYGON,
+            taskType = Task.Type.DRAW_AREA,
             newValue = polygonGeometryTaskResponse
           )
         )
