@@ -29,6 +29,7 @@ import com.google.android.ground.databinding.PhotoTaskFragBinding
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
+import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
@@ -44,6 +45,7 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
   @Inject lateinit var userMediaRepository: UserMediaRepository
   @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
   @Inject lateinit var permissionsManager: PermissionsManager
+  @Inject lateinit var navigator: Navigator
 
   private lateinit var selectPhotoLauncher: ActivityResultLauncher<String>
   private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
@@ -113,7 +115,7 @@ class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
 
         onPermissionsGranted()
       } catch (_: PermissionDeniedException) {
-        // TODO: Handle permission denied case
+        navigator.navigate(PhotoTaskFragmentDirections.showCameraPermissionDeniedFragment())
       }
     }
   }
