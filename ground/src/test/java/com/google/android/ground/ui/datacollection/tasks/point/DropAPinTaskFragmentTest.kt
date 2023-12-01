@@ -53,7 +53,7 @@ class DropAPinTaskFragmentTest :
     Task(
       id = "task_1",
       index = 0,
-      type = Task.Type.DROP_A_PIN,
+      type = Task.Type.DROP_PIN,
       label = "Task for dropping a pin",
       isRequired = false
     )
