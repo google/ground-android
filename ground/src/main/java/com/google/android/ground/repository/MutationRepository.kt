@@ -125,10 +125,6 @@ constructor(
     updateMutations(mutations.updateMutationStatus(Mutation.SyncStatus.MEDIA_UPLOAD_PENDING))
   }
 
-  private suspend fun markComplete(mutations: List<Mutation>) {
-    updateMutations(mutations.updateMutationStatus(Mutation.SyncStatus.COMPLETED))
-  }
-
   private fun combineAndSortMutations(
     locationOfInterestMutations: List<LocationOfInterestMutation>,
     submissionMutations: List<SubmissionMutation>

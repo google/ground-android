@@ -20,6 +20,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
+import com.google.android.ground.Config
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.ValueDelta
@@ -62,7 +63,7 @@ constructor(
    * Left-biased combination of two results. Failures propagate. Success will only be returned in
    * the case that both results are successful.
    */
-  private fun <T> join(a: kotlin.Result<T>, b: kotlin.Result<T>): kotlin.Result<T> =
+  private fun <T> combineResults(a: kotlin.Result<T>, b: kotlin.Result<T>): kotlin.Result<T> =
     if (a.isSuccess) b else a
 
   override suspend fun doWork(): Result = withContext(Dispatchers.IO) { doWorkInternal() }
@@ -77,7 +78,7 @@ constructor(
       mutationRepository
         .getMutations(loiId, MutationEntitySyncStatus.MEDIA_UPLOAD_PENDING)
         .filterIsInstance<SubmissionMutation>()
-        .filter { it.retryCount < MAX_RETRY_COUNT }
+        .filter { it.retryCount < Config.MAX_MEDIA_UPLOAD_RETRY_COUNT }
         .map {
           it.copy(
             syncStatus = Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS,
@@ -86,56 +87,69 @@ constructor(
         }
     mutationRepository.updateMutations(mutations) // Mark MEDIA_UPLOAD_IN_PROGRESS
 
-    val updatedMutations = mutations.map { uploadSubmissionMediaAndUpdateSubmission(it) }
-    mutationRepository.updateMutations(updatedMutations)
+    val mutationStatusesAfterUpload = uploadMediaAndGetStatus(mutations)
 
-    return when {
-      // The worker proceeds to a fixed point as follows:
-      //   If there are any FAILED or PENDING mutations after the worker operation, we retry.
-      //   During the retry, FAILED mutations will not be processed, while PENDING ones will only be
-      //   reattempted if they satisfy the retry count bound. Eventually, either all of the
-      //   mutations for this LOI will have succeeded, failed, or exceeded the retry count.
-      updatedMutations.any {
-        it.syncStatus == Mutation.SyncStatus.FAILED ||
-          it.syncStatus == Mutation.SyncStatus.MEDIA_UPLOAD_PENDING
-      } -> Result.retry()
-      else -> Result.success()
+    // The worker proceeds to a fixed point as follows:
+    //   If there are any FAILED or PENDING mutations after the worker operation, we retry.
+    //   During the retry, FAILED mutations will not be processed, while PENDING ones will only be
+    //   reattempted if they satisfy the retry count bound. Eventually, either all of the
+    //   mutations for this LOI will have succeeded, failed, or exceeded the retry count.
+    if (
+      mutationStatusesAfterUpload.any {
+        it == Mutation.SyncStatus.FAILED || it == Mutation.SyncStatus.MEDIA_UPLOAD_PENDING
+      }
+    ) {
+      return Result.retry()
     }
+    return Result.success()
   }
+
+  /**
+   * Attempts to upload associated media for a given list of [SubmissionMutation] and updates the
+   * status of each mutation based on whether uploads succeeded or failed.
+   */
+  private suspend fun uploadMediaAndGetStatus(
+    mutations: List<SubmissionMutation>
+  ): List<Mutation.SyncStatus> =
+    mutations
+      .map { uploadSubmissionMediaAndUpdateMutation(it) }
+      .also { resultingMutations -> mutationRepository.updateMutations(resultingMutations) }
+      .map { it.syncStatus }
 
   /**
    * Attempts to upload all media associated with a given submission. Updates the submission's sync
    * status depending on whether or the uploads failed or succeeded.
    */
-  private suspend fun uploadSubmissionMediaAndUpdateSubmission(
+  private suspend fun uploadSubmissionMediaAndUpdateMutation(
     mutation: SubmissionMutation
-  ): SubmissionMutation {
-    val photoUploadResult = uploadSubmissionPhotos(mutation)
-    if (photoUploadResult.isSuccess)
-      return mutation.copy(syncStatus = Mutation.SyncStatus.COMPLETED)
+  ): SubmissionMutation =
+    uploadSubmissionPhotos(mutation)
+      .fold(
+        onSuccess = { mutation.copy(syncStatus = Mutation.SyncStatus.COMPLETED) },
+        onFailure = {
+          val cause = it.message ?: "unknown upload error"
+          if (it is FileNotFoundException) {
+            return mutation.copy(syncStatus = Mutation.SyncStatus.FAILED, lastError = cause)
+          }
 
-    val exception = photoUploadResult.exceptionOrNull()
-    val cause = exception?.message ?: "unknown upload error"
-    return when (exception) {
-      is FileNotFoundException ->
-        mutation.copy(syncStatus = Mutation.SyncStatus.FAILED, lastError = cause)
-      else ->
-        mutation.copy(syncStatus = Mutation.SyncStatus.MEDIA_UPLOAD_PENDING, lastError = cause)
-    }
-  }
+          return mutation.copy(
+            syncStatus = Mutation.SyncStatus.MEDIA_UPLOAD_PENDING,
+            lastError = cause
+          )
+        }
+      )
 
-  private suspend fun uploadSubmissionPhotos(mutation: SubmissionMutation): kotlin.Result<Unit> {
+  private suspend fun uploadSubmissionPhotos(mutation: SubmissionMutation): kotlin.Result<Unit> =
     // TODO: Use media response types instead of discriminating on Task.Type.
     // For example, we should pass a List<PhotoResponse> to uploadPhotoMedia(), which can take care
     // of the bulk of the response-specific work.
-    return mutation.deltas
+    mutation.deltas
       .filter { (_, taskType, newValue): ValueDelta ->
         taskType === Task.Type.PHOTO && newValue.isNotNullOrEmpty()
       }
       .map { (_, _, newValue): ValueDelta -> newValue.toString() }
       .map { uploadPhotoMedia(it) }
-      .reduce { a, b -> join(a, b) }
-  }
+      .reduce { a, b -> combineResults(a, b) }
 
   /**
    * Attempts to upload a single photo to remote storage. Returns an [UploadResult] indicating
@@ -163,8 +177,6 @@ constructor(
 
   companion object {
     private const val LOI_ID = "locationOfInterestId"
-    // Maximum number of attempts for retrying unsuccessful uploads.
-    private const val MAX_RETRY_COUNT = 5
 
     @JvmStatic
     fun createInputData(locationOfInterestId: String): Data =
