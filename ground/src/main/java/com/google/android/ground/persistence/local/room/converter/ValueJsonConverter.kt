@@ -102,8 +102,8 @@ internal object ValueJsonConverter {
         DataStoreException.checkType(String::class.java, obj)
         TimeResponse.fromDate(isoStringToDate(obj as String))
       }
-      Task.Type.DRAW_POLYGON,
-      Task.Type.DROP_A_PIN -> {
+      Task.Type.DRAW_AREA,
+      Task.Type.DROP_PIN -> {
         GeometryTaskResponse.fromGeometry(
           GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
         )
