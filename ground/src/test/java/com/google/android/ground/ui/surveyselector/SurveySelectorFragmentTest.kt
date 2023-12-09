@@ -50,6 +50,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.kotlin.any
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -138,6 +139,25 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     verify(activateSurvey).invoke(TEST_SURVEY_2.id)
     // Assert that navigation to home screen was requested
     verify(navigator).navigate(HomeScreenFragmentDirections.showHomeScreen())
+  }
+
+  @Test
+  fun click_activatesSurvey_whenActiveSurveyFails() = runWithTestDispatcher {
+    whenever(activateSurvey(any())).thenThrow(Error("Some exception"))
+
+    setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setLocalSurveys(listOf())
+    setUpFragment()
+
+    // Click second item
+    onView(withId(R.id.recycler_view))
+      .perform(actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(1, click()))
+    advanceUntilIdle()
+
+    // Assert survey is activated.
+    verify(activateSurvey).invoke(TEST_SURVEY_2.id)
+    // Assert that navigation to home screen was requested
+    verify(navigator, times(0)).navigate(HomeScreenFragmentDirections.showHomeScreen())
   }
 
   @Test
