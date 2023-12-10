@@ -66,9 +66,7 @@ dependencies {
     // Hilt
     implementation 'androidx.hilt:hilt-work:1.0.0'
 
-    // ReactiveX
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
-    implementation 'com.squareup.rx.idler:rx2-idler:0.11.0'
+    // Firebase
     implementation platform('com.google.firebase:firebase-bom:32.4.1')
     implementation 'com.google.firebase:firebase-firestore'
 }
