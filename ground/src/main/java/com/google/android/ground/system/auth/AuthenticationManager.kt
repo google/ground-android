@@ -16,14 +16,13 @@
 package com.google.android.ground.system.auth
 
 import com.google.android.ground.model.User
-import io.reactivex.Observable
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.rx2.asFlow
 
 interface AuthenticationManager {
-  val signInState: Observable<SignInState>
+  val signInState: Flow<SignInState>
 
   fun init()
 
@@ -34,7 +33,6 @@ interface AuthenticationManager {
   /** Returns the logged-in user. */
   suspend fun getAuthenticatedUser(): User =
     signInState
-      .asFlow()
       .filter { it.state == SignInState.State.SIGNED_IN }
       .mapNotNull { it.result.getOrNull() }
       .first()
