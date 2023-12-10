@@ -18,12 +18,10 @@ package com.google.android.ground.system
 import android.location.Location
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.system.rx.RxFusedLocationProviderClient
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -33,14 +31,13 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class LocationManagerTest : BaseHiltTest() {
 
   private val lastLocation = Location("test_provider")
 
-  @BindValue @Mock lateinit var locationClient: RxFusedLocationProviderClient
+  @BindValue @Mock lateinit var locationClient: FusedLocationProviderClient
   @Inject lateinit var locationManager: LocationManager
 
   @Test
