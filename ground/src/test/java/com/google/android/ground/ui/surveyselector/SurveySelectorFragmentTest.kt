@@ -50,11 +50,13 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.kotlin.any
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowPopupMenu
+import org.robolectric.shadows.ShadowToast
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -138,6 +140,29 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     verify(activateSurvey).invoke(TEST_SURVEY_2.id)
     // Assert that navigation to home screen was requested
     verify(navigator).navigate(HomeScreenFragmentDirections.showHomeScreen())
+    // No error toast should be displayed
+    assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
+  }
+
+  @Test
+  fun click_activatesSurvey_whenActiveSurveyFails() = runWithTestDispatcher {
+    whenever(activateSurvey(any())).thenThrow(Error("Some exception"))
+
+    setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setLocalSurveys(listOf())
+    setUpFragment()
+
+    // Click second item
+    onView(withId(R.id.recycler_view))
+      .perform(actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(1, click()))
+    advanceUntilIdle()
+
+    // Assert survey is activated.
+    verify(activateSurvey).invoke(TEST_SURVEY_2.id)
+    // Assert that navigation to home screen was not requested
+    verify(navigator, times(0)).navigate(HomeScreenFragmentDirections.showHomeScreen())
+    // Error toast message
+    assertThat(ShadowToast.shownToastCount()).isEqualTo(1)
   }
 
   @Test

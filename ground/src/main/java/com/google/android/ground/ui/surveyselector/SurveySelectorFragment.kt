@@ -23,6 +23,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.databinding.SurveySelectorFragBinding
@@ -49,6 +50,11 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
     lifecycleScope.launch { viewModel.getSurveyList().collect { adapter.updateData(it) } }
     lifecycleScope.launch {
       viewModel.surveyListState.collect { state -> state?.let { handleSurveyListState(it) } }
+    }
+    lifecycleScope.launch {
+      viewModel.errorFlow.collect {
+        Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+      }
     }
   }
 
