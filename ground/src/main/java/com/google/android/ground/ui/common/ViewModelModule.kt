@@ -38,6 +38,7 @@ import com.google.android.ground.ui.signin.SignInViewModel
 import com.google.android.ground.ui.startup.StartupViewModel
 import com.google.android.ground.ui.surveyselector.SurveySelectorViewModel
 import com.google.android.ground.ui.syncstatus.SyncStatusViewModel
+import com.google.android.ground.ui.tos.TermsOfServiceViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -86,6 +87,11 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(SignInViewModel::class)
   abstract fun bindSignInVideModel(viewModel: SignInViewModel): ViewModel
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(TermsOfServiceViewModel::class)
+  abstract fun bindTermsViewModel(viewModel: TermsOfServiceViewModel): ViewModel
 
   @Binds
   @IntoMap

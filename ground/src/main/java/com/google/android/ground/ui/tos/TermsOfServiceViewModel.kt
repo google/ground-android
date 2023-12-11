@@ -20,10 +20,8 @@ import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
-import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
-@HiltViewModel
 class TermsOfServiceViewModel
 @Inject
 constructor(
