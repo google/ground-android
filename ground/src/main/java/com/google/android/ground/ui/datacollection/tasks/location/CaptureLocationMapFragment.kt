@@ -20,10 +20,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import com.google.android.ground.R
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.datacollection.components.TaskHeaderPopupView
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -47,11 +45,6 @@ class CaptureLocationMapFragment(private val viewModel: CaptureLocationTaskViewM
     savedInstanceState: Bundle?
   ): View {
     val root = super.onCreateView(inflater, container, savedInstanceState)
-    binding.hintIcon.setOnClickListener {
-      TaskHeaderPopupView(requireContext())
-        .show(binding.hintIcon, getString(R.string.drop_a_pin_tooltip_text))
-    }
-    binding.hintIcon.visibility = View.VISIBLE
     viewLifecycleOwner.lifecycleScope.launch {
       getMapViewModel().getLocationUpdates().collect { viewModel.updateLocation(it) }
     }

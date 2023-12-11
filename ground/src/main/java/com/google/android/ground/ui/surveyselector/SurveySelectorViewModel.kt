@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.surveyselector
 
 import androidx.lifecycle.viewModelScope
+import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
@@ -30,11 +31,15 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /** Represents view state and behaviors of the survey selector dialog. */
 class SurveySelectorViewModel
@@ -51,6 +56,8 @@ internal constructor(
 
   // TODO(#2081): Expose non-mutable state flow.
   val surveyListState: MutableStateFlow<State?> = MutableStateFlow(null)
+  private val _errorFlow: MutableSharedFlow<Int?> = MutableSharedFlow()
+  val errorFlow: Flow<Int> = _errorFlow.asSharedFlow().filterNotNull()
 
   /** Returns a flow of [SurveyListItem] to be displayed to the user. */
   suspend fun getSurveyList(): Flow<List<SurveyListItem>> =
@@ -69,11 +76,15 @@ internal constructor(
   /** Triggers the specified survey to be loaded and activated. */
   fun activateSurvey(surveyId: String) =
     viewModelScope.launch {
-      // TODO(#1497): Handle exceptions thrown by activateSurvey().
       setLoading()
-      activateSurveyUseCase(surveyId)
+      val result = runCatching { activateSurveyUseCase(surveyId) }
       setLoaded()
-      navigateToHomeScreen()
+      if (result.isSuccess) {
+        navigateToHomeScreen()
+      } else {
+        Timber.e(result.exceptionOrNull())
+        _errorFlow.emit(R.string.error_message)
+      }
     }
 
   private fun navigateToHomeScreen() {
