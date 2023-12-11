@@ -19,6 +19,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
+import com.google.android.ground.R
 import com.google.android.ground.databinding.FragmentTermsServiceBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
@@ -31,14 +33,7 @@ class TermsOfServiceFragment : Hilt_TermsOfServiceFragment(), BackPressListener 
 
   @Inject lateinit var popups: EphemeralPopups
 
-  private lateinit var viewModel: TermsOfServiceViewModel
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    val args = TermsOfServiceFragmentArgs.fromBundle(requireNotNull(arguments))
-    viewModel = getViewModel(TermsOfServiceViewModel::class.java)
-    viewModel.termsOfServiceText = args.termsOfServiceText.orEmpty()
-  }
+  private val viewModel: TermsOfServiceViewModel by hiltNavGraphViewModels(R.id.navGraph)
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -47,9 +42,13 @@ class TermsOfServiceFragment : Hilt_TermsOfServiceFragment(), BackPressListener 
   ): View {
     val binding = FragmentTermsServiceBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
+    binding.termsOfServiceText = getTermsOfServiceText()
     binding.lifecycleOwner = this
     return binding.root
   }
+
+  private fun getTermsOfServiceText(): String =
+    TermsOfServiceFragmentArgs.fromBundle(requireNotNull(arguments)).termsOfServiceText.orEmpty()
 
   override fun onBack(): Boolean {
     requireActivity().finish()

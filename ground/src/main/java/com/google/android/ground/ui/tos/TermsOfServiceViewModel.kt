@@ -20,16 +20,16 @@ import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
+@HiltViewModel
 class TermsOfServiceViewModel
 @Inject
 constructor(
   private val navigator: Navigator,
   private val termsOfServiceRepository: TermsOfServiceRepository
 ) : AbstractViewModel() {
-  // TODO(#1478): Convert to MutableLiveData.
-  var termsOfServiceText = ""
   val agreeCheckboxChecked: MutableLiveData<Boolean> = MutableLiveData()
 
   fun onButtonClicked() {

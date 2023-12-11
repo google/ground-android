@@ -21,6 +21,9 @@
 
   <data>
     <variable
+      name="termsOfServiceText"
+      type="String" />
+    <variable
       name="viewModel"
       type="com.google.android.ground.ui.tos.TermsOfServiceViewModel" />
   </data>
@@ -56,7 +59,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:text="@{viewModel.termsOfServiceText}"
+        android:text="@{termsOfServiceText}"
         android:visibility="visible" />
     </ScrollView>
     <Button
