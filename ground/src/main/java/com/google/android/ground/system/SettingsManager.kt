@@ -18,7 +18,6 @@ package com.google.android.ground.system
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationSettingsRequest
-import com.google.android.ground.system.rx.RxSettingsClient
 import javax.inject.Inject
 import javax.inject.Singleton
 import timber.log.Timber
@@ -36,7 +35,7 @@ class SettingsManager
 @Inject
 constructor(
   private val activityStreams: ActivityStreams,
-  private val settingsClient: RxSettingsClient
+  private val settingsClient: SettingsClient
 ) {
 
   /**

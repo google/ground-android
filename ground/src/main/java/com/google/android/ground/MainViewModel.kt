@@ -37,7 +37,6 @@ import com.google.android.ground.util.isPermissionDeniedException
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.asFlow
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -65,7 +64,7 @@ constructor(
   init {
     viewModelScope.launch {
       // TODO: Check auth status whenever fragments resumes
-      authenticationManager.signInState.asFlow().collect {
+      authenticationManager.signInState.collect {
         val nextState = onSignInStateChange(it)
         nextState?.let { navigator.navigate(nextState) }
       }
