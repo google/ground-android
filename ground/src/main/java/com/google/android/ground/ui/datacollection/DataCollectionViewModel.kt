@@ -18,7 +18,6 @@ package com.google.android.ground.ui.datacollection
 import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.submission.SubmitDataUseCase
@@ -86,12 +85,9 @@ internal constructor(
   private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
   private val job: Job =
     activeSurvey.getJob(requireNotNull(jobId)) ?: error("couldn't retrieve job for $jobId")
-  val tasks: List<Task> = buildList {
-    if (job.suggestLoiTaskType != null && loiId == null) {
-      add(createSuggestLoiTask(job.suggestLoiTaskType))
-    }
-    addAll(job.tasksSorted)
-  }
+  //  TODO: Hide add LOI task if loiId  == null
+  //  TODO: Add special instructions to add LOI task
+  val tasks: List<Task> = job.tasksSorted
 
   val surveyId: String = surveyRepository.lastActiveSurveyId
 
@@ -203,9 +199,6 @@ internal constructor(
     return taskPosition == finalTaskPosition
   }
 
-  private fun createSuggestLoiTask(taskType: Task.Type): Task =
-    Task(id = "-1", index = -1, taskType, resources.getString(R.string.new_site), isRequired = true)
-
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"
     private const val TASK_LOI_ID_KEY = "locationOfInterestId"
@@ -220,7 +213,7 @@ internal constructor(
         Task.Type.DATE -> DateTaskViewModel::class.java
         Task.Type.TIME -> TimeTaskViewModel::class.java
         Task.Type.DROP_PIN -> DropAPinTaskViewModel::class.java
-        Task.Type.DRAW_AREA -> PolygonDrawingViewModel::class.java
+        Task.Type.DRAW_POLYGON -> PolygonDrawingViewModel::class.java
         Task.Type.CAPTURE_LOCATION -> CaptureLocationTaskViewModel::class.java
         Task.Type.UNKNOWN -> throw IllegalArgumentException("Unsupported task type: $taskType")
       }

@@ -45,7 +45,7 @@ constructor(
     DATE,
     TIME,
     DROP_PIN,
-    DRAW_AREA,
+    DRAW_POLYGON,
     CAPTURE_LOCATION
   }
 }

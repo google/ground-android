@@ -19,17 +19,22 @@ import android.graphics.Color
 import com.google.android.ground.model.task.Task
 import timber.log.Timber
 
-/**
- * @param suggestLoiTaskType the type of task used to suggest the LOI for this Job. Null if the job
- * is already associated with an LOI.
- */
 data class Job(
   val id: String,
   val style: Style? = null,
   val name: String? = null,
   val tasks: Map<String, Task> = mapOf(),
-  val suggestLoiTaskType: Task.Type? = null,
+  val strategy: DataCollectionStrategy = DataCollectionStrategy.BOTH
 ) {
+  enum class DataCollectionStrategy {
+    PREDEFINED,
+    AD_HOC,
+    BOTH
+  }
+
+  val canDataCollectorsAddLois: Boolean
+    get() = strategy != DataCollectionStrategy.PREDEFINED
+
   val tasksSorted: List<Task>
     get() = tasks.values.sortedBy { it.index }
 

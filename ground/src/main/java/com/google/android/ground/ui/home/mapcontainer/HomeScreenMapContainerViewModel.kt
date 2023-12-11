@@ -133,7 +133,7 @@ internal constructor(
         .flatMapLatest { (survey, isZoomedIn) ->
           flowOf(
             if (survey == null || !isZoomedIn) listOf()
-            else survey.jobs.filter { it.suggestLoiTaskType != null }
+            else survey.jobs.filter { it.canDataCollectorsAddLois }
           )
         }
   }

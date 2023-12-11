@@ -22,6 +22,7 @@ import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.job.Job.DataCollectionStrategy
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
@@ -101,7 +102,7 @@ fun Job.toLocalDataStoreObject(surveyId: String): JobEntity =
     id = id,
     surveyId = surveyId,
     name = name,
-    suggestLoiTaskType = suggestLoiTaskType?.toString(),
+    strategy = strategy.toString(),
     style = style?.toLocalDataStoreObject()
   )
 
@@ -112,7 +113,7 @@ fun JobEntityAndRelations.toModelObject(): Job {
     jobEntity.style?.toModelObject(),
     jobEntity.name,
     taskMap.toPersistentMap(),
-    jobEntity.suggestLoiTaskType?.let { Task.Type.valueOf(it) }
+    jobEntity.strategy.let { DataCollectionStrategy.valueOf(it) }
   )
 }
 
@@ -153,7 +154,8 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       geometry = geometry.getGeometry(),
       submissionCount = submissionCount,
       properties = properties,
-      job = survey.getJob(jobId = jobId)
+      job =
+        survey.getJob(jobId = jobId)
           ?: throw LocalDataConsistencyException(
             "Unknown jobId ${this.jobId} in location of interest ${this.id}"
           )

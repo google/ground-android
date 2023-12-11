@@ -50,7 +50,7 @@ constructor(
         Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskFragment()
         Task.Type.PHOTO -> PhotoTaskFragment()
         Task.Type.DROP_PIN -> DropAPinTaskFragment()
-        Task.Type.DRAW_AREA -> PolygonDrawingTaskFragment()
+        Task.Type.DRAW_POLYGON -> PolygonDrawingTaskFragment()
         Task.Type.NUMBER -> NumberTaskFragment()
         Task.Type.DATE -> DateTaskFragment()
         Task.Type.TIME -> TimeTaskFragment()

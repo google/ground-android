@@ -36,7 +36,7 @@ internal object JobConverter {
       obj.defaultStyle?.toStyle(),
       obj.name,
       taskMap.toPersistentMap(),
-      TaskConverter.toSuggestLoiTaskType(obj.suggestLoiTaskType)
+      TaskConverter.toStrategy(obj.strategy)
     )
   }
 }
