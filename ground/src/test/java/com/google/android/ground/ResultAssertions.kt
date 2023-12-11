@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.rx
 
-import androidx.lifecycle.LifecycleOwner
-import com.uber.autodispose.AutoDispose
-import com.uber.autodispose.AutoDisposeConverter
-import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
+package com.google.android.ground
 
-/** Utility methods providing syntactic sugar for the [AutoDispose] library. */
-object RxAutoDispose {
-  @JvmStatic
-  fun <T> autoDisposable(lifecycleOwner: LifecycleOwner): AutoDisposeConverter<T> =
-    AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(lifecycleOwner))
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+
+fun assertIsFailure(result: Result<*>) =
+  assertTrue("Expected failure, got success with ${result.getOrNull()}", result.isFailure)
+
+fun assertIsSuccessWith(expected: Any?, result: Result<*>) {
+  assertTrue("Expected success, got failure with ${result.exceptionOrNull()}", result.isSuccess)
+  assertEquals(expected, result.getOrNull())
 }

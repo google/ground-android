@@ -15,20 +15,21 @@
  */
 package com.google.android.ground
 
-import android.os.Looper
 import com.google.android.ground.system.auth.SignInState
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowProgressDialog
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MainActivityTest : BaseHiltTest() {
@@ -42,27 +43,27 @@ class MainActivityTest : BaseHiltTest() {
   }
 
   @Test
-  fun signInProgressDialog_whenSigningIn_isDisplayed() {
+  fun signInProgressDialog_whenSigningIn_isDisplayed() = runWithTestDispatcher {
     Robolectric.buildActivity(MainActivity::class.java).use { controller ->
       controller.setup() // Moves Activity to RESUMED state
       activity = controller.get()
 
       fakeAuthenticationManager.setState(SignInState.signingIn())
-      shadowOf(Looper.getMainLooper()).idle()
+      advanceUntilIdle()
 
       assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isTrue()
     }
   }
 
   @Test
-  fun signInProgressDialog_whenSignedOutAfterSignInState_isNotDisplayed() {
+  fun signInProgressDialog_whenSignedOutAfterSignInState_isNotDisplayed() = runWithTestDispatcher {
     Robolectric.buildActivity(MainActivity::class.java).use { controller ->
       controller.setup() // Moves Activity to RESUMED state
       activity = controller.get()
 
       fakeAuthenticationManager.setState(SignInState.signingIn())
       fakeAuthenticationManager.setState(SignInState.signedOut())
-      shadowOf(Looper.getMainLooper()).idle()
+      advanceUntilIdle()
 
       assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isFalse()
     }

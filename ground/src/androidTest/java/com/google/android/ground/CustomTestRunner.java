@@ -22,9 +22,7 @@ import android.content.Context;
 import android.os.Bundle;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnitRunner;
-import com.squareup.rx2.idler.Rx2Idler;
 import dagger.hilt.android.testing.HiltTestApplication;
-import io.reactivex.plugins.RxJavaPlugins;
 import timber.log.Timber;
 import timber.log.Timber.DebugTree;
 
@@ -33,12 +31,7 @@ public class CustomTestRunner extends AndroidJUnitRunner {
   @Override
   public Application newApplication(ClassLoader cl, String className, Context context)
       throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-
     Timber.plant(new DebugTree());
-    RxJavaPlugins.setInitComputationSchedulerHandler(
-        Rx2Idler.create("RxJava 2.x Computation Scheduler"));
-    RxJavaPlugins.setInitIoSchedulerHandler(Rx2Idler.create("RxJava 2.x IO Scheduler"));
-
     return super.newApplication(cl, HiltTestApplication.class.getName(), context);
   }
 

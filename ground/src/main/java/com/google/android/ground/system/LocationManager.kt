@@ -19,7 +19,6 @@ import android.location.Location
 import com.google.android.gms.location.LocationRequest
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.system.channel.LocationSharedFlowCallback
-import com.google.android.ground.system.rx.RxFusedLocationProviderClient
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -41,7 +40,7 @@ class LocationManager
 @Inject
 constructor(
   @ApplicationScope private val externalScope: CoroutineScope,
-  private val locationClient: RxFusedLocationProviderClient,
+  private val locationClient: FusedLocationProviderClient,
 ) {
 
   private val _locationUpdates = MutableSharedFlow<Location>(replay = 1)

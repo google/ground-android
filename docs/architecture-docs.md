@@ -1,6 +1,6 @@
 # Ground Android app architecture
 
-The Ground Android app is written in Java and uses the [Android Jetpack](https://developer.android.com/jetpack) and [RxJava](https://github.com/ReactiveX/RxJava) libraries, among others. This page provides an overview of the high-level app architecture, including key components and libraries.
+The Ground Android app is written in Java and uses the [Android Jetpack](https://developer.android.com/jetpack) library, among others. This page provides an overview of the high-level app architecture, including key components and libraries.
 
 <!-- Editable image source: https://docs.google.com/drawings/d/1UjetRJsudLHg3YsWaf0sKqHfmrPNNBH4UKI7Ivajx-0/ -->
 ![Ground Android app architecture diagram](android-architecture-diagram.png)
@@ -21,7 +21,7 @@ The app is comprised of the following components:
 
 ## Data flows
 
-- Application components rely heavily on [LiveData](https://developer.android.com/topic/libraries/architecture/livedata) and [RxJava](https://github.com/ReactiveX/RxJava) to represent asynchronous flows of events and data through the app.
+- Application components rely heavily on [LiveData](https://developer.android.com/topic/libraries/architecture/livedata) to represent asynchronous flows of events and data through the app.
 - Dependency injection between components are managed via [Hilt](https://developer.android.com/training/dependency-injection/hilt-android) (Dagger).
 - Data is always written locally first and then queued to be synced with the remote data store, in both directions.
 

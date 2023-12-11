@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.system.rx
+package com.google.android.ground.system
 
 import android.content.Context
 import com.google.android.gms.location.LocationServices
@@ -25,7 +25,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.tasks.await
 
 /** Thin wrapper around [SettingsClient] exposing key features as reactive streams. */
-class RxSettingsClient @Inject constructor(@ApplicationContext context: Context) {
+class SettingsClient @Inject constructor(@ApplicationContext context: Context) {
   private val settingsClient: SettingsClient
 
   init {

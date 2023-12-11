@@ -25,7 +25,6 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.User
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.ActivityResult
 import com.google.android.ground.system.ActivityStreams
 import com.google.firebase.auth.AuthCredential
@@ -33,10 +32,12 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -66,18 +67,20 @@ constructor(
     }
   }
 
-  override val signInState: @Hot(replays = true) Subject<SignInState> = BehaviorSubject.create()
+  private val _signInStateFlow = MutableStateFlow<SignInState?>(null)
+  override val signInState: Flow<SignInState> = _signInStateFlow.asStateFlow().filterNotNull()
 
   override fun init() {
-    externalScope.launch {
-      signInState.onNext(
-        getFirebaseUser()?.let { SignInState.signedIn(it) } ?: SignInState.signedOut()
-      )
-    }
+    val user = firebaseAuth.currentUser?.toUser()
+    setState(if (user == null) SignInState.signedOut() else SignInState.signedIn(user))
+  }
+
+  private fun setState(nextState: SignInState) {
+    externalScope.launch { _signInStateFlow.emit(nextState) }
   }
 
   override fun signIn() {
-    signInState.onNext(SignInState.signingIn())
+    setState(SignInState.signingIn())
     showSignInDialog()
   }
 
@@ -88,11 +91,9 @@ constructor(
     }
 
   override fun signOut() {
-    externalScope.launch {
-      firebaseAuth.signOut()
-      signInState.onNext(SignInState.signedOut())
-      activityStreams.withActivity { getGoogleSignInClient(it).signOut() }
-    }
+    firebaseAuth.signOut()
+    setState(SignInState.signedOut())
+    activityStreams.withActivity { getGoogleSignInClient(it).signOut() }
   }
 
   private fun getGoogleSignInClient(activity: Activity): GoogleSignInClient =
@@ -107,7 +108,7 @@ constructor(
       googleSignInTask.getResult(ApiException::class.java)?.let { onGoogleSignIn(it) }
     } catch (e: ApiException) {
       Timber.e(e, "Sign in failed")
-      signInState.onNext(SignInState.error(e))
+      setState(SignInState.error(e))
     }
   }
 
@@ -115,15 +116,14 @@ constructor(
     firebaseAuth
       .signInWithCredential(getFirebaseAuthCredential(googleAccount))
       .addOnSuccessListener { authResult: AuthResult -> onFirebaseAuthSuccess(authResult) }
-      .addOnFailureListener { signInState.onNext(SignInState.error(it)) }
+      .addOnFailureListener { setState(SignInState.error(it)) }
 
-  private fun onFirebaseAuthSuccess(authResult: AuthResult) =
-    signInState.onNext(SignInState.signedIn(authResult.user!!.toUser()))
+  private fun onFirebaseAuthSuccess(authResult: AuthResult) {
+    setState(SignInState.signedIn(authResult.user!!.toUser()))
+  }
 
   private fun getFirebaseAuthCredential(googleAccount: GoogleSignInAccount): AuthCredential =
     GoogleAuthProvider.getCredential(googleAccount.idToken, null)
-
-  private fun getFirebaseUser(): User? = firebaseAuth.currentUser?.toUser()
 
   private fun FirebaseUser.toUser(): User =
     User(uid, email.orEmpty(), displayName.orEmpty(), photoUrl.toString())

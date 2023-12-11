@@ -15,42 +15,47 @@
  */
 package com.sharedtest.system.auth
 
+import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.User
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.system.auth.SignInState
 import com.google.android.ground.system.auth.SignInState.Companion.signedIn
 import com.google.android.ground.system.auth.SignInState.Companion.signedOut
 import com.sharedtest.FakeData
-import io.reactivex.Observable
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 
 @Singleton
-class FakeAuthenticationManager @Inject constructor() : AuthenticationManager {
+class FakeAuthenticationManager
+@Inject
+constructor(@ApplicationScope private val externalScope: CoroutineScope) : AuthenticationManager {
 
-  private val behaviourSubject: @Hot(replays = true) Subject<SignInState> = BehaviorSubject.create()
+  private val _signInStateFlow = MutableStateFlow<SignInState?>(null)
+  override val signInState: Flow<SignInState> = _signInStateFlow.asStateFlow().filterNotNull()
 
   // TODO: Remove default user once instrumentation tests can set it during the test. Currently, the
   // activity gets launched before the user can be set in setUp()
   private var currentUser: User = FakeData.USER
 
-  override val signInState: Observable<SignInState>
-    get() = behaviourSubject
-
   fun setUser(user: User) {
     currentUser = user
   }
 
-  fun setState(state: SignInState) = behaviourSubject.onNext(state)
+  fun setState(state: SignInState) {
+    externalScope.launch { _signInStateFlow.emit(state) }
+  }
 
-  override fun init() = behaviourSubject.onNext(signedIn(currentUser))
+  override fun init() = setState(signedIn(currentUser))
 
-  override fun signIn() = behaviourSubject.onNext(signedIn(currentUser))
+  override fun signIn() = setState(signedIn(currentUser))
 
-  override fun signOut() = behaviourSubject.onNext(signedOut())
+  override fun signOut() = setState(signedOut())
 
   override suspend fun getAuthenticatedUser(): User = currentUser
 }
