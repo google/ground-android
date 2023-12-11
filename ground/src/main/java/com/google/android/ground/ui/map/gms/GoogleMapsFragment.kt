@@ -217,6 +217,13 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   override fun disableGestures() = map.uiSettings.setAllGesturesEnabled(false)
 
+  override fun enableRotation() {
+    map.uiSettings.isRotateGesturesEnabled = true
+  }
+  override fun disableRotation() {
+    map.uiSettings.isRotateGesturesEnabled = false
+  }
+
   override fun moveCamera(coordinates: Coordinates, shouldAnimate: Boolean) =
     moveCamera(CameraUpdateFactory.newLatLng(coordinates.toGoogleMapsObject()), shouldAnimate)
 
