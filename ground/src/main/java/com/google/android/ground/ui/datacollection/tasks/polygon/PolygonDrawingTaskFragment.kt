@@ -23,6 +23,7 @@ import com.google.android.ground.R
 import com.google.android.ground.model.geometry.GeometryValidator.isClosed
 import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
+import com.google.android.ground.ui.datacollection.components.TaskButton
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
@@ -37,6 +38,12 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
 
   @Inject lateinit var markerIconFactory: IconFactory
   @Inject lateinit var map: MapFragment
+
+  // Action buttons
+  private lateinit var completeButton: TaskButton
+  private lateinit var addPointButton: TaskButton
+  private lateinit var nextButton: TaskButton
+  private lateinit var undoButton: TaskButton
 
   private lateinit var polygonDrawingMapFragment: PolygonDrawingMapFragment
 
@@ -59,10 +66,14 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
 
   override fun onCreateActionButtons() {
     addSkipButton()
-    addUndoButton()
-    addNextButton()
-    addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
-    addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.onCompletePolygonButtonClick() }
+    undoButton = addUndoButton()
+    nextButton = addNextButton()
+    addPointButton =
+      addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
+    completeButton =
+      addButton(ButtonAction.COMPLETE).setOnClickListener {
+        viewModel.onCompletePolygonButtonClick()
+      }
   }
 
   override fun onTaskViewAttached() {
@@ -76,9 +87,9 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
     val isClosedGeometry = feature?.geometry.isClosed()
     val isMarkedComplete = viewModel.isMarkedComplete()
 
-    getButton(ButtonAction.ADD_POINT).showIfTrue(!isClosedGeometry)
-    getButton(ButtonAction.COMPLETE).showIfTrue(isClosedGeometry && !isMarkedComplete)
-    getButton(ButtonAction.NEXT).showIfTrue(isMarkedComplete)
-    getButton(ButtonAction.UNDO).showIfTrue(!isGeometryEmpty)
+    addPointButton.showIfTrue(!isClosedGeometry)
+    completeButton.showIfTrue(isClosedGeometry && !isMarkedComplete)
+    nextButton.showIfTrue(isMarkedComplete)
+    undoButton.showIfTrue(!isGeometryEmpty)
   }
 }

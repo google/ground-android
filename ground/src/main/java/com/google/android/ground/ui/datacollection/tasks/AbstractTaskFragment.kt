@@ -181,11 +181,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   @TestOnly fun getButtonsIndex() = buttonsIndex
 
-  protected fun getButton(action: ButtonAction): TaskButton {
-    check(buttons.contains(action)) { "Expected key $action in $buttons" }
-    return buttons[action]!!
-  }
-
   companion object {
     /** Key used to store the position of the task in the Job's sorted tasklist. */
     const val POSITION = "position"
