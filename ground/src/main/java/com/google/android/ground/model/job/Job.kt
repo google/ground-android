@@ -34,7 +34,6 @@ data class Job(
 
   val canDataCollectorsAddLois: Boolean
     get() = strategy != DataCollectionStrategy.PREDEFINED
-
   val tasksSorted: List<Task>
     get() = tasks.values.sortedBy { it.index }
 
