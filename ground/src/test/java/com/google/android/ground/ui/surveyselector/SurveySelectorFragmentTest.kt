@@ -56,6 +56,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowPopupMenu
+import org.robolectric.shadows.ShadowToast
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -139,6 +140,8 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     verify(activateSurvey).invoke(TEST_SURVEY_2.id)
     // Assert that navigation to home screen was requested
     verify(navigator).navigate(HomeScreenFragmentDirections.showHomeScreen())
+    // No error toast should be displayed
+    assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
   }
 
   @Test
@@ -156,8 +159,10 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
     // Assert survey is activated.
     verify(activateSurvey).invoke(TEST_SURVEY_2.id)
-    // Assert that navigation to home screen was requested
+    // Assert that navigation to home screen was not requested
     verify(navigator, times(0)).navigate(HomeScreenFragmentDirections.showHomeScreen())
+    // Error toast message
+    assertThat(ShadowToast.shownToastCount()).isEqualTo(1)
   }
 
   @Test
