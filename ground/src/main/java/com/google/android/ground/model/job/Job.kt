@@ -34,10 +34,13 @@ data class Job(
 
   val canDataCollectorsAddLois: Boolean
     get() = strategy != DataCollectionStrategy.PREDEFINED
+
   val tasksSorted: List<Task>
     get() = tasks.values.sortedBy { it.index }
 
   fun getTask(id: String): Task = tasks[id] ?: error("Unknown task id $id")
+
+  fun getAddLoiTask(): Task? = tasks.values.firstOrNull { it.isAddLoiTask }
 }
 
 fun Job.getDefaultColor(): Int =

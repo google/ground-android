@@ -43,33 +43,33 @@ constructor(
    * suggested.
    */
   @Transaction
-  @Suppress("UseIfInsteadOfWhen")
   suspend operator fun invoke(
     loiId: String?,
     job: Job,
     surveyId: String,
     deltas: List<ValueDelta>
   ) {
-    Timber.v("Submitting data for loi: $loiId")
-    var loiIdToSubmit = loiId
+    Timber.v("Submitting data for LOI: $loiId")
     val deltasToSubmit = deltas.toMutableList()
+    val loiIdToSubmit = loiId ?: addLocationOfInterest(surveyId, job, deltasToSubmit)
+    submissionRepository.saveSubmission(surveyId, loiIdToSubmit, deltasToSubmit)
+  }
 
-    if (loiId == null) {
-      // loiIds are null for Suggest LOI data collection flows
-      when (val suggestLoiValue = deltasToSubmit.removeAt(0).newValue) {
-        is GeometryTaskResponse ->
-          loiIdToSubmit = saveLoi(suggestLoiValue.geometry, job, surveyId).id
-        else -> error("No suggest LOI Task found when loi ID was null")
-      }
-    }
-
-    submissionRepository.saveSubmission(
-      surveyId,
-      requireNotNull(loiIdToSubmit) {
-        "No LOI found present for submission, surveyId: $surveyId, jobId: ${job.id}"
-      },
-      deltasToSubmit
-    )
+  /**
+   * Extracts and removes the response to the "add LOI" task from the provided deltas and stores the
+   * new LOI to the local mutation queue and db.
+   */
+  private suspend fun addLocationOfInterest(
+    surveyId: String,
+    job: Job,
+    deltas: MutableList<ValueDelta>
+  ): String {
+    val addLoiTask = job.getAddLoiTask() ?: error("Null LOI ID but no add LOI task")
+    val addLoiTaskId = deltas.indexOfFirst { it.taskId == addLoiTask.id }
+    if (addLoiTaskId < 0) error("Add LOI task response missing")
+    val addLoiValue = deltas.removeAt(addLoiTaskId).newValue
+    if (addLoiValue !is GeometryTaskResponse) error("Invalid add LOI task response")
+    return saveLoi(addLoiValue.geometry, job, surveyId).id
   }
 
   private suspend fun saveLoi(geometry: Geometry, job: Job, surveyId: String): LocationOfInterest {
