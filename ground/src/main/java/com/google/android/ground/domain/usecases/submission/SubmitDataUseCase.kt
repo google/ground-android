@@ -38,21 +38,21 @@ constructor(
 
   /**
    * Creates a Submission for the given [job] with collected data defines as a collection of
-   * [ValueDelta]s. If [loiId] is null a new LOI is created based on the first [ValueDelta] since
-   * the Suggest LOI task is the first task in the Data Collection flow when a new LOI is being
-   * suggested.
+   * [ValueDelta]s. If [selectedLoiId] is null a new LOI is created based on the first [ValueDelta]
+   * since the Suggest LOI task is the first task in the Data Collection flow when a new LOI is
+   * being suggested.
    */
   @Transaction
   suspend operator fun invoke(
-    loiId: String?,
+    selectedLoiId: String?,
     job: Job,
     surveyId: String,
     deltas: List<ValueDelta>
   ) {
-    Timber.v("Submitting data for LOI: $loiId")
+    Timber.v("Submitting data for LOI: $selectedLoiId")
     val deltasToSubmit = deltas.toMutableList()
-    val loiIdToSubmit = loiId ?: addLocationOfInterest(surveyId, job, deltasToSubmit)
-    submissionRepository.saveSubmission(surveyId, loiIdToSubmit, deltasToSubmit)
+    val submissionLoiId = selectedLoiId ?: addLocationOfInterest(surveyId, job, deltasToSubmit)
+    submissionRepository.saveSubmission(surveyId, submissionLoiId, deltasToSubmit)
   }
 
   /**
