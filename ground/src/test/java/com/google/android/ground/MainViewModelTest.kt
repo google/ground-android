@@ -16,7 +16,6 @@
 package com.google.android.ground
 
 import android.content.SharedPreferences
-import androidx.navigation.NavDirections
 import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
@@ -113,11 +112,7 @@ class MainViewModelTest : BaseHiltTest() {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
 
-    testNavigateTo(
-      navigator.getNavigateRequests(),
-      SignInFragmentDirections.showTermsOfService()
-        .setTermsOfServiceText(FakeData.TERMS_OF_SERVICE.text) as NavDirections
-    ) {
+    testNavigateTo(navigator.getNavigateRequests(), SignInFragmentDirections.showTermsOfService()) {
       fakeAuthenticationManager.signIn()
     }
 

@@ -119,7 +119,7 @@ constructor(
         reactivateLastSurvey()
         getDirectionAfterSignIn()
       } else {
-        SignInFragmentDirections.showTermsOfService().setTermsOfServiceText(tos.text)
+        SignInFragmentDirections.showTermsOfService()
       }
     } catch (e: Throwable) {
       onUserSignInError(e)

@@ -45,13 +45,9 @@ class TermsOfServiceFragment : Hilt_TermsOfServiceFragment(), BackPressListener 
   ): View {
     val binding = FragmentTermsServiceBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
-    binding.termsOfServiceText = getTermsOfServiceText()
     binding.lifecycleOwner = this
     return binding.root
   }
-
-  private fun getTermsOfServiceText(): String =
-    TermsOfServiceFragmentArgs.fromBundle(requireNotNull(arguments)).termsOfServiceText.orEmpty()
 
   override fun onBack(): Boolean {
     requireActivity().finish()
