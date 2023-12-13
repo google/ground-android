@@ -96,6 +96,12 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     } else {
       map.enableGestures()
     }
+
+    if (config.disableRotateGestures) {
+      map.disableRotation()
+    } else {
+      map.enableRotation()
+    }
   }
 
   /** Opens a dialog for selecting a [MapType] for the basemap layer. */

@@ -21,5 +21,6 @@ import com.google.android.ground.ui.map.MapType
 data class MapConfig(
   val showOfflineImagery: Boolean,
   val overrideMapType: MapType? = null,
-  val disableGestures: Boolean = false
+  val disableGestures: Boolean = false,
+  val disableRotateGestures: Boolean = false,
 )

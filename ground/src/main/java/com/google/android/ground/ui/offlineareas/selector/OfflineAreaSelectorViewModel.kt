@@ -82,7 +82,12 @@ internal constructor(
   val downloadButtonEnabled = MutableLiveData(false)
 
   override val mapConfig: MapConfig
-    get() = super.mapConfig.copy(showOfflineImagery = false, overrideMapType = MapType.TERRAIN)
+    get() =
+      super.mapConfig.copy(
+        showOfflineImagery = false,
+        overrideMapType = MapType.TERRAIN,
+        disableRotateGestures = false
+      )
 
   init {
     remoteTileSources = surveyRepository.activeSurvey!!.tileSources

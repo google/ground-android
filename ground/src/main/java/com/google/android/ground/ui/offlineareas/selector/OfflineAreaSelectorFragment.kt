@@ -69,7 +69,6 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
       mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
     }
     viewModel.remoteTileSources.forEach { map.addTileOverlay(it) }
-    map.disableRotation()
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
