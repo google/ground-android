@@ -17,12 +17,13 @@ package com.google.android.ground.system.auth
 
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.User
-import com.google.android.ground.rx.annotations.Hot
 import com.google.firebase.auth.FirebaseAuth
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.Subject
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -37,25 +38,28 @@ constructor(
   private val firebaseAuth: FirebaseAuth,
   @ApplicationScope private val externalScope: CoroutineScope
 ) : AuthenticationManager {
-  override val signInState: @Hot(replays = true) Subject<SignInState> = BehaviorSubject.create()
+  private val _signInStateFlow = MutableStateFlow<SignInState?>(null)
+  override val signInState: Flow<SignInState> = _signInStateFlow.asStateFlow().filterNotNull()
 
   override fun init() {
-    signInState.onNext(
+    setState(
       if (firebaseAuth.currentUser == null) SignInState.signedOut()
       else SignInState.signedIn(anonymousUser)
     )
   }
 
+  private fun setState(nextState: SignInState) {
+    externalScope.launch { _signInStateFlow.emit(nextState) }
+  }
+
   override fun signIn() {
-    signInState.onNext(SignInState.signingIn())
-    externalScope.launch {
-      firebaseAuth.signInAnonymously().await()
-      signInState.onNext(SignInState.signedIn(anonymousUser))
-    }
+    setState(SignInState.signingIn())
+    externalScope.launch { firebaseAuth.signInAnonymously().await() }
+    setState(SignInState.signedIn(anonymousUser))
   }
 
   override fun signOut() {
     firebaseAuth.signOut()
-    signInState.onNext(SignInState.signedOut())
+    setState(SignInState.signedOut())
   }
 }

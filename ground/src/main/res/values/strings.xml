@@ -127,5 +127,4 @@
   <string name="no_surveys_available">No surveys available. Contact your survey organizer to get access.</string>
   <string name="previous">Previous</string>
   <string name="network_error_when_signing_in">Connect to the internet to sign in</string>
-  <string name="camera_permissions_needed">You need to grant this application camera permissions to submit photos.</string>
 </resources>

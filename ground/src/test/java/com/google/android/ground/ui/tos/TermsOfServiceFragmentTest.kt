@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.tos
 
-import androidx.core.os.bundleOf
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -23,32 +22,36 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
+import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.testNavigateTo
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.common.truth.Truth.assertThat
+import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.hamcrest.Matchers.not
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class TermsOfServiceFragmentTest : BaseHiltTest() {
 
+  @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepository
 
+  override fun setUp() {
+    super.setUp()
+    fakeRemoteDataStore.termsOfService = Result.success(TEST_TOS)
+  }
+
   @Test
   fun termsOfServiceText_shouldBeDisplayed() {
-    launchFragmentInHiltContainer<TermsOfServiceFragment>(
-      bundleOf(Pair("termsOfServiceText", TEST_TOS_TEXT))
-    )
+    launchFragmentInHiltContainer<TermsOfServiceFragment>()
 
     onView(withId(R.id.termsText))
       .check(matches(isDisplayed()))
@@ -57,7 +60,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun agreeButton_default_shouldNotBeEnabled() {
-    launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf())
+    launchFragmentInHiltContainer<TermsOfServiceFragment>()
 
     onView(withId(R.id.agreeCheckBox)).check(matches(isNotChecked()))
     onView(withId(R.id.agreeButton)).check(matches(not(isEnabled())))
@@ -65,7 +68,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun agreeButton_whenCheckBoxClicked_shouldBeEnabled() {
-    launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf())
+    launchFragmentInHiltContainer<TermsOfServiceFragment>()
 
     onView(withId(R.id.agreeCheckBox)).perform(click()).check(matches(isChecked()))
     onView(withId(R.id.agreeButton)).check(matches(isEnabled()))
@@ -73,7 +76,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun agreeButton_whenPressed_shouldUpdatePrefAndNavigate() = runWithTestDispatcher {
-    launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf())
+    launchFragmentInHiltContainer<TermsOfServiceFragment>()
 
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isFalse()
 
@@ -90,7 +93,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun pressBack_shouldFinishActivity() {
-    launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf()) {
+    launchFragmentInHiltContainer<TermsOfServiceFragment> {
       val fragment = this as TermsOfServiceFragment
       assertThat(fragment.onBack()).isFalse()
       assertThat(activity?.isFinishing).isTrue()
@@ -99,5 +102,6 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   companion object {
     const val TEST_TOS_TEXT = "Sample terms of service"
+    val TEST_TOS = TermsOfService("TERMS_OF_SERVICE", TEST_TOS_TEXT)
   }
 }
