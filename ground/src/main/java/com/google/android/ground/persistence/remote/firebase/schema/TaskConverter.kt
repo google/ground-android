@@ -41,7 +41,7 @@ internal object TaskConverter {
       em.label!!,
       em.required != null && em.required,
       multipleChoice,
-      em.isAddLoiTask ?: false
+      em.addLoiTask ?: false
     )
   }
 
