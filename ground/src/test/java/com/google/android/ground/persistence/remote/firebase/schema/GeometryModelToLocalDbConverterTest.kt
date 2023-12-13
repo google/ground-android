@@ -16,10 +16,14 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.geometry.*
+import com.google.android.ground.assertIsFailure
+import com.google.android.ground.assertIsSuccessWith
+import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.MultiPolygon
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.firebase.firestore.GeoPoint
-import com.sharedtest.assertIsFailure
-import com.sharedtest.assertIsSuccessWith
 import org.junit.Test
 
 class GeometryModelToLocalDbConverterTest {

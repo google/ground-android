@@ -19,6 +19,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
@@ -27,9 +28,11 @@ import androidx.recyclerview.widget.SnapHelper
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
+import com.google.android.ground.coroutines.MainDispatcher
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
+import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
@@ -37,6 +40,7 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
+import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.MapFragment
@@ -46,6 +50,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -56,6 +61,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
   @Inject lateinit var submissionRepository: SubmissionRepository
   @Inject lateinit var userRepository: UserRepository
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
+  @Inject @MainDispatcher lateinit var mainDispatcher: CoroutineDispatcher
   @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
@@ -74,11 +80,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
 
     lifecycleScope.launch {
       val canUserSubmitData = userRepository.canUserSubmitData()
-      // TODO(#2080): Pull launching coroutine out of MapCardAdapter
-      adapter =
-        MapCardAdapter(canUserSubmitData, externalScope) {
-          submissionRepository.getTotalSubmissionCount(it)
-        }
+      adapter = MapCardAdapter(canUserSubmitData) { loi, view -> updateSubmissionCount(loi, view) }
       adapter.setCollectDataListener {
         if (canUserSubmitData) {
           navigateToDataCollectionFragment(it)
@@ -103,6 +105,15 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
 
     lifecycleScope.launch(ioDispatcher) {
       map.featureClicks.collect { mapContainerViewModel.onFeatureClicked(it) }
+    }
+  }
+
+  /** Updates the given [TextView] with the submission count for the given [LocationOfInterest]. */
+  private fun updateSubmissionCount(loi: LocationOfInterest, view: TextView) {
+    externalScope.launch {
+      val submissionCount = submissionRepository.getTotalSubmissionCount(loi)
+      val submissionText = LoiCardUtil.getSubmissionsText(submissionCount)
+      withContext(mainDispatcher) { view.text = submissionText }
     }
   }
 

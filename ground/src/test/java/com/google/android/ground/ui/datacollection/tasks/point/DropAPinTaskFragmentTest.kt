@@ -19,6 +19,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.*
 import androidx.test.espresso.matcher.ViewMatchers.*
+import com.google.android.ground.R
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
@@ -132,5 +133,12 @@ class DropAPinTaskFragmentTest :
     buttonIsHidden("Skip")
     buttonIsHidden(ButtonAction.UNDO)
     buttonIsEnabled("Drop pin")
+  }
+
+  @Test
+  fun `Hint icon is shown`() {
+    setupTaskFragment<DropAPinTaskFragment>(job, task)
+
+    onView(withId(R.id.hintIcon)).check(matches(isDisplayed()))
   }
 }

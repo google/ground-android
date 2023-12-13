@@ -21,7 +21,6 @@ import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.multidex.MultiDexApplication
 import androidx.work.Configuration
-import com.akaita.java.rxjava2debug.RxJava2Debug
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
@@ -46,9 +45,6 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
       // Log failures when trying to do work in the UI thread.
       setStrictMode()
     }
-
-    // Enable RxJava assembly stack collection for more useful stack traces.
-    RxJava2Debug.enableRxJava2AssemblyTracking(arrayOf(javaClass.getPackage().name))
   }
 
   override fun getWorkManagerConfiguration(): Configuration =

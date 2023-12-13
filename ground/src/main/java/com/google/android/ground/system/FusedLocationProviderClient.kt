@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.system.rx
+package com.google.android.ground.system
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -28,8 +28,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.tasks.await
 
 /** Thin wrapper around [FusedLocationProviderClient] exposing key LOIs as reactive streams. */
-// TODO: Remove Rx from the name of this class since it no longer uses RxJava2.
-class RxFusedLocationProviderClient @Inject constructor(@ApplicationContext context: Context) {
+class FusedLocationProviderClient @Inject constructor(@ApplicationContext context: Context) {
   private val fusedLocationProviderClient: FusedLocationProviderClient
 
   init {
