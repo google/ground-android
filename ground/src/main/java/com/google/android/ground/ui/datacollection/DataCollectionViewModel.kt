@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection
 
-import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.coroutines.ApplicationScope
@@ -74,7 +73,6 @@ internal constructor(
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   private val savedStateHandle: SavedStateHandle,
-  private val resources: Resources,
   locationOfInterestRepository: LocationOfInterestRepository,
   surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
