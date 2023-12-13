@@ -22,6 +22,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isNotEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
@@ -34,7 +35,9 @@ import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.Matchers.allOf
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,6 +45,7 @@ import org.mockito.Mock
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SignInFragmentTest : BaseHiltTest() {
@@ -56,20 +60,23 @@ class SignInFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Clicking sign-in button when network is available should attempt login`() {
-    whenever(networkManager.networkStatusFlow).thenReturn(flowOf(NetworkStatus.AVAILABLE))
-    launchFragmentInHiltContainer<SignInFragment>()
-    fakeAuthenticationManager.setUser(TEST_USER)
+  fun `Clicking sign-in button when network is available should attempt login`() =
+    runWithTestDispatcher {
+      whenever(networkManager.networkStatusFlow).thenReturn(flowOf(NetworkStatus.AVAILABLE))
+      launchFragmentInHiltContainer<SignInFragment>()
+      fakeAuthenticationManager.setUser(TEST_USER)
 
-    onView(withId(R.id.sign_in_button)).perform(click())
+      onView(withId(R.id.sign_in_button)).perform(click())
+      advanceUntilIdle()
 
-    fakeAuthenticationManager.signInState
-      .test()
-      .assertValue(SignInState(SignInState.State.SIGNED_IN, Result.success(TEST_USER)))
-  }
+      fakeAuthenticationManager.signInState.test {
+        assertThat(expectMostRecentItem())
+          .isEqualTo(SignInState(SignInState.State.SIGNED_IN, Result.success(TEST_USER)))
+      }
+    }
 
   @Test
-  fun `Sign-in button should be disabled when network is not available`() {
+  fun `Sign-in button should be disabled when network is not available`() = runWithTestDispatcher {
     whenever(networkManager.networkStatusFlow).thenReturn(flowOf(NetworkStatus.UNAVAILABLE))
     launchFragmentInHiltContainer<SignInFragment>()
     fakeAuthenticationManager.setUser(TEST_USER)
@@ -77,9 +84,10 @@ class SignInFragmentTest : BaseHiltTest() {
     onView(allOf(withId(R.id.sign_in_button), isDisplayed(), isNotEnabled())).perform(click())
 
     // Assert that the sign-in state is still signed out
-    fakeAuthenticationManager.signInState
-      .test()
-      .assertValue(SignInState(SignInState.State.SIGNED_OUT, Result.success(null)))
+    fakeAuthenticationManager.signInState.test {
+      assertThat(expectMostRecentItem())
+        .isEqualTo(SignInState(SignInState.State.SIGNED_OUT, Result.success(null)))
+    }
 
     onView(withId(com.google.android.material.R.id.snackbar_text))
       .check(matches(withText(R.string.network_error_when_signing_in)))

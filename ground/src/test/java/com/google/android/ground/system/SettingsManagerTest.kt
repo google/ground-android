@@ -20,7 +20,6 @@ import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.LocationRequest
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.system.rx.RxSettingsClient
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -42,7 +41,7 @@ class SettingsManagerTest : BaseHiltTest() {
   private val testLocationRequest = LocationRequest()
 
   @BindValue @Mock lateinit var activityStreamsMock: ActivityStreams
-  @BindValue @Mock lateinit var settingsClientMock: RxSettingsClient
+  @BindValue @Mock lateinit var settingsClientMock: SettingsClient
 
   @Inject lateinit var settingsManager: SettingsManager
 

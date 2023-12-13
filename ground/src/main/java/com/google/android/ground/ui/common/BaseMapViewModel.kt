@@ -31,7 +31,6 @@ import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.system.FINE_LOCATION_UPDATES_REQUEST
 import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionDeniedException
@@ -78,7 +77,7 @@ constructor(
 
   val locationLock: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
-  private val locationLockEnabled: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
+  private val locationLockEnabled: MutableLiveData<Boolean> = MutableLiveData()
   val mapType: Flow<MapType> = mapStateRepository.mapTypeFlow
 
   val locationLockIconTint =

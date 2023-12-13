@@ -15,9 +15,10 @@
  */
 package com.google.android.ground.ui.tos
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
 import com.google.android.ground.repository.TermsOfServiceRepository
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
@@ -29,9 +30,12 @@ constructor(
   private val navigator: Navigator,
   private val termsOfServiceRepository: TermsOfServiceRepository
 ) : AbstractViewModel() {
-  // TODO(#1478): Convert to MutableLiveData.
-  var termsOfServiceText = ""
-  val agreeCheckboxChecked: @Hot(replays = true) MutableLiveData<Boolean> = MutableLiveData()
+  val agreeCheckboxChecked: MutableLiveData<Boolean> = MutableLiveData()
+
+  // TODO(#1478): Either cache terms of service text in repository or display a loading spinner.
+  val termsOfServiceText: LiveData<String?> = liveData {
+    emit(termsOfServiceRepository.getTermsOfService()?.text)
+  }
 
   fun onButtonClicked() {
     termsOfServiceRepository.isTermsOfServiceAccepted = true

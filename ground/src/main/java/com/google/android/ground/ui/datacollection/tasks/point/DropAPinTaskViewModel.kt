@@ -24,7 +24,6 @@ import com.google.android.ground.model.submission.GeometryTaskResponse
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.google.android.ground.rx.annotations.Hot
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
@@ -38,7 +37,7 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
 
   private var pinColor: Int = 0
   private var lastCameraPosition: CameraPosition? = null
-  val features: @Hot MutableLiveData<Set<Feature>> = MutableLiveData()
+  val features: MutableLiveData<Set<Feature>> = MutableLiveData()
 
   override fun initialize(job: Job, task: Task, value: Value?) {
     super.initialize(job, task, value)

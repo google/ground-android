@@ -35,9 +35,7 @@ class TermsOfServiceFragment : Hilt_TermsOfServiceFragment(), BackPressListener 
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    val args = TermsOfServiceFragmentArgs.fromBundle(requireNotNull(arguments))
     viewModel = getViewModel(TermsOfServiceViewModel::class.java)
-    viewModel.termsOfServiceText = args.termsOfServiceText.orEmpty()
   }
 
   override fun onCreateView(
