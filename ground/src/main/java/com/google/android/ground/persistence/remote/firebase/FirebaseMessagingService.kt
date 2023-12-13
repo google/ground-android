@@ -43,7 +43,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
       Timber.w("Invalid topic: ${remoteMessage.from}")
       return
     }
-
+    Timber.v("Message received from topic ${remoteMessage.from}")
     surveySyncService.enqueueSync(surveyId)
   }
 
