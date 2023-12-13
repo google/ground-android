@@ -93,8 +93,8 @@ internal constructor(
   val loiClicks: MutableStateFlow<LocationOfInterest?> = MutableStateFlow(null)
 
   /**
-   * List of [Job]s which allow LOIs to be added during field collection, populated only when
-   * zoomed in far enough.
+   * List of [Job]s which allow LOIs to be added during field collection, populated only when zoomed
+   * in far enough.
    */
   val adHocLoiJobs: Flow<List<Job>>
 
