@@ -68,8 +68,8 @@ class SubmissionLocalDataStoreConverterTest {
       ),
       newTask("task3", Task.Type.MULTIPLE_CHOICE),
       newTask("task4", Task.Type.PHOTO),
-      newTask("task5", Task.Type.DROP_A_PIN),
-      newTask("task6", Task.Type.DRAW_POLYGON),
+      newTask("task5", Task.Type.DROP_PIN),
+      newTask("task6", Task.Type.DRAW_AREA),
     )
     mockSubmissionDocumentSnapshot(SUBMISSION_ID, TEST_SUBMISSION_DOCUMENT)
 

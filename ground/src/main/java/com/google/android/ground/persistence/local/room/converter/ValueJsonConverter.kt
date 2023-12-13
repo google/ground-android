@@ -22,6 +22,7 @@ import com.google.android.ground.model.submission.DateResponse
 import com.google.android.ground.model.submission.GeometryTaskResponse
 import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.NumberResponse
+import com.google.android.ground.model.submission.PhotoResponse
 import com.google.android.ground.model.submission.TextResponse
 import com.google.android.ground.model.submission.TimeResponse
 import com.google.android.ground.model.submission.Value
@@ -53,6 +54,7 @@ internal object ValueJsonConverter {
       is DateResponse -> dateToIsoString(value.date)
       is TimeResponse -> dateToIsoString(value.time)
       is GeometryTaskResponse -> GeometryWrapperTypeConverter.toString(value.geometry)
+      is PhotoResponse -> value.getDetailsText()
       is CaptureLocationResult ->
         JSONObject().apply {
           put("accuracy", value.accuracy)
@@ -102,8 +104,8 @@ internal object ValueJsonConverter {
         DataStoreException.checkType(String::class.java, obj)
         TimeResponse.fromDate(isoStringToDate(obj as String))
       }
-      Task.Type.DRAW_POLYGON,
-      Task.Type.DROP_A_PIN -> {
+      Task.Type.DRAW_AREA,
+      Task.Type.DROP_PIN -> {
         GeometryTaskResponse.fromGeometry(
           GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
         )

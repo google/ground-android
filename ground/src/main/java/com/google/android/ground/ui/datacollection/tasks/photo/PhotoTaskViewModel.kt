@@ -19,7 +19,7 @@ import android.content.res.Resources
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import com.google.android.ground.model.submission.TextResponse.Companion.fromString
+import com.google.android.ground.model.submission.PhotoResponse
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager.Companion.getRemoteMediaPath
 import com.google.android.ground.repository.UserMediaRepository
@@ -75,7 +75,7 @@ constructor(
 
       // Update value..
       val remoteDestinationPath = getRemoteMediaPath(surveyId, filename)
-      setValue(fromString(remoteDestinationPath))
+      setValue(PhotoResponse(remoteDestinationPath))
     } catch (e: IOException) {
       Timber.e(e, "Failed to save photo")
     }

@@ -99,6 +99,9 @@
       <argument
         android:name="jobId"
         type="string" />
+      <action
+        android:id="@+id/showCameraPermissionDeniedFragment"
+        app:destination="@id/cameraPermissionDeniedDialogFragment" />
     </fragment>
 
     <fragment
@@ -123,7 +126,11 @@
       android:id="@+id/photo_task_fragment"
       android:name="com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskFragment"
       android:label="@string/collect_data"
-      tools:layout="@layout/text_task_frag" />
+      tools:layout="@layout/text_task_frag">
+     <action
+       android:id="@+id/showCameraPermissionDeniedFragment"
+       app:destination="@id/cameraPermissionDeniedDialogFragment" />
+      </fragment>
 
     <fragment
       android:id="@+id/polygon_task_fragment"
@@ -247,4 +254,8 @@
     android:id="@+id/permissionDeniedDialogFragment"
     android:name="com.google.android.ground.ui.common.PermissionDeniedDialogFragment"
     android:label="PermissionDeniedDialogFragment" />
+  <dialog
+    android:id="@+id/cameraPermissionDeniedDialogFragment"
+    android:name="com.google.android.ground.ui.common.CameraPermissionDeniedDialogFragment"
+    android:label="CameraPermissionDeniedDialogFragment" />
 </navigation>

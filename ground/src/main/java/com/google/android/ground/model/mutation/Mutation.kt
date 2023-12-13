@@ -66,6 +66,9 @@ sealed class Mutation {
     /** Upload of media associated with a given mutation is in progress. */
     MEDIA_UPLOAD_IN_PROGRESS,
 
+    /** Upload of media associated with a given mutation is awaiting another attempt. */
+    MEDIA_UPLOAD_AWAITING_RETRY,
+
     /** Sync complete. */
     COMPLETED,
 

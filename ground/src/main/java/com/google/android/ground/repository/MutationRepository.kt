@@ -57,19 +57,28 @@ constructor(
   }
 
   /**
+   * Returns all local submission mutations associated with the the given LOI ID that have one of
+   * the provided sync statues.
+   */
+  suspend fun getSubmissionMutations(
+    loiId: String,
+    vararg entitySyncStatus: MutationEntitySyncStatus
+  ) = getMutations(loiId, *entitySyncStatus).filterIsInstance<SubmissionMutation>()
+
+  /**
    * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
    * specified id.
    */
   suspend fun getMutations(
     loidId: String,
-    entitySyncStatus: MutationEntitySyncStatus
+    vararg entitySyncStatus: MutationEntitySyncStatus
   ): List<Mutation> {
     val loiMutations =
       localLocationOfInterestStore
-        .findByLocationOfInterestId(loidId, entitySyncStatus)
+        .findByLocationOfInterestId(loidId, *entitySyncStatus)
         .map(LocationOfInterestMutationEntity::toModelObject)
     val submissionMutations =
-      localSubmissionStore.findByLocationOfInterestId(loidId, entitySyncStatus).map {
+      localSubmissionStore.findByLocationOfInterestId(loidId, *entitySyncStatus).map {
         it.toSubmissionMutation()
       }
     return loiMutations + submissionMutations
@@ -81,8 +90,11 @@ constructor(
         ?: error("Survey missing $surveyId. Unable to fetch pending submission mutations.")
     )
 
-  /** Updates the provided list of mutations. */
-  suspend fun updateMutations(mutations: List<Mutation>) {
+  /**
+   * Saves the provided list of mutations to local storage. Updates any locally stored, existing
+   * mutations to reflect the mutations in the list, and writes any new mutations.
+   */
+  suspend fun saveMutationsLocally(mutations: List<Mutation>) {
     val loiMutations = mutations.filterIsInstance<LocationOfInterestMutation>()
     localLocationOfInterestStore.updateAll(loiMutations)
 
@@ -114,15 +126,15 @@ constructor(
       }
 
   suspend fun markAsInProgress(mutations: List<Mutation>) {
-    updateMutations(mutations.updateMutationStatus(Mutation.SyncStatus.IN_PROGRESS))
+    saveMutationsLocally(mutations.updateMutationStatus(Mutation.SyncStatus.IN_PROGRESS))
   }
 
   suspend fun markAsFailed(mutations: List<Mutation>, error: Throwable) {
-    updateMutations(mutations.updateMutationStatus(Mutation.SyncStatus.FAILED, error))
+    saveMutationsLocally(mutations.updateMutationStatus(Mutation.SyncStatus.FAILED, error))
   }
 
   private suspend fun markForMediaUpload(mutations: List<Mutation>) {
-    updateMutations(mutations.updateMutationStatus(Mutation.SyncStatus.MEDIA_UPLOAD_PENDING))
+    saveMutationsLocally(mutations.updateMutationStatus(Mutation.SyncStatus.MEDIA_UPLOAD_PENDING))
   }
 
   private fun combineAndSortMutations(
@@ -134,6 +146,22 @@ constructor(
     )
 }
 
+// TODO: Refactor this and the related markAs* methods out of this repository. Workers will
+// generally
+// want to have control over when work should be retried. This means they may need finer grained
+// control over when a mutation is marked as failed and when it is considered eligible for retry
+// based on various conditions. Batch marking sequences of mutations prevents this. Instead, let's
+// have
+// workers operate directly on values List<Mutation> updating them appropriately, then batch write
+// these via the repository using saveMutationsLocally.
+//
+// For example, a worker would do:
+//   repo.getMutations(....)
+//       .map { doRemoteOrBackgroundWork(it) }
+//       .map { if (condition...) it.updateStatus(RETRY) else it.updateStatus(FAILED) } // for
+// illustration; we'd likely just do this in "doRemoteOr..."
+//       .also { repo.saveMutationsLocally(it) } // write updated mutations to local storage to
+// exclude/include them in further processing runs.
 private fun List<Mutation>.updateMutationStatus(
   syncStatus: Mutation.SyncStatus,
   error: Throwable? = null

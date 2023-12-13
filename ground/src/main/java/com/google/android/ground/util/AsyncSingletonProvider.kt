@@ -21,7 +21,7 @@ import kotlinx.coroutines.sync.withLock
 
 /** Base class for providers for singletons which need to be initialized asynchronously. */
 open class AsyncSingletonProvider<T>(private val providerFunction: suspend () -> T) {
-  private var instance: T? = null
+  @Volatile private var instance: T? = null
   private val mutex = Mutex()
 
   /**
@@ -30,10 +30,5 @@ open class AsyncSingletonProvider<T>(private val providerFunction: suspend () ->
    * until the singleton is created and returned.
    */
   suspend fun get(): T =
-    mutex.withLock {
-      if (instance == null) {
-        instance = providerFunction()
-      }
-      return instance!!
-    }
+    instance ?: mutex.withLock { instance ?: providerFunction().also { instance = it } }
 }
