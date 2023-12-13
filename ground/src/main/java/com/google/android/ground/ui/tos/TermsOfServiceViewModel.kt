@@ -15,15 +15,14 @@
  */
 package com.google.android.ground.ui.tos
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.liveData
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 
 class TermsOfServiceViewModel
 @Inject
@@ -32,13 +31,10 @@ constructor(
   private val termsOfServiceRepository: TermsOfServiceRepository
 ) : AbstractViewModel() {
   val agreeCheckboxChecked: MutableLiveData<Boolean> = MutableLiveData()
-  val termsOfServiceText: MutableStateFlow<String?> = MutableStateFlow(null)
 
-  init {
-    viewModelScope.launch {
-      // TODO(#1478): Either cache terms of service text in repository or display a loading spinner.
-      termsOfServiceText.emit(termsOfServiceRepository.getTermsOfService()?.text)
-    }
+  // TODO(#1478): Either cache terms of service text in repository or display a loading spinner.
+  val termsOfServiceText: LiveData<String?> = liveData {
+    emit(termsOfServiceRepository.getTermsOfService()?.text)
   }
 
   fun onButtonClicked() {

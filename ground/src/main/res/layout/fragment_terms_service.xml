@@ -56,7 +56,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:text="@{viewModel.getTermsOfServiceText()}"
+        android:text="@{viewModel.termsOfServiceText}"
         android:visibility="visible" />
     </ScrollView>
     <Button
