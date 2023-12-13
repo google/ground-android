@@ -399,7 +399,8 @@ fun Task.toLocalDataStoreObject(jobId: String?) =
     index = index,
     label = label,
     isRequired = isRequired,
-    taskType = TaskEntityType.fromTaskType(type)
+    taskType = TaskEntityType.fromTaskType(type),
+    isAddLoiTask = isAddLoiTask
   )
 
 fun TaskEntityAndRelations.toModelObject(): Task {
@@ -419,7 +420,8 @@ fun TaskEntityAndRelations.toModelObject(): Task {
     taskEntity.taskType.toTaskType(),
     taskEntity.label!!,
     taskEntity.isRequired,
-    multipleChoice
+    multipleChoice,
+    taskEntity.isAddLoiTask
   )
 }
 
