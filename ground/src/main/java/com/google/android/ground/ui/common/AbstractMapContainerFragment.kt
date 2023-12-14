@@ -91,10 +91,16 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     }
 
     // Map gestures
-    if (config.disableGestures) {
-      map.disableGestures()
-    } else {
+    if (config.allowGestures) {
       map.enableGestures()
+    } else {
+      map.disableGestures()
+    }
+
+    if (config.allowRotateGestures) {
+      map.enableRotation()
+    } else {
+      map.disableRotation()
     }
   }
 
