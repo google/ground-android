@@ -78,7 +78,7 @@ constructor(
       super.mapConfig.copy(
         showOfflineImagery = true,
         overrideMapType = MapType.TERRAIN,
-        disableGestures = true
+        allowGestures = false
       )
 
   /** Initialize the view model with the given arguments. */

@@ -86,7 +86,7 @@ internal constructor(
       super.mapConfig.copy(
         showOfflineImagery = false,
         overrideMapType = MapType.TERRAIN,
-        disableRotateGestures = false
+        allowRotateGestures = false
       )
 
   init {
