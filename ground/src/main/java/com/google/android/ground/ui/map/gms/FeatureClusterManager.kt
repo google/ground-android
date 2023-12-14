@@ -33,7 +33,7 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
     if (clusterItem != null) {
       updateItem(clusterItem)
     } else {
-      Timber.d("adding loi to cluster manager: $feature")
+      Timber.v("adding loi to cluster manager: $feature")
       addItem(FeatureClusterItem(feature))
     }
   }
@@ -43,7 +43,7 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
     val deletedIds = algorithm.items.map { it.feature.tag.id } - features.map { it.tag.id }.toSet()
     val deletedFeatures = algorithm.items.filter { deletedIds.contains(it.feature.tag.id) }
 
-    Timber.d("removing points: $deletedFeatures")
+    Timber.v("removing points: $deletedFeatures")
     removeItems(deletedFeatures)
   }
 
@@ -52,7 +52,7 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
     // TODO(#1895): Move this method to GoogleMapsFragment.
     val deletedFeatures = algorithm.items
 
-    Timber.d("removing points: $deletedFeatures")
+    Timber.v("removing points: $deletedFeatures")
     removeItems(deletedFeatures)
   }
 
