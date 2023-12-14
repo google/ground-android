@@ -48,5 +48,5 @@ internal constructor(
   ) {
 
   override val mapConfig: MapConfig
-    get() = super.mapConfig.copy(disableGestures = true)
+    get() = super.mapConfig.copy(allowGestures = false)
 }

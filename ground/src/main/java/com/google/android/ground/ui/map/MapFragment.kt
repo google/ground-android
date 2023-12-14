@@ -65,6 +65,12 @@ interface MapFragment {
   /** Disables all map gestures like pan and zoom. */
   fun disableGestures()
 
+  /** Enables map gestures for rotation. */
+  fun enableRotation()
+
+  /** Disables map gestures for rotation. */
+  fun disableRotation()
+
   /** Centers the map viewport around the specified [Coordinates]. */
   fun moveCamera(coordinates: Coordinates, shouldAnimate: Boolean)
 
