@@ -51,6 +51,9 @@ object Config {
    */
   const val CLUSTERING_ZOOM_THRESHOLD = 14f
 
+  // Maximum number of attempts for retrying unsuccessful media uploads.
+  const val MAX_MEDIA_UPLOAD_RETRY_COUNT = 5
+
   // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
   fun getMogSources(url: String) =
     listOf(MogSource("${url}/world-masked.tif", 0..7), MogSource("${url}/{x}/{y}.tif", 8..14))

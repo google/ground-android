@@ -15,42 +15,40 @@
  */
 package com.google.android.ground.persistence.sync
 
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.WorkManager
 import com.google.android.ground.persistence.local.LocalValueStore
-import com.google.android.ground.persistence.sync.PhotoSyncWorker.Companion.createInputData
-import com.google.android.ground.repository.UserMediaRepository
+import com.google.android.ground.persistence.sync.MediaUploadWorker.Companion.createInputData
 import javax.inject.Inject
-import timber.log.Timber
 
-/** Enqueues photo upload work to be done in the background. */
-class PhotoSyncWorkManager
+/** Enqueues media upload work to be performed in the background. */
+class MediaUploadWorkManager
 @Inject
 constructor(
   private val workManager: WorkManager,
   private val localValueStore: LocalValueStore,
-  private val userMediaRepository: UserMediaRepository
 ) : SyncService() {
-  override val workerClass: Class<PhotoSyncWorker>
-    get() = PhotoSyncWorker::class.java
+  override val workerClass: Class<MediaUploadWorker>
+    get() = MediaUploadWorker::class.java
 
   override fun preferredNetworkType(): NetworkType =
     if (localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly()) NetworkType.UNMETERED
     else NetworkType.CONNECTED
 
   /**
-   * Enqueues a worker that uploads selected/captured photo to the remote FirestoreStorage once a
-   * network connection is available. The returned `Completable` completes immediately as soon as
-   * the worker is added to the work queue (not once the sync job completes).
+   * Enqueues a worker that uploads media associated with submissions on a location of interest to
+   * the remote storage once a network connection is available.
+   *
+   * This method returns as soon as the worker is added to the work queue, not when the work
+   * completes.
    */
-  fun enqueueSyncWorker(remotePath: String) {
-    val localFile = userMediaRepository.getLocalFileFromRemotePath(remotePath)
-    if (!localFile.exists()) {
-      Timber.e("Local file not found: %s", localFile.path)
-      return
-    }
-    val inputData = createInputData(localFile.path, remotePath)
-    val request = buildWorkerRequest(inputData)
-    workManager.enqueue(request)
+  fun enqueueSyncWorker(locationOfInterestId: String) {
+    val workInputData = createInputData(locationOfInterestId)
+    workManager.enqueueUniqueWork(
+      MediaUploadWorker::class.java.name,
+      ExistingWorkPolicy.APPEND_OR_REPLACE,
+      buildWorkerRequest(workInputData)
+    )
   }
 }
