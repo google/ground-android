@@ -19,6 +19,8 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
+import androidx.work.ListenableWorker.Result.retry
+import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
@@ -60,15 +62,13 @@ constructor(
   override suspend fun doWork(): Result = withContext(Dispatchers.IO) { doWorkInternal() }
 
   private suspend fun doWorkInternal(): Result {
-    Timber.d("Connected. Syncing changes to location of interest $locationOfInterestId")
     return try {
       val mutations = getPendingOrEligibleFailedMutations()
-      Timber.d("Attempting to sync ${mutations.size} mutations")
-      val result = processMutations(mutations)
-      return if (result) Result.success() else Result.retry()
+      Timber.d("Syncing ${mutations.size} changes for LOI $locationOfInterestId")
+      if (processMutations(mutations)) success() else retry()
     } catch (t: Throwable) {
-      Timber.e(t, "Error applying local mutations to remote for LOI $locationOfInterestId")
-      Result.retry()
+      Timber.e(t, "Failed to sync changes for LOI $locationOfInterestId")
+      retry()
     }
   }
 
