@@ -24,10 +24,6 @@ import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.ValueDelta
-import com.google.android.ground.model.submission.isNotNullOrEmpty
-import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
@@ -53,7 +49,7 @@ constructor(
   private val mutationRepository: MutationRepository,
   private val localUserStore: LocalUserStore,
   private val remoteDataStore: RemoteDataStore,
-  private val photoSyncWorkManager: PhotoSyncWorkManager
+  private val mediaUploadWorkManager: MediaUploadWorkManager
 ) : CoroutineWorker(context, params) {
 
   private val locationOfInterestId: String =
@@ -65,7 +61,9 @@ constructor(
     try {
       val mutations = getPendingOrEligibleFailedMutations()
       Timber.d("Syncing ${mutations.size} changes for LOI $locationOfInterestId")
-      if (processMutations(mutations)) success() else retry()
+      val result = processMutations(mutations)
+      mediaUploadWorkManager.enqueueSyncWorker(locationOfInterestId)
+      if (result) success() else retry()
     } catch (t: Throwable) {
       Timber.e(t, "Failed to sync changes for LOI $locationOfInterestId")
       retry()
@@ -120,29 +118,13 @@ constructor(
     return try {
       mutationRepository.markAsInProgress(mutations)
       remoteDataStore.applyMutations(mutations, user)
-      processPhotoFieldMutations(mutations)
-      mutationRepository.finalizePendingMutations(mutations)
+      mutationRepository.finalizePendingMutationsForMediaUpload(mutations)
       true
     } catch (t: Throwable) {
       mutationRepository.markAsFailed(mutations, t)
       false
     }
   }
-
-  /**
-   * Filters all mutations containing submission mutations with changes to photo fields and uploads
-   * to remote storage.
-   */
-  private fun processPhotoFieldMutations(mutations: List<Mutation>) =
-    mutations
-      .filterIsInstance<SubmissionMutation>()
-      .flatMap { mutation: Mutation -> (mutation as SubmissionMutation).deltas }
-      .filter { (_, taskType, newValue): ValueDelta ->
-        taskType === Task.Type.PHOTO && newValue.isNotNullOrEmpty()
-      }
-      // TODO: Instead of using toString(), add a method getSerializedValue() in Value.
-      .map { (_, _, newValue): ValueDelta -> newValue.toString() }
-      .forEach { remotePath: String -> photoSyncWorkManager.enqueueSyncWorker(remotePath) }
 
   private suspend fun getUser(userId: String): User? {
     val user = localUserStore.getUserOrNull(userId)

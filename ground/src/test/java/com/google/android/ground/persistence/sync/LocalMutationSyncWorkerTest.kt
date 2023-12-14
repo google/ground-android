@@ -57,7 +57,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
   private lateinit var context: Context
 
-  @Mock private lateinit var mockPhotoSyncWorkManager: PhotoSyncWorkManager
+  @Mock private lateinit var mockMediaUploadWorkManager: MediaUploadWorkManager
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var localLocationOfInterestStore: LocalLocationOfInterestStore
@@ -79,7 +79,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
           mutationRepository,
           localUserStore,
           fakeRemoteDataStore,
-          mockPhotoSyncWorkManager
+          mockMediaUploadWorkManager
         )
     }
 
@@ -177,7 +177,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
       .that(mutationRepository.getMutations(TEST_LOI_ID, IN_PROGRESS))
       .hasSize(inProgress)
     assertWithMessage("Completed mutations count incorrect")
-      .that(mutationRepository.getMutations(TEST_LOI_ID, COMPLETED))
+      .that(mutationRepository.getMutations(TEST_LOI_ID, MEDIA_UPLOAD_PENDING))
       .hasSize(complete)
 
     val failedMutations = mutationRepository.getMutations(TEST_LOI_ID, FAILED)

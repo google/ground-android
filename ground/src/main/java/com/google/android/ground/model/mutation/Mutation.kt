@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.model.mutation
 
-import java.util.*
+import java.util.Date
 
 /**
  * Represents a mutation that can be applied to local data and queued for sync with the remote data
@@ -56,6 +56,18 @@ sealed class Mutation {
 
     /** Sync currently in progress. */
     IN_PROGRESS,
+
+    /**
+     * Upload of media associated with a given mutation is pending. Pending includes failed sync
+     * attempts pending retry.
+     */
+    MEDIA_UPLOAD_PENDING,
+
+    /** Upload of media associated with a given mutation is in progress. */
+    MEDIA_UPLOAD_IN_PROGRESS,
+
+    /** Upload of media associated with a given mutation is awaiting another attempt. */
+    MEDIA_UPLOAD_AWAITING_RETRY,
 
     /** Sync complete. */
     COMPLETED,
