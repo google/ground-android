@@ -52,7 +52,7 @@ class PolygonDrawingTaskFragmentTest :
     Task(
       id = "task_1",
       index = 0,
-      type = Task.Type.DRAW_POLYGON,
+      type = Task.Type.DRAW_AREA,
       label = "Task for drawing a polygon",
       isRequired = false
     )

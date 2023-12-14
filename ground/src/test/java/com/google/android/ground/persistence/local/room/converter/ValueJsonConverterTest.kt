@@ -143,7 +143,7 @@ class ValueJsonConverterTest(
           pointGeometryTaskResponseString
         ),
         arrayOf(
-          FakeData.newTask(type = Task.Type.DRAW_POLYGON),
+          FakeData.newTask(type = Task.Type.DRAW_AREA),
           polygonGeometryTaskResponse,
           polygonGeometryTaskResponseString
         ),
