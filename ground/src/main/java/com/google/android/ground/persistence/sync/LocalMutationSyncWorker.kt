@@ -61,8 +61,8 @@ constructor(
 
   override suspend fun doWork(): Result = withContext(Dispatchers.IO) { doWorkInternal() }
 
-  private suspend fun doWorkInternal(): Result {
-    return try {
+  private suspend fun doWorkInternal(): Result =
+    try {
       val mutations = getPendingOrEligibleFailedMutations()
       Timber.d("Syncing ${mutations.size} changes for LOI $locationOfInterestId")
       if (processMutations(mutations)) success() else retry()
@@ -70,7 +70,6 @@ constructor(
       Timber.e(t, "Failed to sync changes for LOI $locationOfInterestId")
       retry()
     }
-  }
 
   /**
    * Attempts to fetch all mutations from the [MutationRepository] that are in `PENDING` state or in
