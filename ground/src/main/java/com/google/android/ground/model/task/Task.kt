@@ -30,8 +30,10 @@ constructor(
   val type: Type,
   val label: String,
   val isRequired: Boolean,
-  val multipleChoice: MultipleChoice? = null
+  val multipleChoice: MultipleChoice? = null,
+  val isAddLoiTask: Boolean = false
 ) {
+
   /**
    * Task type names as they appear in the remote db, but in uppercase. DO NOT RENAME! TODO: Define
    * these in data layer!

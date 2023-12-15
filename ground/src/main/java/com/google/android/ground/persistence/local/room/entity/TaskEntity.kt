@@ -37,5 +37,6 @@ data class TaskEntity(
   @ColumnInfo(name = "task_type") val taskType: TaskEntityType,
   @ColumnInfo(name = "label") val label: String?,
   @ColumnInfo(name = "is_required") val isRequired: Boolean,
-  @ColumnInfo(name = "job_id") val jobId: String?
+  @ColumnInfo(name = "job_id") val jobId: String?,
+  @ColumnInfo(name = "is_add_loi_task") val isAddLoiTask: Boolean
 )
