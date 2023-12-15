@@ -33,8 +33,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
@@ -58,20 +60,29 @@ internal constructor(
   val surveyListState: MutableStateFlow<State?> = MutableStateFlow(null)
   private val _errorFlow: MutableSharedFlow<Int?> = MutableSharedFlow()
   val errorFlow: Flow<Int> = _errorFlow.asSharedFlow().filterNotNull()
+  private val _surveyList: MutableStateFlow<List<SurveyListItem>> = MutableStateFlow(listOf())
+  val surveyList: StateFlow<List<SurveyListItem>> = _surveyList
+
+  init {
+    externalScope.launch(ioDispatcher) { getSurveyList() }
+  }
 
   /** Returns a flow of [SurveyListItem] to be displayed to the user. */
-  suspend fun getSurveyList(): Flow<List<SurveyListItem>> =
-    surveyRepository
-      .getSurveyList(authManager.getAuthenticatedUser())
-      .onStart { setLoading() }
-      .map { surveys -> surveys.sortedBy { it.title }.sortedByDescending { it.availableOffline } }
-      .onEach {
-        if (it.isEmpty()) {
-          setNotFound()
-        } else {
-          setLoaded()
+  private suspend fun getSurveyList() {
+    _surveyList.value =
+      surveyRepository
+        .getSurveyList(authManager.getAuthenticatedUser())
+        .onStart { setLoading() }
+        .map { surveys -> surveys.sortedBy { it.title }.sortedByDescending { it.availableOffline } }
+        .onEach {
+          if (it.isEmpty()) {
+            setNotFound()
+          } else {
+            setLoaded()
+          }
         }
-      }
+        .first()
+  }
 
   /** Triggers the specified survey to be loaded and activated. */
   fun activateSurvey(surveyId: String) =
@@ -92,7 +103,10 @@ internal constructor(
   }
 
   fun deleteSurvey(surveyId: String) {
-    externalScope.launch(ioDispatcher) { surveyRepository.removeOfflineSurvey(surveyId) }
+    externalScope.launch(ioDispatcher) {
+      surveyRepository.removeOfflineSurvey(surveyId)
+      getSurveyList()
+    }
   }
 
   fun signOut() {
