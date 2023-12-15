@@ -83,9 +83,8 @@ internal constructor(
   private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
   private val job: Job =
     activeSurvey.getJob(requireNotNull(jobId)) ?: error("couldn't retrieve job for $jobId")
-  //  TODO: Hide add LOI task if loiId  == null
-  //  TODO: Add special instructions to add LOI task
-  val tasks: List<Task> = job.tasksSorted
+  // LOI creation task is included only on "new data collection site" flow..
+  val tasks: List<Task> = job.tasksSorted.filter { loiId == null || !it.isAddLoiTask }
 
   val surveyId: String = surveyRepository.lastActiveSurveyId
 
