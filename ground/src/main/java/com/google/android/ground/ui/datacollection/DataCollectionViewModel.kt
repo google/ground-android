@@ -61,6 +61,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -117,18 +118,23 @@ internal constructor(
 
   lateinit var submissionId: String
 
-  fun getTaskViewModel(position: Int): AbstractTaskViewModel {
+  fun getTaskViewModel(position: Int): AbstractTaskViewModel? {
     val viewModels = taskViewModels.value
 
     val task = tasks[position]
     if (position < viewModels.size) {
       return viewModels[position]
     }
-    val viewModel = viewModelFactory.create(getViewModelClass(task.type))
-    // TODO(#1146): Pass in the existing value if there is one.
-    viewModel.initialize(job, task, null)
-    addTaskViewModel(viewModel)
-    return viewModel
+    return try {
+      val viewModel = viewModelFactory.create(getViewModelClass(task.type))
+      // TODO(#1146): Pass in the existing value if there is one.
+      viewModel.initialize(job, task, null)
+      addTaskViewModel(viewModel)
+      viewModel
+    } catch (e: Exception) {
+      Timber.e("ignoring task with invalid type: $task.type")
+      null
+    }
   }
 
   private fun addTaskViewModel(taskViewModel: AbstractTaskViewModel) {

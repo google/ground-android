@@ -112,7 +112,14 @@ fun JobEntityAndRelations.toModelObject(): Job {
     jobEntity.style?.toModelObject(),
     jobEntity.name,
     taskMap.toPersistentMap(),
-    jobEntity.suggestLoiTaskType?.let { Task.Type.valueOf(it) }
+    jobEntity.suggestLoiTaskType?.let {
+      try {
+        Task.Type.valueOf(it)
+      } catch (e: Exception) {
+        Timber.e("unknown task type: $it")
+        Task.Type.UNKNOWN
+      }
+    }
   )
 }
 

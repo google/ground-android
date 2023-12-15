@@ -71,6 +71,11 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
     viewPager.isUserInputEnabled = false
     viewPager.offscreenPageLimit = 1
 
+    if (viewModel.tasks.isEmpty()) {
+      binding.tasksNotDefinedHint.visibility = View.VISIBLE
+      return
+    }
+
     loadTasks(viewModel.tasks)
     lifecycleScope.launch { viewModel.currentPosition.collect { onTaskChanged(it) } }
 
