@@ -129,5 +129,4 @@
   <string name="network_error_when_signing_in">Connect to the internet to sign in</string>
   <string name="camera_permissions_needed">You need to grant this application camera permissions to submit photos.</string>
   <string name="error_message">Something went wrong</string>
-  <string name="no_tasks_defined">There are no tasks defined for this Job. Contact the survey organizer.</string>
 </resources>
