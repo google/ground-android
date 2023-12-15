@@ -23,13 +23,14 @@ data class Job(
   val id: String,
   val style: Style? = null,
   val name: String? = null,
-  val strategy: DataCollectionStrategy,
   val tasks: Map<String, Task> = mapOf(),
+  val strategy: DataCollectionStrategy = DataCollectionStrategy.UNKNOWN
 ) {
   enum class DataCollectionStrategy {
     PREDEFINED,
     AD_HOC,
-    MIXED
+    MIXED,
+    UNKNOWN
   }
 
   val canDataCollectorsAddLois: Boolean
