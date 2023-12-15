@@ -75,19 +75,20 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     view.doOnAttach {
-      @Suppress("UNCHECKED_CAST")
-      val vm = dataCollectionViewModel.getTaskViewModel(position) as T? ?: return@doOnAttach
+      @Suppress("UNCHECKED_CAST") val vm = dataCollectionViewModel.getTaskViewModel(position) as? T
 
-      viewModel = vm
-      taskView.bind(this, viewModel)
-      taskView.addTaskView(onCreateTaskBody(layoutInflater))
+      if (vm != null) {
+        viewModel = vm
+        taskView.bind(this, viewModel)
+        taskView.addTaskView(onCreateTaskBody(layoutInflater))
 
-      // Add actions buttons after the view model is bound to the view.
-      addPreviousButton()
-      onCreateActionButtons()
-      onActionButtonsCreated()
+        // Add actions buttons after the view model is bound to the view.
+        addPreviousButton()
+        onCreateActionButtons()
+        onActionButtonsCreated()
 
-      onTaskViewAttached()
+        onTaskViewAttached()
+      }
     }
   }
 
