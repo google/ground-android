@@ -109,11 +109,11 @@ fun Job.toLocalDataStoreObject(surveyId: String): JobEntity =
 fun JobEntityAndRelations.toModelObject(): Job {
   val taskMap = taskEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
   return Job(
-    jobEntity.id,
-    jobEntity.style?.toModelObject(),
-    jobEntity.name,
-    taskMap.toPersistentMap(),
-    jobEntity.strategy.let { DataCollectionStrategy.valueOf(it) }
+    id = jobEntity.id,
+    style = jobEntity.style?.toModelObject(),
+    name = jobEntity.name,
+    strategy = jobEntity.strategy.let { DataCollectionStrategy.valueOf(it) },
+    tasks = taskMap.toPersistentMap()
   )
 }
 

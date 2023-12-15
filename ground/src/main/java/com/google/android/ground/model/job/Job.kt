@@ -23,8 +23,8 @@ data class Job(
   val id: String,
   val style: Style? = null,
   val name: String? = null,
+  val strategy: DataCollectionStrategy,
   val tasks: Map<String, Task> = mapOf(),
-  val strategy: DataCollectionStrategy = DataCollectionStrategy.MIXED
 ) {
   enum class DataCollectionStrategy {
     PREDEFINED,
