@@ -79,12 +79,15 @@ internal constructor(
 
   private val jobId: String? = savedStateHandle[TASK_JOB_ID_KEY]
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
+  /** True iff the user is expected to produce a new LOI in the current data collection flow. */
+  private val isAddLoiFlow = loiId == null
 
   private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
   private val job: Job =
     activeSurvey.getJob(requireNotNull(jobId)) ?: error("couldn't retrieve job for $jobId")
   // LOI creation task is included only on "new data collection site" flow..
-  val tasks: List<Task> = job.tasksSorted.filter { loiId == null || !it.isAddLoiTask }
+  val tasks: List<Task> =
+    if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
 
   val surveyId: String = surveyRepository.lastActiveSurveyId
 
