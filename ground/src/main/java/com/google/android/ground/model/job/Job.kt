@@ -48,5 +48,5 @@ fun Job.getDefaultColor(): Int =
     Color.parseColor(style?.color ?: "")
   } catch (t: Throwable) {
     Timber.w(t, "Invalid or missing color ${style?.color} in job $id")
-    0
+    Color.BLACK
   }
