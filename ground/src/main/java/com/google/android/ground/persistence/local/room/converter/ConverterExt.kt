@@ -116,8 +116,8 @@ fun JobEntityAndRelations.toModelObject(): Job {
       try {
         Task.Type.valueOf(it)
       } catch (e: Exception) {
-        Timber.e("unknown task type: $it")
-        Task.Type.UNKNOWN
+        Timber.e("unknown task type: $it, skipping")
+        null
       }
     }
   )
