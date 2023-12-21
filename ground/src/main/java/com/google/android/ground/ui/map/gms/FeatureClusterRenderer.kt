@@ -28,7 +28,6 @@ import com.google.android.ground.ui.map.gms.renderer.PointFeatureManager
 import com.google.android.ground.ui.map.gms.renderer.PolygonFeatureManager
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
-import timber.log.Timber
 
 /**
  * A cluster renderer for [FeatureClusterItem]s.
@@ -114,8 +113,9 @@ class FeatureClusterRenderer(
       .map { it.feature }
       .filter { it.geometry !is Point }
       .forEach { feature -> polygonFeatureManager.removeFeature(feature) }
+
     super.onBeforeClusterRendered(cluster, markerOptions)
-    Timber.d("MARKER_RENDER: onBeforeClusterRendered")
+
     with(markerOptions) {
       icon(createClusterIcon(cluster))
       zIndex(CLUSTER_Z)

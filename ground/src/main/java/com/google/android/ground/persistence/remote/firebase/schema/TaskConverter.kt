@@ -16,6 +16,7 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firebase.schema.MultipleChoiceConverter.toMultipleChoice
@@ -23,8 +24,6 @@ import timber.log.Timber
 
 /** Converts between Firestore nested objects and [Task] instances. */
 internal object TaskConverter {
-
-  private val suggestLoiTaskTypes = setOf(Task.Type.DROP_PIN, Task.Type.DRAW_AREA)
 
   fun toTask(id: String, em: TaskNestedObject): Task? {
     val type = toTaskType(em.type)
@@ -41,7 +40,8 @@ internal object TaskConverter {
       type,
       em.label!!,
       em.required != null && em.required,
-      multipleChoice
+      multipleChoice,
+      em.addLoiTask ?: false
     )
   }
 
@@ -60,13 +60,6 @@ internal object TaskConverter {
       else -> Task.Type.UNKNOWN
     }
 
-  fun toSuggestLoiTaskType(typeStr: String?): Task.Type? {
-    val taskType = toTaskType(typeStr)
-
-    return if (suggestLoiTaskTypes.contains(taskType)) {
-      taskType
-    } else {
-      null
-    }
-  }
+  fun toStrategy(strategyStr: String): Job.DataCollectionStrategy =
+    Job.DataCollectionStrategy.valueOf(strategyStr)
 }

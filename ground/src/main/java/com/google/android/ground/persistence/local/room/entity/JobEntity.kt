@@ -34,6 +34,6 @@ data class JobEntity(
   @PrimaryKey @ColumnInfo(name = "id") val id: String,
   @ColumnInfo(name = "name") val name: String?,
   @ColumnInfo(name = "survey_id") val surveyId: String?,
-  @ColumnInfo(name = "suggest_loi_task_type") val suggestLoiTaskType: String?,
+  @ColumnInfo(name = "strategy") val strategy: String,
   @Embedded(prefix = "style_") val style: StyleEntity?
 )
