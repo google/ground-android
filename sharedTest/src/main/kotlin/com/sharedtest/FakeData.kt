@@ -39,7 +39,13 @@ object FakeData {
   val TERMS_OF_SERVICE: TermsOfService =
     TermsOfService("TERMS_OF_SERVICE", "Fake Terms of Service text")
 
-  val JOB = Job(name = "Job", id = "JOB", style = Style("#000"))
+  val JOB =
+    Job(
+      name = "Job",
+      id = "JOB",
+      style = Style("#000"),
+      strategy = Job.DataCollectionStrategy.MIXED
+    )
 
   val USER = User("user_id", "user@gmail.com", "User")
 

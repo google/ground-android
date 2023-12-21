@@ -15,10 +15,8 @@
  */
 package com.google.android.ground.ui.datacollection
 
-import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.submission.SubmitDataUseCase
@@ -75,23 +73,21 @@ internal constructor(
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   private val savedStateHandle: SavedStateHandle,
-  private val resources: Resources,
   locationOfInterestRepository: LocationOfInterestRepository,
   surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
   private val jobId: String? = savedStateHandle[TASK_JOB_ID_KEY]
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
+  /** True iff the user is expected to produce a new LOI in the current data collection flow. */
+  private val isAddLoiFlow = loiId == null
 
   private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
   private val job: Job =
     activeSurvey.getJob(requireNotNull(jobId)) ?: error("couldn't retrieve job for $jobId")
-  val tasks: List<Task> = buildList {
-    if (job.suggestLoiTaskType != null && loiId == null) {
-      add(createSuggestLoiTask(job.suggestLoiTaskType))
-    }
-    addAll(job.tasksSorted)
-  }
+  // LOI creation task is included only on "new data collection site" flow..
+  val tasks: List<Task> =
+    if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
 
   val surveyId: String = surveyRepository.lastActiveSurveyId
 
@@ -202,9 +198,6 @@ internal constructor(
 
     return taskPosition == finalTaskPosition
   }
-
-  private fun createSuggestLoiTask(taskType: Task.Type): Task =
-    Task(id = "-1", index = -1, taskType, resources.getString(R.string.new_site), isRequired = true)
 
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"

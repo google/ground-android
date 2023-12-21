@@ -19,21 +19,29 @@ import android.graphics.Color
 import com.google.android.ground.model.task.Task
 import timber.log.Timber
 
-/**
- * @param suggestLoiTaskType the type of task used to suggest the LOI for this Job. Null if the job
- * is already associated with an LOI.
- */
 data class Job(
   val id: String,
   val style: Style? = null,
   val name: String? = null,
   val tasks: Map<String, Task> = mapOf(),
-  val suggestLoiTaskType: Task.Type? = null,
+  val strategy: DataCollectionStrategy = DataCollectionStrategy.UNKNOWN
 ) {
+  enum class DataCollectionStrategy {
+    PREDEFINED,
+    AD_HOC,
+    MIXED,
+    UNKNOWN
+  }
+
+  val canDataCollectorsAddLois: Boolean
+    get() = strategy != DataCollectionStrategy.PREDEFINED
+
   val tasksSorted: List<Task>
     get() = tasks.values.sortedBy { it.index }
 
   fun getTask(id: String): Task = tasks[id] ?: error("Unknown task id $id")
+
+  fun getAddLoiTask(): Task? = tasks.values.firstOrNull { it.isAddLoiTask }
 }
 
 fun Job.getDefaultColor(): Int =
@@ -41,5 +49,5 @@ fun Job.getDefaultColor(): Int =
     Color.parseColor(style?.color ?: "")
   } catch (t: Throwable) {
     Timber.w(t, "Invalid or missing color ${style?.color} in job $id")
-    0
+    Color.BLACK
   }

@@ -49,7 +49,7 @@ class PolygonFeatureManager @Inject constructor(@ApplicationContext context: Con
   }
 
   private fun render(feature: Feature, polygon: Polygon, color: Int, isSelected: Boolean) {
-    Timber.d("Adding polygon $feature")
+    Timber.v("Adding polygon $feature")
 
     val options = PolygonOptions()
     with(options) {

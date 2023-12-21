@@ -32,11 +32,11 @@ internal object JobConverter {
       }
     }
     return Job(
-      id,
-      obj.defaultStyle?.toStyle(),
-      obj.name,
-      taskMap.toPersistentMap(),
-      TaskConverter.toSuggestLoiTaskType(obj.suggestLoiTaskType)
+      id = id,
+      style = obj.defaultStyle?.toStyle(),
+      name = obj.name,
+      strategy = TaskConverter.toStrategy(obj.strategy),
+      tasks = taskMap.toPersistentMap()
     )
   }
 }

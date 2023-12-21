@@ -16,6 +16,7 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
+import com.google.android.ground.model.job.Job.DataCollectionStrategy.*
 import com.google.firebase.firestore.IgnoreExtraProperties
 
 /** Firestore representation of map layers. */
@@ -24,5 +25,5 @@ data class JobNestedObject(
   val defaultStyle: StyleNestedObject? = null,
   val name: String? = null,
   val tasks: Map<String, TaskNestedObject>? = null,
-  val suggestLoiTaskType: String? = null
+  val strategy: String = MIXED.toString()
 )

@@ -93,10 +93,10 @@ internal constructor(
   val loiClicks: MutableStateFlow<LocationOfInterest?> = MutableStateFlow(null)
 
   /**
-   * List of [Job] within the active survey of `suggestLoiType` and zoom level is clustering
-   * threshold or higher.
+   * List of [Job]s which allow LOIs to be added during field collection, populated only when zoomed
+   * in far enough.
    */
-  val suggestLoiJobs: Flow<List<Job>>
+  val adHocLoiJobs: Flow<List<Job>>
 
   /* UI Clicks */
   private val _zoomThresholdCrossed: MutableSharedFlow<Nil> = MutableSharedFlow()
@@ -127,13 +127,13 @@ internal constructor(
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
-    suggestLoiJobs =
+    adHocLoiJobs =
       activeSurvey
         .combine(isZoomedInFlow) { survey, isZoomedIn -> Pair(survey, isZoomedIn) }
         .flatMapLatest { (survey, isZoomedIn) ->
           flowOf(
             if (survey == null || !isZoomedIn) listOf()
-            else survey.jobs.filter { it.suggestLoiTaskType != null }
+            else survey.jobs.filter { it.canDataCollectorsAddLois }
           )
         }
   }
