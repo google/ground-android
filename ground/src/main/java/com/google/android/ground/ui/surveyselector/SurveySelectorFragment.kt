@@ -31,6 +31,7 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.ProgressDialogs
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /** User interface implementation of survey selector screen. */
@@ -40,6 +41,7 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
   private lateinit var viewModel: SurveySelectorViewModel
   private lateinit var binding: SurveySelectorFragBinding
   private lateinit var adapter: SurveyListAdapter
+  private lateinit var listUiJob: Job
   private var progressDialog: ProgressDialog? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +49,7 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
     viewModel = getViewModel(SurveySelectorViewModel::class.java)
     adapter = SurveyListAdapter(viewModel, this)
     // TODO(#2081): Merge the survey list flow and survey list state flow into a single stream.
-    lifecycleScope.launch { viewModel.getSurveyList().collect { adapter.updateData(it) } }
+    listUiJob = lifecycleScope.launch { viewModel.getSurveyList().collect { adapter.updateData(it) } }
     lifecycleScope.launch {
       viewModel.surveyListState.collect { state -> state?.let { handleSurveyListState(it) } }
     }
@@ -94,6 +96,11 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
       )
       show()
     }
+  }
+
+  fun activateSurvey(surveyId: String) {
+    listUiJob.cancel() // #2109 prevents UI jitter after survey selection
+    viewModel.activateSurvey(surveyId)
   }
 
   private fun handleSurveyListState(state: SurveySelectorViewModel.State) =
