@@ -112,7 +112,15 @@ fun JobEntityAndRelations.toModelObject(): Job {
     id = jobEntity.id,
     style = jobEntity.style?.toModelObject(),
     name = jobEntity.name,
-    strategy = jobEntity.strategy.let { DataCollectionStrategy.valueOf(it) },
+    strategy =
+      jobEntity.strategy.let {
+        try {
+          DataCollectionStrategy.valueOf(it)
+        } catch (e: IllegalArgumentException) {
+          Timber.e("unknown data collection strategy $it")
+          DataCollectionStrategy.UNKNOWN
+        }
+      },
     tasks = taskMap.toPersistentMap()
   )
 }
@@ -154,7 +162,8 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       geometry = geometry.getGeometry(),
       submissionCount = submissionCount,
       properties = properties,
-      job = survey.getJob(jobId = jobId)
+      job =
+        survey.getJob(jobId = jobId)
           ?: throw LocalDataConsistencyException(
             "Unknown jobId ${this.jobId} in location of interest ${this.id}"
           )
