@@ -75,9 +75,10 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     view.doOnAttach {
-      @Suppress("UNCHECKED_CAST")
-      viewModel = dataCollectionViewModel.getTaskViewModel(position) as T
+      @Suppress("UNCHECKED_CAST", "LabeledExpression")
+      val vm = dataCollectionViewModel.getTaskViewModel(position) as? T ?: return@doOnAttach
 
+      viewModel = vm
       taskView.bind(this, viewModel)
       taskView.addTaskView(onCreateTaskBody(layoutInflater))
 
