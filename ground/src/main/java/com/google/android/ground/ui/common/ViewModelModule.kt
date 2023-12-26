@@ -24,7 +24,7 @@ import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocatio
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskViewModel
-import com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
@@ -135,8 +135,8 @@ abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(DropAPinTaskViewModel::class)
-  abstract fun bindDropAPinTaskViewModel(viewModel: DropAPinTaskViewModel): ViewModel
+  @ViewModelKey(DropPinTaskViewModel::class)
+  abstract fun bindDropPinTaskViewModel(viewModel: DropPinTaskViewModel): ViewModel
 
   @Binds
   @IntoMap

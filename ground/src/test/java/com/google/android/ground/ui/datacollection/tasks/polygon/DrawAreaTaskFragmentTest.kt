@@ -32,7 +32,6 @@ import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith

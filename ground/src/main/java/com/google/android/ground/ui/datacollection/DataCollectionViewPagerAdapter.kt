@@ -23,7 +23,7 @@ import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocatio
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskFragment
@@ -49,7 +49,7 @@ constructor(
         Task.Type.TEXT -> TextTaskFragment()
         Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskFragment()
         Task.Type.PHOTO -> PhotoTaskFragment()
-        Task.Type.DROP_PIN -> DropAPinTaskFragment()
+        Task.Type.DROP_PIN -> DropPinTaskFragment()
         Task.Type.DRAW_AREA -> DrawAreaTaskFragment()
         Task.Type.NUMBER -> NumberTaskFragment()
         Task.Type.DATE -> DateTaskFragment()

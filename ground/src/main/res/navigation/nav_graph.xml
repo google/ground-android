@@ -106,7 +106,7 @@
 
     <fragment
       android:id="@+id/drop_a_pin_task_fragment"
-      android:name="com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskFragment"
+      android:name="com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskFragment"
       android:label="@string/collect_data"
       tools:layout="@layout/text_task_frag" />
 

@@ -30,7 +30,7 @@ import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import javax.inject.Inject
 
-class DropAPinTaskViewModel
+class DropPinTaskViewModel
 @Inject
 constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerator) :
   AbstractTaskViewModel(resources) {
