@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.submission
+package com.google.android.ground.ui.datacollection.tasks.location
 
 import android.location.Location
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.submission.GeometryTaskResult
 import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter
 import java.math.RoundingMode
 import java.text.DecimalFormat

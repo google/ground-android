@@ -16,7 +16,7 @@
 package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.submission.CaptureLocationTaskResult
+import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskResult
 
 /** Converts between [CaptureLocationTaskResult] and its equivalent remote representation. */
 object CaptureLocationResultConverter {

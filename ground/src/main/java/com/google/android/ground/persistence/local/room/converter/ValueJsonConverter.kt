@@ -17,7 +17,7 @@
 package com.google.android.ground.persistence.local.room.converter
 
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.submission.CaptureLocationTaskResult
+import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskResult
 import com.google.android.ground.model.submission.DateResponse
 import com.google.android.ground.model.submission.GeometryTaskResult
 import com.google.android.ground.model.submission.MultipleChoiceResponse
