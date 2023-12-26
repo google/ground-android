@@ -172,15 +172,14 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   }
 
   /** Returns a map geometry to be drawn based on given list of points. */
-  private fun createGeometry(coordinates: List<Coordinates>, isMarkedComplete: Boolean): Geometry {
-    return if (isMarkedComplete && coordinates.isComplete()) {
+  private fun createGeometry(coordinates: List<Coordinates>, isMarkedComplete: Boolean): Geometry =
+    if (isMarkedComplete && coordinates.isComplete()) {
       Polygon(LinearRing(coordinates))
     } else if (coordinates.isComplete()) {
       LinearRing(coordinates)
     } else {
       LineString(coordinates)
     }
-  }
 
   companion object {
     /** Min. distance in dp between two points for them be considered as overlapping. */
