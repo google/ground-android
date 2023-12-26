@@ -134,7 +134,7 @@
 
     <fragment
       android:id="@+id/polygon_task_fragment"
-      android:name="com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingTaskFragment"
+      android:name="com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskFragment"
       android:label="@string/collect_data"
       tools:layout="@layout/text_task_frag" />
 

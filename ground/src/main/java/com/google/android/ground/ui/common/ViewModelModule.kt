@@ -25,7 +25,7 @@ import com.google.android.ground.ui.datacollection.tasks.multiplechoice.Multiple
 import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskViewModel
-import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel
+import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import com.google.android.ground.ui.home.HomeScreenViewModel
@@ -50,8 +50,8 @@ import dagger.multibindings.IntoMap
 abstract class ViewModelModule {
   @Binds
   @IntoMap
-  @ViewModelKey(PolygonDrawingViewModel::class)
-  abstract fun bindPolygonDrawingViewModel(viewModel: PolygonDrawingViewModel): ViewModel
+  @ViewModelKey(DrawAreaTaskViewModel::class)
+  abstract fun bindDrawAreaTaskViewModel(viewModel: DrawAreaTaskViewModel): ViewModel
 
   @Binds
   @IntoMap

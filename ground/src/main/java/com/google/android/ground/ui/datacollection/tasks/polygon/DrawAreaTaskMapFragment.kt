@@ -27,8 +27,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint(AbstractMapFragmentWithControls::class)
-class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) :
-  Hilt_PolygonDrawingMapFragment() {
+class DrawAreaTaskMapFragment(private val viewModel: DrawAreaTaskViewModel) :
+  Hilt_DrawAreaTaskMapFragment() {
 
   private lateinit var mapViewModel: BaseMapViewModel
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
@@ -65,7 +65,7 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
   }
 
   companion object {
-    fun newInstance(viewModel: PolygonDrawingViewModel, map: MapFragment) =
-      PolygonDrawingMapFragment(viewModel).apply { this.map = map }
+    fun newInstance(viewModel: DrawAreaTaskViewModel, map: MapFragment) =
+      DrawAreaTaskMapFragment(viewModel).apply { this.map = map }
   }
 }

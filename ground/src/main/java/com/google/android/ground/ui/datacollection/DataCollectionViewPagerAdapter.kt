@@ -24,7 +24,7 @@ import com.google.android.ground.ui.datacollection.tasks.multiplechoice.Multiple
 import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskFragment
 import dagger.assisted.Assisted
@@ -50,7 +50,7 @@ constructor(
         Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskFragment()
         Task.Type.PHOTO -> PhotoTaskFragment()
         Task.Type.DROP_PIN -> DropAPinTaskFragment()
-        Task.Type.DRAW_AREA -> PolygonDrawingTaskFragment()
+        Task.Type.DRAW_AREA -> DrawAreaTaskFragment()
         Task.Type.NUMBER -> NumberTaskFragment()
         Task.Type.DATE -> DateTaskFragment()
         Task.Type.TIME -> TimeTaskFragment()
