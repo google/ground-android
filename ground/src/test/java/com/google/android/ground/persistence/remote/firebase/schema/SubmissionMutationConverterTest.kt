@@ -21,7 +21,6 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.GeometryTaskResult
 import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.NumberResponse
 import com.google.android.ground.model.submission.TextResponse
@@ -30,6 +29,8 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskResult
+import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskResult
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.GeoPoint
 import com.sharedtest.FakeData
@@ -77,10 +78,10 @@ class SubmissionMutationConverterTest {
 
   private val numberResponse = NumberResponse.fromNumber("123")
 
-  private val pointGeometryTaskResponse = GeometryTaskResult(Point(Coordinates(10.0, 20.0)))
+  private val dropPinTaskResult = DropPinTaskResult(Point(Coordinates(10.0, 20.0)))
 
-  private val polygonGeometryTaskResponse =
-    GeometryTaskResult(
+  private val drawAreaTaskResult =
+    DrawAreaTaskResult(
       Polygon(
         LinearRing(
           listOf(
@@ -122,12 +123,12 @@ class SubmissionMutationConverterTest {
           ValueDelta(
             taskId = "drop_pin_task",
             taskType = Task.Type.DROP_PIN,
-            newValue = pointGeometryTaskResponse
+            newValue = dropPinTaskResult
           ),
           ValueDelta(
             taskId = "draw_area_task",
             taskType = Task.Type.DRAW_AREA,
-            newValue = polygonGeometryTaskResponse
+            newValue = drawAreaTaskResult
           )
         )
     )

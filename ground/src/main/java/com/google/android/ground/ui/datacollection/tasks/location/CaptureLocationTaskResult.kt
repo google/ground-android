@@ -25,7 +25,7 @@ import java.text.DecimalFormat
 
 /** User-provided response to a "capture location" data collection [Task]. */
 // TODO(#2039): Refactor into DropPinResponse and CaptureLocationResponse.
-class CaptureLocationTaskResult
+data class CaptureLocationTaskResult
 constructor(
   val location: Point,
   val altitude: Double?, // in metres
