@@ -24,26 +24,23 @@ import java.text.DecimalFormat
 
 /** User-provided response to a "capture location" data collection [Task]. */
 // TODO(#2039): Refactor into DropPinResponse and CaptureLocationResponse.
-data class CaptureLocationResult
+class CaptureLocationResult
 constructor(
-  // TODO(#2041): Replace with `Coordinates`.
-  val geometry: Point?,
+  val location: Point,
   val altitude: Double?, // in metres
   val accuracy: Double? // in metres
-) : Value {
+) : GeometryTaskResponse(location) {
   override fun getDetailsText(): String {
-    if (geometry == null) return ""
-
     // TODO: Move to strings.xml for i18n
     val df = DecimalFormat("#.##")
     df.roundingMode = RoundingMode.DOWN
-    val coordinatesString = LatLngConverter.formatCoordinates(geometry.coordinates)
+    val coordinatesString = LatLngConverter.formatCoordinates(location.coordinates)
     val altitudeString = altitude?.let { df.format(it) } ?: "?"
     val accuracyString = accuracy?.let { df.format(it) } ?: "?"
     return "$coordinatesString\nAltitude: $altitudeString m\nAccuracy: $accuracyString m"
   }
 
-  override fun isEmpty(): Boolean = geometry == null
+  override fun isEmpty(): Boolean = false
 
   companion object {
     fun Location.toCaptureLocationResult(): CaptureLocationResult {
