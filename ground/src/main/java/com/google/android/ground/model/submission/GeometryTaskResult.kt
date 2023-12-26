@@ -25,7 +25,7 @@ import com.google.android.ground.model.geometry.Polygon
 /** A user-provided response to a geometry-based task ("drop a pin" or "draw an area"). */
 abstract class GeometryTaskResult(val geometry: Geometry) : Value {
 
-  // TODO(#1733): Figure out what should be the user visible text for geometry data.
+  // TODO(#1733): Move strings to view layer.
   override fun getDetailsText(): String =
     when (geometry) {
       is Point -> "Point data"
