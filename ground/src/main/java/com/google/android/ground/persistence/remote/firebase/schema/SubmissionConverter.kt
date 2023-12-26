@@ -125,10 +125,7 @@ internal object SubmissionConverter {
     check(map["type"] == "Point")
     val geometry = GeometryConverter.fromFirestoreMap(map).getOrNull()
     DataStoreException.checkNotNull(geometry, "Drop pin geometry null in remote db")
-    DataStoreException.checkType(
-      Point::class.java,
-      "Invalid geometry from drop pin task in remote db: ${geometry?.javaClass}"
-    )
+    DataStoreException.checkType(Point::class.java, geometry!!)
     data[taskId] = DropPinTaskResult(geometry as Point)
   }
 
@@ -137,10 +134,7 @@ internal object SubmissionConverter {
     check(map["type"] == "Polygon")
     val geometry = GeometryConverter.fromFirestoreMap(map).getOrNull()
     DataStoreException.checkNotNull(geometry, "Drop pin geometry null in remote db")
-    DataStoreException.checkType(
-      Polygon::class.java,
-      "Invalid geometry from drop pin task in remote db: ${geometry?.javaClass}"
-    )
+    DataStoreException.checkType(Polygon::class.java, geometry!!)
     data[taskId] = DrawAreaTaskResult(geometry as Polygon)
   }
 
