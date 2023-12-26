@@ -17,8 +17,8 @@ package com.google.android.ground.ui.datacollection.tasks.location
 
 import android.content.res.Resources
 import android.location.Location
-import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskResult.Companion.toCaptureLocationResult
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskResult.Companion.toCaptureLocationResult
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 

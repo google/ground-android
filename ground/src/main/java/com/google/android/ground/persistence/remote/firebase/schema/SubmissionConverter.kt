@@ -16,10 +16,11 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.DateResponse
-import com.google.android.ground.model.submission.GeometryTaskResult
 import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.NumberResponse
 import com.google.android.ground.model.submission.Submission
@@ -30,6 +31,8 @@ import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskResult
+import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskResult
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import java8.util.Objects
@@ -90,8 +93,8 @@ internal object SubmissionConverter {
       Task.Type.NUMBER -> putNumberResponse(taskId, obj, data)
       Task.Type.DATE -> putDateResponse(taskId, obj, data)
       Task.Type.TIME -> putTimeResponse(taskId, obj, data)
-      Task.Type.DROP_PIN -> putDropPinResponse(taskId, obj, data)
-      Task.Type.DRAW_AREA -> putGeometryTaskResponse(taskId, obj, data)
+      Task.Type.DROP_PIN -> putDropPinTaskResult(taskId, obj, data)
+      Task.Type.DRAW_AREA -> putDrawAreaTaskResult(taskId, obj, data)
       Task.Type.CAPTURE_LOCATION -> putCaptureLocationResult(taskId, obj, data)
       else -> throw DataStoreException("Unknown type " + task.type)
     }
@@ -117,22 +120,28 @@ internal object SubmissionConverter {
     TimeResponse.fromDate(value.toDate())?.let { r: Value -> data[taskId] = r }
   }
 
-  private fun putDropPinResponse(taskId: String, obj: Any, data: MutableMap<String, Value>) {
+  private fun putDropPinTaskResult(taskId: String, obj: Any, data: MutableMap<String, Value>) {
     val map = obj as HashMap<String, *>
     check(map["type"] == "Point")
-    val result = GeometryConverter.fromFirestoreMap(map).getOrNull()
-    if (result != null) {
-      data[taskId] = GeometryTaskResult(result)
-    }
+    val geometry = GeometryConverter.fromFirestoreMap(map).getOrNull()
+    DataStoreException.checkNotNull(geometry, "Drop pin geometry null in remote db")
+    DataStoreException.checkType(
+      Point::class.java,
+      "Invalid geometry from drop pin task in remote db: ${geometry?.javaClass}"
+    )
+    data[taskId] = DropPinTaskResult(geometry as Point)
   }
 
-  private fun putGeometryTaskResponse(taskId: String, obj: Any, data: MutableMap<String, Value>) {
+  private fun putDrawAreaTaskResult(taskId: String, obj: Any, data: MutableMap<String, Value>) {
     val map = obj as HashMap<String, *>
     check(map["type"] == "Polygon")
-    val result = GeometryConverter.fromFirestoreMap(map).getOrNull()
-    if (result != null) {
-      data[taskId] = GeometryTaskResult(result)
-    }
+    val geometry = GeometryConverter.fromFirestoreMap(map).getOrNull()
+    DataStoreException.checkNotNull(geometry, "Drop pin geometry null in remote db")
+    DataStoreException.checkType(
+      Polygon::class.java,
+      "Invalid geometry from drop pin task in remote db: ${geometry?.javaClass}"
+    )
+    data[taskId] = DrawAreaTaskResult(geometry as Polygon)
   }
 
   private fun putCaptureLocationResult(taskId: String, obj: Any, data: MutableMap<String, Value>) =

@@ -22,11 +22,9 @@ import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.GeometryValidator.isComplete
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
-import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
-import com.google.android.ground.model.submission.GeometryTaskResult
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -57,10 +55,10 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     featureFlow.stateIn(viewModelScope, SharingStarted.Lazily, null)
 
   /**
-   * List of [Point]s to be used for generating the [Geometry]. If [isMarkedComplete] is false, then
-   * the last vertex represents the map center and the second last vertex is the last added vertex.
+   * User-specified vertices of the area being drawn. If [isMarkedComplete] is false, then the last
+   * vertex represents the map center and the second last vertex is the last added vertex.
    */
-  private var vertices: List<Point> = listOf()
+  private var vertices: List<Coordinates> = listOf()
 
   /** Represents whether the user has completed drawing the polygon or not. */
   private var isMarkedComplete: Boolean = false
@@ -88,9 +86,9 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     val firstVertex = vertices.firstOrNull()
     var updatedTarget = target
     if (firstVertex != null && vertices.size > 2) {
-      val distance = calculateDistanceInPixels(firstVertex.coordinates, target)
+      val distance = calculateDistanceInPixels(firstVertex, target)
       if (distance <= DISTANCE_THRESHOLD_DP) {
-        updatedTarget = firstVertex.coordinates
+        updatedTarget = firstVertex
       }
     }
 
@@ -118,7 +116,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   /** Adds the last vertex to the polygon. */
   fun addLastVertex() {
     check(!isMarkedComplete) { "Attempted to add last vertex after completing the drawing" }
-    vertices.lastOrNull()?.let { addVertex(it.coordinates, false) }
+    vertices.lastOrNull()?.let { addVertex(it, false) }
   }
 
   /**
@@ -136,29 +134,29 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     }
 
     // Add the new vertex
-    updatedVertices.add(Point(vertex))
+    updatedVertices.add(vertex)
 
     // Render changes to UI
     updateVertices(updatedVertices.toImmutableList())
   }
 
-  private fun updateVertices(newVertices: List<Point>) {
+  private fun updateVertices(newVertices: List<Coordinates>) {
     this.vertices = newVertices
     refreshFeatures(newVertices, false)
   }
 
   fun onCompletePolygonButtonClick() {
-    check(vertices.map { it.coordinates }.isComplete()) { "Polygon is not complete" }
+    check(vertices.isComplete()) { "Polygon is not complete" }
     check(!isMarkedComplete) { "Already marked complete" }
 
     isMarkedComplete = true
 
     refreshFeatures(vertices, true)
-    setValue(GeometryTaskResult(createGeometry(vertices, true)))
+    setValue(DrawAreaTaskResult(Polygon(LinearRing(vertices))))
   }
 
   /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */
-  private fun refreshFeatures(vertices: List<Point>, isMarkedComplete: Boolean) {
+  private fun refreshFeatures(vertices: List<Coordinates>, isMarkedComplete: Boolean) {
     featureFlow.value =
       if (vertices.isEmpty()) {
         null
@@ -174,8 +172,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
   }
 
   /** Returns a map geometry to be drawn based on given list of points. */
-  private fun createGeometry(points: List<Point>, isMarkedComplete: Boolean): Geometry {
-    val coordinates = points.map { it.coordinates }
+  private fun createGeometry(coordinates: List<Coordinates>, isMarkedComplete: Boolean): Geometry {
     return if (isMarkedComplete && coordinates.isComplete()) {
       Polygon(LinearRing(coordinates))
     } else if (coordinates.isComplete()) {
