@@ -23,7 +23,7 @@ import java.text.DecimalFormat
 /** User-provided response to a "drop a pin" data collection [Task]. */
 class DropPinTaskResult constructor(val location: Point) : GeometryTaskResult(location) {
   override fun getDetailsText(): String {
-    // TODO(): Move to strings.xml for i18n
+    // TODO(#752): Move to strings.xml for i18n
     val df = DecimalFormat("#.##")
     df.roundingMode = RoundingMode.DOWN
     return LatLngConverter.formatCoordinates(location.coordinates) ?: ""
