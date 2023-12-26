@@ -19,7 +19,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.ground.MainViewModel
 import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
-import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationMapViewModel
+import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskMapViewModel
 import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskViewModel
@@ -155,8 +155,10 @@ abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(CaptureLocationMapViewModel::class)
-  abstract fun bindCaptureLocationMapViewModel(viewModel: CaptureLocationMapViewModel): ViewModel
+  @ViewModelKey(CaptureLocationTaskMapViewModel::class)
+  abstract fun bindCaptureLocationTaskMapViewModel(
+    viewModel: CaptureLocationTaskMapViewModel
+  ): ViewModel
 
   @Binds
   @IntoMap
