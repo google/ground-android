@@ -17,9 +17,8 @@
 package com.google.android.ground.persistence.local.room.converter
 
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskResult
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.submission.DateResponse
-import com.google.android.ground.model.submission.GeometryTaskResult
 import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.NumberResponse
 import com.google.android.ground.model.submission.PhotoResponse
@@ -31,6 +30,9 @@ import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.ACCURACY_KEY
 import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.ALTITUDE_KEY
 import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.GEOMETRY_KEY
+import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskResult
+import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskResult
+import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskResult
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -53,8 +55,9 @@ internal object ValueJsonConverter {
       is NumberResponse -> value.value
       is DateResponse -> dateToIsoString(value.date)
       is TimeResponse -> dateToIsoString(value.time)
-      is GeometryTaskResult -> GeometryWrapperTypeConverter.toString(value.geometry)
       is PhotoResponse -> value.getDetailsText()
+      is DrawAreaTaskResult -> GeometryWrapperTypeConverter.toString(value.geometry)
+      is DropPinTaskResult -> GeometryWrapperTypeConverter.toString(value.geometry)
       is CaptureLocationTaskResult ->
         JSONObject().apply {
           put("accuracy", value.accuracy)
@@ -104,11 +107,19 @@ internal object ValueJsonConverter {
         DataStoreException.checkType(String::class.java, obj)
         TimeResponse.fromDate(isoStringToDate(obj as String))
       }
-      Task.Type.DRAW_AREA,
+      Task.Type.DRAW_AREA -> {
+        DataStoreException.checkType(String::class.java, obj)
+        val geometry = GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
+        DataStoreException.checkNotNull(geometry, "Missing geometry in draw area task result")
+        DataStoreException.checkType(Polygon::class.java, geometry!!)
+        DrawAreaTaskResult(geometry as Polygon)
+      }
       Task.Type.DROP_PIN -> {
-        GeometryTaskResult.fromGeometry(
-          GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
-        )
+        DataStoreException.checkType(String::class.java, obj)
+        val geometry = GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
+        DataStoreException.checkNotNull(geometry, "Missing geometry in drop pin task result")
+        DataStoreException.checkType(Point::class.java, geometry!!)
+        DropPinTaskResult(geometry as Point)
       }
       Task.Type.CAPTURE_LOCATION -> {
         DataStoreException.checkType(JSONObject::class.java, obj)
