@@ -23,7 +23,7 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 
 /** A user-provided response to a geometry-based task ("drop a pin" or "draw an area"). */
-open class GeometryTaskResponse(val geometry: Geometry) : Value {
+abstract class GeometryTaskResult(val geometry: Geometry) : Value {
 
   // TODO(#1733): Figure out what should be the user visible text for geometry data.
   override fun getDetailsText(): String =
@@ -36,9 +36,4 @@ open class GeometryTaskResponse(val geometry: Geometry) : Value {
     }
 
   override fun isEmpty(): Boolean = false
-
-  companion object {
-    fun fromGeometry(geometry: Geometry?): GeometryTaskResponse? =
-      geometry?.let { GeometryTaskResponse(it) }
-  }
 }

@@ -17,8 +17,8 @@ package com.google.android.ground.ui.datacollection.tasks.location
 
 import android.content.res.Resources
 import android.location.Location
-import com.google.android.ground.model.submission.CaptureLocationResult
-import com.google.android.ground.model.submission.CaptureLocationResult.Companion.toCaptureLocationResult
+import com.google.android.ground.model.submission.CaptureLocationTaskResult
+import com.google.android.ground.model.submission.CaptureLocationTaskResult.Companion.toCaptureLocationResult
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class CaptureLocationTaskViewModel @Inject constructor(resources: Resources) :
   AbstractTaskViewModel(resources) {
 
-  private val lastLocation = MutableStateFlow<CaptureLocationResult?>(null)
+  private val lastLocation = MutableStateFlow<CaptureLocationTaskResult?>(null)
 
   suspend fun updateLocation(location: Location) {
     lastLocation.emit(location.toCaptureLocationResult())

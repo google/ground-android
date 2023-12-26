@@ -26,7 +26,7 @@ import com.google.android.ground.R
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.CaptureLocationResult
+import com.google.android.ground.model.submission.CaptureLocationTaskResult
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -161,6 +161,6 @@ class CaptureLocationTaskFragmentTest :
     private const val ACCURACY = 5.0
     private const val ALTITUDE = 150.0
     private val GEOMETRY = Point(Coordinates(LATITUDE, LONGITUDE))
-    private val TASK_DATA = CaptureLocationResult(GEOMETRY, ALTITUDE, ACCURACY)
+    private val TASK_DATA = CaptureLocationTaskResult(GEOMETRY, ALTITUDE, ACCURACY)
   }
 }

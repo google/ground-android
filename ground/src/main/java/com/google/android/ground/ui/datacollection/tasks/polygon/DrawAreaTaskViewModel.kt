@@ -26,7 +26,7 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
-import com.google.android.ground.model.submission.GeometryTaskResponse
+import com.google.android.ground.model.submission.GeometryTaskResult
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -154,7 +154,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     isMarkedComplete = true
 
     refreshFeatures(vertices, true)
-    setValue(GeometryTaskResponse(createGeometry(vertices, true)))
+    setValue(GeometryTaskResult(createGeometry(vertices, true)))
   }
 
   /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */

@@ -23,7 +23,7 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
-import com.google.android.ground.model.submission.GeometryTaskResponse
+import com.google.android.ground.model.submission.GeometryTaskResult
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -117,7 +117,7 @@ class DrawAreaTaskFragmentTest :
     onView(withText("Complete")).perform(click())
 
     hasValue(
-      GeometryTaskResponse(
+      GeometryTaskResult(
         Polygon(
           LinearRing(
             listOf(

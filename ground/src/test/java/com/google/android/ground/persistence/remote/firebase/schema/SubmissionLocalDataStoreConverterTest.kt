@@ -24,7 +24,7 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.submission.GeometryTaskResponse
+import com.google.android.ground.model.submission.GeometryTaskResult
 import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.SubmissionData
@@ -259,9 +259,9 @@ class SubmissionLocalDataStoreConverterTest {
               listOf("optionA", "optionB")
             ),
           "task4" to TextResponse("Photo URL"),
-          "task5" to GeometryTaskResponse(Point(Coordinates(10.0, 20.0))),
+          "task5" to GeometryTaskResult(Point(Coordinates(10.0, 20.0))),
           "task6" to
-            GeometryTaskResponse(
+            GeometryTaskResult(
               Polygon(
                 LinearRing(
                   listOf(

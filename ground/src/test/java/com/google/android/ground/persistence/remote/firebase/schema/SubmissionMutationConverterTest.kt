@@ -21,7 +21,7 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.GeometryTaskResponse
+import com.google.android.ground.model.submission.GeometryTaskResult
 import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.NumberResponse
 import com.google.android.ground.model.submission.TextResponse
@@ -77,10 +77,10 @@ class SubmissionMutationConverterTest {
 
   private val numberResponse = NumberResponse.fromNumber("123")
 
-  private val pointGeometryTaskResponse = GeometryTaskResponse(Point(Coordinates(10.0, 20.0)))
+  private val pointGeometryTaskResponse = GeometryTaskResult(Point(Coordinates(10.0, 20.0)))
 
   private val polygonGeometryTaskResponse =
-    GeometryTaskResponse(
+    GeometryTaskResult(
       Polygon(
         LinearRing(
           listOf(

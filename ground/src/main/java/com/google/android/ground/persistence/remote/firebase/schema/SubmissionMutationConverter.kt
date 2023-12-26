@@ -83,10 +83,10 @@ internal object SubmissionMutationConverter {
       is DateResponse -> {
         value.date
       }
-      is GeometryTaskResponse -> {
+      is GeometryTaskResult -> {
         GeometryConverter.toFirestoreMap(value.geometry).getOrThrow()
       }
-      is CaptureLocationResult -> {
+      is CaptureLocationTaskResult -> {
         CaptureLocationResultConverter.toFirestoreMap(value).getOrThrow()
       }
       else -> {

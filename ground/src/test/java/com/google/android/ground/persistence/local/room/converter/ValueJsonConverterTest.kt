@@ -20,7 +20,7 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.submission.DateResponse
-import com.google.android.ground.model.submission.GeometryTaskResponse
+import com.google.android.ground.model.submission.GeometryTaskResult
 import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.NumberResponse
 import com.google.android.ground.model.submission.TextResponse
@@ -89,12 +89,12 @@ class ValueJsonConverterTest(
       }
 
     private val pointGeometryTaskResponse =
-      GeometryTaskResponse.fromGeometry(Point(Coordinates(10.0, 20.0)))
+      GeometryTaskResult.fromGeometry(Point(Coordinates(10.0, 20.0)))
 
     private const val pointGeometryTaskResponseString = "HQoFcG9pbnQSFAoSCQAAAAAAACRAEQAAAAAAADRA\n"
 
     private val polygonGeometryTaskResponse =
-      GeometryTaskResponse.fromGeometry(
+      GeometryTaskResult.fromGeometry(
         Polygon(
           LinearRing(
             listOf(

@@ -19,7 +19,7 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.submission.DateResponse
-import com.google.android.ground.model.submission.GeometryTaskResponse
+import com.google.android.ground.model.submission.GeometryTaskResult
 import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.NumberResponse
 import com.google.android.ground.model.submission.Submission
@@ -122,7 +122,7 @@ internal object SubmissionConverter {
     check(map["type"] == "Point")
     val result = GeometryConverter.fromFirestoreMap(map).getOrNull()
     if (result != null) {
-      data[taskId] = GeometryTaskResponse(result)
+      data[taskId] = GeometryTaskResult(result)
     }
   }
 
@@ -131,7 +131,7 @@ internal object SubmissionConverter {
     check(map["type"] == "Polygon")
     val result = GeometryConverter.fromFirestoreMap(map).getOrNull()
     if (result != null) {
-      data[taskId] = GeometryTaskResponse(result)
+      data[taskId] = GeometryTaskResult(result)
     }
   }
 

@@ -17,9 +17,9 @@
 package com.google.android.ground.persistence.local.room.converter
 
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.submission.CaptureLocationResult
+import com.google.android.ground.model.submission.CaptureLocationTaskResult
 import com.google.android.ground.model.submission.DateResponse
-import com.google.android.ground.model.submission.GeometryTaskResponse
+import com.google.android.ground.model.submission.GeometryTaskResult
 import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.NumberResponse
 import com.google.android.ground.model.submission.PhotoResponse
@@ -53,9 +53,9 @@ internal object ValueJsonConverter {
       is NumberResponse -> value.value
       is DateResponse -> dateToIsoString(value.date)
       is TimeResponse -> dateToIsoString(value.time)
-      is GeometryTaskResponse -> GeometryWrapperTypeConverter.toString(value.geometry)
+      is GeometryTaskResult -> GeometryWrapperTypeConverter.toString(value.geometry)
       is PhotoResponse -> value.getDetailsText()
-      is CaptureLocationResult ->
+      is CaptureLocationTaskResult ->
         JSONObject().apply {
           put("accuracy", value.accuracy)
           put("altitude", value.altitude)
@@ -106,7 +106,7 @@ internal object ValueJsonConverter {
       }
       Task.Type.DRAW_AREA,
       Task.Type.DROP_PIN -> {
-        GeometryTaskResponse.fromGeometry(
+        GeometryTaskResult.fromGeometry(
           GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
         )
       }
@@ -120,13 +120,15 @@ internal object ValueJsonConverter {
     }
   }
 
-  private fun captureLocationResultFromJsonObject(data: JSONObject): Result<CaptureLocationResult> =
+  private fun captureLocationResultFromJsonObject(
+    data: JSONObject
+  ): Result<CaptureLocationTaskResult> =
     Result.runCatching {
       val accuracy = data.getDouble(ACCURACY_KEY)
       val altitude = data.getDouble(ALTITUDE_KEY)
       val geometry =
         GeometryWrapperTypeConverter.fromString(data.getString(GEOMETRY_KEY))?.getGeometry()
-      CaptureLocationResult(geometry as Point, accuracy, altitude)
+      CaptureLocationTaskResult(geometry as Point, accuracy, altitude)
     }
 
   private fun toList(jsonArray: JSONArray): List<String> {
