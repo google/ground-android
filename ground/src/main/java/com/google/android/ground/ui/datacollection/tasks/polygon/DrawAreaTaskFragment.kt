@@ -34,7 +34,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint(AbstractTaskFragment::class)
-class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawingViewModel>() {
+class DrawAreaTaskFragment : Hilt_DrawAreaTaskFragment<DrawAreaTaskViewModel>() {
 
   @Inject lateinit var markerIconFactory: IconFactory
   @Inject lateinit var map: MapFragment
@@ -45,21 +45,17 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
   private lateinit var nextButton: TaskButton
   private lateinit var undoButton: TaskButton
 
-  private lateinit var polygonDrawingMapFragment: PolygonDrawingMapFragment
+  private lateinit var drawAreaTaskMapFragment: DrawAreaTaskMapFragment
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_draw)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
-    polygonDrawingMapFragment = PolygonDrawingMapFragment.newInstance(viewModel, map)
+    drawAreaTaskMapFragment = DrawAreaTaskMapFragment.newInstance(viewModel, map)
     parentFragmentManager
       .beginTransaction()
-      .add(
-        rowLayout.id,
-        polygonDrawingMapFragment,
-        PolygonDrawingMapFragment::class.java.simpleName
-      )
+      .add(rowLayout.id, drawAreaTaskMapFragment, DrawAreaTaskMapFragment::class.java.simpleName)
       .commit()
     return rowLayout
   }

@@ -26,7 +26,7 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.MapConfig
 import javax.inject.Inject
 
-class CaptureLocationMapViewModel
+class CaptureLocationTaskMapViewModel
 @Inject
 internal constructor(
   offlineAreaRepository: OfflineAreaRepository,

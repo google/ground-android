@@ -42,7 +42,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
 @SharedViewModel
-class PolygonDrawingViewModel
+class DrawAreaTaskViewModel
 @Inject
 internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources: Resources) :
   AbstractTaskViewModel(resources) {

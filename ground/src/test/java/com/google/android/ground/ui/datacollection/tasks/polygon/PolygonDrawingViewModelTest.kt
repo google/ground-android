@@ -21,7 +21,7 @@ import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel.Companion.DISTANCE_THRESHOLD_DP
+import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel.Companion.DISTANCE_THRESHOLD_DP
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.gms.GmsExt.getShellCoordinates
 import com.google.common.truth.Truth.assertThat
@@ -40,7 +40,7 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class PolygonDrawingViewModelTest : BaseHiltTest() {
-  @Inject lateinit var viewModel: PolygonDrawingViewModel
+  @Inject lateinit var viewModel: DrawAreaTaskViewModel
 
   private lateinit var featureTestObserver: TestObserver<Feature>
 

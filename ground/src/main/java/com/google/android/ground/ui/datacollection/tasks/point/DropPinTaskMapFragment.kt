@@ -31,8 +31,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint(AbstractMapFragmentWithControls::class)
-class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
-  Hilt_DropAPinMapFragment() {
+class DropPinTaskMapFragment(private val viewModel: DropPinTaskViewModel) :
+  Hilt_DropPinTaskMapFragment() {
 
   private lateinit var mapViewModel: BaseMapViewModel
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
@@ -74,7 +74,7 @@ class DropAPinMapFragment(private val viewModel: DropAPinTaskViewModel) :
   }
 
   companion object {
-    fun newInstance(viewModel: DropAPinTaskViewModel, map: MapFragment) =
-      DropAPinMapFragment(viewModel).apply { this.map = map }
+    fun newInstance(viewModel: DropPinTaskViewModel, map: MapFragment) =
+      DropPinTaskMapFragment(viewModel).apply { this.map = map }
   }
 }

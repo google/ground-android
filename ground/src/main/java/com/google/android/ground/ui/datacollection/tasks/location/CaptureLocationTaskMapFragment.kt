@@ -27,14 +27,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint(AbstractMapFragmentWithControls::class)
-class CaptureLocationMapFragment(private val viewModel: CaptureLocationTaskViewModel) :
-  Hilt_CaptureLocationMapFragment() {
+class CaptureLocationTaskMapFragment(private val viewModel: CaptureLocationTaskViewModel) :
+  Hilt_CaptureLocationTaskMapFragment() {
 
-  private lateinit var mapViewModel: CaptureLocationMapViewModel
+  private lateinit var mapViewModel: CaptureLocationTaskMapViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    mapViewModel = getViewModel(CaptureLocationMapViewModel::class.java)
+    mapViewModel = getViewModel(CaptureLocationTaskMapViewModel::class.java)
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
@@ -58,6 +58,6 @@ class CaptureLocationMapFragment(private val viewModel: CaptureLocationTaskViewM
 
   companion object {
     fun newInstance(viewModel: CaptureLocationTaskViewModel, map: MapFragment) =
-      CaptureLocationMapFragment(viewModel).apply { this.map = map }
+      CaptureLocationTaskMapFragment(viewModel).apply { this.map = map }
   }
 }

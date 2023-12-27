@@ -31,7 +31,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint(AbstractTaskFragment::class)
-class DropAPinTaskFragment : Hilt_DropAPinTaskFragment<DropAPinTaskViewModel>() {
+class DropPinTaskFragment : Hilt_DropPinTaskFragment<DropPinTaskViewModel>() {
 
   @Inject lateinit var markerIconFactory: IconFactory
   @Inject lateinit var map: MapFragment
@@ -43,7 +43,7 @@ class DropAPinTaskFragment : Hilt_DropAPinTaskFragment<DropAPinTaskViewModel>() 
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
     parentFragmentManager
       .beginTransaction()
-      .add(rowLayout.id, DropAPinMapFragment.newInstance(viewModel, map), "Drop a pin fragment")
+      .add(rowLayout.id, DropPinTaskMapFragment.newInstance(viewModel, map), "Drop a pin fragment")
       .commit()
     return rowLayout
   }
