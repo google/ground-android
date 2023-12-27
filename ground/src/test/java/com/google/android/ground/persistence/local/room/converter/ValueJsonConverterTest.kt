@@ -20,7 +20,6 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.submission.DateResponse
-import com.google.android.ground.model.submission.GeometryTaskResponse
 import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.NumberResponse
 import com.google.android.ground.model.submission.TextResponse
@@ -29,6 +28,8 @@ import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskResult
+import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskResult
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import java.util.Date
@@ -88,13 +89,13 @@ class ValueJsonConverterTest(
         put("option id 2")
       }
 
-    private val pointGeometryTaskResponse =
-      GeometryTaskResponse.fromGeometry(Point(Coordinates(10.0, 20.0)))
+    private val dropPinTaskResponse = DropPinTaskResult(Point(Coordinates(10.0, 20.0)))
 
-    private const val pointGeometryTaskResponseString = "HQoFcG9pbnQSFAoSCQAAAAAAACRAEQAAAAAAADRA\n"
+    private const val dropPinGeometryTaskResponseString =
+      "HQoFcG9pbnQSFAoSCQAAAAAAACRAEQAAAAAAADRA\n"
 
-    private val polygonGeometryTaskResponse =
-      GeometryTaskResponse.fromGeometry(
+    private val drawAreaTaskResponse =
+      DrawAreaTaskResult(
         Polygon(
           LinearRing(
             listOf(
@@ -139,12 +140,12 @@ class ValueJsonConverterTest(
         arrayOf(FakeData.newTask(type = Task.Type.TIME), TimeResponse.fromDate(DATE), DATE_STRING),
         arrayOf(
           FakeData.newTask(type = Task.Type.DROP_PIN),
-          pointGeometryTaskResponse,
-          pointGeometryTaskResponseString
+          dropPinTaskResponse,
+          dropPinGeometryTaskResponseString
         ),
         arrayOf(
           FakeData.newTask(type = Task.Type.DRAW_AREA),
-          polygonGeometryTaskResponse,
+          drawAreaTaskResponse,
           polygonGeometryTaskResponseString
         ),
       )

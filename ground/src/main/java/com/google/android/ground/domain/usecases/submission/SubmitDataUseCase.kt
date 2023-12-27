@@ -20,7 +20,7 @@ import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.submission.GeometryTaskResponse
+import com.google.android.ground.model.submission.GeometryTaskResult
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
@@ -68,7 +68,7 @@ constructor(
     val addLoiTaskId = deltas.indexOfFirst { it.taskId == addLoiTask.id }
     if (addLoiTaskId < 0) error("Add LOI task response missing")
     val addLoiValue = deltas.removeAt(addLoiTaskId).newValue
-    if (addLoiValue !is GeometryTaskResponse) error("Invalid add LOI task response")
+    if (addLoiValue !is GeometryTaskResult) error("Invalid add LOI task response")
     return saveLoi(addLoiValue.geometry, job, surveyId).id
   }
 

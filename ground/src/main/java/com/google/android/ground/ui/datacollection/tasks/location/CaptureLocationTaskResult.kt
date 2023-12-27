@@ -13,43 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.submission
+package com.google.android.ground.ui.datacollection.tasks.location
 
 import android.location.Location
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.submission.GeometryTaskResult
 import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
 /** User-provided response to a "capture location" data collection [Task]. */
 // TODO(#2039): Refactor into DropPinResponse and CaptureLocationResponse.
-data class CaptureLocationResult
+data class CaptureLocationTaskResult
 constructor(
-  // TODO(#2041): Replace with `Coordinates`.
-  val geometry: Point?,
+  val location: Point,
   val altitude: Double?, // in metres
   val accuracy: Double? // in metres
-) : Value {
+) : GeometryTaskResult(location) {
   override fun getDetailsText(): String {
-    if (geometry == null) return ""
-
     // TODO: Move to strings.xml for i18n
     val df = DecimalFormat("#.##")
     df.roundingMode = RoundingMode.DOWN
-    val coordinatesString = LatLngConverter.formatCoordinates(geometry.coordinates)
+    val coordinatesString = LatLngConverter.formatCoordinates(location.coordinates)
     val altitudeString = altitude?.let { df.format(it) } ?: "?"
     val accuracyString = accuracy?.let { df.format(it) } ?: "?"
     return "$coordinatesString\nAltitude: $altitudeString m\nAccuracy: $accuracyString m"
   }
 
-  override fun isEmpty(): Boolean = geometry == null
+  override fun isEmpty(): Boolean = false
 
   companion object {
-    fun Location.toCaptureLocationResult(): CaptureLocationResult {
+    fun Location.toCaptureLocationResult(): CaptureLocationTaskResult {
       val altitude = if (hasAltitude()) altitude else null
       val accuracy = if (hasAccuracy()) accuracy else null
-      return CaptureLocationResult(
+      return CaptureLocationTaskResult(
         Point(Coordinates(latitude, longitude)),
         altitude,
         accuracy?.toDouble()
