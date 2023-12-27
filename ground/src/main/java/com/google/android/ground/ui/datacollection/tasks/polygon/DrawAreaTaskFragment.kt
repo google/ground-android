@@ -21,6 +21,7 @@ import android.widget.LinearLayout
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.LineString.Companion.lineStringOf
 import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskButton
@@ -30,9 +31,8 @@ import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filterNotNull
 import javax.inject.Inject
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint(AbstractTaskFragment::class)
@@ -76,23 +76,17 @@ class DrawAreaTaskFragment : Hilt_DrawAreaTaskFragment<DrawAreaTaskViewModel>() 
 
   override fun onTaskViewAttached() {
     viewLifecycleOwner.lifecycleScope.launch {
-      viewModel.draftArea.filterNotNull().collectLatest { onFeatureUpdated(it) }
+      viewModel.draftArea.collectLatest { onFeatureUpdated(it) }
     }
   }
 
-  private fun onFeatureUpdated(feature: Feature) {
-    val geometry = feature.geometry
-    check(geometry is LineString) {
-      "Invalid area geometry type ${feature.geometry.javaClass}"
-    }
+  private fun onFeatureUpdated(feature: Feature?) {
+    val geometry = feature?.geometry ?: lineStringOf()
+    check(geometry is LineString) { "Invalid area geometry type ${geometry.javaClass}" }
 
-    val isGeometryEmpty = geometry.isEmpty()
-    val isClosedGeometry = geometry.isClosed()
-    val isMarkedComplete = viewModel.isMarkedComplete()
-
-    addPointButton.showIfTrue(!isClosedGeometry)
-    completeButton.showIfTrue(isClosedGeometry && !isMarkedComplete)
-    nextButton.showIfTrue(isMarkedComplete)
-    undoButton.showIfTrue(!isGeometryEmpty)
+    addPointButton.showIfTrue(!geometry.isClosed())
+    completeButton.showIfTrue(geometry.isClosed() && !viewModel.isMarkedComplete())
+    nextButton.showIfTrue(viewModel.isMarkedComplete())
+    undoButton.showIfTrue(!geometry.isEmpty())
   }
 }

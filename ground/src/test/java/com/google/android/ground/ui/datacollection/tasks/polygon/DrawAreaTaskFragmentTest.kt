@@ -106,7 +106,7 @@ class DrawAreaTaskFragmentTest :
   }
 
   @Test
-  fun testDrawPolygon() = runWithTestDispatcher {
+  fun testDrawArea() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = true))
 
     updateLastVertexAndAddPoint(COORDINATE_1)

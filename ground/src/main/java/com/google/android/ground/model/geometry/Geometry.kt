@@ -98,6 +98,10 @@ data class LineString(val coordinates: List<Coordinates>) : Geometry {
 
   fun isClosed(): Boolean =
     coordinates.size >= 4 && coordinates.firstOrNull() == coordinates.lastOrNull()
+
+  companion object {
+    fun lineStringOf(vararg coordinates: Coordinates) = LineString(coordinates.asList())
+  }
 }
 
 /**
