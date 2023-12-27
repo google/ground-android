@@ -16,10 +16,7 @@
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import android.content.res.Resources
-import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.model.geometry.Geometry
-import com.google.android.ground.model.geometry.GeometryValidator.isComplete
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
@@ -35,9 +32,7 @@ import com.google.android.ground.ui.map.FeatureType
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 
 @SharedViewModel
 class DrawAreaTaskViewModel
@@ -45,14 +40,9 @@ class DrawAreaTaskViewModel
 internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources: Resources) :
   AbstractTaskViewModel(resources) {
 
-  /**
-   * [Feature]s drawn by the user, but not yet saved.
-   *
-   * Can be one of LineString, LinearRing, or Polygon.
-   */
-  private val featureFlow: MutableStateFlow<Feature?> = MutableStateFlow(null)
-  val featureValue: StateFlow<Feature?> =
-    featureFlow.stateIn(viewModelScope, SharingStarted.Lazily, null)
+  /** Polygon [Feature] being drawn by the user. */
+  private val _draftArea: MutableStateFlow<Feature?> = MutableStateFlow(null)
+  val draftArea: StateFlow<Feature?> = _draftArea
 
   /**
    * User-specified vertices of the area being drawn. If [isMarkedComplete] is false, then the last
@@ -119,12 +109,7 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     vertices.lastOrNull()?.let { addVertex(it, false) }
   }
 
-  /**
-   * Adds a new vertex to the polygon.
-   *
-   * @param vertex
-   * @param shouldOverwriteLastVertex
-   */
+  /** Adds a new vertex to the polygon. */
   private fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean) {
     val updatedVertices = vertices.toMutableList()
 
@@ -142,44 +127,34 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
 
   private fun updateVertices(newVertices: List<Coordinates>) {
     this.vertices = newVertices
-    refreshFeatures(newVertices, false)
+    refreshMap()
   }
 
   fun onCompletePolygonButtonClick() {
-    check(vertices.isComplete()) { "Polygon is not complete" }
+    check(LineString(vertices).isClosed()) { "Polygon is not complete" }
     check(!isMarkedComplete) { "Already marked complete" }
 
     isMarkedComplete = true
 
-    refreshFeatures(vertices, true)
+    refreshMap()
     setValue(DrawAreaTaskResult(Polygon(LinearRing(vertices))))
   }
 
-  /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */
-  private fun refreshFeatures(vertices: List<Coordinates>, isMarkedComplete: Boolean) {
-    featureFlow.value =
+  /** Updates the [Feature] drawn on map based on the value of [vertices]. */
+  private fun refreshMap() {
+    _draftArea.value =
       if (vertices.isEmpty()) {
         null
       } else {
         Feature(
           id = uuidGenerator.generateUuid(),
           type = FeatureType.USER_POLYGON.ordinal,
-          geometry = createGeometry(vertices, isMarkedComplete),
+          geometry = LineString(vertices),
           style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
           clusterable = false
         )
       }
   }
-
-  /** Returns a map geometry to be drawn based on given list of points. */
-  private fun createGeometry(coordinates: List<Coordinates>, isMarkedComplete: Boolean): Geometry =
-    if (isMarkedComplete && coordinates.isComplete()) {
-      Polygon(LinearRing(coordinates))
-    } else if (coordinates.isComplete()) {
-      LinearRing(coordinates)
-    } else {
-      LineString(coordinates)
-    }
 
   companion object {
     /** Min. distance in dp between two points for them be considered as overlapping. */

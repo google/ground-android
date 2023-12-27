@@ -95,6 +95,9 @@ data class LineString(val coordinates: List<Coordinates>) : Geometry {
   override fun center(): Coordinates = coordinates.centerOrError()
 
   override fun isEmpty() = coordinates.isEmpty()
+
+  fun isClosed(): Boolean =
+    coordinates.size >= 4 && coordinates.firstOrNull() == coordinates.lastOrNull()
 }
 
 /**

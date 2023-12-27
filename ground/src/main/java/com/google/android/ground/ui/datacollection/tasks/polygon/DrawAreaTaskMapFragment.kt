@@ -48,7 +48,7 @@ class DrawAreaTaskMapFragment(private val viewModel: DrawAreaTaskViewModel) :
     }
 
     viewLifecycleOwner.lifecycleScope.launch {
-      viewModel.featureValue.collect { feature: Feature? ->
+      viewModel.draftArea.collect { feature: Feature? ->
         map.renderFeatures(if (feature == null) setOf() else setOf(feature))
       }
     }

@@ -46,7 +46,7 @@ class PolygonDrawingViewModelTest : BaseHiltTest() {
 
   override fun setUp() {
     super.setUp()
-    featureTestObserver = TestObserver.test(viewModel.featureValue.asLiveData())
+    featureTestObserver = TestObserver.test(viewModel.draftArea.asLiveData())
   }
 
   @Test
