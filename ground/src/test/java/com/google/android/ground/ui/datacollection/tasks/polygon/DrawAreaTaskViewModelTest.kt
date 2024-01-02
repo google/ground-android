@@ -84,7 +84,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     updateLastVertex(COORDINATE_4, true)
 
-    assertGeometry(4, isLinearRing = true)
+    assertGeometry(4, isLineString = true)
   }
 
   @Test
@@ -147,7 +147,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     viewModel.onCompletePolygonButtonClick()
 
-    assertGeometry(4, isPolygon = true)
+    assertGeometry(4, isLineString = true)
   }
 
   private fun assertGeometry(

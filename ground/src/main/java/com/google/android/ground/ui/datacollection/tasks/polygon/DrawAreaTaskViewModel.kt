@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import android.content.res.Resources
+import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
@@ -32,7 +33,9 @@ import com.google.android.ground.ui.map.FeatureType
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 
 @SharedViewModel
 class DrawAreaTaskViewModel
@@ -42,7 +45,8 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
 
   /** Polygon [Feature] being drawn by the user. */
   private val _draftArea: MutableStateFlow<Feature?> = MutableStateFlow(null)
-  val draftArea: StateFlow<Feature?> = _draftArea
+  val draftArea: StateFlow<Feature?> =
+    _draftArea.stateIn(viewModelScope, started = SharingStarted.Lazily, null)
 
   /**
    * User-specified vertices of the area being drawn. If [isMarkedComplete] is false, then the last

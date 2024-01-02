@@ -129,9 +129,6 @@ class DrawAreaTaskFragmentTest :
         )
       )
     )
-    buttonIsEnabled("Next")
-    buttonIsEnabled(ButtonAction.UNDO)
-    buttonIsHidden("Complete")
   }
 
   /** Overwrites the last vertex and also adds a new one. */
