@@ -22,8 +22,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
+import com.google.android.ground.databinding.AddLoiCardItemBinding
 import com.google.android.ground.databinding.LoiCardItemBinding
-import com.google.android.ground.databinding.SuggestLoiCardItemBinding
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.material.card.MaterialCardView
@@ -54,8 +54,8 @@ class MapCardAdapter(
         updateSubmissionCount
       )
     } else {
-      SuggestLoiViewHolder(
-        SuggestLoiCardItemBinding.inflate(layoutInflater, parent, false),
+      AddLoiCardViewHolder(
+        AddLoiCardItemBinding.inflate(layoutInflater, parent, false),
         canUserSubmitData
       )
     }
@@ -65,10 +65,10 @@ class MapCardAdapter(
     if (position <= indexOfLastLoi) {
       R.layout.loi_card_item
     } else {
-      R.layout.suggest_loi_card_item
+      R.layout.add_loi_card_item
     }
 
-  /** Binds [LocationOfInterest] data to [LoiViewHolder] or [SuggestLoiViewHolder]. */
+  /** Binds [LocationOfInterest] data to [LoiViewHolder] or [AddLoiCardViewHolder]. */
   override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
     val uiData = itemsList[position]
     val cardHolder = bindViewHolder(uiData, holder)
@@ -114,8 +114,8 @@ class MapCardAdapter(
       is MapCardUiData.LoiCardUiData -> {
         (holder as LoiViewHolder).apply { bind(uiData.loi) }
       }
-      is MapCardUiData.SuggestLoiCardUiData -> {
-        (holder as SuggestLoiViewHolder).apply { bind(uiData.job) }
+      is MapCardUiData.AddLoiCardUiData -> {
+        (holder as AddLoiCardViewHolder).apply { bind(uiData.job) }
       }
     }
 
@@ -152,9 +152,9 @@ class MapCardAdapter(
     }
   }
 
-  /** View item representing the Suggestion Loi Job data in the list. */
-  class SuggestLoiViewHolder(
-    internal val binding: SuggestLoiCardItemBinding,
+  /** View item representing the Add Loi Job data in the list. */
+  class AddLoiCardViewHolder(
+    internal val binding: AddLoiCardItemBinding,
     private val canUserSubmitData: Boolean
   ) : CardViewHolder(binding.root, binding.loiCard) {
 
