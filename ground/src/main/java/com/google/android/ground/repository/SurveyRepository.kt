@@ -34,10 +34,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 
@@ -48,6 +50,7 @@ private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000
  * data stores. For more details on this pattern and overall architecture, see
  * https://developer.android.com/jetpack/docs/guide.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class SurveyRepository
 @Inject
@@ -65,12 +68,13 @@ constructor(
       _selectedSurveyIdFlow.value = value
     }
 
-  @OptIn(ExperimentalCoroutinesApi::class)
   val activeSurveyFlow: StateFlow<Survey?> =
     _selectedSurveyIdFlow
       .flatMapLatest { id -> offlineSurvey(id) }
       .stateIn(externalScope, SharingStarted.Lazily, null)
 
+  val activeSurveyId: Flow<String?> =
+    activeSurveyFlow.transformLatest<Survey?, String> { it?.id }.distinctUntilChanged()
   /**
    * The currently active survey, or `null` if no survey is active. Updating this property causes
    * [lastActiveSurveyId] to be updated with the id of the specified survey, or `""` if the
