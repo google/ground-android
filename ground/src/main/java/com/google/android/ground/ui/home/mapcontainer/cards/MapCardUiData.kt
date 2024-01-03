@@ -23,5 +23,5 @@ sealed interface MapCardUiData {
 
   data class LoiCardUiData(val loi: LocationOfInterest) : MapCardUiData
 
-  data class SuggestLoiCardUiData(val job: Job) : MapCardUiData
+  data class AddLoiCardUiData(val job: Job) : MapCardUiData
 }
