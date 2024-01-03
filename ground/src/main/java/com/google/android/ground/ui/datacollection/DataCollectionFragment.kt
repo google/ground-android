@@ -46,7 +46,6 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
 
   private lateinit var binding: DataCollectionFragBinding
   private lateinit var progressBar: ProgressBar
-  private lateinit var guideline: Guideline
   private lateinit var viewPager: ViewPager2
 
   override fun onCreateView(
@@ -58,7 +57,6 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
     binding = DataCollectionFragBinding.inflate(inflater, container, false)
     viewPager = binding.pager
     progressBar = binding.progressBar
-    guideline = binding.progressBarGuideline
     getAbstractActivity().setSupportActionBar(binding.dataCollectionToolbar)
     return binding.root
   }
@@ -82,9 +80,6 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
           val buttonContainer = view.findViewById<View>(R.id.action_buttons_container) ?: return
           val anchorLocation = IntArray(2)
           buttonContainer.getLocationInWindow(anchorLocation)
-          val guidelineTop =
-            anchorLocation[1] - buttonContainer.rootWindowInsets.systemWindowInsetTop
-          guideline.setGuidelineBegin(guidelineTop)
         }
       }
     )
