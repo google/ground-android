@@ -31,12 +31,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 
@@ -57,22 +58,27 @@ constructor(
   private val networkManager: NetworkManager,
   @ApplicationScope private val externalScope: CoroutineScope
 ) {
-  private val _activeSurvey = MutableStateFlow<Survey?>(null)
+  private val _selectedSurveyIdFlow = MutableStateFlow<String?>(null)
+  var selectedSurveyId: String?
+    get() = _selectedSurveyIdFlow.value
+    set(value) {
+      _selectedSurveyIdFlow.value = value
+    }
 
-  val activeSurveyFlow: SharedFlow<Survey?> =
-    _activeSurvey.shareIn(externalScope, replay = 1, started = SharingStarted.Eagerly)
+  @OptIn(ExperimentalCoroutinesApi::class)
+  val activeSurveyFlow: StateFlow<Survey?> =
+    _selectedSurveyIdFlow
+      .flatMapLatest { id -> offlineSurvey(id) }
+      .stateIn(externalScope, SharingStarted.Lazily, null)
 
   /**
    * The currently active survey, or `null` if no survey is active. Updating this property causes
    * [lastActiveSurveyId] to be updated with the id of the specified survey, or `""` if the
    * specified survey is `null`.
    */
-  var activeSurvey: Survey?
-    get() = _activeSurvey.value
-    set(value) {
-      _activeSurvey.value = value
-      lastActiveSurveyId = value?.id ?: ""
-    }
+  var activeSurvey: Survey? = null
+    get() = activeSurveyFlow.value
+    private set
 
   val localSurveyListFlow: Flow<List<SurveyListItem>>
     get() = localSurveyStore.surveys.map { list -> list.map { it.toListItem(true) } }
@@ -88,6 +94,9 @@ constructor(
    * Returns the survey with the specified id from the local db, or `null` if not available offline.
    */
   suspend fun getOfflineSurvey(surveyId: String): Survey? = localSurveyStore.getSurveyById(surveyId)
+
+  private fun offlineSurvey(id: String?): Flow<Survey?> =
+    if (id == null) flowOf(null) else localSurveyStore.survey(id)
 
   /**
    * Loads the survey with the specified id from remote and writes to local db. If the survey isn't

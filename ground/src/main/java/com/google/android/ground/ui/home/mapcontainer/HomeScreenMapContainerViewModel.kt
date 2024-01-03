@@ -46,8 +46,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -107,7 +107,8 @@ internal constructor(
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     //  into the repository.
 
-    val activeSurvey = surveyRepository.activeSurveyFlow.distinctUntilChanged()
+    val activeSurvey = surveyRepository.activeSurveyFlow
+    viewModelScope.launch { activeSurvey.collect { Timber.e("Updated survey: $it") } }
 
     mapLoiFeatures =
       activeSurvey.flatMapLatest {
@@ -126,7 +127,9 @@ internal constructor(
           else loiRepository.getWithinBounds(survey, bounds)
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, listOf())
-
+    viewModelScope.launch {
+      loisInViewport.collect { Timber.e("Updated loisInViewport: ${it.firstOrNull()}") }
+    }
     adHocLoiJobs =
       activeSurvey
         .combine(isZoomedInFlow) { survey, isZoomedIn -> Pair(survey, isZoomedIn) }
@@ -136,6 +139,9 @@ internal constructor(
             else survey.jobs.filter { it.canDataCollectorsAddLois }
           )
         }
+    viewModelScope.launch {
+      adHocLoiJobs.collect { Timber.e("Updated adHocLoiJobs: $adHocLoiJobs") }
+    }
   }
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {

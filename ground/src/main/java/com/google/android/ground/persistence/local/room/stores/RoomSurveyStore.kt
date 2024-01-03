@@ -48,6 +48,8 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
   override val surveys: Flow<List<Survey>>
     get() = surveyDao.getAll().map { surveyEntities -> surveyEntities.map { it.toModelObject() } }
 
+  override fun survey(id: String): Flow<Survey?> = surveyDao.survey(id).map { it?.toModelObject() }
+
   /**
    * Attempts to update persisted data associated with a [Survey] in the local database. If the
    * provided survey does not exist, inserts the given survey into the database.
