@@ -39,14 +39,14 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class PolygonDrawingViewModelTest : BaseHiltTest() {
+class DrawAreaTaskViewModelTest : BaseHiltTest() {
   @Inject lateinit var viewModel: DrawAreaTaskViewModel
 
   private lateinit var featureTestObserver: TestObserver<Feature>
 
   override fun setUp() {
     super.setUp()
-    featureTestObserver = TestObserver.test(viewModel.featureValue.asLiveData())
+    featureTestObserver = TestObserver.test(viewModel.draftArea.asLiveData())
   }
 
   @Test
@@ -84,7 +84,7 @@ class PolygonDrawingViewModelTest : BaseHiltTest() {
 
     updateLastVertex(COORDINATE_4, true)
 
-    assertGeometry(4, isLinearRing = true)
+    assertGeometry(4, isLineString = true)
   }
 
   @Test
@@ -147,7 +147,7 @@ class PolygonDrawingViewModelTest : BaseHiltTest() {
 
     viewModel.onCompletePolygonButtonClick()
 
-    assertGeometry(4, isPolygon = true)
+    assertGeometry(4, isLineString = true)
   }
 
   private fun assertGeometry(

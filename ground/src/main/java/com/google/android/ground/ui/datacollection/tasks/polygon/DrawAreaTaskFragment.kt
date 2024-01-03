@@ -20,7 +20,8 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
-import com.google.android.ground.model.geometry.GeometryValidator.isClosed
+import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.LineString.Companion.lineStringOf
 import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskButton
@@ -31,6 +32,7 @@ import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint(AbstractTaskFragment::class)
@@ -74,18 +76,17 @@ class DrawAreaTaskFragment : Hilt_DrawAreaTaskFragment<DrawAreaTaskViewModel>() 
 
   override fun onTaskViewAttached() {
     viewLifecycleOwner.lifecycleScope.launch {
-      viewModel.featureValue.collect { onFeatureUpdated(it) }
+      viewModel.draftArea.collectLatest { onFeatureUpdated(it) }
     }
   }
 
   private fun onFeatureUpdated(feature: Feature?) {
-    val isGeometryEmpty = feature?.geometry?.isEmpty() ?: true
-    val isClosedGeometry = feature?.geometry.isClosed()
-    val isMarkedComplete = viewModel.isMarkedComplete()
+    val geometry = feature?.geometry ?: lineStringOf()
+    check(geometry is LineString) { "Invalid area geometry type ${geometry.javaClass}" }
 
-    addPointButton.showIfTrue(!isClosedGeometry)
-    completeButton.showIfTrue(isClosedGeometry && !isMarkedComplete)
-    nextButton.showIfTrue(isMarkedComplete)
-    undoButton.showIfTrue(!isGeometryEmpty)
+    addPointButton.showIfTrue(!geometry.isClosed())
+    completeButton.showIfTrue(geometry.isClosed() && !viewModel.isMarkedComplete())
+    nextButton.showIfTrue(viewModel.isMarkedComplete())
+    undoButton.showIfTrue(!geometry.isEmpty())
   }
 }

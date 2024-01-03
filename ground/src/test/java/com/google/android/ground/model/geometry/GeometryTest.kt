@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.persistence.local.room.converter
+package com.google.android.ground.model.geometry
 
-import com.google.android.ground.model.geometry.*
+import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.remote.firebase.schema.Path
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert
 import org.junit.Test
 
 class GeometryTest {
@@ -78,6 +79,38 @@ class GeometryTest {
     assertThat(multiPolygon).isEqualTo(multiPolygon.toLocalDataStoreObject().getGeometry())
   }
 
+  @Test
+  fun validateLinearRing_firstAndLastNotSame_throws() {
+    Assert.assertThrows("Invalid linear ring", InvalidGeometryException::class.java) {
+      LinearRing(OPEN_LOOP).validate()
+    }
+  }
+
+  @Test
+  fun validateLinearRing_empty_doesNothing() {
+    LinearRing(listOf()).validate()
+  }
+
+  @Test
+  fun validateLinearRing_firstAndLastSame_doesNothing() {
+    LinearRing(CLOSED_LOOP).validate()
+  }
+
+  @Test
+  fun isComplete_whenCountIsLessThanFour() {
+    assertThat(LineString(OPEN_LOOP).isClosed()).isFalse()
+  }
+
+  @Test
+  fun isComplete_whenCountIsFour_whenFirstAndLastAreNotSame() {
+    assertThat(LineString(OPEN_LOOP + COORDINATE_4).isClosed()).isFalse()
+  }
+
+  @Test
+  fun isComplete_whenCountIsFour_whenFirstAndLastAreSame() {
+    assertThat(LineString(CLOSED_LOOP).isClosed()).isTrue()
+  }
+
   private fun point(x: Double, y: Double) = Point(Coordinates(x, y))
 
   private fun linearRing(path: Path) = LinearRing(toCoordinateList(path))
@@ -89,4 +122,14 @@ class GeometryTest {
 
   private fun toCoordinateList(path: Path): List<Coordinates> =
     path.map { Coordinates(it.first, it.second) }
+
+  companion object {
+    private val COORDINATE_1 = Coordinates(10.0, 10.0)
+    private val COORDINATE_2 = Coordinates(20.0, 20.0)
+    private val COORDINATE_3 = Coordinates(30.0, 30.0)
+    private val COORDINATE_4 = Coordinates(40.0, 40.0)
+
+    private val OPEN_LOOP = listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3)
+    private val CLOSED_LOOP = listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1)
+  }
 }
