@@ -45,14 +45,14 @@ class FeatureClusterManagerTest : BaseHiltTest() {
 
   @Test
   fun addOrUpdateLocationOfInterest_addsALocationOfInterest() {
-    featureClusterManager.addFeature(FakeData.LOCATION_OF_INTEREST_FEATURE)
+    featureClusterManager.putFeature(FakeData.LOCATION_OF_INTEREST_FEATURE)
     assertThat(featureClusterManager.algorithm.items)
       .contains(FakeData.LOCATION_OF_INTEREST_CLUSTER_ITEM)
   }
 
   @Test
   fun removeStaleFeatures_removesStaleLOIs() {
-    featureClusterManager.addFeature(
+    featureClusterManager.putFeature(
       FakeData.LOCATION_OF_INTEREST_FEATURE.copy(
         tag = FakeData.LOCATION_OF_INTEREST_FEATURE.tag.copy(id = "id_1")
       )

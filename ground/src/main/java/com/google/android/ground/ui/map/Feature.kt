@@ -48,7 +48,11 @@ data class Feature(
     val flag: Boolean = false
   )
 
-  data class Style(@ColorInt val color: Int, val vertexStyle: VertexStyle? = VertexStyle.NONE)
+  data class Style(
+    @ColorInt val color: Int,
+    val vertexStyle: VertexStyle? = VertexStyle.NONE,
+    val selected: Boolean = false
+  )
 
   enum class VertexStyle {
     NONE,

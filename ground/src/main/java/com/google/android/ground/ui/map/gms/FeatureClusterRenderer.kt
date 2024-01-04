@@ -20,12 +20,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.ground.model.geometry.MultiPolygon
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.IconFactory
-import com.google.android.ground.ui.map.gms.renderer.PointFeatureManager
-import com.google.android.ground.ui.map.gms.renderer.PolygonFeatureManager
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
 
@@ -39,9 +34,7 @@ import com.google.maps.android.clustering.view.DefaultClusterRenderer
 class FeatureClusterRenderer(
   context: Context,
   map: GoogleMap,
-  private val clusterManager: FeatureClusterManager,
-  private val pointFeatureManager: PointFeatureManager,
-  private val polygonFeatureManager: PolygonFeatureManager,
+  clusterManager: FeatureClusterManager,
   private val clusteringZoomThreshold: Float,
   /**
    * The current zoom level to compare against the renderer's threshold.
@@ -53,45 +46,12 @@ class FeatureClusterRenderer(
   var zoom: Float
 ) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
 
-  var previousActiveLoiId: String? = null
   private val markerIconFactory: IconFactory = IconFactory(context)
 
   /** Sets appropriate styling for clustered items prior to rendering. */
   override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
-    when (item.feature.geometry) {
-      is Point -> {
-        pointFeatureManager.setMarkerOptions(markerOptions, item.isSelected(), item.style.color)
-      }
-      is Polygon,
-      is MultiPolygon -> {
-        // Don't render marker if this item is a polygon.
-        markerOptions.visible(false)
-        // Add polygon or multi-polygon when zooming in.
-        polygonFeatureManager.addFeature(item.feature, item.isSelected())
-      }
-      else -> {
-        throw UnsupportedOperationException(
-          "Unsupported feature type ${item.feature.geometry.javaClass.simpleName}"
-        )
-      }
-    }
-  }
-
-  override fun onClusterItemUpdated(item: FeatureClusterItem, marker: Marker) {
-    val feature = item.feature
-    when (feature.geometry) {
-      is Point ->
-        marker.setIcon(pointFeatureManager.getMarkerIcon(item.isSelected(), item.style.color))
-      is Polygon,
-      is MultiPolygon ->
-        // Update polygon or multi-polygon on change.
-        polygonFeatureManager.updateFeature(feature, item.isSelected())
-      else ->
-        throw UnsupportedOperationException(
-          "Unsupported feature type ${feature.geometry.javaClass.simpleName}"
-        )
-    }
-    super.onClusterItemUpdated(item, marker)
+    markerOptions.visible(false)
+    // TODO(!!!): Show/hide points or polygons when zooming in or out
   }
 
   /**
@@ -108,12 +68,6 @@ class FeatureClusterRenderer(
     cluster: Cluster<FeatureClusterItem>,
     markerOptions: MarkerOptions
   ) {
-    // Remove non-points before rendering cluster.
-    cluster.items
-      .map { it.feature }
-      .filter { it.geometry !is Point }
-      .forEach { feature -> polygonFeatureManager.removeFeature(feature) }
-
     super.onBeforeClusterRendered(cluster, markerOptions)
 
     with(markerOptions) {
@@ -124,30 +78,16 @@ class FeatureClusterRenderer(
 
   override fun onClusterUpdated(cluster: Cluster<FeatureClusterItem>, marker: Marker) {
     super.onClusterUpdated(cluster, marker)
+
+    // Update icon in case the # of list of items changes.
     marker.setIcon(createClusterIcon(cluster))
   }
 
   /**
    * Indicates whether or not a cluster should be rendered as a cluster or individual markers.
    *
-   * Only true when the current zoom level is lesser than a set threshold.
+   * Returns true iff the current zoom level is less than the configured threshold.
    */
   override fun shouldRenderAsCluster(cluster: Cluster<FeatureClusterItem>): Boolean =
     zoom < clusteringZoomThreshold
-
-  /**
-   * Determines if the renderer should re-render clusters.
-   *
-   * The default implementation will only re-render when the known clusters have changed. This
-   * implementation will also force a render if the actively selected map feature has changed.
-   */
-  override fun shouldRender(
-    oldClusters: MutableSet<out Cluster<FeatureClusterItem>>,
-    newClusters: MutableSet<out Cluster<FeatureClusterItem>>
-  ): Boolean =
-    previousActiveLoiId != clusterManager.activeLocationOfInterest ||
-      super.shouldRender(oldClusters, newClusters)
-
-  private fun FeatureClusterItem.isSelected() =
-    feature.tag.id == clusterManager.activeLocationOfInterest
 }
