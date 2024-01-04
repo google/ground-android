@@ -45,7 +45,7 @@ constructor(@ApplicationContext context: Context, bitmapUtil: BitmapUtil) : Feat
     CustomCap(BitmapDescriptorFactory.fromBitmap(bitmap))
   }
 
-  override fun addFeature(feature: Feature, isSelected: Boolean) {
+  override fun putFeature(feature: Feature, isSelected: Boolean) {
     when (feature.geometry) {
       is LineString -> render(feature, feature.geometry.coordinates, isSelected)
       is LinearRing -> render(feature, feature.geometry.coordinates, isSelected)

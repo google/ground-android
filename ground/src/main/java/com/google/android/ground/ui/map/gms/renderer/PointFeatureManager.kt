@@ -17,7 +17,6 @@
 package com.google.android.ground.ui.map.gms.renderer
 
 import android.content.Context
-import androidx.annotation.ColorInt
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -34,7 +33,7 @@ class PointFeatureManager @Inject constructor(@ApplicationContext val context: C
   private val markerIconFactory: IconFactory = IconFactory(context)
   private val markersByTag = HashMap<Feature.Tag, Marker>()
 
-  override fun addFeature(feature: Feature, isSelected: Boolean) {
+  override fun putFeature(feature: Feature, isSelected: Boolean) {
     if (feature.geometry !is Point)
       error("Invalid geometry type ${feature.geometry.javaClass.simpleName}")
     val markerOptions = MarkerOptions()
@@ -45,15 +44,15 @@ class PointFeatureManager @Inject constructor(@ApplicationContext val context: C
     markersByTag[feature.tag] = marker
   }
 
-  fun setMarkerOptions(markerOptions: MarkerOptions, isSelected: Boolean, @ColorInt color: Int) {
+  fun setMarkerOptions(markerOptions: MarkerOptions, style: Feature.Style) {
     with(markerOptions) {
-      icon(getMarkerIcon(isSelected, color))
+      icon(getMarkerIcon(style))
       zIndex(MARKER_Z)
     }
   }
 
-  fun getMarkerIcon(isSelected: Boolean = false, @ColorInt color: Int): BitmapDescriptor =
-    markerIconFactory.getMarkerIcon(color, map.cameraPosition.zoom, isSelected)
+  fun getMarkerIcon(style: Feature.Style): BitmapDescriptor =
+    markerIconFactory.getMarkerIcon(style, map.cameraPosition.zoom)
 
   override fun removeStaleFeatures(features: Set<Feature>) =
     (markersByTag.keys - features.map { it.tag }.toSet()).forEach { remove(it) }

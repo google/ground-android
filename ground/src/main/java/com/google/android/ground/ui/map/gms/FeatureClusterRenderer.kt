@@ -39,7 +39,7 @@ import com.google.maps.android.clustering.view.DefaultClusterRenderer
 class FeatureClusterRenderer(
   context: Context,
   map: GoogleMap,
-  private val clusterManager: FeatureClusterManager,
+  clusterManager: FeatureClusterManager,
   private val pointFeatureManager: PointFeatureManager,
   private val polygonFeatureManager: PolygonFeatureManager,
   private val clusteringZoomThreshold: Float,
@@ -53,21 +53,23 @@ class FeatureClusterRenderer(
   var zoom: Float
 ) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
 
-  var previousActiveLoiId: String? = null
   private val markerIconFactory: IconFactory = IconFactory(context)
 
   /** Sets appropriate styling for clustered items prior to rendering. */
   override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
+    val style = item.feature.style
     when (item.feature.geometry) {
       is Point -> {
-        pointFeatureManager.setMarkerOptions(markerOptions, item.isSelected(), item.style.color)
+        // Cluster manager actually manages points.
+        // TODO: Can we delegate this to PointFeatureManager as we do for polygonFeatureManager?
+        pointFeatureManager.setMarkerOptions(markerOptions, style)
       }
       is Polygon,
       is MultiPolygon -> {
         // Don't render marker if this item is a polygon.
         markerOptions.visible(false)
         // Add polygon or multi-polygon when zooming in.
-        polygonFeatureManager.addFeature(item.feature, item.isSelected())
+        polygonFeatureManager.putFeature(item.feature)
       }
       else -> {
         throw UnsupportedOperationException(
@@ -80,15 +82,14 @@ class FeatureClusterRenderer(
   override fun onClusterItemUpdated(item: FeatureClusterItem, marker: Marker) {
     val feature = item.feature
     when (feature.geometry) {
-      is Point ->
-        marker.setIcon(pointFeatureManager.getMarkerIcon(item.isSelected(), item.style.color))
+      is Point -> marker.setIcon(pointFeatureManager.getMarkerIcon(feature.style))
       is Polygon,
       is MultiPolygon ->
         // Update polygon or multi-polygon on change.
-        polygonFeatureManager.updateFeature(feature, item.isSelected())
+        polygonFeatureManager.updateFeature(feature)
       else ->
         throw UnsupportedOperationException(
-          "Unsupported feature type ${feature.geometry.javaClass.simpleName}"
+          "Unsupported feature geometry type ${feature.geometry.javaClass.simpleName}"
         )
     }
     super.onClusterItemUpdated(item, marker)
@@ -134,20 +135,4 @@ class FeatureClusterRenderer(
    */
   override fun shouldRenderAsCluster(cluster: Cluster<FeatureClusterItem>): Boolean =
     zoom < clusteringZoomThreshold
-
-  /**
-   * Determines if the renderer should re-render clusters.
-   *
-   * The default implementation will only re-render when the known clusters have changed. This
-   * implementation will also force a render if the actively selected map feature has changed.
-   */
-  override fun shouldRender(
-    oldClusters: MutableSet<out Cluster<FeatureClusterItem>>,
-    newClusters: MutableSet<out Cluster<FeatureClusterItem>>
-  ): Boolean =
-    previousActiveLoiId != clusterManager.activeLocationOfInterest ||
-      super.shouldRender(oldClusters, newClusters)
-
-  private fun FeatureClusterItem.isSelected() =
-    feature.tag.id == clusterManager.activeLocationOfInterest
 }

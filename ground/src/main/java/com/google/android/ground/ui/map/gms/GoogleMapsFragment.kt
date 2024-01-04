@@ -34,7 +34,6 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.ground.Config
 import com.google.android.ground.model.geometry.*
-import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.imagery.TileSource.Type.MOG_COLLECTION
 import com.google.android.ground.model.imagery.TileSource.Type.TILED_WEB_MAP
@@ -74,7 +73,6 @@ const val MARKER_Z = 3f
  */
 @AndroidEntryPoint(SupportMapFragment::class)
 class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
-
   private lateinit var clusterRenderer: FeatureClusterRenderer
 
   /** Map drag events. Emits items when the map drag has started. */
@@ -168,7 +166,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun onMapReady(map: GoogleMap) {
     this.map = map
 
-    featureManagers.forEach { it.onMapReady(map) }
+    featureManagers.forEach { it.map = map }
     clusterManager = FeatureClusterManager(requireContext(), map)
     clusterRenderer =
       FeatureClusterRenderer(
@@ -262,47 +260,16 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     }
   }
 
-  private fun removeStaleFeatures(features: Set<Feature>) {
-    Timber.d("Removing stale features from map")
-    clusterManager.removeStaleFeatures(features)
-    featureManagers.forEach { it.removeStaleFeatures(features) }
-  }
-
-  private fun removeAllFeatures() {
-    Timber.d("Removing all features from map")
-    clusterManager.removeAllFeatures()
-    featureManagers.forEach { it.removeAllFeatures() }
-  }
-
-  private fun addOrUpdateFeature(feature: Feature) {
-    if (feature.clusterable) {
-      clusterManager.addFeature(feature)
-      return
-    }
-    when (feature.geometry) {
-      is Point -> pointFeatureManager.addFeature(feature)
-      is LineString,
-      is LinearRing -> polylineFeatureManager.addFeature(feature)
-      is Polygon,
-      is MultiPolygon -> polygonFeatureManager.addFeature(feature)
-    }
-  }
-
-  override fun setFeatures(features: Set<Feature>) {
-    Timber.v("renderFeatures() called with ${features.size} features")
-    if (features.isNotEmpty()) {
-      removeStaleFeatures(features)
-      Timber.d("Updating ${features.size} features")
-      features.forEach(this::addOrUpdateFeature)
-    } else {
-      removeAllFeatures()
-    }
-    clusterManager.cluster()
+  override fun setFeatures(newFeatures: Set<Feature>) {
+    Timber.v("renderFeatures() called with ${newFeatures.size} features")
+    clusterManager.setFeatures(newFeatures)
+    featureManagers.forEach { it.setFeatures(newFeatures) }
   }
 
   override fun refresh() {
     Timber.v("Refresh features")
-    setFeatures(clusterManager.getManagedFeatures())
+    // TODO(!!!): Why is this needed and how does it work? Can we just call cluster() instead?
+    setFeatures(clusterManager.features)
   }
 
   private fun onCameraIdle() {
@@ -366,15 +333,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   override fun clear() {
     map.clear()
-  }
-
-  override fun setActiveLocationOfInterest(newLoiId: String?) {
-    if (newLoiId == clusterManager.activeLocationOfInterest) return
-
-    clusterRenderer.previousActiveLoiId = clusterManager.activeLocationOfInterest
-    clusterManager.activeLocationOfInterest = newLoiId
-
-    refresh()
   }
 
   companion object {

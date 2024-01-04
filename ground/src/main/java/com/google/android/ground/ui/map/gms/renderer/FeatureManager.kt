@@ -20,15 +20,8 @@ import com.google.android.ground.ui.map.Feature
 
 /** Keeps track of features on a map and implement basic related add/remove operations. */
 sealed class FeatureManager {
-  protected lateinit var map: GoogleMap
+  lateinit var map: GoogleMap
 
-  abstract fun addFeature(feature: Feature, isSelected: Boolean = false)
-
-  abstract fun removeStaleFeatures(features: Set<Feature>)
-
-  abstract fun removeAllFeatures()
-
-  fun onMapReady(map: GoogleMap) {
-    this.map = map
-  }
+  /** Updates the set of features managed by this manager. */
+  abstract fun setFeatures(newFeatures: Set<Feature>)
 }

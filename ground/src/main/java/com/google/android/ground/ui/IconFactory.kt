@@ -21,13 +21,13 @@ import android.graphics.Canvas
 import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import androidx.annotation.ColorInt
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.ground.Config
 import com.google.android.ground.R
+import com.google.android.ground.ui.map.Feature.Style
 import com.google.android.ground.ui.util.obtainTextPaintFromStyle
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -45,7 +45,7 @@ class IconFactory @Inject constructor(@ApplicationContext private val context: C
   }
 
   /** Returns a [Bitmap] representing an individual marker pin on the map. */
-  fun getMarkerBitmap(color: Int, currentZoomLevel: Float, isSelected: Boolean = false): Bitmap {
+  fun getMarkerBitmap(style: Style, currentZoomLevel: Float): Bitmap {
     val outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline)
     val fill = AppCompatResources.getDrawable(context, R.drawable.ic_marker_fill)
     val overlay = AppCompatResources.getDrawable(context, R.drawable.ic_marker_overlay)
@@ -55,7 +55,7 @@ class IconFactory @Inject constructor(@ApplicationContext private val context: C
         ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
       else ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
 
-    if (isSelected) {
+    if (style.selected) {
       // TODO: Revisit scale for selected markers
       scale += 1
     }
@@ -65,7 +65,7 @@ class IconFactory @Inject constructor(@ApplicationContext private val context: C
 
     outline.setBounds(0, 0, bitmap.width, bitmap.height)
     outline.draw(canvas)
-    fill!!.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+    fill!!.setColorFilter(style.color, PorterDuff.Mode.SRC_ATOP)
     fill.setBounds(0, 0, bitmap.width, bitmap.height)
     fill.draw(canvas)
     overlay!!.setBounds(0, 0, bitmap.width, bitmap.height)
@@ -74,12 +74,8 @@ class IconFactory @Inject constructor(@ApplicationContext private val context: C
   }
 
   /** Returns a [BitmapDescriptor] for representing an individual marker on the map. */
-  fun getMarkerIcon(
-    @ColorInt color: Int,
-    currentZoomLevel: Float,
-    isSelected: Boolean = false
-  ): BitmapDescriptor {
-    val bitmap = getMarkerBitmap(color, currentZoomLevel, isSelected)
+  fun getMarkerIcon(style: Style, currentZoomLevel: Float): BitmapDescriptor {
+    val bitmap = getMarkerBitmap(style.color, currentZoomLevel, style.selected)
     // TODO: Cache rendered bitmaps.
     return BitmapDescriptorFactory.fromBitmap(bitmap)
   }
