@@ -204,7 +204,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
   override fun onMapReady(map: MapFragment) {
     // Observe events emitted by the ViewModel.
     viewLifecycleOwner.lifecycleScope.launch {
-      mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
+      mapContainerViewModel.mapLoiFeatures.collect { map.setFeatures(it) }
     }
 
     adapter.setLoiCardFocusedListener {

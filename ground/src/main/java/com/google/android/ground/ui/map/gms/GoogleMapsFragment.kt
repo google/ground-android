@@ -220,6 +220,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   override fun enableRotation() {
     map.uiSettings.isRotateGesturesEnabled = true
   }
+
   override fun disableRotation() {
     map.uiSettings.isRotateGesturesEnabled = false
   }
@@ -287,7 +288,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     }
   }
 
-  override fun renderFeatures(features: Set<Feature>) {
+  override fun setFeatures(features: Set<Feature>) {
     Timber.v("renderFeatures() called with ${features.size} features")
     if (features.isNotEmpty()) {
       removeStaleFeatures(features)
@@ -301,7 +302,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
 
   override fun refresh() {
     Timber.v("Refresh features")
-    renderFeatures(clusterManager.getManagedFeatures())
+    setFeatures(clusterManager.getManagedFeatures())
   }
 
   private fun onCameraIdle() {
