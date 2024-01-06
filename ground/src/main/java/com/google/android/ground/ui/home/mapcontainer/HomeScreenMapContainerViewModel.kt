@@ -144,6 +144,7 @@ internal constructor(
 
   private fun applySelectedState(features: Set<Feature>, selectedLoiId: String?): Set<Feature> =
     // TODO(!!!): Update polygon styling when deselected.
+    // TODO(!!!): Remove polygons when zooming out.
     features
       .map {
         it.copy(
