@@ -96,9 +96,6 @@ interface MapFragment {
   /** Returns the actual distance in pixels between provided [Coordinates]s. */
   fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double
 
-  /** Update UI of rendered [LocationOfInterest]. */
-  fun setActiveLocationOfInterest(newLoiId: String?)
-
   fun addTileOverlay(source: TileSource)
 
   /** Remove all tile overlays from the map. */

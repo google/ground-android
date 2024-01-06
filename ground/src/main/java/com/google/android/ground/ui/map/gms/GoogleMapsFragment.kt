@@ -200,10 +200,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     return sqrt(dx * dx + dy * dy)
   }
 
-  override fun setActiveLocationOfInterest(newLoiId: String?) {
-    // TODO(!!!): Delete, update "selected" attribute of Feature and call `setFeatures`.
-  }
-
   override fun enableGestures() = map.uiSettings.setAllGesturesEnabled(true)
 
   override fun disableGestures() = map.uiSettings.setAllGesturesEnabled(false)
@@ -234,7 +230,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun onMapClick(latLng: LatLng) {
     val clickedPolygons = featureManager.getIntersectingPolygons(latLng)
     if (clickedPolygons.isNotEmpty()) {
-      // TODO(!!!): Update polygon styling when selected.
       viewLifecycleOwner.lifecycleScope.launch { featureClicks.emit(clickedPolygons) }
     }
   }

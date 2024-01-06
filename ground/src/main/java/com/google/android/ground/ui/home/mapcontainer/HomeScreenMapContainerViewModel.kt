@@ -36,6 +36,7 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
+import com.google.android.ground.ui.map.isLocationOfInterest
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -114,7 +115,7 @@ internal constructor(
     mapLoiFeatures =
       activeSurvey.flatMapLatest {
         if (it == null) flowOf(setOf())
-        else getLocationOfInterestFeatures(it).combine(selectedLoiIdFlow, this::updateSelectedState)
+        else getLocationOfInterestFeatures(it).combine(selectedLoiIdFlow, this::applySelectedState)
       }
 
     val isZoomedInFlow =
@@ -141,12 +142,15 @@ internal constructor(
         }
   }
 
-  private fun updateSelectedState(features: Set<Feature>, selectedLoiId: String?): Set<Feature> {
-    return features
-    //    features.filter {
-    //      it.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal && it.tag.id == selectedLoiId
-    //    }
-  }
+  private fun applySelectedState(features: Set<Feature>, selectedLoiId: String?): Set<Feature> =
+    // TODO(!!!): Update polygon styling when deselected.
+    features
+      .map {
+        it.copy(
+          style = it.style.copy(selected = it.isLocationOfInterest() && it.tag.id == selectedLoiId)
+        )
+      }
+      .toSet()
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     super.onMapCameraMoved(newCameraPosition)
