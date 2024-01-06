@@ -58,4 +58,8 @@ class PolygonRenderer @Inject constructor(resources: Resources) :
     }
     return mapsPolygon
   }
+
+  override fun remove(mapItem: MapsPolygon) {
+    mapItem.remove()
+  }
 }

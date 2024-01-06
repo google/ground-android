@@ -38,20 +38,21 @@ constructor(
   private val polygonManager = MapItemManager(polygonRenderer)
   private val multiPolygonManager = MapItemManager(multiPolygonRenderer)
   private val lineStringManager = MapItemManager(lineStringRenderer)
+  private val mapItemManagers =
+    listOf(pointManager, polygonManager, multiPolygonManager, lineStringManager)
 
   fun setFeatures(map: GoogleMap, updatedFeatures: Set<Feature>) {
     // remove stale
     val removedOrChanged = features - updatedFeatures
-    removedOrChanged.forEach(this::removeMapItem)
-    features.removeAll(removedOrChanged)
+    removedOrChanged.forEach(this::removeFeature)
     // add missing
     val newOrChanged = updatedFeatures - features
     newOrChanged.forEach { setFeature(map, it) }
-    features.addAll(newOrChanged)
   }
 
-  private fun setFeature(map: GoogleMap, feature: Feature) {
+  fun setFeature(map: GoogleMap, feature: Feature) {
     with(feature) {
+      features.add(this)
       when (geometry) {
         is Point -> pointManager.set(map, tag, geometry, style)
         is LineString -> lineStringManager.set(map, tag, geometry, style)
@@ -62,13 +63,9 @@ constructor(
     }
   }
 
-  private fun removeMapItem(feature: Feature) {
-    with(feature) {
-      // Remove from all managers in case geometry type changed.
-      pointManager.remove(tag)
-      lineStringManager.remove(tag)
-      multiPolygonManager.remove(tag)
-      polygonManager.remove(tag)
-    }
+  fun removeFeature(feature: Feature) {
+    // Remove from all managers in case geometry type changed.
+    mapItemManagers.forEach { it.remove(feature.tag) }
+    features.remove(feature)
   }
 }

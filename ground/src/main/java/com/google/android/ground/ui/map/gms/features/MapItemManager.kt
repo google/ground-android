@@ -19,8 +19,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.ui.map.Feature
 
-class MapItemManager<T : Geometry, U : Any>
-constructor(private val mapItemRenderer: MapItemRenderer<T, U>) {
+class MapItemManager<T : Geometry, U : Any>(private val mapItemRenderer: MapItemRenderer<T, U>) {
   private val itemsByTag = mutableMapOf<Feature.Tag, U>()
 
   fun set(map: GoogleMap, tag: Feature.Tag, geometry: T, style: Feature.Style) {
@@ -28,6 +27,6 @@ constructor(private val mapItemRenderer: MapItemRenderer<T, U>) {
   }
 
   fun remove(tag: Feature.Tag) {
-    itemsByTag.remove(tag)
+    itemsByTag.remove(tag)?.let(mapItemRenderer::remove)
   }
 }

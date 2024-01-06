@@ -164,6 +164,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
         requireContext(),
         map,
         clusterManager,
+        featureManager,
         Config.CLUSTERING_ZOOM_THRESHOLD,
         map.cameraPosition.zoom
       )
@@ -198,6 +199,10 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     val dx = (loc1.x - loc2.x).toDouble()
     val dy = (loc1.y - loc2.y).toDouble()
     return sqrt(dx * dx + dy * dy)
+  }
+
+  override fun setActiveLocationOfInterest(newLoiId: String?) {
+    // TODO(!!!): Delete, update "selected" attribute of Feature and call `setFeatures`.
   }
 
   override fun enableGestures() = map.uiSettings.setAllGesturesEnabled(true)
@@ -235,13 +240,14 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   }
 
   // TODO(!!!): How to get overlapping polygons?
-  private fun getPolygonFeaturesContaining(latLng: LatLng) =
-    polygonFeatureManager
-      .getPolygonsByFeature()
-      .filterValues { polygons ->
-        polygons.any { PolyUtil.containsLocation(latLng, it.points, false) }
-      }
-      .keys
+  private fun getPolygonFeaturesContaining(latLng: LatLng) = setOf<Feature>()
+//  =
+//    polygonFeatureManager
+//      .getPolygonsByFeature()
+//      .filterValues { polygons ->
+//        polygons.any { PolyUtil.containsLocation(latLng, it.points, false) }
+//      }
+//      .keys
 
   @SuppressLint("MissingPermission")
   override fun enableCurrentLocationIndicator() {

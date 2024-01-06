@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.map.gms.features
 
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.Polygon
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.ui.map.Feature
@@ -29,4 +30,8 @@ class MultiPolygonRenderer @Inject constructor(private val polygonRenderer: Poly
     geometry: MultiPolygon,
     style: Feature.Style
   ): List<MapsPolygon> = geometry.polygons.map { polygonRenderer.addMapItem(map, tag, it, style) }
+
+  override fun remove(mapItem: List<Polygon>) {
+    mapItem.forEach(polygonRenderer::remove)
+  }
 }

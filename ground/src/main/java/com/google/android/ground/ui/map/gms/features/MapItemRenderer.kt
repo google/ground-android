@@ -21,4 +21,6 @@ import com.google.android.ground.ui.map.Feature
 
 interface MapItemRenderer<T : Geometry, U> {
   fun addMapItem(map: GoogleMap, featureTag: Feature.Tag, geometry: T, style: Feature.Style): U
+
+  fun remove(mapItem: U)
 }

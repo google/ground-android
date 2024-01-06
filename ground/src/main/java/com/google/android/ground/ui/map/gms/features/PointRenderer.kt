@@ -65,4 +65,8 @@ constructor(private val resources: Resources, private val markerIconFactory: Ico
     }
     return markerIconFactory.getMarkerIcon(style.color, scale)
   }
+
+  override fun remove(mapItem: Marker) {
+    mapItem.remove()
+  }
 }

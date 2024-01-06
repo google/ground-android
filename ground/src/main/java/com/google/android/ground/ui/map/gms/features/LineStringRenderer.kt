@@ -67,4 +67,8 @@ class LineStringRenderer @Inject constructor(resources: Resources, bitmapUtil: B
     }
     return polyline
   }
+
+  override fun remove(mapItem: Polyline) {
+    mapItem.remove()
+  }
 }

@@ -21,6 +21,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.ground.ui.IconFactory
+import com.google.android.ground.ui.map.gms.features.FeatureManager
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
 
@@ -33,8 +34,9 @@ import com.google.maps.android.clustering.view.DefaultClusterRenderer
  */
 class FeatureClusterRenderer(
   context: Context,
-  map: GoogleMap,
+  private val map: GoogleMap,
   clusterManager: FeatureClusterManager,
+  private val featureManager: FeatureManager,
   private val clusteringZoomThreshold: Float,
   /**
    * The current zoom level to compare against the renderer's threshold.
@@ -50,8 +52,10 @@ class FeatureClusterRenderer(
 
   /** Sets appropriate styling for clustered items prior to rendering. */
   override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
+    // Hide clusterer's default marker.
     markerOptions.visible(false)
-    // TODO(!!!): Show/hide points or polygons when zooming in or out
+    // Instead, display the feature manager's rendering of the feature.
+    featureManager.setFeature(map, item.feature)
   }
 
   /**
@@ -68,6 +72,9 @@ class FeatureClusterRenderer(
     cluster: Cluster<FeatureClusterItem>,
     markerOptions: MarkerOptions
   ) {
+    // Hide cluster's features when clustered.
+    cluster.items.forEach { featureManager.removeFeature(it.feature) }
+
     super.onBeforeClusterRendered(cluster, markerOptions)
 
     with(markerOptions) {
