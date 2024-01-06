@@ -46,7 +46,6 @@ import com.google.android.ground.ui.map.gms.mog.MogCollection
 import com.google.android.ground.ui.map.gms.mog.MogTileProvider
 import com.google.android.ground.ui.util.BitmapUtil
 import com.google.android.ground.util.invert
-import com.google.maps.android.PolyUtil
 import com.google.maps.android.clustering.Cluster
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.function.Consumer
@@ -233,21 +232,12 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     if (shouldAnimate) map.animateCamera(cameraUpdate) else map.moveCamera(cameraUpdate)
 
   private fun onMapClick(latLng: LatLng) {
-    val clickedPolygons = getPolygonFeaturesContaining(latLng)
+    val clickedPolygons = featureManager.getIntersectingPolygons(latLng)
     if (clickedPolygons.isNotEmpty()) {
+      // TODO(!!!): Update polygon styling when selected.
       viewLifecycleOwner.lifecycleScope.launch { featureClicks.emit(clickedPolygons) }
     }
   }
-
-  // TODO(!!!): How to get overlapping polygons?
-  private fun getPolygonFeaturesContaining(latLng: LatLng) = setOf<Feature>()
-//  =
-//    polygonFeatureManager
-//      .getPolygonsByFeature()
-//      .filterValues { polygons ->
-//        polygons.any { PolyUtil.containsLocation(latLng, it.points, false) }
-//      }
-//      .keys
 
   @SuppressLint("MissingPermission")
   override fun enableCurrentLocationIndicator() {

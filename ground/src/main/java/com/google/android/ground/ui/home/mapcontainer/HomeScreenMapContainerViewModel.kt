@@ -80,6 +80,8 @@ internal constructor(
     loiRepository
   ) {
 
+  val selectedLoiIdFlow = MutableStateFlow<String?>(null)
+
   /** Set of [Feature] to render on the map. */
   val mapLoiFeatures: Flow<Set<Feature>>
 
@@ -111,7 +113,8 @@ internal constructor(
 
     mapLoiFeatures =
       activeSurvey.flatMapLatest {
-        if (it == null) flowOf(setOf()) else getLocationOfInterestFeatures(it)
+        if (it == null) flowOf(setOf())
+        else getLocationOfInterestFeatures(it).combine(selectedLoiIdFlow, this::updateSelectedState)
       }
 
     val isZoomedInFlow =
@@ -136,6 +139,13 @@ internal constructor(
             else survey.jobs.filter { it.canDataCollectorsAddLois }
           )
         }
+  }
+
+  private fun updateSelectedState(features: Set<Feature>, selectedLoiId: String?): Set<Feature> {
+    return features
+    //    features.filter {
+    //      it.tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal && it.tag.id == selectedLoiId
+    //    }
   }
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
@@ -187,4 +197,8 @@ internal constructor(
       style = Feature.Style(job.getDefaultColor()),
       clusterable = true
     )
+
+  fun selectLocationOfInterest(id: String?) {
+    selectedLoiIdFlow.value = id
+  }
 }

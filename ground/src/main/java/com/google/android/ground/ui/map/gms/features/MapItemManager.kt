@@ -22,6 +22,9 @@ import com.google.android.ground.ui.map.Feature
 class MapItemManager<T : Geometry, U : Any>(private val mapItemRenderer: MapItemRenderer<T, U>) {
   private val itemsByTag = mutableMapOf<Feature.Tag, U>()
 
+  val items: Iterable<U>
+    get() = itemsByTag.values
+
   fun set(map: GoogleMap, tag: Feature.Tag, geometry: T, style: Feature.Style) {
     itemsByTag[tag] = mapItemRenderer.addMapItem(map, tag, geometry, style)
   }

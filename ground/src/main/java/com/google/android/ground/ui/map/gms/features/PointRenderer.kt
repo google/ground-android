@@ -32,8 +32,14 @@ import javax.inject.Inject
 
 class PointRenderer
 @Inject
-constructor(private val resources: Resources, private val markerIconFactory: IconFactory) :
+constructor(resources: Resources, private val markerIconFactory: IconFactory) :
   MapItemRenderer<Point, Marker> {
+
+  private val defaultMarkerScale =
+    ResourcesCompat.getFloat(resources, R.dimen.marker_bitmap_default_scale)
+  private val selectedMarkerScaleFactor =
+    ResourcesCompat.getFloat(resources, R.dimen.marker_bitmap_selected_scale_factor)
+
   override fun addMapItem(
     map: GoogleMap,
     tag: Feature.Tag,
@@ -57,11 +63,9 @@ constructor(private val resources: Resources, private val markerIconFactory: Ico
 
   private fun getMarkerIcon(style: Feature.Style): BitmapDescriptor {
     // TODO(!!!): How should we update scale based on zoom level? Current impl is likely broken.
-    var scale = ResourcesCompat.getFloat(resources, R.dimen.marker_bitmap_default_scale)
-
+    var scale = defaultMarkerScale
     if (style.selected) {
-      // TODO(!!!): Revisit scale for selected markers
-      scale *= 1.5f
+      scale *= selectedMarkerScaleFactor
     }
     return markerIconFactory.getMarkerIcon(style.color, scale)
   }

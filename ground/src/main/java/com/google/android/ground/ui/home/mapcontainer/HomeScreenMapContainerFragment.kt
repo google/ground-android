@@ -209,9 +209,9 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
 
     adapter.setLoiCardFocusedListener {
       when (it) {
-        is MapCardUiData.LoiCardUiData -> map.setActiveLocationOfInterest(it.loi.id)
+        is MapCardUiData.LoiCardUiData -> mapContainerViewModel.selectLocationOfInterest(it.loi.id)
         is MapCardUiData.AddLoiCardUiData,
-        null -> map.setActiveLocationOfInterest(null)
+        null -> mapContainerViewModel.selectLocationOfInterest(null)
       }
     }
   }

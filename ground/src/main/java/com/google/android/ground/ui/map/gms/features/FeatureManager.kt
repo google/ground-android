@@ -17,12 +17,14 @@
 package com.google.android.ground.ui.map.gms.features
 
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.map.Feature
+import com.google.maps.android.PolyUtil
 import javax.inject.Inject
 
 class FeatureManager
@@ -34,6 +36,7 @@ constructor(
   lineStringRenderer: LineStringRenderer
 ) {
   private val features = mutableSetOf<Feature>()
+  private val featuresByTag = mutableMapOf<Feature.Tag, Feature>()
   private val pointManager = MapItemManager(pointRenderer)
   private val polygonManager = MapItemManager(polygonRenderer)
   private val multiPolygonManager = MapItemManager(multiPolygonRenderer)
@@ -53,6 +56,7 @@ constructor(
   fun setFeature(map: GoogleMap, feature: Feature) {
     with(feature) {
       features.add(this)
+      featuresByTag[tag] = this
       when (geometry) {
         is Point -> pointManager.set(map, tag, geometry, style)
         is LineString -> lineStringManager.set(map, tag, geometry, style)
@@ -67,5 +71,14 @@ constructor(
     // Remove from all managers in case geometry type changed.
     mapItemManagers.forEach { it.remove(feature.tag) }
     features.remove(feature)
+    featuresByTag.remove(feature.tag)
+  }
+
+  fun getIntersectingPolygons(latLng: LatLng): Set<Feature> {
+    val polygons = polygonManager.items + multiPolygonManager.items.flatten()
+    return polygons
+      .filter { PolyUtil.containsLocation(latLng, it.points, false) }
+      .mapNotNull { featuresByTag[it.tag as Feature.Tag] }
+      .toSet()
   }
 }
