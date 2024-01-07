@@ -19,7 +19,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.ui.map.Feature
 
-class MapItemManager<T : Geometry, U : Any>(private val mapItemRenderer: MapItemRenderer<T, U>) {
+class MapItemManager<T : Geometry, U : Any>(private val mapItemAdapter: MapItemAdapter<T, U>) {
   private val itemsByTag = mutableMapOf<Feature.Tag, U>()
 
   val items: Iterable<U>
@@ -27,20 +27,20 @@ class MapItemManager<T : Geometry, U : Any>(private val mapItemRenderer: MapItem
 
   fun set(map: GoogleMap, tag: Feature.Tag, geometry: T, style: Feature.Style, visible: Boolean) {
     // If map item with this tag already exists, remove it.
-    itemsByTag[tag]?.let(mapItemRenderer::remove)
+    itemsByTag[tag]?.let(mapItemAdapter::remove)
     // Add item to map and index.
-    itemsByTag[tag] = mapItemRenderer.addMapItem(map, tag, geometry, style, visible)
+    itemsByTag[tag] = mapItemAdapter.addMapItem(map, tag, geometry, style, visible)
   }
 
   fun show(tag: Feature.Tag) {
-    itemsByTag[tag]?.let(mapItemRenderer::show)
+    itemsByTag[tag]?.let(mapItemAdapter::show)
   }
 
   fun hide(tag: Feature.Tag) {
-    itemsByTag[tag]?.let(mapItemRenderer::hide)
+    itemsByTag[tag]?.let(mapItemAdapter::hide)
   }
 
   fun remove(tag: Feature.Tag) {
-    itemsByTag.remove(tag)?.let(mapItemRenderer::remove)
+    itemsByTag.remove(tag)?.let(mapItemAdapter::remove)
   }
 }

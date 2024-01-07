@@ -22,8 +22,8 @@ import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.ui.map.Feature
 import javax.inject.Inject
 
-class MultiPolygonRenderer @Inject constructor(private val polygonRenderer: PolygonRenderer) :
-  MapItemRenderer<MultiPolygon, List<MapsPolygon>> {
+class MultiPolygonAdapter @Inject constructor(private val polygonRenderer: PolygonAdapter) :
+  MapItemAdapter<MultiPolygon, List<MapsPolygon>> {
   override fun addMapItem(
     map: GoogleMap,
     tag: Feature.Tag,

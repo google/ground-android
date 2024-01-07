@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,24 @@
  */
 package com.google.android.ground.ui.map.gms.features
 
+import android.content.Context
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.ui.map.Feature
+import com.google.maps.android.clustering.ClusterManager
 
-interface MapItemRenderer<T : Geometry, U> {
-  fun addMapItem(
-    map: GoogleMap,
-    featureTag: Feature.Tag,
-    geometry: T,
-    style: Feature.Style,
-    visible: Boolean
-  ): U
+/** Manages clusters of map [Feature]s. */
+class FeatureClusterManager(context: Context, map: GoogleMap) :
+  ClusterManager<FeatureClusterItem>(context, map) {
 
-  fun show(mapItem: U)
+  private val itemsByTag = mutableMapOf<Feature.Tag, FeatureClusterItem>()
 
-  fun hide(mapItem: U)
+  fun addFeature(feature: Feature) {
+    val item = FeatureClusterItem(feature)
+    addItem(item)
+    itemsByTag[feature.tag] = item
+  }
 
-  fun remove(mapItem: U)
+  fun removeFeature(tag: Feature.Tag) {
+    itemsByTag.remove(tag)?.let { removeItem(it) }
+  }
 }

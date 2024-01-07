@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.map.gms
+package com.google.android.ground.ui.map.gms.features
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.maps.android.clustering.ClusterItem
 
 /** A [ClusterItem] implementation for clustering map [Feature]s. */
 data class FeatureClusterItem(val feature: Feature) : ClusterItem {
-  val style = feature.style
-
   override fun getPosition(): LatLng = feature.geometry.center().toGoogleMapsObject()
 
   override fun getTitle(): String? = null

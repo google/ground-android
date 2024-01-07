@@ -22,7 +22,6 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.Polyline
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.IconFactory
@@ -31,10 +30,10 @@ import com.google.android.ground.ui.map.gms.MARKER_Z
 import com.google.android.ground.ui.map.gms.toLatLng
 import javax.inject.Inject
 
-class PointRenderer
+class PointAdapter
 @Inject
 constructor(resources: Resources, private val markerIconFactory: IconFactory) :
-  MapItemRenderer<Point, Marker> {
+  MapItemAdapter<Point, Marker> {
 
   private val defaultMarkerScale =
     ResourcesCompat.getFloat(resources, R.dimen.marker_bitmap_default_scale)

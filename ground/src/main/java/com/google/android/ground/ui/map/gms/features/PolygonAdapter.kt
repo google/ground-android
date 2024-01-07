@@ -30,8 +30,8 @@ import com.google.android.ground.ui.map.gms.toLatLngList
 import javax.inject.Inject
 import timber.log.Timber
 
-class PolygonRenderer @Inject constructor(resources: Resources) :
-  MapItemRenderer<Polygon, MapsPolygon> {
+class PolygonAdapter @Inject constructor(resources: Resources) :
+  MapItemAdapter<Polygon, MapsPolygon> {
   private val defaultStrokeWidth = resources.getDimension(R.dimen.line_geometry_width)
 
   override fun addMapItem(

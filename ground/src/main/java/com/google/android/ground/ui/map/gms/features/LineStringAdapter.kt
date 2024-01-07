@@ -31,8 +31,8 @@ import com.google.android.ground.ui.map.gms.toLatLngList
 import com.google.android.ground.ui.util.BitmapUtil
 import javax.inject.Inject
 
-class LineStringRenderer @Inject constructor(resources: Resources, bitmapUtil: BitmapUtil) :
-  MapItemRenderer<LineString, Polyline> {
+class LineStringAdapter @Inject constructor(resources: Resources, bitmapUtil: BitmapUtil) :
+  MapItemAdapter<LineString, Polyline> {
   private val defaultStrokeWidth = resources.getDimension(R.dimen.line_geometry_width)
   private val circleCap by lazy {
     // This must be done lazily since resources are not available before the app completes

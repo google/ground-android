@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.map.gms
+package com.google.android.ground.ui.map.gms.features
 
 import android.content.Context
 import com.google.android.gms.maps.GoogleMap
@@ -23,6 +23,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.ground.Config
 import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.gms.CLUSTER_Z
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.clustering.view.DefaultClusterRenderer

@@ -19,26 +19,26 @@ package com.google.android.ground.ui.map.gms.features
 import android.content.Context
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.gms.FeatureClusterManager
-import com.google.android.ground.ui.map.gms.FeatureClusterRenderer
 import com.google.maps.android.PolyUtil
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
+@Suppress("UNCHECKED_CAST")
 class FeatureManager
 @Inject
 constructor(
   @ApplicationContext private val context: Context,
-  pointRenderer: PointRenderer,
-  polygonRenderer: PolygonRenderer,
-  multiPolygonRenderer: MultiPolygonRenderer,
-  lineStringRenderer: LineStringRenderer
+  pointRenderer: PointAdapter,
+  polygonRenderer: PolygonAdapter,
+  multiPolygonRenderer: MultiPolygonAdapter,
+  lineStringRenderer: LineStringAdapter
 ) {
   private val features = mutableSetOf<Feature>()
   private val featuresByTag = mutableMapOf<Feature.Tag, Feature>()
@@ -52,6 +52,9 @@ constructor(
   private lateinit var map: GoogleMap
   private lateinit var clusterManager: FeatureClusterManager
   private lateinit var clusterRenderer: FeatureClusterRenderer
+
+  // This must be set rather than read from `map.cameraPosition` since that object is only
+  // accessible on the UI thread.
   var zoom: Float
     get() = clusterRenderer.zoom
     set(value) {
@@ -82,6 +85,8 @@ constructor(
     // add missing
     val newOrChanged = updatedFeatures - features
     newOrChanged.forEach { addFeature(it) }
+    // cluster and update visibility
+    clusterManager.cluster()
   }
 
   fun getIntersectingPolygons(latLng: LatLng): Set<Feature> {
@@ -96,17 +101,27 @@ constructor(
     with(feature) {
       features.add(this)
       featuresByTag[tag] = this
-      if (clusterable) clusterManager.addFeature(feature) // TODO(!!!): Encapsulate addItem()
+      if (clusterable) clusterManager.addFeature(feature)
       when (geometry) {
-        // TODO(!!!): Remove visible here and force clustering after set?
-        is Point -> pointManager.set(map, tag, geometry, style, visible = true)
-        is LineString -> lineStringManager.set(map, tag, geometry, style, visible = true)
+        // TODO: Refactor to get manager generically from a map.
+        is Point -> pointManager.set(map, tag, geometry, style, visible = !clusterable)
+        is LineString -> lineStringManager.set(map, tag, geometry, style, visible = !clusterable)
         is LinearRing -> error("LinearRing rendering not supported")
-        is MultiPolygon -> multiPolygonManager.set(map, tag, geometry, style, visible = true)
-        is Polygon -> polygonManager.set(map, tag, geometry, style, visible = true)
+        is MultiPolygon ->
+          multiPolygonManager.set(map, tag, geometry, style, visible = !clusterable)
+        is Polygon -> polygonManager.set(map, tag, geometry, style, visible = !clusterable)
       }
     }
   }
+
+  private fun <U : Geometry> getItemManager(geometry: U) =
+    when (geometry) {
+      is Point -> pointManager
+      is LineString -> lineStringManager
+      is MultiPolygon -> multiPolygonManager
+      is Polygon -> polygonManager
+      else -> error("${geometry.javaClass.simpleName} rendering not supported")
+    }
 
   private fun removeFeature(feature: Feature) {
     with(feature) {
@@ -118,31 +133,15 @@ constructor(
     }
   }
 
-  // TODO(!!!): Combine show and hide?
   private fun showItem(tag: Feature.Tag) {
     val feature = featuresByTag[tag] ?: return
-    with(feature) {
-      when (geometry) {
-        is Point -> pointManager.show(tag)
-        is LineString -> lineStringManager.show(tag)
-        is LinearRing -> error("LinearRing rendering not supported")
-        is MultiPolygon -> multiPolygonManager.show(tag)
-        is Polygon -> polygonManager.show(tag)
-      }
-    }
+    getItemManager(feature.geometry).show(tag)
   }
 
   private fun hideItem(tag: Feature.Tag) {
     val feature = featuresByTag[tag] ?: return
-    with(feature) {
-      when (geometry) {
-        is Point -> pointManager.hide(tag)
-        is LineString -> lineStringManager.hide(tag)
-        is LinearRing -> error("LinearRing rendering not supported")
-        is MultiPolygon -> multiPolygonManager.hide(tag)
-        is Polygon -> polygonManager.hide(tag)
-      }
-    }  }
+    getItemManager(feature.geometry).hide(tag)
+  }
 
   fun onCameraIdle() {
     clusterManager.onCameraIdle()
