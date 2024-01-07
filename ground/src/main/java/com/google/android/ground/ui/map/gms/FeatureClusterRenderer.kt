@@ -20,6 +20,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.ground.Config
 import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.map.Feature
 import com.google.maps.android.clustering.Cluster
@@ -39,14 +40,6 @@ class FeatureClusterRenderer(
   clusterManager: ClusterManager<FeatureClusterItem>,
   private val show: (Feature.Tag) -> Unit,
   private val hide: (Feature.Tag) -> Unit,
-  private val clusteringZoomThreshold: Float,
-  /**
-   * The current zoom level to compare against the renderer's threshold.
-   *
-   * To use the current zoom level of the map, this value must be updated on the main thread. Do not
-   * attempt to use the map instance initially passed to the renderer, as renderer methods may not
-   * run on the main thread.
-   */
   var zoom: Float
 ) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
 
@@ -98,5 +91,5 @@ class FeatureClusterRenderer(
    * Returns true iff the current zoom level is less than the configured threshold.
    */
   override fun shouldRenderAsCluster(cluster: Cluster<FeatureClusterItem>): Boolean =
-    zoom < clusteringZoomThreshold
+    zoom < Config.CLUSTERING_ZOOM_THRESHOLD
 }
