@@ -102,9 +102,17 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     isMarkedComplete = false
 
     // Remove last vertex and update polygon
-    val updatedVertices = vertices.toMutableList()
-    updatedVertices.removeLast()
-    updateVertices(updatedVertices.toImmutableList())
+    val updatedVertices = vertices.toMutableList().apply { removeLast() }.toImmutableList()
+
+    // Render changes to UI
+    updateVertices(updatedVertices)
+
+    // Update saved response.
+    if (updatedVertices.isEmpty()) {
+      setValue(null)
+    } else {
+      setValue(DrawAreaTaskIncompleteResult(LineString(updatedVertices)))
+    }
   }
 
   /** Adds the last vertex to the polygon. */
@@ -127,6 +135,11 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
 
     // Render changes to UI
     updateVertices(updatedVertices.toImmutableList())
+
+    // Save response iff it is user initiated
+    if (!shouldOverwriteLastVertex) {
+      setValue(DrawAreaTaskIncompleteResult(LineString(updatedVertices.toImmutableList())))
+    }
   }
 
   private fun updateVertices(newVertices: List<Coordinates>) {
