@@ -97,7 +97,14 @@ constructor(
       features.add(this)
       featuresByTag[tag] = this
       if (clusterable) clusterManager.addFeature(feature) // TODO(!!!): Encapsulate addItem()
-      setMapItem(this, visible = clusterable)
+      when (geometry) {
+        // TODO(!!!): Remove visible here and force clustering after set?
+        is Point -> pointManager.set(map, tag, geometry, style, visible = true)
+        is LineString -> lineStringManager.set(map, tag, geometry, style, visible = true)
+        is LinearRing -> error("LinearRing rendering not supported")
+        is MultiPolygon -> multiPolygonManager.set(map, tag, geometry, style, visible = true)
+        is Polygon -> polygonManager.set(map, tag, geometry, style, visible = true)
+      }
     }
   }
 
@@ -111,24 +118,31 @@ constructor(
     }
   }
 
+  // TODO(!!!): Combine show and hide?
   private fun showItem(tag: Feature.Tag) {
-    featuresByTag[tag]?.let { setMapItem(it, true) }
+    val feature = featuresByTag[tag] ?: return
+    with(feature) {
+      when (geometry) {
+        is Point -> pointManager.show(tag)
+        is LineString -> lineStringManager.show(tag)
+        is LinearRing -> error("LinearRing rendering not supported")
+        is MultiPolygon -> multiPolygonManager.show(tag)
+        is Polygon -> polygonManager.show(tag)
+      }
+    }
   }
 
   private fun hideItem(tag: Feature.Tag) {
-    featuresByTag[tag]?.let { setMapItem(it, false) }
-  }
-
-  private fun setMapItem(feature: Feature, visible: Boolean) =
+    val feature = featuresByTag[tag] ?: return
     with(feature) {
       when (geometry) {
-        is Point -> pointManager.set(map, tag, geometry, style, visible)
-        is LineString -> lineStringManager.set(map, tag, geometry, style, visible)
+        is Point -> pointManager.hide(tag)
+        is LineString -> lineStringManager.hide(tag)
         is LinearRing -> error("LinearRing rendering not supported")
-        is MultiPolygon -> multiPolygonManager.set(map, tag, geometry, style, visible)
-        is Polygon -> polygonManager.set(map, tag, geometry, style, visible)
+        is MultiPolygon -> multiPolygonManager.hide(tag)
+        is Polygon -> polygonManager.hide(tag)
       }
-    }
+    }  }
 
   fun onCameraIdle() {
     clusterManager.onCameraIdle()

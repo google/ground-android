@@ -41,6 +41,7 @@ class PolygonRenderer @Inject constructor(resources: Resources) :
     style: Feature.Style,
     visible: Boolean
   ): MapsPolygon {
+    Timber.e("!!! Adding multi polygon")
     val strokeScale = if (style.selected) 2f else 1f
     val options = PolygonOptions()
     with(options) {
@@ -68,6 +69,7 @@ class PolygonRenderer @Inject constructor(resources: Resources) :
   }
 
   override fun remove(mapItem: MapsPolygon) {
+    Timber.e("!!! Removing multi polygon")
     mapItem.remove()
   }
 }

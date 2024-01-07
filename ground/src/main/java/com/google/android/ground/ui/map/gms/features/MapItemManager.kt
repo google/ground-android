@@ -32,6 +32,14 @@ class MapItemManager<T : Geometry, U : Any>(private val mapItemRenderer: MapItem
     itemsByTag[tag] = mapItemRenderer.addMapItem(map, tag, geometry, style, visible)
   }
 
+  fun show(tag: Feature.Tag) {
+    itemsByTag[tag]?.let(mapItemRenderer::show)
+  }
+
+  fun hide(tag: Feature.Tag) {
+    itemsByTag[tag]?.let(mapItemRenderer::hide)
+  }
+
   fun remove(tag: Feature.Tag) {
     itemsByTag.remove(tag)?.let(mapItemRenderer::remove)
   }
