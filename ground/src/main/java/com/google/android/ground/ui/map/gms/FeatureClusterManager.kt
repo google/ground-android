@@ -28,7 +28,7 @@ class FeatureClusterManager(context: Context?, map: GoogleMap) :
   val features: Set<Feature>
     get() = algorithm.items.map { it.feature }.toSet()
 
-  fun setFeatures(newFeatures: Set<Feature>) {
+  fun setFeatures(newFeatures: Collection<Feature>) {
     val newClusterFeatures = newFeatures.filter { it.clusterable }.toSet()
     val staleFeatures = features - newClusterFeatures
     removeFeatures(staleFeatures)

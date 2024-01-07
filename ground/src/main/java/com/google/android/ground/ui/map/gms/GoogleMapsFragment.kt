@@ -69,8 +69,6 @@ const val MARKER_Z = 3f
  */
 @AndroidEntryPoint(SupportMapFragment::class)
 class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
-  private lateinit var clusterRenderer: FeatureClusterRenderer
-
   /** Map drag events. Emits items when the map drag has started. */
   override val startDragEvents = MutableSharedFlow<Unit>()
 
@@ -81,8 +79,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   @Inject lateinit var bitmapUtil: BitmapUtil
 
   private lateinit var map: GoogleMap
-
-  private lateinit var clusterManager: FeatureClusterManager
 
   override val supportedMapTypes: List<MapType> = IDS_BY_MAP_TYPE.keys.toList()
 
@@ -157,18 +153,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun onMapReady(map: GoogleMap) {
     this.map = map
 
-    clusterManager = FeatureClusterManager(requireContext(), map)
-    clusterRenderer =
-      FeatureClusterRenderer(
-        requireContext(),
-        map,
-        clusterManager,
-        featureManager,
-        Config.CLUSTERING_ZOOM_THRESHOLD,
-        map.cameraPosition.zoom
-      )
-    clusterManager.setOnClusterClickListener(this::onClusterItemClick)
-    clusterManager.renderer = clusterRenderer
+    featureManager.onMapReady(map)
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
@@ -242,10 +227,8 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   }
 
   override fun setFeatures(newFeatures: Set<Feature>) {
-    Timber.v("renderFeatures() called with ${newFeatures.size} features")
-    // TODO(!!!): Harmonize clusterManager and other managers, call with `forEach`
-    clusterManager.setFeatures(newFeatures)
-    featureManager.setFeatures(map, newFeatures)
+    Timber.v("setFeatures() called with ${newFeatures.size} features")
+    featureManager.setFeatures(newFeatures)
   }
 
   override fun refresh() {
@@ -257,6 +240,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   private fun onCameraIdle() {
     val cameraPosition = map.cameraPosition
     val projection = map.projection
+    // TODO(!!!)
     clusterRenderer.zoom = cameraPosition.zoom
     clusterManager.onCameraIdle()
     viewLifecycleOwner.lifecycleScope.launch {

@@ -16,20 +16,27 @@
 
 package com.google.android.ground.ui.map.gms.features
 
+import android.content.Context
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.ground.Config
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.gms.FeatureClusterItem
+import com.google.android.ground.ui.map.gms.FeatureClusterRenderer
 import com.google.maps.android.PolyUtil
+import com.google.maps.android.clustering.ClusterManager
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class FeatureManager
 @Inject
 constructor(
+  @ApplicationContext private val context: Context,
   pointRenderer: PointRenderer,
   polygonRenderer: PolygonRenderer,
   multiPolygonRenderer: MultiPolygonRenderer,
@@ -44,25 +51,54 @@ constructor(
   private val mapItemManagers =
     listOf(pointManager, polygonManager, multiPolygonManager, lineStringManager)
 
-  fun setFeatures(map: GoogleMap, updatedFeatures: Set<Feature>) {
+  private lateinit var map: GoogleMap
+  private lateinit var clusterManager: ClusterManager<FeatureClusterItem>
+
+  fun onMapReady(map: GoogleMap) {
+    this.map = map
+    clusterManager = ClusterManager<FeatureClusterItem>(context, map)
+    val clusterRenderer =
+      FeatureClusterRenderer(
+        context,
+        map,
+        clusterManager,
+        this::showItem,
+        this::hideItem,
+        Config.CLUSTERING_ZOOM_THRESHOLD,
+        map.cameraPosition.zoom
+      )
+    //    clusterManager.setOnClusterClickListener(this::onClusterItemClick) // TODO(!!!): Add
+    // callback
+    clusterManager.renderer = clusterRenderer
+  }
+
+  private fun hideItem(tag: Feature.Tag) {
+    TODO("Not yet implemented")
+  }
+
+  private fun showItem(tag: Feature.Tag) {
+    TODO("Not yet implemented")
+  }
+
+  fun setFeatures(updatedFeatures: Collection<Feature>) {
     // remove stale
-    val removedOrChanged = features - updatedFeatures
+    val removedOrChanged = features - updatedFeatures.toSet()
     removedOrChanged.forEach(this::removeFeature)
     // add missing
     val newOrChanged = updatedFeatures - features
-    newOrChanged.forEach { setFeature(map, it) }
+    newOrChanged.forEach { addFeature(it) }
   }
 
-  fun setFeature(map: GoogleMap, feature: Feature) {
+  private fun addFeature(feature: Feature) {
     with(feature) {
       features.add(this)
       featuresByTag[tag] = this
       when (geometry) {
-        is Point -> pointManager.set(map, tag, geometry, style)
-        is LineString -> lineStringManager.set(map, tag, geometry, style)
+        is Point -> pointManager.set(map, tag, geometry, style, visible = clusterable)
+        is LineString -> lineStringManager.set(map, tag, geometry, style, visible = clusterable)
         is LinearRing -> error("LinearRing rendering not supported")
-        is MultiPolygon -> multiPolygonManager.set(map, tag, geometry, style)
-        is Polygon -> polygonManager.set(map, tag, geometry, style)
+        is MultiPolygon -> multiPolygonManager.set(map, tag, geometry, style, visible = clusterable)
+        is Polygon -> polygonManager.set(map, tag, geometry, style, visible = clusterable)
       }
     }
   }

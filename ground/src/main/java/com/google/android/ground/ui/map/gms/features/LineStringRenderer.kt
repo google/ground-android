@@ -45,12 +45,14 @@ class LineStringRenderer @Inject constructor(resources: Resources, bitmapUtil: B
     map: GoogleMap,
     featureTag: Feature.Tag,
     geometry: LineString,
-    style: Feature.Style
+    style: Feature.Style,
+    visible: Boolean
   ): Polyline {
     val options = PolylineOptions()
     with(options) {
       clickable(false)
       addAll(geometry.coordinates.toLatLngList())
+      visible(visible)
     }
     val polyline = map.addPolyline(options)
     val strokeScale = if (style.selected) 2f else 1f
@@ -66,6 +68,14 @@ class LineStringRenderer @Inject constructor(resources: Resources, bitmapUtil: B
       zIndex = POLYLINE_Z
     }
     return polyline
+  }
+
+  override fun show(mapItem: Polyline) {
+    mapItem.isVisible = true
+  }
+
+  override fun hide(mapItem: Polyline) {
+    mapItem.isVisible = false
   }
 
   override fun remove(mapItem: Polyline) {

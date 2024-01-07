@@ -28,6 +28,7 @@ import com.google.android.ground.ui.map.gms.POLYGON_Z
 import com.google.android.ground.ui.map.gms.toLatLng
 import com.google.android.ground.ui.map.gms.toLatLngList
 import javax.inject.Inject
+import timber.log.Timber
 
 class PolygonRenderer @Inject constructor(resources: Resources) :
   MapItemRenderer<Polygon, MapsPolygon> {
@@ -37,29 +38,38 @@ class PolygonRenderer @Inject constructor(resources: Resources) :
     map: GoogleMap,
     featureTag: Feature.Tag,
     geometry: Polygon,
-    style: Feature.Style
+    style: Feature.Style,
+    visible: Boolean
   ): MapsPolygon {
+    Timber.e("!!! Adding multi polygon")
+    val strokeScale = if (style.selected) 2f else 1f
     val options = PolygonOptions()
     with(options) {
-      clickable(false)
       addAll(geometry.shell.coordinates.map { it.toLatLng() })
+      geometry.holes.forEach { addHole(it.coordinates.toLatLngList()) }
+      clickable(false)
+      visible(visible)
+      zIndex((POLYGON_Z))
+      strokeWidth(defaultStrokeWidth * strokeScale)
+      strokeColor(style.color)
+      strokeJointType(JointType.ROUND)
     }
-
-    geometry.holes.forEach { options.addHole(it.coordinates.toLatLngList()) }
 
     val mapsPolygon = map.addPolygon(options)
-    val strokeScale = if (style.selected) 2f else 1f
-    with(mapsPolygon) {
-      tag = featureTag
-      strokeWidth = defaultStrokeWidth * strokeScale
-      strokeColor = style.color
-      strokeJointType = JointType.ROUND
-      zIndex = POLYGON_Z
-    }
+    mapsPolygon.tag = featureTag
     return mapsPolygon
   }
 
+  override fun show(mapItem: MapsPolygon) {
+    mapItem.isVisible = true
+  }
+
+  override fun hide(mapItem: MapsPolygon) {
+    mapItem.isVisible = false
+  }
+
   override fun remove(mapItem: MapsPolygon) {
+    Timber.e("!!! Removing multi polygon")
     mapItem.remove()
   }
 }

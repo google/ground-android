@@ -22,6 +22,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.Polyline
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.ui.IconFactory
@@ -44,21 +45,19 @@ constructor(resources: Resources, private val markerIconFactory: IconFactory) :
     map: GoogleMap,
     tag: Feature.Tag,
     geometry: Point,
-    style: Feature.Style
+    style: Feature.Style,
+    visible: Boolean
   ): Marker {
     val markerOptions = MarkerOptions()
-    markerOptions.position(geometry.coordinates.toLatLng())
-    setMarkerOptions(markerOptions, style)
+    with(markerOptions) {
+      position(geometry.coordinates.toLatLng())
+      icon(getMarkerIcon(style))
+      zIndex(MARKER_Z)
+      visible(visible)
+    }
     val marker = map.addMarker(markerOptions) ?: error("Failed to create marker")
     marker.tag = tag
     return marker
-  }
-
-  private fun setMarkerOptions(markerOptions: MarkerOptions, style: Feature.Style) {
-    with(markerOptions) {
-      icon(getMarkerIcon(style))
-      zIndex(MARKER_Z)
-    }
   }
 
   private fun getMarkerIcon(style: Feature.Style): BitmapDescriptor {
@@ -68,6 +67,14 @@ constructor(resources: Resources, private val markerIconFactory: IconFactory) :
       scale *= selectedMarkerScaleFactor
     }
     return markerIconFactory.getMarkerIcon(style.color, scale)
+  }
+
+  override fun show(mapItem: Marker) {
+    mapItem.isVisible = true
+  }
+
+  override fun hide(mapItem: Marker) {
+    mapItem.isVisible = false
   }
 
   override fun remove(mapItem: Marker) {

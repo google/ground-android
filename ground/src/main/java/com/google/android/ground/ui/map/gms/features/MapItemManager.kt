@@ -25,8 +25,11 @@ class MapItemManager<T : Geometry, U : Any>(private val mapItemRenderer: MapItem
   val items: Iterable<U>
     get() = itemsByTag.values
 
-  fun set(map: GoogleMap, tag: Feature.Tag, geometry: T, style: Feature.Style) {
-    itemsByTag[tag] = mapItemRenderer.addMapItem(map, tag, geometry, style)
+  fun set(map: GoogleMap, tag: Feature.Tag, geometry: T, style: Feature.Style, visible: Boolean) {
+    // If map item with this tag already exists, remove it.
+    itemsByTag[tag]?.let(mapItemRenderer::remove)
+    // Add item to map and index.
+    itemsByTag[tag] = mapItemRenderer.addMapItem(map, tag, geometry, style, visible)
   }
 
   fun remove(tag: Feature.Tag) {

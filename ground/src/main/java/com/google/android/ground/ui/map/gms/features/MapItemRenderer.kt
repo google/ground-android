@@ -20,7 +20,17 @@ import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.ui.map.Feature
 
 interface MapItemRenderer<T : Geometry, U> {
-  fun addMapItem(map: GoogleMap, featureTag: Feature.Tag, geometry: T, style: Feature.Style): U
+  fun addMapItem(
+    map: GoogleMap,
+    featureTag: Feature.Tag,
+    geometry: T,
+    style: Feature.Style,
+    visible: Boolean
+  ): U
+
+  fun show(mapItem: U)
+
+  fun hide(mapItem: U)
 
   fun remove(mapItem: U)
 }
