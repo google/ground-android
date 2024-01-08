@@ -19,6 +19,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
@@ -106,8 +107,37 @@ class DrawAreaTaskFragmentTest :
   }
 
   @Test
+  fun testDrawArea_incompleteWhenTaskIsOptional() = runWithTestDispatcher {
+    setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
+
+    updateLastVertexAndAddPoint(COORDINATE_1)
+    updateLastVertexAndAddPoint(COORDINATE_2)
+    updateLastVertexAndAddPoint(COORDINATE_3)
+
+    hasValue(
+      DrawAreaTaskIncompleteResult(
+        LineString(
+          listOf(
+            Coordinates(0.0, 0.0),
+            Coordinates(10.0, 10.0),
+            Coordinates(20.0, 20.0),
+            Coordinates(20.0, 20.0),
+          )
+        )
+      )
+    )
+
+    // Only "Undo" and "Add point" buttons should be visible.
+    buttonIsHidden("Next")
+    buttonIsHidden("Skip")
+    buttonIsEnabled(ButtonAction.UNDO)
+    buttonIsEnabled("Add point")
+    buttonIsHidden("Complete")
+  }
+
+  @Test
   fun testDrawArea() = runWithTestDispatcher {
-    setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = true))
+    setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
 
     updateLastVertexAndAddPoint(COORDINATE_1)
     updateLastVertexAndAddPoint(COORDINATE_2)
@@ -129,6 +159,13 @@ class DrawAreaTaskFragmentTest :
         )
       )
     )
+
+    // Only "Undo" and "Complete" buttons should be visible.
+    buttonIsHidden("Next")
+    buttonIsHidden("Skip")
+    buttonIsEnabled(ButtonAction.UNDO)
+    buttonIsHidden("Add point")
+    buttonIsEnabled("Complete")
   }
 
   /** Overwrites the last vertex and also adds a new one. */
