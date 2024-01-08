@@ -56,6 +56,7 @@ constructor(
     mapsItemManager = MapsItemManager(map, pointRenderer, polygonRenderer, lineStringRenderer)
     clusterManager = FeatureClusterManager(context, map)
     clusterRenderer = FeatureClusterRenderer(context, map, clusterManager, map.cameraPosition.zoom)
+    // TODO(!!!): Markers are intermittently not rendered after zooming in.
     clusterRenderer.onClusterItemRendered = { mapsItemManager.setVisible(it, true) }
     clusterRenderer.onClusterRendered = { mapsItemManager.setVisible(it, false) }
     clusterManager.setOnClusterClickListener(this::onClusterClick)
