@@ -26,7 +26,7 @@ import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.map.Feature
-import com.google.maps.android.PolyUtil
+import com.google.maps.android.PolyUtil.*
 
 class MapsItemManager(
   private val map: GoogleMap,
@@ -34,7 +34,7 @@ class MapsItemManager(
   private val polygonRenderer: PolygonRenderer,
   private val lineStringRenderer: LineStringRenderer
 ) {
-  private val itemsByTag = mutableMapOf<Feature.Tag, Array<Any>>()
+  private val itemsByTag = mutableMapOf<Feature.Tag, List<Any>>()
 
   fun add(feature: Feature, visible: Boolean) =
     with(feature) {
@@ -44,13 +44,11 @@ class MapsItemManager(
       itemsByTag[tag] =
         when (geometry) {
           // TODO(!!!) Inject Map in Renderers as well
-          is Point -> arrayOf(pointRenderer.add(map, tag, geometry, style, visible))
-          is Polygon -> arrayOf(polygonRenderer.add(map, tag, geometry, style, visible))
+          is Point -> listOf(pointRenderer.add(map, tag, geometry, style, visible))
+          is Polygon -> listOf(polygonRenderer.add(map, tag, geometry, style, visible))
           is MultiPolygon ->
-            geometry.polygons
-              .map { polygonRenderer.add(map, tag, it, style, visible) }
-              .toTypedArray()
-          is LineString -> arrayOf(lineStringRenderer.add(map, tag, geometry, style, visible))
+            geometry.polygons.map { polygonRenderer.add(map, tag, it, style, visible) }
+          is LineString -> listOf(lineStringRenderer.add(map, tag, geometry, style, visible))
           else -> error("Render ${geometry.javaClass} geometry not supported")
         }
     }
@@ -76,11 +74,11 @@ class MapsItemManager(
     }
 
   fun getIntersectingPolygonTags(latLng: LatLng): Set<Feature.Tag> {
-    // TODO(!!!): Ignore holes!
-    val flattenedItems = itemsByTag.values.flatMap { it.toList() }
+    val flattenedItems = itemsByTag.values.flatten()
     val polygons = flattenedItems.filterIsInstance<MapsPolygon>()
     return polygons
-      .filter { PolyUtil.containsLocation(latLng, it.points, false) }
+      .filter { containsLocation(latLng, it.points, false) }
+      .filter { it.holes.none { hole -> containsLocation(latLng, hole, false) } }
       .map { it.tag as Feature.Tag }
       .toSet()
   }
