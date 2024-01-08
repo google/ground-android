@@ -47,7 +47,7 @@ class PolygonRenderer @Inject constructor(resources: Resources) :
       geometry.holes.forEach { addHole(it.coordinates.toLatLngList()) }
       clickable(false)
       visible(visible)
-      zIndex((POLYGON_Z))
+      zIndex(POLYGON_Z)
       strokeWidth(defaultStrokeWidth * strokeScale)
       strokeColor(style.color)
       strokeJointType(JointType.ROUND)

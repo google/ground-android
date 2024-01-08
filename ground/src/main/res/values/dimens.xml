@@ -21,7 +21,6 @@
   <dimen name="line_geometry_width">4dp</dimen>
   <item name="default_marker_scale_factor" format="float" type="dimen">2</item>
   <item name="selected_marker_scale_factor" format="float" type="dimen">1.5</item>
-  <item name="zoomed_marker_scale_factor" format="float" type="dimen">2.5</item>
 
   <!-- Task -->
   <dimen name="task_value_top_padding">4dp</dimen>
