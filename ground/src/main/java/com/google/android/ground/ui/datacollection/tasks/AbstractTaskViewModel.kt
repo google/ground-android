@@ -25,7 +25,6 @@ import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractViewModel
-import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskIncompleteResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -66,18 +65,11 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
     return result
   }
 
-  // TODO: Check valid values.
-  private fun validate(task: Task, value: Value?): String? {
+  open fun validate(task: Task, value: Value?): String? {
     // Empty response for a required task.
     if (task.isRequired && (value == null || value.isEmpty())) {
       return resources.getString(R.string.required_task)
     }
-
-    // Invalid response for draw area task.
-    if (task.type == Task.Type.DRAW_AREA && value is DrawAreaTaskIncompleteResult) {
-      return resources.getString(R.string.incomplete_area)
-    }
-
     return null
   }
 
