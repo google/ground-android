@@ -24,7 +24,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import timber.log.Timber
 
-/** This class is not thread-safe. */
+/**
+ * Coordinates adding, removing, and updating of [Feature]s to the map. This abstracts access to
+ * both rendering of individual features, as well as clustering. This class is not thread-safe.
+ */
 class FeatureManager
 @Inject
 constructor(
@@ -41,14 +44,17 @@ constructor(
   private lateinit var clusterManager: FeatureClusterManager
   private lateinit var clusterRenderer: FeatureClusterRenderer
 
-  // This must be set rather than read from `map.cameraPosition` since that object is only
-  // accessible on the UI thread.
+  /**
+   * The camera's current zoom level. This must be set here since this impl can't access
+   * `map.cameraPosition` from off the main UI thread.
+   */
   var zoom: Float
     get() = clusterRenderer.zoom
     set(value) {
       clusterRenderer.zoom = value
     }
 
+  /** Clears all managed state an binds to the provided [GoogleMap]. */
   fun onMapReady(map: GoogleMap) {
     features.clear()
     featuresByTag.clear()
@@ -61,6 +67,10 @@ constructor(
     this.map = map
   }
 
+  /**
+   * Updates the current set of features managed by the manager, adding and removing items from the
+   * map as needed to sync the map state with the provided collection.
+   */
   fun setFeatures(updatedFeatures: Collection<Feature>) {
     // remove stale
     val removedOrChanged = features - updatedFeatures.toSet()
@@ -73,9 +83,18 @@ constructor(
     Timber.v("${removedOrChanged.size} features removed, ${newOrChanged.size} added")
   }
 
+  /**
+   * Returns the set of areas (polygon or multi-polygon features) which overlap with the specified
+   * coordinates.
+   */
   fun getIntersectingPolygons(latLng: LatLng): Set<Feature> =
     mapsItemManager.getIntersectingPolygonTags(latLng).mapNotNull { featuresByTag[it] }.toSet()
 
+  /**
+   * Adds a feature to the map, cluster, and to this class' internal index. Clusterable features are
+   * initialized as hidden so that the clusterer can determine whether they should be shown based on
+   * zoom level.
+   */
   private fun add(feature: Feature) =
     with(feature) {
       features.add(this)

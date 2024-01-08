@@ -26,12 +26,12 @@ import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
 
-/** Manages clusters of map [Feature]s. */
+/** Manages clustering of map [Feature]s. */
 class FeatureClusterManager(context: Context, private val map: GoogleMap) :
   ClusterManager<FeatureClusterItem>(context, map) {
 
   private val itemsByTag = mutableMapOf<Feature.Tag, FeatureClusterItem>()
-  private val zoomOnClickPadding: Int by lazy {
+  private val viewportPadding: Int by lazy {
     context.resources.getDimension(R.dimen.zoom_on_cluster_click_padding).toInt()
   }
 
@@ -39,25 +39,29 @@ class FeatureClusterManager(context: Context, private val map: GoogleMap) :
     setOnClusterClickListener(this::onClusterClick)
   }
 
+  /** Adds the specified feature for clustering. */
   fun addFeature(feature: Feature) {
+    removeFeature(feature.tag)
     val item = FeatureClusterItem(feature)
     addItem(item)
     itemsByTag[feature.tag] = item
   }
 
+  /** Removes the specified feature . */
   fun removeFeature(tag: Feature.Tag) {
     itemsByTag.remove(tag)?.let { removeItem(it) }
   }
 
-  /** Pan and zoom the camera to the bounds of contained LOIs. */
+  /** Pan and zoom the camera to the bounds of features contained in the selected cluster. */
   private fun onClusterClick(cluster: Cluster<FeatureClusterItem>): Boolean {
-    cluster.items.map { it.feature.geometry }.toBounds()?.let { moveCamera(it) }
+    cluster.items.map { it.feature.geometry }.toBounds()?.let { animateCamera(it) }
     return true
   }
 
-  private fun moveCamera(bounds: Bounds) {
+  /** Center and zoom the viewport to the specified bounds, minus additional padding. */
+  private fun animateCamera(bounds: Bounds) {
     map.animateCamera(
-      CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), zoomOnClickPadding)
+      CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), viewportPadding)
     )
   }
 }

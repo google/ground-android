@@ -20,7 +20,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.ground.Config
+import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.gms.CLUSTER_Z
@@ -32,8 +32,10 @@ import com.google.maps.android.clustering.view.DefaultClusterRenderer
  * A cluster renderer for [FeatureClusterItem]s.
  *
  * Cluster rendering is determined by checking the current map zoom level against a given threshold.
- * Clusters will render when the zoom level is lesser than the threshold, otherwise we render
- * individual markers for each cluster item.
+ * Cluster bubbles are shown when the zoom level is less than [CLUSTERING_ZOOM_THRESHOLD], otherwise
+ * they are hidden. Individual clustered map items are not rendered by this class. Instead, callers
+ * should hide and show items in callbacks set in [onClusterRendered] and [onClusterItemRendered],
+ * respectively.
  */
 class FeatureClusterRenderer(
   context: Context,
@@ -41,16 +43,23 @@ class FeatureClusterRenderer(
   clusterManager: ClusterManager<FeatureClusterItem>,
   var zoom: Float
 ) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
+  /**
+   * Called when the cluster balloon is shown so that implementations can unhide related map items.
+   */
   lateinit var onClusterRendered: (Feature.Tag) -> Unit
+  /**
+   * Called when the cluster balloon is display so that implementations can hide related map items.
+   */
   lateinit var onClusterItemRendered: (Feature.Tag) -> Unit
 
   private val markerIconFactory: IconFactory = IconFactory(context)
 
-  /** Sets appropriate styling for clustered items prior to rendering. */
+  /**
+   * Hides the marker provided by [DefaultClusterRenderer] and instead triggers the callback
+   * provided in [onClusterItemRendered]. Called when zooming out past [CLUSTERING_ZOOM_THRESHOLD].
+   */
   override fun onBeforeClusterItemRendered(item: FeatureClusterItem, markerOptions: MarkerOptions) {
-    // Hide clusterer's default marker.
     markerOptions.visible(false)
-    // Instead, display the feature manager's rendering of the feature.
     onClusterItemRendered(item.feature.tag)
   }
 
@@ -64,6 +73,11 @@ class FeatureClusterRenderer(
     return markerIconFactory.getClusterIcon("$itemsWithFlag/$totalItems")
   }
 
+  /**
+   * Triggers the callback provided in [onClusterRendered] to hide the individual map items and
+   * renders the app's custom cluster balloon. Called when zooming in to
+   * [CLUSTERING_ZOOM_THRESHOLD].
+   */
   override fun onBeforeClusterRendered(
     cluster: Cluster<FeatureClusterItem>,
     markerOptions: MarkerOptions
@@ -79,18 +93,16 @@ class FeatureClusterRenderer(
     }
   }
 
+  /** Refreshes the counts shown on the cluster icon when reclustering, including on zoom. */
   override fun onClusterUpdated(cluster: Cluster<FeatureClusterItem>, marker: Marker) {
-    super.onClusterUpdated(cluster, marker)
-
-    // Update icon in case the # of list of items changes.
     marker.setIcon(createClusterIcon(cluster))
   }
 
   /**
-   * Indicates whether or not a cluster should be rendered as a cluster or individual markers.
+   * Indicates whether or not a cluster should be rendered as a cluster or individual map items.
    *
-   * Returns true iff the current zoom level is less than the configured threshold.
+   * Returns true iff the current zoom level is less than [CLUSTERING_ZOOM_THRESHOLD].
    */
   override fun shouldRenderAsCluster(cluster: Cluster<FeatureClusterItem>): Boolean =
-    zoom < Config.CLUSTERING_ZOOM_THRESHOLD
+    zoom < CLUSTERING_ZOOM_THRESHOLD
 }
