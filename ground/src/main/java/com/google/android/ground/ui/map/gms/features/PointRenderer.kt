@@ -36,9 +36,9 @@ constructor(resources: Resources, private val markerIconFactory: IconFactory) :
   MapsItemRenderer<Point, Marker> {
 
   private val defaultMarkerScale =
-    ResourcesCompat.getFloat(resources, R.dimen.marker_bitmap_default_scale)
+    ResourcesCompat.getFloat(resources, R.dimen.default_marker_scale_factor)
   private val selectedMarkerScaleFactor =
-    ResourcesCompat.getFloat(resources, R.dimen.marker_bitmap_selected_scale_factor)
+    ResourcesCompat.getFloat(resources, R.dimen.selected_marker_scale_factor)
 
   override fun add(
     map: GoogleMap,

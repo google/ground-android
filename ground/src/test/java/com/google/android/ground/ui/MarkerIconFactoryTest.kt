@@ -53,7 +53,7 @@ class MarkerIconFactoryTest : BaseHiltTest() {
   fun markerBitmap_zoomedOut_scaleIsSetCorrectly() {
     val bitmap = markerIconFactory.getMarkerBitmap(Color.BLUE, Config.ZOOM_LEVEL_THRESHOLD - 0.1f)
 
-    val scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
+    val scale = ResourcesCompat.getFloat(context.resources, R.dimen.default_marker_scale_factor)
     verifyBitmapScale(bitmap, scale)
   }
 
@@ -61,7 +61,7 @@ class MarkerIconFactoryTest : BaseHiltTest() {
   fun markerBitmap_zoomedIn_scaleIsSetCorrectly() {
     val bitmap = markerIconFactory.getMarkerBitmap(Color.BLUE, Config.ZOOM_LEVEL_THRESHOLD)
 
-    val scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
+    val scale = ResourcesCompat.getFloat(context.resources, R.dimen.zoomed_marker_scale_factor)
     verifyBitmapScale(bitmap, scale)
   }
 
@@ -70,7 +70,7 @@ class MarkerIconFactoryTest : BaseHiltTest() {
     val bitmap =
       markerIconFactory.getMarkerBitmap(Color.BLUE, Config.ZOOM_LEVEL_THRESHOLD - 0.1f, true)
 
-    val scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale) + 1
+    val scale = ResourcesCompat.getFloat(context.resources, R.dimen.default_marker_scale_factor) + 1
     verifyBitmapScale(bitmap, scale)
   }
 
@@ -78,7 +78,7 @@ class MarkerIconFactoryTest : BaseHiltTest() {
   fun markerBitmap_zoomedIn_isSelected_scaleIsSetCorrectly() {
     val bitmap = markerIconFactory.getMarkerBitmap(Color.BLUE, Config.ZOOM_LEVEL_THRESHOLD, true)
 
-    val scale = ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale) + 1
+    val scale = ResourcesCompat.getFloat(context.resources, R.dimen.zoomed_marker_scale_factor) + 1
     verifyBitmapScale(bitmap, scale)
   }
 
