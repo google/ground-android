@@ -59,14 +59,8 @@ constructor(
     // TODO(!!!): Markers are intermittently not rendered after zooming in.
     clusterRenderer.onClusterItemRendered = { mapsItemManager.setVisible(it, true) }
     clusterRenderer.onClusterRendered = { mapsItemManager.setVisible(it, false) }
-    clusterManager.setOnClusterClickListener(this::onClusterClick)
     clusterManager.renderer = clusterRenderer
     this.map = map
-  }
-
-  private fun onClusterClick(cluster: Cluster<FeatureClusterItem>?): Boolean {
-    // TODO(!!!)
-    return false
   }
 
   fun setFeatures(updatedFeatures: Collection<Feature>) {

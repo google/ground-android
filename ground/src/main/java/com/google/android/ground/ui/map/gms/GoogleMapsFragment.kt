@@ -173,14 +173,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     }
   }
 
-  // TODO(!!!) Move this into FeatureClusterManager.
-  private fun onClusterClick(cluster: Cluster<FeatureClusterItem>): Boolean {
-    // Move the camera to point to LOIs within the current cluster
-    cluster.items.map { it.feature.geometry }.toBounds()?.let { moveCamera(it, true) }
-    return true
-  }
-
-  override fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double {
+    override fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double {
     val projection = map.projection
     val loc1 = projection.toScreenLocation(coordinates1.toGoogleMapsObject())
     val loc2 = projection.toScreenLocation(coordinates2.toGoogleMapsObject())

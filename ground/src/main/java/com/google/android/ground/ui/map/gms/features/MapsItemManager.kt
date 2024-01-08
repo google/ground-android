@@ -43,7 +43,6 @@ class MapsItemManager(
       // Add item to map and index.
       itemsByTag[tag] =
         when (geometry) {
-          // TODO(!!!) Inject Map in Renderers as well
           is Point -> listOf(pointRenderer.add(map, tag, geometry, style, visible))
           is Polygon -> listOf(polygonRenderer.add(map, tag, geometry, style, visible))
           is MultiPolygon ->
