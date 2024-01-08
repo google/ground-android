@@ -60,9 +60,10 @@ constructor(resources: Resources, private val markerIconFactory: IconFactory) :
   }
 
   private fun getMarkerIcon(style: Feature.Style): BitmapDescriptor {
-    // TODO(!!!): How should we update scale based on zoom level? Current impl is likely broken.
+    // TODO(#2167): Allow icon to be updated so we can update scale based on zoom level.
     var scale = defaultMarkerScale
     if (style.selected) {
+      // TODO(#2168): Improve selected marker styling.
       scale *= selectedMarkerScaleFactor
     }
     return markerIconFactory.getMarkerIcon(style.color, scale)
