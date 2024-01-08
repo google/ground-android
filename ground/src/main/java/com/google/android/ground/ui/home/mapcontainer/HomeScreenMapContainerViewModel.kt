@@ -43,10 +43,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
@@ -81,7 +79,7 @@ internal constructor(
     loiRepository
   ) {
 
-  val selectedLoiIdFlow = MutableStateFlow<String?>(null)
+  private val selectedLoiIdFlow = MutableStateFlow<String?>(null)
 
   /** Set of [Feature] to render on the map. */
   val mapLoiFeatures: Flow<Set<Feature>>
@@ -179,8 +177,6 @@ internal constructor(
       }
     }
   }
-
-  fun getZoomThresholdCrossed(): SharedFlow<Nil> = _zoomThresholdCrossed.asSharedFlow()
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
     loiRepository.getLocationsOfInterests(survey).map {
