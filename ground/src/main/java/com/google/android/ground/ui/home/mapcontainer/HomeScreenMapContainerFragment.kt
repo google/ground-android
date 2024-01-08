@@ -75,10 +75,6 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
 
     lifecycleScope.launch {
-      mapContainerViewModel.getZoomThresholdCrossed().collect { onZoomThresholdCrossed() }
-    }
-
-    lifecycleScope.launch {
       val canUserSubmitData = userRepository.canUserSubmitData()
       adapter = MapCardAdapter(canUserSubmitData) { loi, view -> updateSubmissionCount(loi, view) }
       adapter.setCollectDataListener {
@@ -217,9 +213,4 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel
-
-  private fun onZoomThresholdCrossed() {
-    Timber.v("Refresh markers after zoom threshold crossed")
-    map.refresh()
-  }
 }

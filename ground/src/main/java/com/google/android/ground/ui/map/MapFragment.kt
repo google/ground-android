@@ -89,8 +89,6 @@ interface MapFragment {
   /** Update the set of map [Feature]s present on the map. */
   fun setFeatures(newFeatures: Set<Feature>)
 
-  fun refresh()
-
   /** Returns the actual distance in pixels between provided [Coordinates]s. */
   fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double
 

@@ -235,12 +235,6 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     featureManager.setFeatures(newFeatures)
   }
 
-  override fun refresh() {
-    Timber.v("Refresh features")
-    // TODO(!!!): Why is this needed and how does it work? Can we just call cluster() instead?
-    //    setFeatures(clusterManager.features)
-  }
-
   private fun onCameraIdle() {
     val cameraPosition = map.cameraPosition
     val projection = map.projection
