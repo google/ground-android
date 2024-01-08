@@ -54,6 +54,8 @@ data class Feature(
     val selected: Boolean = false
   )
 
+  fun withSelected(selected: Boolean): Feature = copy(style = style.copy(selected = selected))
+
   enum class VertexStyle {
     NONE,
     CIRCLE

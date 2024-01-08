@@ -49,7 +49,6 @@ import com.google.android.ground.ui.util.BitmapUtil
 import com.google.android.ground.util.invert
 import com.google.maps.android.clustering.Cluster
 import dagger.hilt.android.AndroidEntryPoint
-import java8.util.function.Consumer
 import javax.inject.Inject
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -132,33 +131,36 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     layoutInflater: LayoutInflater,
     viewGroup: ViewGroup?,
     bundle: Bundle?
-  ): View =
-    super.onCreateView(layoutInflater, viewGroup, bundle).apply {
+  ): View {
+    Timber.v("Lifecyle event: onCreateView()")
+    return super.onCreateView(layoutInflater, viewGroup, bundle).apply {
       ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
         onApplyWindowInsets(view, insets)
       }
     }
+  }
 
   override fun attachToParent(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
-    onMapReadyCallback: Consumer<MapFragment>
+    onMapReadyCallback: (MapFragment) -> Unit
   ) {
     containerFragment.replaceFragment(containerId, this)
     getMapAsync { googleMap: GoogleMap ->
       onMapReady(googleMap)
-      onMapReadyCallback.accept(this)
+      onMapReadyCallback(this)
     }
   }
 
   private fun onMapReady(map: GoogleMap) {
+    Timber.v("Map event: onMapReady()")
+
     this.map = map
 
     featureManager.onMapReady(map)
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
-
     map.setOnMapClickListener { onMapClick(it) }
 
     with(map.uiSettings) {
@@ -171,7 +173,8 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     }
   }
 
-  private fun onClusterItemClick(cluster: Cluster<FeatureClusterItem>): Boolean {
+  // TODO(!!!) Move this into FeatureClusterManager.
+  private fun onClusterClick(cluster: Cluster<FeatureClusterItem>): Boolean {
     // Move the camera to point to LOIs within the current cluster
     cluster.items.map { it.feature.geometry }.toBounds()?.let { moveCamera(it, true) }
     return true

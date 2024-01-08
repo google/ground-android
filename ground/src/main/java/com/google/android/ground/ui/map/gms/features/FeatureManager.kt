@@ -19,37 +19,26 @@ package com.google.android.ground.ui.map.gms.features
 import android.content.Context
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.ground.model.geometry.Geometry
-import com.google.android.ground.model.geometry.LineString
-import com.google.android.ground.model.geometry.LinearRing
-import com.google.android.ground.model.geometry.MultiPolygon
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.map.Feature
-import com.google.maps.android.PolyUtil
+import com.google.maps.android.clustering.Cluster
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import timber.log.Timber
 
-@Suppress("UNCHECKED_CAST")
+/** This class is not thread-safe. */
 class FeatureManager
 @Inject
 constructor(
   @ApplicationContext private val context: Context,
-  pointRenderer: PointAdapter,
-  polygonRenderer: PolygonAdapter,
-  multiPolygonRenderer: MultiPolygonAdapter,
-  lineStringRenderer: LineStringAdapter
+  private val pointRenderer: PointRenderer,
+  private val polygonRenderer: PolygonRenderer,
+  private val lineStringRenderer: LineStringRenderer
 ) {
   private val features = mutableSetOf<Feature>()
   private val featuresByTag = mutableMapOf<Feature.Tag, Feature>()
-  private val pointManager = MapItemManager(pointRenderer)
-  private val polygonManager = MapItemManager(polygonRenderer)
-  private val multiPolygonManager = MapItemManager(multiPolygonRenderer)
-  private val lineStringManager = MapItemManager(lineStringRenderer)
-  private val mapItemManagers =
-    listOf(pointManager, polygonManager, multiPolygonManager, lineStringManager)
 
   private lateinit var map: GoogleMap
+  private lateinit var mapsItemManager: MapsItemManager
   private lateinit var clusterManager: FeatureClusterManager
   private lateinit var clusterRenderer: FeatureClusterRenderer
 
@@ -62,86 +51,53 @@ constructor(
     }
 
   fun onMapReady(map: GoogleMap) {
-    this.map = map
+    features.clear()
+    featuresByTag.clear()
+    mapsItemManager = MapsItemManager(map, pointRenderer, polygonRenderer, lineStringRenderer)
     clusterManager = FeatureClusterManager(context, map)
-    clusterRenderer =
-      FeatureClusterRenderer(
-        context,
-        map,
-        clusterManager,
-        this::showItem,
-        this::hideItem,
-        map.cameraPosition.zoom
-      )
-    //    clusterManager.setOnClusterClickListener(this::onClusterItemClick) // TODO(!!!): Add
-    // callback
+    clusterRenderer = FeatureClusterRenderer(context, map, clusterManager, map.cameraPosition.zoom)
+    clusterRenderer.onClusterItemRendered = { mapsItemManager.setVisible(it, true) }
+    clusterRenderer.onClusterRendered = { mapsItemManager.setVisible(it, false) }
+    clusterManager.setOnClusterClickListener(this::onClusterClick)
     clusterManager.renderer = clusterRenderer
+    this.map = map
+  }
+
+  private fun onClusterClick(cluster: Cluster<FeatureClusterItem>?): Boolean {
+    // TODO(!!!)
+    return false
   }
 
   fun setFeatures(updatedFeatures: Collection<Feature>) {
     // remove stale
     val removedOrChanged = features - updatedFeatures.toSet()
-    removedOrChanged.forEach(this::removeFeature)
+    removedOrChanged.forEach(this::remove)
     // add missing
     val newOrChanged = updatedFeatures - features
-    newOrChanged.forEach { addFeature(it) }
+    newOrChanged.forEach { add(it) }
     // cluster and update visibility
     clusterManager.cluster()
+    Timber.v("${removedOrChanged.size} features removed, ${newOrChanged.size} added")
   }
 
-  fun getIntersectingPolygons(latLng: LatLng): Set<Feature> {
-    val polygons = polygonManager.items + multiPolygonManager.items.flatten()
-    return polygons
-      .filter { PolyUtil.containsLocation(latLng, it.points, false) }
-      .mapNotNull { featuresByTag[it.tag as Feature.Tag] }
-      .toSet()
-  }
+  fun getIntersectingPolygons(latLng: LatLng): Set<Feature> =
+    mapsItemManager.getIntersectingPolygonTags(latLng).mapNotNull { featuresByTag[it] }.toSet()
 
-  private fun addFeature(feature: Feature) {
+  private fun add(feature: Feature) =
     with(feature) {
       features.add(this)
       featuresByTag[tag] = this
-      if (clusterable) clusterManager.addFeature(feature)
-      when (geometry) {
-        // TODO: Refactor to get manager generically from a map.
-        is Point -> pointManager.set(map, tag, geometry, style, visible = !clusterable)
-        is LineString -> lineStringManager.set(map, tag, geometry, style, visible = !clusterable)
-        is LinearRing -> error("LinearRing rendering not supported")
-        is MultiPolygon ->
-          multiPolygonManager.set(map, tag, geometry, style, visible = !clusterable)
-        is Polygon -> polygonManager.set(map, tag, geometry, style, visible = !clusterable)
-      }
-    }
-  }
-
-  private fun <U : Geometry> getItemManager(geometry: U) =
-    when (geometry) {
-      is Point -> pointManager
-      is LineString -> lineStringManager
-      is MultiPolygon -> multiPolygonManager
-      is Polygon -> polygonManager
-      else -> error("${geometry.javaClass.simpleName} rendering not supported")
+      if (clusterable) clusterManager.addFeature(this)
+      mapsItemManager.add(feature, visible = !clusterable)
     }
 
-  private fun removeFeature(feature: Feature) {
+  private fun remove(feature: Feature) =
     with(feature) {
-      // Remove from all managers in case geometry type changed.
-      mapItemManagers.forEach { it.remove(tag) }
-      if (clusterable) clusterManager.removeFeature(tag)
       features.remove(this)
       featuresByTag.remove(tag)
+      mapsItemManager.remove(tag)
+      clusterManager.removeFeature(tag)
     }
-  }
-
-  private fun showItem(tag: Feature.Tag) {
-    val feature = featuresByTag[tag] ?: return
-    getItemManager(feature.geometry).show(tag)
-  }
-
-  private fun hideItem(tag: Feature.Tag) {
-    val feature = featuresByTag[tag] ?: return
-    getItemManager(feature.geometry).hide(tag)
-  }
 
   fun onCameraIdle() {
     clusterManager.onCameraIdle()

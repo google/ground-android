@@ -143,14 +143,8 @@ internal constructor(
   }
 
   private fun applySelectedState(features: Set<Feature>, selectedLoiId: String?): Set<Feature> =
-    // TODO(!!!): Update polygon styling when deselected.
-    // TODO(!!!): Remove polygons when zooming out.
     features
-      .map {
-        it.copy(
-          style = it.style.copy(selected = it.isLocationOfInterest() && it.tag.id == selectedLoiId)
-        )
-      }
+      .map { it.withSelected(it.isLocationOfInterest() && it.tag.id == selectedLoiId) }
       .toSet()
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {

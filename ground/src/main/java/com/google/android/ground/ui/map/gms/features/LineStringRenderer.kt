@@ -31,17 +31,20 @@ import com.google.android.ground.ui.map.gms.toLatLngList
 import com.google.android.ground.ui.util.BitmapUtil
 import javax.inject.Inject
 
-class LineStringAdapter @Inject constructor(resources: Resources, bitmapUtil: BitmapUtil) :
-  MapItemAdapter<LineString, Polyline> {
-  private val defaultStrokeWidth = resources.getDimension(R.dimen.line_geometry_width)
+class LineStringRenderer
+@Inject
+constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil) :
+  MapsItemRenderer<LineString, Polyline> {
+
+  // These must be done lazily since resources are not available before the app completes
+  // initialization.
+  private val defaultStrokeWidth by lazy { resources.getDimension(R.dimen.line_geometry_width) }
   private val circleCap by lazy {
-    // This must be done lazily since resources are not available before the app completes
-    // initialization.
     val bitmap = bitmapUtil.fromVector(R.drawable.ic_endpoint)
     CustomCap(BitmapDescriptorFactory.fromBitmap(bitmap))
   }
 
-  override fun addMapItem(
+  override fun add(
     map: GoogleMap,
     featureTag: Feature.Tag,
     geometry: LineString,
@@ -55,30 +58,18 @@ class LineStringAdapter @Inject constructor(resources: Resources, bitmapUtil: Bi
       visible(visible)
     }
     val polyline = map.addPolyline(options)
-    val strokeScale = if (style.selected) 2f else 1f
     with(polyline) {
       tag = featureTag
       if (style.vertexStyle == Feature.VertexStyle.CIRCLE) {
         startCap = circleCap
         endCap = circleCap
       }
+      val strokeScale = if (style.selected) 2f else 1f
       width = defaultStrokeWidth * strokeScale
       color = style.color
       jointType = JointType.ROUND
       zIndex = POLYLINE_Z
     }
     return polyline
-  }
-
-  override fun show(mapItem: Polyline) {
-    mapItem.isVisible = true
-  }
-
-  override fun hide(mapItem: Polyline) {
-    mapItem.isVisible = false
-  }
-
-  override fun remove(mapItem: Polyline) {
-    mapItem.remove()
   }
 }

@@ -19,9 +19,7 @@ import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.imagery.TileSource
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.common.AbstractFragment
-import java8.util.function.Consumer
 import kotlinx.coroutines.flow.SharedFlow
 
 /** Implementation of Fragment which supports displaying a map. */
@@ -56,7 +54,7 @@ interface MapFragment {
   fun attachToParent(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
-    onMapReadyCallback: Consumer<MapFragment>
+    onMapReadyCallback: (MapFragment) -> Unit
   )
 
   /** Enables map gestures like pan and zoom. */

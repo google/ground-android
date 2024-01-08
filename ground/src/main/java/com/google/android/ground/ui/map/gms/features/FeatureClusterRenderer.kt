@@ -39,10 +39,10 @@ class FeatureClusterRenderer(
   context: Context,
   map: GoogleMap,
   clusterManager: ClusterManager<FeatureClusterItem>,
-  private val show: (Feature.Tag) -> Unit,
-  private val hide: (Feature.Tag) -> Unit,
   var zoom: Float
 ) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
+  lateinit var onClusterRendered: (Feature.Tag) -> Unit
+  lateinit var onClusterItemRendered: (Feature.Tag) -> Unit
 
   private val markerIconFactory: IconFactory = IconFactory(context)
 
@@ -51,7 +51,7 @@ class FeatureClusterRenderer(
     // Hide clusterer's default marker.
     markerOptions.visible(false)
     // Instead, display the feature manager's rendering of the feature.
-    show(item.feature.tag)
+    onClusterItemRendered(item.feature.tag)
   }
 
   /**
@@ -69,7 +69,7 @@ class FeatureClusterRenderer(
     markerOptions: MarkerOptions
   ) {
     // Hide cluster's items when clustered.
-    cluster.items.forEach { hide(it.feature.tag) }
+    cluster.items.forEach { onClusterRendered(it.feature.tag) }
 
     super.onBeforeClusterRendered(cluster, markerOptions)
 

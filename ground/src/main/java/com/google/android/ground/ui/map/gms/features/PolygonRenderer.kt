@@ -28,20 +28,18 @@ import com.google.android.ground.ui.map.gms.POLYGON_Z
 import com.google.android.ground.ui.map.gms.toLatLng
 import com.google.android.ground.ui.map.gms.toLatLngList
 import javax.inject.Inject
-import timber.log.Timber
 
-class PolygonAdapter @Inject constructor(resources: Resources) :
-  MapItemAdapter<Polygon, MapsPolygon> {
+class PolygonRenderer @Inject constructor(resources: Resources) :
+  MapsItemRenderer<Polygon, MapsPolygon> {
   private val defaultStrokeWidth = resources.getDimension(R.dimen.line_geometry_width)
 
-  override fun addMapItem(
+  override fun add(
     map: GoogleMap,
     featureTag: Feature.Tag,
     geometry: Polygon,
     style: Feature.Style,
     visible: Boolean
   ): MapsPolygon {
-    Timber.e("!!! Adding multi polygon")
     val strokeScale = if (style.selected) 2f else 1f
     val options = PolygonOptions()
     with(options) {
@@ -58,18 +56,5 @@ class PolygonAdapter @Inject constructor(resources: Resources) :
     val mapsPolygon = map.addPolygon(options)
     mapsPolygon.tag = featureTag
     return mapsPolygon
-  }
-
-  override fun show(mapItem: MapsPolygon) {
-    mapItem.isVisible = true
-  }
-
-  override fun hide(mapItem: MapsPolygon) {
-    mapItem.isVisible = false
-  }
-
-  override fun remove(mapItem: MapsPolygon) {
-    Timber.e("!!! Removing multi polygon")
-    mapItem.remove()
   }
 }

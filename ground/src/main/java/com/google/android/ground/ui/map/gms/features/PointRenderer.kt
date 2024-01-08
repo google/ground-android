@@ -30,17 +30,17 @@ import com.google.android.ground.ui.map.gms.MARKER_Z
 import com.google.android.ground.ui.map.gms.toLatLng
 import javax.inject.Inject
 
-class PointAdapter
+class PointRenderer
 @Inject
 constructor(resources: Resources, private val markerIconFactory: IconFactory) :
-  MapItemAdapter<Point, Marker> {
+  MapsItemRenderer<Point, Marker> {
 
   private val defaultMarkerScale =
     ResourcesCompat.getFloat(resources, R.dimen.marker_bitmap_default_scale)
   private val selectedMarkerScaleFactor =
     ResourcesCompat.getFloat(resources, R.dimen.marker_bitmap_selected_scale_factor)
 
-  override fun addMapItem(
+  override fun add(
     map: GoogleMap,
     tag: Feature.Tag,
     geometry: Point,
@@ -66,17 +66,5 @@ constructor(resources: Resources, private val markerIconFactory: IconFactory) :
       scale *= selectedMarkerScaleFactor
     }
     return markerIconFactory.getMarkerIcon(style.color, scale)
-  }
-
-  override fun show(mapItem: Marker) {
-    mapItem.isVisible = true
-  }
-
-  override fun hide(mapItem: Marker) {
-    mapItem.isVisible = false
-  }
-
-  override fun remove(mapItem: Marker) {
-    mapItem.remove()
   }
 }
