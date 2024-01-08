@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,11 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
-import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.submission.GeometryTaskResult
 
-/** User-provided response to a "draw an area" data collection [Task]. */
-data class DrawAreaTaskResult constructor(val area: Polygon) : GeometryTaskResult(area) {
-  override fun isEmpty(): Boolean = area.isEmpty()
+/** User-provided "ongoing" response to a "draw an area" data collection [Task]. */
+data class DrawAreaTaskIncompleteResult constructor(val lineString: LineString) :
+  GeometryTaskResult(lineString) {
+  override fun isEmpty(): Boolean = lineString.isEmpty()
 }

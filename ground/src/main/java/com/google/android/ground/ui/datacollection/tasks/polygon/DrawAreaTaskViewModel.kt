@@ -17,6 +17,7 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import android.content.res.Resources
 import androidx.lifecycle.viewModelScope
+import com.google.android.ground.R
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
@@ -40,8 +41,10 @@ import kotlinx.coroutines.flow.stateIn
 @SharedViewModel
 class DrawAreaTaskViewModel
 @Inject
-internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources: Resources) :
-  AbstractTaskViewModel(resources) {
+internal constructor(
+  private val uuidGenerator: OfflineUuidGenerator,
+  private val resources: Resources
+) : AbstractTaskViewModel(resources) {
 
   /** Polygon [Feature] being drawn by the user. */
   private val _draftArea: MutableStateFlow<Feature?> = MutableStateFlow(null)
@@ -102,9 +105,17 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     isMarkedComplete = false
 
     // Remove last vertex and update polygon
-    val updatedVertices = vertices.toMutableList()
-    updatedVertices.removeLast()
-    updateVertices(updatedVertices.toImmutableList())
+    val updatedVertices = vertices.toMutableList().apply { removeLast() }.toImmutableList()
+
+    // Render changes to UI
+    updateVertices(updatedVertices)
+
+    // Update saved response.
+    if (updatedVertices.isEmpty()) {
+      setValue(null)
+    } else {
+      setValue(DrawAreaTaskIncompleteResult(LineString(updatedVertices)))
+    }
   }
 
   /** Adds the last vertex to the polygon. */
@@ -127,6 +138,11 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
 
     // Render changes to UI
     updateVertices(updatedVertices.toImmutableList())
+
+    // Save response iff it is user initiated
+    if (!shouldOverwriteLastVertex) {
+      setValue(DrawAreaTaskIncompleteResult(LineString(updatedVertices.toImmutableList())))
+    }
   }
 
   private fun updateVertices(newVertices: List<Coordinates>) {
@@ -158,6 +174,14 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
           clusterable = false
         )
       }
+  }
+
+  override fun validate(task: Task, value: Value?): String? {
+    // Invalid response for draw area task.
+    if (task.type == Task.Type.DRAW_AREA && value is DrawAreaTaskIncompleteResult) {
+      return resources.getString(R.string.incomplete_area)
+    }
+    return super.validate(task, value)
   }
 
   companion object {
