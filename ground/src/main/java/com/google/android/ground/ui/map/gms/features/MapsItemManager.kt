@@ -28,6 +28,7 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.ui.map.Feature
 import com.google.maps.android.PolyUtil.*
 
+/** Manages [Feature]s displayed on the map as Maps SDK items (marker, polyline, etc). */
 class MapsItemManager(
   private val map: GoogleMap,
   private val pointRenderer: PointRenderer,
@@ -36,7 +37,11 @@ class MapsItemManager(
 ) {
   private val itemsByTag = mutableMapOf<Feature.Tag, List<Any>>()
 
-  fun add(feature: Feature, visible: Boolean) =
+  /**
+   * Adds one or more items to the map representing the specified [Feature], replacing and existing
+   * items associated with same tag are replaced.
+   */
+  fun put(feature: Feature, visible: Boolean) =
     with(feature) {
       // If map item with this tag already exists, remove it.
       remove(tag)
@@ -52,6 +57,7 @@ class MapsItemManager(
         }
     }
 
+  /** Removes map items associated with the specified feature's tag. */
   fun remove(tag: Feature.Tag) =
     itemsByTag.remove(tag)?.forEach {
       when (it) {
@@ -62,6 +68,10 @@ class MapsItemManager(
       }
     }
 
+  /**
+   * Shows or hides the items associated with the specified tag. Does nothing if there are no items
+   * with that tag present.
+   */
   fun setVisible(tag: Feature.Tag, visible: Boolean) =
     itemsByTag[tag]?.forEach {
       when (it) {
@@ -72,6 +82,10 @@ class MapsItemManager(
       }
     }
 
+  /**
+   * Returns the feature tags associated with of polygon map items which overlap with the specified
+   * coordinates.
+   */
   fun getIntersectingPolygonTags(latLng: LatLng): Set<Feature.Tag> {
     val flattenedItems = itemsByTag.values.flatten()
     val polygons = flattenedItems.filterIsInstance<MapsPolygon>()
