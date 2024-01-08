@@ -20,7 +20,6 @@ import android.content.Context
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.ground.ui.map.Feature
-import com.google.maps.android.clustering.Cluster
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import timber.log.Timber

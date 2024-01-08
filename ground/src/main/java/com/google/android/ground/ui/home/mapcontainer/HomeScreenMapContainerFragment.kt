@@ -51,7 +51,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint(AbstractMapContainerFragment::class)

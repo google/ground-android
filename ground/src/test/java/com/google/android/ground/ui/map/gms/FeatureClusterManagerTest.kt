@@ -45,26 +45,19 @@ class FeatureClusterManagerTest : BaseHiltTest() {
   }
 
   @Test
-  fun addOrUpdateLocationOfInterest_addsALocationOfInterest() {
-    featureClusterManager.putFeature(FakeData.LOCATION_OF_INTEREST_FEATURE)
+  fun `addFeature() adds clusterable features to cluster manager`() {
+    featureClusterManager.addFeature(FakeData.LOCATION_OF_INTEREST_FEATURE)
     assertThat(featureClusterManager.algorithm.items)
       .contains(FakeData.LOCATION_OF_INTEREST_CLUSTER_ITEM)
   }
 
   @Test
-  fun removeStaleFeatures_removesStaleLOIs() {
-    featureClusterManager.putFeature(
-      FakeData.LOCATION_OF_INTEREST_FEATURE.copy(
-        tag = FakeData.LOCATION_OF_INTEREST_FEATURE.tag.copy(id = "id_1")
-      )
+  fun `removeFeature() removes existing`() {
+    featureClusterManager.addFeature(
+      FakeData.LOCATION_OF_INTEREST_FEATURE.copy(tag = FakeData.LOCATION_OF_INTEREST_FEATURE.tag)
     )
-    featureClusterManager.removeStaleFeatures(
-      setOf(
-        FakeData.LOCATION_OF_INTEREST_FEATURE.copy(
-          tag = FakeData.LOCATION_OF_INTEREST_FEATURE.tag.copy(id = "id_2")
-        )
-      )
-    )
+    featureClusterManager.removeFeature(FakeData.LOCATION_OF_INTEREST_FEATURE.tag)
+
     assertThat(featureClusterManager.algorithm.items).isEmpty()
   }
 }

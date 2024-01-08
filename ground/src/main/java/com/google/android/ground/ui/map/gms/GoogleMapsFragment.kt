@@ -40,14 +40,11 @@ import com.google.android.ground.model.imagery.TileSource.Type.TILED_WEB_MAP
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.gms.GmsExt.toBounds
-import com.google.android.ground.ui.map.gms.features.FeatureClusterItem
 import com.google.android.ground.ui.map.gms.features.FeatureManager
 import com.google.android.ground.ui.map.gms.mog.MogCollection
 import com.google.android.ground.ui.map.gms.mog.MogTileProvider
 import com.google.android.ground.ui.util.BitmapUtil
 import com.google.android.ground.util.invert
-import com.google.maps.android.clustering.Cluster
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlin.math.min
@@ -173,7 +170,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
     }
   }
 
-    override fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double {
+  override fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double {
     val projection = map.projection
     val loc1 = projection.toScreenLocation(coordinates1.toGoogleMapsObject())
     val loc2 = projection.toScreenLocation(coordinates2.toGoogleMapsObject())
