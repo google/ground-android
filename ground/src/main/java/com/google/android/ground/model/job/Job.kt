@@ -43,8 +43,8 @@ data class Job(
 
   fun getAddLoiTask(): Task? = tasks.values.firstOrNull { it.isAddLoiTask }
 
-  /** Returns true if the job has one or more tasks (excluding AddLoiTasks). */
-  fun hasDataCollectionTasks() = tasks.values.filterNot { it.isAddLoiTask }.isNotEmpty()
+  /** Returns true if the job has one or more tasks. */
+  fun hasTasks() = tasks.values.isNotEmpty()
 }
 
 fun Job.getDefaultColor(): Int =
