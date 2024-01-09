@@ -52,6 +52,11 @@ data class Feature(
 
   data class Style(@ColorInt val color: Int, val vertexStyle: VertexStyle? = VertexStyle.NONE)
 
+  /**
+   * Returns an instance [Feature] with all fields unchanged except the [selected] state, which is
+   * updated to the specified value. If the [selected] state is different, a copy is returned with
+   * the new value. If it's the same, the current instance is returned unchanged.
+   */
   fun withSelected(newSelected: Boolean) =
     if (selected == newSelected) this else copy(selected = newSelected)
 
