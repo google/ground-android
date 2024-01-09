@@ -100,7 +100,7 @@ constructor(
       features.add(this)
       featuresByTag[tag] = this
       if (clusterable) clusterManager.addFeature(this)
-      mapsItemManager.put(feature, visible = !clusterable)
+      mapsItemManager.put(this, visible = !clusterable)
     }
 
   private fun remove(feature: Feature) =
