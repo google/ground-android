@@ -38,9 +38,10 @@ class PolygonRenderer @Inject constructor(resources: Resources) :
     featureTag: Feature.Tag,
     geometry: Polygon,
     style: Feature.Style,
+    selected: Boolean,
     visible: Boolean
   ): MapsPolygon {
-    val strokeScale = if (style.selected) 2f else 1f
+    val strokeScale = if (selected) 2f else 1f
     val options = PolygonOptions()
     with(options) {
       addAll(geometry.shell.coordinates.map { it.toLatLng() })

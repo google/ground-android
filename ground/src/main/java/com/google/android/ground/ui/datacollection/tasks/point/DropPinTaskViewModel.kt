@@ -65,7 +65,8 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
       geometry = point,
       // TODO: Set correct pin color.
       style = Feature.Style(pinColor),
-      clusterable = false
+      clusterable = false,
+      selected = true
     )
 
   fun dropPin() {

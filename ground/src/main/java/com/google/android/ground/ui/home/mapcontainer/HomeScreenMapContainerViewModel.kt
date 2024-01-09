@@ -113,7 +113,9 @@ internal constructor(
     mapLoiFeatures =
       activeSurvey.flatMapLatest {
         if (it == null) flowOf(setOf())
-        else getLocationOfInterestFeatures(it).combine(selectedLoiIdFlow, this::updatedLoiSelectedStates)
+        else
+          getLocationOfInterestFeatures(it)
+            .combine(selectedLoiIdFlow, this::updatedLoiSelectedStates)
       }
 
     val isZoomedInFlow =
@@ -140,7 +142,10 @@ internal constructor(
         }
   }
 
-  private fun updatedLoiSelectedStates(features: Set<Feature>, selectedLoiId: String?): Set<Feature> =
+  private fun updatedLoiSelectedStates(
+    features: Set<Feature>,
+    selectedLoiId: String?
+  ): Set<Feature> =
     features
       .map { it.withSelected(it.isLocationOfInterest() && it.tag.id == selectedLoiId) }
       .toSet()
@@ -190,7 +195,8 @@ internal constructor(
       flag = submissionRepository.getTotalSubmissionCount(this) > 0,
       geometry = geometry,
       style = Feature.Style(job.getDefaultColor()),
-      clusterable = true
+      clusterable = true,
+      selected = true
     )
 
   fun selectLocationOfInterest(id: String?) {

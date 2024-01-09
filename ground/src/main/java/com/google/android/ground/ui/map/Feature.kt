@@ -23,7 +23,8 @@ data class Feature(
   val tag: Tag,
   val geometry: Geometry,
   val style: Style,
-  val clusterable: Boolean
+  val clusterable: Boolean,
+  val selected: Boolean = false
 ) {
   constructor(
     id: String,
@@ -31,8 +32,9 @@ data class Feature(
     geometry: Geometry,
     flag: Boolean = false,
     style: Style,
-    clusterable: Boolean
-  ) : this(Tag(id, type, flag), geometry, style, clusterable)
+    clusterable: Boolean,
+    selected: Boolean = false
+  ) : this(Tag(id, type, flag), geometry, style, clusterable, selected)
 
   /** Tag used to uniquely identifier a feature on the map. */
   data class Tag(
@@ -48,13 +50,10 @@ data class Feature(
     val flag: Boolean = false
   )
 
-  data class Style(
-    @ColorInt val color: Int,
-    val vertexStyle: VertexStyle? = VertexStyle.NONE,
-    val selected: Boolean = false
-  )
+  data class Style(@ColorInt val color: Int, val vertexStyle: VertexStyle? = VertexStyle.NONE)
 
-  fun withSelected(selected: Boolean): Feature = copy(style = style.copy(selected = selected))
+  fun withSelected(newSelected: Boolean) =
+    if (selected == newSelected) this else copy(selected = newSelected)
 
   enum class VertexStyle {
     NONE,

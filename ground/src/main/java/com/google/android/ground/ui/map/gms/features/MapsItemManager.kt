@@ -48,11 +48,12 @@ class MapsItemManager(
       // Add item to map and index.
       itemsByTag[tag] =
         when (geometry) {
-          is Point -> listOf(pointRenderer.add(map, tag, geometry, style, visible))
-          is Polygon -> listOf(polygonRenderer.add(map, tag, geometry, style, visible))
+          is Point -> listOf(pointRenderer.add(map, tag, geometry, style, selected, visible))
+          is Polygon -> listOf(polygonRenderer.add(map, tag, geometry, style, selected, visible))
           is MultiPolygon ->
-            geometry.polygons.map { polygonRenderer.add(map, tag, it, style, visible) }
-          is LineString -> listOf(lineStringRenderer.add(map, tag, geometry, style, visible))
+            geometry.polygons.map { polygonRenderer.add(map, tag, it, style, selected, visible) }
+          is LineString ->
+            listOf(lineStringRenderer.add(map, tag, geometry, style, selected, visible))
           else -> error("Render ${geometry.javaClass} geometry not supported")
         }
     }

@@ -49,6 +49,7 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
     featureTag: Feature.Tag,
     geometry: LineString,
     style: Feature.Style,
+    selected: Boolean,
     visible: Boolean
   ): Polyline {
     val options = PolylineOptions()
@@ -64,7 +65,7 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
         startCap = circleCap
         endCap = circleCap
       }
-      val strokeScale = if (style.selected) 2f else 1f
+      val strokeScale = if (selected) 2f else 1f
       width = defaultStrokeWidth * strokeScale
       color = style.color
       jointType = JointType.ROUND

@@ -20,5 +20,12 @@ import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.ui.map.Feature
 
 interface MapsItemRenderer<T : Geometry, U> {
-  fun add(map: GoogleMap, tag: Feature.Tag, geometry: T, style: Feature.Style, visible: Boolean): U
+  fun add(
+    map: GoogleMap,
+    tag: Feature.Tag,
+    geometry: T,
+    style: Feature.Style,
+    selected: Boolean,
+    visible: Boolean
+  ): U
 }

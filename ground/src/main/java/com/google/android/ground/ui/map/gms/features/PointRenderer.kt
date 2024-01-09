@@ -45,12 +45,13 @@ constructor(resources: Resources, private val markerIconFactory: IconFactory) :
     tag: Feature.Tag,
     geometry: Point,
     style: Feature.Style,
+    selected: Boolean,
     visible: Boolean
   ): Marker {
     val markerOptions = MarkerOptions()
     with(markerOptions) {
       position(geometry.coordinates.toLatLng())
-      icon(getMarkerIcon(style))
+      icon(getMarkerIcon(style, selected))
       zIndex(MARKER_Z)
       visible(visible)
     }
@@ -59,10 +60,10 @@ constructor(resources: Resources, private val markerIconFactory: IconFactory) :
     return marker
   }
 
-  private fun getMarkerIcon(style: Feature.Style): BitmapDescriptor {
+  private fun getMarkerIcon(style: Feature.Style, selected: Boolean): BitmapDescriptor {
     // TODO(#2167): Allow icon to be updated so we can update scale based on zoom level.
     var scale = defaultMarkerScale
-    if (style.selected) {
+    if (selected) {
       // TODO(#2168): Improve selected marker styling.
       scale *= selectedMarkerScaleFactor
     }

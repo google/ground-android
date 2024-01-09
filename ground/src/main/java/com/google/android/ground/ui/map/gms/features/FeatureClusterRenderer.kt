@@ -75,8 +75,8 @@ class FeatureClusterRenderer(
 
   /**
    * Triggers the callback provided in [onClusterRendered] to hide the individual map items and
-   * renders the app's custom cluster balloon. Called when zooming in to
-   * [CLUSTERING_ZOOM_THRESHOLD].
+   * renders the app's custom cluster balloon. Called when zooming in to [CLUSTERING_ZOOM_THRESHOLD]
+   * .
    */
   override fun onBeforeClusterRendered(
     cluster: Cluster<FeatureClusterItem>,
