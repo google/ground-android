@@ -77,7 +77,7 @@ constructor(
     removedOrChanged.forEach(this::remove)
     // add missing
     val newOrChanged = updatedFeatures - features
-    newOrChanged.forEach { add(it) }
+    newOrChanged.forEach(this::add)
     // cluster and update visibility
     clusterManager.cluster()
     Timber.v("${removedOrChanged.size} features removed, ${newOrChanged.size} added")
