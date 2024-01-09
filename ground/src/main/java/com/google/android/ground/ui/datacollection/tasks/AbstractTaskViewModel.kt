@@ -25,7 +25,6 @@ import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractViewModel
-import java8.util.Optional
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,7 +43,7 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   val responseText: LiveData<String>
 
   /** Error message to be displayed for the current [Value]. */
-  val error: MutableLiveData<String> = MutableLiveData()
+  val error: MutableLiveData<String?> = MutableLiveData()
 
   lateinit var task: Task
 
@@ -61,16 +60,18 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
 
   /** Checks if the current value is valid and updates error value. */
   fun validate(): String? {
-    val result = validate(task, taskValue.value).orElse(null)
+    val result = validate(task, taskValue.value)
     error.postValue(result)
     return result
   }
 
-  // TODO: Check valid values.
-  private fun validate(task: Task, value: Value?): Optional<String> =
-    if (task.isRequired && (value == null || value.isEmpty()))
-      Optional.of(resources.getString(R.string.required_task))
-    else Optional.empty()
+  open fun validate(task: Task, value: Value?): String? {
+    // Empty response for a required task.
+    if (task.isRequired && (value == null || value.isEmpty())) {
+      return resources.getString(R.string.required_task)
+    }
+    return null
+  }
 
   fun setValue(value: Value?) {
     _valueFlow.value = value

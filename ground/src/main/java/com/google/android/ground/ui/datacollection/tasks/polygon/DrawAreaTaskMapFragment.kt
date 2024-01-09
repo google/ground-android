@@ -27,8 +27,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint(AbstractMapFragmentWithControls::class)
-class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) :
-  Hilt_PolygonDrawingMapFragment() {
+class DrawAreaTaskMapFragment(private val viewModel: DrawAreaTaskViewModel) :
+  Hilt_DrawAreaTaskMapFragment() {
 
   private lateinit var mapViewModel: BaseMapViewModel
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
@@ -48,7 +48,7 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
     }
 
     viewLifecycleOwner.lifecycleScope.launch {
-      viewModel.featureValue.collect { feature: Feature? ->
+      viewModel.draftArea.collect { feature: Feature? ->
         map.renderFeatures(if (feature == null) setOf() else setOf(feature))
       }
     }
@@ -65,7 +65,7 @@ class PolygonDrawingMapFragment(private val viewModel: PolygonDrawingViewModel) 
   }
 
   companion object {
-    fun newInstance(viewModel: PolygonDrawingViewModel, map: MapFragment) =
-      PolygonDrawingMapFragment(viewModel).apply { this.map = map }
+    fun newInstance(viewModel: DrawAreaTaskViewModel, map: MapFragment) =
+      DrawAreaTaskMapFragment(viewModel).apply { this.map = map }
   }
 }

@@ -22,6 +22,7 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.*
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.AuditInfoConverter.fromMutationAndUser
+import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskResult
 import com.google.firebase.firestore.FieldValue
 import kotlinx.collections.immutable.toPersistentMap
 import timber.log.Timber
@@ -83,10 +84,10 @@ internal object SubmissionMutationConverter {
       is DateResponse -> {
         value.date
       }
-      is GeometryTaskResponse -> {
+      is GeometryTaskResult -> {
         GeometryConverter.toFirestoreMap(value.geometry).getOrThrow()
       }
-      is CaptureLocationResult -> {
+      is CaptureLocationTaskResult -> {
         CaptureLocationResultConverter.toFirestoreMap(value).getOrThrow()
       }
       else -> {

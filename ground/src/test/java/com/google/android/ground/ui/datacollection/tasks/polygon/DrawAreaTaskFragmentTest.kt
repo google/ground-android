@@ -19,11 +19,11 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
-import com.google.android.ground.model.submission.GeometryTaskResponse
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -32,18 +32,16 @@ import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class PolygonDrawingTaskFragmentTest :
-  BaseTaskFragmentTest<PolygonDrawingTaskFragment, PolygonDrawingViewModel>() {
+class DrawAreaTaskFragmentTest :
+  BaseTaskFragmentTest<DrawAreaTaskFragment, DrawAreaTaskViewModel>() {
 
   @BindValue @Mock override lateinit var dataCollectionViewModel: DataCollectionViewModel
   @Inject override lateinit var viewModelFactory: ViewModelFactory
@@ -60,21 +58,21 @@ class PolygonDrawingTaskFragmentTest :
 
   @Test
   fun testHeader() {
-    setupTaskFragment<PolygonDrawingTaskFragment>(job, task)
+    setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
     hasTaskViewWithoutHeader(task.label)
   }
 
   @Test
   fun testInfoCard_noValue() {
-    setupTaskFragment<PolygonDrawingTaskFragment>(job, task)
+    setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
     infoCardHidden()
   }
 
   @Test
   fun testActionButtons() {
-    setupTaskFragment<PolygonDrawingTaskFragment>(job, task)
+    setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
     assertFragmentHasButtons(
       ButtonAction.PREVIOUS,
@@ -88,7 +86,7 @@ class PolygonDrawingTaskFragmentTest :
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
-    setupTaskFragment<PolygonDrawingTaskFragment>(job, task.copy(isRequired = false))
+    setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
 
     buttonIsHidden("Next")
     buttonIsEnabled("Skip")
@@ -99,7 +97,7 @@ class PolygonDrawingTaskFragmentTest :
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
-    setupTaskFragment<PolygonDrawingTaskFragment>(job, task.copy(isRequired = true))
+    setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = true))
 
     buttonIsHidden("Next")
     buttonIsHidden("Skip")
@@ -109,8 +107,37 @@ class PolygonDrawingTaskFragmentTest :
   }
 
   @Test
-  fun testDrawPolygon() = runWithTestDispatcher {
-    setupTaskFragment<PolygonDrawingTaskFragment>(job, task.copy(isRequired = true))
+  fun testDrawArea_incompleteWhenTaskIsOptional() = runWithTestDispatcher {
+    setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
+
+    updateLastVertexAndAddPoint(COORDINATE_1)
+    updateLastVertexAndAddPoint(COORDINATE_2)
+    updateLastVertexAndAddPoint(COORDINATE_3)
+
+    hasValue(
+      DrawAreaTaskIncompleteResult(
+        LineString(
+          listOf(
+            Coordinates(0.0, 0.0),
+            Coordinates(10.0, 10.0),
+            Coordinates(20.0, 20.0),
+            Coordinates(20.0, 20.0),
+          )
+        )
+      )
+    )
+
+    // Only "Undo" and "Add point" buttons should be visible.
+    buttonIsHidden("Next")
+    buttonIsHidden("Skip")
+    buttonIsEnabled(ButtonAction.UNDO)
+    buttonIsEnabled("Add point")
+    buttonIsHidden("Complete")
+  }
+
+  @Test
+  fun testDrawArea() = runWithTestDispatcher {
+    setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
 
     updateLastVertexAndAddPoint(COORDINATE_1)
     updateLastVertexAndAddPoint(COORDINATE_2)
@@ -119,7 +146,7 @@ class PolygonDrawingTaskFragmentTest :
     onView(withText("Complete")).perform(click())
 
     hasValue(
-      GeometryTaskResponse(
+      DrawAreaTaskResult(
         Polygon(
           LinearRing(
             listOf(
@@ -132,9 +159,13 @@ class PolygonDrawingTaskFragmentTest :
         )
       )
     )
-    buttonIsEnabled("Next")
+
+    // Only "Undo" and "Complete" buttons should be visible.
+    buttonIsHidden("Next")
+    buttonIsHidden("Skip")
     buttonIsEnabled(ButtonAction.UNDO)
-    buttonIsHidden("Complete")
+    buttonIsHidden("Add point")
+    buttonIsEnabled("Complete")
   }
 
   /** Overwrites the last vertex and also adds a new one. */
@@ -145,7 +176,7 @@ class PolygonDrawingTaskFragmentTest :
 
   /** Updates the last vertex of the polygon with the given vertex. */
   private fun updateLastVertex(coordinate: Coordinates, isNearFirstVertex: Boolean = false) {
-    val threshold = PolygonDrawingViewModel.DISTANCE_THRESHOLD_DP.toDouble()
+    val threshold = DrawAreaTaskViewModel.DISTANCE_THRESHOLD_DP.toDouble()
     val distanceInPixels = if (isNearFirstVertex) threshold else threshold + 1
     viewModel.updateLastVertexAndMaybeCompletePolygon(coordinate) { _, _ -> distanceInPixels }
   }

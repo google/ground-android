@@ -44,8 +44,8 @@ class CaptureLocationTaskFragment :
       .beginTransaction()
       .add(
         rowLayout.id,
-        CaptureLocationMapFragment.newInstance(viewModel, map),
-        CaptureLocationMapFragment::class.java.simpleName
+        CaptureLocationTaskMapFragment.newInstance(viewModel, map),
+        CaptureLocationTaskMapFragment::class.java.simpleName
       )
       .commit()
     return rowLayout

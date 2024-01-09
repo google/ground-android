@@ -17,16 +17,13 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import android.content.res.Resources
 import androidx.lifecycle.viewModelScope
+import com.google.android.ground.R
 import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.model.geometry.Geometry
-import com.google.android.ground.model.geometry.GeometryValidator.isComplete
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
-import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
-import com.google.android.ground.model.submission.GeometryTaskResponse
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -42,25 +39,23 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
 @SharedViewModel
-class PolygonDrawingViewModel
+class DrawAreaTaskViewModel
 @Inject
-internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources: Resources) :
-  AbstractTaskViewModel(resources) {
+internal constructor(
+  private val uuidGenerator: OfflineUuidGenerator,
+  private val resources: Resources
+) : AbstractTaskViewModel(resources) {
+
+  /** Polygon [Feature] being drawn by the user. */
+  private val _draftArea: MutableStateFlow<Feature?> = MutableStateFlow(null)
+  val draftArea: StateFlow<Feature?> =
+    _draftArea.stateIn(viewModelScope, started = SharingStarted.Lazily, null)
 
   /**
-   * [Feature]s drawn by the user, but not yet saved.
-   *
-   * Can be one of LineString, LinearRing, or Polygon.
+   * User-specified vertices of the area being drawn. If [isMarkedComplete] is false, then the last
+   * vertex represents the map center and the second last vertex is the last added vertex.
    */
-  private val featureFlow: MutableStateFlow<Feature?> = MutableStateFlow(null)
-  val featureValue: StateFlow<Feature?> =
-    featureFlow.stateIn(viewModelScope, SharingStarted.Lazily, null)
-
-  /**
-   * List of [Point]s to be used for generating the [Geometry]. If [isMarkedComplete] is false, then
-   * the last vertex represents the map center and the second last vertex is the last added vertex.
-   */
-  private var vertices: List<Point> = listOf()
+  private var vertices: List<Coordinates> = listOf()
 
   /** Represents whether the user has completed drawing the polygon or not. */
   private var isMarkedComplete: Boolean = false
@@ -88,9 +83,9 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     val firstVertex = vertices.firstOrNull()
     var updatedTarget = target
     if (firstVertex != null && vertices.size > 2) {
-      val distance = calculateDistanceInPixels(firstVertex.coordinates, target)
+      val distance = calculateDistanceInPixels(firstVertex, target)
       if (distance <= DISTANCE_THRESHOLD_DP) {
-        updatedTarget = firstVertex.coordinates
+        updatedTarget = firstVertex
       }
     }
 
@@ -110,23 +105,26 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     isMarkedComplete = false
 
     // Remove last vertex and update polygon
-    val updatedVertices = vertices.toMutableList()
-    updatedVertices.removeLast()
-    updateVertices(updatedVertices.toImmutableList())
+    val updatedVertices = vertices.toMutableList().apply { removeLast() }.toImmutableList()
+
+    // Render changes to UI
+    updateVertices(updatedVertices)
+
+    // Update saved response.
+    if (updatedVertices.isEmpty()) {
+      setValue(null)
+    } else {
+      setValue(DrawAreaTaskIncompleteResult(LineString(updatedVertices)))
+    }
   }
 
   /** Adds the last vertex to the polygon. */
   fun addLastVertex() {
     check(!isMarkedComplete) { "Attempted to add last vertex after completing the drawing" }
-    vertices.lastOrNull()?.let { addVertex(it.coordinates, false) }
+    vertices.lastOrNull()?.let { addVertex(it, false) }
   }
 
-  /**
-   * Adds a new vertex to the polygon.
-   *
-   * @param vertex
-   * @param shouldOverwriteLastVertex
-   */
+  /** Adds a new vertex to the polygon. */
   private fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean) {
     val updatedVertices = vertices.toMutableList()
 
@@ -136,53 +134,54 @@ internal constructor(private val uuidGenerator: OfflineUuidGenerator, resources:
     }
 
     // Add the new vertex
-    updatedVertices.add(Point(vertex))
+    updatedVertices.add(vertex)
 
     // Render changes to UI
     updateVertices(updatedVertices.toImmutableList())
+
+    // Save response iff it is user initiated
+    if (!shouldOverwriteLastVertex) {
+      setValue(DrawAreaTaskIncompleteResult(LineString(updatedVertices.toImmutableList())))
+    }
   }
 
-  private fun updateVertices(newVertices: List<Point>) {
+  private fun updateVertices(newVertices: List<Coordinates>) {
     this.vertices = newVertices
-    refreshFeatures(newVertices, false)
+    refreshMap()
   }
 
   fun onCompletePolygonButtonClick() {
-    check(vertices.map { it.coordinates }.isComplete()) { "Polygon is not complete" }
+    check(LineString(vertices).isClosed()) { "Polygon is not complete" }
     check(!isMarkedComplete) { "Already marked complete" }
 
     isMarkedComplete = true
 
-    refreshFeatures(vertices, true)
-    setValue(GeometryTaskResponse(createGeometry(vertices, true)))
+    refreshMap()
+    setValue(DrawAreaTaskResult(Polygon(LinearRing(vertices))))
   }
 
-  /** Returns a set of [Feature] to be drawn on map for the given [Polygon]. */
-  private fun refreshFeatures(vertices: List<Point>, isMarkedComplete: Boolean) {
-    featureFlow.value =
+  /** Updates the [Feature] drawn on map based on the value of [vertices]. */
+  private fun refreshMap() {
+    _draftArea.value =
       if (vertices.isEmpty()) {
         null
       } else {
         Feature(
           id = uuidGenerator.generateUuid(),
           type = FeatureType.USER_POLYGON.ordinal,
-          geometry = createGeometry(vertices, isMarkedComplete),
+          geometry = LineString(vertices),
           style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
           clusterable = false
         )
       }
   }
 
-  /** Returns a map geometry to be drawn based on given list of points. */
-  private fun createGeometry(points: List<Point>, isMarkedComplete: Boolean): Geometry {
-    val coordinates = points.map { it.coordinates }
-    return if (isMarkedComplete && coordinates.isComplete()) {
-      Polygon(LinearRing(coordinates))
-    } else if (coordinates.isComplete()) {
-      LinearRing(coordinates)
-    } else {
-      LineString(coordinates)
+  override fun validate(task: Task, value: Value?): String? {
+    // Invalid response for draw area task.
+    if (task.type == Task.Type.DRAW_AREA && value is DrawAreaTaskIncompleteResult) {
+      return resources.getString(R.string.incomplete_area)
     }
+    return super.validate(task, value)
   }
 
   companion object {

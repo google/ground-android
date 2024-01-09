@@ -24,7 +24,6 @@ import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
-import com.google.android.ground.model.submission.GeometryTaskResponse
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -34,18 +33,15 @@ import com.google.android.ground.ui.map.CameraPosition
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.hamcrest.core.IsNot.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class DropAPinTaskFragmentTest :
-  BaseTaskFragmentTest<DropAPinTaskFragment, DropAPinTaskViewModel>() {
+class DropPinTaskFragmentTest : BaseTaskFragmentTest<DropPinTaskFragment, DropPinTaskViewModel>() {
 
   @BindValue @Mock override lateinit var dataCollectionViewModel: DataCollectionViewModel
   @Inject override lateinit var viewModelFactory: ViewModelFactory
@@ -62,7 +58,7 @@ class DropAPinTaskFragmentTest :
 
   @Test
   fun testHeader() {
-    setupTaskFragment<DropAPinTaskFragment>(job, task)
+    setupTaskFragment<DropPinTaskFragment>(job, task)
 
     hasTaskViewWithoutHeader(task.label)
   }
@@ -70,12 +66,12 @@ class DropAPinTaskFragmentTest :
   @Test
   fun testDropPin() = runWithTestDispatcher {
     val testPosition = CameraPosition(Coordinates(10.0, 20.0))
-    setupTaskFragment<DropAPinTaskFragment>(job, task)
+    setupTaskFragment<DropPinTaskFragment>(job, task)
 
     viewModel.updateCameraPosition(testPosition)
     onView(withText("Drop pin")).perform(click())
 
-    hasValue(GeometryTaskResponse(Point(Coordinates(10.0, 20.0))))
+    hasValue(DropPinTaskResult(Point(Coordinates(10.0, 20.0))))
     buttonIsEnabled("Next")
     buttonIsEnabled(ButtonAction.UNDO)
     buttonIsHidden("Drop pin")
@@ -83,7 +79,7 @@ class DropAPinTaskFragmentTest :
 
   @Test
   fun testInfoCard_noValue() {
-    setupTaskFragment<DropAPinTaskFragment>(job, task)
+    setupTaskFragment<DropPinTaskFragment>(job, task)
 
     infoCardHidden()
   }
@@ -91,7 +87,7 @@ class DropAPinTaskFragmentTest :
   @Test
   fun testUndo() = runWithTestDispatcher {
     val testPosition = CameraPosition(Coordinates(10.0, 20.0))
-    setupTaskFragment<DropAPinTaskFragment>(job, task)
+    setupTaskFragment<DropPinTaskFragment>(job, task)
 
     viewModel.updateCameraPosition(testPosition)
     onView(withText("Drop pin")).perform(click())
@@ -104,7 +100,7 @@ class DropAPinTaskFragmentTest :
 
   @Test
   fun testActionButtons() {
-    setupTaskFragment<DropAPinTaskFragment>(job, task)
+    setupTaskFragment<DropPinTaskFragment>(job, task)
 
     assertFragmentHasButtons(
       ButtonAction.PREVIOUS,
@@ -117,7 +113,7 @@ class DropAPinTaskFragmentTest :
 
   @Test
   fun testActionButtons_whenTaskIsOptional() {
-    setupTaskFragment<DropAPinTaskFragment>(job, task.copy(isRequired = false))
+    setupTaskFragment<DropPinTaskFragment>(job, task.copy(isRequired = false))
 
     buttonIsHidden("Next")
     buttonIsEnabled("Skip")
@@ -127,7 +123,7 @@ class DropAPinTaskFragmentTest :
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
-    setupTaskFragment<DropAPinTaskFragment>(job, task.copy(isRequired = true))
+    setupTaskFragment<DropPinTaskFragment>(job, task.copy(isRequired = true))
 
     buttonIsHidden("Next")
     buttonIsHidden("Skip")
@@ -137,7 +133,7 @@ class DropAPinTaskFragmentTest :
 
   @Test
   fun `Hint icon is shown`() {
-    setupTaskFragment<DropAPinTaskFragment>(job, task)
+    setupTaskFragment<DropPinTaskFragment>(job, task)
 
     onView(withId(R.id.hintIcon)).check(matches(isDisplayed()))
   }

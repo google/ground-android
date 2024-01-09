@@ -96,7 +96,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
       mapContainerViewModel.loisInViewport
         .combine(mapContainerViewModel.adHocLoiJobs) { lois, jobs ->
           val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
-          val jobCards = jobs.map { MapCardUiData.SuggestLoiCardUiData(it) }
+          val jobCards = jobs.map { MapCardUiData.AddLoiCardUiData(it) }
 
           Pair(loiCards + jobCards, lois.size)
         }
@@ -191,7 +191,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
             cardUiData.loi.job.id
           )
         )
-      is MapCardUiData.SuggestLoiCardUiData ->
+      is MapCardUiData.AddLoiCardUiData ->
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
             null,
@@ -210,7 +210,7 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
     adapter.setLoiCardFocusedListener {
       when (it) {
         is MapCardUiData.LoiCardUiData -> map.setActiveLocationOfInterest(it.loi.id)
-        is MapCardUiData.SuggestLoiCardUiData,
+        is MapCardUiData.AddLoiCardUiData,
         null -> map.setActiveLocationOfInterest(null)
       }
     }

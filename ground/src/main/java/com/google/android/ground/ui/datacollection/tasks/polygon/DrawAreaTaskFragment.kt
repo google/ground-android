@@ -20,7 +20,8 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
-import com.google.android.ground.model.geometry.GeometryValidator.isClosed
+import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.LineString.Companion.lineStringOf
 import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskButton
@@ -31,10 +32,11 @@ import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint(AbstractTaskFragment::class)
-class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawingViewModel>() {
+class DrawAreaTaskFragment : Hilt_DrawAreaTaskFragment<DrawAreaTaskViewModel>() {
 
   @Inject lateinit var markerIconFactory: IconFactory
   @Inject lateinit var map: MapFragment
@@ -43,30 +45,25 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
   private lateinit var completeButton: TaskButton
   private lateinit var addPointButton: TaskButton
   private lateinit var nextButton: TaskButton
-  private lateinit var undoButton: TaskButton
 
-  private lateinit var polygonDrawingMapFragment: PolygonDrawingMapFragment
+  private lateinit var drawAreaTaskMapFragment: DrawAreaTaskMapFragment
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_draw)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
-    polygonDrawingMapFragment = PolygonDrawingMapFragment.newInstance(viewModel, map)
+    drawAreaTaskMapFragment = DrawAreaTaskMapFragment.newInstance(viewModel, map)
     parentFragmentManager
       .beginTransaction()
-      .add(
-        rowLayout.id,
-        polygonDrawingMapFragment,
-        PolygonDrawingMapFragment::class.java.simpleName
-      )
+      .add(rowLayout.id, drawAreaTaskMapFragment, DrawAreaTaskMapFragment::class.java.simpleName)
       .commit()
     return rowLayout
   }
 
   override fun onCreateActionButtons() {
     addSkipButton()
-    undoButton = addUndoButton()
+    addUndoButton()
     nextButton = addNextButton()
     addPointButton =
       addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
@@ -78,18 +75,16 @@ class PolygonDrawingTaskFragment : Hilt_PolygonDrawingTaskFragment<PolygonDrawin
 
   override fun onTaskViewAttached() {
     viewLifecycleOwner.lifecycleScope.launch {
-      viewModel.featureValue.collect { onFeatureUpdated(it) }
+      viewModel.draftArea.collectLatest { onFeatureUpdated(it) }
     }
   }
 
   private fun onFeatureUpdated(feature: Feature?) {
-    val isGeometryEmpty = feature?.geometry?.isEmpty() ?: true
-    val isClosedGeometry = feature?.geometry.isClosed()
-    val isMarkedComplete = viewModel.isMarkedComplete()
+    val geometry = feature?.geometry ?: lineStringOf()
+    check(geometry is LineString) { "Invalid area geometry type ${geometry.javaClass}" }
 
-    addPointButton.showIfTrue(!isClosedGeometry)
-    completeButton.showIfTrue(isClosedGeometry && !isMarkedComplete)
-    nextButton.showIfTrue(isMarkedComplete)
-    undoButton.showIfTrue(!isGeometryEmpty)
+    addPointButton.showIfTrue(!geometry.isClosed())
+    completeButton.showIfTrue(geometry.isClosed() && !viewModel.isMarkedComplete())
+    nextButton.showIfTrue(viewModel.isMarkedComplete())
   }
 }

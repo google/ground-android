@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.datacollection.tasks.polygon
 
-package com.google.android.ground.model.geometry
+import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.submission.GeometryTaskResult
 
-object GeometryValidator {
-
-  /** Returns true if the current geometry is closed. */
-  fun Geometry?.isClosed(): Boolean = this is Polygon || this is LinearRing
-
-  /** Returns true of the current list of vertices can generate a closed loop. */
-  fun List<Coordinates>.isComplete(): Boolean = size >= 4 && firstOrNull() == lastOrNull()
+/** User-provided response to a "draw an area" data collection [Task]. */
+data class DrawAreaTaskResult constructor(val area: Polygon) : GeometryTaskResult(area) {
+  override fun isEmpty(): Boolean = area.isEmpty()
 }

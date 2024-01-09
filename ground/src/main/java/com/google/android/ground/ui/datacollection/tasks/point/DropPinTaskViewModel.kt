@@ -20,7 +20,6 @@ import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
-import com.google.android.ground.model.submission.GeometryTaskResponse
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -30,7 +29,7 @@ import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import javax.inject.Inject
 
-class DropAPinTaskViewModel
+class DropPinTaskViewModel
 @Inject
 constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerator) :
   AbstractTaskViewModel(resources) {
@@ -54,7 +53,7 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
   }
 
   fun updateResponse(point: Point) {
-    setValue(GeometryTaskResponse(point))
+    setValue(DropPinTaskResult(point))
     features.postValue(setOf(createFeature(point)))
   }
 

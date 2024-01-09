@@ -19,13 +19,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.ground.MainViewModel
 import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
-import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationMapViewModel
+import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskMapViewModel
 import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskViewModel
-import com.google.android.ground.ui.datacollection.tasks.point.DropAPinTaskViewModel
-import com.google.android.ground.ui.datacollection.tasks.polygon.PolygonDrawingViewModel
+import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import com.google.android.ground.ui.home.HomeScreenViewModel
@@ -50,8 +50,8 @@ import dagger.multibindings.IntoMap
 abstract class ViewModelModule {
   @Binds
   @IntoMap
-  @ViewModelKey(PolygonDrawingViewModel::class)
-  abstract fun bindPolygonDrawingViewModel(viewModel: PolygonDrawingViewModel): ViewModel
+  @ViewModelKey(DrawAreaTaskViewModel::class)
+  abstract fun bindDrawAreaTaskViewModel(viewModel: DrawAreaTaskViewModel): ViewModel
 
   @Binds
   @IntoMap
@@ -135,8 +135,8 @@ abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(DropAPinTaskViewModel::class)
-  abstract fun bindDropAPinTaskViewModel(viewModel: DropAPinTaskViewModel): ViewModel
+  @ViewModelKey(DropPinTaskViewModel::class)
+  abstract fun bindDropPinTaskViewModel(viewModel: DropPinTaskViewModel): ViewModel
 
   @Binds
   @IntoMap
@@ -155,8 +155,10 @@ abstract class ViewModelModule {
 
   @Binds
   @IntoMap
-  @ViewModelKey(CaptureLocationMapViewModel::class)
-  abstract fun bindCaptureLocationMapViewModel(viewModel: CaptureLocationMapViewModel): ViewModel
+  @ViewModelKey(CaptureLocationTaskMapViewModel::class)
+  abstract fun bindCaptureLocationTaskMapViewModel(
+    viewModel: CaptureLocationTaskMapViewModel
+  ): ViewModel
 
   @Binds
   @IntoMap

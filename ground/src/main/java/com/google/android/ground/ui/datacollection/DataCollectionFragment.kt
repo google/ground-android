@@ -79,7 +79,7 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
         override fun onPageSelected(position: Int) {
           super.onPageSelected(position)
 
-          val buttonContainer = view.findViewById<View>(R.id.action_buttons_container) ?: return
+          val buttonContainer = view.findViewById<View>(R.id.action_buttons) ?: return
           val anchorLocation = IntArray(2)
           buttonContainer.getLocationInWindow(anchorLocation)
           val guidelineTop =

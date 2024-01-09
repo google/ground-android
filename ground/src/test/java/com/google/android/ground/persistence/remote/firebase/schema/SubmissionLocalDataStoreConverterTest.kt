@@ -24,7 +24,6 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.submission.GeometryTaskResponse
 import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.SubmissionData
@@ -33,6 +32,8 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.SubmissionConverter.toSubmission
+import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskResult
+import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskResult
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
@@ -259,9 +260,9 @@ class SubmissionLocalDataStoreConverterTest {
               listOf("optionA", "optionB")
             ),
           "task4" to TextResponse("Photo URL"),
-          "task5" to GeometryTaskResponse(Point(Coordinates(10.0, 20.0))),
+          "task5" to DropPinTaskResult(Point(Coordinates(10.0, 20.0))),
           "task6" to
-            GeometryTaskResponse(
+            DrawAreaTaskResult(
               Polygon(
                 LinearRing(
                   listOf(
