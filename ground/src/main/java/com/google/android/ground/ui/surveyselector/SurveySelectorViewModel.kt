@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -62,7 +63,7 @@ internal constructor(
   /** Returns a flow of [SurveyListItem] to be displayed to the user. */
   suspend fun getSurveyList(): Flow<List<SurveyListItem>> =
     surveyRepository
-      .getSurveyList(authManager.getAuthenticatedUser())
+      .getSurveyList(authManager.getAuthenticatedUser()).distinctUntilChanged()
       .onStart { setLoading() }
       .map { surveys -> surveys.sortedBy { it.title }.sortedByDescending { it.availableOffline } }
       .onEach {

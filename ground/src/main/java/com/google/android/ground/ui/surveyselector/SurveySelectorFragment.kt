@@ -49,8 +49,7 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
     viewModel = getViewModel(SurveySelectorViewModel::class.java)
     adapter = SurveyListAdapter(viewModel, this)
     // TODO(#2081): Merge the survey list flow and survey list state flow into a single stream.
-    listUiJob =
-      lifecycleScope.launch { viewModel.getSurveyList().collect { adapter.updateData(it) } }
+    lifecycleScope.launch { viewModel.getSurveyList().collect { adapter.updateData(it) } }
     lifecycleScope.launch {
       viewModel.surveyListState.collect { state -> state?.let { handleSurveyListState(it) } }
     }
@@ -97,11 +96,6 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
       )
       show()
     }
-  }
-
-  fun activateSurvey(surveyId: String) {
-    listUiJob.cancel() // #2109 prevents UI jitter after survey selection
-    viewModel.activateSurvey(surveyId)
   }
 
   private fun handleSurveyListState(state: SurveySelectorViewModel.State) =

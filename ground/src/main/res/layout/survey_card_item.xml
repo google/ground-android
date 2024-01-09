@@ -42,7 +42,7 @@
     style="@style/Widget.App.CardView.SurfaceContainerLowest"
     android:clickable="true"
     android:focusable="true"
-    android:onClick="@{() -> fragment.activateSurvey(item.id)}"
+    android:onClick="@{() -> viewModel.activateSurvey(item.id)}"
     android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
