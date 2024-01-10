@@ -22,7 +22,7 @@ import kotlinx.serialization.Serializable
 /** Represents a single photo associated with a given [LocationOfInterest] and [Job]. */
 @Serializable
 class PhotoResponse : Value {
-  private val path: String
+  val path: String
 
   constructor(path: String) {
     val filePattern = Regex("^[a-zA-Z0-9._ -]+\\.(png|jpg)$")
