@@ -52,7 +52,7 @@ constructor(
       Timber.d("Syncing survey $surveyId")
       syncSurvey(surveyId)
     } catch (e: Throwable) {
-      Timber.e("error syncing survey in the background", e)
+      Timber.d(e, "Background survey sync failed")
       return if (this.runAttemptCount > DEFAULT_MAX_RETRY_ATTEMPTS) {
         Result.failure()
       } else {

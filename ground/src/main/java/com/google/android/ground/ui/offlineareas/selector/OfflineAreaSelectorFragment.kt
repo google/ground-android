@@ -66,7 +66,7 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
   override fun onMapReady(map: MapFragment) {
     // Observe events emitted by the ViewModel.
     viewLifecycleOwner.lifecycleScope.launch {
-      mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
+      mapContainerViewModel.mapLoiFeatures.collect { map.setFeatures(it) }
     }
     viewModel.remoteTileSources.forEach { map.addTileOverlay(it) }
   }

@@ -62,10 +62,10 @@ class DropPinTaskMapFragment(private val viewModel: DropPinTaskViewModel) :
   override fun onMapReady(map: MapFragment) {
     // Observe events emitted by the ViewModel.
     viewLifecycleOwner.lifecycleScope.launch {
-      mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
+      mapContainerViewModel.mapLoiFeatures.collect { map.setFeatures(it) }
     }
 
-    viewModel.features.observe(this) { map.renderFeatures(it) }
+    viewModel.features.observe(this) { map.setFeatures(it) }
   }
 
   override fun onMapCameraMoved(position: CameraPosition) {

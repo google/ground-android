@@ -25,3 +25,5 @@ enum class FeatureType {
   USER_POINT,
   USER_POLYGON,
 }
+
+fun Feature.isLocationOfInterest(): Boolean = tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal

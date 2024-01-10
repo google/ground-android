@@ -171,7 +171,8 @@ internal constructor(
           type = FeatureType.USER_POLYGON.ordinal,
           geometry = LineString(vertices),
           style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
-          clusterable = false
+          clusterable = false,
+          selected = true
         )
       }
   }

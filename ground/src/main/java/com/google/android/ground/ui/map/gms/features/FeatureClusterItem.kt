@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.map.gms.renderer
+package com.google.android.ground.ui.map.gms.features
 
-import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.gms.toGoogleMapsObject
+import com.google.maps.android.clustering.ClusterItem
 
-/** Keeps track of features on a map and implement basic related add/remove operations. */
-sealed class FeatureManager {
-  protected lateinit var map: GoogleMap
+/** A [ClusterItem] implementation for clustering map [Feature]s. */
+data class FeatureClusterItem(val feature: Feature) : ClusterItem {
+  override fun getPosition(): LatLng = feature.geometry.center().toGoogleMapsObject()
 
-  abstract fun addFeature(feature: Feature, isSelected: Boolean = false)
+  override fun getTitle(): String? = null
 
-  abstract fun removeStaleFeatures(features: Set<Feature>)
-
-  abstract fun removeAllFeatures()
-
-  fun onMapReady(map: GoogleMap) {
-    this.map = map
-  }
+  override fun getSnippet(): String? = null
 }
