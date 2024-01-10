@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.withTimeoutOrNull
@@ -71,6 +72,7 @@ constructor(
   val activeSurveyFlow: StateFlow<Survey?> =
     _selectedSurveyIdFlow
       .flatMapLatest { id -> offlineSurvey(id) }
+      .onEach { if (it != null) lastActiveSurveyId = it.id }
       .stateIn(externalScope, SharingStarted.Lazily, null)
 
   val activeSurveyId: Flow<String?> =

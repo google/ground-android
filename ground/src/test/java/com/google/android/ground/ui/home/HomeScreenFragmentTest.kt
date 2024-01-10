@@ -141,7 +141,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
   @Test
   fun offlineMapImageryMenuIsDisabledWhenActiveSurveyHasNoBasemap() = runWithTestDispatcher {
-    surveyRepository.activeSurvey = surveyWithoutBasemap
+    surveyRepository.selectedSurveyId = surveyWithoutBasemap.id
     advanceUntilIdle()
 
     openDrawer()
@@ -150,7 +150,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
   @Test
   fun offlineMapImageryMenuIsEnabledWhenActiveSurveyHasBasemap() = runWithTestDispatcher {
-    surveyRepository.activeSurvey = surveyWithTileSources
+    surveyRepository.selectedSurveyId = surveyWithTileSources.id
     advanceUntilIdle()
 
     openDrawer()
@@ -174,7 +174,7 @@ class NavigationDrawerItemClickTest(
 
   @Test
   fun clickDrawerMenuItem() = runWithTestDispatcher {
-    surveyRepository.activeSurvey = survey
+    surveyRepository.selectedSurveyId = survey.id
     advanceUntilIdle()
 
     openDrawer()

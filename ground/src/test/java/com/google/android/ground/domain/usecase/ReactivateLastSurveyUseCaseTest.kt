@@ -30,6 +30,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.kotlin.never
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 
@@ -43,33 +44,31 @@ class ReactivateLastSurveyUseCaseTest : BaseHiltTest() {
   @BindValue @Mock lateinit var activateSurvey: ActivateSurveyUseCase
 
   @Test
-  fun reactivateLastSurvey_lastIdSet_noActiveSurvey() = runWithTestDispatcher {
+  fun `Reactivate last survey`() = runWithTestDispatcher {
     surveyRepository.lastActiveSurveyId = SURVEY.id
-
     reactivateLastSurvey()
     advanceUntilIdle()
 
-    // Verify survey is made available for offline use.
     verify(activateSurvey).invoke(SURVEY.id)
   }
 
   @Test
-  fun reactivateLastSurvey_lastIdNotSet() = runWithTestDispatcher {
+  fun `Does nothing when a survey is already active`() = runWithTestDispatcher {
+    activateSurvey(SURVEY.id)
     reactivateLastSurvey()
     advanceUntilIdle()
 
-    // Verify survey is made available for offline use.
-    verify(activateSurvey, never()).invoke(SURVEY.id)
+    // Tries to activate survey.
+    verify(activateSurvey, times(1)).invoke(SURVEY.id)
   }
 
   @Test
-  fun reactivateLastSurvey_lastIdSet_activeSurvey() = runWithTestDispatcher {
-    surveyRepository.activeSurvey = SURVEY
-
+  fun `Does nothing when survey never activated`() = runWithTestDispatcher {
+    surveyRepository.lastActiveSurveyId = ""
     reactivateLastSurvey()
     advanceUntilIdle()
 
-    // Verify survey is made available for offline use.
+    // Should never try to activate survey.
     verify(activateSurvey, never()).invoke(SURVEY.id)
   }
 }

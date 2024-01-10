@@ -33,6 +33,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito.times
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -50,7 +51,7 @@ class ActivateSurveyUseCaseTest : BaseHiltTest() {
   @BindValue @Mock lateinit var makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase
 
   @Test
-  fun `Activates survey when no survey is active`() = runWithTestDispatcher {
+  fun `Makes survey available offline`() = runWithTestDispatcher {
     `when`(makeSurveyAvailableOffline(SURVEY.id)).thenReturn(SURVEY)
 
     activateSurvey(SURVEY.id)
@@ -58,6 +59,15 @@ class ActivateSurveyUseCaseTest : BaseHiltTest() {
 
     // Verify survey is made available for offline use.
     verify(makeSurveyAvailableOffline).invoke(SURVEY.id)
+  }
+
+  @Test
+  fun `Activates survey`() = runWithTestDispatcher {
+    `when`(makeSurveyAvailableOffline(SURVEY.id)).thenReturn(SURVEY)
+
+    activateSurvey(SURVEY.id)
+    advanceUntilIdle()
+
     // Verify survey is active.
     assertThat(surveyRepository.activeSurvey).isEqualTo(SURVEY)
   }
@@ -100,14 +110,14 @@ class ActivateSurveyUseCaseTest : BaseHiltTest() {
 
   @Test
   fun `Does nothing when survey already active`() = runWithTestDispatcher {
-    localSurveyStore.insertOrUpdateSurvey(SURVEY)
-    surveyRepository.activeSurvey = SURVEY
+    activateSurvey(SURVEY.id)
+    advanceUntilIdle()
 
     activateSurvey(SURVEY.id)
     advanceUntilIdle()
 
-    // Verify that we don't try to make survey available offline again.
-    verify(makeSurveyAvailableOffline, never()).invoke(SURVEY.id)
+    // Verify that we don't try to make survey available offline more than once.
+    verify(makeSurveyAvailableOffline, times(1)).invoke(SURVEY.id)
     // Verify survey is active.
     assertThat(surveyRepository.activeSurvey).isEqualTo(SURVEY)
   }

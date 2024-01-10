@@ -45,7 +45,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
 
   @Test
   fun activeSurveyFlow_emitsValueOnSetActiveSurvey() = runWithTestDispatcher {
-    surveyRepository.activeSurvey = SURVEY
+    surveyRepository.selectedSurveyId = SURVEY.id
     advanceUntilIdle()
 
     surveyRepository.activeSurveyFlow.test { assertThat(expectMostRecentItem()).isEqualTo(SURVEY) }

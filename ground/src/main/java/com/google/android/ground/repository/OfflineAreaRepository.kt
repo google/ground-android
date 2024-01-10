@@ -43,7 +43,7 @@ import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 /**
- * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
+ * Corners of the viewwport are scaled by this value when determining the name of downloaded areas.
  * Value derived experimentally.
  */
 const val AREA_NAME_SENSITIVITY = 0.5
