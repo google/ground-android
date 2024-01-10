@@ -61,5 +61,10 @@ internal object TaskConverter {
     }
 
   fun toStrategy(strategyStr: String): Job.DataCollectionStrategy =
-    Job.DataCollectionStrategy.valueOf(strategyStr)
+    try {
+      Job.DataCollectionStrategy.valueOf(strategyStr)
+    } catch (e: IllegalArgumentException) {
+      Timber.e("unknown data collection strategy", e)
+      Job.DataCollectionStrategy.UNKNOWN
+    }
 }

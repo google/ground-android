@@ -44,12 +44,12 @@ class DrawAreaTaskMapFragment(private val viewModel: DrawAreaTaskViewModel) :
   override fun onMapReady(map: MapFragment) {
     // Observe events emitted by the ViewModel.
     viewLifecycleOwner.lifecycleScope.launch {
-      mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
+      mapContainerViewModel.mapLoiFeatures.collect { map.setFeatures(it) }
     }
 
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.draftArea.collect { feature: Feature? ->
-        map.renderFeatures(if (feature == null) setOf() else setOf(feature))
+        map.setFeatures(if (feature == null) setOf() else setOf(feature))
       }
     }
   }

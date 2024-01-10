@@ -36,16 +36,15 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
+import com.google.android.ground.ui.map.isLocationOfInterest
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
@@ -80,6 +79,8 @@ internal constructor(
     loiRepository
   ) {
 
+  private val selectedLoiIdFlow = MutableStateFlow<String?>(null)
+
   /** Set of [Feature] to render on the map. */
   val mapLoiFeatures: Flow<Set<Feature>>
 
@@ -112,7 +113,10 @@ internal constructor(
 
     mapLoiFeatures =
       activeSurvey.flatMapLatest {
-        if (it == null) flowOf(setOf()) else getLocationOfInterestFeatures(it)
+        if (it == null) flowOf(setOf())
+        else
+          getLocationOfInterestFeatures(it)
+            .combine(selectedLoiIdFlow, this::updatedLoiSelectedStates)
       }
 
     val isZoomedInFlow =
@@ -143,6 +147,14 @@ internal constructor(
       adHocLoiJobs.collect { Timber.e("Updated adHocLoiJobs: $adHocLoiJobs") }
     }
   }
+
+  private fun updatedLoiSelectedStates(
+    features: Set<Feature>,
+    selectedLoiId: String?
+  ): Set<Feature> =
+    features
+      .map { it.withSelected(it.isLocationOfInterest() && it.tag.id == selectedLoiId) }
+      .toSet()
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     super.onMapCameraMoved(newCameraPosition)
@@ -177,8 +189,6 @@ internal constructor(
     }
   }
 
-  fun getZoomThresholdCrossed(): SharedFlow<Nil> = _zoomThresholdCrossed.asSharedFlow()
-
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
     loiRepository.getLocationsOfInterests(survey).map {
       it.map { loi -> loi.toFeature() }.toPersistentSet()
@@ -191,6 +201,11 @@ internal constructor(
       flag = submissionRepository.getTotalSubmissionCount(this) > 0,
       geometry = geometry,
       style = Feature.Style(job.getDefaultColor()),
-      clusterable = true
+      clusterable = true,
+      selected = true
     )
+
+  fun selectLocationOfInterest(id: String?) {
+    selectedLoiIdFlow.value = id
+  }
 }

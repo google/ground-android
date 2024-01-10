@@ -21,12 +21,9 @@ import android.graphics.Canvas
 import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import androidx.annotation.ColorInt
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.content.res.ResourcesCompat
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.ground.Config
 import com.google.android.ground.R
 import com.google.android.ground.ui.util.obtainTextPaintFromStyle
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -45,20 +42,10 @@ class IconFactory @Inject constructor(@ApplicationContext private val context: C
   }
 
   /** Returns a [Bitmap] representing an individual marker pin on the map. */
-  fun getMarkerBitmap(color: Int, currentZoomLevel: Float, isSelected: Boolean = false): Bitmap {
+  fun getMarkerBitmap(color: Int, scale: Float): Bitmap {
     val outline = AppCompatResources.getDrawable(context, R.drawable.ic_marker_outline)
     val fill = AppCompatResources.getDrawable(context, R.drawable.ic_marker_fill)
     val overlay = AppCompatResources.getDrawable(context, R.drawable.ic_marker_overlay)
-
-    var scale =
-      if (currentZoomLevel >= Config.ZOOM_LEVEL_THRESHOLD)
-        ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_zoomed_scale)
-      else ResourcesCompat.getFloat(context.resources, R.dimen.marker_bitmap_default_scale)
-
-    if (isSelected) {
-      // TODO: Revisit scale for selected markers
-      scale += 1
-    }
 
     val bitmap = createBitmap(outline!!, scale)
     val canvas = Canvas(bitmap)
@@ -74,12 +61,8 @@ class IconFactory @Inject constructor(@ApplicationContext private val context: C
   }
 
   /** Returns a [BitmapDescriptor] for representing an individual marker on the map. */
-  fun getMarkerIcon(
-    @ColorInt color: Int,
-    currentZoomLevel: Float,
-    isSelected: Boolean = false
-  ): BitmapDescriptor {
-    val bitmap = getMarkerBitmap(color, currentZoomLevel, isSelected)
+  fun getMarkerIcon(color: Int, scale: Float): BitmapDescriptor {
+    val bitmap = getMarkerBitmap(color, scale)
     // TODO: Cache rendered bitmaps.
     return BitmapDescriptorFactory.fromBitmap(bitmap)
   }

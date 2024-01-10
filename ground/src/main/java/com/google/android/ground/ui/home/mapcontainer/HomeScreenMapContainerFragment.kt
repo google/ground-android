@@ -51,7 +51,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint(AbstractMapContainerFragment::class)
@@ -73,10 +72,6 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-
-    lifecycleScope.launch {
-      mapContainerViewModel.getZoomThresholdCrossed().collect { onZoomThresholdCrossed() }
-    }
 
     lifecycleScope.launch {
       val canUserSubmitData = userRepository.canUserSubmitData()
@@ -204,22 +199,17 @@ class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
   override fun onMapReady(map: MapFragment) {
     // Observe events emitted by the ViewModel.
     viewLifecycleOwner.lifecycleScope.launch {
-      mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
+      mapContainerViewModel.mapLoiFeatures.collect { map.setFeatures(it) }
     }
 
     adapter.setLoiCardFocusedListener {
       when (it) {
-        is MapCardUiData.LoiCardUiData -> map.setActiveLocationOfInterest(it.loi.id)
+        is MapCardUiData.LoiCardUiData -> mapContainerViewModel.selectLocationOfInterest(it.loi.id)
         is MapCardUiData.AddLoiCardUiData,
-        null -> map.setActiveLocationOfInterest(null)
+        null -> mapContainerViewModel.selectLocationOfInterest(null)
       }
     }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel
-
-  private fun onZoomThresholdCrossed() {
-    Timber.v("Refresh markers after zoom threshold crossed")
-    map.refresh()
-  }
 }

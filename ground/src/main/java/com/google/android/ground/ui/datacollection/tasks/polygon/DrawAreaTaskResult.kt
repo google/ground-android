@@ -20,5 +20,5 @@ import com.google.android.ground.model.submission.GeometryTaskResult
 
 /** User-provided response to a "draw an area" data collection [Task]. */
 data class DrawAreaTaskResult constructor(val area: Polygon) : GeometryTaskResult(area) {
-  override fun isEmpty(): Boolean = false
+  override fun isEmpty(): Boolean = area.isEmpty()
 }

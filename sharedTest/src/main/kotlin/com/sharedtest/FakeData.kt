@@ -28,7 +28,7 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
-import com.google.android.ground.ui.map.gms.FeatureClusterItem
+import com.google.android.ground.ui.map.gms.features.FeatureClusterItem
 
 /**
  * Shared test data constants. Tests are expected to override existing or set missing values when

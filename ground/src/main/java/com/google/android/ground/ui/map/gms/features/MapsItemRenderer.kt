@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.map.gms.renderer
+package com.google.android.ground.ui.map.gms.features
 
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.ui.map.Feature
 
-/** Keeps track of features on a map and implement basic related add/remove operations. */
-sealed class FeatureManager {
-  protected lateinit var map: GoogleMap
-
-  abstract fun addFeature(feature: Feature, isSelected: Boolean = false)
-
-  abstract fun removeStaleFeatures(features: Set<Feature>)
-
-  abstract fun removeAllFeatures()
-
-  fun onMapReady(map: GoogleMap) {
-    this.map = map
-  }
+interface MapsItemRenderer<T : Geometry, U> {
+  fun add(
+    map: GoogleMap,
+    tag: Feature.Tag,
+    geometry: T,
+    style: Feature.Style,
+    selected: Boolean,
+    visible: Boolean
+  ): U
 }

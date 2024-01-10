@@ -45,7 +45,6 @@ class DrawAreaTaskFragment : Hilt_DrawAreaTaskFragment<DrawAreaTaskViewModel>() 
   private lateinit var completeButton: TaskButton
   private lateinit var addPointButton: TaskButton
   private lateinit var nextButton: TaskButton
-  private lateinit var undoButton: TaskButton
 
   private lateinit var drawAreaTaskMapFragment: DrawAreaTaskMapFragment
 
@@ -64,7 +63,7 @@ class DrawAreaTaskFragment : Hilt_DrawAreaTaskFragment<DrawAreaTaskViewModel>() 
 
   override fun onCreateActionButtons() {
     addSkipButton()
-    undoButton = addUndoButton()
+    addUndoButton()
     nextButton = addNextButton()
     addPointButton =
       addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
@@ -87,6 +86,5 @@ class DrawAreaTaskFragment : Hilt_DrawAreaTaskFragment<DrawAreaTaskViewModel>() 
     addPointButton.showIfTrue(!geometry.isClosed())
     completeButton.showIfTrue(geometry.isClosed() && !viewModel.isMarkedComplete())
     nextButton.showIfTrue(viewModel.isMarkedComplete())
-    undoButton.showIfTrue(!geometry.isEmpty())
   }
 }

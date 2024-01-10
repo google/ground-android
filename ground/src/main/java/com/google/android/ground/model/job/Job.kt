@@ -42,6 +42,9 @@ data class Job(
   fun getTask(id: String): Task = tasks[id] ?: error("Unknown task id $id")
 
   fun getAddLoiTask(): Task? = tasks.values.firstOrNull { it.isAddLoiTask }
+
+  /** Returns true if the job has one or more tasks. */
+  fun hasTasks() = tasks.values.isNotEmpty()
 }
 
 fun Job.getDefaultColor(): Int =
