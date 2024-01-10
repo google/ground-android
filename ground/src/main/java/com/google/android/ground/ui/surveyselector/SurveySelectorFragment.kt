@@ -31,7 +31,6 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.ProgressDialogs
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /** User interface implementation of survey selector screen. */
@@ -41,7 +40,6 @@ class SurveySelectorFragment : Hilt_SurveySelectorFragment(), BackPressListener 
   private lateinit var viewModel: SurveySelectorViewModel
   private lateinit var binding: SurveySelectorFragBinding
   private lateinit var adapter: SurveyListAdapter
-  private lateinit var listUiJob: Job
   private var progressDialog: ProgressDialog? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {

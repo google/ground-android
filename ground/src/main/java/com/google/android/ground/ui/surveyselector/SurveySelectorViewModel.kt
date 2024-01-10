@@ -63,9 +63,10 @@ internal constructor(
   /** Returns a flow of [SurveyListItem] to be displayed to the user. */
   suspend fun getSurveyList(): Flow<List<SurveyListItem>> =
     surveyRepository
-      .getSurveyList(authManager.getAuthenticatedUser()).distinctUntilChanged()
+      .getSurveyList(authManager.getAuthenticatedUser())
+      .distinctUntilChanged()
       .onStart { setLoading() }
-      .map { surveys -> surveys.sortedBy { it.title }.sortedByDescending { it.availableOffline } }
+      .map { surveys -> surveys.sortedWith(compareBy({ !it.availableOffline }, { it.title })) }
       .onEach {
         if (it.isEmpty()) {
           setNotFound()
