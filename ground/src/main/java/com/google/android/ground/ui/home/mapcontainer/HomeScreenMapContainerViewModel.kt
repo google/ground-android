@@ -53,7 +53,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -61,7 +60,7 @@ class HomeScreenMapContainerViewModel
 @Inject
 internal constructor(
   private val loiRepository: LocationOfInterestRepository,
-  private val mapStateRepository: MapStateRepository,
+  mapStateRepository: MapStateRepository,
   private val submissionRepository: SubmissionRepository,
   locationManager: LocationManager,
   settingsManager: SettingsManager,
@@ -158,9 +157,7 @@ internal constructor(
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     super.onMapCameraMoved(newCameraPosition)
-    Timber.d("Setting position to $newCameraPosition")
     onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
-    mapStateRepository.setCameraPosition(newCameraPosition)
   }
 
   private fun onZoomChange(oldZoomLevel: Float?, newZoomLevel: Float?) {
