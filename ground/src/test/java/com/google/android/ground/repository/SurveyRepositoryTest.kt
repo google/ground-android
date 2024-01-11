@@ -19,6 +19,7 @@ import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.toListItem
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.JOB
 import com.sharedtest.FakeData.SURVEY
@@ -28,8 +29,8 @@ import javax.inject.Inject
 import kotlin.test.assertFails
 import kotlin.test.assertNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.*
@@ -42,50 +43,59 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
+  @Inject lateinit var localSurveyStore: LocalSurveyStore
+
+  @Before
+  override fun setUp() {
+    super.setUp()
+    fakeRemoteDataStore.surveys = listOf(SURVEY)
+  }
 
   @Test
-  fun activeSurveyFlow_emitsValueOnSetActiveSurvey() = runWithTestDispatcher {
+  fun `setting selectedSurveyId updates the active survey`() = runWithTestDispatcher {
+    localSurveyStore.insertOrUpdateSurvey(SURVEY)
     surveyRepository.selectedSurveyId = SURVEY.id
     advanceUntilIdle()
 
     surveyRepository.activeSurveyFlow.test { assertThat(expectMostRecentItem()).isEqualTo(SURVEY) }
+    assertThat(surveyRepository.activeSurvey).isEqualTo(SURVEY)
   }
 
-  @Test
-  fun activeSurveyFlow_emitsEmptyOnClearActiveSurvey() = runWithTestDispatcher {
+  fun `clearActiveSurvey() resets active survey`() = runWithTestDispatcher {
     surveyRepository.clearActiveSurvey()
     advanceUntilIdle()
 
     surveyRepository.activeSurveyFlow.test { assertThat(expectMostRecentItem()).isNull() }
-  }
-
-  @Test
-  fun activeSurveyFlow_emitsNullOnClearActiveSurvey() = runWithTestDispatcher {
-    surveyRepository.clearActiveSurvey()
-    advanceUntilIdle()
-
-    assertThat(surveyRepository.activeSurveyFlow.first()).isNull()
-  }
-
-  @Test
-  fun deleteSurvey_whenSurveyIsActive() = runWithTestDispatcher {
-    fakeRemoteDataStore.surveys = listOf(SURVEY)
-    surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)
-    advanceUntilIdle()
-    activateSurvey(SURVEY.id)
-    advanceUntilIdle()
-
-    surveyRepository.removeOfflineSurvey(SURVEY.id)
-    advanceUntilIdle()
-
-    // Verify survey is deleted
-    surveyRepository.localSurveyListFlow.test { assertThat(expectMostRecentItem()).isEmpty() }
-    // Verify survey deactivated
     assertThat(surveyRepository.activeSurvey).isNull()
   }
 
   @Test
-  fun deleteSurvey_whenSurveyIsInActive() = runWithTestDispatcher {
+  fun `removeOfflineSurvey() deletes local copy`() = runWithTestDispatcher {
+    fakeRemoteDataStore.surveys = listOf(SURVEY)
+    surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)
+    activateSurvey(SURVEY.id)
+
+    surveyRepository.removeOfflineSurvey(SURVEY.id)
+    advanceUntilIdle()
+
+    surveyRepository.localSurveyListFlow.test { assertThat(expectMostRecentItem()).isEmpty() }
+    assertThat(surveyRepository.activeSurvey).isNull()
+  }
+
+  @Test
+  fun `removeOfflineSurvey() deactivates active survey`() = runWithTestDispatcher {
+    fakeRemoteDataStore.surveys = listOf(SURVEY)
+    surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)
+    activateSurvey(SURVEY.id)
+
+    surveyRepository.removeOfflineSurvey(SURVEY.id)
+    advanceUntilIdle()
+
+    assertThat(surveyRepository.activeSurvey).isNull()
+  }
+
+  @Test
+  fun `removeOfflineSurvey() removes inactive survey`() = runWithTestDispatcher {
     // Job ID must be globally unique.
     val job1 = JOB.copy(id = "job1")
     val job2 = JOB.copy(id = "job2")
@@ -102,7 +112,6 @@ class SurveyRepositoryTest : BaseHiltTest() {
 
     // Verify active survey isn't cleared
     assertThat(surveyRepository.activeSurvey).isEqualTo(survey1)
-    // Verify survey is deleted
     surveyRepository.localSurveyListFlow.test {
       assertThat(expectMostRecentItem()).isEqualTo(listOf(survey1.toListItem(true)))
     }

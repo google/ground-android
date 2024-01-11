@@ -35,8 +35,10 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -72,25 +74,25 @@ constructor(
   val activeSurveyFlow: StateFlow<Survey?> =
     _selectedSurveyIdFlow
       .flatMapLatest { id -> offlineSurvey(id) }
-      .onEach { if (it != null) lastActiveSurveyId = it.id }
       .stateIn(externalScope, SharingStarted.Lazily, null)
 
   val activeSurveyIdFlow: Flow<String?> =
     activeSurveyFlow.transformLatest<Survey?, String> { it?.id }.distinctUntilChanged()
-  /**
-   * The currently active survey, or `null` if no survey is active. Updating this property causes
-   * [lastActiveSurveyId] to be updated with the id of the specified survey, or `""` if the
-   * specified survey is `null`.
-   */
-  var activeSurvey: Survey? = null
+
+  /** The currently active survey, or `null` if no survey is active. */
+  val activeSurvey: Survey?
     get() = activeSurveyFlow.value
-    private set
 
   val localSurveyListFlow: Flow<List<SurveyListItem>>
     get() = localSurveyStore.surveys.map { list -> list.map { it.toListItem(true) } }
 
+  /** The id of the last activated survey. */
   var lastActiveSurveyId: String by localValueStore::lastActiveSurveyId
     internal set
+
+  init {
+    activeSurveyFlow.filterNotNull().onEach { lastActiveSurveyId = it.id }.launchIn(externalScope)
+  }
 
   /** Listens for remote changes to the survey with the specified id. */
   suspend fun subscribeToSurveyUpdates(surveyId: String) =
@@ -118,7 +120,7 @@ constructor(
       ?.apply { localSurveyStore.insertOrUpdateSurvey(this) }
 
   fun clearActiveSurvey() {
-    activeSurvey = null
+    selectedSurveyId = null
   }
 
   fun getSurveyList(user: User): Flow<List<SurveyListItem>> =
