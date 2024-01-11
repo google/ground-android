@@ -252,6 +252,7 @@ constructor(
     Timber.d("Camera moved : ${newCameraPosition.target}")
     lastCameraPosition = currentCameraPosition.value
     currentCameraPosition.value = newCameraPosition
+    mapStateRepository.setCameraPosition(newCameraPosition)
   }
 
   companion object {
