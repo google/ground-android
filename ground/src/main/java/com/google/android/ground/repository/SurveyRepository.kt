@@ -75,7 +75,7 @@ constructor(
       .onEach { if (it != null) lastActiveSurveyId = it.id }
       .stateIn(externalScope, SharingStarted.Lazily, null)
 
-  val activeSurveyId: Flow<String?> =
+  val activeSurveyIdFlow: Flow<String?> =
     activeSurveyFlow.transformLatest<Survey?, String> { it?.id }.distinctUntilChanged()
   /**
    * The currently active survey, or `null` if no survey is active. Updating this property causes

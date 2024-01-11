@@ -234,7 +234,7 @@ constructor(
 
   /** Emits a new camera update request when active survey changes. */
   private fun getCameraUpdateRequestsForSurveyActivations(): Flow<CameraUpdateRequest> =
-    surveyRepository.activeSurveyId.transform {
+    surveyRepository.activeSurveyIdFlow.transform {
       surveyRepository.activeSurvey?.let {
         getLastSavedPositionOrDefaultBounds(it)?.apply { emit(this) }
       }
