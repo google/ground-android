@@ -45,7 +45,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -108,7 +107,6 @@ internal constructor(
     //  into the repository.
 
     val activeSurvey = surveyRepository.activeSurveyFlow
-    viewModelScope.launch { activeSurvey.collect { Timber.e("Updated survey: $it") } }
 
     mapLoiFeatures =
       activeSurvey.flatMapLatest {
@@ -130,9 +128,7 @@ internal constructor(
           else loiRepository.getWithinBounds(survey, bounds)
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, listOf())
-    viewModelScope.launch {
-      loisInViewport.collect { Timber.e("Updated loisInViewport: ${it.firstOrNull()}") }
-    }
+
     adHocLoiJobs =
       activeSurvey
         .combine(isZoomedInFlow) { survey, isZoomedIn -> Pair(survey, isZoomedIn) }
@@ -142,9 +138,6 @@ internal constructor(
             else survey.jobs.filter { it.canDataCollectorsAddLois }
           )
         }
-    viewModelScope.launch {
-      adHocLoiJobs.collect { Timber.e("Updated adHocLoiJobs: $adHocLoiJobs") }
-    }
   }
 
   private fun updatedLoiSelectedStates(
