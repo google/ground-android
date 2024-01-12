@@ -192,7 +192,10 @@ constructor(
 
   /** Emits a stream of camera update requests. */
   fun getCameraUpdateRequests(): SharedFlow<CameraUpdateRequest> =
-    merge(updateCameraPositionOnSurveyChange(), updateCameraPositionOnLocationChange())
+    merge(
+        getCameraUpdateRequestsForSurveyActivations(),
+        getCameraUpdateRequestsForDeviceLocationChanges()
+      )
       .shareIn(viewModelScope, SharingStarted.Eagerly, replay = 0)
 
   /** Emits a stream of current camera position. */
@@ -205,7 +208,7 @@ constructor(
    * appropriate zoom level and subsequent ones only pan the map.
    */
   @OptIn(ExperimentalCoroutinesApi::class)
-  private fun updateCameraPositionOnLocationChange(): Flow<CameraUpdateRequest> =
+  private fun getCameraUpdateRequestsForDeviceLocationChanges(): Flow<CameraUpdateRequest> =
     locationLock
       .flatMapLatest { enabled ->
         getLocationUpdates()
@@ -229,10 +232,12 @@ constructor(
       CameraUpdateRequest(CameraPosition(coordinates), true)
     }
 
-  /** Updates map camera when active survey changes. */
-  private fun updateCameraPositionOnSurveyChange(): Flow<CameraUpdateRequest> =
-    surveyRepository.activeSurveyFlow.filterNotNull().transform {
-      getLastSavedPositionOrDefaultBounds(it)?.apply { emit(this) }
+  /** Emits a new camera update request when active survey changes. */
+  private fun getCameraUpdateRequestsForSurveyActivations(): Flow<CameraUpdateRequest> =
+    surveyRepository.activeSurveyIdFlow.transform {
+      surveyRepository.activeSurvey?.let {
+        getLastSavedPositionOrDefaultBounds(it)?.apply { emit(this) }
+      }
     }
 
   private suspend fun getLastSavedPositionOrDefaultBounds(survey: Survey): CameraUpdateRequest? {

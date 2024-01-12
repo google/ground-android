@@ -46,7 +46,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -107,7 +106,7 @@ internal constructor(
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     //  into the repository.
 
-    val activeSurvey = surveyRepository.activeSurveyFlow.distinctUntilChanged()
+    val activeSurvey = surveyRepository.activeSurveyFlow
 
     mapLoiFeatures =
       activeSurvey.flatMapLatest {

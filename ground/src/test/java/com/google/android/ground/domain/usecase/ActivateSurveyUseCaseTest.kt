@@ -18,24 +18,20 @@ package com.google.android.ground.domain.usecase
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
-import com.google.android.ground.domain.usecases.survey.MakeSurveyAvailableOfflineUseCase
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.repository.SurveyRepository
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
-import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFails
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.kotlin.never
-import org.mockito.kotlin.verify
+import org.mockito.Mockito.times
 import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -47,68 +43,66 @@ class ActivateSurveyUseCaseTest : BaseHiltTest() {
   @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
-  @BindValue @Mock lateinit var makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase
+  @Before
+  override fun setUp() {
+    super.setUp()
+    fakeRemoteDataStore.surveys = listOf(SURVEY)
+  }
 
   @Test
-  fun `Activates survey when no survey is active`() = runWithTestDispatcher {
-    `when`(makeSurveyAvailableOffline(SURVEY.id)).thenReturn(SURVEY)
-
+  fun `Makes survey available offline`() = runWithTestDispatcher {
     activateSurvey(SURVEY.id)
     advanceUntilIdle()
 
-    // Verify survey is made available for offline use.
-    verify(makeSurveyAvailableOffline).invoke(SURVEY.id)
-    // Verify survey is active.
+    assertThat(localSurveyStore.getSurveyById(SURVEY.id)).isEqualTo(SURVEY)
+  }
+
+  @Test
+  fun `Activates survey`() = runWithTestDispatcher {
+    activateSurvey(SURVEY.id)
+    advanceUntilIdle()
+
     assertThat(surveyRepository.activeSurvey).isEqualTo(SURVEY)
   }
 
   @Test
   fun `Throws error when survey can't be made available offline`() = runWithTestDispatcher {
-    `when`(makeSurveyAvailableOffline(SURVEY.id)).thenThrow(Error::class.java)
+    fakeRemoteDataStore.onLoadSurvey = { error("Boom!") }
 
     assertFails { activateSurvey(SURVEY.id) }
     advanceUntilIdle()
 
-    // Verify no survey is active.
     assertThat(surveyRepository.activeSurvey).isNull()
   }
 
   @Test
   fun `Throws error when survey doesn't exist`() = runWithTestDispatcher {
-    `when`(makeSurveyAvailableOffline(SURVEY.id)).thenReturn(null)
+    fakeRemoteDataStore.onLoadSurvey = { null }
 
     assertFails { activateSurvey(SURVEY.id) }
     advanceUntilIdle()
 
-    // Verify no survey is active.
     assertThat(surveyRepository.activeSurvey).isNull()
   }
 
   @Test
   fun `Uses local instance if available`() = runWithTestDispatcher {
-    fakeRemoteDataStore.surveys = listOf(SURVEY)
+    fakeRemoteDataStore.onLoadSurvey = { error("This should not be called") }
     localSurveyStore.insertOrUpdateSurvey(SURVEY)
 
     activateSurvey(SURVEY.id)
     advanceUntilIdle()
 
-    // Verify that we don't try to make survey available offline again.
-    verify(makeSurveyAvailableOffline, never()).invoke(SURVEY.id)
-    // Verify survey is active.
     assertThat(surveyRepository.activeSurvey).isEqualTo(SURVEY)
   }
 
   @Test
   fun `Does nothing when survey already active`() = runWithTestDispatcher {
-    localSurveyStore.insertOrUpdateSurvey(SURVEY)
-    surveyRepository.activeSurvey = SURVEY
-
     activateSurvey(SURVEY.id)
     advanceUntilIdle()
 
-    // Verify that we don't try to make survey available offline again.
-    verify(makeSurveyAvailableOffline, never()).invoke(SURVEY.id)
-    // Verify survey is active.
-    assertThat(surveyRepository.activeSurvey).isEqualTo(SURVEY)
+    fakeRemoteDataStore.onLoadSurvey = { error("loadSurvey() should not be called here") }
+    activateSurvey(SURVEY.id)
+    advanceUntilIdle()
   }
 }

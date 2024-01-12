@@ -31,12 +31,18 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 
@@ -47,6 +53,7 @@ private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000
  * data stores. For more details on this pattern and overall architecture, see
  * https://developer.android.com/jetpack/docs/guide.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class SurveyRepository
 @Inject
@@ -57,28 +64,35 @@ constructor(
   private val networkManager: NetworkManager,
   @ApplicationScope private val externalScope: CoroutineScope
 ) {
-  private val _activeSurvey = MutableStateFlow<Survey?>(null)
-
-  val activeSurveyFlow: SharedFlow<Survey?> =
-    _activeSurvey.shareIn(externalScope, replay = 1, started = SharingStarted.Eagerly)
-
-  /**
-   * The currently active survey, or `null` if no survey is active. Updating this property causes
-   * [lastActiveSurveyId] to be updated with the id of the specified survey, or `""` if the
-   * specified survey is `null`.
-   */
-  var activeSurvey: Survey?
-    get() = _activeSurvey.value
+  private val _selectedSurveyIdFlow = MutableStateFlow<String?>(null)
+  var selectedSurveyId: String?
+    get() = _selectedSurveyIdFlow.value
     set(value) {
-      _activeSurvey.value = value
-      lastActiveSurveyId = value?.id ?: ""
+      _selectedSurveyIdFlow.value = value
     }
+
+  val activeSurveyFlow: StateFlow<Survey?> =
+    _selectedSurveyIdFlow
+      .flatMapLatest { id -> offlineSurvey(id) }
+      .stateIn(externalScope, SharingStarted.Lazily, null)
+
+  val activeSurveyIdFlow: Flow<String?> =
+    activeSurveyFlow.transformLatest<Survey?, String> { it?.id }.distinctUntilChanged()
+
+  /** The currently active survey, or `null` if no survey is active. */
+  val activeSurvey: Survey?
+    get() = activeSurveyFlow.value
 
   val localSurveyListFlow: Flow<List<SurveyListItem>>
     get() = localSurveyStore.surveys.map { list -> list.map { it.toListItem(true) } }
 
+  /** The id of the last activated survey. */
   var lastActiveSurveyId: String by localValueStore::lastActiveSurveyId
     internal set
+
+  init {
+    activeSurveyFlow.filterNotNull().onEach { lastActiveSurveyId = it.id }.launchIn(externalScope)
+  }
 
   /** Listens for remote changes to the survey with the specified id. */
   suspend fun subscribeToSurveyUpdates(surveyId: String) =
@@ -88,6 +102,9 @@ constructor(
    * Returns the survey with the specified id from the local db, or `null` if not available offline.
    */
   suspend fun getOfflineSurvey(surveyId: String): Survey? = localSurveyStore.getSurveyById(surveyId)
+
+  private fun offlineSurvey(id: String?): Flow<Survey?> =
+    if (id == null) flowOf(null) else localSurveyStore.survey(id)
 
   /**
    * Loads the survey with the specified id from remote and writes to local db. If the survey isn't
@@ -103,7 +120,7 @@ constructor(
       ?.apply { localSurveyStore.insertOrUpdateSurvey(this) }
 
   fun clearActiveSurvey() {
-    activeSurvey = null
+    selectedSurveyId = null
   }
 
   fun getSurveyList(user: User): Flow<List<SurveyListItem>> =

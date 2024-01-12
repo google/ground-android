@@ -23,6 +23,8 @@ interface LocalSurveyStore {
   /** Load surveys stored in local database. */
   val surveys: Flow<List<Survey>>
 
+  fun survey(id: String): Flow<Survey?>
+
   /** Load last active survey, if any. */
   suspend fun getSurveyById(id: String): Survey?
 
