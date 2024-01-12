@@ -107,6 +107,7 @@ class MainActivity : Hilt_MainActivity() {
    * The Android settings API requires this callback to live in an Activity; here we dispatch the
    * result back to the SettingsManager for handling.
    */
+  @Deprecated("Deprecated in Java")
   override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
     Timber.d("Activity result received")
     super.onActivityResult(requestCode, resultCode, intent)
