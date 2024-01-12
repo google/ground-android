@@ -32,6 +32,7 @@ import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.imagery.TileSource
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.testMaybeNavigateTo
 import com.google.android.ground.ui.common.Navigator
@@ -50,6 +51,7 @@ import org.robolectric.RobolectricTestRunner
 
 abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
 
+  @Inject lateinit var localSurveyStore: LocalSurveyStore
   private lateinit var fragment: HomeScreenFragment
   private var initializedPicasso = false
 
@@ -150,6 +152,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
   @Test
   fun offlineMapImageryMenuIsEnabledWhenActiveSurveyHasBasemap() = runWithTestDispatcher {
+    localSurveyStore.insertOrUpdateSurvey(surveyWithTileSources)
     surveyRepository.selectedSurveyId = surveyWithTileSources.id
     advanceUntilIdle()
 
@@ -174,6 +177,7 @@ class NavigationDrawerItemClickTest(
 
   @Test
   fun clickDrawerMenuItem() = runWithTestDispatcher {
+    localSurveyStore.insertOrUpdateSurvey(survey)
     surveyRepository.selectedSurveyId = survey.id
     advanceUntilIdle()
 

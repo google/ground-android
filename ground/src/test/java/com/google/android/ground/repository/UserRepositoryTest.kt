@@ -18,6 +18,7 @@ package com.google.android.ground.repository
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.Role
 import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.system.NetworkManager
 import com.google.common.truth.Truth.assertThat
@@ -27,17 +28,21 @@ import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class UserRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var localUserStore: LocalUserStore
+  @Inject lateinit var localSurveyStore: LocalSurveyStore
   @Inject lateinit var localValueStore: LocalValueStore
   @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var userRepository: UserRepository
@@ -108,7 +113,9 @@ class UserRepositoryTest : BaseHiltTest() {
       val user = FakeData.USER
       val survey = FakeData.SURVEY.copy(acl = mapOf())
       fakeAuthenticationManager.setUser(user)
+      localSurveyStore.insertOrUpdateSurvey(survey)
       surveyRepository.selectedSurveyId = survey.id
+      advanceUntilIdle()
 
       assertThat(userRepository.canUserSubmitData()).isFalse()
     }
@@ -118,7 +125,9 @@ class UserRepositoryTest : BaseHiltTest() {
     val user = FakeData.USER.copy(email = "")
     val survey = FakeData.SURVEY.copy(acl = mapOf(Pair("user@gmail.com", Role.OWNER.toString())))
     fakeAuthenticationManager.setUser(user)
+    localSurveyStore.insertOrUpdateSurvey(survey)
     surveyRepository.selectedSurveyId = survey.id
+    advanceUntilIdle()
 
     assertThat(userRepository.canUserSubmitData()).isFalse()
   }
