@@ -61,6 +61,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
     assertThat(surveyRepository.activeSurvey).isEqualTo(SURVEY)
   }
 
+  @Test
   fun `clearActiveSurvey() resets active survey`() = runWithTestDispatcher {
     surveyRepository.clearActiveSurvey()
     advanceUntilIdle()
