@@ -17,22 +17,19 @@ package com.google.android.ground.ui.map.gms.mog
 
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
-@RunWith(RobolectricTestRunner::class)
 class TiffTagTest {
 
   @Test
   fun testUniqueId() {
     assertWithMessage("TiffTag enum contains non-unique ids")
-      .that(TiffTag.values())
+      .that(TiffTag.entries.toTypedArray())
       .hasLength(TiffTag.byId.size)
   }
 
   @Test
   fun testIsArray_true() {
-    TiffTag.values()
+    TiffTag.entries
       .filter {
         it == TiffTag.TileByteCounts || it == TiffTag.TileOffsets || it == TiffTag.JPEGTables
       }
@@ -41,7 +38,7 @@ class TiffTagTest {
 
   @Test
   fun testIsArray_false() {
-    TiffTag.values()
+    TiffTag.entries
       .filter {
         it != TiffTag.TileByteCounts && it != TiffTag.TileOffsets && it != TiffTag.JPEGTables
       }
