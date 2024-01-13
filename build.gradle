@@ -18,7 +18,7 @@
 
 buildscript {
     ext {
-        // Note: As of Gradle 8.5, Kotlin plugin only tested up to 1.9.20.
+        // As of Gradle 8.5, Kotlin plugin only tested up to 1.9.20.
         kotlinVersion = "1.9.20"
         hiltVersion = "2.50"
         navigationVersion = "2.5.3"
