@@ -22,6 +22,7 @@ buildscript {
         kotlinVersion = "1.9.20"
         hiltVersion = "2.50"
         navigationVersion = "2.5.3"
+        roomVersion = "2.6.1"
     }
     repositories {
         google()
