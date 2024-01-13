@@ -55,7 +55,7 @@ dependencies {
     implementation project(':ground')
 
     // Room
-    implementation 'androidx.room:room-runtime:$roomVersion'
+    implementation "androidx.room:room-runtime:$roomVersion"
 
     // Guava
     implementation 'com.google.guava:guava:31.1-jre'
