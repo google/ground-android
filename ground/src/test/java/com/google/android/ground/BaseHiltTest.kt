@@ -21,7 +21,6 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltTestApplication
 import javax.annotation.OverridingMethodsMustInvokeSuper
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -33,7 +32,6 @@ import org.mockito.junit.MockitoRule
 import org.robolectric.annotation.Config
 
 /** Injects Hilt dependencies during setUp. */
-@OptIn(ExperimentalCoroutinesApi::class)
 @Config(application = HiltTestApplication::class)
 open class BaseHiltTest {
   /** Required for injecting hilt dependencies using @Inject annotation. */

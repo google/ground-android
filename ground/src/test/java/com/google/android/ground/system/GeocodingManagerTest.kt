@@ -27,7 +27,6 @@ import dagger.hilt.android.testing.UninstallModules
 import java.util.*
 import javax.inject.Inject
 import kotlin.test.assertEquals
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyInt
@@ -40,7 +39,6 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 @HiltAndroidTest
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @UninstallModules(SystemModule::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 class GeocodingManagerTest(
   private val expectedAreaName: String,
   private val message: String,

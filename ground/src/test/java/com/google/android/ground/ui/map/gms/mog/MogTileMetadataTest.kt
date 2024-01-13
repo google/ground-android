@@ -17,10 +17,7 @@ package com.google.android.ground.ui.map.gms.mog
 
 import org.junit.Assert.assertThrows
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
-@RunWith(RobolectricTestRunner::class)
 class MogTileMetadataTest {
 
   private val testMogTileMetadata =
