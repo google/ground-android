@@ -64,11 +64,13 @@ abstract class AbstractDialogFragment : AppCompatDialogFragment() {
     super.onViewCreated(view, savedInstanceState)
   }
 
+  @Deprecated("Deprecated in Java")
   override fun onAttachFragment(childFragment: Fragment) {
     Debug.logLifecycleEvent(this)
     super.onAttachFragment(childFragment)
   }
 
+  @Deprecated("Deprecated in Java")
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     Debug.logLifecycleEvent(this)
     super.onActivityCreated(savedInstanceState)
