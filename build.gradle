@@ -98,11 +98,13 @@ detekt {
     basePath = projectDir
 }
 
-task checkCode(type: GradleBuild) {
+tasks.register('checkCode', GradleBuild) {
     tasks = ['checkstyle', 'lintLocalDebug', 'ktfmtCheck', 'detekt']
 }
 
-// TODO(#2183): Add task to remove files in `build` on clean.
+tasks.register('clean', Delete) {
+    delete rootProject.buildDir
+}
 
 // https://github.com/passsy/gradle-gitVersioner-plugin
 apply plugin: "com.pascalwelsch.gitversioner"

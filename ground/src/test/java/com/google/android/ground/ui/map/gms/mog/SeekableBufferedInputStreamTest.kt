@@ -19,10 +19,7 @@ package com.google.android.ground.ui.map.gms.mog
 import java.io.ByteArrayInputStream
 import kotlin.test.assertEquals
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
-@RunWith(RobolectricTestRunner::class)
 class SeekableBufferedInputStreamTest {
   private val testSourceStream = ByteArrayInputStream(byteArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9))
 
