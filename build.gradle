@@ -102,9 +102,7 @@ tasks.register('checkCode', GradleBuild) {
     tasks = ['checkstyle', 'lintLocalDebug', 'ktfmtCheck', 'detekt']
 }
 
-tasks.register('clean', Delete) {
-    delete rootProject.buildDir
-}
+// TODO(#2183): Add task to remove files in `build` on clean.
 
 // https://github.com/passsy/gradle-gitVersioner-plugin
 apply plugin: "com.pascalwelsch.gitversioner"
