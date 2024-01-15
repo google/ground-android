@@ -19,18 +19,28 @@ plugins {
   id("com.android.library")
 }
 
+repositories { mavenCentral() }
+
 kotlin {
   androidTarget { compilations.all { kotlinOptions { jvmTarget = "1.8" } } }
 
-  js(IR) { nodejs() }
+  js(IR) {
+    binaries.executable()
+    nodejs()
+    generateTypeScriptDefinitions()
+  }
 
   sourceSets {
-    commonMain.dependencies {
-      // put your multiplatform dependencies here
+    commonMain {
+      dependencies {
+        implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
+      }
     }
-    //        commonTest.dependencies {
-    //            implementation(libs.kotlin.test)
-    //        }
+    jsMain {
+      dependencies {
+        implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-js:0.3.7")
+      }
+    }
   }
 }
 

@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.ground.shared
+package com.google.android.ground.persistence.remote.firebase.schema
 
-import platform.UIKit.UIDevice
+import kotlin.js.JsExport
 
-class IOSPlatform: Platform {
-    override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
-}
-
-actual fun getPlatform(): Platform = IOSPlatform()
+@JsExport
+data class SurveyDocument(
+  val title: String? = null,
+  val description: String? = null,
+  // TODO
+  //  val jobs: Map<String, JobNestedObject>? = null,
+  // TODO
+  val acl: Map<String, String>? = null,
+//  val tileSources: List<TileSourceNestedObject>? = null
+)

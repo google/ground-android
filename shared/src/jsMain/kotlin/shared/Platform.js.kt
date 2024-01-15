@@ -16,10 +16,8 @@
 
 package com.google.ground.shared
 
-class Greeting {
-    private val platform: Platform = getPlatform()
-
-    fun greet(): String {
-        return "Hello, ${platform.name}!"
-    }
+class JsPlatform : Platform {
+  override val name: String = "JS"
 }
+
+actual fun getPlatform(): Platform = JsPlatform()
