@@ -41,7 +41,7 @@ class TermsOfServiceFragment : AbstractFragment(), BackPressListener {
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?,
+    savedInstanceState: Bundle?
   ): View {
     val binding = FragmentTermsServiceBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
