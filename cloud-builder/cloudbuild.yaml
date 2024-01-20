@@ -16,7 +16,7 @@
 
 # Configures build of Docker images with Android SDK. To build and upload to Google Cloud:
 #
-# $ gcloud builds submit --config=cloudbuild.yaml --substitutions=_ANDROID_VERSION=30
+# $ gcloud builds submit --config=cloudbuild.yaml --substitutions=_ANDROID_VERSION=34
 #
 # Based on https://github.com/GoogleCloudPlatform/cloud-builders-community
 

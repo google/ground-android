@@ -55,12 +55,6 @@ def getCommitSha1 = { ->
 }
 
 android {
-    // Workaround: Manually add so that Hilt generated classes are found after upgrading to
-    // Kotlin 1.9.
-    sourceSets {
-        main.java.srcDirs += ['build/generated/source/kapt/devDebug']
-    }
-
     compileSdk rootProject.androidCompileSdk
     defaultConfig {
         applicationId "com.google.android.ground"
