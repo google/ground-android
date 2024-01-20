@@ -27,8 +27,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 import org.jetbrains.annotations.TestOnly
 
-@AndroidEntryPoint(AbstractTaskFragment::class)
-class TimeTaskFragment : Hilt_TimeTaskFragment<TimeTaskViewModel>() {
+@AndroidEntryPoint
+class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
 
   private var timePickerDialog: TimePickerDialog? = null
 

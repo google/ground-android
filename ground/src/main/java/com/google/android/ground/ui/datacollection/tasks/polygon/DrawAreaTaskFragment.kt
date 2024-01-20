@@ -35,8 +35,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint(AbstractTaskFragment::class)
-class DrawAreaTaskFragment : Hilt_DrawAreaTaskFragment<DrawAreaTaskViewModel>() {
+@AndroidEntryPoint
+class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
 
   @Inject lateinit var markerIconFactory: IconFactory
   @Inject lateinit var map: MapFragment

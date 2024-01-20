@@ -30,7 +30,7 @@ open class FluentCollectionReference
 protected constructor(
   private val reference: CollectionReference,
   protected val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-  protected val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
+  protected val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) {
 
   private val context = reference.firestore.app.applicationContext
@@ -42,7 +42,7 @@ protected constructor(
    */
   protected suspend fun <T> runQuery(
     query: Query,
-    mappingFunction: Function<DocumentSnapshot, T>
+    mappingFunction: Function<DocumentSnapshot, T>,
   ): List<T> {
     NetworkManager(context).requireNetworkConnection()
     val querySnapshot = query.get().await()
@@ -53,7 +53,7 @@ protected constructor(
 
   private fun <T> applyFunctionAndIgnoreFailures(
     value: DocumentSnapshot,
-    mappingFunction: Function<DocumentSnapshot, T>
+    mappingFunction: Function<DocumentSnapshot, T>,
   ): T? =
     try {
       mappingFunction.apply(value)

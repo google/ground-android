@@ -29,8 +29,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-@AndroidEntryPoint(AbstractFragment::class)
-class StartupFragment : Hilt_StartupFragment() {
+@AndroidEntryPoint
+class StartupFragment : AbstractFragment() {
 
   @Inject lateinit var popups: EphemeralPopups
 

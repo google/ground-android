@@ -27,8 +27,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 /** Fragment containing a list of mutations and their respective upload statuses. */
-@AndroidEntryPoint(AbstractFragment::class)
-class SyncStatusFragment : Hilt_SyncStatusFragment() {
+@AndroidEntryPoint
+class SyncStatusFragment : AbstractFragment() {
 
   @Inject lateinit var locationOfInterestHelper: LocationOfInterestHelper
   lateinit var viewModel: SyncStatusViewModel

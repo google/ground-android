@@ -23,8 +23,8 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.CameraPermissionDeniedDialogBinding
 import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint(AbstractDialogFragment::class)
-class CameraPermissionDeniedDialogFragment : Hilt_CameraPermissionDeniedDialogFragment() {
+@AndroidEntryPoint
+class CameraPermissionDeniedDialogFragment : AbstractDialogFragment() {
   private val viewModel: CameraPermissionDeniedDialogViewModel by
     hiltNavGraphViewModels(R.id.navGraph)
 

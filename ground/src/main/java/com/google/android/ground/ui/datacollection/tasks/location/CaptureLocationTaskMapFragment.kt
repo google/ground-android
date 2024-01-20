@@ -26,9 +26,9 @@ import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint(AbstractMapFragmentWithControls::class)
+@AndroidEntryPoint
 class CaptureLocationTaskMapFragment(private val viewModel: CaptureLocationTaskViewModel) :
-  Hilt_CaptureLocationTaskMapFragment() {
+  AbstractMapFragmentWithControls() {
 
   private lateinit var mapViewModel: CaptureLocationTaskMapViewModel
 
@@ -42,7 +42,7 @@ class CaptureLocationTaskMapFragment(private val viewModel: CaptureLocationTaskV
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View {
     val root = super.onCreateView(inflater, container, savedInstanceState)
     viewLifecycleOwner.lifecycleScope.launch {

@@ -26,8 +26,8 @@ import com.google.android.ground.ui.common.EphemeralPopups
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-@AndroidEntryPoint(AbstractFragment::class)
-class TermsOfServiceFragment : Hilt_TermsOfServiceFragment(), BackPressListener {
+@AndroidEntryPoint
+class TermsOfServiceFragment : AbstractFragment(), BackPressListener {
 
   @Inject lateinit var popups: EphemeralPopups
 
@@ -41,7 +41,7 @@ class TermsOfServiceFragment : Hilt_TermsOfServiceFragment(), BackPressListener 
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View {
     val binding = FragmentTermsServiceBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel

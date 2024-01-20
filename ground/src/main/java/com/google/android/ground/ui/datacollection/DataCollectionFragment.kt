@@ -37,8 +37,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 /** Fragment allowing the user to collect data to complete a task. */
-@AndroidEntryPoint(AbstractFragment::class)
-class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener {
+@AndroidEntryPoint
+class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
@@ -52,7 +52,7 @@ class DataCollectionFragment : Hilt_DataCollectionFragment(), BackPressListener 
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
     binding = DataCollectionFragBinding.inflate(inflater, container, false)

@@ -53,8 +53,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
-@AndroidEntryPoint(AbstractMapContainerFragment::class)
-class HomeScreenMapContainerFragment : Hilt_HomeScreenMapContainerFragment() {
+@AndroidEntryPoint
+class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var ephemeralPopups: EphemeralPopups
   @Inject lateinit var submissionRepository: SubmissionRepository
