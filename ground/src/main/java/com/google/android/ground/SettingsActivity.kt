@@ -19,8 +19,8 @@ import android.os.Bundle
 import com.google.android.ground.databinding.SettingsActivityBinding
 import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint(AbstractActivity::class)
-class SettingsActivity : Hilt_SettingsActivity() {
+@AndroidEntryPoint
+class SettingsActivity : AbstractActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 

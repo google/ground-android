@@ -29,8 +29,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint(AbstractFragment::class)
-class SignInFragment : Hilt_SignInFragment(), BackPressListener {
+@AndroidEntryPoint
+class SignInFragment : AbstractFragment(), BackPressListener {
 
   private lateinit var binding: SignInFragBinding
   private lateinit var viewModel: SignInViewModel

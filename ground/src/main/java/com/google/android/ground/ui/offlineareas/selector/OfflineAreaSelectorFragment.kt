@@ -32,8 +32,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 /** Map UI used to select areas for download and viewing offline. */
-@AndroidEntryPoint(AbstractMapContainerFragment::class)
-class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
+@AndroidEntryPoint
+class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var popups: EphemeralPopups
 

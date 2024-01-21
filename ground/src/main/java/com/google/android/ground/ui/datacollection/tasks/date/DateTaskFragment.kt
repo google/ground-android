@@ -26,8 +26,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 import org.jetbrains.annotations.TestOnly
 
-@AndroidEntryPoint(AbstractTaskFragment::class)
-class DateTaskFragment : Hilt_DateTaskFragment<DateTaskViewModel>() {
+@AndroidEntryPoint
+class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
 
   private var datePickerDialog: DatePickerDialog? = null
 

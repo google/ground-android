@@ -64,8 +64,8 @@ const val MARKER_Z = 3f
  * Customization of Google Maps API Fragment that automatically adjusts the Google watermark based
  * on window insets.
  */
-@AndroidEntryPoint(SupportMapFragment::class)
-class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
+@AndroidEntryPoint
+class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   /** Map drag events. Emits items when the map drag has started. */
   override val startDragEvents = MutableSharedFlow<Unit>()
 
@@ -127,7 +127,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   override fun onCreateView(
     layoutInflater: LayoutInflater,
     viewGroup: ViewGroup?,
-    bundle: Bundle?
+    bundle: Bundle?,
   ): View {
     Timber.v("Lifecyle event: onCreateView()")
     return super.onCreateView(layoutInflater, viewGroup, bundle).apply {
@@ -140,7 +140,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   override fun attachToParent(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
-    onMapReadyCallback: (MapFragment) -> Unit
+    onMapReadyCallback: (MapFragment) -> Unit,
   ) {
     containerFragment.replaceFragment(containerId, this)
     getMapAsync { googleMap: GoogleMap ->
@@ -197,7 +197,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
   override fun moveCamera(coordinates: Coordinates, zoomLevel: Float, shouldAnimate: Boolean) =
     moveCamera(
       CameraUpdateFactory.newLatLngZoom(coordinates.toGoogleMapsObject(), zoomLevel),
-      shouldAnimate
+      shouldAnimate,
     )
 
   override fun moveCamera(bounds: Bounds, shouldAnimate: Boolean) =
@@ -237,7 +237,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
         CameraPosition(
           cameraPosition.target.toCoordinates(),
           cameraPosition.zoom,
-          projection.visibleRegion.latLngBounds.toModelObject()
+          projection.visibleRegion.latLngBounds.toModelObject(),
         )
       )
     }
@@ -295,7 +295,7 @@ class GoogleMapsFragment : Hilt_GoogleMapsFragment(), MapFragment {
       mapOf(
         MapType.ROAD to GoogleMap.MAP_TYPE_NORMAL,
         MapType.TERRAIN to GoogleMap.MAP_TYPE_TERRAIN,
-        MapType.SATELLITE to GoogleMap.MAP_TYPE_HYBRID
+        MapType.SATELLITE to GoogleMap.MAP_TYPE_HYBRID,
       )
     private val MAP_TYPES_BY_ID = IDS_BY_MAP_TYPE.invert()
   }

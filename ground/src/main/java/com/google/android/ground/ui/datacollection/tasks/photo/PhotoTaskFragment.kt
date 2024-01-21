@@ -40,8 +40,8 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /** Fragment allowing the user to capture a photo to complete a task. */
-@AndroidEntryPoint(AbstractTaskFragment::class)
-class PhotoTaskFragment : Hilt_PhotoTaskFragment<PhotoTaskViewModel>() {
+@AndroidEntryPoint
+class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject lateinit var userMediaRepository: UserMediaRepository
   @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
   @Inject lateinit var permissionsManager: PermissionsManager

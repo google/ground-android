@@ -26,7 +26,15 @@ import com.google.android.ground.databinding.MainActBinding
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.ActivityStreams
 import com.google.android.ground.system.SettingsManager
-import com.google.android.ground.ui.common.*
+import com.google.android.ground.ui.common.BackPressListener
+import com.google.android.ground.ui.common.EphemeralPopups
+import com.google.android.ground.ui.common.FinishApp
+import com.google.android.ground.ui.common.NavigateTo
+import com.google.android.ground.ui.common.NavigateUp
+import com.google.android.ground.ui.common.NavigationRequest
+import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.ui.common.ProgressDialogs
+import com.google.android.ground.ui.common.ViewModelFactory
 import dagger.hilt.android.AndroidEntryPoint
 import java8.util.function.Consumer
 import javax.inject.Inject
@@ -36,8 +44,8 @@ import timber.log.Timber
 /**
  * The app's main activity. The app consists of multiples Fragments that live under this activity.
  */
-@AndroidEntryPoint(AbstractActivity::class)
-class MainActivity : Hilt_MainActivity() {
+@AndroidEntryPoint
+class MainActivity : AbstractActivity() {
   @Inject lateinit var activityStreams: ActivityStreams
   @Inject lateinit var viewModelFactory: ViewModelFactory
   @Inject lateinit var settingsManager: SettingsManager
@@ -96,7 +104,7 @@ class MainActivity : Hilt_MainActivity() {
   override fun onRequestPermissionsResult(
     requestCode: Int,
     permissions: Array<String>,
-    grantResults: IntArray
+    grantResults: IntArray,
   ) {
     Timber.d("Permission result received")
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)

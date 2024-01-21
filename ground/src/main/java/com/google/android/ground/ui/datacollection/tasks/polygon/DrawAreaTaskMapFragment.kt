@@ -26,9 +26,9 @@ import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint(AbstractMapFragmentWithControls::class)
+@AndroidEntryPoint
 class DrawAreaTaskMapFragment(private val viewModel: DrawAreaTaskViewModel) :
-  Hilt_DrawAreaTaskMapFragment() {
+  AbstractMapFragmentWithControls() {
 
   private lateinit var mapViewModel: BaseMapViewModel
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
