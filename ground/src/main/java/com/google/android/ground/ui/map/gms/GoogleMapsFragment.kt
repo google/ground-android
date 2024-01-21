@@ -168,6 +168,10 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       isCompassEnabled = true
       isIndoorLevelPickerEnabled = false
     }
+
+    viewLifecycleOwner.lifecycleScope.launch {
+      featureManager.markerClicks.collect { featureClicks.emit(setOf(it)) }
+    }
   }
 
   override fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double {

@@ -19,9 +19,16 @@ package com.google.android.ground.ui.map.gms.features
 import android.content.Context
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.ground.coroutines.MainScope
 import com.google.android.ground.ui.map.Feature
+import com.google.maps.android.collections.MarkerManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
@@ -32,9 +39,10 @@ class FeatureManager
 @Inject
 constructor(
   @ApplicationContext private val context: Context,
+  @MainScope private val coroutineScope: CoroutineScope,
   private val pointRenderer: PointRenderer,
   private val polygonRenderer: PolygonRenderer,
-  private val lineStringRenderer: LineStringRenderer
+  private val lineStringRenderer: LineStringRenderer,
 ) {
   private val features = mutableSetOf<Feature>()
   private val featuresByTag = mutableMapOf<Feature.Tag, Feature>()
@@ -43,6 +51,9 @@ constructor(
   private lateinit var mapsItemManager: MapsItemManager
   private lateinit var clusterManager: FeatureClusterManager
   private lateinit var clusterRenderer: FeatureClusterRenderer
+
+  private val _markerClicks: MutableSharedFlow<Feature> = MutableSharedFlow()
+  val markerClicks = _markerClicks.asSharedFlow()
 
   /**
    * The camera's current zoom level. This must be set here since this impl can't access
@@ -59,13 +70,24 @@ constructor(
     features.clear()
     featuresByTag.clear()
     mapsItemManager = MapsItemManager(map, pointRenderer, polygonRenderer, lineStringRenderer)
-    clusterManager = FeatureClusterManager(context, map)
+    clusterManager = FeatureClusterManager(context, map, createMarkerManager(map))
     clusterRenderer = FeatureClusterRenderer(context, map, clusterManager, map.cameraPosition.zoom)
     clusterRenderer.onClusterItemRendered = { mapsItemManager.setVisible(it, true) }
     clusterRenderer.onClusterRendered = { mapsItemManager.setVisible(it, false) }
     clusterManager.renderer = clusterRenderer
     this.map = map
   }
+
+  private fun createMarkerManager(map: GoogleMap): MarkerManager =
+    object : MarkerManager(map) {
+      override fun onMarkerClick(marker: Marker): Boolean {
+        if (super.onMarkerClick(marker)) return true
+        val tag = marker.tag as Feature.Tag
+        val feature = featuresByTag[tag] ?: error("Feature not found for tag: $tag")
+        coroutineScope.launch { _markerClicks.emit(feature) }
+        return true
+      }
+    }
 
   /**
    * Updates the current set of features managed by the manager, adding and removing items from the
