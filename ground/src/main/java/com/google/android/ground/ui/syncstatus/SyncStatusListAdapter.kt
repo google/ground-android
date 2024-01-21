@@ -28,11 +28,11 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.ui.common.LocationOfInterestHelper
 import java.text.DateFormat
-import java8.util.Optional
+import java.util.Optional
 
 internal class SyncStatusListAdapter(
   context: Context,
-  private val locationOfInterestHelper: LocationOfInterestHelper
+  private val locationOfInterestHelper: LocationOfInterestHelper,
 ) : RecyclerView.Adapter<SyncStatusListAdapter.SyncStatusViewHolder>() {
 
   private var mutations: List<Pair<LocationOfInterest, Mutation>> = listOf()

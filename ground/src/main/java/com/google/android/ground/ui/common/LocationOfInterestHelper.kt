@@ -19,9 +19,13 @@ import android.content.res.Resources
 import com.google.android.ground.R
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.User
-import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.MultiPolygon
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import java8.util.Optional
+import java.util.Optional
 import javax.inject.Inject
 
 /** Common logic for formatting attributes of [LocationOfInterest] for display to the user. */
