@@ -15,16 +15,15 @@
  */
 package com.google.android.ground
 
-import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
-import androidx.core.util.Consumer
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.databinding.MainActBinding
 import com.google.android.ground.repository.UserRepository
+import com.google.android.ground.system.ActivityCallback
 import com.google.android.ground.system.ActivityStreams
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BackPressListener
@@ -65,8 +64,8 @@ class MainActivity : AbstractActivity() {
 
     // Set up event streams first. Navigator must be listening when auth is first initialized.
     lifecycleScope.launch {
-      activityStreams.activityRequests.collect { callback: Consumer<Activity> ->
-        callback.accept(this@MainActivity)
+      activityStreams.activityRequests.collect { callback: ActivityCallback ->
+        callback(this@MainActivity)
       }
     }
 
