@@ -19,6 +19,7 @@ import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
+import androidx.core.util.Consumer
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
@@ -36,7 +37,6 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.ProgressDialogs
 import com.google.android.ground.ui.common.ViewModelFactory
 import dagger.hilt.android.AndroidEntryPoint
-import java8.util.function.Consumer
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 import timber.log.Timber

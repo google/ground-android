@@ -17,8 +17,8 @@ package com.google.android.ground.system
 
 import android.app.Activity
 import android.content.Intent
+import androidx.core.util.Consumer
 import com.google.android.ground.coroutines.ApplicationScope
-import java8.util.function.Consumer
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -67,7 +67,7 @@ class ActivityStreams @Inject constructor(@ApplicationScope private val scope: C
   fun onRequestPermissionsResult(
     requestCode: Int,
     permissions: Array<String>,
-    grantResults: IntArray
+    grantResults: IntArray,
   ) {
     scope.launch {
       _requestPermissionsResults.emit(

@@ -60,9 +60,6 @@ dependencies {
     // Guava
     implementation 'com.google.guava:guava:31.1-jre'
 
-    // Support for Java streams.
-    implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:1.7.4'
-
     // Hilt
     implementation 'androidx.hilt:hilt-work:1.0.0'
 

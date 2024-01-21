@@ -20,7 +20,6 @@ import com.google.android.ground.system.NetworkManager
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
-import java8.util.function.Function
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
@@ -42,7 +41,7 @@ protected constructor(
    */
   protected suspend fun <T> runQuery(
     query: Query,
-    mappingFunction: Function<DocumentSnapshot, T>,
+    mappingFunction: (snapshot: DocumentSnapshot) -> T,
   ): List<T> {
     NetworkManager(context).requireNetworkConnection()
     val querySnapshot = query.get().await()
@@ -53,10 +52,10 @@ protected constructor(
 
   private fun <T> applyFunctionAndIgnoreFailures(
     value: DocumentSnapshot,
-    mappingFunction: Function<DocumentSnapshot, T>,
+    mappingFunction: (snapshot: DocumentSnapshot) -> T,
   ): T? =
     try {
-      mappingFunction.apply(value)
+      mappingFunction(value)
     } catch (e: Throwable) {
       Timber.e(e, "Skipping corrupt remote document: ${value.id}")
       null

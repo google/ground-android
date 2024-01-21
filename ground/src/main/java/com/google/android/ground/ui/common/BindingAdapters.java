@@ -25,13 +25,13 @@ import android.view.View;
 import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.util.Consumer;
 import androidx.core.widget.ImageViewCompat;
 import androidx.databinding.BindingAdapter;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.ground.R;
 import com.google.android.material.textfield.TextInputEditText;
 import com.squareup.picasso.Picasso;
-import java8.util.function.Consumer;
 import timber.log.Timber;
 
 /**
