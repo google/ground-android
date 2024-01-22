@@ -23,15 +23,17 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.util.isNotNullOrEmpty
+import kotlin.math.floor
 
 /** Helper class for creating user-visible text. */
 object LoiCardUtil {
 
   fun getDisplayLoiName(context: Context, loi: LocationOfInterest): String {
     val loiId =
-      if (loi.customId.isNotNullOrEmpty()) loi.customId else loi.properties?.get("id")?.toString()
+      if (loi.customId.isNotNullOrEmpty()) loi.customId
+      else loi.properties["id"]?.toString()?.formatAsId()
     val geometry = loi.geometry
-    val name: String? = loi.properties?.get("name")?.toString()
+    val name: String? = loi.properties["name"]?.toString()
     return if (name.isNotNullOrEmpty() && loiId.isNotNullOrEmpty()) {
       "$name ($loiId)"
     } else if (name.isNotNullOrEmpty()) {
@@ -40,6 +42,23 @@ object LoiCardUtil {
       "${geometry.toType(context)} ($loiId)"
     } else {
       geometry.toDefaultName(context)
+    }
+  }
+
+  /**
+   * Converts float/double IDs into ints if the decimal portion is 0; ignores all other id types.
+   * * ex. "1234.00" -> "1234",
+   * * "1234.01" -> "1234.01",
+   * * "abcdefg" -> "abcdefg",
+   */
+  private fun String.formatAsId(): String {
+    return when {
+      toDoubleOrNull() != null && toDouble() - floor(toDouble()) == 0.0 -> {
+        String.format("%.0f", toDouble())
+      }
+      else -> {
+        this
+      }
     }
   }
 
