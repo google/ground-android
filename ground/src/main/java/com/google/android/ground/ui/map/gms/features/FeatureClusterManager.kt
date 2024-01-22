@@ -25,10 +25,14 @@ import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.toGoogleMapsObject
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
+import com.google.maps.android.collections.MarkerManager
 
 /** Manages clustering of map [Feature]s. */
-class FeatureClusterManager(context: Context, private val map: GoogleMap) :
-  ClusterManager<FeatureClusterItem>(context, map) {
+class FeatureClusterManager(
+  context: Context,
+  private val map: GoogleMap,
+  markerManager: MarkerManager,
+) : ClusterManager<FeatureClusterItem>(context, map, markerManager) {
 
   private val itemsByTag = mutableMapOf<Feature.Tag, FeatureClusterItem>()
   private val viewportPadding: Int by lazy {
