@@ -21,7 +21,7 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
-import java8.util.Optional
+import java.util.Optional
 import javax.inject.Inject
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -61,6 +61,7 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
     val loi = FakeData.AREA_OF_INTEREST.copy("")
     assertLabel(loi, "Polygon")
   }
+
   @Test
   fun testGetSubtitle() {
     val loi = FakeData.LOCATION_OF_INTEREST.copy(job = FakeData.JOB.copy(name = TEST_JOB_NAME))
