@@ -307,6 +307,8 @@ dependencies {
     stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
 
     implementation "com.google.guava:guava:31.1-android"
+
+    implementation project(":shared")
 }
 
 // Allow references to generated code.
