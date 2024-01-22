@@ -21,6 +21,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.ui.map.gms.features.FeatureClusterManager
 import com.google.common.truth.Truth.assertThat
+import com.google.maps.android.collections.MarkerManager
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
@@ -40,7 +41,12 @@ class FeatureClusterManagerTest : BaseHiltTest() {
   @Before
   override fun setUp() {
     super.setUp()
-    featureClusterManager = FeatureClusterManager(ApplicationProvider.getApplicationContext(), map)
+    featureClusterManager =
+      FeatureClusterManager(
+        ApplicationProvider.getApplicationContext(),
+        map,
+        object : MarkerManager(map) {},
+      )
     shadowOf(getMainLooper()).idle()
   }
 
