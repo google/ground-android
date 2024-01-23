@@ -1,15 +1,24 @@
 import net.pwall.json.kotlin.codegen.gradle.JSONSchemaCodegen
 import net.pwall.json.kotlin.codegen.gradle.JSONSchemaCodegenPlugin
 
-plugins { id("com.android.library") }
+plugins {
+  // Android library plugin.
+  id("com.android.library")
+  // Kotlin plugins for Gradle.
+  id("kotlin-android")
+}
 
 android {
   namespace = "com.google.ground.shared.schema"
-  compileSdk = 34 // TODO: Use variable
+  // TODO(#2206): Manage compileSdk version centrally.
+  compileSdk = 34
   sourceSets { getByName("main").java.srcDirs("build/generated-sources/kotlin") }
 }
 
-// TODO: Use variable for ver
+// TODO(#2206): Manage version centrally (e.g., via rootProject.jvmToolchainVersion).
+kotlin { jvmToolchain(17) }
+
+// TODO(#2206): Manage version centrally.
 dependencies { implementation("org.jetbrains.kotlin", "kotlin-stdlib", "1.9.20") }
 
 buildscript {
@@ -21,8 +30,7 @@ apply<JSONSchemaCodegenPlugin>()
 
 configure<JSONSchemaCodegen> {
   packageName.set("com.google.ground.shared.schema")
-  inputs { inputFile(file("schema")) }
-  // Set explicitly so that generated sources are written to build/ in this module and not in
-  // project root.
+  // Inputs and outputs must be specified since plugins defaults are relative to project root.
+  inputs { inputFile(file("src/main/resources/schema")) }
   outputDir.set(file("build/generated-sources/kotlin"))
 }
