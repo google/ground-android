@@ -12,12 +12,11 @@
     },
     "geometry": {
       "type": "object",
-      "additionalProperties": true
+      "x-local-type": "map"
     },
     "properties": {
       "type": "object",
-      "properties": {},
-      "additionalProperties": true
+      "x-local-type": "map"
     },
     "submissionCount": {
       "type": "integer"

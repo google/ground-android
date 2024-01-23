@@ -1,0 +1,9 @@
+{
+  "customClasses": {
+    "extension": {
+      "x-local-type": {
+        "map": "kotlin.collections.Map<String, Any>"
+      }
+    }
+  }
+}

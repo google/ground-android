@@ -46,7 +46,8 @@ apply<JSONSchemaCodegenPlugin>()
 
 configure<JSONSchemaCodegen> {
   packageName.set("com.google.ground.shared.schema")
-  // Inputs and outputs must be specified since plugins defaults are relative to project root.
+  // These must be specified since plugins defaults are relative to project root.
+  configFile.set(file("src/main/resources/schema/config.json")) // if not in the default location
   inputs { inputFile(file("src/main/resources/schema")) }
   outputDir.set(file("build/generated-sources/kotlin"))
 }
