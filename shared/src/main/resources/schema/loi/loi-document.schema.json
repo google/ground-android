@@ -1,0 +1,27 @@
+{
+  "$id": "https://groundplatform.org/loi-document.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Location of Interest",
+  "type": "object",
+  "properties": {
+    "jobId": {
+      "type": "string"
+    },
+    "customId": {
+      "type": "string"
+    },
+    "geometry": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "properties": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "submissionCount": {
+      "type": "integer"
+    }
+  },
+  "required": ["jobId", "geometry"]
+}

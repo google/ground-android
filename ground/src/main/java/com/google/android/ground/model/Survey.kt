@@ -17,7 +17,6 @@ package com.google.android.ground.model
 
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
-import com.google.ground.shared.schema.ComplexObject
 
 /** Configuration, schema, and ACLs for a single survey. */
 data class Survey(
@@ -26,8 +25,7 @@ data class Survey(
   val description: String,
   val jobMap: Map<String, Job>,
   val tileSources: List<TileSource> = listOf(),
-  val acl: Map<String, String> = mapOf(),
-  val stuff: ComplexObject
+  val acl: Map<String, String> = mapOf()
 ) {
   val jobs: Collection<Job>
     get() = jobMap.values
