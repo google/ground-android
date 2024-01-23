@@ -2,7 +2,7 @@
   "customClasses": {
     "extension": {
       "x-local-type": {
-        "map": "kotlin.collections.Map<String, Any>"
+        "map": "com.google.ground.shared.schema.Map"
       }
     }
   }
