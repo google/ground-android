@@ -58,7 +58,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -234,11 +233,10 @@ constructor(
 
   /** Emits a new camera update request when active survey changes. */
   private fun getCameraUpdateRequestsForSurveyActivations(): Flow<CameraUpdateRequest> =
-    surveyRepository.activeSurveyIdFlow.transform {
-      surveyRepository.activeSurvey?.let {
-        getLastSavedPositionOrDefaultBounds(it)?.apply { emit(this) }
-      }
-    }
+    surveyRepository.activeSurveyFlow
+      .filterNotNull()
+      .map { getLastSavedPositionOrDefaultBounds(it) }
+      .filterNotNull()
 
   private suspend fun getLastSavedPositionOrDefaultBounds(survey: Survey): CameraUpdateRequest? {
     // Attempt to fetch last saved position from local storage.
