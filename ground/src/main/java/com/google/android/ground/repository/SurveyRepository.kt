@@ -34,7 +34,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -42,7 +41,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 
@@ -75,9 +73,6 @@ constructor(
     _selectedSurveyIdFlow
       .flatMapLatest { id -> offlineSurvey(id) }
       .stateIn(externalScope, SharingStarted.Lazily, null)
-
-  val activeSurveyIdFlow: Flow<String?> =
-    activeSurveyFlow.transformLatest<Survey?, String> { it?.id }.distinctUntilChanged()
 
   /** The currently active survey, or `null` if no survey is active. */
   val activeSurvey: Survey?
