@@ -1,6 +1,6 @@
 {
-  "$id": "https://groundplatform.org/loi-document.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schema:loi/loi-document",
   "title": "Location of Interest",
   "type": "object",
   "properties": {
@@ -11,8 +11,7 @@
       "type": "string"
     },
     "geometry": {
-      "type": "object",
-      "x-kt-type": "map"
+      "$ref": "schema:geometry/nested-geometry"
     },
     "properties": {
       "type": "object",
