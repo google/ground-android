@@ -24,9 +24,8 @@ import com.google.android.ground.databinding.ProgressDialogBinding
 
 object ProgressDialogs {
 
-  fun Fragment.modalSpinner(@StringRes messageId: Int): AlertDialog {
-    return modalSpinner(requireContext(), layoutInflater, messageId)
-  }
+  fun Fragment.modalSpinner(@StringRes messageId: Int): AlertDialog =
+    modalSpinner(requireContext(), layoutInflater, messageId)
 
   fun modalSpinner(
     context: Context,
