@@ -15,12 +15,25 @@
  */
 package com.google.android.ground.ui.common
 
+import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Context
 import androidx.annotation.StringRes
+import androidx.fragment.app.Fragment
+import com.google.android.ground.databinding.ProgressDialogBinding
 
 // TODO(#712): Replace with custom View.
 object ProgressDialogs {
+
+  fun Fragment.modalSpinner(@StringRes messageId: Int): AlertDialog {
+    val binding: ProgressDialogBinding = ProgressDialogBinding.inflate(layoutInflater)
+    binding.textProgressBar.text = getString(messageId)
+    val dialog = AlertDialog.Builder(context).setView(binding.root).create()
+    dialog.setCanceledOnTouchOutside(false)
+    dialog.setCancelable(false)
+    return dialog
+  }
+
   fun modalSpinner(context: Context, @StringRes messageId: Int): ProgressDialog {
     val dialog = ProgressDialog(context)
     dialog.setMessage(context.resources.getString(messageId))

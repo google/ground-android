@@ -21,10 +21,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
+import com.google.android.ground.R
 import com.google.android.ground.databinding.FragmentTermsServiceBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
-import com.google.android.ground.ui.util.AlertDialogExt.showProgressDialog
+import com.google.android.ground.ui.common.ProgressDialogs.modalSpinner
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -36,7 +37,8 @@ class TermsOfServiceFragment : AbstractFragment(), BackPressListener {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(TermsOfServiceViewModel::class.java)
-    val dialog = showProgressDialog()
+    val dialog = modalSpinner(R.string.loading)
+    dialog.show()
     lifecycleScope.launch { viewModel.termsOfServiceText.asFlow().collect { dialog.dismiss() } }
   }
 

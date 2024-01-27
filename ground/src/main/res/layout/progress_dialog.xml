@@ -31,6 +31,7 @@
 
     <ProgressBar
       android:id="@+id/progressBar"
+      style="@style/Widget.Material3.CircularProgressIndicator"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:indeterminate="true"
