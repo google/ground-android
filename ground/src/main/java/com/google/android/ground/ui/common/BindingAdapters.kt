@@ -13,93 +13,78 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.common
 
-package com.google.android.ground.ui.common;
-
-import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.View;
-import android.widget.ImageView;
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.core.util.Consumer;
-import androidx.core.widget.ImageViewCompat;
-import androidx.databinding.BindingAdapter;
-import com.google.android.gms.common.SignInButton;
-import com.google.android.ground.R;
-import com.google.android.material.textfield.TextInputEditText;
-import com.squareup.picasso.Picasso;
-import timber.log.Timber;
+import android.content.res.ColorStateList
+import android.graphics.Bitmap
+import android.net.Uri
+import android.text.TextWatcher
+import android.view.View
+import android.widget.ImageView
+import androidx.core.content.ContextCompat
+import androidx.core.widget.ImageViewCompat
+import androidx.databinding.BindingAdapter
+import com.google.android.gms.common.SignInButton
+import com.google.android.ground.R
+import com.google.android.material.textfield.TextInputEditText
+import com.squareup.picasso.Picasso
+import timber.log.Timber
 
 /**
  * Container for adapter methods defining custom data binding behavior. This class cannot be made
  * injectable, since binding adapters must be static.
  */
-public class BindingAdapters {
+object BindingAdapters {
 
+  @JvmStatic
   @BindingAdapter("src")
-  public static void bindImageBitmap(@NonNull ImageView imageView, Bitmap bitmap) {
-    imageView.setImageBitmap(bitmap);
+  fun bindImageBitmap(imageView: ImageView, bitmap: Bitmap?) {
+    imageView.setImageBitmap(bitmap)
   }
 
+  @JvmStatic
   @BindingAdapter("onClick")
-  public static void bindGoogleSignOnButtonClick(
-      @NonNull SignInButton button, View.OnClickListener onClickCallback) {
-    button.setOnClickListener(onClickCallback);
+  fun bindGoogleSignOnButtonClick(button: SignInButton, onClickCallback: View.OnClickListener?) {
+    button.setOnClickListener(onClickCallback)
   }
 
-  @BindingAdapter("onTextChanged")
-  public static void bindTextWatcher(@NonNull TextInputEditText editText,
-      @NonNull Consumer onTextChanged) {
-    editText.addTextChangedListener(
-        new TextWatcher() {
-          @Override
-          public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            // No-op.
-          }
-
-          @Override
-          public void onTextChanged(@NonNull CharSequence charSequence, int i, int i1, int i2) {
-            onTextChanged.accept(charSequence.toString());
-          }
-
-          @Override
-          public void afterTextChanged(Editable editable) {
-            // No-op.
-          }
-        });
+  @JvmStatic
+  @BindingAdapter("textChangedListener")
+  fun bindTextWatcher(editText: TextInputEditText, textWatcher: TextWatcher) {
+    editText.addTextChangedListener(textWatcher)
   }
 
+  @JvmStatic
   @BindingAdapter("imageUrl")
-  public static void bindUri(ImageView view, String url) {
-    Picasso.get().load(url).placeholder(R.drawable.ic_photo_grey_600_24dp).into(view);
+  fun bindUri(view: ImageView?, url: String?) {
+    Picasso.get().load(url).placeholder(R.drawable.ic_photo_grey_600_24dp).into(view)
   }
 
+  @JvmStatic
   @BindingAdapter("imageUri")
-  public static void bindUri(ImageView view, Uri uri) {
+  fun bindUri(view: ImageView?, uri: Uri?) {
     try {
-      Picasso.get().load(uri).placeholder(R.drawable.ic_photo_grey_600_24dp).into(view);
-    } catch (IllegalStateException exception) {
+      Picasso.get().load(uri).placeholder(R.drawable.ic_photo_grey_600_24dp).into(view)
+    } catch (exception: IllegalStateException) {
       // Needed for running unit tests
-      Timber.e(exception);
+      Timber.e(exception)
     }
   }
 
+  @JvmStatic
   @BindingAdapter("tint")
-  public static void bindImageTint(@NonNull ImageView imageView, int colorId) {
+  fun bindImageTint(imageView: ImageView, colorId: Int) {
     if (colorId == 0) {
       // Workaround for default value from uninitialized LiveData.
-      return;
+      return
     }
-    int tint = ContextCompat.getColor(imageView.getContext(), colorId);
-    ImageViewCompat.setImageTintList(imageView, ColorStateList.valueOf(tint));
+    val tint = ContextCompat.getColor(imageView.context, colorId)
+    ImageViewCompat.setImageTintList(imageView, ColorStateList.valueOf(tint))
   }
 
+  @JvmStatic
   @BindingAdapter("visible")
-  public static void bindVisible(@NonNull View view, boolean visible) {
-    view.setVisibility(visible ? View.VISIBLE : View.GONE);
+  fun bindVisible(view: View, visible: Boolean) {
+    view.visibility = if (visible) View.VISIBLE else View.GONE
   }
 }
