@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.common
 
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -24,6 +25,8 @@ import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import com.google.android.ground.AbstractActivity
+import com.google.android.ground.R
+import com.google.android.ground.ui.common.ProgressDialogs.modalSpinner
 import com.google.android.ground.ui.util.ViewUtil
 import com.google.android.ground.util.Debug
 import javax.inject.Inject
@@ -31,6 +34,8 @@ import javax.inject.Inject
 abstract class AbstractFragment : Fragment() {
 
   @Inject lateinit var viewModelFactory: ViewModelFactory
+
+  private var progressDialog: AlertDialog? = null
 
   protected fun <T : ViewModel> getViewModel(modelClass: Class<T>): T =
     viewModelFactory.get(this, modelClass)
@@ -48,7 +53,7 @@ abstract class AbstractFragment : Fragment() {
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View? {
     Debug.logLifecycleEvent(this)
     return super.onCreateView(inflater, container, savedInstanceState)
@@ -110,4 +115,18 @@ abstract class AbstractFragment : Fragment() {
   }
 
   protected fun getAbstractActivity(): AbstractActivity = requireActivity() as AbstractActivity
+
+  protected fun showProgressDialog() {
+    if (progressDialog == null) {
+      progressDialog = modalSpinner(R.string.loading)
+    }
+    progressDialog?.show()
+  }
+
+  protected fun dismissProgressDialog() {
+    if (progressDialog != null) {
+      progressDialog?.dismiss()
+      progressDialog = null
+    }
+  }
 }

@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.surveyselector
 
-import android.app.AlertDialog
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -29,7 +28,6 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.SurveySelectorFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
-import com.google.android.ground.ui.common.ProgressDialogs.modalSpinner
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -40,7 +38,6 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   private lateinit var viewModel: SurveySelectorViewModel
   private lateinit var binding: SurveySelectorFragBinding
   private lateinit var adapter: SurveyListAdapter
-  private var progressDialog: AlertDialog? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -102,20 +99,6 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
       SurveySelectorViewModel.State.LOADED,
       SurveySelectorViewModel.State.NOT_FOUND -> dismissProgressDialog()
     }
-
-  private fun showProgressDialog() {
-    if (progressDialog == null) {
-      progressDialog = modalSpinner(R.string.loading)
-    }
-    progressDialog?.show()
-  }
-
-  private fun dismissProgressDialog() {
-    if (progressDialog != null) {
-      progressDialog?.dismiss()
-      progressDialog = null
-    }
-  }
 
   private fun shouldExitApp(): Boolean =
     arguments?.let { SurveySelectorFragmentArgs.fromBundle(it).shouldExitApp } ?: false
