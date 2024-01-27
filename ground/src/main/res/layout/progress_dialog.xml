@@ -29,12 +29,12 @@
     android:paddingRight="30dp"
     android:paddingBottom="30dp">
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.CircularProgressIndicator
       android:id="@+id/progressBar"
-      style="@style/Widget.Material3.CircularProgressIndicator"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:indeterminate="true"
+      app:indicatorColor="?attr/colorPrimary"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent" />
@@ -43,7 +43,7 @@
       android:id="@+id/text_progress_bar"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:textSize="20sp"
+      android:textSize="16sp"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toEndOf="@+id/progressBar"
