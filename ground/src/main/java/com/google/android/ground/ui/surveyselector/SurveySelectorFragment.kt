@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.ui.surveyselector
 
-import android.app.ProgressDialog
+import android.app.AlertDialog
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -29,7 +29,7 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.SurveySelectorFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
-import com.google.android.ground.ui.common.ProgressDialogs
+import com.google.android.ground.ui.common.ProgressDialogs.modalSpinner
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -40,7 +40,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   private lateinit var viewModel: SurveySelectorViewModel
   private lateinit var binding: SurveySelectorFragBinding
   private lateinit var adapter: SurveyListAdapter
-  private var progressDialog: ProgressDialog? = null
+  private var progressDialog: AlertDialog? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -61,7 +61,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View {
     binding = SurveySelectorFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
@@ -105,7 +105,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
 
   private fun showProgressDialog() {
     if (progressDialog == null) {
-      progressDialog = ProgressDialogs.modalSpinner(requireContext(), R.string.loading)
+      progressDialog = modalSpinner(R.string.loading)
     }
     progressDialog?.show()
   }
