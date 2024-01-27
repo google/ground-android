@@ -130,14 +130,10 @@ internal constructor(
         .stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
     adHocLoiJobs =
-      activeSurvey
-        .combine(isZoomedInFlow) { survey, isZoomedIn -> Pair(survey, isZoomedIn) }
-        .flatMapLatest { (survey, isZoomedIn) ->
-          flowOf(
-            if (survey == null || !isZoomedIn) listOf()
-            else survey.jobs.filter { it.canDataCollectorsAddLois }
-          )
-        }
+      activeSurvey.combine(isZoomedInFlow) { survey, isZoomedIn ->
+        if (survey == null || !isZoomedIn) listOf()
+        else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
+      }
   }
 
   private fun updatedLoiSelectedStates(
