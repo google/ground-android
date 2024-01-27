@@ -22,6 +22,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.IdRes
+import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import com.google.android.ground.AbstractActivity
@@ -116,9 +117,9 @@ abstract class AbstractFragment : Fragment() {
 
   protected fun getAbstractActivity(): AbstractActivity = requireActivity() as AbstractActivity
 
-  protected fun showProgressDialog() {
+  protected fun showProgressDialog(@StringRes messageId: Int = R.string.loading) {
     if (progressDialog == null) {
-      progressDialog = modalSpinner(R.string.loading)
+      progressDialog = modalSpinner(messageId)
     }
     progressDialog?.show()
   }

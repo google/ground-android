@@ -44,11 +44,12 @@ class StartupFragment : AbstractFragment() {
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View? = inflater.inflate(R.layout.startup_frag, container, false)
 
   override fun onResume() {
     super.onResume()
+    showProgressDialog(R.string.initializing)
     viewLifecycleOwner.lifecycleScope.launch {
       try {
         viewModel.initializeLogin()
@@ -56,6 +57,11 @@ class StartupFragment : AbstractFragment() {
         onInitFailed(t)
       }
     }
+  }
+
+  override fun onPause() {
+    dismissProgressDialog()
+    super.onPause()
   }
 
   private fun onInitFailed(t: Throwable) {

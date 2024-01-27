@@ -130,4 +130,5 @@
   <string name="camera_permissions_needed">You need to grant this application camera permissions to submit photos.</string>
   <string name="error_message">Something went wrong</string>
   <string name="incomplete_area">Incomplete area</string>
+  <string name="initializing">Initializing…</string>
 </resources>
