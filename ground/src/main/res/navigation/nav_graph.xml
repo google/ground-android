@@ -70,6 +70,9 @@
     <action
       android:id="@+id/action_home_screen_fragment_to_dataCollectionFragment"
       app:destination="@id/data_collection" />
+    <action
+      android:id="@+id/showSignOutConfirmationDialogFragment"
+      app:destination="@id/signOutConfirmationFragment" />
   </fragment>
   <fragment
     android:id="@+id/sync_status_fragment"
@@ -253,4 +256,8 @@
     android:id="@+id/cameraPermissionDeniedDialogFragment"
     android:name="com.google.android.ground.ui.common.CameraPermissionDeniedDialogFragment"
     android:label="CameraPermissionDeniedDialogFragment" />
+  <dialog
+    android:id="@+id/signOutConfirmationFragment"
+    android:name="com.google.android.ground.ui.common.SignOutConfirmationFragment"
+    android:label="SignOutConfirmationFragment" />
 </navigation>
