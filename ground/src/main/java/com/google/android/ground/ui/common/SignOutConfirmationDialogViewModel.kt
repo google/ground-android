@@ -1,4 +1,3 @@
-package com.google.android.ground.ui.common
 /*
  * Copyright 2024 Google LLC
  *
@@ -14,6 +13,7 @@ package com.google.android.ground.ui.common
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.common
 
 import com.google.android.ground.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

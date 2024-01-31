@@ -35,7 +35,6 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
-import com.google.android.ground.ui.common.SignOutConfirmationFragmentDirections
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
