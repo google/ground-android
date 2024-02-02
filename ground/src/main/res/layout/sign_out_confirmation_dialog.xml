@@ -73,7 +73,7 @@
       android:text="@string/sign_out"
       app:backgroundTint="?attr/colorError"
       app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/subtitle"
+      app:layout_constraintTop_toBottomOf="@+id/warning"
       app:layout_constraintTop_toTopOf="@id/close" />
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
