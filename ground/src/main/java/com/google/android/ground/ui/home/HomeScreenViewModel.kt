@@ -37,14 +37,14 @@ internal constructor(
   private val surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
-  private val _openDrawerRequests: MutableSharedFlow<Any> = MutableSharedFlow()
-  val openDrawerRequestsFlow: SharedFlow<Any> = _openDrawerRequests.asSharedFlow()
+  private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
+  val openDrawerRequestsFlow: SharedFlow<Unit> = _openDrawerRequests.asSharedFlow()
 
   val showOfflineAreaMenuItem: LiveData<Boolean> =
     surveyRepository.activeSurveyFlow.map { it?.tileSources?.isNotEmpty() ?: false }.asLiveData()
 
   fun openNavDrawer() {
-    viewModelScope.launch { _openDrawerRequests.emit(Any()) }
+    viewModelScope.launch { _openDrawerRequests.emit(Unit) }
   }
 
   fun showSurveySelector() {

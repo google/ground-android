@@ -97,7 +97,7 @@ internal constructor(
   val adHocLoiJobs: Flow<List<Job>>
 
   /* UI Clicks */
-  private val _zoomThresholdCrossed: MutableSharedFlow<Any> = MutableSharedFlow()
+  private val _zoomThresholdCrossed: MutableSharedFlow<Unit> = MutableSharedFlow()
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
@@ -155,7 +155,7 @@ internal constructor(
       oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD ||
         oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD
     if (zoomThresholdCrossed) {
-      viewModelScope.launch { _zoomThresholdCrossed.emit(Any()) }
+      viewModelScope.launch { _zoomThresholdCrossed.emit(Unit) }
     }
   }
 
