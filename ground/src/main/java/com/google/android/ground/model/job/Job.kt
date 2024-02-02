@@ -41,7 +41,12 @@ data class Job(
 
   fun getTask(id: String): Task = tasks[id] ?: error("Unknown task id $id")
 
-  fun getAddLoiTask(): Task? = tasks.values.firstOrNull { it.isAddLoiTask }
+  /** Job must contain at-most 1 `AddLoiTask`. */
+  fun getAddLoiTask(): Task? =
+    tasks.values
+      .filter { it.isAddLoiTask }
+      .apply { check(size <= 1) { "Expected 0 or 1, found $size AddLoiTasks" } }
+      .firstOrNull()
 
   /** Returns true if the job has one or more tasks. */
   fun hasTasks() = tasks.values.isNotEmpty()
