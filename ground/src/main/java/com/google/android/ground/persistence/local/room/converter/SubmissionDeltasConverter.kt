@@ -64,7 +64,7 @@ object SubmissionDeltasConverter {
       while (keys.hasNext()) {
         try {
           val taskId = keys.next()
-          val task = job.getTask(taskId)
+          val task = job.getTask(taskId) ?: continue
           val jsonDelta = jsonObject.getJSONObject(taskId)
           deltas.add(
             ValueDelta(
@@ -77,8 +77,6 @@ object SubmissionDeltasConverter {
           Timber.d("Bad submission value in local db: " + e.message)
         } catch (e: DataStoreException) {
           Timber.d("Bad submission value in local db: " + e.message)
-        } catch (e: Job.TaskNotFoundException) {
-          Timber.d(e, "Ignoring delta for unknown task")
         }
       }
     } catch (e: JSONException) {

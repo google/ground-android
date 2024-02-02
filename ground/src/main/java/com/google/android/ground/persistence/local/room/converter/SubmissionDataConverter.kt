@@ -54,12 +54,10 @@ object SubmissionDataConverter {
       while (keys.hasNext()) {
         try {
           val taskId = keys.next()
-          val task = job.getTask(taskId)
+          val task = job.getTask(taskId) ?: continue
           ValueJsonConverter.toResponse(task, jsonObject[taskId])?.let { map[taskId] = it }
         } catch (e: LocalDataConsistencyException) {
           Timber.d("Bad submission data in local db: ${e.message}")
-        } catch (e: Job.TaskNotFoundException) {
-          Timber.d(e, "Ignoring data for unknown task")
         }
       }
     } catch (e: JSONException) {

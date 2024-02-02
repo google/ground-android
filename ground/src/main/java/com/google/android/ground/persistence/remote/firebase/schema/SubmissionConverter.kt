@@ -85,23 +85,22 @@ internal object SubmissionConverter {
   }
 
   private fun putValue(taskId: String, job: Job, obj: Any, data: MutableMap<String, Value>) {
-    try {
-      val task = job.getTask(taskId)
-      when (task.type) {
-        Task.Type.PHOTO,
-        Task.Type.TEXT -> putTextResponse(taskId, obj, data)
-        Task.Type.MULTIPLE_CHOICE ->
-          putMultipleChoiceResponse(taskId, task.multipleChoice, obj, data)
-        Task.Type.NUMBER -> putNumberResponse(taskId, obj, data)
-        Task.Type.DATE -> putDateResponse(taskId, obj, data)
-        Task.Type.TIME -> putTimeResponse(taskId, obj, data)
-        Task.Type.DROP_PIN -> putDropPinTaskResult(taskId, obj, data)
-        Task.Type.DRAW_AREA -> putDrawAreaTaskResult(taskId, obj, data)
-        Task.Type.CAPTURE_LOCATION -> putCaptureLocationResult(taskId, obj, data)
-        else -> throw DataStoreException("Unknown type " + task.type)
-      }
-    } catch (e: Job.TaskNotFoundException) {
-      Timber.d(e, "cannot put value for unknown task")
+    val task = job.getTask(taskId)
+    if (task == null) {
+      Timber.d("ignorning unknown task: $taskId")
+      return
+    }
+    when (task.type) {
+      Task.Type.PHOTO,
+      Task.Type.TEXT -> putTextResponse(taskId, obj, data)
+      Task.Type.MULTIPLE_CHOICE -> putMultipleChoiceResponse(taskId, task.multipleChoice, obj, data)
+      Task.Type.NUMBER -> putNumberResponse(taskId, obj, data)
+      Task.Type.DATE -> putDateResponse(taskId, obj, data)
+      Task.Type.TIME -> putTimeResponse(taskId, obj, data)
+      Task.Type.DROP_PIN -> putDropPinTaskResult(taskId, obj, data)
+      Task.Type.DRAW_AREA -> putDrawAreaTaskResult(taskId, obj, data)
+      Task.Type.CAPTURE_LOCATION -> putCaptureLocationResult(taskId, obj, data)
+      else -> throw DataStoreException("Unknown type " + task.type)
     }
   }
 

@@ -33,17 +33,13 @@ data class Job(
     UNKNOWN
   }
 
-  class TaskNotFoundException(taskId: String) : Throwable(message = "unknown task $taskId")
-
   val canDataCollectorsAddLois: Boolean
     get() = strategy != DataCollectionStrategy.PREDEFINED
 
   val tasksSorted: List<Task>
     get() = tasks.values.sortedBy { it.index }
 
-  // TODO(#2216): Consider using nulls to indicate absence of value here instead of throwing
-  // an exception.
-  fun getTask(id: String): Task = tasks[id] ?: throw TaskNotFoundException(id)
+  fun getTask(id: String): Task? = tasks[id]
 
   /** Job must contain at-most 1 `AddLoiTask`. */
   fun getAddLoiTask(): Task? =
