@@ -39,7 +39,7 @@ data class Job(
   val tasksSorted: List<Task>
     get() = tasks.values.sortedBy { it.index }
 
-  fun getTask(id: String): Task = tasks[id] ?: error("Unknown task id $id")
+  fun getTask(id: String): Task? = tasks[id]
 
   /** Job must contain at-most 1 `AddLoiTask`. */
   fun getAddLoiTask(): Task? =

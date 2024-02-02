@@ -64,7 +64,7 @@ object SubmissionDeltasConverter {
       while (keys.hasNext()) {
         try {
           val taskId = keys.next()
-          val task = job.getTask(taskId)
+          val task = job.getTask(taskId) ?: continue
           val jsonDelta = jsonObject.getJSONObject(taskId)
           deltas.add(
             ValueDelta(

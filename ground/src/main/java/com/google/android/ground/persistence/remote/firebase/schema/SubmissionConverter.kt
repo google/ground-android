@@ -86,6 +86,10 @@ internal object SubmissionConverter {
 
   private fun putValue(taskId: String, job: Job, obj: Any, data: MutableMap<String, Value>) {
     val task = job.getTask(taskId)
+    if (task == null) {
+      Timber.d("ignorning unknown task: $taskId")
+      return
+    }
     when (task.type) {
       Task.Type.PHOTO,
       Task.Type.TEXT -> putTextResponse(taskId, obj, data)
