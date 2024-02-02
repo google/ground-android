@@ -33,7 +33,7 @@ data class Job(
     UNKNOWN
   }
 
-  class TaskNotFoundException(taskId: String): Throwable(message = "unknown task $taskId")
+  class TaskNotFoundException(taskId: String) : Throwable(message = "unknown task $taskId")
 
   val canDataCollectorsAddLois: Boolean
     get() = strategy != DataCollectionStrategy.PREDEFINED
