@@ -19,7 +19,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.rx.Nil
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
@@ -35,17 +34,17 @@ class HomeScreenViewModel
 @Inject
 internal constructor(
   private val navigator: Navigator,
-  private val surveyRepository: SurveyRepository
+  private val surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
-  private val _openDrawerRequests: MutableSharedFlow<Nil> = MutableSharedFlow()
-  val openDrawerRequestsFlow: SharedFlow<Nil> = _openDrawerRequests.asSharedFlow()
+  private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
+  val openDrawerRequestsFlow: SharedFlow<Unit> = _openDrawerRequests.asSharedFlow()
 
   val showOfflineAreaMenuItem: LiveData<Boolean> =
     surveyRepository.activeSurveyFlow.map { it?.tileSources?.isNotEmpty() ?: false }.asLiveData()
 
   fun openNavDrawer() {
-    viewModelScope.launch { _openDrawerRequests.emit(Nil.NIL) }
+    viewModelScope.launch { _openDrawerRequests.emit(Unit) }
   }
 
   fun showSurveySelector() {
