@@ -41,6 +41,8 @@ data class Job(
   val tasksSorted: List<Task>
     get() = tasks.values.sortedBy { it.index }
 
+  // TODO(#2216): Consider using nulls to indicate absence of value here instead of throwing
+  // an exception.
   fun getTask(id: String): Task = tasks[id] ?: throw TaskNotFoundException(id)
 
   fun getAddLoiTask(): Task? = tasks.values.firstOrNull { it.isAddLoiTask }
