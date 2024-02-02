@@ -40,6 +40,6 @@
       android:layout_height="wrap_content"
       android:inputType="number"
       android:text="@{viewModel.responseText}"
-      app:onTextChanged="@{s -> viewModel.updateResponse((String)s)}" />
+      app:textChangedListener="@{viewModel.textWatcher}" />
   </com.google.android.material.textfield.TextInputLayout>
 </layout>
