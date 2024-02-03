@@ -26,7 +26,6 @@ import com.google.android.ground.databinding.AddLoiCardItemBinding
 import com.google.android.ground.databinding.LoiCardItemBinding
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.material.card.MaterialCardView
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [LocationOfInterest] data with the
@@ -34,7 +33,7 @@ import com.google.android.material.card.MaterialCardView
  */
 class MapCardAdapter(
   private val canUserSubmitData: Boolean,
-  private val updateSubmissionCount: (loi: LocationOfInterest, view: TextView) -> Unit
+  private val updateSubmissionCount: (loi: LocationOfInterest, view: TextView) -> Unit,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
   private var focusedIndex: Int = 0
@@ -51,12 +50,12 @@ class MapCardAdapter(
       LoiViewHolder(
         LoiCardItemBinding.inflate(layoutInflater, parent, false),
         canUserSubmitData,
-        updateSubmissionCount
+        updateSubmissionCount,
       )
     } else {
       AddLoiCardViewHolder(
         AddLoiCardItemBinding.inflate(layoutInflater, parent, false),
-        canUserSubmitData
+        canUserSubmitData,
       )
     }
   }
@@ -108,7 +107,7 @@ class MapCardAdapter(
 
   private fun bindViewHolder(
     uiData: MapCardUiData,
-    holder: RecyclerView.ViewHolder
+    holder: RecyclerView.ViewHolder,
   ): CardViewHolder =
     when (uiData) {
       is MapCardUiData.LoiCardUiData -> {
@@ -129,19 +128,16 @@ class MapCardAdapter(
     return -1
   }
 
-  abstract class CardViewHolder(itemView: View, private val cardView: MaterialCardView) :
-    RecyclerView.ViewHolder(itemView) {
-    fun setOnClickListener(callback: () -> Unit) {
-      cardView.setOnClickListener { callback() }
-    }
+  abstract class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    abstract fun setOnClickListener(callback: () -> Unit)
   }
 
   /** View item representing the [LocationOfInterest] data in the list. */
   class LoiViewHolder(
     internal val binding: LoiCardItemBinding,
     private val canUserSubmitData: Boolean,
-    private val updateSubmissionCount: (loi: LocationOfInterest, view: TextView) -> Unit
-  ) : CardViewHolder(binding.root, binding.loiCard) {
+    private val updateSubmissionCount: (loi: LocationOfInterest, view: TextView) -> Unit,
+  ) : CardViewHolder(binding.root) {
     fun bind(loi: LocationOfInterest) {
       with(binding) {
         loiName.text = LoiCardUtil.getDisplayLoiName(binding.wrapperView.context, loi)
@@ -151,13 +147,17 @@ class MapCardAdapter(
         updateSubmissionCount(loi, submissions)
       }
     }
+
+    override fun setOnClickListener(callback: () -> Unit) {
+      binding.collectData.setOnClickListener { callback() }
+    }
   }
 
   /** View item representing the Add Loi Job data in the list. */
   class AddLoiCardViewHolder(
     internal val binding: AddLoiCardItemBinding,
-    private val canUserSubmitData: Boolean
-  ) : CardViewHolder(binding.root, binding.loiCard) {
+    private val canUserSubmitData: Boolean,
+  ) : CardViewHolder(binding.root) {
 
     fun bind(job: Job) {
       with(binding) {
@@ -165,6 +165,10 @@ class MapCardAdapter(
         collectData.visibility =
           if (canUserSubmitData && job.hasTasks()) View.VISIBLE else View.GONE
       }
+    }
+
+    override fun setOnClickListener(callback: () -> Unit) {
+      binding.collectData.setOnClickListener { callback() }
     }
   }
 }
