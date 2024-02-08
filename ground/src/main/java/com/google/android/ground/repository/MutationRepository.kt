@@ -70,15 +70,15 @@ constructor(
    * specified id.
    */
   suspend fun getMutations(
-    loidId: String,
+    loiId: String,
     vararg entitySyncStatus: MutationEntitySyncStatus
   ): List<Mutation> {
     val loiMutations =
       localLocationOfInterestStore
-        .findByLocationOfInterestId(loidId, *entitySyncStatus)
+        .findByLocationOfInterestId(loiId, *entitySyncStatus)
         .map(LocationOfInterestMutationEntity::toModelObject)
     val submissionMutations =
-      localSubmissionStore.findByLocationOfInterestId(loidId, *entitySyncStatus).map {
+      localSubmissionStore.findByLocationOfInterestId(loiId, *entitySyncStatus).map {
         it.toSubmissionMutation()
       }
     return loiMutations + submissionMutations
@@ -162,10 +162,10 @@ constructor(
 // illustration; we'd likely just do this in "doRemoteOr..."
 //       .also { repo.saveMutationsLocally(it) } // write updated mutations to local storage to
 // exclude/include them in further processing runs.
-private fun List<Mutation>.updateMutationStatus(
+private fun Mutation.withStatus(
   syncStatus: Mutation.SyncStatus,
   error: Throwable? = null
-): List<Mutation> = map {
+): Mutation = {
   val hasSyncFailed = syncStatus == Mutation.SyncStatus.FAILED
   val retryCount = if (hasSyncFailed) it.retryCount + 1 else it.retryCount
   val errorMessage = if (hasSyncFailed) error?.message ?: error.toString() else it.lastError
