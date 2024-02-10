@@ -19,6 +19,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -53,7 +54,7 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
       repeatOnLifecycle(Lifecycle.State.STARTED) {
         getMapViewModel().location.collect {
           val locationText = it?.toCaptureLocationResult()?.getDetailsText()
-          setCurrentLocationAsInfoCard(locationText, true)
+          updateLocationInfoCard(R.string.current_location, locationText)
         }
       }
     }
@@ -67,12 +68,11 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
     return binding.root
   }
 
-  private fun setCurrentLocationAsInfoCard(locationText: String?, isCurrentLocation: Boolean) {
+  private fun updateLocationInfoCard(@StringRes title: Int, locationText: String?) {
     if (locationText.isNullOrEmpty()) {
       binding.infoCard.visibility = View.GONE
     } else {
-      val message = if (isCurrentLocation) R.string.current_location else R.string.map_location
-      binding.cardTitle.setText(message)
+      binding.cardTitle.setText(title)
       binding.cardValue.text = locationText
       binding.infoCard.visibility = View.VISIBLE
     }
@@ -86,6 +86,6 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
     }
     val target = position.target
     val processedCoordinates = LatLngConverter.formatCoordinates(target)
-    setCurrentLocationAsInfoCard(processedCoordinates, false)
+    updateLocationInfoCard(R.string.map_location, processedCoordinates)
   }
 }
