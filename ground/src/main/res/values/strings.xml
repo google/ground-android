@@ -132,6 +132,7 @@
   <string name="error_message">Something went wrong</string>
   <string name="incomplete_area">Incomplete area</string>
   <string name="initializing">Initializing…</string>
+  <string name="map_location">Map location</string>
   <string name="sign_out_dialog_title">Unsynced data</string>
   <string name="sign_out_dialog_body">If you sign out, any unsynced data will be discarded</string>
 </resources>
