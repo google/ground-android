@@ -23,7 +23,6 @@ import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -31,6 +30,7 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
+import com.google.android.ground.ui.util.ColorUtil
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,7 +43,8 @@ class DrawAreaTaskViewModel
 @Inject
 internal constructor(
   private val uuidGenerator: OfflineUuidGenerator,
-  private val resources: Resources
+  private val resources: Resources,
+  private val colorUtil: ColorUtil
 ) : AbstractTaskViewModel(resources) {
 
   /** Polygon [Feature] being drawn by the user. */
@@ -64,7 +65,7 @@ internal constructor(
 
   override fun initialize(job: Job, task: Task, value: Value?) {
     super.initialize(job, task, value)
-    strokeColor = job.getDefaultColor()
+    strokeColor = colorUtil.getColor(R.color.drawAreaLineStringStrokeColor)
   }
 
   fun isMarkedComplete(): Boolean = isMarkedComplete
@@ -170,7 +171,7 @@ internal constructor(
           id = uuidGenerator.generateUuid(),
           type = FeatureType.USER_POLYGON.ordinal,
           geometry = LineString(vertices),
-          style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
+          style = Feature.Style(strokeColor, Feature.VertexStyle.OPEN_ENDED),
           clusterable = false,
           selected = true
         )

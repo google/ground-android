@@ -18,7 +18,7 @@
 
 <resources>
   <!-- Map -->
-  <dimen name="line_geometry_width">4dp</dimen>
+  <dimen name="line_geometry_width">3dp</dimen>
   <item name="default_marker_scale_factor" format="float" type="dimen">2</item>
   <item name="selected_marker_scale_factor" format="float" type="dimen">1.5</item>
 

@@ -62,6 +62,7 @@ data class Feature(
 
   enum class VertexStyle {
     NONE,
-    CIRCLE
+    CIRCLE,
+    OPEN_ENDED,
   }
 }

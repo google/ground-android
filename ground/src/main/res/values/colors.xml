@@ -23,6 +23,8 @@
   <color name="clusterBalloonStrokeColor">#4B6DDD81</color>
   <color name="textOverMap">#FCFDF7</color>
   <color name="blackOverlay">#000000</color>
+  <!-- DrawArea color palette -->
+  <color name="drawAreaLineStringStrokeColor">#EDAE3D</color>
 
   <!-- Updated Color palette -->
   <color name="md_theme_primary">#006E2C</color>

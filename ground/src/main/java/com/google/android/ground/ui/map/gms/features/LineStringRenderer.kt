@@ -40,6 +40,10 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
   // initialization.
   private val defaultStrokeWidth by lazy { resources.getDimension(R.dimen.line_geometry_width) }
   private val circleCap by lazy {
+    val bitmap = bitmapUtil.fromVector(R.drawable.ic_vertex)
+    CustomCap(BitmapDescriptorFactory.fromBitmap(bitmap))
+  }
+  private val endCircleCap by lazy {
     val bitmap = bitmapUtil.fromVector(R.drawable.ic_endpoint)
     CustomCap(BitmapDescriptorFactory.fromBitmap(bitmap))
   }
@@ -64,7 +68,11 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
       if (style.vertexStyle == Feature.VertexStyle.CIRCLE) {
         startCap = circleCap
         endCap = circleCap
+      } else if (style.vertexStyle == Feature.VertexStyle.OPEN_ENDED) {
+        startCap = circleCap
+        endCap = endCircleCap
       }
+
       val strokeScale = if (selected) 2f else 1f
       width = defaultStrokeWidth * strokeScale
       color = style.color
