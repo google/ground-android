@@ -23,9 +23,7 @@ import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
 import com.google.android.ground.model.User
-import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.mutation.Mutation.Type.CREATE
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
@@ -96,11 +94,7 @@ constructor(
     val userIds = mutationsByUserId.keys
     var noErrors = true
     for (userId in userIds) {
-      // Handle "Create LOI" mutations first.
-      val mutations =
-        mutationsByUserId[userId]?.sortedBy {
-          it is LocationOfInterestMutation && it.type == CREATE
-        }
+      val mutations = mutationsByUserId[userId]
       val user = getUser(userId)
       if (mutations == null || user == null) {
         continue
