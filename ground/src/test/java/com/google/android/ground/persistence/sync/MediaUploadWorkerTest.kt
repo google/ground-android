@@ -35,11 +35,13 @@ import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.UserMediaRepository
+import com.google.android.ground.repository.UserRepository
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.persistence.remote.FakeRemoteStorageManager
+import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -55,7 +57,9 @@ import org.robolectric.RobolectricTestRunner
 class MediaUploadWorkerTest : BaseHiltTest() {
   private lateinit var context: Context
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+  @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var mutationRepository: MutationRepository
+  @Inject lateinit var userRepository: UserRepository
   @Inject lateinit var userMediaRepository: UserMediaRepository
   @Inject lateinit var fakeRemoteStorageManager: FakeRemoteStorageManager
   @Inject lateinit var localSubmissionStore: LocalSubmissionStore
@@ -76,6 +80,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
           workerParameters,
           fakeRemoteStorageManager,
           mutationRepository,
+          userRepository,
           userMediaRepository
         )
     }
@@ -180,6 +185,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     assertThat(
         mutationRepository.getMutations(
           FakeData.LOCATION_OF_INTEREST.id,
+          FakeData.USER.id,
           status,
         )
       )

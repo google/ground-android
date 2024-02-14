@@ -62,8 +62,9 @@ constructor(
    */
   suspend fun getSubmissionMutations(
     loiId: String,
+    userId: String,
     vararg entitySyncStatus: MutationEntitySyncStatus
-  ) = getMutations(loiId, *entitySyncStatus).filterIsInstance<SubmissionMutation>()
+  ) = getMutations(loiId, userId, *entitySyncStatus).filterIsInstance<SubmissionMutation>()
 
   /**
    * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
@@ -71,18 +72,39 @@ constructor(
    */
   suspend fun getMutations(
     loiId: String,
+    userId: String,
     vararg entitySyncStatus: MutationEntitySyncStatus
   ): List<Mutation> {
     val loiMutations =
       localLocationOfInterestStore
         .findByLocationOfInterestId(loiId, *entitySyncStatus)
         .map(LocationOfInterestMutationEntity::toModelObject)
+        .filter { it.userId == userId }
     val submissionMutations =
-      localSubmissionStore.findByLocationOfInterestId(loiId, *entitySyncStatus).map {
-        it.toSubmissionMutation()
-      }
+      localSubmissionStore
+        .findByLocationOfInterestId(loiId, *entitySyncStatus)
+        .map { it.toSubmissionMutation() }
+        .filter { it.userId == userId }
     return (loiMutations + submissionMutations).sortedBy { it.clientTimestamp }
   }
+
+  /**
+   * Returns mutations associated with the given LOI and User that are eligible for additional
+   * synchronization attempts.
+   *
+   * Eligibility is determined as follows:
+   * - The mutation is in a `PENDING` or `FAILED` state.
+   * - The mutation's retry count is lesser than the provided `retryLimit`
+   *
+   * It is up to callers to determine appropriate retry limits.
+   */
+  suspend fun getMutationsEligibleForRetry(
+    loiId: String,
+    userId: String,
+    retryLimit: Int
+  ): List<Mutation> =
+    getMutations(loiId, userId, MutationEntitySyncStatus.PENDING, MutationEntitySyncStatus.FAILED)
+      .filter { it.retryCount < retryLimit }
 
   private suspend fun SubmissionMutationEntity.toSubmissionMutation(): SubmissionMutation =
     toModelObject(

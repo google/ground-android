@@ -24,11 +24,10 @@ import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.createInputData
 import com.google.android.ground.repository.MutationRepository
+import com.google.android.ground.repository.UserRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +46,7 @@ constructor(
   @Assisted context: Context,
   @Assisted params: WorkerParameters,
   private val mutationRepository: MutationRepository,
-  private val localUserStore: LocalUserStore,
+  private val userRepository: UserRepository,
   private val remoteDataStore: RemoteDataStore,
   private val mediaUploadWorkManager: MediaUploadWorkManager
 ) : CoroutineWorker(context, params) {
@@ -59,9 +58,17 @@ constructor(
 
   private suspend fun doWorkInternal(): Result =
     try {
-      val mutations = getPendingOrEligibleFailedMutations()
-      Timber.d("Syncing ${mutations.size} changes for LOI $locationOfInterestId")
-      val result = processMutations(mutations)
+      val user = userRepository.getAuthenticatedUser()
+      val mutations =
+        mutationRepository.getMutationsEligibleForRetry(
+          locationOfInterestId,
+          user.id,
+          MAX_RETRY_COUNT
+        )
+      Timber.d(
+        "Syncing ${mutations.size} changes authored by user ${user.id} on LOI $locationOfInterestId"
+      )
+      val result = processMutations(mutations, user)
       mediaUploadWorkManager.enqueueSyncWorker(locationOfInterestId)
       if (result) success() else retry()
     } catch (t: Throwable) {
@@ -70,50 +77,13 @@ constructor(
     }
 
   /**
-   * Attempts to fetch all mutations from the [MutationRepository] that are in `PENDING` state or in
-   * `FAILED` state but eligible for retry.
-   */
-  private suspend fun getPendingOrEligibleFailedMutations(): List<Mutation> {
-    val pendingMutations =
-      mutationRepository.getMutations(locationOfInterestId, MutationEntitySyncStatus.PENDING)
-    val failedMutationsEligibleForRetry =
-      mutationRepository
-        .getMutations(locationOfInterestId, MutationEntitySyncStatus.FAILED)
-        .filter { it.retryCount < MAX_RETRY_COUNT }
-    return pendingMutations + failedMutationsEligibleForRetry
-  }
-
-  /**
-   * Groups mutations by user id, loads each user, applies mutations, and removes processed
-   * mutations.
-   *
-   * @return `true` if all mutations are applied successfully, else `false`
-   */
-  private suspend fun processMutations(allMutations: List<Mutation>): Boolean {
-    val mutationsByUserId = allMutations.groupBy { it.userId }
-    val userIds = mutationsByUserId.keys
-    var noErrors = true
-    for (userId in userIds) {
-      val mutations = mutationsByUserId[userId]
-      val user = getUser(userId)
-      if (mutations == null || user == null) {
-        continue
-      }
-      val result = processMutations(mutations, user)
-      if (!result) {
-        noErrors = false
-      }
-    }
-    return noErrors
-  }
-
-  /**
    * Applies mutations to remote data store. Once successful, removes them from the local db.
    *
    * @return `true` if the mutations were successfully synced with [RemoteDataStore].
    */
   private suspend fun processMutations(mutations: List<Mutation>, user: User): Boolean {
-    check(mutations.isNotEmpty()) { "List of mutations is empty" }
+    // TODO(#2235): Process and update each mutation individually.
+    if (mutations.isEmpty()) return true
 
     return try {
       mutationRepository.markAsInProgress(mutations)
@@ -124,14 +94,6 @@ constructor(
       mutationRepository.markAsFailed(mutations, t)
       false
     }
-  }
-
-  private suspend fun getUser(userId: String): User? {
-    val user = localUserStore.getUserOrNull(userId)
-    if (user == null) {
-      Timber.e("User account removed before mutation processed")
-    }
-    return user
   }
 
   companion object {
