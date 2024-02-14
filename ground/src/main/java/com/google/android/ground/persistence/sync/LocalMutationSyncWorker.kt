@@ -60,11 +60,12 @@ constructor(
     try {
       val user = userRepository.getAuthenticatedUser()
       val mutations =
-        mutationRepository.getMutationsEligibleForRetry(
-          locationOfInterestId,
-          user.id,
-          MAX_RETRY_COUNT
-        )
+        mutationRepository
+          .getMutationsEligibleForRetry(locationOfInterestId, MAX_RETRY_COUNT)
+          .filter {
+            if (it.userId != user.id) Timber.w("ignoring mutation $it belonging to another user")
+            it.userId == user.id
+          }
       Timber.d(
         "Syncing ${mutations.size} changes authored by user ${user.id} on LOI $locationOfInterestId"
       )

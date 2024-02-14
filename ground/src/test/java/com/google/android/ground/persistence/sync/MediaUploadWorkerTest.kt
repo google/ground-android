@@ -185,7 +185,6 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     assertThat(
         mutationRepository.getMutations(
           FakeData.LOCATION_OF_INTEREST.id,
-          FakeData.USER.id,
           status,
         )
       )

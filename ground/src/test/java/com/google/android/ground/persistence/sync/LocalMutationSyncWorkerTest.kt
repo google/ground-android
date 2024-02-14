@@ -143,9 +143,8 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     val result = createAndDoWork(context, TEST_LOI_ID)
 
     assertThat(result).isEqualTo(success())
-    assertMutationsState(complete = 2)
-    assertMutationsState(otherUserId, pending = 2)
-    assertThat(mutationRepository.getMutations(TEST_LOI_ID, otherUserId, PENDING)).hasSize(2)
+    assertMutationsState(complete = 2, pending = 2)
+    assertThat(mutationRepository.getMutations(TEST_LOI_ID, PENDING)).hasSize(2)
   }
 
   @Test
@@ -195,7 +194,6 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   }
 
   private suspend fun assertMutationsState(
-    userId: String = TEST_USER_ID,
     pending: Int = 0,
     inProgress: Int = 0,
     complete: Int = 0,
@@ -204,19 +202,19 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     lastErrors: List<String> = listOf()
   ) {
     assertWithMessage("Unknown mutations count incorrect")
-      .that(mutationRepository.getMutations(TEST_LOI_ID, userId, UNKNOWN))
+      .that(mutationRepository.getMutations(TEST_LOI_ID, UNKNOWN))
       .hasSize(0)
     assertWithMessage("Pending mutations count incorrect")
-      .that(mutationRepository.getMutations(TEST_LOI_ID, userId, PENDING))
+      .that(mutationRepository.getMutations(TEST_LOI_ID, PENDING))
       .hasSize(pending)
     assertWithMessage("In Progress mutations count incorrect")
-      .that(mutationRepository.getMutations(TEST_LOI_ID, userId, IN_PROGRESS))
+      .that(mutationRepository.getMutations(TEST_LOI_ID, IN_PROGRESS))
       .hasSize(inProgress)
     assertWithMessage("Completed mutations count incorrect")
-      .that(mutationRepository.getMutations(TEST_LOI_ID, userId, MEDIA_UPLOAD_PENDING))
+      .that(mutationRepository.getMutations(TEST_LOI_ID, MEDIA_UPLOAD_PENDING))
       .hasSize(complete)
 
-    val failedMutations = mutationRepository.getMutations(TEST_LOI_ID, userId, FAILED)
+    val failedMutations = mutationRepository.getMutations(TEST_LOI_ID, FAILED)
     assertWithMessage("Failed mutations count incorrect").that(failedMutations).hasSize(failed)
     assertThat(failedMutations.map { it.retryCount.toInt() }).containsExactlyElementsIn(retryCount)
     assertThat(failedMutations.map { it.lastError }).containsExactlyElementsIn(lastErrors)

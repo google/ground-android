@@ -64,7 +64,7 @@ constructor(
     loiId: String,
     userId: String,
     vararg entitySyncStatus: MutationEntitySyncStatus
-  ) = getMutations(loiId, userId, *entitySyncStatus).filterIsInstance<SubmissionMutation>()
+  ) = getMutations(loiId, *entitySyncStatus).filterIsInstance<SubmissionMutation>()
 
   /**
    * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
@@ -72,19 +72,16 @@ constructor(
    */
   suspend fun getMutations(
     loiId: String,
-    userId: String,
     vararg entitySyncStatus: MutationEntitySyncStatus
   ): List<Mutation> {
     val loiMutations =
       localLocationOfInterestStore
         .findByLocationOfInterestId(loiId, *entitySyncStatus)
         .map(LocationOfInterestMutationEntity::toModelObject)
-        .filter { it.userId == userId }
     val submissionMutations =
-      localSubmissionStore
-        .findByLocationOfInterestId(loiId, *entitySyncStatus)
-        .map { it.toSubmissionMutation() }
-        .filter { it.userId == userId }
+      localSubmissionStore.findByLocationOfInterestId(loiId, *entitySyncStatus).map {
+        it.toSubmissionMutation()
+      }
     return (loiMutations + submissionMutations).sortedBy { it.clientTimestamp }
   }
 
@@ -98,13 +95,10 @@ constructor(
    *
    * It is up to callers to determine appropriate retry limits.
    */
-  suspend fun getMutationsEligibleForRetry(
-    loiId: String,
-    userId: String,
-    retryLimit: Int
-  ): List<Mutation> =
-    getMutations(loiId, userId, MutationEntitySyncStatus.PENDING, MutationEntitySyncStatus.FAILED)
-      .filter { it.retryCount < retryLimit }
+  suspend fun getMutationsEligibleForRetry(loiId: String, retryLimit: Int): List<Mutation> =
+    getMutations(loiId, MutationEntitySyncStatus.PENDING, MutationEntitySyncStatus.FAILED).filter {
+      it.retryCount < retryLimit
+    }
 
   private suspend fun SubmissionMutationEntity.toSubmissionMutation(): SubmissionMutation =
     toModelObject(
