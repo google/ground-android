@@ -126,7 +126,7 @@ class HomeScreenFragment :
       R.id.sync_status -> homeScreenViewModel.showSyncStatus()
       R.id.nav_offline_areas -> homeScreenViewModel.showOfflineAreas()
       R.id.nav_settings -> homeScreenViewModel.showSettings()
-      R.id.nav_sign_out -> userRepository.signOut()
+      R.id.nav_sign_out -> homeScreenViewModel.showSignOutConfirmation()
     }
     closeDrawer()
     return true

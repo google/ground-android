@@ -43,6 +43,7 @@ import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
@@ -60,10 +61,15 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   @Mock private lateinit var mockMediaUploadWorkManager: MediaUploadWorkManager
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+
   @Inject lateinit var localLocationOfInterestStore: LocalLocationOfInterestStore
+
   @Inject lateinit var localSubmissionStore: LocalSubmissionStore
+
   @Inject lateinit var localSurveyStore: LocalSurveyStore
+
   @Inject lateinit var localUserStore: LocalUserStore
+
   @Inject lateinit var mutationRepository: MutationRepository
 
   private val factory =
@@ -87,6 +93,10 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     context = ApplicationProvider.getApplicationContext()
+    runBlocking {
+      localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = TEST_USER_ID))
+      localSurveyStore.insertOrUpdateSurvey(FakeData.SURVEY.copy(id = TEST_SURVEY_ID))
+    }
   }
 
   @Test
@@ -187,18 +197,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   }
 
   private suspend fun addPendingMutations() {
-    localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = TEST_USER_ID))
-    localSurveyStore.insertOrUpdateSurvey(FakeData.SURVEY.copy(id = TEST_SURVEY_ID))
-
-    addPendingLois()
-    addPendingSubmission()
-  }
-
-  private suspend fun addPendingLois() {
     localLocationOfInterestStore.applyAndEnqueue(createLoiMutation())
-  }
-
-  private suspend fun addPendingSubmission() {
     localSubmissionStore.applyAndEnqueue(createSubmissionMutation())
   }
 
