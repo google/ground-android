@@ -15,7 +15,7 @@
  */
 package com.google.android.ground
 
-import android.app.ProgressDialog
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.core.view.WindowInsetsCompat
@@ -33,7 +33,7 @@ import com.google.android.ground.ui.common.NavigateTo
 import com.google.android.ground.ui.common.NavigateUp
 import com.google.android.ground.ui.common.NavigationRequest
 import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.ui.common.ProgressDialogs
+import com.google.android.ground.ui.common.ProgressDialogs.modalSpinner
 import com.google.android.ground.ui.common.ViewModelFactory
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -55,7 +55,7 @@ class MainActivity : AbstractActivity() {
   private lateinit var viewModel: MainViewModel
   private lateinit var navHostFragment: NavHostFragment
 
-  private var signInProgressDialog: ProgressDialog? = null
+  private var signInProgressDialog: AlertDialog? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     // Make sure this is before calling super.onCreate()
@@ -146,14 +146,14 @@ class MainActivity : AbstractActivity() {
 
   private fun showSignInDialog() {
     if (signInProgressDialog == null) {
-      signInProgressDialog = ProgressDialogs.modalSpinner(this, R.string.signing_in)
+      signInProgressDialog = modalSpinner(this, layoutInflater, R.string.signing_in)
     }
-    signInProgressDialog!!.show()
+    signInProgressDialog?.show()
   }
 
   private fun dismissSignInDialog() {
     if (signInProgressDialog != null) {
-      signInProgressDialog!!.dismiss()
+      signInProgressDialog?.dismiss()
       signInProgressDialog = null
     }
   }

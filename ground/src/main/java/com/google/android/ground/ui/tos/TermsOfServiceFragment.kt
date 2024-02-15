@@ -19,29 +19,33 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.databinding.FragmentTermsServiceBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
-import com.google.android.ground.ui.common.EphemeralPopups
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TermsOfServiceFragment : AbstractFragment(), BackPressListener {
-
-  @Inject lateinit var popups: EphemeralPopups
 
   private lateinit var viewModel: TermsOfServiceViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(TermsOfServiceViewModel::class.java)
+
+    showProgressDialog()
+    lifecycleScope.launch {
+      viewModel.termsOfServiceText.asFlow().collect { dismissProgressDialog() }
+    }
   }
 
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View {
     val binding = FragmentTermsServiceBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel

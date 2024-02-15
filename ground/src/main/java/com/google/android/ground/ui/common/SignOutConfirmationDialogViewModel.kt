@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.rx
+package com.google.android.ground.ui.common
 
-/**
- * Singleton value used for use as value in Rx streams where presence of value indicates some event,
- * but there's no meaningful value to emit (e.g., button clicks).
- */
-enum class Nil {
-  NIL
+import com.google.android.ground.repository.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+
+@HiltViewModel
+class SignOutConfirmationDialogViewModel
+@Inject
+internal constructor(private val navigator: Navigator, private val userRepository: UserRepository) :
+  AbstractViewModel() {
+
+  fun closeDialog() {
+    navigator.navigateUp()
+  }
+
+  fun signOut() {
+    userRepository.signOut()
+  }
 }

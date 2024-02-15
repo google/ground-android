@@ -104,6 +104,7 @@
   <string name="permission_denied">Permission denied</string>
   <string name="contact_survey_organizer_to_obtain_access">Contact your system administrator to request access</string>
   <string name="close_app">Close app</string>
+  <string name="cancel">Cancel</string>
   <string name="warning_sign_out">Warning: If you sign out, all unsaved data will be lost</string>
   <string name="no_imagery_available_for_area">No imagery for this area. Select an area with imagery to download to your device.</string>
   <string name="selected_offline_area_size">The selected area may take up to %s\u00A0MB of space on your device</string>
@@ -130,4 +131,8 @@
   <string name="camera_permissions_needed">You need to grant this application camera permissions to submit photos.</string>
   <string name="error_message">Something went wrong</string>
   <string name="incomplete_area">Incomplete area</string>
+  <string name="initializing">Initializing…</string>
+  <string name="map_location">Map location</string>
+  <string name="sign_out_dialog_title">Unsynced data</string>
+  <string name="sign_out_dialog_body">If you sign out, any unsynced data will be discarded</string>
 </resources>

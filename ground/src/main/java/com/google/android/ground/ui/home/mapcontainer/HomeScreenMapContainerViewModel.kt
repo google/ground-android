@@ -27,7 +27,6 @@ import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.rx.Nil
 import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
@@ -65,7 +64,7 @@ internal constructor(
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
-  surveyRepository: SurveyRepository
+  surveyRepository: SurveyRepository,
 ) :
   BaseMapViewModel(
     locationManager,
@@ -74,7 +73,7 @@ internal constructor(
     offlineAreaRepository,
     permissionsManager,
     surveyRepository,
-    loiRepository
+    loiRepository,
   ) {
 
   private val selectedLoiIdFlow = MutableStateFlow<String?>(null)
@@ -98,7 +97,7 @@ internal constructor(
   val adHocLoiJobs: Flow<List<Job>>
 
   /* UI Clicks */
-  private val _zoomThresholdCrossed: MutableSharedFlow<Nil> = MutableSharedFlow()
+  private val _zoomThresholdCrossed: MutableSharedFlow<Unit> = MutableSharedFlow()
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
@@ -130,19 +129,15 @@ internal constructor(
         .stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
     adHocLoiJobs =
-      activeSurvey
-        .combine(isZoomedInFlow) { survey, isZoomedIn -> Pair(survey, isZoomedIn) }
-        .flatMapLatest { (survey, isZoomedIn) ->
-          flowOf(
-            if (survey == null || !isZoomedIn) listOf()
-            else survey.jobs.filter { it.canDataCollectorsAddLois }
-          )
-        }
+      activeSurvey.combine(isZoomedInFlow) { survey, isZoomedIn ->
+        if (survey == null || !isZoomedIn) listOf()
+        else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
+      }
   }
 
   private fun updatedLoiSelectedStates(
     features: Set<Feature>,
-    selectedLoiId: String?
+    selectedLoiId: String?,
   ): Set<Feature> =
     features
       .map { it.withSelected(it.isLocationOfInterest() && it.tag.id == selectedLoiId) }
@@ -160,7 +155,7 @@ internal constructor(
       oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD ||
         oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD
     if (zoomThresholdCrossed) {
-      viewModelScope.launch { _zoomThresholdCrossed.emit(Nil.NIL) }
+      viewModelScope.launch { _zoomThresholdCrossed.emit(Unit) }
     }
   }
 
@@ -192,7 +187,7 @@ internal constructor(
       geometry = geometry,
       style = Feature.Style(job.getDefaultColor()),
       clusterable = true,
-      selected = true
+      selected = true,
     )
 
   fun selectLocationOfInterest(id: String?) {
