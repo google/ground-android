@@ -158,17 +158,6 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
     }.also { cache.put(path, it) }
   }
 
-  /** Reads the metadata from the specified input stream. */
-  private fun readMogMetadataAndClose(
-    sourceUrl: String, mogBounds: TileCoordinates, inputStream: InputStream
-  ): MogMetadata {
-    val startTimeMillis = System.currentTimeMillis()
-    return inputStream.use { readMogMetadata(sourceUrl, mogBounds, it) }.apply {
-      val elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis
-      Timber.d("Read headers from $sourceUrl in $elapsedTimeMillis ms")
-    }
-  }
-
   private fun readMogMetadata(
     sourceUrl: String, mogBounds: TileCoordinates, inputStream: InputStream
   ): MogMetadata {
@@ -188,16 +177,26 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
     return MogMetadata(sourceUrl, mogBounds, imageMetadata.toList())
   }
 
-  suspend fun MogPathOrUrl.toUrl(): MogUrl? = if (startsWith("/")) {
+  private suspend fun MogPathOrUrl.toUrl(): MogUrl? = if (startsWith("/")) {
     nullIfNotFound {
       remoteStorageManager.getDownloadUrl(this).toString()
     }
   } else this
 
-  fun MogUrl.readMetadata(mogBounds: TileCoordinates): MogMetadata? =
+  private fun MogUrl.readMetadata(mogBounds: TileCoordinates): MogMetadata? =
     nullIfNotFound { UrlInputStream(this) }?.use {
-      readMogMetadataAndClose(this, mogBounds, it)
+      this.readMogMetadataAndClose(mogBounds, it)
     }
+
+  /** Reads the metadata from the specified input stream. */
+  private fun MogUrl.readMogMetadataAndClose(mogBounds: TileCoordinates, inputStream: InputStream
+  ): MogMetadata {
+    val startTimeMillis = System.currentTimeMillis()
+    return inputStream.use { readMogMetadata(this, mogBounds, it) }.apply {
+      val elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis
+      Timber.d("Read headers from $sourceUrl in $elapsedTimeMillis ms")
+    }
+  }
 }
 
 private inline fun <T> nullIfNotFound(fn: () -> T) = try {
