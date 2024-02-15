@@ -24,24 +24,24 @@ import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
 class MogSourceTest {
-  private val mogSource = MogSource("url/{x}/{y}.tif", 5..7)
+  private val mogSource = MogSource( 5..7, "url/{x}/{y}.tif")
 
   @Test
-  fun getMogUrl_whenZoomIsLessThanMinZoom_throwsError() {
+  fun getMogPath_whenZoomIsLessThanMinZoom_throwsError() {
     assertThrows(IllegalStateException::class.java) {
-      mogSource.getMogUrl(TileCoordinates(250, 500, 2))
+      mogSource.getMogPath(TileCoordinates(250, 500, 2))
     }
   }
 
   @Test
-  fun getMogUrl_whenZoomIsEqualToMinZoom_returnsMogUrlWithMinZoom() {
-    assertThat(mogSource.getMogUrl(TileCoordinates(250, 500, 5))).isEqualTo("url/250/500.tif")
+  fun getMogPath_whenZoomIsEqualToMinZoom_returnsMogUrlWithMinZoom() {
+    assertThat(mogSource.getMogPath(TileCoordinates(250, 500, 5))).isEqualTo("url/250/500.tif")
   }
 
   @Test
-  fun getMogUrl_whenZoomIsGreaterThanMaxZoom_throwsError() {
+  fun getMogPath_whenZoomIsGreaterThanMaxZoom_throwsError() {
     assertThrows(IllegalStateException::class.java) {
-      mogSource.getMogUrl(TileCoordinates(2500, 5000, 9))
+      mogSource.getMogPath(TileCoordinates(2500, 5000, 9))
     }
   }
 
@@ -60,7 +60,6 @@ class MogSourceTest {
 
   @Test
   fun getMogBoundsForTile_whenZoomIsMoreThanMinZoom_returnsScaledCoordinates() {
-    val testCoords = TileCoordinates(10, 20, 6)
     assertThat(mogSource.getMogBoundsForTile(TileCoordinates(10, 20, 6)))
       .isEqualTo(TileCoordinates(5, 10, 5))
   }

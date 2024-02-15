@@ -37,6 +37,7 @@ import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.imagery.TileSource.Type.MOG_COLLECTION
 import com.google.android.ground.model.imagery.TileSource.Type.TILED_WEB_MAP
+import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.*
 import com.google.android.ground.ui.map.CameraPosition
@@ -74,6 +75,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   @Inject lateinit var featureManager: FeatureManager
   @Inject lateinit var bitmapUtil: BitmapUtil
+  @Inject lateinit var remoteStorageManager: RemoteStorageManager
 
   private lateinit var map: GoogleMap
 
@@ -269,7 +271,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private fun addRemoteMogTileOverlay(url: String) {
     // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
     val mogCollection = MogCollection(Config.getMogSources(url))
-    addTileOverlay(MogTileProvider(mogCollection))
+    addTileOverlay(MogTileProvider(mogCollection, remoteStorageManager))
   }
 
   private fun addTileOverlay(tileProvider: TileProvider) {

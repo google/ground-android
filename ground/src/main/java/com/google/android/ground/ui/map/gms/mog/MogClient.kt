@@ -17,6 +17,7 @@
 package com.google.android.ground.ui.map.gms.mog
 
 import android.util.LruCache
+import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.ui.map.Bounds
 import java.io.FileNotFoundException
 import java.io.InputStream
@@ -27,7 +28,7 @@ import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 /** Client responsible for fetching and caching MOG metadata and image tiles. */
-class MogClient(val collection: MogCollection) {
+class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteStorageManager) {
 
   private val cache: LruCache<String, Deferred<MogMetadata?>> = LruCache(16)
 
@@ -46,16 +47,13 @@ class MogClient(val collection: MogCollection) {
    * @param tileBounds the bounds used to constrain which tiles are retrieved. Only requests for
    * tiles within or overlapping these bounds are returned.
    * @param zoomRange the min. and max. zoom levels for which tile requests should be returned.
-   * Defaults to all available zoom levels in the collection ([MogCollection.minZoom] to
-   * [MogCollection.maxZoom]).
+   * Defaults to all available zoom levels in the collection ([MogSource.minZoom] to
+   * [MogSource.maxZoom]).
    */
   suspend fun buildTilesRequests(
-    tileBounds: Bounds,
-    zoomRange: IntRange = collection.sources.zoomRange()
-  ) =
-    zoomRange
-      .flatMap { zoom -> buildTileRequests(tileBounds, zoom) }
-      .consolidate(MAX_OVER_FETCH_PER_TILE)
+    tileBounds: Bounds, zoomRange: IntRange = collection.sources.zoomRange()
+  ) = zoomRange.flatMap { zoom -> buildTileRequests(tileBounds, zoom) }
+    .consolidate(MAX_OVER_FETCH_PER_TILE)
 
   /** Returns requests for tiles in the specified bounds and zoom, one request per tile. */
   private suspend fun buildTileRequests(tileBounds: Bounds, zoom: Int): List<MogTilesRequest> {
@@ -67,14 +65,13 @@ class MogClient(val collection: MogCollection) {
 
   /** Returns a request for the specified tile. */
   private suspend fun buildTileRequest(
-    mogSource: MogSource,
-    tileCoordinates: TileCoordinates
+    mogSource: MogSource, tileCoordinates: TileCoordinates
   ): MogTilesRequest? {
     val mogBounds = mogSource.getMogBoundsForTile(tileCoordinates)
-    val mogUrl = mogSource.getMogUrl(mogBounds)
-    val mogMetadata = getMogMetadata(mogUrl, mogBounds)
+    val mogPath = mogSource.getMogPath(mogBounds)
+    val mogMetadata = getMogMetadata(mogPath, mogBounds)
     val tileMetadata = mogMetadata?.let { getTileMetadata(it, tileCoordinates) }
-    return tileMetadata?.let { MogTilesRequest(mogUrl, listOf(it)) }
+    return tileMetadata?.let { MogTilesRequest(mogMetadata.sourceUrl, listOf(it)) }
   }
 
   /**
@@ -105,8 +102,8 @@ class MogClient(val collection: MogCollection) {
   private suspend fun getMogMetadataForTile(tileCoordinates: TileCoordinates): MogMetadata? {
     val mogSource = collection.getMogSource(tileCoordinates.zoom) ?: return null
     val mogBounds = mogSource.getMogBoundsForTile(tileCoordinates)
-    val mogUrl = mogSource.getMogUrl(mogBounds)
-    return getMogMetadata(mogUrl, mogBounds)
+    val mogPath = mogSource.getMogPath(mogBounds)
+    return getMogMetadata(mogPath, mogBounds)
   }
 
   /**
@@ -114,8 +111,7 @@ class MogClient(val collection: MogCollection) {
    * MOG.
    */
   private fun getTileMetadata(
-    mogMetadata: MogMetadata,
-    tileCoordinates: TileCoordinates
+    mogMetadata: MogMetadata, tileCoordinates: TileCoordinates
   ): MogTileMetadata? {
     val imageMetadata = mogMetadata.getImageMetadata(tileCoordinates.zoom) ?: return null
     val byteRange = imageMetadata.getByteRange(tileCoordinates.x, tileCoordinates.y) ?: return null
@@ -130,52 +126,57 @@ class MogClient(val collection: MogCollection) {
   }
 
   /** Returns metadata for the MOG bounded by the specified web mercator tile. */
-  private suspend fun getMogMetadata(url: String, bounds: TileCoordinates): MogMetadata? =
-    getMogMetadataAsync(url, bounds).await()
+  private suspend fun getMogMetadata(path: String, bounds: TileCoordinates): MogMetadata? =
+    getMogMetadataAsync(path, bounds).await()
 
   /**
-   * Returns a future containing the [MogMetadata] with the specified extent and URL. Metadata is
+   * Returns a future containing the [MogMetadata] with the specified extent and path. Metadata is
    * either loaded from in-memory cache if present, or asynchronously fetched if necessary. The
    * process of checking the cache and creating the new job is synchronized on the current instance
    * to prevent duplicate parallel requests for the same resource.
    */
-  private fun getMogMetadataAsync(url: String, mogBounds: TileCoordinates): Deferred<MogMetadata?> =
-    synchronized(this) { cache.get(url) ?: getMogMetadataFromRemoteAsync(url, mogBounds) }
+  private fun getMogMetadataAsync(
+    path: String, mogBounds: TileCoordinates
+  ): Deferred<MogMetadata?> =
+    synchronized(this) { cache.get(path) ?: getMogMetadataFromRemoteAsync(path, mogBounds) }
 
   /**
-   * Asynchronously fetches and returns the [MogMetadata] with the specified extent and URL. The
+   * Asynchronously fetches and returns the [MogMetadata] with the specified extent and path. The
    * async job is added to the cache immediately to prevent duplicate fetches from other threads.
    */
   private fun getMogMetadataFromRemoteAsync(
-    url: String,
-    mogBounds: TileCoordinates
+    path: String, mogBounds: TileCoordinates
   ): Deferred<MogMetadata?> = runBlocking {
     // TODO: Exceptions get propagated as cancellation of the coroutine. Handle them!
     async {
-        nullIfNotFound { UrlInputStream(url) }?.use { readMogMetadataAndClose(url, mogBounds, it) }
+      Timber.v("Download path: %s", path)
+      var url: String? = path
+      if (path.startsWith("/")) {
+        // Assume relative path should be resolved by the remote storage manager.
+        url = nullIfNotFound { remoteStorageManager.getDownloadUrl(path).toString() }
       }
-      .also { cache.put(url, it) }
+      Timber.v("Download URL: %s", url)
+      if (url == null) {
+       null
+      } else {
+       nullIfNotFound { UrlInputStream(url) }?.use { readMogMetadataAndClose(url, mogBounds, it) }
+      }
+    }.also { cache.put(path, it) }
   }
 
   /** Reads the metadata from the specified input stream. */
   private fun readMogMetadataAndClose(
-    sourceUrl: String,
-    mogBounds: TileCoordinates,
-    inputStream: InputStream
+    sourceUrl: String, mogBounds: TileCoordinates, inputStream: InputStream
   ): MogMetadata {
     val startTimeMillis = System.currentTimeMillis()
-    return inputStream
-      .use { readMogMetadata(sourceUrl, mogBounds, it) }
-      .apply {
-        val elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis
-        Timber.d("Read headers from $sourceUrl in $elapsedTimeMillis ms")
-      }
+    return inputStream.use { readMogMetadata(sourceUrl, mogBounds, it) }.apply {
+      val elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis
+      Timber.d("Read headers from $sourceUrl in $elapsedTimeMillis ms")
+    }
   }
 
   private fun readMogMetadata(
-    sourceUrl: String,
-    mogBounds: TileCoordinates,
-    inputStream: InputStream
+    sourceUrl: String, mogBounds: TileCoordinates, inputStream: InputStream
   ): MogMetadata {
     // Read the MOG headers (not the whole file).
     val reader = MogMetadataReader(SeekableInputStream(inputStream))
@@ -186,8 +187,7 @@ class MogClient(val collection: MogCollection) {
     ifds.forEachIndexed { i, entry ->
       imageMetadata.add(
         MogImageMetadata.fromTiffTags(
-          originTile = mogBounds.originAtZoom(maxZ - i),
-          tiffTagToValue = entry
+          originTile = mogBounds.originAtZoom(maxZ - i), tiffTagToValue = entry
         )
       )
     }
@@ -195,9 +195,8 @@ class MogClient(val collection: MogCollection) {
   }
 }
 
-private inline fun <T> nullIfNotFound(fn: () -> T) =
-  try {
-    fn()
-  } catch (_: FileNotFoundException) {
-    null
-  }
+private inline fun <T> nullIfNotFound(fn: () -> T) = try {
+  fn()
+} catch (_: FileNotFoundException) {
+  null
+}

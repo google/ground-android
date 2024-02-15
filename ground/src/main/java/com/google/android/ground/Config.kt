@@ -55,6 +55,14 @@ object Config {
   const val MAX_MEDIA_UPLOAD_RETRY_COUNT = 5
 
   // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
-  fun getMogSources(url: String) =
-    listOf(MogSource("${url}/world-masked.tif", 0..7), MogSource("${url}/{x}/{y}.tif", 8..14))
+  const val DEFAULT_MOG_ZOOM = 8
+  fun getMogSources(
+    path: String = "/offline-imagery/default/"
+  ) = listOf(
+    MogSource(
+      0..<DEFAULT_MOG_ZOOM, "$path/$DEFAULT_MOG_ZOOM/overview.tif",
+    ), MogSource(
+      DEFAULT_MOG_ZOOM..DEFAULT_MOG_ZOOM, "$path/{z}/{x}/{y}.tif",
+    )
+  )
 }
