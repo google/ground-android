@@ -55,14 +55,15 @@ object Config {
   const val MAX_MEDIA_UPLOAD_RETRY_COUNT = 5
 
   // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
-  const val DEFAULT_MOG_ZOOM = 8
+  const val DEFAULT_MOG_MIN_ZOOM = 8
+  const val DEFAULT_MOG_MAX_ZOOM = 14
   fun getMogSources(
     path: String = "/offline-imagery/default/"
   ) = listOf(
     MogSource(
-      0..<DEFAULT_MOG_ZOOM, "$path/$DEFAULT_MOG_ZOOM/overview.tif",
+      0..<DEFAULT_MOG_MIN_ZOOM, "$path/$DEFAULT_MOG_MIN_ZOOM/overview.tif",
     ), MogSource(
-      DEFAULT_MOG_ZOOM..DEFAULT_MOG_ZOOM, "$path/{z}/{x}/{y}.tif",
+      DEFAULT_MOG_MIN_ZOOM..DEFAULT_MOG_MAX_ZOOM, "$path/$DEFAULT_MOG_MIN_ZOOM/{x}/{y}.tif",
     )
   )
 }

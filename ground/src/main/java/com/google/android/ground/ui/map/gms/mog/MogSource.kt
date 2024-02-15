@@ -24,14 +24,12 @@ package com.google.android.ground.ui.map.gms.mog
  * ```
  *   // Tiles for zoom levels 0-7 (inclusive) contained in a single file:
  *   val world = MogSource(0..7, "https://storage.googleapis.com/my-bucket/world.tif")
- *   or
  *   val world = MogSource(0..7, "/offline-imagery/default/{z}/overview.tif")
  *
  *   // Tiles for zoom levels 8-14 (inclusive) contained in separate files, partitioned by zoom level
  *   // 8 tile extents:
  *   val region = MogSource(8..14, "https://storage.googleapis.com/my-bucket/{x}/{y}.tif")
- *   or
- *   val region = MogSource(8..14, "/offline-imagery/default/{z}{x}/{y}.tif")
+ *   val region = MogSource(8..14, "/offline-imagery/default/{z}/{x}/{y}.tif")
  * ```
  */
 data class MogSource(

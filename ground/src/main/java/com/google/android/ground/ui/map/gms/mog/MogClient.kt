@@ -27,6 +27,11 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
+/** Aliases a relative path or a URL to a MOG. */
+typealias MogPathOrUrl = String
+/** Aliases a fetch-able URL to a MOG. */
+typealias MogUrl = String
+
 /** Client responsible for fetching and caching MOG metadata and image tiles. */
 class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteStorageManager) {
 
@@ -136,7 +141,7 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
    * to prevent duplicate parallel requests for the same resource.
    */
   private fun getMogMetadataAsync(
-    path: String, mogBounds: TileCoordinates
+    path: MogPathOrUrl, mogBounds: TileCoordinates
   ): Deferred<MogMetadata?> =
     synchronized(this) { cache.get(path) ?: getMogMetadataFromRemoteAsync(path, mogBounds) }
 
@@ -145,22 +150,11 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
    * async job is added to the cache immediately to prevent duplicate fetches from other threads.
    */
   private fun getMogMetadataFromRemoteAsync(
-    path: String, mogBounds: TileCoordinates
+    path: MogPathOrUrl, mogBounds: TileCoordinates
   ): Deferred<MogMetadata?> = runBlocking {
     // TODO: Exceptions get propagated as cancellation of the coroutine. Handle them!
     async {
-      Timber.v("Download path: %s", path)
-      var url: String? = path
-      if (path.startsWith("/")) {
-        // Assume relative path should be resolved by the remote storage manager.
-        url = nullIfNotFound { remoteStorageManager.getDownloadUrl(path).toString() }
-      }
-      Timber.v("Download URL: %s", url)
-      if (url == null) {
-       null
-      } else {
-       nullIfNotFound { UrlInputStream(url) }?.use { readMogMetadataAndClose(url, mogBounds, it) }
-      }
+      path.toUrl()?.readMetadata(mogBounds)
     }.also { cache.put(path, it) }
   }
 
@@ -193,6 +187,17 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
     }
     return MogMetadata(sourceUrl, mogBounds, imageMetadata.toList())
   }
+
+  suspend fun MogPathOrUrl.toUrl(): MogUrl? = if (startsWith("/")) {
+    nullIfNotFound {
+      remoteStorageManager.getDownloadUrl(this).toString()
+    }
+  } else this
+
+  fun MogUrl.readMetadata(mogBounds: TileCoordinates): MogMetadata? =
+    nullIfNotFound { UrlInputStream(this) }?.use {
+      readMogMetadataAndClose(this, mogBounds, it)
+    }
 }
 
 private inline fun <T> nullIfNotFound(fn: () -> T) = try {
