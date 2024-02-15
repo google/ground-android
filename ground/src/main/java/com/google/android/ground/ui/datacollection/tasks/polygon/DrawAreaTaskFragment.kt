@@ -19,6 +19,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
@@ -34,6 +35,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.LineString
@@ -137,7 +139,7 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
           modifier = Modifier.width(48.dp).height(48.dp),
         )
       },
-      title = { Text(text = getString(R.string.draw_area_task_instruction)) },
+      title = { StyledText(getText(R.string.draw_area_task_instruction)) },
       onDismissRequest = {}, // Prevent dismissing the dialog by clicking outside
       confirmButton = {}, // Hide confirm button
       dismissButton = {
@@ -147,6 +149,21 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
             color = Color(MaterialColors.getColor(context, R.attr.colorPrimary, "")),
           )
         }
+      },
+    )
+  }
+
+  /**
+   * Supports annotated texts e.g. <b>Hello world</b>
+   */
+  @Composable
+  private fun StyledText(text: CharSequence, modifier: Modifier = Modifier) {
+    AndroidView(
+      modifier = modifier,
+      factory = { context -> TextView(context) },
+      update = {
+        it.text = text
+        it.textSize = 18.toFloat()
       },
     )
   }
