@@ -43,10 +43,6 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
     val bitmap = bitmapUtil.fromVector(R.drawable.ic_vertex)
     CustomCap(BitmapDescriptorFactory.fromBitmap(bitmap))
   }
-  private val endCircleCap by lazy {
-    val bitmap = bitmapUtil.fromVector(R.drawable.ic_endpoint)
-    CustomCap(BitmapDescriptorFactory.fromBitmap(bitmap))
-  }
 
   override fun add(
     map: GoogleMap,
@@ -68,9 +64,6 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
       if (style.vertexStyle == Feature.VertexStyle.CIRCLE) {
         startCap = circleCap
         endCap = circleCap
-      } else if (style.vertexStyle == Feature.VertexStyle.OPEN_ENDED) {
-        startCap = circleCap
-        endCap = endCircleCap
       }
 
       val strokeScale = if (selected) 2f else 1f

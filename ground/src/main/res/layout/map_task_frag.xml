@@ -43,11 +43,10 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="center"
-      android:scaleType="fitCenter"
-      android:scaleX="1"
-      android:scaleY="1"
-      android:src="@drawable/ic_draw_target"
-      android:translationX="1px" />
+      android:scaleType="centerInside"
+      android:scaleX="0.5"
+      android:scaleY="0.5"
+      android:src="@drawable/ic_draw_target" />
     <com.google.android.material.floatingactionbutton.FloatingActionButton
       android:id="@+id/hintIcon"
       android:layout_width="wrap_content"

@@ -171,7 +171,7 @@ internal constructor(
           id = uuidGenerator.generateUuid(),
           type = FeatureType.USER_POLYGON.ordinal,
           geometry = LineString(vertices),
-          style = Feature.Style(strokeColor, Feature.VertexStyle.OPEN_ENDED),
+          style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
           clusterable = false,
           selected = true
         )
