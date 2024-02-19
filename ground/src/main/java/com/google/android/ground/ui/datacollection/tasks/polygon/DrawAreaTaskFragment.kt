@@ -153,9 +153,7 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
     )
   }
 
-  /**
-   * Supports annotated texts e.g. <b>Hello world</b>
-   */
+  /** Supports annotated texts e.g. <b>Hello world</b> */
   @Composable
   private fun StyledText(text: CharSequence, modifier: Modifier = Modifier) {
     AndroidView(
