@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "coordinates.schema.json",
+  "$comment": "Longitude (X) and latitude (Y), respectively.",
+  "title": "Coordinates",
+  "type": "array",
+  "items": {
+    "type": "number"
+  },
+  "minLength": 2,
+  "maxLength": 2
+}

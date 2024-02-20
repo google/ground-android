@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "multi-polygon.schema.json",
+  "title": "MultiPolygon",
+  "required": [
+    "type",
+    "shell"
+  ],
+  "properties": {
+    "type": {
+      "const": "MultiPolygon",
+      "default": "MultiPolygon"
+    },
+    "polygons": {
+      "type": "array",
+      "items": {
+        "$ref": "polygon-coordinates.schema.json"
+      }
+    }
+  }
+}
