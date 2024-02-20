@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://groundplatform.org/schema/geometry/nested-coordinates.schema.json",
+  "$id": "schema:geometry/nested-coordinates",
   "$comment": "Converted to GeoPoint in Firestore representation as an optimization.",
   "title": "Coordinates",
   "type": "object",

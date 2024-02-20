@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://groundplatform.org/schema/geometry/nested-polygon.schema.json",
+  "$id": "schema:geometry/nested-polygon",
+  "$ref": "schema:geometry/nested-geometry",
   "title": "Polygon",
   "type": "object",
   "required": [
@@ -15,12 +16,12 @@
       ]
     },
     "shell": {
-      "$ref": "https://groundplatform.org/schema/geometry/nested-linear-ring.schema.json"
+      "$ref": "schema:geometry/nested-linear-ring"
     },
     "holes": {
       "type": "array",
       "items": {
-        "$ref": "https://groundplatform.org/schema/geometry/nested-linear-ring.schema.json"
+        "$ref": "schema:geometry/nested-linear-ring"
       }
     }
   }

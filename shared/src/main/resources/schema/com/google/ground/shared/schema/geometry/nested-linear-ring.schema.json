@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://groundplatform.org/schema/geometry/nested-linear-ring.schema.json",
+  "$id": "schema:geometry/nested-linear-ring",
+  "$ref": "schema:geometry/nested-geometry",
   "title": "Linear Ring",
   "type": "object",
   "required": [
@@ -10,7 +11,7 @@
     "coordinates": {
       "type": "array",
       "items": {
-        "$ref": "https://groundplatform.org/schema/geometry/nested-coordinates.schema.json"
+        "$ref": "schema:geometry/nested-coordinates"
       }
     }
   }

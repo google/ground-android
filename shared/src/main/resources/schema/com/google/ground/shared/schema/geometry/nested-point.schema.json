@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://groundplatform.org/schema/geometry/nested-point.schema.json",
+  "$id": "schema:geometry/nested-point",
+  "$ref": "schema:geometry/nested-geometry",
   "title": "Point",
   "type": "object",
   "required": [
@@ -15,7 +16,7 @@
       ]
     },
     "coordinates": {
-      "$ref": "https://groundplatform.org/schema/geometry/nested-coordinates.schema.json"
+      "$ref": "schema:geometry/nested-coordinates"
     }
   }
 }

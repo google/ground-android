@@ -1,9 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://groundplatform.org/schema/geometry/nested-geometry.schema.json",
+  "$id": "schema:geometry/nested-geometry",
+  "type": "object",
   "title": "Geometry",
-  "oneOf": [
-    { "$ref": "https://groundplatform.org/schema/geometry/nested-point.schema.json" },
-    { "$ref": "https://groundplatform.org/schema/geometry/nested-polygon.schema.json" }
-  ]
+  "additionalProperties": false,
+  "unevaluatedProperties": false
 }
