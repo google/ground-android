@@ -12,7 +12,7 @@
       "default": "Point"
     },
     "coordinates": {
-      "$ref": "coordinates.schema.json"
+      "$ref": "geo-point.schema.json"
     }
   }
 }

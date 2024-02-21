@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "geo-point.schema.json",
+  "$comment": "Firestore GeoPoint",
+  "title": "GeoPoint",
+  "type": "object",
+  "required": [
+    "latitude",
+    "longitude"
+  ],
+  "properties": {
+    "latitude": {
+      "type": "number"
+    },
+    "longitude": {
+      "type": "number"
+    }
+  }
+}

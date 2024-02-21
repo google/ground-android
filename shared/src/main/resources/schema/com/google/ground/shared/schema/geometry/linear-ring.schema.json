@@ -4,6 +4,6 @@
   "title": "LinearRing",
   "type": "array",
   "items": {
-    "$ref": "coordinates.schema.json"
+    "$ref": "geo-point.schema.json"
   }
 }
