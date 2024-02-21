@@ -214,7 +214,7 @@ class NavigationDrawerItemClickTest(
           "Clicking 'change survey' should navigate to fragment"
         ),
         arrayOf(
-          "History",
+          "Sync Status",
           TEST_SURVEY_WITHOUT_OFFLINE_TILES,
           HomeScreenFragmentDirections.showSyncStatus(),
           true,
