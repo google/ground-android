@@ -19,6 +19,7 @@ import com.google.android.ground.Config
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
+import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.ui.map.Bounds
@@ -56,7 +57,8 @@ constructor(
   private val surveyRepository: SurveyRepository,
   private val fileUtil: FileUtil,
   private val geocodingManager: GeocodingManager,
-  private val offlineUuidGenerator: OfflineUuidGenerator
+  private val offlineUuidGenerator: OfflineUuidGenerator,
+  private val remoteStorageManager: RemoteStorageManager,
 ) {
 
   private suspend fun addOfflineArea(bounds: Bounds, zoomRange: IntRange) {
@@ -138,7 +140,7 @@ constructor(
   private fun getMogClient(): MogClient {
     val mogCollection = MogCollection(getMogSources())
     // TODO(#1754): Create a factory and inject rather than instantiating here. Add tests.
-    return MogClient(mogCollection)
+    return MogClient(mogCollection, remoteStorageManager)
   }
 
   private fun getMogSources(): List<MogSource> = Config.getMogSources(getFirstTileSourceUrl())
