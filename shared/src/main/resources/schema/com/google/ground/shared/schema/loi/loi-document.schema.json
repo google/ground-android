@@ -15,7 +15,12 @@
     },
     "properties": {
       "type": "object",
-      "x-kt-type": "map"
+      "additionalProperties": {
+        "type": [
+          "number",
+          "string"
+        ]
+      }
     },
     "submissionCount": {
       "type": "integer"
