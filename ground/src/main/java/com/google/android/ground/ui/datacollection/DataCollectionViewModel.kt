@@ -26,6 +26,7 @@ import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.LocationOfInterestRepository
+import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
@@ -74,18 +75,18 @@ internal constructor(
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   private val savedStateHandle: SavedStateHandle,
+  private val submissionRepository: SubmissionRepository,
   locationOfInterestRepository: LocationOfInterestRepository,
   surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
-  private val jobId: String? = savedStateHandle[TASK_JOB_ID_KEY]
+  private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
   /** True iff the user is expected to produce a new LOI in the current data collection flow. */
   private val isAddLoiFlow = loiId == null
 
   private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
-  private val job: Job =
-    activeSurvey.getJob(requireNotNull(jobId)) ?: error("couldn't retrieve job for $jobId")
+  private val job: Job = activeSurvey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
   // LOI creation task is included only on "new data collection site" flow..
   val tasks: List<Task> =
     if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
@@ -170,8 +171,8 @@ internal constructor(
     if (!isLastPosition(position)) {
       updateCurrentPosition(position + 1)
     } else {
-      val deltas = data.map { (task, value) -> ValueDelta(task.id, task.type, value) }
-      saveChanges(deltas)
+      clearDraft()
+      saveChanges(getDeltas())
 
       // Move to home screen and display a confirmation dialog after that.
       navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
@@ -182,9 +183,29 @@ internal constructor(
     }
   }
 
+  private fun getDeltas(): List<ValueDelta> =
+    data.map { (task, value) -> ValueDelta(task.id, task.type, value) }
+
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(deltas: List<ValueDelta>) {
     externalScope.launch(ioDispatcher) { submitDataUseCase.invoke(loiId, job, surveyId, deltas) }
+  }
+
+  /** Persists the collected data as draft to local storage. */
+  private fun saveDraft() {
+    externalScope.launch(ioDispatcher) {
+      submissionRepository.saveDraftSubmission(
+        jobId = jobId,
+        loiId = loiId,
+        surveyId = surveyId,
+        deltas = getDeltas(),
+      )
+    }
+  }
+
+  /** Clears all persisted drafts from local storage. */
+  private fun clearDraft() {
+    externalScope.launch(ioDispatcher) { submissionRepository.deleteDraftSubmission() }
   }
 
   /** Returns the position of the task fragment visible to the user. */
@@ -193,6 +214,8 @@ internal constructor(
   /** Displays the task at the given position to the user. */
   fun updateCurrentPosition(position: Int) {
     savedStateHandle[TASK_POSITION_KEY] = position
+    clearDraft()
+    saveDraft()
   }
 
   /** Returns true if the given task position is last. */

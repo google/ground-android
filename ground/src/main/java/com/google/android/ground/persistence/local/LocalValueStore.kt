@@ -92,6 +92,12 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
       preferences.edit().putBoolean(DRAW_AREA_INSTRUCTIONS_SHOWN, value).apply()
     }
 
+  var draftSubmissionId: String?
+    get() = allowThreadDiskReads { preferences.getString(DRAFT_SUBMISSION_ID, null) }
+    set(value) = allowThreadDiskReads {
+      preferences.edit().putString(DRAFT_SUBMISSION_ID, value).apply()
+    }
+
   /** Removes all values stored in the local store. */
   fun clear() = allowThreadDiskWrites { preferences.edit().clear().apply() }
 
@@ -128,5 +134,6 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     const val LOCATION_LOCK_ENABLED = "location_lock_enabled"
     const val OFFLINE_MAP_IMAGERY = "offline_map_imagery"
     const val DRAW_AREA_INSTRUCTIONS_SHOWN = "draw_area_instructions_shown"
+    const val DRAFT_SUBMISSION_ID = "draft_submission_id"
   }
 }
