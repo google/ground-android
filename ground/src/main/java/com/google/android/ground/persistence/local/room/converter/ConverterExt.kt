@@ -27,6 +27,7 @@ import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.model.submission.DraftSubmission
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.SubmissionData
 import com.google.android.ground.model.task.MultipleChoice
@@ -437,3 +438,27 @@ fun User.toLocalDataStoreObject() =
 
 fun UserEntity.toModelObject() =
   User(id = id, email = email, displayName = displayName, photoUrl = photoUrl)
+
+@Throws(LocalDataConsistencyException::class)
+fun DraftSubmissionEntity.toModelObject(survey: Survey): DraftSubmission {
+  val job =
+    survey.getJob(jobId)
+      ?: throw LocalDataConsistencyException("Unknown jobId in submission mutation $id")
+
+  return DraftSubmission(
+    id = id,
+    jobId = jobId,
+    loiId = loiId,
+    surveyId = surveyId,
+    deltas = SubmissionDeltasConverter.fromString(job, deltas),
+  )
+}
+
+fun DraftSubmission.toLocalDataStoreObject() =
+  DraftSubmissionEntity(
+    id = id,
+    jobId = jobId,
+    loiId = loiId,
+    surveyId = surveyId,
+    deltas = SubmissionDeltasConverter.toString(deltas),
+  )

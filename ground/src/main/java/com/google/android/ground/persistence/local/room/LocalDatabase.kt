@@ -38,6 +38,7 @@ import com.google.android.ground.persistence.local.room.fields.*
 @Database(
   entities =
     [
+      DraftSubmissionEntity::class,
       LocationOfInterestEntity::class,
       LocationOfInterestMutationEntity::class,
       TaskEntity::class,
@@ -69,6 +70,7 @@ import com.google.android.ground.persistence.local.room.fields.*
   LoiPropertiesMapConverter::class,
 )
 abstract class LocalDatabase : RoomDatabase() {
+  abstract fun draftSubmissionDao(): DraftSubmissionDao
   abstract fun locationOfInterestDao(): LocationOfInterestDao
   abstract fun locationOfInterestMutationDao(): LocationOfInterestMutationDao
   abstract fun taskDao(): TaskDao

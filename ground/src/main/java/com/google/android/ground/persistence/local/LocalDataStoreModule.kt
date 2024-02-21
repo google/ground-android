@@ -44,6 +44,11 @@ abstract class LocalDataStoreModule {
 
   companion object {
     @Provides
+    fun draftSubmissionDao(localDatabase: LocalDatabase): DraftSubmissionDao {
+      return localDatabase.draftSubmissionDao()
+    }
+
+    @Provides
     fun locationOfInterestDao(localDatabase: LocalDatabase): LocationOfInterestDao {
       return localDatabase.locationOfInterestDao()
     }
