@@ -60,6 +60,12 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     progressBar = binding.progressBar
     guideline = binding.progressBarGuideline
     getAbstractActivity().setSupportActionBar(binding.dataCollectionToolbar)
+
+    binding.dataCollectionToolbar.setNavigationOnClickListener {
+      viewModel.clearDraft()
+      navigator.navigateUp()
+    }
+
     return binding.root
   }
 
@@ -119,6 +125,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     if (viewPager.currentItem == 0) {
       // If the user is currently looking at the first step, allow the system to handle the
       // Back button. This calls finish() on this activity and pops the back stack.
+      viewModel.clearDraft()
       false
     } else {
       // Otherwise, select the previous step.

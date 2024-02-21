@@ -204,7 +204,7 @@ internal constructor(
   }
 
   /** Clears all persisted drafts from local storage. */
-  private fun clearDraft() {
+  fun clearDraft() {
     externalScope.launch(ioDispatcher) { submissionRepository.deleteDraftSubmission() }
   }
 
@@ -214,6 +214,9 @@ internal constructor(
   /** Displays the task at the given position to the user. */
   fun updateCurrentPosition(position: Int) {
     savedStateHandle[TASK_POSITION_KEY] = position
+
+    // TODO(Shobhit): This currently saves the data to draft on every task position change. Consider
+    //  a less aggressive approach.
     clearDraft()
     saveDraft()
   }
