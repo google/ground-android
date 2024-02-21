@@ -60,10 +60,7 @@ class MogSourceTest {
 
   @Test
   fun `getMogBoundsForTile returnsScaledCoordinates when zoom is MoreThanMinZoom`() {
-    assertThat(mogSource.getMogBoundsForTile(TileCoordinates(10, 20, 6))).isEqualTo(
-      TileCoordinates(
-        5, 10, 5
-      )
-    )
+    assertThat(mogSource.getMogBoundsForTile(TileCoordinates(10, 20, 6)))
+      .isEqualTo(TileCoordinates(5, 10, 5))
   }
 }

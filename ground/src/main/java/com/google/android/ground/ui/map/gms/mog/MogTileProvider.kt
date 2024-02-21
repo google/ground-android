@@ -24,7 +24,8 @@ import timber.log.Timber
 
 // TODO(#1596): Add unit tests.
 /** Fetches and returns MOG tiles to Maps SDK for display as a tile overlay. */
-class MogTileProvider(collection: MogCollection, remoteStorageManager: RemoteStorageManager) : TileProvider {
+class MogTileProvider(collection: MogCollection, remoteStorageManager: RemoteStorageManager) :
+  TileProvider {
   private val client = MogClient(collection, remoteStorageManager)
 
   override fun getTile(x: Int, y: Int, zoom: Int): Tile? = runBlocking {

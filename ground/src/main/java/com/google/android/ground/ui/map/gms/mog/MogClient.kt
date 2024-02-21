@@ -56,9 +56,12 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
    * [MogSource.maxZoom]).
    */
   suspend fun buildTilesRequests(
-    tileBounds: Bounds, zoomRange: IntRange = collection.sources.zoomRange()
-  ) = zoomRange.flatMap { zoom -> buildTileRequests(tileBounds, zoom) }
-    .consolidate(MAX_OVER_FETCH_PER_TILE)
+    tileBounds: Bounds,
+    zoomRange: IntRange = collection.sources.zoomRange()
+  ) =
+    zoomRange
+      .flatMap { zoom -> buildTileRequests(tileBounds, zoom) }
+      .consolidate(MAX_OVER_FETCH_PER_TILE)
 
   /** Returns requests for tiles in the specified bounds and zoom, one request per tile. */
   private suspend fun buildTileRequests(tileBounds: Bounds, zoom: Int): List<MogTilesRequest> {
@@ -70,7 +73,8 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
 
   /** Returns a request for the specified tile. */
   private suspend fun buildTileRequest(
-    mogSource: MogSource, tileCoordinates: TileCoordinates
+    mogSource: MogSource,
+    tileCoordinates: TileCoordinates
   ): MogTilesRequest? {
     val mogBounds = mogSource.getMogBoundsForTile(tileCoordinates)
     val mogPath = mogSource.getMogPath(mogBounds)
@@ -116,7 +120,8 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
    * MOG.
    */
   private fun getTileMetadata(
-    mogMetadata: MogMetadata, tileCoordinates: TileCoordinates
+    mogMetadata: MogMetadata,
+    tileCoordinates: TileCoordinates
   ): MogTileMetadata? {
     val imageMetadata = mogMetadata.getImageMetadata(tileCoordinates.zoom) ?: return null
     val byteRange = imageMetadata.getByteRange(tileCoordinates.x, tileCoordinates.y) ?: return null
@@ -141,7 +146,8 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
    * to prevent duplicate parallel requests for the same resource.
    */
   private fun getMogMetadataAsync(
-    path: MogPathOrUrl, mogBounds: TileCoordinates
+    path: MogPathOrUrl,
+    mogBounds: TileCoordinates
   ): Deferred<MogMetadata?> =
     synchronized(this) { cache.get(path) ?: getMogMetadataFromRemoteAsync(path, mogBounds) }
 
@@ -150,16 +156,17 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
    * async job is added to the cache immediately to prevent duplicate fetches from other threads.
    */
   private fun getMogMetadataFromRemoteAsync(
-    path: MogPathOrUrl, mogBounds: TileCoordinates
+    path: MogPathOrUrl,
+    mogBounds: TileCoordinates
   ): Deferred<MogMetadata?> = runBlocking {
     // TODO: Exceptions get propagated as cancellation of the coroutine. Handle them!
-    async {
-      path.toUrl()?.readMetadata(mogBounds)
-    }.also { cache.put(path, it) }
+    async { path.toUrl()?.readMetadata(mogBounds) }.also { cache.put(path, it) }
   }
 
   private fun readMogMetadata(
-    sourceUrl: String, mogBounds: TileCoordinates, inputStream: InputStream
+    sourceUrl: String,
+    mogBounds: TileCoordinates,
+    inputStream: InputStream
   ): MogMetadata {
     // Read the MOG headers (not the whole file).
     val reader = MogMetadataReader(SeekableInputStream(inputStream))
@@ -170,37 +177,40 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
     ifds.forEachIndexed { i, entry ->
       imageMetadata.add(
         MogImageMetadata.fromTiffTags(
-          originTile = mogBounds.originAtZoom(maxZ - i), tiffTagToValue = entry
+          originTile = mogBounds.originAtZoom(maxZ - i),
+          tiffTagToValue = entry
         )
       )
     }
     return MogMetadata(sourceUrl, mogBounds, imageMetadata.toList())
   }
 
-  private suspend fun MogPathOrUrl.toUrl(): MogUrl? = if (startsWith("/")) {
-    nullIfNotFound {
-      remoteStorageManager.getDownloadUrl(this).toString()
-    }
-  } else this
+  private suspend fun MogPathOrUrl.toUrl(): MogUrl? =
+    if (startsWith("/")) {
+      nullIfNotFound { remoteStorageManager.getDownloadUrl(this).toString() }
+    } else this
 
   private fun MogUrl.readMetadata(mogBounds: TileCoordinates): MogMetadata? =
-    nullIfNotFound { UrlInputStream(this) }?.use {
-      this.readMogMetadataAndClose(mogBounds, it)
-    }
+    nullIfNotFound { UrlInputStream(this) }?.use { this.readMogMetadataAndClose(mogBounds, it) }
 
   /** Reads the metadata from the specified input stream. */
-  private fun MogUrl.readMogMetadataAndClose(mogBounds: TileCoordinates, inputStream: InputStream
+  private fun MogUrl.readMogMetadataAndClose(
+    mogBounds: TileCoordinates,
+    inputStream: InputStream
   ): MogMetadata {
     val startTimeMillis = System.currentTimeMillis()
-    return inputStream.use { readMogMetadata(this, mogBounds, it) }.apply {
-      val elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis
-      Timber.d("Read headers from $sourceUrl in $elapsedTimeMillis ms")
-    }
+    return inputStream
+      .use { readMogMetadata(this, mogBounds, it) }
+      .apply {
+        val elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis
+        Timber.d("Read headers from $sourceUrl in $elapsedTimeMillis ms")
+      }
   }
 }
 
-private inline fun <T> nullIfNotFound(fn: () -> T) = try {
-  fn()
-} catch (_: FileNotFoundException) {
-  null
-}
+private inline fun <T> nullIfNotFound(fn: () -> T) =
+  try {
+    fn()
+  } catch (_: FileNotFoundException) {
+    null
+  }

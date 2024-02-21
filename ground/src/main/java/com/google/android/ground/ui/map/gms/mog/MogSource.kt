@@ -17,8 +17,8 @@
 package com.google.android.ground.ui.map.gms.mog
 
 /**
- * Provides URLs or relative paths of one or more MOGs partitioned by web mercator tile extents at a particular range
- * of zoom level. Relative paths are assumed to be managed by RemoteStorageManager.
+ * Provides URLs or relative paths of one or more MOGs partitioned by web mercator tile extents at a
+ * particular range of zoom level. Relative paths are assumed to be managed by RemoteStorageManager.
  *
  * Examples:
  * ```
@@ -48,8 +48,10 @@ data class MogSource(
     check(zoomRange.first == mogBounds.zoom) {
       "Bounds zoom ${mogBounds.zoom} must match source min zoom ${zoomRange.first}"
     }
-    return pathTemplate.replace("{z}", mogBounds.zoom.toString())
-      .replace("{x}", mogBounds.x.toString()).replace("{y}", mogBounds.y.toString())
+    return pathTemplate
+      .replace("{z}", mogBounds.zoom.toString())
+      .replace("{x}", mogBounds.x.toString())
+      .replace("{y}", mogBounds.y.toString())
   }
 }
 

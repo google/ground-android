@@ -57,13 +57,15 @@ object Config {
   // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
   const val DEFAULT_MOG_MIN_ZOOM = 8
   const val DEFAULT_MOG_MAX_ZOOM = 14
-  fun getMogSources(
-    path: String = "/offline-imagery/default/"
-  ) = listOf(
-    MogSource(
-      0..<DEFAULT_MOG_MIN_ZOOM, "$path/$DEFAULT_MOG_MIN_ZOOM/overview.tif",
-    ), MogSource(
-      DEFAULT_MOG_MIN_ZOOM..DEFAULT_MOG_MAX_ZOOM, "$path/$DEFAULT_MOG_MIN_ZOOM/{x}/{y}.tif",
+  fun getMogSources(path: String = "/offline-imagery/default/") =
+    listOf(
+      MogSource(
+        0 ..< DEFAULT_MOG_MIN_ZOOM,
+        "$path/$DEFAULT_MOG_MIN_ZOOM/overview.tif",
+      ),
+      MogSource(
+        DEFAULT_MOG_MIN_ZOOM..DEFAULT_MOG_MAX_ZOOM,
+        "$path/$DEFAULT_MOG_MIN_ZOOM/{x}/{y}.tif",
+      )
     )
-  )
 }
