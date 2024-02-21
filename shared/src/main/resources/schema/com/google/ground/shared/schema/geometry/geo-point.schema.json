@@ -15,5 +15,6 @@
     "longitude": {
       "type": "number"
     }
-  }
+  },
+  "additionalProperties": false
 }

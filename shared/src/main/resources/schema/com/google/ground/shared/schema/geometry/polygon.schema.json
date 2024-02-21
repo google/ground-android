@@ -2,9 +2,10 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "polygon.schema.json",
   "title": "Polygon",
+  "type": "object",
   "required": [
     "type",
-    "shell"
+    "coordinates"
   ],
   "properties": {
     "type": {
@@ -14,5 +15,6 @@
     "coordinates": {
       "$ref": "polygon-coordinates.schema.json"
     }
-  }
+  },
+  "additionalProperties": false
 }

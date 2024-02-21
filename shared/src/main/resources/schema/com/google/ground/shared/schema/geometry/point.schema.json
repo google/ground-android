@@ -14,5 +14,6 @@
     "coordinates": {
       "$ref": "geo-point.schema.json"
     }
-  }
+  },
+  "additionalProperties": false
 }
