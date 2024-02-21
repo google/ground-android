@@ -3,6 +3,10 @@
   "$id": "loi-document.schema.json",
   "title": "Location of Interest",
   "type": "object",
+  "required": [
+    "jobId",
+    "geometry"
+  ],
   "properties": {
     "jobId": {
       "type": "string"
@@ -26,8 +30,5 @@
       "type": "integer"
     }
   },
-  "required": [
-    "jobId",
-    "geometry"
-  ]
+  "additionalProperties": false
 }
