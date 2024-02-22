@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2018 Google LLC
+  ~ Copyright 2024 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@
       android:scaleType="centerInside"
       android:scaleX="0.5"
       android:scaleY="0.5"
-      android:src="@drawable/ic_draw_target" />
+      android:src="@drawable/ic_plus_sign" />
     <com.google.android.material.floatingactionbutton.FloatingActionButton
       android:id="@+id/hintIcon"
       android:layout_width="wrap_content"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.LocalValueStore
@@ -31,7 +32,6 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
-import com.google.android.ground.ui.util.ColorUtil
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,7 +46,6 @@ internal constructor(
   private val localValueStore: LocalValueStore,
   private val uuidGenerator: OfflineUuidGenerator,
   private val resources: Resources,
-  private val colorUtil: ColorUtil,
 ) : AbstractTaskViewModel(resources) {
 
   /** Polygon [Feature] being drawn by the user. */
@@ -70,7 +69,7 @@ internal constructor(
 
   override fun initialize(job: Job, task: Task, value: Value?) {
     super.initialize(job, task, value)
-    strokeColor = colorUtil.getColor(R.color.drawAreaLineStringStrokeColor)
+    strokeColor = job.getDefaultColor()
   }
 
   fun isMarkedComplete(): Boolean = isMarkedComplete

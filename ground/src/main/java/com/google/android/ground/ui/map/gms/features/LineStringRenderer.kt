@@ -40,7 +40,7 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
   // initialization.
   private val defaultStrokeWidth by lazy { resources.getDimension(R.dimen.line_geometry_width) }
   private val circleCap by lazy {
-    val bitmap = bitmapUtil.fromVector(R.drawable.ic_vertex)
+    val bitmap = bitmapUtil.fromVector(R.drawable.ic_circle_marker)
     CustomCap(BitmapDescriptorFactory.fromBitmap(bitmap))
   }
 
