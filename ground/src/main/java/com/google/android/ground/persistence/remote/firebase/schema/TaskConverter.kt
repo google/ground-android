@@ -35,6 +35,7 @@ internal object TaskConverter {
     // Default index to -1 to degrade gracefully on older dev db instances and surveys.
     val multipleChoice: MultipleChoice? =
       if (type == Task.Type.MULTIPLE_CHOICE) toMultipleChoice(em) else null
+    Timber.v("task condition: ", em.condition)
     return Task(
       id,
       em.index ?: -1,

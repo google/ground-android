@@ -15,6 +15,8 @@
  */
 package com.google.android.ground.model.task
 
+import timber.log.Timber
+
 /** The task ID. */
 typealias TaskId = String
 /** The selected option ID for each task. */
@@ -45,6 +47,7 @@ constructor(
 
   /** Given the user's task selections, determine whether the condition is fulfilled. */
   fun fulfilledBy(taskSelections: TaskSelections): Boolean {
+    Timber.v("taskSelections: %s", taskSelections)
     return when (matchType) {
       MatchType.MATCH_ANY -> expressions.any { it.fulfilledBy(taskSelections) }
       MatchType.MATCH_ALL -> expressions.all { it.fulfilledBy(taskSelections) }

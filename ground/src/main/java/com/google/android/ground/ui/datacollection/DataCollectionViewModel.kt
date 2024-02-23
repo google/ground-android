@@ -22,6 +22,7 @@ import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.submission.SubmitDataUseCase
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Condition
@@ -206,6 +207,7 @@ class DataCollectionViewModel
       tasks.subList(startIndex, tasks.size)
     }.let { tasks ->
       tasks.asSequence().filter {
+        Timber.v("condition: %s", it.condition)
         it.condition == null || evaluateCondition(it.condition)
       }
     }
@@ -236,9 +238,15 @@ class DataCollectionViewModel
     } == getTaskSequence().last().id
 
   /** Evaluates the task condition against the current inputs. */
-  private fun evaluateCondition(condition: Condition): Boolean {
-    return true
-  }
+  private fun evaluateCondition(condition: Condition): Boolean = condition.fulfilledBy(
+    data.mapNotNull { (task, value) ->
+      if (value is MultipleChoiceResponse) {
+        task.id to value.selectedOptionIds.toSet()
+      } else {
+        null
+      }
+    }.toMap()
+  )
 
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"
