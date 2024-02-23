@@ -1,19 +1,20 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "schema:geometry/nested-coordinates",
-  "$comment": "Converted to GeoPoint in Firestore representation as an optimization.",
-  "title": "Coordinates",
+  "$id": "geo-point.schema.json",
+  "$comment": "Firestore GeoPoint",
+  "title": "GeoPoint",
   "type": "object",
   "required": [
     "latitude",
     "longitude"
   ],
   "properties": {
-    "x": {
+    "latitude": {
       "type": "number"
     },
-    "y": {
+    "longitude": {
       "type": "number"
     }
-  }
+  },
+  "additionalProperties": false
 }

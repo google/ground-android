@@ -1,9 +1,3 @@
 {
-  "customClasses": {
-    "extension": {
-      "x-kt-type": {
-        "map": "com.google.ground.shared.schema.Map"
-      }
-    }
-  }
+  "additionalPropertiesOption": "strict"
 }

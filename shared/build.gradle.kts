@@ -39,7 +39,7 @@ dependencies { implementation("org.jetbrains.kotlin", "kotlin-stdlib", "1.9.20")
 
 buildscript {
   repositories { mavenCentral() }
-  dependencies { classpath("net.pwall.json:json-kotlin-gradle:0.100") }
+  dependencies { classpath("net.pwall.json:json-kotlin-gradle:0.102") }
 }
 
 apply<JSONSchemaCodegenPlugin>()

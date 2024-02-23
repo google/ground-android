@@ -1,8 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "schema:loi/loi-document",
+  "$id": "loi-document.schema.json",
   "title": "Location of Interest",
   "type": "object",
+  "required": [
+    "jobId",
+    "geometry"
+  ],
   "properties": {
     "jobId": {
       "type": "string"
@@ -11,15 +15,20 @@
       "type": "string"
     },
     "geometry": {
-      "$ref": "schema:geometry/nested-geometry"
+      "$ref": "../geometry/geometry.schema.json"
     },
     "properties": {
       "type": "object",
-      "x-kt-type": "map"
+      "additionalProperties": {
+        "type": [
+          "number",
+          "string"
+        ]
+      }
     },
     "submissionCount": {
       "type": "integer"
     }
   },
-  "required": ["jobId", "geometry"]
+  "additionalProperties": false
 }
