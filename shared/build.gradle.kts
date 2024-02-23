@@ -45,8 +45,7 @@ buildscript {
 apply<JSONSchemaCodegenPlugin>()
 
 configure<JSONSchemaCodegen> {
-  // These must be specified since plugins defaults are relative to project root.
-  configFile.set(file("src/main/resources/schema/config.json")) // if not in the default location
-  inputs { inputFile(file("src/main/resources/schema")) }
+  inputs { inputFile(file("../../ground-platform/schema/src")) }
   outputDir.set(file("build/generated-sources/kotlin"))
+  packageName.set("com.google.ground.schema")
 }
