@@ -15,12 +15,13 @@
  */
 package com.google.android.ground.model.task
 
-import kotlin.test.assertTrue
-import kotlin.test.assertFalse
 import org.junit.Test
-import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 typealias ExpressionTestCase = List<Pair<Boolean, Pair<String, Set<String>>>>
+
 typealias ConditionTestCase = List<Pair<Boolean, TaskSelections>>
 
 const val TASK_A_ID = "task-A-id-123"
@@ -32,23 +33,27 @@ const val TASK_B_ID = "task-B-id-123"
 const val TASK_B_OPTION_X = "task-B-option-id-x"
 const val TASK_B_OPTION_Y = "task-B-option-id-y"
 
-val TASK_A_EXPRESSION = Expression(
-  expressionType = Expression.ExpressionType.ANY_OF_SELECTED,
-  taskId = TASK_A_ID,
-  optionIds = setOf(TASK_A_OPTION_X)
-)
-val Task_B_EXPRESSION = Expression(
-  expressionType = Expression.ExpressionType.ANY_OF_SELECTED,
-  taskId = TASK_B_ID,
-  optionIds = setOf(TASK_B_OPTION_X)
-)
+val TASK_A_EXPRESSION =
+  Expression(
+    expressionType = Expression.ExpressionType.ANY_OF_SELECTED,
+    taskId = TASK_A_ID,
+    optionIds = setOf(TASK_A_OPTION_X)
+  )
+val Task_B_EXPRESSION =
+  Expression(
+    expressionType = Expression.ExpressionType.ANY_OF_SELECTED,
+    taskId = TASK_B_ID,
+    optionIds = setOf(TASK_B_OPTION_X)
+  )
 
 class ConditionTest {
   @Test
   fun `Condition of type MATCH_ANY works`() {
-    val condition = Condition(
-      matchType = Condition.MatchType.MATCH_ALL, listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION)
-    )
+    val condition =
+      Condition(
+        matchType = Condition.MatchType.MATCH_ALL,
+        listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION)
+      )
     listOf(
       // Expressions evaluate to [true, true].
       true to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_X), TASK_B_ID to setOf(TASK_B_OPTION_X)),
@@ -58,14 +63,17 @@ class ConditionTest {
       false to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_Y), TASK_B_ID to setOf(TASK_B_OPTION_X)),
       // Expressions evaluate to [false, false].
       false to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_Y), TASK_B_ID to setOf(TASK_B_OPTION_Y)),
-    ).test(condition)
+    )
+      .test(condition)
   }
 
   @Test
   fun `Condition of type MATCH_ALL works`() {
-    val condition = Condition(
-      matchType = Condition.MatchType.MATCH_ALL, listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION)
-    )
+    val condition =
+      Condition(
+        matchType = Condition.MatchType.MATCH_ALL,
+        listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION)
+      )
     listOf(
       // Expressions evaluate to [true, true].
       true to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_X), TASK_B_ID to setOf(TASK_B_OPTION_X)),
@@ -75,14 +83,17 @@ class ConditionTest {
       false to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_Y), TASK_B_ID to setOf(TASK_B_OPTION_X)),
       // Expressions evaluate to [false, false].
       false to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_Y), TASK_B_ID to setOf(TASK_B_OPTION_Y)),
-    ).test(condition)
+    )
+      .test(condition)
   }
 
   @Test
   fun `Condition of type MATCH_ONE works`() {
-    val condition = Condition(
-      matchType = Condition.MatchType.MATCH_ONE, listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION)
-    )
+    val condition =
+      Condition(
+        matchType = Condition.MatchType.MATCH_ONE,
+        listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION)
+      )
     listOf(
       // Expressions evaluate to [true, true].
       false to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_X), TASK_B_ID to setOf(TASK_B_OPTION_X)),
@@ -92,73 +103,87 @@ class ConditionTest {
       true to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_Y), TASK_B_ID to setOf(TASK_B_OPTION_X)),
       // Expressions evaluate to [false, false].
       false to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_Y), TASK_B_ID to setOf(TASK_B_OPTION_Y)),
-    ).test(condition)
+    )
+      .test(condition)
   }
 
   @Test
   fun `Condition of type UNKNOWN throws an error`() {
-    val condition = Condition(
-      matchType = Condition.MatchType.UNKNOWN, listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION)
-    )
-    assertFails { condition.fulfilledBy(mapOf(TASK_A_ID to setOf(TASK_A_OPTION_X))) }
+    val condition =
+      Condition(
+        matchType = Condition.MatchType.UNKNOWN,
+        listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION)
+      )
+    assertFailsWith<IllegalArgumentException> {
+      condition.fulfilledBy(mapOf(TASK_A_ID to setOf(TASK_A_OPTION_X)))
+    }
   }
 
   @Test
   fun `Expression of type ANY_OF_SELECTED works`() {
-    val expression = Expression(
-      expressionType = Expression.ExpressionType.ANY_OF_SELECTED,
-      taskId = TASK_A_ID,
-      optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)
-    )
+    val expression =
+      Expression(
+        expressionType = Expression.ExpressionType.ANY_OF_SELECTED,
+        taskId = TASK_A_ID,
+        optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)
+      )
     listOf(
       true to (TASK_A_ID to setOf(TASK_A_OPTION_X)),
       true to (TASK_A_ID to setOf(TASK_A_OPTION_Y)),
       true to (TASK_A_ID to setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)),
       false to (TASK_A_ID to setOf(TASK_A_OPTION_Z)),
       false to (TASK_B_ID to setOf(TASK_A_OPTION_X)),
-    ).test(expression)
+    )
+      .test(expression)
   }
 
   @Test
   fun `Expression of type ALL_OF_SELECTED works`() {
-    val expression = Expression(
-      expressionType = Expression.ExpressionType.ALL_OF_SELECTED,
-      taskId = TASK_A_ID,
-      optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)
-    )
+    val expression =
+      Expression(
+        expressionType = Expression.ExpressionType.ALL_OF_SELECTED,
+        taskId = TASK_A_ID,
+        optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)
+      )
     listOf(
       false to (TASK_A_ID to setOf(TASK_A_OPTION_X)),
       false to (TASK_A_ID to setOf(TASK_A_OPTION_Y)),
       true to (TASK_A_ID to setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)),
       false to (TASK_A_ID to setOf(TASK_A_OPTION_Z)),
       false to (TASK_B_ID to setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)),
-    ).test(expression)
+    )
+      .test(expression)
   }
 
   @Test
   fun `Expression of type ONE_OF_SELECTED works`() {
-    val expression = Expression(
-      expressionType = Expression.ExpressionType.ONE_OF_SELECTED,
-      taskId = TASK_A_ID,
-      optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)
-    )
+    val expression =
+      Expression(
+        expressionType = Expression.ExpressionType.ONE_OF_SELECTED,
+        taskId = TASK_A_ID,
+        optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)
+      )
     listOf(
       true to (TASK_A_ID to setOf(TASK_A_OPTION_X)),
       true to (TASK_A_ID to setOf(TASK_A_OPTION_Y)),
       false to (TASK_A_ID to setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)),
       false to (TASK_A_ID to setOf(TASK_A_OPTION_Z)),
       false to (TASK_B_ID to setOf(TASK_A_OPTION_X)),
-    ).test(expression)
+    )
+      .test(expression)
   }
 
   @Test
   fun `Expression of type UNKNOWN throws an error`() {
-    val expression = Expression(
-      expressionType = Expression.ExpressionType.UNKNOWN,
-      taskId = TASK_A_ID,
-      optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)
-    )
-    assertFails { expression.fulfilledBy(mapOf(TASK_A_ID to setOf(TASK_A_OPTION_X))) }
+    val expression =
+      Expression(
+        expressionType = Expression.ExpressionType.UNKNOWN,
+        taskId = TASK_A_ID,
+        optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)
+      )
+    assertFailsWith<IllegalArgumentException> {
+      expression.fulfilledBy(mapOf(TASK_A_ID to setOf(TASK_A_OPTION_X)))
+    }
   }
 
   private fun ConditionTestCase.test(condition: Condition) {

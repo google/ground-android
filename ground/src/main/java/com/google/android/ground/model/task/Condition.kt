@@ -27,18 +27,20 @@ typealias TaskSelections = Map<TaskId, Set<OptionId>>
  * hidden due to failure of fulfillment based on the input expressions.
  */
 data class Condition
-@JvmOverloads constructor(
+@JvmOverloads
+constructor(
   /** Determines the evaluation condition for fulfillment (e.g. all or some expressions). */
   val matchType: MatchType = MatchType.UNKNOWN,
   /** The expressions to evaluate to fulfill the condition. */
   val expressions: List<Expression> = listOf(),
 ) {
 
-  /**
-   * Match type names as they appear in the remote database.
-   */
+  /** Match type names as they appear in the remote database. */
   enum class MatchType {
-    UNKNOWN, MATCH_ANY, MATCH_ALL, MATCH_ONE,
+    UNKNOWN,
+    MATCH_ANY,
+    MATCH_ALL,
+    MATCH_ONE,
   }
 
   /** Given the user's task selections, determine whether the condition is fulfilled. */
@@ -51,11 +53,13 @@ data class Condition
     }.exhaustive
   }
 
-  private val <T> T.exhaustive: T get() = this
+  private val <T> T.exhaustive: T
+    get() = this
 }
 
 data class Expression
-@JvmOverloads constructor(
+@JvmOverloads
+constructor(
   /** Determines the evaluation condition for the expression (e.g. all or some selected options). */
   val expressionType: ExpressionType = ExpressionType.UNKNOWN,
   /** The task ID associated with this expression. */
@@ -64,18 +68,17 @@ data class Expression
   val optionIds: Set<String> = setOf(),
 ) {
 
-  /**
-   * Task type names as they appear in the remote database.
-   */
+  /** Task type names as they appear in the remote database. */
   enum class ExpressionType {
-    UNKNOWN, ANY_OF_SELECTED, ALL_OF_SELECTED, ONE_OF_SELECTED,
+    UNKNOWN,
+    ANY_OF_SELECTED,
+    ALL_OF_SELECTED,
+    ONE_OF_SELECTED,
   }
 
   /** Given the selected options for this task, determine whether the expression is fulfilled. */
   fun fulfilledBy(taskSelections: TaskSelections): Boolean {
-    return taskSelections[this.taskId]?.let { selection ->
-      this.fulfilled(selection)
-    } ?: false
+    return taskSelections[this.taskId]?.let { selection -> this.fulfilled(selection) } ?: false
   }
 
   private fun fulfilled(selectedOptions: Set<OptionId>): Boolean {
@@ -87,5 +90,6 @@ data class Expression
     }.exhaustive
   }
 
-  private val <T> T.exhaustive: T get() = this
+  private val <T> T.exhaustive: T
+    get() = this
 }

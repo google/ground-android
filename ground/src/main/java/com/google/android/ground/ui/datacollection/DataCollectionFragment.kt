@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,14 +33,17 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
 class DataCollectionFragment : AbstractFragment(), BackPressListener {
-  @Inject lateinit var navigator: Navigator
-  @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
+  @Inject
+  lateinit var navigator: Navigator
+
+  @Inject
+  lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
   private val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
 
@@ -72,22 +75,19 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewPager.offscreenPageLimit = 1
 
     loadTasks(viewModel.tasks)
-    lifecycleScope.launch { viewModel.currentPosition.collect { onTaskChanged(it) } }
+    lifecycleScope.launch { viewModel.currentTaskId.collect { onTaskChanged() } }
 
-    viewPager.registerOnPageChangeCallback(
-      object : ViewPager2.OnPageChangeCallback() {
-        override fun onPageSelected(position: Int) {
-          super.onPageSelected(position)
+    viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+      override fun onPageSelected(position: Int) {
+        super.onPageSelected(position)
 
-          val buttonContainer = view.findViewById<View>(R.id.action_buttons) ?: return
-          val anchorLocation = IntArray(2)
-          buttonContainer.getLocationInWindow(anchorLocation)
-          val guidelineTop =
-            anchorLocation[1] - buttonContainer.rootWindowInsets.systemWindowInsetTop
-          guideline.setGuidelineBegin(guidelineTop)
-        }
+        val buttonContainer = view.findViewById<View>(R.id.action_buttons) ?: return
+        val anchorLocation = IntArray(2)
+        buttonContainer.getLocationInWindow(anchorLocation)
+        val guidelineTop = anchorLocation[1] - buttonContainer.rootWindowInsets.systemWindowInsetTop
+        guideline.setGuidelineBegin(guidelineTop)
       }
-    )
+    })
   }
 
   private fun loadTasks(tasks: List<Task>) {
@@ -101,7 +101,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     progressBar.max = (tasks.size - 1) * PROGRESS_SCALE
   }
 
-  private fun onTaskChanged(index: Int) {
+  private fun onTaskChanged() {
+    val index = viewModel.getAbsolutePosition()
     viewPager.currentItem = index
 
     progressBar.clearAnimation()
@@ -115,16 +116,15 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     progressAnimator.start()
   }
 
-  override fun onBack(): Boolean =
-    if (viewPager.currentItem == 0) {
-      // If the user is currently looking at the first step, allow the system to handle the
-      // Back button. This calls finish() on this activity and pops the back stack.
-      false
-    } else {
-      // Otherwise, select the previous step.
-      viewModel.updateCurrentPosition(viewModel.getVisibleTaskPosition() - 1)
-      true
-    }
+  override fun onBack(): Boolean = if (viewPager.currentItem == 0) {
+    // If the user is currently looking at the first step, allow the system to handle the
+    // Back button. This calls finish() on this activity and pops the back stack.
+    false
+  } else {
+    // Otherwise, select the previous step.
+    viewModel.step(-1)
+    true
+  }
 
   private companion object {
     private const val PROGRESS_SCALE = 100

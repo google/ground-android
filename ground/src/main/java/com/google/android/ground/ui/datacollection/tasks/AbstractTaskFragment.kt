@@ -32,15 +32,15 @@ import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskButton
 import com.google.android.ground.ui.datacollection.components.TaskButtonFactory
 import com.google.android.ground.ui.datacollection.components.TaskView
-import java.util.*
-import kotlin.properties.Delegates
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
+import java.util.EnumMap
+import kotlin.properties.Delegates
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
   protected val dataCollectionViewModel: DataCollectionViewModel by
-    hiltNavGraphViewModels(R.id.data_collection)
+  hiltNavGraphViewModels(R.id.data_collection)
 
   private val buttons: EnumMap<ButtonAction, TaskButton> = EnumMap(ButtonAction::class.java)
   private val buttonsIndex: MutableMap<Int, ButtonAction> = mutableMapOf()
@@ -144,11 +144,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   private fun moveToPrevious() {
-    dataCollectionViewModel.onPreviousClicked(position, viewModel)
+    dataCollectionViewModel.onPreviousClicked(viewModel)
   }
 
   fun moveToNext() {
-    lifecycleScope.launch { dataCollectionViewModel.onNextClicked(position, viewModel) }
+    lifecycleScope.launch { dataCollectionViewModel.onNextClicked(viewModel) }
   }
 
   fun addUndoButton() =
@@ -178,9 +178,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   private fun ButtonAction.shouldReplaceWithDoneButton() =
     this == ButtonAction.NEXT && dataCollectionViewModel.isLastPosition(position)
 
-  @TestOnly fun getButtons() = buttons
+  @TestOnly
+  fun getButtons() = buttons
 
-  @TestOnly fun getButtonsIndex() = buttonsIndex
+  @TestOnly
+  fun getButtonsIndex() = buttonsIndex
 
   companion object {
     /** Key used to store the position of the task in the Job's sorted tasklist. */

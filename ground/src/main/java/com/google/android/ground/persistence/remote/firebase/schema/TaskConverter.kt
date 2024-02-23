@@ -19,6 +19,7 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.remote.firebase.schema.ConditionConverter.toCondition
 import com.google.android.ground.persistence.remote.firebase.schema.MultipleChoiceConverter.toMultipleChoice
 import timber.log.Timber
 
@@ -41,7 +42,8 @@ internal object TaskConverter {
       em.label!!,
       em.required != null && em.required,
       multipleChoice,
-      em.addLoiTask ?: false
+      em.addLoiTask ?: false,
+      em.condition?.let { toCondition(it) }
     )
   }
 
