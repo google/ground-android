@@ -24,7 +24,7 @@ class ObjectMapperTest {
           "submissionCount": 42,
           "geometry": {
             "type": "Point",
-            "coordinates": {"longitude": 12.34, "latitude": 56.78}
+            "coordinates": {"latitude": 12.34, "longitude": 56.78}
           }
         }
         """
@@ -34,7 +34,8 @@ class ObjectMapperTest {
         jobId = "123",
         customId = "foo",
         submissionCount = 42,
-        geometry = PointObject(coordinates = xy(12.34, 56.78))
+        geometry =
+          PointObject(coordinates = GeoPoint(/* latitude= */ 12.34, /* longitude= */ 56.78))
       )
     val actual = ObjectMapper().toObject(json.toMap(), LoiDocument::class)
     assertEquals(expected, actual)
@@ -54,10 +55,10 @@ class ObjectMapperTest {
             "coordinates": [
               {
                 "$": [
-                  {"longitude": 0.0, "latitude": 0.0},
-                  {"longitude": 1.0, "latitude": 0.0},
-                  {"longitude": 1.0, "latitude": 1.0},              
-                  {"longitude": 0.0, "latitude": 0.0}
+                  {"latitude": 0.0, "longitude": 0.0},
+                  {"latitude": 0.0, "longitude": 1.0},
+                  {"latitude": 1.0, "longitude": 1.0},              
+                  {"latitude": 0.0, "longitude": 0.0}
                 ]
               }
             ]
@@ -74,7 +75,14 @@ class ObjectMapperTest {
           PolygonObject(
             coordinates =
               listOf(
-                LinearRingObject(listOf(xy(0.0, 0.0), xy(1.0, 0.0), xy(1.0, 1.0), xy(0.0, 0.0)))
+                LinearRingObject(
+                  listOf(
+                    GeoPoint(/* latitude= */ 0.0, /* longitude= */ 0.0),
+                    GeoPoint(/* latitude= */ 0.0, /* longitude= */ 1.0),
+                    GeoPoint(/* latitude= */ 1.0, /* longitude= */ 1.0),
+                    GeoPoint(/* latitude= */ 0.0, /* longitude= */ 0.0)
+                  )
+                )
               )
           )
       )
@@ -86,5 +94,3 @@ class ObjectMapperTest {
 internal object MapTypeToken : TypeToken<Map<String, Any>>()
 
 internal fun String.toMap(): Map<String, Any> = Gson().fromJson(this, MapTypeToken.type)
-
-internal fun xy(x: Double, y: Double) = GeoPoint(y, x)
