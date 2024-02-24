@@ -183,14 +183,18 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
             cardUiData.loi.id,
-            cardUiData.loi.job.id
+            cardUiData.loi.job.id,
+            false,
+            null,
           )
         )
       is MapCardUiData.AddLoiCardUiData ->
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
             null,
-            cardUiData.job.id
+            cardUiData.job.id,
+            false,
+            null,
           )
         )
     }

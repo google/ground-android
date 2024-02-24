@@ -25,6 +25,7 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -85,6 +86,9 @@ internal constructor(
   /** True iff the user is expected to produce a new LOI in the current data collection flow. */
   private val isAddLoiFlow = loiId == null
 
+  private var shouldLoadFromDraft: Boolean = savedStateHandle[TASK_SHOULD_LOAD_FROM_DRAFT] ?: false
+  private var draftDeltas: List<ValueDelta>? = null
+
   private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
   private val job: Job = activeSurvey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
   // LOI creation task is included only on "new data collection site" flow..
@@ -115,6 +119,31 @@ internal constructor(
 
   lateinit var submissionId: String
 
+  private fun getDraftDeltas(): List<ValueDelta> {
+    if (!shouldLoadFromDraft) return listOf()
+    if (draftDeltas != null) return draftDeltas as List<ValueDelta>
+
+    val serializedDraftValues = savedStateHandle[TASK_DRAFT_VALUES] ?: ""
+    if (serializedDraftValues.isEmpty()) {
+      Timber.e("Attempting load from draft submission failed, not found")
+      return listOf()
+    }
+
+    draftDeltas = SubmissionDeltasConverter.fromString(job, serializedDraftValues)
+    return draftDeltas as List<ValueDelta>
+  }
+
+  private fun getValueFromDraft(task: Task): Value? {
+    for ((taskId, taskType, value) in getDraftDeltas()) {
+      if (taskId == task.id && taskType == task.type) {
+        Timber.d("Value $value found for task $task")
+        return value
+      }
+    }
+    Timber.w("Value not found for task $task")
+    return null
+  }
+
   fun getTaskViewModel(position: Int): AbstractTaskViewModel? {
     val viewModels = taskViewModels.value
 
@@ -124,8 +153,8 @@ internal constructor(
     }
     return try {
       val viewModel = viewModelFactory.create(getViewModelClass(task.type))
-      // TODO(#1146): Pass in the existing value if there is one.
-      viewModel.initialize(job, task, null)
+      val value: Value? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
+      viewModel.initialize(job, task, value)
       addTaskViewModel(viewModel)
       viewModel
     } catch (e: Exception) {
@@ -215,8 +244,7 @@ internal constructor(
   fun updateCurrentPosition(position: Int) {
     savedStateHandle[TASK_POSITION_KEY] = position
 
-    // TODO(Shobhit): This currently saves the data to draft on every task position change. Consider
-    //  a less aggressive approach.
+    // Save collected data as draft
     clearDraft()
     saveDraft()
   }
@@ -235,6 +263,8 @@ internal constructor(
     private const val TASK_JOB_ID_KEY = "jobId"
     private const val TASK_LOI_ID_KEY = "locationOfInterestId"
     private const val TASK_POSITION_KEY = "currentPosition"
+    private const val TASK_SHOULD_LOAD_FROM_DRAFT = "shouldLoadFromDraft"
+    private const val TASK_DRAFT_VALUES = "draftValues"
 
     fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
       when (taskType) {
