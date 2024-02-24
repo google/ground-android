@@ -16,6 +16,8 @@
 package com.google.android.ground.ui.datacollection.tasks.number
 
 import android.content.res.Resources
+import android.text.Editable
+import android.text.TextWatcher
 import com.google.android.ground.model.submission.NumberResponse.Companion.fromNumber
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import javax.inject.Inject
@@ -23,7 +25,18 @@ import javax.inject.Inject
 class NumberTaskViewModel @Inject constructor(resources: Resources) :
   AbstractTaskViewModel(resources) {
 
-  fun updateResponse(number: String) {
-    setValue(fromNumber(number))
-  }
+  val textWatcher =
+    object : TextWatcher {
+      override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+        // Do nothing.
+      }
+
+      override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+        setValue(fromNumber(s.toString()))
+      }
+
+      override fun afterTextChanged(s: Editable) {
+        // Do nothing.
+      }
+    }
 }

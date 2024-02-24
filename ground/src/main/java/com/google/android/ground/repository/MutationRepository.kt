@@ -67,21 +67,21 @@ constructor(
 
   /**
    * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
-   * specified id.
+   * specified id, sorted by creation timestamp (oldest first).
    */
   suspend fun getMutations(
-    loidId: String,
+    loiId: String,
     vararg entitySyncStatus: MutationEntitySyncStatus
   ): List<Mutation> {
     val loiMutations =
       localLocationOfInterestStore
-        .findByLocationOfInterestId(loidId, *entitySyncStatus)
+        .findByLocationOfInterestId(loiId, *entitySyncStatus)
         .map(LocationOfInterestMutationEntity::toModelObject)
     val submissionMutations =
-      localSubmissionStore.findByLocationOfInterestId(loidId, *entitySyncStatus).map {
+      localSubmissionStore.findByLocationOfInterestId(loiId, *entitySyncStatus).map {
         it.toSubmissionMutation()
       }
-    return loiMutations + submissionMutations
+    return (loiMutations + submissionMutations).sortedBy { it.clientTimestamp }
   }
 
   private suspend fun SubmissionMutationEntity.toSubmissionMutation(): SubmissionMutation =

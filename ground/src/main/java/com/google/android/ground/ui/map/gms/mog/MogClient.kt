@@ -17,6 +17,7 @@
 package com.google.android.ground.ui.map.gms.mog
 
 import android.util.LruCache
+import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.ui.map.Bounds
 import java.io.FileNotFoundException
 import java.io.InputStream
@@ -26,8 +27,13 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
+/** Aliases a relative path or a URL to a MOG. */
+typealias MogPathOrUrl = String
+/** Aliases a fetch-able URL to a MOG. */
+typealias MogUrl = String
+
 /** Client responsible for fetching and caching MOG metadata and image tiles. */
-class MogClient(val collection: MogCollection) {
+class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteStorageManager) {
 
   private val cache: LruCache<String, Deferred<MogMetadata?>> = LruCache(16)
 
@@ -46,8 +52,8 @@ class MogClient(val collection: MogCollection) {
    * @param tileBounds the bounds used to constrain which tiles are retrieved. Only requests for
    * tiles within or overlapping these bounds are returned.
    * @param zoomRange the min. and max. zoom levels for which tile requests should be returned.
-   * Defaults to all available zoom levels in the collection ([MogCollection.minZoom] to
-   * [MogCollection.maxZoom]).
+   * Defaults to all available zoom levels in the collection ([MogSource.minZoom] to
+   * [MogSource.maxZoom]).
    */
   suspend fun buildTilesRequests(
     tileBounds: Bounds,
@@ -71,10 +77,10 @@ class MogClient(val collection: MogCollection) {
     tileCoordinates: TileCoordinates
   ): MogTilesRequest? {
     val mogBounds = mogSource.getMogBoundsForTile(tileCoordinates)
-    val mogUrl = mogSource.getMogUrl(mogBounds)
-    val mogMetadata = getMogMetadata(mogUrl, mogBounds)
+    val mogPath = mogSource.getMogPath(mogBounds)
+    val mogMetadata = getMogMetadata(mogPath, mogBounds)
     val tileMetadata = mogMetadata?.let { getTileMetadata(it, tileCoordinates) }
-    return tileMetadata?.let { MogTilesRequest(mogUrl, listOf(it)) }
+    return tileMetadata?.let { MogTilesRequest(mogMetadata.sourceUrl, listOf(it)) }
   }
 
   /**
@@ -105,8 +111,8 @@ class MogClient(val collection: MogCollection) {
   private suspend fun getMogMetadataForTile(tileCoordinates: TileCoordinates): MogMetadata? {
     val mogSource = collection.getMogSource(tileCoordinates.zoom) ?: return null
     val mogBounds = mogSource.getMogBoundsForTile(tileCoordinates)
-    val mogUrl = mogSource.getMogUrl(mogBounds)
-    return getMogMetadata(mogUrl, mogBounds)
+    val mogPath = mogSource.getMogPath(mogBounds)
+    return getMogMetadata(mogPath, mogBounds)
   }
 
   /**
@@ -130,46 +136,31 @@ class MogClient(val collection: MogCollection) {
   }
 
   /** Returns metadata for the MOG bounded by the specified web mercator tile. */
-  private suspend fun getMogMetadata(url: String, bounds: TileCoordinates): MogMetadata? =
-    getMogMetadataAsync(url, bounds).await()
+  private suspend fun getMogMetadata(path: String, bounds: TileCoordinates): MogMetadata? =
+    getMogMetadataAsync(path, bounds).await()
 
   /**
-   * Returns a future containing the [MogMetadata] with the specified extent and URL. Metadata is
+   * Returns a future containing the [MogMetadata] with the specified extent and path. Metadata is
    * either loaded from in-memory cache if present, or asynchronously fetched if necessary. The
    * process of checking the cache and creating the new job is synchronized on the current instance
    * to prevent duplicate parallel requests for the same resource.
    */
-  private fun getMogMetadataAsync(url: String, mogBounds: TileCoordinates): Deferred<MogMetadata?> =
-    synchronized(this) { cache.get(url) ?: getMogMetadataFromRemoteAsync(url, mogBounds) }
+  private fun getMogMetadataAsync(
+    path: MogPathOrUrl,
+    mogBounds: TileCoordinates
+  ): Deferred<MogMetadata?> =
+    synchronized(this) { cache.get(path) ?: getMogMetadataFromRemoteAsync(path, mogBounds) }
 
   /**
-   * Asynchronously fetches and returns the [MogMetadata] with the specified extent and URL. The
+   * Asynchronously fetches and returns the [MogMetadata] with the specified extent and path. The
    * async job is added to the cache immediately to prevent duplicate fetches from other threads.
    */
   private fun getMogMetadataFromRemoteAsync(
-    url: String,
+    path: MogPathOrUrl,
     mogBounds: TileCoordinates
   ): Deferred<MogMetadata?> = runBlocking {
     // TODO: Exceptions get propagated as cancellation of the coroutine. Handle them!
-    async {
-        nullIfNotFound { UrlInputStream(url) }?.use { readMogMetadataAndClose(url, mogBounds, it) }
-      }
-      .also { cache.put(url, it) }
-  }
-
-  /** Reads the metadata from the specified input stream. */
-  private fun readMogMetadataAndClose(
-    sourceUrl: String,
-    mogBounds: TileCoordinates,
-    inputStream: InputStream
-  ): MogMetadata {
-    val startTimeMillis = System.currentTimeMillis()
-    return inputStream
-      .use { readMogMetadata(sourceUrl, mogBounds, it) }
-      .apply {
-        val elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis
-        Timber.d("Read headers from $sourceUrl in $elapsedTimeMillis ms")
-      }
+    async { path.toUrl()?.readMetadata(mogBounds) }.also { cache.put(path, it) }
   }
 
   private fun readMogMetadata(
@@ -192,6 +183,28 @@ class MogClient(val collection: MogCollection) {
       )
     }
     return MogMetadata(sourceUrl, mogBounds, imageMetadata.toList())
+  }
+
+  private suspend fun MogPathOrUrl.toUrl(): MogUrl? =
+    if (startsWith("/")) {
+      nullIfNotFound { remoteStorageManager.getDownloadUrl(this).toString() }
+    } else this
+
+  private fun MogUrl.readMetadata(mogBounds: TileCoordinates): MogMetadata? =
+    nullIfNotFound { UrlInputStream(this) }?.use { this.readMogMetadataAndClose(mogBounds, it) }
+
+  /** Reads the metadata from the specified input stream. */
+  private fun MogUrl.readMogMetadataAndClose(
+    mogBounds: TileCoordinates,
+    inputStream: InputStream
+  ): MogMetadata {
+    val startTimeMillis = System.currentTimeMillis()
+    return inputStream
+      .use { readMogMetadata(this, mogBounds, it) }
+      .apply {
+        val elapsedTimeMillis = System.currentTimeMillis() - startTimeMillis
+        Timber.d("Read headers from $sourceUrl in $elapsedTimeMillis ms")
+      }
   }
 }
 
