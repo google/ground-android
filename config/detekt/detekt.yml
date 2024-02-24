@@ -527,7 +527,7 @@ style:
     CanBeNonNullable:
         active: true
     CascadingCallWrapping:
-        active: true
+        active: false
         includeElvis: true
     ClassOrdering:
         active: true
@@ -674,8 +674,6 @@ style:
         active: true
     OptionalUnit:
         active: true
-    OptionalWhenBraces:
-        active: false
     PreferToOverPairSyntax:
         active: true
     ProtectedMemberInFinalClass:

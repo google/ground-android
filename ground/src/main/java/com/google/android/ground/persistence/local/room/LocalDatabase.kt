@@ -70,15 +70,26 @@ import com.google.android.ground.persistence.local.room.fields.*
 )
 abstract class LocalDatabase : RoomDatabase() {
   abstract fun locationOfInterestDao(): LocationOfInterestDao
+
   abstract fun locationOfInterestMutationDao(): LocationOfInterestMutationDao
+
   abstract fun taskDao(): TaskDao
+
   abstract fun jobDao(): JobDao
+
   abstract fun multipleChoiceDao(): MultipleChoiceDao
+
   abstract fun optionDao(): OptionDao
+
   abstract fun surveyDao(): SurveyDao
+
   abstract fun tileSourceDao(): TileSourceDao
+
   abstract fun submissionDao(): SubmissionDao
+
   abstract fun submissionMutationDao(): SubmissionMutationDao
+
   abstract fun offlineAreaDao(): OfflineAreaDao
+
   abstract fun userDao(): UserDao
 }
