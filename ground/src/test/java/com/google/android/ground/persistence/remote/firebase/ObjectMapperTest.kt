@@ -1,9 +1,10 @@
 package com.google.android.ground.persistence.remote.firebase
 
-import com.google.firebase.firestore.GeoPoint
-import com.google.ground.schema.PointData
-import com.google.ground.schema.PolygonData
-import com.google.ground.shared.LoiDocument
+import com.google.ground.shared.schema.CoordinatesObject
+import com.google.ground.shared.schema.LinearRingObject
+import com.google.ground.shared.schema.LoiDocument
+import com.google.ground.shared.schema.PointObject
+import com.google.ground.shared.schema.PolygonObject
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlin.test.assertEquals
@@ -23,7 +24,7 @@ class ObjectMapperTest {
           "submissionCount": 42,
           "geometry": {
             "type": "Point",
-            "coordinates": [1234.5678, 9876.5432]
+            "coordinates": {"x": 1234.5678, "y": 9876.5432}
           }
         }
         """
@@ -33,7 +34,7 @@ class ObjectMapperTest {
         jobId = "123",
         customId = "foo",
         submissionCount = 42,
-        geometry = PointData(coordinates = xy(1234.5678, 9876.5432))
+        geometry = PointObject(coordinates = xy(1234.5678, 9876.5432))
       )
     val actual = ObjectMapper().toObject(json.toMap(), LoiDocument::class)
     assertEquals(expected, actual)
@@ -51,12 +52,14 @@ class ObjectMapperTest {
           "geometry": {
             "type": "Polygon",
             "coordinates": [
-              [
-                [0.0, 0.0],
-                [1.0, 0.0],
-                [1.0, 1.0],              
-                [0.0, 0.0]
-              ]
+              {"$": 
+                [
+                  {"x": 0.0, "y": 0.0},
+                  {"x": 1.0, "y": 0.0},
+                  {"x": 1.0, "y": 1.0},              
+                  {"x": 0.0, "y": 0.0}
+                ]
+              }
             ]
           }
         }
@@ -68,8 +71,11 @@ class ObjectMapperTest {
         customId = "foo",
         submissionCount = 42,
         geometry =
-          PolygonData(
-            coordinates = listOf(listOf(xy(0.0, 0.0), xy(1.0, 0.0), xy(1.0, 1.0), xy(0.0, 0.0)))
+          PolygonObject(
+            coordinates =
+              listOf(
+                LinearRingObject(listOf(xy(0.0, 0.0), xy(1.0, 0.0), xy(1.0, 1.0), xy(0.0, 0.0)))
+              )
           )
       )
     val actual = ObjectMapper().toObject(json.toMap(), LoiDocument::class)
@@ -81,4 +87,4 @@ internal object MapTypeToken : TypeToken<Map<String, Any>>()
 
 internal fun String.toMap(): Map<String, Any> = Gson().fromJson(this, MapTypeToken.type)
 
-internal fun xy(x: Double, y: Double) = GeoPoint(y, x)
+internal fun xy(x: Double, y: Double) = CoordinatesObject(x.toBigDecimal(), y.toBigDecimal())

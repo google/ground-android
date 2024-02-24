@@ -16,10 +16,10 @@
 
 package com.google.android.ground.persistence.remote.firebase
 
-import com.google.ground.shared.schema.GeometryData
-import com.google.ground.shared.schema.MultiPolygonData
-import com.google.ground.shared.schema.PointData
-import com.google.ground.shared.schema.PolygonData
+import com.google.ground.shared.schema.GeometryObject
+import com.google.ground.shared.schema.MultiPolygonObject
+import com.google.ground.shared.schema.PointObject
+import com.google.ground.shared.schema.PolygonObject
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonDeserializationContext
@@ -36,9 +36,7 @@ class ObjectMapper {
   fun <T : Any> toObject(map: Map<String, Any>, kotlinClass: KClass<T>): T {
 
     val gson =
-      GsonBuilder()
-        .registerTypeAdapter(GeometryData::class.java, GeometryDeserializer())
-        .create()
+      GsonBuilder().registerTypeAdapter(GeometryObject::class.java, GeometryDeserializer()).create()
     val json = map.toJsonElement()
     return gson.fromJson(json, kotlinClass.java)
   }
@@ -72,12 +70,12 @@ class ObjectMapper {
   }
 }
 
-class GeometryDeserializer : JsonDeserializer<GeometryData> {
+class GeometryDeserializer : JsonDeserializer<GeometryObject> {
   override fun deserialize(
     json: JsonElement,
     typeOfT: Type,
     context: JsonDeserializationContext
-  ): GeometryData {
+  ): GeometryObject {
     val type = json.asJsonObject["type"].asString
     val kotlinClass =
       geometryClassesByType[type] ?: throw JsonParseException("Unknown geometry type $type")
@@ -87,7 +85,7 @@ class GeometryDeserializer : JsonDeserializer<GeometryData> {
 
 internal val geometryClassesByType =
   mapOf(
-    "Point" to PointData::class,
-    "Polygon" to PolygonData::class,
-    "MultiPolygon" to MultiPolygonData::class
+    "Point" to PointObject::class,
+    "Polygon" to PolygonObject::class,
+    "MultiPolygon" to MultiPolygonObject::class
   )

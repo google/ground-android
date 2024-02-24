@@ -47,16 +47,18 @@ apply<JSONSchemaCodegenPlugin>()
 configure<JSONSchemaCodegen> {
   configFile.set(file("json-schema-codegen/config.json")) // if not in the default location
   //    inputs { inputFile(file("src/main/resources/schema")) }
+  val base = "../../ground-platform/schema/src"
   inputs {
-    val base = "../../ground-platform/schema/src"
-    inputFile(file("$base/loi-document.schema.json"))
-    inputFile(file("$base/geometry-data.schema.json"))
-    inputFile(file("$base/point-data.schema.json"))
-    inputFile(file("$base/polygon-data.schema.json"))
-    inputFile(file("$base/multi-polygon-data.schema.json"))
-    inputFile(file("$base/linear-ring-data.schema.json"))
-    inputFile(file("$base/audit-info.schema.json"))
-    inputFile(file("$base/submission-document.schema.json"))
+    inputFile(file("$base/loi-document.json"))
+    inputFile(file("$base/geometry-object.json"))
+    inputFile(file("$base/point-object.json"))
+    inputFile(file("$base/polygon-object.json"))
+    inputFile(file("$base/multi-polygon-object.json"))
+    inputFile(file("$base/linear-ring-object.json"))
+    inputFile(file("$base/coordinates-object.json"))
+
+    inputFile(file("$base/submission-document.json"))
+    inputFile(file("$base/audit-info-object.json"))
   }
   outputDir.set(file("build/generated-sources/kotlin"))
   packageName.set("com.google.ground.shared.schema")
