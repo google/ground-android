@@ -172,7 +172,7 @@ internal constructor(
    * Validates the user's input and displays an error if the user input was invalid. Moves back to
    * the previous Data Collection screen if the user input was valid.
    */
-  fun onPreviousClicked(position: Int, taskViewModel: AbstractTaskViewModel) {
+  suspend fun onPreviousClicked(position: Int, taskViewModel: AbstractTaskViewModel) {
     check(position != 0)
 
     val validationError = taskViewModel.validate()
@@ -180,6 +180,8 @@ internal constructor(
       popups.get().showError(validationError)
       return
     }
+
+    data[taskViewModel.task] = taskViewModel.taskValue.firstOrNull()
 
     updateCurrentPosition(position - 1)
   }
