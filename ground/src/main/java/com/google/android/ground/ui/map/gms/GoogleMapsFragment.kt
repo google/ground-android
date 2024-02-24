@@ -238,14 +238,22 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     featureManager.zoom = map.cameraPosition.zoom
     featureManager.onCameraIdle()
 
-    viewLifecycleOwner.lifecycleScope.launch {
-      cameraMovedEvents.emit(
-        CameraPosition(
-          cameraPosition.target.toCoordinates(),
-          cameraPosition.zoom,
-          projection.visibleRegion.latLngBounds.toModelObject(),
+    // TODO(Shobhit): Fix this before submitting.
+    try {
+      viewLifecycleOwner.lifecycleScope.launch {
+        cameraMovedEvents.emit(
+          CameraPosition(
+            cameraPosition.target.toCoordinates(),
+            cameraPosition.zoom,
+            projection.visibleRegion.latLngBounds.toModelObject(),
+          )
         )
-      )
+      }
+    } catch (exception: IllegalStateException) {
+      // TODO(Shobhit): Prevent the following exception
+      // java.lang.IllegalStateException: Can't access the Fragment View's LifecycleOwner when
+      // getView() is null i.e., before onCreateView() or after onDestroyView()
+      Timber.e(exception)
     }
   }
 
