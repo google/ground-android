@@ -129,7 +129,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       false
     } else {
       // Otherwise, select the previous step.
-      viewModel.updateCurrentPosition(viewModel.getVisibleTaskPosition() - 1)
+      viewModel.saveProgressAndUpdatePosition(viewModel.getVisibleTaskPosition() - 1)
       true
     }
 

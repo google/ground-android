@@ -183,7 +183,7 @@ internal constructor(
 
     data[taskViewModel.task] = taskViewModel.taskValue.firstOrNull()
 
-    updateCurrentPosition(position - 1)
+    saveProgressAndUpdatePosition(position - 1)
   }
 
   /**
@@ -200,7 +200,7 @@ internal constructor(
     data[taskViewModel.task] = taskViewModel.taskValue.firstOrNull()
 
     if (!isLastPosition(position)) {
-      updateCurrentPosition(position + 1)
+      saveProgressAndUpdatePosition(position + 1)
     } else {
       clearDraft()
       saveChanges(getDeltas())
@@ -242,8 +242,8 @@ internal constructor(
   /** Returns the position of the task fragment visible to the user. */
   fun getVisibleTaskPosition() = currentPosition.value
 
-  /** Displays the task at the given position to the user. */
-  fun updateCurrentPosition(position: Int) {
+  /** Stores the current progress locally and moves to the task at the given position. */
+  fun saveProgressAndUpdatePosition(position: Int) {
     savedStateHandle[TASK_POSITION_KEY] = position
 
     // Save collected data as draft
