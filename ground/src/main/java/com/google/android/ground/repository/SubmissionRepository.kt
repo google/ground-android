@@ -81,11 +81,10 @@ constructor(
     createOrUpdateSubmission(submission, deltas, isNew = true)
   }
 
-  suspend fun getDraftSubmission(survey: Survey): DraftSubmission? {
-    return localValueStore.draftSubmissionId?.let {
+  suspend fun getDraftSubmission(survey: Survey): DraftSubmission? =
+    localValueStore.draftSubmissionId?.let {
       localSubmissionStore.getDraftSubmission(draftSubmissionId = it, survey = survey)
     }
-  }
 
   suspend fun saveDraftSubmission(
     jobId: String,

@@ -83,7 +83,8 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   ): List<Submission> =
     submissionDao
       .findByLocationOfInterestId(locationOfInterest.id, jobId, EntityState.DEFAULT)
-      ?.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } } ?: listOf()
+      ?.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } }
+      ?: listOf()
 
   override suspend fun merge(model: Submission) {
     submissionMutationDao
@@ -102,7 +103,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
    * Applies mutation to submission in database or creates a new one.
    *
    * @return A Completable that emits an error if mutation type is "UPDATE" but entity does not
-   *   exist, or if type is "CREATE" and entity already exists.
+   * exist, or if type is "CREATE" and entity already exists.
    */
   override suspend fun apply(mutation: SubmissionMutation) {
     when (mutation.type) {

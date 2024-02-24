@@ -60,8 +60,8 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
     isMultipleChoice: Boolean,
     selectedIndices: List<Int>,
     updateResponse: (options: List<Option>) -> Unit,
-  ): RecyclerView.Adapter<out RecyclerView.ViewHolder> {
-    return if (isMultipleChoice) {
+  ): RecyclerView.Adapter<out RecyclerView.ViewHolder> =
+    if (isMultipleChoice) {
       SelectMultipleOptionAdapter(options, selectedIndices) { updateResponse(it) }
     } else {
       assert(selectedIndices.size < 2) {
@@ -70,7 +70,6 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
       val selectedIndex = if (selectedIndices.size == 1) selectedIndices[0] else -1
       SelectOneOptionAdapter(options, selectedIndex) { updateResponse(listOf(it)) }
     }
-  }
 
   /** Returns a list of selected indices for the current task. */
   private fun getSelectedIndices(options: List<Option>): List<Int> {

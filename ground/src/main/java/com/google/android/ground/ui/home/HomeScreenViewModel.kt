@@ -50,9 +50,7 @@ internal constructor(
   val showOfflineAreaMenuItem: LiveData<Boolean> =
     surveyRepository.activeSurveyFlow.map { it?.tileSources?.isNotEmpty() ?: false }.asLiveData()
 
-  fun hasDraftSubmission(): Boolean {
-    return localValueStore.draftSubmissionId.isNotNullOrEmpty()
-  }
+  fun hasDraftSubmission(): Boolean = localValueStore.draftSubmissionId.isNotNullOrEmpty()
 
   fun navigateToDraftSubmission() {
     viewModelScope.launch {
