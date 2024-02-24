@@ -1,0 +1,9 @@
+{
+  "customClasses": {
+    "extension": {
+      "x-kt-type": {
+        "SubmissionData": "com.google.ground.shared.schema.SubmissionData"
+      }
+    }
+  }
+}

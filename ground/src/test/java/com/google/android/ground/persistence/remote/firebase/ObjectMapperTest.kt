@@ -1,15 +1,15 @@
 package com.google.android.ground.persistence.remote.firebase
 
-import com.google.ground.shared.schema.geometry.Point
-import com.google.ground.shared.schema.geometry.Polygon
-import com.google.ground.shared.schema.loi.LoiDocument
+import com.google.firebase.firestore.GeoPoint
+import com.google.ground.schema.PointData
+import com.google.ground.schema.PolygonData
+import com.google.ground.shared.LoiDocument
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlin.test.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
-import java.math.BigDecimal
-import kotlin.test.assertEquals
 
 @RunWith(MockitoJUnitRunner::class)
 class ObjectMapperTest {
@@ -33,7 +33,7 @@ class ObjectMapperTest {
         jobId = "123",
         customId = "foo",
         submissionCount = 42,
-        geometry = Point(coordinates = xy(1234.5678, 9876.5432))
+        geometry = PointData(coordinates = xy(1234.5678, 9876.5432))
       )
     val actual = ObjectMapper().toObject(json.toMap(), LoiDocument::class)
     assertEquals(expected, actual)
@@ -68,7 +68,7 @@ class ObjectMapperTest {
         customId = "foo",
         submissionCount = 42,
         geometry =
-          Polygon(
+          PolygonData(
             coordinates = listOf(listOf(xy(0.0, 0.0), xy(1.0, 0.0), xy(1.0, 1.0), xy(0.0, 0.0)))
           )
       )
@@ -81,4 +81,4 @@ internal object MapTypeToken : TypeToken<Map<String, Any>>()
 
 internal fun String.toMap(): Map<String, Any> = Gson().fromJson(this, MapTypeToken.type)
 
-internal fun xy(x: Double, y: Double): List<BigDecimal> = listOf(x.toBigDecimal(), y.toBigDecimal())
+internal fun xy(x: Double, y: Double) = GeoPoint(y, x)

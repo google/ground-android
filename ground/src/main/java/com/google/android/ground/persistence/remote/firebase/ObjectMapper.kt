@@ -16,10 +16,10 @@
 
 package com.google.android.ground.persistence.remote.firebase
 
-import com.google.ground.shared.schema.geometry.Geometry
-import com.google.ground.shared.schema.geometry.MultiPolygon
-import com.google.ground.shared.schema.geometry.Point
-import com.google.ground.shared.schema.geometry.Polygon
+import com.google.ground.shared.schema.GeometryData
+import com.google.ground.shared.schema.MultiPolygonData
+import com.google.ground.shared.schema.PointData
+import com.google.ground.shared.schema.PolygonData
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonDeserializationContext
@@ -36,7 +36,9 @@ class ObjectMapper {
   fun <T : Any> toObject(map: Map<String, Any>, kotlinClass: KClass<T>): T {
 
     val gson =
-      GsonBuilder().registerTypeAdapter(Geometry::class.java, GeometryDeserializer()).create()
+      GsonBuilder()
+        .registerTypeAdapter(GeometryData::class.java, GeometryDeserializer())
+        .create()
     val json = map.toJsonElement()
     return gson.fromJson(json, kotlinClass.java)
   }
@@ -70,13 +72,13 @@ class ObjectMapper {
   }
 }
 
-class GeometryDeserializer : JsonDeserializer<Geometry> {
+class GeometryDeserializer : JsonDeserializer<GeometryData> {
   override fun deserialize(
     json: JsonElement,
     typeOfT: Type,
     context: JsonDeserializationContext
-  ): Geometry {
-    val type = json.asJsonObject.get("type").asString
+  ): GeometryData {
+    val type = json.asJsonObject["type"].asString
     val kotlinClass =
       geometryClassesByType[type] ?: throw JsonParseException("Unknown geometry type $type")
     return context.deserialize(json, kotlinClass.java)
@@ -84,4 +86,8 @@ class GeometryDeserializer : JsonDeserializer<Geometry> {
 }
 
 internal val geometryClassesByType =
-  mapOf("Point" to Point::class, "Polygon" to Polygon::class, "MultiPolygon" to MultiPolygon::class)
+  mapOf(
+    "Point" to PointData::class,
+    "Polygon" to PolygonData::class,
+    "MultiPolygon" to MultiPolygonData::class
+  )
