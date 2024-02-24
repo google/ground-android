@@ -28,10 +28,11 @@ import com.google.android.ground.ui.datacollection.tasks.multiplechoice.SelectMu
  */
 class SelectMultipleOptionAdapter(
   private val options: List<Option>,
-  private val handleOptionSelected: (List<Option>) -> Unit
+  private val currentlySelectedPositions: List<Int>,
+  private val handleOptionSelected: (List<Option>) -> Unit,
 ) : RecyclerView.Adapter<ViewHolder>() {
 
-  private val selectedPositions = mutableSetOf<Int>()
+  private val selectedPositions = currentlySelectedPositions.toMutableList()
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
     ViewHolder(

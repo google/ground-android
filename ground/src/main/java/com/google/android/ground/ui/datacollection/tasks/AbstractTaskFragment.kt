@@ -26,13 +26,14 @@ import com.google.android.ground.R
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
+import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskButton
 import com.google.android.ground.ui.datacollection.components.TaskButtonFactory
 import com.google.android.ground.ui.datacollection.components.TaskView
-import java.util.*
+import java.util.EnumMap
 import kotlin.properties.Delegates
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
@@ -177,6 +178,10 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   /** Returns true if the given [ButtonAction] should be replace with "Done" button. */
   private fun ButtonAction.shouldReplaceWithDoneButton() =
     this == ButtonAction.NEXT && dataCollectionViewModel.isLastPosition(position)
+
+  fun getTask(): Task = viewModel.task
+
+  fun getCurrentValue(): Value? = viewModel.taskValue.value
 
   @TestOnly fun getButtons() = buttons
 
