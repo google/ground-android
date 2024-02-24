@@ -1,6 +1,6 @@
 package com.google.android.ground.persistence.remote.firebase
 
-import com.google.ground.shared.schema.CoordinatesObject
+import com.google.firebase.firestore.GeoPoint
 import com.google.ground.shared.schema.LinearRingObject
 import com.google.ground.shared.schema.LoiDocument
 import com.google.ground.shared.schema.PointObject
@@ -24,7 +24,7 @@ class ObjectMapperTest {
           "submissionCount": 42,
           "geometry": {
             "type": "Point",
-            "coordinates": {"x": 1234.5678, "y": 9876.5432}
+            "coordinates": {"longitude": 12.34, "latitude": 56.78}
           }
         }
         """
@@ -34,7 +34,7 @@ class ObjectMapperTest {
         jobId = "123",
         customId = "foo",
         submissionCount = 42,
-        geometry = PointObject(coordinates = xy(1234.5678, 9876.5432))
+        geometry = PointObject(coordinates = xy(12.34, 56.78))
       )
     val actual = ObjectMapper().toObject(json.toMap(), LoiDocument::class)
     assertEquals(expected, actual)
@@ -52,12 +52,12 @@ class ObjectMapperTest {
           "geometry": {
             "type": "Polygon",
             "coordinates": [
-              {"$": 
-                [
-                  {"x": 0.0, "y": 0.0},
-                  {"x": 1.0, "y": 0.0},
-                  {"x": 1.0, "y": 1.0},              
-                  {"x": 0.0, "y": 0.0}
+              {
+                "$": [
+                  {"longitude": 0.0, "latitude": 0.0},
+                  {"longitude": 1.0, "latitude": 0.0},
+                  {"longitude": 1.0, "latitude": 1.0},              
+                  {"longitude": 0.0, "latitude": 0.0}
                 ]
               }
             ]
@@ -87,4 +87,4 @@ internal object MapTypeToken : TypeToken<Map<String, Any>>()
 
 internal fun String.toMap(): Map<String, Any> = Gson().fromJson(this, MapTypeToken.type)
 
-internal fun xy(x: Double, y: Double) = CoordinatesObject(x.toBigDecimal(), y.toBigDecimal())
+internal fun xy(x: Double, y: Double) = GeoPoint(y, x)

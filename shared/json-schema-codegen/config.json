@@ -2,7 +2,8 @@
   "customClasses": {
     "extension": {
       "x-kt-type": {
-        "SubmissionData": "com.google.ground.shared.schema.SubmissionData"
+        "SubmissionData": "com.google.ground.shared.schema.SubmissionData",
+        "GeoPoint": "com.google.firebase.firestore.GeoPoint"
       }
     }
   }

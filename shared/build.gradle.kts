@@ -35,7 +35,11 @@ android {
 kotlin { jvmToolchain(17) }
 
 // TODO(#2206): Manage version centrally.
-dependencies { implementation("org.jetbrains.kotlin", "kotlin-stdlib", "1.9.20") }
+dependencies {
+  implementation("org.jetbrains.kotlin", "kotlin-stdlib", "1.9.20")
+  implementation(platform("com.google.firebase:firebase-bom:32.4.1"))
+  implementation("com.google.firebase:firebase-firestore")
+}
 
 buildscript {
   repositories { mavenCentral() }
