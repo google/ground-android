@@ -17,4 +17,4 @@
 package com.google.ground.shared.schema
 
 // TODO(#2256): Update schema so that values can be strongly typed.
-typealias SubmissionData = Map<String, Any>
+typealias SubmissionDataObject = Map<String, Any>

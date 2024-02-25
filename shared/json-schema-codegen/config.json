@@ -1,8 +1,11 @@
 {
+  "classNames": {
+    "urn:jsonschema:PolygonObject:coordinates": "PolygonCoordinates"
+  },
   "customClasses": {
     "extension": {
       "x-kt-type": {
-        "SubmissionData": "com.google.ground.shared.schema.SubmissionData",
+        "SubmissionDataObject": "com.google.ground.shared.schema.SubmissionDataObject",
         "GeoPoint": "com.google.firebase.firestore.GeoPoint"
       }
     }

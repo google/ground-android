@@ -58,12 +58,15 @@ configure<JSONSchemaCodegen> {
     inputFile(file("$base/point-object.json"))
     inputFile(file("$base/polygon-object.json"))
     inputFile(file("$base/multi-polygon-object.json"))
-    inputFile(file("$base/linear-ring-object.json"))
+    inputFile(file("$base/linear-ring-array-wrapper.json"))
     inputFile(file("$base/coordinates-object.json"))
 
     inputFile(file("$base/submission-document.json"))
     inputFile(file("$base/audit-info-object.json"))
   }
+    // TODO:
+  //        codeGenerator.addCustomClassByURI(URI("http://pwall.net/test#/properties/price"),
+  // "com.example.Money")
   outputDir.set(file("build/generated-sources/kotlin"))
   packageName.set("com.google.ground.shared.schema")
 }
