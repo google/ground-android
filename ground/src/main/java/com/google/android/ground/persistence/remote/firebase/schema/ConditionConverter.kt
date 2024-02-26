@@ -53,14 +53,11 @@ internal object ConditionConverter {
       } else if (it.taskId == null) {
         Timber.e("Empty task ID encountered, skipping expression.")
         null
-      } else if (it.optionIds == null) {
-        Timber.e("Empty option IDs encountered, skipping expression.")
-        null
       } else {
         Expression(
           expressionType = expressionType,
           taskId = it.taskId,
-          optionIds = it.optionIds.toSet(),
+          optionIds = it.optionIds?.toSet() ?: setOf(),
         )
       }
     }

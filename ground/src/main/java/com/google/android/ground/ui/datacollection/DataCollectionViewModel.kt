@@ -207,7 +207,6 @@ class DataCollectionViewModel
       tasks.subList(startIndex, tasks.size)
     }.let { tasks ->
       tasks.asSequence().filter {
-        Timber.v("condition: %s", it.condition)
         it.condition == null || evaluateCondition(it.condition)
       }
     }
@@ -216,17 +215,11 @@ class DataCollectionViewModel
   /** Displays the task at the relative position to the current one. Supports negative steps. */
   fun step(stepCount: Int) {
     val reverse = stepCount < 0
-    Timber.v(
-      "current: %s, reverse: %s, tasks: %s",
-      currentTaskId.value,
-      reverse,
-      tasks.map { it.id })
     val task = getTaskSequence(
       startId = currentTaskId.value,
       preceding = reverse
     ).take(Math.abs(stepCount) + 1).last()
     savedStateHandle[TASK_POSITION_ID] = task.id
-    Timber.v("next: %s", task.id)
   }
 
   /** Returns true if the given task index is last if set, or the current active task. */
