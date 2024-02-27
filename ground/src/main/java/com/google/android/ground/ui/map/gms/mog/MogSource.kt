@@ -17,20 +17,25 @@
 package com.google.android.ground.ui.map.gms.mog
 
 /**
- * Provides URLs of one or more MOGs partitioned by web mercator tile extents at a particular range
- * of zoom level.
+ * Provides URLs or relative paths of one or more MOGs partitioned by web mercator tile extents at a
+ * particular range of zoom level. Relative paths are assumed to be managed by RemoteStorageManager.
  *
  * Examples:
  * ```
  *   // Tiles for zoom levels 0-7 (inclusive) contained in a single file:
- *   val world = MogSource("https://storage.googleapis.com/my-bucket/world.tif", 0..7)
+ *   val world = MogSource(0..7, "https://storage.googleapis.com/my-bucket/world.tif")
+ *   val world = MogSource(0..7, "/offline-imagery/default/{z}/overview.tif")
  *
  *   // Tiles for zoom levels 8-14 (inclusive) contained in separate files, partitioned by zoom level
  *   // 8 tile extents:
- *   val region = MogSource("https://storage.googleapis.com/my-bucket/{x}/{y}.tif", 8..14)
+ *   val region = MogSource(8..14, "https://storage.googleapis.com/my-bucket/{x}/{y}.tif")
+ *   val region = MogSource(8..14, "/offline-imagery/default/{z}/{x}/{y}.tif")
  * ```
  */
-data class MogSource(val urlTemplate: String, val zoomRange: IntRange) {
+data class MogSource(
+  val zoomRange: IntRange,
+  val pathTemplate: String,
+) {
   /** Returns the bounds of the MOG containing the tile with the specified coordinates. */
   fun getMogBoundsForTile(tileCoordinates: TileCoordinates): TileCoordinates {
     check(zoomRange.contains(tileCoordinates.zoom)) {
@@ -39,11 +44,14 @@ data class MogSource(val urlTemplate: String, val zoomRange: IntRange) {
     return tileCoordinates.originAtZoom(zoomRange.first)
   }
 
-  fun getMogUrl(mogBounds: TileCoordinates): String {
+  fun getMogPath(mogBounds: TileCoordinates): String {
     check(zoomRange.first == mogBounds.zoom) {
       "Bounds zoom ${mogBounds.zoom} must match source min zoom ${zoomRange.first}"
     }
-    return urlTemplate.replace("{x}", mogBounds.x.toString()).replace("{y}", mogBounds.y.toString())
+    return pathTemplate
+      .replace("{z}", mogBounds.zoom.toString())
+      .replace("{x}", mogBounds.x.toString())
+      .replace("{y}", mogBounds.y.toString())
   }
 }
 

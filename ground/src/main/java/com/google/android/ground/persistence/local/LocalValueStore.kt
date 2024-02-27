@@ -85,6 +85,13 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
       _offlineImageryEnabled.value = value
     }
 
+  /** Whether to display instructions when loading draw area task. */
+  var drawAreaInstructionsShown: Boolean
+    get() = allowThreadDiskReads { preferences.getBoolean(DRAW_AREA_INSTRUCTIONS_SHOWN, false) }
+    set(value) = allowThreadDiskReads {
+      preferences.edit().putBoolean(DRAW_AREA_INSTRUCTIONS_SHOWN, value).apply()
+    }
+
   /** Removes all values stored in the local store. */
   fun clear() = allowThreadDiskWrites { preferences.edit().clear().apply() }
 
@@ -120,5 +127,6 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     const val TOS_ACCEPTED = "tos_accepted"
     const val LOCATION_LOCK_ENABLED = "location_lock_enabled"
     const val OFFLINE_MAP_IMAGERY = "offline_map_imagery"
+    const val DRAW_AREA_INSTRUCTIONS_SHOWN = "draw_area_instructions_shown"
   }
 }

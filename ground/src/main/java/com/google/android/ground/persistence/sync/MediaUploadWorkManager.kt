@@ -25,14 +25,9 @@ import javax.inject.Inject
 /** Enqueues media upload work to be performed in the background. */
 class MediaUploadWorkManager
 @Inject
-constructor(
-  private val workManager: WorkManager,
-  private val localValueStore: LocalValueStore,
-) : SyncService() {
-  override val workerClass: Class<MediaUploadWorker>
-    get() = MediaUploadWorker::class.java
+constructor(private val workManager: WorkManager, private val localValueStore: LocalValueStore) {
 
-  override fun preferredNetworkType(): NetworkType =
+  private fun preferredNetworkType(): NetworkType =
     if (localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly()) NetworkType.UNMETERED
     else NetworkType.CONNECTED
 
@@ -45,10 +40,15 @@ constructor(
    */
   fun enqueueSyncWorker(locationOfInterestId: String) {
     val workInputData = createInputData(locationOfInterestId)
+    val request =
+      WorkRequestBuilder()
+        .setWorkerClass(MediaUploadWorker::class.java)
+        .setNetworkType(preferredNetworkType())
+        .buildWorkerRequest(workInputData)
     workManager.enqueueUniqueWork(
       MediaUploadWorker::class.java.name,
       ExistingWorkPolicy.APPEND_OR_REPLACE,
-      buildWorkerRequest(workInputData)
+      request,
     )
   }
 }

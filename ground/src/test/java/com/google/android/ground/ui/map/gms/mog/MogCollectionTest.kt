@@ -25,9 +25,9 @@ const val TEST_WORLD_URL = "world_url/5/world.tif"
 const val TEST_HIGH_RES_URL = "high_res_url/5/{x}/{y}.tif"
 const val TEST_HIGH_RES_MIN_ZOOM = 5
 const val TEST_HIGH_RES_MAX_ZOOM = 14
-val MOG_SOURCE_0_TO_4 = MogSource(TEST_WORLD_URL, IntRange(0, TEST_HIGH_RES_MIN_ZOOM - 1))
+val MOG_SOURCE_0_TO_4 = MogSource(IntRange(0, TEST_HIGH_RES_MIN_ZOOM - 1), TEST_WORLD_URL)
 val MOG_SOURCE_5_TO_14 =
-  MogSource(TEST_HIGH_RES_URL, IntRange(TEST_HIGH_RES_MIN_ZOOM, TEST_HIGH_RES_MAX_ZOOM))
+  MogSource(IntRange(TEST_HIGH_RES_MIN_ZOOM, TEST_HIGH_RES_MAX_ZOOM), TEST_HIGH_RES_URL)
 
 @RunWith(MockitoJUnitRunner::class)
 class MogCollectionTest {

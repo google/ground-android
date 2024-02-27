@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
@@ -42,14 +43,18 @@ import kotlinx.coroutines.flow.stateIn
 class DrawAreaTaskViewModel
 @Inject
 internal constructor(
+  private val localValueStore: LocalValueStore,
   private val uuidGenerator: OfflineUuidGenerator,
-  private val resources: Resources
+  private val resources: Resources,
 ) : AbstractTaskViewModel(resources) {
 
   /** Polygon [Feature] being drawn by the user. */
   private val _draftArea: MutableStateFlow<Feature?> = MutableStateFlow(null)
   val draftArea: StateFlow<Feature?> =
     _draftArea.stateIn(viewModelScope, started = SharingStarted.Lazily, null)
+
+  /** Whether the instructions dialog has been shown or not. */
+  var instructionsDialogShown: Boolean by localValueStore::drawAreaInstructionsShown
 
   /**
    * User-specified vertices of the area being drawn. If [isMarkedComplete] is false, then the last
@@ -76,7 +81,7 @@ internal constructor(
    */
   fun updateLastVertexAndMaybeCompletePolygon(
     target: Coordinates,
-    calculateDistanceInPixels: (c1: Coordinates, c2: Coordinates) -> Double
+    calculateDistanceInPixels: (c1: Coordinates, c2: Coordinates) -> Double,
   ) {
     check(!isMarkedComplete) { "Attempted to update last vertex after completing the drawing" }
 
@@ -172,7 +177,7 @@ internal constructor(
           geometry = LineString(vertices),
           style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
           clusterable = false,
-          selected = true
+          selected = true,
         )
       }
   }

@@ -24,43 +24,42 @@ import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
 class MogSourceTest {
-  private val mogSource = MogSource("url/{x}/{y}.tif", 5..7)
+  private val mogSource = MogSource(5..7, "url/{x}/{y}.tif")
 
   @Test
-  fun getMogUrl_whenZoomIsLessThanMinZoom_throwsError() {
+  fun `getMogPath throws an error when zoom is less than min zoom`() {
     assertThrows(IllegalStateException::class.java) {
-      mogSource.getMogUrl(TileCoordinates(250, 500, 2))
+      mogSource.getMogPath(TileCoordinates(250, 500, 2))
     }
   }
 
   @Test
-  fun getMogUrl_whenZoomIsEqualToMinZoom_returnsMogUrlWithMinZoom() {
-    assertThat(mogSource.getMogUrl(TileCoordinates(250, 500, 5))).isEqualTo("url/250/500.tif")
+  fun `getMogPath returns path when zoom is equal to min zoom`() {
+    assertThat(mogSource.getMogPath(TileCoordinates(250, 500, 5))).isEqualTo("url/250/500.tif")
   }
 
   @Test
-  fun getMogUrl_whenZoomIsGreaterThanMaxZoom_throwsError() {
+  fun `getMogPath throws an error when zoom is greater than max zoom`() {
     assertThrows(IllegalStateException::class.java) {
-      mogSource.getMogUrl(TileCoordinates(2500, 5000, 9))
+      mogSource.getMogPath(TileCoordinates(2500, 5000, 9))
     }
   }
 
   @Test
-  fun getMogBoundsForTile_whenZoomIsLessThanMinZoom_throwsError() {
+  fun `getMogBoundsForTile throws an error when zoom is LessThanMinZoom`() {
     assertThrows(IllegalStateException::class.java) {
       mogSource.getMogBoundsForTile(TileCoordinates(10, 20, 4))
     }
   }
 
   @Test
-  fun getMogBoundsForTile_whenZoomIsEqualToMinZoom_returnsSameCoordinates() {
+  fun `getMogBoundsForTile returnsSameCoordinates when zoom is EqualToMinZoom`() {
     val testCoords = TileCoordinates(10, 20, 5)
     assertThat(mogSource.getMogBoundsForTile(testCoords)).isEqualTo(testCoords)
   }
 
   @Test
-  fun getMogBoundsForTile_whenZoomIsMoreThanMinZoom_returnsScaledCoordinates() {
-    val testCoords = TileCoordinates(10, 20, 6)
+  fun `getMogBoundsForTile returnsScaledCoordinates when zoom is MoreThanMinZoom`() {
     assertThat(mogSource.getMogBoundsForTile(TileCoordinates(10, 20, 6)))
       .isEqualTo(TileCoordinates(5, 10, 5))
   }
