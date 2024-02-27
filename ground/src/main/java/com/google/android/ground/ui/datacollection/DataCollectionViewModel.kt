@@ -66,7 +66,8 @@ import kotlin.collections.set
 /** View model for the Data Collection fragment. */
 @HiltViewModel
 class DataCollectionViewModel
-@Inject internal constructor(
+@Inject
+internal constructor(
   private val viewModelFactory: ViewModelFactory,
   private val locationOfInterestHelper: LocationOfInterestHelper,
   private val popups: Provider<EphemeralPopups>,
@@ -97,12 +98,15 @@ class DataCollectionViewModel
 
   val jobName: StateFlow<String> =
     MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
-  val loiName: StateFlow<String> = (if (loiId == null) flowOf("")
-  else flow {
-    val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
-    val label = locationOfInterestHelper.getLabel(loi)
-    emit(label)
-  }).stateIn(viewModelScope, SharingStarted.Lazily, "")
+  val loiName: StateFlow<String> =
+    (if (loiId == null) flowOf("")
+    else
+      flow {
+        val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
+        val label = locationOfInterestHelper.getLabel(loi)
+        emit(label)
+      })
+      .stateIn(viewModelScope, SharingStarted.Lazily, "")
 
   private val taskViewModels: MutableStateFlow<MutableList<AbstractTaskViewModel>> =
     MutableStateFlow(mutableListOf())
@@ -176,7 +180,8 @@ class DataCollectionViewModel
       // Move to home screen and display a confirmation dialog after that.
       navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
       navigator.navigate(
-        DataSubmissionConfirmationDialogFragmentDirections.showSubmissionConfirmationDialogFragment()
+        DataSubmissionConfirmationDialogFragmentDirections
+          .showSubmissionConfirmationDialogFragment()
       )
     }
   }
@@ -194,31 +199,29 @@ class DataCollectionViewModel
   }
 
   /**
-   * Retrieves the current task sequence given the inputs and conditions set on the tasks.
-   * Setting a start ID will always generate a sequence with the start ID as the first element, and
-   * if preceding is set, will generate the previous tasks from there.
+   * Retrieves the current task sequence given the inputs and conditions set on the tasks. Setting a
+   * start ID will always generate a sequence with the start ID as the first element, and if
+   * preceding is set, will generate the previous tasks from there.
    */
   private fun getTaskSequence(startId: String? = null, preceding: Boolean = false): Sequence<Task> {
     val startIndex = tasks.indexOf(tasks.first { it.id == (startId ?: tasks[0].id) })
     return if (preceding) {
-      tasks.subList(0, startIndex + 1)
-        .reversed()
+      tasks.subList(0, startIndex + 1).reversed()
     } else {
       tasks.subList(startIndex, tasks.size)
-    }.let { tasks ->
-      tasks.asSequence().filter {
-        it.condition == null || evaluateCondition(it.condition)
-      }
     }
+      .let { tasks ->
+        tasks.asSequence().filter { it.condition == null || evaluateCondition(it.condition) }
+      }
   }
 
   /** Displays the task at the relative position to the current one. Supports negative steps. */
   fun step(stepCount: Int) {
     val reverse = stepCount < 0
-    val task = getTaskSequence(
-      startId = currentTaskId.value,
-      preceding = reverse
-    ).take(Math.abs(stepCount) + 1).last()
+    val task =
+      getTaskSequence(startId = currentTaskId.value, preceding = reverse)
+        .take(Math.abs(stepCount) + 1)
+        .last()
     savedStateHandle[TASK_POSITION_ID] = task.id
   }
 
@@ -231,32 +234,36 @@ class DataCollectionViewModel
     } == getTaskSequence().last().id
 
   /** Evaluates the task condition against the current inputs. */
-  private fun evaluateCondition(condition: Condition): Boolean = condition.fulfilledBy(
-    data.mapNotNull { (task, value) ->
-      if (value is MultipleChoiceResponse) {
-        task.id to value.selectedOptionIds.toSet()
-      } else {
-        null
-      }
-    }.toMap()
-  )
+  private fun evaluateCondition(condition: Condition): Boolean =
+    condition.fulfilledBy(
+      data
+        .mapNotNull { (task, value) ->
+          if (value is MultipleChoiceResponse) {
+            task.id to value.selectedOptionIds.toSet()
+          } else {
+            null
+          }
+        }
+        .toMap()
+    )
 
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"
     private const val TASK_LOI_ID_KEY = "locationOfInterestId"
     private const val TASK_POSITION_ID = "currentTaskId"
 
-    fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> = when (taskType) {
-      Task.Type.TEXT -> TextTaskViewModel::class.java
-      Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskViewModel::class.java
-      Task.Type.PHOTO -> PhotoTaskViewModel::class.java
-      Task.Type.NUMBER -> NumberTaskViewModel::class.java
-      Task.Type.DATE -> DateTaskViewModel::class.java
-      Task.Type.TIME -> TimeTaskViewModel::class.java
-      Task.Type.DROP_PIN -> DropPinTaskViewModel::class.java
-      Task.Type.DRAW_AREA -> DrawAreaTaskViewModel::class.java
-      Task.Type.CAPTURE_LOCATION -> CaptureLocationTaskViewModel::class.java
-      Task.Type.UNKNOWN -> throw IllegalArgumentException("Unsupported task type: $taskType")
-    }
+    fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
+      when (taskType) {
+        Task.Type.TEXT -> TextTaskViewModel::class.java
+        Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskViewModel::class.java
+        Task.Type.PHOTO -> PhotoTaskViewModel::class.java
+        Task.Type.NUMBER -> NumberTaskViewModel::class.java
+        Task.Type.DATE -> DateTaskViewModel::class.java
+        Task.Type.TIME -> TimeTaskViewModel::class.java
+        Task.Type.DROP_PIN -> DropPinTaskViewModel::class.java
+        Task.Type.DRAW_AREA -> DrawAreaTaskViewModel::class.java
+        Task.Type.CAPTURE_LOCATION -> CaptureLocationTaskViewModel::class.java
+        Task.Type.UNKNOWN -> throw IllegalArgumentException("Unsupported task type: $taskType")
+      }
   }
 }

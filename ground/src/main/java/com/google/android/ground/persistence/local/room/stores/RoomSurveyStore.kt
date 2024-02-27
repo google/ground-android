@@ -17,11 +17,14 @@ package com.google.android.ground.persistence.local.room.stores
 
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.local.room.converter.toModelObject
+import com.google.android.ground.persistence.local.room.dao.ConditionDao
+import com.google.android.ground.persistence.local.room.dao.ExpressionDao
 import com.google.android.ground.persistence.local.room.dao.JobDao
 import com.google.android.ground.persistence.local.room.dao.MultipleChoiceDao
 import com.google.android.ground.persistence.local.room.dao.OptionDao
@@ -30,20 +33,37 @@ import com.google.android.ground.persistence.local.room.dao.TaskDao
 import com.google.android.ground.persistence.local.room.dao.TileSourceDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /** Manages access to [Survey] objects persisted in local storage. */
 @Singleton
 class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
-  @Inject lateinit var optionDao: OptionDao
-  @Inject lateinit var multipleChoiceDao: MultipleChoiceDao
-  @Inject lateinit var taskDao: TaskDao
-  @Inject lateinit var jobDao: JobDao
-  @Inject lateinit var surveyDao: SurveyDao
-  @Inject lateinit var tileSourceDao: TileSourceDao
+  @Inject
+  lateinit var optionDao: OptionDao
+
+  @Inject
+  lateinit var multipleChoiceDao: MultipleChoiceDao
+
+  @Inject
+  lateinit var taskDao: TaskDao
+
+  @Inject
+  lateinit var jobDao: JobDao
+
+  @Inject
+  lateinit var surveyDao: SurveyDao
+
+  @Inject
+  lateinit var tileSourceDao: TileSourceDao
+
+  @Inject
+  lateinit var conditionDao: ConditionDao
+
+  @Inject
+  lateinit var expressionDao: ExpressionDao
 
   override val surveys: Flow<List<Survey>>
     get() = surveyDao.getAll().map { surveyEntities -> surveyEntities.map { it.toModelObject() } }
@@ -80,6 +100,13 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
     options.forEach { insertOrUpdateOption(taskId, it) }
   }
 
+  private suspend fun insertOrUpdateCondition(taskId: String, condition: Condition) {
+    conditionDao.insertOrUpdate(condition.toLocalDataStoreObject(parentTaskId = taskId))
+    condition.expressions.forEach {
+      expressionDao.insertOrUpdate(it.toLocalDataStoreObject(parentTaskId = taskId))
+    }
+  }
+
   private suspend fun insertOrUpdateMultipleChoice(taskId: String, multipleChoice: MultipleChoice) {
     multipleChoiceDao.insertOrUpdate(multipleChoice.toLocalDataStoreObject(taskId))
     insertOrUpdateOptions(taskId, multipleChoice.options)
@@ -89,6 +116,9 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
     taskDao.insertOrUpdate(task.toLocalDataStoreObject(jobId))
     if (task.multipleChoice != null) {
       insertOrUpdateMultipleChoice(task.id, task.multipleChoice)
+    }
+    if (task.condition != null) {
+      insertOrUpdateCondition(task.id, task.condition)
     }
   }
 

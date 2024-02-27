@@ -35,6 +35,7 @@ abstract class LocalDataStoreModule {
   abstract fun localLocationOfInterestStore(
     store: RoomLocationOfInterestStore
   ): LocalLocationOfInterestStore
+
   @Binds
   @Singleton
   abstract fun offlineAreaStore(store: RoomOfflineAreaStore): LocalOfflineAreaStore
@@ -101,6 +102,16 @@ abstract class LocalDataStoreModule {
     @Provides
     fun userDao(localDatabase: LocalDatabase): UserDao {
       return localDatabase.userDao()
+    }
+
+    @Provides
+    fun conditionDao(localDatabase: LocalDatabase): ConditionDao {
+      return localDatabase.conditionDao()
+    }
+
+    @Provides
+    fun expressionDao(localDatabase: LocalDatabase): ExpressionDao {
+      return localDatabase.expressionDao()
     }
   }
 }

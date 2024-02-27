@@ -22,6 +22,8 @@ import timber.log.Timber
 
 /** Converts between Firestore nested objects and [Condition] instances. */
 internal object ConditionConverter {
+  private val <T> T.exhaustive: T
+    get() = this
 
   fun toCondition(em: ConditionNestedObject): Condition? {
     val matchType = toMatchType(em.matchType)
@@ -53,11 +55,14 @@ internal object ConditionConverter {
       } else if (it.taskId == null) {
         Timber.e("Empty task ID encountered, skipping expression.")
         null
+      } else if (it.optionIds == null) {
+        Timber.e("Empty option IDs encountered, skipping expression.")
+        null
       } else {
         Expression(
           expressionType = expressionType,
           taskId = it.taskId,
-          optionIds = it.optionIds?.toSet() ?: setOf(),
+          optionIds = it.optionIds.toSet(),
         )
       }
     }
@@ -69,7 +74,4 @@ internal object ConditionConverter {
       "ONE_OF_SELECTED" -> Expression.ExpressionType.ONE_OF_SELECTED
       else -> Expression.ExpressionType.UNKNOWN
     }.exhaustive
-
-  private val <T> T.exhaustive: T
-    get() = this
 }

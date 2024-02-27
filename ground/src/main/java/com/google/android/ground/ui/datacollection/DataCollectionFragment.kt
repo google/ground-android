@@ -77,17 +77,20 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     loadTasks(viewModel.tasks)
     lifecycleScope.launch { viewModel.currentTaskId.collect { onTaskChanged() } }
 
-    viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-      override fun onPageSelected(position: Int) {
-        super.onPageSelected(position)
+    viewPager.registerOnPageChangeCallback(
+      object : ViewPager2.OnPageChangeCallback() {
+        override fun onPageSelected(position: Int) {
+          super.onPageSelected(position)
 
-        val buttonContainer = view.findViewById<View>(R.id.action_buttons) ?: return
-        val anchorLocation = IntArray(2)
-        buttonContainer.getLocationInWindow(anchorLocation)
-        val guidelineTop = anchorLocation[1] - buttonContainer.rootWindowInsets.systemWindowInsetTop
-        guideline.setGuidelineBegin(guidelineTop)
+          val buttonContainer = view.findViewById<View>(R.id.action_buttons) ?: return
+          val anchorLocation = IntArray(2)
+          buttonContainer.getLocationInWindow(anchorLocation)
+          val guidelineTop =
+            anchorLocation[1] - buttonContainer.rootWindowInsets.systemWindowInsetTop
+          guideline.setGuidelineBegin(guidelineTop)
+        }
       }
-    })
+    )
   }
 
   private fun loadTasks(tasks: List<Task>) {
@@ -116,15 +119,16 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     progressAnimator.start()
   }
 
-  override fun onBack(): Boolean = if (viewPager.currentItem == 0) {
-    // If the user is currently looking at the first step, allow the system to handle the
-    // Back button. This calls finish() on this activity and pops the back stack.
-    false
-  } else {
-    // Otherwise, select the previous step.
-    viewModel.step(-1)
-    true
-  }
+  override fun onBack(): Boolean =
+    if (viewPager.currentItem == 0) {
+      // If the user is currently looking at the first step, allow the system to handle the
+      // Back button. This calls finish() on this activity and pops the back stack.
+      false
+    } else {
+      // Otherwise, select the previous step.
+      viewModel.step(-1)
+      true
+    }
 
   private companion object {
     private const val PROGRESS_SCALE = 100

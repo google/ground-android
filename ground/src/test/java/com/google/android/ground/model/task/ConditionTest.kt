@@ -187,25 +187,25 @@ class ConditionTest {
   }
 
   private fun ConditionTestCase.test(condition: Condition) {
-    this.forEachIndexed { index, it ->
+    this.forEachIndexed { index, testCase ->
       val message =
-        "Type ${condition.matchType}, case $index: Fulfilled should be ${it.first} with ${it.second}"
-      if (it.first) {
-        assertTrue(condition.fulfilledBy(it.second), message)
+        "Type ${condition.matchType}, case $index: Fulfilled should be ${testCase.first} with ${testCase.second}"
+      if (testCase.first) {
+        assertTrue(condition.fulfilledBy(testCase.second), message)
       } else {
-        assertFalse(condition.fulfilledBy(it.second), message)
+        assertFalse(condition.fulfilledBy(testCase.second), message)
       }
     }
   }
 
   private fun ExpressionTestCase.test(expression: Expression) {
-    this.forEachIndexed { index, it ->
+    this.forEachIndexed { index, testCase ->
       val message =
-        "Type ${expression.expressionType}, case $index: Fulfilled should be ${it.first} with ${it.second}"
-      if (it.first) {
-        assertTrue(expression.fulfilledBy(mapOf(it.second)), message)
+        "Type ${expression.expressionType}, case $index: Fulfilled should be ${testCase.first} with ${testCase.second}"
+      if (testCase.first) {
+        assertTrue(expression.fulfilledBy(mapOf(testCase.second)), message)
       } else {
-        assertFalse(expression.fulfilledBy(mapOf(it.second)), message)
+        assertFalse(expression.fulfilledBy(mapOf(testCase.second)), message)
       }
     }
   }

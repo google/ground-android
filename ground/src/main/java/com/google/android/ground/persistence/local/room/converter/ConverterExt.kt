@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,23 +29,27 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.SubmissionData
+import com.google.android.ground.model.task.Condition
+import com.google.android.ground.model.task.Expression
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.model.task.TaskId
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
 import com.google.android.ground.persistence.local.room.entity.*
 import com.google.android.ground.persistence.local.room.fields.*
+import com.google.android.ground.persistence.local.room.relations.ConditionEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.JobEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations
 import com.google.android.ground.ui.map.Bounds
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import java.util.*
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
 import org.json.JSONObject
 import timber.log.Timber
+import java.util.*
 
 fun AuditInfo.toLocalDataStoreObject(): AuditInfoEntity =
   AuditInfoEntity(
@@ -113,14 +117,14 @@ fun JobEntityAndRelations.toModelObject(): Job {
     style = jobEntity.style?.toModelObject(),
     name = jobEntity.name,
     strategy =
-      jobEntity.strategy.let {
-        try {
-          DataCollectionStrategy.valueOf(it)
-        } catch (e: IllegalArgumentException) {
-          Timber.e("unknown data collection strategy $it")
-          DataCollectionStrategy.UNKNOWN
-        }
-      },
+    jobEntity.strategy.let {
+      try {
+        DataCollectionStrategy.valueOf(it)
+      } catch (e: IllegalArgumentException) {
+        Timber.e("unknown data collection strategy $it")
+        DataCollectionStrategy.UNKNOWN
+      }
+    },
     tasks = taskMap.toPersistentMap()
   )
 }
@@ -163,9 +167,9 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       submissionCount = submissionCount,
       properties = properties,
       job = survey.getJob(jobId = jobId)
-          ?: throw LocalDataConsistencyException(
-            "Unknown jobId ${this.jobId} in location of interest ${this.id}"
-          )
+        ?: throw LocalDataConsistencyException(
+          "Unknown jobId ${this.jobId} in location of interest ${this.id}"
+        )
     )
   }
 
@@ -421,6 +425,15 @@ fun TaskEntityAndRelations.toModelObject(): Task {
     multipleChoice = multipleChoiceEntities[0].toModelObject(optionEntities)
   }
 
+  var condition: Condition? = null
+
+  if (conditionEntityAndRelations.isNotEmpty()) {
+    if (conditionEntityAndRelations.size > 1) {
+      Timber.e("More than 1 condition found for task")
+    }
+    condition = conditionEntityAndRelations[0].toModelObject()
+  }
+
   return Task(
     taskEntity.id,
     taskEntity.index,
@@ -428,7 +441,8 @@ fun TaskEntityAndRelations.toModelObject(): Task {
     taskEntity.label!!,
     taskEntity.isRequired,
     multipleChoice,
-    taskEntity.isAddLoiTask
+    taskEntity.isAddLoiTask,
+    condition = condition,
   )
 }
 
@@ -437,3 +451,36 @@ fun User.toLocalDataStoreObject() =
 
 fun UserEntity.toModelObject() =
   User(id = id, email = email, displayName = displayName, photoUrl = photoUrl)
+
+fun Condition.toLocalDataStoreObject(parentTaskId: TaskId) =
+  ConditionEntity(parentTaskId = parentTaskId, matchType = MatchEntityType.fromMatchType(matchType))
+
+fun ConditionEntityAndRelations.toModelObject(): Condition? {
+  val expressions: List<Expression>?
+
+  if (expressionEntities.isEmpty()) {
+    return null
+  } else {
+    expressions = expressionEntities.map { it.toModelObject() }
+  }
+
+  return Condition(
+    conditionEntity.matchType.toMatchType(),
+    expressions = expressions,
+  )
+}
+
+fun Expression.toLocalDataStoreObject(parentTaskId: TaskId): ExpressionEntity =
+  ExpressionEntity(
+    parentTaskId = parentTaskId,
+    expressionType = ExpressionEntityType.fromExpressionType(expressionType),
+    taskId = taskId,
+    optionIds = optionIds.joinToString(",")
+  )
+
+fun ExpressionEntity.toModelObject(): Expression =
+  Expression(
+    expressionType = expressionType.toExpressionType(),
+    taskId = taskId,
+    optionIds = optionIds?.split(',')?.toSet() ?: setOf(),
+  )

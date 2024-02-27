@@ -34,6 +34,8 @@ constructor(
   /** The expressions to evaluate to fulfill the condition. */
   val expressions: List<Expression> = listOf(),
 ) {
+  private val <T> T.exhaustive: T
+    get() = this
 
   /** Match type names as they appear in the remote database. */
   enum class MatchType {
@@ -44,17 +46,13 @@ constructor(
   }
 
   /** Given the user's task selections, determine whether the condition is fulfilled. */
-  fun fulfilledBy(taskSelections: TaskSelections): Boolean {
-    return when (matchType) {
+  fun fulfilledBy(taskSelections: TaskSelections) =
+    when (matchType) {
       MatchType.MATCH_ANY -> expressions.any { it.fulfilledBy(taskSelections) }
       MatchType.MATCH_ALL -> expressions.all { it.fulfilledBy(taskSelections) }
       MatchType.MATCH_ONE -> expressions.filter { it.fulfilledBy(taskSelections) }.size == 1
       else -> throw IllegalArgumentException("Unknown match type: $matchType")
     }.exhaustive
-  }
-
-  private val <T> T.exhaustive: T
-    get() = this
 }
 
 data class Expression
@@ -76,20 +74,18 @@ constructor(
     ONE_OF_SELECTED,
   }
 
-  /** Given the selected options for this task, determine whether the expression is fulfilled. */
-  fun fulfilledBy(taskSelections: TaskSelections): Boolean {
-    return taskSelections[this.taskId]?.let { selection -> this.fulfilled(selection) } ?: false
-  }
+  private val <T> T.exhaustive: T
+    get() = this
 
-  private fun fulfilled(selectedOptions: Set<OptionId>): Boolean {
-    return when (expressionType) {
+  /** Given the selected options for this task, determine whether the expression is fulfilled. */
+  fun fulfilledBy(taskSelections: TaskSelections): Boolean =
+    taskSelections[this.taskId]?.let { selection -> this.fulfilled(selection) } ?: false
+
+  private fun fulfilled(selectedOptions: Set<OptionId>): Boolean =
+    when (expressionType) {
       ExpressionType.ANY_OF_SELECTED -> optionIds.any { it in selectedOptions }
       ExpressionType.ALL_OF_SELECTED -> selectedOptions.containsAll(optionIds)
       ExpressionType.ONE_OF_SELECTED -> selectedOptions.intersect(optionIds).size == 1
       else -> throw IllegalArgumentException("Unknown expression type: $expressionType")
     }.exhaustive
-  }
-
-  private val <T> T.exhaustive: T
-    get() = this
 }

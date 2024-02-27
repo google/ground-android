@@ -20,27 +20,22 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.google.android.ground.persistence.local.room.fields.TaskEntityType
+import com.google.android.ground.persistence.local.room.fields.MatchEntityType
 
 @Entity(
-  tableName = "task",
+  tableName = "condition",
   foreignKeys =
-    [
-      ForeignKey(
-        entity = JobEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["job_id"],
-        onDelete = ForeignKey.CASCADE
-      )
-    ],
-  indices = [Index("job_id")]
+  [
+    ForeignKey(
+      entity = TaskEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["parent_task_id"],
+      onDelete = ForeignKey.CASCADE
+    )
+  ],
+  indices = [Index("parent_task_id")]
 )
-data class TaskEntity(
-  @ColumnInfo(name = "id") @PrimaryKey val id: String,
-  @ColumnInfo(name = "index") val index: Int,
-  @ColumnInfo(name = "task_type") val taskType: TaskEntityType,
-  @ColumnInfo(name = "label") val label: String?,
-  @ColumnInfo(name = "is_required") val isRequired: Boolean,
-  @ColumnInfo(name = "job_id") val jobId: String?,
-  @ColumnInfo(name = "is_add_loi_task") val isAddLoiTask: Boolean,
+data class ConditionEntity(
+  @ColumnInfo(name = "parent_task_id") @PrimaryKey val parentTaskId: String,
+  @ColumnInfo(name = "match_type") val matchType: MatchEntityType,
 )
