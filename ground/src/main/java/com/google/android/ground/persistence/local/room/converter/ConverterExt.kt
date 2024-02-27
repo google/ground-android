@@ -442,7 +442,7 @@ fun TaskEntityAndRelations.toModelObject(): Task {
     taskEntity.isRequired,
     multipleChoice,
     taskEntity.isAddLoiTask,
-    condition = condition,
+    condition,
   )
 }
 
