@@ -19,12 +19,12 @@ package com.google.android.ground.ui.map.gms.mog
 import android.util.LruCache
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.ui.map.Bounds
+import java.io.InputStream
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
-import java.io.InputStream
 
 /** Aliases a relative path or a URL to a MOG. */
 typealias MogPathOrUrl = String
