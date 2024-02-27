@@ -100,17 +100,20 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     }
 
     // Reset progress bar
-    progressBar.progress = 0
-    progressBar.max = (tasks.size - 1) * PROGRESS_SCALE
+    val (start, taskSize) = viewModel.getRelativePosition()
+    progressBar.progress = start
+    progressBar.max = (taskSize - 1) * PROGRESS_SCALE
   }
 
   private fun onTaskChanged() {
-    val index = viewModel.getAbsolutePosition()
-    viewPager.currentItem = index
+    viewPager.currentItem = viewModel.getAbsolutePosition()
 
+    // Reset progress bar
+    val (currIndex, taskSize) = viewModel.getRelativePosition()
+    progressBar.max = (taskSize - 1) * PROGRESS_SCALE
     progressBar.clearAnimation()
 
-    val progressAnimator = ValueAnimator.ofInt(progressBar.progress, index * PROGRESS_SCALE)
+    val progressAnimator = ValueAnimator.ofInt(progressBar.progress, currIndex * PROGRESS_SCALE)
     progressAnimator.duration = 400L
     progressAnimator.interpolator = FastOutSlowInInterpolator()
 

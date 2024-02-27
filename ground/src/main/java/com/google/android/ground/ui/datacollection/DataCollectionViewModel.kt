@@ -148,7 +148,7 @@ internal constructor(
    * the previous Data Collection screen if the user input was valid.
    */
   fun onPreviousClicked(taskViewModel: AbstractTaskViewModel) {
-    check(getAbsolutePosition() != 0)
+    check(getRelativePosition().first != 0)
 
     val validationError = taskViewModel.validate()
     if (validationError != null) {
@@ -196,6 +196,19 @@ internal constructor(
       return 0
     }
     return tasks.indexOf(tasks.first { it.id == currentTaskId.value })
+  }
+
+  /** Get the index of the current task within the (possibly conditional) task sequence. */
+  fun getRelativePosition(): Pair<Int, Int> {
+    var currentIndex = 0
+    var size = 0
+    getTaskSequence().forEachIndexed { index, task ->
+      if (task.id == currentTaskId.value) {
+        currentIndex = index
+      }
+      size++
+    }
+    return currentIndex to size
   }
 
   /**
