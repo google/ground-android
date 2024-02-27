@@ -70,6 +70,7 @@ data class MogImageMetadata(
   // against accidental usage by throwing exception if called.
   @Suppress("detekt:ExceptionRaisedInUnexpectedLocation")
   override fun equals(other: Any?) = throw UnsupportedOperationException()
+
   @Suppress("detekt:ExceptionRaisedInUnexpectedLocation")
   override fun hashCode() = throw UnsupportedOperationException()
 
@@ -86,8 +87,7 @@ data class MogImageMetadata(
         tiffTagToValue[TiffTag.ImageLength] as Int,
         (tiffTagToValue[TiffTag.JPEGTables] as? List<*>)
           ?.map { (it as Int).toByte() }
-          ?.toByteArray()
-          ?: byteArrayOf(),
+          ?.toByteArray() ?: byteArrayOf(),
         (tiffTagToValue[TiffTag.GdalNodata] as? String)?.toIntOrNull()
       )
   }

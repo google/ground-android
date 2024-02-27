@@ -50,10 +50,10 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
    * specified [tileBounds] and [zoomRange]s.
    *
    * @param tileBounds the bounds used to constrain which tiles are retrieved. Only requests for
-   * tiles within or overlapping these bounds are returned.
+   *   tiles within or overlapping these bounds are returned.
    * @param zoomRange the min. and max. zoom levels for which tile requests should be returned.
-   * Defaults to all available zoom levels in the collection ([MogSource.minZoom] to
-   * [MogSource.maxZoom]).
+   *   Defaults to all available zoom levels in the collection ([MogSource.minZoom] to
+   *   [MogSource.maxZoom]).
    */
   suspend fun buildTilesRequests(
     tileBounds: Bounds,
