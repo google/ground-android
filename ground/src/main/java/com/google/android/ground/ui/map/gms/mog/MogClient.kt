@@ -19,7 +19,6 @@ package com.google.android.ground.ui.map.gms.mog
 import android.util.LruCache
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.ui.map.Bounds
-import java.io.FileNotFoundException
 import java.io.InputStream
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -187,11 +186,11 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
 
   private suspend fun MogPathOrUrl.toUrl(): MogUrl? =
     if (startsWith("/")) {
-      nullIfNotFound { remoteStorageManager.getDownloadUrl(this).toString() }
+      nullIfError { remoteStorageManager.getDownloadUrl(this).toString() }
     } else this
 
   private fun MogUrl.readMetadata(mogBounds: TileCoordinates): MogMetadata? =
-    nullIfNotFound { UrlInputStream(this) }?.use { this.readMogMetadataAndClose(mogBounds, it) }
+    nullIfError { UrlInputStream(this) }?.use { this.readMogMetadataAndClose(mogBounds, it) }
 
   /** Reads the metadata from the specified input stream. */
   private fun MogUrl.readMogMetadataAndClose(
@@ -208,9 +207,10 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
   }
 }
 
-private inline fun <T> nullIfNotFound(fn: () -> T) =
+private inline fun <T> nullIfError(fn: () -> T) =
   try {
     fn()
-  } catch (_: FileNotFoundException) {
+  } catch (e: Exception) {
+    Timber.e(e)
     null
   }
