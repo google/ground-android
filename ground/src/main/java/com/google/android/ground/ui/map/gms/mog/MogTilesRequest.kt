@@ -21,6 +21,7 @@ package com.google.android.ground.ui.map.gms.mog
 open class MogTilesRequest(val sourceUrl: String, val tiles: List<MogTileMetadata>) {
   val totalBytes: Int
     get() = tiles.sumOf { it.byteRange.count() }
+
   val byteRange: LongRange
     get() = LongRange(tiles.first().byteRange.first, tiles.last().byteRange.last)
 
@@ -29,9 +30,7 @@ open class MogTilesRequest(val sourceUrl: String, val tiles: List<MogTileMetadat
     if (other !is MogTilesRequest) return false
 
     if (sourceUrl != other.sourceUrl) return false
-    if (tiles != other.tiles) return false
-
-    return true
+    return tiles == other.tiles
   }
 
   override fun hashCode(): Int {
