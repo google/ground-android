@@ -33,37 +33,29 @@ import com.google.android.ground.persistence.local.room.dao.TaskDao
 import com.google.android.ground.persistence.local.room.dao.TileSourceDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /** Manages access to [Survey] objects persisted in local storage. */
 @Singleton
 class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
-  @Inject
-  lateinit var optionDao: OptionDao
+  @Inject lateinit var optionDao: OptionDao
 
-  @Inject
-  lateinit var multipleChoiceDao: MultipleChoiceDao
+  @Inject lateinit var multipleChoiceDao: MultipleChoiceDao
 
-  @Inject
-  lateinit var taskDao: TaskDao
+  @Inject lateinit var taskDao: TaskDao
 
-  @Inject
-  lateinit var jobDao: JobDao
+  @Inject lateinit var jobDao: JobDao
 
-  @Inject
-  lateinit var surveyDao: SurveyDao
+  @Inject lateinit var surveyDao: SurveyDao
 
-  @Inject
-  lateinit var tileSourceDao: TileSourceDao
+  @Inject lateinit var tileSourceDao: TileSourceDao
 
-  @Inject
-  lateinit var conditionDao: ConditionDao
+  @Inject lateinit var conditionDao: ConditionDao
 
-  @Inject
-  lateinit var expressionDao: ExpressionDao
+  @Inject lateinit var expressionDao: ExpressionDao
 
   override val surveys: Flow<List<Survey>>
     get() = surveyDao.getAll().map { surveyEntities -> surveyEntities.map { it.toModelObject() } }

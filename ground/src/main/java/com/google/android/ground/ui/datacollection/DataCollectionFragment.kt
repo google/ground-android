@@ -33,17 +33,15 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
 class DataCollectionFragment : AbstractFragment(), BackPressListener {
-  @Inject
-  lateinit var navigator: Navigator
+  @Inject lateinit var navigator: Navigator
 
-  @Inject
-  lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
+  @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
   private val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
 

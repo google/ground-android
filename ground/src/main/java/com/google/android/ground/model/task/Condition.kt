@@ -26,9 +26,7 @@ typealias TaskSelections = Map<TaskId, Set<OptionId>>
  * Describes a user-defined condition on a task, which determines whether the given task should be
  * hidden due to failure of fulfillment based on the input expressions.
  */
-data class Condition
-@JvmOverloads
-constructor(
+data class Condition(
   /** Determines the evaluation condition for fulfillment (e.g. all or some expressions). */
   val matchType: MatchType = MatchType.UNKNOWN,
   /** The expressions to evaluate to fulfill the condition. */
@@ -55,9 +53,7 @@ constructor(
     }.exhaustive
 }
 
-data class Expression
-@JvmOverloads
-constructor(
+data class Expression(
   /** Determines the evaluation condition for the expression (e.g. all or some selected options). */
   val expressionType: ExpressionType = ExpressionType.UNKNOWN,
   /** The task ID associated with this expression. */

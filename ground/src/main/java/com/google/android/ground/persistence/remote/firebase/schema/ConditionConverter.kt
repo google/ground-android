@@ -43,7 +43,10 @@ internal object ConditionConverter {
       "MATCH_ANY" -> Condition.MatchType.MATCH_ANY
       "MATCH_ALL" -> Condition.MatchType.MATCH_ALL
       "MATCH_ONE" -> Condition.MatchType.MATCH_ONE
-      else -> Condition.MatchType.UNKNOWN
+      else -> {
+        Timber.v("Unknown MatchType received: $typeStr")
+        Condition.MatchType.UNKNOWN
+      }
     }.exhaustive
 
   private fun toExpressions(expressions: List<ExpressionNestedObject>): List<Expression> =
@@ -72,6 +75,9 @@ internal object ConditionConverter {
       "ANY_OF_SELECTED" -> Expression.ExpressionType.ANY_OF_SELECTED
       "ALL_OF_SELECTED" -> Expression.ExpressionType.ALL_OF_SELECTED
       "ONE_OF_SELECTED" -> Expression.ExpressionType.ONE_OF_SELECTED
-      else -> Expression.ExpressionType.UNKNOWN
+      else -> {
+        Timber.v("Unknown ExpressionType received: $typeStr")
+        Expression.ExpressionType.UNKNOWN
+      }
     }.exhaustive
 }

@@ -130,6 +130,8 @@ abstract class LocalDatabase : RoomDatabase() {
   abstract fun offlineAreaDao(): OfflineAreaDao
 
   abstract fun userDao(): UserDao
+
   abstract fun conditionDao(): ConditionDao
+
   abstract fun expressionDao(): ExpressionDao
 }

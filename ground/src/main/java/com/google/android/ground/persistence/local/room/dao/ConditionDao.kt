@@ -18,5 +18,4 @@ package com.google.android.ground.persistence.local.room.dao
 import androidx.room.Dao
 import com.google.android.ground.persistence.local.room.entity.ConditionEntity
 
-@Dao
-interface ConditionDao : BaseDao<ConditionEntity>
+@Dao interface ConditionDao : BaseDao<ConditionEntity>
