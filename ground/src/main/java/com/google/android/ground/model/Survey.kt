@@ -24,7 +24,7 @@ data class Survey(
   val title: String,
   val description: String,
   val jobMap: Map<String, Job>,
-  // TODO(#1730): Allow tile source configuration from a non-survey accessible source.
+  // TODO(#1730): Remove tileSources from survey.
   val tileSources: List<TileSource> = listOf(),
   val acl: Map<String, String> = mapOf()
 ) {
