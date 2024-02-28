@@ -33,15 +33,15 @@ import com.google.android.ground.ui.util.FileUtil
 import com.google.android.ground.util.ByteCount
 import com.google.android.ground.util.deleteIfEmpty
 import com.google.android.ground.util.rangeOf
+import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
-import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
@@ -51,7 +51,8 @@ const val AREA_NAME_SENSITIVITY = 0.5
 
 @Singleton
 class OfflineAreaRepository
-@Inject constructor(
+@Inject
+constructor(
   private val localOfflineAreaStore: LocalOfflineAreaStore,
   private val surveyRepository: SurveyRepository,
   private val fileUtil: FileUtil,
@@ -112,12 +113,14 @@ class OfflineAreaRepository
     }
 
   private suspend fun applyBounds(
-    tileSources: List<TileSource>?, bounds: List<Bounds>
+    tileSources: List<TileSource>?,
+    bounds: List<Bounds>
   ): List<TileSource> =
     tileSources?.mapNotNull { tileSource -> toOfflineTileSource(tileSource, bounds) } ?: listOf()
 
   private suspend fun toOfflineTileSource(
-    tileSource: TileSource, clipBounds: List<Bounds>
+    tileSource: TileSource,
+    clipBounds: List<Bounds>
   ): TileSource? {
     if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
     return TileSource(
@@ -143,10 +146,7 @@ class OfflineAreaRepository
   private fun getMogSources(): List<MogSource> =
     Config.getMogSources(getDefaultTileSources().first().url)
 
-  /**
-   * Returns the default configured tile sources.
-   *
-   */
+  /** Returns the default configured tile sources. */
   fun getDefaultTileSources(): List<TileSource> =
     listOf(TileSource(url = Config.DEFAULT_MOG_TILE_URL, type = TileSource.Type.MOG_COLLECTION))
 

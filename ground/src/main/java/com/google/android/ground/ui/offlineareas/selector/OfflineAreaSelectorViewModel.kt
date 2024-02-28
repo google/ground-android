@@ -37,9 +37,9 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.util.toMb
 import com.google.android.ground.util.toMbString
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 private const val MIN_DOWNLOAD_ZOOM_LEVEL = 9
 private const val MAX_AREA_DOWNLOAD_SIZE_MB = 50

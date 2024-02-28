@@ -22,19 +22,19 @@ import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @SharedViewModel
 class HomeScreenViewModel
 @Inject
 internal constructor(
   private val navigator: Navigator,
-  private val surveyRepository: SurveyRepository,
+  surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
   private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
