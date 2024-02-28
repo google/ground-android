@@ -96,7 +96,9 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.draftArea.collectLatest { onFeatureUpdated(it) }
     }
+  }
 
+  override fun onTaskVisibleToUser() {
     if (!viewModel.instructionsDialogShown) {
       showInstructionsDialog()
     }
