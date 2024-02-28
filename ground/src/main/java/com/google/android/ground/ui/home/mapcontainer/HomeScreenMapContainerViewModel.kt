@@ -46,6 +46,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
@@ -78,6 +79,17 @@ internal constructor(
 
   private val selectedLoiIdFlow = MutableStateFlow<String?>(null)
 
+  val activeSurvey: StateFlow<Survey?> = surveyRepository.activeSurveyFlow
+
+  val lois: Flow<Set<LocationOfInterest>> =
+    activeSurvey.flatMapLatest {
+      if (it == null) {
+        flow { setOf<LocationOfInterest>() }
+      } else {
+        loiRepository.getLocationsOfInterests(it)
+      }
+    }
+
   /** Set of [Feature] to render on the map. */
   val mapLoiFeatures: Flow<Set<Feature>>
 
@@ -104,8 +116,6 @@ internal constructor(
     // TODO: Clear location of interest markers when survey is deactivated.
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     //  into the repository.
-
-    val activeSurvey = surveyRepository.activeSurveyFlow
 
     mapLoiFeatures =
       activeSurvey.flatMapLatest {

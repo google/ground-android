@@ -32,6 +32,7 @@ import com.google.android.ground.coroutines.MainDispatcher
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.UserRepository
@@ -44,6 +45,7 @@ import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.MapFragment
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -115,7 +117,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View {
     binding = BasemapLayoutBinding.inflate(inflater, container, false)
     binding.fragment = this
@@ -128,6 +130,29 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     super.onViewCreated(view, savedInstanceState)
     setupMenuFab()
     setupBottomLoiCards()
+    lifecycleScope.launch {
+      mapContainerViewModel.activeSurvey
+        .combine(mapContainerViewModel.lois) { x, y -> Pair(x, y) }
+        .collect {
+          val survey = it.first
+          val lois = it.second
+          survey?.let {
+            val suggest =
+              it.jobs.any {
+                it.strategy != Job.DataCollectionStrategy.PREDEFINED &&
+                  it.strategy != Job.DataCollectionStrategy.UNKNOWN
+              }
+            val readonly = lois.isEmpty()
+            val msg =
+              when {
+                suggest -> resources.getString(R.string.suggest_data_collection_hint)
+                readonly -> resources.getString(R.string.read_only_data_collection_hint)
+                else -> resources.getString(R.string.predefined_data_collection_hint)
+              }
+            Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG).show()
+          }
+        }
+    }
   }
 
   private fun setupMenuFab() {
@@ -183,14 +208,14 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
             cardUiData.loi.id,
-            cardUiData.loi.job.id
+            cardUiData.loi.job.id,
           )
         )
       is MapCardUiData.AddLoiCardUiData ->
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
             null,
-            cardUiData.job.id
+            cardUiData.job.id,
           )
         )
     }
