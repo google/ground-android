@@ -20,16 +20,25 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.FileProvider
 import com.google.android.ground.BuildConfig
+import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
+import com.google.android.ground.coroutines.MainScope
 import com.google.android.ground.databinding.PhotoTaskFragBinding
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
@@ -44,8 +53,8 @@ import timber.log.Timber
 class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject lateinit var userMediaRepository: UserMediaRepository
   @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
+  @Inject @MainScope lateinit var mainScope: CoroutineScope
   @Inject lateinit var permissionsManager: PermissionsManager
-  @Inject lateinit var navigator: Navigator
 
   private lateinit var selectPhotoLauncher: ActivityResultLauncher<String>
   private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
@@ -115,9 +124,37 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
         onPermissionsGranted()
       } catch (_: PermissionDeniedException) {
-        navigator.navigate(PhotoTaskFragmentDirections.showCameraPermissionDeniedFragment())
+        mainScope.launch { showPermissionDeniedDialog() }
       }
     }
+  }
+
+  private fun showPermissionDeniedDialog() {
+    (view as ViewGroup).addView(
+      ComposeView(requireContext()).apply {
+        setContent {
+          val openAlertDialog = remember { mutableStateOf(true) }
+          when {
+            openAlertDialog.value -> {
+              CreatePermissionDeniedDialog { openAlertDialog.value = false }
+            }
+          }
+        }
+      }
+    )
+  }
+
+  @Composable
+  private fun CreatePermissionDeniedDialog(onDismissRequest: () -> Unit) {
+    AlertDialog(
+      title = { Text(text = getString(R.string.permission_denied)) },
+      text = { Text(text = getString(R.string.camera_permissions_needed)) },
+      onDismissRequest = {}, // Prevent dismissing the dialog by clicking outside
+      confirmButton = {
+        Button(onClick = { onDismissRequest() }) { Text(text = getString(R.string.ok)) }
+      },
+      dismissButton = {}, // Hide dismiss button,
+    )
   }
 
   fun onTakePhoto() {
