@@ -55,7 +55,7 @@ internal object TaskConverter {
       "draw_area" -> Task.Type.DRAW_AREA
       "number" -> Task.Type.NUMBER
       "date" -> Task.Type.DATE
-      "time" -> Task.Type.TIME
+      "date_time" -> Task.Type.TIME
       "capture_location" -> Task.Type.CAPTURE_LOCATION
       else -> Task.Type.UNKNOWN
     }
