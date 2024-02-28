@@ -19,7 +19,6 @@ package com.google.android.ground.ui.map.gms.mog
 import android.util.LruCache
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.ui.map.Bounds
-import java.io.FileNotFoundException
 import java.io.InputStream
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -50,10 +49,10 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
    * specified [tileBounds] and [zoomRange]s.
    *
    * @param tileBounds the bounds used to constrain which tiles are retrieved. Only requests for
-   * tiles within or overlapping these bounds are returned.
+   *   tiles within or overlapping these bounds are returned.
    * @param zoomRange the min. and max. zoom levels for which tile requests should be returned.
-   * Defaults to all available zoom levels in the collection ([MogSource.minZoom] to
-   * [MogSource.maxZoom]).
+   *   Defaults to all available zoom levels in the collection ([MogSource.minZoom] to
+   *   [MogSource.maxZoom]).
    */
   suspend fun buildTilesRequests(
     tileBounds: Bounds,
@@ -187,11 +186,11 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
 
   private suspend fun MogPathOrUrl.toUrl(): MogUrl? =
     if (startsWith("/")) {
-      nullIfNotFound { remoteStorageManager.getDownloadUrl(this).toString() }
+      nullIfError { remoteStorageManager.getDownloadUrl(this).toString() }
     } else this
 
   private fun MogUrl.readMetadata(mogBounds: TileCoordinates): MogMetadata? =
-    nullIfNotFound { UrlInputStream(this) }?.use { this.readMogMetadataAndClose(mogBounds, it) }
+    nullIfError { UrlInputStream(this) }?.use { this.readMogMetadataAndClose(mogBounds, it) }
 
   /** Reads the metadata from the specified input stream. */
   private fun MogUrl.readMogMetadataAndClose(
@@ -208,9 +207,10 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
   }
 }
 
-private inline fun <T> nullIfNotFound(fn: () -> T) =
+private inline fun <T> nullIfError(fn: () -> T) =
   try {
     fn()
-  } catch (_: FileNotFoundException) {
+  } catch (e: Exception) {
+    Timber.e(e)
     null
   }

@@ -39,8 +39,11 @@ abstract class LocalDataStoreModule {
   @Binds
   @Singleton
   abstract fun offlineAreaStore(store: RoomOfflineAreaStore): LocalOfflineAreaStore
+
   @Binds @Singleton abstract fun submissionStore(store: RoomSubmissionStore): LocalSubmissionStore
+
   @Binds @Singleton abstract fun surveyStore(store: RoomSurveyStore): LocalSurveyStore
+
   @Binds @Singleton abstract fun userStore(store: RoomUserStore): LocalUserStore
 
   companion object {
