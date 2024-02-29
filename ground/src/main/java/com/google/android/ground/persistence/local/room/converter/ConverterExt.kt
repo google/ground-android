@@ -236,8 +236,8 @@ fun MultipleChoiceEntity.toModelObject(optionEntities: List<OptionEntity>): Mult
   return MultipleChoice(options.toPersistentList(), this.type.toCardinality())
 }
 
-fun MultipleChoice.toLocalDataStoreObject(taskId: String): MultipleChoiceEntity =
-  MultipleChoiceEntity(taskId, MultipleChoiceEntityType.fromCardinality(this.cardinality))
+fun MultipleChoice.toLocalDataStoreObject(taskId: String, jobId: String): MultipleChoiceEntity =
+  MultipleChoiceEntity(taskId, jobId, MultipleChoiceEntityType.fromCardinality(this.cardinality))
 
 private fun OfflineAreaEntityState.toModelObject() =
   when (this) {
@@ -282,8 +282,8 @@ fun OfflineAreaEntity.toModelObject(): OfflineArea {
   )
 }
 
-fun Option.toLocalDataStoreObject(taskId: String) =
-  OptionEntity(id = this.id, code = this.code, label = this.label, taskId = taskId)
+fun Option.toLocalDataStoreObject(taskId: String, jobId: String) =
+  OptionEntity(id = this.id, code = this.code, label = this.label, taskId = taskId, jobId = jobId)
 
 fun OptionEntity.toModelObject() = Option(id = this.id, code = this.code, label = this.label)
 
@@ -400,7 +400,7 @@ fun Survey.toLocalDataStoreObject() =
     acl = JSONObject(acl as Map<*, *>)
   )
 
-fun Task.toLocalDataStoreObject(jobId: String?) =
+fun Task.toLocalDataStoreObject(jobId: String) =
   TaskEntity(
     id = id,
     jobId = jobId,

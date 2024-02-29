@@ -15,25 +15,29 @@
  */
 package com.google.android.ground.persistence.local.room.entity
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 
 @Entity(
   tableName = "option",
   foreignKeys =
-    [
-      ForeignKey(
-        entity = TaskEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["task_id"],
-        onDelete = ForeignKey.CASCADE
-      )
-    ],
-  indices = [Index("task_id")],
-  primaryKeys = ["id"]
+  [
+    ForeignKey(
+      entity = TaskEntity::class,
+      parentColumns = ["id", "job_id"],
+      childColumns = ["task_id", "job_id"],
+      onDelete = ForeignKey.CASCADE
+    )
+  ],
+  indices = [Index("task_id", "job_id")],
+  primaryKeys = ["id", "job_id"],
 )
 data class OptionEntity(
   @ColumnInfo(name = "id") val id: String,
   @ColumnInfo(name = "code") val code: String,
   @ColumnInfo(name = "label") val label: String,
-  @ColumnInfo(name = "task_id") val taskId: String
+  @ColumnInfo(name = "task_id") val taskId: String,
+  @ColumnInfo(name = "job_id") val jobId: String,
 )

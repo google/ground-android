@@ -30,20 +30,31 @@ import com.google.android.ground.persistence.local.room.dao.TaskDao
 import com.google.android.ground.persistence.local.room.dao.TileSourceDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /** Manages access to [Survey] objects persisted in local storage. */
 @Singleton
 class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
-  @Inject lateinit var optionDao: OptionDao
-  @Inject lateinit var multipleChoiceDao: MultipleChoiceDao
-  @Inject lateinit var taskDao: TaskDao
-  @Inject lateinit var jobDao: JobDao
-  @Inject lateinit var surveyDao: SurveyDao
-  @Inject lateinit var tileSourceDao: TileSourceDao
+  @Inject
+  lateinit var optionDao: OptionDao
+
+  @Inject
+  lateinit var multipleChoiceDao: MultipleChoiceDao
+
+  @Inject
+  lateinit var taskDao: TaskDao
+
+  @Inject
+  lateinit var jobDao: JobDao
+
+  @Inject
+  lateinit var surveyDao: SurveyDao
+
+  @Inject
+  lateinit var tileSourceDao: TileSourceDao
 
   override val surveys: Flow<List<Survey>>
     get() = surveyDao.getAll().map { surveyEntities -> surveyEntities.map { it.toModelObject() } }
@@ -73,22 +84,26 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
   override suspend fun deleteSurvey(survey: Survey) =
     surveyDao.delete(survey.toLocalDataStoreObject())
 
-  private suspend fun insertOrUpdateOption(taskId: String, option: Option) =
-    optionDao.insertOrUpdate(option.toLocalDataStoreObject(taskId))
+  private suspend fun insertOrUpdateOption(taskId: String, jobId: String, option: Option) =
+    optionDao.insertOrUpdate(option.toLocalDataStoreObject(taskId, jobId))
 
-  private suspend fun insertOrUpdateOptions(taskId: String, options: List<Option>) {
-    options.forEach { insertOrUpdateOption(taskId, it) }
+  private suspend fun insertOrUpdateOptions(taskId: String, jobId: String, options: List<Option>) {
+    options.forEach { insertOrUpdateOption(taskId, jobId, it) }
   }
 
-  private suspend fun insertOrUpdateMultipleChoice(taskId: String, multipleChoice: MultipleChoice) {
-    multipleChoiceDao.insertOrUpdate(multipleChoice.toLocalDataStoreObject(taskId))
-    insertOrUpdateOptions(taskId, multipleChoice.options)
+  private suspend fun insertOrUpdateMultipleChoice(
+    taskId: String,
+    jobId: String,
+    multipleChoice: MultipleChoice
+  ) {
+    multipleChoiceDao.insertOrUpdate(multipleChoice.toLocalDataStoreObject(taskId, jobId))
+    insertOrUpdateOptions(taskId, jobId, multipleChoice.options)
   }
 
   private suspend fun insertOrUpdateTask(jobId: String, task: Task) {
     taskDao.insertOrUpdate(task.toLocalDataStoreObject(jobId))
     if (task.multipleChoice != null) {
-      insertOrUpdateMultipleChoice(task.id, task.multipleChoice)
+      insertOrUpdateMultipleChoice(task.id, jobId, task.multipleChoice)
     }
   }
 

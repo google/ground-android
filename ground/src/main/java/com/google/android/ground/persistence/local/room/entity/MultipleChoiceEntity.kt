@@ -15,23 +15,28 @@
  */
 package com.google.android.ground.persistence.local.room.entity
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import com.google.android.ground.persistence.local.room.fields.MultipleChoiceEntityType
 
 @Entity(
   tableName = "multiple_choice",
   foreignKeys =
-    [
-      ForeignKey(
-        entity = TaskEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["task_id"],
-        onDelete = ForeignKey.CASCADE
-      )
-    ],
-  indices = [Index("task_id")]
+  [
+    ForeignKey(
+      entity = TaskEntity::class,
+      parentColumns = ["id", "job_id"],
+      childColumns = ["task_id", "job_id"],
+      onDelete = ForeignKey.CASCADE
+    )
+  ],
+  indices = [Index("task_id", "job_id")],
+  primaryKeys = ["task_id", "job_id"],
 )
 data class MultipleChoiceEntity(
-  @ColumnInfo(name = "task_id") @PrimaryKey val taskId: String,
+  @ColumnInfo(name = "task_id") val taskId: String,
+  @ColumnInfo(name = "job_id") val jobId: String,
   @ColumnInfo(name = "type") val type: MultipleChoiceEntityType
 )

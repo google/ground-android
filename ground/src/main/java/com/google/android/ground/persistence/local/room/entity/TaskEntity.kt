@@ -19,29 +19,29 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import androidx.room.PrimaryKey
 import com.google.android.ground.persistence.local.room.fields.TaskEntityType
 
 @Entity(
   tableName = "task",
   foreignKeys =
-    [
-      ForeignKey(
-        entity = JobEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["job_id"],
-        onDelete = ForeignKey.CASCADE
-      )
-    ],
-  indices = [Index("job_id")]
+  [
+    ForeignKey(
+      entity = JobEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["job_id"],
+      onDelete = ForeignKey.CASCADE
+    )
+  ],
+  indices = [Index("id", "job_id")],
+  primaryKeys = ["id", "job_id"],
 )
 data class TaskEntity(
-  @ColumnInfo(name = "id") @PrimaryKey val id: String,
+  @ColumnInfo(name = "id") val id: String,
+  @ColumnInfo(name = "job_id") val jobId: String,
   @ColumnInfo(name = "index") val index: Int,
   @ColumnInfo(name = "task_type") val taskType: TaskEntityType,
   @ColumnInfo(name = "label") val label: String?,
   @ColumnInfo(name = "is_required") val isRequired: Boolean,
-  @ColumnInfo(name = "job_id") val jobId: String?,
   // Deprecated.
   @ColumnInfo(name = "is_add_loi_task") val isAddLoiTask: Boolean
 )
