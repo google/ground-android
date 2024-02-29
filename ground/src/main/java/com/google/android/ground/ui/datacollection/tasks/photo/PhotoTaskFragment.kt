@@ -21,19 +21,30 @@ import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.FileProvider
 import com.google.android.ground.BuildConfig
+import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
+import com.google.android.ground.coroutines.MainScope
 import com.google.android.ground.databinding.PhotoTaskFragBinding
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
+import com.google.android.material.color.MaterialColors
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -45,8 +56,8 @@ import timber.log.Timber
 class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject lateinit var userMediaRepository: UserMediaRepository
   @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
+  @Inject @MainScope lateinit var mainScope: CoroutineScope
   @Inject lateinit var permissionsManager: PermissionsManager
-  @Inject lateinit var navigator: Navigator
 
   private lateinit var selectPhotoLauncher: ActivityResultLauncher<String>
   private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
@@ -125,8 +136,37 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
         onPermissionsGranted()
       } catch (_: PermissionDeniedException) {
-        navigator.navigate(PhotoTaskFragmentDirections.showCameraPermissionDeniedFragment())
+        mainScope.launch {
+          (view as ViewGroup).addView(
+            ComposeView(requireContext()).apply { setContent { PermissionDeniedDialog() } }
+          )
+        }
       }
+    }
+  }
+
+  @Composable
+  fun PermissionDeniedDialog() {
+    val openDialog = remember { mutableStateOf(true) }
+
+    fun dismissDialog() {
+      openDialog.value = false
+    }
+
+    if (openDialog.value) {
+      AlertDialog(
+        onDismissRequest = { dismissDialog() },
+        title = { Text(text = getString(R.string.permission_denied)) },
+        text = { Text(text = getString(R.string.camera_permissions_needed)) },
+        confirmButton = {
+          TextButton(onClick = { dismissDialog() }) {
+            Text(
+              text = getString(R.string.ok),
+              color = Color(MaterialColors.getColor(context, R.attr.colorPrimary, "")),
+            )
+          }
+        },
+      )
     }
   }
 
