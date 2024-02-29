@@ -33,15 +33,15 @@ import com.google.android.ground.ui.util.FileUtil
 import com.google.android.ground.util.ByteCount
 import com.google.android.ground.util.deleteIfEmpty
 import com.google.android.ground.util.rangeOf
-import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
+import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
@@ -108,7 +108,7 @@ constructor(
   private suspend fun getLocalTileSourcePath(): String = File(fileUtil.getFilesDir(), "tiles").path
 
   fun getOfflineTileSourcesFlow() =
-    surveyRepository.activeSurveyFlow.combine(getOfflineAreaBounds()) { survey, bounds ->
+    surveyRepository.activeSurveyFlow.combine(getOfflineAreaBounds()) { _, bounds ->
       applyBounds(getDefaultTileSources(), bounds)
     }
 
