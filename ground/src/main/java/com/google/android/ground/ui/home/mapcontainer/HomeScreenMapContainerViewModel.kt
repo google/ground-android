@@ -83,7 +83,7 @@ internal constructor(
   val activeSurvey: StateFlow<Survey?> = surveyRepository.activeSurveyFlow
 
   /** Captures essential, high-level derived properties for a given survey. */
-  data class SurveyProperties(val suggestLoiPermitted: Boolean, val readOnly: Boolean)
+  data class SurveyProperties(val addLoiPermitted: Boolean, val readOnly: Boolean)
 
   /**
    * This flow emits [SurveyProperties] when the active survey changes. Callers can use this data to

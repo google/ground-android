@@ -25,8 +25,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /** Displays short-lived messages such as toasts that are shown over other UI elements. */
+@Suppress("UseDataClass")
 @Singleton
-data class EphemeralPopups @Inject constructor(private val context: Application) {
+class EphemeralPopups @Inject constructor(private val context: Application) {
 
   enum class PopupDuration {
     SHORT,
