@@ -17,6 +17,7 @@ package com.google.android.ground.ui.datacollection.tasks.photo
 
 import android.Manifest
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -110,7 +111,16 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   private fun obtainCapturePhotoPermissions(onPermissionsGranted: () -> Unit = {}) {
     externalScope.launch {
       try {
-        permissionsManager.obtainPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+        // From Android 11 onwards (api level 30), requesting WRITE_EXTERNAL_STORAGE permission
+        // always returns denied. By default, the app has read/write access to shared data.
+        //
+        // For more details please refer to:
+        // https://developer.android.com/about/versions/11/privacy/storage#permissions-target-11
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+          permissionsManager.obtainPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+
         permissionsManager.obtainPermission(Manifest.permission.CAMERA)
 
         onPermissionsGranted()
