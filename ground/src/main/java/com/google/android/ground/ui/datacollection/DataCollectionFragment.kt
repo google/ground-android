@@ -33,8 +33,8 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
@@ -98,7 +98,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     }
 
     // Reset progress bar
-    val (start, taskSize) = viewModel.getRelativePosition()
+    val (start, taskSize) = viewModel.getPositionInTaskSequence()
     progressBar.progress = start
     progressBar.max = (taskSize - 1) * PROGRESS_SCALE
   }
@@ -107,7 +107,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewPager.currentItem = viewModel.getAbsolutePosition()
 
     // Reset progress bar
-    val (currIndex, taskSize) = viewModel.getRelativePosition()
+    val (currIndex, taskSize) = viewModel.getPositionInTaskSequence()
     progressBar.max = (taskSize - 1) * PROGRESS_SCALE
     progressBar.clearAnimation()
 

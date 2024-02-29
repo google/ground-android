@@ -39,9 +39,18 @@ internal object ConditionConverter {
   // Note: Key value must be in sync with web app.
   private fun String?.toMatchType(): MatchType =
     when (this) {
-      "MATCH_ANY" -> MatchType.MATCH_ANY
-      "MATCH_ALL" -> MatchType.MATCH_ALL
-      "MATCH_ONE" -> MatchType.MATCH_ONE
+      "MATCH_ANY" -> {
+        MatchType.MATCH_ANY
+      }
+
+      "MATCH_ALL" -> {
+        MatchType.MATCH_ALL
+      }
+
+      "MATCH_ONE" -> {
+        MatchType.MATCH_ONE
+      }
+
       else -> {
         Timber.v("Unknown MatchType received: $this")
         MatchType.UNKNOWN
@@ -71,9 +80,18 @@ internal object ConditionConverter {
 
   private fun String?.toExpressionType(): ExpressionType =
     when (this) {
-      "ANY_OF_SELECTED" -> ExpressionType.ANY_OF_SELECTED
-      "ALL_OF_SELECTED" -> ExpressionType.ALL_OF_SELECTED
-      "ONE_OF_SELECTED" -> ExpressionType.ONE_OF_SELECTED
+      "ANY_OF_SELECTED" -> {
+        ExpressionType.ANY_OF_SELECTED
+      }
+
+      "ALL_OF_SELECTED" -> {
+        ExpressionType.ALL_OF_SELECTED
+      }
+
+      "ONE_OF_SELECTED" -> {
+        ExpressionType.ONE_OF_SELECTED
+      }
+
       else -> {
         Timber.v("Unknown ExpressionType received: $this")
         ExpressionType.UNKNOWN

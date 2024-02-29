@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,7 +147,7 @@ internal constructor(
    * the previous Data Collection screen if the user input was valid.
    */
   fun onPreviousClicked(taskViewModel: AbstractTaskViewModel) {
-    check(getRelativePosition().first != 0)
+    check(getPositionInTaskSequence().first != 0)
 
     val validationError = taskViewModel.validate()
     if (validationError != null) {
@@ -197,8 +197,11 @@ internal constructor(
     return tasks.indexOf(tasks.first { it.id == currentTaskId.value })
   }
 
-  /** Get the index of the current task within the (possibly conditional) task sequence. */
-  fun getRelativePosition(): Pair<Int, Int> {
+  /**
+   * Get the current index within the computed task sequence, and the number of tasks in the
+   * sequence, e.g (0, 2) means the first task of 2.
+   */
+  fun getPositionInTaskSequence(): Pair<Int, Int> {
     var currentIndex = 0
     var size = 0
     getTaskSequence().forEachIndexed { index, task ->
@@ -213,11 +216,11 @@ internal constructor(
   /**
    * Retrieves the current task sequence given the inputs and conditions set on the tasks. Setting a
    * start ID will always generate a sequence with the start ID as the first element, and if
-   * preceding is set, will generate the previous tasks from there.
+   * reversed is set, will generate the previous tasks from there.
    */
-  private fun getTaskSequence(startId: String? = null, preceding: Boolean = false): Sequence<Task> {
+  private fun getTaskSequence(startId: String? = null, reversed: Boolean = false): Sequence<Task> {
     val startIndex = tasks.indexOf(tasks.first { it.id == (startId ?: tasks[0].id) })
-    return if (preceding) {
+    return if (reversed) {
       tasks.subList(0, startIndex + 1).reversed()
     } else {
       tasks.subList(startIndex, tasks.size)
@@ -231,7 +234,7 @@ internal constructor(
   fun step(stepCount: Int) {
     val reverse = stepCount < 0
     val task =
-      getTaskSequence(startId = currentTaskId.value, preceding = reverse)
+      getTaskSequence(startId = currentTaskId.value, reversed = reverse)
         .take(Math.abs(stepCount) + 1)
         .last()
     savedStateHandle[TASK_POSITION_ID] = task.id
@@ -248,15 +251,7 @@ internal constructor(
   /** Evaluates the task condition against the current inputs. */
   private fun evaluateCondition(condition: Condition): Boolean =
     condition.fulfilledBy(
-      data
-        .mapNotNull { (task, value) ->
-          if (value != null) {
-            task.id to value
-          } else {
-            null
-          }
-        }
-        .toMap()
+      data.mapNotNull { (task, value) -> value?.let { task.id to value } }.toMap()
     )
 
   companion object {

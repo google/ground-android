@@ -36,16 +36,20 @@ data class Condition(
 
   /** Match type names as they appear in the remote database. */
   enum class MatchType {
-    UNKNOWN, MATCH_ANY, MATCH_ALL, MATCH_ONE,
+    UNKNOWN,
+    MATCH_ANY,
+    MATCH_ALL,
+    MATCH_ONE,
   }
 
   /** Given the user's task selections, determine whether the condition is fulfilled. */
-  fun fulfilledBy(taskSelections: TaskSelections) = when (matchType) {
-    MatchType.MATCH_ANY -> expressions.any { it.fulfilledBy(taskSelections) }
-    MatchType.MATCH_ALL -> expressions.all { it.fulfilledBy(taskSelections) }
-    MatchType.MATCH_ONE -> expressions.filter { it.fulfilledBy(taskSelections) }.size == 1
-    MatchType.UNKNOWN -> throw IllegalArgumentException("Unknown match type: $matchType")
-  }
+  fun fulfilledBy(taskSelections: TaskSelections) =
+    when (matchType) {
+      MatchType.MATCH_ANY -> expressions.any { it.fulfilledBy(taskSelections) }
+      MatchType.MATCH_ALL -> expressions.all { it.fulfilledBy(taskSelections) }
+      MatchType.MATCH_ONE -> expressions.filter { it.fulfilledBy(taskSelections) }.size == 1
+      MatchType.UNKNOWN -> throw IllegalArgumentException("Unknown match type: $matchType")
+    }
 }
 
 data class Expression(
@@ -59,7 +63,10 @@ data class Expression(
 
   /** Task type names as they appear in the remote database. */
   enum class ExpressionType {
-    UNKNOWN, ANY_OF_SELECTED, ALL_OF_SELECTED, ONE_OF_SELECTED,
+    UNKNOWN,
+    ANY_OF_SELECTED,
+    ALL_OF_SELECTED,
+    ONE_OF_SELECTED,
   }
 
   /** Given the selected options for this task, determine whether the expression is fulfilled. */
@@ -73,7 +80,8 @@ data class Expression(
       ExpressionType.ANY_OF_SELECTED -> optionIds.any { it in selectedOptions }
       ExpressionType.ALL_OF_SELECTED -> selectedOptions.containsAll(optionIds)
       ExpressionType.ONE_OF_SELECTED -> selectedOptions.intersect(optionIds).size == 1
-      ExpressionType.UNKNOWN -> throw IllegalArgumentException("Unknown expression type: $expressionType")
+      ExpressionType.UNKNOWN ->
+        throw IllegalArgumentException("Unknown expression type: $expressionType")
     }
   }
 }
