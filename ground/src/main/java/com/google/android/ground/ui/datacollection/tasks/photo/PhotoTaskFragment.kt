@@ -24,11 +24,12 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.FileProvider
 import com.google.android.ground.BuildConfig
@@ -42,6 +43,7 @@ import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
+import com.google.android.material.color.MaterialColors
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -124,37 +126,38 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
         onPermissionsGranted()
       } catch (_: PermissionDeniedException) {
-        mainScope.launch { showPermissionDeniedDialog() }
+        mainScope.launch {
+          (view as ViewGroup).addView(
+            ComposeView(requireContext()).apply { setContent { PermissionDeniedDialog() } }
+          )
+        }
       }
     }
   }
 
-  private fun showPermissionDeniedDialog() {
-    (view as ViewGroup).addView(
-      ComposeView(requireContext()).apply {
-        setContent {
-          val openAlertDialog = remember { mutableStateOf(true) }
-          when {
-            openAlertDialog.value -> {
-              CreatePermissionDeniedDialog { openAlertDialog.value = false }
-            }
-          }
-        }
-      }
-    )
-  }
-
   @Composable
-  private fun CreatePermissionDeniedDialog(onDismissRequest: () -> Unit) {
-    AlertDialog(
-      title = { Text(text = getString(R.string.permission_denied)) },
-      text = { Text(text = getString(R.string.camera_permissions_needed)) },
-      onDismissRequest = {}, // Prevent dismissing the dialog by clicking outside
-      confirmButton = {
-        Button(onClick = { onDismissRequest() }) { Text(text = getString(R.string.ok)) }
-      },
-      dismissButton = {}, // Hide dismiss button,
-    )
+  fun PermissionDeniedDialog() {
+    val openDialog = remember { mutableStateOf(true) }
+
+    fun dismissDialog() {
+      openDialog.value = false
+    }
+
+    if (openDialog.value) {
+      AlertDialog(
+        onDismissRequest = { dismissDialog() },
+        title = { Text(text = getString(R.string.permission_denied)) },
+        text = { Text(text = getString(R.string.camera_permissions_needed)) },
+        confirmButton = {
+          TextButton(onClick = { dismissDialog() }) {
+            Text(
+              text = getString(R.string.ok),
+              color = Color(MaterialColors.getColor(context, R.attr.colorPrimary, "")),
+            )
+          }
+        },
+      )
+    }
   }
 
   fun onTakePhoto() {
