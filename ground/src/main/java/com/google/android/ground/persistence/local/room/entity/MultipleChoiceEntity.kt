@@ -32,7 +32,7 @@ import com.google.android.ground.persistence.local.room.fields.MultipleChoiceEnt
       onDelete = ForeignKey.CASCADE
     )
   ],
-  indices = [Index("task_id", "job_id")],
+  indices = [Index("task_id"), Index("job_id")],
   primaryKeys = ["task_id", "job_id"],
 )
 data class MultipleChoiceEntity(

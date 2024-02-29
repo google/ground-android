@@ -32,16 +32,16 @@ import com.google.android.ground.persistence.local.room.fields.TaskEntityType
       onDelete = ForeignKey.CASCADE
     )
   ],
-  indices = [Index("id", "job_id")],
+  indices = [Index("id"), Index("job_id")],
   primaryKeys = ["id", "job_id"],
 )
 data class TaskEntity(
   @ColumnInfo(name = "id") val id: String,
-  @ColumnInfo(name = "job_id") val jobId: String,
   @ColumnInfo(name = "index") val index: Int,
   @ColumnInfo(name = "task_type") val taskType: TaskEntityType,
   @ColumnInfo(name = "label") val label: String?,
   @ColumnInfo(name = "is_required") val isRequired: Boolean,
+  @ColumnInfo(name = "job_id") val jobId: String,
   // Deprecated.
   @ColumnInfo(name = "is_add_loi_task") val isAddLoiTask: Boolean
 )

@@ -31,8 +31,8 @@ import androidx.room.Index
       onDelete = ForeignKey.CASCADE
     )
   ],
-  indices = [Index("task_id", "job_id")],
-  primaryKeys = ["id", "job_id"],
+  indices = [Index("task_id"), Index("job_id")],
+  primaryKeys = ["task_id", "job_id"],
 )
 data class OptionEntity(
   @ColumnInfo(name = "id") val id: String,
