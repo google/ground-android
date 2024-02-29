@@ -41,6 +41,8 @@ import com.google.android.ground.databinding.PhotoTaskFragBinding
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
+import com.google.android.ground.ui.common.EphemeralPopups
+import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
@@ -58,6 +60,8 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
   @Inject @MainScope lateinit var mainScope: CoroutineScope
   @Inject lateinit var permissionsManager: PermissionsManager
+  @Inject lateinit var popups: EphemeralPopups
+  @Inject lateinit var navigator: Navigator
 
   private lateinit var selectPhotoLauncher: ActivityResultLauncher<String>
   private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
@@ -176,12 +180,17 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   }
 
   private fun launchPhotoCapture(taskId: String) {
-    val photoFile = userMediaRepository.createImageFile(taskId)
-    val uri = FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID, photoFile)
-    viewModel.taskWaitingForPhoto = taskId
-    viewModel.capturedPhotoPath = photoFile.absolutePath
-    capturePhotoLauncher.launch(uri)
-    Timber.d("Capture photo intent sent")
+    try {
+      val photoFile = userMediaRepository.createImageFile(taskId)
+      val uri = FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID, photoFile)
+      viewModel.taskWaitingForPhoto = taskId
+      viewModel.capturedPhotoPath = photoFile.absolutePath
+      capturePhotoLauncher.launch(uri)
+      Timber.d("Capture photo intent sent")
+    } catch (e: IllegalArgumentException) {
+      popups.showError(R.string.error_message)
+      Timber.e(e)
+    }
   }
 
   companion object {
