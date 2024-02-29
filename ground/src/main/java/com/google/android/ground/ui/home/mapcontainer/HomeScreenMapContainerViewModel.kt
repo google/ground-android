@@ -45,8 +45,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
@@ -81,13 +82,17 @@ internal constructor(
 
   val activeSurvey: StateFlow<Survey?> = surveyRepository.activeSurveyFlow
 
-  val lois: Flow<Set<LocationOfInterest>> =
-    activeSurvey.flatMapLatest {
-      if (it == null) {
-        flow { setOf<LocationOfInterest>() }
-      } else {
-        loiRepository.getLocationsOfInterests(it)
-      }
+  /** Captures essential, high-level derived properties for a given survey. */
+  data class SurveyProperties(val suggestLoiPermitted: Boolean, val readOnly: Boolean)
+
+  /**
+   * This flow emits [SurveyProperties] when the active survey changes. Callers can use this data to
+   * determine if and how behavior should change based on differing survey properties.
+   */
+  val surveyUpdateFlow: Flow<SurveyProperties> =
+    activeSurvey.filterNotNull().map {
+      val lois = loiRepository.getLocationsOfInterests(it).first()
+      SurveyProperties(it.jobs.any { it.canDataCollectorsAddLois }, lois.isEmpty())
     }
 
   /** Set of [Feature] to render on the map. */

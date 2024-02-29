@@ -32,7 +32,6 @@ import com.google.android.ground.coroutines.MainDispatcher
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
-import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.UserRepository
@@ -45,7 +44,6 @@ import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.MapFragment
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -84,7 +82,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         } else {
           // Skip data collection screen if the user can't submit any data
           // TODO(#1667): Revisit UX for displaying view only mode
-          ephemeralPopups.showError(getString(R.string.collect_data_viewer_error))
+          ephemeralPopups.ErrorPopup().show(getString(R.string.collect_data_viewer_error))
         }
       }
     }
@@ -130,28 +128,26 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     super.onViewCreated(view, savedInstanceState)
     setupMenuFab()
     setupBottomLoiCards()
-    lifecycleScope.launch {
-      mapContainerViewModel.activeSurvey
-        .combine(mapContainerViewModel.lois) { x, y -> Pair(x, y) }
-        .collect {
-          val survey = it.first
-          val lois = it.second
-          survey?.let {
-            val suggest =
-              it.jobs.any {
-                it.strategy != Job.DataCollectionStrategy.PREDEFINED &&
-                  it.strategy != Job.DataCollectionStrategy.UNKNOWN
-              }
-            val readonly = lois.isEmpty()
-            val msg =
-              when {
-                suggest -> resources.getString(R.string.suggest_data_collection_hint)
-                readonly -> resources.getString(R.string.read_only_data_collection_hint)
-                else -> resources.getString(R.string.predefined_data_collection_hint)
-              }
-            Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG).show()
-          }
+    lifecycleScope.launch { showDataCollectionHint() }
+  }
+
+  /**
+   * Displays a popup hint informing users how to begin collecting data, based on the properties of
+   * the active survey.
+   *
+   * This method should only be called after view creation.
+   */
+  private suspend fun showDataCollectionHint() {
+    mapContainerViewModel.surveyUpdateFlow.collect {
+      val messageId =
+        when {
+          it.suggestLoiPermitted -> R.string.suggest_data_collection_hint
+          it.readOnly -> R.string.read_only_data_collection_hint
+          else -> R.string.predefined_data_collection_hint
         }
+      ephemeralPopups
+        .InfoPopup()
+        .show(binding.root, messageId, EphemeralPopups.PopupDuration.INDEFINITE)
     }
   }
 
