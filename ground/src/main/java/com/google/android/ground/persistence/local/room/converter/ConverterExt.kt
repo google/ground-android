@@ -41,11 +41,11 @@ import com.google.android.ground.persistence.local.room.relations.TaskEntityAndR
 import com.google.android.ground.ui.map.Bounds
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import java.util.*
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
 import org.json.JSONObject
 import timber.log.Timber
+import java.util.*
 
 fun AuditInfo.toLocalDataStoreObject(): AuditInfoEntity =
   AuditInfoEntity(
@@ -113,14 +113,14 @@ fun JobEntityAndRelations.toModelObject(): Job {
     style = jobEntity.style?.toModelObject(),
     name = jobEntity.name,
     strategy =
-      jobEntity.strategy.let {
-        try {
-          DataCollectionStrategy.valueOf(it)
-        } catch (e: IllegalArgumentException) {
-          Timber.e("unknown data collection strategy $it")
-          DataCollectionStrategy.UNKNOWN
-        }
-      },
+    jobEntity.strategy.let {
+      try {
+        DataCollectionStrategy.valueOf(it)
+      } catch (e: IllegalArgumentException) {
+        Timber.e("unknown data collection strategy $it")
+        DataCollectionStrategy.UNKNOWN
+      }
+    },
     tasks = taskMap.toPersistentMap()
   )
 }
@@ -163,10 +163,10 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       submissionCount = submissionCount,
       properties = properties,
       job =
-        survey.getJob(jobId = jobId)
-          ?: throw LocalDataConsistencyException(
-            "Unknown jobId ${this.jobId} in location of interest ${this.id}"
-          )
+      survey.getJob(jobId = jobId)
+        ?: throw LocalDataConsistencyException(
+          "Unknown jobId ${this.jobId} in location of interest ${this.id}"
+        )
     )
   }
 
@@ -408,7 +408,8 @@ fun Task.toLocalDataStoreObject(jobId: String?) =
     label = label,
     isRequired = isRequired,
     taskType = TaskEntityType.fromTaskType(type),
-    isAddLoiTask = isAddLoiTask
+    // Deprecated.
+    isAddLoiTask = false,
   )
 
 fun TaskEntityAndRelations.toModelObject(): Task {
@@ -429,7 +430,6 @@ fun TaskEntityAndRelations.toModelObject(): Task {
     taskEntity.label!!,
     taskEntity.isRequired,
     multipleChoice,
-    taskEntity.isAddLoiTask
   )
 }
 

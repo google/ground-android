@@ -15,6 +15,8 @@
  */
 package com.google.android.ground.model.task
 
+import com.google.android.ground.Config.LOI_TASK_ID
+
 /**
  * Describes a user-defined task.
  *
@@ -31,7 +33,6 @@ constructor(
   val label: String,
   val isRequired: Boolean,
   val multipleChoice: MultipleChoice? = null,
-  val isAddLoiTask: Boolean = false
 ) {
 
   /**
@@ -50,4 +51,6 @@ constructor(
     DRAW_AREA,
     CAPTURE_LOCATION
   }
+
+  fun isAddLoiTask(): Boolean = id == LOI_TASK_ID
 }

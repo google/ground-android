@@ -48,7 +48,7 @@ data class Job(
   /** Job must contain at-most 1 `AddLoiTask`. */
   fun getAddLoiTask(): Task? =
     tasks.values
-      .filter { it.isAddLoiTask }
+      .filter { it.isAddLoiTask() }
       .apply { check(size <= 1) { "Expected 0 or 1, found $size AddLoiTasks" } }
       .firstOrNull()
 

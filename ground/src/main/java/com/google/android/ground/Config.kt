@@ -32,6 +32,9 @@ object Config {
   // Firebase Cloud Firestore settings.
   const val FIRESTORE_LOGGING_ENABLED = true
 
+  // Tasks.
+  const val LOI_TASK_ID = "\$addLoi"
+
   // Photos
   const val PHOTO_EXT = ".jpg"
 
