@@ -15,12 +15,14 @@
  */
 package com.google.android.ground.model.task
 
+import com.google.android.ground.model.submission.MultipleChoiceResponse
+import com.google.android.ground.model.submission.Value
+import org.junit.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import org.junit.Test
 
-typealias ExpressionTestCase = List<Pair<Boolean, Pair<String, Set<String>>>>
+typealias ExpressionTestCase = List<Pair<Boolean, Pair<String, Value>>>
 
 typealias ConditionTestCase = List<Pair<Boolean, TaskSelections>>
 
@@ -46,6 +48,9 @@ val Task_B_EXPRESSION =
     optionIds = setOf(TASK_B_OPTION_X)
   )
 
+fun makeValue(vararg selectedOptions: String) =
+  MultipleChoiceResponse(multipleChoice = null, selectedOptionIds = selectedOptions.toList())
+
 class ConditionTest {
   @Test
   fun `Condition of type MATCH_ANY works`() {
@@ -55,15 +60,19 @@ class ConditionTest {
         listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION)
       )
     listOf(
-        // Expressions evaluate to [true, true].
-        true to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_X), TASK_B_ID to setOf(TASK_B_OPTION_X)),
-        // Expressions evaluate to [true, false].
-        false to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_X), TASK_B_ID to setOf(TASK_B_OPTION_Y)),
-        // Expressions evaluate to [false, true].
-        false to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_Y), TASK_B_ID to setOf(TASK_B_OPTION_X)),
-        // Expressions evaluate to [false, false].
-        false to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_Y), TASK_B_ID to setOf(TASK_B_OPTION_Y)),
-      )
+      // Expressions evaluate to [true, true].
+      true to
+        mapOf(TASK_A_ID to makeValue(TASK_A_OPTION_X), TASK_B_ID to makeValue(TASK_B_OPTION_X)),
+      // Expressions evaluate to [true, false].
+      false to
+        mapOf(TASK_A_ID to makeValue(TASK_A_OPTION_X), TASK_B_ID to makeValue(TASK_B_OPTION_Y)),
+      // Expressions evaluate to [false, true].
+      false to
+        mapOf(TASK_A_ID to makeValue(TASK_A_OPTION_Y), TASK_B_ID to makeValue(TASK_B_OPTION_X)),
+      // Expressions evaluate to [false, false].
+      false to
+        mapOf(TASK_A_ID to makeValue(TASK_A_OPTION_Y), TASK_B_ID to makeValue(TASK_B_OPTION_Y)),
+    )
       .test(condition)
   }
 
@@ -75,15 +84,19 @@ class ConditionTest {
         listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION)
       )
     listOf(
-        // Expressions evaluate to [true, true].
-        true to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_X), TASK_B_ID to setOf(TASK_B_OPTION_X)),
-        // Expressions evaluate to [true, false].
-        false to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_X), TASK_B_ID to setOf(TASK_B_OPTION_Y)),
-        // Expressions evaluate to [false, true].
-        false to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_Y), TASK_B_ID to setOf(TASK_B_OPTION_X)),
-        // Expressions evaluate to [false, false].
-        false to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_Y), TASK_B_ID to setOf(TASK_B_OPTION_Y)),
-      )
+      // Expressions evaluate to [true, true].
+      true to
+        mapOf(TASK_A_ID to makeValue(TASK_A_OPTION_X), TASK_B_ID to makeValue(TASK_B_OPTION_X)),
+      // Expressions evaluate to [true, false].
+      false to
+        mapOf(TASK_A_ID to makeValue(TASK_A_OPTION_X), TASK_B_ID to makeValue(TASK_B_OPTION_Y)),
+      // Expressions evaluate to [false, true].
+      false to
+        mapOf(TASK_A_ID to makeValue(TASK_A_OPTION_Y), TASK_B_ID to makeValue(TASK_B_OPTION_X)),
+      // Expressions evaluate to [false, false].
+      false to
+        mapOf(TASK_A_ID to makeValue(TASK_A_OPTION_Y), TASK_B_ID to makeValue(TASK_B_OPTION_Y)),
+    )
       .test(condition)
   }
 
@@ -95,15 +108,19 @@ class ConditionTest {
         listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION)
       )
     listOf(
-        // Expressions evaluate to [true, true].
-        false to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_X), TASK_B_ID to setOf(TASK_B_OPTION_X)),
-        // Expressions evaluate to [true, false].
-        true to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_X), TASK_B_ID to setOf(TASK_B_OPTION_Y)),
-        // Expressions evaluate to [false, true].
-        true to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_Y), TASK_B_ID to setOf(TASK_B_OPTION_X)),
-        // Expressions evaluate to [false, false].
-        false to mapOf(TASK_A_ID to setOf(TASK_A_OPTION_Y), TASK_B_ID to setOf(TASK_B_OPTION_Y)),
-      )
+      // Expressions evaluate to [true, true].
+      false to
+        mapOf(TASK_A_ID to makeValue(TASK_A_OPTION_X), TASK_B_ID to makeValue(TASK_B_OPTION_X)),
+      // Expressions evaluate to [true, false].
+      true to
+        mapOf(TASK_A_ID to makeValue(TASK_A_OPTION_X), TASK_B_ID to makeValue(TASK_B_OPTION_Y)),
+      // Expressions evaluate to [false, true].
+      true to
+        mapOf(TASK_A_ID to makeValue(TASK_A_OPTION_Y), TASK_B_ID to makeValue(TASK_B_OPTION_X)),
+      // Expressions evaluate to [false, false].
+      false to
+        mapOf(TASK_A_ID to makeValue(TASK_A_OPTION_Y), TASK_B_ID to makeValue(TASK_B_OPTION_Y)),
+    )
       .test(condition)
   }
 
@@ -115,7 +132,7 @@ class ConditionTest {
         listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION)
       )
     assertFailsWith<IllegalArgumentException> {
-      condition.fulfilledBy(mapOf(TASK_A_ID to setOf(TASK_A_OPTION_X)))
+      condition.fulfilledBy(mapOf(TASK_A_ID to makeValue(TASK_A_OPTION_X)))
     }
   }
 
@@ -128,12 +145,12 @@ class ConditionTest {
         optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)
       )
     listOf(
-        true to (TASK_A_ID to setOf(TASK_A_OPTION_X)),
-        true to (TASK_A_ID to setOf(TASK_A_OPTION_Y)),
-        true to (TASK_A_ID to setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)),
-        false to (TASK_A_ID to setOf(TASK_A_OPTION_Z)),
-        false to (TASK_B_ID to setOf(TASK_A_OPTION_X)),
-      )
+      true to (TASK_A_ID to makeValue(TASK_A_OPTION_X)),
+      true to (TASK_A_ID to makeValue(TASK_A_OPTION_Y)),
+      true to (TASK_A_ID to makeValue(TASK_A_OPTION_X, TASK_A_OPTION_Y)),
+      false to (TASK_A_ID to makeValue(TASK_A_OPTION_Z)),
+      false to (TASK_B_ID to makeValue(TASK_A_OPTION_X)),
+    )
       .test(expression)
   }
 
@@ -146,12 +163,12 @@ class ConditionTest {
         optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)
       )
     listOf(
-        false to (TASK_A_ID to setOf(TASK_A_OPTION_X)),
-        false to (TASK_A_ID to setOf(TASK_A_OPTION_Y)),
-        true to (TASK_A_ID to setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)),
-        false to (TASK_A_ID to setOf(TASK_A_OPTION_Z)),
-        false to (TASK_B_ID to setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)),
-      )
+      false to (TASK_A_ID to makeValue(TASK_A_OPTION_X)),
+      false to (TASK_A_ID to makeValue(TASK_A_OPTION_Y)),
+      true to (TASK_A_ID to makeValue(TASK_A_OPTION_X, TASK_A_OPTION_Y)),
+      false to (TASK_A_ID to makeValue(TASK_A_OPTION_Z)),
+      false to (TASK_B_ID to makeValue(TASK_A_OPTION_X, TASK_A_OPTION_Y)),
+    )
       .test(expression)
   }
 
@@ -164,12 +181,12 @@ class ConditionTest {
         optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)
       )
     listOf(
-        true to (TASK_A_ID to setOf(TASK_A_OPTION_X)),
-        true to (TASK_A_ID to setOf(TASK_A_OPTION_Y)),
-        false to (TASK_A_ID to setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)),
-        false to (TASK_A_ID to setOf(TASK_A_OPTION_Z)),
-        false to (TASK_B_ID to setOf(TASK_A_OPTION_X)),
-      )
+      true to (TASK_A_ID to makeValue(TASK_A_OPTION_X)),
+      true to (TASK_A_ID to makeValue(TASK_A_OPTION_Y)),
+      false to (TASK_A_ID to makeValue(TASK_A_OPTION_X, TASK_A_OPTION_Y)),
+      false to (TASK_A_ID to makeValue(TASK_A_OPTION_Z)),
+      false to (TASK_B_ID to makeValue(TASK_A_OPTION_X)),
+    )
       .test(expression)
   }
 
@@ -182,7 +199,7 @@ class ConditionTest {
         optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)
       )
     assertFailsWith<IllegalArgumentException> {
-      expression.fulfilledBy(mapOf(TASK_A_ID to setOf(TASK_A_OPTION_X)))
+      expression.fulfilledBy(mapOf(TASK_A_ID to makeValue(TASK_A_OPTION_X)))
     }
   }
 

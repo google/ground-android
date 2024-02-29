@@ -22,7 +22,6 @@ import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.submission.SubmitDataUseCase
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Condition
@@ -46,11 +45,6 @@ import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import javax.inject.Provider
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,6 +56,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -100,12 +99,12 @@ internal constructor(
     MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
   val loiName: StateFlow<String> =
     (if (loiId == null) flowOf("")
-      else
-        flow {
-          val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
-          val label = locationOfInterestHelper.getLabel(loi)
-          emit(label)
-        })
+    else
+      flow {
+        val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
+        val label = locationOfInterestHelper.getLabel(loi)
+        emit(label)
+      })
       .stateIn(viewModelScope, SharingStarted.Lazily, "")
 
   private val taskViewModels: MutableStateFlow<MutableList<AbstractTaskViewModel>> =
@@ -219,10 +218,10 @@ internal constructor(
   private fun getTaskSequence(startId: String? = null, preceding: Boolean = false): Sequence<Task> {
     val startIndex = tasks.indexOf(tasks.first { it.id == (startId ?: tasks[0].id) })
     return if (preceding) {
-        tasks.subList(0, startIndex + 1).reversed()
-      } else {
-        tasks.subList(startIndex, tasks.size)
-      }
+      tasks.subList(0, startIndex + 1).reversed()
+    } else {
+      tasks.subList(startIndex, tasks.size)
+    }
       .let { tasks ->
         tasks.asSequence().filter { it.condition == null || evaluateCondition(it.condition) }
       }
@@ -251,8 +250,8 @@ internal constructor(
     condition.fulfilledBy(
       data
         .mapNotNull { (task, value) ->
-          if (value is MultipleChoiceResponse) {
-            task.id to value.selectedOptionIds.toSet()
+          if (value != null) {
+            task.id to value
           } else {
             null
           }

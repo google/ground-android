@@ -15,12 +15,15 @@
  */
 package com.google.android.ground.model.task
 
+import com.google.android.ground.model.submission.MultipleChoiceResponse
+import com.google.android.ground.model.submission.Value
+
 /** The task ID. */
 typealias TaskId = String
 /** The selected option ID for each task. */
 typealias OptionId = String
-/** The selected options keyed by task ID. */
-typealias TaskSelections = Map<TaskId, Set<OptionId>>
+/** The selected values keyed by task ID. */
+typealias TaskSelections = Map<String, Value>
 
 /**
  * Describes a user-defined condition on a task, which determines whether the given task should be
@@ -77,11 +80,17 @@ data class Expression(
   fun fulfilledBy(taskSelections: TaskSelections): Boolean =
     taskSelections[this.taskId]?.let { selection -> this.fulfilled(selection) } ?: false
 
-  private fun fulfilled(selectedOptions: Set<OptionId>): Boolean =
-    when (expressionType) {
-      ExpressionType.ANY_OF_SELECTED -> optionIds.any { it in selectedOptions }
-      ExpressionType.ALL_OF_SELECTED -> selectedOptions.containsAll(optionIds)
-      ExpressionType.ONE_OF_SELECTED -> selectedOptions.intersect(optionIds).size == 1
-      else -> throw IllegalArgumentException("Unknown expression type: $expressionType")
-    }.exhaustive
+  private fun fulfilled(value: Value): Boolean {
+    return if (value is MultipleChoiceResponse) {
+      val selectedOptions = value.selectedOptionIds.toSet()
+      when (expressionType) {
+        ExpressionType.ANY_OF_SELECTED -> optionIds.any { it in selectedOptions }
+        ExpressionType.ALL_OF_SELECTED -> selectedOptions.containsAll(optionIds)
+        ExpressionType.ONE_OF_SELECTED -> selectedOptions.intersect(optionIds).size == 1
+        else -> throw IllegalArgumentException("Unknown expression type: $expressionType")
+      }.exhaustive
+    } else {
+      false
+    }
+  }
 }
