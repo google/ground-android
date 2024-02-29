@@ -39,6 +39,7 @@ import com.google.android.ground.ui.common.Navigator
 import com.sharedtest.FakeData
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Before
@@ -46,12 +47,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.RobolectricTestRunner
-import javax.inject.Inject
 
 abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
 
-  @Inject
-  lateinit var localSurveyStore: LocalSurveyStore
+  @Inject lateinit var localSurveyStore: LocalSurveyStore
   private lateinit var fragment: HomeScreenFragment
   private var initializedPicasso = false
 
@@ -119,8 +118,7 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
 @RunWith(RobolectricTestRunner::class)
 class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
-  @Inject
-  lateinit var surveyRepository: SurveyRepository
+  @Inject lateinit var surveyRepository: SurveyRepository
 
   private val surveyWithoutBasemap: Survey =
     Survey(
@@ -135,9 +133,9 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
   private val surveyWithTileSources: Survey =
     surveyWithoutBasemap.copy(
       tileSources =
-      listOf(
-        TileSource("http://google.com", TileSource.Type.MOG_COLLECTION),
-      ),
+        listOf(
+          TileSource("http://google.com", TileSource.Type.MOG_COLLECTION),
+        ),
       id = "SURVEY_WITH_TILE_SOURCES"
     )
 
@@ -162,11 +160,9 @@ class NavigationDrawerItemClickTest(
   private val testLabel: String
 ) : AbstractHomeScreenFragmentTest() {
 
-  @Inject
-  lateinit var navigator: Navigator
+  @Inject lateinit var navigator: Navigator
 
-  @Inject
-  lateinit var surveyRepository: SurveyRepository
+  @Inject lateinit var surveyRepository: SurveyRepository
 
   @Test
   fun clickDrawerMenuItem() = runWithTestDispatcher {
