@@ -17,42 +17,41 @@
 package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.task.Condition
+import com.google.android.ground.model.task.Condition.MatchType
 import com.google.android.ground.model.task.Expression
+import com.google.android.ground.model.task.Expression.ExpressionType
 import timber.log.Timber
 
 /** Converts between Firestore nested objects and [Condition] instances. */
 internal object ConditionConverter {
-  private val <T> T.exhaustive: T
-    get() = this
-
-  fun toCondition(em: ConditionNestedObject): Condition? {
-    val matchType = toMatchType(em.matchType)
-    if (matchType == Condition.MatchType.UNKNOWN) {
-      Timber.e("Unsupported matchType: ${em.matchType}")
+  fun ConditionNestedObject.toCondition(): Condition? {
+    val matchType = matchType.toMatchType()
+    if (matchType == MatchType.UNKNOWN) {
+      Timber.e("Unsupported matchType: $matchType")
       return null
     }
     return Condition(
       matchType = matchType,
-      expressions = toExpressions(em.expressions ?: listOf()),
+      expressions = (expressions ?: listOf()).toExpressions(),
     )
   }
 
   // Note: Key value must be in sync with web app.
-  private fun toMatchType(typeStr: String?): Condition.MatchType =
-    when (typeStr) {
-      "MATCH_ANY" -> Condition.MatchType.MATCH_ANY
-      "MATCH_ALL" -> Condition.MatchType.MATCH_ALL
-      "MATCH_ONE" -> Condition.MatchType.MATCH_ONE
+  private fun String?.toMatchType(): MatchType =
+    when (this) {
+      "MATCH_ANY" -> MatchType.MATCH_ANY
+      "MATCH_ALL" -> MatchType.MATCH_ALL
+      "MATCH_ONE" -> MatchType.MATCH_ONE
       else -> {
-        Timber.v("Unknown MatchType received: $typeStr")
-        Condition.MatchType.UNKNOWN
+        Timber.v("Unknown MatchType received: $this")
+        MatchType.UNKNOWN
       }
-    }.exhaustive
+    }
 
-  private fun toExpressions(expressions: List<ExpressionNestedObject>): List<Expression> =
-    expressions.mapNotNull {
-      val expressionType = toExpressionType(it.expressionType)
-      if (expressionType == Expression.ExpressionType.UNKNOWN) {
+  private fun List<ExpressionNestedObject>.toExpressions(): List<Expression> =
+    this.mapNotNull {
+      val expressionType = it.expressionType.toExpressionType()
+      if (expressionType == ExpressionType.UNKNOWN) {
         Timber.e("Unsupported expressionType: ${it.expressionType}, skipping expression.")
         null
       } else if (it.taskId == null) {
@@ -70,14 +69,14 @@ internal object ConditionConverter {
       }
     }
 
-  private fun toExpressionType(typeStr: String?): Expression.ExpressionType =
-    when (typeStr) {
-      "ANY_OF_SELECTED" -> Expression.ExpressionType.ANY_OF_SELECTED
-      "ALL_OF_SELECTED" -> Expression.ExpressionType.ALL_OF_SELECTED
-      "ONE_OF_SELECTED" -> Expression.ExpressionType.ONE_OF_SELECTED
+  private fun String?.toExpressionType(): ExpressionType =
+    when (this) {
+      "ANY_OF_SELECTED" -> ExpressionType.ANY_OF_SELECTED
+      "ALL_OF_SELECTED" -> ExpressionType.ALL_OF_SELECTED
+      "ONE_OF_SELECTED" -> ExpressionType.ONE_OF_SELECTED
       else -> {
-        Timber.v("Unknown ExpressionType received: $typeStr")
-        Expression.ExpressionType.UNKNOWN
+        Timber.v("Unknown ExpressionType received: $this")
+        ExpressionType.UNKNOWN
       }
-    }.exhaustive
+    }
 }

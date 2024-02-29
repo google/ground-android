@@ -20,8 +20,6 @@ import com.google.android.ground.model.submission.Value
 
 /** The task ID. */
 typealias TaskId = String
-/** The selected option ID for each task. */
-typealias OptionId = String
 /** The selected values keyed by task ID. */
 typealias TaskSelections = Map<String, Value>
 
@@ -35,25 +33,19 @@ data class Condition(
   /** The expressions to evaluate to fulfill the condition. */
   val expressions: List<Expression> = listOf(),
 ) {
-  private val <T> T.exhaustive: T
-    get() = this
 
   /** Match type names as they appear in the remote database. */
   enum class MatchType {
-    UNKNOWN,
-    MATCH_ANY,
-    MATCH_ALL,
-    MATCH_ONE,
+    UNKNOWN, MATCH_ANY, MATCH_ALL, MATCH_ONE,
   }
 
   /** Given the user's task selections, determine whether the condition is fulfilled. */
-  fun fulfilledBy(taskSelections: TaskSelections) =
-    when (matchType) {
-      MatchType.MATCH_ANY -> expressions.any { it.fulfilledBy(taskSelections) }
-      MatchType.MATCH_ALL -> expressions.all { it.fulfilledBy(taskSelections) }
-      MatchType.MATCH_ONE -> expressions.filter { it.fulfilledBy(taskSelections) }.size == 1
-      else -> throw IllegalArgumentException("Unknown match type: $matchType")
-    }.exhaustive
+  fun fulfilledBy(taskSelections: TaskSelections) = when (matchType) {
+    MatchType.MATCH_ANY -> expressions.any { it.fulfilledBy(taskSelections) }
+    MatchType.MATCH_ALL -> expressions.all { it.fulfilledBy(taskSelections) }
+    MatchType.MATCH_ONE -> expressions.filter { it.fulfilledBy(taskSelections) }.size == 1
+    MatchType.UNKNOWN -> throw IllegalArgumentException("Unknown match type: $matchType")
+  }
 }
 
 data class Expression(
@@ -67,30 +59,21 @@ data class Expression(
 
   /** Task type names as they appear in the remote database. */
   enum class ExpressionType {
-    UNKNOWN,
-    ANY_OF_SELECTED,
-    ALL_OF_SELECTED,
-    ONE_OF_SELECTED,
+    UNKNOWN, ANY_OF_SELECTED, ALL_OF_SELECTED, ONE_OF_SELECTED,
   }
-
-  private val <T> T.exhaustive: T
-    get() = this
 
   /** Given the selected options for this task, determine whether the expression is fulfilled. */
   fun fulfilledBy(taskSelections: TaskSelections): Boolean =
     taskSelections[this.taskId]?.let { selection -> this.fulfilled(selection) } ?: false
 
   private fun fulfilled(value: Value): Boolean {
-    return if (value is MultipleChoiceResponse) {
-      val selectedOptions = value.selectedOptionIds.toSet()
-      when (expressionType) {
-        ExpressionType.ANY_OF_SELECTED -> optionIds.any { it in selectedOptions }
-        ExpressionType.ALL_OF_SELECTED -> selectedOptions.containsAll(optionIds)
-        ExpressionType.ONE_OF_SELECTED -> selectedOptions.intersect(optionIds).size == 1
-        else -> throw IllegalArgumentException("Unknown expression type: $expressionType")
-      }.exhaustive
-    } else {
-      false
+    if (value !is MultipleChoiceResponse) return false
+    val selectedOptions = value.selectedOptionIds.toSet()
+    return when (expressionType) {
+      ExpressionType.ANY_OF_SELECTED -> optionIds.any { it in selectedOptions }
+      ExpressionType.ALL_OF_SELECTED -> selectedOptions.containsAll(optionIds)
+      ExpressionType.ONE_OF_SELECTED -> selectedOptions.intersect(optionIds).size == 1
+      ExpressionType.UNKNOWN -> throw IllegalArgumentException("Unknown expression type: $expressionType")
     }
   }
 }

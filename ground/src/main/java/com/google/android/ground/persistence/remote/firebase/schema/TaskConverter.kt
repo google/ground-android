@@ -43,7 +43,7 @@ internal object TaskConverter {
       em.required != null && em.required,
       multipleChoice,
       em.addLoiTask ?: false,
-      em.condition?.let { toCondition(it) }
+      em.condition?.toCondition()
     )
   }
 
