@@ -31,7 +31,7 @@ class PermissionsManager
 @Inject
 constructor(
   @ApplicationContext private val context: Context,
-  private val activityStreams: ActivityStreams
+  private val activityStreams: ActivityStreams,
 ) {
   /**
    * Asynchronously requests the app be granted the specified permission. If the permission has
@@ -68,7 +68,7 @@ constructor(
   private suspend fun getPermissionsResult(permission: String) {
     val result = activityStreams.getNextRequestPermissionsResult(PERMISSIONS_REQUEST_CODE)
     if (!result.isGranted(permission)) {
-      throw PermissionDeniedException()
+      throw PermissionDeniedException("Permission denied: $permission")
     }
   }
 
@@ -81,4 +81,4 @@ constructor(
  * Indicates a request to grant the app permissions was denied. More specifically, it indicates the
  * requested permission was not in the list of granted permissions in the system's response.
  */
-class PermissionDeniedException : Exception()
+class PermissionDeniedException(message: String) : Exception(message)
