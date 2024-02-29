@@ -18,7 +18,6 @@ package com.google.android.ground.ui.home
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
@@ -33,7 +32,6 @@ class HomeScreenViewModel
 @Inject
 internal constructor(
   private val navigator: Navigator,
-  surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
   private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()

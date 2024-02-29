@@ -55,7 +55,7 @@ object Config {
   const val MAX_MEDIA_UPLOAD_RETRY_COUNT = 5
 
   // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
-  const val DEFAULT_MOG_TILE_URL = "/offline-imagery/default/"
+  const val DEFAULT_MOG_TILE_LOCATION = "/offline-imagery/default"
   const val DEFAULT_MOG_MIN_ZOOM = 8
   const val DEFAULT_MOG_MAX_ZOOM = 14
 
