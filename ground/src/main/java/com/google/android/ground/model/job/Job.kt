@@ -36,7 +36,7 @@ data class Job(
   class TaskNotFoundException(taskId: String) : Throwable(message = "unknown task $taskId")
 
   val canDataCollectorsAddLois: Boolean
-    get() = strategy != DataCollectionStrategy.PREDEFINED
+    get() = strategy != DataCollectionStrategy.PREDEFINED && getAddLoiTask() != null
 
   val tasksSorted: List<Task>
     get() = tasks.values.sortedBy { it.index }

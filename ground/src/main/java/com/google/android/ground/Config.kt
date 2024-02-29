@@ -33,7 +33,7 @@ object Config {
   const val FIRESTORE_LOGGING_ENABLED = true
 
   // Tasks.
-  const val LOI_TASK_ID = "\$addLoi"
+  const val LOI_TASK_ID_PREFIX = "\$addLoi"
 
   // Photos
   const val PHOTO_EXT = ".jpg"

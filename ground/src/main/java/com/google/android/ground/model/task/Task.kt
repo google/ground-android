@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.model.task
 
-import com.google.android.ground.Config.LOI_TASK_ID
+import com.google.android.ground.Config.LOI_TASK_ID_PREFIX
 
 /**
  * Describes a user-defined task.
@@ -52,5 +52,5 @@ constructor(
     CAPTURE_LOCATION
   }
 
-  fun isAddLoiTask(): Boolean = id == LOI_TASK_ID
+  fun isAddLoiTask(): Boolean = id.startsWith(LOI_TASK_ID_PREFIX)
 }

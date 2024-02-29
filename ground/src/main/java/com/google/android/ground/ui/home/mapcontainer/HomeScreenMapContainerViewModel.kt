@@ -36,7 +36,6 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.isLocationOfInterest
-import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -51,6 +50,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -131,7 +131,7 @@ internal constructor(
     adHocLoiJobs =
       activeSurvey.combine(isZoomedInFlow) { survey, isZoomedIn ->
         if (survey == null || !isZoomedIn) listOf()
-        else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
+        else survey.jobs.filter { it.canDataCollectorsAddLois }
       }
   }
 
