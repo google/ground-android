@@ -18,10 +18,7 @@ package com.google.android.ground.ui.map.gms.mog
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
-@RunWith(RobolectricTestRunner::class)
 class MogImageMetadataTest {
 
   // TileCountX = 4, TileCountY = 4

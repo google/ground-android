@@ -29,14 +29,15 @@ import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
+import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowDialog
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -52,7 +53,7 @@ class DrawAreaTaskFragmentTest :
       index = 0,
       type = Task.Type.DRAW_AREA,
       label = "Task for drawing a polygon",
-      isRequired = false
+      isRequired = false,
     )
   private val job = Job("job", Style("#112233"))
 
@@ -80,7 +81,7 @@ class DrawAreaTaskFragmentTest :
       ButtonAction.UNDO,
       ButtonAction.NEXT,
       ButtonAction.ADD_POINT,
-      ButtonAction.COMPLETE
+      ButtonAction.COMPLETE,
     )
   }
 
@@ -109,6 +110,10 @@ class DrawAreaTaskFragmentTest :
   @Test
   fun testDrawArea_incompleteWhenTaskIsOptional() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
+    fragment.onTaskVisibleToUser()
+
+    // Dismiss the instructions dialog
+    ShadowDialog.getLatestDialog().dismiss()
 
     updateLastVertexAndAddPoint(COORDINATE_1)
     updateLastVertexAndAddPoint(COORDINATE_2)
@@ -138,6 +143,10 @@ class DrawAreaTaskFragmentTest :
   @Test
   fun testDrawArea() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
+    fragment.onTaskVisibleToUser()
+
+    // Dismiss the instructions dialog
+    ShadowDialog.getLatestDialog().dismiss()
 
     updateLastVertexAndAddPoint(COORDINATE_1)
     updateLastVertexAndAddPoint(COORDINATE_2)
@@ -153,7 +162,7 @@ class DrawAreaTaskFragmentTest :
               Coordinates(0.0, 0.0),
               Coordinates(10.0, 10.0),
               Coordinates(20.0, 20.0),
-              Coordinates(0.0, 0.0)
+              Coordinates(0.0, 0.0),
             )
           )
         )
@@ -166,6 +175,26 @@ class DrawAreaTaskFragmentTest :
     buttonIsEnabled(ButtonAction.UNDO)
     buttonIsHidden("Add point")
     buttonIsEnabled("Complete")
+  }
+
+  @Test
+  fun `Instructions dialog is shown`() = runWithTestDispatcher {
+    setupTaskFragment<DrawAreaTaskFragment>(job, task)
+    fragment.onTaskVisibleToUser()
+
+    assertThat(ShadowDialog.getLatestDialog()).isNotNull()
+  }
+
+  @Test
+  fun `Instructions dialog is not shown if shown previously`() = runWithTestDispatcher {
+    setupTaskFragment<DrawAreaTaskFragment>(job, task)
+
+    viewModel.instructionsDialogShown = true
+    ShadowDialog.reset()
+
+    setupTaskFragment<DrawAreaTaskFragment>(job, task)
+
+    assertThat(ShadowDialog.getLatestDialog()).isNull()
   }
 
   /** Overwrites the last vertex and also adds a new one. */

@@ -19,9 +19,7 @@ import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.imagery.TileSource
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.common.AbstractFragment
-import java8.util.function.Consumer
 import kotlinx.coroutines.flow.SharedFlow
 
 /** Implementation of Fragment which supports displaying a map. */
@@ -56,7 +54,7 @@ interface MapFragment {
   fun attachToParent(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
-    onMapReadyCallback: Consumer<MapFragment>
+    onMapReadyCallback: (MapFragment) -> Unit
   )
 
   /** Enables map gestures like pan and zoom. */
@@ -88,16 +86,11 @@ interface MapFragment {
   /** Displays user location indicator on the map. */
   @SuppressLint("MissingPermission") fun enableCurrentLocationIndicator()
 
-  /** Update the set of map [Feature]s rendered on the map. */
-  fun renderFeatures(features: Set<Feature>)
-
-  fun refresh()
+  /** Update the set of map [Feature]s present on the map. */
+  fun setFeatures(newFeatures: Set<Feature>)
 
   /** Returns the actual distance in pixels between provided [Coordinates]s. */
   fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double
-
-  /** Update UI of rendered [LocationOfInterest]. */
-  fun setActiveLocationOfInterest(newLoiId: String?)
 
   fun addTileOverlay(source: TileSource)
 

@@ -19,7 +19,7 @@ package com.google.android.ground.model.submission
  * An immutable map of task ids to submitted data values.
  *
  * @property data A map from task id to values. This map is mutable and therefore should never be
- * exposed outside this class.
+ *   exposed outside this class.
  */
 // TODO: Merge into Submission?
 data class SubmissionData(private val data: Map<String, Value?> = mapOf()) {

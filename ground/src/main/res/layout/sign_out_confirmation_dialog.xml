@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2023 Google LLC
+  ~ Copyright 2024 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,8 +21,9 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.common.CameraPermissionDeniedDialogViewModel" />
+      type="com.google.android.ground.ui.common.SignOutConfirmationDialogViewModel" />
   </data>
+
 
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
@@ -34,36 +35,21 @@
       android:id="@+id/title"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="@string/permission_denied"
+      android:text="@string/sign_out_dialog_title"
       android:textAppearance="@style/TextAppearance.AppCompat.Large"
       android:textColor="?attr/colorOnSurface"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-      android:id="@+id/subtitle"
+      android:id="@+id/warning"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginTop="12dp"
-      android:text="@string/camera_permissions_needed"
+      android:text="@string/sign_out_dialog_body"
       android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-      android:textColor="?attr/colorOnSurfaceVariant"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/title" />
-
-    <Button
-      android:id="@+id/acknowledge"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginStart="10dp"
-      android:layout_marginTop="32dp"
-      android:layout_marginEnd="10dp"
-      android:onClick="@{() -> viewModel.closeDialog()}"
-      android:text="@string/ok"
-      app:backgroundTint="?attr/colorPrimary"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/subtitle"
-      app:layout_constraintStart_toStartOf="parent"/>
 
     <Button
       android:id="@+id/close"
@@ -72,12 +58,22 @@
       android:layout_marginStart="10dp"
       android:layout_marginTop="32dp"
       android:layout_marginEnd="10dp"
-      android:onClick="@{() -> viewModel.exitDataCollectionFlow()}"
-      android:text="@string/exit"
-      app:backgroundTint="?attr/colorError"
-      app:layout_constraintTop_toBottomOf="@id/subtitle"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent" />
+      android:onClick="@{() -> viewModel.closeDialog()}"
+      android:text="@string/cancel"
+      app:backgroundTint="?attr/colorPrimary"
+      app:layout_constraintEnd_toStartOf="@+id/sign_out"
+      app:layout_constraintTop_toBottomOf="@+id/warning" />
 
+    <Button
+      android:id="@+id/sign_out"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="24dp"
+      android:onClick="@{() -> viewModel.signOut()}"
+      android:text="@string/sign_out"
+      app:backgroundTint="?attr/colorError"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/warning"
+      app:layout_constraintTop_toTopOf="@id/close" />
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

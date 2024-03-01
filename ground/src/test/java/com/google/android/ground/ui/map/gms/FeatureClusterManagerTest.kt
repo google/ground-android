@@ -19,7 +19,9 @@ import android.os.Looper.getMainLooper
 import androidx.test.core.app.ApplicationProvider
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.ui.map.gms.features.FeatureClusterManager
 import com.google.common.truth.Truth.assertThat
+import com.google.maps.android.collections.MarkerManager
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
@@ -39,31 +41,29 @@ class FeatureClusterManagerTest : BaseHiltTest() {
   @Before
   override fun setUp() {
     super.setUp()
-    featureClusterManager = FeatureClusterManager(ApplicationProvider.getApplicationContext(), map)
+    featureClusterManager =
+      FeatureClusterManager(
+        ApplicationProvider.getApplicationContext(),
+        map,
+        object : MarkerManager(map) {},
+      )
     shadowOf(getMainLooper()).idle()
   }
 
   @Test
-  fun addOrUpdateLocationOfInterest_addsALocationOfInterest() {
+  fun `addFeature() adds clusterable features to cluster manager`() {
     featureClusterManager.addFeature(FakeData.LOCATION_OF_INTEREST_FEATURE)
     assertThat(featureClusterManager.algorithm.items)
       .contains(FakeData.LOCATION_OF_INTEREST_CLUSTER_ITEM)
   }
 
   @Test
-  fun removeStaleFeatures_removesStaleLOIs() {
+  fun `removeFeature() removes existing`() {
     featureClusterManager.addFeature(
-      FakeData.LOCATION_OF_INTEREST_FEATURE.copy(
-        tag = FakeData.LOCATION_OF_INTEREST_FEATURE.tag.copy(id = "id_1")
-      )
+      FakeData.LOCATION_OF_INTEREST_FEATURE.copy(tag = FakeData.LOCATION_OF_INTEREST_FEATURE.tag)
     )
-    featureClusterManager.removeStaleFeatures(
-      setOf(
-        FakeData.LOCATION_OF_INTEREST_FEATURE.copy(
-          tag = FakeData.LOCATION_OF_INTEREST_FEATURE.tag.copy(id = "id_2")
-        )
-      )
-    )
+    featureClusterManager.removeFeature(FakeData.LOCATION_OF_INTEREST_FEATURE.tag)
+
     assertThat(featureClusterManager.algorithm.items).isEmpty()
   }
 }

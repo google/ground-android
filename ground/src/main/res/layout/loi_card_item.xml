@@ -27,6 +27,7 @@
     android:layout_marginStart="@dimen/job_card_start_end_margin"
     android:layout_marginEnd="@dimen/job_card_start_end_margin"
     android:orientation="vertical"
+    android:backgroundTint="?attr/colorBackgroundFloating"
     app:cardCornerRadius="@dimen/job_card_corner_radius"
     app:cardElevation="2dp"
     app:strokeWidth="0dp">

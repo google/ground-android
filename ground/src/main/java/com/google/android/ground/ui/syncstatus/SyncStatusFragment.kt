@@ -27,8 +27,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 /** Fragment containing a list of mutations and their respective upload statuses. */
-@AndroidEntryPoint(AbstractFragment::class)
-class SyncStatusFragment : Hilt_SyncStatusFragment() {
+@AndroidEntryPoint
+class SyncStatusFragment : AbstractFragment() {
 
   @Inject lateinit var locationOfInterestHelper: LocationOfInterestHelper
   lateinit var viewModel: SyncStatusViewModel
@@ -50,14 +50,13 @@ class SyncStatusFragment : Hilt_SyncStatusFragment() {
 
     getAbstractActivity().setSupportActionBar(binding.syncStatusToolbar)
 
-    val syncStatusListAdapter = SyncStatusListAdapter(requireContext(), locationOfInterestHelper)
+    val syncStatusListAdapter = SyncStatusListAdapter(requireContext())
     val recyclerView = binding.syncStatusList
     recyclerView.setHasFixedSize(true)
     recyclerView.layoutManager = LinearLayoutManager(context)
     recyclerView.adapter = syncStatusListAdapter
 
     viewModel.mutations.observe(viewLifecycleOwner) { syncStatusListAdapter.update(it) }
-
     return binding.root
   }
 }

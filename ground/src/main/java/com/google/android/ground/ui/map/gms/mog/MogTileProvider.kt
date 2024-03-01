@@ -18,13 +18,15 @@ package com.google.android.ground.ui.map.gms.mog
 
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
+import com.google.android.ground.persistence.remote.RemoteStorageManager
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 // TODO(#1596): Add unit tests.
 /** Fetches and returns MOG tiles to Maps SDK for display as a tile overlay. */
-class MogTileProvider(collection: MogCollection) : TileProvider {
-  private val client = MogClient(collection)
+class MogTileProvider(collection: MogCollection, remoteStorageManager: RemoteStorageManager) :
+  TileProvider {
+  private val client = MogClient(collection, remoteStorageManager)
 
   override fun getTile(x: Int, y: Int, zoom: Int): Tile? = runBlocking {
     val tileCoordinates = TileCoordinates(x, y, zoom)

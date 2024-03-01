@@ -29,8 +29,8 @@ import dagger.hilt.android.AndroidEntryPoint
  * tiles. Users can manage their areas within this fragment. They can delete areas they no longer
  * need or access the UI used to select and download a new area to the device.
  */
-@AndroidEntryPoint(AbstractFragment::class)
-class OfflineAreasFragment : Hilt_OfflineAreasFragment() {
+@AndroidEntryPoint
+class OfflineAreasFragment : AbstractFragment() {
 
   private lateinit var offlineAreaListAdapter: OfflineAreaListAdapter
   private lateinit var viewModel: OfflineAreasViewModel

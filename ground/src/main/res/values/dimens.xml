@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2018 Google LLC
+  ~ Copyright 2024 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@
 
 <resources>
   <!-- Map -->
-  <dimen name="line_geometry_width">4dp</dimen>
-  <item name="marker_bitmap_default_scale" format="float" type="dimen">1.8</item>
-  <item name="marker_bitmap_zoomed_scale" format="float" type="dimen">2.5</item>
+  <dimen name="line_geometry_width">2dp</dimen>
+  <item name="default_marker_scale_factor" format="float" type="dimen">2</item>
+  <item name="selected_marker_scale_factor" format="float" type="dimen">1.5</item>
 
   <!-- Task -->
   <dimen name="task_value_top_padding">4dp</dimen>
@@ -39,4 +39,5 @@
 
   <dimen name="job_card_corner_radius">16dp</dimen>
   <dimen name="job_card_start_end_margin">8dp</dimen>
+  <dimen name="zoom_on_cluster_click_padding">50dp</dimen>
 </resources>

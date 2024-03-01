@@ -17,17 +17,20 @@ package com.google.android.ground.ui.home.mapcontainer
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil.getDisplayLoiName
 import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil.getJobName
 import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil.getSubmissionsText
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
+import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class LoiCardUtilTest {
+class LoiCardUtilTest : BaseHiltTest() {
 
   private val context: Context = ApplicationProvider.getApplicationContext()
 

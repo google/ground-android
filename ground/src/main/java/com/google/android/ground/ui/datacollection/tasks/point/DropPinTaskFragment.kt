@@ -30,8 +30,8 @@ import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-@AndroidEntryPoint(AbstractTaskFragment::class)
-class DropPinTaskFragment : Hilt_DropPinTaskFragment<DropPinTaskViewModel>() {
+@AndroidEntryPoint
+class DropPinTaskFragment : AbstractTaskFragment<DropPinTaskViewModel>() {
 
   @Inject lateinit var markerIconFactory: IconFactory
   @Inject lateinit var map: MapFragment

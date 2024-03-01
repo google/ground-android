@@ -18,9 +18,9 @@ package com.google.android.ground.ui.map.gms.mog
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.ParameterizedRobolectricTestRunner
+import org.junit.runners.Parameterized
 
-@RunWith(ParameterizedRobolectricTestRunner::class)
+@RunWith(Parameterized::class)
 class TiffTagDataTypeTest(
   private val dataType: TiffTagDataType,
   private val sizeInBytes: Int,
@@ -35,9 +35,7 @@ class TiffTagDataTypeTest(
 
   companion object {
     @JvmStatic
-    @ParameterizedRobolectricTestRunner.Parameters(
-      name = "{0} should be at position {2} with size {1}"
-    )
+    @Parameterized.Parameters(name = "{0} should be at position {2} with size {1}")
     fun data() =
       listOf(
         arrayOf(TiffTagDataType.BYTE, 1, 1),

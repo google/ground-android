@@ -32,8 +32,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 /** Map UI used to select areas for download and viewing offline. */
-@AndroidEntryPoint(AbstractMapContainerFragment::class)
-class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
+@AndroidEntryPoint
+class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var popups: EphemeralPopups
 
@@ -66,7 +66,7 @@ class OfflineAreaSelectorFragment : Hilt_OfflineAreaSelectorFragment() {
   override fun onMapReady(map: MapFragment) {
     // Observe events emitted by the ViewModel.
     viewLifecycleOwner.lifecycleScope.launch {
-      mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
+      mapContainerViewModel.mapLoiFeatures.collect { map.setFeatures(it) }
     }
     viewModel.remoteTileSources.forEach { map.addTileOverlay(it) }
   }

@@ -19,7 +19,7 @@ import android.net.Uri
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.firebase.storage.StorageReference
 import java.io.File
-import java8.util.StringJoiner
+import java.util.StringJoiner
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.tasks.await

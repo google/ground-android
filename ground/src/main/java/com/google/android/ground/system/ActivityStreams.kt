@@ -18,7 +18,6 @@ package com.google.android.ground.system
 import android.app.Activity
 import android.content.Intent
 import com.google.android.ground.coroutines.ApplicationScope
-import java8.util.function.Consumer
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -34,9 +33,9 @@ import kotlinx.coroutines.launch
 @Singleton
 class ActivityStreams @Inject constructor(@ApplicationScope private val scope: CoroutineScope) {
 
-  /** Emits [Consumer]s to be executed in the context of the [Activity]. */
-  private val _activityRequestsFlow: MutableSharedFlow<Consumer<Activity>> = MutableSharedFlow()
-  val activityRequests: SharedFlow<Consumer<Activity>> = _activityRequestsFlow.asSharedFlow()
+  /** Emits [ActivityCallback] to be executed in the context of the [Activity]. */
+  private val _activityRequestsFlow: MutableSharedFlow<ActivityCallback> = MutableSharedFlow()
+  val activityRequests: SharedFlow<ActivityCallback> = _activityRequestsFlow.asSharedFlow()
 
   /** Emits [Activity.onActivityResult] events. */
   private val _activityResults: MutableSharedFlow<ActivityResult> = MutableSharedFlow()
@@ -45,11 +44,8 @@ class ActivityStreams @Inject constructor(@ApplicationScope private val scope: C
   private val _requestPermissionsResults: MutableSharedFlow<RequestPermissionsResult> =
     MutableSharedFlow()
 
-  /**
-   * Queues the specified [Consumer] for execution. An instance of the current [ ] is provided to
-   * the `Consumer` when called.
-   */
-  fun withActivity(callback: Consumer<Activity>) {
+  /** Queues the specified [ActivityCallback] for execution. */
+  fun withActivity(callback: ActivityCallback) {
     scope.launch { _activityRequestsFlow.emit(callback) }
   }
 
@@ -67,7 +63,7 @@ class ActivityStreams @Inject constructor(@ApplicationScope private val scope: C
   fun onRequestPermissionsResult(
     requestCode: Int,
     permissions: Array<String>,
-    grantResults: IntArray
+    grantResults: IntArray,
   ) {
     scope.launch {
       _requestPermissionsResults.emit(
@@ -96,3 +92,5 @@ class ActivityStreams @Inject constructor(@ApplicationScope private val scope: C
       .filter { it.requestCode == requestCode }
       .first() // TODO(#723): Define and handle timeouts.
 }
+
+typealias ActivityCallback = (activity: Activity) -> Unit

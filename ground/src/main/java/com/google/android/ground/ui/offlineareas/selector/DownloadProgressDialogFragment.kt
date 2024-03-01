@@ -25,8 +25,8 @@ import com.google.android.ground.databinding.DownloadProgressDialogFragBinding
 import com.google.android.ground.ui.common.AbstractDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint(AbstractDialogFragment::class)
-class DownloadProgressDialogFragment : Hilt_DownloadProgressDialogFragment() {
+@AndroidEntryPoint
+class DownloadProgressDialogFragment : AbstractDialogFragment() {
   override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
     val inflater = requireActivity().layoutInflater
     val binding = DownloadProgressDialogFragBinding.inflate(inflater)

@@ -29,8 +29,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-@AndroidEntryPoint(AbstractFragment::class)
-class StartupFragment : Hilt_StartupFragment() {
+@AndroidEntryPoint
+class StartupFragment : AbstractFragment() {
 
   @Inject lateinit var popups: EphemeralPopups
 
@@ -44,11 +44,12 @@ class StartupFragment : Hilt_StartupFragment() {
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View? = inflater.inflate(R.layout.startup_frag, container, false)
 
   override fun onResume() {
     super.onResume()
+    showProgressDialog(R.string.initializing)
     viewLifecycleOwner.lifecycleScope.launch {
       try {
         viewModel.initializeLogin()
@@ -58,10 +59,15 @@ class StartupFragment : Hilt_StartupFragment() {
     }
   }
 
+  override fun onPause() {
+    dismissProgressDialog()
+    super.onPause()
+  }
+
   private fun onInitFailed(t: Throwable) {
     Timber.e(t, "Failed to launch app")
     if (t is GoogleApiManager.GooglePlayServicesMissingException) {
-      popups.showError(R.string.google_api_install_failed)
+      popups.ErrorPopup().show(R.string.google_api_install_failed)
     }
     requireActivity().finish()
   }

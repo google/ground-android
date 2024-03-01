@@ -42,7 +42,6 @@
   <string name="google_api_install_failed">Google Play Services installation failed</string>
   <string name="sign_out">Sign out</string>
   <string name="ok">OK</string>
-  <string name="exit">Exit</string>
   <string name="change_survey">Surveys</string>
   <string name="collect_data">Collect data</string>
 
@@ -69,7 +68,7 @@
   <string name="date">Date</string>
   <string name="time">Time</string>
   <!-- Other strings (to be organized) -->
-  <string name="sync_status">History and sync status</string>
+  <string name="sync_status">Sync Status</string>
   <string name="layer_label_format">Job: %s</string>
 
   <string name="add_point">Add point</string>
@@ -104,6 +103,7 @@
   <string name="permission_denied">Permission denied</string>
   <string name="contact_survey_organizer_to_obtain_access">Contact your system administrator to request access</string>
   <string name="close_app">Close app</string>
+  <string name="cancel">Cancel</string>
   <string name="warning_sign_out">Warning: If you sign out, all unsaved data will be lost</string>
   <string name="no_imagery_available_for_area">No imagery for this area. Select an area with imagery to download to your device.</string>
   <string name="selected_offline_area_size">The selected area may take up to %s\u00A0MB of space on your device</string>
@@ -130,4 +130,13 @@
   <string name="camera_permissions_needed">You need to grant this application camera permissions to submit photos.</string>
   <string name="error_message">Something went wrong</string>
   <string name="incomplete_area">Incomplete area</string>
+  <string name="initializing">Initializing…</string>
+  <string name="draw_area_task_instruction">Move the map and tap <b>Add point</b> to mark this location.</string>
+  <string name="close">Close</string>
+  <string name="map_location">Map location</string>
+  <string name="sign_out_dialog_title">Unsynced data</string>
+  <string name="sign_out_dialog_body">If you sign out, any unsynced data will be discarded</string>
+  <string name="suggest_data_collection_hint">Zoom in to start collecting data</string>
+  <string name="read_only_data_collection_hint">Survey is read-only</string>
+  <string name="predefined_data_collection_hint">Zoom in to a data collection site to collect data</string>
 </resources>

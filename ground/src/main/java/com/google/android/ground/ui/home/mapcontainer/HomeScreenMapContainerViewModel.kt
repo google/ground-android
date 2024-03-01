@@ -27,7 +27,6 @@ import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.rx.Nil
 import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
@@ -36,25 +35,24 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
+import com.google.android.ground.ui.map.isLocationOfInterest
 import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -62,13 +60,13 @@ class HomeScreenMapContainerViewModel
 @Inject
 internal constructor(
   private val loiRepository: LocationOfInterestRepository,
-  private val mapStateRepository: MapStateRepository,
+  mapStateRepository: MapStateRepository,
   private val submissionRepository: SubmissionRepository,
   locationManager: LocationManager,
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
-  surveyRepository: SurveyRepository
+  surveyRepository: SurveyRepository,
 ) :
   BaseMapViewModel(
     locationManager,
@@ -77,8 +75,25 @@ internal constructor(
     offlineAreaRepository,
     permissionsManager,
     surveyRepository,
-    loiRepository
+    loiRepository,
   ) {
+
+  private val selectedLoiIdFlow = MutableStateFlow<String?>(null)
+
+  val activeSurvey: StateFlow<Survey?> = surveyRepository.activeSurveyFlow
+
+  /** Captures essential, high-level derived properties for a given survey. */
+  data class SurveyProperties(val addLoiPermitted: Boolean, val readOnly: Boolean)
+
+  /**
+   * This flow emits [SurveyProperties] when the active survey changes. Callers can use this data to
+   * determine if and how behavior should change based on differing survey properties.
+   */
+  val surveyUpdateFlow: Flow<SurveyProperties> =
+    activeSurvey.filterNotNull().map {
+      val lois = loiRepository.getLocationsOfInterests(it).first()
+      SurveyProperties(it.jobs.any { it.canDataCollectorsAddLois }, lois.isEmpty())
+    }
 
   /** Set of [Feature] to render on the map. */
   val mapLoiFeatures: Flow<Set<Feature>>
@@ -99,7 +114,7 @@ internal constructor(
   val adHocLoiJobs: Flow<List<Job>>
 
   /* UI Clicks */
-  private val _zoomThresholdCrossed: MutableSharedFlow<Nil> = MutableSharedFlow()
+  private val _zoomThresholdCrossed: MutableSharedFlow<Unit> = MutableSharedFlow()
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
@@ -107,11 +122,12 @@ internal constructor(
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     //  into the repository.
 
-    val activeSurvey = surveyRepository.activeSurveyFlow.distinctUntilChanged()
-
     mapLoiFeatures =
       activeSurvey.flatMapLatest {
-        if (it == null) flowOf(setOf()) else getLocationOfInterestFeatures(it)
+        if (it == null) flowOf(setOf())
+        else
+          getLocationOfInterestFeatures(it)
+            .combine(selectedLoiIdFlow, this::updatedLoiSelectedStates)
       }
 
     val isZoomedInFlow =
@@ -128,21 +144,23 @@ internal constructor(
         .stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
     adHocLoiJobs =
-      activeSurvey
-        .combine(isZoomedInFlow) { survey, isZoomedIn -> Pair(survey, isZoomedIn) }
-        .flatMapLatest { (survey, isZoomedIn) ->
-          flowOf(
-            if (survey == null || !isZoomedIn) listOf()
-            else survey.jobs.filter { it.canDataCollectorsAddLois }
-          )
-        }
+      activeSurvey.combine(isZoomedInFlow) { survey, isZoomedIn ->
+        if (survey == null || !isZoomedIn) listOf()
+        else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
+      }
   }
+
+  private fun updatedLoiSelectedStates(
+    features: Set<Feature>,
+    selectedLoiId: String?,
+  ): Set<Feature> =
+    features
+      .map { it.withSelected(it.isLocationOfInterest() && it.tag.id == selectedLoiId) }
+      .toSet()
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     super.onMapCameraMoved(newCameraPosition)
-    Timber.d("Setting position to $newCameraPosition")
     onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
-    mapStateRepository.setCameraPosition(newCameraPosition)
   }
 
   private fun onZoomChange(oldZoomLevel: Float?, newZoomLevel: Float?) {
@@ -152,7 +170,7 @@ internal constructor(
       oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD ||
         oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD
     if (zoomThresholdCrossed) {
-      viewModelScope.launch { _zoomThresholdCrossed.emit(Nil.NIL) }
+      viewModelScope.launch { _zoomThresholdCrossed.emit(Unit) }
     }
   }
 
@@ -171,8 +189,6 @@ internal constructor(
     }
   }
 
-  fun getZoomThresholdCrossed(): SharedFlow<Nil> = _zoomThresholdCrossed.asSharedFlow()
-
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
     loiRepository.getLocationsOfInterests(survey).map {
       it.map { loi -> loi.toFeature() }.toPersistentSet()
@@ -185,6 +201,11 @@ internal constructor(
       flag = submissionRepository.getTotalSubmissionCount(this) > 0,
       geometry = geometry,
       style = Feature.Style(job.getDefaultColor()),
-      clusterable = true
+      clusterable = true,
+      selected = true,
     )
+
+  fun selectLocationOfInterest(id: String?) {
+    selectedLoiIdFlow.value = id
+  }
 }

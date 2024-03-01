@@ -18,10 +18,7 @@ package com.google.android.ground.ui.map.gms.mog
 import com.google.android.gms.maps.model.LatLng
 import kotlin.test.assertEquals
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
-@RunWith(RobolectricTestRunner::class)
 class PixelCoordinatesTest {
   @Test
   fun `atZoom() at lower zoom reduces coords`() {

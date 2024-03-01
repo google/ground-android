@@ -58,7 +58,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -192,7 +191,10 @@ constructor(
 
   /** Emits a stream of camera update requests. */
   fun getCameraUpdateRequests(): SharedFlow<CameraUpdateRequest> =
-    merge(updateCameraPositionOnSurveyChange(), updateCameraPositionOnLocationChange())
+    merge(
+        getCameraUpdateRequestsForSurveyActivations(),
+        getCameraUpdateRequestsForDeviceLocationChanges()
+      )
       .shareIn(viewModelScope, SharingStarted.Eagerly, replay = 0)
 
   /** Emits a stream of current camera position. */
@@ -205,7 +207,7 @@ constructor(
    * appropriate zoom level and subsequent ones only pan the map.
    */
   @OptIn(ExperimentalCoroutinesApi::class)
-  private fun updateCameraPositionOnLocationChange(): Flow<CameraUpdateRequest> =
+  private fun getCameraUpdateRequestsForDeviceLocationChanges(): Flow<CameraUpdateRequest> =
     locationLock
       .flatMapLatest { enabled ->
         getLocationUpdates()
@@ -229,11 +231,12 @@ constructor(
       CameraUpdateRequest(CameraPosition(coordinates), true)
     }
 
-  /** Updates map camera when active survey changes. */
-  private fun updateCameraPositionOnSurveyChange(): Flow<CameraUpdateRequest> =
-    surveyRepository.activeSurveyFlow.filterNotNull().transform {
-      getLastSavedPositionOrDefaultBounds(it)?.apply { emit(this) }
-    }
+  /** Emits a new camera update request when active survey changes. */
+  private fun getCameraUpdateRequestsForSurveyActivations(): Flow<CameraUpdateRequest> =
+    surveyRepository.activeSurveyFlow
+      .filterNotNull()
+      .map { getLastSavedPositionOrDefaultBounds(it) }
+      .filterNotNull()
 
   private suspend fun getLastSavedPositionOrDefaultBounds(survey: Survey): CameraUpdateRequest? {
     // Attempt to fetch last saved position from local storage.
@@ -252,6 +255,7 @@ constructor(
     Timber.d("Camera moved : ${newCameraPosition.target}")
     lastCameraPosition = currentCameraPosition.value
     currentCameraPosition.value = newCameraPosition
+    mapStateRepository.setCameraPosition(newCameraPosition)
   }
 
   companion object {

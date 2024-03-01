@@ -24,9 +24,13 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SurveyDao : BaseDao<SurveyEntity> {
-  @Query("SELECT * FROM survey") fun getAll(): Flow<List<SurveyEntityAndRelations>>
+  @Transaction @Query("SELECT * FROM survey") fun getAll(): Flow<List<SurveyEntityAndRelations>>
 
   @Transaction
   @Query("SELECT * FROM survey WHERE id = :id")
   suspend fun findSurveyById(id: String): SurveyEntityAndRelations?
+
+  @Transaction
+  @Query("SELECT * FROM survey WHERE id = :id")
+  fun survey(id: String): Flow<SurveyEntityAndRelations?>
 }

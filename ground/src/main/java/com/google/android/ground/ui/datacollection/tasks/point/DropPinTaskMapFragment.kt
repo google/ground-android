@@ -30,9 +30,9 @@ import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint(AbstractMapFragmentWithControls::class)
+@AndroidEntryPoint
 class DropPinTaskMapFragment(private val viewModel: DropPinTaskViewModel) :
-  Hilt_DropPinTaskMapFragment() {
+  AbstractMapFragmentWithControls() {
 
   private lateinit var mapViewModel: BaseMapViewModel
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
@@ -46,7 +46,7 @@ class DropPinTaskMapFragment(private val viewModel: DropPinTaskViewModel) :
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View {
     val root = super.onCreateView(inflater, container, savedInstanceState)
     binding.hintIcon.setOnClickListener {
@@ -62,10 +62,10 @@ class DropPinTaskMapFragment(private val viewModel: DropPinTaskViewModel) :
   override fun onMapReady(map: MapFragment) {
     // Observe events emitted by the ViewModel.
     viewLifecycleOwner.lifecycleScope.launch {
-      mapContainerViewModel.mapLoiFeatures.collect { map.renderFeatures(it) }
+      mapContainerViewModel.mapLoiFeatures.collect { map.setFeatures(it) }
     }
 
-    viewModel.features.observe(this) { map.renderFeatures(it) }
+    viewModel.features.observe(this) { map.setFeatures(it) }
   }
 
   override fun onMapCameraMoved(position: CameraPosition) {

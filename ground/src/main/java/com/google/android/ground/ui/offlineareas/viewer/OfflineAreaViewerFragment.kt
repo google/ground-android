@@ -31,8 +31,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 /** The fragment provides a UI for managing a single offline area on the user's device. */
-@AndroidEntryPoint(AbstractMapContainerFragment::class)
-class OfflineAreaViewerFragment @Inject constructor() : Hilt_OfflineAreaViewerFragment() {
+@AndroidEntryPoint
+class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFragment() {
 
   private lateinit var viewModel: OfflineAreaViewerViewModel
 
@@ -55,7 +55,7 @@ class OfflineAreaViewerFragment @Inject constructor() : Hilt_OfflineAreaViewerFr
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
     val binding = OfflineAreaViewerFragBinding.inflate(inflater, container, false)

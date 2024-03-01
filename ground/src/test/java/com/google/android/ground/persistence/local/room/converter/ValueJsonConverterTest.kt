@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.persistence.local.room.converter
 
+import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
@@ -32,6 +33,7 @@ import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskResult
 import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskResult
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
+import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.Date
 import kotlinx.collections.immutable.persistentListOf
 import org.json.JSONArray
@@ -39,12 +41,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 
+@HiltAndroidTest
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class ValueJsonConverterTest(
   private val task: Task,
   private val value: Value,
   private val input: Any
-) {
+) : BaseHiltTest() {
 
   @Test
   fun testToJsonObject() {

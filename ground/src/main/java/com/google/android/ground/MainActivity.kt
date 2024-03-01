@@ -15,8 +15,7 @@
  */
 package com.google.android.ground
 
-import android.app.Activity
-import android.app.ProgressDialog
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.core.view.WindowInsetsCompat
@@ -24,11 +23,19 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.databinding.MainActBinding
 import com.google.android.ground.repository.UserRepository
+import com.google.android.ground.system.ActivityCallback
 import com.google.android.ground.system.ActivityStreams
 import com.google.android.ground.system.SettingsManager
-import com.google.android.ground.ui.common.*
+import com.google.android.ground.ui.common.BackPressListener
+import com.google.android.ground.ui.common.EphemeralPopups
+import com.google.android.ground.ui.common.FinishApp
+import com.google.android.ground.ui.common.NavigateTo
+import com.google.android.ground.ui.common.NavigateUp
+import com.google.android.ground.ui.common.NavigationRequest
+import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.ui.common.ProgressDialogs.modalSpinner
+import com.google.android.ground.ui.common.ViewModelFactory
 import dagger.hilt.android.AndroidEntryPoint
-import java8.util.function.Consumer
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -36,8 +43,8 @@ import timber.log.Timber
 /**
  * The app's main activity. The app consists of multiples Fragments that live under this activity.
  */
-@AndroidEntryPoint(AbstractActivity::class)
-class MainActivity : Hilt_MainActivity() {
+@AndroidEntryPoint
+class MainActivity : AbstractActivity() {
   @Inject lateinit var activityStreams: ActivityStreams
   @Inject lateinit var viewModelFactory: ViewModelFactory
   @Inject lateinit var settingsManager: SettingsManager
@@ -48,7 +55,7 @@ class MainActivity : Hilt_MainActivity() {
   private lateinit var viewModel: MainViewModel
   private lateinit var navHostFragment: NavHostFragment
 
-  private var signInProgressDialog: ProgressDialog? = null
+  private var signInProgressDialog: AlertDialog? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     // Make sure this is before calling super.onCreate()
@@ -57,8 +64,8 @@ class MainActivity : Hilt_MainActivity() {
 
     // Set up event streams first. Navigator must be listening when auth is first initialized.
     lifecycleScope.launch {
-      activityStreams.activityRequests.collect { callback: Consumer<Activity> ->
-        callback.accept(this@MainActivity)
+      activityStreams.activityRequests.collect { callback: ActivityCallback ->
+        callback(this@MainActivity)
       }
     }
 
@@ -96,7 +103,7 @@ class MainActivity : Hilt_MainActivity() {
   override fun onRequestPermissionsResult(
     requestCode: Int,
     permissions: Array<String>,
-    grantResults: IntArray
+    grantResults: IntArray,
   ) {
     Timber.d("Permission result received")
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -107,6 +114,7 @@ class MainActivity : Hilt_MainActivity() {
    * The Android settings API requires this callback to live in an Activity; here we dispatch the
    * result back to the SettingsManager for handling.
    */
+  @Deprecated("Deprecated in Java")
   override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
     Timber.d("Activity result received")
     super.onActivityResult(requestCode, resultCode, intent)
@@ -138,14 +146,14 @@ class MainActivity : Hilt_MainActivity() {
 
   private fun showSignInDialog() {
     if (signInProgressDialog == null) {
-      signInProgressDialog = ProgressDialogs.modalSpinner(this, R.string.signing_in)
+      signInProgressDialog = modalSpinner(this, layoutInflater, R.string.signing_in)
     }
-    signInProgressDialog!!.show()
+    signInProgressDialog?.show()
   }
 
   private fun dismissSignInDialog() {
     if (signInProgressDialog != null) {
-      signInProgressDialog!!.dismiss()
+      signInProgressDialog?.dismiss()
       signInProgressDialog = null
     }
   }

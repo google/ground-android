@@ -22,7 +22,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
 import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
-import com.google.android.ground.persistence.sync.SyncService.Companion.DEFAULT_MAX_RETRY_ATTEMPTS
+import com.google.android.ground.persistence.sync.WorkRequestBuilder.Companion.DEFAULT_MAX_RETRY_ATTEMPTS
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -52,7 +52,7 @@ constructor(
       Timber.d("Syncing survey $surveyId")
       syncSurvey(surveyId)
     } catch (e: Throwable) {
-      Timber.e("error syncing survey in the background", e)
+      Timber.d(e, "Background survey sync failed")
       return if (this.runAttemptCount > DEFAULT_MAX_RETRY_ATTEMPTS) {
         Result.failure()
       } else {

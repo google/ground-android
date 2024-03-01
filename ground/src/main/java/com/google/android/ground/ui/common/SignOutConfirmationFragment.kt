@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,17 @@ import android.app.Dialog
 import android.os.Bundle
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import com.google.android.ground.R
-import com.google.android.ground.databinding.CameraPermissionDeniedDialogBinding
+import com.google.android.ground.databinding.SignOutConfirmationDialogBinding
 import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint(AbstractDialogFragment::class)
-class CameraPermissionDeniedDialogFragment : Hilt_CameraPermissionDeniedDialogFragment() {
-  private val viewModel: CameraPermissionDeniedDialogViewModel by
-    hiltNavGraphViewModels(R.id.navGraph)
+@AndroidEntryPoint
+class SignOutConfirmationFragment : AbstractDialogFragment() {
+  private val viewModel: SignOutConfirmationDialogViewModel by hiltNavGraphViewModels(R.id.navGraph)
 
   override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
     super.onCreateDialog(savedInstanceState)
     val inflater = requireActivity().layoutInflater
-    val binding = CameraPermissionDeniedDialogBinding.inflate(inflater)
+    val binding = SignOutConfirmationDialogBinding.inflate(inflater)
     binding.viewModel = viewModel
     return AlertDialog.Builder(requireActivity()).setView(binding.root).create()
   }

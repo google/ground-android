@@ -16,7 +16,10 @@
 package com.google.android.ground.ui.home
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -28,7 +31,10 @@ import com.google.android.ground.databinding.HomeScreenFragBinding
 import com.google.android.ground.databinding.NavDrawerHeaderBinding
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.UserRepository
-import com.google.android.ground.ui.common.*
+import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.common.BackPressListener
+import com.google.android.ground.ui.common.EphemeralPopups
+import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -39,9 +45,9 @@ import kotlinx.coroutines.launch
  * side drawer. This is the default view in the application, and gets swapped out for other
  * fragments (e.g., view submission and edit submission) at runtime.
  */
-@AndroidEntryPoint(AbstractFragment::class)
+@AndroidEntryPoint
 class HomeScreenFragment :
-  Hilt_HomeScreenFragment(), BackPressListener, NavigationView.OnNavigationItemSelectedListener {
+  AbstractFragment(), BackPressListener, NavigationView.OnNavigationItemSelectedListener {
 
   // TODO: It's not obvious which locations of interest are in HomeScreen vs MapContainer;
   //  make this more intuitive.
@@ -67,7 +73,7 @@ class HomeScreenFragment :
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
     binding = HomeScreenFragBinding.inflate(inflater, container, false)
@@ -120,7 +126,7 @@ class HomeScreenFragment :
       R.id.sync_status -> homeScreenViewModel.showSyncStatus()
       R.id.nav_offline_areas -> homeScreenViewModel.showOfflineAreas()
       R.id.nav_settings -> homeScreenViewModel.showSettings()
-      R.id.nav_sign_out -> userRepository.signOut()
+      R.id.nav_sign_out -> homeScreenViewModel.showSignOutConfirmation()
     }
     closeDrawer()
     return true

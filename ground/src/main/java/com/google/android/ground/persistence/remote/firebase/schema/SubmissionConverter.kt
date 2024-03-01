@@ -35,7 +35,7 @@ import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskResult
 import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskResult
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
-import java8.util.Objects
+import java.util.Objects
 import kotlinx.collections.immutable.toPersistentMap
 import timber.log.Timber
 
@@ -61,14 +61,14 @@ internal object SubmissionConverter {
       AuditInfoConverter.toAuditInfo(created!!),
       AuditInfoConverter.toAuditInfo(lastModified!!),
       // TODO(#2058): Remove reference to `responses` once dev dbs updated or reset.
-      toSubmissionData(snapshot.id, job, doc.data ?: doc.responses)
+      toSubmissionData(snapshot.id, job, doc.data ?: doc.responses),
     )
   }
 
   private fun toSubmissionData(
     submissionId: String,
     job: Job,
-    firestoreMap: Map<String, Any>?
+    firestoreMap: Map<String, Any>?,
   ): SubmissionData {
     if (firestoreMap == null) {
       return SubmissionData()
@@ -85,18 +85,23 @@ internal object SubmissionConverter {
   }
 
   private fun putValue(taskId: String, job: Job, obj: Any, data: MutableMap<String, Value>) {
-    val task = job.getTask(taskId)
-    when (task.type) {
-      Task.Type.PHOTO,
-      Task.Type.TEXT -> putTextResponse(taskId, obj, data)
-      Task.Type.MULTIPLE_CHOICE -> putMultipleChoiceResponse(taskId, task.multipleChoice, obj, data)
-      Task.Type.NUMBER -> putNumberResponse(taskId, obj, data)
-      Task.Type.DATE -> putDateResponse(taskId, obj, data)
-      Task.Type.TIME -> putTimeResponse(taskId, obj, data)
-      Task.Type.DROP_PIN -> putDropPinTaskResult(taskId, obj, data)
-      Task.Type.DRAW_AREA -> putDrawAreaTaskResult(taskId, obj, data)
-      Task.Type.CAPTURE_LOCATION -> putCaptureLocationResult(taskId, obj, data)
-      else -> throw DataStoreException("Unknown type " + task.type)
+    try {
+      val task = job.getTask(taskId)
+      when (task.type) {
+        Task.Type.PHOTO,
+        Task.Type.TEXT -> putTextResponse(taskId, obj, data)
+        Task.Type.MULTIPLE_CHOICE ->
+          putMultipleChoiceResponse(taskId, task.multipleChoice, obj, data)
+        Task.Type.NUMBER -> putNumberResponse(taskId, obj, data)
+        Task.Type.DATE -> putDateResponse(taskId, obj, data)
+        Task.Type.TIME -> putTimeResponse(taskId, obj, data)
+        Task.Type.DROP_PIN -> putDropPinTaskResult(taskId, obj, data)
+        Task.Type.DRAW_AREA -> putDrawAreaTaskResult(taskId, obj, data)
+        Task.Type.CAPTURE_LOCATION -> putCaptureLocationResult(taskId, obj, data)
+        else -> throw DataStoreException("Unknown type " + task.type)
+      }
+    } catch (e: Job.TaskNotFoundException) {
+      Timber.d(e, "cannot put value for unknown task")
     }
   }
 
@@ -147,7 +152,7 @@ internal object SubmissionConverter {
     taskId: String,
     multipleChoice: MultipleChoice?,
     obj: Any,
-    data: MutableMap<String, Value>
+    data: MutableMap<String, Value>,
   ) {
     val values = DataStoreException.checkType(MutableList::class.java, obj) as List<*>
     values.forEach { DataStoreException.checkType(String::class.java, it as Any) }

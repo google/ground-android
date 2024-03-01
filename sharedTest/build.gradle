@@ -55,13 +55,10 @@ dependencies {
     implementation project(':ground')
 
     // Room
-    implementation 'androidx.room:room-runtime:2.4.3'
+    implementation "androidx.room:room-runtime:$roomVersion"
 
     // Guava
     implementation 'com.google.guava:guava:31.1-jre'
-
-    // Support for Java streams.
-    implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:1.7.4'
 
     // Hilt
     implementation 'androidx.hilt:hilt-work:1.0.0'

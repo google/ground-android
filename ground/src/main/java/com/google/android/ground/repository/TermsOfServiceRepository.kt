@@ -40,7 +40,7 @@ constructor(
 
   /**
    * @return [TermsOfService] from remote data store. Otherwise null if the request times out or
-   * network is unavailable.
+   *   network is unavailable.
    */
   suspend fun getTermsOfService(): TermsOfService? {
     // TODO(#1691): Maybe parse the exception and display to the user.

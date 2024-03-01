@@ -29,9 +29,8 @@ import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-@AndroidEntryPoint(AbstractTaskFragment::class)
-class CaptureLocationTaskFragment :
-  Hilt_CaptureLocationTaskFragment<CaptureLocationTaskViewModel>() {
+@AndroidEntryPoint
+class CaptureLocationTaskFragment : AbstractTaskFragment<CaptureLocationTaskViewModel>() {
 
   @Inject lateinit var map: MapFragment
 
@@ -45,7 +44,7 @@ class CaptureLocationTaskFragment :
       .add(
         rowLayout.id,
         CaptureLocationTaskMapFragment.newInstance(viewModel, map),
-        CaptureLocationTaskMapFragment::class.java.simpleName
+        CaptureLocationTaskMapFragment::class.java.simpleName,
       )
       .commit()
     return rowLayout
