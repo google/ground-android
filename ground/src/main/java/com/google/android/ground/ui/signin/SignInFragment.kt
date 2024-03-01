@@ -59,7 +59,6 @@ class SignInFragment : AbstractFragment(), BackPressListener {
         if (!connected) {
           displayNetworkError()
         }
-        binding.signInButton.isEnabled = connected
       }
     }
   }
