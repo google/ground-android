@@ -45,21 +45,15 @@ class EphemeralPopups @Inject constructor(private val context: Application) {
 
     fun unknownError() = showToast(R.string.unexpected_error, duration = PopupDuration.LONG)
 
-    private fun showToast(@StringRes messageId: Int, duration: PopupDuration) {
-      val dur =
-        if (duration == PopupDuration.SHORT) {
-          Toast.LENGTH_SHORT
-        } else {
-          Toast.LENGTH_LONG
-        }
-      Toast.makeText(context, messageId, dur).show()
-    }
+    private fun showToast(@StringRes messageId: Int, duration: PopupDuration) =
+      showToast(context.getString(messageId), duration)
 
     private fun showToast(message: String, duration: PopupDuration) {
       val dur =
         if (duration == PopupDuration.SHORT) {
           Toast.LENGTH_SHORT
         } else {
+          // INDEFINITE Length is not supported for toasts; we just use LONG instead for now.
           Toast.LENGTH_LONG
         }
       Toast.makeText(context, message, dur).show()
