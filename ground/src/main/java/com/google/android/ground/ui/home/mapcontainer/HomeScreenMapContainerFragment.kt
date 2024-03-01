@@ -159,7 +159,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       }
     ephemeralPopups
       .InfoPopup()
-      .show(binding.root, messageId, EphemeralPopups.PopupDuration.INDEFINITE)
+      .show(binding.root, messageId, EphemeralPopups.PopupDuration.SHORT)
   }
 
   private fun setupMenuFab() {
