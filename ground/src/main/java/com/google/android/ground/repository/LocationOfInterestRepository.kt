@@ -70,8 +70,7 @@ constructor(
   suspend fun getOfflineLoi(surveyId: String, locationOfInterest: String): LocationOfInterest =
     localSurveyStore.getSurveyById(surveyId)?.let {
       localLoiStore.getLocationOfInterest(it, locationOfInterest)
-    }
-      ?: throw NotFoundException("Location of interest not found $locationOfInterest")
+    } ?: throw NotFoundException("Location of interest not found $locationOfInterest")
 
   fun createLocationOfInterest(
     geometry: Geometry,

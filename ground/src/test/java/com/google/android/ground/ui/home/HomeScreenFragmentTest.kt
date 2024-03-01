@@ -16,13 +16,13 @@
 package com.google.android.ground.ui.home
 
 import android.content.Context
-import android.view.Gravity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavDirections
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.DrawerMatchers
+import androidx.test.espresso.contrib.DrawerMatchers.isClosed
+import androidx.test.espresso.contrib.DrawerMatchers.isOpen
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -78,21 +78,20 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
   }
 
   protected fun openDrawer() {
-    onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isClosed(Gravity.START)))
+    onView(withId(R.id.drawer_layout)).check(matches(isClosed()))
     onView(withId(R.id.hamburger_btn)).check(matches(ViewMatchers.isDisplayed())).perform(click())
-    computeScrollForDrawerLayout()
-    onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isOpen(Gravity.START)))
+    verifyDrawerOpen()
     onView(withId(R.id.nav_view)).check(matches(ViewMatchers.isDisplayed()))
   }
 
   protected fun verifyDrawerOpen() {
     computeScrollForDrawerLayout()
-    onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isOpen()))
+    onView(withId(R.id.drawer_layout)).check(matches(isOpen()))
   }
 
   protected fun verifyDrawerClosed() {
     computeScrollForDrawerLayout()
-    onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isClosed(Gravity.START)))
+    onView(withId(R.id.drawer_layout)).check(matches(isClosed()))
   }
 
   /**
@@ -214,7 +213,7 @@ class NavigationDrawerItemClickTest(
           "Clicking 'change survey' should navigate to fragment"
         ),
         arrayOf(
-          "History and sync status",
+          "Sync Status",
           TEST_SURVEY_WITHOUT_OFFLINE_TILES,
           HomeScreenFragmentDirections.showSyncStatus(),
           true,

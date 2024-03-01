@@ -85,7 +85,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex assembleDevStaging assembleDevStagingUnitTest -PtestBuildType=staging
+        ./gradlew -PdisablePreDex assembleDevStaging assembleDevStagingUnitTest -PtestBuildType=staging --no-daemon
 
   # TODO(#1547): Re-enable once instrumentation tests are fixed.
   #        if [[ "${_PUSH_TO_MASTER}" ]]; then
@@ -100,11 +100,11 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex checkCode 2> check-logs.txt || echo "fail" > build-status.txt
+        ./gradlew -PdisablePreDex checkCode --no-daemon 2> check-logs.txt || echo "fail" > build-status.txt
         cat check-logs.txt
 
         if [[ "${_PUSH_TO_MASTER}" ]]; then
-          ./gradlew -PdisablePreDex dependencyUpdates
+          ./gradlew -PdisablePreDex dependencyUpdates --no-daemon
         fi
 
   - name: 'gcr.io/$PROJECT_ID/android:34'
@@ -114,11 +114,11 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex testDevStagingUnitTest 2> unit-test-logs.txt || echo "fail" > build-status.txt
+        ./gradlew -PdisablePreDex testDevStagingUnitTest --no-daemon 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
         # TODO: Add a check for _PUSH_TO_MASTER
-        ./gradlew jacocoTestStagingUnitTestReport
+        ./gradlew jacocoTestStagingUnitTestReport --no-daemon
 
   - name: 'gcr.io/$PROJECT_ID/android:34'
     id: &authenticate_gcloud 'Authorize gcloud'
