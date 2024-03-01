@@ -39,6 +39,7 @@ import com.google.android.ground.ui.common.Navigator
 import com.sharedtest.FakeData
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Before
@@ -46,7 +47,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.RobolectricTestRunner
-import javax.inject.Inject
 
 abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
 
