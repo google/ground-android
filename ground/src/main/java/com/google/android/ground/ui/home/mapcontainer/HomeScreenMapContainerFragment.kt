@@ -51,6 +51,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
@@ -139,9 +140,13 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
    * This method should only be called after view creation.
    */
   private suspend fun showDataCollectionHint() {
-    check(this::mapContainerViewModel.isInitialized) { "mapContainerViewModel not initialized" }
-    check(this::binding.isInitialized) { "binding not initialized" }
+    if (!this::mapContainerViewModel.isInitialized) {
+      return Timber.w("showDataCollectionHint() called before mapContainerViewModel initialized")
+    }
     mapContainerViewModel.surveyUpdateFlow.collect {
+      if (!this::binding.isInitialized) {
+        return@collect Timber.w("showDataCollectionHint() called before binding initialized")
+      }
       val messageId =
         when {
           it.addLoiPermitted -> R.string.suggest_data_collection_hint
