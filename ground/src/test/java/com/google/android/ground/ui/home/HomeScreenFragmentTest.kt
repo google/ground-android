@@ -39,7 +39,6 @@ import com.google.android.ground.ui.common.Navigator
 import com.sharedtest.FakeData
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Before
@@ -47,6 +46,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.RobolectricTestRunner
+import javax.inject.Inject
 
 abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
 
@@ -128,15 +128,6 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
       mapOf(FakeData.JOB.id to FakeData.JOB),
       listOf(),
       mapOf(Pair(FakeData.USER.email, "data-collector"))
-    )
-
-  private val surveyWithTileSources: Survey =
-    surveyWithoutBasemap.copy(
-      tileSources =
-        listOf(
-          TileSource("http://google.com", TileSource.Type.MOG_COLLECTION),
-        ),
-      id = "SURVEY_WITH_TILE_SOURCES"
     )
 
   @Test
