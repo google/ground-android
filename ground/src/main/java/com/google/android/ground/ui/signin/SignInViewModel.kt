@@ -47,7 +47,9 @@ internal constructor(
     viewModelScope.launch {
       val signInState = userRepository.signInState.first()
       when (signInState.state) {
-        SignInState.State.SIGNED_OUT, SignInState.State.ERROR -> userRepository.signIn()
+        SignInState.State.SIGNED_OUT,
+        SignInState.State.ERROR -> userRepository.signIn()
+
         else -> {}
       }
     }
