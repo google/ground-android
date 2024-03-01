@@ -139,12 +139,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
    * This method should only be called after view creation.
    */
   private suspend fun showDataCollectionHint() {
-    check(this::mapContainerViewModel.isInitialized) {
-      "showDataCollectionHint called before mapContainerViewModel was initialized"
-    }
-    check(this::binding.isInitialized) {
-      "showDataCollectionHint called before binding was initialized"
-    }
+    check(this::mapContainerViewModel.isInitialized) { "mapContainerViewModel not initialized" }
+    check(this::binding.isInitialized) { "binding not initialized" }
     mapContainerViewModel.surveyUpdateFlow.collect {
       val messageId =
         when {
