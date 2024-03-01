@@ -83,7 +83,6 @@ constructor(
    * @return `true` if the mutations were successfully synced with [RemoteDataStore].
    */
   private suspend fun processMutations(mutations: List<Mutation>, user: User): Boolean {
-    // TODO(#2235): Process and update each mutation individually.
     if (mutations.isEmpty()) return true
 
     return try {
