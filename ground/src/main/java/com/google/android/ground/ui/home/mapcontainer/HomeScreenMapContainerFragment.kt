@@ -40,6 +40,7 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
+import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel.SurveyProperties
 import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
@@ -143,20 +144,22 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     if (!this::mapContainerViewModel.isInitialized) {
       return Timber.w("showDataCollectionHint() called before mapContainerViewModel initialized")
     }
-    mapContainerViewModel.surveyUpdateFlow.collect {
-      if (!this::binding.isInitialized) {
-        return@collect Timber.w("showDataCollectionHint() called before binding initialized")
-      }
-      val messageId =
-        when {
-          it.addLoiPermitted -> R.string.suggest_data_collection_hint
-          it.readOnly -> R.string.read_only_data_collection_hint
-          else -> R.string.predefined_data_collection_hint
-        }
-      ephemeralPopups
-        .InfoPopup()
-        .show(binding.root, messageId, EphemeralPopups.PopupDuration.INDEFINITE)
+    mapContainerViewModel.surveyUpdateFlow.collect(this::onSurveyUpdate)
+  }
+
+  private fun onSurveyUpdate(surveyProperties: SurveyProperties) {
+    if (!this::binding.isInitialized) {
+      return Timber.w("showDataCollectionHint() called before binding initialized")
     }
+    val messageId =
+      when {
+        surveyProperties.addLoiPermitted -> R.string.suggest_data_collection_hint
+        surveyProperties.readOnly -> R.string.read_only_data_collection_hint
+        else -> R.string.predefined_data_collection_hint
+      }
+    ephemeralPopups
+      .InfoPopup()
+      .show(binding.root, messageId, EphemeralPopups.PopupDuration.INDEFINITE)
   }
 
   private fun setupMenuFab() {
