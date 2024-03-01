@@ -82,7 +82,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         } else {
           // Skip data collection screen if the user can't submit any data
           // TODO(#1667): Revisit UX for displaying view only mode
-          ephemeralPopups.showError(getString(R.string.collect_data_viewer_error))
+          ephemeralPopups.ErrorPopup().show(getString(R.string.collect_data_viewer_error))
         }
       }
     }
@@ -115,7 +115,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View {
     binding = BasemapLayoutBinding.inflate(inflater, container, false)
     binding.fragment = this
@@ -128,6 +128,33 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     super.onViewCreated(view, savedInstanceState)
     setupMenuFab()
     setupBottomLoiCards()
+    lifecycleScope.launch { showDataCollectionHint() }
+  }
+
+  /**
+   * Displays a popup hint informing users how to begin collecting data, based on the properties of
+   * the active survey.
+   *
+   * This method should only be called after view creation.
+   */
+  private suspend fun showDataCollectionHint() {
+    check(this::mapContainerViewModel.isInitialized) {
+      "showDataCollectionHint called before mapContainerViewModel was initialized"
+    }
+    check(this::binding.isInitialized) {
+      "showDataCollectionHint called before binding was initialized"
+    }
+    mapContainerViewModel.surveyUpdateFlow.collect {
+      val messageId =
+        when {
+          it.addLoiPermitted -> R.string.suggest_data_collection_hint
+          it.readOnly -> R.string.read_only_data_collection_hint
+          else -> R.string.predefined_data_collection_hint
+        }
+      ephemeralPopups
+        .InfoPopup()
+        .show(binding.root, messageId, EphemeralPopups.PopupDuration.INDEFINITE)
+    }
   }
 
   private fun setupMenuFab() {
@@ -183,14 +210,14 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
             cardUiData.loi.id,
-            cardUiData.loi.job.id
+            cardUiData.loi.job.id,
           )
         )
       is MapCardUiData.AddLoiCardUiData ->
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
             null,
-            cardUiData.job.id
+            cardUiData.job.id,
           )
         )
     }

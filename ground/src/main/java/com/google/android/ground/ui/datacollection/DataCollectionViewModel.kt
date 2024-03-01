@@ -147,7 +147,7 @@ internal constructor(
 
     val validationError = taskViewModel.validate()
     if (validationError != null) {
-      popups.get().showError(validationError)
+      popups.get().ErrorPopup().show(validationError)
       return
     }
 
@@ -161,7 +161,7 @@ internal constructor(
   suspend fun onNextClicked(position: Int, taskViewModel: AbstractTaskViewModel) {
     val validationError = taskViewModel.validate()
     if (validationError != null) {
-      popups.get().showError(validationError)
+      popups.get().ErrorPopup().show(validationError)
       return
     }
 
