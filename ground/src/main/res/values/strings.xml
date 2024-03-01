@@ -42,7 +42,6 @@
   <string name="google_api_install_failed">Google Play Services installation failed</string>
   <string name="sign_out">Sign out</string>
   <string name="ok">OK</string>
-  <string name="exit">Exit</string>
   <string name="change_survey">Surveys</string>
   <string name="collect_data">Collect data</string>
 
