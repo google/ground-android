@@ -129,7 +129,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     super.onViewCreated(view, savedInstanceState)
     setupMenuFab()
     setupBottomLoiCards()
-    lifecycleScope.launch { showDataCollectionHint() }
+    viewLifecycleOwner.lifecycleScope.launch { showDataCollectionHint() }
   }
 
   /**
