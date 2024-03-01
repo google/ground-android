@@ -16,25 +16,69 @@
 package com.google.android.ground.ui.common
 
 import android.app.Application
+import android.view.View
 import android.widget.Toast
 import androidx.annotation.StringRes
 import com.google.android.ground.R
+import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /** Displays short-lived messages such as toasts that are shown over other UI elements. */
+@Suppress("UseDataClass")
 @Singleton
 class EphemeralPopups @Inject constructor(private val context: Application) {
 
-  fun showError(@StringRes messageId: Int) = showLong(messageId)
+  enum class PopupDuration {
+    SHORT,
+    LONG,
+    INDEFINITE,
+  }
 
-  fun showError(message: String) = showLong(message)
+  /** Defines functions to render a popup that displays an error message to the user. */
+  inner class ErrorPopup {
+    fun show(@StringRes messageId: Int, duration: PopupDuration = PopupDuration.LONG) =
+      showToast(messageId, duration)
 
-  // TODO: Rename to unknownError?
-  fun showError() = showLong(R.string.unexpected_error)
+    fun show(message: String, duration: PopupDuration = PopupDuration.LONG) =
+      showToast(message, duration)
 
-  private fun showLong(@StringRes messageId: Int) =
-    Toast.makeText(context, messageId, Toast.LENGTH_LONG).show()
+    fun unknownError() = showToast(R.string.unexpected_error, duration = PopupDuration.LONG)
 
-  private fun showLong(message: String) = Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    private fun showToast(@StringRes messageId: Int, duration: PopupDuration) =
+      showToast(context.getString(messageId), duration)
+
+    private fun showToast(message: String, duration: PopupDuration) {
+      val dur =
+        if (duration == PopupDuration.SHORT) {
+          Toast.LENGTH_SHORT
+        } else {
+          // INDEFINITE Length is not supported for toasts; we just use LONG instead for now.
+          Toast.LENGTH_LONG
+        }
+      Toast.makeText(context, message, dur).show()
+    }
+  }
+
+  /** Defines functions to render a popup that displays an informational message to the user. */
+  inner class InfoPopup {
+    fun show(
+      view: View,
+      @StringRes messageId: Int,
+      duration: PopupDuration = PopupDuration.INDEFINITE,
+    ) {
+      val msg = context.resources.getString(messageId)
+      showSnackbar(view, msg, duration)
+    }
+
+    private fun showSnackbar(view: View, msg: String, duration: PopupDuration) {
+      val dur =
+        when (duration) {
+          PopupDuration.SHORT -> Snackbar.LENGTH_SHORT
+          PopupDuration.LONG -> Snackbar.LENGTH_LONG
+          PopupDuration.INDEFINITE -> Snackbar.LENGTH_INDEFINITE
+        }
+      Snackbar.make(view, msg, dur).show()
+    }
+  }
 }
