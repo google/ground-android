@@ -90,9 +90,9 @@ internal constructor(
    * determine if and how behavior should change based on differing survey properties.
    */
   val surveyUpdateFlow: Flow<SurveyProperties> =
-    activeSurvey.filterNotNull().map {
-      val lois = loiRepository.getLocationsOfInterests(it).first()
-      SurveyProperties(it.jobs.any { it.canDataCollectorsAddLois }, lois.isEmpty())
+    activeSurvey.filterNotNull().map { survey ->
+      val lois = loiRepository.getLocationsOfInterests(survey).first()
+      SurveyProperties(survey.jobs.any { job -> job.canDataCollectorsAddLois }, lois.isEmpty())
     }
 
   /** Set of [Feature] to render on the map. */

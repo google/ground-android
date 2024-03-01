@@ -42,7 +42,6 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
-import org.hamcrest.CoreMatchers.not
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -132,12 +131,12 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
     )
 
   @Test
-  fun offlineMapImageryMenuIsDisabledWhenActiveSurveyHasNoBasemap() = runWithTestDispatcher {
+  fun `offline map imagery menu is always enabled`() = runWithTestDispatcher {
     surveyRepository.selectedSurveyId = surveyWithoutBasemap.id
     advanceUntilIdle()
 
     openDrawer()
-    onView(withId(R.id.nav_offline_areas)).check(matches(not(isEnabled())))
+    onView(withId(R.id.nav_offline_areas)).check(matches(isEnabled()))
   }
 }
 
@@ -153,6 +152,7 @@ class NavigationDrawerItemClickTest(
 ) : AbstractHomeScreenFragmentTest() {
 
   @Inject lateinit var navigator: Navigator
+
   @Inject lateinit var surveyRepository: SurveyRepository
 
   @Test
@@ -202,17 +202,10 @@ class NavigationDrawerItemClickTest(
         ),
         arrayOf(
           "Offline map imagery",
-          TEST_SURVEY_WITHOUT_OFFLINE_TILES,
-          null,
-          false,
-          "Clicking 'offline map imagery' when survey doesn't have offline tiles should do nothing"
-        ),
-        arrayOf(
-          "Offline map imagery",
           TEST_SURVEY_WITH_OFFLINE_TILES,
           HomeScreenFragmentDirections.showOfflineAreas(),
           true,
-          "Clicking 'offline map imagery' when survey has offline tiles should navigate to fragment"
+          "Clicking 'offline map imagery' should navigate to fragment"
         ),
         arrayOf(
           "Settings",

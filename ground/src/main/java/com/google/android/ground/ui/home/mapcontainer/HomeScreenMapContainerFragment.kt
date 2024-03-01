@@ -40,6 +40,7 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
+import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel.SurveyProperties
 import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
@@ -51,6 +52,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
@@ -117,6 +119,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     container: ViewGroup?,
     savedInstanceState: Bundle?,
   ): View {
+    super.onCreateView(inflater, container, savedInstanceState)
     binding = BasemapLayoutBinding.inflate(inflater, container, false)
     binding.fragment = this
     binding.viewModel = mapContainerViewModel
@@ -128,7 +131,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     super.onViewCreated(view, savedInstanceState)
     setupMenuFab()
     setupBottomLoiCards()
-    lifecycleScope.launch { showDataCollectionHint() }
+    viewLifecycleOwner.lifecycleScope.launch { showDataCollectionHint() }
   }
 
   /**
@@ -138,23 +141,25 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
    * This method should only be called after view creation.
    */
   private suspend fun showDataCollectionHint() {
-    check(this::mapContainerViewModel.isInitialized) {
-      "showDataCollectionHint called before mapContainerViewModel was initialized"
+    if (!this::mapContainerViewModel.isInitialized) {
+      return Timber.w("showDataCollectionHint() called before mapContainerViewModel initialized")
     }
-    check(this::binding.isInitialized) {
-      "showDataCollectionHint called before binding was initialized"
+    mapContainerViewModel.surveyUpdateFlow.collect(this::onSurveyUpdate)
+  }
+
+  private fun onSurveyUpdate(surveyProperties: SurveyProperties) {
+    if (!this::binding.isInitialized) {
+      return Timber.w("showDataCollectionHint() called before binding initialized")
     }
-    mapContainerViewModel.surveyUpdateFlow.collect {
-      val messageId =
-        when {
-          it.addLoiPermitted -> R.string.suggest_data_collection_hint
-          it.readOnly -> R.string.read_only_data_collection_hint
-          else -> R.string.predefined_data_collection_hint
-        }
-      ephemeralPopups
-        .InfoPopup()
-        .show(binding.root, messageId, EphemeralPopups.PopupDuration.INDEFINITE)
-    }
+    val messageId =
+      when {
+        surveyProperties.addLoiPermitted -> R.string.suggest_data_collection_hint
+        surveyProperties.readOnly -> R.string.read_only_data_collection_hint
+        else -> R.string.predefined_data_collection_hint
+      }
+    ephemeralPopups
+      .InfoPopup()
+      .show(binding.root, messageId, EphemeralPopups.PopupDuration.INDEFINITE)
   }
 
   private fun setupMenuFab() {
