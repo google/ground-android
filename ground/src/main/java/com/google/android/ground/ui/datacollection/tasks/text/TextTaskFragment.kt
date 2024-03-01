@@ -17,11 +17,15 @@ package com.google.android.ground.ui.datacollection.tasks.text
 
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ProgressBar
+import com.google.android.ground.R
 import com.google.android.ground.databinding.TextTaskFragBinding
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint

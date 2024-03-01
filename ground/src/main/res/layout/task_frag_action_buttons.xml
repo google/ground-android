@@ -17,24 +17,36 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/action_buttons_container"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:background="?attr/colorSurface"
-  android:orientation="horizontal"
-  android:padding="24dp">
+  android:orientation="vertical">
+
+  <com.google.android.material.progressindicator.LinearProgressIndicator
+    android:id="@+id/progress_bar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" />
 
   <LinearLayout
-    android:id="@+id/start_buttons"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal" />
-
-  <LinearLayout
-    android:id="@+id/end_buttons"
+    android:id="@+id/action_buttons_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="end"
-    android:orientation="horizontal" />
+    android:background="?attr/colorSurface"
+    android:orientation="horizontal"
+    android:padding="24dp">
+
+    <LinearLayout
+      android:id="@+id/start_buttons"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal" />
+
+    <LinearLayout
+      android:id="@+id/end_buttons"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="end"
+      android:orientation="horizontal" />
+
+  </LinearLayout>
 
 </LinearLayout>
