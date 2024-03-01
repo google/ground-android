@@ -117,6 +117,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     container: ViewGroup?,
     savedInstanceState: Bundle?,
   ): View {
+    super.onCreateView(inflater, container, savedInstanceState)
     binding = BasemapLayoutBinding.inflate(inflater, container, false)
     binding.fragment = this
     binding.viewModel = mapContainerViewModel
