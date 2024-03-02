@@ -220,10 +220,11 @@ steps:
     args:
       - '-c'
       - |
-        # TODO: Add a check for _PUSH_TO_MASTER
-        curl -Os https://uploader.codecov.io/latest/linux/codecov
-        chmod +x codecov
-        ./codecov -t ${_CODECOV_TOKEN}
+        if [[ "${_PUSH_TO_MASTER}" ]]; then
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov -t ${_CODECOV_TOKEN}
+        fi
 
   - name: 'gcr.io/$PROJECT_ID/android:base'
     id: &compress_cache 'Compress gradle build cache'
