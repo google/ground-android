@@ -117,8 +117,9 @@ steps:
         ./gradlew -PdisablePreDex testDevStagingUnitTest --no-daemon 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
-        # TODO: Add a check for _PUSH_TO_MASTER
-        ./gradlew jacocoTestStagingUnitTestReport --no-daemon
+        if [[ "${_PUSH_TO_MASTER}" ]]; then
+          ./gradlew jacocoTestStagingUnitTestReport --no-daemon
+        fi        
 
   - name: 'gcr.io/$PROJECT_ID/android:34'
     id: &authenticate_gcloud 'Authorize gcloud'
