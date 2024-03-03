@@ -157,9 +157,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         surveyProperties.readOnly -> R.string.read_only_data_collection_hint
         else -> R.string.predefined_data_collection_hint
       }
-    ephemeralPopups
-      .InfoPopup()
-      .show(binding.root, messageId, EphemeralPopups.PopupDuration.SHORT)
+    ephemeralPopups.InfoPopup().show(binding.root, messageId, EphemeralPopups.PopupDuration.SHORT)
   }
 
   private fun setupMenuFab() {
