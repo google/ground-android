@@ -16,7 +16,7 @@
 package com.google.android.ground.model.locationofinterest
 
 import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
@@ -75,6 +75,8 @@ data class LocationOfInterest(
       submissionCount = submissionCount,
       ownerEmail = ownerEmail,
       isOpportunistic = isOpportunistic,
-      properties = properties
+      properties = properties,
     )
+
+  fun getProperty(key: String): String = properties[key]?.toString() ?: ""
 }

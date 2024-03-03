@@ -22,24 +22,22 @@ import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.util.isNotNullOrEmpty
 
 /** Helper class for creating user-visible text. */
 object LoiCardUtil {
 
   fun getDisplayLoiName(context: Context, loi: LocationOfInterest): String {
-    val loiId =
-      if (loi.customId.isNotNullOrEmpty()) loi.customId else loi.properties?.get("id")?.toString()
-    val geometry = loi.geometry
-    val name: String? = loi.properties?.get("name")?.toString()
-    return if (name.isNotNullOrEmpty() && loiId.isNotNullOrEmpty()) {
-      "$name ($loiId)"
-    } else if (name.isNotNullOrEmpty()) {
-      "$name"
-    } else if (loiId.isNotNullOrEmpty()) {
-      "${geometry.toType(context)} ($loiId)"
+    val loiId = loi.customId.ifEmpty { loi.getProperty("id") }
+    val loiName = loi.getProperty("name")
+
+    return if (loiName.isNotEmpty() && loiId.isNotEmpty()) {
+      "$loiName ($loiId)"
+    } else if (loiName.isNotEmpty()) {
+      loiName
+    } else if (loiId.isNotEmpty()) {
+      "${loi.geometry.toType(context)} ($loiId)"
     } else {
-      geometry.toDefaultName(context)
+      loi.geometry.toDefaultName(context)
     }
   }
 
