@@ -71,6 +71,7 @@ import com.google.android.ground.persistence.local.room.fields.*
 )
 abstract class LocalDatabase : RoomDatabase() {
   abstract fun draftSubmissionDao(): DraftSubmissionDao
+
   abstract fun locationOfInterestDao(): LocationOfInterestDao
 
   abstract fun locationOfInterestMutationDao(): LocationOfInterestMutationDao
