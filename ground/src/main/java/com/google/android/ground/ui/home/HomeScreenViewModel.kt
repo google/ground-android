@@ -16,7 +16,7 @@
 package com.google.android.ground.ui.home
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
@@ -30,7 +30,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -47,8 +46,8 @@ internal constructor(
   private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
   val openDrawerRequestsFlow: SharedFlow<Unit> = _openDrawerRequests.asSharedFlow()
 
-  val showOfflineAreaMenuItem: LiveData<Boolean> =
-    surveyRepository.activeSurveyFlow.map { it?.tileSources?.isNotEmpty() ?: false }.asLiveData()
+  // TODO(#1730): Allow tile source configuration from a non-survey accessible source.
+  val showOfflineAreaMenuItem: LiveData<Boolean> = MutableLiveData(true)
 
   fun hasDraftSubmission(): Boolean = localValueStore.draftSubmissionId.isNotNullOrEmpty()
 

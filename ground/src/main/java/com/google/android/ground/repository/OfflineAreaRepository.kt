@@ -108,8 +108,8 @@ constructor(
   private suspend fun getLocalTileSourcePath(): String = File(fileUtil.getFilesDir(), "tiles").path
 
   fun getOfflineTileSourcesFlow() =
-    surveyRepository.activeSurveyFlow.combine(getOfflineAreaBounds()) { survey, bounds ->
-      applyBounds(survey?.tileSources, bounds)
+    surveyRepository.activeSurveyFlow.combine(getOfflineAreaBounds()) { _, bounds ->
+      applyBounds(getDefaultTileSources(), bounds)
     }
 
   private suspend fun applyBounds(
@@ -143,15 +143,14 @@ constructor(
     return MogClient(mogCollection, remoteStorageManager)
   }
 
-  private fun getMogSources(): List<MogSource> = Config.getMogSources(getFirstTileSourceUrl())
+  private fun getMogSources(): List<MogSource> =
+    Config.getMogSources(getDefaultTileSources().first().url)
 
-  /**
-   * Returns the URL of the first tile source in the current survey, or throws an error if no survey
-   * is active or if no tile sources are defined.
-   */
-  private fun getFirstTileSourceUrl() =
-    surveyRepository.activeSurvey?.tileSources?.firstOrNull()?.url
-      ?: error("Survey has no tile sources")
+  /** Returns the default configured tile sources. */
+  fun getDefaultTileSources(): List<TileSource> =
+    listOf(
+      TileSource(url = Config.DEFAULT_MOG_TILE_LOCATION, type = TileSource.Type.MOG_COLLECTION)
+    )
 
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
     val client = getMogClient()
