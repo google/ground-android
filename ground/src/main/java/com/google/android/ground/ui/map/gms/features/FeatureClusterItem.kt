@@ -27,4 +27,6 @@ data class FeatureClusterItem(val feature: Feature) : ClusterItem {
   override fun getTitle(): String? = null
 
   override fun getSnippet(): String? = null
+
+  override fun getZIndex(): Float? = null
 }
