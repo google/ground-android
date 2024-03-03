@@ -93,10 +93,8 @@ class HomeScreenFragment :
     binding.navView.setNavigationItemSelectedListener(this)
     updateNavHeader()
 
-    // TODO(Shobhit): Can this be moved somewhere else?
-    if (homeScreenViewModel.hasDraftSubmission()) {
-      homeScreenViewModel.navigateToDraftSubmission()
-    }
+    // Re-open data collection screen if any drafts are present
+    homeScreenViewModel.maybeNavigateToDraftSubmission()
   }
 
   private fun updateNavHeader() =

@@ -25,7 +25,6 @@ import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
-import com.google.android.ground.util.isNotNullOrEmpty
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -49,32 +48,32 @@ internal constructor(
   // TODO(#1730): Allow tile source configuration from a non-survey accessible source.
   val showOfflineAreaMenuItem: LiveData<Boolean> = MutableLiveData(true)
 
-  fun hasDraftSubmission(): Boolean = localValueStore.draftSubmissionId.isNotNullOrEmpty()
-
-  fun navigateToDraftSubmission() {
+  fun maybeNavigateToDraftSubmission() =
     viewModelScope.launch {
-      surveyRepository.activeSurvey
-        ?.let { survey ->
-          submissionRepository.getDraftSubmission(survey)?.let { Pair(survey, it) }
-        }
-        ?.let { (survey, draftSubmission) ->
-          if (draftSubmission.surveyId != survey.id) {
-            Timber.e(
-              "Can't load draft submission. Expected ${draftSubmission.surveyId} to be active, found ${survey.id}"
-            )
-          } else {
-            navigator.navigate(
-              HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-                draftSubmission.loiId,
-                draftSubmission.jobId,
-                true,
-                SubmissionDeltasConverter.toString(draftSubmission.deltas),
-              )
-            )
-          }
-        }
+      val draftId = localValueStore.draftSubmissionId
+      if (draftId.isNullOrEmpty()) {
+        // No draft submission found.
+        return@launch
+      }
+
+      val survey = surveyRepository.activeSurvey ?: return@launch
+      val draft = submissionRepository.getDraftSubmission(draftId, survey) ?: return@launch
+
+      // TODO: Check whether the previous user id matches with current user or not.
+      if (draft.surveyId != survey.id) {
+        Timber.e("Skipping draft submission, survey id doesn't match")
+        return@launch
+      }
+
+      navigator.navigate(
+        HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+          draft.loiId,
+          draft.jobId,
+          true,
+          SubmissionDeltasConverter.toString(draft.deltas),
+        )
+      )
     }
-  }
 
   fun openNavDrawer() {
     viewModelScope.launch { _openDrawerRequests.emit(Unit) }

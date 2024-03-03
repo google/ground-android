@@ -81,10 +81,8 @@ constructor(
     createOrUpdateSubmission(submission, deltas, isNew = true)
   }
 
-  suspend fun getDraftSubmission(survey: Survey): DraftSubmission? =
-    localValueStore.draftSubmissionId?.let {
-      localSubmissionStore.getDraftSubmission(draftSubmissionId = it, survey = survey)
-    }
+  suspend fun getDraftSubmission(draftSubmissionId: String, survey: Survey): DraftSubmission? =
+    localSubmissionStore.getDraftSubmission(draftSubmissionId = draftSubmissionId, survey = survey)
 
   suspend fun saveDraftSubmission(
     jobId: String,
@@ -92,9 +90,10 @@ constructor(
     surveyId: String,
     deltas: List<ValueDelta>,
   ) {
-    val draft = DraftSubmission(uuidGenerator.generateUuid(), jobId, loiId, surveyId, deltas)
+    val newId = uuidGenerator.generateUuid()
+    val draft = DraftSubmission(newId, jobId, loiId, surveyId, deltas)
     localSubmissionStore.saveDraftSubmission(draftSubmission = draft)
-    localValueStore.draftSubmissionId = draft.id
+    localValueStore.draftSubmissionId = newId
   }
 
   suspend fun deleteDraftSubmission() {
