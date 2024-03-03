@@ -18,14 +18,25 @@ package com.sharedtest.persistence.sync
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import androidx.lifecycle.LiveData
-import androidx.work.*
+import androidx.work.Configuration
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.Operation
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkContinuation
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import androidx.work.WorkQuery
+import androidx.work.WorkRequest
 import com.google.common.util.concurrent.ListenableFuture
-import java.util.*
+import java.util.UUID
+import kotlinx.coroutines.flow.Flow
 
 @SuppressLint("RestrictedApi")
 class FakeWorkManager : WorkManager() {
   override fun getConfiguration(): Configuration {
-    TODO("Not yet implemented")
+    throw NotImplementedError()
   }
 
   override fun enqueue(requests: List<WorkRequest?>): Operation {
@@ -96,11 +107,19 @@ class FakeWorkManager : WorkManager() {
     throw NotImplementedError()
   }
 
+  override fun getWorkInfoByIdFlow(id: UUID): Flow<WorkInfo> {
+    throw NotImplementedError()
+  }
+
   override fun getWorkInfoById(id: UUID): ListenableFuture<WorkInfo> {
     throw NotImplementedError()
   }
 
   override fun getWorkInfosByTagLiveData(tag: String): LiveData<List<WorkInfo>> {
+    throw NotImplementedError()
+  }
+
+  override fun getWorkInfosByTagFlow(tag: String): Flow<MutableList<WorkInfo>> {
     throw NotImplementedError()
   }
 
@@ -112,6 +131,10 @@ class FakeWorkManager : WorkManager() {
     throw NotImplementedError()
   }
 
+  override fun getWorkInfosForUniqueWorkFlow(uniqueWorkName: String): Flow<MutableList<WorkInfo>> {
+    throw NotImplementedError()
+  }
+
   override fun getWorkInfosForUniqueWork(uniqueWorkName: String): ListenableFuture<List<WorkInfo>> {
     throw NotImplementedError()
   }
@@ -120,11 +143,15 @@ class FakeWorkManager : WorkManager() {
     throw NotImplementedError()
   }
 
+  override fun getWorkInfosFlow(workQuery: WorkQuery): Flow<MutableList<WorkInfo>> {
+    throw NotImplementedError()
+  }
+
   override fun getWorkInfos(workQuery: WorkQuery): ListenableFuture<List<WorkInfo>> {
     throw NotImplementedError()
   }
 
   override fun updateWork(request: WorkRequest): ListenableFuture<UpdateResult> {
-    TODO("Not yet implemented")
+    throw NotImplementedError()
   }
 }
