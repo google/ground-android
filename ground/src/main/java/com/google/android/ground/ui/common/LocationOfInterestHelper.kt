@@ -31,14 +31,11 @@ class LocationOfInterestHelper @Inject internal constructor(private val resource
     val loiId = loi.customId.ifEmpty { loi.getProperty("id") }
     val loiName = loi.getProperty("name")
 
-    return if (loiName.isNotEmpty() && loiId.isNotEmpty()) {
-      "$loiName ($loiId)"
-    } else if (loiName.isNotEmpty()) {
-      loiName
-    } else if (loiId.isNotEmpty()) {
-      "${loi.geometry.toType()} ($loiId)"
-    } else {
-      loi.geometry.toDefaultName()
+    return when {
+      loiName.isNotEmpty() && loiId.isNotEmpty() -> "$loiName ($loiId)"
+      loiName.isNotEmpty() -> loiName
+      loiId.isNotEmpty() -> "${loi.geometry.toType()} ($loiId)"
+      else -> loi.geometry.toDefaultName()
     }
   }
 
