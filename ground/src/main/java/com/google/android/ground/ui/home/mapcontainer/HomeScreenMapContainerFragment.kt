@@ -38,7 +38,6 @@ import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
-import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel.SurveyProperties
@@ -59,7 +58,6 @@ import timber.log.Timber
 class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var ephemeralPopups: EphemeralPopups
-  @Inject lateinit var loiHelper: LocationOfInterestHelper
   @Inject lateinit var submissionRepository: SubmissionRepository
   @Inject lateinit var userRepository: UserRepository
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
@@ -109,8 +107,11 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   /** Updates the given [TextView] with the submission count for the given [LocationOfInterest]. */
   private fun updateSubmissionCount(loi: LocationOfInterest, view: TextView) {
     externalScope.launch {
-      val submissionCount = submissionRepository.getTotalSubmissionCount(loi)
-      val submissionText = loiHelper.getSubmissionsText(submissionCount)
+      val submissionText =
+        when (val count = submissionRepository.getTotalSubmissionCount(loi)) {
+          0 -> resources.getString(R.string.no_submissions)
+          else -> resources.getQuantityString(R.plurals.submission_count, count, count)
+        }
       withContext(mainDispatcher) { view.text = submissionText }
     }
   }

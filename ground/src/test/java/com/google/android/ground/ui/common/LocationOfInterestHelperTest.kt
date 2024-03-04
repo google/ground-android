@@ -110,21 +110,6 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
     assertThat(loiHelper.getJobName(TEST_LOI.copy(job = job))).isEqualTo("job name")
   }
 
-  @Test
-  fun testSubmissionsText_whenZero() {
-    assertThat(loiHelper.getSubmissionsText(0)).isEqualTo("No submissions")
-  }
-
-  @Test
-  fun testSubmissionsText_whenOne() {
-    assertThat(loiHelper.getSubmissionsText(1)).isEqualTo("1 submission")
-  }
-
-  @Test
-  fun testSubmissionsText_whenTwo() {
-    assertThat(loiHelper.getSubmissionsText(2)).isEqualTo("2 submissions")
-  }
-
   companion object {
     private val TEST_LOI = FakeData.LOCATION_OF_INTEREST.copy()
     private val TEST_AREA = FakeData.AREA_OF_INTEREST.copy()

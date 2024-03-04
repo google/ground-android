@@ -44,13 +44,6 @@ class LocationOfInterestHelper @Inject internal constructor(private val resource
 
   fun getJobName(loi: LocationOfInterest): String? = loi.job.name
 
-  fun getSubmissionsText(count: Int): String =
-    when (count) {
-      0 -> "No submissions"
-      1 -> "$count submission"
-      else -> "$count submissions"
-    }
-
   /** Returns a user-visible string representing the type of the geometry. */
   private fun Geometry.toType(): String =
     when (this) {
