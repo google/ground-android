@@ -107,11 +107,10 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   /** Updates the given [TextView] with the submission count for the given [LocationOfInterest]. */
   private fun updateSubmissionCount(loi: LocationOfInterest, view: TextView) {
     externalScope.launch {
+      val count = submissionRepository.getTotalSubmissionCount(loi)
       val submissionText =
-        when (val count = submissionRepository.getTotalSubmissionCount(loi)) {
-          0 -> resources.getString(R.string.no_submissions)
-          else -> resources.getQuantityString(R.plurals.submission_count, count, count)
-        }
+        if (count == 0) resources.getString(R.string.no_submissions)
+        else resources.getQuantityString(R.plurals.submission_count, count, count)
       withContext(mainDispatcher) { view.text = submissionText }
     }
   }
