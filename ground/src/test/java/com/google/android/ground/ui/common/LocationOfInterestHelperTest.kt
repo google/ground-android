@@ -41,16 +41,6 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   }
 
   @Test
-  fun testGetCreatedBy_whenLoiIsNull() {
-    assertCreatedBy(null, "")
-  }
-
-  @Test
-  fun testGetLabel_whenLoiIsNull() {
-    assertLabel(null, "")
-  }
-
-  @Test
   fun testGetLabel_whenCaptionIsEmptyAndLoiIsPoint() {
     val loi = FakeData.LOCATION_OF_INTEREST.copy("")
     assertLabel(loi, "Point")
@@ -68,20 +58,15 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
     assertSubtitle(loi, "Job: $TEST_JOB_NAME")
   }
 
-  @Test
-  fun testGetSubtitle_whenLoiIsEmpty() {
-    assertSubtitle(null, "")
-  }
-
-  private fun assertCreatedBy(loi: LocationOfInterest?, expectedCreatedBy: String) {
+  private fun assertCreatedBy(loi: LocationOfInterest, expectedCreatedBy: String) {
     assertThat(loiHelper.getCreatedBy(Optional.ofNullable(loi))).isEqualTo(expectedCreatedBy)
   }
 
-  private fun assertLabel(loi: LocationOfInterest?, expectedLabel: String) {
-    assertThat(loiHelper.getLabel(Optional.ofNullable(loi))).isEqualTo(expectedLabel)
+  private fun assertLabel(loi: LocationOfInterest, expectedLabel: String) {
+    assertThat(loiHelper.getLabel(loi)).isEqualTo(expectedLabel)
   }
 
-  private fun assertSubtitle(loi: LocationOfInterest?, expectedSubtitle: String) {
+  private fun assertSubtitle(loi: LocationOfInterest, expectedSubtitle: String) {
     assertThat(loiHelper.getSubtitle(Optional.ofNullable(loi))).isEqualTo(expectedSubtitle)
   }
 

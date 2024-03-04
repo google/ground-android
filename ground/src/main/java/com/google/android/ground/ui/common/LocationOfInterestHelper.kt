@@ -33,13 +33,9 @@ class LocationOfInterestHelper @Inject internal constructor(private val resource
   fun getCreatedBy(locationOfInterest: Optional<LocationOfInterest>): String =
     getUserName(locationOfInterest).map { resources.getString(R.string.added_by, it) }.orElse("")
 
-  // TODO(#793): Allow user-defined LOI names for other LOI types.
-  fun getLabel(locationOfInterest: Optional<LocationOfInterest>): String =
-    locationOfInterest.map(::getLabel).orElse("")
-
   fun getLabel(loi: LocationOfInterest): String {
     // TODO(#2046): Reuse logic from card util to display LOI label
-    val caption = loi.customId?.trim { it <= ' ' } ?: ""
+    val caption = loi.customId.trim { it <= ' ' }
     return caption.ifEmpty { getLocationOfInterestType(loi) }
   }
 
