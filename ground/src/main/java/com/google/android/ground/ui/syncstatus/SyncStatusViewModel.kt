@@ -70,7 +70,7 @@ internal constructor(
     return MutationDetail(
       user = user.displayName,
       mutation = mutation,
-      loiLabel = locationOfInterestHelper.getLabel(loi),
+      loiLabel = locationOfInterestHelper.getDisplayLoiName(loi),
       loiSubtitle = locationOfInterestHelper.getSubtitle(loi),
     )
   }

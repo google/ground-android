@@ -31,18 +31,6 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   @Inject lateinit var loiHelper: LocationOfInterestHelper
 
   @Test
-  fun testGetLabel_whenCaptionIsEmptyAndLoiIsPoint() {
-    val loi = FakeData.LOCATION_OF_INTEREST.copy("")
-    assertThat(loiHelper.getLabel(loi)).isEqualTo("Point")
-  }
-
-  @Test
-  fun testGetLabel_whenCaptionIsEmptyAndLoiIsPolygon() {
-    val loi = FakeData.AREA_OF_INTEREST.copy("")
-    assertThat(loiHelper.getLabel(loi)).isEqualTo("Polygon")
-  }
-
-  @Test
   fun testGetSubtitle() {
     val loi = FakeData.LOCATION_OF_INTEREST.copy(job = FakeData.JOB.copy(name = TEST_JOB_NAME))
     assertThat(loiHelper.getSubtitle(loi)).isEqualTo("Job: $TEST_JOB_NAME")

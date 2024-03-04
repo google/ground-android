@@ -18,8 +18,6 @@ package com.google.android.ground.ui.common
 import android.content.res.Resources
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.Geometry
-import com.google.android.ground.model.geometry.LineString
-import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
@@ -69,21 +67,6 @@ class LocationOfInterestHelper @Inject internal constructor(private val resource
       is Polygon,
       is MultiPolygon -> resources.getString(R.string.unnamed_area)
       else -> throw IllegalArgumentException("Unsupported geometry type $this")
-    }
-
-  fun getLabel(loi: LocationOfInterest): String {
-    // TODO(#2046): Reuse logic from card util to display LOI label
-    val caption = loi.customId.trim { it <= ' ' }
-    return caption.ifEmpty { getLocationOfInterestType(loi) }
-  }
-
-  private fun getLocationOfInterestType(locationOfInterest: LocationOfInterest): String =
-    when (locationOfInterest.geometry) {
-      is Polygon -> "Polygon"
-      is Point -> "Point"
-      is LineString -> "LineString"
-      is LinearRing -> "LinearRing"
-      is MultiPolygon -> "MultiPolygon"
     }
 
   fun getSubtitle(loi: LocationOfInterest): String =
