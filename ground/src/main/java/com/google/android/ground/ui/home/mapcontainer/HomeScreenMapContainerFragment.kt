@@ -41,7 +41,6 @@ import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel.SurveyProperties
-import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.MapFragment
@@ -108,8 +107,10 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   /** Updates the given [TextView] with the submission count for the given [LocationOfInterest]. */
   private fun updateSubmissionCount(loi: LocationOfInterest, view: TextView) {
     externalScope.launch {
-      val submissionCount = submissionRepository.getTotalSubmissionCount(loi)
-      val submissionText = LoiCardUtil.getSubmissionsText(submissionCount)
+      val count = submissionRepository.getTotalSubmissionCount(loi)
+      val submissionText =
+        if (count == 0) resources.getString(R.string.no_submissions)
+        else resources.getQuantityString(R.plurals.submission_count, count, count)
       withContext(mainDispatcher) { view.text = submissionText }
     }
   }
