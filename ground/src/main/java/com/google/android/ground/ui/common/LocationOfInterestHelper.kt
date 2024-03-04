@@ -23,7 +23,6 @@ import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import java.util.Optional
 import javax.inject.Inject
 
 /** Common logic for formatting attributes of [LocationOfInterest] for display to the user. */
@@ -44,8 +43,6 @@ class LocationOfInterestHelper @Inject internal constructor(private val resource
       is MultiPolygon -> "MultiPolygon"
     }
 
-  fun getSubtitle(locationOfInterest: Optional<LocationOfInterest>): String =
-    locationOfInterest
-      .map { resources.getString(R.string.layer_label_format, it.job.name) }
-      .orElse("")
+  fun getSubtitle(loi: LocationOfInterest): String =
+    resources.getString(R.string.layer_label_format, loi.job.name)
 }

@@ -16,11 +16,9 @@
 package com.google.android.ground.ui.common
 
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
-import java.util.Optional
 import javax.inject.Inject
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,27 +33,19 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   @Test
   fun testGetLabel_whenCaptionIsEmptyAndLoiIsPoint() {
     val loi = FakeData.LOCATION_OF_INTEREST.copy("")
-    assertLabel(loi, "Point")
+    assertThat(loiHelper.getLabel(loi)).isEqualTo("Point")
   }
 
   @Test
   fun testGetLabel_whenCaptionIsEmptyAndLoiIsPolygon() {
     val loi = FakeData.AREA_OF_INTEREST.copy("")
-    assertLabel(loi, "Polygon")
+    assertThat(loiHelper.getLabel(loi)).isEqualTo("Polygon")
   }
 
   @Test
   fun testGetSubtitle() {
     val loi = FakeData.LOCATION_OF_INTEREST.copy(job = FakeData.JOB.copy(name = TEST_JOB_NAME))
-    assertSubtitle(loi, "Job: $TEST_JOB_NAME")
-  }
-
-  private fun assertLabel(loi: LocationOfInterest, expectedLabel: String) {
-    assertThat(loiHelper.getLabel(loi)).isEqualTo(expectedLabel)
-  }
-
-  private fun assertSubtitle(loi: LocationOfInterest, expectedSubtitle: String) {
-    assertThat(loiHelper.getSubtitle(Optional.ofNullable(loi))).isEqualTo(expectedSubtitle)
+    assertThat(loiHelper.getSubtitle(loi)).isEqualTo("Job: $TEST_JOB_NAME")
   }
 
   companion object {
