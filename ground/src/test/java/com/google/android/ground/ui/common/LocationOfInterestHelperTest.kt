@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.common
 
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
@@ -32,13 +31,6 @@ import org.robolectric.RobolectricTestRunner
 class LocationOfInterestHelperTest : BaseHiltTest() {
 
   @Inject lateinit var loiHelper: LocationOfInterestHelper
-
-  @Test
-  fun testGetCreatedBy() {
-    val user = FakeData.USER.copy(displayName = TEST_USER_NAME)
-    val loi = FakeData.LOCATION_OF_INTEREST.copy(created = AuditInfo(user))
-    assertCreatedBy(loi, "Added by $TEST_USER_NAME")
-  }
 
   @Test
   fun testGetLabel_whenCaptionIsEmptyAndLoiIsPoint() {
@@ -58,10 +50,6 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
     assertSubtitle(loi, "Job: $TEST_JOB_NAME")
   }
 
-  private fun assertCreatedBy(loi: LocationOfInterest, expectedCreatedBy: String) {
-    assertThat(loiHelper.getCreatedBy(Optional.ofNullable(loi))).isEqualTo(expectedCreatedBy)
-  }
-
   private fun assertLabel(loi: LocationOfInterest, expectedLabel: String) {
     assertThat(loiHelper.getLabel(loi)).isEqualTo(expectedLabel)
   }
@@ -71,7 +59,6 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   }
 
   companion object {
-    private const val TEST_USER_NAME = "some user name"
     private const val TEST_JOB_NAME = "some job name"
   }
 }

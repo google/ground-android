@@ -17,8 +17,6 @@ package com.google.android.ground.ui.common
 
 import android.content.res.Resources
 import com.google.android.ground.R
-import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.User
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.MultiPolygon
@@ -30,8 +28,6 @@ import javax.inject.Inject
 
 /** Common logic for formatting attributes of [LocationOfInterest] for display to the user. */
 class LocationOfInterestHelper @Inject internal constructor(private val resources: Resources) {
-  fun getCreatedBy(locationOfInterest: Optional<LocationOfInterest>): String =
-    getUserName(locationOfInterest).map { resources.getString(R.string.added_by, it) }.orElse("")
 
   fun getLabel(loi: LocationOfInterest): String {
     // TODO(#2046): Reuse logic from card util to display LOI label
@@ -52,7 +48,4 @@ class LocationOfInterestHelper @Inject internal constructor(private val resource
     locationOfInterest
       .map { resources.getString(R.string.layer_label_format, it.job.name) }
       .orElse("")
-
-  private fun getUserName(locationOfInterest: Optional<LocationOfInterest>): Optional<String> =
-    locationOfInterest.map(LocationOfInterest::created).map(AuditInfo::user).map(User::displayName)
 }

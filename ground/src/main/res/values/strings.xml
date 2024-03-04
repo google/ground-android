@@ -54,7 +54,6 @@
   <string name="settings">Settings</string>
   <string name="offline_area_viewer_title">Downloaded area</string>
   <string name="offline_area_viewer_remove_button">Remove from device</string>
-  <string name="added_by">Added by %s</string>
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_area_selector_select">Select area</string>
   <string name="no_basemaps_downloaded">No imagery downloaded for offline use. Tap “Select and download” to get started.</string>
