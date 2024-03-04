@@ -48,7 +48,98 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
     assertThat(loiHelper.getSubtitle(loi)).isEqualTo("Job: $TEST_JOB_NAME")
   }
 
+  @Test
+  fun testLoiNameWithPoint_whenCustomIdAndPropertiesAreNull() {
+    assertThat(loiHelper.getDisplayLoiName(TEST_LOI.copy(customId = "", properties = mapOf())))
+      .isEqualTo("Unnamed point")
+  }
+
+  @Test
+  fun testLoiNameWithPolygon_whenCustomIdAndPropertiesAreNull() {
+    assertThat(loiHelper.getDisplayLoiName(TEST_AREA.copy(customId = "", properties = mapOf())))
+      .isEqualTo("Unnamed area")
+  }
+
+  @Test
+  fun testLoiName_whenCustomIdIsAvailable() {
+    assertThat(loiHelper.getDisplayLoiName(TEST_LOI.copy(customId = "some value")))
+      .isEqualTo("Point (some value)")
+  }
+
+  @Test
+  fun testArea_whenCustomIdIsAvailable() {
+    assertThat(loiHelper.getDisplayLoiName(TEST_AREA.copy(customId = "some value")))
+      .isEqualTo("Area (some value)")
+  }
+
+  @Test
+  fun testArea_whenCustomIdIsNotAvailable_usesPropertiesId() {
+    assertThat(
+        loiHelper.getDisplayLoiName(
+          TEST_AREA.copy(customId = "", properties = mapOf("id" to "property id"))
+        )
+      )
+      .isEqualTo("Area (property id)")
+  }
+
+  @Test
+  fun testLoiName_whenPropertiesNameIsAvailable() {
+    assertThat(
+        loiHelper.getDisplayLoiName(TEST_LOI.copy(properties = mapOf("name" to "custom name")))
+      )
+      .isEqualTo("custom name")
+  }
+
+  @Test
+  fun testLoiName_whenCustomIdAndPropertiesNameIsAvailable() {
+    assertThat(
+        loiHelper.getDisplayLoiName(
+          TEST_LOI.copy(customId = "some value", properties = mapOf("name" to "custom name"))
+        )
+      )
+      .isEqualTo("custom name (some value)")
+  }
+
+  @Test
+  fun testLoiName_whenPropertiesDoesNotContainName() {
+    assertThat(
+        loiHelper.getDisplayLoiName(
+          TEST_LOI.copy(customId = "", properties = mapOf("not" to "a name field"))
+        )
+      )
+      .isEqualTo("Unnamed point")
+  }
+
+  @Test
+  fun testLoiJobName_whenNameIsNull() {
+    val job = TEST_LOI.job.copy(name = null)
+    assertThat(loiHelper.getJobName(TEST_LOI.copy(job = job))).isNull()
+  }
+
+  @Test
+  fun testLoiJobName_whenNameIsAvailable() {
+    val job = TEST_LOI.job.copy(name = "job name")
+    assertThat(loiHelper.getJobName(TEST_LOI.copy(job = job))).isEqualTo("job name")
+  }
+
+  @Test
+  fun testSubmissionsText_whenZero() {
+    assertThat(loiHelper.getSubmissionsText(0)).isEqualTo("No submissions")
+  }
+
+  @Test
+  fun testSubmissionsText_whenOne() {
+    assertThat(loiHelper.getSubmissionsText(1)).isEqualTo("1 submission")
+  }
+
+  @Test
+  fun testSubmissionsText_whenTwo() {
+    assertThat(loiHelper.getSubmissionsText(2)).isEqualTo("2 submissions")
+  }
+
   companion object {
+    private val TEST_LOI = FakeData.LOCATION_OF_INTEREST.copy()
+    private val TEST_AREA = FakeData.AREA_OF_INTEREST.copy()
     private const val TEST_JOB_NAME = "some job name"
   }
 }

@@ -38,10 +38,10 @@ import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
+import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel.SurveyProperties
-import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.MapFragment
@@ -59,6 +59,7 @@ import timber.log.Timber
 class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var ephemeralPopups: EphemeralPopups
+  @Inject lateinit var loiHelper: LocationOfInterestHelper
   @Inject lateinit var submissionRepository: SubmissionRepository
   @Inject lateinit var userRepository: UserRepository
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
@@ -109,7 +110,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private fun updateSubmissionCount(loi: LocationOfInterest, view: TextView) {
     externalScope.launch {
       val submissionCount = submissionRepository.getTotalSubmissionCount(loi)
-      val submissionText = LoiCardUtil.getSubmissionsText(submissionCount)
+      val submissionText = loiHelper.getSubmissionsText(submissionCount)
       withContext(mainDispatcher) { view.text = submissionText }
     }
   }

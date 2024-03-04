@@ -17,6 +17,7 @@ package com.google.android.ground.ui.common
 
 import android.content.res.Resources
 import com.google.android.ground.R
+import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.MultiPolygon
@@ -25,8 +26,50 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import javax.inject.Inject
 
-/** Common logic for formatting attributes of [LocationOfInterest] for display to the user. */
+/** Helper class for creating user-visible text. */
 class LocationOfInterestHelper @Inject internal constructor(private val resources: Resources) {
+
+  fun getDisplayLoiName(loi: LocationOfInterest): String {
+    val loiId = loi.customId.ifEmpty { loi.getProperty("id") }
+    val loiName = loi.getProperty("name")
+
+    return if (loiName.isNotEmpty() && loiId.isNotEmpty()) {
+      "$loiName ($loiId)"
+    } else if (loiName.isNotEmpty()) {
+      loiName
+    } else if (loiId.isNotEmpty()) {
+      "${loi.geometry.toType()} ($loiId)"
+    } else {
+      loi.geometry.toDefaultName()
+    }
+  }
+
+  fun getJobName(loi: LocationOfInterest): String? = loi.job.name
+
+  fun getSubmissionsText(count: Int): String =
+    when (count) {
+      0 -> "No submissions"
+      1 -> "$count submission"
+      else -> "$count submissions"
+    }
+
+  /** Returns a user-visible string representing the type of the geometry. */
+  private fun Geometry.toType(): String =
+    when (this) {
+      is Point -> resources.getString(R.string.point)
+      is Polygon,
+      is MultiPolygon -> resources.getString(R.string.area)
+      else -> throw IllegalArgumentException("Unsupported geometry type $this")
+    }
+
+  /** Returns a default user-visible name for the geometry. */
+  private fun Geometry.toDefaultName(): String =
+    when (this) {
+      is Point -> resources.getString(R.string.unnamed_point)
+      is Polygon,
+      is MultiPolygon -> resources.getString(R.string.unnamed_area)
+      else -> throw IllegalArgumentException("Unsupported geometry type $this")
+    }
 
   fun getLabel(loi: LocationOfInterest): String {
     // TODO(#2046): Reuse logic from card util to display LOI label

@@ -26,6 +26,7 @@ import com.google.android.ground.databinding.AddLoiCardItemBinding
 import com.google.android.ground.databinding.LoiCardItemBinding
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.ui.common.LocationOfInterestHelper
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [LocationOfInterest] data with the
@@ -138,10 +139,12 @@ class MapCardAdapter(
     private val canUserSubmitData: Boolean,
     private val updateSubmissionCount: (loi: LocationOfInterest, view: TextView) -> Unit,
   ) : CardViewHolder(binding.root) {
+    private val loiHelper = LocationOfInterestHelper(itemView.resources)
+
     fun bind(loi: LocationOfInterest) {
       with(binding) {
-        loiName.text = LoiCardUtil.getDisplayLoiName(binding.wrapperView.context, loi)
-        jobName.text = LoiCardUtil.getJobName(loi)
+        loiName.text = loiHelper.getDisplayLoiName(loi)
+        jobName.text = loiHelper.getJobName(loi)
         collectData.visibility =
           if (canUserSubmitData && loi.job.hasTasks()) View.VISIBLE else View.GONE
         updateSubmissionCount(loi, submissions)
