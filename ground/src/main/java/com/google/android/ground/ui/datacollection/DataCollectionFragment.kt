@@ -17,11 +17,14 @@ package com.google.android.ground.ui.datacollection
 
 import android.animation.ValueAnimator
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.constraintlayout.widget.Guideline
+import androidx.core.view.WindowInsetsCompat
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
@@ -77,18 +80,32 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
     viewPager.registerOnPageChangeCallback(
       object : ViewPager2.OnPageChangeCallback() {
-        override fun onPageSelected(position: Int) {
-          super.onPageSelected(position)
-
-          val buttonContainer = view.findViewById<View>(R.id.action_buttons) ?: return
-          val anchorLocation = IntArray(2)
-          buttonContainer.getLocationInWindow(anchorLocation)
-          val guidelineTop =
-            anchorLocation[1] - buttonContainer.rootWindowInsets.systemWindowInsetTop
-          guideline.setGuidelineBegin(guidelineTop)
+        override fun onPageScrollStateChanged(state: Int) {
+          super.onPageScrollStateChanged(state)
+          if (state == ViewPager2.SCROLL_STATE_IDLE) {
+            Handler(Looper.getMainLooper())
+              .postDelayed(
+                {
+                  // Reset the progress bar position after a delay to wait for the keyboard to
+                  // close.
+                  setProgressBarPosition(view)
+                },
+                100
+              )
+          }
         }
       }
     )
+  }
+
+  private fun setProgressBarPosition(view: View) {
+    val buttonContainer = view.findViewById<View>(R.id.action_buttons) ?: return
+    val anchorLocation = IntArray(2)
+    buttonContainer.getLocationInWindow(anchorLocation)
+    val windowInsets = WindowInsetsCompat.toWindowInsetsCompat(buttonContainer.rootWindowInsets)
+    val guidelineTop =
+      anchorLocation[1] - windowInsets.getInsets(WindowInsetsCompat.Type.systemBars()).top
+    guideline.setGuidelineBegin(guidelineTop)
   }
 
   private fun loadTasks(tasks: List<Task>) {
