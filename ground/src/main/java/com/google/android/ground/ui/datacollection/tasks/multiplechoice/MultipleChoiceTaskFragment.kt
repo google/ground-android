@@ -17,15 +17,16 @@ package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
 import android.view.LayoutInflater
 import android.view.View
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
-import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.task.MultipleChoice
-import com.google.android.ground.model.task.Option
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 /**
  * Fragment allowing the user to answer single selection multiple choice questions to complete a
@@ -34,6 +35,8 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewModel>() {
   private lateinit var binding: MultipleChoiceTaskFragBinding
+  private lateinit var multipleChoiceAdapter:
+    ListAdapter<MultipleChoiceItem, RecyclerView.ViewHolder>
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
@@ -46,35 +49,15 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
 
   private fun setupMultipleChoice(recyclerView: RecyclerView) {
     val multipleChoice = checkNotNull(getTask().multipleChoice)
-    val isMultipleChoice = multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE
-    val options = multipleChoice.options
-    val selectedIndices = getSelectedIndices(options)
-
-    recyclerView.adapter =
-      createAdapter(options, isMultipleChoice, selectedIndices) { viewModel.updateResponse(it) }
-    recyclerView.setHasFixedSize(true)
-  }
-
-  private fun createAdapter(
-    options: List<Option>,
-    isMultipleChoice: Boolean,
-    selectedIndices: List<Int>,
-    updateResponse: (options: List<Option>) -> Unit,
-  ): RecyclerView.Adapter<out RecyclerView.ViewHolder> =
-    if (isMultipleChoice) {
-      SelectMultipleOptionAdapter(options, selectedIndices) { updateResponse(it) }
-    } else {
-      assert(selectedIndices.size < 2) {
-        "Expected size to be less than 2, found ${selectedIndices.size}"
-      }
-      val selectedIndex = if (selectedIndices.size == 1) selectedIndices[0] else -1
-      SelectOneOptionAdapter(options, selectedIndex) { updateResponse(listOf(it)) }
+    val canSelectMultiple = multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE
+    multipleChoiceAdapter = MultipleChoiceAdapter(viewModel, canSelectMultiple)
+    recyclerView.apply {
+      adapter = multipleChoiceAdapter
+      itemAnimator = null
+      setHasFixedSize(true)
     }
-
-  /** Returns a list of selected indices for the current task. */
-  private fun getSelectedIndices(options: List<Option>): List<Int> {
-    val selectedIds = (getCurrentValue() as? MultipleChoiceResponse)?.selectedOptionIds
-    val optionIds = options.map { it.id }
-    return selectedIds?.map { optionIds.indexOf(it) } ?: listOf()
+    lifecycleScope.launch {
+      viewModel.itemsFlow.collect { items -> multipleChoiceAdapter.submitList(items) }
+    }
   }
 }
