@@ -34,10 +34,10 @@ class ConditionConverterTest {
   fun `toCondition() converts match types`() {
     with(ConditionConverter) {
       listOf(
-        "MATCH_ANY" to Condition.MatchType.MATCH_ANY,
-        "MATCH_ALL" to Condition.MatchType.MATCH_ALL,
-        "MATCH_ONE" to Condition.MatchType.MATCH_ONE
-      )
+          "MATCH_ANY" to Condition.MatchType.MATCH_ANY,
+          "MATCH_ALL" to Condition.MatchType.MATCH_ALL,
+          "MATCH_ONE" to Condition.MatchType.MATCH_ONE
+        )
         .forEach {
           assertThat(ConditionNestedObject(matchType = it.first).toCondition()?.matchType)
             .isEqualTo(it.second)
@@ -57,16 +57,16 @@ class ConditionConverterTest {
   fun `toCondition() converts expressions`() {
     val expressions =
       ConditionNestedObject(
-        matchType = TEST_MATCH_TYPE,
-        expressions =
-        listOf(
-          ExpressionNestedObject(
-            expressionType = "ANY_OF_SELECTED",
-            taskId = TASK_ID,
-            optionIds = TEST_OPTION_IDS
-          )
+          matchType = TEST_MATCH_TYPE,
+          expressions =
+            listOf(
+              ExpressionNestedObject(
+                expressionType = "ANY_OF_SELECTED",
+                taskId = TASK_ID,
+                optionIds = TEST_OPTION_IDS
+              )
+            )
         )
-      )
         .toCondition()
         ?.expressions
     assertThat(expressions?.size).isEqualTo(1)
@@ -84,20 +84,20 @@ class ConditionConverterTest {
       ConditionNestedObject(
         matchType = TEST_MATCH_TYPE,
         expressions =
-        listOf(
-          ExpressionNestedObject(
-            expressionType = expressionType,
-            taskId = TASK_ID,
-            optionIds = TEST_OPTION_IDS,
+          listOf(
+            ExpressionNestedObject(
+              expressionType = expressionType,
+              taskId = TASK_ID,
+              optionIds = TEST_OPTION_IDS,
+            )
           )
-        )
       )
     }
     listOf(
-      "ANY_OF_SELECTED" to Expression.ExpressionType.ANY_OF_SELECTED,
-      "ALL_OF_SELECTED" to Expression.ExpressionType.ALL_OF_SELECTED,
-      "ONE_OF_SELECTED" to Expression.ExpressionType.ONE_OF_SELECTED,
-    )
+        "ANY_OF_SELECTED" to Expression.ExpressionType.ANY_OF_SELECTED,
+        "ALL_OF_SELECTED" to Expression.ExpressionType.ALL_OF_SELECTED,
+        "ONE_OF_SELECTED" to Expression.ExpressionType.ONE_OF_SELECTED,
+      )
       .forEach {
         val condition = conditionObjectWithExpressionType(it.first).toCondition()
         val expressionType = condition?.expressions?.get(0)?.expressionType
@@ -108,71 +108,71 @@ class ConditionConverterTest {
   @Test
   fun `toCondition() filters out invalid expression types`() {
     assertThat(
-      ConditionNestedObject(
-        matchType = TEST_MATCH_TYPE,
-        expressions =
-        listOf(
-          ExpressionNestedObject(expressionType = null, taskId = TASK_ID),
-          ExpressionNestedObject(expressionType = "TWO_OF_SELECTED", taskId = TASK_ID),
-          // Case sensitive.
-          ExpressionNestedObject(expressionType = "any_of_selected", taskId = TASK_ID),
-        )
+        ConditionNestedObject(
+            matchType = TEST_MATCH_TYPE,
+            expressions =
+              listOf(
+                ExpressionNestedObject(expressionType = null, taskId = TASK_ID),
+                ExpressionNestedObject(expressionType = "TWO_OF_SELECTED", taskId = TASK_ID),
+                // Case sensitive.
+                ExpressionNestedObject(expressionType = "any_of_selected", taskId = TASK_ID),
+              )
+          )
+          .toCondition()
+          ?.expressions
       )
-        .toCondition()
-        ?.expressions
-    )
       .isEqualTo(listOf<String>())
   }
 
   @Test
   fun `toCondition() filters out expressions with no task ID`() {
     assertThat(
-      ConditionNestedObject(
-        matchType = TEST_MATCH_TYPE,
-        expressions =
-        listOf(
-          ExpressionNestedObject(
-            expressionType = "ANY_OF_SELECTED",
-            taskId = TASK_ID,
-            optionIds = TEST_OPTION_IDS,
-          ),
-          // Missing task ID.
-          ExpressionNestedObject(
-            expressionType = "ANY_OF_SELECTED",
-            optionIds = TEST_OPTION_IDS,
-          ),
-        )
+        ConditionNestedObject(
+            matchType = TEST_MATCH_TYPE,
+            expressions =
+              listOf(
+                ExpressionNestedObject(
+                  expressionType = "ANY_OF_SELECTED",
+                  taskId = TASK_ID,
+                  optionIds = TEST_OPTION_IDS,
+                ),
+                // Missing task ID.
+                ExpressionNestedObject(
+                  expressionType = "ANY_OF_SELECTED",
+                  optionIds = TEST_OPTION_IDS,
+                ),
+              )
+          )
+          .toCondition()
+          ?.expressions
+          ?.size
       )
-        .toCondition()
-        ?.expressions
-        ?.size
-    )
       .isEqualTo(1)
   }
 
   @Test
   fun `toCondition() filters out expressions with no option IDs`() {
     assertThat(
-      ConditionNestedObject(
-        matchType = TEST_MATCH_TYPE,
-        expressions =
-        listOf(
-          ExpressionNestedObject(
-            expressionType = "ANY_OF_SELECTED",
-            taskId = TASK_ID,
-            optionIds = TEST_OPTION_IDS,
-          ),
-          // Missing option IDs.
-          ExpressionNestedObject(
-            expressionType = "ANY_OF_SELECTED",
-            taskId = TASK_ID,
-          ),
-        )
+        ConditionNestedObject(
+            matchType = TEST_MATCH_TYPE,
+            expressions =
+              listOf(
+                ExpressionNestedObject(
+                  expressionType = "ANY_OF_SELECTED",
+                  taskId = TASK_ID,
+                  optionIds = TEST_OPTION_IDS,
+                ),
+                // Missing option IDs.
+                ExpressionNestedObject(
+                  expressionType = "ANY_OF_SELECTED",
+                  taskId = TASK_ID,
+                ),
+              )
+          )
+          .toCondition()
+          ?.expressions
+          ?.size
       )
-        .toCondition()
-        ?.expressions
-        ?.size
-    )
       .isEqualTo(1)
   }
 }
