@@ -76,7 +76,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewPager.offscreenPageLimit = 1
 
     loadTasks(viewModel.tasks)
-    lifecycleScope.launch { viewModel.currentPosition.collect { onTaskChanged(it) } }
+    lifecycleScope.launch { viewModel.currentTaskId.collect { onTaskChanged() } }
 
     viewPager.registerOnPageChangeCallback(
       object : ViewPager2.OnPageChangeCallback() {
@@ -115,16 +115,20 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     }
 
     // Reset progress bar
-    progressBar.progress = 0
-    progressBar.max = (tasks.size - 1) * PROGRESS_SCALE
+    val (start, taskSize) = viewModel.getPositionInTaskSequence()
+    progressBar.progress = start
+    progressBar.max = (taskSize - 1) * PROGRESS_SCALE
   }
 
-  private fun onTaskChanged(index: Int) {
-    viewPager.currentItem = index
+  private fun onTaskChanged() {
+    viewPager.currentItem = viewModel.getAbsolutePosition()
 
+    // Reset progress bar
+    val (currIndex, taskSize) = viewModel.getPositionInTaskSequence()
+    progressBar.max = (taskSize - 1) * PROGRESS_SCALE
     progressBar.clearAnimation()
 
-    val progressAnimator = ValueAnimator.ofInt(progressBar.progress, index * PROGRESS_SCALE)
+    val progressAnimator = ValueAnimator.ofInt(progressBar.progress, currIndex * PROGRESS_SCALE)
     progressAnimator.duration = 400L
     progressAnimator.interpolator = FastOutSlowInInterpolator()
 
@@ -140,7 +144,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       false
     } else {
       // Otherwise, select the previous step.
-      viewModel.updateCurrentPosition(viewModel.getVisibleTaskPosition() - 1)
+      viewModel.step(-1)
       true
     }
 
