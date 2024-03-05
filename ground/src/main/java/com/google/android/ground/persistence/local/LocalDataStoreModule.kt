@@ -106,5 +106,15 @@ abstract class LocalDataStoreModule {
     fun userDao(localDatabase: LocalDatabase): UserDao {
       return localDatabase.userDao()
     }
+
+    @Provides
+    fun conditionDao(localDatabase: LocalDatabase): ConditionDao {
+      return localDatabase.conditionDao()
+    }
+
+    @Provides
+    fun expressionDao(localDatabase: LocalDatabase): ExpressionDao {
+      return localDatabase.expressionDao()
+    }
   }
 }
