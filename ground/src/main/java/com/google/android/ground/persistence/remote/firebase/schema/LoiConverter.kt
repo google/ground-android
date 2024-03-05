@@ -33,6 +33,7 @@ object LoiConverter {
   const val GEOMETRY_COORDINATES = "coordinates"
   const val GEOMETRY = "geometry"
   const val SUBMISSION_COUNT = "submissionCount"
+  const val PLANNED = "planned"
 
   fun toLoi(survey: Survey, doc: DocumentSnapshot): Result<LocationOfInterest> = runCatching {
     toLoiUnchecked(survey, doc)
@@ -71,7 +72,8 @@ object LoiConverter {
       // TODO(#929): Set geometry once LOI has been updated to use our own model.
       geometry = geometry,
       submissionCount = submissionCount,
-      properties = loiDoc.properties ?: mapOf()
+      properties = loiDoc.properties ?: mapOf(),
+      planned = loiDoc.planned,
     )
   }
 }

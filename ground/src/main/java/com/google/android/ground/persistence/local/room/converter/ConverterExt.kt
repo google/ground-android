@@ -41,11 +41,11 @@ import com.google.android.ground.persistence.local.room.relations.TaskEntityAndR
 import com.google.android.ground.ui.map.Bounds
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import java.util.*
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
 import org.json.JSONObject
 import timber.log.Timber
+import java.util.*
 
 fun AuditInfo.toLocalDataStoreObject(): AuditInfoEntity =
   AuditInfoEntity(
@@ -147,6 +147,7 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     ownerEmail = ownerEmail,
     isOpportunistic = isOpportunistic,
     properties = properties,
+    // TODO(#2300): Add `planned` field for local storage.
   )
 
 fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
@@ -167,6 +168,7 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
           ?: throw LocalDataConsistencyException(
             "Unknown jobId ${this.jobId} in location of interest ${this.id}"
           )
+      // TODO(#2300): Add `planned` field for rendering use.
     )
   }
 
@@ -211,7 +213,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject() =
     clientTimestamp = clientTimestamp.time,
     lastError = lastError,
     retryCount = retryCount,
-    newProperties = properties
+    newProperties = properties,
   )
 
 fun LocationOfInterestMutationEntity.toModelObject() =

@@ -55,6 +55,8 @@ data class LocationOfInterest(
   val isOpportunistic: Boolean = false,
   /** Custom map of properties for this LOI. Corresponds to the properties field in GeoJSON */
   val properties: LoiProperties = mapOf(),
+  /** Whether the LOI was predefined in the survey or not (i.e. added ad hoc). */
+  val planned: Boolean? = null,
 ) {
 
   /**
