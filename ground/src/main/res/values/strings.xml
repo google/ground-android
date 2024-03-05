@@ -54,7 +54,6 @@
   <string name="settings">Settings</string>
   <string name="offline_area_viewer_title">Downloaded area</string>
   <string name="offline_area_viewer_remove_button">Remove from device</string>
-  <string name="added_by">Added by %s</string>
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_area_selector_select">Select area</string>
   <string name="no_basemaps_downloaded">No imagery downloaded for offline use. Tap “Select and download” to get started.</string>
@@ -139,4 +138,9 @@
   <string name="suggest_data_collection_hint">Zoom in to start collecting data</string>
   <string name="read_only_data_collection_hint">Survey is read-only</string>
   <string name="predefined_data_collection_hint">Zoom in to a data collection site to collect data</string>
+  <string name="no_submissions">No submissions</string>
+  <plurals name="submission_count">
+    <item quantity="one">%d submission</item>
+    <item quantity="other">%d submissions</item>
+  </plurals>
 </resources>

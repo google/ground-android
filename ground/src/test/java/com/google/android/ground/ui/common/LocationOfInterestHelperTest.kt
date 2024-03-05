@@ -16,12 +16,9 @@
 package com.google.android.ground.ui.common
 
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
-import java.util.Optional
 import javax.inject.Inject
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,59 +31,88 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   @Inject lateinit var loiHelper: LocationOfInterestHelper
 
   @Test
-  fun testGetCreatedBy() {
-    val user = FakeData.USER.copy(displayName = TEST_USER_NAME)
-    val loi = FakeData.LOCATION_OF_INTEREST.copy(created = AuditInfo(user))
-    assertCreatedBy(loi, "Added by $TEST_USER_NAME")
-  }
-
-  @Test
-  fun testGetCreatedBy_whenLoiIsNull() {
-    assertCreatedBy(null, "")
-  }
-
-  @Test
-  fun testGetLabel_whenLoiIsNull() {
-    assertLabel(null, "")
-  }
-
-  @Test
-  fun testGetLabel_whenCaptionIsEmptyAndLoiIsPoint() {
-    val loi = FakeData.LOCATION_OF_INTEREST.copy("")
-    assertLabel(loi, "Point")
-  }
-
-  @Test
-  fun testGetLabel_whenCaptionIsEmptyAndLoiIsPolygon() {
-    val loi = FakeData.AREA_OF_INTEREST.copy("")
-    assertLabel(loi, "Polygon")
-  }
-
-  @Test
   fun testGetSubtitle() {
     val loi = FakeData.LOCATION_OF_INTEREST.copy(job = FakeData.JOB.copy(name = TEST_JOB_NAME))
-    assertSubtitle(loi, "Job: $TEST_JOB_NAME")
+    assertThat(loiHelper.getSubtitle(loi)).isEqualTo("Job: $TEST_JOB_NAME")
   }
 
   @Test
-  fun testGetSubtitle_whenLoiIsEmpty() {
-    assertSubtitle(null, "")
+  fun testLoiNameWithPoint_whenCustomIdAndPropertiesAreNull() {
+    assertThat(loiHelper.getDisplayLoiName(TEST_LOI.copy(customId = "", properties = mapOf())))
+      .isEqualTo("Unnamed point")
   }
 
-  private fun assertCreatedBy(loi: LocationOfInterest?, expectedCreatedBy: String) {
-    assertThat(loiHelper.getCreatedBy(Optional.ofNullable(loi))).isEqualTo(expectedCreatedBy)
+  @Test
+  fun testLoiNameWithPolygon_whenCustomIdAndPropertiesAreNull() {
+    assertThat(loiHelper.getDisplayLoiName(TEST_AREA.copy(customId = "", properties = mapOf())))
+      .isEqualTo("Unnamed area")
   }
 
-  private fun assertLabel(loi: LocationOfInterest?, expectedLabel: String) {
-    assertThat(loiHelper.getLabel(Optional.ofNullable(loi))).isEqualTo(expectedLabel)
+  @Test
+  fun testLoiName_whenCustomIdIsAvailable() {
+    assertThat(loiHelper.getDisplayLoiName(TEST_LOI.copy(customId = "some value")))
+      .isEqualTo("Point (some value)")
   }
 
-  private fun assertSubtitle(loi: LocationOfInterest?, expectedSubtitle: String) {
-    assertThat(loiHelper.getSubtitle(Optional.ofNullable(loi))).isEqualTo(expectedSubtitle)
+  @Test
+  fun testArea_whenCustomIdIsAvailable() {
+    assertThat(loiHelper.getDisplayLoiName(TEST_AREA.copy(customId = "some value")))
+      .isEqualTo("Area (some value)")
+  }
+
+  @Test
+  fun testArea_whenCustomIdIsNotAvailable_usesPropertiesId() {
+    assertThat(
+        loiHelper.getDisplayLoiName(
+          TEST_AREA.copy(customId = "", properties = mapOf("id" to "property id"))
+        )
+      )
+      .isEqualTo("Area (property id)")
+  }
+
+  @Test
+  fun testLoiName_whenPropertiesNameIsAvailable() {
+    assertThat(
+        loiHelper.getDisplayLoiName(TEST_LOI.copy(properties = mapOf("name" to "custom name")))
+      )
+      .isEqualTo("custom name")
+  }
+
+  @Test
+  fun testLoiName_whenCustomIdAndPropertiesNameIsAvailable() {
+    assertThat(
+        loiHelper.getDisplayLoiName(
+          TEST_LOI.copy(customId = "some value", properties = mapOf("name" to "custom name"))
+        )
+      )
+      .isEqualTo("custom name (some value)")
+  }
+
+  @Test
+  fun testLoiName_whenPropertiesDoesNotContainName() {
+    assertThat(
+        loiHelper.getDisplayLoiName(
+          TEST_LOI.copy(customId = "", properties = mapOf("not" to "a name field"))
+        )
+      )
+      .isEqualTo("Unnamed point")
+  }
+
+  @Test
+  fun testLoiJobName_whenNameIsNull() {
+    val job = TEST_LOI.job.copy(name = null)
+    assertThat(loiHelper.getJobName(TEST_LOI.copy(job = job))).isNull()
+  }
+
+  @Test
+  fun testLoiJobName_whenNameIsAvailable() {
+    val job = TEST_LOI.job.copy(name = "job name")
+    assertThat(loiHelper.getJobName(TEST_LOI.copy(job = job))).isEqualTo("job name")
   }
 
   companion object {
-    private const val TEST_USER_NAME = "some user name"
+    private val TEST_LOI = FakeData.LOCATION_OF_INTEREST.copy()
+    private val TEST_AREA = FakeData.AREA_OF_INTEREST.copy()
     private const val TEST_JOB_NAME = "some job name"
   }
 }

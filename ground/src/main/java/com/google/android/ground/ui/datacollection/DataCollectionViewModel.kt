@@ -99,12 +99,12 @@ internal constructor(
     MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
   val loiName: StateFlow<String> =
     (if (loiId == null) flowOf("")
-    else
-      flow {
-        val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
-        val label = locationOfInterestHelper.getLabel(loi)
-        emit(label)
-      })
+      else
+        flow {
+          val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
+          val label = locationOfInterestHelper.getDisplayLoiName(loi)
+          emit(label)
+        })
       .stateIn(viewModelScope, SharingStarted.Lazily, "")
 
   private val taskViewModels: MutableStateFlow<MutableList<AbstractTaskViewModel>> =
