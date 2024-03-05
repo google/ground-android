@@ -34,6 +34,9 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
   @Inject lateinit var crashReportingTree: CrashReportingTree
   @Inject lateinit var workerFactory: HiltWorkerFactory
 
+  override val workManagerConfiguration: Configuration
+    get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
+
   private fun isReleaseBuild(): Boolean = BuildConfig.BUILD_TYPE.contentEquals("release")
 
   override fun onCreate() {
@@ -46,9 +49,6 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
       setStrictMode()
     }
   }
-
-  override fun getWorkManagerConfiguration(): Configuration =
-    Configuration.Builder().setWorkerFactory(workerFactory).build()
 
   private fun setStrictMode() {
     // NOTE: Enabling strict thread policy causes Maps SDK to lag on pan and zoom. Enable

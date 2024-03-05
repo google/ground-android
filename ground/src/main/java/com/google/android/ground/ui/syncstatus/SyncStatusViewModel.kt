@@ -25,7 +25,6 @@ import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.LocationOfInterestHelper
-import java.util.Optional
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -71,8 +70,8 @@ internal constructor(
     return MutationDetail(
       user = user.displayName,
       mutation = mutation,
-      loiLabel = locationOfInterestHelper.getLabel(loi),
-      loiSubtitle = locationOfInterestHelper.getSubtitle(Optional.of(loi)),
+      loiLabel = locationOfInterestHelper.getDisplayLoiName(loi),
+      loiSubtitle = locationOfInterestHelper.getSubtitle(loi),
     )
   }
 }

@@ -90,7 +90,7 @@ internal constructor(
       )
 
   init {
-    remoteTileSources = surveyRepository.activeSurvey!!.tileSources
+    remoteTileSources = offlineAreaRepository.getDefaultTileSources()
   }
 
   fun onDownloadClick() {

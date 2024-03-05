@@ -99,7 +99,7 @@ internal constructor(
       else
         flow {
           val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
-          val label = locationOfInterestHelper.getLabel(loi)
+          val label = locationOfInterestHelper.getDisplayLoiName(loi)
           emit(label)
         })
       .stateIn(viewModelScope, SharingStarted.Lazily, "")
