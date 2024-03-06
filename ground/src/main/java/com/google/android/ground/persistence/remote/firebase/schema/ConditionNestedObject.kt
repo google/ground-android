@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,17 @@ package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.firebase.firestore.IgnoreExtraProperties
 
-/** Firestore representation of a data collection task. */
+/** Firestore representation of a task condition. */
 @IgnoreExtraProperties
-data class TaskNestedObject(
-  val index: Int? = null,
-  val type: String? = null,
-  val cardinality: String? = null,
-  val label: String? = null,
-  val options: Map<String, OptionNestedObject>? = null,
-  val required: Boolean? = null,
-  val addLoiTask: Boolean? = false,
-  val condition: ConditionNestedObject? = null,
+data class ConditionNestedObject(
+  val matchType: String? = null,
+  val expressions: List<ExpressionNestedObject>? = null,
+)
+
+/** Firestore representation of a task condition expression. */
+@IgnoreExtraProperties
+data class ExpressionNestedObject(
+  val expressionType: String? = null,
+  val taskId: String? = null,
+  val optionIds: List<String>? = null
 )

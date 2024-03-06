@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.dao
 
-package com.google.android.ground.persistence.remote.firebase.schema
+import androidx.room.Dao
+import com.google.android.ground.persistence.local.room.entity.ConditionEntity
 
-import com.google.firebase.firestore.IgnoreExtraProperties
-
-/** Firestore representation of a data collection task. */
-@IgnoreExtraProperties
-data class TaskNestedObject(
-  val index: Int? = null,
-  val type: String? = null,
-  val cardinality: String? = null,
-  val label: String? = null,
-  val options: Map<String, OptionNestedObject>? = null,
-  val required: Boolean? = null,
-  val addLoiTask: Boolean? = false,
-  val condition: ConditionNestedObject? = null,
-)
+@Dao interface ConditionDao : BaseDao<ConditionEntity>

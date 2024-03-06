@@ -66,7 +66,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?,
+    savedInstanceState: Bundle?
   ): View? {
     super.onCreateView(inflater, container, savedInstanceState)
     taskView = onCreateTaskView(inflater)
@@ -155,11 +155,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   private fun moveToPrevious() {
-    lifecycleScope.launch { dataCollectionViewModel.onPreviousClicked(position, viewModel) }
+    lifecycleScope.launch { dataCollectionViewModel.onPreviousClicked(viewModel) }
   }
 
   fun moveToNext() {
-    lifecycleScope.launch { dataCollectionViewModel.onNextClicked(position, viewModel) }
+    lifecycleScope.launch { dataCollectionViewModel.onNextClicked(viewModel) }
   }
 
   fun addUndoButton() =
@@ -178,7 +178,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
           ButtonAction.Location.START -> taskView.actionButtonsContainer.startButtons
           ButtonAction.Location.END -> taskView.actionButtonsContainer.endButtons
         },
-        layoutInflater,
+        layoutInflater
       )
     buttonsIndex[buttons.size] = action
     buttons[action] = button

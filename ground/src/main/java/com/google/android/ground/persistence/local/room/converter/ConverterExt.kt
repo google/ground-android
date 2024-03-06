@@ -30,12 +30,16 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.DraftSubmission
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.SubmissionData
+import com.google.android.ground.model.task.Condition
+import com.google.android.ground.model.task.Expression
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.model.task.TaskId
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
 import com.google.android.ground.persistence.local.room.entity.*
 import com.google.android.ground.persistence.local.room.fields.*
+import com.google.android.ground.persistence.local.room.relations.ConditionEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.JobEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations
@@ -417,10 +421,19 @@ fun TaskEntityAndRelations.toModelObject(): Task {
 
   if (multipleChoiceEntities.isNotEmpty()) {
     if (multipleChoiceEntities.size > 1) {
-      Timber.e("More than 1 multiple choice found for task")
+      Timber.e("More than 1 multiple choice found for task: $taskEntity")
     }
 
     multipleChoice = multipleChoiceEntities[0].toModelObject(optionEntities)
+  }
+
+  var condition: Condition? = null
+
+  if (conditionEntityAndRelations.isNotEmpty()) {
+    if (conditionEntityAndRelations.size > 1) {
+      Timber.e("More than 1 condition found for task: $taskEntity")
+    }
+    condition = conditionEntityAndRelations[0].toModelObject()
   }
 
   return Task(
@@ -430,7 +443,8 @@ fun TaskEntityAndRelations.toModelObject(): Task {
     taskEntity.label!!,
     taskEntity.isRequired,
     multipleChoice,
-    taskEntity.isAddLoiTask
+    taskEntity.isAddLoiTask,
+    condition,
   )
 }
 
@@ -439,6 +453,39 @@ fun User.toLocalDataStoreObject() =
 
 fun UserEntity.toModelObject() =
   User(id = id, email = email, displayName = displayName, photoUrl = photoUrl)
+
+fun Condition.toLocalDataStoreObject(parentTaskId: TaskId) =
+  ConditionEntity(parentTaskId = parentTaskId, matchType = MatchEntityType.fromMatchType(matchType))
+
+fun ConditionEntityAndRelations.toModelObject(): Condition? {
+  val expressions: List<Expression>?
+
+  if (expressionEntities.isEmpty()) {
+    return null
+  } else {
+    expressions = expressionEntities.map { it.toModelObject() }
+  }
+
+  return Condition(
+    conditionEntity.matchType.toMatchType(),
+    expressions = expressions,
+  )
+}
+
+fun Expression.toLocalDataStoreObject(parentTaskId: TaskId): ExpressionEntity =
+  ExpressionEntity(
+    parentTaskId = parentTaskId,
+    expressionType = ExpressionEntityType.fromExpressionType(expressionType),
+    taskId = taskId,
+    optionIds = optionIds.joinToString(",")
+  )
+
+fun ExpressionEntity.toModelObject(): Expression =
+  Expression(
+    expressionType = expressionType.toExpressionType(),
+    taskId = taskId,
+    optionIds = optionIds?.split(',')?.toSet() ?: setOf(),
+  )
 
 @Throws(LocalDataConsistencyException::class)
 fun DraftSubmissionEntity.toModelObject(survey: Survey): DraftSubmission {

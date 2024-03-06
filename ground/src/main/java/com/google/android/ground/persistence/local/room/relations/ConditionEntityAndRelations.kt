@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,7 @@ package com.google.android.ground.persistence.local.room.relations
 import androidx.room.Embedded
 import androidx.room.Relation
 import com.google.android.ground.persistence.local.room.entity.ConditionEntity
-import com.google.android.ground.persistence.local.room.entity.MultipleChoiceEntity
-import com.google.android.ground.persistence.local.room.entity.OptionEntity
-import com.google.android.ground.persistence.local.room.entity.TaskEntity
+import com.google.android.ground.persistence.local.room.entity.ExpressionEntity
 
 /**
  * Represents relationship between TaskEntity, MultipleChoiceEntity, OptionEntity, and
@@ -28,12 +26,12 @@ import com.google.android.ground.persistence.local.room.entity.TaskEntity
  *
  * Querying any of the below data classes automatically loads the task annotated as @Relation.
  */
-data class TaskEntityAndRelations(
-  @Embedded val taskEntity: TaskEntity,
-  @Relation(parentColumn = "id", entityColumn = "task_id")
-  val multipleChoiceEntities: List<MultipleChoiceEntity>,
-  @Relation(parentColumn = "id", entityColumn = "task_id", entity = OptionEntity::class)
-  val optionEntities: List<OptionEntity>,
-  @Relation(parentColumn = "id", entityColumn = "parent_task_id", entity = ConditionEntity::class)
-  val conditionEntityAndRelations: List<ConditionEntityAndRelations>
+data class ConditionEntityAndRelations(
+  @Embedded val conditionEntity: ConditionEntity,
+  @Relation(
+    parentColumn = "parent_task_id",
+    entityColumn = "parent_task_id",
+    entity = ExpressionEntity::class
+  )
+  val expressionEntities: List<ExpressionEntity>
 )
