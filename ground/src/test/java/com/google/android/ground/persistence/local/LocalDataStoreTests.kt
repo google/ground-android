@@ -27,7 +27,6 @@ import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
-import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.SubmissionMutation
@@ -47,10 +46,8 @@ import com.google.android.ground.persistence.local.stores.*
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.GmsExt.getShellCoordinates
 import com.google.common.truth.Truth.assertThat
+import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
-import java.util.*
-import javax.inject.Inject
-import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -59,6 +56,9 @@ import org.hamcrest.Matchers
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.util.*
+import javax.inject.Inject
+import kotlin.test.assertFailsWith
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -408,14 +408,14 @@ class LocalDataStoreTests : BaseHiltTest() {
         Coordinates(49.863051, 8.647306),
         Coordinates(49.865374, 8.646920)
       )
-    private val TEST_LOI_MUTATION = createTestLoiMutation(TEST_POINT)
-    private val TEST_POLYGON_LOI_MUTATION = createTestAoiMutation(TEST_POLYGON_1)
+    private val TEST_LOI_MUTATION = FakeData.newLoiMutation(TEST_POINT)
+    private val TEST_POLYGON_LOI_MUTATION = FakeData.newAoiMutation(TEST_POLYGON_1)
     private val TEST_SUBMISSION_MUTATION =
       SubmissionMutation(
         job = TEST_JOB,
         submissionId = "submission id",
         deltas =
-          listOf(ValueDelta("task id", Task.Type.TEXT, TextResponse.fromString("updated value"))),
+        listOf(ValueDelta("task id", Task.Type.TEXT, TextResponse.fromString("updated value"))),
         id = 1L,
         type = Mutation.Type.CREATE,
         syncStatus = SyncStatus.PENDING,
@@ -425,34 +425,6 @@ class LocalDataStoreTests : BaseHiltTest() {
       )
     private val TEST_OFFLINE_AREA =
       OfflineArea("id_1", OfflineArea.State.PENDING, Bounds(0.0, 0.0, 0.0, 0.0), "Test Area", 0..14)
-
-    private fun createTestLoiMutation(point: Point): LocationOfInterestMutation =
-      LocationOfInterestMutation(
-        jobId = "job id",
-        geometry = point,
-        id = 1L,
-        locationOfInterestId = "loi id",
-        type = Mutation.Type.CREATE,
-        syncStatus = SyncStatus.PENDING,
-        userId = "user id",
-        surveyId = "survey id",
-        clientTimestamp = Date()
-      )
-
-    private fun createTestAoiMutation(
-      polygonVertices: List<Coordinates>
-    ): LocationOfInterestMutation =
-      LocationOfInterestMutation(
-        jobId = "job id",
-        geometry = Polygon(LinearRing(polygonVertices)),
-        id = 1L,
-        locationOfInterestId = "loi id",
-        type = Mutation.Type.CREATE,
-        syncStatus = SyncStatus.PENDING,
-        userId = "user id",
-        surveyId = "survey id",
-        clientTimestamp = Date()
-      )
 
     private fun assertEquivalent(mutation: SubmissionMutation, submission: Submission) {
       assertThat(mutation.submissionId).isEqualTo(submission.id)

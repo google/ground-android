@@ -19,16 +19,22 @@ import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
-import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.mutation.LocationOfInterestMutation
+import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.gms.features.FeatureClusterItem
+import java.util.Date
 
 /**
  * Shared test data constants. Tests are expected to override existing or set missing values when
@@ -129,4 +135,38 @@ object FakeData {
     type: Task.Type = Task.Type.TEXT,
     multipleChoice: MultipleChoice? = null
   ): Task = Task(id, 0, type, "", false, multipleChoice)
+
+  fun newLoiMutation(
+    point: Point,
+    mutationType: Mutation.Type = Mutation.Type.CREATE,
+    syncStatus: Mutation.SyncStatus = Mutation.SyncStatus.PENDING,
+  ): LocationOfInterestMutation =
+    LocationOfInterestMutation(
+      jobId = "job id",
+      geometry = point,
+      id = 1L,
+      locationOfInterestId = "loi id",
+      type = mutationType,
+      syncStatus = syncStatus,
+      userId = "user id",
+      surveyId = "survey id",
+      clientTimestamp = Date()
+    )
+
+  fun newAoiMutation(
+    polygonVertices: List<Coordinates>,
+    mutationType: Mutation.Type = Mutation.Type.CREATE,
+    syncStatus: Mutation.SyncStatus = Mutation.SyncStatus.PENDING,
+  ): LocationOfInterestMutation =
+    LocationOfInterestMutation(
+      jobId = "job id",
+      geometry = Polygon(LinearRing(polygonVertices)),
+      id = 1L,
+      locationOfInterestId = "loi id",
+      type = mutationType,
+      syncStatus = syncStatus,
+      userId = "user id",
+      surveyId = "survey id",
+      clientTimestamp = Date()
+    )
 }
