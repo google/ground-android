@@ -34,6 +34,7 @@ import com.sharedtest.FakeData
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -44,7 +45,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
-import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest

@@ -21,6 +21,7 @@ import com.google.android.ground.system.NetworkManager
 import com.google.android.ground.system.NetworkStatus
 import com.google.android.ground.system.auth.SignInState
 import com.google.android.ground.ui.common.AbstractViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,7 +29,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 class SignInViewModel
 @Inject
