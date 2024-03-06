@@ -48,6 +48,9 @@ import com.google.android.ground.ui.map.gms.GmsExt.getShellCoordinates
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
+import java.util.*
+import javax.inject.Inject
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -56,9 +59,6 @@ import org.hamcrest.Matchers
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.util.*
-import javax.inject.Inject
-import kotlin.test.assertFailsWith
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -415,7 +415,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         job = TEST_JOB,
         submissionId = "submission id",
         deltas =
-        listOf(ValueDelta("task id", Task.Type.TEXT, TextResponse.fromString("updated value"))),
+          listOf(ValueDelta("task id", Task.Type.TEXT, TextResponse.fromString("updated value"))),
         id = 1L,
         type = Mutation.Type.CREATE,
         syncStatus = SyncStatus.PENDING,

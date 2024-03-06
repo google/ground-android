@@ -149,9 +149,8 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     customId = customId,
     submissionCount = submissionCount,
     ownerEmail = ownerEmail,
-    isOpportunistic = isOpportunistic,
     properties = properties,
-    // TODO(#2300): Add `planned` field for local storage.
+    isPlanned = isPlanned,
   )
 
 fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
@@ -167,12 +166,12 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       geometry = geometry.getGeometry(),
       submissionCount = submissionCount,
       properties = properties,
+      isPlanned = isPlanned,
       job =
         survey.getJob(jobId = jobId)
           ?: throw LocalDataConsistencyException(
             "Unknown jobId ${this.jobId} in location of interest ${this.id}"
           )
-      // TODO(#2300): Add `planned` field for rendering use.
     )
   }
 
@@ -198,8 +197,8 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(user: User): LocationOfInt
     customId = customId,
     submissionCount = submissionCount,
     ownerEmail = ownerEmail,
-    isOpportunistic = isOpportunistic,
-    properties = properties
+    properties = properties,
+    isPlanned = isPlanned,
   )
 }
 
@@ -218,6 +217,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject() =
     lastError = lastError,
     retryCount = retryCount,
     newProperties = properties,
+    isPlanned = isPlanned,
   )
 
 fun LocationOfInterestMutationEntity.toModelObject() =
@@ -234,7 +234,8 @@ fun LocationOfInterestMutationEntity.toModelObject() =
     clientTimestamp = Date(clientTimestamp),
     lastError = lastError,
     retryCount = retryCount,
-    properties = newProperties
+    properties = newProperties,
+    isPlanned = isPlanned,
   )
 
 fun MultipleChoiceEntity.toModelObject(optionEntities: List<OptionEntity>): MultipleChoice {

@@ -48,15 +48,10 @@ data class LocationOfInterest(
    * the user.
    */
   val ownerEmail: String? = null,
-  /**
-   * Whether this LOI was created opportunistically by the user through the Suggest LOI flow, or
-   * false if the LOI was created by the survey organizer.
-   */
-  val isOpportunistic: Boolean = false,
   /** Custom map of properties for this LOI. Corresponds to the properties field in GeoJSON */
   val properties: LoiProperties = mapOf(),
   /** Whether the LOI was predefined in the survey or not (i.e. added ad hoc). */
-  val planned: Boolean? = null,
+  val isPlanned: Boolean? = null,
 ) {
 
   /**
@@ -76,8 +71,8 @@ data class LocationOfInterest(
       geometry = geometry,
       submissionCount = submissionCount,
       ownerEmail = ownerEmail,
-      isOpportunistic = isOpportunistic,
       properties = properties,
+      isPlanned = isPlanned,
     )
 
   fun getProperty(key: String): String = properties[key]?.toString() ?: ""

@@ -33,7 +33,7 @@ object LoiConverter {
   const val GEOMETRY_COORDINATES = "coordinates"
   const val GEOMETRY = "geometry"
   const val SUBMISSION_COUNT = "submissionCount"
-  const val PLANNED = "planned"
+  const val IS_PLANNED = "planned"
 
   fun toLoi(survey: Survey, doc: DocumentSnapshot): Result<LocationOfInterest> = runCatching {
     toLoiUnchecked(survey, doc)
@@ -73,7 +73,7 @@ object LoiConverter {
       geometry = geometry,
       submissionCount = submissionCount,
       properties = loiDoc.properties ?: mapOf(),
-      planned = loiDoc.planned,
+      isPlanned = loiDoc.planned,
     )
   }
 }

@@ -39,7 +39,6 @@ data class LocationOfInterestEntity(
   val customId: String,
   val submissionCount: Int,
   val ownerEmail: String?,
-  val isOpportunistic: Boolean,
   val properties: LoiProperties,
-  // TODO(#2300): Add `planned` field for local storage.
+  val isPlanned: Boolean?,
 )
