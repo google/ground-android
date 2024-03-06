@@ -139,6 +139,7 @@
   <string name="read_only_data_collection_hint">Survey is read-only</string>
   <string name="predefined_data_collection_hint">Zoom in to a data collection site to collect data</string>
   <string name="no_submissions">No submissions</string>
+  <string name="dismiss_info_popup">Dismiss</string>
   <plurals name="submission_count">
     <item quantity="one">%d submission</item>
     <item quantity="other">%d submissions</item>

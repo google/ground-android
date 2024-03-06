@@ -64,7 +64,7 @@ class EphemeralPopups @Inject constructor(private val context: Application) {
   inner class InfoPopup(view: View, @StringRes messageId: Int, duration: PopupDuration) {
     private var snackbar: Snackbar =
       Snackbar.make(view, context.resources.getString(messageId), durationToSnackDuration(duration))
-        .setAction("Dismiss") { this.dismiss() }
+        .setAction(context.getString(R.string.dismiss_info_popup)) { this.dismiss() }
     val isShown: Boolean
       get() = this.snackbar.isShown
 

@@ -163,7 +163,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       ephemeralPopups.InfoPopup(
         binding.bottomContainer,
         messageId,
-        EphemeralPopups.PopupDuration.SHORT,
+        EphemeralPopups.PopupDuration.LONG,
       )
     infoPopup.show()
   }
