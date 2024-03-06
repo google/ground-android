@@ -37,7 +37,6 @@ import com.sharedtest.FakeData.TASK_2_NAME
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.Matchers.*
@@ -47,10 +46,12 @@ import org.mockito.ArgumentCaptor
 import org.mockito.Captor
 import org.mockito.Mock
 import org.mockito.kotlin.eq
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowToast
+import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -135,6 +136,73 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Next click saves draft`() = runWithTestDispatcher {
+    setupSubmission()
+    setupFragment()
+
+    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
+    onView(allOf(withText("Next"), isDisplayed())).perform(click())
+    advanceUntilIdle()
+
+    verify(submissionRepository).deleteDraftSubmission()
+    verify(submissionRepository)
+      .saveDraftSubmission(
+        eq(JOB.id),
+        eq(LOCATION_OF_INTEREST.id),
+        eq(SURVEY.id),
+        capture(deltaCaptor),
+      )
+
+    val expectedDeltas =
+      listOf(
+        ValueDelta(
+          SUBMISSION.job.tasksSorted[0].id,
+          Task.Type.TEXT,
+          TextResponse.fromString("user input"),
+        )
+      )
+
+    expectedDeltas.forEach { value -> assertThat(deltaCaptor.value).contains(value) }
+  }
+
+  @Test
+  fun `Clicking previous button saves draft`() = runWithTestDispatcher {
+    setupSubmission()
+    setupFragment()
+
+    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
+    onView(allOf(withText("Next"), isDisplayed())).perform(click())
+    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input 2"))
+    onView(allOf(withText("Previous"), isDisplayed(), isEnabled())).perform(click())
+    advanceUntilIdle()
+
+    verify(submissionRepository, times(2)).deleteDraftSubmission()
+    verify(submissionRepository, times(2))
+      .saveDraftSubmission(
+        eq(JOB.id),
+        eq(LOCATION_OF_INTEREST.id),
+        eq(SURVEY.id),
+        capture(deltaCaptor),
+      )
+
+    val expectedDeltas =
+      listOf(
+        ValueDelta(
+          SUBMISSION.job.tasksSorted[0].id,
+          Task.Type.TEXT,
+          TextResponse.fromString("user input"),
+        ),
+        ValueDelta(
+          SUBMISSION.job.tasksSorted[1].id,
+          Task.Type.TEXT,
+          TextResponse.fromString("user input 2"),
+        ),
+      )
+
+    expectedDeltas.forEach { value -> assertThat(deltaCaptor.value).contains(value) }
+  }
+
+  @Test
   fun `Click previous button does not show initial task if validation failed`() {
     setupSubmission()
     setupFragment()
@@ -159,12 +227,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         ValueDelta(
           SUBMISSION.job.tasksSorted[0].id,
           Task.Type.TEXT,
-          TextResponse.fromString(task1Response)
+          TextResponse.fromString(task1Response),
         ),
         ValueDelta(
           SUBMISSION.job.tasksSorted[1].id,
           Task.Type.TEXT,
-          TextResponse.fromString(task2Response)
+          TextResponse.fromString(task2Response),
         ),
       )
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task1Response))
@@ -219,7 +287,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     launchFragmentWithNavController<DataCollectionFragment>(
       argsBundle,
-      destId = R.id.data_collection_fragment
+      destId = R.id.data_collection_fragment,
     ) {
       fragment = this as DataCollectionFragment
     }
