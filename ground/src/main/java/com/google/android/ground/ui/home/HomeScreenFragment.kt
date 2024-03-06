@@ -92,6 +92,11 @@ class HomeScreenFragment :
 
     binding.navView.setNavigationItemSelectedListener(this)
     updateNavHeader()
+
+    // Re-open data collection screen if any drafts are present
+    viewLifecycleOwner.lifecycleScope.launch {
+      homeScreenViewModel.maybeNavigateToDraftSubmission()
+    }
   }
 
   private fun updateNavHeader() =

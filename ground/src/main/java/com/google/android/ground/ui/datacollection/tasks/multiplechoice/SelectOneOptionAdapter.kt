@@ -29,10 +29,11 @@ import com.google.android.ground.ui.datacollection.tasks.multiplechoice.SelectOn
  */
 class SelectOneOptionAdapter(
   private val options: List<Option>,
+  private val currentlySelectedPosition: Int,
   private val handleOptionSelected: (Option) -> Unit
 ) : RecyclerView.Adapter<ViewHolder>() {
 
-  private var selectedIndex = -1
+  private var selectedIndex = currentlySelectedPosition
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
     ViewHolder(
