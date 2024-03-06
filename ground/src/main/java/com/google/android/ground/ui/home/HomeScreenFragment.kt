@@ -94,7 +94,9 @@ class HomeScreenFragment :
     updateNavHeader()
 
     // Re-open data collection screen if any drafts are present
-    homeScreenViewModel.maybeNavigateToDraftSubmission()
+    viewLifecycleOwner.lifecycleScope.launch {
+      homeScreenViewModel.maybeNavigateToDraftSubmission()
+    }
   }
 
   private fun updateNavHeader() =

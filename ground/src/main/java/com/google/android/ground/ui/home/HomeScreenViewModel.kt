@@ -48,23 +48,19 @@ internal constructor(
   // TODO(#1730): Allow tile source configuration from a non-survey accessible source.
   val showOfflineAreaMenuItem: LiveData<Boolean> = MutableLiveData(true)
 
-  fun maybeNavigateToDraftSubmission() =
-    viewModelScope.launch {
-      val draftId = localValueStore.draftSubmissionId
-      if (draftId.isNullOrEmpty()) {
-        // No draft submission found.
-        return@launch
-      }
+  suspend fun maybeNavigateToDraftSubmission() {
+    val draftId = localValueStore.draftSubmissionId
+    val survey = surveyRepository.activeSurvey
 
-      val survey = surveyRepository.activeSurvey ?: return@launch
-      val draft = submissionRepository.getDraftSubmission(draftId, survey) ?: return@launch
+    // Missing draft submission
+    if (draftId.isNullOrEmpty() || survey == null) {
+      return
+    }
 
-      // TODO: Check whether the previous user id matches with current user or not.
-      if (draft.surveyId != survey.id) {
-        Timber.e("Skipping draft submission, survey id doesn't match")
-        return@launch
-      }
+    val draft = submissionRepository.getDraftSubmission(draftId, survey)
 
+    // TODO: Check whether the previous user id matches with current user or not.
+    if (draft != null && draft.surveyId == survey.id) {
       navigator.navigate(
         HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
           draft.loiId,
@@ -74,6 +70,11 @@ internal constructor(
         )
       )
     }
+
+    if (draft != null && draft.surveyId != survey.id) {
+      Timber.e("Skipping draft submission, survey id doesn't match")
+    }
+  }
 
   fun openNavDrawer() {
     viewModelScope.launch { _openDrawerRequests.emit(Unit) }
