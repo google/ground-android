@@ -16,6 +16,7 @@
 
 package com.google.android.ground.ui.datacollection
 
+import android.os.Bundle
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
@@ -26,6 +27,7 @@ import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.submission.TextResponse
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.JOB
@@ -37,6 +39,7 @@ import com.sharedtest.FakeData.TASK_2_NAME
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.Matchers.*
@@ -51,7 +54,6 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowToast
-import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -217,6 +219,40 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Load tasks from draft`() = runWithTestDispatcher {
+    // TODO(#708): add coverage for loading from draft for all types of tasks
+    val expectedDeltas =
+      listOf(
+        ValueDelta(
+          SUBMISSION.job.tasksSorted[0].id,
+          Task.Type.TEXT,
+          TextResponse.fromString("user input"),
+        ),
+        ValueDelta(
+          SUBMISSION.job.tasksSorted[1].id,
+          Task.Type.TEXT,
+          TextResponse.fromString("user input 2"),
+        ),
+      )
+
+    setupSubmission()
+    setupFragment(
+      DataCollectionFragmentArgs.Builder(
+          LOCATION_OF_INTEREST.id,
+          JOB.id,
+          true,
+          SubmissionDeltasConverter.toString(expectedDeltas),
+        )
+        .build()
+        .toBundle()
+    )
+
+    onView(withText("user input")).check(matches(isDisplayed()))
+    onView(allOf(withText("Next"), isDisplayed())).perform(click())
+    onView(withText("user input 2")).check(matches(isDisplayed()))
+  }
+
+  @Test
   fun onNextClicked_onFinalTask_resultIsSaved() = runWithTestDispatcher {
     setupSubmission()
     setupFragment()
@@ -281,9 +317,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     }
   }
 
-  private fun setupFragment() {
+  private fun setupFragment(fragmentArgs: Bundle? = null) {
     val argsBundle =
-      DataCollectionFragmentArgs.Builder(LOCATION_OF_INTEREST.id, JOB.id).build().toBundle()
+      fragmentArgs
+        ?: DataCollectionFragmentArgs.Builder(LOCATION_OF_INTEREST.id, JOB.id, false, null)
+          .build()
+          .toBundle()
 
     launchFragmentWithNavController<DataCollectionFragment>(
       argsBundle,
