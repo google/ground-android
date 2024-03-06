@@ -71,8 +71,9 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupSubmission()
     setupFragment()
 
-    onView(withText("Unnamed point")).check(matches(isDisplayed()))
-    onView(withText(JOB.name)).check(matches(isDisplayed()))
+    runner()
+      .validateTextIsDisplayed("Unnamed point")
+      .validateTextIsDisplayed(requireNotNull(JOB.name))
   }
 
   @Test
@@ -89,23 +90,24 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupSubmission()
     setupFragment()
 
-    onView(allOf(withText("Next"), isDisplayed(), isNotEnabled())).perform(click())
-
-    onView(withText(TASK_1_NAME)).check(matches(isDisplayed()))
-    onView(withText(TASK_2_NAME)).check(matches(not(isDisplayed())))
+    runner()
+      .clickNextButton()
+      .validateTextIsDisplayed(TASK_1_NAME)
+      .validateTextIsNotDisplayed(TASK_2_NAME)
   }
 
   @Test
   fun onNextClicked_newTaskIsShown() {
     setupSubmission()
     setupFragment()
-    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
 
-    onView(allOf(withText("Next"), isDisplayed())).perform(click())
+    runner()
+      .inputText("user input")
+      .clickNextButton()
+      .validateTextIsNotDisplayed(TASK_1_NAME)
+      .validateTextIsDisplayed(TASK_2_NAME)
 
     assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
-    onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
-    onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
   }
 
   @Test
@@ -113,13 +115,14 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupSubmission()
     setupFragment()
 
-    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
-    onView(allOf(withText("Next"), isDisplayed())).perform(click())
-    assertThat(fragment.onBack()).isTrue()
+    runner()
+      .inputText("user input")
+      .clickNextButton()
+      .pressBackButton(true)
+      .validateTextIsDisplayed(TASK_1_NAME)
+      .validateTextIsNotDisplayed(TASK_2_NAME)
 
     assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
-    onView(withText(TASK_1_NAME)).check(matches(isDisplayed()))
-    onView(withText(TASK_2_NAME)).check(matches(not(isDisplayed())))
   }
 
   @Test
@@ -127,14 +130,15 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupSubmission()
     setupFragment()
 
-    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
-    onView(allOf(withText("Next"), isDisplayed())).perform(click())
-    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
-    onView(allOf(withText("Previous"), isDisplayed(), isEnabled())).perform(click())
+    runner()
+      .inputText("user input")
+      .clickNextButton()
+      .inputText("user input")
+      .clickPreviousButton()
+      .validateTextIsDisplayed(TASK_1_NAME)
+      .validateTextIsNotDisplayed(TASK_2_NAME)
 
     assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
-    onView(withText(TASK_1_NAME)).check(matches(isDisplayed()))
-    onView(withText(TASK_2_NAME)).check(matches(not(isDisplayed())))
   }
 
   @Test
@@ -142,9 +146,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupSubmission()
     setupFragment()
 
-    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
-    onView(allOf(withText("Next"), isDisplayed())).perform(click())
-    advanceUntilIdle()
+    runner().inputText("user input").clickNextButton()
 
     verify(submissionRepository).deleteDraftSubmission()
     verify(submissionRepository)
@@ -172,11 +174,11 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupSubmission()
     setupFragment()
 
-    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
-    onView(allOf(withText("Next"), isDisplayed())).perform(click())
-    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input 2"))
-    onView(allOf(withText("Previous"), isDisplayed(), isEnabled())).perform(click())
-    advanceUntilIdle()
+    runner()
+      .inputText("user input")
+      .clickNextButton()
+      .inputText("user input 2")
+      .clickPreviousButton()
 
     verify(submissionRepository, times(2)).deleteDraftSubmission()
     verify(submissionRepository, times(2))
@@ -209,13 +211,14 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupSubmission()
     setupFragment()
 
-    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText("user input"))
-    onView(allOf(withText("Next"), isDisplayed())).perform(click())
-    onView(allOf(withText("Previous"), isDisplayed(), isEnabled())).perform(click())
+    runner()
+      .inputText("user input")
+      .clickNextButton()
+      .clickPreviousButton()
+      .validateTextIsDisplayed(TASK_2_NAME)
+      .validateTextIsNotDisplayed(TASK_1_NAME)
 
     assertThat(ShadowToast.shownToastCount()).isEqualTo(1)
-    onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
-    onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
   }
 
   @Test
@@ -247,9 +250,10 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         .toBundle()
     )
 
-    onView(withText("user input")).check(matches(isDisplayed()))
-    onView(allOf(withText("Next"), isDisplayed())).perform(click())
-    onView(withText("user input 2")).check(matches(isDisplayed()))
+    runner()
+      .validateTextIsDisplayed("user input")
+      .clickNextButton()
+      .validateTextIsDisplayed("user input 2")
   }
 
   @Test
@@ -271,15 +275,14 @@ class DataCollectionFragmentTest : BaseHiltTest() {
           TextResponse.fromString(task2Response),
         ),
       )
-    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task1Response))
-    onView(allOf(withText("Next"), isDisplayed())).perform(click())
-    onView(withText(TASK_1_NAME)).check(matches(not(isDisplayed())))
-    onView(withText(TASK_2_NAME)).check(matches(isDisplayed()))
 
-    // Click "done" on final task
-    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(task2Response))
-    onView(allOf(withText("Done"), isDisplayed())).perform(click())
-    advanceUntilIdle()
+    runner()
+      .inputText(task1Response)
+      .clickNextButton()
+      .validateTextIsNotDisplayed(TASK_1_NAME)
+      .validateTextIsDisplayed(TASK_2_NAME)
+      .inputText(task2Response)
+      .clickDoneButton() // Click "done" on final task
 
     verify(submissionRepository)
       .saveSubmission(eq(SURVEY.id), eq(LOCATION_OF_INTEREST.id), capture(deltaCaptor))
@@ -291,7 +294,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupSubmission()
     setupFragment()
 
-    assertThat(fragment.onBack()).isFalse()
+    runner().pressBackButton(false)
   }
 
   private fun setupSubmission(tasks: Map<String, Task>? = null) = runWithTestDispatcher {
@@ -329,6 +332,56 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       destId = R.id.data_collection_fragment,
     ) {
       fragment = this as DataCollectionFragment
+    }
+  }
+
+  private fun runner() = Runner(this, fragment)
+
+  /** Helper class for interacting with the data collection tasks and verifying the ui state. */
+  class Runner(
+    private val baseHiltTest: BaseHiltTest,
+    private val fragment: DataCollectionFragment,
+  ) {
+
+    internal fun clickNextButton(): Runner {
+      clickButton("Next")
+      return this
+    }
+
+    internal fun clickPreviousButton(): Runner {
+      clickButton("Previous")
+      return this
+    }
+
+    internal fun clickDoneButton(): Runner {
+      clickButton("Done")
+      return this
+    }
+
+    private fun clickButton(text: String) =
+      baseHiltTest.runWithTestDispatcher {
+        onView(allOf(withText(text), isDisplayed())).perform(click())
+        advanceUntilIdle()
+      }
+
+    internal fun inputText(text: String): Runner {
+      onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(text))
+      return this
+    }
+
+    internal fun validateTextIsDisplayed(text: String): Runner {
+      onView(withText(text)).check(matches(isDisplayed()))
+      return this
+    }
+
+    internal fun validateTextIsNotDisplayed(text: String): Runner {
+      onView(withText(text)).check(matches(not(isDisplayed())))
+      return this
+    }
+
+    internal fun pressBackButton(result: Boolean): Runner {
+      assertThat(fragment.onBack()).isEqualTo(result)
+      return this
     }
   }
 }
