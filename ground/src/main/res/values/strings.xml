@@ -61,9 +61,9 @@
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Build %s</string>
 
-  <string name="tos_title">Terms Of Service</string>
+  <string name="tos_title">Terms of service</string>
   <string name="agree_terms">Agree</string>
-  <string name="agree_checkbox">I agree to the Terms of Service</string>
+  <string name="agree_checkbox">I agree</string>
   <string name="date">Date</string>
   <string name="time">Time</string>
   <!-- Other strings (to be organized) -->
