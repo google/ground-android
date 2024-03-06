@@ -41,6 +41,10 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
   override fun initialize(job: Job, task: Task, value: Value?) {
     super.initialize(job, task, value)
     pinColor = job.getDefaultColor()
+
+    // Drop a marker for current value
+    // TODO: The restored marker appears to be slightly shifted. Check for accuracy of lat/lng.
+    (value as? DropPinTaskResult)?.let { dropMarker(it.location) }
   }
 
   fun updateCameraPosition(position: CameraPosition) {
@@ -54,7 +58,12 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
 
   fun updateResponse(point: Point) {
     setValue(DropPinTaskResult(point))
-    features.postValue(setOf(createFeature(point)))
+    dropMarker(point)
+  }
+
+  private fun dropMarker(point: Point) {
+    val feature = createFeature(point)
+    features.postValue(setOf(feature))
   }
 
   /** Creates a new map [Feature] representing the point placed by the user. */
@@ -66,7 +75,7 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
       // TODO: Set correct pin color.
       style = Feature.Style(pinColor),
       clusterable = false,
-      selected = true
+      selected = true,
     )
 
   fun dropPin() {

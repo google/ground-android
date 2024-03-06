@@ -26,7 +26,9 @@ import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
 import com.google.android.ground.repository.LocationOfInterestRepository
+import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
@@ -75,20 +77,22 @@ internal constructor(
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   private val savedStateHandle: SavedStateHandle,
+  private val submissionRepository: SubmissionRepository,
   locationOfInterestRepository: LocationOfInterestRepository,
   surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
-  private val jobId: String? = savedStateHandle[TASK_JOB_ID_KEY]
+  private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
 
   /** True iff the user is expected to produce a new LOI in the current data collection flow. */
   private val isAddLoiFlow = loiId == null
 
-  private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
-  private val job: Job =
-    activeSurvey.getJob(requireNotNull(jobId)) ?: error("couldn't retrieve job for $jobId")
+  private var shouldLoadFromDraft: Boolean = savedStateHandle[TASK_SHOULD_LOAD_FROM_DRAFT] ?: false
+  private var draftDeltas: List<ValueDelta>? = null
 
+  private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
+  private val job: Job = activeSurvey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
   // LOI creation task is included only on "new data collection site" flow..
   val tasks: List<Task> =
     if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
@@ -118,6 +122,31 @@ internal constructor(
 
   lateinit var submissionId: String
 
+  private fun getDraftDeltas(): List<ValueDelta> {
+    if (!shouldLoadFromDraft) return listOf()
+    if (draftDeltas != null) return draftDeltas as List<ValueDelta>
+
+    val serializedDraftValues = savedStateHandle[TASK_DRAFT_VALUES] ?: ""
+    if (serializedDraftValues.isEmpty()) {
+      Timber.e("Attempting load from draft submission failed, not found")
+      return listOf()
+    }
+
+    draftDeltas = SubmissionDeltasConverter.fromString(job, serializedDraftValues)
+    return draftDeltas as List<ValueDelta>
+  }
+
+  private fun getValueFromDraft(task: Task): Value? {
+    for ((taskId, taskType, value) in getDraftDeltas()) {
+      if (taskId == task.id && taskType == task.type) {
+        Timber.d("Value $value found for task $task")
+        return value
+      }
+    }
+    Timber.w("Value not found for task $task")
+    return null
+  }
+
   fun getTaskViewModel(position: Int): AbstractTaskViewModel? {
     val viewModels = taskViewModels.value
 
@@ -127,8 +156,8 @@ internal constructor(
     }
     return try {
       val viewModel = viewModelFactory.create(getViewModelClass(task.type))
-      // TODO(#1146): Pass in the existing value if there is one.
-      viewModel.initialize(job, task, null)
+      val value: Value? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
+      viewModel.initialize(job, task, value)
       addTaskViewModel(viewModel)
       viewModel
     } catch (e: Exception) {
@@ -146,7 +175,7 @@ internal constructor(
    * Validates the user's input and displays an error if the user input was invalid. Moves back to
    * the previous Data Collection screen if the user input was valid.
    */
-  fun onPreviousClicked(taskViewModel: AbstractTaskViewModel) {
+  suspend fun onPreviousClicked(taskViewModel: AbstractTaskViewModel) {
     check(getPositionInTaskSequence().first != 0)
 
     val validationError = taskViewModel.validate()
@@ -154,6 +183,9 @@ internal constructor(
       popups.get().ErrorPopup().show(validationError)
       return
     }
+
+    data[taskViewModel.task] = taskViewModel.taskValue.firstOrNull()
+
     step(-1)
   }
 
@@ -173,8 +205,8 @@ internal constructor(
     if (!isLastPosition()) {
       step(1)
     } else {
-      val deltas = data.map { (task, value) -> ValueDelta(task.id, task.type, value) }
-      saveChanges(deltas)
+      clearDraft()
+      saveChanges(getDeltas())
 
       // Move to home screen and display a confirmation dialog after that.
       navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
@@ -184,6 +216,9 @@ internal constructor(
       )
     }
   }
+
+  private fun getDeltas(): List<ValueDelta> =
+    data.map { (task, value) -> ValueDelta(task.id, task.type, value) }
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(deltas: List<ValueDelta>) {
@@ -195,6 +230,22 @@ internal constructor(
       return 0
     }
     return tasks.indexOf(tasks.first { it.id == currentTaskId.value })
+  }
+  /** Persists the collected data as draft to local storage. */
+  private fun saveDraft() {
+    externalScope.launch(ioDispatcher) {
+      submissionRepository.saveDraftSubmission(
+        jobId = jobId,
+        loiId = loiId,
+        surveyId = surveyId,
+        deltas = getDeltas(),
+      )
+    }
+  }
+
+  /** Clears all persisted drafts from local storage. */
+  fun clearDraft() {
+    externalScope.launch(ioDispatcher) { submissionRepository.deleteDraftSubmission() }
   }
 
   /**
@@ -238,6 +289,10 @@ internal constructor(
         .take(Math.abs(stepCount) + 1)
         .last()
     savedStateHandle[TASK_POSITION_ID] = task.id
+
+    // Save collected data as draft
+    clearDraft()
+    saveDraft()
   }
 
   /** Returns true if the given task index is last if set, or the current active task. */
@@ -258,6 +313,8 @@ internal constructor(
     private const val TASK_JOB_ID_KEY = "jobId"
     private const val TASK_LOI_ID_KEY = "locationOfInterestId"
     private const val TASK_POSITION_ID = "currentTaskId"
+    private const val TASK_SHOULD_LOAD_FROM_DRAFT = "shouldLoadFromDraft"
+    private const val TASK_DRAFT_VALUES = "draftValues"
 
     fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
       when (taskType) {

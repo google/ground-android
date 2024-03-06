@@ -61,13 +61,13 @@
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Build %s</string>
 
-  <string name="tos_title">Terms Of Service</string>
+  <string name="tos_title">Terms of service</string>
   <string name="agree_terms">Agree</string>
-  <string name="agree_checkbox">I agree to the Terms of Service</string>
+  <string name="agree_checkbox">I agree</string>
   <string name="date">Date</string>
   <string name="time">Time</string>
   <!-- Other strings (to be organized) -->
-  <string name="sync_status">Sync Status</string>
+  <string name="sync_status">Sync status</string>
   <string name="layer_label_format">Job: %s</string>
 
   <string name="add_point">Add point</string>
@@ -139,6 +139,7 @@
   <string name="read_only_data_collection_hint">Survey is read-only</string>
   <string name="predefined_data_collection_hint">Zoom in to a data collection site to collect data</string>
   <string name="no_submissions">No submissions</string>
+  <string name="dismiss_info_popup">Dismiss</string>
   <plurals name="submission_count">
     <item quantity="one">%d submission</item>
     <item quantity="other">%d submissions</item>

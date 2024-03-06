@@ -61,24 +61,29 @@ class EphemeralPopups @Inject constructor(private val context: Application) {
   }
 
   /** Defines functions to render a popup that displays an informational message to the user. */
-  inner class InfoPopup {
-    fun show(
-      view: View,
-      @StringRes messageId: Int,
-      duration: PopupDuration = PopupDuration.INDEFINITE,
-    ) {
-      val msg = context.resources.getString(messageId)
-      showSnackbar(view, msg, duration)
+  inner class InfoPopup(view: View, @StringRes messageId: Int, duration: PopupDuration) {
+    private var snackbar: Snackbar =
+      Snackbar.make(view, context.resources.getString(messageId), durationToSnackDuration(duration))
+        .setAction(context.getString(R.string.dismiss_info_popup)) { this.dismiss() }
+    val isShown: Boolean
+      get() = this.snackbar.isShown
+
+    val view: View
+      get() = this.snackbar.view
+
+    fun show() = snackbar.show()
+
+    fun setAnchor(view: View) = snackbar.setAnchorView(view)
+
+    private fun dismiss() {
+      this.snackbar.dismiss()
     }
 
-    private fun showSnackbar(view: View, msg: String, duration: PopupDuration) {
-      val dur =
-        when (duration) {
-          PopupDuration.SHORT -> Snackbar.LENGTH_SHORT
-          PopupDuration.LONG -> Snackbar.LENGTH_LONG
-          PopupDuration.INDEFINITE -> Snackbar.LENGTH_INDEFINITE
-        }
-      Snackbar.make(view, msg, dur).show()
-    }
+    private fun durationToSnackDuration(duration: PopupDuration) =
+      when (duration) {
+        PopupDuration.SHORT -> Snackbar.LENGTH_SHORT
+        PopupDuration.LONG -> Snackbar.LENGTH_LONG
+        PopupDuration.INDEFINITE -> Snackbar.LENGTH_INDEFINITE
+      }
   }
 }

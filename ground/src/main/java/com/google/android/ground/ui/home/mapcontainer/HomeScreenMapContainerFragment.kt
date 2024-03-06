@@ -68,6 +68,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var binding: BasemapLayoutBinding
   private lateinit var adapter: MapCardAdapter
+  private lateinit var infoPopup: EphemeralPopups.InfoPopup
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -158,7 +159,13 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         surveyProperties.readOnly -> R.string.read_only_data_collection_hint
         else -> R.string.predefined_data_collection_hint
       }
-    ephemeralPopups.InfoPopup().show(binding.root, messageId, EphemeralPopups.PopupDuration.SHORT)
+    infoPopup =
+      ephemeralPopups.InfoPopup(
+        binding.bottomContainer,
+        messageId,
+        EphemeralPopups.PopupDuration.LONG,
+      )
+    infoPopup.show()
   }
 
   private fun setupMenuFab() {
@@ -215,6 +222,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
             cardUiData.loi.id,
             cardUiData.loi.job.id,
+            false,
+            null,
           )
         )
       is MapCardUiData.AddLoiCardUiData ->
@@ -222,6 +231,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
             null,
             cardUiData.job.id,
+            false,
+            null,
           )
         )
     }

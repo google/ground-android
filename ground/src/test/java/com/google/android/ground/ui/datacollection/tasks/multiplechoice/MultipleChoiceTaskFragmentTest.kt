@@ -77,7 +77,7 @@ class MultipleChoiceTaskFragmentTest :
 
   @Test
   fun taskFails_whenMultipleChoiceIsNull() {
-    assertThrows(NullPointerException::class.java) {
+    assertThrows(IllegalStateException::class.java) {
       setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = null))
     }
   }
