@@ -25,6 +25,7 @@ import com.google.android.ground.persistence.local.room.converter.JsonObjectType
 import com.google.android.ground.persistence.local.room.converter.LoiPropertiesMapConverter
 import com.google.android.ground.persistence.local.room.converter.StyleTypeConverter
 import com.google.android.ground.persistence.local.room.dao.ConditionDao
+import com.google.android.ground.persistence.local.room.dao.DraftSubmissionDao
 import com.google.android.ground.persistence.local.room.dao.ExpressionDao
 import com.google.android.ground.persistence.local.room.dao.JobDao
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao
@@ -39,6 +40,7 @@ import com.google.android.ground.persistence.local.room.dao.TaskDao
 import com.google.android.ground.persistence.local.room.dao.TileSourceDao
 import com.google.android.ground.persistence.local.room.dao.UserDao
 import com.google.android.ground.persistence.local.room.entity.ConditionEntity
+import com.google.android.ground.persistence.local.room.entity.DraftSubmissionEntity
 import com.google.android.ground.persistence.local.room.entity.ExpressionEntity
 import com.google.android.ground.persistence.local.room.entity.JobEntity
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity

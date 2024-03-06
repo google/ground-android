@@ -183,11 +183,10 @@ internal constructor(
       popups.get().ErrorPopup().show(validationError)
       return
     }
-    step(-1)
 
     data[taskViewModel.task] = taskViewModel.taskValue.firstOrNull()
 
-    saveProgressAndUpdatePosition(position - 1)
+    step(-1)
   }
 
   /**
@@ -205,7 +204,6 @@ internal constructor(
 
     if (!isLastPosition()) {
       step(1)
-      saveProgressAndUpdatePosition(position + 1)
     } else {
       clearDraft()
       saveChanges(getDeltas())
@@ -250,9 +248,6 @@ internal constructor(
     externalScope.launch(ioDispatcher) { submissionRepository.deleteDraftSubmission() }
   }
 
-  /** Returns the position of the task fragment visible to the user. */
-  fun getVisibleTaskPosition() = currentPosition.value
-
   /**
    * Get the current index within the computed task sequence, and the number of tasks in the
    * sequence, e.g (0, 2) means the first task of 2.
@@ -267,15 +262,6 @@ internal constructor(
       size++
     }
     return currentIndex to size
-  }
-
-  /** Stores the current progress locally and moves to the task at the given position. */
-  fun saveProgressAndUpdatePosition(position: Int) {
-    savedStateHandle[TASK_POSITION_KEY] = position
-
-    // Save collected data as draft
-    clearDraft()
-    saveDraft()
   }
 
   /**
@@ -303,6 +289,10 @@ internal constructor(
         .take(Math.abs(stepCount) + 1)
         .last()
     savedStateHandle[TASK_POSITION_ID] = task.id
+
+    // Save collected data as draft
+    clearDraft()
+    saveDraft()
   }
 
   /** Returns true if the given task index is last if set, or the current active task. */
