@@ -21,28 +21,29 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
-import com.google.android.ground.*
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
+import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.R
+import com.google.android.ground.capture
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
+import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.model.submission.TextResponse
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData.JOB
-import com.sharedtest.FakeData.LOCATION_OF_INTEREST
-import com.sharedtest.FakeData.SUBMISSION
-import com.sharedtest.FakeData.SURVEY
-import com.sharedtest.FakeData.TASK_1_NAME
-import com.sharedtest.FakeData.TASK_2_NAME
+import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
-import org.hamcrest.Matchers.*
+import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.not
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -66,30 +67,27 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   @Captor lateinit var deltaCaptor: ArgumentCaptor<List<ValueDelta>>
   lateinit var fragment: DataCollectionFragment
 
-  @Test
-  fun created_submissionIsLoaded_toolbarIsShown() {
+  override fun setUp() {
+    super.setUp()
+
     setupSubmission()
     setupFragment()
+  }
 
+  @Test
+  fun `Job and LOI names are displayed correctly`() {
     runner()
       .validateTextIsDisplayed("Unnamed point")
       .validateTextIsDisplayed(requireNotNull(JOB.name))
   }
 
   @Test
-  fun created_submissionIsLoaded_firstTaskIsShown() {
-    setupSubmission(mapOf("field id" to Task("field id", 0, Task.Type.TEXT, TASK_1_NAME, true)))
-    setupFragment()
-
-    onView(allOf(withText(TASK_1_NAME))).check(matches(isDisplayed()))
-    onView(withId(R.id.text_input_layout)).check(matches(isDisplayed()))
+  fun `First task is loaded and is visible`() {
+    runner().validateTextIsDisplayed(TASK_1_NAME)
   }
 
   @Test
-  fun onNextClicked_noUserInput_buttonDisabled() {
-    setupSubmission()
-    setupFragment()
-
+  fun `Next button is disabled when task doesn't have any value`() {
     runner()
       .clickNextButton()
       .validateTextIsDisplayed(TASK_1_NAME)
@@ -97,59 +95,39 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun onNextClicked_newTaskIsShown() {
-    setupSubmission()
-    setupFragment()
-
+  fun `Next button proceeds to the second task when task has value`() {
     runner()
-      .inputText("user input")
+      .inputText(TASK_1_RESPONSE)
       .clickNextButton()
       .validateTextIsNotDisplayed(TASK_1_NAME)
       .validateTextIsDisplayed(TASK_2_NAME)
 
+    // Ensure that no validation error toasts were displayed
     assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
   }
 
   @Test
-  fun onNextClicked_thenOnBack_initialTaskIsShown() {
-    setupSubmission()
-    setupFragment()
-
+  fun `Previous button navigates back to first task`() {
     runner()
-      .inputText("user input")
+      .inputText(TASK_1_RESPONSE)
       .clickNextButton()
       .pressBackButton(true)
       .validateTextIsDisplayed(TASK_1_NAME)
       .validateTextIsNotDisplayed(TASK_2_NAME)
 
-    assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
-  }
-
-  @Test
-  fun `Click previous button shows initial task`() {
-    setupSubmission()
-    setupFragment()
-
-    runner()
-      .inputText("user input")
-      .clickNextButton()
-      .inputText("user input")
-      .clickPreviousButton()
-      .validateTextIsDisplayed(TASK_1_NAME)
-      .validateTextIsNotDisplayed(TASK_2_NAME)
-
+    // Ensure that no validation error toasts were displayed
     assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
   }
 
   @Test
   fun `Next click saves draft`() = runWithTestDispatcher {
-    setupSubmission()
-    setupFragment()
+    runner().inputText(TASK_1_RESPONSE).clickNextButton()
 
-    runner().inputText("user input").clickNextButton()
+    // Validate that previous drafts were cleared
+    verify(submissionRepository, times(1)).deleteDraftSubmission()
 
-    verify(submissionRepository).deleteDraftSubmission()
-    verify(submissionRepository)
+    // Validate that new draft was created
+    verify(submissionRepository, times(1))
       .saveDraftSubmission(
         eq(JOB.id),
         eq(LOCATION_OF_INTEREST.id),
@@ -157,29 +135,18 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         capture(deltaCaptor),
       )
 
-    val expectedDeltas =
-      listOf(
-        ValueDelta(
-          SUBMISSION.job.tasksSorted[0].id,
-          Task.Type.TEXT,
-          TextResponse.fromString("user input"),
-        )
-      )
-
-    expectedDeltas.forEach { value -> assertThat(deltaCaptor.value).contains(value) }
+    listOf(TASK_1_VALUE_DELTA).forEach { value -> assertThat(deltaCaptor.value).contains(value) }
   }
 
   @Test
   fun `Clicking previous button saves draft`() = runWithTestDispatcher {
-    setupSubmission()
-    setupFragment()
-
     runner()
-      .inputText("user input")
+      .inputText(TASK_1_RESPONSE)
       .clickNextButton()
-      .inputText("user input 2")
+      .inputText(TASK_2_RESPONSE)
       .clickPreviousButton()
 
+    // Both deletion and creating happens twice as we do it on every previous/next step
     verify(submissionRepository, times(2)).deleteDraftSubmission()
     verify(submissionRepository, times(2))
       .saveDraftSubmission(
@@ -189,56 +156,30 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         capture(deltaCaptor),
       )
 
-    val expectedDeltas =
-      listOf(
-        ValueDelta(
-          SUBMISSION.job.tasksSorted[0].id,
-          Task.Type.TEXT,
-          TextResponse.fromString("user input"),
-        ),
-        ValueDelta(
-          SUBMISSION.job.tasksSorted[1].id,
-          Task.Type.TEXT,
-          TextResponse.fromString("user input 2"),
-        ),
-      )
-
-    expectedDeltas.forEach { value -> assertThat(deltaCaptor.value).contains(value) }
+    listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA).forEach { value ->
+      assertThat(deltaCaptor.value).contains(value)
+    }
   }
 
   @Test
   fun `Click previous button does not show initial task if validation failed`() {
-    setupSubmission()
-    setupFragment()
-
     runner()
-      .inputText("user input")
+      .inputText(TASK_1_RESPONSE)
       .clickNextButton()
       .clickPreviousButton()
       .validateTextIsDisplayed(TASK_2_NAME)
       .validateTextIsNotDisplayed(TASK_1_NAME)
 
+    // Validation error is shown as a toast message
     assertThat(ShadowToast.shownToastCount()).isEqualTo(1)
   }
 
   @Test
   fun `Load tasks from draft`() = runWithTestDispatcher {
     // TODO(#708): add coverage for loading from draft for all types of tasks
-    val expectedDeltas =
-      listOf(
-        ValueDelta(
-          SUBMISSION.job.tasksSorted[0].id,
-          Task.Type.TEXT,
-          TextResponse.fromString("user input"),
-        ),
-        ValueDelta(
-          SUBMISSION.job.tasksSorted[1].id,
-          Task.Type.TEXT,
-          TextResponse.fromString("user input 2"),
-        ),
-      )
+    val expectedDeltas = listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA)
 
-    setupSubmission()
+    // Start the fragment with draft values
     setupFragment(
       DataCollectionFragmentArgs.Builder(
           LOCATION_OF_INTEREST.id,
@@ -251,73 +192,45 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     )
 
     runner()
-      .validateTextIsDisplayed("user input")
+      .validateTextIsDisplayed(TASK_1_RESPONSE)
       .clickNextButton()
-      .validateTextIsDisplayed("user input 2")
+      .validateTextIsDisplayed(TASK_2_RESPONSE)
   }
 
   @Test
-  fun onNextClicked_onFinalTask_resultIsSaved() = runWithTestDispatcher {
-    setupSubmission()
-    setupFragment()
-    val task1Response = "response 1"
-    val task2Response = "response 2"
-    val expectedDeltas =
-      listOf(
-        ValueDelta(
-          SUBMISSION.job.tasksSorted[0].id,
-          Task.Type.TEXT,
-          TextResponse.fromString(task1Response),
-        ),
-        ValueDelta(
-          SUBMISSION.job.tasksSorted[1].id,
-          Task.Type.TEXT,
-          TextResponse.fromString(task2Response),
-        ),
-      )
-
+  fun `Clicking done on final task saves the submission`() = runWithTestDispatcher {
     runner()
-      .inputText(task1Response)
+      .inputText(TASK_1_RESPONSE)
       .clickNextButton()
       .validateTextIsNotDisplayed(TASK_1_NAME)
       .validateTextIsDisplayed(TASK_2_NAME)
-      .inputText(task2Response)
+      .inputText(TASK_2_RESPONSE)
       .clickDoneButton() // Click "done" on final task
 
     verify(submissionRepository)
       .saveSubmission(eq(SURVEY.id), eq(LOCATION_OF_INTEREST.id), capture(deltaCaptor))
-    expectedDeltas.forEach { value -> assertThat(deltaCaptor.value).contains(value) }
+
+    listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA).forEach { value ->
+      assertThat(deltaCaptor.value).contains(value)
+    }
   }
 
   @Test
-  fun onBack_firstViewPagerItem_returnsFalse() {
-    setupSubmission()
-    setupFragment()
-
-    runner().pressBackButton(false)
-  }
-
-  private fun setupSubmission(tasks: Map<String, Task>? = null) = runWithTestDispatcher {
-    var submission = SUBMISSION
-    var job = SUBMISSION.job
-    if (tasks != null) {
-      job = job.copy(tasks = tasks)
-      submission = submission.copy(job = job)
-    }
-
-    whenever(submissionRepository.createSubmission(SURVEY.id, LOCATION_OF_INTEREST.id))
-      .thenReturn(submission)
-
+  fun `Clicking back button on first task clears the draft and returns false`() =
     runWithTestDispatcher {
-      // Setup survey and LOIs
-      val jobMap = SURVEY.jobMap.entries.associate { it.key to job }
-      val survey = SURVEY.copy(jobMap = jobMap)
+      runner().pressBackButton(false)
 
-      fakeRemoteDataStore.surveys = listOf(survey)
-      fakeRemoteDataStore.lois = listOf(LOCATION_OF_INTEREST)
-      activateSurvey(SURVEY.id)
-      advanceUntilIdle()
+      verify(submissionRepository, times(1)).deleteDraftSubmission()
     }
+
+  private fun setupSubmission() = runWithTestDispatcher {
+    whenever(submissionRepository.createSubmission(SURVEY.id, LOCATION_OF_INTEREST.id))
+      .thenReturn(SUBMISSION)
+
+    fakeRemoteDataStore.surveys = listOf(SURVEY)
+    fakeRemoteDataStore.lois = listOf(LOCATION_OF_INTEREST)
+    activateSurvey(SURVEY.id)
+    advanceUntilIdle()
   }
 
   private fun setupFragment(fragmentArgs: Bundle? = null) {
@@ -358,12 +271,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       return this
     }
 
-    private fun clickButton(text: String) =
-      baseHiltTest.runWithTestDispatcher {
-        onView(allOf(withText(text), isDisplayed())).perform(click())
-        advanceUntilIdle()
-      }
-
     internal fun inputText(text: String): Runner {
       onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(text))
       return this
@@ -380,8 +287,44 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     }
 
     internal fun pressBackButton(result: Boolean): Runner {
-      assertThat(fragment.onBack()).isEqualTo(result)
+      waitUntilDone { assertThat(fragment.onBack()).isEqualTo(result) }
       return this
     }
+
+    private fun clickButton(text: String) = waitUntilDone {
+      onView(allOf(withText(text), isDisplayed())).perform(click())
+    }
+
+    private fun waitUntilDone(testBody: suspend () -> Unit) {
+      baseHiltTest.runWithTestDispatcher {
+        testBody()
+        advanceUntilIdle()
+      }
+    }
+  }
+
+  companion object {
+    private const val TASK_ID_1 = "1"
+    const val TASK_1_NAME = "task 1"
+    private const val TASK_1_RESPONSE = "response 1"
+    private val TASK_1_VALUE = TextResponse.fromString(TASK_1_RESPONSE)
+    private val TASK_1_VALUE_DELTA = ValueDelta(TASK_ID_1, Task.Type.TEXT, TASK_1_VALUE)
+
+    private const val TASK_ID_2 = "2"
+    const val TASK_2_NAME = "task 2"
+    private const val TASK_2_RESPONSE = "response 2"
+    private val TASK_2_VALUE = TextResponse.fromString(TASK_2_RESPONSE)
+    private val TASK_2_VALUE_DELTA = ValueDelta(TASK_ID_2, Task.Type.TEXT, TASK_2_VALUE)
+
+    private val TASKS =
+      listOf(
+        Task(TASK_ID_1, 0, Task.Type.TEXT, TASK_1_NAME, true),
+        Task(TASK_ID_2, 1, Task.Type.TEXT, TASK_2_NAME, true),
+      )
+
+    private val JOB = FakeData.JOB.copy(tasks = TASKS.associateBy { it.id })
+    private val LOCATION_OF_INTEREST = FakeData.LOCATION_OF_INTEREST
+    private val SUBMISSION = FakeData.SUBMISSION.copy(job = JOB)
+    private val SURVEY = FakeData.SURVEY.copy(jobMap = mapOf(Pair(JOB.id, JOB)))
   }
 }
