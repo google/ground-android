@@ -47,7 +47,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -73,33 +72,32 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
+    adapter = MapCardAdapter { loi, view -> updateSubmissionCount(loi, view) }
 
     launchWhenStarted {
       val canUserSubmitData = userRepository.canUserSubmitData()
-      adapter = MapCardAdapter(canUserSubmitData) { loi, view -> updateSubmissionCount(loi, view) }
-      adapter.setCollectDataListener {
-        if (canUserSubmitData) {
-          navigateToDataCollectionFragment(it)
-        } else {
-          // Skip data collection screen if the user can't submit any data
-          // TODO(#1667): Revisit UX for displaying view only mode
-          ephemeralPopups.ErrorPopup().show(getString(R.string.collect_data_viewer_error))
-        }
+
+      // Handle collect button clicks
+      adapter.setCollectDataListener { onCollectData(canUserSubmitData, it) }
+
+      // Bind data for cards
+      mapContainerViewModel.getMapCardUiData().launchWhenStartedAndCollect { (mapCards, loiCount) ->
+        adapter.updateData(canUserSubmitData, mapCards, loiCount - 1)
       }
     }
 
-    mapContainerViewModel.loisInViewport
-      .combine(mapContainerViewModel.adHocLoiJobs) { lois, jobs ->
-        val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
-        val jobCards = jobs.map { MapCardUiData.AddLoiCardUiData(it) }
-
-        Pair(loiCards + jobCards, lois.size)
-      }
-      .launchWhenStartedAndCollect { (mapCards, loiCount) ->
-        adapter.updateData(mapCards, loiCount - 1)
-      }
-
     map.featureClicks.launchWhenStartedAndCollect { mapContainerViewModel.onFeatureClicked(it) }
+  }
+
+  /** Invoked when user clicks on the map cards to collect data. */
+  private fun onCollectData(canUserSubmitData: Boolean, cardUiData: MapCardUiData) {
+    if (canUserSubmitData) {
+      navigateToDataCollectionFragment(cardUiData)
+    } else {
+      // Skip data collection screen if the user can't submit any data
+      // TODO(#1667): Revisit UX for displaying view only mode
+      ephemeralPopups.ErrorPopup().show(getString(R.string.collect_data_viewer_error))
+    }
   }
 
   /** Updates the given [TextView] with the submission count for the given [LocationOfInterest]. */
