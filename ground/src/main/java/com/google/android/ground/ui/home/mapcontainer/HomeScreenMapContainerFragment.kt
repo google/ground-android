@@ -20,7 +20,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -75,7 +74,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
 
-    lifecycleScope.launch {
+    launchWhenStarted {
       val canUserSubmitData = userRepository.canUserSubmitData()
       adapter = MapCardAdapter(canUserSubmitData) { loi, view -> updateSubmissionCount(loi, view) }
       adapter.setCollectDataListener {
@@ -89,20 +88,18 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       }
     }
 
-    lifecycleScope.launch {
-      mapContainerViewModel.loisInViewport
-        .combine(mapContainerViewModel.adHocLoiJobs) { lois, jobs ->
-          val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
-          val jobCards = jobs.map { MapCardUiData.AddLoiCardUiData(it) }
+    mapContainerViewModel.loisInViewport
+      .combine(mapContainerViewModel.adHocLoiJobs) { lois, jobs ->
+        val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
+        val jobCards = jobs.map { MapCardUiData.AddLoiCardUiData(it) }
 
-          Pair(loiCards + jobCards, lois.size)
-        }
-        .collect { (mapCards, loiCount) -> adapter.updateData(mapCards, loiCount - 1) }
-    }
+        Pair(loiCards + jobCards, lois.size)
+      }
+      .launchWhenStartedAndCollect { (mapCards, loiCount) ->
+        adapter.updateData(mapCards, loiCount - 1)
+      }
 
-    lifecycleScope.launch(ioDispatcher) {
-      map.featureClicks.collect { mapContainerViewModel.onFeatureClicked(it) }
-    }
+    map.featureClicks.launchWhenStartedAndCollect { mapContainerViewModel.onFeatureClicked(it) }
   }
 
   /** Updates the given [TextView] with the submission count for the given [LocationOfInterest]. */
@@ -133,7 +130,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     super.onViewCreated(view, savedInstanceState)
     setupMenuFab()
     setupBottomLoiCards()
-    viewLifecycleOwner.lifecycleScope.launch { showDataCollectionHint() }
+    showDataCollectionHint()
   }
 
   /**
@@ -142,11 +139,11 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
    *
    * This method should only be called after view creation.
    */
-  private suspend fun showDataCollectionHint() {
+  private fun showDataCollectionHint() {
     if (!this::mapContainerViewModel.isInitialized) {
       return Timber.w("showDataCollectionHint() called before mapContainerViewModel initialized")
     }
-    mapContainerViewModel.surveyUpdateFlow.collect(this::onSurveyUpdate)
+    mapContainerViewModel.surveyUpdateFlow.launchWhenStartedAndCollect(this::onSurveyUpdate)
   }
 
   private fun onSurveyUpdate(surveyProperties: SurveyProperties) {
@@ -204,13 +201,11 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     val helper: SnapHelper = PagerSnapHelper()
     helper.attachToRecyclerView(recyclerView)
 
-    lifecycleScope.launch {
-      mapContainerViewModel.loiClicks.collect {
-        val index = it?.let { adapter.getIndex(it) } ?: -1
-        if (index != -1) {
-          recyclerView.scrollToPosition(index)
-          adapter.focusItemAtIndex(index)
-        }
+    mapContainerViewModel.loiClicks.launchWhenStartedAndCollect {
+      val index = it?.let { adapter.getIndex(it) } ?: -1
+      if (index != -1) {
+        recyclerView.scrollToPosition(index)
+        adapter.focusItemAtIndex(index)
       }
     }
   }
@@ -239,10 +234,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   override fun onMapReady(map: MapFragment) {
-    // Observe events emitted by the ViewModel.
-    viewLifecycleOwner.lifecycleScope.launch {
-      mapContainerViewModel.mapLoiFeatures.collect { map.setFeatures(it) }
-    }
+    mapContainerViewModel.mapLoiFeatures.launchWhenStartedAndCollect { map.setFeatures(it) }
 
     adapter.setLoiCardFocusedListener {
       when (it) {
