@@ -19,6 +19,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
@@ -136,7 +146,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   protected fun addNextButton() =
     addButton(ButtonAction.NEXT)
-      .setOnClickListener { moveToNext() }
+      .setOnClickListener { handleNext() }
       .setOnValueChanged { button, value -> button.enableIfTrue(value.isNotNullOrEmpty()) }
       .disable()
 
@@ -158,8 +168,25 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     lifecycleScope.launch { dataCollectionViewModel.onPreviousClicked(viewModel) }
   }
 
-  fun moveToNext() {
+  private fun moveToNext() {
     lifecycleScope.launch { dataCollectionViewModel.onNextClicked(viewModel) }
+  }
+
+  fun handleNext() {
+    if (getTask().isAddLoiTask) {
+      showLoiNameDialog()
+    } else {
+      moveToNext()
+    }
+  }
+
+  fun handleLoiNameSet(loiName: String) {
+    if (loiName != "") {
+      lifecycleScope.launch {
+        dataCollectionViewModel.setLoiName(loiName)
+        moveToNext()
+      }
+    }
   }
 
   fun addUndoButton() =
@@ -200,5 +227,53 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   companion object {
     /** Key used to store the position of the task in the Job's sorted tasklist. */
     const val POSITION = "position"
+  }
+
+  private fun showLoiNameDialog() {
+    (view as ViewGroup).addView(
+      ComposeView(requireContext()).apply {
+        setContent {
+          val openAlertDialog = remember { mutableStateOf(true) }
+          when {
+            openAlertDialog.value -> {
+              LoiNameDialog(
+                onConfirmRequest = {
+                  openAlertDialog.value = false
+                  handleLoiNameSet(loiName = "My ad-hoc loi")
+                },
+                onDismissRequest = { openAlertDialog.value = false }
+              )
+            }
+          }
+        }
+      }
+    )
+  }
+
+  @Composable
+  private fun LoiNameDialog(onConfirmRequest: () -> Unit, onDismissRequest: () -> Unit) {
+    AlertDialog(
+      onDismissRequest = onDismissRequest,
+      icon = {},
+      title = { StyledText(text = getText(R.string.loi_name_dialog_title)) },
+      text = { Text(text = getString(R.string.loi_name_dialog_body)) },
+      confirmButton = { TextButton(onClick = onConfirmRequest) { Text(getString(R.string.save)) } },
+      dismissButton = {
+        TextButton(onClick = onDismissRequest) { Text(getString(R.string.cancel)) }
+      }
+    )
+  }
+
+  /** Supports annotated texts e.g. <b>Hello world</b> */
+  @Composable
+  private fun StyledText(text: CharSequence, modifier: Modifier = Modifier) {
+    AndroidView(
+      modifier = modifier,
+      factory = { context -> TextView(context) },
+      update = {
+        it.text = text
+        it.textSize = 18.toFloat()
+      },
+    )
   }
 }

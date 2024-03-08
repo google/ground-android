@@ -20,6 +20,7 @@ data class DraftSubmission(
   val id: String,
   val jobId: String,
   val loiId: String?,
+  val loiName: String?,
   val surveyId: String,
   val deltas: List<ValueDelta>,
 )

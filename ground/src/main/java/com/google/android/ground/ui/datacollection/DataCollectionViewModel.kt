@@ -52,6 +52,7 @@ import javax.inject.Provider
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
+import kotlin.math.abs
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,7 +60,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -102,7 +102,7 @@ internal constructor(
   val jobName: StateFlow<String> =
     MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
   val loiName: StateFlow<String> =
-    (if (loiId == null) flowOf("")
+    (if (loiId == null) savedStateHandle.getStateFlow(TASK_LOI_NAME_KEY, "")
       else
         flow {
           val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
@@ -121,6 +121,10 @@ internal constructor(
     savedStateHandle.getStateFlow(TASK_POSITION_ID, tasks.first().id)
 
   lateinit var submissionId: String
+
+  fun setLoiName(name: String) {
+    savedStateHandle[TASK_LOI_NAME_KEY] = name
+  }
 
   private fun getDraftDeltas(): List<ValueDelta> {
     if (!shouldLoadFromDraft) return listOf()
@@ -202,6 +206,10 @@ internal constructor(
 
     data[taskViewModel.task] = taskViewModel.taskValue.firstOrNull()
 
+    if (taskViewModel.task.isAddLoiTask) {
+      //      showLoiNameDialog()
+    }
+
     if (!isLastPosition()) {
       step(1)
     } else {
@@ -222,7 +230,9 @@ internal constructor(
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(deltas: List<ValueDelta>) {
-    externalScope.launch(ioDispatcher) { submitDataUseCase.invoke(loiId, job, surveyId, deltas) }
+    externalScope.launch(ioDispatcher) {
+      submitDataUseCase.invoke(loiId, job, surveyId, deltas, savedStateHandle[TASK_LOI_NAME_KEY])
+    }
   }
 
   fun getAbsolutePosition(): Int {
@@ -239,6 +249,7 @@ internal constructor(
         loiId = loiId,
         surveyId = surveyId,
         deltas = getDeltas(),
+        loiName = savedStateHandle[TASK_LOI_NAME_KEY],
       )
     }
   }
@@ -286,7 +297,7 @@ internal constructor(
     val reverse = stepCount < 0
     val task =
       getTaskSequence(startId = currentTaskId.value, reversed = reverse)
-        .take(Math.abs(stepCount) + 1)
+        .take(abs(stepCount) + 1)
         .last()
     savedStateHandle[TASK_POSITION_ID] = task.id
 
@@ -312,6 +323,7 @@ internal constructor(
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"
     private const val TASK_LOI_ID_KEY = "locationOfInterestId"
+    private const val TASK_LOI_NAME_KEY = "locationOfInterestName"
     private const val TASK_POSITION_ID = "currentTaskId"
     private const val TASK_SHOULD_LOAD_FROM_DRAFT = "shouldLoadFromDraft"
     private const val TASK_DRAFT_VALUES = "draftValues"

@@ -76,7 +76,8 @@ constructor(
     geometry: Geometry,
     job: Job,
     surveyId: String,
-    user: User
+    user: User,
+    loiName: String?,
   ): LocationOfInterest {
     val auditInfo = AuditInfo(user)
     return LocationOfInterest(
@@ -87,7 +88,8 @@ constructor(
       created = auditInfo,
       lastModified = auditInfo,
       ownerEmail = user.email,
-      isOpportunistic = true
+      isOpportunistic = true,
+      properties = loiName?.let { mapOf("name" to it) } ?: mapOf(),
     )
   }
 
