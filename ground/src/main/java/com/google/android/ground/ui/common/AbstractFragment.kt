@@ -24,13 +24,18 @@ import android.view.ViewGroup
 import androidx.annotation.IdRes
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.AbstractActivity
 import com.google.android.ground.R
 import com.google.android.ground.ui.common.ProgressDialogs.modalSpinner
 import com.google.android.ground.ui.util.ViewUtil
 import com.google.android.ground.util.Debug
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 abstract class AbstractFragment : Fragment() {
 
@@ -129,5 +134,13 @@ abstract class AbstractFragment : Fragment() {
       progressDialog?.dismiss()
       progressDialog = null
     }
+  }
+
+  protected fun launchWhenStarted(fn: suspend () -> Unit) {
+    lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.STARTED) { fn() } }
+  }
+
+  protected fun <T> Flow<T>.launchWhenStartedAndCollect(collector: (T) -> Unit) {
+    launchWhenStarted { this.collect { collector(it) } }
   }
 }
