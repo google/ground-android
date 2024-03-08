@@ -55,6 +55,7 @@ internal object LoiMutationConverter {
       Mutation.Type.CREATE -> {
         map[LoiConverter.CREATED] = auditInfo
         map[LoiConverter.LAST_MODIFIED] = auditInfo
+        map[LoiConverter.IS_PLANNED] = mutation.isPlanned ?: false
       }
       Mutation.Type.UPDATE -> {
         map[LoiConverter.LAST_MODIFIED] = auditInfo

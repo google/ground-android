@@ -87,7 +87,7 @@ constructor(
       created = auditInfo,
       lastModified = auditInfo,
       ownerEmail = user.email,
-      isOpportunistic = true
+      isPlanned = false
     )
   }
 

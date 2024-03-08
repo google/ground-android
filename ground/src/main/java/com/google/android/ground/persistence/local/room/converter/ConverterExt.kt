@@ -150,8 +150,8 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     customId = customId,
     submissionCount = submissionCount,
     ownerEmail = ownerEmail,
-    isOpportunistic = isOpportunistic,
     properties = properties,
+    isPlanned = isPlanned,
   )
 
 fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
@@ -167,6 +167,7 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       geometry = geometry.getGeometry(),
       submissionCount = submissionCount,
       properties = properties,
+      isPlanned = isPlanned,
       job =
         survey.getJob(jobId = jobId)
           ?: throw LocalDataConsistencyException(
@@ -197,8 +198,8 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(user: User): LocationOfInt
     customId = customId,
     submissionCount = submissionCount,
     ownerEmail = ownerEmail,
-    isOpportunistic = isOpportunistic,
-    properties = properties
+    properties = properties,
+    isPlanned = isPlanned,
   )
 }
 
@@ -216,7 +217,8 @@ fun LocationOfInterestMutation.toLocalDataStoreObject() =
     clientTimestamp = clientTimestamp.time,
     lastError = lastError,
     retryCount = retryCount,
-    newProperties = properties
+    newProperties = properties,
+    isPlanned = isPlanned,
   )
 
 fun LocationOfInterestMutationEntity.toModelObject() =
@@ -233,7 +235,8 @@ fun LocationOfInterestMutationEntity.toModelObject() =
     clientTimestamp = Date(clientTimestamp),
     lastError = lastError,
     retryCount = retryCount,
-    properties = newProperties
+    properties = newProperties,
+    isPlanned = isPlanned,
   )
 
 fun MultipleChoiceEntity.toModelObject(optionEntities: List<OptionEntity>): MultipleChoice {
