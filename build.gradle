@@ -28,7 +28,6 @@ buildscript {
         google()
         mavenLocal()
         maven { url "https://maven.google.com" }
-        maven { url "https://github.com/ben-manes/gradle-versions-plugin/raw/mvnrepo" }
         maven { url "https://plugins.gradle.org/m2/" }
         mavenCentral()
         gradlePluginPortal()
@@ -55,7 +54,6 @@ buildscript {
 }
 
 plugins {
-    id "com.github.ben-manes.versions" version "0.51.0"
     id "org.jetbrains.kotlin.android" version "$kotlinVersion" apply false
     id "org.jetbrains.kotlin.plugin.serialization" version "$kotlinVersion"
     id "com.ncorti.ktfmt.gradle" version "0.17.0"
@@ -109,32 +107,6 @@ tasks.register('clean', Delete) {
 apply plugin: "com.pascalwelsch.gitversioner"
 gitVersioner {
     baseBranch "master"
-}
-
-// https://github.com/ben-manes/gradle-versions-plugin/issues/746
-apply plugin: 'jvm-ecosystem'
-
-def isNonStable = { String version ->
-    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
-    def regex = /^[0-9,.v-]+(-r)?$/
-    return !stableKeyword && !(version ==~ regex)
-}
-
-// https://github.com/ben-manes/gradle-versions-plugin
-// To check which dependencies are out of date:
-// ./gradlew dependencyUpdates
-tasks.dependencyUpdates {
-
-    // Disallow release candidates as upgradable versions from stable versions
-    rejectVersionIf {
-        isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)
-    }
-
-    checkForGradleUpdate = true
-    checkConstraints = true
-    gradleReleaseChannel = "current"
-    outputFormatter = "json,plain"
-    outputDir = "ground/build/reports/dependencyUpdates"
 }
 
 ext {
