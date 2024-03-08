@@ -20,15 +20,28 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
@@ -174,7 +187,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   fun handleNext() {
     if (getTask().isAddLoiTask) {
-      showLoiNameDialog()
+      showLoiNameDialog(dataCollectionViewModel.loiName.value)
     } else {
       moveToNext()
     }
@@ -229,19 +242,24 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     const val POSITION = "position"
   }
 
-  private fun showLoiNameDialog() {
+  private fun showLoiNameDialog(initialTextValue: String) {
     (view as ViewGroup).addView(
       ComposeView(requireContext()).apply {
         setContent {
-          val openAlertDialog = remember { mutableStateOf(true) }
+          val openAlertDialog = remember { mutableStateOf(Pair(initialTextValue, true)) }
           when {
-            openAlertDialog.value -> {
+            openAlertDialog.value.second -> {
+              val textFieldValue = openAlertDialog.value.first
               LoiNameDialog(
+                textFieldValue = textFieldValue,
                 onConfirmRequest = {
-                  openAlertDialog.value = false
-                  handleLoiNameSet(loiName = "My ad-hoc loi")
+                  openAlertDialog.value = Pair(textFieldValue, false)
+                  handleLoiNameSet(loiName = textFieldValue)
                 },
-                onDismissRequest = { openAlertDialog.value = false }
+                onDismissRequest = { openAlertDialog.value = Pair(initialTextValue, false) },
+                onTextFieldChange = {
+                  openAlertDialog.value = Pair(it, openAlertDialog.value.second)
+                }
               )
             }
           }
@@ -250,29 +268,100 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     )
   }
 
+  private fun getColor(id: Int): Color = Color(ContextCompat.getColor(requireContext(), id))
+
   @Composable
-  private fun LoiNameDialog(onConfirmRequest: () -> Unit, onDismissRequest: () -> Unit) {
+  private fun LoiNameDialog(
+    textFieldValue: String,
+    onConfirmRequest: () -> Unit,
+    onDismissRequest: () -> Unit,
+    onTextFieldChange: (String) -> Unit
+  ) {
+    val primaryColor = getColor(R.color.md_theme_primary)
+    val onPrimaryColor = getColor(R.color.md_theme_onPrimary)
+    val onSurfaceDisabledColor = getColor(R.color.md_theme_on_surface_disabled)
+    val saveButtonColors =
+      ButtonColors(
+        containerColor = primaryColor,
+        contentColor = onPrimaryColor,
+        disabledContainerColor = onSurfaceDisabledColor,
+        disabledContentColor = onPrimaryColor,
+      )
+    val cancelButtonColors =
+      ButtonColors(
+        containerColor = Color.Transparent,
+        contentColor = primaryColor,
+        disabledContainerColor = onSurfaceDisabledColor,
+        disabledContentColor = onPrimaryColor,
+      )
+    val textFieldColors =
+      TextFieldDefaults.colors(
+        focusedIndicatorColor = primaryColor,
+        unfocusedIndicatorColor = primaryColor,
+        focusedContainerColor = getColor(R.color.md_theme_text_field_container),
+        unfocusedContainerColor = getColor(R.color.md_theme_text_field_container),
+        cursorColor = primaryColor,
+      )
     AlertDialog(
       onDismissRequest = onDismissRequest,
       icon = {},
-      title = { StyledText(text = getText(R.string.loi_name_dialog_title)) },
-      text = { Text(text = getString(R.string.loi_name_dialog_body)) },
-      confirmButton = { TextButton(onClick = onConfirmRequest) { Text(getString(R.string.save)) } },
+      title = {
+        Column(modifier = Modifier.fillMaxWidth()) {
+          Text(
+            text = getString(R.string.loi_name_dialog_title),
+            fontSize = 5.em,
+            textAlign = TextAlign.Start,
+          )
+        }
+      },
+      text = {
+        Column {
+          Text(
+            text = getString(R.string.loi_name_dialog_body),
+            modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 16.dp),
+          )
+          TextField(
+            value = textFieldValue,
+            onValueChange = onTextFieldChange,
+            colors = textFieldColors,
+            singleLine = true,
+          )
+        }
+      },
+      confirmButton = {
+        TextButton(
+          onClick = onConfirmRequest,
+          colors = saveButtonColors,
+          contentPadding = PaddingValues(25.dp, 0.dp),
+          enabled = textFieldValue != "",
+        ) {
+          Text(getString(R.string.save))
+        }
+      },
       dismissButton = {
-        TextButton(onClick = onDismissRequest) { Text(getString(R.string.cancel)) }
-      }
+        TextButton(
+          onClick = onDismissRequest,
+          colors = cancelButtonColors,
+          contentPadding = PaddingValues(20.dp, 0.dp),
+          border = BorderStroke(2.dp, getColor(R.color.md_theme_outline)),
+        ) {
+          Text(getString(R.string.cancel))
+        }
+      },
+      containerColor = getColor(R.color.md_theme_background),
+      textContentColor = getColor(R.color.md_theme_onBackground),
     )
   }
 
   /** Supports annotated texts e.g. <b>Hello world</b> */
   @Composable
-  private fun StyledText(text: CharSequence, modifier: Modifier = Modifier) {
+  private fun TitleText(text: CharSequence, modifier: Modifier = Modifier) {
     AndroidView(
       modifier = modifier,
       factory = { context -> TextView(context) },
       update = {
         it.text = text
-        it.textSize = 18.toFloat()
+        it.textSize = 24.toFloat()
       },
     )
   }

@@ -153,6 +153,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         eq(LOCATION_OF_INTEREST.id),
         eq(SURVEY.id),
         capture(deltaCaptor),
+        eq(null),
       )
 
     val expectedDeltas =
@@ -185,6 +186,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         eq(LOCATION_OF_INTEREST.id),
         eq(SURVEY.id),
         capture(deltaCaptor),
+        eq(null),
       )
 
     val expectedDeltas =

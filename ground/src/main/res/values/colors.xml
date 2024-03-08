@@ -55,4 +55,5 @@
   <color name="md_theme_inverseSurface">#2E312D</color>
   <color name="md_theme_inverseOnSurface">#F0F1EB</color>
   <color name="md_theme_inversePrimary">#6DDD81</color>
+  <color name="md_theme_text_field_container">#E2E3DD</color>
 </resources>
