@@ -20,7 +20,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -48,7 +47,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -74,34 +72,31 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
+    adapter = MapCardAdapter { loi, view -> updateSubmissionCount(loi, view) }
 
-    lifecycleScope.launch {
+    launchWhenStarted {
       val canUserSubmitData = userRepository.canUserSubmitData()
-      adapter = MapCardAdapter(canUserSubmitData) { loi, view -> updateSubmissionCount(loi, view) }
-      adapter.setCollectDataListener {
-        if (canUserSubmitData) {
-          navigateToDataCollectionFragment(it)
-        } else {
-          // Skip data collection screen if the user can't submit any data
-          // TODO(#1667): Revisit UX for displaying view only mode
-          ephemeralPopups.ErrorPopup().show(getString(R.string.collect_data_viewer_error))
-        }
+
+      // Handle collect button clicks
+      adapter.setCollectDataListener { onCollectData(canUserSubmitData, it) }
+
+      // Bind data for cards
+      mapContainerViewModel.getMapCardUiData().launchWhenStartedAndCollect { (mapCards, loiCount) ->
+        adapter.updateData(canUserSubmitData, mapCards, loiCount - 1)
       }
     }
 
-    lifecycleScope.launch {
-      mapContainerViewModel.loisInViewport
-        .combine(mapContainerViewModel.adHocLoiJobs) { lois, jobs ->
-          val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
-          val jobCards = jobs.map { MapCardUiData.AddLoiCardUiData(it) }
+    map.featureClicks.launchWhenStartedAndCollect { mapContainerViewModel.onFeatureClicked(it) }
+  }
 
-          Pair(loiCards + jobCards, lois.size)
-        }
-        .collect { (mapCards, loiCount) -> adapter.updateData(mapCards, loiCount - 1) }
-    }
-
-    lifecycleScope.launch(ioDispatcher) {
-      map.featureClicks.collect { mapContainerViewModel.onFeatureClicked(it) }
+  /** Invoked when user clicks on the map cards to collect data. */
+  private fun onCollectData(canUserSubmitData: Boolean, cardUiData: MapCardUiData) {
+    if (canUserSubmitData) {
+      navigateToDataCollectionFragment(cardUiData)
+    } else {
+      // Skip data collection screen if the user can't submit any data
+      // TODO(#1667): Revisit UX for displaying view only mode
+      ephemeralPopups.ErrorPopup().show(getString(R.string.collect_data_viewer_error))
     }
   }
 
@@ -133,7 +128,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     super.onViewCreated(view, savedInstanceState)
     setupMenuFab()
     setupBottomLoiCards()
-    viewLifecycleOwner.lifecycleScope.launch { showDataCollectionHint() }
+    showDataCollectionHint()
   }
 
   /**
@@ -142,11 +137,11 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
    *
    * This method should only be called after view creation.
    */
-  private suspend fun showDataCollectionHint() {
+  private fun showDataCollectionHint() {
     if (!this::mapContainerViewModel.isInitialized) {
       return Timber.w("showDataCollectionHint() called before mapContainerViewModel initialized")
     }
-    mapContainerViewModel.surveyUpdateFlow.collect(this::onSurveyUpdate)
+    mapContainerViewModel.surveyUpdateFlow.launchWhenStartedAndCollect(this::onSurveyUpdate)
   }
 
   private fun onSurveyUpdate(surveyProperties: SurveyProperties) {
@@ -204,13 +199,11 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     val helper: SnapHelper = PagerSnapHelper()
     helper.attachToRecyclerView(recyclerView)
 
-    lifecycleScope.launch {
-      mapContainerViewModel.loiClicks.collect {
-        val index = it?.let { adapter.getIndex(it) } ?: -1
-        if (index != -1) {
-          recyclerView.scrollToPosition(index)
-          adapter.focusItemAtIndex(index)
-        }
+    mapContainerViewModel.loiClicks.launchWhenStartedAndCollect {
+      val index = it?.let { adapter.getIndex(it) } ?: -1
+      if (index != -1) {
+        recyclerView.scrollToPosition(index)
+        adapter.focusItemAtIndex(index)
       }
     }
   }
@@ -239,10 +232,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   override fun onMapReady(map: MapFragment) {
-    // Observe events emitted by the ViewModel.
-    viewLifecycleOwner.lifecycleScope.launch {
-      mapContainerViewModel.mapLoiFeatures.collect { map.setFeatures(it) }
-    }
+    mapContainerViewModel.mapLoiFeatures.launchWhenStartedAndCollect { map.setFeatures(it) }
 
     adapter.setLoiCardFocusedListener {
       when (it) {
