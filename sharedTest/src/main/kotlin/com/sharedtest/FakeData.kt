@@ -44,6 +44,10 @@ object FakeData {
   // TODO: Replace constants with calls to newFoo() methods.
   val TERMS_OF_SERVICE: TermsOfService =
     TermsOfService("TERMS_OF_SERVICE", "Fake Terms of Service text")
+  const val JOB_ID = "job id"
+  const val LOI_ID = "loi id"
+  const val USER_ID = "user id"
+  const val SURVEY_ID = "survey id"
 
   val JOB =
     Job(
@@ -67,7 +71,7 @@ object FakeData {
 
   val LOCATION_OF_INTEREST =
     LocationOfInterest(
-      "loi id",
+      LOI_ID,
       SURVEY.id,
       JOB,
       customId = "",
@@ -99,7 +103,7 @@ object FakeData {
 
   val AREA_OF_INTEREST: LocationOfInterest =
     LocationOfInterest(
-      "loi id",
+      LOI_ID,
       SURVEY.id,
       JOB,
       "",
@@ -142,14 +146,14 @@ object FakeData {
     syncStatus: Mutation.SyncStatus = Mutation.SyncStatus.PENDING,
   ): LocationOfInterestMutation =
     LocationOfInterestMutation(
-      jobId = "job id",
+      jobId = JOB_ID,
       geometry = point,
       id = 1L,
-      locationOfInterestId = "loi id",
+      locationOfInterestId = LOI_ID,
       type = mutationType,
       syncStatus = syncStatus,
-      userId = "user id",
-      surveyId = "survey id",
+      userId = USER_ID,
+      surveyId = SURVEY_ID,
       clientTimestamp = Date()
     )
 
@@ -159,14 +163,14 @@ object FakeData {
     syncStatus: Mutation.SyncStatus = Mutation.SyncStatus.PENDING,
   ): LocationOfInterestMutation =
     LocationOfInterestMutation(
-      jobId = "job id",
+      jobId = JOB_ID,
       geometry = Polygon(LinearRing(polygonVertices)),
       id = 1L,
-      locationOfInterestId = "loi id",
+      locationOfInterestId = LOI_ID,
       type = mutationType,
       syncStatus = syncStatus,
-      userId = "user id",
-      surveyId = "survey id",
+      userId = USER_ID,
+      surveyId = SURVEY_ID,
       clientTimestamp = Date()
     )
 }
