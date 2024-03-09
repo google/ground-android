@@ -186,13 +186,14 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   fun handleNext() {
     if (getTask().isAddLoiTask) {
+      // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
       showLoiNameDialog(dataCollectionViewModel.loiName.value)
     } else {
       moveToNext()
     }
   }
 
-  fun handleLoiNameSet(loiName: String) {
+  private fun handleLoiNameSet(loiName: String) {
     if (loiName != "") {
       lifecycleScope.launch {
         dataCollectionViewModel.setLoiName(loiName)

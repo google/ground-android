@@ -103,9 +103,11 @@ internal constructor(
     MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
   val loiName: StateFlow<String> =
     (if (loiId == null) {
+        // User supplied LOI name during LOI creation task. Use to save the LOI name later.
         savedStateHandle.getStateFlow(TASK_LOI_NAME_KEY, "")
       } else
-        flow {
+      // LOI name pulled from LOI properties, if it exists.
+      flow {
           val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
           val label = locationOfInterestHelper.getDisplayLoiName(loi)
           emit(label)

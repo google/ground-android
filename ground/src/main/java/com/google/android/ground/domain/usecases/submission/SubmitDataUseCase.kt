@@ -38,9 +38,9 @@ constructor(
 
   /**
    * Creates a Submission for the given [job] with collected data defines as a collection of
-   * [ValueDelta]s. If [selectedLoiId] is null a new LOI is created based on the first [ValueDelta]
+   * [ValueDelta]s. If [selectedLoiId] is null, a new LOI is created based on the first [ValueDelta]
    * since the Suggest LOI task is the first task in the Data Collection flow when a new LOI is
-   * being suggested.
+   * being suggested. The supplied [loiName] will then be stored as the "name" in the properties.
    */
   @Transaction
   suspend operator fun invoke(
@@ -79,7 +79,7 @@ constructor(
     geometry: Geometry,
     job: Job,
     surveyId: String,
-    loiName: String?
+    loiName: String?,
   ): LocationOfInterest {
     val user = userRepository.getAuthenticatedUser()
     val loi =
