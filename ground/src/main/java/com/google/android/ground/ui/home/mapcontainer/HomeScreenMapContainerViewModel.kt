@@ -32,6 +32,7 @@ import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
+import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
@@ -149,6 +150,18 @@ internal constructor(
         else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
       }
   }
+
+  /**
+   * Returns a flow of [MapCardUiData] associated with the active survey's LOIs and adhoc jobs for
+   * displaying the cards.
+   */
+  fun getMapCardUiData(): Flow<Pair<List<MapCardUiData>, Int>> =
+    loisInViewport.combine(adHocLoiJobs) { lois, jobs ->
+      val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
+      val jobCards = jobs.map { MapCardUiData.AddLoiCardUiData(it) }
+
+      Pair(loiCards + jobCards, lois.size)
+    }
 
   private fun updatedLoiSelectedStates(
     features: Set<Feature>,

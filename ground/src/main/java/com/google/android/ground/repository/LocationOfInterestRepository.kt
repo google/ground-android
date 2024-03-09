@@ -88,8 +88,8 @@ constructor(
       created = auditInfo,
       lastModified = auditInfo,
       ownerEmail = user.email,
-      isOpportunistic = true,
       properties = loiName?.let { mapOf("name" to it) } ?: mapOf(),
+      isPlanned = false
     )
   }
 
