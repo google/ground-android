@@ -214,6 +214,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
             cardUiData.loi.id,
+            cardUiData.loi.properties["name"] as? String,
             cardUiData.loi.job.id,
             false,
             null,
@@ -222,6 +223,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       is MapCardUiData.AddLoiCardUiData ->
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+            null,
             null,
             cardUiData.job.id,
             false,

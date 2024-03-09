@@ -19,7 +19,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,6 +29,7 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +40,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
@@ -237,11 +236,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   @TestOnly fun getButtonsIndex() = buttonsIndex
 
-  companion object {
-    /** Key used to store the position of the task in the Job's sorted tasklist. */
-    const val POSITION = "position"
-  }
-
   private fun showLoiNameDialog(initialTextValue: String) {
     (view as ViewGroup).addView(
       ComposeView(requireContext()).apply {
@@ -249,7 +243,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
           val openAlertDialog = remember { mutableStateOf(Pair(initialTextValue, true)) }
           when {
             openAlertDialog.value.second -> {
-              val textFieldValue = openAlertDialog.value.first
+              val (textFieldValue, openState) = openAlertDialog.value
               LoiNameDialog(
                 textFieldValue = textFieldValue,
                 onConfirmRequest = {
@@ -257,9 +251,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
                   handleLoiNameSet(loiName = textFieldValue)
                 },
                 onDismissRequest = { openAlertDialog.value = Pair(initialTextValue, false) },
-                onTextFieldChange = {
-                  openAlertDialog.value = Pair(it, openAlertDialog.value.second)
-                }
+                onTextFieldChange = { openAlertDialog.value = Pair(it, openState) }
               )
             }
           }
@@ -271,12 +263,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   private fun getColor(id: Int): Color = Color(ContextCompat.getColor(requireContext(), id))
 
   @Composable
-  private fun LoiNameDialog(
-    textFieldValue: String,
-    onConfirmRequest: () -> Unit,
-    onDismissRequest: () -> Unit,
-    onTextFieldChange: (String) -> Unit
-  ) {
+  private fun getElementColors(): Triple<ButtonColors, ButtonColors, TextFieldColors> {
     val primaryColor = getColor(R.color.md_theme_primary)
     val onPrimaryColor = getColor(R.color.md_theme_onPrimary)
     val onSurfaceDisabledColor = getColor(R.color.md_theme_on_surface_disabled)
@@ -302,6 +289,18 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
         unfocusedContainerColor = getColor(R.color.md_theme_text_field_container),
         cursorColor = primaryColor,
       )
+
+    return Triple(saveButtonColors, cancelButtonColors, textFieldColors)
+  }
+
+  @Composable
+  private fun LoiNameDialog(
+    textFieldValue: String,
+    onConfirmRequest: () -> Unit,
+    onDismissRequest: () -> Unit,
+    onTextFieldChange: (String) -> Unit
+  ) {
+    val (saveButtonColors, cancelButtonColors, textFieldColors) = getElementColors()
     AlertDialog(
       onDismissRequest = onDismissRequest,
       icon = {},
@@ -353,16 +352,8 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     )
   }
 
-  /** Supports annotated texts e.g. <b>Hello world</b> */
-  @Composable
-  private fun TitleText(text: CharSequence, modifier: Modifier = Modifier) {
-    AndroidView(
-      modifier = modifier,
-      factory = { context -> TextView(context) },
-      update = {
-        it.text = text
-        it.textSize = 24.toFloat()
-      },
-    )
+  companion object {
+    /** Key used to store the position of the task in the Job's sorted tasklist. */
+    const val POSITION = "position"
   }
 }

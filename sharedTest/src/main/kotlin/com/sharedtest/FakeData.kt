@@ -69,6 +69,8 @@ object FakeData {
       mapOf(USER.email to "data-collector")
     )
 
+  const val LOCATION_OF_INTEREST_NAME = "Test LOI Name"
+
   val LOCATION_OF_INTEREST =
     LocationOfInterest(
       LOI_ID,
@@ -154,7 +156,8 @@ object FakeData {
       syncStatus = syncStatus,
       userId = USER_ID,
       surveyId = SURVEY_ID,
-      clientTimestamp = Date()
+      clientTimestamp = Date(),
+      properties = mapOf("name" to LOCATION_OF_INTEREST_NAME)
     )
 
   fun newAoiMutation(
@@ -171,6 +174,7 @@ object FakeData {
       syncStatus = syncStatus,
       userId = USER_ID,
       surveyId = SURVEY_ID,
-      clientTimestamp = Date()
+      clientTimestamp = Date(),
+      properties = mapOf("name" to LOCATION_OF_INTEREST_NAME)
     )
 }

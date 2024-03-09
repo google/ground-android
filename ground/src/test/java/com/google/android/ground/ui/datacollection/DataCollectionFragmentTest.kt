@@ -32,6 +32,7 @@ import com.google.android.ground.repository.SubmissionRepository
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.JOB
 import com.sharedtest.FakeData.LOCATION_OF_INTEREST
+import com.sharedtest.FakeData.LOCATION_OF_INTEREST_NAME
 import com.sharedtest.FakeData.SUBMISSION
 import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.FakeData.TASK_1_NAME
@@ -153,7 +154,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         eq(LOCATION_OF_INTEREST.id),
         eq(SURVEY.id),
         capture(deltaCaptor),
-        eq(null),
+        eq(LOCATION_OF_INTEREST_NAME),
       )
 
     val expectedDeltas =
@@ -186,7 +187,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         eq(LOCATION_OF_INTEREST.id),
         eq(SURVEY.id),
         capture(deltaCaptor),
-        eq(null),
+        eq(LOCATION_OF_INTEREST_NAME),
       )
 
     val expectedDeltas =
@@ -241,6 +242,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupFragment(
       DataCollectionFragmentArgs.Builder(
           LOCATION_OF_INTEREST.id,
+          LOCATION_OF_INTEREST_NAME,
           JOB.id,
           true,
           SubmissionDeltasConverter.toString(expectedDeltas),
@@ -322,7 +324,13 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   private fun setupFragment(fragmentArgs: Bundle? = null) {
     val argsBundle =
       fragmentArgs
-        ?: DataCollectionFragmentArgs.Builder(LOCATION_OF_INTEREST.id, JOB.id, false, null)
+        ?: DataCollectionFragmentArgs.Builder(
+            LOCATION_OF_INTEREST.id,
+            LOCATION_OF_INTEREST_NAME,
+            JOB.id,
+            false,
+            null
+          )
           .build()
           .toBundle()
 

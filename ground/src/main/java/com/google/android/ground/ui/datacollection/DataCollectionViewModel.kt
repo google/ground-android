@@ -102,8 +102,9 @@ internal constructor(
   val jobName: StateFlow<String> =
     MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
   val loiName: StateFlow<String> =
-    (if (loiId == null) savedStateHandle.getStateFlow(TASK_LOI_NAME_KEY, "")
-      else
+    (if (loiId == null) {
+        savedStateHandle.getStateFlow(TASK_LOI_NAME_KEY, "")
+      } else
         flow {
           val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
           val label = locationOfInterestHelper.getDisplayLoiName(loi)
@@ -205,10 +206,6 @@ internal constructor(
     }
 
     data[taskViewModel.task] = taskViewModel.taskValue.firstOrNull()
-
-    if (taskViewModel.task.isAddLoiTask) {
-      //      showLoiNameDialog()
-    }
 
     if (!isLastPosition()) {
       step(1)
