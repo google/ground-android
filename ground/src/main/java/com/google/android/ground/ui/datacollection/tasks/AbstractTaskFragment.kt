@@ -268,6 +268,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     val primaryColor = getColor(R.color.md_theme_primary)
     val onPrimaryColor = getColor(R.color.md_theme_onPrimary)
     val onSurfaceDisabledColor = getColor(R.color.md_theme_on_surface_disabled)
+    val textFieldColor = getColor(R.color.md_theme_textFieldContainers)
     val saveButtonColors =
       ButtonColors(
         containerColor = primaryColor,
@@ -286,8 +287,8 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       TextFieldDefaults.colors(
         focusedIndicatorColor = primaryColor,
         unfocusedIndicatorColor = primaryColor,
-        focusedContainerColor = getColor(R.color.md_theme_text_field_container),
-        unfocusedContainerColor = getColor(R.color.md_theme_text_field_container),
+        focusedContainerColor = textFieldColor,
+        unfocusedContainerColor = textFieldColor,
         cursorColor = primaryColor,
       )
 
