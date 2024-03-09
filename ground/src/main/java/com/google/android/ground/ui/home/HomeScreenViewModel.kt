@@ -64,7 +64,7 @@ internal constructor(
       navigator.navigate(
         HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
           draft.loiId,
-          draft.loiName,
+          draft.loiName ?: "",
           draft.jobId,
           true,
           SubmissionDeltasConverter.toString(draft.deltas),
