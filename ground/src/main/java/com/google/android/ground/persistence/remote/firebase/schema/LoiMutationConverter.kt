@@ -50,6 +50,10 @@ internal object LoiMutationConverter {
       else -> {}
     }
 
+    if (mutation.properties.isNotEmpty()) {
+      map[LoiConverter.PROPERTIES] = mutation.properties
+    }
+
     val auditInfo = fromMutationAndUser(mutation, user)
     when (mutation.type) {
       Mutation.Type.CREATE -> {
