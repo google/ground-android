@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -37,14 +38,18 @@ import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import com.google.android.ground.R
 import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.material.color.MaterialColors
 
 private fun AbstractFragment.getColor(id: Int): Color =
   Color(ContextCompat.getColor(requireContext(), id))
 
+private fun AbstractFragment.getMaterialColor(id: Int): Color =
+  Color(MaterialColors.getColor(requireContext(), id, ""))
+
 @Composable
 private fun AbstractFragment.getElementColors():
-  Triple<ButtonColors, ButtonColors, TextFieldColors> {
-  val primaryColor = getColor(R.color.md_theme_primary)
+  Triple<ButtonColors, Color, TextFieldColors> {
+  val primaryColor = getMaterialColor(R.attr.colorPrimary)
   val onPrimaryColor = getColor(R.color.md_theme_onPrimary)
   val onSurfaceDisabledColor = getColor(R.color.md_theme_on_surface_disabled)
   val textFieldColor = getColor(R.color.md_theme_textFieldContainers)
@@ -55,13 +60,7 @@ private fun AbstractFragment.getElementColors():
       disabledContainerColor = onSurfaceDisabledColor,
       disabledContentColor = onPrimaryColor,
     )
-  val cancelButtonColors =
-    ButtonColors(
-      containerColor = Color.Transparent,
-      contentColor = primaryColor,
-      disabledContainerColor = onSurfaceDisabledColor,
-      disabledContentColor = onPrimaryColor,
-    )
+  val cancelButtonColor = getMaterialColor(R.attr.colorPrimary)
   val textFieldColors =
     TextFieldDefaults.colors(
       focusedIndicatorColor = primaryColor,
@@ -71,7 +70,7 @@ private fun AbstractFragment.getElementColors():
       cursorColor = primaryColor,
     )
 
-  return Triple(saveButtonColors, cancelButtonColors, textFieldColors)
+  return Triple(saveButtonColors, cancelButtonColor, textFieldColors)
 }
 
 @Composable
@@ -82,7 +81,7 @@ fun LoiNameDialog(
   onDismissRequest: () -> Unit,
   onTextFieldChange: (String) -> Unit
 ) {
-  val (saveButtonColors, cancelButtonColors, textFieldColors) = fragment.getElementColors()
+  val (saveButtonColors, cancelButtonColor, textFieldColors) = fragment.getElementColors()
   AlertDialog(
     onDismissRequest = onDismissRequest,
     icon = {},
@@ -120,14 +119,12 @@ fun LoiNameDialog(
       }
     },
     dismissButton = {
-      TextButton(
-        onClick = onDismissRequest,
-        colors = cancelButtonColors,
-        contentPadding = PaddingValues(20.dp, 0.dp),
-        border = BorderStroke(2.dp, fragment.getColor(R.color.md_theme_outline)),
-      ) {
-        Text(fragment.getString(R.string.cancel))
-      }
+      OutlinedButton(onClick = { onDismissRequest() }) {
+          Text(
+            text = fragment.getString(R.string.cancel),
+            color = cancelButtonColor,
+          )
+        }
     },
     containerColor = fragment.getColor(R.color.md_theme_background),
     textContentColor = fragment.getColor(R.color.md_theme_onBackground),
