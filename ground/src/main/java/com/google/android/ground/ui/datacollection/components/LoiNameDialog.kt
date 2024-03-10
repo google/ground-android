@@ -123,7 +123,7 @@ fun LoiNameDialog(
         )
       }
     },
-    containerColor = fragment.getColor(R.color.md_theme_background),
-    textContentColor = fragment.getColor(R.color.md_theme_onBackground),
+    containerColor = fragment.getMaterialColor(R.attr.colorBackgroundFloating),
+    textContentColor = fragment.getMaterialColor(R.attr.colorOnBackground),
   )
 }
