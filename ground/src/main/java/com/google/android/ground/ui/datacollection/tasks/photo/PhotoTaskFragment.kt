@@ -63,8 +63,16 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject lateinit var popups: EphemeralPopups
   @Inject lateinit var navigator: Navigator
 
-  private lateinit var selectPhotoLauncher: ActivityResultLauncher<String>
-  private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
+  private var selectPhotoLauncher: ActivityResultLauncher<String> =
+    registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+      viewModel.onSelectPhotoResult(uri)
+    }
+
+  private var capturePhotoLauncher: ActivityResultLauncher<Uri> =
+    registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
+      viewModel.onCapturePhotoResult(result)
+    }
+
   private var hasRequestedPermissionsOnResume = false
   private var taskWaitingForPhoto: String? = null
   private var capturedPhotoPath: String? = null
@@ -88,15 +96,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   }
 
   override fun onTaskViewAttached() {
-    selectPhotoLauncher =
-      registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        viewModel.onSelectPhotoResult(uri)
-      }
-    capturePhotoLauncher =
-      registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-        viewModel.onCapturePhotoResult(result)
-      }
-
     viewModel.surveyId = dataCollectionViewModel.surveyId
     viewModel.taskWaitingForPhoto = taskWaitingForPhoto
     viewModel.capturedPhotoPath = capturedPhotoPath
