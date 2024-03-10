@@ -178,6 +178,10 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     obtainCapturePhotoPermissions { launchPhotoCapture(viewModel.task.id) }
   }
 
+  fun onSelectPhoto() {
+    obtainCapturePhotoPermissions { launchPhotoSelector(viewModel.task.id) }
+  }
+
   private fun launchPhotoCapture(taskId: String) {
     try {
       val photoFile = userMediaRepository.createImageFile(taskId)
@@ -186,6 +190,16 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
       viewModel.capturedPhotoPath = photoFile.absolutePath
       capturePhotoLauncher.launch(uri)
       Timber.d("Capture photo intent sent")
+    } catch (e: IllegalArgumentException) {
+      popups.ErrorPopup().show(R.string.error_message)
+      Timber.e(e)
+    }
+  }
+
+  private fun launchPhotoSelector(taskId: String) {
+    try {
+      viewModel.taskWaitingForPhoto = taskId
+      selectPhotoLauncher.launch("image/*")
     } catch (e: IllegalArgumentException) {
       popups.ErrorPopup().show(R.string.error_message)
       Timber.e(e)
