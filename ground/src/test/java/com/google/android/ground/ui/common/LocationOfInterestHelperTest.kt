@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.common
 
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -73,7 +74,9 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   @Test
   fun testLoiName_whenPropertiesNameIsAvailable() {
     assertThat(
-        loiHelper.getDisplayLoiName(TEST_LOI.copy(properties = mapOf("name" to "custom name")))
+        loiHelper.getDisplayLoiName(
+          TEST_LOI.copy(properties = mapOf(LOI_NAME_PROPERTY to "custom name"))
+        )
       )
       .isEqualTo("custom name")
   }
@@ -82,7 +85,10 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   fun testLoiName_whenCustomIdAndPropertiesNameIsAvailable() {
     assertThat(
         loiHelper.getDisplayLoiName(
-          TEST_LOI.copy(customId = "some value", properties = mapOf("name" to "custom name"))
+          TEST_LOI.copy(
+            customId = "some value",
+            properties = mapOf(LOI_NAME_PROPERTY to "custom name")
+          )
         )
       )
       .isEqualTo("custom name (some value)")

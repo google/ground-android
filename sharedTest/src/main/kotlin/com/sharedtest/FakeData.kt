@@ -25,6 +25,7 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
+import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
@@ -157,7 +158,7 @@ object FakeData {
       userId = USER_ID,
       surveyId = SURVEY_ID,
       clientTimestamp = Date(),
-      properties = mapOf("name" to LOCATION_OF_INTEREST_NAME)
+      properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME)
     )
 
   fun newAoiMutation(
@@ -175,6 +176,6 @@ object FakeData {
       userId = USER_ID,
       surveyId = SURVEY_ID,
       clientTimestamp = Date(),
-      properties = mapOf("name" to LOCATION_OF_INTEREST_NAME)
+      properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME)
     )
 }

@@ -93,6 +93,12 @@ internal constructor(
 
   private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
   private val job: Job = activeSurvey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
+  private var customLoiName: String?
+    get() = savedStateHandle[TASK_LOI_NAME_KEY]
+    set(value) {
+      savedStateHandle[TASK_LOI_NAME_KEY] = value
+    }
+
   // LOI creation task is included only on "new data collection site" flow..
   val tasks: List<Task> =
     if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
@@ -101,7 +107,8 @@ internal constructor(
 
   val jobName: StateFlow<String> =
     MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
-  val loiName: StateFlow<String> =
+
+  val loiName: StateFlow<String?> =
     (if (loiId == null) {
         // User supplied LOI name during LOI creation task. Use to save the LOI name later.
         savedStateHandle.getStateFlow(TASK_LOI_NAME_KEY, "")
@@ -126,7 +133,7 @@ internal constructor(
   lateinit var submissionId: String
 
   fun setLoiName(name: String) {
-    savedStateHandle[TASK_LOI_NAME_KEY] = name
+    customLoiName = name
   }
 
   private fun getDraftDeltas(): List<ValueDelta> {
@@ -230,7 +237,7 @@ internal constructor(
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(deltas: List<ValueDelta>) {
     externalScope.launch(ioDispatcher) {
-      submitDataUseCase.invoke(loiId, job, surveyId, deltas, savedStateHandle[TASK_LOI_NAME_KEY])
+      submitDataUseCase.invoke(loiId, job, surveyId, deltas, customLoiName)
     }
   }
 
@@ -248,7 +255,7 @@ internal constructor(
         loiId = loiId,
         surveyId = surveyId,
         deltas = getDeltas(),
-        loiName = savedStateHandle[TASK_LOI_NAME_KEY],
+        loiName = customLoiName,
       )
     }
   }

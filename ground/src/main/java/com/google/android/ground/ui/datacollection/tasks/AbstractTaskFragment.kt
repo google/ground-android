@@ -19,28 +19,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
-import androidx.core.content.ContextCompat
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
@@ -52,6 +33,7 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
+import com.google.android.ground.ui.datacollection.components.LoiNameDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
 import com.google.android.ground.ui.datacollection.components.TaskButtonFactory
 import com.google.android.ground.ui.datacollection.components.TaskView
@@ -187,7 +169,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   fun handleNext() {
     if (getTask().isAddLoiTask) {
       // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
-      showLoiNameDialog(dataCollectionViewModel.loiName.value)
+      showLoiNameDialog(dataCollectionViewModel.loiName.value ?: "")
     } else {
       moveToNext()
     }
@@ -246,6 +228,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
             openAlertDialog.value.second -> {
               val (textFieldValue, openState) = openAlertDialog.value
               LoiNameDialog(
+                fragment = this@AbstractTaskFragment,
                 textFieldValue = textFieldValue,
                 onConfirmRequest = {
                   openAlertDialog.value = Pair(textFieldValue, false)
@@ -258,99 +241,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
           }
         }
       }
-    )
-  }
-
-  private fun getColor(id: Int): Color = Color(ContextCompat.getColor(requireContext(), id))
-
-  @Composable
-  private fun getElementColors(): Triple<ButtonColors, ButtonColors, TextFieldColors> {
-    val primaryColor = getColor(R.color.md_theme_primary)
-    val onPrimaryColor = getColor(R.color.md_theme_onPrimary)
-    val onSurfaceDisabledColor = getColor(R.color.md_theme_on_surface_disabled)
-    val textFieldColor = getColor(R.color.md_theme_textFieldContainers)
-    val saveButtonColors =
-      ButtonColors(
-        containerColor = primaryColor,
-        contentColor = onPrimaryColor,
-        disabledContainerColor = onSurfaceDisabledColor,
-        disabledContentColor = onPrimaryColor,
-      )
-    val cancelButtonColors =
-      ButtonColors(
-        containerColor = Color.Transparent,
-        contentColor = primaryColor,
-        disabledContainerColor = onSurfaceDisabledColor,
-        disabledContentColor = onPrimaryColor,
-      )
-    val textFieldColors =
-      TextFieldDefaults.colors(
-        focusedIndicatorColor = primaryColor,
-        unfocusedIndicatorColor = primaryColor,
-        focusedContainerColor = textFieldColor,
-        unfocusedContainerColor = textFieldColor,
-        cursorColor = primaryColor,
-      )
-
-    return Triple(saveButtonColors, cancelButtonColors, textFieldColors)
-  }
-
-  @Composable
-  private fun LoiNameDialog(
-    textFieldValue: String,
-    onConfirmRequest: () -> Unit,
-    onDismissRequest: () -> Unit,
-    onTextFieldChange: (String) -> Unit
-  ) {
-    val (saveButtonColors, cancelButtonColors, textFieldColors) = getElementColors()
-    AlertDialog(
-      onDismissRequest = onDismissRequest,
-      icon = {},
-      title = {
-        Column(modifier = Modifier.fillMaxWidth()) {
-          Text(
-            text = getString(R.string.loi_name_dialog_title),
-            fontSize = 5.em,
-            textAlign = TextAlign.Start,
-          )
-        }
-      },
-      text = {
-        Column {
-          Text(
-            text = getString(R.string.loi_name_dialog_body),
-            modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 16.dp),
-          )
-          TextField(
-            value = textFieldValue,
-            onValueChange = onTextFieldChange,
-            colors = textFieldColors,
-            singleLine = true,
-          )
-        }
-      },
-      confirmButton = {
-        TextButton(
-          onClick = onConfirmRequest,
-          colors = saveButtonColors,
-          contentPadding = PaddingValues(25.dp, 0.dp),
-          enabled = textFieldValue != "",
-        ) {
-          Text(getString(R.string.save))
-        }
-      },
-      dismissButton = {
-        TextButton(
-          onClick = onDismissRequest,
-          colors = cancelButtonColors,
-          contentPadding = PaddingValues(20.dp, 0.dp),
-          border = BorderStroke(2.dp, getColor(R.color.md_theme_outline)),
-        ) {
-          Text(getString(R.string.cancel))
-        }
-      },
-      containerColor = getColor(R.color.md_theme_background),
-      textContentColor = getColor(R.color.md_theme_onBackground),
     )
   }
 

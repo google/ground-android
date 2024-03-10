@@ -21,6 +21,7 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.locationofinterest.generateProperties
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
@@ -88,7 +89,7 @@ constructor(
       created = auditInfo,
       lastModified = auditInfo,
       ownerEmail = user.email,
-      properties = loiName?.let { mapOf("name" to it) } ?: mapOf(),
+      properties = generateProperties(loiName),
       isPlanned = false
     )
   }
