@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,7 +33,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import com.google.android.ground.R
 import com.google.android.ground.ui.common.AbstractFragment
@@ -47,8 +45,7 @@ private fun AbstractFragment.getMaterialColor(id: Int): Color =
   Color(MaterialColors.getColor(requireContext(), id, ""))
 
 @Composable
-private fun AbstractFragment.getElementColors():
-  Triple<ButtonColors, Color, TextFieldColors> {
+private fun AbstractFragment.getElementColors(): Triple<ButtonColors, Color, TextFieldColors> {
   val primaryColor = getMaterialColor(R.attr.colorPrimary)
   val onPrimaryColor = getColor(R.color.md_theme_onPrimary)
   val onSurfaceDisabledColor = getColor(R.color.md_theme_on_surface_disabled)
@@ -120,11 +117,11 @@ fun LoiNameDialog(
     },
     dismissButton = {
       OutlinedButton(onClick = { onDismissRequest() }) {
-          Text(
-            text = fragment.getString(R.string.cancel),
-            color = cancelButtonColor,
-          )
-        }
+        Text(
+          text = fragment.getString(R.string.cancel),
+          color = cancelButtonColor,
+        )
+      }
     },
     containerColor = fragment.getColor(R.color.md_theme_background),
     textContentColor = fragment.getColor(R.color.md_theme_onBackground),
