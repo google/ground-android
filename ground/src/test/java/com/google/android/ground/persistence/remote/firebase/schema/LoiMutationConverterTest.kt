@@ -22,9 +22,9 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.GeoPoint
 import com.sharedtest.FakeData
+import kotlin.test.fail
 import org.junit.Assert.assertThrows
 import org.junit.Test
-import kotlin.test.fail
 
 class LoiMutationConverterTest {
   @Test
