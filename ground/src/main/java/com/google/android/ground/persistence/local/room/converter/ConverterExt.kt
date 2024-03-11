@@ -56,7 +56,7 @@ fun AuditInfo.toLocalDataStoreObject(): AuditInfoEntity =
   AuditInfoEntity(
     user = UserDetails.fromUser(user),
     clientTimestamp = clientTimestamp.time,
-    serverTimestamp = serverTimestamp?.time
+    serverTimestamp = serverTimestamp?.time,
   )
 
 fun AuditInfoEntity.toModelObject() =
@@ -108,7 +108,7 @@ fun Job.toLocalDataStoreObject(surveyId: String): JobEntity =
     surveyId = surveyId,
     name = name,
     strategy = strategy.toString(),
-    style = style?.toLocalDataStoreObject()
+    style = style?.toLocalDataStoreObject(),
   )
 
 fun JobEntityAndRelations.toModelObject(): Job {
@@ -126,7 +126,7 @@ fun JobEntityAndRelations.toModelObject(): Job {
           DataCollectionStrategy.UNKNOWN
         }
       },
-    tasks = taskMap.toPersistentMap()
+    tasks = taskMap.toPersistentMap(),
   )
 }
 
@@ -151,7 +151,7 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     submissionCount = submissionCount,
     ownerEmail = ownerEmail,
     properties = properties,
-    isPlanned = isPlanned,
+    isPredefined = isPredefined,
   )
 
 fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
@@ -167,18 +167,18 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       geometry = geometry.getGeometry(),
       submissionCount = submissionCount,
       properties = properties,
-      isPlanned = isPlanned,
+      isPredefined = isPredefined,
       job =
         survey.getJob(jobId = jobId)
           ?: throw LocalDataConsistencyException(
             "Unknown jobId ${this.jobId} in location of interest ${this.id}"
-          )
+          ),
     )
   }
 
 @Deprecated(
   "Use toLocalDataStoreObject(User) instead",
-  ReplaceWith("toLocalDataStoreObject(auditInfo.user)")
+  ReplaceWith("toLocalDataStoreObject(auditInfo.user)"),
 )
 fun LocationOfInterestMutation.toLocalDataStoreObject(auditInfo: AuditInfo) =
   toLocalDataStoreObject(auditInfo.user)
@@ -199,7 +199,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(user: User): LocationOfInt
     submissionCount = submissionCount,
     ownerEmail = ownerEmail,
     properties = properties,
-    isPlanned = isPlanned,
+    isPredefined = isPredefined,
   )
 }
 
@@ -218,7 +218,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject() =
     lastError = lastError,
     retryCount = retryCount,
     newProperties = properties,
-    isPlanned = isPlanned,
+    isPredefined = isPredefined,
   )
 
 fun LocationOfInterestMutationEntity.toModelObject() =
@@ -236,7 +236,7 @@ fun LocationOfInterestMutationEntity.toModelObject() =
     lastError = lastError,
     retryCount = retryCount,
     properties = newProperties,
-    isPlanned = isPlanned,
+    isPredefined = isPredefined,
   )
 
 fun MultipleChoiceEntity.toModelObject(optionEntities: List<OptionEntity>): MultipleChoice {
@@ -274,7 +274,7 @@ fun OfflineArea.toOfflineAreaEntity() =
     south = this.bounds.south,
     west = this.bounds.west,
     minZoom = this.zoomRange.first,
-    maxZoom = this.zoomRange.last
+    maxZoom = this.zoomRange.last,
   )
 
 fun OfflineAreaEntity.toModelObject(): OfflineArea {
@@ -286,7 +286,7 @@ fun OfflineAreaEntity.toModelObject(): OfflineArea {
     this.state.toModelObject(),
     bounds,
     this.name,
-    IntRange(minZoom, maxZoom)
+    IntRange(minZoom, maxZoom),
   )
 }
 
@@ -312,7 +312,7 @@ fun SubmissionEntity.toModelObject(loi: LocationOfInterest): Submission {
     job = job,
     created = this.created.toModelObject(),
     lastModified = this.lastModified.toModelObject(),
-    data = SubmissionDataConverter.fromString(job, this.data)
+    data = SubmissionDataConverter.fromString(job, this.data),
   )
 }
 
@@ -338,7 +338,7 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
     data = SubmissionDataConverter.toString(SubmissionData().copyWithDeltas(this.deltas)),
     // TODO(#1562): Preserve creation audit info for UPDATE mutations.
     created = auditInfo,
-    lastModified = auditInfo
+    lastModified = auditInfo,
   )
 }
 
@@ -360,7 +360,7 @@ fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
     retryCount = retryCount,
     lastError = lastError,
     userId = userId,
-    clientTimestamp = Date(clientTimestamp)
+    clientTimestamp = Date(clientTimestamp),
   )
 }
 
@@ -377,7 +377,7 @@ fun SubmissionMutation.toLocalDataStoreObject() =
     retryCount = retryCount,
     lastError = lastError,
     userId = userId,
-    clientTimestamp = clientTimestamp.time
+    clientTimestamp = clientTimestamp.time,
   )
 
 fun SurveyEntityAndRelations.toModelObject(): Survey {
@@ -390,7 +390,7 @@ fun SurveyEntityAndRelations.toModelObject(): Survey {
     surveyEntity.description!!,
     jobMap.toPersistentMap(),
     tileSources.toPersistentList(),
-    surveyEntity.acl?.toStringMap()!!
+    surveyEntity.acl?.toStringMap()!!,
   )
 }
 
@@ -405,7 +405,7 @@ fun Survey.toLocalDataStoreObject() =
     id = id,
     title = title,
     description = description,
-    acl = JSONObject(acl as Map<*, *>)
+    acl = JSONObject(acl as Map<*, *>),
   )
 
 fun Task.toLocalDataStoreObject(jobId: String?) =
@@ -416,7 +416,7 @@ fun Task.toLocalDataStoreObject(jobId: String?) =
     label = label,
     isRequired = isRequired,
     taskType = TaskEntityType.fromTaskType(type),
-    isAddLoiTask = isAddLoiTask
+    isAddLoiTask = isAddLoiTask,
   )
 
 fun TaskEntityAndRelations.toModelObject(): Task {
@@ -469,10 +469,7 @@ fun ConditionEntityAndRelations.toModelObject(): Condition? {
     expressions = expressionEntities.map { it.toModelObject() }
   }
 
-  return Condition(
-    conditionEntity.matchType.toMatchType(),
-    expressions = expressions,
-  )
+  return Condition(conditionEntity.matchType.toMatchType(), expressions = expressions)
 }
 
 fun Expression.toLocalDataStoreObject(parentTaskId: TaskId): ExpressionEntity =
@@ -480,7 +477,7 @@ fun Expression.toLocalDataStoreObject(parentTaskId: TaskId): ExpressionEntity =
     parentTaskId = parentTaskId,
     expressionType = ExpressionEntityType.fromExpressionType(expressionType),
     taskId = taskId,
-    optionIds = optionIds.joinToString(",")
+    optionIds = optionIds.joinToString(","),
   )
 
 fun ExpressionEntity.toModelObject(): Expression =

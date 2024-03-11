@@ -56,7 +56,7 @@ data class LocationOfInterest(
   /** Custom map of properties for this LOI. Corresponds to the properties field in GeoJSON */
   val properties: LoiProperties = mapOf(),
   /** Whether the LOI was predefined in the survey or not (i.e. added ad hoc). */
-  val isPlanned: Boolean? = null,
+  val isPredefined: Boolean? = null,
 ) {
 
   /**
@@ -77,7 +77,7 @@ data class LocationOfInterest(
       submissionCount = submissionCount,
       ownerEmail = ownerEmail,
       properties = properties,
-      isPlanned = isPlanned,
+      isPredefined = isPredefined,
     )
 
   fun getProperty(key: String): String = properties[key]?.toString() ?: ""

@@ -40,5 +40,5 @@ data class LocationOfInterestEntity(
   val submissionCount: Int,
   val ownerEmail: String?,
   val properties: LoiProperties,
-  val isPlanned: Boolean?,
+  val isPredefined: Boolean?,
 )
