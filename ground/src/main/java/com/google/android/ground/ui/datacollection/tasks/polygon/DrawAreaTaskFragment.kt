@@ -98,7 +98,7 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
   }
 
   override fun onTaskResume() {
-    if (!viewModel.instructionsDialogShown) {
+    if (isVisible && !viewModel.instructionsDialogShown) {
       showInstructionsDialog()
     }
   }
