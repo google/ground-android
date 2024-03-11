@@ -500,6 +500,7 @@ fun DraftSubmissionEntity.toModelObject(survey: Survey): DraftSubmission {
     id = id,
     jobId = jobId,
     loiId = loiId,
+    loiName = loiName,
     surveyId = surveyId,
     deltas = SubmissionDeltasConverter.fromString(job, deltas),
   )
@@ -510,6 +511,7 @@ fun DraftSubmission.toLocalDataStoreObject() =
     id = id,
     jobId = jobId,
     loiId = loiId,
+    loiName = loiName,
     surveyId = surveyId,
     deltas = SubmissionDeltasConverter.toString(deltas),
   )

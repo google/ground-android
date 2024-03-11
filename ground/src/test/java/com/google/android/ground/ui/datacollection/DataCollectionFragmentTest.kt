@@ -36,6 +36,8 @@ import com.google.android.ground.persistence.local.room.converter.SubmissionDelt
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
+import com.sharedtest.FakeData.LOCATION_OF_INTEREST
+import com.sharedtest.FakeData.LOCATION_OF_INTEREST_NAME
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -133,6 +135,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         eq(LOCATION_OF_INTEREST.id),
         eq(SURVEY.id),
         capture(deltaCaptor),
+        eq(LOCATION_OF_INTEREST_NAME),
       )
 
     listOf(TASK_1_VALUE_DELTA).forEach { value -> assertThat(deltaCaptor.value).contains(value) }
@@ -154,6 +157,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         eq(LOCATION_OF_INTEREST.id),
         eq(SURVEY.id),
         capture(deltaCaptor),
+        eq(LOCATION_OF_INTEREST_NAME),
       )
 
     listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA).forEach { value ->
@@ -183,6 +187,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupFragment(
       DataCollectionFragmentArgs.Builder(
           LOCATION_OF_INTEREST.id,
+          LOCATION_OF_INTEREST_NAME,
           JOB.id,
           true,
           SubmissionDeltasConverter.toString(expectedDeltas),
@@ -236,7 +241,13 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   private fun setupFragment(fragmentArgs: Bundle? = null) {
     val argsBundle =
       fragmentArgs
-        ?: DataCollectionFragmentArgs.Builder(LOCATION_OF_INTEREST.id, JOB.id, false, null)
+        ?: DataCollectionFragmentArgs.Builder(
+            LOCATION_OF_INTEREST.id,
+            LOCATION_OF_INTEREST_NAME,
+            JOB.id,
+            false,
+            null
+          )
           .build()
           .toBundle()
 
@@ -323,7 +334,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       )
 
     private val JOB = FakeData.JOB.copy(tasks = TASKS.associateBy { it.id })
-    private val LOCATION_OF_INTEREST = FakeData.LOCATION_OF_INTEREST
     private val SUBMISSION = FakeData.SUBMISSION.copy(job = JOB)
     private val SURVEY = FakeData.SURVEY.copy(jobMap = mapOf(Pair(JOB.id, JOB)))
   }
