@@ -92,11 +92,9 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  override fun setMenuVisibility(menuVisible: Boolean) {
-    super.setMenuVisibility(menuVisible)
-    if (menuVisible) {
-      onTaskVisibleToUser()
-    }
+  override fun onResume() {
+    super.onResume()
+    onTaskResume()
   }
 
   /** Creates the view for common task template with/without header. */
@@ -109,7 +107,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   open fun onTaskViewAttached() {}
 
   /** Invoked when the task fragment is visible to the user. */
-  open fun onTaskVisibleToUser() {}
+  open fun onTaskResume() {}
 
   /** Invoked when the fragment is ready to add buttons to the current [TaskView]. */
   open fun onCreateActionButtons() {

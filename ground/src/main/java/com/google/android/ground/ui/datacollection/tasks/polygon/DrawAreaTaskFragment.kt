@@ -19,7 +19,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
@@ -35,7 +34,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.LineString
@@ -98,7 +97,7 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
     }
   }
 
-  override fun onTaskVisibleToUser() {
+  override fun onTaskResume() {
     if (!viewModel.instructionsDialogShown) {
       showInstructionsDialog()
     }
@@ -114,16 +113,14 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
   }
 
   private fun showInstructionsDialog() {
+    viewModel.instructionsDialogShown = true
     (view as ViewGroup).addView(
       ComposeView(requireContext()).apply {
         setContent {
           val openAlertDialog = remember { mutableStateOf(true) }
           when {
             openAlertDialog.value -> {
-              CreateInstructionsDialog {
-                openAlertDialog.value = false
-                viewModel.instructionsDialogShown = true
-              }
+              CreateInstructionsDialog { openAlertDialog.value = false }
             }
           }
         }
@@ -141,30 +138,22 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
           modifier = Modifier.width(48.dp).height(48.dp),
         )
       },
-      title = { StyledText(getText(R.string.draw_area_task_instruction)) },
+      title = { Text(text = getString(R.string.draw_area_task_instruction), fontSize = 18.sp) },
       onDismissRequest = {}, // Prevent dismissing the dialog by clicking outside
       confirmButton = {}, // Hide confirm button
       dismissButton = {
         OutlinedButton(onClick = { onDismissRequest() }) {
           Text(
             text = getString(R.string.close),
-            color = Color(MaterialColors.getColor(context, R.attr.colorPrimary, "")),
+            color = getMaterialColor(R.attr.colorPrimary),
           )
         }
       },
+      containerColor = getMaterialColor(R.attr.colorBackgroundFloating),
+      textContentColor = getMaterialColor(R.attr.colorOnBackground),
     )
   }
 
-  /** Supports annotated texts e.g. <b>Hello world</b> */
-  @Composable
-  private fun StyledText(text: CharSequence, modifier: Modifier = Modifier) {
-    AndroidView(
-      modifier = modifier,
-      factory = { context -> TextView(context) },
-      update = {
-        it.text = text
-        it.textSize = 18.toFloat()
-      },
-    )
-  }
+  private fun getMaterialColor(id: Int): Color =
+    Color(MaterialColors.getColor(requireContext(), id, ""))
 }
