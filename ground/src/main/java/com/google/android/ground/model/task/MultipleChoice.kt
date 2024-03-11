@@ -25,7 +25,8 @@ data class MultipleChoice
 @JvmOverloads
 constructor(
   val options: PersistentList<Option> = persistentListOf(),
-  val cardinality: Cardinality
+  val cardinality: Cardinality,
+  val hasOtherOption: Boolean = false,
 ) {
   enum class Cardinality {
     SELECT_ONE,

@@ -26,6 +26,7 @@ data class TaskNestedObject(
   val cardinality: String? = null,
   val label: String? = null,
   val options: Map<String, OptionNestedObject>? = null,
+  val hasOtherOption : Boolean? = false,
   val required: Boolean? = null,
   val addLoiTask: Boolean? = false,
   val condition: ConditionNestedObject? = null,
