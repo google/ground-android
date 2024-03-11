@@ -241,7 +241,13 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   private fun setupFragment(fragmentArgs: Bundle? = null) {
     val argsBundle =
       fragmentArgs
-        ?: DataCollectionFragmentArgs.Builder(LOCATION_OF_INTEREST.id, JOB.id, false, null)
+        ?: DataCollectionFragmentArgs.Builder(
+            LOCATION_OF_INTEREST.id,
+            LOCATION_OF_INTEREST_NAME,
+            JOB.id,
+            false,
+            null
+          )
           .build()
           .toBundle()
 
