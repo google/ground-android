@@ -25,6 +25,7 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
+import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
@@ -68,6 +69,8 @@ object FakeData {
       listOf(),
       mapOf(USER.email to "data-collector")
     )
+
+  const val LOCATION_OF_INTEREST_NAME = "Test LOI Name"
 
   val LOCATION_OF_INTEREST =
     LocationOfInterest(
@@ -154,7 +157,8 @@ object FakeData {
       syncStatus = syncStatus,
       userId = USER_ID,
       surveyId = SURVEY_ID,
-      clientTimestamp = Date()
+      clientTimestamp = Date(),
+      properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME)
     )
 
   fun newAoiMutation(
@@ -171,6 +175,7 @@ object FakeData {
       syncStatus = syncStatus,
       userId = USER_ID,
       surveyId = SURVEY_ID,
-      clientTimestamp = Date()
+      clientTimestamp = Date(),
+      properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME)
     )
 }

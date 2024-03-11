@@ -31,6 +31,7 @@ import com.google.android.ground.coroutines.MainDispatcher
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
+import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.UserRepository
@@ -214,6 +215,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
             cardUiData.loi.id,
+            cardUiData.loi.properties[LOI_NAME_PROPERTY] as? String?,
             cardUiData.loi.job.id,
             false,
             null,
@@ -222,6 +224,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       is MapCardUiData.AddLoiCardUiData ->
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+            null,
             null,
             cardUiData.job.id,
             false,

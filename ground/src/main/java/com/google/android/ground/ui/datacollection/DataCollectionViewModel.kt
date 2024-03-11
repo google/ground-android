@@ -52,6 +52,7 @@ import javax.inject.Provider
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
+import kotlin.math.abs
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,7 +60,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -93,6 +93,12 @@ internal constructor(
 
   private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
   private val job: Job = activeSurvey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
+  private var customLoiName: String?
+    get() = savedStateHandle[TASK_LOI_NAME_KEY]
+    set(value) {
+      savedStateHandle[TASK_LOI_NAME_KEY] = value
+    }
+
   // LOI creation task is included only on "new data collection site" flow..
   val tasks: List<Task> =
     if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
@@ -101,10 +107,14 @@ internal constructor(
 
   val jobName: StateFlow<String> =
     MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
-  val loiName: StateFlow<String> =
-    (if (loiId == null) flowOf("")
-      else
-        flow {
+
+  val loiName: StateFlow<String?> =
+    (if (loiId == null) {
+        // User supplied LOI name during LOI creation task. Use to save the LOI name later.
+        savedStateHandle.getStateFlow(TASK_LOI_NAME_KEY, "")
+      } else
+      // LOI name pulled from LOI properties, if it exists.
+      flow {
           val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
           val label = locationOfInterestHelper.getDisplayLoiName(loi)
           emit(label)
@@ -121,6 +131,10 @@ internal constructor(
     savedStateHandle.getStateFlow(TASK_POSITION_ID, tasks.first().id)
 
   lateinit var submissionId: String
+
+  fun setLoiName(name: String) {
+    customLoiName = name
+  }
 
   private fun getDraftDeltas(): List<ValueDelta> {
     if (!shouldLoadFromDraft) return listOf()
@@ -222,7 +236,9 @@ internal constructor(
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(deltas: List<ValueDelta>) {
-    externalScope.launch(ioDispatcher) { submitDataUseCase.invoke(loiId, job, surveyId, deltas) }
+    externalScope.launch(ioDispatcher) {
+      submitDataUseCase.invoke(loiId, job, surveyId, deltas, customLoiName)
+    }
   }
 
   fun getAbsolutePosition(): Int {
@@ -239,6 +255,7 @@ internal constructor(
         loiId = loiId,
         surveyId = surveyId,
         deltas = getDeltas(),
+        loiName = customLoiName,
       )
     }
   }
@@ -286,7 +303,7 @@ internal constructor(
     val reverse = stepCount < 0
     val task =
       getTaskSequence(startId = currentTaskId.value, reversed = reverse)
-        .take(Math.abs(stepCount) + 1)
+        .take(abs(stepCount) + 1)
         .last()
     savedStateHandle[TASK_POSITION_ID] = task.id
 
@@ -312,6 +329,7 @@ internal constructor(
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"
     private const val TASK_LOI_ID_KEY = "locationOfInterestId"
+    private const val TASK_LOI_NAME_KEY = "locationOfInterestName"
     private const val TASK_POSITION_ID = "currentTaskId"
     private const val TASK_SHOULD_LOAD_FROM_DRAFT = "shouldLoadFromDraft"
     private const val TASK_DRAFT_VALUES = "draftValues"

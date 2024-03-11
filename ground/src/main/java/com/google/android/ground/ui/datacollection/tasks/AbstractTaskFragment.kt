@@ -19,6 +19,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
@@ -30,6 +33,7 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
+import com.google.android.ground.ui.datacollection.components.LoiNameDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
 import com.google.android.ground.ui.datacollection.components.TaskButtonFactory
 import com.google.android.ground.ui.datacollection.components.TaskView
@@ -136,7 +140,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   protected fun addNextButton() =
     addButton(ButtonAction.NEXT)
-      .setOnClickListener { moveToNext() }
+      .setOnClickListener { handleNext() }
       .setOnValueChanged { button, value -> button.enableIfTrue(value.isNotNullOrEmpty()) }
       .disable()
 
@@ -158,8 +162,26 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     lifecycleScope.launch { dataCollectionViewModel.onPreviousClicked(viewModel) }
   }
 
-  fun moveToNext() {
+  private fun moveToNext() {
     lifecycleScope.launch { dataCollectionViewModel.onNextClicked(viewModel) }
+  }
+
+  fun handleNext() {
+    if (getTask().isAddLoiTask) {
+      // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
+      showLoiNameDialog(dataCollectionViewModel.loiName.value ?: "")
+    } else {
+      moveToNext()
+    }
+  }
+
+  private fun handleLoiNameSet(loiName: String) {
+    if (loiName != "") {
+      lifecycleScope.launch {
+        dataCollectionViewModel.setLoiName(loiName)
+        moveToNext()
+      }
+    }
   }
 
   fun addUndoButton() =
@@ -196,6 +218,30 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   @TestOnly fun getButtons() = buttons
 
   @TestOnly fun getButtonsIndex() = buttonsIndex
+
+  private fun showLoiNameDialog(initialTextValue: String) {
+    (view as ViewGroup).addView(
+      ComposeView(requireContext()).apply {
+        setContent {
+          val openAlertDialog = remember { mutableStateOf(Pair(initialTextValue, true)) }
+          when {
+            openAlertDialog.value.second -> {
+              val (textFieldValue, openState) = openAlertDialog.value
+              LoiNameDialog(
+                textFieldValue = textFieldValue,
+                onConfirmRequest = {
+                  openAlertDialog.value = Pair(textFieldValue, false)
+                  handleLoiNameSet(loiName = textFieldValue)
+                },
+                onDismissRequest = { openAlertDialog.value = Pair(initialTextValue, false) },
+                onTextFieldChange = { openAlertDialog.value = Pair(it, openState) }
+              )
+            }
+          }
+        }
+      }
+    )
+  }
 
   companion object {
     /** Key used to store the position of the task in the Job's sorted tasklist. */
