@@ -228,7 +228,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
             openAlertDialog.value.second -> {
               val (textFieldValue, openState) = openAlertDialog.value
               LoiNameDialog(
-                fragment = this@AbstractTaskFragment,
                 textFieldValue = textFieldValue,
                 onConfirmRequest = {
                   openAlertDialog.value = Pair(textFieldValue, false)

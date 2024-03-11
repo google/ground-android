@@ -15,10 +15,12 @@
  */
 package com.google.android.ground.ui.datacollection.components
 
+import android.util.TypedValue
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.OutlinedButton
@@ -28,25 +30,32 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import androidx.core.content.ContextCompat
 import com.google.android.ground.R
-import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.material.color.MaterialColors
 
-private fun AbstractFragment.getColor(id: Int): Color =
-  Color(ContextCompat.getColor(requireContext(), id))
+@Composable @ReadOnlyComposable private fun getColor(id: Int): Color = colorResource(id)
 
-private fun AbstractFragment.getMaterialColor(id: Int): Color =
-  Color(MaterialColors.getColor(requireContext(), id, ""))
+// `colorAttribute` implementation adapted from:
+// https://stackoverflow.com/questions/62971113/how-to-reference-theme-attributes-in-jetpack-compose.
+@Composable
+@ReadOnlyComposable
+fun colorAttribute(attrColor: Int) =
+  colorResource(
+    TypedValue()
+      .apply { LocalContext.current.theme.resolveAttribute(attrColor, this, true) }
+      .resourceId
+  )
 
 @Composable
-private fun AbstractFragment.getElementColors(): Triple<ButtonColors, Color, TextFieldColors> {
-  val primaryColor = getMaterialColor(R.attr.colorPrimary)
+private fun getElementColors(): Triple<ButtonColors, Color, TextFieldColors> {
+  val primaryColor = colorAttribute(R.attr.colorPrimary)
   val onPrimaryColor = getColor(R.color.md_theme_onPrimary)
   val onSurfaceDisabledColor = getColor(R.color.md_theme_on_surface_disabled)
   val textFieldColor = getColor(R.color.md_theme_textFieldContainers)
@@ -57,7 +66,7 @@ private fun AbstractFragment.getElementColors(): Triple<ButtonColors, Color, Tex
       disabledContainerColor = onSurfaceDisabledColor,
       disabledContentColor = onPrimaryColor,
     )
-  val cancelButtonColor = getMaterialColor(R.attr.colorPrimary)
+  val cancelButtonColor = colorAttribute(R.attr.colorPrimary)
   val textFieldColors =
     TextFieldDefaults.colors(
       focusedIndicatorColor = primaryColor,
@@ -72,31 +81,29 @@ private fun AbstractFragment.getElementColors(): Triple<ButtonColors, Color, Tex
 
 @Composable
 fun LoiNameDialog(
-  fragment: AbstractFragment,
   textFieldValue: String,
   onConfirmRequest: () -> Unit,
   onDismissRequest: () -> Unit,
   onTextFieldChange: (String) -> Unit
 ) {
-  val (saveButtonColors, cancelButtonColor, textFieldColors) = fragment.getElementColors()
+  val (saveButtonColors, cancelButtonColor, textFieldColors) = getElementColors()
   AlertDialog(
     onDismissRequest = onDismissRequest,
     icon = {},
     title = {
       Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-          text = fragment.getString(R.string.loi_name_dialog_title),
+          text = stringResource(R.string.loi_name_dialog_title),
           fontSize = 5.em,
-          textAlign = TextAlign.Start,
         )
       }
     },
     text = {
       Column {
         Text(
-          text = fragment.getString(R.string.loi_name_dialog_body),
-          modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 16.dp),
+          text = stringResource(R.string.loi_name_dialog_body),
         )
+        Spacer(Modifier.height(16.dp))
         TextField(
           value = textFieldValue,
           onValueChange = onTextFieldChange,
@@ -112,18 +119,18 @@ fun LoiNameDialog(
         contentPadding = PaddingValues(25.dp, 0.dp),
         enabled = textFieldValue != "",
       ) {
-        Text(fragment.getString(R.string.save))
+        Text(stringResource(R.string.save))
       }
     },
     dismissButton = {
       OutlinedButton(onClick = { onDismissRequest() }) {
         Text(
-          text = fragment.getString(R.string.cancel),
+          text = stringResource(R.string.cancel),
           color = cancelButtonColor,
         )
       }
     },
-    containerColor = fragment.getMaterialColor(R.attr.colorBackgroundFloating),
-    textContentColor = fragment.getMaterialColor(R.attr.colorOnBackground),
+    containerColor = colorAttribute(R.attr.colorBackgroundFloating),
+    textContentColor = colorAttribute(R.attr.colorOnBackground),
   )
 }
