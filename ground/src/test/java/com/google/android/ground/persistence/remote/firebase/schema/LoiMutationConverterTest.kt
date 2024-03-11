@@ -90,7 +90,7 @@ class LoiMutationConverterTest {
       assertThat(map[CREATED]).isEqualTo(map[LAST_MODIFIED])
       assertThat(map[CREATED])
         .isEqualTo(AuditInfoConverter.fromMutationAndUser(mutation, TEST_USER))
-      assertThat(map[IS_PLANNED]).isEqualTo(false)
+      assertThat(map[IS_PREDEFINED]).isEqualTo(false)
     }
   }
 
