@@ -219,21 +219,24 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   @TestOnly fun getButtonsIndex() = buttonsIndex
 
-  private fun showLoiNameDialog(initialTextValue: String) {
+  private fun showLoiNameDialog(initialNameValue: String) {
     (view as ViewGroup).addView(
       ComposeView(requireContext()).apply {
         setContent {
-          val openAlertDialog = remember { mutableStateOf(Pair(initialTextValue, true)) }
+          val initialOpenState = true
+          val openAlertDialog = remember {
+            mutableStateOf(Pair(initialNameValue, initialOpenState))
+          }
           when {
             openAlertDialog.value.second -> {
-              val (textFieldValue, openState) = openAlertDialog.value
+              val (newNameValue, openState) = openAlertDialog.value
               LoiNameDialog(
-                textFieldValue = textFieldValue,
+                textFieldValue = newNameValue,
                 onConfirmRequest = {
-                  openAlertDialog.value = Pair(textFieldValue, false)
-                  handleLoiNameSet(loiName = textFieldValue)
+                  openAlertDialog.value = Pair(newNameValue, false)
+                  handleLoiNameSet(loiName = newNameValue)
                 },
-                onDismissRequest = { openAlertDialog.value = Pair(initialTextValue, false) },
+                onDismissRequest = { openAlertDialog.value = Pair(initialNameValue, false) },
                 onTextFieldChange = { openAlertDialog.value = Pair(it, openState) }
               )
             }
