@@ -30,12 +30,12 @@ import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.GmsExt.contains
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
@@ -50,7 +50,7 @@ constructor(
   private val localLoiStore: LocalLocationOfInterestStore,
   private val remoteDataStore: RemoteDataStore,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
-  private val uuidGenerator: OfflineUuidGenerator
+  private val uuidGenerator: OfflineUuidGenerator,
 ) {
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
   suspend fun syncLocationsOfInterest(survey: Survey) {
@@ -76,7 +76,7 @@ constructor(
     geometry: Geometry,
     job: Job,
     surveyId: String,
-    user: User
+    user: User,
   ): LocationOfInterest {
     val auditInfo = AuditInfo(user)
     return LocationOfInterest(
@@ -87,7 +87,7 @@ constructor(
       created = auditInfo,
       lastModified = auditInfo,
       ownerEmail = user.email,
-      isPlanned = false
+      isPredefined = false,
     )
   }
 

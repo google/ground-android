@@ -33,7 +33,7 @@ object LoiConverter {
   const val GEOMETRY_COORDINATES = "coordinates"
   const val GEOMETRY = "geometry"
   const val SUBMISSION_COUNT = "submissionCount"
-  const val IS_PLANNED = "planned"
+  const val IS_PREDEFINED = "predefined"
 
   fun toLoi(survey: Survey, doc: DocumentSnapshot): Result<LocationOfInterest> = runCatching {
     toLoiUnchecked(survey, doc)
@@ -54,7 +54,7 @@ object LoiConverter {
     survey: Survey,
     loiId: String,
     loiDoc: LoiDocument,
-    geometry: Geometry
+    geometry: Geometry,
   ): LocationOfInterest {
     val jobId = DataStoreException.checkNotNull(loiDoc.jobId, JOB_ID)
     val job = DataStoreException.checkNotNull(survey.getJob(jobId), "job ${loiDoc.jobId}")
@@ -73,7 +73,7 @@ object LoiConverter {
       geometry = geometry,
       submissionCount = submissionCount,
       properties = loiDoc.properties ?: mapOf(),
-      isPlanned = loiDoc.planned,
+      isPredefined = loiDoc.predefined,
     )
   }
 }

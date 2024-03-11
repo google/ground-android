@@ -32,5 +32,5 @@ data class LoiDocument(
   val lastModified: AuditInfoNestedObject? = null,
   val submissionCount: Int? = null,
   val properties: LoiProperties? = null,
-  val planned: Boolean? = null,
+  val predefined: Boolean? = null,
 )
