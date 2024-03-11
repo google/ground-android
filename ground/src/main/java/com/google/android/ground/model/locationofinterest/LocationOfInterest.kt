@@ -25,6 +25,11 @@ import com.google.android.ground.model.mutation.Mutation.SyncStatus
 /** Alias for a map of properties with string names. */
 typealias LoiProperties = Map<String, Any>
 
+const val LOI_NAME_PROPERTY = "name"
+
+fun generateProperties(loiName: String? = null): LoiProperties =
+  loiName?.let { mapOf(LOI_NAME_PROPERTY to it) } ?: mapOf()
+
 /** User-defined locations of interest (LOI) shown on the map. */
 data class LocationOfInterest(
   /** A system-defined ID for this LOI. */

@@ -21,6 +21,7 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.locationofinterest.generateProperties
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
@@ -76,7 +77,8 @@ constructor(
     geometry: Geometry,
     job: Job,
     surveyId: String,
-    user: User
+    user: User,
+    loiName: String?,
   ): LocationOfInterest {
     val auditInfo = AuditInfo(user)
     return LocationOfInterest(
@@ -87,6 +89,7 @@ constructor(
       created = auditInfo,
       lastModified = auditInfo,
       ownerEmail = user.email,
+      properties = generateProperties(loiName),
       isPlanned = false
     )
   }

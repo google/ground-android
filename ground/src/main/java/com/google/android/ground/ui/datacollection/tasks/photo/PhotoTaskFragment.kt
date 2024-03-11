@@ -63,8 +63,16 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject lateinit var popups: EphemeralPopups
   @Inject lateinit var navigator: Navigator
 
-  private lateinit var selectPhotoLauncher: ActivityResultLauncher<String>
-  private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
+  private var selectPhotoLauncher: ActivityResultLauncher<String> =
+    registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+      viewModel.onSelectPhotoResult(uri)
+    }
+
+  private var capturePhotoLauncher: ActivityResultLauncher<Uri> =
+    registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
+      viewModel.onCapturePhotoResult(result)
+    }
+
   private var hasRequestedPermissionsOnResume = false
   private var taskWaitingForPhoto: String? = null
   private var capturedPhotoPath: String? = null
@@ -88,15 +96,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   }
 
   override fun onTaskViewAttached() {
-    selectPhotoLauncher =
-      registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        viewModel.onSelectPhotoResult(uri)
-      }
-    capturePhotoLauncher =
-      registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-        viewModel.onCapturePhotoResult(result)
-      }
-
     viewModel.surveyId = dataCollectionViewModel.surveyId
     viewModel.taskWaitingForPhoto = taskWaitingForPhoto
     viewModel.capturedPhotoPath = capturedPhotoPath
@@ -179,6 +178,10 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     obtainCapturePhotoPermissions { launchPhotoCapture(viewModel.task.id) }
   }
 
+  fun onSelectPhoto() {
+    obtainCapturePhotoPermissions { launchPhotoSelector(viewModel.task.id) }
+  }
+
   private fun launchPhotoCapture(taskId: String) {
     try {
       val photoFile = userMediaRepository.createImageFile(taskId)
@@ -187,6 +190,16 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
       viewModel.capturedPhotoPath = photoFile.absolutePath
       capturePhotoLauncher.launch(uri)
       Timber.d("Capture photo intent sent")
+    } catch (e: IllegalArgumentException) {
+      popups.ErrorPopup().show(R.string.error_message)
+      Timber.e(e)
+    }
+  }
+
+  private fun launchPhotoSelector(taskId: String) {
+    try {
+      viewModel.taskWaitingForPhoto = taskId
+      selectPhotoLauncher.launch("image/*")
     } catch (e: IllegalArgumentException) {
       popups.ErrorPopup().show(R.string.error_message)
       Timber.e(e)

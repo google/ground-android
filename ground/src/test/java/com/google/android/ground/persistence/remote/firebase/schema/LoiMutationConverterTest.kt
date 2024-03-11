@@ -74,6 +74,15 @@ class LoiMutationConverterTest {
   }
 
   @Test
+  fun `toMap() retains properties`() {
+    with(LoiConverter) {
+      val mutation = FakeData.newLoiMutation(TEST_POINT)
+      val map = LoiMutationConverter.toMap(mutation, TEST_USER)
+      assertThat(map[PROPERTIES]).isEqualTo(mutation.properties)
+    }
+  }
+
+  @Test
   fun `toMap() converts CREATE mutation to map`() {
     with(LoiConverter) {
       val mutation = FakeData.newLoiMutation(TEST_POINT, mutationType = Mutation.Type.CREATE)

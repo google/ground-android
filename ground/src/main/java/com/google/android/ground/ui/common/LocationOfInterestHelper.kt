@@ -21,6 +21,7 @@ import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import javax.inject.Inject
 
@@ -29,7 +30,7 @@ class LocationOfInterestHelper @Inject internal constructor(private val resource
 
   fun getDisplayLoiName(loi: LocationOfInterest): String {
     val loiId = loi.customId.ifEmpty { loi.getProperty("id") }
-    val loiName = loi.getProperty("name")
+    val loiName = loi.getProperty(LOI_NAME_PROPERTY)
 
     return when {
       loiName.isNotEmpty() && loiId.isNotEmpty() -> "$loiName ($loiId)"

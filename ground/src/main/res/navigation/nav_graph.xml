@@ -86,6 +86,10 @@
       android:name="locationOfInterestId"
       type="string"
       app:nullable="true" />
+      <argument
+      android:name="locationOfInterestName"
+      type="string"
+      app:nullable="true" />
     <argument
       android:name="jobId"
       type="string" />
@@ -104,6 +108,10 @@
       tools:layout="@layout/data_collection_frag">
       <argument
         android:name="locationOfInterestId"
+        type="string"
+        app:nullable="true" />
+      <argument
+        android:name="locationOfInterestName"
         type="string"
         app:nullable="true" />
       <argument
