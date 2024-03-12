@@ -49,6 +49,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
@@ -217,9 +218,12 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   }
 
   override fun getAllSurveyMutationsFlow(survey: Survey): Flow<List<SubmissionMutation>> =
-    submissionMutationDao.getAllMutationsFlow().map { mutations ->
-      mutations.filter { it.surveyId == survey.id }.map { it.toModelObject(survey) }
-    }
+    submissionMutationDao
+      .getAllMutationsFlow()
+      .map { mutations ->
+        mutations.filter { it.surveyId == survey.id }.map { it.toModelObject(survey) }
+      }
+      .catch { Timber.e("ignoring invalid submission mutation:\n\t${it.message}") }
 
   override suspend fun findByLocationOfInterestId(
     loidId: String,
