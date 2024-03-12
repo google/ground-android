@@ -19,8 +19,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
@@ -166,8 +169,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   fun handleNext() {
     if (getTask().isAddLoiTask) {
-      // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
-      showLoiNameDialog(dataCollectionViewModel.loiName.value ?: "")
+      launchLoiNameDialog()
     } else {
       moveToNext()
     }
@@ -217,28 +219,40 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   @TestOnly fun getButtonsIndex() = buttonsIndex
 
-  private fun showLoiNameDialog(initialTextValue: String) {
-    (view as ViewGroup).addView(
-      ComposeView(requireContext()).apply {
-        setContent {
-          val openAlertDialog = remember { mutableStateOf(Pair(initialTextValue, true)) }
-          when {
-            openAlertDialog.value.second -> {
-              val (textFieldValue, openState) = openAlertDialog.value
-              LoiNameDialog(
-                textFieldValue = textFieldValue,
-                onConfirmRequest = {
-                  openAlertDialog.value = Pair(textFieldValue, false)
-                  handleLoiNameSet(loiName = textFieldValue)
-                },
-                onDismissRequest = { openAlertDialog.value = Pair(initialTextValue, false) },
-                onTextFieldChange = { openAlertDialog.value = Pair(it, openState) }
-              )
+  private fun launchLoiNameDialog() {
+    dataCollectionViewModel.loiNameDialogOpen.value = true
+    lifecycleScope.launch {
+      (view as ViewGroup).addView(
+        ComposeView(requireContext()).apply {
+          setContent {
+            // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
+            ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
+              handleLoiNameSet(loiName = it)
             }
           }
         }
-      }
-    )
+      )
+    }
+  }
+
+  @Composable
+  fun ShowLoiNameDialog(initialNameValue: String, onNameSet: (String) -> Unit) {
+    var openAlertDialog by rememberSaveable { dataCollectionViewModel.loiNameDialogOpen }
+    var name by rememberSaveable { mutableStateOf(initialNameValue) }
+    if (openAlertDialog) {
+      LoiNameDialog(
+        textFieldValue = name,
+        onConfirmRequest = {
+          openAlertDialog = false
+          onNameSet(name)
+        },
+        onDismissRequest = {
+          name = initialNameValue
+          openAlertDialog = false
+        },
+        onTextFieldChange = { name = it }
+      )
+    }
   }
 
   companion object {
