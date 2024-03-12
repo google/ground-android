@@ -18,7 +18,6 @@ package com.google.android.ground.ui.common
 import android.Manifest
 import android.location.Location
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.api.ApiException
@@ -78,7 +77,6 @@ constructor(
 
   val locationLock: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
-  private val locationLockEnabled: MutableLiveData<Boolean> = MutableLiveData()
   val mapType: Flow<MapType> = mapStateRepository.mapTypeFlow
 
   val locationLockIconTint =
@@ -152,23 +150,22 @@ constructor(
       settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST)
       enableLocationLock()
       locationManager.requestLocationUpdates()
-    } catch (throwable: Throwable) {
-      if (throwable is ApiException) {
-        val statusCode = throwable.statusCode
-        if (statusCode == SETTINGS_CHANGE_UNAVAILABLE) {
-          Timber.e(throwable, "User is offline, so fallback to user's current permission.")
-          enableLocationLock()
-          locationManager.requestLocationUpdates()
-        } else {
-          throw throwable
-        }
+    } catch (throwable: ApiException) {
+      val statusCode = throwable.statusCode
+      if (statusCode == SETTINGS_CHANGE_UNAVAILABLE) {
+        Timber.e(
+          throwable,
+          "User is offline, so fallback to user's current permission, which may also fail."
+        )
+        enableLocationLock()
+        locationManager.requestLocationUpdates()
       } else {
         throw throwable
       }
     }
   }
 
-  private suspend fun handleRequestLocationUpdateFailed(e: Exception) {
+  suspend fun handleRequestLocationUpdateFailed(e: Throwable) {
     Timber.e(e)
     locationLock.value = Result.failure(e)
     locationManager.disableLocationUpdates()
@@ -184,13 +181,6 @@ constructor(
 
   private fun onLockStateChanged(isLocked: Boolean) {
     locationLock.value = Result.success(isLocked)
-    mapStateRepository.isLocationLockEnabled = isLocked
-  }
-
-  fun getLocationLockEnabled(): LiveData<Boolean> = locationLockEnabled
-
-  fun setLocationLockEnabled(enabled: Boolean) {
-    locationLockEnabled.postValue(enabled)
   }
 
   /** Called when location lock button is clicked by the user. */

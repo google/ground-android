@@ -57,8 +57,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
       viewModel.getCameraUpdateRequests().collect { onCameraUpdateRequest(it, map) }
     }
 
-    viewModel.setLocationLockEnabled(true)
-
     applyMapConfig(map)
     onMapReady(map)
   }
@@ -113,7 +111,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
             // User disabled permission while the lock icon was enabled.
             onLocationLockStateError(t)
           }
-
         }
       },
       onFailure = { exception -> onLocationLockStateError(exception) },
