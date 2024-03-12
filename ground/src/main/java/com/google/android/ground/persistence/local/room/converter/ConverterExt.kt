@@ -346,7 +346,7 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
 fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
   val job =
     survey.getJob(jobId)
-      ?: throw LocalDataConsistencyException("Unknown jobId in submission mutation $id")
+      ?: throw LocalDataConsistencyException("Unknown jobId $jobId in submission mutation $id")
 
   return SubmissionMutation(
     job = job,
