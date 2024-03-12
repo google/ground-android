@@ -110,8 +110,6 @@ class DrawAreaTaskFragmentTest :
   @Test
   fun testDrawArea_incompleteWhenTaskIsOptional() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
-    fragment.onTaskVisibleToUser()
-
     // Dismiss the instructions dialog
     ShadowDialog.getLatestDialog().dismiss()
 
@@ -143,8 +141,6 @@ class DrawAreaTaskFragmentTest :
   @Test
   fun testDrawArea() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
-    fragment.onTaskVisibleToUser()
-
     // Dismiss the instructions dialog
     ShadowDialog.getLatestDialog().dismiss()
 
@@ -180,8 +176,6 @@ class DrawAreaTaskFragmentTest :
   @Test
   fun `Instructions dialog is shown`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
-    fragment.onTaskVisibleToUser()
-
     assertThat(ShadowDialog.getLatestDialog()).isNotNull()
   }
 

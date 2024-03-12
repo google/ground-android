@@ -132,7 +132,7 @@
   <string name="error_message">Something went wrong</string>
   <string name="incomplete_area">Incomplete area</string>
   <string name="initializing">Initializing…</string>
-  <string name="draw_area_task_instruction">Move the map and tap <b>Add point</b> to mark this location.</string>
+  <string name="draw_area_task_instruction">Move the map and tap “Add point” to add points around the desired area.</string>
   <string name="close">Close</string>
   <string name="map_location">Map location</string>
   <string name="sign_out_dialog_title">Unsynced data</string>
