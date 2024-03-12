@@ -21,7 +21,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE
 import com.google.android.ground.Config.DEFAULT_LOI_ZOOM_LEVEL
 import com.google.android.ground.R
 import com.google.android.ground.model.Survey
@@ -145,10 +147,25 @@ constructor(
   }
 
   suspend fun enableLocationLockAndGetUpdates() {
-    permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST)
-    enableLocationLock()
-    locationManager.requestLocationUpdates()
+    try {
+      permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+      settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST)
+      enableLocationLock()
+      locationManager.requestLocationUpdates()
+    } catch (throwable: Throwable) {
+      if (throwable is ApiException) {
+        val statusCode = throwable.statusCode
+        if (statusCode == SETTINGS_CHANGE_UNAVAILABLE) {
+          Timber.e(throwable, "User is offline, so fallback to user's current permission.")
+          enableLocationLock()
+          locationManager.requestLocationUpdates()
+        } else {
+          throw throwable
+        }
+      } else {
+        throw throwable
+      }
+    }
   }
 
   private suspend fun handleRequestLocationUpdateFailed(e: Exception) {
