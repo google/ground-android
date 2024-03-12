@@ -36,7 +36,8 @@ internal object MultipleChoiceConverter {
     }
     return MultipleChoice(
       options.toPersistentList(),
-      toEnum(MultipleChoice.Cardinality::class.java, em.cardinality!!)
+      toEnum(MultipleChoice.Cardinality::class.java, em.cardinality!!),
+      em.hasOtherOption!!,
     )
   }
 }

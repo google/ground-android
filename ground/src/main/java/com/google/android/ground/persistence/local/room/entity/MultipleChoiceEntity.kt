@@ -33,5 +33,6 @@ import com.google.android.ground.persistence.local.room.fields.MultipleChoiceEnt
 )
 data class MultipleChoiceEntity(
   @ColumnInfo(name = "task_id") @PrimaryKey val taskId: String,
-  @ColumnInfo(name = "type") val type: MultipleChoiceEntityType
+  @ColumnInfo(name = "type") val type: MultipleChoiceEntityType,
+  @ColumnInfo(name = "has_other_option") val hasOtherOption: Boolean
 )

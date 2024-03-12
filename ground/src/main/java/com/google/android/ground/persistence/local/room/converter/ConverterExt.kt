@@ -241,11 +241,15 @@ fun LocationOfInterestMutationEntity.toModelObject() =
 
 fun MultipleChoiceEntity.toModelObject(optionEntities: List<OptionEntity>): MultipleChoice {
   val options = optionEntities.map { it.toModelObject() }
-  return MultipleChoice(options.toPersistentList(), this.type.toCardinality())
+  return MultipleChoice(options.toPersistentList(), this.type.toCardinality(), this.hasOtherOption)
 }
 
 fun MultipleChoice.toLocalDataStoreObject(taskId: String): MultipleChoiceEntity =
-  MultipleChoiceEntity(taskId, MultipleChoiceEntityType.fromCardinality(this.cardinality))
+  MultipleChoiceEntity(
+    taskId,
+    MultipleChoiceEntityType.fromCardinality(this.cardinality),
+    hasOtherOption,
+  )
 
 private fun OfflineAreaEntityState.toModelObject() =
   when (this) {
