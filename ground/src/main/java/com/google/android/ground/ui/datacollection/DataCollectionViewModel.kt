@@ -15,6 +15,8 @@
  */
 package com.google.android.ground.ui.datacollection
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.coroutines.ApplicationScope
@@ -120,6 +122,8 @@ internal constructor(
           emit(label)
         })
       .stateIn(viewModelScope, SharingStarted.Lazily, "")
+
+  val loiNameDialogOpen: MutableState<Boolean> = mutableStateOf(false)
 
   private val taskViewModels: MutableStateFlow<MutableList<AbstractTaskViewModel>> =
     MutableStateFlow(mutableListOf())
