@@ -21,6 +21,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
+import com.google.android.ground.CustomViewActions
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.MultipleChoiceResponse
@@ -65,7 +66,7 @@ class MultipleChoiceTaskFragmentTest :
       type = Task.Type.MULTIPLE_CHOICE,
       label = "Text label",
       isRequired = false,
-      multipleChoice = MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE)
+      multipleChoice = MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
     )
   private val job = Job(id = "job1")
 
@@ -93,7 +94,7 @@ class MultipleChoiceTaskFragmentTest :
   fun testMultipleChoice_whenSelectOne() {
     setupTaskFragment<MultipleChoiceTaskFragment>(
       job,
-      task.copy(multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE))
+      task.copy(multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)),
     )
 
     onView(withId(R.id.select_option_list)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
@@ -119,7 +120,7 @@ class MultipleChoiceTaskFragmentTest :
       job,
       task.copy(
         multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_MULTIPLE)
-      )
+      ),
     )
 
     onView(withId(R.id.select_option_list)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
@@ -136,6 +137,20 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 2")).perform(click())
 
     hasValue(MultipleChoiceResponse(multipleChoice, listOf("option id 1", "option id 2")))
+    buttonIsEnabled("Next")
+  }
+
+  @Test
+  fun testMultipleChoice_whenOtherOptionSelected() = runWithTestDispatcher {
+    val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_MULTIPLE, true)
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
+    val userInput = "User inputted text"
+
+    onView(withText("Other")).perform(click())
+    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
+      .perform(CustomViewActions.forceTypeText(userInput))
+
+    hasValue(MultipleChoiceResponse(multipleChoice, listOf("[ $userInput ]")))
     buttonIsEnabled("Next")
   }
 
