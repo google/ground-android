@@ -18,10 +18,10 @@ package com.google.android.ground.ui.common
 import android.Manifest
 import android.location.Location
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.location.LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE
 import com.google.android.ground.Config.DEFAULT_LOI_ZOOM_LEVEL
 import com.google.android.ground.R
 import com.google.android.ground.model.Survey
@@ -33,7 +33,6 @@ import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.system.FINE_LOCATION_UPDATES_REQUEST
 import com.google.android.ground.system.LocationManager
-import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.map.CameraPosition
@@ -76,7 +75,6 @@ constructor(
 
   val locationLock: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
-  private val locationLockEnabled: MutableLiveData<Boolean> = MutableLiveData()
   val mapType: Flow<MapType> = mapStateRepository.mapTypeFlow
 
   val locationLockIconTint =
@@ -132,26 +130,34 @@ constructor(
     if (locationLock.value.getOrDefault(false)) {
       disableLocationLock()
     } else {
-      try {
-        enableLocationLockAndGetUpdates()
-      } catch (e: Exception) {
-        when (e) {
-          is PermissionDeniedException,
-          is ResolvableApiException -> handleRequestLocationUpdateFailed(e)
-          else -> throw e
-        }
-      }
+      enableLocationLockAndGetUpdates()
     }
   }
 
   suspend fun enableLocationLockAndGetUpdates() {
-    permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST)
-    enableLocationLock()
-    locationManager.requestLocationUpdates()
+    try {
+      try {
+        permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+        settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST)
+      } catch (throwable: ApiException) {
+        val statusCode = throwable.statusCode
+        if (statusCode == SETTINGS_CHANGE_UNAVAILABLE) {
+          Timber.e(
+            throwable,
+            "User is offline, so fallback to user's current permission, which may also fail."
+          )
+        } else {
+          throw throwable
+        }
+      }
+      enableLocationLock()
+      locationManager.requestLocationUpdates()
+    } catch (e: Throwable) {
+      handleRequestLocationUpdateFailed(e)
+    }
   }
 
-  private suspend fun handleRequestLocationUpdateFailed(e: Exception) {
+  suspend fun handleRequestLocationUpdateFailed(e: Throwable) {
     Timber.e(e)
     locationLock.value = Result.failure(e)
     locationManager.disableLocationUpdates()
@@ -167,13 +173,6 @@ constructor(
 
   private fun onLockStateChanged(isLocked: Boolean) {
     locationLock.value = Result.success(isLocked)
-    mapStateRepository.isLocationLockEnabled = isLocked
-  }
-
-  fun getLocationLockEnabled(): LiveData<Boolean> = locationLockEnabled
-
-  fun setLocationLockEnabled(enabled: Boolean) {
-    locationLockEnabled.postValue(enabled)
   }
 
   /** Called when location lock button is clicked by the user. */
