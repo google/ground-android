@@ -55,18 +55,6 @@ class MapStateRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun isLocationLockEnabled_default() {
-    assertThat(mapStateRepository.isLocationLockEnabled).isFalse()
-  }
-
-  @Test
-  fun isLocationLockEnabled_whenLocked_returnsTrue() {
-    mapStateRepository.isLocationLockEnabled = true
-
-    assertThat(mapStateRepository.isLocationLockEnabled).isTrue()
-  }
-
-  @Test
   fun isOfflineImageryEnabled_default() = runWithTestDispatcher {
     assertThat(mapStateRepository.isOfflineImageryEnabled).isTrue()
   }

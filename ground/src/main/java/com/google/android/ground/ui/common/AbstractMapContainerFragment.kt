@@ -57,8 +57,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
       viewModel.getCameraUpdateRequests().collect { onCameraUpdateRequest(it, map) }
     }
 
-    viewModel.setLocationLockEnabled(true)
-
     applyMapConfig(map)
     onMapReady(map)
   }
@@ -107,7 +105,12 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
       onSuccess = {
         Timber.d("Location lock: $it")
         if (it) {
-          map.enableCurrentLocationIndicator()
+          try {
+            map.enableCurrentLocationIndicator()
+          } catch (t: Throwable) {
+            // User disabled permission while the lock icon was enabled.
+            onLocationLockStateError(t)
+          }
         }
       },
       onFailure = { exception -> onLocationLockStateError(exception) },
@@ -118,6 +121,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     val messageId =
       when (t) {
         is PermissionDeniedException -> R.string.no_fine_location_permissions
+        is SecurityException -> R.string.no_fine_location_permissions
         is SettingsChangeRequestCanceled -> R.string.location_disabled_in_settings
         else -> R.string.location_updates_unknown_error
       }
