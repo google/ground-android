@@ -109,7 +109,7 @@ internal constructor(
         downloadProgress.postValue(bytesDownloaded)
       }
       isDownloadProgressVisible.postValue(false)
-      navigator.navigateUp()
+      navigator.navigate(OfflineAreaSelectorFragmentDirections.offlineAreaBackToHomescreen())
     }
   }
 
