@@ -117,6 +117,7 @@ internal constructor(
   /** Emits when the zoom has crossed the threshold. */
   private val _zoomThresholdCrossed: MutableSharedFlow<Unit> = MutableSharedFlow()
 
+  /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
   val isZoomedInFlow: Flow<Boolean>
 
   init {

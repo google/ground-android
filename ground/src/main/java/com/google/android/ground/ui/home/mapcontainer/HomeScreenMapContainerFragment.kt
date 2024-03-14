@@ -146,27 +146,29 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     if (!this::binding.isInitialized) {
       return Timber.w("showDataCollectionHint() called before binding initialized")
     }
+    // Combine the survey properties and the current zoomed-out state to determine which popup to
+    // show, or not.
     mapContainerViewModel.surveyUpdateFlow
       .combine(mapContainerViewModel.isZoomedInFlow) { surveyProperties, isZoomedIn ->
-        // Negated since we only want to show the popup when the user is zomed out.
+        // Negated since we only want to show certain popups when the user is zoomed out.
         Pair(surveyProperties, !isZoomedIn)
       }
       .launchWhenStartedAndCollectFirst {
         val (surveyProperties, isZoomedOut) = it
-        val messageId =
-          when {
-            surveyProperties.readOnly -> R.string.read_only_data_collection_hint
-            isZoomedOut && surveyProperties.addLoiPermitted -> R.string.suggest_data_collection_hint
-            isZoomedOut -> R.string.predefined_data_collection_hint
-            else -> return@launchWhenStartedAndCollectFirst
-          }
-        infoPopup =
-          ephemeralPopups.InfoPopup(
-            binding.bottomContainer,
-            messageId,
-            EphemeralPopups.PopupDuration.LONG,
-          )
-        infoPopup.show()
+        when {
+          surveyProperties.readOnly -> R.string.read_only_data_collection_hint
+          isZoomedOut && surveyProperties.addLoiPermitted -> R.string.suggest_data_collection_hint
+          isZoomedOut -> R.string.predefined_data_collection_hint
+          else -> null
+        }?.let { message ->
+          infoPopup =
+            ephemeralPopups.InfoPopup(
+              binding.bottomContainer,
+              message,
+              EphemeralPopups.PopupDuration.LONG,
+            )
+          infoPopup.show()
+        }
       }
   }
 
