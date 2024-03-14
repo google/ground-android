@@ -114,8 +114,10 @@ internal constructor(
    */
   val adHocLoiJobs: Flow<List<Job>>
 
-  /* UI Clicks */
+  /** Emits when the zoom has crossed the threshold. */
   private val _zoomThresholdCrossed: MutableSharedFlow<Unit> = MutableSharedFlow()
+
+  val isZoomedInFlow: Flow<Boolean>
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
@@ -131,7 +133,7 @@ internal constructor(
             .combine(selectedLoiIdFlow, this::updatedLoiSelectedStates)
       }
 
-    val isZoomedInFlow =
+    isZoomedInFlow =
       getCurrentCameraPosition().mapNotNull { it.zoomLevel }.map { it >= CLUSTERING_ZOOM_THRESHOLD }
 
     loisInViewport =
