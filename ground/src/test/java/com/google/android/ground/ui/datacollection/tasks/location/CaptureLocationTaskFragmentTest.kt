@@ -18,11 +18,7 @@ package com.google.android.ground.ui.datacollection.tasks.location
 import android.location.Location
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.google.android.ground.R
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
@@ -34,8 +30,6 @@ import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.hamcrest.Matchers.not
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -43,7 +37,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class CaptureLocationTaskFragmentTest :
@@ -135,13 +128,6 @@ class CaptureLocationTaskFragmentTest :
     buttonIsHidden("Skip")
     buttonIsHidden(ButtonAction.UNDO)
     buttonIsEnabled("Capture")
-  }
-
-  @Test
-  fun `Hint icon is hidden`() {
-    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
-
-    onView(withId(R.id.hintIcon)).check(matches(not(isDisplayed())))
   }
 
   private fun setupLocation(): Location =

@@ -17,12 +17,17 @@ package com.google.android.ground.ui.datacollection.tasks.point
 
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.ComposeView
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
+import com.google.android.ground.ui.datacollection.components.InstructionsDialog
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
@@ -58,5 +63,29 @@ class DropPinTaskFragment : AbstractTaskFragment<DropPinTaskViewModel>() {
       .setOnClickListener { handleNext() }
       .setOnValueChanged { button, value -> button.showIfTrue(value.isNotNullOrEmpty()) }
       .hide()
+  }
+
+  override fun onTaskResume() {
+    if (isVisible && !viewModel.instructionsDialogShown) {
+      showInstructionsDialog()
+    }
+  }
+
+  private fun showInstructionsDialog() {
+    viewModel.instructionsDialogShown = true
+    (view as ViewGroup).addView(
+      ComposeView(requireContext()).apply {
+        setContent {
+          val openAlertDialog = remember { mutableStateOf(true) }
+          when {
+            openAlertDialog.value -> {
+              InstructionsDialog(R.drawable.swipe_24, R.string.drop_a_pin_tooltip_text) {
+                openAlertDialog.value = false
+              }
+            }
+          }
+        }
+      }
+    )
   }
 }

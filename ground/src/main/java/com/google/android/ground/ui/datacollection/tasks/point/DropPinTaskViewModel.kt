@@ -22,6 +22,7 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.CameraPosition
@@ -31,12 +32,17 @@ import javax.inject.Inject
 
 class DropPinTaskViewModel
 @Inject
-constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerator) :
-  AbstractTaskViewModel(resources) {
+constructor(
+  resources: Resources,
+  private val uuidGenerator: OfflineUuidGenerator,
+  private val localValueStore: LocalValueStore,
+) : AbstractTaskViewModel(resources) {
 
   private var pinColor: Int = 0
   private var lastCameraPosition: CameraPosition? = null
   val features: MutableLiveData<Set<Feature>> = MutableLiveData()
+  /** Whether the instructions dialog has been shown or not. */
+  var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
 
   override fun initialize(job: Job, task: Task, value: Value?) {
     super.initialize(job, task, value)
