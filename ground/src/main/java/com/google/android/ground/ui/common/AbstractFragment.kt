@@ -35,6 +35,7 @@ import com.google.android.ground.ui.util.ViewUtil
 import com.google.android.ground.util.Debug
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 abstract class AbstractFragment : Fragment() {
@@ -142,5 +143,9 @@ abstract class AbstractFragment : Fragment() {
 
   protected fun <T> Flow<T>.launchWhenStartedAndCollect(collector: (T) -> Unit) {
     launchWhenStarted { this.collect { collector(it) } }
+  }
+
+  protected fun <T> Flow<T>.launchWhenStartedAndCollectFirst(collector: (T) -> Unit) {
+    launchWhenStarted { collector(this.first()) }
   }
 }

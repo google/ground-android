@@ -40,7 +40,6 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
-import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel.SurveyProperties
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.MapFragment
@@ -48,6 +47,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -134,34 +134,42 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   /**
    * Displays a popup hint informing users how to begin collecting data, based on the properties of
-   * the active survey.
+   * the active survey and zoomed in state.
    *
-   * This method should only be called after view creation.
+   * This method should only be called after view creation and should only trigger once per view
+   * create.
    */
   private fun showDataCollectionHint() {
     if (!this::mapContainerViewModel.isInitialized) {
       return Timber.w("showDataCollectionHint() called before mapContainerViewModel initialized")
     }
-    mapContainerViewModel.surveyUpdateFlow.launchWhenStartedAndCollect(this::onSurveyUpdate)
-  }
-
-  private fun onSurveyUpdate(surveyProperties: SurveyProperties) {
     if (!this::binding.isInitialized) {
       return Timber.w("showDataCollectionHint() called before binding initialized")
     }
-    val messageId =
-      when {
-        surveyProperties.addLoiPermitted -> R.string.suggest_data_collection_hint
-        surveyProperties.readOnly -> R.string.read_only_data_collection_hint
-        else -> R.string.predefined_data_collection_hint
+    // Combine the survey properties and the current zoomed-out state to determine which popup to
+    // show, or not.
+    mapContainerViewModel.surveyUpdateFlow
+      .combine(mapContainerViewModel.isZoomedInFlow) { surveyProperties, isZoomedIn ->
+        // Negated since we only want to show certain popups when the user is zoomed out.
+        Pair(surveyProperties, !isZoomedIn)
       }
-    infoPopup =
-      ephemeralPopups.InfoPopup(
-        binding.bottomContainer,
-        messageId,
-        EphemeralPopups.PopupDuration.LONG,
-      )
-    infoPopup.show()
+      .launchWhenStartedAndCollectFirst {
+        val (surveyProperties, isZoomedOut) = it
+        when {
+          surveyProperties.readOnly -> R.string.read_only_data_collection_hint
+          isZoomedOut && surveyProperties.addLoiPermitted -> R.string.suggest_data_collection_hint
+          isZoomedOut -> R.string.predefined_data_collection_hint
+          else -> null
+        }?.let { message ->
+          infoPopup =
+            ephemeralPopups.InfoPopup(
+              binding.bottomContainer,
+              message,
+              EphemeralPopups.PopupDuration.LONG,
+            )
+          infoPopup.show()
+        }
+      }
   }
 
   private fun setupMenuFab() {
