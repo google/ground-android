@@ -16,9 +16,6 @@
 package com.google.android.ground.ui.datacollection.tasks.point
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.CameraPosition
@@ -34,15 +31,6 @@ class DropPinTaskMapFragment(private val viewModel: DropPinTaskViewModel) :
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
-  }
-
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?,
-  ): View {
-    val root = super.onCreateView(inflater, container, savedInstanceState)
-    return root
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
