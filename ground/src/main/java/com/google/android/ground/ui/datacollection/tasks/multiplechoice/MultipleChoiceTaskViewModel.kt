@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.firstOrNull
 
 class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
   AbstractTaskViewModel(resources) {
@@ -40,11 +41,15 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
   private val selectedIds: MutableSet<String> = mutableSetOf()
   private var otherText: String = ""
 
-  val textWatcher =
+  val otherTextWatcher =
     object : TextWatcher {
       override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
         otherText = s.toString()
         updateResponse()
+        // Set the other option.
+        _items.value
+          .firstOrNull { it.isOtherOption }
+          ?.let { setItem(it, otherText != "", it.isMultipleChoice()) }
       }
 
       override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
@@ -62,19 +67,29 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
     updateMultipleChoiceItems()
   }
 
-  fun toggleItem(item: MultipleChoiceItem, canSelectMultiple: Boolean) {
-    val wasSelected = selectedIds.contains(item.option.id)
-    val isSelected = !wasSelected
+  fun setItem(
+    item: MultipleChoiceItem,
+    selection: Boolean,
+    canSelectMultiple: Boolean,
+  ) {
     if (!canSelectMultiple) {
       selectedIds.clear()
     }
-    if (isSelected) {
+    if (selection) {
       selectedIds.add(item.option.id)
     } else {
       selectedIds.remove(item.option.id)
     }
     updateResponse()
     updateMultipleChoiceItems()
+  }
+
+  fun toggleItem(
+    item: MultipleChoiceItem,
+    canSelectMultiple: Boolean,
+  ) {
+    val wasSelected = selectedIds.contains(item.option.id)
+    setItem(item, !wasSelected, canSelectMultiple)
   }
 
   fun updateResponse() {
@@ -96,13 +111,15 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
 
     itemsFromOptions.addAll(
       multipleChoice.options.map { option ->
-        MultipleChoiceItem(option, selectedIds.contains(option.id))
+        MultipleChoiceItem(option, task.type, selectedIds.contains(option.id))
       }
     )
 
     if (multipleChoice.hasOtherOption) {
       Option(OTHER_ID, "", "").let {
-        itemsFromOptions.add(MultipleChoiceItem(it, selectedIds.contains(it.id), true, otherText))
+        itemsFromOptions.add(
+          MultipleChoiceItem(it, task.type, selectedIds.contains(it.id), true, otherText)
+        )
       }
     }
     this._items.value = itemsFromOptions
