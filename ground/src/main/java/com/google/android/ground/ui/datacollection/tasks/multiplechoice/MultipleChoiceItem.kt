@@ -15,12 +15,12 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
+import com.google.android.ground.model.task.MultipleChoice.Cardinality
 import com.google.android.ground.model.task.Option
-import com.google.android.ground.model.task.Task
 
 data class MultipleChoiceItem(
   val option: Option,
-  val type: Task.Type,
+  val cardinality: Cardinality,
   val isSelected: Boolean = false,
   val isOtherOption: Boolean = false,
   val otherText: String = "",
@@ -29,6 +29,4 @@ data class MultipleChoiceItem(
 
   fun areContentsTheSame(otherItem: MultipleChoiceItem): Boolean =
     otherItem.isSelected == this.isSelected
-
-  fun isMultipleChoice(): Boolean = this.type == Task.Type.MULTIPLE_CHOICE
 }

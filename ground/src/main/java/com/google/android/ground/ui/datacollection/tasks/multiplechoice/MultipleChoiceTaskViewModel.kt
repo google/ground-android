@@ -22,6 +22,7 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.MultipleChoiceResponse
 import com.google.android.ground.model.submission.MultipleChoiceResponse.Companion.fromList
 import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.task.MultipleChoice.Cardinality.SELECT_MULTIPLE
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
@@ -30,7 +31,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.firstOrNull
 
 class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
   AbstractTaskViewModel(resources) {
@@ -45,11 +45,11 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
     object : TextWatcher {
       override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
         otherText = s.toString()
-        updateResponse()
         // Set the other option.
         _items.value
           .firstOrNull { it.isOtherOption }
-          ?.let { setItem(it, otherText != "", it.isMultipleChoice()) }
+          ?.let { setItem(it, otherText != "", it.cardinality == SELECT_MULTIPLE) }
+        updateResponse()
       }
 
       override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
@@ -72,7 +72,7 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
     selection: Boolean,
     canSelectMultiple: Boolean,
   ) {
-    if (!canSelectMultiple) {
+    if (!canSelectMultiple && selection) {
       selectedIds.clear()
     }
     if (selection) {
@@ -111,14 +111,20 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
 
     itemsFromOptions.addAll(
       multipleChoice.options.map { option ->
-        MultipleChoiceItem(option, task.type, selectedIds.contains(option.id))
+        MultipleChoiceItem(option, multipleChoice.cardinality, selectedIds.contains(option.id))
       }
     )
 
     if (multipleChoice.hasOtherOption) {
       Option(OTHER_ID, "", "").let {
         itemsFromOptions.add(
-          MultipleChoiceItem(it, task.type, selectedIds.contains(it.id), true, otherText)
+          MultipleChoiceItem(
+            it,
+            multipleChoice.cardinality,
+            selectedIds.contains(it.id),
+            true,
+            otherText
+          )
         )
       }
     }
