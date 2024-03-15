@@ -42,7 +42,6 @@
   <string name="google_api_install_failed">Google Play Services installation failed</string>
   <string name="sign_out">Sign out</string>
   <string name="ok">OK</string>
-  <string name="change_survey">Surveys</string>
   <string name="collect_data">Collect data</string>
 
   <!-- Untranslated strings -->
@@ -149,4 +148,7 @@
   </plurals>
   <string name="loi_name_dialog_title">Name this location</string>
   <string name="loi_name_dialog_body">A new data collection site will be created.</string>
+  <string name="current_survey">Current survey</string>
+  <string name="switch_survey">Switch survey</string>
+  <string name="no_survey_selected">No survey selected</string>
 </resources>
