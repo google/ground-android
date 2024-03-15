@@ -48,7 +48,15 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
         // Set the other option.
         _items.value
           .firstOrNull { it.isOtherOption }
-          ?.let { setItem(it, otherText != "", it.cardinality == SELECT_MULTIPLE) }
+          ?.let {
+            val selected =
+              if (task.isRequired) {
+                otherText != ""
+              } else {
+                true
+              }
+            setItem(it, selected, it.cardinality == SELECT_MULTIPLE)
+          }
         updateResponse()
       }
 
