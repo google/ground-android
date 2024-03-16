@@ -53,8 +53,10 @@ constructor(
       syncSurvey(surveyId)
     } catch (e: Throwable) {
       return if (this.runAttemptCount > MAX_SYNC_WORKER_RETRY_ATTEMPTS) {
+        Timber.v(e, "Survey sync failed too many times. Giving up.")
         Result.failure()
       } else {
+        Timber.v(e, "Survey sync. Retrying...")
         Result.retry()
       }
     }
