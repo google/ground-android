@@ -186,33 +186,13 @@ class NavigationDrawerItemClickTest(
     @ParameterizedRobolectricTestRunner.Parameters(name = "{4}")
     fun data() =
       listOf(
-        arrayOf(
-          "Switch survey",
-          TEST_SURVEY_WITHOUT_OFFLINE_TILES,
-          HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false),
-          true,
-          "Clicking 'Switch survey' should navigate to fragment"
-        ),
+        // TODO(#2385): Restore tests deleted in #2382.
         arrayOf(
           "Sync status",
           TEST_SURVEY_WITHOUT_OFFLINE_TILES,
           HomeScreenFragmentDirections.showSyncStatus(),
           true,
           "Clicking 'Sync status' should navigate to fragment"
-        ),
-        arrayOf(
-          "Offline map imagery",
-          TEST_SURVEY_WITH_OFFLINE_TILES,
-          HomeScreenFragmentDirections.showOfflineAreas(),
-          true,
-          "Clicking 'Offline map imagery' should navigate to fragment"
-        ),
-        arrayOf(
-          "Settings",
-          TEST_SURVEY_WITHOUT_OFFLINE_TILES,
-          HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity(),
-          true,
-          "Clicking 'Settings' should navigate to fragment"
         )
       )
   }
