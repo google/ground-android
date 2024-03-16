@@ -27,6 +27,7 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.remote.RemoteDataStore
+import com.google.android.ground.persistence.remote.firebase.schema.GroundFirestore
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.ktx.Firebase
@@ -49,11 +50,11 @@ class FirestoreDataStore
 @Inject
 internal constructor(
   private val firebaseFunctions: FirebaseFunctions,
-  private val groundFirestoreProvider: GroundFirestoreProvider,
+  private val firestoreProvider: FirebaseFirestoreProvider,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : RemoteDataStore {
 
-  private suspend fun db() = groundFirestoreProvider.get()
+  private suspend fun db() = GroundFirestore(firestoreProvider.get())
 
   override suspend fun loadSurvey(surveyId: String): Survey =
     withContext(ioDispatcher) { db().surveys().survey(surveyId).get() }
