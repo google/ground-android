@@ -41,8 +41,12 @@
     <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:layout_gravity="center|center_horizontal"
       android:background="?attr/colorSurfaceVariant"
-      android:orientation="vertical">
+      android:gravity="center_vertical"
+      android:orientation="horizontal"
+      android:paddingTop="24dp"
+      android:paddingBottom="24dp">
 
       <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/user_image"
@@ -50,18 +54,24 @@
         app:imageUrl="@{user.photoUrl}"
         tools:background="@drawable/ground_logo" />
 
-      <TextView
-        android:id="@+id/user_display_name"
-        style="@style/NavDrawerHeader.PrimaryText"
-        android:text="@{user.displayName}"
-        tools:text="User name" />
+      <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-      <TextView
-        android:id="@+id/user_email"
-        style="@style/NavDrawerHeader.SecondaryText"
-        android:text="@{user.email}"
-        tools:text="User email" />
+        <TextView
+          android:id="@+id/user_display_name"
+          style="@style/NavDrawerHeader.PrimaryText"
+          android:text="@{user.displayName}"
+          tools:text="User name" />
 
+        <TextView
+          android:id="@+id/user_email"
+          style="@style/NavDrawerHeader.SecondaryText"
+          android:text="@{user.email}"
+          tools:text="User email" />
+
+      </LinearLayout>
     </LinearLayout>
     <LinearLayout
       style="@style/NavDrawerHeader"
@@ -103,20 +113,20 @@
         <TextView
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:layout_marginEnd="24dp"
           android:ellipsize="end"
           android:maxLines="1"
           android:text="@{survey.title}"
           android:textSize="16sp"
           android:textStyle="bold"
-          android:layout_marginEnd="24dp"
           tools:text="Deforestation areas" />
         <TextView
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
+          android:layout_marginEnd="24dp"
           android:ellipsize="end"
           android:maxLines="4"
           android:paddingTop="8dp"
-          android:layout_marginEnd="24dp"
           android:text="@{survey.description}"
           tools:text="A survey about farms. Collect information on all the farms." />
       </LinearLayout>
@@ -132,7 +142,7 @@
       <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"/>
+        android:layout_marginEnd="24dp" />
     </LinearLayout>
   </LinearLayout>
 </layout>
