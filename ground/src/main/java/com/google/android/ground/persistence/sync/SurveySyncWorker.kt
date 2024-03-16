@@ -52,9 +52,6 @@ constructor(
     try {
       Timber.d("Syncing survey $surveyId")
       syncSurvey(surveyId)
-    } catch (e: IllegalStateException) {
-      // Rethrow fatal errors to allow early detection via Crashlytics.
-      throw e
     } catch (e: Throwable) {
       return if (this.runAttemptCount > MAX_SYNC_WORKER_RETRY_ATTEMPTS) {
         Result.failure()
