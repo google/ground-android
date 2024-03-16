@@ -187,32 +187,32 @@ class NavigationDrawerItemClickTest(
     fun data() =
       listOf(
         arrayOf(
-          "Surveys",
+          "Switch survey",
           TEST_SURVEY_WITHOUT_OFFLINE_TILES,
           HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false),
           true,
-          "Clicking 'change survey' should navigate to fragment"
+          "Clicking 'Switch survey' should navigate to fragment"
         ),
         arrayOf(
           "Sync status",
           TEST_SURVEY_WITHOUT_OFFLINE_TILES,
           HomeScreenFragmentDirections.showSyncStatus(),
           true,
-          "Clicking 'sync status' should navigate to fragment"
+          "Clicking 'Sync status' should navigate to fragment"
         ),
         arrayOf(
           "Offline map imagery",
           TEST_SURVEY_WITH_OFFLINE_TILES,
           HomeScreenFragmentDirections.showOfflineAreas(),
           true,
-          "Clicking 'offline map imagery' should navigate to fragment"
+          "Clicking 'Offline map imagery' should navigate to fragment"
         ),
         arrayOf(
           "Settings",
           TEST_SURVEY_WITHOUT_OFFLINE_TILES,
           HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity(),
           true,
-          "Clicking 'settings' should navigate to fragment"
+          "Clicking 'Settings' should navigate to fragment"
         )
       )
   }
