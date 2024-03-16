@@ -20,30 +20,29 @@ buildscript {
     ext {
         // As of Gradle 8.5, Kotlin plugin only tested up to 1.9.20.
         kotlinVersion = "1.9.20"
-        hiltVersion = "2.50"
-        navigationVersion = "2.5.3"
+        hiltVersion = "2.51"
+        navigationVersion = "2.7.7"
         roomVersion = "2.6.1"
     }
     repositories {
         google()
         mavenLocal()
         maven { url "https://maven.google.com" }
-        maven { url "https://github.com/ben-manes/gradle-versions-plugin/raw/mvnrepo" }
         maven { url "https://plugins.gradle.org/m2/" }
         mavenCentral()
         gradlePluginPortal()
     }
     dependencies {
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
-        classpath 'com.android.tools.build:gradle:8.2.0'
-        classpath 'com.google.gms:google-services:4.3.15'
+        classpath 'com.android.tools.build:gradle:8.2.2'
+        classpath 'com.google.gms:google-services:4.4.1'
         classpath "com.pascalwelsch.gitversioner:gitversioner:0.5.0"
 
         // Performance Monitoring plugin: https://firebase.google.com/docs/perf-mon
         classpath 'com.google.firebase:perf-plugin:1.4.2'
 
         // Crashlytics plugin
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.5'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.9'
 
         // Kotlin
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
@@ -55,7 +54,6 @@ buildscript {
 }
 
 plugins {
-    id "com.github.ben-manes.versions" version "0.36.0"
     id "org.jetbrains.kotlin.android" version "$kotlinVersion" apply false
     id "org.jetbrains.kotlin.plugin.serialization" version "$kotlinVersion"
     id "com.ncorti.ktfmt.gradle" version "0.17.0"
@@ -111,34 +109,9 @@ gitVersioner {
     baseBranch "master"
 }
 
-def isNonStable = { String version ->
-    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
-    def regex = /^[0-9,.v-]+(-r)?$/
-    return !stableKeyword && !(version ==~ regex)
-}
-
-// https://github.com/ben-manes/gradle-versions-plugin
-// To check which dependencies are out of date:
-// ./gradlew dependencyUpdates
-tasks.dependencyUpdates {
-
-    // Disallow release candidates as upgradable versions from stable versions
-    rejectVersionIf {
-        isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)
-    }
-
-    checkForGradleUpdate = true
-    checkConstraints = true
-    gradleReleaseChannel = "current"
-    outputFormatter = "json,plain"
-    outputDir = "ground/build/reports/dependencyUpdates"
-}
-
 ext {
     androidCompileSdk = 34
     androidMinSdk = 24
     androidTargetSdk = 33
-
-    gmsMapsVersion = '18.1.0'
     jvmToolchainVersion = 17
 }

@@ -22,6 +22,7 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.model.submission.DraftSubmission
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.SubmissionData
 import com.google.android.ground.model.submission.ValueDelta
@@ -30,6 +31,7 @@ import com.google.android.ground.persistence.local.room.converter.SubmissionData
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
 import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.local.room.converter.toModelObject
+import com.google.android.ground.persistence.local.room.dao.DraftSubmissionDao
 import com.google.android.ground.persistence.local.room.dao.SubmissionDao
 import com.google.android.ground.persistence.local.room.dao.SubmissionMutationDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
@@ -47,12 +49,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 /** Manages access to [Submission] objects persisted in local storage. */
 @Singleton
 class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore {
+  @Inject lateinit var draftSubmissionDao: DraftSubmissionDao
   @Inject lateinit var submissionDao: SubmissionDao
   @Inject lateinit var submissionMutationDao: SubmissionMutationDao
   @Inject lateinit var userStore: RoomUserStore
@@ -64,7 +68,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
    */
   override suspend fun getSubmission(
     locationOfInterest: LocationOfInterest,
-    submissionId: String
+    submissionId: String,
   ): Submission =
     submissionDao.findById(submissionId)?.toModelObject(locationOfInterest)
       ?: throw LocalDataStoreException("Submission not found $submissionId")
@@ -76,7 +80,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
    */
   override suspend fun getSubmissions(
     locationOfInterest: LocationOfInterest,
-    jobId: String
+    jobId: String,
   ): List<Submission> =
     submissionDao
       .findByLocationOfInterestId(locationOfInterest.id, jobId, EntityState.DEFAULT)
@@ -87,7 +91,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       .findBySubmissionId(
         model.id,
         MutationEntitySyncStatus.PENDING,
-        MutationEntitySyncStatus.IN_PROGRESS
+        MutationEntitySyncStatus.IN_PROGRESS,
       )
       ?.let { mergeSubmission(model.job, model.toLocalDataStoreObject(), it) }
   }
@@ -145,7 +149,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   private suspend fun mergeSubmission(
     job: Job,
     submission: SubmissionEntity,
-    mutations: List<SubmissionMutationEntity>
+    mutations: List<SubmissionMutationEntity>,
   ) {
     if (mutations.isEmpty()) {
       submissionDao.insertOrUpdate(submission)
@@ -160,7 +164,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     job: Job?,
     submission: SubmissionEntity,
     mutations: List<SubmissionMutationEntity>,
-    user: User
+    user: User,
   ): SubmissionEntity {
     val lastMutation = mutations[mutations.size - 1]
     val clientTimestamp = lastMutation.clientTimestamp
@@ -169,14 +173,14 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
 
     return submission.copy(
       data = SubmissionDataConverter.toString(commitMutations(job, submission, mutations)),
-      lastModified = AuditInfoEntity(UserDetails.fromUser(user), clientTimestamp)
+      lastModified = AuditInfoEntity(UserDetails.fromUser(user), clientTimestamp),
     )
   }
 
   private fun commitMutations(
     job: Job?,
     submission: SubmissionEntity,
-    mutations: List<SubmissionMutationEntity>
+    mutations: List<SubmissionMutationEntity>,
   ): SubmissionData {
     val responseMap = SubmissionDataConverter.fromString(job!!, submission.data)
     val deltas = mutableListOf<ValueDelta>()
@@ -194,7 +198,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   override fun getSubmissionMutationsByLoiIdFlow(
     survey: Survey,
     locationOfInterestId: String,
-    vararg allowedStates: MutationEntitySyncStatus
+    vararg allowedStates: MutationEntitySyncStatus,
   ): Flow<List<SubmissionMutation>> =
     submissionMutationDao.findByLoiIdFlow(locationOfInterestId, *allowedStates).map {
       list: List<SubmissionMutationEntity> ->
@@ -214,13 +218,16 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   }
 
   override fun getAllSurveyMutationsFlow(survey: Survey): Flow<List<SubmissionMutation>> =
-    submissionMutationDao.getAllMutationsFlow().map { mutations ->
-      mutations.filter { it.surveyId == survey.id }.map { it.toModelObject(survey) }
-    }
+    submissionMutationDao
+      .getAllMutationsFlow()
+      .map { mutations ->
+        mutations.filter { it.surveyId == survey.id }.map { it.toModelObject(survey) }
+      }
+      .catch { Timber.e("ignoring invalid submission mutation:\n\t${it.message}") }
 
   override suspend fun findByLocationOfInterestId(
     loidId: String,
-    vararg states: MutationEntitySyncStatus
+    vararg states: MutationEntitySyncStatus,
   ): List<SubmissionMutationEntity> =
     submissionMutationDao.findByLocationOfInterestId(loidId, *states)
 
@@ -228,13 +235,26 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     submissionMutationDao.getSubmissionMutationCount(
       loiId,
       MutationEntityType.CREATE,
-      MutationEntitySyncStatus.PENDING
+      MutationEntitySyncStatus.PENDING,
     )
 
   override suspend fun getPendingDeleteCount(loiId: String): Int =
     submissionMutationDao.getSubmissionMutationCount(
       loiId,
       MutationEntityType.DELETE,
-      MutationEntitySyncStatus.PENDING
+      MutationEntitySyncStatus.PENDING,
     )
+
+  override suspend fun getDraftSubmission(
+    draftSubmissionId: String,
+    survey: Survey,
+  ): DraftSubmission? = draftSubmissionDao.findById(draftSubmissionId)?.toModelObject(survey)
+
+  override suspend fun saveDraftSubmission(draftSubmission: DraftSubmission) {
+    draftSubmissionDao.insertOrUpdate(draftSubmission.toLocalDataStoreObject())
+  }
+
+  override suspend fun deleteDraftSubmissions() {
+    draftSubmissionDao.delete()
+  }
 }

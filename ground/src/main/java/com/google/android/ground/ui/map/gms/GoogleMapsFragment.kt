@@ -25,22 +25,30 @@ import android.widget.RelativeLayout
 import androidx.annotation.IdRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.TileOverlay
+import com.google.android.gms.maps.model.TileOverlayOptions
+import com.google.android.gms.maps.model.TileProvider
 import com.google.android.ground.Config
-import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.imagery.TileSource.Type.MOG_COLLECTION
 import com.google.android.ground.model.imagery.TileSource.Type.TILED_WEB_MAP
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.map.*
+import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.Feature
+import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.ui.map.gms.features.FeatureManager
 import com.google.android.ground.ui.map.gms.mog.MogCollection
 import com.google.android.ground.ui.map.gms.mog.MogTileProvider
@@ -238,14 +246,16 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     featureManager.zoom = map.cameraPosition.zoom
     featureManager.onCameraIdle()
 
-    viewLifecycleOwner.lifecycleScope.launch {
-      cameraMovedEvents.emit(
-        CameraPosition(
-          cameraPosition.target.toCoordinates(),
-          cameraPosition.zoom,
-          projection.visibleRegion.latLngBounds.toModelObject(),
+    lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        cameraMovedEvents.emit(
+          CameraPosition(
+            cameraPosition.target.toCoordinates(),
+            cameraPosition.zoom,
+            projection.visibleRegion.latLngBounds.toModelObject(),
+          )
         )
-      )
+      }
     }
   }
 

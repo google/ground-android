@@ -27,14 +27,19 @@ import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.model.submission.DraftSubmission
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.SubmissionData
+import com.google.android.ground.model.task.Condition
+import com.google.android.ground.model.task.Expression
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.model.task.TaskId
 import com.google.android.ground.persistence.local.LocalDataConsistencyException
 import com.google.android.ground.persistence.local.room.entity.*
 import com.google.android.ground.persistence.local.room.fields.*
+import com.google.android.ground.persistence.local.room.relations.ConditionEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.JobEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations
@@ -51,7 +56,7 @@ fun AuditInfo.toLocalDataStoreObject(): AuditInfoEntity =
   AuditInfoEntity(
     user = UserDetails.fromUser(user),
     clientTimestamp = clientTimestamp.time,
-    serverTimestamp = serverTimestamp?.time
+    serverTimestamp = serverTimestamp?.time,
   )
 
 fun AuditInfoEntity.toModelObject() =
@@ -103,7 +108,7 @@ fun Job.toLocalDataStoreObject(surveyId: String): JobEntity =
     surveyId = surveyId,
     name = name,
     strategy = strategy.toString(),
-    style = style?.toLocalDataStoreObject()
+    style = style?.toLocalDataStoreObject(),
   )
 
 fun JobEntityAndRelations.toModelObject(): Job {
@@ -121,7 +126,7 @@ fun JobEntityAndRelations.toModelObject(): Job {
           DataCollectionStrategy.UNKNOWN
         }
       },
-    tasks = taskMap.toPersistentMap()
+    tasks = taskMap.toPersistentMap(),
   )
 }
 
@@ -145,8 +150,8 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     customId = customId,
     submissionCount = submissionCount,
     ownerEmail = ownerEmail,
-    isOpportunistic = isOpportunistic,
     properties = properties,
+    isPredefined = isPredefined,
   )
 
 fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
@@ -162,17 +167,18 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       geometry = geometry.getGeometry(),
       submissionCount = submissionCount,
       properties = properties,
+      isPredefined = isPredefined,
       job =
         survey.getJob(jobId = jobId)
           ?: throw LocalDataConsistencyException(
             "Unknown jobId ${this.jobId} in location of interest ${this.id}"
-          )
+          ),
     )
   }
 
 @Deprecated(
   "Use toLocalDataStoreObject(User) instead",
-  ReplaceWith("toLocalDataStoreObject(auditInfo.user)")
+  ReplaceWith("toLocalDataStoreObject(auditInfo.user)"),
 )
 fun LocationOfInterestMutation.toLocalDataStoreObject(auditInfo: AuditInfo) =
   toLocalDataStoreObject(auditInfo.user)
@@ -192,8 +198,8 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(user: User): LocationOfInt
     customId = customId,
     submissionCount = submissionCount,
     ownerEmail = ownerEmail,
-    isOpportunistic = isOpportunistic,
-    properties = properties
+    properties = properties,
+    isPredefined = isPredefined,
   )
 }
 
@@ -211,7 +217,8 @@ fun LocationOfInterestMutation.toLocalDataStoreObject() =
     clientTimestamp = clientTimestamp.time,
     lastError = lastError,
     retryCount = retryCount,
-    newProperties = properties
+    newProperties = properties,
+    isPredefined = isPredefined,
   )
 
 fun LocationOfInterestMutationEntity.toModelObject() =
@@ -228,16 +235,21 @@ fun LocationOfInterestMutationEntity.toModelObject() =
     clientTimestamp = Date(clientTimestamp),
     lastError = lastError,
     retryCount = retryCount,
-    properties = newProperties
+    properties = newProperties,
+    isPredefined = isPredefined,
   )
 
 fun MultipleChoiceEntity.toModelObject(optionEntities: List<OptionEntity>): MultipleChoice {
   val options = optionEntities.map { it.toModelObject() }
-  return MultipleChoice(options.toPersistentList(), this.type.toCardinality())
+  return MultipleChoice(options.toPersistentList(), this.type.toCardinality(), this.hasOtherOption)
 }
 
 fun MultipleChoice.toLocalDataStoreObject(taskId: String): MultipleChoiceEntity =
-  MultipleChoiceEntity(taskId, MultipleChoiceEntityType.fromCardinality(this.cardinality))
+  MultipleChoiceEntity(
+    taskId,
+    MultipleChoiceEntityType.fromCardinality(this.cardinality),
+    hasOtherOption,
+  )
 
 private fun OfflineAreaEntityState.toModelObject() =
   when (this) {
@@ -266,7 +278,7 @@ fun OfflineArea.toOfflineAreaEntity() =
     south = this.bounds.south,
     west = this.bounds.west,
     minZoom = this.zoomRange.first,
-    maxZoom = this.zoomRange.last
+    maxZoom = this.zoomRange.last,
   )
 
 fun OfflineAreaEntity.toModelObject(): OfflineArea {
@@ -278,7 +290,7 @@ fun OfflineAreaEntity.toModelObject(): OfflineArea {
     this.state.toModelObject(),
     bounds,
     this.name,
-    IntRange(minZoom, maxZoom)
+    IntRange(minZoom, maxZoom),
   )
 }
 
@@ -304,7 +316,7 @@ fun SubmissionEntity.toModelObject(loi: LocationOfInterest): Submission {
     job = job,
     created = this.created.toModelObject(),
     lastModified = this.lastModified.toModelObject(),
-    data = SubmissionDataConverter.fromString(job, this.data)
+    data = SubmissionDataConverter.fromString(job, this.data),
   )
 }
 
@@ -330,7 +342,7 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
     data = SubmissionDataConverter.toString(SubmissionData().copyWithDeltas(this.deltas)),
     // TODO(#1562): Preserve creation audit info for UPDATE mutations.
     created = auditInfo,
-    lastModified = auditInfo
+    lastModified = auditInfo,
   )
 }
 
@@ -338,7 +350,7 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
 fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
   val job =
     survey.getJob(jobId)
-      ?: throw LocalDataConsistencyException("Unknown jobId in submission mutation $id")
+      ?: throw LocalDataConsistencyException("Unknown jobId $jobId in submission mutation $id")
 
   return SubmissionMutation(
     job = job,
@@ -352,7 +364,7 @@ fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
     retryCount = retryCount,
     lastError = lastError,
     userId = userId,
-    clientTimestamp = Date(clientTimestamp)
+    clientTimestamp = Date(clientTimestamp),
   )
 }
 
@@ -369,7 +381,7 @@ fun SubmissionMutation.toLocalDataStoreObject() =
     retryCount = retryCount,
     lastError = lastError,
     userId = userId,
-    clientTimestamp = clientTimestamp.time
+    clientTimestamp = clientTimestamp.time,
   )
 
 fun SurveyEntityAndRelations.toModelObject(): Survey {
@@ -382,7 +394,7 @@ fun SurveyEntityAndRelations.toModelObject(): Survey {
     surveyEntity.description!!,
     jobMap.toPersistentMap(),
     tileSources.toPersistentList(),
-    surveyEntity.acl?.toStringMap()!!
+    surveyEntity.acl?.toStringMap()!!,
   )
 }
 
@@ -397,7 +409,7 @@ fun Survey.toLocalDataStoreObject() =
     id = id,
     title = title,
     description = description,
-    acl = JSONObject(acl as Map<*, *>)
+    acl = JSONObject(acl as Map<*, *>),
   )
 
 fun Task.toLocalDataStoreObject(jobId: String?) =
@@ -408,7 +420,7 @@ fun Task.toLocalDataStoreObject(jobId: String?) =
     label = label,
     isRequired = isRequired,
     taskType = TaskEntityType.fromTaskType(type),
-    isAddLoiTask = isAddLoiTask
+    isAddLoiTask = isAddLoiTask,
   )
 
 fun TaskEntityAndRelations.toModelObject(): Task {
@@ -416,10 +428,19 @@ fun TaskEntityAndRelations.toModelObject(): Task {
 
   if (multipleChoiceEntities.isNotEmpty()) {
     if (multipleChoiceEntities.size > 1) {
-      Timber.e("More than 1 multiple choice found for task")
+      Timber.e("More than 1 multiple choice found for task: $taskEntity")
     }
 
     multipleChoice = multipleChoiceEntities[0].toModelObject(optionEntities)
+  }
+
+  var condition: Condition? = null
+
+  if (conditionEntityAndRelations.isNotEmpty()) {
+    if (conditionEntityAndRelations.size > 1) {
+      Timber.e("More than 1 condition found for task: $taskEntity")
+    }
+    condition = conditionEntityAndRelations[0].toModelObject()
   }
 
   return Task(
@@ -429,7 +450,8 @@ fun TaskEntityAndRelations.toModelObject(): Task {
     taskEntity.label!!,
     taskEntity.isRequired,
     multipleChoice,
-    taskEntity.isAddLoiTask
+    taskEntity.isAddLoiTask,
+    condition,
   )
 }
 
@@ -438,3 +460,59 @@ fun User.toLocalDataStoreObject() =
 
 fun UserEntity.toModelObject() =
   User(id = id, email = email, displayName = displayName, photoUrl = photoUrl)
+
+fun Condition.toLocalDataStoreObject(parentTaskId: TaskId) =
+  ConditionEntity(parentTaskId = parentTaskId, matchType = MatchEntityType.fromMatchType(matchType))
+
+fun ConditionEntityAndRelations.toModelObject(): Condition? {
+  val expressions: List<Expression>?
+
+  if (expressionEntities.isEmpty()) {
+    return null
+  } else {
+    expressions = expressionEntities.map { it.toModelObject() }
+  }
+
+  return Condition(conditionEntity.matchType.toMatchType(), expressions = expressions)
+}
+
+fun Expression.toLocalDataStoreObject(parentTaskId: TaskId): ExpressionEntity =
+  ExpressionEntity(
+    parentTaskId = parentTaskId,
+    expressionType = ExpressionEntityType.fromExpressionType(expressionType),
+    taskId = taskId,
+    optionIds = optionIds.joinToString(","),
+  )
+
+fun ExpressionEntity.toModelObject(): Expression =
+  Expression(
+    expressionType = expressionType.toExpressionType(),
+    taskId = taskId,
+    optionIds = optionIds?.split(',')?.toSet() ?: setOf(),
+  )
+
+@Throws(LocalDataConsistencyException::class)
+fun DraftSubmissionEntity.toModelObject(survey: Survey): DraftSubmission {
+  val job =
+    survey.getJob(jobId)
+      ?: throw LocalDataConsistencyException("Unknown jobId in submission mutation $id")
+
+  return DraftSubmission(
+    id = id,
+    jobId = jobId,
+    loiId = loiId,
+    loiName = loiName,
+    surveyId = surveyId,
+    deltas = SubmissionDeltasConverter.fromString(job, deltas),
+  )
+}
+
+fun DraftSubmission.toLocalDataStoreObject() =
+  DraftSubmissionEntity(
+    id = id,
+    jobId = jobId,
+    loiId = loiId,
+    loiName = loiName,
+    surveyId = surveyId,
+    deltas = SubmissionDeltasConverter.toString(deltas),
+  )

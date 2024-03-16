@@ -50,11 +50,16 @@ internal object LoiMutationConverter {
       else -> {}
     }
 
+    if (mutation.properties.isNotEmpty()) {
+      map[LoiConverter.PROPERTIES] = mutation.properties
+    }
+
     val auditInfo = fromMutationAndUser(mutation, user)
     when (mutation.type) {
       Mutation.Type.CREATE -> {
         map[LoiConverter.CREATED] = auditInfo
         map[LoiConverter.LAST_MODIFIED] = auditInfo
+        map[LoiConverter.IS_PREDEFINED] = mutation.isPredefined ?: false
       }
       Mutation.Type.UPDATE -> {
         map[LoiConverter.LAST_MODIFIED] = auditInfo
@@ -69,7 +74,7 @@ internal object LoiMutationConverter {
 
   private fun MutableMap<String, Any>.addGeometryCoordinates(
     geometryCoordinates: Any,
-    geometryType: String
+    geometryType: String,
   ) {
     val geometryMap: MutableMap<String, Any> = HashMap()
     geometryMap[LoiConverter.GEOMETRY_COORDINATES] = geometryCoordinates

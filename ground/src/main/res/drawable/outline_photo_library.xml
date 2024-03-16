@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2023 Google LLC
+  ~ Copyright 2024 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,8 +16,16 @@
   ~ limitations under the License.
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-  android:shape="rectangle">
-  <corners android:radius="4dp" />
-  <solid android:color="?attr/colorSecondaryContainer" />
-</shape>
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+  android:width="24dp"
+  android:height="24dp"
+  android:tint="#000000"
+  android:viewportWidth="24"
+  android:viewportHeight="24">
+
+  <path
+    android:fillColor="@android:color/white"
+    android:pathData="M20,4v12L8,16L8,4h12m0,-2L8,2c-1.1,0 -2,0.9 -2,2v12c0,1.1 0.9,2 2,2h12c1.1,0 2,-0.9 2,-2L22,4c0,-1.1 -0.9,-2 -2,-2zM11.5,11.67l1.69,2.26 2.48,-3.1L19,15L9,15zM2,6v14c0,1.1 0.9,2 2,2h14v-2L4,20L4,6L2,6z" />
+
+</vector>

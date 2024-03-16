@@ -19,36 +19,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LineString.Companion.lineStringOf
 import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
+import com.google.android.ground.ui.datacollection.components.InstructionsDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
-import com.google.android.material.color.MaterialColors
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.collectLatest
@@ -98,8 +84,8 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
     }
   }
 
-  override fun onTaskVisibleToUser() {
-    if (!viewModel.instructionsDialogShown) {
+  override fun onTaskResume() {
+    if (isVisible && !viewModel.instructionsDialogShown) {
       showInstructionsDialog()
     }
   }
@@ -114,57 +100,20 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
   }
 
   private fun showInstructionsDialog() {
+    viewModel.instructionsDialogShown = true
     (view as ViewGroup).addView(
       ComposeView(requireContext()).apply {
         setContent {
           val openAlertDialog = remember { mutableStateOf(true) }
           when {
             openAlertDialog.value -> {
-              CreateInstructionsDialog {
+              InstructionsDialog(R.drawable.touch_app_24, R.string.draw_area_task_instruction) {
                 openAlertDialog.value = false
-                viewModel.instructionsDialogShown = true
               }
             }
           }
         }
       }
-    )
-  }
-
-  @Composable
-  private fun CreateInstructionsDialog(onDismissRequest: () -> Unit) {
-    AlertDialog(
-      icon = {
-        Icon(
-          imageVector = ImageVector.vectorResource(id = R.drawable.touch_app_24),
-          contentDescription = "",
-          modifier = Modifier.width(48.dp).height(48.dp),
-        )
-      },
-      title = { StyledText(getText(R.string.draw_area_task_instruction)) },
-      onDismissRequest = {}, // Prevent dismissing the dialog by clicking outside
-      confirmButton = {}, // Hide confirm button
-      dismissButton = {
-        OutlinedButton(onClick = { onDismissRequest() }) {
-          Text(
-            text = getString(R.string.close),
-            color = Color(MaterialColors.getColor(context, R.attr.colorPrimary, "")),
-          )
-        }
-      },
-    )
-  }
-
-  /** Supports annotated texts e.g. <b>Hello world</b> */
-  @Composable
-  private fun StyledText(text: CharSequence, modifier: Modifier = Modifier) {
-    AndroidView(
-      modifier = modifier,
-      factory = { context -> TextView(context) },
-      update = {
-        it.text = text
-        it.textSize = 18.toFloat()
-      },
     )
   }
 }

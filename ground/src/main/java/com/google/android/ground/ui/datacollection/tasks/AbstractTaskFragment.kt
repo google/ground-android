@@ -19,6 +19,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
@@ -26,9 +32,11 @@ import com.google.android.ground.R
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
+import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
+import com.google.android.ground.ui.datacollection.components.LoiNameDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
 import com.google.android.ground.ui.datacollection.components.TaskButtonFactory
 import com.google.android.ground.ui.datacollection.components.TaskView
@@ -91,11 +99,9 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  override fun setMenuVisibility(menuVisible: Boolean) {
-    super.setMenuVisibility(menuVisible)
-    if (menuVisible) {
-      onTaskVisibleToUser()
-    }
+  override fun onResume() {
+    super.onResume()
+    onTaskResume()
   }
 
   /** Creates the view for common task template with/without header. */
@@ -108,7 +114,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   open fun onTaskViewAttached() {}
 
   /** Invoked when the task fragment is visible to the user. */
-  open fun onTaskVisibleToUser() {}
+  open fun onTaskResume() {}
 
   /** Invoked when the fragment is ready to add buttons to the current [TaskView]. */
   open fun onCreateActionButtons() {
@@ -135,7 +141,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   protected fun addNextButton() =
     addButton(ButtonAction.NEXT)
-      .setOnClickListener { moveToNext() }
+      .setOnClickListener { handleNext() }
       .setOnValueChanged { button, value -> button.enableIfTrue(value.isNotNullOrEmpty()) }
       .disable()
 
@@ -154,11 +160,28 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   private fun moveToPrevious() {
-    dataCollectionViewModel.onPreviousClicked(position, viewModel)
+    lifecycleScope.launch { dataCollectionViewModel.onPreviousClicked(viewModel) }
   }
 
-  fun moveToNext() {
-    lifecycleScope.launch { dataCollectionViewModel.onNextClicked(position, viewModel) }
+  private fun moveToNext() {
+    lifecycleScope.launch { dataCollectionViewModel.onNextClicked(viewModel) }
+  }
+
+  fun handleNext() {
+    if (getTask().isAddLoiTask) {
+      launchLoiNameDialog()
+    } else {
+      moveToNext()
+    }
+  }
+
+  private fun handleLoiNameSet(loiName: String) {
+    if (loiName != "") {
+      lifecycleScope.launch {
+        dataCollectionViewModel.setLoiName(loiName)
+        moveToNext()
+      }
+    }
   }
 
   fun addUndoButton() =
@@ -188,9 +211,49 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   private fun ButtonAction.shouldReplaceWithDoneButton() =
     this == ButtonAction.NEXT && dataCollectionViewModel.isLastPosition(position)
 
+  fun getTask(): Task = viewModel.task
+
+  fun getCurrentValue(): Value? = viewModel.taskValue.value
+
   @TestOnly fun getButtons() = buttons
 
   @TestOnly fun getButtonsIndex() = buttonsIndex
+
+  private fun launchLoiNameDialog() {
+    dataCollectionViewModel.loiNameDialogOpen.value = true
+    lifecycleScope.launch {
+      (view as ViewGroup).addView(
+        ComposeView(requireContext()).apply {
+          setContent {
+            // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
+            ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
+              handleLoiNameSet(loiName = it)
+            }
+          }
+        }
+      )
+    }
+  }
+
+  @Composable
+  fun ShowLoiNameDialog(initialNameValue: String, onNameSet: (String) -> Unit) {
+    var openAlertDialog by rememberSaveable { dataCollectionViewModel.loiNameDialogOpen }
+    var name by rememberSaveable { mutableStateOf(initialNameValue) }
+    if (openAlertDialog) {
+      LoiNameDialog(
+        textFieldValue = name,
+        onConfirmRequest = {
+          openAlertDialog = false
+          onNameSet(name)
+        },
+        onDismissRequest = {
+          name = initialNameValue
+          openAlertDialog = false
+        },
+        onTextFieldChange = { name = it }
+      )
+    }
+  }
 
   companion object {
     /** Key used to store the position of the task in the Job's sorted tasklist. */

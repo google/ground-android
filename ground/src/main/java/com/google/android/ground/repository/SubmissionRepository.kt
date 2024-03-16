@@ -16,12 +16,15 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.model.AuditInfo
+import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.model.submission.DraftSubmission
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.ValueDelta
+import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -38,10 +41,11 @@ class SubmissionRepository
 @Inject
 constructor(
   private val localSubmissionStore: LocalSubmissionStore,
+  private val localValueStore: LocalValueStore,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val userRepository: UserRepository,
-  private val uuidGenerator: OfflineUuidGenerator
+  private val uuidGenerator: OfflineUuidGenerator,
 ) {
 
   suspend fun createSubmission(surveyId: String, locationOfInterestId: String): Submission {
@@ -53,7 +57,7 @@ constructor(
   private suspend fun createOrUpdateSubmission(
     submission: Submission,
     deltas: List<ValueDelta>,
-    isNew: Boolean
+    isNew: Boolean,
   ) =
     applyAndEnqueue(
       SubmissionMutation(
@@ -64,17 +68,38 @@ constructor(
         syncStatus = SyncStatus.PENDING,
         surveyId = submission.surveyId,
         locationOfInterestId = submission.locationOfInterest.id,
-        userId = submission.lastModified.user.id
+        userId = submission.lastModified.user.id,
       )
     )
 
   suspend fun saveSubmission(
     surveyId: String,
     locationOfInterestId: String,
-    deltas: List<ValueDelta>
+    deltas: List<ValueDelta>,
   ) {
     val submission = createSubmission(surveyId, locationOfInterestId)
     createOrUpdateSubmission(submission, deltas, isNew = true)
+  }
+
+  suspend fun getDraftSubmission(draftSubmissionId: String, survey: Survey): DraftSubmission? =
+    localSubmissionStore.getDraftSubmission(draftSubmissionId = draftSubmissionId, survey = survey)
+
+  suspend fun saveDraftSubmission(
+    jobId: String,
+    loiId: String?,
+    surveyId: String,
+    deltas: List<ValueDelta>,
+    loiName: String?,
+  ) {
+    val newId = uuidGenerator.generateUuid()
+    val draft = DraftSubmission(newId, jobId, loiId, loiName, surveyId, deltas)
+    localSubmissionStore.saveDraftSubmission(draftSubmission = draft)
+    localValueStore.draftSubmissionId = newId
+  }
+
+  suspend fun deleteDraftSubmission() {
+    localSubmissionStore.deleteDraftSubmissions()
+    localValueStore.draftSubmissionId = null
   }
 
   private suspend fun applyAndEnqueue(mutation: SubmissionMutation) {

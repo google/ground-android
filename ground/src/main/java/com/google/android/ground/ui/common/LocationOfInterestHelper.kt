@@ -17,46 +17,49 @@ package com.google.android.ground.ui.common
 
 import android.content.res.Resources
 import com.google.android.ground.R
-import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.User
-import com.google.android.ground.model.geometry.LineString
-import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import java.util.Optional
 import javax.inject.Inject
 
-/** Common logic for formatting attributes of [LocationOfInterest] for display to the user. */
+/** Helper class for creating user-visible text. */
 class LocationOfInterestHelper @Inject internal constructor(private val resources: Resources) {
-  fun getCreatedBy(locationOfInterest: Optional<LocationOfInterest>): String =
-    getUserName(locationOfInterest).map { resources.getString(R.string.added_by, it) }.orElse("")
 
-  // TODO(#793): Allow user-defined LOI names for other LOI types.
-  fun getLabel(locationOfInterest: Optional<LocationOfInterest>): String =
-    locationOfInterest.map(::getLabel).orElse("")
+  fun getDisplayLoiName(loi: LocationOfInterest): String {
+    val loiId = loi.customId.ifEmpty { loi.getProperty("id") }
+    val loiName = loi.getProperty(LOI_NAME_PROPERTY)
 
-  fun getLabel(loi: LocationOfInterest): String {
-    // TODO(#2046): Reuse logic from card util to display LOI label
-    val caption = loi.customId?.trim { it <= ' ' } ?: ""
-    return caption.ifEmpty { getLocationOfInterestType(loi) }
+    return when {
+      loiName.isNotEmpty() && loiId.isNotEmpty() -> "$loiName ($loiId)"
+      loiName.isNotEmpty() -> loiName
+      loiId.isNotEmpty() -> "${loi.geometry.toType()} ($loiId)"
+      else -> loi.geometry.toDefaultName()
+    }
   }
 
-  private fun getLocationOfInterestType(locationOfInterest: LocationOfInterest): String =
-    when (locationOfInterest.geometry) {
-      is Polygon -> "Polygon"
-      is Point -> "Point"
-      is LineString -> "LineString"
-      is LinearRing -> "LinearRing"
-      is MultiPolygon -> "MultiPolygon"
+  fun getJobName(loi: LocationOfInterest): String? = loi.job.name
+
+  /** Returns a user-visible string representing the type of the geometry. */
+  private fun Geometry.toType(): String =
+    when (this) {
+      is Point -> resources.getString(R.string.point)
+      is Polygon,
+      is MultiPolygon -> resources.getString(R.string.area)
+      else -> throw IllegalArgumentException("Unsupported geometry type $this")
     }
 
-  fun getSubtitle(locationOfInterest: Optional<LocationOfInterest>): String =
-    locationOfInterest
-      .map { resources.getString(R.string.layer_label_format, it.job.name) }
-      .orElse("")
+  /** Returns a default user-visible name for the geometry. */
+  private fun Geometry.toDefaultName(): String =
+    when (this) {
+      is Point -> resources.getString(R.string.unnamed_point)
+      is Polygon,
+      is MultiPolygon -> resources.getString(R.string.unnamed_area)
+      else -> throw IllegalArgumentException("Unsupported geometry type $this")
+    }
 
-  private fun getUserName(locationOfInterest: Optional<LocationOfInterest>): Optional<String> =
-    locationOfInterest.map(LocationOfInterest::created).map(AuditInfo::user).map(User::displayName)
+  fun getSubtitle(loi: LocationOfInterest): String =
+    resources.getString(R.string.layer_label_format, loi.job.name)
 }

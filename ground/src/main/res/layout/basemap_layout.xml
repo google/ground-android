@@ -65,7 +65,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:enabled="@{viewModel.getLocationLockEnabled()}"
         android:onClick="@{() -> viewModel.onLocationLockClick()}"
         app:backgroundTint="?attr/colorSurface"
         app:fabSize="normal"
@@ -76,7 +75,7 @@
         app:useCompatPadding="true" />
 
       <!-- Use this container to add overlay views that are anchored to location lock button. -->
-      <FrameLayout
+      <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/bottom_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

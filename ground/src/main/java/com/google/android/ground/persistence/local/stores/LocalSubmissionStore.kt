@@ -18,6 +18,7 @@ package com.google.android.ground.persistence.local.stores
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.model.submission.DraftSubmission
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
@@ -30,13 +31,13 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
    */
   suspend fun getSubmissions(
     locationOfInterest: LocationOfInterest,
-    jobId: String
+    jobId: String,
   ): List<Submission>
 
   /** Returns the submission with the specified UUID from the local data store, if found. */
   suspend fun getSubmission(
     locationOfInterest: LocationOfInterest,
-    submissionId: String
+    submissionId: String,
   ): Submission
 
   /** Deletes submission from local database. */
@@ -49,7 +50,7 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
   fun getSubmissionMutationsByLoiIdFlow(
     survey: Survey,
     locationOfInterestId: String,
-    vararg allowedStates: MutationEntitySyncStatus
+    vararg allowedStates: MutationEntitySyncStatus,
   ): Flow<List<SubmissionMutation>>
 
   /**
@@ -60,10 +61,19 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
 
   suspend fun findByLocationOfInterestId(
     loidId: String,
-    vararg states: MutationEntitySyncStatus
+    vararg states: MutationEntitySyncStatus,
   ): List<SubmissionMutationEntity>
 
   suspend fun getPendingCreateCount(loiId: String): Int
 
   suspend fun getPendingDeleteCount(loiId: String): Int
+
+  /** Fetches the draft submission for the given UUID from local database. */
+  suspend fun getDraftSubmission(draftSubmissionId: String, survey: Survey): DraftSubmission?
+
+  /** Saves the given draft submission to local database. */
+  suspend fun saveDraftSubmission(draftSubmission: DraftSubmission)
+
+  /** Removes all locally stored draft submissions. */
+  suspend fun deleteDraftSubmissions()
 }

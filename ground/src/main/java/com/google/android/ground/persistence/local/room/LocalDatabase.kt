@@ -24,9 +24,45 @@ import com.google.android.ground.persistence.local.room.converter.JsonArrayTypeC
 import com.google.android.ground.persistence.local.room.converter.JsonObjectTypeConverter
 import com.google.android.ground.persistence.local.room.converter.LoiPropertiesMapConverter
 import com.google.android.ground.persistence.local.room.converter.StyleTypeConverter
-import com.google.android.ground.persistence.local.room.dao.*
-import com.google.android.ground.persistence.local.room.entity.*
-import com.google.android.ground.persistence.local.room.fields.*
+import com.google.android.ground.persistence.local.room.dao.ConditionDao
+import com.google.android.ground.persistence.local.room.dao.DraftSubmissionDao
+import com.google.android.ground.persistence.local.room.dao.ExpressionDao
+import com.google.android.ground.persistence.local.room.dao.JobDao
+import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao
+import com.google.android.ground.persistence.local.room.dao.LocationOfInterestMutationDao
+import com.google.android.ground.persistence.local.room.dao.MultipleChoiceDao
+import com.google.android.ground.persistence.local.room.dao.OfflineAreaDao
+import com.google.android.ground.persistence.local.room.dao.OptionDao
+import com.google.android.ground.persistence.local.room.dao.SubmissionDao
+import com.google.android.ground.persistence.local.room.dao.SubmissionMutationDao
+import com.google.android.ground.persistence.local.room.dao.SurveyDao
+import com.google.android.ground.persistence.local.room.dao.TaskDao
+import com.google.android.ground.persistence.local.room.dao.TileSourceDao
+import com.google.android.ground.persistence.local.room.dao.UserDao
+import com.google.android.ground.persistence.local.room.entity.ConditionEntity
+import com.google.android.ground.persistence.local.room.entity.DraftSubmissionEntity
+import com.google.android.ground.persistence.local.room.entity.ExpressionEntity
+import com.google.android.ground.persistence.local.room.entity.JobEntity
+import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
+import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
+import com.google.android.ground.persistence.local.room.entity.MultipleChoiceEntity
+import com.google.android.ground.persistence.local.room.entity.OfflineAreaEntity
+import com.google.android.ground.persistence.local.room.entity.OptionEntity
+import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
+import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
+import com.google.android.ground.persistence.local.room.entity.SurveyEntity
+import com.google.android.ground.persistence.local.room.entity.TaskEntity
+import com.google.android.ground.persistence.local.room.entity.TileSourceEntity
+import com.google.android.ground.persistence.local.room.entity.UserEntity
+import com.google.android.ground.persistence.local.room.fields.EntityState
+import com.google.android.ground.persistence.local.room.fields.ExpressionEntityType
+import com.google.android.ground.persistence.local.room.fields.MatchEntityType
+import com.google.android.ground.persistence.local.room.fields.MultipleChoiceEntityType
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.room.fields.MutationEntityType
+import com.google.android.ground.persistence.local.room.fields.OfflineAreaEntityState
+import com.google.android.ground.persistence.local.room.fields.TaskEntityType
+import com.google.android.ground.persistence.local.room.fields.TileSetEntityState
 
 /**
  * Main entry point to local database API, exposing data access objects (DAOs) for interacting with
@@ -38,6 +74,7 @@ import com.google.android.ground.persistence.local.room.fields.*
 @Database(
   entities =
     [
+      DraftSubmissionEntity::class,
       LocationOfInterestEntity::class,
       LocationOfInterestMutationEntity::class,
       TaskEntity::class,
@@ -49,7 +86,9 @@ import com.google.android.ground.persistence.local.room.fields.*
       SubmissionEntity::class,
       SubmissionMutationEntity::class,
       OfflineAreaEntity::class,
-      UserEntity::class
+      UserEntity::class,
+      ConditionEntity::class,
+      ExpressionEntity::class,
     ],
   version = Config.DB_VERSION,
   exportSchema = false
@@ -57,6 +96,8 @@ import com.google.android.ground.persistence.local.room.fields.*
 @TypeConverters(
   TaskEntityType::class,
   MultipleChoiceEntityType::class,
+  MatchEntityType::class,
+  ExpressionEntityType::class,
   MutationEntityType::class,
   EntityState::class,
   GeometryWrapperTypeConverter::class,
@@ -69,6 +110,8 @@ import com.google.android.ground.persistence.local.room.fields.*
   LoiPropertiesMapConverter::class,
 )
 abstract class LocalDatabase : RoomDatabase() {
+  abstract fun draftSubmissionDao(): DraftSubmissionDao
+
   abstract fun locationOfInterestDao(): LocationOfInterestDao
 
   abstract fun locationOfInterestMutationDao(): LocationOfInterestMutationDao
@@ -92,4 +135,8 @@ abstract class LocalDatabase : RoomDatabase() {
   abstract fun offlineAreaDao(): OfflineAreaDao
 
   abstract fun userDao(): UserDao
+
+  abstract fun conditionDao(): ConditionDao
+
+  abstract fun expressionDao(): ExpressionDao
 }

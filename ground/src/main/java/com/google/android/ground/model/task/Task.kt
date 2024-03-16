@@ -31,7 +31,8 @@ constructor(
   val label: String,
   val isRequired: Boolean,
   val multipleChoice: MultipleChoice? = null,
-  val isAddLoiTask: Boolean = false
+  val isAddLoiTask: Boolean = false,
+  val condition: Condition? = null,
 ) {
 
   /**

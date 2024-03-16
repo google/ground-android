@@ -26,16 +26,17 @@ import com.google.android.ground.databinding.AddLoiCardItemBinding
 import com.google.android.ground.databinding.LoiCardItemBinding
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.ui.common.LocationOfInterestHelper
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [LocationOfInterest] data with the
  * [ViewHolder] views.
  */
 class MapCardAdapter(
-  private val canUserSubmitData: Boolean,
-  private val updateSubmissionCount: (loi: LocationOfInterest, view: TextView) -> Unit,
+  private val updateSubmissionCount: (loi: LocationOfInterest, view: TextView) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+  private var canUserSubmitData: Boolean = false
   private var focusedIndex: Int = 0
   private var indexOfLastLoi: Int = -1
   private val itemsList: MutableList<MapCardUiData> = mutableListOf()
@@ -49,14 +50,10 @@ class MapCardAdapter(
     return if (viewType == R.layout.loi_card_item) {
       LoiViewHolder(
         LoiCardItemBinding.inflate(layoutInflater, parent, false),
-        canUserSubmitData,
         updateSubmissionCount,
       )
     } else {
-      AddLoiCardViewHolder(
-        AddLoiCardItemBinding.inflate(layoutInflater, parent, false),
-        canUserSubmitData,
-      )
+      AddLoiCardViewHolder(AddLoiCardItemBinding.inflate(layoutInflater, parent, false))
     }
   }
 
@@ -89,7 +86,12 @@ class MapCardAdapter(
   }
 
   /** Overwrites existing cards. */
-  fun updateData(newItemsList: List<MapCardUiData>, indexOfLastLoi: Int) {
+  fun updateData(
+    canUserSubmitData: Boolean,
+    newItemsList: List<MapCardUiData>,
+    indexOfLastLoi: Int,
+  ) {
+    this.canUserSubmitData = canUserSubmitData
     this.indexOfLastLoi = indexOfLastLoi
     itemsList.clear()
     itemsList.addAll(newItemsList)
@@ -111,10 +113,10 @@ class MapCardAdapter(
   ): CardViewHolder =
     when (uiData) {
       is MapCardUiData.LoiCardUiData -> {
-        (holder as LoiViewHolder).apply { bind(uiData.loi) }
+        (holder as LoiViewHolder).apply { bind(canUserSubmitData, uiData.loi) }
       }
       is MapCardUiData.AddLoiCardUiData -> {
-        (holder as AddLoiCardViewHolder).apply { bind(uiData.job) }
+        (holder as AddLoiCardViewHolder).apply { bind(canUserSubmitData, uiData.job) }
       }
     }
 
@@ -135,13 +137,14 @@ class MapCardAdapter(
   /** View item representing the [LocationOfInterest] data in the list. */
   class LoiViewHolder(
     internal val binding: LoiCardItemBinding,
-    private val canUserSubmitData: Boolean,
     private val updateSubmissionCount: (loi: LocationOfInterest, view: TextView) -> Unit,
   ) : CardViewHolder(binding.root) {
-    fun bind(loi: LocationOfInterest) {
+    private val loiHelper = LocationOfInterestHelper(itemView.resources)
+
+    fun bind(canUserSubmitData: Boolean, loi: LocationOfInterest) {
       with(binding) {
-        loiName.text = LoiCardUtil.getDisplayLoiName(binding.wrapperView.context, loi)
-        jobName.text = LoiCardUtil.getJobName(loi)
+        loiName.text = loiHelper.getDisplayLoiName(loi)
+        jobName.text = loiHelper.getJobName(loi)
         collectData.visibility =
           if (canUserSubmitData && loi.job.hasTasks()) View.VISIBLE else View.GONE
         updateSubmissionCount(loi, submissions)
@@ -154,12 +157,10 @@ class MapCardAdapter(
   }
 
   /** View item representing the Add Loi Job data in the list. */
-  class AddLoiCardViewHolder(
-    internal val binding: AddLoiCardItemBinding,
-    private val canUserSubmitData: Boolean,
-  ) : CardViewHolder(binding.root) {
+  class AddLoiCardViewHolder(internal val binding: AddLoiCardItemBinding) :
+    CardViewHolder(binding.root) {
 
-    fun bind(job: Job) {
+    fun bind(canUserSubmitData: Boolean, job: Job) {
       with(binding) {
         jobName.text = job.name
         collectData.visibility =

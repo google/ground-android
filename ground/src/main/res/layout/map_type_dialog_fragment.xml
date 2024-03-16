@@ -64,17 +64,6 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/dialog_title" />
 
-    <!-- TODO(#1753): Handle button clicks -->
-    <androidx.constraintlayout.utils.widget.ImageFilterView
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginStart="5dp"
-      android:layout_marginEnd="5dp"
-      android:src="@drawable/baseline_help_outline_24"
-      android:tint="#70757A"
-      app:layout_constraintStart_toEndOf="@id/base_map_selector_title"
-      app:layout_constraintTop_toTopOf="@id/base_map_selector_title" />
-
     <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/recycler_view"
       android:layout_width="match_parent"

@@ -20,7 +20,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -32,6 +31,7 @@ import com.google.android.ground.coroutines.MainDispatcher
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
+import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.UserRepository
@@ -40,7 +40,6 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
-import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUtil
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.MapFragment
@@ -51,6 +50,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
@@ -67,47 +67,47 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var binding: BasemapLayoutBinding
   private lateinit var adapter: MapCardAdapter
+  private lateinit var infoPopup: EphemeralPopups.InfoPopup
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
+    adapter = MapCardAdapter { loi, view -> updateSubmissionCount(loi, view) }
 
-    lifecycleScope.launch {
+    launchWhenStarted {
       val canUserSubmitData = userRepository.canUserSubmitData()
-      adapter = MapCardAdapter(canUserSubmitData) { loi, view -> updateSubmissionCount(loi, view) }
-      adapter.setCollectDataListener {
-        if (canUserSubmitData) {
-          navigateToDataCollectionFragment(it)
-        } else {
-          // Skip data collection screen if the user can't submit any data
-          // TODO(#1667): Revisit UX for displaying view only mode
-          ephemeralPopups.ErrorPopup().show(getString(R.string.collect_data_viewer_error))
-        }
+
+      // Handle collect button clicks
+      adapter.setCollectDataListener { onCollectData(canUserSubmitData, it) }
+
+      // Bind data for cards
+      mapContainerViewModel.getMapCardUiData().launchWhenStartedAndCollect { (mapCards, loiCount) ->
+        adapter.updateData(canUserSubmitData, mapCards, loiCount - 1)
       }
     }
 
-    lifecycleScope.launch {
-      mapContainerViewModel.loisInViewport
-        .combine(mapContainerViewModel.adHocLoiJobs) { lois, jobs ->
-          val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
-          val jobCards = jobs.map { MapCardUiData.AddLoiCardUiData(it) }
+    map.featureClicks.launchWhenStartedAndCollect { mapContainerViewModel.onFeatureClicked(it) }
+  }
 
-          Pair(loiCards + jobCards, lois.size)
-        }
-        .collect { (mapCards, loiCount) -> adapter.updateData(mapCards, loiCount - 1) }
-    }
-
-    lifecycleScope.launch(ioDispatcher) {
-      map.featureClicks.collect { mapContainerViewModel.onFeatureClicked(it) }
+  /** Invoked when user clicks on the map cards to collect data. */
+  private fun onCollectData(canUserSubmitData: Boolean, cardUiData: MapCardUiData) {
+    if (canUserSubmitData) {
+      navigateToDataCollectionFragment(cardUiData)
+    } else {
+      // Skip data collection screen if the user can't submit any data
+      // TODO(#1667): Revisit UX for displaying view only mode
+      ephemeralPopups.ErrorPopup().show(getString(R.string.collect_data_viewer_error))
     }
   }
 
   /** Updates the given [TextView] with the submission count for the given [LocationOfInterest]. */
   private fun updateSubmissionCount(loi: LocationOfInterest, view: TextView) {
     externalScope.launch {
-      val submissionCount = submissionRepository.getTotalSubmissionCount(loi)
-      val submissionText = LoiCardUtil.getSubmissionsText(submissionCount)
+      val count = submissionRepository.getTotalSubmissionCount(loi)
+      val submissionText =
+        if (count == 0) resources.getString(R.string.no_submissions)
+        else resources.getQuantityString(R.plurals.submission_count, count, count)
       withContext(mainDispatcher) { view.text = submissionText }
     }
   }
@@ -117,6 +117,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     container: ViewGroup?,
     savedInstanceState: Bundle?,
   ): View {
+    super.onCreateView(inflater, container, savedInstanceState)
     binding = BasemapLayoutBinding.inflate(inflater, container, false)
     binding.fragment = this
     binding.viewModel = mapContainerViewModel
@@ -128,33 +129,47 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     super.onViewCreated(view, savedInstanceState)
     setupMenuFab()
     setupBottomLoiCards()
-    lifecycleScope.launch { showDataCollectionHint() }
+    showDataCollectionHint()
   }
 
   /**
    * Displays a popup hint informing users how to begin collecting data, based on the properties of
-   * the active survey.
+   * the active survey and zoomed in state.
    *
-   * This method should only be called after view creation.
+   * This method should only be called after view creation and should only trigger once per view
+   * create.
    */
-  private suspend fun showDataCollectionHint() {
-    check(this::mapContainerViewModel.isInitialized) {
-      "showDataCollectionHint called before mapContainerViewModel was initialized"
+  private fun showDataCollectionHint() {
+    if (!this::mapContainerViewModel.isInitialized) {
+      return Timber.w("showDataCollectionHint() called before mapContainerViewModel initialized")
     }
-    check(this::binding.isInitialized) {
-      "showDataCollectionHint called before binding was initialized"
+    if (!this::binding.isInitialized) {
+      return Timber.w("showDataCollectionHint() called before binding initialized")
     }
-    mapContainerViewModel.surveyUpdateFlow.collect {
-      val messageId =
+    // Combine the survey properties and the current zoomed-out state to determine which popup to
+    // show, or not.
+    mapContainerViewModel.surveyUpdateFlow
+      .combine(mapContainerViewModel.isZoomedInFlow) { surveyProperties, isZoomedIn ->
+        // Negated since we only want to show certain popups when the user is zoomed out.
+        Pair(surveyProperties, !isZoomedIn)
+      }
+      .launchWhenStartedAndCollectFirst {
+        val (surveyProperties, isZoomedOut) = it
         when {
-          it.addLoiPermitted -> R.string.suggest_data_collection_hint
-          it.readOnly -> R.string.read_only_data_collection_hint
-          else -> R.string.predefined_data_collection_hint
+          surveyProperties.readOnly -> R.string.read_only_data_collection_hint
+          isZoomedOut && surveyProperties.addLoiPermitted -> R.string.suggest_data_collection_hint
+          isZoomedOut -> R.string.predefined_data_collection_hint
+          else -> null
+        }?.let { message ->
+          infoPopup =
+            ephemeralPopups.InfoPopup(
+              binding.bottomContainer,
+              message,
+              EphemeralPopups.PopupDuration.LONG,
+            )
+          infoPopup.show()
         }
-      ephemeralPopups
-        .InfoPopup()
-        .show(binding.root, messageId, EphemeralPopups.PopupDuration.INDEFINITE)
-    }
+      }
   }
 
   private fun setupMenuFab() {
@@ -193,13 +208,11 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     val helper: SnapHelper = PagerSnapHelper()
     helper.attachToRecyclerView(recyclerView)
 
-    lifecycleScope.launch {
-      mapContainerViewModel.loiClicks.collect {
-        val index = it?.let { adapter.getIndex(it) } ?: -1
-        if (index != -1) {
-          recyclerView.scrollToPosition(index)
-          adapter.focusItemAtIndex(index)
-        }
+    mapContainerViewModel.loiClicks.launchWhenStartedAndCollect {
+      val index = it?.let { adapter.getIndex(it) } ?: -1
+      if (index != -1) {
+        recyclerView.scrollToPosition(index)
+        adapter.focusItemAtIndex(index)
       }
     }
   }
@@ -210,24 +223,27 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
             cardUiData.loi.id,
+            cardUiData.loi.properties[LOI_NAME_PROPERTY] as? String?,
             cardUiData.loi.job.id,
+            false,
+            null,
           )
         )
       is MapCardUiData.AddLoiCardUiData ->
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
             null,
+            null,
             cardUiData.job.id,
+            false,
+            null,
           )
         )
     }
   }
 
   override fun onMapReady(map: MapFragment) {
-    // Observe events emitted by the ViewModel.
-    viewLifecycleOwner.lifecycleScope.launch {
-      mapContainerViewModel.mapLoiFeatures.collect { map.setFeatures(it) }
-    }
+    mapContainerViewModel.mapLoiFeatures.launchWhenStartedAndCollect { map.setFeatures(it) }
 
     adapter.setLoiCardFocusedListener {
       when (it) {
