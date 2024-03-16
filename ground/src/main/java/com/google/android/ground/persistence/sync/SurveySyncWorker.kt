@@ -25,7 +25,6 @@ import com.google.android.ground.Config.MAX_SYNC_WORKER_RETRY_ATTEMPTS
 import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import java.lang.IllegalStateException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
