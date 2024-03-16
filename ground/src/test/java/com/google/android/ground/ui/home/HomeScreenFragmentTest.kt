@@ -31,7 +31,6 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.testMaybeNavigateTo
@@ -176,11 +175,6 @@ class NavigationDrawerItemClickTest(
 
   companion object {
     private val TEST_SURVEY_WITHOUT_OFFLINE_TILES = FakeData.SURVEY.copy(tileSources = listOf())
-
-    private val TEST_SURVEY_WITH_OFFLINE_TILES =
-      FakeData.SURVEY.copy(
-        tileSources = listOf(TileSource(url = "url1", type = TileSource.Type.MOG_COLLECTION))
-      )
 
     @JvmStatic
     @ParameterizedRobolectricTestRunner.Parameters(name = "{4}")
