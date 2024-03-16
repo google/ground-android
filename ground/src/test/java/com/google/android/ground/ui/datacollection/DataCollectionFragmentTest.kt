@@ -233,7 +233,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .thenReturn(SUBMISSION)
 
     fakeRemoteDataStore.surveys = listOf(SURVEY)
-    fakeRemoteDataStore.lois = listOf(LOCATION_OF_INTEREST)
+    fakeRemoteDataStore.predefinedLois = listOf(LOCATION_OF_INTEREST)
     activateSurvey(SURVEY.id)
     advanceUntilIdle()
   }

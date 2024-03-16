@@ -44,7 +44,7 @@ interface RemoteDataStore {
   suspend fun loadTermsOfService(): TermsOfService?
 
   /** Returns all LOIs in the specified survey. Main-safe. */
-  suspend fun loadLocationsOfInterest(survey: Survey): List<LocationOfInterest>
+  suspend fun loadPredefinedLois(survey: Survey): List<LocationOfInterest>
 
   /**
    * Returns a list of all submissions associated with the specified LOI, or an empty list if none
@@ -67,4 +67,6 @@ interface RemoteDataStore {
 
   /** Refreshes the current user's profile info in the remote database. */
   suspend fun refreshUserProfile()
+
+  suspend fun loadUserDefinedLois(survey: Survey, creatorEmail: String): List<LocationOfInterest>
 }
