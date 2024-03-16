@@ -22,6 +22,7 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.CameraPosition
@@ -31,16 +32,25 @@ import javax.inject.Inject
 
 class DropPinTaskViewModel
 @Inject
-constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerator) :
-  AbstractTaskViewModel(resources) {
+constructor(
+  resources: Resources,
+  private val uuidGenerator: OfflineUuidGenerator,
+  private val localValueStore: LocalValueStore,
+) : AbstractTaskViewModel(resources) {
 
   private var pinColor: Int = 0
   private var lastCameraPosition: CameraPosition? = null
   val features: MutableLiveData<Set<Feature>> = MutableLiveData()
+  /** Whether the instructions dialog has been shown or not. */
+  var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
 
   override fun initialize(job: Job, task: Task, value: Value?) {
     super.initialize(job, task, value)
     pinColor = job.getDefaultColor()
+
+    // Drop a marker for current value
+    // TODO: The restored marker appears to be slightly shifted. Check for accuracy of lat/lng.
+    (value as? DropPinTaskResult)?.let { dropMarker(it.location) }
   }
 
   fun updateCameraPosition(position: CameraPosition) {
@@ -54,7 +64,12 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
 
   fun updateResponse(point: Point) {
     setValue(DropPinTaskResult(point))
-    features.postValue(setOf(createFeature(point)))
+    dropMarker(point)
+  }
+
+  private fun dropMarker(point: Point) {
+    val feature = createFeature(point)
+    features.postValue(setOf(feature))
   }
 
   /** Creates a new map [Feature] representing the point placed by the user. */
@@ -66,7 +81,7 @@ constructor(resources: Resources, private val uuidGenerator: OfflineUuidGenerato
       // TODO: Set correct pin color.
       style = Feature.Style(pinColor),
       clusterable = false,
-      selected = true
+      selected = true,
     )
 
   fun dropPin() {

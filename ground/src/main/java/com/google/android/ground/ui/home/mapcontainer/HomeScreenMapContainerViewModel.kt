@@ -32,6 +32,7 @@ import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
+import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
@@ -45,6 +46,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -78,6 +81,21 @@ internal constructor(
 
   private val selectedLoiIdFlow = MutableStateFlow<String?>(null)
 
+  val activeSurvey: StateFlow<Survey?> = surveyRepository.activeSurveyFlow
+
+  /** Captures essential, high-level derived properties for a given survey. */
+  data class SurveyProperties(val addLoiPermitted: Boolean, val readOnly: Boolean)
+
+  /**
+   * This flow emits [SurveyProperties] when the active survey changes. Callers can use this data to
+   * determine if and how behavior should change based on differing survey properties.
+   */
+  val surveyUpdateFlow: Flow<SurveyProperties> =
+    activeSurvey.filterNotNull().map { survey ->
+      val lois = loiRepository.getLocationsOfInterests(survey).first()
+      SurveyProperties(survey.jobs.any { job -> job.canDataCollectorsAddLois }, lois.isEmpty())
+    }
+
   /** Set of [Feature] to render on the map. */
   val mapLoiFeatures: Flow<Set<Feature>>
 
@@ -96,16 +114,17 @@ internal constructor(
    */
   val adHocLoiJobs: Flow<List<Job>>
 
-  /* UI Clicks */
+  /** Emits when the zoom has crossed the threshold. */
   private val _zoomThresholdCrossed: MutableSharedFlow<Unit> = MutableSharedFlow()
+
+  /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
+  val isZoomedInFlow: Flow<Boolean>
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     // TODO: Clear location of interest markers when survey is deactivated.
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     //  into the repository.
-
-    val activeSurvey = surveyRepository.activeSurveyFlow
 
     mapLoiFeatures =
       activeSurvey.flatMapLatest {
@@ -115,7 +134,7 @@ internal constructor(
             .combine(selectedLoiIdFlow, this::updatedLoiSelectedStates)
       }
 
-    val isZoomedInFlow =
+    isZoomedInFlow =
       getCurrentCameraPosition().mapNotNull { it.zoomLevel }.map { it >= CLUSTERING_ZOOM_THRESHOLD }
 
     loisInViewport =
@@ -134,6 +153,18 @@ internal constructor(
         else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
       }
   }
+
+  /**
+   * Returns a flow of [MapCardUiData] associated with the active survey's LOIs and adhoc jobs for
+   * displaying the cards.
+   */
+  fun getMapCardUiData(): Flow<Pair<List<MapCardUiData>, Int>> =
+    loisInViewport.combine(adHocLoiJobs) { lois, jobs ->
+      val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
+      val jobCards = jobs.map { MapCardUiData.AddLoiCardUiData(it) }
+
+      Pair(loiCards + jobCards, lois.size)
+    }
 
   private fun updatedLoiSelectedStates(
     features: Set<Feature>,

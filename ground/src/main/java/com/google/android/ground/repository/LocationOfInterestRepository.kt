@@ -21,6 +21,7 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.locationofinterest.generateProperties
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
@@ -50,7 +51,7 @@ constructor(
   private val localLoiStore: LocalLocationOfInterestStore,
   private val remoteDataStore: RemoteDataStore,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
-  private val uuidGenerator: OfflineUuidGenerator
+  private val uuidGenerator: OfflineUuidGenerator,
 ) {
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
   suspend fun syncLocationsOfInterest(survey: Survey) {
@@ -70,14 +71,14 @@ constructor(
   suspend fun getOfflineLoi(surveyId: String, locationOfInterest: String): LocationOfInterest =
     localSurveyStore.getSurveyById(surveyId)?.let {
       localLoiStore.getLocationOfInterest(it, locationOfInterest)
-    }
-      ?: throw NotFoundException("Location of interest not found $locationOfInterest")
+    } ?: throw NotFoundException("Location of interest not found $locationOfInterest")
 
   fun createLocationOfInterest(
     geometry: Geometry,
     job: Job,
     surveyId: String,
-    user: User
+    user: User,
+    loiName: String?,
   ): LocationOfInterest {
     val auditInfo = AuditInfo(user)
     return LocationOfInterest(
@@ -88,7 +89,8 @@ constructor(
       created = auditInfo,
       lastModified = auditInfo,
       ownerEmail = user.email,
-      isOpportunistic = true
+      properties = generateProperties(loiName),
+      isPredefined = false
     )
   }
 

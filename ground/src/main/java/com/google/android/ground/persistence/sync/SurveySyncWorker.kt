@@ -21,8 +21,8 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
+import com.google.android.ground.Config.MAX_SYNC_WORKER_RETRY_ATTEMPTS
 import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
-import com.google.android.ground.persistence.sync.SyncService.Companion.DEFAULT_MAX_RETRY_ATTEMPTS
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -53,7 +53,7 @@ constructor(
       syncSurvey(surveyId)
     } catch (e: Throwable) {
       Timber.d(e, "Background survey sync failed")
-      return if (this.runAttemptCount > DEFAULT_MAX_RETRY_ATTEMPTS) {
+      return if (this.runAttemptCount > MAX_SYNC_WORKER_RETRY_ATTEMPTS) {
         Result.failure()
       } else {
         Result.retry()

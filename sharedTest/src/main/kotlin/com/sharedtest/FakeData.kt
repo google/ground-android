@@ -19,16 +19,23 @@ import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
-import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
+import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.mutation.LocationOfInterestMutation
+import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.gms.features.FeatureClusterItem
+import java.util.Date
 
 /**
  * Shared test data constants. Tests are expected to override existing or set missing values when
@@ -38,6 +45,10 @@ object FakeData {
   // TODO: Replace constants with calls to newFoo() methods.
   val TERMS_OF_SERVICE: TermsOfService =
     TermsOfService("TERMS_OF_SERVICE", "Fake Terms of Service text")
+  const val JOB_ID = "job id"
+  const val LOI_ID = "loi id"
+  const val USER_ID = "user id"
+  const val SURVEY_ID = "survey id"
 
   val JOB =
     Job(
@@ -59,9 +70,11 @@ object FakeData {
       mapOf(USER.email to "data-collector")
     )
 
+  const val LOCATION_OF_INTEREST_NAME = "Test LOI Name"
+
   val LOCATION_OF_INTEREST =
     LocationOfInterest(
-      "loi id",
+      LOI_ID,
       SURVEY.id,
       JOB,
       customId = "",
@@ -93,7 +106,7 @@ object FakeData {
 
   val AREA_OF_INTEREST: LocationOfInterest =
     LocationOfInterest(
-      "loi id",
+      LOI_ID,
       SURVEY.id,
       JOB,
       "",
@@ -129,4 +142,40 @@ object FakeData {
     type: Task.Type = Task.Type.TEXT,
     multipleChoice: MultipleChoice? = null
   ): Task = Task(id, 0, type, "", false, multipleChoice)
+
+  fun newLoiMutation(
+    point: Point,
+    mutationType: Mutation.Type = Mutation.Type.CREATE,
+    syncStatus: Mutation.SyncStatus = Mutation.SyncStatus.PENDING,
+  ): LocationOfInterestMutation =
+    LocationOfInterestMutation(
+      jobId = JOB_ID,
+      geometry = point,
+      id = 1L,
+      locationOfInterestId = LOI_ID,
+      type = mutationType,
+      syncStatus = syncStatus,
+      userId = USER_ID,
+      surveyId = SURVEY_ID,
+      clientTimestamp = Date(),
+      properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME)
+    )
+
+  fun newAoiMutation(
+    polygonVertices: List<Coordinates>,
+    mutationType: Mutation.Type = Mutation.Type.CREATE,
+    syncStatus: Mutation.SyncStatus = Mutation.SyncStatus.PENDING,
+  ): LocationOfInterestMutation =
+    LocationOfInterestMutation(
+      jobId = JOB_ID,
+      geometry = Polygon(LinearRing(polygonVertices)),
+      id = 1L,
+      locationOfInterestId = LOI_ID,
+      type = mutationType,
+      syncStatus = syncStatus,
+      userId = USER_ID,
+      surveyId = SURVEY_ID,
+      clientTimestamp = Date(),
+      properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME)
+    )
 }

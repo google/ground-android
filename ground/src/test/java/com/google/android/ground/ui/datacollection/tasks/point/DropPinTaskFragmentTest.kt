@@ -19,12 +19,12 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.*
 import androidx.test.espresso.matcher.ViewMatchers.*
-import com.google.android.ground.R
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
@@ -34,6 +34,7 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import org.hamcrest.core.IsNot.*
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -45,6 +46,7 @@ class DropPinTaskFragmentTest : BaseTaskFragmentTest<DropPinTaskFragment, DropPi
 
   @BindValue @Mock override lateinit var dataCollectionViewModel: DataCollectionViewModel
   @Inject override lateinit var viewModelFactory: ViewModelFactory
+  @Inject lateinit var localValueStore: LocalValueStore
 
   private val task =
     Task(
@@ -56,15 +58,22 @@ class DropPinTaskFragmentTest : BaseTaskFragmentTest<DropPinTaskFragment, DropPi
     )
   private val job = Job("job", Style("#112233"))
 
+  @Before
+  override fun setUp() {
+    super.setUp()
+    // Disable the instructions dialog to prevent click jacking.
+    localValueStore.dropPinInstructionsShown = true
+  }
+
   @Test
-  fun testHeader() {
+  fun `header renders correctly`() {
     setupTaskFragment<DropPinTaskFragment>(job, task)
 
     hasTaskViewWithoutHeader(task.label)
   }
 
   @Test
-  fun testDropPin() = runWithTestDispatcher {
+  fun `drop pin button works`() = runWithTestDispatcher {
     val testPosition = CameraPosition(Coordinates(10.0, 20.0))
     setupTaskFragment<DropPinTaskFragment>(job, task)
 
@@ -78,14 +87,14 @@ class DropPinTaskFragmentTest : BaseTaskFragmentTest<DropPinTaskFragment, DropPi
   }
 
   @Test
-  fun testInfoCard_noValue() {
+  fun `info card is hidden`() {
     setupTaskFragment<DropPinTaskFragment>(job, task)
 
     infoCardHidden()
   }
 
   @Test
-  fun testUndo() = runWithTestDispatcher {
+  fun `undo works`() = runWithTestDispatcher {
     val testPosition = CameraPosition(Coordinates(10.0, 20.0))
     setupTaskFragment<DropPinTaskFragment>(job, task)
 
@@ -99,7 +108,7 @@ class DropPinTaskFragmentTest : BaseTaskFragmentTest<DropPinTaskFragment, DropPi
   }
 
   @Test
-  fun testActionButtons() {
+  fun `has expected action buttons`() {
     setupTaskFragment<DropPinTaskFragment>(job, task)
 
     assertFragmentHasButtons(
@@ -112,7 +121,7 @@ class DropPinTaskFragmentTest : BaseTaskFragmentTest<DropPinTaskFragment, DropPi
   }
 
   @Test
-  fun testActionButtons_whenTaskIsOptional() {
+  fun `shows skip when task is optional`() {
     setupTaskFragment<DropPinTaskFragment>(job, task.copy(isRequired = false))
 
     buttonIsHidden("Next")
@@ -122,19 +131,12 @@ class DropPinTaskFragmentTest : BaseTaskFragmentTest<DropPinTaskFragment, DropPi
   }
 
   @Test
-  fun testActionButtons_whenTaskIsRequired() {
+  fun `hides skip when task is required`() {
     setupTaskFragment<DropPinTaskFragment>(job, task.copy(isRequired = true))
 
     buttonIsHidden("Next")
     buttonIsHidden("Skip")
     buttonIsHidden(ButtonAction.UNDO)
     buttonIsEnabled("Drop pin")
-  }
-
-  @Test
-  fun `Hint icon is shown`() {
-    setupTaskFragment<DropPinTaskFragment>(job, task)
-
-    onView(withId(R.id.hintIcon)).check(matches(isDisplayed()))
   }
 }

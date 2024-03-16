@@ -34,6 +34,6 @@ data class LocationOfInterestMutation(
   val geometry: Geometry? = null,
   val submissionCount: Int = 0,
   val ownerEmail: String? = null,
-  val isOpportunistic: Boolean = false,
   val properties: LoiProperties = mapOf(),
+  val isPredefined: Boolean? = null,
 ) : Mutation()

@@ -15,7 +15,11 @@
  */
 package com.google.android.ground.persistence.local.room.entity
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
 import com.google.android.ground.persistence.local.room.fields.TaskEntityType
 
 @Entity(
@@ -38,5 +42,5 @@ data class TaskEntity(
   @ColumnInfo(name = "label") val label: String?,
   @ColumnInfo(name = "is_required") val isRequired: Boolean,
   @ColumnInfo(name = "job_id") val jobId: String?,
-  @ColumnInfo(name = "is_add_loi_task") val isAddLoiTask: Boolean
+  @ColumnInfo(name = "is_add_loi_task") val isAddLoiTask: Boolean,
 )

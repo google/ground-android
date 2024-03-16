@@ -25,6 +25,7 @@ import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.Config
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
@@ -43,6 +44,7 @@ import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
@@ -60,10 +62,15 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   @Mock private lateinit var mockMediaUploadWorkManager: MediaUploadWorkManager
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+
   @Inject lateinit var localLocationOfInterestStore: LocalLocationOfInterestStore
+
   @Inject lateinit var localSubmissionStore: LocalSubmissionStore
+
   @Inject lateinit var localSurveyStore: LocalSurveyStore
+
   @Inject lateinit var localUserStore: LocalUserStore
+
   @Inject lateinit var mutationRepository: MutationRepository
 
   private val factory =
@@ -87,6 +94,10 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     context = ApplicationProvider.getApplicationContext()
+    runBlocking {
+      localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = TEST_USER_ID))
+      localSurveyStore.insertOrUpdateSurvey(FakeData.SURVEY.copy(id = TEST_SURVEY_ID))
+    }
   }
 
   @Test
@@ -130,34 +141,36 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     }
 
   @Test
-  fun `Worker retries if retryCount is less than 10 for any mutation`() = runWithTestDispatcher {
-    fakeRemoteDataStore.applyMutationError = Error(ERROR_MESSAGE)
-    addPendingMutations()
+  fun `Worker retries if retryCount is less than MAX_SUBMISSION_WORKER_RETRY_ATTEMPTS for any mutation`() =
+    runWithTestDispatcher {
+      fakeRemoteDataStore.applyMutationError = Error(ERROR_MESSAGE)
+      addPendingMutations()
+      val retryCount = Config.MAX_SUBMISSION_WORKER_RETRY_ATTEMPTS
 
-    // Run the worker 3 times
-    for (i in 1..10) {
+      // Run the worker 3 times
+      for (i in 1..retryCount) {
+        val result = createAndDoWork(context, TEST_LOI_ID)
+
+        assertThat(result).isEqualTo(retry())
+        assertMutationsState(
+          failed = 2,
+          retryCount = listOf(i, i),
+          lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE)
+        )
+      }
+
       val result = createAndDoWork(context, TEST_LOI_ID)
 
-      assertThat(result).isEqualTo(retry())
+      // Worker should skip this attempt, hence would prevent infinite retries.
+      assertThat(result).isEqualTo(success())
+
+      // Verify that the retryCount and last error hasn't changed
       assertMutationsState(
         failed = 2,
-        retryCount = listOf(i, i),
+        retryCount = listOf(retryCount, retryCount),
         lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE)
       )
     }
-
-    val result = createAndDoWork(context, TEST_LOI_ID)
-
-    // Worker should skip this attempt, hence would prevent infinite retries.
-    assertThat(result).isEqualTo(success())
-
-    // Verify that the retryCount and last error hasn't changed
-    assertMutationsState(
-      failed = 2,
-      retryCount = listOf(10, 10),
-      lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE)
-    )
-  }
 
   private suspend fun assertMutationsState(
     pending: Int = 0,
@@ -187,18 +200,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   }
 
   private suspend fun addPendingMutations() {
-    localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = TEST_USER_ID))
-    localSurveyStore.insertOrUpdateSurvey(FakeData.SURVEY.copy(id = TEST_SURVEY_ID))
-
-    addPendingLois()
-    addPendingSubmission()
-  }
-
-  private suspend fun addPendingLois() {
     localLocationOfInterestStore.applyAndEnqueue(createLoiMutation())
-  }
-
-  private suspend fun addPendingSubmission() {
     localSubmissionStore.applyAndEnqueue(createSubmissionMutation())
   }
 

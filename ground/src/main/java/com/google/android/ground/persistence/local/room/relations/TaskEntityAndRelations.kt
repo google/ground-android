@@ -17,12 +17,14 @@ package com.google.android.ground.persistence.local.room.relations
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import com.google.android.ground.persistence.local.room.entity.ConditionEntity
 import com.google.android.ground.persistence.local.room.entity.MultipleChoiceEntity
 import com.google.android.ground.persistence.local.room.entity.OptionEntity
 import com.google.android.ground.persistence.local.room.entity.TaskEntity
 
 /**
- * Represents relationship between TaskEntity, MultipleChoiceEntity, and OptionEntity.
+ * Represents relationship between TaskEntity, MultipleChoiceEntity, OptionEntity, and
+ * ConditionEntity.
  *
  * Querying any of the below data classes automatically loads the task annotated as @Relation.
  */
@@ -31,5 +33,7 @@ data class TaskEntityAndRelations(
   @Relation(parentColumn = "id", entityColumn = "task_id")
   val multipleChoiceEntities: List<MultipleChoiceEntity>,
   @Relation(parentColumn = "id", entityColumn = "task_id", entity = OptionEntity::class)
-  val optionEntities: List<OptionEntity>
+  val optionEntities: List<OptionEntity>,
+  @Relation(parentColumn = "id", entityColumn = "parent_task_id", entity = ConditionEntity::class)
+  val conditionEntityAndRelations: List<ConditionEntityAndRelations>
 )

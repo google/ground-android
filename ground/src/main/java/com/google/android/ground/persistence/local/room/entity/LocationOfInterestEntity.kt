@@ -15,7 +15,11 @@
  */
 package com.google.android.ground.persistence.local.room.entity
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
 import com.google.android.ground.model.locationofinterest.LoiProperties
 import com.google.android.ground.persistence.local.room.fields.EntityState
 
@@ -35,6 +39,6 @@ data class LocationOfInterestEntity(
   val customId: String,
   val submissionCount: Int,
   val ownerEmail: String?,
-  val isOpportunistic: Boolean,
   val properties: LoiProperties,
+  val isPredefined: Boolean?,
 )

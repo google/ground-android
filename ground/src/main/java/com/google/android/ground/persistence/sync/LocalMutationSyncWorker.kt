@@ -22,6 +22,7 @@ import androidx.work.Data
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
+import com.google.android.ground.Config.MAX_SUBMISSION_WORKER_RETRY_ATTEMPTS
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
@@ -85,7 +86,9 @@ constructor(
     val failedMutationsEligibleForRetry =
       mutationRepository
         .getMutations(locationOfInterestId, MutationEntitySyncStatus.FAILED)
-        .filter { it.retryCount < MAX_RETRY_COUNT }
+        .filter { it.retryCount < MAX_SUBMISSION_WORKER_RETRY_ATTEMPTS }
+    return pendingMutations + failedMutationsEligibleForRetry
+  }
 
     val mutations = pendingMutations + failedMutationsEligibleForRetry
     val currentUsersMutations = mutations.filter { it.userId == user.id }
@@ -155,15 +158,14 @@ constructor(
       mutationRepository.finalizePendingMutationsForMediaUpload(mutations)
       true
     } catch (t: Throwable) {
+      // Mark all mutations as having failed since the remote datastore only commits when all
+      // mutations have succeeded.
       mutationRepository.markAsFailed(mutations, t)
       false
     }
   }
 
   companion object {
-    // TODO: Move to Config class.
-    private const val MAX_RETRY_COUNT = 10
-
     internal const val LOCATION_OF_INTEREST_ID_PARAM_KEY = "locationOfInterestId"
 
     /** Returns a new work [Data] object containing the specified location of interest id. */

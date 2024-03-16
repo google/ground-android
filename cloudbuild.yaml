@@ -85,7 +85,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex assembleDevStaging assembleDevStagingUnitTest -PtestBuildType=staging
+        ./gradlew -PdisablePreDex assembleDevStaging assembleDevStagingUnitTest -PtestBuildType=staging --no-daemon
 
   # TODO(#1547): Re-enable once instrumentation tests are fixed.
   #        if [[ "${_PUSH_TO_MASTER}" ]]; then
@@ -100,12 +100,8 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex checkCode 2> check-logs.txt || echo "fail" > build-status.txt
+        ./gradlew -PdisablePreDex checkCode --no-daemon 2> check-logs.txt || echo "fail" > build-status.txt
         cat check-logs.txt
-
-        if [[ "${_PUSH_TO_MASTER}" ]]; then
-          ./gradlew -PdisablePreDex dependencyUpdates
-        fi
 
   - name: 'gcr.io/$PROJECT_ID/android:34'
     id: &unit_tests 'Run unit tests'
@@ -114,11 +110,12 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex testDevStagingUnitTest 2> unit-test-logs.txt || echo "fail" > build-status.txt
+        ./gradlew -PdisablePreDex testDevStagingUnitTest --no-daemon 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
-        # TODO: Add a check for _PUSH_TO_MASTER
-        ./gradlew jacocoTestStagingUnitTestReport
+        if [[ "${_PUSH_TO_MASTER}" ]]; then
+          ./gradlew jacocoTestStagingUnitTestReport --no-daemon
+        fi        
 
   - name: 'gcr.io/$PROJECT_ID/android:34'
     id: &authenticate_gcloud 'Authorize gcloud'
@@ -181,19 +178,6 @@ steps:
         # Update build status if running on master branch
         if [[ "${_PUSH_TO_MASTER}" ]]; then
 
-          # Gradle Dependencies Status
-          if [[ -f ground/build/reports/dependencyUpdates/report.json ]]; then
-            python cloud-builder/generate_dependency_health_svg.py ground/build/reports/dependencyUpdates/report.json dependency.svg
-
-            # Copy artifacts for Github badge
-            gsutil cp dependency.svg gs://${_CACHE_BUCKET}/dependency.svg
-            gsutil cp ground/build/reports/dependencyUpdates/report.txt gs://${_CACHE_BUCKET}/dependency.txt
-
-            # Makes files publicly readable
-            gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/dependency.svg
-            gsutil acl ch -u AllUsers:R gs://${_CACHE_BUCKET}/dependency.txt
-          fi
-
           # Build Status
           if [ -f build-status.txt ] && [ $(< build-status.txt) == "fail" ]; then
             gsutil cp cloud-builder/failure.svg gs://${_CACHE_BUCKET}/status.svg
@@ -219,10 +203,11 @@ steps:
     args:
       - '-c'
       - |
-        # TODO: Add a check for _PUSH_TO_MASTER
-        curl -Os https://uploader.codecov.io/latest/linux/codecov
-        chmod +x codecov
-        ./codecov -t ${_CODECOV_TOKEN}
+        if [[ "${_PUSH_TO_MASTER}" ]]; then
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov -t ${_CODECOV_TOKEN}
+        fi
 
   - name: 'gcr.io/$PROJECT_ID/android:base'
     id: &compress_cache 'Compress gradle build cache'

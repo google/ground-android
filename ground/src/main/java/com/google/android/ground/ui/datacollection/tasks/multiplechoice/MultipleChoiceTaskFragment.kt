@@ -17,6 +17,8 @@ package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
 import android.view.LayoutInflater
 import android.view.View
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
 import com.google.android.ground.model.task.MultipleChoice
@@ -24,6 +26,7 @@ import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 /**
  * Fragment allowing the user to answer single selection multiple choice questions to complete a
@@ -32,6 +35,8 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewModel>() {
   private lateinit var binding: MultipleChoiceTaskFragBinding
+  private lateinit var multipleChoiceAdapter:
+    ListAdapter<MultipleChoiceItem, RecyclerView.ViewHolder>
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
@@ -43,14 +48,16 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
   }
 
   private fun setupMultipleChoice(recyclerView: RecyclerView) {
-    val multipleChoice = viewModel.task.multipleChoice!!
-    recyclerView.setHasFixedSize(true)
-    if (multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE) {
-      recyclerView.adapter =
-        SelectMultipleOptionAdapter(multipleChoice.options) { viewModel.updateResponse(it) }
-    } else {
-      recyclerView.adapter =
-        SelectOneOptionAdapter(multipleChoice.options) { viewModel.updateResponse(listOf(it)) }
+    val multipleChoice = checkNotNull(getTask().multipleChoice)
+    val canSelectMultiple = multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE
+    multipleChoiceAdapter = MultipleChoiceAdapter(viewModel, canSelectMultiple)
+    recyclerView.apply {
+      adapter = multipleChoiceAdapter
+      itemAnimator = null
+      setHasFixedSize(true)
+    }
+    lifecycleScope.launch {
+      viewModel.itemsFlow.collect { items -> multipleChoiceAdapter.submitList(items) }
     }
   }
 }

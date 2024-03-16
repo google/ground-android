@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.syncstatus
 
-import android.util.Pair
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
@@ -23,7 +22,9 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractViewModel
+import com.google.android.ground.ui.common.LocationOfInterestHelper
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -38,8 +39,10 @@ class SyncStatusViewModel
 @Inject
 internal constructor(
   private val mutationRepository: MutationRepository,
-  private val surveyRepository: SurveyRepository,
-  private val locationOfInterestRepository: LocationOfInterestRepository
+  surveyRepository: SurveyRepository,
+  private val locationOfInterestRepository: LocationOfInterestRepository,
+  private val userRepository: UserRepository,
+  private val locationOfInterestHelper: LocationOfInterestHelper,
 ) : AbstractViewModel() {
 
   /** [Flow] of latest mutations for the active [Survey]. */
@@ -53,18 +56,22 @@ internal constructor(
    * List of current local [Mutation]s executed by the user, with their corresponding
    * [LocationOfInterest].
    */
-  val mutations: LiveData<List<Pair<LocationOfInterest, Mutation>>> =
+  internal val mutations: LiveData<List<MutationDetail>> =
     mutationsFlow.map { loadLocationsOfInterestAndPair(it) }.asLiveData()
 
   private suspend fun loadLocationsOfInterestAndPair(
     mutations: List<Mutation>
-  ): List<Pair<LocationOfInterest, Mutation>> = mutations.map { loadLocationOfInterestAndPair(it) }
+  ): List<MutationDetail> = mutations.map { toMutationDetail(it) }
 
-  private suspend fun loadLocationOfInterestAndPair(
-    mutation: Mutation
-  ): Pair<LocationOfInterest, Mutation> {
+  private suspend fun toMutationDetail(mutation: Mutation): MutationDetail {
     val loi =
       locationOfInterestRepository.getOfflineLoi(mutation.surveyId, mutation.locationOfInterestId)
-    return Pair(loi, mutation)
+    val user = userRepository.getAuthenticatedUser()
+    return MutationDetail(
+      user = user.displayName,
+      mutation = mutation,
+      loiLabel = locationOfInterestHelper.getDisplayLoiName(loi),
+      loiSubtitle = locationOfInterestHelper.getSubtitle(loi),
+    )
   }
 }

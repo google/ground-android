@@ -67,7 +67,7 @@ constructor(
 
   /**
    * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
-   * specified id.
+   * specified id, sorted by creation timestamp (oldest first).
    */
   suspend fun getMutations(
     loiId: String,
@@ -81,7 +81,7 @@ constructor(
       localSubmissionStore.findByLocationOfInterestId(loiId, *entitySyncStatus).map {
         it.toSubmissionMutation()
       }
-    return loiMutations + submissionMutations
+    return (loiMutations + submissionMutations).sortedBy { it.clientTimestamp }
   }
 
   private suspend fun SubmissionMutationEntity.toSubmissionMutation(): SubmissionMutation =

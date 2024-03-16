@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import androidx.work.Worker
 import java.util.concurrent.TimeUnit
 
 /**
- * Base class for creating a work manager for scheduling background tasks.
+ * Builder for creating a work manager for scheduling background tasks.
  *
  * By default, the only constraint is availability of any type of internet connection, as it is
  * assumed that all background tasks need at least some sort of connectivity.
@@ -34,29 +34,37 @@ import java.util.concurrent.TimeUnit
  * In case the required criteria are not met, the next attempt uses LINEAR backoff policy with a
  * backoff delay of 10 seconds.
  */
-abstract class SyncService {
-  /** A set of constraints that must be satisfied in order to start the scheduled job. */
-  private val workerConstraints: Constraints
-    get() = Constraints.Builder().setRequiredNetworkType(preferredNetworkType()).build()
+class WorkRequestBuilder {
 
   /** A class extending [Worker] which gets scheduled for a request. */
-  protected abstract val workerClass: Class<out ListenableWorker?>
+  private lateinit var workerClass: Class<out ListenableWorker?>
 
   /**
-   * Override this method if the worker requires a stable internet connection for large file
-   * upload/download. By default, the worker just needs access to internet connection.
+   * Defines whether the worker requires a stable internet connection for large file upload /
+   * download. By default, the worker just needs access to internet connection.
    */
-  protected open fun preferredNetworkType(): NetworkType = DEFAULT_NETWORK_TYPE
+  private var networkType: NetworkType = DEFAULT_NETWORK_TYPE
+
+  fun setNetworkType(networkType: NetworkType): WorkRequestBuilder {
+    this.networkType = networkType
+    return this
+  }
+
+  fun setWorkerClass(workerClass: Class<out ListenableWorker?>): WorkRequestBuilder {
+    this.workerClass = workerClass
+    return this
+  }
 
   /**
    * Create a work request for non-repeating work along with input data that would be passed along
    * to the worker class.
    */
-  @JvmOverloads
-  protected fun buildWorkerRequest(inputData: Data? = null): OneTimeWorkRequest {
+  fun buildWorkerRequest(inputData: Data? = null): OneTimeWorkRequest {
+    val constraints = Constraints.Builder().setRequiredNetworkType(networkType).build()
+
     val builder =
       OneTimeWorkRequest.Builder(workerClass)
-        .setConstraints(workerConstraints)
+        .setConstraints(constraints)
         .setBackoffCriteria(BACKOFF_POLICY, BACKOFF_DELAY_MILLIS, TimeUnit.MILLISECONDS)
 
     if (inputData != null) {
@@ -77,8 +85,5 @@ abstract class SyncService {
 
     /** Any working network connection is required for this work. */
     private val DEFAULT_NETWORK_TYPE = NetworkType.CONNECTED
-
-    /** Default number of times to retry failed work. */
-    internal const val DEFAULT_MAX_RETRY_ATTEMPTS = 10
   }
 }
