@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -30,6 +31,7 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.HomeScreenFragBinding
 import com.google.android.ground.databinding.NavDrawerHeaderBinding
 import com.google.android.ground.repository.LocationOfInterestRepository
+import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
@@ -56,6 +58,7 @@ class HomeScreenFragment :
   @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
   @Inject lateinit var popups: EphemeralPopups
   @Inject lateinit var userRepository: UserRepository
+  @Inject lateinit var surveyRepository: SurveyRepository
 
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -91,6 +94,10 @@ class HomeScreenFragment :
     }
 
     binding.navView.setNavigationItemSelectedListener(this)
+    val navHeader = binding.navView.getHeaderView(0)
+    navHeader.findViewById<TextView>(R.id.switch_survey_button).setOnClickListener {
+      homeScreenViewModel.showSurveySelector()
+    }
     updateNavHeader()
 
     // Re-open data collection screen if any drafts are present
@@ -104,6 +111,16 @@ class HomeScreenFragment :
       val navHeader = binding.navView.getHeaderView(0)
       val headerBinding = NavDrawerHeaderBinding.bind(navHeader)
       headerBinding.user = userRepository.getAuthenticatedUser()
+      surveyRepository.activeSurveyFlow.collect {
+        if (it == null) {
+          headerBinding.surveyInfo.visibility = View.GONE
+          headerBinding.noSurveysInfo.visibility = View.VISIBLE
+        } else {
+          headerBinding.noSurveysInfo.visibility = View.GONE
+          headerBinding.surveyInfo.visibility = View.VISIBLE
+          headerBinding.survey = it
+        }
+      }
     }
 
   private fun openDrawer() {
@@ -127,7 +144,6 @@ class HomeScreenFragment :
 
   override fun onNavigationItemSelected(item: MenuItem): Boolean {
     when (item.itemId) {
-      R.id.nav_change_survey -> homeScreenViewModel.showSurveySelector()
       R.id.sync_status -> homeScreenViewModel.showSyncStatus()
       R.id.nav_offline_areas -> homeScreenViewModel.showOfflineAreas()
       R.id.nav_settings -> homeScreenViewModel.showSettings()

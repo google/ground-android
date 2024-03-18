@@ -70,7 +70,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
       // Setup survey and LOIs
       fakeRemoteDataStore.surveys = listOf(TEST_SURVEY)
-      fakeRemoteDataStore.lois = TEST_LOCATIONS_OF_INTEREST
+      fakeRemoteDataStore.predefinedLois = TEST_LOCATIONS_OF_INTEREST
       activateSurvey(TEST_SURVEY.id)
       advanceUntilIdle()
     }

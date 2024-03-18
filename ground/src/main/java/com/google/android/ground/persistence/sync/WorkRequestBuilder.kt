@@ -85,8 +85,5 @@ class WorkRequestBuilder {
 
     /** Any working network connection is required for this work. */
     private val DEFAULT_NETWORK_TYPE = NetworkType.CONNECTED
-
-    /** Default number of times to retry failed work. */
-    internal const val DEFAULT_MAX_RETRY_ATTEMPTS = 10
   }
 }

@@ -26,6 +26,7 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.Value
 import com.google.android.ground.model.submission.ValueDelta
+import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
@@ -189,12 +190,19 @@ internal constructor(
     taskViewModels.value = taskViewModels.value
   }
 
-  /**
-   * Validates the user's input and displays an error if the user input was invalid. Moves back to
-   * the previous Data Collection screen if the user input was valid.
-   */
+  /** Moves back to the previous task in the sequence if the current value is valid or empty. */
   suspend fun onPreviousClicked(taskViewModel: AbstractTaskViewModel) {
     check(getPositionInTaskSequence().first != 0)
+
+    val task = taskViewModel.task
+    val taskValue = taskViewModel.taskValue.firstOrNull()
+
+    // Skip validation if the task is empty
+    if (taskValue.isNullOrEmpty()) {
+      data[task] = taskValue
+      step(-1)
+      return
+    }
 
     val validationError = taskViewModel.validate()
     if (validationError != null) {
@@ -202,8 +210,7 @@ internal constructor(
       return
     }
 
-    data[taskViewModel.task] = taskViewModel.taskValue.firstOrNull()
-
+    data[task] = taskValue
     step(-1)
   }
 

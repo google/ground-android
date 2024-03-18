@@ -24,6 +24,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 // TODO: Add tests.
 /** Converts between Firestore documents and [LocationOfInterest] instances. */
 object LoiConverter {
+  // TODO(#2392): Define field names on DocumentReference objects, not converters.
   const val JOB_ID = "jobId"
   const val CREATED = "created"
   const val LAST_MODIFIED = "lastModified"

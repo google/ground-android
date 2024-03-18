@@ -166,16 +166,16 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Click previous button does not show initial task if validation failed`() {
+  fun `Click previous button moves to previous task if task is empty`() {
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
       .clickPreviousButton()
-      .validateTextIsDisplayed(TASK_2_NAME)
-      .validateTextIsNotDisplayed(TASK_1_NAME)
+      .validateTextIsDisplayed(TASK_1_NAME)
+      .validateTextIsNotDisplayed(TASK_2_NAME)
 
-    // Validation error is shown as a toast message
-    assertThat(ShadowToast.shownToastCount()).isEqualTo(1)
+    // Validation error is not shown
+    assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
   }
 
   @Test
@@ -233,7 +233,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .thenReturn(SUBMISSION)
 
     fakeRemoteDataStore.surveys = listOf(SURVEY)
-    fakeRemoteDataStore.lois = listOf(LOCATION_OF_INTEREST)
+    fakeRemoteDataStore.predefinedLois = listOf(LOCATION_OF_INTEREST)
     activateSurvey(SURVEY.id)
     advanceUntilIdle()
   }
