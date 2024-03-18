@@ -45,7 +45,7 @@ class LoiCollectionReference internal constructor(ref: CollectionReference) :
     withContext(ioDispatcher) {
       // Use !=false rather than ==true to not break legacy dev surveys.
       // TODO(#2375): Switch to whereEqualTo(true) once legacy dev surveys deleted or migrated.
-      val query = reference().whereNotEqualTo(PREDEFINED_FIELD, false)
+      val query = reference().whereIn(PREDEFINED_FIELD, listOf(true, null))
       toLois(survey, query.get().await())
     }
 
