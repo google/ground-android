@@ -17,10 +17,9 @@ package com.google.android.ground.ui.common
 
 import androidx.navigation.NavDirections
 
-sealed interface NavigationRequest
+sealed interface NavigationRequest {
+  data object NavigateUp : NavigationRequest
+  data object FinishApp : NavigationRequest
+  data class NavigateTo(val directions: NavDirections) : NavigationRequest
+}
 
-data class NavigateTo(val directions: NavDirections) : NavigationRequest
-
-object NavigateUp : NavigationRequest
-
-object FinishApp : NavigationRequest
