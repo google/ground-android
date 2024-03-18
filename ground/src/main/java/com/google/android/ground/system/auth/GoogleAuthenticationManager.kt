@@ -71,8 +71,10 @@ constructor(
   override val signInState: Flow<SignInState> = _signInStateFlow.asStateFlow().filterNotNull()
 
   override fun init() {
-    val user = firebaseAuth.currentUser?.toUser()
-    setState(if (user == null) SignInState.signedOut() else SignInState.signedIn(user))
+    firebaseAuth.addAuthStateListener { auth ->
+      val user = auth.currentUser?.toUser()
+      setState(if (user == null) SignInState.signedOut() else SignInState.signedIn(user))
+    }
   }
 
   private fun setState(nextState: SignInState) {
