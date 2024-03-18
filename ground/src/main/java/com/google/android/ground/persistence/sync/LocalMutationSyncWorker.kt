@@ -22,6 +22,7 @@ import androidx.work.Data
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
+import com.google.android.ground.Config.MAX_SUBMISSION_WORKER_RETRY_ATTEMPTS
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.remote.RemoteDataStore
@@ -48,7 +49,7 @@ constructor(
   private val mutationRepository: MutationRepository,
   private val userRepository: UserRepository,
   private val remoteDataStore: RemoteDataStore,
-  private val mediaUploadWorkManager: MediaUploadWorkManager
+  private val mediaUploadWorkManager: MediaUploadWorkManager,
 ) : CoroutineWorker(context, params) {
 
   private val locationOfInterestId: String =
@@ -61,7 +62,7 @@ constructor(
       val user = userRepository.getAuthenticatedUser()
       val mutations =
         mutationRepository
-          .getMutationsEligibleForRetry(locationOfInterestId, MAX_RETRY_COUNT)
+          .getMutationsEligibleForRetry(locationOfInterestId, MAX_SUBMISSION_WORKER_RETRY_ATTEMPTS)
           .filter {
             if (it.userId != user.id) Timber.w("ignoring mutation $it belonging to another user")
             it.userId == user.id
@@ -83,7 +84,6 @@ constructor(
    * @return `true` if the mutations were successfully synced with [RemoteDataStore].
    */
   private suspend fun processMutations(mutations: List<Mutation>, user: User): Boolean {
-    // TODO(#2235): Process and update each mutation individually.
     if (mutations.isEmpty()) return true
 
     return try {
@@ -92,14 +92,14 @@ constructor(
       mutationRepository.finalizePendingMutationsForMediaUpload(mutations)
       true
     } catch (t: Throwable) {
+      // Mark all mutations as having failed since the remote datastore only commits when all
+      // mutations have succeeded.
       mutationRepository.markAsFailed(mutations, t)
       false
     }
   }
 
   companion object {
-    private const val MAX_RETRY_COUNT = 10
-
     internal const val LOCATION_OF_INTEREST_ID_PARAM_KEY = "locationOfInterestId"
 
     /** Returns a new work [Data] object containing the specified location of interest id. */

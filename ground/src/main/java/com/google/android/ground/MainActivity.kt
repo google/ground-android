@@ -18,6 +18,7 @@ package com.google.android.ground
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
@@ -60,6 +61,8 @@ class MainActivity : AbstractActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     // Make sure this is before calling super.onCreate()
     setTheme(R.style.AppTheme)
+    // TODO(#620): Remove this to enable dark theme.
+    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
     super.onCreate(savedInstanceState)
 
     // Set up event streams first. Navigator must be listening when auth is first initialized.

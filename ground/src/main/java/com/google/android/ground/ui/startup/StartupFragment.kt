@@ -67,7 +67,7 @@ class StartupFragment : AbstractFragment() {
   private fun onInitFailed(t: Throwable) {
     Timber.e(t, "Failed to launch app")
     if (t is GoogleApiManager.GooglePlayServicesMissingException) {
-      popups.showError(R.string.google_api_install_failed)
+      popups.ErrorPopup().show(R.string.google_api_install_failed)
     }
     requireActivity().finish()
   }

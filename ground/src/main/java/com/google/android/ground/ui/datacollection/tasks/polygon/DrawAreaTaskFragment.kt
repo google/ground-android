@@ -17,13 +17,18 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LineString.Companion.lineStringOf
 import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
+import com.google.android.ground.ui.datacollection.components.InstructionsDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
@@ -79,6 +84,12 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
     }
   }
 
+  override fun onTaskResume() {
+    if (isVisible && !viewModel.instructionsDialogShown) {
+      showInstructionsDialog()
+    }
+  }
+
   private fun onFeatureUpdated(feature: Feature?) {
     val geometry = feature?.geometry ?: lineStringOf()
     check(geometry is LineString) { "Invalid area geometry type ${geometry.javaClass}" }
@@ -86,5 +97,23 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
     addPointButton.showIfTrue(!geometry.isClosed())
     completeButton.showIfTrue(geometry.isClosed() && !viewModel.isMarkedComplete())
     nextButton.showIfTrue(viewModel.isMarkedComplete())
+  }
+
+  private fun showInstructionsDialog() {
+    viewModel.instructionsDialogShown = true
+    (view as ViewGroup).addView(
+      ComposeView(requireContext()).apply {
+        setContent {
+          val openAlertDialog = remember { mutableStateOf(true) }
+          when {
+            openAlertDialog.value -> {
+              InstructionsDialog(R.drawable.touch_app_24, R.string.draw_area_task_instruction) {
+                openAlertDialog.value = false
+              }
+            }
+          }
+        }
+      }
+    )
   }
 }

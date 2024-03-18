@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.persistence.local.room.dao
 
-package com.google.android.ground.persistence.remote.firebase
+import androidx.room.Dao
+import com.google.android.ground.persistence.local.room.entity.ConditionEntity
 
-import com.google.android.ground.persistence.remote.firebase.schema.GroundFirestore
-import com.google.android.ground.util.AsyncSingletonProvider
-import javax.inject.Inject
-import javax.inject.Singleton
-
-@Singleton
-class GroundFirestoreProvider
-@Inject
-constructor(firebaseFirestoreProvider: FirebaseFirestoreProvider) :
-  AsyncSingletonProvider<GroundFirestore>({ GroundFirestore(firebaseFirestoreProvider.get()) })
+@Dao interface ConditionDao : BaseDao<ConditionEntity>

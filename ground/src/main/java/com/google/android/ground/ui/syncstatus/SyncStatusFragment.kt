@@ -50,14 +50,13 @@ class SyncStatusFragment : AbstractFragment() {
 
     getAbstractActivity().setSupportActionBar(binding.syncStatusToolbar)
 
-    val syncStatusListAdapter = SyncStatusListAdapter(requireContext(), locationOfInterestHelper)
+    val syncStatusListAdapter = SyncStatusListAdapter(requireContext())
     val recyclerView = binding.syncStatusList
     recyclerView.setHasFixedSize(true)
     recyclerView.layoutManager = LinearLayoutManager(context)
     recyclerView.adapter = syncStatusListAdapter
 
     viewModel.mutations.observe(viewLifecycleOwner) { syncStatusListAdapter.update(it) }
-
     return binding.root
   }
 }

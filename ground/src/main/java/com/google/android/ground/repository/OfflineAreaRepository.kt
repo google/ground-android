@@ -19,6 +19,7 @@ import com.google.android.ground.Config
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
+import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.ui.map.Bounds
@@ -56,7 +57,8 @@ constructor(
   private val surveyRepository: SurveyRepository,
   private val fileUtil: FileUtil,
   private val geocodingManager: GeocodingManager,
-  private val offlineUuidGenerator: OfflineUuidGenerator
+  private val offlineUuidGenerator: OfflineUuidGenerator,
+  private val remoteStorageManager: RemoteStorageManager,
 ) {
 
   private suspend fun addOfflineArea(bounds: Bounds, zoomRange: IntRange) {
@@ -106,8 +108,8 @@ constructor(
   private suspend fun getLocalTileSourcePath(): String = File(fileUtil.getFilesDir(), "tiles").path
 
   fun getOfflineTileSourcesFlow() =
-    surveyRepository.activeSurveyFlow.combine(getOfflineAreaBounds()) { survey, bounds ->
-      applyBounds(survey?.tileSources, bounds)
+    surveyRepository.activeSurveyFlow.combine(getOfflineAreaBounds()) { _, bounds ->
+      applyBounds(getDefaultTileSources(), bounds)
     }
 
   private suspend fun applyBounds(
@@ -138,18 +140,17 @@ constructor(
   private fun getMogClient(): MogClient {
     val mogCollection = MogCollection(getMogSources())
     // TODO(#1754): Create a factory and inject rather than instantiating here. Add tests.
-    return MogClient(mogCollection)
+    return MogClient(mogCollection, remoteStorageManager)
   }
 
-  private fun getMogSources(): List<MogSource> = Config.getMogSources(getFirstTileSourceUrl())
+  private fun getMogSources(): List<MogSource> =
+    Config.getMogSources(getDefaultTileSources().first().url)
 
-  /**
-   * Returns the URL of the first tile source in the current survey, or throws an error if no survey
-   * is active or if no tile sources are defined.
-   */
-  private fun getFirstTileSourceUrl() =
-    surveyRepository.activeSurvey?.tileSources?.firstOrNull()?.url
-      ?: error("Survey has no tile sources")
+  /** Returns the default configured tile sources. */
+  fun getDefaultTileSources(): List<TileSource> =
+    listOf(
+      TileSource(url = Config.DEFAULT_MOG_TILE_LOCATION, type = TileSource.Type.MOG_COLLECTION)
+    )
 
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
     val client = getMogClient()

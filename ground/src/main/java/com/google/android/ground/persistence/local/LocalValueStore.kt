@@ -29,9 +29,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
 
 /**
- * Simple value store persisted locally on device. Unlike [LocalDataStore], this class provides a
- * concrete implementation using the Android SDK, and therefore does not require a database-specific
- * implementation.
+ * Simple value store persisted locally on device. Unlike [LocalDataStoreModule], this class
+ * provides a concrete implementation using the Android SDK, and therefore does not require a
+ * database-specific implementation.
  */
 @Singleton
 class LocalValueStore @Inject constructor(private val preferences: SharedPreferences) {
@@ -56,7 +56,7 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
   var mapType: MapType
     get() = allowThreadDiskReads {
       val mapTypeIdx = preferences.getInt(MAP_TYPE, MapType.DEFAULT.ordinal)
-      MapType.values()[mapTypeIdx]
+      MapType.entries[mapTypeIdx]
     }
     set(value) = allowThreadDiskWrites {
       preferences.edit().putInt(MAP_TYPE, value.ordinal).apply()
@@ -83,6 +83,26 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     set(value) = allowThreadDiskReads {
       preferences.edit().putBoolean(OFFLINE_MAP_IMAGERY, value).apply()
       _offlineImageryEnabled.value = value
+    }
+
+  /** Whether to display instructions when loading a draw area task. */
+  var drawAreaInstructionsShown: Boolean
+    get() = allowThreadDiskReads { preferences.getBoolean(DRAW_AREA_INSTRUCTIONS_SHOWN, false) }
+    set(value) = allowThreadDiskReads {
+      preferences.edit().putBoolean(DRAW_AREA_INSTRUCTIONS_SHOWN, value).apply()
+    }
+
+  /** Whether to display instructions when loading a drop pin task. */
+  var dropPinInstructionsShown: Boolean
+    get() = allowThreadDiskReads { preferences.getBoolean(DROP_PIN_INSTRUCTIONS_SHOWN, false) }
+    set(value) = allowThreadDiskReads {
+      preferences.edit().putBoolean(DROP_PIN_INSTRUCTIONS_SHOWN, value).apply()
+    }
+
+  var draftSubmissionId: String?
+    get() = allowThreadDiskReads { preferences.getString(DRAFT_SUBMISSION_ID, null) }
+    set(value) = allowThreadDiskReads {
+      preferences.edit().putString(DRAFT_SUBMISSION_ID, value).apply()
     }
 
   /** Removes all values stored in the local store. */
@@ -120,5 +140,8 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     const val TOS_ACCEPTED = "tos_accepted"
     const val LOCATION_LOCK_ENABLED = "location_lock_enabled"
     const val OFFLINE_MAP_IMAGERY = "offline_map_imagery"
+    const val DRAW_AREA_INSTRUCTIONS_SHOWN = "draw_area_instructions_shown"
+    const val DROP_PIN_INSTRUCTIONS_SHOWN = "drop_pin_instructions_shown"
+    const val DRAFT_SUBMISSION_ID = "draft_submission_id"
   }
 }

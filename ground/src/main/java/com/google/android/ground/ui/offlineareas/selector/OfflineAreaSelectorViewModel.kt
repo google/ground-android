@@ -90,7 +90,7 @@ internal constructor(
       )
 
   init {
-    remoteTileSources = surveyRepository.activeSurvey!!.tileSources
+    remoteTileSources = offlineAreaRepository.getDefaultTileSources()
   }
 
   fun onDownloadClick() {
@@ -109,7 +109,7 @@ internal constructor(
         downloadProgress.postValue(bytesDownloaded)
       }
       isDownloadProgressVisible.postValue(false)
-      navigator.navigateUp()
+      navigator.navigate(OfflineAreaSelectorFragmentDirections.offlineAreaBackToHomescreen())
     }
   }
 

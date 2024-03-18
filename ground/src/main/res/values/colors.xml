@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2018 Google LLC
+  ~ Copyright 2024 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@
   <color name="clusterBalloonStrokeColor">#4B6DDD81</color>
   <color name="textOverMap">#FCFDF7</color>
   <color name="blackOverlay">#000000</color>
+  <!-- DrawArea color palette -->
+  <color name="drawAreaLineStringStrokeColor">#EDAE3D</color>
 
   <!-- Updated Color palette -->
   <color name="md_theme_primary">#006E2C</color>
@@ -45,7 +47,9 @@
   <color name="md_theme_background">#FCFDF7</color>
   <color name="md_theme_onBackground">#1A1C19</color>
   <color name="md_theme_surface">#F9FAF4</color>
-  <color name="md_theme_surfaceContainer">#EDEEE9</color>
+  <color name="md_theme_surfaceContainer">#F0F4F9</color>
+  <color name="md_theme_surfaceContainerLow">#F8FAFD</color>
+  <color name="md_theme_surfaceContainerLowest">#FFFFFF</color>
   <color name="md_theme_onSurface">#1A1C19</color>
   <color name="md_theme_on_surface_disabled">#1E1A1C19</color>
   <color name="md_theme_surfaceVariant">#DDE5D9</color>
@@ -53,4 +57,5 @@
   <color name="md_theme_inverseSurface">#2E312D</color>
   <color name="md_theme_inverseOnSurface">#F0F1EB</color>
   <color name="md_theme_inversePrimary">#6DDD81</color>
+  <color name="md_theme_textFieldContainers">#E2E3DD</color>
 </resources>

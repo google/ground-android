@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2021 Google LLC
+  ~ Copyright 2024 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -17,13 +17,21 @@
   -->
 
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="16dp"
-    android:height="16dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
+  android:width="25dp"
+  android:height="25dp"
+  android:viewportWidth="8"
+  android:viewportHeight="8">
   <path
-      android:pathData="M12,12m-10.5,0a10.5,10.5 0,1 1,21 0a10.5,10.5 0,1 1,-21 0"
-      android:strokeWidth="3"
-      android:fillColor="#ffffff"
-      android:strokeColor="#E59810"/>
+    android:fillAlpha="0"
+    android:pathData="M4 1L4 7"
+    android:strokeWidth="2"
+    android:strokeColor="@color/drawAreaLineStringStrokeColor"
+    android:strokeLineCap="round" />
+  <path
+    android:fillAlpha="0"
+    android:pathData="M7 4L1 4"
+    android:strokeWidth="2"
+    android:strokeColor="@color/drawAreaLineStringStrokeColor"
+    android:strokeLineCap="round"/>
 </vector>
+

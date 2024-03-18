@@ -58,6 +58,8 @@
     <item name="colorOnBackground">@color/md_theme_onBackground</item>
     <item name="colorSurface">@color/md_theme_surface</item>
     <item name="colorSurfaceContainer">@color/md_theme_surfaceContainer</item>
+    <item name="colorSurfaceContainerLow">@color/md_theme_surfaceContainerLow</item>
+    <item name="colorSurfaceContainerLowest">@color/md_theme_surfaceContainerLowest</item>
     <item name="colorOnSurface">@color/md_theme_onSurface</item>
     <item name="colorSurfaceVariant">@color/md_theme_surfaceVariant</item>
     <item name="colorOnSurfaceVariant">@color/md_theme_onSurfaceVariant</item>
@@ -90,15 +92,13 @@
   <style name="NavDrawerHeader.Image">
     <item name="android:layout_width">@dimen/nav_drawer_profile_image_size</item>
     <item name="android:layout_height">@dimen/nav_drawer_profile_image_size</item>
-    <item name="android:layout_marginTop">24dp</item>
     <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.App.CornerSize50Percent</item>
   </style>
 
   <style name="NavDrawerHeader.PrimaryText">
     <item name="android:layout_width">wrap_content</item>
     <item name="android:layout_height">wrap_content</item>
-    <item name="android:layout_marginTop">24dp</item>
-    <item name="android:textAppearance">@style/TextAppearance.AppCompat.Headline</item>
+    <item name="android:textAppearance">@style/TextAppearance.AppCompat.Subhead</item>
     <item name="android:textColor">?attr/colorOnSurface</item>
     <item name="android:textStyle">bold</item>
   </style>
@@ -106,7 +106,6 @@
   <style name="NavDrawerHeader.SecondaryText">
     <item name="android:layout_width">wrap_content</item>
     <item name="android:layout_height">wrap_content</item>
-    <item name="android:layout_marginBottom">24dp</item>
     <item name="android:textAppearance">@style/TextAppearance.AppCompat.Small</item>
     <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
   </style>
@@ -240,16 +239,6 @@
   <style name="Widget.App.Button.Inverse" parent="Widget.Material3.Button">
     <item name="android:backgroundTint">?colorPrimaryInverse</item>
     <item name="android:textColor">?attr/colorOnSecondaryContainer</item>
-  </style>
-
-  <style name="ChromeStylePopup" parent="android:Widget.TextView">
-    <item name="android:gravity">center</item>
-    <item name="android:minHeight">50dp</item>
-    <item name="android:minWidth">75dp</item>
-    <item name="android:maxWidth">150dp</item>
-    <item name="android:padding">6dp</item>
-    <item name="android:textColor">@android:color/black</item>
-    <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
   </style>
 
   <style name="TextAppearance.App.MapClusterLabel" parent="TextAppearance.Material3.LabelMedium">

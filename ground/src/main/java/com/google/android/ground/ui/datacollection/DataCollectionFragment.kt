@@ -17,11 +17,14 @@ package com.google.android.ground.ui.datacollection
 
 import android.animation.ValueAnimator
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.constraintlayout.widget.Guideline
+import androidx.core.view.WindowInsetsCompat
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
@@ -40,6 +43,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var navigator: Navigator
+
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
   private val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
@@ -60,6 +64,12 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     progressBar = binding.progressBar
     guideline = binding.progressBarGuideline
     getAbstractActivity().setSupportActionBar(binding.dataCollectionToolbar)
+
+    binding.dataCollectionToolbar.setNavigationOnClickListener {
+      viewModel.clearDraft()
+      navigator.navigateUp()
+    }
+
     return binding.root
   }
 
@@ -72,22 +82,36 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewPager.offscreenPageLimit = 1
 
     loadTasks(viewModel.tasks)
-    lifecycleScope.launch { viewModel.currentPosition.collect { onTaskChanged(it) } }
+    lifecycleScope.launch { viewModel.currentTaskId.collect { onTaskChanged() } }
 
     viewPager.registerOnPageChangeCallback(
       object : ViewPager2.OnPageChangeCallback() {
-        override fun onPageSelected(position: Int) {
-          super.onPageSelected(position)
-
-          val buttonContainer = view.findViewById<View>(R.id.action_buttons) ?: return
-          val anchorLocation = IntArray(2)
-          buttonContainer.getLocationInWindow(anchorLocation)
-          val guidelineTop =
-            anchorLocation[1] - buttonContainer.rootWindowInsets.systemWindowInsetTop
-          guideline.setGuidelineBegin(guidelineTop)
+        override fun onPageScrollStateChanged(state: Int) {
+          super.onPageScrollStateChanged(state)
+          if (state == ViewPager2.SCROLL_STATE_IDLE) {
+            Handler(Looper.getMainLooper())
+              .postDelayed(
+                {
+                  // Reset the progress bar position after a delay to wait for the keyboard to
+                  // close.
+                  setProgressBarPosition(view)
+                },
+                100
+              )
+          }
         }
       }
     )
+  }
+
+  private fun setProgressBarPosition(view: View) {
+    val buttonContainer = view.findViewById<View>(R.id.action_buttons) ?: return
+    val anchorLocation = IntArray(2)
+    buttonContainer.getLocationInWindow(anchorLocation)
+    val windowInsets = WindowInsetsCompat.toWindowInsetsCompat(buttonContainer.rootWindowInsets)
+    val guidelineTop =
+      anchorLocation[1] - windowInsets.getInsets(WindowInsetsCompat.Type.systemBars()).top
+    guideline.setGuidelineBegin(guidelineTop)
   }
 
   private fun loadTasks(tasks: List<Task>) {
@@ -97,16 +121,20 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     }
 
     // Reset progress bar
-    progressBar.progress = 0
-    progressBar.max = (tasks.size - 1) * PROGRESS_SCALE
+    val (start, taskSize) = viewModel.getPositionInTaskSequence()
+    progressBar.progress = start
+    progressBar.max = (taskSize - 1) * PROGRESS_SCALE
   }
 
-  private fun onTaskChanged(index: Int) {
-    viewPager.currentItem = index
+  private fun onTaskChanged() {
+    viewPager.currentItem = viewModel.getAbsolutePosition()
 
+    // Reset progress bar
+    val (currIndex, taskSize) = viewModel.getPositionInTaskSequence()
+    progressBar.max = (taskSize - 1) * PROGRESS_SCALE
     progressBar.clearAnimation()
 
-    val progressAnimator = ValueAnimator.ofInt(progressBar.progress, index * PROGRESS_SCALE)
+    val progressAnimator = ValueAnimator.ofInt(progressBar.progress, currIndex * PROGRESS_SCALE)
     progressAnimator.duration = 400L
     progressAnimator.interpolator = FastOutSlowInInterpolator()
 
@@ -119,10 +147,11 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     if (viewPager.currentItem == 0) {
       // If the user is currently looking at the first step, allow the system to handle the
       // Back button. This calls finish() on this activity and pops the back stack.
+      viewModel.clearDraft()
       false
     } else {
       // Otherwise, select the previous step.
-      viewModel.updateCurrentPosition(viewModel.getVisibleTaskPosition() - 1)
+      viewModel.step(-1)
       true
     }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2018 Google LLC
+  ~ Copyright 2024 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 
 <resources>
   <!-- Map -->
-  <dimen name="line_geometry_width">4dp</dimen>
+  <dimen name="line_geometry_width">2dp</dimen>
   <item name="default_marker_scale_factor" format="float" type="dimen">2</item>
   <item name="selected_marker_scale_factor" format="float" type="dimen">1.5</item>
 
@@ -32,7 +32,7 @@
   <dimen name="toolbar_elevation">4dp</dimen>
 
   <!-- Navigation drawer -->
-  <dimen name="nav_drawer_profile_image_size">64dp</dimen>
+  <dimen name="nav_drawer_profile_image_size">36dp</dimen>
 
   <!-- LOI bottom card -->
   <dimen name="loi_card_item_margin">10dp</dimen>

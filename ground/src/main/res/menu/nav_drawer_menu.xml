@@ -18,10 +18,6 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
   <item
-    android:id="@+id/nav_change_survey"
-    android:icon="@drawable/ic_content_paste"
-    android:title="@string/change_survey" />
-  <item
     android:id="@+id/sync_status"
     android:icon="@drawable/ic_history"
     android:title="@string/sync_status" />

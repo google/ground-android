@@ -26,7 +26,7 @@ object Config {
 
   // Local db settings.
   // TODO(#128): Reset version to 1 before releasing.
-  const val DB_VERSION = 113
+  const val DB_VERSION = 117
   const val DB_NAME = "ground.db"
 
   // Firebase Cloud Firestore settings.
@@ -51,10 +51,29 @@ object Config {
    */
   const val CLUSTERING_ZOOM_THRESHOLD = 14f
 
-  // Maximum number of attempts for retrying unsuccessful media uploads.
+  /** Maximum number of attempts for retrying unsuccessful syncs. */
+  const val MAX_SYNC_WORKER_RETRY_ATTEMPTS = 10
+
+  /** Maximum number of attempts for retrying unsuccessful submission uploads. */
+  const val MAX_SUBMISSION_WORKER_RETRY_ATTEMPTS = 25
+
+  /** Maximum number of attempts for retrying unsuccessful media uploads. */
   const val MAX_MEDIA_UPLOAD_RETRY_COUNT = 5
 
   // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
-  fun getMogSources(url: String) =
-    listOf(MogSource("${url}/world-masked.tif", 0..7), MogSource("${url}/{x}/{y}.tif", 8..14))
+  const val DEFAULT_MOG_TILE_LOCATION = "/offline-imagery/default"
+  const val DEFAULT_MOG_MIN_ZOOM = 8
+  const val DEFAULT_MOG_MAX_ZOOM = 14
+
+  fun getMogSources(path: String) =
+    listOf(
+      MogSource(
+        0 ..< DEFAULT_MOG_MIN_ZOOM,
+        "$path/$DEFAULT_MOG_MIN_ZOOM/overview.tif",
+      ),
+      MogSource(
+        DEFAULT_MOG_MIN_ZOOM..DEFAULT_MOG_MAX_ZOOM,
+        "$path/$DEFAULT_MOG_MIN_ZOOM/{x}/{y}.tif",
+      )
+    )
 }

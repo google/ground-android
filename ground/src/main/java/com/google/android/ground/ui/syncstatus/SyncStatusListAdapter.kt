@@ -16,28 +16,29 @@
 package com.google.android.ground.ui.syncstatus
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.text.format.DateFormat.getDateFormat
 import android.text.format.DateFormat.getTimeFormat
-import android.util.Pair
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.ground.R
 import com.google.android.ground.databinding.SyncStatusListItemBinding
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.ui.common.LocationOfInterestHelper
 import java.text.DateFormat
-import java.util.Optional
 
-internal class SyncStatusListAdapter(
-  context: Context,
-  private val locationOfInterestHelper: LocationOfInterestHelper,
-) : RecyclerView.Adapter<SyncStatusListAdapter.SyncStatusViewHolder>() {
+internal class SyncStatusListAdapter(private val context: Context) :
+  RecyclerView.Adapter<SyncStatusListAdapter.SyncStatusViewHolder>() {
 
-  private var mutations: List<Pair<LocationOfInterest, Mutation>> = listOf()
+  private var mutations: List<MutationDetail> = listOf()
   private val dateFormat: DateFormat = getDateFormat(context)
   private val timeFormat: DateFormat = getTimeFormat(context)
+  private val pendingIcon: Drawable? = getDrawable(R.drawable.baseline_hourglass_empty_24)
+  private val syncingIcon: Drawable? = getDrawable(R.drawable.ic_sync)
+  private val mediaPending: Drawable? = getDrawable(R.drawable.baseline_check_24)
+  private val completeIcon: Drawable? = getDrawable(R.drawable.outline_done_all_24)
+  private val failedIcon: Drawable? = getDrawable(R.drawable.outline_error_outline_24)
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SyncStatusViewHolder =
     SyncStatusViewHolder(
@@ -48,36 +49,42 @@ internal class SyncStatusListAdapter(
     // TODO: i18n; add user friendly names.
     // TODO: Use data binding.
     // TODO(#876): Improve L&F and layout.
-    val pair = mutations[position]
-    val locationOfInterest = pair.first
-    val mutation = pair.second
-    val text =
-      StringBuilder()
-        .append(mutation.type)
-        .append(' ')
-        .append(if (mutation is LocationOfInterestMutation) "LocationOfInterest" else "Submission")
-        .append(' ')
-        .append(dateFormat.format(mutation.clientTimestamp))
-        .append(' ')
-        .append(timeFormat.format(mutation.clientTimestamp))
-        .append('\n')
-        .append(locationOfInterestHelper.getLabel(Optional.of(locationOfInterest)))
-        .append('\n')
-        .append(locationOfInterestHelper.getSubtitle(Optional.of(locationOfInterest)))
-        .append('\n')
-        .append("Sync ")
-        .append(mutation.syncStatus)
-        .toString()
-    viewHolder.binding.syncStatusText.text = text
+    val detail = mutations[position]
+    val modified =
+      "${dateFormat.format(detail.mutation.clientTimestamp)} . ${timeFormat.format(detail.mutation.clientTimestamp)}"
+    viewHolder.binding.mutationTimestamp.text = modified
+    viewHolder.binding.mutationStatus.text = detail.mutation.syncStatus.toString()
+    viewHolder.binding.mutationUser.text = detail.user
+    viewHolder.binding.mutationSurvey.text = detail.loiLabel
+    viewHolder.binding.mutationLoi.text = detail.loiSubtitle
+    when (detail.mutation.syncStatus) {
+      Mutation.SyncStatus.PENDING -> viewHolder.setDrawable(pendingIcon)
+      Mutation.SyncStatus.IN_PROGRESS -> viewHolder.setDrawable(syncingIcon)
+      Mutation.SyncStatus.MEDIA_UPLOAD_PENDING -> viewHolder.setDrawable(mediaPending)
+      Mutation.SyncStatus.COMPLETED -> viewHolder.setDrawable(completeIcon)
+      Mutation.SyncStatus.FAILED -> viewHolder.setDrawable(failedIcon)
+      else -> {}
+    }
   }
 
   override fun getItemCount(): Int = mutations.size
 
-  fun update(mutations: List<Pair<LocationOfInterest, Mutation>>) {
+  fun update(mutations: List<MutationDetail>) {
     this.mutations = mutations
     notifyDataSetChanged()
   }
 
   class SyncStatusViewHolder(internal val binding: SyncStatusListItemBinding) :
     RecyclerView.ViewHolder(binding.root)
+
+  private fun getDrawable(id: Int) =
+    ResourcesCompat.getDrawable(context.resources, id, context.theme)
+
+  private fun SyncStatusViewHolder.setDrawable(drawable: Drawable?) =
+    this.binding.mutationStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(
+      null,
+      null,
+      drawable,
+      null
+    )
 }

@@ -27,14 +27,12 @@ apply from: '../config/lint/lint.gradle'
 apply from: '../config/jacoco/jacoco.gradle'
 
 project.ext {
-    autoDisposeVersion = "1.4.0"
-    autoValueVersion = "1.9"
+    autoValueVersion = "1.10.4"
     fragmentVersion = "1.5.7"
-    hiltJetpackVersion = "1.0.0"
-    lifecycleVersion = "2.6.1"
-    workVersion = "2.8.1"
-    mockitoVersion = "4.5.1"
-    mockitoKotlinVersion = "4.1.0"
+    hiltJetpackVersion = "1.2.0"
+    lifecycleVersion = "2.7.0"
+    workVersion = "2.9.0"
+    mockitoVersion = "5.11.0"
     coroutinesVersion = "1.6.4"
 }
 
@@ -140,8 +138,12 @@ android {
 
     buildFeatures {
         buildConfig true
+        compose true
         dataBinding true
         viewBinding true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion "1.5.5"
     }
     testOptions {
         unitTests {
@@ -163,13 +165,13 @@ dependencies {
     androidTestImplementation project(':sharedTest')
 
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'androidx.preference:preference-ktx:1.2.0'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$project.kotlinVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0-RC"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.4.0-RC"
-    implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.6.3"
+    implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7"
 
     // Kotlin Coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
@@ -182,25 +184,27 @@ dependencies {
 
     // UI widgets.
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation "androidx.compose.material3:material3:1.1.0"
+    implementation 'androidx.compose.ui:ui:1.6.2'
+    implementation 'androidx.compose.compiler:compiler:1.5.10'
+    implementation 'androidx.compose.material3:material3-android:1.2.0'
 
     // Google Play Services.
-    implementation 'com.google.android.gms:play-services-auth:20.6.0'
-    implementation "com.google.android.gms:play-services-maps:$rootProject.gmsMapsVersion"
-    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'com.google.android.gms:play-services-auth:21.0.0'
+    implementation 'com.google.android.gms:play-services-maps:18.2.0'
+    implementation 'com.google.android.gms:play-services-location:21.1.0'
 
-    implementation "com.google.maps.android:android-maps-utils:2.3.0"
+    implementation "com.google.maps.android:android-maps-utils:3.8.2"
 
     // GeoJSON support
-    implementation 'com.google.code.gson:gson:2.10'
+    implementation 'com.google.code.gson:gson:2.10.1'
 
     // Test Json
     testImplementation 'org.json:json:20180813'
 
     // Firebase and related libraries.
-    implementation platform('com.google.firebase:firebase-bom:32.4.1')
+    implementation platform('com.google.firebase:firebase-bom:32.7.3')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.google.firebase:firebase-functions-ktx'
@@ -263,17 +267,14 @@ dependencies {
     implementation "androidx.work:work-runtime-ktx:$workVersion"
     testImplementation "androidx.work:work-testing:$workVersion"
 
-    implementation "com.uber.autodispose:autodispose-android:$project.autoDisposeVersion"
-    implementation "com.uber.autodispose:autodispose-android-archcomponents:$project.autoDisposeVersion"
-
     // Testing
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    testImplementation 'com.google.truth:truth:1.1.3'
-    androidTestImplementation 'com.google.truth:truth:1.1.3'
+    testImplementation 'com.google.truth:truth:1.4.2'
+    androidTestImplementation 'com.google.truth:truth:1.4.2'
     testImplementation 'androidx.test:core:1.5.0'
-    testImplementation 'org.robolectric:robolectric:4.9.2'
+    testImplementation 'org.robolectric:robolectric:4.11.1'
     testImplementation 'android.arch.core:core-testing:1.1.1'
     androidTestImplementation 'android.arch.core:core-testing:1.1.1'
     testImplementation 'com.jraska.livedata:testing:1.2.0'
@@ -284,12 +285,12 @@ dependencies {
     testImplementation 'app.cash.turbine:turbine:0.12.3'
 
     // Mockito
-    testImplementation "org.mockito:mockito-inline:$mockitoVersion"
+    testImplementation 'org.mockito:mockito-inline:4.5.1'
     testImplementation "org.mockito:mockito-core:$mockitoVersion"
     testImplementation "org.mockito:mockito-android:$mockitoVersion"
     androidTestImplementation "org.mockito:mockito-core:$mockitoVersion"
     androidTestImplementation "org.mockito:mockito-android:$mockitoVersion"
-    testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:4.1.0'
 
     // Espresso
     testImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'

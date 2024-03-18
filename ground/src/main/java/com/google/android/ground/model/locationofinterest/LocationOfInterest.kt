@@ -16,7 +16,7 @@
 package com.google.android.ground.model.locationofinterest
 
 import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.geometry.*
+import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
@@ -24,6 +24,11 @@ import com.google.android.ground.model.mutation.Mutation.SyncStatus
 
 /** Alias for a map of properties with string names. */
 typealias LoiProperties = Map<String, Any>
+
+const val LOI_NAME_PROPERTY = "name"
+
+fun generateProperties(loiName: String? = null): LoiProperties =
+  loiName?.let { mapOf(LOI_NAME_PROPERTY to it) } ?: mapOf()
 
 /** User-defined locations of interest (LOI) shown on the map. */
 data class LocationOfInterest(
@@ -48,13 +53,10 @@ data class LocationOfInterest(
    * the user.
    */
   val ownerEmail: String? = null,
-  /**
-   * Whether this LOI was created opportunistically by the user through the Suggest LOI flow, or
-   * false if the LOI was created by the survey organizer.
-   */
-  val isOpportunistic: Boolean = false,
   /** Custom map of properties for this LOI. Corresponds to the properties field in GeoJSON */
   val properties: LoiProperties = mapOf(),
+  /** Whether the LOI was predefined in the survey or not (i.e. added ad hoc). */
+  val isPredefined: Boolean? = null,
 ) {
 
   /**
@@ -74,7 +76,9 @@ data class LocationOfInterest(
       geometry = geometry,
       submissionCount = submissionCount,
       ownerEmail = ownerEmail,
-      isOpportunistic = isOpportunistic,
-      properties = properties
+      properties = properties,
+      isPredefined = isPredefined,
     )
+
+  fun getProperty(key: String): String = properties[key]?.toString() ?: ""
 }
