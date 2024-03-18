@@ -64,7 +64,10 @@ constructor(
     loiId: String,
     userId: String,
     vararg entitySyncStatus: MutationEntitySyncStatus
-  ) = getMutations(loiId, *entitySyncStatus).filterIsInstance<SubmissionMutation>()
+  ) =
+    getMutations(loiId, *entitySyncStatus).filterIsInstance<SubmissionMutation>().filter {
+      it.userId == userId
+    }
 
   /**
    * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
