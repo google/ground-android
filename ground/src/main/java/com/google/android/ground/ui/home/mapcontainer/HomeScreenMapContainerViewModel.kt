@@ -84,7 +84,7 @@ internal constructor(
   val activeSurvey: StateFlow<Survey?> = surveyRepository.activeSurveyFlow
 
   /** Captures essential, high-level derived properties for a given survey. */
-  data class SurveyProperties(val addLoiPermitted: Boolean, val readOnly: Boolean)
+  data class SurveyProperties(val addLoiPermitted: Boolean, val noLois: Boolean)
 
   /**
    * This flow emits [SurveyProperties] when the active survey changes. Callers can use this data to
@@ -93,7 +93,8 @@ internal constructor(
   val surveyUpdateFlow: Flow<SurveyProperties> =
     activeSurvey.filterNotNull().map { survey ->
       val lois = loiRepository.getLocationsOfInterests(survey).first()
-      SurveyProperties(survey.jobs.any { job -> job.canDataCollectorsAddLois }, lois.isEmpty())
+      val addLoiPermitted = survey.jobs.any { job -> job.canDataCollectorsAddLois }
+      SurveyProperties(addLoiPermitted = addLoiPermitted, noLois = lois.isEmpty())
     }
 
   /** Set of [Feature] to render on the map. */
