@@ -94,7 +94,7 @@ internal constructor(
     activeSurvey.filterNotNull().map { survey ->
       val lois = loiRepository.getLocationsOfInterests(survey).first()
       val addLoiPermitted = survey.jobs.any { job -> job.canDataCollectorsAddLois }
-      SurveyProperties(addLoiPermitted=addLoiPermitted, noLois = lois.isEmpty())
+      SurveyProperties(addLoiPermitted = addLoiPermitted, noLois = lois.isEmpty())
     }
 
   /** Set of [Feature] to render on the map. */
