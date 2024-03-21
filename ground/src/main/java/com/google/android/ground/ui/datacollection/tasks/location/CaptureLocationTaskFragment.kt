@@ -18,7 +18,6 @@ package com.google.android.ground.ui.datacollection.tasks.location
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
-import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
@@ -29,7 +28,6 @@ import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CaptureLocationTaskFragment : AbstractTaskFragment<CaptureLocationTaskViewModel>() {
@@ -54,11 +52,7 @@ class CaptureLocationTaskFragment : AbstractTaskFragment<CaptureLocationTaskView
 
   override fun onTaskResume() {
     // Ensure that the location lock is enabled, if it hasn't been.
-    if (viewModel.enableLocationLockFlow.value == LocationLockState.NEEDS_ENABLE) {
-      viewLifecycleOwner.lifecycleScope.launch {
-        viewModel.enableLocationLockFlow.emit(LocationLockState.ENABLE)
-      }
-    }
+    viewModel.enableLocationLock()
   }
 
   override fun onCreateActionButtons() {
