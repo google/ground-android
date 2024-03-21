@@ -53,9 +53,11 @@ class CaptureLocationTaskFragment : AbstractTaskFragment<CaptureLocationTaskView
   }
 
   override fun onTaskResume() {
-    // Ensure that the location lock is enabled, if it hasn't been..
-    if (viewModel.enableLocationLockFlow.value == false) {
-      viewLifecycleOwner.lifecycleScope.launch { viewModel.enableLocationLockFlow.emit(true) }
+    // Ensure that the location lock is enabled, if it hasn't been.
+    if (viewModel.enableLocationLockFlow.value == LocationLockState.NEEDS_ENABLE) {
+      viewLifecycleOwner.lifecycleScope.launch {
+        viewModel.enableLocationLockFlow.emit(LocationLockState.ENABLE)
+      }
     }
   }
 

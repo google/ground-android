@@ -54,19 +54,21 @@ class CaptureLocationTaskMapFragment(private val viewModel: CaptureLocationTaskV
   override fun onMapReady(map: MapFragment) {
     binding.basemap.locationLockBtn.isClickable = false
     viewLifecycleOwner.lifecycleScope.launch {
-      val locationLockEnabled: Boolean? =
+      val locationLockEnabledState =
         if (mapViewModel.hasLocationPermission()) {
+          // User has permission to enable location updates, enable it now.
           mapViewModel.enableLocationLockAndGetUpdates()
-          null
+          LocationLockState.ALREADY_ENABLED
         } else {
-          false
+          // Otherwise, wait to enable location lock until later.
+          LocationLockState.NEEDS_ENABLE
         }
-      viewModel.enableLocationLockFlow.value = locationLockEnabled
+      viewModel.enableLocationLockFlow.value = locationLockEnabledState
       viewModel.enableLocationLockFlow.collect {
-        if (it == true) {
-          // No-op if permission already granted.
+        if (it == LocationLockState.ENABLE) {
+          // No-op if permission is already granted and location updates are enabled.
           mapViewModel.enableLocationLockAndGetUpdates()
-          viewModel.enableLocationLockFlow.value = null
+          viewModel.enableLocationLockFlow.value = LocationLockState.ALREADY_ENABLED
         }
       }
     }

@@ -24,6 +24,21 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
+/** Location lock states relevant for attempting to enable it or not. */
+enum class LocationLockState {
+  /** The default, unknown state. */
+  UNKNOWN,
+
+  /** The location lock was already enabled, or an attempt was made. */
+  ALREADY_ENABLED,
+
+  /** The location lock was not already enabled. */
+  NEEDS_ENABLE,
+
+  /** Trigger to enable the location lock. */
+  ENABLE,
+}
+
 class CaptureLocationTaskViewModel @Inject constructor(resources: Resources) :
   AbstractTaskViewModel(resources) {
 
@@ -34,7 +49,7 @@ class CaptureLocationTaskViewModel @Inject constructor(resources: Resources) :
    * 2. false: The location lock needs to be enabled.
    * 3. true: The location lock will be enabled when emitted.
    */
-  val enableLocationLockFlow = MutableStateFlow<Boolean?>(null)
+  val enableLocationLockFlow = MutableStateFlow(LocationLockState.UNKNOWN)
 
   suspend fun updateLocation(location: Location) {
     lastLocation.emit(location.toCaptureLocationResult())
@@ -42,7 +57,7 @@ class CaptureLocationTaskViewModel @Inject constructor(resources: Resources) :
 
   fun updateResponse() {
     if (lastLocation.value == null) {
-      viewModelScope.launch { enableLocationLockFlow.emit(true) }
+      viewModelScope.launch { enableLocationLockFlow.emit(LocationLockState.ENABLE) }
     } else {
       setValue(lastLocation.value)
     }
