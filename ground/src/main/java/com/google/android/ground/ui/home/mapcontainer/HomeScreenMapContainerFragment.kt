@@ -156,7 +156,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       .launchWhenStartedAndCollectFirst {
         val (surveyProperties, isZoomedOut) = it
         when {
-          surveyProperties.readOnly -> R.string.read_only_data_collection_hint
+          surveyProperties.noLois && !surveyProperties.addLoiPermitted ->
+            R.string.read_only_data_collection_hint
           isZoomedOut && surveyProperties.addLoiPermitted -> R.string.suggest_data_collection_hint
           isZoomedOut -> R.string.predefined_data_collection_hint
           else -> null
