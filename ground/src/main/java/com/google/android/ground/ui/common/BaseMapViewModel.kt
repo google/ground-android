@@ -126,6 +126,10 @@ constructor(
         .asLiveData()
   }
 
+  /** Returns whether the user has granted fine location permission. */
+  fun hasLocationPermission() =
+    permissionsManager.isGranted(Manifest.permission.ACCESS_FINE_LOCATION)
+
   private suspend fun toggleLocationLock() {
     if (locationLock.value.getOrDefault(false)) {
       disableLocationLock()
