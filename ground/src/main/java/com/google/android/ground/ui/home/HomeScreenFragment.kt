@@ -21,14 +21,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -46,7 +40,6 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
-import com.google.android.material.color.MaterialColors
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -176,45 +169,8 @@ class HomeScreenFragment :
         // Reset the state for recomposition
         openDialog.value = true
 
-        SignOutConfirmationDialog(openDialog)
+        SignOutConfirmationDialog(requireContext(), openDialog) { userRepository.signOut() }
       }
-    }
-  }
-
-  @Composable
-  private fun SignOutConfirmationDialog(openDialog: MutableState<Boolean>) {
-    fun dismissDialog() {
-      openDialog.value = false
-    }
-
-    when {
-      openDialog.value ->
-        AlertDialog(
-          onDismissRequest = { dismissDialog() },
-          title = { Text(text = getString(R.string.sign_out_dialog_title)) },
-          text = { Text(text = getString(R.string.sign_out_dialog_body)) },
-          dismissButton = {
-            TextButton(onClick = { dismissDialog() }) {
-              Text(
-                text = getString(R.string.cancel),
-                color = Color(MaterialColors.getColor(context, R.attr.colorOnSurface, "")),
-              )
-            }
-          },
-          confirmButton = {
-            TextButton(
-              onClick = {
-                userRepository.signOut()
-                dismissDialog()
-              }
-            ) {
-              Text(
-                text = getString(R.string.sign_out),
-                color = Color(MaterialColors.getColor(context, R.attr.colorError, "")),
-              )
-            }
-          },
-        )
     }
   }
 }
