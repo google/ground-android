@@ -21,6 +21,14 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -28,6 +36,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.MainViewModel
 import com.google.android.ground.R
+import com.google.android.ground.coroutines.MainScope
 import com.google.android.ground.databinding.HomeScreenFragBinding
 import com.google.android.ground.databinding.NavDrawerHeaderBinding
 import com.google.android.ground.repository.LocationOfInterestRepository
@@ -37,9 +46,11 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -59,6 +70,7 @@ class HomeScreenFragment :
   @Inject lateinit var popups: EphemeralPopups
   @Inject lateinit var userRepository: UserRepository
   @Inject lateinit var surveyRepository: SurveyRepository
+  @Inject @MainScope lateinit var mainScope: CoroutineScope
 
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -147,9 +159,62 @@ class HomeScreenFragment :
       R.id.sync_status -> homeScreenViewModel.showSyncStatus()
       R.id.nav_offline_areas -> homeScreenViewModel.showOfflineAreas()
       R.id.nav_settings -> homeScreenViewModel.showSettings()
-      R.id.nav_sign_out -> homeScreenViewModel.showSignOutConfirmation()
+      R.id.nav_sign_out -> showSignOutConfirmationDialog()
     }
     closeDrawer()
     return true
+  }
+
+  private fun showSignOutConfirmationDialog() {
+    // Note: Adding a compose view to the fragment's view dynamically causes the navigation click to
+    // stop working after 1st time. Revisit this once the navigation drawer is also generated using
+    // compose.
+    binding.composeView.apply {
+      setContent {
+        val openDialog = remember { mutableStateOf(true) }
+
+        // Reset the state for recomposition
+        openDialog.value = true
+
+        SignOutConfirmationDialog(openDialog)
+      }
+    }
+  }
+
+  @Composable
+  private fun SignOutConfirmationDialog(openDialog: MutableState<Boolean>) {
+    fun dismissDialog() {
+      openDialog.value = false
+    }
+
+    when {
+      openDialog.value ->
+        AlertDialog(
+          onDismissRequest = { dismissDialog() },
+          title = { Text(text = getString(R.string.sign_out_dialog_title)) },
+          text = { Text(text = getString(R.string.sign_out_dialog_body)) },
+          dismissButton = {
+            TextButton(onClick = { dismissDialog() }) {
+              Text(
+                text = getString(R.string.cancel),
+                color = Color(MaterialColors.getColor(context, R.attr.colorOnSurface, "")),
+              )
+            }
+          },
+          confirmButton = {
+            TextButton(
+              onClick = {
+                userRepository.signOut()
+                dismissDialog()
+              }
+            ) {
+              Text(
+                text = getString(R.string.sign_out),
+                color = Color(MaterialColors.getColor(context, R.attr.colorError, "")),
+              )
+            }
+          },
+        )
+    }
   }
 }
