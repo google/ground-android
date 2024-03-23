@@ -24,12 +24,16 @@ import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
 import com.google.android.ground.Config.MAX_SUBMISSION_WORKER_RETRY_ATTEMPTS
 import com.google.android.ground.model.User
+import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.FAILED
+import com.google.android.ground.model.mutation.Mutation.Type.CREATE
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.createInputData
 import com.google.android.ground.repository.MutationRepository
+import com.google.android.ground.system.auth.AuthenticationManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -50,31 +54,33 @@ constructor(
   private val mutationRepository: MutationRepository,
   private val localUserStore: LocalUserStore,
   private val remoteDataStore: RemoteDataStore,
-  private val mediaUploadWorkManager: MediaUploadWorkManager
+  private val mediaUploadWorkManager: MediaUploadWorkManager,
+  private val authenticationManager: AuthenticationManager
 ) : CoroutineWorker(context, params) {
 
   private val locationOfInterestId: String =
     params.inputData.getString(LOCATION_OF_INTEREST_ID_PARAM_KEY)!!
 
-  override suspend fun doWork(): Result = withContext(Dispatchers.IO) { doWorkInternal() }
-
-  private suspend fun doWorkInternal(): Result =
-    try {
-      val mutations = getPendingOrEligibleFailedMutations()
-      Timber.d("Syncing ${mutations.size} changes for LOI $locationOfInterestId")
-      val result = processMutations(mutations)
-      mediaUploadWorkManager.enqueueSyncWorker(locationOfInterestId)
-      if (result) success() else retry()
-    } catch (t: Throwable) {
-      Timber.e(t, "Failed to sync changes for LOI $locationOfInterestId")
-      retry()
+  override suspend fun doWork(): Result =
+    withContext(Dispatchers.IO) {
+      try {
+        // TODO: Move into new UploadUserDataUseCase class.
+        val currentUser = authenticationManager.getAuthenticatedUser()
+        val mutations = getEligibleMutations(currentUser)
+        processMutations(mutations, currentUser)
+      } catch (t: Throwable) {
+        Timber.e(t, "Failed to sync changes for LOI $locationOfInterestId")
+        retry()
+      }
     }
 
+  // TODO: Move into mutation repository.
   /**
-   * Attempts to fetch all mutations from the [MutationRepository] that are in `PENDING` state or in
-   * `FAILED` state but eligible for retry.
+   * Fetch mutations which are in `PENDING` state or in `FAILED` state but eligible for retry.
+   * Ignores mutations not owned by the specified user.
    */
-  private suspend fun getPendingOrEligibleFailedMutations(): List<Mutation> {
+  private suspend fun getEligibleMutations(user: User): List<Mutation> {
+    // TODO: Sort by mutation timestamp so that queue is FIFO.
     val pendingMutations =
       mutationRepository.getMutations(locationOfInterestId, MutationEntitySyncStatus.PENDING)
     val failedMutationsEligibleForRetry =
@@ -84,28 +90,57 @@ constructor(
     return pendingMutations + failedMutationsEligibleForRetry
   }
 
-  /**
-   * Groups mutations by user id, loads each user, applies mutations, and removes processed
-   * mutations.
-   *
-   * @return `true` if all mutations are applied successfully, else `false`
-   */
-  private suspend fun processMutations(allMutations: List<Mutation>): Boolean {
-    val mutationsByUserId = allMutations.groupBy { it.userId }
-    val userIds = mutationsByUserId.keys
-    var noErrors = true
-    for (userId in userIds) {
-      val mutations = mutationsByUserId[userId]
-      val user = getUser(userId)
-      if (mutations == null || user == null) {
-        continue
-      }
-      val result = processMutations(mutations, user)
-      if (!result) {
-        noErrors = false
-      }
+    val mutations = pendingMutations + failedMutationsEligibleForRetry
+    val currentUsersMutations = mutations.filter { it.userId == user.id }
+    if (mutations.size != currentUsersMutations.size) {
+      Timber.w(
+        "${mutations.size - currentUsersMutations.size} mutations found for " +
+          "another user. These should have been removed at sign-out"
+      )
     }
-    return noErrors
+    return currentUsersMutations
+  }
+
+  private suspend fun processMutations(mutations: List<Mutation>, user: User): Result {
+    Timber.v("Syncing ${mutations.size} changes for LOI $locationOfInterestId")
+
+    // Split up create LOI mutations and other mutations.
+    val (createLoiMutations, otherMutations) =
+      mutations.filterIsInstance<LocationOfInterestMutation>().partition { it.type == CREATE }
+
+    // All user data is associated with an LOI, so create those first if necessary. Stop and retry
+    // if failed.
+    if (!processCreateLoiMutations(createLoiMutations, user)) return retry()
+
+    // Then process all other LOI and submission mutations.
+    return if (processOtherMutations(otherMutations, user)) retry() else success()
+  }
+
+  private suspend fun processCreateLoiMutations(
+    createLoiMutations: List<LocationOfInterestMutation>,
+    user: User
+  ): Boolean {
+    if (createLoiMutations.size > 1)
+      Timber.w("Duplicate create mutation found for LOI $locationOfInterestId")
+
+    val createLoiMutation = createLoiMutations.lastOrNull()
+
+    return createLoiMutation == null ||
+      processMutation(createLoiMutation, user).syncStatus != FAILED
+  }
+
+  private suspend fun processOtherMutations(
+    otherMutations: List<LocationOfInterestMutation>,
+    user: User
+  ): Boolean {
+    val results = otherMutations.map { processMutation(it, user) }
+
+    // Queue media worker if any submission mutations call for it.
+    // TODO: Only call if any media uploads are pending.
+    //    if (updatedMutations.any { it.syncStatus == Mutation.SyncStatus.MEDIA_UPLOAD_PENDING })
+    mediaUploadWorkManager.enqueueSyncWorker(locationOfInterestId)
+
+    return results.all { it }
   }
 
   /**
@@ -113,11 +148,12 @@ constructor(
    *
    * @return `true` if the mutations were successfully synced with [RemoteDataStore].
    */
-  private suspend fun processMutations(mutations: List<Mutation>, user: User): Boolean {
-    check(mutations.isNotEmpty()) { "List of mutations is empty" }
-
+  private suspend fun processMutation(mutation: Mutation, user: User): Boolean {
+    // TODO: Update methods to accept single mutation.
+    val mutations = listOf(mutation)
     return try {
       mutationRepository.markAsInProgress(mutations)
+      // TODO: Move to relevant repository.
       remoteDataStore.applyMutations(mutations, user)
       mutationRepository.finalizePendingMutationsForMediaUpload(mutations)
       true
@@ -127,14 +163,6 @@ constructor(
       mutationRepository.markAsFailed(mutations, t)
       false
     }
-  }
-
-  private suspend fun getUser(userId: String): User? {
-    val user = localUserStore.getUserOrNull(userId)
-    if (user == null) {
-      Timber.e("User account removed before mutation processed")
-    }
-    return user
   }
 
   companion object {
