@@ -55,21 +55,18 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   private lateinit var taskView: TaskView
   protected lateinit var viewModel: T
 
-  /** Position of the task in the Job's sorted task list. Used for instantiating the [viewModel]. */
-  var position by Delegates.notNull<Int>()
+  /** ID of the associated task in the Job. Used for instantiating the [viewModel]. */
   var taskId by Delegates.notNull<String>()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     if (savedInstanceState != null) {
-      position = savedInstanceState.getInt(POSITION)
       taskId = requireNotNull(savedInstanceState.getString(TASK_ID))
     }
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    outState.putInt(POSITION, position)
     outState.putString(TASK_ID, taskId)
   }
 
@@ -259,8 +256,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   companion object {
-    /** Key used to store the position of the task in the Job's sorted tasklist. */
-    const val POSITION = "position"
     const val TASK_ID = "taskId"
   }
 }

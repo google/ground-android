@@ -58,7 +58,6 @@ constructor(@Assisted fragment: Fragment, @Assisted val tasks: List<Task>) :
       }
 
     return taskFragment.also {
-      it.position = position
       it.taskId = task.id
     }
   }

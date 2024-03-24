@@ -119,7 +119,6 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
       destId = R.id.data_collection_fragment,
       preTransactionAction = {
         fragment = this as F
-        fragment.position = task.index
         fragment.taskId = task.id
       }
     )
