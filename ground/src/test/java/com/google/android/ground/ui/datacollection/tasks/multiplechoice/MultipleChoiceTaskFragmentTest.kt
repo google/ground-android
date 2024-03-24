@@ -32,6 +32,7 @@ import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
+import com.google.android.ground.ui.map.gms.mog.sec
 import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -256,7 +257,8 @@ class MultipleChoiceTaskFragmentTest :
   }
 
   @Test
-  fun `renders action buttons when optional`() {
+  fun `renders action buttons when first task and optional`() {
+    whenever(dataCollectionViewModel.isFirstPosition(task.id)).thenReturn(true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = false))
 
     buttonIsHidden("Previous")
@@ -284,7 +286,8 @@ class MultipleChoiceTaskFragmentTest :
   }
 
   @Test
-  fun `renders action buttons when task is required`() {
+  fun `renders action buttons when task is first and required`() {
+    whenever(dataCollectionViewModel.isFirstPosition(task.id)).thenReturn(true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = true))
 
     buttonIsHidden("Previous")
@@ -293,8 +296,9 @@ class MultipleChoiceTaskFragmentTest :
   }
 
   @Test
-  fun `renders action buttons when task is second`() {
-    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(index = 1))
+  fun `renders action buttons when task is not first`() {
+    whenever(dataCollectionViewModel.isFirstPosition(task.id)).thenReturn(false)
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
     buttonIsEnabled("Previous")
     buttonIsDisabled("Next")
