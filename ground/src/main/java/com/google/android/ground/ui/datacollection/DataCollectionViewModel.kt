@@ -133,7 +133,7 @@ internal constructor(
 
   // Tracks the current task ID to compute the position in the list of tasks for the current job.
   var currentTaskId: StateFlow<String> =
-    savedStateHandle.getStateFlow(TASK_POSITION_ID, tasks.first().id)
+    savedStateHandle.getStateFlow(TASK_POSITION_ID, tasks.firstOrNull()?.id ?: "")
 
   lateinit var submissionId: String
 
