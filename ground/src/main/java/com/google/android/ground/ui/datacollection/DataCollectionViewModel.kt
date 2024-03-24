@@ -126,8 +126,8 @@ internal constructor(
 
   val loiNameDialogOpen: MutableState<Boolean> = mutableStateOf(false)
 
-  private val taskViewModels: MutableStateFlow<MutableList<AbstractTaskViewModel>> =
-    MutableStateFlow(mutableListOf())
+  private val taskViewModels: MutableStateFlow<MutableMap<String, AbstractTaskViewModel>> =
+    MutableStateFlow(mutableMapOf())
 
   private val data: MutableMap<Task, Value?> = LinkedHashMap()
 
@@ -166,28 +166,26 @@ internal constructor(
     return null
   }
 
-  fun getTaskViewModel(position: Int): AbstractTaskViewModel? {
+  fun getTaskViewModel(taskId: String): AbstractTaskViewModel? {
     val viewModels = taskViewModels.value
 
-    val task = tasks[position]
-    if (position < viewModels.size) {
-      return viewModels[position]
+    val task = tasks.first { it.id == taskId }
+
+    if (viewModels.containsKey(taskId)) {
+      return viewModels[taskId]
     }
+
     return try {
       val viewModel = viewModelFactory.create(getViewModelClass(task.type))
+      taskViewModels.value[task.id] = viewModel
+
       val value: Value? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
       viewModel.initialize(job, task, value)
-      addTaskViewModel(viewModel)
       viewModel
     } catch (e: Exception) {
       Timber.e("ignoring task with invalid type: $task.type")
       null
     }
-  }
-
-  private fun addTaskViewModel(taskViewModel: AbstractTaskViewModel) {
-    taskViewModels.value.add(taskViewModel)
-    taskViewModels.value = taskViewModels.value
   }
 
   /** Moves back to the previous task in the sequence if the current value is valid or empty. */

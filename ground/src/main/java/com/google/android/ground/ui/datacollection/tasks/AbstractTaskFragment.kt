@@ -57,23 +57,26 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** Position of the task in the Job's sorted task list. Used for instantiating the [viewModel]. */
   var position by Delegates.notNull<Int>()
+  var taskId by Delegates.notNull<String>()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     if (savedInstanceState != null) {
       position = savedInstanceState.getInt(POSITION)
+      taskId = requireNotNull(savedInstanceState.getString(TASK_ID))
     }
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
     outState.putInt(POSITION, position)
+    outState.putString(TASK_ID, taskId)
   }
 
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View? {
     super.onCreateView(inflater, container, savedInstanceState)
     taskView = onCreateTaskView(inflater)
@@ -84,7 +87,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     super.onViewCreated(view, savedInstanceState)
     view.doOnAttach {
       @Suppress("UNCHECKED_CAST", "LabeledExpression")
-      val vm = dataCollectionViewModel.getTaskViewModel(position) as? T ?: return@doOnAttach
+      val vm = dataCollectionViewModel.getTaskViewModel(taskId) as? T ?: return@doOnAttach
 
       viewModel = vm
       taskView.bind(this, viewModel)
@@ -200,7 +203,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
           ButtonAction.Location.START -> taskView.actionButtonsContainer.startButtons
           ButtonAction.Location.END -> taskView.actionButtonsContainer.endButtons
         },
-        layoutInflater
+        layoutInflater,
       )
     buttonsIndex[buttons.size] = action
     buttons[action] = button
@@ -250,7 +253,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
           name = initialNameValue
           openAlertDialog = false
         },
-        onTextFieldChange = { name = it }
+        onTextFieldChange = { name = it },
       )
     }
   }
@@ -258,5 +261,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   companion object {
     /** Key used to store the position of the task in the Job's sorted tasklist. */
     const val POSITION = "position"
+    const val TASK_ID = "taskId"
   }
 }
