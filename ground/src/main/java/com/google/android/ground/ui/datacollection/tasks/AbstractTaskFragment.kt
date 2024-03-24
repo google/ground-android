@@ -140,7 +140,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   private fun addPreviousButton() =
     addButton(ButtonAction.PREVIOUS)
       .setOnClickListener { moveToPrevious() }
-      .showIfTrue(position != 0)
+      .showIfTrue(!dataCollectionViewModel.isFirstPosition(taskId))
 
   protected fun addNextButton() =
     addButton(ButtonAction.NEXT)

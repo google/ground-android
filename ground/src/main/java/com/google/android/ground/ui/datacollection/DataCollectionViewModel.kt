@@ -321,6 +321,9 @@ internal constructor(
     saveDraft()
   }
 
+  /** Returns true if the given [taskId] is first in the sequence of displayed tasks. */
+  fun isFirstPosition(taskId: String): Boolean = taskId == getTaskSequence().first().id
+
   /** Returns true if the given [taskId] is last if set, or the current active task. */
   fun isLastPosition(taskId: String? = null): Boolean =
     (taskId ?: currentTaskId.value) == getTaskSequence().last().id
