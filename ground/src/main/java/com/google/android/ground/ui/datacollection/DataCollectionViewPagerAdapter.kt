@@ -57,8 +57,6 @@ constructor(@Assisted fragment: Fragment, @Assisted val tasks: List<Task>) :
           throw UnsupportedOperationException("Unsupported task type: ${task.type}")
       }
 
-    return taskFragment.also {
-      it.taskId = task.id
-    }
+    return taskFragment.also { it.taskId = task.id }
   }
 }
