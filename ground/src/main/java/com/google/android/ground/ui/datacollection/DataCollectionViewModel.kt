@@ -321,13 +321,9 @@ internal constructor(
     saveDraft()
   }
 
-  /** Returns true if the given task index is last if set, or the current active task. */
-  fun isLastPosition(taskIndex: Int? = null): Boolean =
-    if (taskIndex == null) {
-      currentTaskId.value
-    } else {
-      tasks[taskIndex].id
-    } == getTaskSequence().last().id
+  /** Returns true if the given [taskId] is last if set, or the current active task. */
+  fun isLastPosition(taskId: String? = null): Boolean =
+    (taskId ?: currentTaskId.value) == getTaskSequence().last().id
 
   /** Evaluates the task condition against the current inputs. */
   private fun evaluateCondition(condition: Condition): Boolean =

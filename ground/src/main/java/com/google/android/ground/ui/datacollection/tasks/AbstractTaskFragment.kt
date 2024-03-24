@@ -212,7 +212,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** Returns true if the given [ButtonAction] should be replace with "Done" button. */
   private fun ButtonAction.shouldReplaceWithDoneButton() =
-    this == ButtonAction.NEXT && dataCollectionViewModel.isLastPosition(position)
+    this == ButtonAction.NEXT && dataCollectionViewModel.isLastPosition(taskId)
 
   fun getTask(): Task = viewModel.task
 
