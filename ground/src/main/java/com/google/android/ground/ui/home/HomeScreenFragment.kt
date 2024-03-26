@@ -21,6 +21,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -147,9 +149,25 @@ class HomeScreenFragment :
       R.id.sync_status -> homeScreenViewModel.showSyncStatus()
       R.id.nav_offline_areas -> homeScreenViewModel.showOfflineAreas()
       R.id.nav_settings -> homeScreenViewModel.showSettings()
-      R.id.nav_sign_out -> homeScreenViewModel.showSignOutConfirmation()
+      R.id.nav_sign_out -> showSignOutConfirmationDialog()
     }
     closeDrawer()
     return true
+  }
+
+  private fun showSignOutConfirmationDialog() {
+    // Note: Adding a compose view to the fragment's view dynamically causes the navigation click to
+    // stop working after 1st time. Revisit this once the navigation drawer is also generated using
+    // compose.
+    binding.composeView.apply {
+      setContent {
+        val openDialog = remember { mutableStateOf(true) }
+
+        // Reset the state for recomposition
+        openDialog.value = true
+
+        SignOutConfirmationDialog(requireContext(), openDialog) { userRepository.signOut() }
+      }
+    }
   }
 }

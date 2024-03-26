@@ -256,7 +256,8 @@ class MultipleChoiceTaskFragmentTest :
   }
 
   @Test
-  fun `renders action buttons when optional`() {
+  fun `renders action buttons when first task and optional`() {
+    whenever(dataCollectionViewModel.isFirstPosition(task.id)).thenReturn(true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = false))
 
     buttonIsHidden("Previous")
@@ -284,7 +285,8 @@ class MultipleChoiceTaskFragmentTest :
   }
 
   @Test
-  fun `renders action buttons when task is required`() {
+  fun `renders action buttons when task is first and required`() {
+    whenever(dataCollectionViewModel.isFirstPosition(task.id)).thenReturn(true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = true))
 
     buttonIsHidden("Previous")
@@ -293,8 +295,9 @@ class MultipleChoiceTaskFragmentTest :
   }
 
   @Test
-  fun `renders action buttons when task is second`() {
-    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(index = 1))
+  fun `renders action buttons when task is not first`() {
+    whenever(dataCollectionViewModel.isFirstPosition(task.id)).thenReturn(false)
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
     buttonIsEnabled("Previous")
     buttonIsDisabled("Next")
