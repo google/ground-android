@@ -92,7 +92,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue("string", "GOOGLE_MAPS_API_KEY", googleMapsApiKey)
-            signingConfig signingConfigs.debug
         }
         debug {
             ext.enableCrashlytics = false
