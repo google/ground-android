@@ -31,10 +31,6 @@
     <item name="toolbarNavigationButtonStyle">@style/Widget.App.Toolbar.Button.Navigation</item>
   </style>
 
-  <style name="AppTheme.Launcher">
-    <item name="android:windowBackground">@drawable/launch_screen</item>
-  </style>
-
   <style name="AppTheme.Base" parent="Theme.Material3.DayNight.NoActionBar">
     <!-- See https://material.io/develop/android/theming/color/ for full list. -->
     <item name="colorPrimary">@color/md_theme_primary</item>
