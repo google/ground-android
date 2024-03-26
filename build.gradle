@@ -48,6 +48,9 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion"
 
+        // OSS Licenses Plugin
+        classpath 'com.google.android.gms:oss-licenses-plugin:0.10.6'
+
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
