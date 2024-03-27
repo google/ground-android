@@ -90,8 +90,10 @@ internal object SubmissionConverter {
       when (task.type) {
         Task.Type.PHOTO,
         Task.Type.TEXT -> putTextResponse(taskId, obj, data)
+
         Task.Type.MULTIPLE_CHOICE ->
           putMultipleChoiceResponse(taskId, task.multipleChoice, obj, data)
+
         Task.Type.NUMBER -> putNumberResponse(taskId, obj, data)
         Task.Type.DATE -> putDateResponse(taskId, obj, data)
         Task.Type.TIME -> putTimeResponse(taskId, obj, data)

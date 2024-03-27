@@ -23,10 +23,12 @@ import kotlinx.coroutines.flow.Flow
 /** Provides read/write operations for writing [OfflineAreaEntity] to the local db. */
 @Dao
 interface OfflineAreaDao : BaseDao<OfflineAreaEntity> {
-  @Query("SELECT * FROM offline_area") fun findAll(): Flow<List<OfflineAreaEntity>>
+  @Query("SELECT * FROM offline_area")
+  fun findAll(): Flow<List<OfflineAreaEntity>>
 
   @Query("SELECT * FROM offline_area WHERE id = :id")
   suspend fun findById(id: String): OfflineAreaEntity?
 
-  @Query("DELETE FROM offline_area WHERE id = :id") suspend fun deleteById(id: String)
+  @Query("DELETE FROM offline_area WHERE id = :id")
+  suspend fun deleteById(id: String)
 }

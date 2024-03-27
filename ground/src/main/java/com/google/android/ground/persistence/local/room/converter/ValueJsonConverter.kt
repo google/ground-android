@@ -64,6 +64,7 @@ internal object ValueJsonConverter {
           put("altitude", value.altitude)
           put("geometry", GeometryWrapperTypeConverter.toString(value.geometry))
         }
+
       else -> throw UnsupportedOperationException("Unimplemented value class ${value.javaClass}")
     }
   }
@@ -91,22 +92,27 @@ internal object ValueJsonConverter {
         DataStoreException.checkType(String::class.java, obj)
         TextResponse.fromString(obj as String)
       }
+
       Task.Type.MULTIPLE_CHOICE -> {
         DataStoreException.checkType(JSONArray::class.java, obj)
         MultipleChoiceResponse.fromList(task.multipleChoice, toList(obj as JSONArray))
       }
+
       Task.Type.NUMBER -> {
         DataStoreException.checkType(Number::class.java, obj)
         NumberResponse.fromNumber(obj.toString())
       }
+
       Task.Type.DATE -> {
         DataStoreException.checkType(String::class.java, obj)
         DateResponse.fromDate(isoStringToDate(obj as String))
       }
+
       Task.Type.TIME -> {
         DataStoreException.checkType(String::class.java, obj)
         TimeResponse.fromDate(isoStringToDate(obj as String))
       }
+
       Task.Type.DRAW_AREA -> {
         DataStoreException.checkType(String::class.java, obj)
         val geometry = GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
@@ -114,6 +120,7 @@ internal object ValueJsonConverter {
         DataStoreException.checkType(Polygon::class.java, geometry!!)
         DrawAreaTaskResult(geometry as Polygon)
       }
+
       Task.Type.DROP_PIN -> {
         DataStoreException.checkType(String::class.java, obj)
         val geometry = GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
@@ -121,10 +128,12 @@ internal object ValueJsonConverter {
         DataStoreException.checkType(Point::class.java, geometry!!)
         DropPinTaskResult(geometry as Point)
       }
+
       Task.Type.CAPTURE_LOCATION -> {
         DataStoreException.checkType(JSONObject::class.java, obj)
         captureLocationResultFromJsonObject(obj as JSONObject).getOrThrow()
       }
+
       Task.Type.UNKNOWN -> {
         throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
       }

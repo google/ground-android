@@ -32,6 +32,7 @@ import timber.log.Timber
  * collectors.
  */
 const val PREDEFINED_FIELD = "predefined"
+
 /** Path of field on LOI documents representing the creator of the LOI. */
 val CREATOR_EMAIL_FIELD = FieldPath.of("created", "user", "email")
 

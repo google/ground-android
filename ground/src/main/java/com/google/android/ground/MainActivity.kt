@@ -46,12 +46,18 @@ import timber.log.Timber
  */
 @AndroidEntryPoint
 class MainActivity : AbstractActivity() {
-  @Inject lateinit var activityStreams: ActivityStreams
-  @Inject lateinit var viewModelFactory: ViewModelFactory
-  @Inject lateinit var settingsManager: SettingsManager
-  @Inject lateinit var navigator: Navigator
-  @Inject lateinit var userRepository: UserRepository
-  @Inject lateinit var popups: EphemeralPopups
+  @Inject
+  lateinit var activityStreams: ActivityStreams
+  @Inject
+  lateinit var viewModelFactory: ViewModelFactory
+  @Inject
+  lateinit var settingsManager: SettingsManager
+  @Inject
+  lateinit var navigator: Navigator
+  @Inject
+  lateinit var userRepository: UserRepository
+  @Inject
+  lateinit var popups: EphemeralPopups
 
   private lateinit var viewModel: MainViewModel
   private lateinit var navHostFragment: NavHostFragment

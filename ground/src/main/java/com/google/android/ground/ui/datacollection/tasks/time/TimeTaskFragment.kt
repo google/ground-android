@@ -48,22 +48,23 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
     val hour = calendar[Calendar.HOUR]
     val minute = calendar[Calendar.MINUTE]
     TimePickerDialog(
-        requireContext(),
-        { _, updatedHourOfDay, updatedMinute ->
-          val c = Calendar.getInstance()
-          c[Calendar.HOUR_OF_DAY] = updatedHourOfDay
-          c[Calendar.MINUTE] = updatedMinute
-          viewModel.updateResponse(c.time)
-        },
-        hour,
-        minute,
-        DateFormat.is24HourFormat(requireContext())
-      )
+      requireContext(),
+      { _, updatedHourOfDay, updatedMinute ->
+        val c = Calendar.getInstance()
+        c[Calendar.HOUR_OF_DAY] = updatedHourOfDay
+        c[Calendar.MINUTE] = updatedMinute
+        viewModel.updateResponse(c.time)
+      },
+      hour,
+      minute,
+      DateFormat.is24HourFormat(requireContext())
+    )
       .apply {
         show()
         timePickerDialog = this
       }
   }
 
-  @TestOnly fun getTimePickerDialog(): TimePickerDialog? = timePickerDialog
+  @TestOnly
+  fun getTimePickerDialog(): TimePickerDialog? = timePickerDialog
 }

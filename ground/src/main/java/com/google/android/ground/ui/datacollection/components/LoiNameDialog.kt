@@ -40,7 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import com.google.android.ground.R
 
-@Composable @ReadOnlyComposable private fun getColor(id: Int): Color = colorResource(id)
+@Composable
+@ReadOnlyComposable
+private fun getColor(id: Int): Color = colorResource(id)
 
 // `colorAttribute` implementation adapted from:
 // https://stackoverflow.com/questions/62971113/how-to-reference-theme-attributes-in-jetpack-compose.

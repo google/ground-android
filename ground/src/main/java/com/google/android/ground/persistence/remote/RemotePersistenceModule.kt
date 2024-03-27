@@ -39,7 +39,9 @@ import javax.inject.Singleton
 @Module
 abstract class RemotePersistenceModule {
   /** Provides the Firestore implementation of remote data store. */
-  @Binds @Singleton abstract fun remoteDataStore(ds: FirestoreDataStore): RemoteDataStore
+  @Binds
+  @Singleton
+  abstract fun remoteDataStore(ds: FirestoreDataStore): RemoteDataStore
 
   /** Provides the Firestore implementation of offline unique id generation. */
   @Binds
@@ -70,6 +72,8 @@ abstract class RemotePersistenceModule {
       return FirebaseStorage.getInstance().reference
     }
 
-    @Provides @Singleton fun firebaseFuntions(): FirebaseFunctions = Firebase.functions
+    @Provides
+    @Singleton
+    fun firebaseFuntions(): FirebaseFunctions = Firebase.functions
   }
 }

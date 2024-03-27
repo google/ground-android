@@ -42,12 +42,15 @@ internal object ConditionConverter {
       "MATCH_ANY" -> {
         MatchType.MATCH_ANY
       }
+
       "MATCH_ALL" -> {
         MatchType.MATCH_ALL
       }
+
       "MATCH_ONE" -> {
         MatchType.MATCH_ONE
       }
+
       else -> {
         Timber.v("Unknown MatchType received: $this")
         MatchType.UNKNOWN
@@ -80,12 +83,15 @@ internal object ConditionConverter {
       "ANY_OF_SELECTED" -> {
         ExpressionType.ANY_OF_SELECTED
       }
+
       "ALL_OF_SELECTED" -> {
         ExpressionType.ALL_OF_SELECTED
       }
+
       "ONE_OF_SELECTED" -> {
         ExpressionType.ONE_OF_SELECTED
       }
+
       else -> {
         Timber.v("Unknown ExpressionType received: $this")
         ExpressionType.UNKNOWN

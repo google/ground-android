@@ -23,7 +23,8 @@ import timber.log.Timber
 
 object JsonArrayTypeConverter {
 
-  @TypeConverter fun toString(jsonArray: JSONArray?): String? = jsonArray?.toString()
+  @TypeConverter
+  fun toString(jsonArray: JSONArray?): String? = jsonArray?.toString()
 
   @TypeConverter
   fun fromString(jsonString: String?): JSONArray? =

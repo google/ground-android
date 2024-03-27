@@ -26,5 +26,6 @@ interface DraftSubmissionDao : BaseDao<DraftSubmissionEntity> {
   @Query("SELECT * FROM draft_submission WHERE id = :draftSubmissionId")
   suspend fun findById(draftSubmissionId: String): DraftSubmissionEntity?
 
-  @Query("DELETE FROM draft_submission") fun delete()
+  @Query("DELETE FROM draft_submission")
+  fun delete()
 }

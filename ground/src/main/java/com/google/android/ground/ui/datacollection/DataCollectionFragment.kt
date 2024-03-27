@@ -42,9 +42,11 @@ import kotlinx.coroutines.launch
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
 class DataCollectionFragment : AbstractFragment(), BackPressListener {
-  @Inject lateinit var navigator: Navigator
+  @Inject
+  lateinit var navigator: Navigator
 
-  @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
+  @Inject
+  lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
   private val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
 

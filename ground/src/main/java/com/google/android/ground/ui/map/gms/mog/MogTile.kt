@@ -61,6 +61,7 @@ class MogTile(val metadata: MogTileMetadata, val data: ByteArray) {
 /* Circumference of the Earth (m) */
 private val START_OF_IMAGE = byteArrayOf(0xFF, 0xD8)
 private val APP0_MARKER = byteArrayOf(0xFF, 0xE0)
+
 // Marker segment length with no thumbnails.
 private const val APP0_MIN_LEN: Short = 16
 private const val JFIF_IDENTIFIER = "JFIF"

@@ -29,7 +29,8 @@ import kotlinx.coroutines.tasks.await
 @Singleton
 class FirebaseStorageManager @Inject constructor() : RemoteStorageManager {
 
-  @Inject lateinit var storageReference: StorageReference
+  @Inject
+  lateinit var storageReference: StorageReference
 
   private fun createReference(path: String): StorageReference = storageReference.child(path)
 

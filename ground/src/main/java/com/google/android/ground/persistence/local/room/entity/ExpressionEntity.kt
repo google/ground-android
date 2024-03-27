@@ -25,14 +25,14 @@ import com.google.android.ground.persistence.local.room.fields.ExpressionEntityT
 @Entity(
   tableName = "expression",
   foreignKeys =
-    [
-      ForeignKey(
-        entity = ConditionEntity::class,
-        parentColumns = ["parent_task_id"],
-        childColumns = ["parent_task_id"],
-        onDelete = ForeignKey.CASCADE
-      )
-    ],
+  [
+    ForeignKey(
+      entity = ConditionEntity::class,
+      parentColumns = ["parent_task_id"],
+      childColumns = ["parent_task_id"],
+      onDelete = ForeignKey.CASCADE
+    )
+  ],
   indices = [Index("parent_task_id")]
 )
 data class ExpressionEntity(

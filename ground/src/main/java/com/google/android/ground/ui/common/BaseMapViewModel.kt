@@ -195,9 +195,9 @@ constructor(
   /** Emits a stream of camera update requests. */
   fun getCameraUpdateRequests(): SharedFlow<CameraUpdateRequest> =
     merge(
-        getCameraUpdateRequestsForSurveyActivations(),
-        getCameraUpdateRequestsForDeviceLocationChanges()
-      )
+      getCameraUpdateRequestsForSurveyActivations(),
+      getCameraUpdateRequestsForDeviceLocationChanges()
+    )
       .shareIn(viewModelScope, SharingStarted.Eagerly, replay = 0)
 
   /** Emits a stream of current camera position. */

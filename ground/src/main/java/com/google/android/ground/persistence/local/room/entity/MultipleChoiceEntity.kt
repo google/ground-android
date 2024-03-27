@@ -21,14 +21,14 @@ import com.google.android.ground.persistence.local.room.fields.MultipleChoiceEnt
 @Entity(
   tableName = "multiple_choice",
   foreignKeys =
-    [
-      ForeignKey(
-        entity = TaskEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["task_id"],
-        onDelete = ForeignKey.CASCADE
-      )
-    ],
+  [
+    ForeignKey(
+      entity = TaskEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["task_id"],
+      onDelete = ForeignKey.CASCADE
+    )
+  ],
   indices = [Index("task_id")]
 )
 data class MultipleChoiceEntity(

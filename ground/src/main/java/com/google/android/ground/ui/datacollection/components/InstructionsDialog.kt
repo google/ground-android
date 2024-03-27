@@ -37,7 +37,9 @@ fun InstructionsDialog(iconId: Int, stringId: Int, onDismissRequest: () -> Unit)
       Icon(
         imageVector = ImageVector.vectorResource(id = iconId),
         contentDescription = "",
-        modifier = Modifier.width(48.dp).height(48.dp),
+        modifier = Modifier
+          .width(48.dp)
+          .height(48.dp),
         tint = colorAttribute(R.attr.colorSecondary),
       )
     },

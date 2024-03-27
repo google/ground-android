@@ -21,7 +21,9 @@ import com.google.android.ground.model.job.Style
 
 object StyleTypeConverter {
 
-  @TypeConverter fun toString(style: Style?): String? = style?.color
+  @TypeConverter
+  fun toString(style: Style?): String? = style?.color
 
-  @TypeConverter fun fromString(color: String?): Style? = color?.let { Style(it) }
+  @TypeConverter
+  fun fromString(color: String?): Style? = color?.let { Style(it) }
 }

@@ -33,6 +33,7 @@ enum class NetworkStatus {
   AVAILABLE,
   UNAVAILABLE
 }
+
 /** Abstracts access to network state. */
 @Singleton
 class NetworkManager @Inject constructor(@ApplicationContext private val context: Context) {

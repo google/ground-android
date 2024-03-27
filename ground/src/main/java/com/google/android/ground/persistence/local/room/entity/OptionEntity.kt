@@ -20,14 +20,14 @@ import androidx.room.*
 @Entity(
   tableName = "option",
   foreignKeys =
-    [
-      ForeignKey(
-        entity = TaskEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["task_id"],
-        onDelete = ForeignKey.CASCADE
-      )
-    ],
+  [
+    ForeignKey(
+      entity = TaskEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["task_id"],
+      onDelete = ForeignKey.CASCADE
+    )
+  ],
   indices = [Index("task_id")],
   primaryKeys = ["id"]
 )

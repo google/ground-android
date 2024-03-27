@@ -44,9 +44,11 @@ internal object LoiMutationConverter {
     when (val geometry = mutation.geometry) {
       is Point ->
         map.addGeometryCoordinates(geometry.coordinates.toGeoPoint(), LoiConverter.POINT_TYPE)
+
       is Polygon ->
         // Holes are excluded since they're not supported in the polygon drawing feature.
         map[LoiConverter.GEOMETRY] = GeometryConverter.toFirestoreMap(geometry).getOrThrow()
+
       else -> {}
     }
 
@@ -61,9 +63,11 @@ internal object LoiMutationConverter {
         map[LoiConverter.LAST_MODIFIED] = auditInfo
         map[LoiConverter.IS_PREDEFINED] = mutation.isPredefined ?: false
       }
+
       Mutation.Type.UPDATE -> {
         map[LoiConverter.LAST_MODIFIED] = auditInfo
       }
+
       Mutation.Type.DELETE,
       Mutation.Type.UNKNOWN -> {
         throw UnsupportedOperationException()

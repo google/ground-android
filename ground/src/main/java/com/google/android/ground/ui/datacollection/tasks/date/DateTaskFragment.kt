@@ -48,23 +48,24 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
     val month = calendar[Calendar.MONTH]
     val day = calendar[Calendar.DAY_OF_MONTH]
     DatePickerDialog(
-        requireContext(),
-        { _, updatedYear, updatedMonth, updatedDayOfMonth ->
-          val c = Calendar.getInstance()
-          c[Calendar.DAY_OF_MONTH] = updatedDayOfMonth
-          c[Calendar.MONTH] = updatedMonth
-          c[Calendar.YEAR] = updatedYear
-          viewModel.updateResponse(c.time)
-        },
-        year,
-        month,
-        day
-      )
+      requireContext(),
+      { _, updatedYear, updatedMonth, updatedDayOfMonth ->
+        val c = Calendar.getInstance()
+        c[Calendar.DAY_OF_MONTH] = updatedDayOfMonth
+        c[Calendar.MONTH] = updatedMonth
+        c[Calendar.YEAR] = updatedYear
+        viewModel.updateResponse(c.time)
+      },
+      year,
+      month,
+      day
+    )
       .apply {
         show()
         datePickerDialog = this
       }
   }
 
-  @TestOnly fun getDatePickerDialog(): DatePickerDialog? = datePickerDialog
+  @TestOnly
+  fun getDatePickerDialog(): DatePickerDialog? = datePickerDialog
 }

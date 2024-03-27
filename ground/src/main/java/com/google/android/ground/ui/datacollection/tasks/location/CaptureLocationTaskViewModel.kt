@@ -44,6 +44,7 @@ class CaptureLocationTaskViewModel @Inject constructor(resources: Resources) :
   AbstractTaskViewModel(resources) {
 
   private val lastLocation = MutableStateFlow<CaptureLocationTaskResult?>(null)
+
   /** Allows control for triggering the location lock programmatically. */
   private val enableLocationLockFlow = MutableStateFlow(LocationLockEnabledState.UNKNOWN)
 

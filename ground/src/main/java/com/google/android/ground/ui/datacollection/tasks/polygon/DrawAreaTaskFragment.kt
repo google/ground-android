@@ -43,8 +43,10 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
 
-  @Inject lateinit var markerIconFactory: IconFactory
-  @Inject lateinit var map: MapFragment
+  @Inject
+  lateinit var markerIconFactory: IconFactory
+  @Inject
+  lateinit var map: MapFragment
 
   // Action buttons
   private lateinit var completeButton: TaskButton

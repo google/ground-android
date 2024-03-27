@@ -52,10 +52,13 @@ object TaskButtonFactory {
     when (action.theme) {
       ButtonAction.Theme.DARK_GREEN ->
         TaskChipButtonDarkGreenBinding.inflate(layoutInflater, container).button
+
       ButtonAction.Theme.LIGHT_GREEN ->
         TaskChipButtonLightGreenBinding.inflate(layoutInflater, container).button
+
       ButtonAction.Theme.OUTLINED ->
         TaskChipButtonOutlineBinding.inflate(layoutInflater, container).button
+
       ButtonAction.Theme.TRANSPARENT ->
         TaskChipButtonTransparentBinding.inflate(layoutInflater, container).button
     }.apply { action.textId?.let { setText(it) } }
@@ -66,10 +69,10 @@ object TaskButtonFactory {
     action: ButtonAction
   ): ImageButton =
     if (action.theme == ButtonAction.Theme.LIGHT_GREEN) {
-        TaskChipButtonWithIconLightGreenBinding.inflate(layoutInflater, container).button
-      } else {
-        error("Unsupported icon type button for theme: ${action.theme}")
-      }
+      TaskChipButtonWithIconLightGreenBinding.inflate(layoutInflater, container).button
+    } else {
+      error("Unsupported icon type button for theme: ${action.theme}")
+    }
       .apply {
         action.drawableId?.let {
           setImageDrawable(ResourcesCompat.getDrawable(resources, it, null))
@@ -82,10 +85,10 @@ object TaskButtonFactory {
     action: ButtonAction
   ): MaterialButton =
     if (action.theme == ButtonAction.Theme.OUTLINED) {
-        TaskChipButtonWithTextAndIconTransparentBinding.inflate(layoutInflater, container).button
-      } else {
-        error("Unsupported icon type button for theme: $action.theme")
-      }
+      TaskChipButtonWithTextAndIconTransparentBinding.inflate(layoutInflater, container).button
+    } else {
+      error("Unsupported icon type button for theme: $action.theme")
+    }
       .apply {
         action.textId?.let { setText(it) }
         action.drawableId?.let { icon = ResourcesCompat.getDrawable(resources, it, null) }

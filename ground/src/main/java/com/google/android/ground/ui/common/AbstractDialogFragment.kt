@@ -29,7 +29,8 @@ import javax.inject.Inject
 
 abstract class AbstractDialogFragment : AppCompatDialogFragment() {
 
-  @Inject lateinit var viewModelFactory: ViewModelFactory
+  @Inject
+  lateinit var viewModelFactory: ViewModelFactory
 
   /** Uses [ViewModelFactory] to obtain an instance of the view model of the specified class. */
   protected fun <T : ViewModel?> getViewModel(modelClass: Class<T>): T =

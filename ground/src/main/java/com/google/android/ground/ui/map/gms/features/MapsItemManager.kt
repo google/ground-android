@@ -52,8 +52,10 @@ class MapsItemManager(
           is Polygon -> listOf(polygonRenderer.add(map, tag, geometry, style, selected, visible))
           is MultiPolygon ->
             geometry.polygons.map { polygonRenderer.add(map, tag, it, style, selected, visible) }
+
           is LineString ->
             listOf(lineStringRenderer.add(map, tag, geometry, style, selected, visible))
+
           else -> error("Render ${geometry.javaClass} geometry not supported")
         }
     }

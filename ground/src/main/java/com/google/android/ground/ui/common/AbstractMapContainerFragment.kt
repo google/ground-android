@@ -34,10 +34,15 @@ import timber.log.Timber
 /** Injects a [MapFragment] in the container with id "map" and provides shared map functionality. */
 abstract class AbstractMapContainerFragment : AbstractFragment() {
 
-  @Inject lateinit var map: MapFragment
-  @Inject lateinit var navigator: Navigator
-  @Inject lateinit var geocodingManager: GeocodingManager
-  @Inject @DefaultDispatcher lateinit var defaultDispatcher: CoroutineDispatcher
+  @Inject
+  lateinit var map: MapFragment
+  @Inject
+  lateinit var navigator: Navigator
+  @Inject
+  lateinit var geocodingManager: GeocodingManager
+  @Inject
+  @DefaultDispatcher
+  lateinit var defaultDispatcher: CoroutineDispatcher
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)

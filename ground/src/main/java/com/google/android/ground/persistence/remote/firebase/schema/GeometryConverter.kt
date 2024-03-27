@@ -98,6 +98,7 @@ object GeometryConverter {
       POLYGON_TYPE -> nestedIndexedMapToPolygon(coordinates as IndexedMap<IndexedMap<GeoPoint>>)
       MULTI_POLYGON_TYPE ->
         nestedIndexedMapToMultiPolygon(coordinates as IndexedMap<IndexedMap<IndexedMap<GeoPoint>>>)
+
       else -> throw DataStoreException("Invalid geometry type '$type'")
     }
 

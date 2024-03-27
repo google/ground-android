@@ -35,7 +35,8 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
 
-  @Inject lateinit var popups: EphemeralPopups
+  @Inject
+  lateinit var popups: EphemeralPopups
 
   private lateinit var viewModel: OfflineAreaSelectorViewModel
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel

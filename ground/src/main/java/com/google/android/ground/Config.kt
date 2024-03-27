@@ -68,7 +68,7 @@ object Config {
   fun getMogSources(path: String) =
     listOf(
       MogSource(
-        0 ..< DEFAULT_MOG_MIN_ZOOM,
+        0..<DEFAULT_MOG_MIN_ZOOM,
         "$path/$DEFAULT_MOG_MIN_ZOOM/overview.tif",
       ),
       MogSource(

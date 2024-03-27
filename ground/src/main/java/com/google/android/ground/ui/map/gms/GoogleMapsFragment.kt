@@ -81,9 +81,12 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   /** Camera move events. Emits items after the camera has stopped moving. */
   override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
 
-  @Inject lateinit var featureManager: FeatureManager
-  @Inject lateinit var bitmapUtil: BitmapUtil
-  @Inject lateinit var remoteStorageManager: RemoteStorageManager
+  @Inject
+  lateinit var featureManager: FeatureManager
+  @Inject
+  lateinit var bitmapUtil: BitmapUtil
+  @Inject
+  lateinit var remoteStorageManager: RemoteStorageManager
 
   private lateinit var map: GoogleMap
 

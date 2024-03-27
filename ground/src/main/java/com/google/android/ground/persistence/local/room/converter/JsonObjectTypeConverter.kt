@@ -23,7 +23,9 @@ import timber.log.Timber
 
 object JsonObjectTypeConverter {
 
-  @JvmStatic @TypeConverter fun toString(jsonObject: JSONObject?): String? = jsonObject?.toString()
+  @JvmStatic
+  @TypeConverter
+  fun toString(jsonObject: JSONObject?): String? = jsonObject?.toString()
 
   @JvmStatic
   @TypeConverter

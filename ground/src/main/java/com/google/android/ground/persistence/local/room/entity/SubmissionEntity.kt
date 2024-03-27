@@ -22,14 +22,14 @@ import com.google.android.ground.persistence.local.room.fields.EntityState
 /** Representation of a [Submission] in local db. */
 @Entity(
   foreignKeys =
-    [
-      ForeignKey(
-        entity = LocationOfInterestEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["location_of_interest_id"],
-        onDelete = ForeignKey.CASCADE
-      )
-    ],
+  [
+    ForeignKey(
+      entity = LocationOfInterestEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["location_of_interest_id"],
+      onDelete = ForeignKey.CASCADE
+    )
+  ],
   tableName = "submission",
   indices = [Index("location_of_interest_id", "job_id", "state")]
 )

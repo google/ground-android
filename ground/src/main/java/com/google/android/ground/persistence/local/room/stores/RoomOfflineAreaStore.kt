@@ -29,7 +29,8 @@ import kotlinx.coroutines.flow.map
 
 @Singleton
 class RoomOfflineAreaStore @Inject internal constructor() : LocalOfflineAreaStore {
-  @Inject lateinit var offlineAreaDao: OfflineAreaDao
+  @Inject
+  lateinit var offlineAreaDao: OfflineAreaDao
 
   override suspend fun insertOrUpdate(area: OfflineArea) =
     offlineAreaDao.insertOrUpdate(area.toOfflineAreaEntity())

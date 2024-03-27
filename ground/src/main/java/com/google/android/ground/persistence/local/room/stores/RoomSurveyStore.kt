@@ -41,21 +41,29 @@ import kotlinx.coroutines.flow.map
 /** Manages access to [Survey] objects persisted in local storage. */
 @Singleton
 class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
-  @Inject lateinit var optionDao: OptionDao
+  @Inject
+  lateinit var optionDao: OptionDao
 
-  @Inject lateinit var multipleChoiceDao: MultipleChoiceDao
+  @Inject
+  lateinit var multipleChoiceDao: MultipleChoiceDao
 
-  @Inject lateinit var taskDao: TaskDao
+  @Inject
+  lateinit var taskDao: TaskDao
 
-  @Inject lateinit var jobDao: JobDao
+  @Inject
+  lateinit var jobDao: JobDao
 
-  @Inject lateinit var surveyDao: SurveyDao
+  @Inject
+  lateinit var surveyDao: SurveyDao
 
-  @Inject lateinit var tileSourceDao: TileSourceDao
+  @Inject
+  lateinit var tileSourceDao: TileSourceDao
 
-  @Inject lateinit var conditionDao: ConditionDao
+  @Inject
+  lateinit var conditionDao: ConditionDao
 
-  @Inject lateinit var expressionDao: ExpressionDao
+  @Inject
+  lateinit var expressionDao: ExpressionDao
 
   override val surveys: Flow<List<Survey>>
     get() = surveyDao.getAll().map { surveyEntities -> surveyEntities.map { it.toModelObject() } }

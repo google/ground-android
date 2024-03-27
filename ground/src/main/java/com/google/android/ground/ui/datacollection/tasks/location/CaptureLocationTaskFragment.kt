@@ -32,7 +32,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class CaptureLocationTaskFragment : AbstractTaskFragment<CaptureLocationTaskViewModel>() {
 
-  @Inject lateinit var map: MapFragment
+  @Inject
+  lateinit var map: MapFragment
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop)

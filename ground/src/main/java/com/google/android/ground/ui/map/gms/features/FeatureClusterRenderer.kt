@@ -47,6 +47,7 @@ class FeatureClusterRenderer(
    * Called when the cluster balloon is shown so that implementations can unhide related map items.
    */
   lateinit var onClusterRendered: (Feature.Tag) -> Unit
+
   /**
    * Called when the cluster balloon is display so that implementations can hide related map items.
    */

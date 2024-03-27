@@ -24,14 +24,14 @@ import androidx.room.PrimaryKey
 @Entity(
   tableName = "offline_base_map_source",
   foreignKeys =
-    [
-      ForeignKey(
-        entity = SurveyEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["survey_id"],
-        onDelete = ForeignKey.CASCADE
-      )
-    ],
+  [
+    ForeignKey(
+      entity = SurveyEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["survey_id"],
+      onDelete = ForeignKey.CASCADE
+    )
+  ],
   indices = [Index("survey_id")]
 )
 data class TileSourceEntity(

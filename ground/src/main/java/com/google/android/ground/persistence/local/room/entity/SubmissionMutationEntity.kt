@@ -25,20 +25,20 @@ import java.util.*
 @Entity(
   tableName = "submission_mutation",
   foreignKeys =
-    [
-      ForeignKey(
-        entity = LocationOfInterestEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["location_of_interest_id"],
-        onDelete = ForeignKey.CASCADE
-      ),
-      ForeignKey(
-        entity = SubmissionEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["submission_id"],
-        onDelete = ForeignKey.CASCADE
-      )
-    ],
+  [
+    ForeignKey(
+      entity = LocationOfInterestEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["location_of_interest_id"],
+      onDelete = ForeignKey.CASCADE
+    ),
+    ForeignKey(
+      entity = SubmissionEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["submission_id"],
+      onDelete = ForeignKey.CASCADE
+    )
+  ],
   indices = [Index("location_of_interest_id"), Index("submission_id")]
 )
 data class SubmissionMutationEntity(

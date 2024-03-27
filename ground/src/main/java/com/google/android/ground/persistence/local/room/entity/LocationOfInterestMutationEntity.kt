@@ -32,14 +32,14 @@ import com.google.android.ground.persistence.local.room.fields.MutationEntityTyp
 @Entity(
   tableName = "location_of_interest_mutation",
   foreignKeys =
-    [
-      ForeignKey(
-        entity = LocationOfInterestEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["location_of_interest_id"],
-        onDelete = ForeignKey.CASCADE,
-      )
-    ],
+  [
+    ForeignKey(
+      entity = LocationOfInterestEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["location_of_interest_id"],
+      onDelete = ForeignKey.CASCADE,
+    )
+  ],
   indices = [Index("location_of_interest_id")],
 )
 data class LocationOfInterestMutationEntity(

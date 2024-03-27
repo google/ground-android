@@ -41,6 +41,7 @@ constructor(
   private var pinColor: Int = 0
   private var lastCameraPosition: CameraPosition? = null
   val features: MutableLiveData<Set<Feature>> = MutableLiveData()
+
   /** Whether the instructions dialog has been shown or not. */
   var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
 

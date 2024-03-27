@@ -112,9 +112,9 @@ constructor(
       )
 
   private suspend fun uploadPhotos(mutation: SubmissionMutation): kotlin.Result<Unit> =
-    // TODO(##2121): Use media response types instead of discriminating on Task.Type.
-    // For example, we should pass a List<PhotoResponse> to uploadPhotoMedia(), which can take care
-    // of the bulk of the response-specific work.
+  // TODO(##2121): Use media response types instead of discriminating on Task.Type.
+  // For example, we should pass a List<PhotoResponse> to uploadPhotoMedia(), which can take care
+  // of the bulk of the response-specific work.
     // TODO(#2120): Retry uploads on a per-photo basis, instead of per-response.
     mutation.deltas
       .filter { (_, taskType, newValue) ->

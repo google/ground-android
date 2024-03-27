@@ -48,6 +48,7 @@ class LocationOfInterestHelper @Inject internal constructor(private val resource
       is Point -> resources.getString(R.string.point)
       is Polygon,
       is MultiPolygon -> resources.getString(R.string.area)
+
       else -> throw IllegalArgumentException("Unsupported geometry type $this")
     }
 
@@ -57,6 +58,7 @@ class LocationOfInterestHelper @Inject internal constructor(private val resource
       is Point -> resources.getString(R.string.unnamed_point)
       is Polygon,
       is MultiPolygon -> resources.getString(R.string.unnamed_area)
+
       else -> throw IllegalArgumentException("Unsupported geometry type $this")
     }
 
