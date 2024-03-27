@@ -56,12 +56,20 @@ import timber.log.Timber
 /** Fragment allowing the user to capture a photo to complete a task. */
 @AndroidEntryPoint
 class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
-  @Inject lateinit var userMediaRepository: UserMediaRepository
-  @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
-  @Inject @MainScope lateinit var mainScope: CoroutineScope
-  @Inject lateinit var permissionsManager: PermissionsManager
-  @Inject lateinit var popups: EphemeralPopups
-  @Inject lateinit var navigator: Navigator
+  @Inject
+  lateinit var userMediaRepository: UserMediaRepository
+  @Inject
+  @ApplicationScope
+  lateinit var externalScope: CoroutineScope
+  @Inject
+  @MainScope
+  lateinit var mainScope: CoroutineScope
+  @Inject
+  lateinit var permissionsManager: PermissionsManager
+  @Inject
+  lateinit var popups: EphemeralPopups
+  @Inject
+  lateinit var navigator: Navigator
 
   private var selectPhotoLauncher: ActivityResultLauncher<String> =
     registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->

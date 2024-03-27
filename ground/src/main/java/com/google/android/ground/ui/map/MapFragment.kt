@@ -84,7 +84,8 @@ interface MapFragment {
   fun moveCamera(bounds: Bounds, shouldAnimate: Boolean)
 
   /** Displays user location indicator on the map. */
-  @SuppressLint("MissingPermission") fun enableCurrentLocationIndicator()
+  @SuppressLint("MissingPermission")
+  fun enableCurrentLocationIndicator()
 
   /** Update the set of map [Feature]s present on the map. */
   fun setFeatures(newFeatures: Set<Feature>)

@@ -56,11 +56,16 @@ class HomeScreenFragment :
   // TODO: It's not obvious which locations of interest are in HomeScreen vs MapContainer;
   //  make this more intuitive.
 
-  @Inject lateinit var locationOfInterestHelper: LocationOfInterestHelper
-  @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
-  @Inject lateinit var popups: EphemeralPopups
-  @Inject lateinit var userRepository: UserRepository
-  @Inject lateinit var surveyRepository: SurveyRepository
+  @Inject
+  lateinit var locationOfInterestHelper: LocationOfInterestHelper
+  @Inject
+  lateinit var locationOfInterestRepository: LocationOfInterestRepository
+  @Inject
+  lateinit var popups: EphemeralPopups
+  @Inject
+  lateinit var userRepository: UserRepository
+  @Inject
+  lateinit var surveyRepository: SurveyRepository
 
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var homeScreenViewModel: HomeScreenViewModel

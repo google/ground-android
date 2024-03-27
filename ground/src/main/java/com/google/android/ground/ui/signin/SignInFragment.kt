@@ -65,10 +65,10 @@ class SignInFragment : AbstractFragment(), BackPressListener {
 
   private fun displayNetworkError() {
     Snackbar.make(
-        requireView(),
-        getString(R.string.network_error_when_signing_in),
-        Snackbar.LENGTH_LONG
-      )
+      requireView(),
+      getString(R.string.network_error_when_signing_in),
+      Snackbar.LENGTH_LONG
+    )
       .show()
   }
 

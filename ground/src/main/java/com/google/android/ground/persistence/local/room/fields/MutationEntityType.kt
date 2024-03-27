@@ -54,8 +54,12 @@ enum class MutationEntityType(private val intValue: Int) : IntEnum {
         else -> UNKNOWN
       }
 
-    @JvmStatic @TypeConverter fun toInt(value: MutationEntityType?) = toInt(value, UNKNOWN)
+    @JvmStatic
+    @TypeConverter
+    fun toInt(value: MutationEntityType?) = toInt(value, UNKNOWN)
 
-    @JvmStatic @TypeConverter fun fromInt(intValue: Int) = fromInt(values(), intValue, UNKNOWN)
+    @JvmStatic
+    @TypeConverter
+    fun fromInt(intValue: Int) = fromInt(values(), intValue, UNKNOWN)
   }
 }

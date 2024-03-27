@@ -38,8 +38,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class DropPinTaskFragment : AbstractTaskFragment<DropPinTaskViewModel>() {
 
-  @Inject lateinit var markerIconFactory: IconFactory
-  @Inject lateinit var map: MapFragment
+  @Inject
+  lateinit var markerIconFactory: IconFactory
+  @Inject
+  lateinit var map: MapFragment
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop)

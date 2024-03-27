@@ -165,5 +165,6 @@ abstract class ViewModelModule {
   @ViewModelKey(StartupViewModel::class)
   abstract fun bindStartupViewModel(viewModel: StartupViewModel): ViewModel
 
-  @Binds abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
+  @Binds
+  abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
 }

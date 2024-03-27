@@ -73,23 +73,23 @@ import com.google.android.ground.persistence.local.room.fields.TileSetEntityStat
  */
 @Database(
   entities =
-    [
-      DraftSubmissionEntity::class,
-      LocationOfInterestEntity::class,
-      LocationOfInterestMutationEntity::class,
-      TaskEntity::class,
-      JobEntity::class,
-      MultipleChoiceEntity::class,
-      OptionEntity::class,
-      SurveyEntity::class,
-      TileSourceEntity::class,
-      SubmissionEntity::class,
-      SubmissionMutationEntity::class,
-      OfflineAreaEntity::class,
-      UserEntity::class,
-      ConditionEntity::class,
-      ExpressionEntity::class,
-    ],
+  [
+    DraftSubmissionEntity::class,
+    LocationOfInterestEntity::class,
+    LocationOfInterestMutationEntity::class,
+    TaskEntity::class,
+    JobEntity::class,
+    MultipleChoiceEntity::class,
+    OptionEntity::class,
+    SurveyEntity::class,
+    TileSourceEntity::class,
+    SubmissionEntity::class,
+    SubmissionMutationEntity::class,
+    OfflineAreaEntity::class,
+    UserEntity::class,
+    ConditionEntity::class,
+    ExpressionEntity::class,
+  ],
   version = Config.DB_VERSION,
   exportSchema = false
 )

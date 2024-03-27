@@ -31,8 +31,10 @@ import timber.log.Timber
 @HiltAndroidApp
 class GroundApplication : MultiDexApplication(), Configuration.Provider {
 
-  @Inject lateinit var crashReportingTree: CrashReportingTree
-  @Inject lateinit var workerFactory: HiltWorkerFactory
+  @Inject
+  lateinit var crashReportingTree: CrashReportingTree
+  @Inject
+  lateinit var workerFactory: HiltWorkerFactory
 
   override val workManagerConfiguration: Configuration
     get() = Configuration.Builder().setWorkerFactory(workerFactory).build()

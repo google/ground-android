@@ -54,7 +54,9 @@ enum class TaskEntityType(private val intValue: Int) : IntEnum {
     fun fromTaskType(type: Task.Type): TaskEntityType =
       REVERSE_TASK_TYPES.getOrDefault(type, UNKNOWN)
 
-    @JvmStatic @TypeConverter fun toInt(value: TaskEntityType?): Int = IntEnum.toInt(value, UNKNOWN)
+    @JvmStatic
+    @TypeConverter
+    fun toInt(value: TaskEntityType?): Int = IntEnum.toInt(value, UNKNOWN)
 
     @JvmStatic
     @TypeConverter

@@ -113,15 +113,15 @@ internal constructor(
 
   val loiName: StateFlow<String?> =
     (if (loiId == null) {
-        // User supplied LOI name during LOI creation task. Use to save the LOI name later.
-        savedStateHandle.getStateFlow(TASK_LOI_NAME_KEY, "")
-      } else
-      // LOI name pulled from LOI properties, if it exists.
+      // User supplied LOI name during LOI creation task. Use to save the LOI name later.
+      savedStateHandle.getStateFlow(TASK_LOI_NAME_KEY, "")
+    } else
+    // LOI name pulled from LOI properties, if it exists.
       flow {
-          val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
-          val label = locationOfInterestHelper.getDisplayLoiName(loi)
-          emit(label)
-        })
+        val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
+        val label = locationOfInterestHelper.getDisplayLoiName(loi)
+        emit(label)
+      })
       .stateIn(viewModelScope, SharingStarted.Lazily, "")
 
   val loiNameDialogOpen: MutableState<Boolean> = mutableStateOf(false)
@@ -256,6 +256,7 @@ internal constructor(
     }
     return tasks.indexOf(tasks.first { it.id == currentTaskId.value })
   }
+
   /** Persists the collected data as draft to local storage. */
   private fun saveDraft() {
     externalScope.launch(ioDispatcher) {
@@ -298,10 +299,10 @@ internal constructor(
   private fun getTaskSequence(startId: String? = null, reversed: Boolean = false): Sequence<Task> {
     val startIndex = tasks.indexOf(tasks.first { it.id == (startId ?: tasks[0].id) })
     return if (reversed) {
-        tasks.subList(0, startIndex + 1).reversed()
-      } else {
-        tasks.subList(startIndex, tasks.size)
-      }
+      tasks.subList(0, startIndex + 1).reversed()
+    } else {
+      tasks.subList(startIndex, tasks.size)
+    }
       .let { tasks ->
         tasks.asSequence().filter { it.condition == null || evaluateCondition(it.condition) }
       }

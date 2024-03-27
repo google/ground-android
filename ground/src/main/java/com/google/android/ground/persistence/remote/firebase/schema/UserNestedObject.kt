@@ -24,6 +24,7 @@ data class UserNestedObject(
 ) {
   companion object {
     /** Fallback value when reading invalid or legacy schemas. */
-    @JvmField val UNKNOWN_USER = UserNestedObject("", "", "Unknown user")
+    @JvmField
+    val UNKNOWN_USER = UserNestedObject("", "", "Unknown user")
   }
 }

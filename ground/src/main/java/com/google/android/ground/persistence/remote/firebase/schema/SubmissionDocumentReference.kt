@@ -31,6 +31,7 @@ class SubmissionDocumentReference internal constructor(ref: DocumentReference) :
     when (mutation.type) {
       Mutation.Type.CREATE,
       Mutation.Type.UPDATE -> merge(SubmissionMutationConverter.toMap(mutation, user), batch)
+
       Mutation.Type.DELETE -> delete(batch)
       else -> throw IllegalArgumentException("Unknown mutation type ${mutation.type}")
     }

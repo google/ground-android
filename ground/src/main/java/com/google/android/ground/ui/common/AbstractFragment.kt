@@ -40,7 +40,8 @@ import kotlinx.coroutines.launch
 
 abstract class AbstractFragment : Fragment() {
 
-  @Inject lateinit var viewModelFactory: ViewModelFactory
+  @Inject
+  lateinit var viewModelFactory: ViewModelFactory
 
   private var progressDialog: AlertDialog? = null
 

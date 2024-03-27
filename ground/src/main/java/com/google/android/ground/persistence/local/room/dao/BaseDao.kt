@@ -26,13 +26,17 @@ import androidx.room.Update
  */
 interface BaseDao<E> {
 
-  @Insert suspend fun insert(entity: E)
+  @Insert
+  suspend fun insert(entity: E)
 
-  @Update suspend fun update(entity: E): Int
+  @Update
+  suspend fun update(entity: E): Int
 
-  @Update suspend fun updateAll(entities: List<E>)
+  @Update
+  suspend fun updateAll(entities: List<E>)
 
-  @Delete suspend fun delete(entity: E)
+  @Delete
+  suspend fun delete(entity: E)
 }
 
 /** Try to update the specified entity, and if it doesn't yet exist, create it. Main-safe. */

@@ -40,9 +40,12 @@ import timber.log.Timber
 /** Manages access to [LocationOfInterest] objects persisted in local storage. */
 @Singleton
 class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocationOfInterestStore {
-  @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
-  @Inject lateinit var locationOfInterestMutationDao: LocationOfInterestMutationDao
-  @Inject lateinit var userStore: RoomUserStore
+  @Inject
+  lateinit var locationOfInterestDao: LocationOfInterestDao
+  @Inject
+  lateinit var locationOfInterestMutationDao: LocationOfInterestMutationDao
+  @Inject
+  lateinit var userStore: RoomUserStore
 
   /**
    * Retrieves the complete set of [LocationOfInterest] associated with the given [Survey] from the
@@ -80,11 +83,13 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
         val entity = mutation.toLocalDataStoreObject(user)
         locationOfInterestDao.insertOrUpdate(entity)
       }
+
       Mutation.Type.DELETE -> {
         val loiId = mutation.locationOfInterestId
         val entity = checkNotNull(locationOfInterestDao.findById(loiId))
         locationOfInterestDao.update(entity.copy(state = EntityState.DELETED))
       }
+
       Mutation.Type.UNKNOWN -> {
         throw LocalDataStoreException("Unknown Mutation.Type")
       }

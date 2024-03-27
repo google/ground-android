@@ -119,6 +119,7 @@ constructor(
           is SubmissionMutation -> {
             localSubmissionStore.deleteSubmission(mutation.submissionId)
           }
+
           is LocationOfInterestMutation -> {
             localLocationOfInterestStore.deleteLocationOfInterest(mutation.locationOfInterestId)
           }
@@ -173,6 +174,7 @@ private fun List<Mutation>.updateMutationStatus(
   when (it) {
     is LocationOfInterestMutation ->
       it.copy(syncStatus = syncStatus, retryCount = retryCount, lastError = errorMessage)
+
     is SubmissionMutation ->
       it.copy(syncStatus = syncStatus, retryCount = retryCount, lastError = errorMessage)
   }

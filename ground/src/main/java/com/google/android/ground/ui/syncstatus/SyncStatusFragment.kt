@@ -30,7 +30,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class SyncStatusFragment : AbstractFragment() {
 
-  @Inject lateinit var locationOfInterestHelper: LocationOfInterestHelper
+  @Inject
+  lateinit var locationOfInterestHelper: LocationOfInterestHelper
   lateinit var viewModel: SyncStatusViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {

@@ -73,7 +73,8 @@ constructor(
   }
 
   companion object {
-    @JvmField val PERMISSIONS_REQUEST_CODE = PermissionsManager::class.java.hashCode() and 0xffff
+    @JvmField
+    val PERMISSIONS_REQUEST_CODE = PermissionsManager::class.java.hashCode() and 0xffff
   }
 }
 

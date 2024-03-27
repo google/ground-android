@@ -28,7 +28,8 @@ import javax.inject.Singleton
 /** Manages access to [User] objects persisted in local storage. */
 @Singleton
 class RoomUserStore @Inject internal constructor() : LocalUserStore {
-  @Inject lateinit var userDao: UserDao
+  @Inject
+  lateinit var userDao: UserDao
 
   /**
    * Attempts to update persisted data associated with a [User] in the local database. If the

@@ -27,37 +27,37 @@ data class CameraPosition(
 
   fun serialize(): String =
     arrayOf<Any>(
-        target?.lat.toString(),
-        target?.lng.toString(),
-        zoomLevel.toString(),
-        bounds?.south.toString(),
-        bounds?.west.toString(),
-        bounds?.north.toString(),
-        bounds?.east.toString(),
-      )
+      target?.lat.toString(),
+      target?.lng.toString(),
+      zoomLevel.toString(),
+      bounds?.south.toString(),
+      bounds?.west.toString(),
+      bounds?.north.toString(),
+      bounds?.east.toString(),
+    )
       .joinToString { it.toString() }
 
   companion object {
 
     fun deserialize(serializedValue: String): CameraPosition? =
       runCatching {
-          if (serializedValue.isEmpty()) return null
-          val parts = serializedValue.split(",")
-          val lat = parts[0].trim().toDouble()
-          val long = parts[1].trim().toDouble()
-          val zoomLevel = parts[2].trim().toFloatOrNull()
-          val south = parts[3].trim().toDoubleOrNull()
-          val west = parts[4].trim().toDoubleOrNull()
-          val north = parts[5].trim().toDoubleOrNull()
-          val east = parts[6].trim().toDoubleOrNull()
+        if (serializedValue.isEmpty()) return null
+        val parts = serializedValue.split(",")
+        val lat = parts[0].trim().toDouble()
+        val long = parts[1].trim().toDouble()
+        val zoomLevel = parts[2].trim().toFloatOrNull()
+        val south = parts[3].trim().toDoubleOrNull()
+        val west = parts[4].trim().toDoubleOrNull()
+        val north = parts[5].trim().toDoubleOrNull()
+        val east = parts[6].trim().toDoubleOrNull()
 
-          var bounds: Bounds? = null
-          if (south != null && west != null && north != null && east != null) {
-            bounds = Bounds(south, west, north, east)
-          }
-
-          return CameraPosition(Coordinates(lat, long), zoomLevel, bounds)
+        var bounds: Bounds? = null
+        if (south != null && west != null && north != null && east != null) {
+          bounds = Bounds(south, west, north, east)
         }
+
+        return CameraPosition(Coordinates(lat, long), zoomLevel, bounds)
+      }
         .getOrElse { exception ->
           Timber.e(exception)
           // Prevent app from crashing if we are unable to parse the camera position

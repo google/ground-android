@@ -45,9 +45,11 @@ internal object SubmissionMutationConverter {
         map[CREATED] = auditInfo
         map[LAST_MODIFIED] = auditInfo
       }
+
       Mutation.Type.UPDATE -> {
         map[LAST_MODIFIED] = auditInfo
       }
+
       Mutation.Type.DELETE,
       Mutation.Type.UNKNOWN -> {
         throw DataStoreException("Unsupported mutation type: ${mutation.type}")
@@ -72,24 +74,31 @@ internal object SubmissionMutationConverter {
       is TextResponse -> {
         value.text
       }
+
       is MultipleChoiceResponse -> {
         value.selectedOptionIds
       }
+
       is NumberResponse -> {
         value.value
       }
+
       is TimeResponse -> {
         value.time
       }
+
       is DateResponse -> {
         value.date
       }
+
       is GeometryTaskResult -> {
         GeometryConverter.toFirestoreMap(value.geometry).getOrThrow()
       }
+
       is CaptureLocationTaskResult -> {
         CaptureLocationResultConverter.toFirestoreMap(value).getOrThrow()
       }
+
       else -> {
         Timber.e("Unknown value type: %s", value?.javaClass?.name)
         null

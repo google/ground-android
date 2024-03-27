@@ -18,4 +18,5 @@ package com.google.android.ground.persistence.local.room.dao
 import androidx.room.Dao
 import com.google.android.ground.persistence.local.room.entity.ExpressionEntity
 
-@Dao interface ExpressionDao : BaseDao<ExpressionEntity>
+@Dao
+interface ExpressionDao : BaseDao<ExpressionEntity>

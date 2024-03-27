@@ -32,7 +32,8 @@ import timber.log.Timber
 @AndroidEntryPoint
 class StartupFragment : AbstractFragment() {
 
-  @Inject lateinit var popups: EphemeralPopups
+  @Inject
+  lateinit var popups: EphemeralPopups
 
   private lateinit var viewModel: StartupViewModel
 

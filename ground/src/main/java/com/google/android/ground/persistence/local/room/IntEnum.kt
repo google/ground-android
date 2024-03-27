@@ -31,7 +31,7 @@ interface IntEnum {
 
     @JvmStatic
     fun <E> fromInt(values: Array<E>, intValue: Int, defaultValue: E): E where
-    E : Enum<E>,
-    E : IntEnum = values.firstOrNull { it.intValue() == intValue } ?: defaultValue
+      E : Enum<E>,
+      E : IntEnum = values.firstOrNull { it.intValue() == intValue } ?: defaultValue
   }
 }

@@ -25,14 +25,14 @@ import com.google.android.ground.persistence.local.room.fields.MatchEntityType
 @Entity(
   tableName = "condition",
   foreignKeys =
-    [
-      ForeignKey(
-        entity = TaskEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["parent_task_id"],
-        onDelete = ForeignKey.CASCADE
-      )
-    ],
+  [
+    ForeignKey(
+      entity = TaskEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["parent_task_id"],
+      onDelete = ForeignKey.CASCADE
+    )
+  ],
   indices = [Index("parent_task_id")]
 )
 data class ConditionEntity(

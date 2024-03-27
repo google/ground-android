@@ -109,9 +109,9 @@ constructor(
    */
   suspend fun loadAndSyncSurveyWithRemote(id: String): Survey? =
     withTimeoutOrNull(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) {
-        Timber.d("Loading survey $id")
-        remoteDataStore.loadSurvey(id)
-      }
+      Timber.d("Loading survey $id")
+      remoteDataStore.loadSurvey(id)
+    }
       ?.apply { localSurveyStore.insertOrUpdateSurvey(this) }
 
   fun clearActiveSurvey() {

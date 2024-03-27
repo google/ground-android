@@ -18,4 +18,5 @@ package com.google.android.ground.persistence.local.room.dao
 import androidx.room.Dao
 import com.google.android.ground.persistence.local.room.entity.OptionEntity
 
-@Dao interface OptionDao : BaseDao<OptionEntity>
+@Dao
+interface OptionDao : BaseDao<OptionEntity>

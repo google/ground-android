@@ -60,6 +60,7 @@ class MogMetadataReader(private val seekable: SeekableInputStream) {
       BYTE_ORDER_LITTLE_ENDIAN ->
         // TODO: Upgrade to Guava 31.2 once released and remove @Suppress.
         @Suppress("UnstableApiUsage") LittleEndianDataInputStream(seekable)
+
       BYTE_ORDER_BIG_ENDIAN -> DataInputStream(seekable)
       else -> error("Invalid byte order: $byteOrderCode")
     }
@@ -134,6 +135,7 @@ class MogMetadataReader(private val seekable: SeekableInputStream) {
       ASCII -> dataInput.readChar()
       BYTE,
       UNDEFINED -> dataInput.readUnsignedByte()
+
       SBYTE -> dataInput.readByte()
       SHORT -> dataInput.readUnsignedShort()
       SSHORT -> dataInput.readShort()

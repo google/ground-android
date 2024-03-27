@@ -56,12 +56,21 @@ import timber.log.Timber
 @AndroidEntryPoint
 class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
-  @Inject lateinit var ephemeralPopups: EphemeralPopups
-  @Inject lateinit var submissionRepository: SubmissionRepository
-  @Inject lateinit var userRepository: UserRepository
-  @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
-  @Inject @MainDispatcher lateinit var mainDispatcher: CoroutineDispatcher
-  @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
+  @Inject
+  lateinit var ephemeralPopups: EphemeralPopups
+  @Inject
+  lateinit var submissionRepository: SubmissionRepository
+  @Inject
+  lateinit var userRepository: UserRepository
+  @Inject
+  @IoDispatcher
+  lateinit var ioDispatcher: CoroutineDispatcher
+  @Inject
+  @MainDispatcher
+  lateinit var mainDispatcher: CoroutineDispatcher
+  @Inject
+  @ApplicationScope
+  lateinit var externalScope: CoroutineScope
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -158,6 +167,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         when {
           surveyProperties.noLois && !surveyProperties.addLoiPermitted ->
             R.string.read_only_data_collection_hint
+
           isZoomedOut && surveyProperties.addLoiPermitted -> R.string.suggest_data_collection_hint
           isZoomedOut -> R.string.predefined_data_collection_hint
           else -> null
@@ -230,6 +240,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
             null,
           )
         )
+
       is MapCardUiData.AddLoiCardUiData ->
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(

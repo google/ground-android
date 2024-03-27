@@ -25,14 +25,14 @@ import com.google.android.ground.persistence.local.room.fields.TaskEntityType
 @Entity(
   tableName = "task",
   foreignKeys =
-    [
-      ForeignKey(
-        entity = JobEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["job_id"],
-        onDelete = ForeignKey.CASCADE
-      )
-    ],
+  [
+    ForeignKey(
+      entity = JobEntity::class,
+      parentColumns = ["id"],
+      childColumns = ["job_id"],
+      onDelete = ForeignKey.CASCADE
+    )
+  ],
   indices = [Index("job_id")]
 )
 data class TaskEntity(

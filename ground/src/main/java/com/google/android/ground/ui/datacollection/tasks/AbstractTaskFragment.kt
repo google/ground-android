@@ -48,7 +48,7 @@ import org.jetbrains.annotations.TestOnly
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
   protected val dataCollectionViewModel: DataCollectionViewModel by
-    hiltNavGraphViewModels(R.id.data_collection)
+  hiltNavGraphViewModels(R.id.data_collection)
 
   private val buttons: EnumMap<ButtonAction, TaskButton> = EnumMap(ButtonAction::class.java)
   private val buttonsIndex: MutableMap<Int, ButtonAction> = mutableMapOf()
@@ -215,9 +215,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   fun getCurrentValue(): Value? = viewModel.taskValue.value
 
-  @TestOnly fun getButtons() = buttons
+  @TestOnly
+  fun getButtons() = buttons
 
-  @TestOnly fun getButtonsIndex() = buttonsIndex
+  @TestOnly
+  fun getButtonsIndex() = buttonsIndex
 
   private fun launchLoiNameDialog() {
     dataCollectionViewModel.loiNameDialogOpen.value = true

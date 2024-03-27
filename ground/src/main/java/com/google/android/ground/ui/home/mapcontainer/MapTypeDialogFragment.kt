@@ -33,8 +33,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MapTypeDialogFragment : BottomSheetDialogFragment() {
 
-  @Inject lateinit var mapStateRepository: MapStateRepository
-  @Inject lateinit var viewModelFactory: ViewModelFactory
+  @Inject
+  lateinit var mapStateRepository: MapStateRepository
+  @Inject
+  lateinit var viewModelFactory: ViewModelFactory
 
   private lateinit var binding: MapTypeDialogFragmentBinding
   private lateinit var mapTypes: List<MapType>

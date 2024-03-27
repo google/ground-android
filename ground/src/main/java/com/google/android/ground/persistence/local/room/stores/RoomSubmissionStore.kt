@@ -56,10 +56,14 @@ import timber.log.Timber
 /** Manages access to [Submission] objects persisted in local storage. */
 @Singleton
 class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore {
-  @Inject lateinit var draftSubmissionDao: DraftSubmissionDao
-  @Inject lateinit var submissionDao: SubmissionDao
-  @Inject lateinit var submissionMutationDao: SubmissionMutationDao
-  @Inject lateinit var userStore: RoomUserStore
+  @Inject
+  lateinit var draftSubmissionDao: DraftSubmissionDao
+  @Inject
+  lateinit var submissionDao: SubmissionDao
+  @Inject
+  lateinit var submissionMutationDao: SubmissionMutationDao
+  @Inject
+  lateinit var userStore: RoomUserStore
 
   /**
    * Attempts to retrieve the [Submission] associated with the given ID and [LocationOfInterest].
@@ -112,14 +116,17 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
         val entity = mutation.toLocalDataStoreObject(AuditInfo(user))
         submissionDao.insertOrUpdate(entity)
       }
+
       Mutation.Type.UPDATE -> {
         val user = userStore.getUser(mutation.userId)
         updateSubmission(mutation, user)
       }
+
       Mutation.Type.DELETE -> {
         val entity = checkNotNull(submissionDao.findById(mutation.submissionId))
         submissionDao.update(entity.copy(state = EntityState.DELETED))
       }
+
       Mutation.Type.UNKNOWN -> {
         throw LocalDataStoreException("Unknown Mutation.Type")
       }
@@ -200,10 +207,10 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus,
   ): Flow<List<SubmissionMutation>> =
-    submissionMutationDao.findByLoiIdFlow(locationOfInterestId, *allowedStates).map {
-      list: List<SubmissionMutationEntity> ->
-      list.map { it.toModelObject(survey) }
-    }
+    submissionMutationDao.findByLoiIdFlow(locationOfInterestId, *allowedStates)
+      .map { list: List<SubmissionMutationEntity> ->
+        list.map { it.toModelObject(survey) }
+      }
 
   override suspend fun applyAndEnqueue(mutation: SubmissionMutation) {
     try {

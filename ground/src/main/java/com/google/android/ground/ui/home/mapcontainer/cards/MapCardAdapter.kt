@@ -115,6 +115,7 @@ class MapCardAdapter(
       is MapCardUiData.LoiCardUiData -> {
         (holder as LoiViewHolder).apply { bind(canUserSubmitData, uiData.loi) }
       }
+
       is MapCardUiData.AddLoiCardUiData -> {
         (holder as AddLoiCardViewHolder).apply { bind(canUserSubmitData, uiData.job) }
       }
