@@ -17,18 +17,6 @@
 package com.google.android.ground.ui.datacollection
 
 import android.os.Bundle
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.isEnabled
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.typeText
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.capture
@@ -49,8 +37,6 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
-import org.hamcrest.Matchers.allOf
-import org.hamcrest.Matchers.not
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -261,65 +247,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     }
   }
 
-  private fun runner() = Runner(this, fragment)
-
-  /** Helper class for interacting with the data collection tasks and verifying the ui state. */
-  class Runner(
-    private val baseHiltTest: BaseHiltTest,
-    private val fragment: DataCollectionFragment,
-  ) {
-
-    internal fun clickNextButton(): Runner {
-      clickButton("Next")
-      return this
-    }
-
-    internal fun clickPreviousButton(): Runner {
-      clickButton("Previous")
-      return this
-    }
-
-    internal fun clickDoneButton(): Runner {
-      clickButton("Done")
-      return this
-    }
-
-    internal fun inputText(text: String): Runner {
-      onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(text))
-      return this
-    }
-
-    internal fun validateTextIsDisplayed(text: String): Runner {
-      onView(withText(text)).check(matches(isDisplayed()))
-      return this
-    }
-
-    internal fun validateTextIsNotDisplayed(text: String): Runner {
-      onView(withText(text)).check(matches(not(isDisplayed())))
-      return this
-    }
-
-    internal fun pressBackButton(result: Boolean): Runner {
-      waitUntilDone { assertThat(fragment.onBack()).isEqualTo(result) }
-      return this
-    }
-
-    private fun clickButton(text: String) = waitUntilDone {
-      baseHiltTest.composeTestRule.onNode(hasText(text).and(isEnabled())).performClick()
-    }
-
-    internal fun assertButtonIsDisabled(text: String): Runner {
-      baseHiltTest.composeTestRule.onNodeWithText(text).assertIsDisplayed().assertIsNotEnabled()
-      return this
-    }
-
-    private fun waitUntilDone(testBody: suspend () -> Unit) {
-      baseHiltTest.runWithTestDispatcher {
-        testBody()
-        advanceUntilIdle()
-      }
-    }
-  }
+  private fun runner() = TaskFragmentRunner(this, fragment)
 
   companion object {
     private const val TASK_ID_1 = "1"
