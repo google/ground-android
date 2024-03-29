@@ -28,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import com.google.android.ground.model.submission.Value
 
-class TaskButton {
+class TaskButton(val action: ButtonAction) {
 
   private lateinit var clickCallback: () -> Unit
 
@@ -38,27 +38,25 @@ class TaskButton {
   private var taskUpdatedCallback: ((button: TaskButton, value: Value?) -> Unit)? = null
 
   @Composable
-  fun CreateButton(action: ButtonAction) {
+  fun CreateButton() {
     if (!hidden.value) {
       when (action.theme) {
         ButtonAction.Theme.DARK_GREEN ->
-          Button(onClick = { clickCallback() }, enabled = enabled.value) { Content(action) }
+          Button(onClick = { clickCallback() }, enabled = enabled.value) { Content() }
         ButtonAction.Theme.LIGHT_GREEN ->
-          FilledTonalButton(onClick = { clickCallback() }, enabled = enabled.value) {
-            Content(action)
-          }
+          FilledTonalButton(onClick = { clickCallback() }, enabled = enabled.value) { Content() }
         ButtonAction.Theme.OUTLINED ->
-          OutlinedButton(onClick = { clickCallback() }, enabled = enabled.value) { Content(action) }
+          OutlinedButton(onClick = { clickCallback() }, enabled = enabled.value) { Content() }
         ButtonAction.Theme.TRANSPARENT ->
           OutlinedButton(border = null, onClick = { clickCallback() }, enabled = enabled.value) {
-            Content(action)
+            Content()
           }
       }
     }
   }
 
   @Composable
-  private fun Content(action: ButtonAction) {
+  private fun Content() {
     // Icon
     action.drawableId?.let {
       Icon(imageVector = ImageVector.vectorResource(id = it), contentDescription = "")

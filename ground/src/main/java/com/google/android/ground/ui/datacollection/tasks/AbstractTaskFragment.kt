@@ -134,7 +134,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** Invoked when the data associated with the current task gets modified. */
   protected open fun onValueChanged(value: Value?) {
-    for ((_, _, button) in buttonDataList) {
+    for ((_, button) in buttonDataList) {
       button.onValueChanged(value)
     }
   }
@@ -197,9 +197,9 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   protected fun addButton(buttonAction: ButtonAction): TaskButton {
     val action = if (buttonAction.shouldReplaceWithDoneButton()) ButtonAction.DONE else buttonAction
-    check(!buttonDataList.any { it.action == action }) { "Button $action already bound" }
-    val button = TaskButton()
-    buttonDataList.add(ButtonData(index = buttonDataList.size, action, button))
+    check(!buttonDataList.any { it.button.action == action }) { "Button $action already bound" }
+    val button = TaskButton(action)
+    buttonDataList.add(ButtonData(index = buttonDataList.size, button))
     return button
   }
 
@@ -214,9 +214,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
           ) {
             // TODO: Previous button should always be positioned to the left of the screen. Rest
             //  buttons should be aligned to the right side of the screen.
-            buttonDataList
-              .sortedBy { it.index }
-              .forEach { (_, action, button) -> button.CreateButton(action) }
+            buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
           }
         }
       }
@@ -267,7 +265,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  private data class ButtonData(val index: Int, val action: ButtonAction, val button: TaskButton)
+  private data class ButtonData(val index: Int, val button: TaskButton)
 
   companion object {
     const val TASK_ID = "taskId"
