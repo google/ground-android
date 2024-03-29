@@ -15,9 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
@@ -89,22 +86,24 @@ class DrawAreaTaskFragmentTest :
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsHidden("Next")
-    buttonIsEnabled("Skip")
-    buttonIsHidden(ButtonAction.UNDO)
-    buttonIsEnabled("Add point")
-    buttonIsHidden("Complete")
+    runner()
+      .assertButtonIsHidden("Next")
+      .assertButtonIsEnabled("Skip")
+      .assertButtonIsHidden("Undo", true)
+      .assertButtonIsEnabled("Add point")
+      .assertButtonIsHidden("Complete")
   }
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsHidden("Next")
-    buttonIsHidden("Skip")
-    buttonIsHidden(ButtonAction.UNDO)
-    buttonIsEnabled("Add point")
-    buttonIsHidden("Complete")
+    runner()
+      .assertButtonIsHidden("Next")
+      .assertButtonIsHidden("Skip")
+      .assertButtonIsHidden("Undo", true)
+      .assertButtonIsEnabled("Add point")
+      .assertButtonIsHidden("Complete")
   }
 
   @Test
@@ -131,11 +130,12 @@ class DrawAreaTaskFragmentTest :
     )
 
     // Only "Undo" and "Add point" buttons should be visible.
-    buttonIsHidden("Next")
-    buttonIsHidden("Skip")
-    buttonIsEnabled(ButtonAction.UNDO)
-    buttonIsEnabled("Add point")
-    buttonIsHidden("Complete")
+    runner()
+      .assertButtonIsHidden("Next")
+      .assertButtonIsHidden("Skip")
+      .assertButtonIsEnabled("Undo", true)
+      .assertButtonIsEnabled("Add point")
+      .assertButtonIsHidden("Complete")
   }
 
   @Test
@@ -148,7 +148,14 @@ class DrawAreaTaskFragmentTest :
     updateLastVertexAndAddPoint(COORDINATE_2)
     updateLastVertexAndAddPoint(COORDINATE_3)
     updateLastVertex(COORDINATE_4, true)
-    onView(withText("Complete")).perform(click())
+
+    runner()
+      .clickButton("Complete")
+      .assertButtonIsHidden("Next")
+      .assertButtonIsHidden("Skip")
+      .assertButtonIsEnabled("Undo", true)
+      .assertButtonIsHidden("Add point")
+      .assertButtonIsEnabled("Complete")
 
     hasValue(
       DrawAreaTaskResult(
@@ -164,13 +171,6 @@ class DrawAreaTaskFragmentTest :
         )
       )
     )
-
-    // Only "Undo" and "Complete" buttons should be visible.
-    buttonIsHidden("Next")
-    buttonIsHidden("Skip")
-    buttonIsEnabled(ButtonAction.UNDO)
-    buttonIsHidden("Add point")
-    buttonIsEnabled("Complete")
   }
 
   @Test
@@ -194,7 +194,9 @@ class DrawAreaTaskFragmentTest :
   /** Overwrites the last vertex and also adds a new one. */
   private fun updateLastVertexAndAddPoint(coordinate: Coordinates) {
     updateLastVertex(coordinate, false)
-    onView(withText("Add point")).perform(click())
+
+    // TODO: Refactor and move one level up with the rest of the runner logic.
+    runner().clickButton("Add point")
   }
 
   /** Updates the last vertex of the polygon with the given vertex. */

@@ -15,10 +15,15 @@
  */
 package com.google.android.ground.ui.datacollection
 
+import android.text.InputType
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isEnabled
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.espresso.Espresso.onView
@@ -26,8 +31,10 @@ import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withInputType
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.CustomViewActions.forceTypeText
 import com.google.android.ground.R
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -41,23 +48,29 @@ class TaskFragmentRunner(
   private val fragment: DataCollectionFragment? = null,
 ) {
 
-  internal fun clickNextButton(): TaskFragmentRunner {
-    clickButton("Next")
-    return this
-  }
+  internal fun clickNextButton(): TaskFragmentRunner = clickButton("Next")
 
-  internal fun clickPreviousButton(): TaskFragmentRunner {
-    clickButton("Previous")
-    return this
-  }
+  internal fun clickPreviousButton(): TaskFragmentRunner = clickButton("Previous")
 
-  internal fun clickDoneButton(): TaskFragmentRunner {
-    clickButton("Done")
+  internal fun clickDoneButton(): TaskFragmentRunner = clickButton("Done")
+
+  internal fun clickButton(
+    text: String,
+    isContentDescription: Boolean = false,
+  ): TaskFragmentRunner {
+    clickButtonInternal(text, isContentDescription)
     return this
   }
 
   internal fun inputText(text: String): TaskFragmentRunner {
     onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(text))
+    return this
+  }
+
+  internal fun inputNumber(number: Int): TaskFragmentRunner {
+    onView(withId(R.id.user_response_text))
+      .check(matches(withInputType(InputType.TYPE_CLASS_NUMBER)))
+      .perform(forceTypeText(number.toString()))
     return this
   }
 
@@ -78,14 +91,48 @@ class TaskFragmentRunner(
 
   /**
    * Buttons in task fragments are using jetpack compose, so we have to use `ComposeTestRule` to
-   * interact with the view
+   * interact with the view.
    */
-  private fun clickButton(text: String) = waitUntilDone {
-    baseHiltTest.composeTestRule.onNode(hasText(text).and(isEnabled())).performClick()
-  }
+  private fun clickButtonInternal(text: String, isContentDescription: Boolean = false) =
+    waitUntilDone {
+      if (isContentDescription) {
+        baseHiltTest.composeTestRule
+          .onNode(hasContentDescription(text).and(isEnabled()))
+          .performClick()
+      } else {
+        baseHiltTest.composeTestRule.onNode(hasText(text).and(isEnabled())).performClick()
+      }
+    }
 
   internal fun assertButtonIsDisabled(text: String): TaskFragmentRunner {
     baseHiltTest.composeTestRule.onNodeWithText(text).assertIsDisplayed().assertIsNotEnabled()
+    return this
+  }
+
+  internal fun assertButtonIsEnabled(
+    text: String,
+    isContentDescription: Boolean = false,
+  ): TaskFragmentRunner {
+    if (isContentDescription) {
+      baseHiltTest.composeTestRule
+        .onNodeWithContentDescription(text)
+        .assertIsDisplayed()
+        .assertIsEnabled()
+    } else {
+      baseHiltTest.composeTestRule.onNodeWithText(text).assertIsDisplayed().assertIsEnabled()
+    }
+    return this
+  }
+
+  internal fun assertButtonIsHidden(
+    text: String,
+    isContentDescription: Boolean = false,
+  ): TaskFragmentRunner {
+    if (isContentDescription) {
+      baseHiltTest.composeTestRule.onNodeWithContentDescription(text).assertIsNotDisplayed()
+    } else {
+      baseHiltTest.composeTestRule.onNodeWithText(text).assertIsNotDisplayed()
+    }
     return this
   }
 
