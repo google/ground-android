@@ -121,28 +121,9 @@
     <item name="android:paddingBottom">10dp</item>
   </style>
 
-  <style name="TaskChipButton.DarkGreen">
-    <item name="android:backgroundTint">@drawable/task_dark_green_btn_selector</item>
-    <item name="android:textColor">@color/task_dark_green_btn_selector</item>
-  </style>
-
   <style name="TaskChipButton.LightGreen">
     <item name="android:backgroundTint">@drawable/task_light_green_btn_selector</item>
     <item name="android:textColor">?attr/colorOnSurface</item>
-  </style>
-
-  <style name="TaskChipButton.Transparent">
-    <item name="android:backgroundTint">@drawable/task_transparent_btn_selector</item>
-    <item name="android:textColor">@color/task_transparent_btn_selector</item>
-  </style>
-
-  <style name="TaskChipButton.Transparent.Outline">
-    <item name="strokeColor">?attr/colorOutline</item>
-    <item name="strokeWidth">2dp</item>
-  </style>
-
-  <style name="TaskChipButton.Transparent.TextAndIcon">
-    <item name="iconTint">?attr/colorPrimary</item>
   </style>
 
   <style name="TextAppearance.App.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
