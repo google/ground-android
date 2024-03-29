@@ -17,8 +17,13 @@
 package com.google.android.ground.ui.datacollection
 
 import android.os.Bundle
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isEnabled
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -85,15 +90,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `First task is loaded and is visible`() {
-    runner().validateTextIsDisplayed(TASK_1_NAME)
+    runner().validateTextIsDisplayed(TASK_1_NAME).validateTextIsNotDisplayed(TASK_2_NAME)
   }
 
   @Test
   fun `Next button is disabled when task doesn't have any value`() {
-    runner()
-      .clickNextButton()
-      .validateTextIsDisplayed(TASK_1_NAME)
-      .validateTextIsNotDisplayed(TASK_2_NAME)
+    runner().assertButtonIsDisabled("Next")
   }
 
   @Test
@@ -246,7 +248,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
             LOCATION_OF_INTEREST_NAME,
             JOB.id,
             false,
-            null
+            null,
           )
           .build()
           .toBundle()
@@ -303,7 +305,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     }
 
     private fun clickButton(text: String) = waitUntilDone {
-      onView(allOf(withText(text), isDisplayed())).perform(click())
+      baseHiltTest.composeTestRule.onNode(hasText(text).and(isEnabled())).performClick()
+    }
+
+    internal fun assertButtonIsDisabled(text: String): Runner {
+      baseHiltTest.composeTestRule.onNodeWithText(text).assertIsDisplayed().assertIsNotEnabled()
+      return this
     }
 
     private fun waitUntilDone(testBody: suspend () -> Unit) {

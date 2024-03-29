@@ -48,13 +48,14 @@ import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.theme.AppTheme
 import kotlin.properties.Delegates
 import kotlinx.coroutines.launch
+import org.jetbrains.annotations.TestOnly
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
   protected val dataCollectionViewModel: DataCollectionViewModel by
     hiltNavGraphViewModels(R.id.data_collection)
 
-  private val buttonDataList: MutableList<ButtonData> = mutableListOf()
+  @TestOnly val buttonDataList: MutableList<ButtonData> = mutableListOf()
 
   private lateinit var taskView: TaskView
   protected lateinit var viewModel: T
@@ -265,7 +266,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  private data class ButtonData(val index: Int, val button: TaskButton)
+  data class ButtonData(val index: Int, val button: TaskButton)
 
   companion object {
     const val TASK_ID = "taskId"
