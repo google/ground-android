@@ -24,14 +24,19 @@ enum class ButtonAction(
   val theme: Theme,
   @StringRes val textId: Int? = null,
   @DrawableRes val drawableId: Int? = null,
+  @StringRes val contentDescription: Int? = null,
 ) {
 
   // All tasks
   DONE(Theme.DARK_GREEN, textId = R.string.done),
   NEXT(Theme.DARK_GREEN, textId = R.string.next),
-  PREVIOUS(Theme.TRANSPARENT, textId = R.string.previous, null),
+  PREVIOUS(Theme.TRANSPARENT, textId = R.string.previous),
   SKIP(Theme.TRANSPARENT, textId = R.string.skip),
-  UNDO(Theme.LIGHT_GREEN, drawableId = R.drawable.ic_undo_black),
+  UNDO(
+    Theme.LIGHT_GREEN,
+    drawableId = R.drawable.ic_undo_black,
+    contentDescription = R.string.undo,
+  ),
 
   // Drop a pin task
   DROP_PIN(Theme.OUTLINED, textId = R.string.drop_pin),

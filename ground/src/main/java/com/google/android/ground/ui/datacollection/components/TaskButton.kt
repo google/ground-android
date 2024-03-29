@@ -59,7 +59,10 @@ class TaskButton(val action: ButtonAction) {
   private fun Content() {
     // Icon
     action.drawableId?.let {
-      Icon(imageVector = ImageVector.vectorResource(id = it), contentDescription = "")
+      Icon(
+        imageVector = ImageVector.vectorResource(id = it),
+        contentDescription = action.contentDescription?.let { resId -> stringResource(resId) },
+      )
     }
 
     // Label
