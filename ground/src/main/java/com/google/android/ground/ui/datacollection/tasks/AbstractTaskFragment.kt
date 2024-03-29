@@ -19,12 +19,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.unit.dp
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
@@ -38,20 +44,18 @@ import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.LoiNameDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
-import com.google.android.ground.ui.datacollection.components.TaskButtonFactory
 import com.google.android.ground.ui.datacollection.components.TaskView
-import java.util.EnumMap
+import com.google.android.ground.ui.theme.AppTheme
 import kotlin.properties.Delegates
 import kotlinx.coroutines.launch
-import org.jetbrains.annotations.TestOnly
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
   protected val dataCollectionViewModel: DataCollectionViewModel by
     hiltNavGraphViewModels(R.id.data_collection)
 
-  private val buttons: EnumMap<ButtonAction, TaskButton> = EnumMap(ButtonAction::class.java)
-  private val buttonsIndex: MutableMap<Int, ButtonAction> = mutableMapOf()
+  private val buttonDataList: MutableList<ButtonData> = mutableListOf()
+
   private lateinit var taskView: TaskView
   protected lateinit var viewModel: T
 
@@ -93,6 +97,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       // Add actions buttons after the view model is bound to the view.
       addPreviousButton()
       onCreateActionButtons()
+      renderButtons()
       onActionButtonsCreated()
 
       onTaskViewAttached()
@@ -129,7 +134,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** Invoked when the data associated with the current task gets modified. */
   protected open fun onValueChanged(value: Value?) {
-    for ((_, button) in buttons) {
+    for ((_, _, button) in buttonDataList) {
       button.onValueChanged(value)
     }
   }
@@ -192,19 +197,30 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   protected fun addButton(buttonAction: ButtonAction): TaskButton {
     val action = if (buttonAction.shouldReplaceWithDoneButton()) ButtonAction.DONE else buttonAction
-    check(!buttons.contains(action)) { "Button $action already bound" }
-    val button =
-      TaskButtonFactory.createAndAttachButton(
-        action,
-        when (buttonAction.location) {
-          ButtonAction.Location.START -> taskView.actionButtonsContainer.startButtons
-          ButtonAction.Location.END -> taskView.actionButtonsContainer.endButtons
-        },
-        layoutInflater,
-      )
-    buttonsIndex[buttons.size] = action
-    buttons[action] = button
+    check(!buttonDataList.any { it.action == action }) { "Button $action already bound" }
+    val button = TaskButton()
+    buttonDataList.add(ButtonData(index = buttonDataList.size, action, button))
     return button
+  }
+
+  /** Adds the action buttons to the UI. */
+  private fun renderButtons() {
+    taskView.actionButtonsContainer.composeView.apply {
+      setContent {
+        AppTheme {
+          Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+          ) {
+            // TODO: Previous button should always be positioned to the left of the screen. Rest
+            //  buttons should be aligned to the right side of the screen.
+            buttonDataList
+              .sortedBy { it.index }
+              .forEach { (_, action, button) -> button.CreateButton(action) }
+          }
+        }
+      }
+    }
   }
 
   /** Returns true if the given [ButtonAction] should be replace with "Done" button. */
@@ -214,10 +230,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   fun getTask(): Task = viewModel.task
 
   fun getCurrentValue(): Value? = viewModel.taskValue.value
-
-  @TestOnly fun getButtons() = buttons
-
-  @TestOnly fun getButtonsIndex() = buttonsIndex
 
   private fun launchLoiNameDialog() {
     dataCollectionViewModel.loiNameDialogOpen.value = true
@@ -254,6 +266,8 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       )
     }
   }
+
+  private data class ButtonData(val index: Int, val action: ButtonAction, val button: TaskButton)
 
   companion object {
     const val TASK_ID = "taskId"
