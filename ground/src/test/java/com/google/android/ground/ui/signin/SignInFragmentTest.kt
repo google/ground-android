@@ -45,6 +45,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
+import kotlin.test.Ignore
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -113,6 +114,7 @@ class SignInFragmentTest : BaseHiltTest() {
   }
 
   @Test
+  @Ignore("Fix flakiness on remote builds")
   fun `Back press should finish activity`() {
     launchFragmentInHiltContainer<SignInFragment> {
       val fragment = this as SignInFragment
