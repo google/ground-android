@@ -29,9 +29,6 @@ import com.google.android.ground.system.ActivityStreams
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
-import com.google.android.ground.ui.common.FinishApp
-import com.google.android.ground.ui.common.NavigateTo
-import com.google.android.ground.ui.common.NavigateUp
 import com.google.android.ground.ui.common.NavigationRequest
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.ProgressDialogs.modalSpinner
@@ -93,9 +90,10 @@ class MainActivity : AbstractActivity() {
 
   private fun onNavigate(navRequest: NavigationRequest) {
     when (navRequest) {
-      is NavigateTo -> navHostFragment.navController.navigate(navRequest.directions)
-      is NavigateUp -> navigateUp()
-      is FinishApp -> finish()
+      is NavigationRequest.NavigateTo ->
+        navHostFragment.navController.navigate(navRequest.directions)
+      is NavigationRequest.NavigateUp -> navigateUp()
+      is NavigationRequest.FinishApp -> finish()
     }
   }
 

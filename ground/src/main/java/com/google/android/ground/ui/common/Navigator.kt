@@ -50,15 +50,15 @@ constructor(
 
   /** Navigates up one level on the back stack. */
   fun navigateUp() {
-    requestNavigation(NavigateUp)
+    requestNavigation(NavigationRequest.NavigateUp)
   }
 
   fun navigate(directions: NavDirections) {
-    requestNavigation(NavigateTo(directions))
+    requestNavigation(NavigationRequest.NavigateTo(directions))
   }
 
   fun finishApp() {
-    requestNavigation(FinishApp)
+    requestNavigation(NavigationRequest.FinishApp)
   }
 
   private fun requestNavigation(request: NavigationRequest) {
