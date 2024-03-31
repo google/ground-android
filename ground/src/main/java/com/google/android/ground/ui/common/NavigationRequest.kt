@@ -19,7 +19,8 @@ import androidx.navigation.NavDirections
 
 sealed interface NavigationRequest {
   data object NavigateUp : NavigationRequest
+
   data object FinishApp : NavigationRequest
+
   data class NavigateTo(val directions: NavDirections) : NavigationRequest
 }
-
