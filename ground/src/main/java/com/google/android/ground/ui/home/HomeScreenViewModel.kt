@@ -98,8 +98,4 @@ internal constructor(
   fun showSyncStatus() {
     navigator.navigate(HomeScreenFragmentDirections.showSyncStatus())
   }
-
-  fun showSignOutConfirmation() {
-    navigator.navigate(HomeScreenFragmentDirections.showSignOutConfirmationDialogFragment())
-  }
 }

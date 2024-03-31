@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.editsubmission
+package com.google.android.ground.ui.datacollection.tasks.time
 
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.submission.DateResponse.Companion.fromDate
-import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
+import com.google.android.ground.model.submission.TimeResponse.Companion.fromDate
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.*
@@ -29,14 +28,14 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class DateTaskViewModelTest : BaseHiltTest() {
-  @Inject lateinit var dateTaskViewModel: DateTaskViewModel
+class TimeTaskViewModelTest : BaseHiltTest() {
+  @Inject lateinit var timeFieldViewModel: TimeTaskViewModel
 
   @Test
   fun testUpdateResponse() = runWithTestDispatcher {
-    dateTaskViewModel.updateResponse(TEST_DATE)
+    timeFieldViewModel.updateResponse(TEST_DATE)
 
-    dateTaskViewModel.taskValue.test {
+    timeFieldViewModel.taskValue.test {
       assertThat(expectMostRecentItem()).isEqualTo(fromDate(TEST_DATE))
     }
   }

@@ -113,13 +113,13 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
   protected inline fun <reified T : Fragment> setupTaskFragment(job: Job, task: Task) {
     viewModel = viewModelFactory.create(DataCollectionViewModel.getViewModelClass(task.type)) as VM
     viewModel.initialize(job, task, null)
-    whenever(dataCollectionViewModel.getTaskViewModel(task.index)).thenReturn(viewModel)
+    whenever(dataCollectionViewModel.getTaskViewModel(task.id)).thenReturn(viewModel)
 
     launchFragmentWithNavController<T>(
       destId = R.id.data_collection_fragment,
       preTransactionAction = {
         fragment = this as F
-        fragment.position = task.index
+        fragment.taskId = task.id
       }
     )
   }

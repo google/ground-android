@@ -126,14 +126,14 @@ internal constructor(
 
   val loiNameDialogOpen: MutableState<Boolean> = mutableStateOf(false)
 
-  private val taskViewModels: MutableStateFlow<MutableList<AbstractTaskViewModel>> =
-    MutableStateFlow(mutableListOf())
+  private val taskViewModels: MutableStateFlow<MutableMap<String, AbstractTaskViewModel>> =
+    MutableStateFlow(mutableMapOf())
 
   private val data: MutableMap<Task, Value?> = LinkedHashMap()
 
   // Tracks the current task ID to compute the position in the list of tasks for the current job.
   var currentTaskId: StateFlow<String> =
-    savedStateHandle.getStateFlow(TASK_POSITION_ID, tasks.first().id)
+    savedStateHandle.getStateFlow(TASK_POSITION_ID, tasks.firstOrNull()?.id ?: "")
 
   lateinit var submissionId: String
 
@@ -166,28 +166,26 @@ internal constructor(
     return null
   }
 
-  fun getTaskViewModel(position: Int): AbstractTaskViewModel? {
+  fun getTaskViewModel(taskId: String): AbstractTaskViewModel? {
     val viewModels = taskViewModels.value
 
-    val task = tasks[position]
-    if (position < viewModels.size) {
-      return viewModels[position]
+    val task = tasks.first { it.id == taskId }
+
+    if (viewModels.containsKey(taskId)) {
+      return viewModels[taskId]
     }
+
     return try {
       val viewModel = viewModelFactory.create(getViewModelClass(task.type))
+      taskViewModels.value[task.id] = viewModel
+
       val value: Value? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
       viewModel.initialize(job, task, value)
-      addTaskViewModel(viewModel)
       viewModel
     } catch (e: Exception) {
       Timber.e("ignoring task with invalid type: $task.type")
       null
     }
-  }
-
-  private fun addTaskViewModel(taskViewModel: AbstractTaskViewModel) {
-    taskViewModels.value.add(taskViewModel)
-    taskViewModels.value = taskViewModels.value
   }
 
   /** Moves back to the previous task in the sequence if the current value is valid or empty. */
@@ -323,13 +321,12 @@ internal constructor(
     saveDraft()
   }
 
-  /** Returns true if the given task index is last if set, or the current active task. */
-  fun isLastPosition(taskIndex: Int? = null): Boolean =
-    if (taskIndex == null) {
-      currentTaskId.value
-    } else {
-      tasks[taskIndex].id
-    } == getTaskSequence().last().id
+  /** Returns true if the given [taskId] is first in the sequence of displayed tasks. */
+  fun isFirstPosition(taskId: String): Boolean = taskId == getTaskSequence().first().id
+
+  /** Returns true if the given [taskId] is last if set, or the current active task. */
+  fun isLastPosition(taskId: String? = null): Boolean =
+    (taskId ?: currentTaskId.value) == getTaskSequence().last().id
 
   /** Evaluates the task condition against the current inputs. */
   private fun evaluateCondition(condition: Condition): Boolean =

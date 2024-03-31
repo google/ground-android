@@ -50,6 +50,11 @@ class CaptureLocationTaskFragment : AbstractTaskFragment<CaptureLocationTaskView
     return rowLayout
   }
 
+  override fun onTaskResume() {
+    // Ensure that the location lock is enabled, if it hasn't been.
+    viewModel.enableLocationLock()
+  }
+
   override fun onCreateActionButtons() {
     addSkipButton()
     addUndoButton()

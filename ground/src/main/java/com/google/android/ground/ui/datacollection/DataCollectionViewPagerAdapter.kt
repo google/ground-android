@@ -35,10 +35,8 @@ import dagger.assisted.AssistedInject
  */
 class DataCollectionViewPagerAdapter
 @AssistedInject
-constructor(
-  @Assisted fragment: Fragment,
-  @Assisted val tasks: List<Task>,
-) : FragmentStateAdapter(fragment) {
+constructor(@Assisted fragment: Fragment, @Assisted val tasks: List<Task>) :
+  FragmentStateAdapter(fragment) {
   override fun getItemCount(): Int = tasks.size
 
   override fun createFragment(position: Int): Fragment {
@@ -59,6 +57,6 @@ constructor(
           throw UnsupportedOperationException("Unsupported task type: ${task.type}")
       }
 
-    return taskFragment.also { it.position = position }
+    return taskFragment.also { it.taskId = task.id }
   }
 }
