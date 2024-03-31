@@ -61,6 +61,8 @@ constructor(
 
   suspend fun getUser(userId: String): User = localUserStore.getUser(userId)
 
+  suspend fun getUserId(): String = localUserStore.getUserId()
+
   /** Clears all user-specific preferences and settings. */
   fun clearUserPreferences() = localValueStore.clear()
 

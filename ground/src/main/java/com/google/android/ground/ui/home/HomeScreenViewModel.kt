@@ -18,10 +18,12 @@ package com.google.android.ground.ui.home
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
@@ -40,10 +42,16 @@ internal constructor(
   private val navigator: Navigator,
   private val submissionRepository: SubmissionRepository,
   private val surveyRepository: SurveyRepository,
+  private var userRepository: UserRepository
 ) : AbstractViewModel() {
 
   private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
   val openDrawerRequestsFlow: SharedFlow<Unit> = _openDrawerRequests.asSharedFlow()
+
+  private val _userData = MutableLiveData<User>()
+  private val _userId = MutableLiveData<String>()
+  val userData: LiveData<User> = _userData
+  val userId: LiveData<String> = _userId
 
   // TODO(#1730): Allow tile source configuration from a non-survey accessible source.
   val showOfflineAreaMenuItem: LiveData<Boolean> = MutableLiveData(true)
@@ -97,5 +105,13 @@ internal constructor(
 
   fun showSyncStatus() {
     navigator.navigate(HomeScreenFragmentDirections.showSyncStatus())
+  }
+
+  fun getUserData(): User? {
+    viewModelScope.launch {
+      _userId.value = userRepository.getUserId()
+      _userData.value = userId.value?.let { userRepository.getUser(it) }
+    }
+    return userData.value
   }
 }

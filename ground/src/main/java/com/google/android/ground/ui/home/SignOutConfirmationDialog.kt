@@ -17,6 +17,7 @@ package com.google.android.ground.ui.home
 
 import android.content.Context
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -29,6 +30,7 @@ import com.google.android.material.color.MaterialColors
 fun SignOutConfirmationDialog(
   context: Context,
   openDialog: MutableState<Boolean>,
+  homeScreenViewModel: HomeScreenViewModel,
   signOutCallback: () -> Unit,
 ) {
 
@@ -65,4 +67,48 @@ fun SignOutConfirmationDialog(
         },
       )
   }
+
+//  ReusableAlertDialog(
+//    dismissDialog = { /*TODO*/},
+//    signOutCallback = { signOutCallback},
+//    title = { homeScreenViewModel.getUserData()?.displayName },
+//    text = { homeScreenViewModel.getUserData()?.email },
+//    context = context,
+//  )
+}
+
+@Composable
+private fun ReusableAlertDialog(
+  dismissDialog: () -> Unit,
+  signOutCallback: () -> Unit,
+  title: @Composable () -> Unit,
+  text: @Composable () -> Unit,
+  context: Context,
+) {
+  AlertDialog(
+    onDismissRequest = { dismissDialog },
+    title = { title },
+    text = { text },
+    confirmButton = {
+      TextButton(
+        onClick = {
+          signOutCallback()
+          dismissDialog()
+        }
+      ) {
+        Text(
+          text = context.getString(R.string.sign_out),
+          color = Color(MaterialColors.getColor(context, R.attr.colorError, "")),
+        )
+      }
+    },
+    dismissButton = {
+      OutlinedButton(onClick = { dismissDialog() }) {
+        Text(
+          text = context.getString(R.string.cancel),
+          color = Color(MaterialColors.getColor(context, R.attr.colorOnSurface, "")),
+        )
+      }
+    },
+  )
 }

@@ -166,7 +166,9 @@ class HomeScreenFragment :
         // Reset the state for recomposition
         openDialog.value = true
 
-        SignOutConfirmationDialog(requireContext(), openDialog) { userRepository.signOut() }
+        SignOutConfirmationDialog(requireContext(), openDialog, homeScreenViewModel) {
+          userRepository.signOut()
+        }
       }
     }
   }
