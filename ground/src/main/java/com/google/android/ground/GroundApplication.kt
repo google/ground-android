@@ -21,9 +21,7 @@ import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.multidex.MultiDexApplication
 import androidx.work.Configuration
-import com.google.android.ground.repository.SurveyRepository
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.crashlytics.setCustomKeys
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 import timber.log.Timber
@@ -31,7 +29,6 @@ import timber.log.Timber
 @HiltAndroidApp
 class GroundApplication : MultiDexApplication(), Configuration.Provider {
 
-  @Inject lateinit var crashReportingTree: CrashReportingTree
   @Inject lateinit var workerFactory: HiltWorkerFactory
 
   override val workManagerConfiguration: Configuration
@@ -41,7 +38,7 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
 
   override fun onCreate() {
     super.onCreate()
-    Timber.plant(if (isReleaseBuild()) crashReportingTree else Timber.DebugTree())
+    Timber.plant(if (isReleaseBuild()) CrashReportingTree() else Timber.DebugTree())
     if (!isReleaseBuild()) {
       Timber.d("DEBUG build config active; enabling debug tooling")
 
@@ -59,17 +56,13 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
   }
 
   /** Reports any error with priority more than "info" to Crashlytics. */
-  class CrashReportingTree @Inject constructor(private val surveyRepository: SurveyRepository) :
-    Timber.Tree() {
-
-    private fun getSelectedSurveyId(): String = surveyRepository.selectedSurveyId ?: ""
+  class CrashReportingTree : Timber.Tree() {
 
     override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
       if (priority > Log.INFO) {
         with(FirebaseCrashlytics.getInstance()) {
           log(message)
           if (t != null && priority == Log.ERROR) {
-            setCustomKeys { key("selectedSurveyId", getSelectedSurveyId()) }
             recordException(t)
           }
         }
