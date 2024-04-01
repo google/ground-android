@@ -32,7 +32,8 @@ class FirebaseCrashLogging @Inject constructor() {
   }
 
   private fun setCustomKeys(init: KeyValueBuilder.() -> Unit) {
-    val builder = KeyValueBuilder(FirebaseCrashlytics.getInstance())
-    builder.init()
+    if (BuildConfig.BUILD_TYPE.contentEquals("release")) {
+      KeyValueBuilder(FirebaseCrashlytics.getInstance()).init()
+    }
   }
 }
