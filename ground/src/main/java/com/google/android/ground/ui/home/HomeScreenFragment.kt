@@ -73,7 +73,6 @@ class HomeScreenFragment :
       ->
       onApplyWindowInsets(insets)
     }
-    OssLicensesMenuActivity.setActivityTitle(getString(R.string.view_licenses_title))
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     lifecycleScope.launch { homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() } }
   }
@@ -175,6 +174,7 @@ class HomeScreenFragment :
   }
 
   private fun showLicenses() {
+    OssLicensesMenuActivity.setActivityTitle(getString(R.string.view_licenses_title))
     startActivity(Intent(activity, OssLicensesMenuActivity::class.java))
   }
 }
