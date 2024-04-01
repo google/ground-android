@@ -35,7 +35,7 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
-class LoiLocalDataStoreConverterTest {
+class LoiConverterTest {
   @Mock private lateinit var loiDocumentSnapshot: DocumentSnapshot
 
   private lateinit var survey: Survey

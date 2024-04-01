@@ -15,10 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.point
 
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.*
-import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
@@ -33,7 +29,6 @@ import com.google.android.ground.ui.map.CameraPosition
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import org.hamcrest.core.IsNot.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,7 +49,7 @@ class DropPinTaskFragmentTest : BaseTaskFragmentTest<DropPinTaskFragment, DropPi
       index = 0,
       type = Task.Type.DROP_PIN,
       label = "Task for dropping a pin",
-      isRequired = false
+      isRequired = false,
     )
   private val job = Job("job", Style("#112233"))
 
@@ -78,12 +73,14 @@ class DropPinTaskFragmentTest : BaseTaskFragmentTest<DropPinTaskFragment, DropPi
     setupTaskFragment<DropPinTaskFragment>(job, task)
 
     viewModel.updateCameraPosition(testPosition)
-    onView(withText("Drop pin")).perform(click())
+
+    runner()
+      .clickButton("Drop pin")
+      .assertButtonIsEnabled("Next")
+      .assertButtonIsEnabled("Undo", true)
+      .assertButtonIsHidden("Drop pin")
 
     hasValue(DropPinTaskResult(Point(Coordinates(10.0, 20.0))))
-    buttonIsEnabled("Next")
-    buttonIsEnabled(ButtonAction.UNDO)
-    buttonIsHidden("Drop pin")
   }
 
   @Test
@@ -99,12 +96,14 @@ class DropPinTaskFragmentTest : BaseTaskFragmentTest<DropPinTaskFragment, DropPi
     setupTaskFragment<DropPinTaskFragment>(job, task)
 
     viewModel.updateCameraPosition(testPosition)
-    onView(withText("Drop pin")).perform(click())
-    getButton(ButtonAction.UNDO).performClick()
+
+    runner()
+      .clickButton("Drop pin")
+      .clickButton("Undo", true)
+      .assertButtonIsHidden("Next")
+      .assertButtonIsEnabled("Drop pin")
 
     hasValue(null)
-    buttonIsHidden("Next")
-    buttonIsEnabled("Drop pin")
   }
 
   @Test
@@ -116,7 +115,7 @@ class DropPinTaskFragmentTest : BaseTaskFragmentTest<DropPinTaskFragment, DropPi
       ButtonAction.SKIP,
       ButtonAction.UNDO,
       ButtonAction.DROP_PIN,
-      ButtonAction.NEXT
+      ButtonAction.NEXT,
     )
   }
 
@@ -124,19 +123,21 @@ class DropPinTaskFragmentTest : BaseTaskFragmentTest<DropPinTaskFragment, DropPi
   fun `shows skip when task is optional`() {
     setupTaskFragment<DropPinTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsHidden("Next")
-    buttonIsEnabled("Skip")
-    buttonIsHidden(ButtonAction.UNDO)
-    buttonIsEnabled("Drop pin")
+    runner()
+      .assertButtonIsHidden("Next")
+      .assertButtonIsEnabled("Skip")
+      .assertButtonIsHidden("Undo", true)
+      .assertButtonIsEnabled("Drop pin")
   }
 
   @Test
   fun `hides skip when task is required`() {
     setupTaskFragment<DropPinTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsHidden("Next")
-    buttonIsHidden("Skip")
-    buttonIsHidden(ButtonAction.UNDO)
-    buttonIsEnabled("Drop pin")
+    runner()
+      .assertButtonIsHidden("Next")
+      .assertButtonIsHidden("Skip")
+      .assertButtonIsHidden("Undo", true)
+      .assertButtonIsEnabled("Drop pin")
   }
 }

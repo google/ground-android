@@ -50,7 +50,7 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
-class SubmissionLocalDataStoreConverterTest {
+class SubmissionConverterTest {
   @Mock private lateinit var submissionDocumentSnapshot: DocumentSnapshot
 
   private lateinit var job: Job
