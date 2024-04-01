@@ -161,12 +161,19 @@ class HomeScreenFragment :
     // compose.
     binding.composeView.apply {
       setContent {
-        val openDialog = remember { mutableStateOf(true) }
+        val openUnsyncedDialog = remember { mutableStateOf(true) }
+        val openSignOutDialog = remember { mutableStateOf(false) }
 
         // Reset the state for recomposition
-        openDialog.value = true
+        openUnsyncedDialog.value = true
+        openSignOutDialog.value = false
 
-        SignOutConfirmationDialog(requireContext(), openDialog, homeScreenViewModel) {
+        SignOutConfirmationDialog(
+          requireContext(),
+          openUnsyncedDialog,
+          openSignOutDialog,
+          homeScreenViewModel,
+        ) {
           userRepository.signOut()
         }
       }

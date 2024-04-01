@@ -42,16 +42,14 @@ internal constructor(
   private val navigator: Navigator,
   private val submissionRepository: SubmissionRepository,
   private val surveyRepository: SurveyRepository,
-  private var userRepository: UserRepository
+  private var userRepository: UserRepository,
 ) : AbstractViewModel() {
 
   private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
   val openDrawerRequestsFlow: SharedFlow<Unit> = _openDrawerRequests.asSharedFlow()
 
-  private val _userData = MutableLiveData<User>()
-  private val _userId = MutableLiveData<String>()
-  val userData: LiveData<User> = _userData
-  val userId: LiveData<String> = _userId
+  private val _userDetails = MutableLiveData<User>()
+  val userDetails: LiveData<User> = _userDetails
 
   // TODO(#1730): Allow tile source configuration from a non-survey accessible source.
   val showOfflineAreaMenuItem: LiveData<Boolean> = MutableLiveData(true)
@@ -108,10 +106,8 @@ internal constructor(
   }
 
   fun getUserData(): User? {
-    viewModelScope.launch {
-      _userId.value = userRepository.getUserId()
-      _userData.value = userId.value?.let { userRepository.getUser(it) }
-    }
-    return userData.value
+    viewModelScope.launch { _userDetails.value = userRepository.getUserDetails() }
+    Timber.tag("getUserData()").w(":%s", userDetails.value?.email.toString())
+    return userDetails.value
   }
 }
