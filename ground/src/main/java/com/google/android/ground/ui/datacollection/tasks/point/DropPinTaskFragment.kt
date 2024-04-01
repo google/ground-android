@@ -32,6 +32,7 @@ import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -79,8 +80,10 @@ class DropPinTaskFragment : AbstractTaskFragment<DropPinTaskViewModel>() {
           val openAlertDialog = remember { mutableStateOf(true) }
           when {
             openAlertDialog.value -> {
-              InstructionsDialog(R.drawable.swipe_24, R.string.drop_a_pin_tooltip_text) {
-                openAlertDialog.value = false
+              AppTheme {
+                InstructionsDialog(R.drawable.swipe_24, R.string.drop_a_pin_tooltip_text) {
+                  openAlertDialog.value = false
+                }
               }
             }
           }
