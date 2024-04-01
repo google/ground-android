@@ -40,6 +40,7 @@ import com.google.android.ground.ui.datacollection.components.LoiNameDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
 import com.google.android.ground.ui.datacollection.components.TaskButtonFactory
 import com.google.android.ground.ui.datacollection.components.TaskView
+import com.google.android.ground.ui.theme.AppTheme
 import java.util.EnumMap
 import kotlin.properties.Delegates
 import kotlinx.coroutines.launch
@@ -225,9 +226,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       (view as ViewGroup).addView(
         ComposeView(requireContext()).apply {
           setContent {
-            // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
-            ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
-              handleLoiNameSet(loiName = it)
+            AppTheme {
+              // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
+              ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
+                handleLoiNameSet(loiName = it)
+              }
             }
           }
         }
