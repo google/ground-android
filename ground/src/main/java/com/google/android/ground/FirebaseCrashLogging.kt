@@ -12,6 +12,10 @@ class FirebaseCrashLogging @Inject constructor() {
     setCustomKeys { key("selectedSurveyId", surveyId ?: "") }
   }
 
+  fun setScreenName(name: String) {
+    setCustomKeys { key("screenName", name) }
+  }
+
   private fun setCustomKeys(init: KeyValueBuilder.() -> Unit) {
     val builder = KeyValueBuilder(FirebaseCrashlytics.getInstance())
     builder.init()

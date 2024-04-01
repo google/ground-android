@@ -15,13 +15,19 @@
  */
 package com.google.android.ground.util
 
+import com.google.android.ground.FirebaseCrashLogging
 import timber.log.Timber
 
 object Debug {
   fun logLifecycleEvent(instance: Any) {
     val stackTrace = Thread.currentThread().stackTrace
     val callingMethod = stackTrace[3].methodName + "()"
-    Timber.tag(instance.javaClass.simpleName).v("Lifecycle event: $callingMethod")
+    val className = instance.javaClass.simpleName
+    Timber.tag(className).v("Lifecycle event: $callingMethod")
+
+    if (callingMethod == "onResume()") {
+      FirebaseCrashLogging().setScreenName(className)
+    }
   }
 
   fun <T> logOnFailure(fn: () -> T): T? =
