@@ -151,4 +151,5 @@
   <string name="current_survey">Current survey</string>
   <string name="switch_survey">Switch survey</string>
   <string name="no_survey_selected">No survey selected</string>
+  <string name="undo">Undo</string>
 </resources>

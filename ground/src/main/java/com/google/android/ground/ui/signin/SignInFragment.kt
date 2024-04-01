@@ -27,6 +27,7 @@ import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -55,7 +56,7 @@ class SignInFragment : AbstractFragment(), BackPressListener {
     super.onViewCreated(view, savedInstanceState)
 
     lifecycleScope.launch(Dispatchers.Main) {
-      viewModel.getNetworkFlow().collect { connected ->
+      viewModel.getNetworkFlow().filterNotNull().collect { connected ->
         if (!connected) {
           displayNetworkError()
         }

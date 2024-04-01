@@ -20,7 +20,12 @@ import android.widget.RadioButton
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.hasChildCount
+import androidx.test.espresso.matcher.ViewMatchers.isChecked
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.isNotChecked
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.CustomViewActions
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
@@ -111,7 +116,7 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 2")).perform(click())
 
     hasValue(MultipleChoiceResponse(multipleChoice, listOf("option id 2")))
-    buttonIsEnabled("Next")
+    runner().assertButtonIsEnabled("Next")
   }
 
   @Test
@@ -137,7 +142,7 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 2")).perform(click())
 
     hasValue(MultipleChoiceResponse(multipleChoice, listOf("option id 1", "option id 2")))
-    buttonIsEnabled("Next")
+    runner().assertButtonIsEnabled("Next")
   }
 
   @Test
@@ -151,7 +156,7 @@ class MultipleChoiceTaskFragmentTest :
       .perform(CustomViewActions.forceTypeText(userInput))
 
     hasValue(MultipleChoiceResponse(multipleChoice, listOf("[ $userInput ]")))
-    buttonIsEnabled("Next")
+    runner().assertButtonIsEnabled("Next")
   }
 
   @Test
@@ -186,7 +191,7 @@ class MultipleChoiceTaskFragmentTest :
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE, true)
     setupTaskFragment<MultipleChoiceTaskFragment>(
       job,
-      task.copy(multipleChoice = multipleChoice, isRequired = true)
+      task.copy(multipleChoice = multipleChoice, isRequired = true),
     )
 
     onView(withText("Other")).check(matches(isNotChecked()))
@@ -223,7 +228,7 @@ class MultipleChoiceTaskFragmentTest :
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE, true)
     setupTaskFragment<MultipleChoiceTaskFragment>(
       job,
-      task.copy(multipleChoice = multipleChoice, isRequired = true)
+      task.copy(multipleChoice = multipleChoice, isRequired = true),
     )
 
     val userInput = "A"
@@ -260,9 +265,10 @@ class MultipleChoiceTaskFragmentTest :
     whenever(dataCollectionViewModel.isFirstPosition(task.id)).thenReturn(true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsHidden("Previous")
-    buttonIsDisabled("Next")
-    buttonIsEnabled("Skip")
+    runner()
+      .assertButtonIsHidden("Previous")
+      .assertButtonIsDisabled("Next")
+      .assertButtonIsEnabled("Skip")
   }
 
   @Test
@@ -272,7 +278,7 @@ class MultipleChoiceTaskFragmentTest :
 
     onView(withText("Option 1")).perform(click())
 
-    buttonIsHidden("Skip")
+    runner().assertButtonIsHidden("Skip")
   }
 
   @Test
@@ -280,7 +286,8 @@ class MultipleChoiceTaskFragmentTest :
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
-    onView(withText("Skip")).perform(click())
+    runner().clickButton("Skip")
+
     assertThat(ShadowAlertDialog.getShownDialogs().isEmpty()).isTrue()
   }
 
@@ -289,9 +296,10 @@ class MultipleChoiceTaskFragmentTest :
     whenever(dataCollectionViewModel.isFirstPosition(task.id)).thenReturn(true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsHidden("Previous")
-    buttonIsDisabled("Next")
-    buttonIsHidden("Skip")
+    runner()
+      .assertButtonIsHidden("Previous")
+      .assertButtonIsDisabled("Next")
+      .assertButtonIsHidden("Skip")
   }
 
   @Test
@@ -299,8 +307,9 @@ class MultipleChoiceTaskFragmentTest :
     whenever(dataCollectionViewModel.isFirstPosition(task.id)).thenReturn(false)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
-    buttonIsEnabled("Previous")
-    buttonIsDisabled("Next")
-    buttonIsEnabled("Skip")
+    runner()
+      .assertButtonIsEnabled("Previous")
+      .assertButtonIsDisabled("Next")
+      .assertButtonIsEnabled("Skip")
   }
 }
