@@ -167,9 +167,7 @@ class HomeScreenFragment :
         // Reset the state for recomposition
         openDialog.value = true
 
-        AppTheme {
-          SignOutConfirmationDialog(openDialog) { userRepository.signOut() }
-        }
+        AppTheme { SignOutConfirmationDialog(openDialog) { userRepository.signOut() } }
       }
     }
   }
