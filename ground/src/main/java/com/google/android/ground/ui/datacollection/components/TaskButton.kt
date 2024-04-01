@@ -15,17 +15,58 @@
  */
 package com.google.android.ground.ui.datacollection.components
 
-import android.view.View
+import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import com.google.android.ground.model.submission.Value
-import org.jetbrains.annotations.TestOnly
 
-/** Wrapper class for holding a button. */
-class TaskButton(private val view: View) {
+class TaskButton(val action: ButtonAction) {
+
+  private lateinit var clickCallback: () -> Unit
+
+  private var enabled: MutableState<Boolean> = mutableStateOf(true)
+  private var hidden: MutableState<Boolean> = mutableStateOf(false)
 
   private var taskUpdatedCallback: ((button: TaskButton, value: Value?) -> Unit)? = null
 
-  init {
-    view.id = View.generateViewId()
+  @Composable
+  fun CreateButton() {
+    if (!hidden.value) {
+      when (action.theme) {
+        ButtonAction.Theme.DARK_GREEN ->
+          Button(onClick = { clickCallback() }, enabled = enabled.value) { Content() }
+        ButtonAction.Theme.LIGHT_GREEN ->
+          FilledTonalButton(onClick = { clickCallback() }, enabled = enabled.value) { Content() }
+        ButtonAction.Theme.OUTLINED ->
+          OutlinedButton(onClick = { clickCallback() }, enabled = enabled.value) { Content() }
+        ButtonAction.Theme.TRANSPARENT ->
+          OutlinedButton(border = null, onClick = { clickCallback() }, enabled = enabled.value) {
+            Content()
+          }
+      }
+    }
+  }
+
+  @Composable
+  private fun Content() {
+    // Icon
+    action.drawableId?.let {
+      Icon(
+        imageVector = ImageVector.vectorResource(id = it),
+        contentDescription = action.contentDescription?.let { resId -> stringResource(resId) },
+      )
+    }
+
+    // Label
+    action.textId?.let { textId -> Text(text = stringResource(id = textId)) }
   }
 
   /** Updates the `visibility` property button. */
@@ -35,30 +76,28 @@ class TaskButton(private val view: View) {
   fun enableIfTrue(result: Boolean): TaskButton = if (result) enable() else disable()
 
   fun show(): TaskButton {
-    view.visibility = View.VISIBLE
+    hidden.value = false
     return this
   }
 
   fun hide(): TaskButton {
-    view.visibility = View.GONE
+    hidden.value = true
     return this
   }
 
   fun enable(): TaskButton {
-    view.isEnabled = true
+    enabled.value = true
     return this
   }
 
   fun disable(): TaskButton {
-    view.isEnabled = false
+    enabled.value = false
     return this
   }
 
-  @TestOnly fun getView(): View = view
-
   /** Register a callback to be invoked when this view is clicked. */
   fun setOnClickListener(block: () -> Unit): TaskButton {
-    view.setOnClickListener { block() }
+    this.clickCallback = block
     return this
   }
 

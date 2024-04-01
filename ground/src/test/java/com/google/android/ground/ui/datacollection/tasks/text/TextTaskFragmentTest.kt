@@ -16,16 +16,13 @@
 
 package com.google.android.ground.ui.datacollection.tasks.text
 
-import android.text.InputType
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withInputType
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.google.android.ground.*
+import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.TextResponse
 import com.google.android.ground.model.task.Task
@@ -36,13 +33,11 @@ import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskViewModel>() {
@@ -71,19 +66,17 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
       .check(matches(isEnabled()))
 
     hasValue(null)
-    buttonIsDisabled("Next")
+
+    runner().assertButtonIsDisabled("Next")
   }
 
   @Test
   fun testResponse_onUserInput_nextButtonIsEnabled() = runWithTestDispatcher {
     setupTaskFragment<TextTaskFragment>(job, task)
 
-    onView(withId(R.id.user_response_text))
-      .check(matches(withInputType(InputType.TYPE_CLASS_TEXT)))
-      .perform(typeText("Hello world"))
+    runner().inputText("Hello world").clickNextButton()
 
     hasValue(TextResponse("Hello world"))
-    buttonIsEnabled("Next")
   }
 
   @Test
@@ -97,15 +90,13 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<TextTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsDisabled("Next")
-    buttonIsEnabled("Skip")
+    runner().assertButtonIsDisabled("Next").assertButtonIsEnabled("Skip")
   }
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<TextTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsDisabled("Next")
-    buttonIsHidden("Skip")
+    runner().assertButtonIsDisabled("Next").assertButtonIsHidden("Skip")
   }
 }

@@ -68,8 +68,9 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
       .check(matches(isDisplayed()))
       .check(matches(isEnabled()))
 
+    runner().assertButtonIsDisabled("Next")
+
     assertThat(viewModel.responseText.value).isEqualTo("")
-    buttonIsDisabled("Next")
   }
 
   @Test
@@ -92,15 +93,13 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<DateTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsDisabled("Next")
-    buttonIsEnabled("Skip")
+    runner().assertButtonIsDisabled("Next").assertButtonIsEnabled("Skip")
   }
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<DateTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsDisabled("Next")
-    buttonIsHidden("Skip")
+    runner().assertButtonIsDisabled("Next").assertButtonIsHidden("Skip")
   }
 }
