@@ -215,8 +215,6 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging'
     implementation 'com.google.firebase:firebase-messaging-directboot'
     implementation 'com.google.firebase:firebase-messaging-ktx'
-    implementation 'com.firebaseui:firebase-ui-auth:8.0.2'
-
 
     // Hilt
     implementation "com.google.dagger:hilt-android:$project.hiltVersion"
