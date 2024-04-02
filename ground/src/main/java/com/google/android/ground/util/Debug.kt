@@ -15,6 +15,8 @@
  */
 package com.google.android.ground.util
 
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import com.google.android.ground.FirebaseCrashLogger
 import timber.log.Timber
 
@@ -25,7 +27,7 @@ object Debug {
     val className = instance.javaClass.simpleName
     Timber.tag(className).v("Lifecycle event: $callingMethod")
 
-    if (callingMethod == "onResume()") {
+    if ((instance is Fragment || instance is FragmentActivity) && callingMethod == "onResume()") {
       FirebaseCrashLogger().setScreenName(className)
     }
   }
