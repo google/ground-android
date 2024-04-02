@@ -23,8 +23,7 @@ import androidx.work.WorkerParameters
 import com.google.android.ground.Config
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.isNotNullOrEmpty
-import com.google.android.ground.model.task.Task
+import com.google.android.ground.model.submission.PhotoResponse
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.repository.MutationRepository
@@ -81,13 +80,11 @@ constructor(
    */
   private suspend fun uploadMedia(mutations: List<SubmissionMutation>): List<SubmissionMutation> =
     mutations
-      .map { mutation ->
-        mutation
-          .updateSyncStatus(Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS)
-          .incrementRetryCount()
+      .map {
+        it.updateSyncStatus(Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS).incrementRetryCount()
       }
       .also { mutationRepository.saveMutationsLocally(it) }
-      .map { mutation -> uploadMedia(mutation) }
+      .map { uploadMedia(it) }
       .also { mutationRepository.saveMutationsLocally(it) }
 
   /**
@@ -112,15 +109,10 @@ constructor(
       )
 
   private suspend fun uploadPhotos(mutation: SubmissionMutation): kotlin.Result<Unit> =
-    // TODO(##2121): Use media response types instead of discriminating on Task.Type.
-    // For example, we should pass a List<PhotoResponse> to uploadPhotoMedia(), which can take care
-    // of the bulk of the response-specific work.
     // TODO(#2120): Retry uploads on a per-photo basis, instead of per-response.
     mutation.deltas
-      .filter { (_, taskType, newValue) ->
-        taskType === Task.Type.PHOTO && newValue.isNotNullOrEmpty()
-      }
-      .map { (_, _, newValue) -> newValue.toString() }
+      .map { it.newValue }
+      .filterIsInstance<PhotoResponse>()
       .map { uploadPhotoMedia(it) }
       .fold(kotlin.Result.success(Unit)) { a, b -> if (a.isSuccess) b else a }
 
@@ -128,7 +120,8 @@ constructor(
    * Attempts to upload a single photo to remote storage. Returns an [UploadResult] indicating
    * whether the upload attempt failed or succeeded.
    */
-  private suspend fun uploadPhotoMedia(path: String): kotlin.Result<Unit> {
+  private suspend fun uploadPhotoMedia(photoResponse: PhotoResponse): kotlin.Result<Unit> {
+    val path = photoResponse.path
     val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
     if (!photoFile.exists()) {
       Timber.e("Photo not found. local path: ${photoFile.path}, remote path: $path")
