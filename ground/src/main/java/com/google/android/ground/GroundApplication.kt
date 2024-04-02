@@ -21,6 +21,7 @@ import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.multidex.MultiDexApplication
 import androidx.work.Configuration
+import com.google.android.ground.Config.isReleaseBuild
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
@@ -33,8 +34,6 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
 
   override val workManagerConfiguration: Configuration
     get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
-
-  private fun isReleaseBuild(): Boolean = BuildConfig.BUILD_TYPE.contentEquals("release")
 
   override fun onCreate() {
     super.onCreate()

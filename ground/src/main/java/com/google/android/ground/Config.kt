@@ -67,13 +67,12 @@ object Config {
 
   fun getMogSources(path: String) =
     listOf(
-      MogSource(
-        0 ..< DEFAULT_MOG_MIN_ZOOM,
-        "$path/$DEFAULT_MOG_MIN_ZOOM/overview.tif",
-      ),
+      MogSource(0 ..< DEFAULT_MOG_MIN_ZOOM, "$path/$DEFAULT_MOG_MIN_ZOOM/overview.tif"),
       MogSource(
         DEFAULT_MOG_MIN_ZOOM..DEFAULT_MOG_MAX_ZOOM,
         "$path/$DEFAULT_MOG_MIN_ZOOM/{x}/{y}.tif",
-      )
+      ),
     )
+
+  fun isReleaseBuild(): Boolean = BuildConfig.BUILD_TYPE.contentEquals("release")
 }

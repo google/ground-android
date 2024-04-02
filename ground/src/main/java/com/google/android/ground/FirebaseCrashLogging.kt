@@ -15,6 +15,7 @@
  */
 package com.google.android.ground
 
+import com.google.android.ground.Config.isReleaseBuild
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.crashlytics.KeyValueBuilder
 import javax.inject.Inject
@@ -32,7 +33,7 @@ class FirebaseCrashLogging @Inject constructor() {
   }
 
   private fun setCustomKeys(init: KeyValueBuilder.() -> Unit) {
-    if (BuildConfig.BUILD_TYPE.contentEquals("release")) {
+    if (isReleaseBuild()) {
       KeyValueBuilder(FirebaseCrashlytics.getInstance()).init()
     }
   }
