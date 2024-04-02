@@ -15,6 +15,7 @@
  */
 package com.google.android.ground
 
+import android.util.Log
 import com.google.android.ground.Config.isReleaseBuild
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.crashlytics.KeyValueBuilder
@@ -23,6 +24,14 @@ import javax.inject.Singleton
 
 @Singleton
 class FirebaseCrashLogging @Inject constructor() {
+
+  fun recordException(priority: Int, message: String, t: Throwable?) {
+    val crashlytics = FirebaseCrashlytics.getInstance()
+    crashlytics.log(message)
+    if (t != null && priority == Log.ERROR) {
+      crashlytics.recordException(t)
+    }
+  }
 
   fun setSelectedSurveyId(surveyId: String?) {
     setCustomKeys { key("selectedSurveyId", surveyId ?: "") }
