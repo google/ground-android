@@ -57,11 +57,11 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
   /** Reports any error with priority more than "info" to Crashlytics. */
   class CrashReportingTree
   @Inject
-  constructor(private val firebaseCrashLogging: FirebaseCrashLogging) : Timber.Tree() {
+  constructor(private val firebaseCrashLogger: FirebaseCrashLogger) : Timber.Tree() {
 
     override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
       if (priority > Log.INFO) {
-        firebaseCrashLogging.recordException(priority, message, t)
+        firebaseCrashLogger.recordException(priority, message, t)
       }
     }
   }

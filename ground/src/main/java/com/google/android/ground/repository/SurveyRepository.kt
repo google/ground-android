@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.ground.FirebaseCrashLogging
+import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.SurveyListItem
@@ -57,7 +57,7 @@ private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000
 class SurveyRepository
 @Inject
 constructor(
-  private val firebaseCrashLogging: FirebaseCrashLogging,
+  private val firebaseCrashLogger: FirebaseCrashLogger,
   private val localSurveyStore: LocalSurveyStore,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
@@ -69,7 +69,7 @@ constructor(
     get() = _selectedSurveyIdFlow.value
     set(value) {
       _selectedSurveyIdFlow.value = value
-      firebaseCrashLogging.setSelectedSurveyId(value)
+      firebaseCrashLogger.setSelectedSurveyId(value)
     }
 
   val activeSurveyFlow: StateFlow<Survey?> =

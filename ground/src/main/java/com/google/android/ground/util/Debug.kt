@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.util
 
-import com.google.android.ground.FirebaseCrashLogging
+import com.google.android.ground.FirebaseCrashLogger
 import timber.log.Timber
 
 object Debug {
@@ -26,7 +26,7 @@ object Debug {
     Timber.tag(className).v("Lifecycle event: $callingMethod")
 
     if (callingMethod == "onResume()") {
-      FirebaseCrashLogging().setScreenName(className)
+      FirebaseCrashLogger().setScreenName(className)
     }
   }
 

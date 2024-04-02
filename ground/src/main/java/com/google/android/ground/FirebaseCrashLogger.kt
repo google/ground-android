@@ -23,7 +23,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FirebaseCrashLogging @Inject constructor() {
+class FirebaseCrashLogger @Inject constructor() {
 
   fun recordException(priority: Int, message: String, t: Throwable?) {
     val crashlytics = FirebaseCrashlytics.getInstance()
