@@ -266,7 +266,7 @@ class MultipleChoiceTaskFragmentTest :
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = false))
 
     runner()
-      .assertButtonIsHidden("Previous")
+      .assertButtonIsDisabled("Previous")
       .assertButtonIsDisabled("Next")
       .assertButtonIsEnabled("Skip")
   }
@@ -297,7 +297,7 @@ class MultipleChoiceTaskFragmentTest :
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = true))
 
     runner()
-      .assertButtonIsHidden("Previous")
+      .assertButtonIsDisabled("Previous")
       .assertButtonIsDisabled("Next")
       .assertButtonIsHidden("Skip")
   }
