@@ -21,6 +21,7 @@ apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.google.dagger.hilt.android'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'com.google.android.gms.oss-licenses-plugin'
 
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
@@ -274,6 +275,9 @@ dependencies {
     // WorkManager
     implementation "androidx.work:work-runtime-ktx:$workVersion"
     testImplementation "androidx.work:work-testing:$workVersion"
+
+    // OSS Licenses Plugin
+    implementation 'com.google.android.gms:play-services-oss-licenses:17.0.1'
 
     // Testing
     testImplementation 'junit:junit:4.13.2'

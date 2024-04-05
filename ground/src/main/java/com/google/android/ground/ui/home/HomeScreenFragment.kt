@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.home
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -27,6 +28,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.MainViewModel
 import com.google.android.ground.R
@@ -102,7 +104,7 @@ class HomeScreenFragment :
       homeScreenViewModel.showSurveySelector()
     }
     updateNavHeader()
-
+    binding.navView.findViewById<TextView>(R.id.view_licenses).setOnClickListener { showLicenses() }
     // Re-open data collection screen if any drafts are present
     viewLifecycleOwner.lifecycleScope.launch {
       homeScreenViewModel.maybeNavigateToDraftSubmission()
@@ -170,5 +172,10 @@ class HomeScreenFragment :
         AppTheme { SignOutConfirmationDialog(openDialog) { userRepository.signOut() } }
       }
     }
+  }
+
+  private fun showLicenses() {
+    OssLicensesMenuActivity.setActivityTitle(getString(R.string.view_licenses_title))
+    startActivity(Intent(activity, OssLicensesMenuActivity::class.java))
   }
 }
