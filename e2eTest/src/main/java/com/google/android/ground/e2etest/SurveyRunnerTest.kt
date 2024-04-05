@@ -26,15 +26,16 @@ import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import com.google.android.ground.e2etest.TestConfig.GROUND_PACKAGE
+import com.google.android.ground.e2etest.TestConfig.LONG_TIMEOUT
+import com.google.android.ground.e2etest.TestConfig.SHORT_TIMEOUT
+import com.google.android.ground.e2etest.TestConfig.TEST_SURVEY_IDENTIFIER
+import com.google.android.ground.e2etest.TestConfig.TEST_SURVEY_TASKS_ADHOC
 import com.google.android.ground.model.task.Task
 import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.fail
 import org.junit.Test
 import org.junit.runner.RunWith
-
-private const val GROUND_PACKAGE = "com.google.android.ground"
-private const val LONG_TIMEOUT = 5000L
-private const val SHORT_TIMEOUT = 2000L
 
 @RunWith(AndroidJUnit4::class)
 class SurveyRunnerTest {
@@ -45,23 +46,14 @@ class SurveyRunnerTest {
   fun run() {
     launchGroundFromHomeScreen()
     signIn()
-    selectSurvey()
+    selectTestSurvey()
     zoomIntoLocation()
-    startLoiTask()
-    collectData(
-      isAdHoc = true,
-      listOf(
-        Task.Type.DROP_PIN,
-        Task.Type.TEXT,
-        Task.Type.MULTIPLE_CHOICE,
-        Task.Type.MULTIPLE_CHOICE,
-        Task.Type.NUMBER,
-        Task.Type.DATE,
-        Task.Type.TIME,
-        Task.Type.PHOTO,
-        Task.Type.CAPTURE_LOCATION,
-      ),
-    )
+    startAdHocLoiTask()
+    fillOutTaskData(isAdHoc = true, TEST_SURVEY_TASKS_ADHOC)
+    clickSubmissionConfirmationDone()
+    startPredefinedLoiTask()
+    fillOutTaskData(isAdHoc = false, TEST_SURVEY_TASKS_ADHOC.drop(1))
+    clickSubmissionConfirmationDone()
   }
 
   private fun launchGroundFromHomeScreen() {
@@ -97,11 +89,11 @@ class SurveyRunnerTest {
     }
   }
 
-  private fun selectSurvey() {
+  private fun selectTestSurvey() {
     device.wait(Until.hasObject(By.textContains("survey")), LONG_TIMEOUT)
     val testSurveySelector =
       By.clazz("androidx.cardview.widget.CardView")
-        .hasDescendant(By.clazz("android.widget.TextView").textContains("test"))
+        .hasDescendant(By.clazz("android.widget.TextView").textContains(TEST_SURVEY_IDENTIFIER))
     device.wait(Until.hasObject(testSurveySelector), LONG_TIMEOUT)
     // Need to double click on survey.
     waitClickGone(testSurveySelector)
@@ -114,33 +106,36 @@ class SurveyRunnerTest {
     clickLocationLock()
     allowPermissions()
     val dataCollectionCardSelector =
-      By.clazz("androidx.cardview.widget.CardView")
-        .hasDescendant(By.res("com.google.android.ground", "collectData"))
+      By.clazz("androidx.cardview.widget.CardView").hasDescendant(By.textContains("Collect"))
     if (device.wait(Until.hasObject(dataCollectionCardSelector), LONG_TIMEOUT) == null) {
       fail("Failed to zoom in to location.")
     }
   }
 
-  private fun startLoiTask() {
-    val dataCollectionCardSelector =
-      By.clazz("androidx.cardview.widget.CardView")
-        .hasDescendant(By.res("com.google.android.ground", "collectData"))
+  private fun startAdHocLoiTask() {
+    val dataCollectionCardSelector = By.clazz("androidx.cardview.widget.CardView")
     device.wait(Until.hasObject(dataCollectionCardSelector), LONG_TIMEOUT)
     val cards = device.findObjects(dataCollectionCardSelector)
-    cards.forEach {
-      if (it.resourceName != "com.google.android.ground:id/loi_card") {
-        it.swipe(Direction.LEFT, 1F)
-      }
-    }
+    cards.forEach { it.swipe(Direction.LEFT, 1F) }
     val loiCollectDataButtonSelector =
-      By.res("com.google.android.ground", "collectData")
-        .hasAncestor(By.res("com.google.android.ground", "loi_card"))
+      By.textContains("Collect")
+        .hasAncestor(dataCollectionCardSelector.hasDescendant(By.textContains("data collection")))
     if (!waitClickGone(loiCollectDataButtonSelector)) {
-      fail("Failed to start data collection.")
+      fail("Failed to start ad-hoc loi data collection.")
     }
   }
 
-  private fun collectData(isAdHoc: Boolean, taskList: List<Task.Type>) {
+  private fun startPredefinedLoiTask() {
+    val dataCollectionCardSelector = By.clazz("androidx.cardview.widget.CardView")
+    device.wait(Until.hasObject(dataCollectionCardSelector), LONG_TIMEOUT)
+    // Assume that the first card is the predefined LOI.
+    val loiCollectDataButtonSelector = By.textContains("Collect")
+    if (!waitClickGone(loiCollectDataButtonSelector)) {
+      fail("Failed to start predefined loi data collection.")
+    }
+  }
+
+  private fun fillOutTaskData(isAdHoc: Boolean, taskList: List<Task.Type>) {
     taskList.forEachIndexed { i, it ->
       device.waitForIdle()
       when (it) {
@@ -223,6 +218,10 @@ class SurveyRunnerTest {
 
   private fun clickDone() {
     waitClickGone(By.text("Done"))
+  }
+
+  private fun clickSubmissionConfirmationDone() {
+    waitClickGone(By.textContains("Done"), LONG_TIMEOUT)
   }
 
   private fun clickLocationLock() {
