@@ -30,8 +30,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.FileProvider
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.R
@@ -46,7 +46,7 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.material.color.MaterialColors
+import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -141,7 +141,9 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
       } catch (_: PermissionDeniedException) {
         mainScope.launch {
           (view as ViewGroup).addView(
-            ComposeView(requireContext()).apply { setContent { PermissionDeniedDialog() } }
+            ComposeView(requireContext()).apply {
+              setContent { AppTheme { PermissionDeniedDialog() } }
+            }
           )
         }
       }
@@ -159,15 +161,10 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     if (openDialog.value) {
       AlertDialog(
         onDismissRequest = { dismissDialog() },
-        title = { Text(text = getString(R.string.permission_denied)) },
-        text = { Text(text = getString(R.string.camera_permissions_needed)) },
+        title = { Text(text = stringResource(R.string.permission_denied)) },
+        text = { Text(text = stringResource(R.string.camera_permissions_needed)) },
         confirmButton = {
-          TextButton(onClick = { dismissDialog() }) {
-            Text(
-              text = getString(R.string.ok),
-              color = Color(MaterialColors.getColor(context, R.attr.colorPrimary, "")),
-            )
-          }
+          TextButton(onClick = { dismissDialog() }) { Text(text = stringResource(R.string.ok)) }
         },
       )
     }
