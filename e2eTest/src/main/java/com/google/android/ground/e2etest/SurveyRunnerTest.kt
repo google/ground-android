@@ -16,35 +16,43 @@
 
 package com.google.android.ground.e2etest
 
-import android.content.Context
-import android.content.Intent
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import com.google.android.ground.R
 import com.google.android.ground.e2etest.TestConfig.GROUND_PACKAGE
 import com.google.android.ground.e2etest.TestConfig.LONG_TIMEOUT
 import com.google.android.ground.e2etest.TestConfig.SHORT_TIMEOUT
 import com.google.android.ground.e2etest.TestConfig.TEST_SURVEY_IDENTIFIER
 import com.google.android.ground.e2etest.TestConfig.TEST_SURVEY_TASKS_ADHOC
 import com.google.android.ground.model.task.Task
-import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class SurveyRunnerTest {
+class SurveyRunnerTest : AutomatorRunner {
 
-  private lateinit var device: UiDevice
+  override lateinit var device: UiDevice
+
+  private val selectSurveyTitle = stringResource(R.string.select_survey_title)
+  private val collectData = stringResource(R.string.collect_data)
+  private val newDataCollectionSite = stringResource(R.string.new_site)
+  private val close = stringResource(R.string.close)
+  private val dropPin = stringResource(R.string.drop_pin)
+  private val capture = stringResource(R.string.capture)
+  private val camera = stringResource(R.string.camera)
+  private val ok = stringResource(R.string.ok)
+  private val next = stringResource(R.string.next)
+  private val done = stringResource(R.string.done)
+  private val save = stringResource(R.string.save)
 
   @Test
   fun run() {
-    launchGroundFromHomeScreen()
+    launchGround()
     signIn()
     selectTestSurvey()
     zoomIntoLocation()
@@ -56,41 +64,26 @@ class SurveyRunnerTest {
     clickSubmissionConfirmationDone()
   }
 
-  private fun launchGroundFromHomeScreen() {
-    // Initialize UiDevice instance
+  private fun launchGround() {
+    // Initialize UiDevice instance.
     device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-    // Start from the home screen
-    device.pressHome()
+    launchPackage(GROUND_PACKAGE)
 
-    // Wait for launcher
-    val launcherPackage: String = device.launcherPackageName
-    assertThat(launcherPackage).isNotNull()
-    device.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)), LONG_TIMEOUT)
-
-    // Launch the app
-    val context = ApplicationProvider.getApplicationContext<Context>()
-    val intent =
-      context.packageManager.getLaunchIntentForPackage(GROUND_PACKAGE)?.apply {
-        // Clear out any previous instances
-        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-      }
-    context.startActivity(intent)
-
-    // Wait for the app to appear
+    // Wait for the app to appear.
     if (!device.wait(Until.hasObject(By.pkg(GROUND_PACKAGE).depth(0)), LONG_TIMEOUT)) {
       fail("Failed to launch app.")
     }
   }
 
   private fun signIn() {
-    if (!waitClickGone(By.textContains("Sign in"), LONG_TIMEOUT)) {
+    if (!waitClickGone(By.clazz("android.widget.Button"), LONG_TIMEOUT)) {
       fail("Failed to sign in.")
     }
   }
 
   private fun selectTestSurvey() {
-    device.wait(Until.hasObject(By.textContains("survey")), LONG_TIMEOUT)
+    device.wait(Until.hasObject(By.text(selectSurveyTitle)), LONG_TIMEOUT)
     val testSurveySelector =
       By.clazz("androidx.cardview.widget.CardView")
         .hasDescendant(By.clazz("android.widget.TextView").textContains(TEST_SURVEY_IDENTIFIER))
@@ -106,7 +99,7 @@ class SurveyRunnerTest {
     clickLocationLock()
     allowPermissions()
     val dataCollectionCardSelector =
-      By.clazz("androidx.cardview.widget.CardView").hasDescendant(By.textContains("Collect"))
+      By.clazz("androidx.cardview.widget.CardView").hasDescendant(By.text(collectData))
     if (device.wait(Until.hasObject(dataCollectionCardSelector), LONG_TIMEOUT) == null) {
       fail("Failed to zoom in to location.")
     }
@@ -118,8 +111,8 @@ class SurveyRunnerTest {
     val cards = device.findObjects(dataCollectionCardSelector)
     cards.forEach { it.swipe(Direction.LEFT, 1F) }
     val loiCollectDataButtonSelector =
-      By.textContains("Collect")
-        .hasAncestor(dataCollectionCardSelector.hasDescendant(By.textContains("data collection")))
+      By.text(collectData)
+        .hasAncestor(dataCollectionCardSelector.hasDescendant(By.text(newDataCollectionSite)))
     if (!waitClickGone(loiCollectDataButtonSelector)) {
       fail("Failed to start ad-hoc loi data collection.")
     }
@@ -129,7 +122,7 @@ class SurveyRunnerTest {
     val dataCollectionCardSelector = By.clazz("androidx.cardview.widget.CardView")
     device.wait(Until.hasObject(dataCollectionCardSelector), LONG_TIMEOUT)
     // Assume that the first card is the predefined LOI.
-    val loiCollectDataButtonSelector = By.textContains("Collect")
+    val loiCollectDataButtonSelector = By.text(collectData)
     if (!waitClickGone(loiCollectDataButtonSelector)) {
       fail("Failed to start predefined loi data collection.")
     }
@@ -163,8 +156,8 @@ class SurveyRunnerTest {
 
   private fun completeDropPinTask() {
     // Instructions dialog may be triggered.
-    waitClickGone(By.text("Close"))
-    waitClickGone(By.text("Drop pin"))
+    waitClickGone(By.text(close))
+    waitClickGone(By.text(dropPin))
   }
 
   private fun completeDrawArea() {
@@ -172,7 +165,7 @@ class SurveyRunnerTest {
   }
 
   private fun completeCaptureLocation() {
-    waitClickGone(By.text("Capture"))
+    waitClickGone(By.text(capture))
   }
 
   private fun completeMultipleChoice() {
@@ -193,7 +186,7 @@ class SurveyRunnerTest {
 
   private fun completePhoto() {
     allowPermissions()
-    waitClickGone(By.text("Camera"))
+    waitClickGone(By.text(camera))
     waitClickGone(By.res("com.android.camera2:id/shutter_button"))
     waitClickGone(By.res("com.android.camera2:id/done_button"))
   }
@@ -204,54 +197,33 @@ class SurveyRunnerTest {
 
   private fun completeDate() {
     device.findObject(By.clazz("android.widget.EditText")).click()
-    waitClickGone(By.text("OK"))
+    waitClickGone(By.text(ok))
   }
 
   private fun completeTime() {
     device.findObject(By.clazz("android.widget.EditText")).click()
-    waitClickGone(By.text("OK"))
+    waitClickGone(By.text(ok))
   }
 
   private fun clickNext() {
-    waitClickGone(By.text("Next"))
+    waitClickGone(By.text(next))
   }
 
   private fun clickDone() {
-    waitClickGone(By.text("Done"))
+    waitClickGone(By.text(done))
   }
 
   private fun clickSubmissionConfirmationDone() {
-    waitClickGone(By.textContains("Done"), LONG_TIMEOUT)
+    waitClickGone(By.text(done), LONG_TIMEOUT)
   }
 
   private fun clickLocationLock() {
     waitClickGone(By.res("com.google.android.ground", "location_lock_btn"), timeout = LONG_TIMEOUT)
   }
 
-  private fun allowPermissions() {
-    waitClickGone(By.textContains("While using the app"))
-  }
-
   private fun setLoiName() {
-    device.wait(Until.hasObject(By.text("Save")), SHORT_TIMEOUT)
+    device.wait(Until.hasObject(By.text(save)), SHORT_TIMEOUT)
     enterText("An loi name")
-    waitClickGone(By.text("Save"))
-  }
-
-  private fun hasTextField() = device.hasObject(By.clazz("android.widget.EditText"))
-
-  private fun waitClickGone(
-    selector: BySelector,
-    timeout: Long = SHORT_TIMEOUT,
-  ): Boolean {
-    device.wait(Until.hasObject(selector), timeout)
-    device.findObject(selector)?.click()
-    return device.wait(Until.gone(selector), timeout)
-  }
-
-  private fun enterText(text: String) {
-    val textSelector = By.clazz("android.widget.EditText")
-    device.wait(Until.hasObject(textSelector), SHORT_TIMEOUT)
-    device.findObject(textSelector).text = text
+    waitClickGone(By.text(save))
   }
 }
