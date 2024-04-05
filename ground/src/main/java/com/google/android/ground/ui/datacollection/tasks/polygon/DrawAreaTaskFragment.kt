@@ -35,6 +35,7 @@ import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.collectLatest
@@ -107,8 +108,10 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
           val openAlertDialog = remember { mutableStateOf(true) }
           when {
             openAlertDialog.value -> {
-              InstructionsDialog(R.drawable.touch_app_24, R.string.draw_area_task_instruction) {
-                openAlertDialog.value = false
+              AppTheme {
+                InstructionsDialog(R.drawable.touch_app_24, R.string.draw_area_task_instruction) {
+                  openAlertDialog.value = false
+                }
               }
             }
           }

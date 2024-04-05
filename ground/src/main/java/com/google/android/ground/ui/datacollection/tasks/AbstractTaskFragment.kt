@@ -236,9 +236,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       (view as ViewGroup).addView(
         ComposeView(requireContext()).apply {
           setContent {
-            // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
-            ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
-              handleLoiNameSet(loiName = it)
+            AppTheme {
+              // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
+              ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
+                handleLoiNameSet(loiName = it)
+              }
             }
           }
         }

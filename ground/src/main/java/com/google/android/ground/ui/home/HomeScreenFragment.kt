@@ -41,6 +41,7 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
+import com.google.android.ground.ui.theme.AppTheme
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -168,7 +169,7 @@ class HomeScreenFragment :
         // Reset the state for recomposition
         openDialog.value = true
 
-        SignOutConfirmationDialog(requireContext(), openDialog) { userRepository.signOut() }
+        AppTheme { SignOutConfirmationDialog(openDialog) { userRepository.signOut() } }
       }
     }
   }
