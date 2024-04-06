@@ -43,6 +43,8 @@ class SurveyRunnerTest : AutomatorRunner {
   private val newDataCollectionSite = stringResource(R.string.new_site)
   private val close = stringResource(R.string.close)
   private val dropPin = stringResource(R.string.drop_pin)
+  private val addPoint = stringResource(R.string.add_point)
+  private val complete = stringResource(R.string.complete_polygon)
   private val capture = stringResource(R.string.capture)
   private val camera = stringResource(R.string.camera)
   private val ok = stringResource(R.string.ok)
@@ -161,7 +163,12 @@ class SurveyRunnerTest : AutomatorRunner {
   }
 
   private fun completeDrawArea() {
-    TODO()
+    // Instructions dialog may be triggered.
+    waitClickGone(By.text(close))
+    waitClickGone(By.text(addPoint))
+    waitClickGone(By.text(addPoint))
+    waitClickGone(By.text(addPoint))
+    waitClickGone(By.text(complete))
   }
 
   private fun completeCaptureLocation() {
