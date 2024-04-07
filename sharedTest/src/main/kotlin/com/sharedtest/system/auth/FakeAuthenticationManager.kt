@@ -57,6 +57,4 @@ constructor(@ApplicationScope private val externalScope: CoroutineScope) :
   override fun signIn() = setState(signedIn(currentUser))
 
   override fun signOut() = setState(signedOut())
-
-  override suspend fun getAuthenticatedUser(): User = currentUser
 }
