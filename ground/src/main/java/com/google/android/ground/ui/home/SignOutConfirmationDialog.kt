@@ -35,12 +35,16 @@ fun SignOutConfirmationDialog(
   signOutCallback: () -> Unit,
 ) {
   val userDetails = homeScreenViewModel.getUserData()
-  fun dismissUnsyncedDialog() {
-    openUnsyncedDialog.value = false
-    openSignOutDialog.value = true
+  fun showUnsyncedDialog() {
+    openUnsyncedDialog.value = true
+    openSignOutDialog.value = false
   }
 
-  fun dismissSignOutDialog() {
+  fun dismissUnsyncedDialog() {
+    openUnsyncedDialog.value = false
+  }
+
+  fun dismissSignoutDialog() {
     openSignOutDialog.value = false
   }
 
@@ -59,7 +63,12 @@ fun SignOutConfirmationDialog(
           }
         },
         confirmButton = {
-          TextButton(onClick = { dismissUnsyncedDialog() }) {
+          TextButton(
+            onClick = {
+              signOutCallback()
+              dismissUnsyncedDialog()
+            }
+          ) {
             Text(
               text = context.getString(R.string.sign_out),
               color = Color(MaterialColors.getColor(context, R.attr.colorError, "")),
@@ -69,11 +78,11 @@ fun SignOutConfirmationDialog(
       )
     openSignOutDialog.value ->
       AlertDialog(
-        onDismissRequest = { dismissSignOutDialog() },
+        onDismissRequest = { dismissSignoutDialog() },
         title = { userDetails?.displayName?.let { Text(it) } },
         text = { userDetails?.email?.let { Text(it) } },
         dismissButton = {
-          OutlinedButton(onClick = { dismissSignOutDialog() }) {
+          OutlinedButton(onClick = { dismissSignoutDialog() }) {
             Text(
               text = context.getString(R.string.cancel),
               color = Color(MaterialColors.getColor(context, R.attr.colorOnSurface, "")),
@@ -81,12 +90,7 @@ fun SignOutConfirmationDialog(
           }
         },
         confirmButton = {
-          TextButton(
-            onClick = {
-              signOutCallback()
-              dismissSignOutDialog()
-            }
-          ) {
+          TextButton(onClick = { showUnsyncedDialog() }) {
             Text(
               text = context.getString(R.string.sign_out),
               color = Color(MaterialColors.getColor(context, R.attr.colorError, "")),

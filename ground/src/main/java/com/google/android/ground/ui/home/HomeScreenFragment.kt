@@ -39,6 +39,7 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -99,6 +100,9 @@ class HomeScreenFragment :
     val navHeader = binding.navView.getHeaderView(0)
     navHeader.findViewById<TextView>(R.id.switch_survey_button).setOnClickListener {
       homeScreenViewModel.showSurveySelector()
+    }
+    navHeader.findViewById<ShapeableImageView>(R.id.user_image).setOnClickListener {
+      showSignOutConfirmationDialog()
     }
     updateNavHeader()
 
@@ -165,8 +169,8 @@ class HomeScreenFragment :
         val openSignOutDialog = remember { mutableStateOf(false) }
 
         // Reset the state for recomposition
-        openUnsyncedDialog.value = true
-        openSignOutDialog.value = false
+        openUnsyncedDialog.value = false
+        openSignOutDialog.value = true
 
         SignOutConfirmationDialog(
           requireContext(),
