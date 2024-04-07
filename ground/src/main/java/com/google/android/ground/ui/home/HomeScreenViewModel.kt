@@ -20,6 +20,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
+import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.AbstractViewModel
@@ -29,6 +30,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -38,6 +40,7 @@ class HomeScreenViewModel
 internal constructor(
   private val localValueStore: LocalValueStore,
   private val navigator: Navigator,
+  private val offlineAreaRepository: OfflineAreaRepository,
   private val submissionRepository: SubmissionRepository,
   private val surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
@@ -88,7 +91,13 @@ internal constructor(
   }
 
   fun showOfflineAreas() {
-    navigator.navigate(HomeScreenFragmentDirections.showOfflineAreas())
+    viewModelScope.launch {
+      val count = offlineAreaRepository.offlineAreas().first().count()
+      navigator.navigate(
+        if (count > 0) HomeScreenFragmentDirections.showOfflineAreas()
+        else HomeScreenFragmentDirections.showOfflineAreaSelector()
+      )
+    }
   }
 
   fun showSettings() {
