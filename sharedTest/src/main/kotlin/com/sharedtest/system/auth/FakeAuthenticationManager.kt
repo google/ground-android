@@ -17,7 +17,7 @@ package com.sharedtest.system.auth
 
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.User
-import com.google.android.ground.system.auth.AuthenticationManager
+import com.google.android.ground.system.auth.BaseAuthenticationManager
 import com.google.android.ground.system.auth.SignInState
 import com.google.android.ground.system.auth.SignInState.Companion.signedIn
 import com.google.android.ground.system.auth.SignInState.Companion.signedOut
@@ -34,7 +34,8 @@ import kotlinx.coroutines.launch
 @Singleton
 class FakeAuthenticationManager
 @Inject
-constructor(@ApplicationScope private val externalScope: CoroutineScope) : AuthenticationManager {
+constructor(@ApplicationScope private val externalScope: CoroutineScope) :
+  BaseAuthenticationManager() {
 
   private val _signInStateFlow = MutableStateFlow<SignInState?>(null)
   override val signInState: Flow<SignInState> = _signInStateFlow.asStateFlow().filterNotNull()
@@ -51,7 +52,7 @@ constructor(@ApplicationScope private val externalScope: CoroutineScope) : Authe
     externalScope.launch { _signInStateFlow.emit(state) }
   }
 
-  override fun init() = setState(signedIn(currentUser))
+  override fun initInternal() = setState(signedIn(currentUser))
 
   override fun signIn() = setState(signedIn(currentUser))
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,29 @@
 package com.google.android.ground.system.auth
 
 import com.google.android.ground.model.User
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
 
-interface AuthenticationManager {
-  val signInState: Flow<SignInState>
+abstract class BaseAuthenticationManager : AuthenticationManager {
 
-  /** Must be called before looking up auth state or logged-in user. */
-  fun init()
+  private var isInitialized: Boolean = false
 
-  fun signIn()
+  protected abstract fun initInternal()
 
-  fun signOut()
+  override fun init() {
+    initInternal()
+    isInitialized = true
+  }
 
-  /** Returns the logged-in user. */
-  suspend fun getAuthenticatedUser(): User
+  override suspend fun getAuthenticatedUser(): User {
+    if (!isInitialized) {
+      init()
+    }
+
+    return signInState
+      .filter { it.state == SignInState.State.SIGNED_IN }
+      .mapNotNull { it.result.getOrNull() }
+      .first()
+  }
 }
