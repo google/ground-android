@@ -90,12 +90,13 @@ internal constructor(
     )
   }
 
+  private suspend fun getOfflineAreas() = offlineAreaRepository.offlineAreas().first()
+
   fun showOfflineAreas() {
     viewModelScope.launch {
-      val count = offlineAreaRepository.offlineAreas().first().count()
       navigator.navigate(
-        if (count > 0) HomeScreenFragmentDirections.showOfflineAreas()
-        else HomeScreenFragmentDirections.showOfflineAreaSelector()
+        if (getOfflineAreas().isEmpty()) HomeScreenFragmentDirections.showOfflineAreaSelector()
+        else HomeScreenFragmentDirections.showOfflineAreas()
       )
     }
   }
