@@ -25,7 +25,6 @@ object Config {
   const val SHARED_PREFS_MODE = Context.MODE_PRIVATE
 
   // Local db settings.
-  // TODO(#128): Reset version to 1 before releasing.
   const val DB_VERSION = 117
   const val DB_NAME = "ground.db"
 

@@ -49,8 +49,8 @@ constructor(
   resources: Resources,
   private val activityStreams: ActivityStreams,
   private val firebaseAuth: FirebaseAuth,
-  @ApplicationScope private val externalScope: CoroutineScope
-) : AuthenticationManager {
+  @ApplicationScope private val externalScope: CoroutineScope,
+) : BaseAuthenticationManager() {
 
   private val googleSignInOptions: GoogleSignInOptions
 
@@ -70,7 +70,7 @@ constructor(
   private val _signInStateFlow = MutableStateFlow<SignInState?>(null)
   override val signInState: Flow<SignInState> = _signInStateFlow.asStateFlow().filterNotNull()
 
-  override fun init() {
+  override fun initInternal() {
     firebaseAuth.addAuthStateListener { auth ->
       val user = auth.currentUser?.toUser()
       setState(if (user == null) SignInState.signedOut() else SignInState.signedIn(user))
