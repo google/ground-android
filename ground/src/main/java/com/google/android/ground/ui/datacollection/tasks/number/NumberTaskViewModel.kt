@@ -18,7 +18,7 @@ package com.google.android.ground.ui.datacollection.tasks.number
 import android.content.res.Resources
 import android.text.Editable
 import android.text.TextWatcher
-import com.google.android.ground.model.submission.NumberResponse.Companion.fromNumber
+import com.google.android.ground.model.submission.NumberTaskData.Companion.fromNumber
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import javax.inject.Inject
 

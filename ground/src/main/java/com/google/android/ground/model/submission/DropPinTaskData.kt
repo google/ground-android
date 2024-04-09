@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.point
+package com.google.android.ground.model.submission
 
+import com.google.android.ground.model.geometry.LatLngConverter
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.submission.GeometryTaskResult
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
 /** User-provided response to a "drop a pin" data collection [Task]. */
-data class DropPinTaskResult constructor(val location: Point) : GeometryTaskResult(location) {
+data class DropPinTaskData constructor(val location: Point) : GeometryTaskData(location) {
   override fun getDetailsText(): String {
     // TODO(#752): Move to strings.xml for i18n
     val df = DecimalFormat("#.##")

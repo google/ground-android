@@ -24,16 +24,16 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.submission.MultipleChoiceResponse
+import com.google.android.ground.model.submission.DrawAreaTaskData
+import com.google.android.ground.model.submission.DropPinTaskData
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.SubmissionData
-import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.SubmissionConverter.toSubmission
-import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskResult
-import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskResult
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
@@ -205,7 +205,7 @@ class SubmissionConverterTest {
           AUDIT_INFO_1,
           AUDIT_INFO_2,
           // Field "task1" with unknown field type ignored.
-          SubmissionData(mapOf(Pair("task2", TextResponse("Text response"))))
+          SubmissionData(mapOf(Pair("task2", TextTaskData("Text response"))))
         )
       )
   }
@@ -248,21 +248,21 @@ class SubmissionConverterTest {
     private val TEST_SUBMISSION_DATA =
       SubmissionData(
         mapOf(
-          "task1" to TextResponse("Text response"),
+          "task1" to TextTaskData("Text response"),
           "task2" to
-            MultipleChoiceResponse(
+            MultipleChoiceTaskData(
               MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
               listOf("option2")
             ),
           "task3" to
-            MultipleChoiceResponse(
+            MultipleChoiceTaskData(
               MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
               listOf("optionA", "optionB")
             ),
-          "task4" to TextResponse("Photo URL"),
-          "task5" to DropPinTaskResult(Point(Coordinates(10.0, 20.0))),
+          "task4" to TextTaskData("Photo URL"),
+          "task5" to DropPinTaskData(Point(Coordinates(10.0, 20.0))),
           "task6" to
-            DrawAreaTaskResult(
+            DrawAreaTaskData(
               Polygon(
                 LinearRing(
                   listOf(

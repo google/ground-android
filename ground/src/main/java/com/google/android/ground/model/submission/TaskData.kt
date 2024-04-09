@@ -16,12 +16,12 @@
 package com.google.android.ground.model.submission
 
 /** User-provided value for a single data collection [Task]. */
-interface Value {
+interface TaskData {
   fun getDetailsText(): String
 
   fun isEmpty(): Boolean
 }
 
-fun Value?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true
+fun TaskData?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true
 
-fun Value?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()
+fun TaskData?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()
