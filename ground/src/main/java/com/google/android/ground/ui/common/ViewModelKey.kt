@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.common
 
-package com.google.android.ground.ui.common;
-
-import androidx.lifecycle.ViewModel;
-import dagger.MapKey;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import androidx.lifecycle.ViewModel
+import dagger.MapKey
+import kotlin.reflect.KClass
 
 @MapKey
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ViewModelKey {
-
-  Class<? extends ViewModel> value();
-}
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ViewModelKey(val value: KClass<out ViewModel>)
