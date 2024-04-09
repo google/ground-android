@@ -24,6 +24,8 @@ import kotlinx.serialization.Serializable
 class PhotoTaskData : TaskData {
   val surveyId: String
   val path: String
+  val filename: String
+    get() = path.split("/").last()
 
   constructor(path: String, surveyId: String) {
     val filePattern = Regex("^[a-zA-Z0-9._ -]+\\.(png|jpg)$")
@@ -33,9 +35,6 @@ class PhotoTaskData : TaskData {
     this.path = path
     this.surveyId = surveyId
   }
-
-  val filename: String
-    get() = path.split("/").last()
 
   override fun getDetailsText(): String = path
 
