@@ -15,14 +15,14 @@
  */
 package com.google.android.ground.model.task
 
-import com.google.android.ground.model.submission.MultipleChoiceResponse
-import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
+import com.google.android.ground.model.submission.TaskData
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.junit.Test
 
-typealias ExpressionTestCase = List<Pair<Boolean, Pair<String, Value>>>
+typealias ExpressionTestCase = List<Pair<Boolean, Pair<String, TaskData>>>
 
 typealias ConditionTestCase = List<Pair<Boolean, TaskSelections>>
 
@@ -49,7 +49,7 @@ val Task_B_EXPRESSION =
   )
 
 fun makeValue(vararg selectedOptions: String) =
-  MultipleChoiceResponse(multipleChoice = null, selectedOptionIds = selectedOptions.toList())
+  MultipleChoiceTaskData(multipleChoice = null, selectedOptionIds = selectedOptions.toList())
 
 class ConditionTest {
   @Test

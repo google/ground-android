@@ -21,10 +21,10 @@ import kotlinx.serialization.Serializable
 
 /** User responses to a select-one (radio) or select-multiple (checkbox) field. */
 @Serializable
-class MultipleChoiceResponse(
+class MultipleChoiceTaskData(
   private val multipleChoice: MultipleChoice?,
   val selectedOptionIds: List<String>
-) : Value {
+) : TaskData {
 
   // TODO: Make these inner classes non-static and access Task directly.
   override fun getDetailsText(): String =
@@ -37,7 +37,7 @@ class MultipleChoiceResponse(
   override fun isEmpty(): Boolean = selectedOptionIds.isEmpty()
 
   override fun equals(other: Any?): Boolean {
-    if (other is MultipleChoiceResponse) {
+    if (other is MultipleChoiceTaskData) {
       return selectedOptionIds == other.selectedOptionIds
     }
     return false
@@ -48,11 +48,11 @@ class MultipleChoiceResponse(
   override fun toString(): String = selectedOptionIds.sorted().joinToString()
 
   companion object {
-    fun fromList(multipleChoice: MultipleChoice?, ids: List<String>): Value? =
+    fun fromList(multipleChoice: MultipleChoice?, ids: List<String>): TaskData? =
       if (ids.isEmpty()) {
         null
       } else {
-        MultipleChoiceResponse(multipleChoice, ids)
+        MultipleChoiceTaskData(multipleChoice, ids)
       }
   }
 }

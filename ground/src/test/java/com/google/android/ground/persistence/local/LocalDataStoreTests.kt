@@ -32,7 +32,7 @@ import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.SubmissionData
-import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.LocalDataStoreException
@@ -230,7 +230,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         ValueDelta(
           "task id",
           Task.Type.TEXT,
-          TextResponse.fromString("value for the really new task")
+          TextTaskData.fromString("value for the really new task")
         )
       )
     val mutation =
@@ -265,11 +265,11 @@ class LocalDataStoreTests : BaseHiltTest() {
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
     localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION)
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, FakeData.LOI_ID)!!
-    val data = SubmissionData(mapOf(Pair("task id", TextResponse.fromString("foo value"))))
+    val data = SubmissionData(mapOf(Pair("task id", TextTaskData.fromString("foo value"))))
     val submission = localSubmissionStore.getSubmission(loi, "submission id").copy(data = data)
     localSubmissionStore.merge(submission)
     val mergedData = localSubmissionStore.getSubmission(loi, submission.id).data
-    assertThat(mergedData.getValue("task id")).isEqualTo(TextResponse.fromString("updated value"))
+    assertThat(mergedData.getValue("task id")).isEqualTo(TextTaskData.fromString("updated value"))
   }
 
   @Test
@@ -416,7 +416,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         job = TEST_JOB,
         submissionId = "submission id",
         deltas =
-          listOf(ValueDelta("task id", Task.Type.TEXT, TextResponse.fromString("updated value"))),
+          listOf(ValueDelta("task id", Task.Type.TEXT, TextTaskData.fromString("updated value"))),
         id = 1L,
         type = Mutation.Type.CREATE,
         syncStatus = SyncStatus.PENDING,

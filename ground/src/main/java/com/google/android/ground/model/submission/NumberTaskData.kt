@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.polygon
+package com.google.android.ground.model.submission
 
-import com.google.android.ground.model.geometry.LineString
-import com.google.android.ground.model.submission.GeometryTaskResult
+import kotlinx.serialization.Serializable
 
-/** User-provided "ongoing" response to a "draw an area" data collection [Task]. */
-data class DrawAreaTaskIncompleteResult constructor(val lineString: LineString) :
-  GeometryTaskResult(lineString) {
-  override fun isEmpty(): Boolean = lineString.isEmpty()
+/** A user provided response to a number question task. */
+@Serializable
+data class NumberTaskData constructor(private val number: String) : TaskData {
+  val value: Double
+    get() = number.toDouble()
+
+  override fun getDetailsText(): String = number
+
+  override fun isEmpty(): Boolean = number.isEmpty()
+
+  companion object {
+    fun fromNumber(number: String): TaskData? =
+      if (number.isEmpty()) null else NumberTaskData(number)
+  }
 }

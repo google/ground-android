@@ -63,19 +63,22 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject lateinit var popups: EphemeralPopups
   @Inject lateinit var navigator: Navigator
 
+  // Registers a callback to execute after a user selects a photo from the on-device gallery.
   private var selectPhotoLauncher: ActivityResultLauncher<String> =
     registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-      viewModel.onSelectPhotoResult(uri)
+      uri?.let { viewModel.savePhotoTaskData(it) }
     }
 
+  // Registers a callback to execute after a user captures a photo from the on-device camera.
   private var capturePhotoLauncher: ActivityResultLauncher<Uri> =
     registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-      viewModel.onCapturePhotoResult(result)
+      if (result) viewModel.savePhotoTaskData(capturedPhotoUri)
     }
 
   private var hasRequestedPermissionsOnResume = false
   private var taskWaitingForPhoto: String? = null
   private var capturedPhotoPath: String? = null
+  private lateinit var capturedPhotoUri: Uri
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
@@ -98,7 +101,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   override fun onTaskViewAttached() {
     viewModel.surveyId = dataCollectionViewModel.surveyId
     viewModel.taskWaitingForPhoto = taskWaitingForPhoto
-    viewModel.capturedPhotoPath = capturedPhotoPath
   }
 
   override fun onCreateActionButtons() {
@@ -119,9 +121,11 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
     outState.putString(TASK_WAITING_FOR_PHOTO, viewModel.taskWaitingForPhoto)
-    outState.putString(CAPTURED_PHOTO_PATH, viewModel.capturedPhotoPath)
+    outState.putString(CAPTURED_PHOTO_PATH, capturedPhotoPath)
   }
 
+  // Requests camera/photo access permissions from the device, executing an optional callback
+  // when permission is granted.
   private fun obtainCapturePhotoPermissions(onPermissionsGranted: () -> Unit = {}) {
     externalScope.launch {
       try {
@@ -171,7 +175,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   }
 
   fun onTakePhoto() {
-    // TODO(#1600): Launch intent is not invoked if the permission is not granted by default.
     obtainCapturePhotoPermissions { launchPhotoCapture(viewModel.task.id) }
   }
 
@@ -182,10 +185,11 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   private fun launchPhotoCapture(taskId: String) {
     try {
       val photoFile = userMediaRepository.createImageFile(taskId)
-      val uri = FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID, photoFile)
+      capturedPhotoUri =
+        FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID, photoFile)
       viewModel.taskWaitingForPhoto = taskId
-      viewModel.capturedPhotoPath = photoFile.absolutePath
-      capturePhotoLauncher.launch(uri)
+      capturedPhotoPath = capturedPhotoUri.path
+      capturePhotoLauncher.launch(capturedPhotoUri)
       Timber.d("Capture photo intent sent")
     } catch (e: IllegalArgumentException) {
       popups.ErrorPopup().show(R.string.error_message)

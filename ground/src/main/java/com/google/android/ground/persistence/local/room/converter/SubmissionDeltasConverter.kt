@@ -43,7 +43,7 @@ object SubmissionDeltasConverter {
               delta.taskId,
               JSONObject()
                 .put(KEY_TASK_TYPE, delta.taskType.name)
-                .put(KEY_NEW_VALUE, ValueJsonConverter.toJsonObject(delta.newValue))
+                .put(KEY_NEW_VALUE, ValueJsonConverter.toJsonObject(delta.newTaskData))
             )
           } catch (e: JSONException) {
             Timber.e(e, "Error building JSON")

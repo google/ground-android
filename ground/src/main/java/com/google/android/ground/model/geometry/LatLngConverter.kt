@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.point
+package com.google.android.ground.model.geometry
 
 import android.location.Location
-import com.google.android.ground.model.geometry.Coordinates
 import kotlin.math.abs
 
 /**

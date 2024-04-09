@@ -15,8 +15,8 @@
  */
 package com.google.android.ground.persistence.local
 
-import com.google.android.ground.model.submission.DateResponse
-import com.google.android.ground.model.submission.TimeResponse
+import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.TimeTaskData
 import com.google.common.truth.Truth.assertThat
 import java.time.LocalDate
 import java.time.Month
@@ -24,11 +24,11 @@ import java.time.ZoneId
 import java.util.*
 import org.junit.Test
 
-class DateTimeResponseTest {
+class DateTimeTaskDataTest {
   @Test
   fun testTimeResponse_textDetails() {
     val instant = LocalDate.now().atTime(7, 30, 45).atZone(ZoneId.systemDefault()).toInstant()
-    val detailsText = TimeResponse(Date.from(instant)).getDetailsText()
+    val detailsText = TimeTaskData(Date.from(instant)).getDetailsText()
     assertThat(detailsText).isEqualTo("07:30")
   }
 
@@ -39,7 +39,7 @@ class DateTimeResponseTest {
         .atStartOfDay()
         .atZone(ZoneId.systemDefault())
         .toInstant()
-    val detailsText = DateResponse(Date.from(instant)).getDetailsText()
+    val detailsText = DateTaskData(Date.from(instant)).getDetailsText()
     assertThat(detailsText).isEqualTo("2021-10-23")
   }
 }

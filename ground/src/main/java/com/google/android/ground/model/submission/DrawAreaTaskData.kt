@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.polygon
+package com.google.android.ground.model.submission
 
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.model.submission.GeometryTaskResult
 
 /** User-provided response to a "draw an area" data collection [Task]. */
-data class DrawAreaTaskResult constructor(val area: Polygon) : GeometryTaskResult(area) {
+data class DrawAreaTaskData constructor(val area: Polygon) : GeometryTaskData(area) {
   override fun isEmpty(): Boolean = area.isEmpty()
 }

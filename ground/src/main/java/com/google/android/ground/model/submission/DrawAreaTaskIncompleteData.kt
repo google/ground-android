@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,10 @@
  */
 package com.google.android.ground.model.submission
 
-import kotlinx.serialization.Serializable
+import com.google.android.ground.model.geometry.LineString
 
-/** A user provided response to a number question task. */
-@Serializable
-data class NumberResponse constructor(private val number: String) : Value {
-  val value: Double
-    get() = number.toDouble()
-
-  override fun getDetailsText(): String = number
-
-  override fun isEmpty(): Boolean = number.isEmpty()
-
-  companion object {
-    fun fromNumber(number: String): Value? = if (number.isEmpty()) null else NumberResponse(number)
-  }
+/** User-provided "ongoing" response to a "draw an area" data collection [Task]. */
+data class DrawAreaTaskIncompleteData constructor(val lineString: LineString) :
+  GeometryTaskData(lineString) {
+  override fun isEmpty(): Boolean = lineString.isEmpty()
 }
