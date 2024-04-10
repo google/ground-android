@@ -36,12 +36,12 @@ class AnonymousAuthenticationManager
 @Inject
 constructor(
   private val firebaseAuth: FirebaseAuth,
-  @ApplicationScope private val externalScope: CoroutineScope
-) : AuthenticationManager {
+  @ApplicationScope private val externalScope: CoroutineScope,
+) : BaseAuthenticationManager() {
   private val _signInStateFlow = MutableStateFlow<SignInState?>(null)
   override val signInState: Flow<SignInState> = _signInStateFlow.asStateFlow().filterNotNull()
 
-  override fun init() {
+  override fun initInternal() {
     setState(
       if (firebaseAuth.currentUser == null) SignInState.signedOut()
       else SignInState.signedIn(anonymousUser)

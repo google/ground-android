@@ -44,7 +44,7 @@ class PhotoTaskFragmentTest : BaseTaskFragmentTest<PhotoTaskFragment, PhotoTaskV
       index = 0,
       type = Task.Type.PHOTO,
       label = "Task for capturing a photo",
-      isRequired = false
+      isRequired = false,
     )
   private val job = Job("job", Style("#112233"))
 
@@ -69,7 +69,7 @@ class PhotoTaskFragmentTest : BaseTaskFragmentTest<PhotoTaskFragment, PhotoTaskV
       ButtonAction.PREVIOUS,
       ButtonAction.UNDO,
       ButtonAction.SKIP,
-      ButtonAction.NEXT
+      ButtonAction.NEXT,
     )
   }
 
@@ -77,17 +77,19 @@ class PhotoTaskFragmentTest : BaseTaskFragmentTest<PhotoTaskFragment, PhotoTaskV
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<PhotoTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsDisabled("Next")
-    buttonIsEnabled("Skip")
-    buttonIsHidden(ButtonAction.UNDO)
+    runner()
+      .assertButtonIsDisabled("Next")
+      .assertButtonIsEnabled("Skip")
+      .assertButtonIsHidden("Undo", true)
   }
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<PhotoTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsDisabled("Next")
-    buttonIsHidden("Skip")
-    buttonIsHidden(ButtonAction.UNDO)
+    runner()
+      .assertButtonIsDisabled("Next")
+      .assertButtonIsHidden("Skip")
+      .assertButtonIsHidden("Undo", true)
   }
 }

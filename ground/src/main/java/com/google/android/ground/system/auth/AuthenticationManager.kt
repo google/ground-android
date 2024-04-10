@@ -17,13 +17,11 @@ package com.google.android.ground.system.auth
 
 import com.google.android.ground.model.User
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
 
 interface AuthenticationManager {
   val signInState: Flow<SignInState>
 
+  /** Must be called before looking up auth state or logged-in user. */
   fun init()
 
   fun signIn()
@@ -31,9 +29,5 @@ interface AuthenticationManager {
   fun signOut()
 
   /** Returns the logged-in user. */
-  suspend fun getAuthenticatedUser(): User =
-    signInState
-      .filter { it.state == SignInState.State.SIGNED_IN }
-      .mapNotNull { it.result.getOrNull() }
-      .first()
+  suspend fun getAuthenticatedUser(): User
 }

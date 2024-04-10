@@ -21,7 +21,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractViewModel
@@ -36,13 +36,13 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   AbstractViewModel() {
 
   /** Current value. */
-  private val _valueFlow: MutableStateFlow<Value?> = MutableStateFlow(null)
-  val taskValue: StateFlow<Value?> = _valueFlow.asStateFlow()
+  private val _taskDataFlow: MutableStateFlow<TaskData?> = MutableStateFlow(null)
+  val taskTaskData: StateFlow<TaskData?> = _taskDataFlow.asStateFlow()
 
-  /** Transcoded text to be displayed for the current [Value]. */
+  /** Transcoded text to be displayed for the current [TaskData]. */
   val responseText: LiveData<String>
 
-  /** Error message to be displayed for the current [Value]. */
+  /** Error message to be displayed for the current [TaskData]. */
   val error: MutableLiveData<String?> = MutableLiveData()
 
   lateinit var task: Task
@@ -51,30 +51,30 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
     responseText = detailsTextFlow().asLiveData()
   }
 
-  open fun initialize(job: Job, task: Task, value: Value?) {
+  open fun initialize(job: Job, task: Task, taskData: TaskData?) {
     this.task = task
-    setValue(value)
+    setValue(taskData)
   }
 
-  private fun detailsTextFlow(): Flow<String> = taskValue.map { it?.getDetailsText() ?: "" }
+  private fun detailsTextFlow(): Flow<String> = taskTaskData.map { it?.getDetailsText() ?: "" }
 
   /** Checks if the current value is valid and updates error value. */
   fun validate(): String? {
-    val result = validate(task, taskValue.value)
+    val result = validate(task, taskTaskData.value)
     error.postValue(result)
     return result
   }
 
-  open fun validate(task: Task, value: Value?): String? {
+  open fun validate(task: Task, taskData: TaskData?): String? {
     // Empty response for a required task.
-    if (task.isRequired && (value == null || value.isEmpty())) {
+    if (task.isRequired && (taskData == null || taskData.isEmpty())) {
       return resources.getString(R.string.required_task)
     }
     return null
   }
 
-  fun setValue(value: Value?) {
-    _valueFlow.value = value
+  fun setValue(taskData: TaskData?) {
+    _taskDataFlow.value = taskData
   }
 
   open fun clearResponse() {
@@ -83,5 +83,5 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
 
   fun isTaskOptional(): Boolean = !task.isRequired
 
-  fun hasNoData(): Boolean = taskValue.value.isNullOrEmpty()
+  fun hasNoData(): Boolean = taskTaskData.value.isNullOrEmpty()
 }

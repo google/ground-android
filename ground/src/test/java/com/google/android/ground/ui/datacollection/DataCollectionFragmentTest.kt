@@ -17,19 +17,12 @@
 package com.google.android.ground.ui.datacollection
 
 import android.os.Bundle
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.typeText
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.capture
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.launchFragmentWithNavController
-import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
@@ -44,8 +37,6 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
-import org.hamcrest.Matchers.allOf
-import org.hamcrest.Matchers.not
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -85,15 +76,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `First task is loaded and is visible`() {
-    runner().validateTextIsDisplayed(TASK_1_NAME)
+    runner().validateTextIsDisplayed(TASK_1_NAME).validateTextIsNotDisplayed(TASK_2_NAME)
   }
 
   @Test
   fun `Next button is disabled when task doesn't have any value`() {
-    runner()
-      .clickNextButton()
-      .validateTextIsDisplayed(TASK_1_NAME)
-      .validateTextIsNotDisplayed(TASK_2_NAME)
+    runner().assertButtonIsDisabled("Next")
   }
 
   @Test
@@ -246,7 +234,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
             LOCATION_OF_INTEREST_NAME,
             JOB.id,
             false,
-            null
+            null,
           )
           .build()
           .toBundle()
@@ -259,72 +247,19 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     }
   }
 
-  private fun runner() = Runner(this, fragment)
-
-  /** Helper class for interacting with the data collection tasks and verifying the ui state. */
-  class Runner(
-    private val baseHiltTest: BaseHiltTest,
-    private val fragment: DataCollectionFragment,
-  ) {
-
-    internal fun clickNextButton(): Runner {
-      clickButton("Next")
-      return this
-    }
-
-    internal fun clickPreviousButton(): Runner {
-      clickButton("Previous")
-      return this
-    }
-
-    internal fun clickDoneButton(): Runner {
-      clickButton("Done")
-      return this
-    }
-
-    internal fun inputText(text: String): Runner {
-      onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(text))
-      return this
-    }
-
-    internal fun validateTextIsDisplayed(text: String): Runner {
-      onView(withText(text)).check(matches(isDisplayed()))
-      return this
-    }
-
-    internal fun validateTextIsNotDisplayed(text: String): Runner {
-      onView(withText(text)).check(matches(not(isDisplayed())))
-      return this
-    }
-
-    internal fun pressBackButton(result: Boolean): Runner {
-      waitUntilDone { assertThat(fragment.onBack()).isEqualTo(result) }
-      return this
-    }
-
-    private fun clickButton(text: String) = waitUntilDone {
-      onView(allOf(withText(text), isDisplayed())).perform(click())
-    }
-
-    private fun waitUntilDone(testBody: suspend () -> Unit) {
-      baseHiltTest.runWithTestDispatcher {
-        testBody()
-        advanceUntilIdle()
-      }
-    }
-  }
+  private fun runner() = TaskFragmentRunner(this, fragment)
 
   companion object {
     private const val TASK_ID_1 = "1"
     const val TASK_1_NAME = "task 1"
     private const val TASK_1_RESPONSE = "response 1"
-    private val TASK_1_VALUE = TextResponse.fromString(TASK_1_RESPONSE)
+    private val TASK_1_VALUE = TextTaskData.fromString(TASK_1_RESPONSE)
     private val TASK_1_VALUE_DELTA = ValueDelta(TASK_ID_1, Task.Type.TEXT, TASK_1_VALUE)
 
     private const val TASK_ID_2 = "2"
     const val TASK_2_NAME = "task 2"
     private const val TASK_2_RESPONSE = "response 2"
-    private val TASK_2_VALUE = TextResponse.fromString(TASK_2_RESPONSE)
+    private val TASK_2_VALUE = TextTaskData.fromString(TASK_2_RESPONSE)
     private val TASK_2_VALUE_DELTA = ValueDelta(TASK_ID_2, Task.Type.TEXT, TASK_2_VALUE)
 
     private val TASKS =

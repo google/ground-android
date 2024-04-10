@@ -35,10 +35,9 @@ object LocalDatabaseModule {
   @Singleton
   fun localDatabase(
     @ApplicationContext context: Context,
-    @IoDispatcher ioDispatcher: CoroutineDispatcher
+    @IoDispatcher ioDispatcher: CoroutineDispatcher,
   ): LocalDatabase =
     Room.databaseBuilder(context, LocalDatabase::class.java, Config.DB_NAME)
-      .fallbackToDestructiveMigration() // TODO(#128): Disable before official release.
       // Run queries and transactions on background I/O thread.
       .setQueryExecutor(ioDispatcher.asExecutor())
       .build()
