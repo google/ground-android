@@ -62,6 +62,9 @@
       android:id="@+id/showOfflineAreas"
       app:destination="@id/offline_areas_fragment" />
     <action
+      android:id="@+id/showOfflineAreaSelector"
+      app:destination="@+id/offline_area_selector_fragment" />
+    <action
       android:id="@+id/action_home_screen_fragment_to_settings_activity"
       app:destination="@id/settings_activity" />
     <action

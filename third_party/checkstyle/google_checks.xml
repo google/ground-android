@@ -20,15 +20,9 @@
 <module name="Checker">
   <property name="charset" value="UTF-8" />
   <property name="severity" value="error" />
-  <!-- TODO(#1576): Remove java.header once all java code is removed. -->
-  <property name="fileExtensions" value="java, xml" />
+  <property name="fileExtensions" value="xml" />
 
   <!-- License header -->
-  <!-- TODO(#1576): Remove java.header once all java code is removed. -->
-  <module name="RegexpHeader">
-    <property name="headerFile" value="${config_loc}/../../config/checkstyle/java.header" />
-    <property name="fileExtensions" value="java" />
-  </module>
   <module name="RegexpHeader">
     <property name="headerFile" value="${config_loc}/../../config/checkstyle/xml.header" />
     <property name="fileExtensions" value="xml" />

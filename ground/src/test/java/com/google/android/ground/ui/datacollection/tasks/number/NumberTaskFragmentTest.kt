@@ -15,18 +15,15 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.number
 
-import android.text.InputType
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withInputType
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.google.android.ground.CustomViewActions.forceTypeText
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.NumberResponse
+import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -36,7 +33,6 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -56,7 +52,7 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
       index = 0,
       type = Task.Type.NUMBER,
       label = "Number label",
-      isRequired = false
+      isRequired = false,
     )
   private val job = Job("job1")
 
@@ -76,20 +72,18 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
       .check(matches(isDisplayed()))
       .check(matches(isEnabled()))
 
+    runner().assertButtonIsDisabled("Next")
+
     hasValue(null)
-    buttonIsDisabled("Next")
   }
 
   @Test
   fun testResponse_onUserInput_nextButtonIsEnabled() = runWithTestDispatcher {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
-    onView(withId(R.id.user_response_text))
-      .check(matches(withInputType(InputType.TYPE_CLASS_NUMBER)))
-      .perform(forceTypeText("123"))
+    runner().inputNumber(123).assertButtonIsEnabled("Next")
 
-    hasValue(NumberResponse("123"))
-    buttonIsEnabled("Next")
+    hasValue(NumberTaskData("123"))
   }
 
   @Test
@@ -103,15 +97,13 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<NumberTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsDisabled("Next")
-    buttonIsEnabled("Skip")
+    runner().assertButtonIsDisabled("Next").assertButtonIsEnabled("Skip")
   }
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<NumberTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsDisabled("Next")
-    buttonIsHidden("Skip")
+    runner().assertButtonIsDisabled("Next").assertButtonIsHidden("Skip")
   }
 }

@@ -20,9 +20,9 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.*
+import com.google.android.ground.model.submission.CaptureLocationTaskData
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.AuditInfoConverter.fromMutationAndUser
-import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskResult
 import com.google.firebase.firestore.FieldValue
 import kotlinx.collections.immutable.toPersistentMap
 import timber.log.Timber
@@ -62,36 +62,36 @@ internal object SubmissionMutationConverter {
   private fun toMap(deltas: List<ValueDelta>): Map<String, Any> {
     val map = mutableMapOf<String, Any>()
     for (delta in deltas) {
-      map[delta.taskId] = toObject(delta.newValue) ?: FieldValue.delete()
+      map[delta.taskId] = toObject(delta.newTaskData) ?: FieldValue.delete()
     }
     return map.toPersistentMap()
   }
 
-  private fun toObject(value: Value?): Any? =
-    when (value) {
-      is TextResponse -> {
-        value.text
+  private fun toObject(taskData: TaskData?): Any? =
+    when (taskData) {
+      is TextTaskData -> {
+        taskData.text
       }
-      is MultipleChoiceResponse -> {
-        value.selectedOptionIds
+      is MultipleChoiceTaskData -> {
+        taskData.selectedOptionIds
       }
-      is NumberResponse -> {
-        value.value
+      is NumberTaskData -> {
+        taskData.value
       }
-      is TimeResponse -> {
-        value.time
+      is TimeTaskData -> {
+        taskData.time
       }
-      is DateResponse -> {
-        value.date
+      is DateTaskData -> {
+        taskData.date
       }
-      is GeometryTaskResult -> {
-        GeometryConverter.toFirestoreMap(value.geometry).getOrThrow()
+      is GeometryTaskData -> {
+        GeometryConverter.toFirestoreMap(taskData.geometry).getOrThrow()
       }
-      is CaptureLocationTaskResult -> {
-        CaptureLocationResultConverter.toFirestoreMap(value).getOrThrow()
+      is CaptureLocationTaskData -> {
+        CaptureLocationResultConverter.toFirestoreMap(taskData).getOrThrow()
       }
       else -> {
-        Timber.e("Unknown value type: %s", value?.javaClass?.name)
+        Timber.e("Unknown value type: %s", taskData?.javaClass?.name)
         null
       }
     }

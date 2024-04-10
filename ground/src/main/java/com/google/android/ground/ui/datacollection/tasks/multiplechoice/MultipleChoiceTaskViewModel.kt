@@ -19,9 +19,9 @@ import android.content.res.Resources
 import android.text.Editable
 import android.text.TextWatcher
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.MultipleChoiceResponse
-import com.google.android.ground.model.submission.MultipleChoiceResponse.Companion.fromList
-import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
+import com.google.android.ground.model.submission.MultipleChoiceTaskData.Companion.fromList
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.MultipleChoice.Cardinality.SELECT_MULTIPLE
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
@@ -69,8 +69,8 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
       }
     }
 
-  override fun initialize(job: Job, task: Task, value: Value?) {
-    super.initialize(job, task, value)
+  override fun initialize(job: Job, task: Task, taskData: TaskData?) {
+    super.initialize(job, task, taskData)
     loadPendingSelections()
     updateMultipleChoiceItems()
   }
@@ -141,7 +141,7 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
 
   /* Reads the saved task value and adds selected items to the selected list*/
   private fun loadPendingSelections() {
-    val selectedOptionIds = (taskValue.value as? MultipleChoiceResponse)?.selectedOptionIds
+    val selectedOptionIds = (taskTaskData.value as? MultipleChoiceTaskData)?.selectedOptionIds
     val multipleChoice = checkNotNull(task.multipleChoice)
     val optionIds = multipleChoice.options.map { option -> option.id }
     selectedOptionIds?.forEach {

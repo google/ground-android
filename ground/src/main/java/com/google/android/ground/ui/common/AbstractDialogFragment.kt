@@ -32,8 +32,8 @@ abstract class AbstractDialogFragment : AppCompatDialogFragment() {
   @Inject lateinit var viewModelFactory: ViewModelFactory
 
   /** Uses [ViewModelFactory] to obtain an instance of the view model of the specified class. */
-  protected fun <T : ViewModel?> getViewModel(modelClass: Class<T>): T =
-    viewModelFactory.get(this, modelClass)
+  protected fun <T : ViewModel> getViewModel(modelClass: Class<T>): T =
+    viewModelFactory[this, modelClass]
 
   override fun onAttach(context: Context) {
     Debug.logLifecycleEvent(this)

@@ -21,6 +21,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
+import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.system.auth.AuthenticationManager
@@ -31,6 +32,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -40,6 +42,7 @@ class HomeScreenViewModel
 internal constructor(
   private val localValueStore: LocalValueStore,
   private val navigator: Navigator,
+  private val offlineAreaRepository: OfflineAreaRepository,
   private val submissionRepository: SubmissionRepository,
   private val surveyRepository: SurveyRepository,
   private val authenticationManager: AuthenticationManager,
@@ -97,8 +100,15 @@ internal constructor(
     )
   }
 
+  private suspend fun getOfflineAreas() = offlineAreaRepository.offlineAreas().first()
+
   fun showOfflineAreas() {
-    navigator.navigate(HomeScreenFragmentDirections.showOfflineAreas())
+    viewModelScope.launch {
+      navigator.navigate(
+        if (getOfflineAreas().isEmpty()) HomeScreenFragmentDirections.showOfflineAreaSelector()
+        else HomeScreenFragmentDirections.showOfflineAreas()
+      )
+    }
   }
 
   fun showSettings() {

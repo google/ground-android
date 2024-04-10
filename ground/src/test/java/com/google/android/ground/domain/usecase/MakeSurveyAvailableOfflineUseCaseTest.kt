@@ -41,7 +41,7 @@ class MakeSurveyAvailableOfflineUseCaseTest : BaseHiltTest() {
   @BindValue @Mock lateinit var surveyRepository: SurveyRepository
 
   @Test
-  fun `Returns null when survey doesn't exist`() = runBlocking {
+  fun `Returns null when survey doesn't exist`() = runWithTestDispatcher {
     `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(null)
 
     assertNull(makeSurveyAvailableOffline(SURVEY.id))
@@ -57,14 +57,14 @@ class MakeSurveyAvailableOfflineUseCaseTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Returns survey on success`() = runBlocking {
+  fun `Returns survey on success`() = runWithTestDispatcher {
     `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(SURVEY)
 
     assertEquals(SURVEY, makeSurveyAvailableOffline(SURVEY.id))
   }
 
   @Test
-  fun `Subscribes to updates on success`() = runBlocking {
+  fun `Subscribes to updates on success`() = runWithTestDispatcher {
     `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(SURVEY)
 
     makeSurveyAvailableOffline(SURVEY.id)
