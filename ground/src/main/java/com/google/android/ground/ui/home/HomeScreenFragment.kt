@@ -39,6 +39,7 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -100,6 +101,9 @@ class HomeScreenFragment :
     navHeader.findViewById<TextView>(R.id.switch_survey_button).setOnClickListener {
       homeScreenViewModel.showSurveySelector()
     }
+    navHeader.findViewById<ShapeableImageView>(R.id.user_image).setOnClickListener {
+      showSignOutConfirmationDialog()
+    }
     updateNavHeader()
 
     // Re-open data collection screen if any drafts are present
@@ -149,7 +153,6 @@ class HomeScreenFragment :
       R.id.sync_status -> homeScreenViewModel.showSyncStatus()
       R.id.nav_offline_areas -> homeScreenViewModel.showOfflineAreas()
       R.id.nav_settings -> homeScreenViewModel.showSettings()
-      R.id.nav_sign_out -> showSignOutConfirmationDialog()
     }
     closeDrawer()
     return true
@@ -161,12 +164,21 @@ class HomeScreenFragment :
     // compose.
     binding.composeView.apply {
       setContent {
-        val openDialog = remember { mutableStateOf(true) }
+        val openUnsyncedDialog = remember { mutableStateOf(true) }
+        val openSignOutDialog = remember { mutableStateOf(false) }
 
         // Reset the state for recomposition
-        openDialog.value = true
+        openUnsyncedDialog.value = false
+        openSignOutDialog.value = true
 
-        SignOutConfirmationDialog(requireContext(), openDialog) { userRepository.signOut() }
+        SignOutConfirmationDialog(
+          requireContext(),
+          openUnsyncedDialog,
+          openSignOutDialog,
+          homeScreenViewModel,
+        ) {
+          userRepository.signOut()
+        }
       }
     }
   }

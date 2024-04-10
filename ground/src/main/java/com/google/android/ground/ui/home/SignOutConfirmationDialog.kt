@@ -17,6 +17,7 @@ package com.google.android.ground.ui.home
 
 import android.content.Context
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -28,22 +29,33 @@ import com.google.android.material.color.MaterialColors
 @Composable
 fun SignOutConfirmationDialog(
   context: Context,
-  openDialog: MutableState<Boolean>,
+  openUnsyncedDialog: MutableState<Boolean>,
+  openSignOutDialog: MutableState<Boolean>,
+  homeScreenViewModel: HomeScreenViewModel,
   signOutCallback: () -> Unit,
 ) {
+  val user = homeScreenViewModel.userDetails.value
+  fun showUnsyncedDialog() {
+    openUnsyncedDialog.value = true
+    openSignOutDialog.value = false
+  }
 
-  fun dismissDialog() {
-    openDialog.value = false
+  fun dismissUnsyncedDialog() {
+    openUnsyncedDialog.value = false
+  }
+
+  fun dismissSignoutDialog() {
+    openSignOutDialog.value = false
   }
 
   when {
-    openDialog.value ->
+    openUnsyncedDialog.value ->
       AlertDialog(
-        onDismissRequest = { dismissDialog() },
+        onDismissRequest = { dismissUnsyncedDialog() },
         title = { Text(text = context.getString(R.string.sign_out_dialog_title)) },
         text = { Text(text = context.getString(R.string.sign_out_dialog_body)) },
         dismissButton = {
-          TextButton(onClick = { dismissDialog() }) {
+          TextButton(onClick = { dismissUnsyncedDialog() }) {
             Text(
               text = context.getString(R.string.cancel),
               color = Color(MaterialColors.getColor(context, R.attr.colorOnSurface, "")),
@@ -54,9 +66,31 @@ fun SignOutConfirmationDialog(
           TextButton(
             onClick = {
               signOutCallback()
-              dismissDialog()
+              dismissUnsyncedDialog()
             }
           ) {
+            Text(
+              text = context.getString(R.string.sign_out),
+              color = Color(MaterialColors.getColor(context, R.attr.colorError, "")),
+            )
+          }
+        },
+      )
+    openSignOutDialog.value ->
+      AlertDialog(
+        onDismissRequest = { dismissSignoutDialog() },
+        title = { user?.displayName?.let { Text(it) } },
+        text = { user?.email?.let { Text(it) } },
+        dismissButton = {
+          OutlinedButton(onClick = { dismissSignoutDialog() }) {
+            Text(
+              text = context.getString(R.string.cancel),
+              color = Color(MaterialColors.getColor(context, R.attr.colorOnSurface, "")),
+            )
+          }
+        },
+        confirmButton = {
+          TextButton(onClick = { showUnsyncedDialog() }) {
             Text(
               text = context.getString(R.string.sign_out),
               color = Color(MaterialColors.getColor(context, R.attr.colorError, "")),
