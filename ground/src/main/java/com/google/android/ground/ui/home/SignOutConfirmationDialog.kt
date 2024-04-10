@@ -15,14 +15,18 @@
  */
 package com.google.android.ground.ui.home
 
+import android.content.Context
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.google.android.ground.R
+import com.google.android.material.color.MaterialColors
 
 @Composable
 fun SignOutConfirmationDialog(
