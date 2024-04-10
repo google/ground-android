@@ -30,6 +30,7 @@ import com.google.android.ground.persistence.local.room.dao.ExpressionDao
 import com.google.android.ground.persistence.local.room.dao.JobDao
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestMutationDao
+import com.google.android.ground.persistence.local.room.dao.MediaMutationDao
 import com.google.android.ground.persistence.local.room.dao.MultipleChoiceDao
 import com.google.android.ground.persistence.local.room.dao.OfflineAreaDao
 import com.google.android.ground.persistence.local.room.dao.OptionDao
@@ -45,6 +46,7 @@ import com.google.android.ground.persistence.local.room.entity.ExpressionEntity
 import com.google.android.ground.persistence.local.room.entity.JobEntity
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
+import com.google.android.ground.persistence.local.room.entity.MediaMutationEntity
 import com.google.android.ground.persistence.local.room.entity.MultipleChoiceEntity
 import com.google.android.ground.persistence.local.room.entity.OfflineAreaEntity
 import com.google.android.ground.persistence.local.room.entity.OptionEntity
@@ -89,9 +91,10 @@ import com.google.android.ground.persistence.local.room.fields.TileSetEntityStat
       UserEntity::class,
       ConditionEntity::class,
       ExpressionEntity::class,
+      MediaMutationEntity::class,
     ],
   version = Config.DB_VERSION,
-  exportSchema = false
+  exportSchema = false,
 )
 @TypeConverters(
   TaskEntityType::class,
@@ -139,4 +142,6 @@ abstract class LocalDatabase : RoomDatabase() {
   abstract fun conditionDao(): ConditionDao
 
   abstract fun expressionDao(): ExpressionDao
+
+  abstract fun mediaMutationDao(): MediaMutationDao
 }

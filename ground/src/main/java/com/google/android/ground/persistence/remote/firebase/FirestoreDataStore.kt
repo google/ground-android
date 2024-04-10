@@ -22,6 +22,7 @@ import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
+import com.google.android.ground.model.mutation.MediaMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
@@ -103,6 +104,7 @@ internal constructor(
     val batch = db().batch()
     for (mutation in mutations) {
       when (mutation) {
+        is MediaMutation -> {} // no-op at present
         is LocationOfInterestMutation -> addLocationOfInterestMutationToBatch(mutation, user, batch)
         is SubmissionMutation -> addSubmissionMutationToBatch(mutation, user, batch)
       }
