@@ -34,7 +34,7 @@ fun SignOutConfirmationDialog(
   homeScreenViewModel: HomeScreenViewModel,
   signOutCallback: () -> Unit,
 ) {
-  val userDetails = homeScreenViewModel.getUserData()
+  val user = homeScreenViewModel.userDetails.value
   fun showUnsyncedDialog() {
     openUnsyncedDialog.value = true
     openSignOutDialog.value = false
@@ -79,8 +79,8 @@ fun SignOutConfirmationDialog(
     openSignOutDialog.value ->
       AlertDialog(
         onDismissRequest = { dismissSignoutDialog() },
-        title = { userDetails?.displayName?.let { Text(it) } },
-        text = { userDetails?.email?.let { Text(it) } },
+        title = { user?.displayName?.let { Text(it) } },
+        text = { user?.email?.let { Text(it) } },
         dismissButton = {
           OutlinedButton(onClick = { dismissSignoutDialog() }) {
             Text(

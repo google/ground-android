@@ -30,8 +30,6 @@ interface LocalUserStore {
    */
   suspend fun getUser(id: String): User
 
-  suspend fun getUserDetails(): User
-
   /**
    * Loads the [User] with the specified id from the local data store. If not found, returns null.
    */

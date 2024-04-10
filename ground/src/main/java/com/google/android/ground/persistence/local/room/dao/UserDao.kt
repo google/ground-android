@@ -25,6 +25,4 @@ interface UserDao : BaseDao<UserEntity> {
   @Transaction
   @Query("SELECT * FROM user WHERE id = :id")
   suspend fun findById(id: String): UserEntity?
-
-  @Query("SELECT * FROM user ORDER BY id ASC LIMIT 1") suspend fun getUserDetails(): UserEntity
 }
