@@ -19,6 +19,4 @@ package com.google.android.ground.util
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 
-fun WindowInsetsCompat.systemInsets(): Insets {
-  return getInsets(WindowInsetsCompat.Type.systemBars())
-}
+fun WindowInsetsCompat.systemInsets(): Insets = getInsets(WindowInsetsCompat.Type.systemBars())
