@@ -95,13 +95,12 @@
         app:layout_constraintRight_toLeftOf="@id/right_mask"
         app:layout_constraintTop_toBottomOf="@id/top_mask" />
 
-      <FrameLayout
+      <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottom_mask"
-        android:layout_width="0dp"
-        app:layout_constraintEnd_toStartOf="@+id/location_lock_btn"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="match_parent"
         android:layout_height="80dp"
-        app:layout_constraintBottom_toTopOf="@id/button_buttons">
+        app:layout_constraintBottom_toTopOf="@id/button_buttons"
+        app:layout_constraintTop_toBottomOf="@id/viewport_outline">
 
         <View
           android:layout_width="match_parent"
@@ -110,30 +109,34 @@
           android:background="@color/blackOverlay" />
 
         <TextView
-          android:layout_width="match_parent"
+          android:layout_width="0dp"
           android:layout_height="wrap_content"
           android:layout_gravity="center"
           android:layout_marginHorizontal="24dp"
-          android:textAlignment="center"
           android:text="@{viewModel.bottomText}"
+          android:textAlignment="center"
           android:textColor="@color/textOverMap"
-          android:textSize="14sp" />
-      </FrameLayout>
+          android:textSize="14sp"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toStartOf="@+id/location_lock_btn"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent" />
 
-      <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/location_lock_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:onClick="@{() -> viewModel.onLocationLockClick()}"
-        app:backgroundTint="?attr/colorSurface"
-        app:fabSize="normal"
-        app:imageResource="@{viewModel.getLocationLockIcon()}"
-        app:layout_constraintBottom_toTopOf="@+id/button_buttons"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/viewport_outline"
-        app:tint="@{viewModel.getLocationLockIconTint()}"
-        app:useCompatPadding="true" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+          android:id="@+id/location_lock_btn"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="bottom|end"
+          android:onClick="@{() -> viewModel.onLocationLockClick()}"
+          app:backgroundTint="?attr/colorSurface"
+          app:fabSize="normal"
+          app:imageResource="@{viewModel.getLocationLockIcon()}"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          app:tint="@{viewModel.getLocationLockIconTint()}"
+          app:useCompatPadding="true" />
+      </androidx.constraintlayout.widget.ConstraintLayout>
 
       <LinearLayout
         android:id="@+id/button_buttons"
