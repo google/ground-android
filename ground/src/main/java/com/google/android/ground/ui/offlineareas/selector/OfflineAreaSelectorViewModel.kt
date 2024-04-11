@@ -52,13 +52,13 @@ internal constructor(
   private val offlineAreaRepository: OfflineAreaRepository,
   private val navigator: Navigator,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  resources: Resources,
+  private val resources: Resources,
   locationManager: LocationManager,
   surveyRepository: SurveyRepository,
   mapStateRepository: MapStateRepository,
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
-  locationOfInterestRepository: LocationOfInterestRepository
+  locationOfInterestRepository: LocationOfInterestRepository,
 ) :
   BaseMapViewModel(
     locationManager,
@@ -67,18 +67,17 @@ internal constructor(
     offlineAreaRepository,
     permissionsManager,
     surveyRepository,
-    locationOfInterestRepository
+    locationOfInterestRepository,
   ) {
 
-  val remoteTileSources: List<TileSource>
+  val remoteTileSources: List<TileSource> = offlineAreaRepository.getDefaultTileSources()
   private var viewport: Bounds? = null
   private val offlineAreaSizeLoadingSymbol =
     resources.getString(R.string.offline_area_size_loading_symbol)
   val isDownloadProgressVisible = MutableLiveData(false)
   val downloadProgressMax = MutableLiveData(0)
   val downloadProgress = MutableLiveData(0)
-  val sizeOnDisk = MutableLiveData<String>(null)
-  val visibleBottomTextViewId = MutableLiveData<Int>(null)
+  val bottomText = MutableLiveData<String?>(null)
   val downloadButtonEnabled = MutableLiveData(false)
 
   override val mapConfig: MapConfig
@@ -86,12 +85,8 @@ internal constructor(
       super.mapConfig.copy(
         showOfflineImagery = false,
         overrideMapType = MapType.TERRAIN,
-        allowRotateGestures = false
+        allowRotateGestures = false,
       )
-
-  init {
-    remoteTileSources = offlineAreaRepository.getDefaultTileSources()
-  }
 
   fun onDownloadClick() {
     if (viewport == null) {
@@ -119,7 +114,7 @@ internal constructor(
 
   override fun onMapDragged() {
     downloadButtonEnabled.postValue(false)
-    visibleBottomTextViewId.postValue(0)
+    bottomText.postValue(null)
     super.onMapDragged()
   }
 
@@ -143,8 +138,9 @@ internal constructor(
       onUnavailableAreaSelected()
       return
     }
-    sizeOnDisk.postValue(offlineAreaSizeLoadingSymbol)
-    visibleBottomTextViewId.postValue(R.id.size_on_disk_text_view)
+    bottomText.postValue(
+      resources.getString(R.string.selected_offline_area_size, offlineAreaSizeLoadingSymbol)
+    )
     val sizeInMb = offlineAreaRepository.estimateSizeOnDisk(bounds).toMb()
     if (sizeInMb > MAX_AREA_DOWNLOAD_SIZE_MB) {
       onLargeAreaSelected()
@@ -154,18 +150,19 @@ internal constructor(
   }
 
   private fun onUnavailableAreaSelected() {
-    visibleBottomTextViewId.postValue(R.id.no_imagery_available_text_view)
+    bottomText.postValue(resources.getString(R.string.no_imagery_available_for_area))
     downloadButtonEnabled.postValue(false)
   }
 
   private fun onDownloadableAreaSelected(sizeInMb: Float) {
-    sizeOnDisk.postValue(sizeInMb.toMbString())
-    visibleBottomTextViewId.postValue(R.id.size_on_disk_text_view)
+    bottomText.postValue(
+      resources.getString(R.string.selected_offline_area_size, sizeInMb.toMbString())
+    )
     downloadButtonEnabled.postValue(true)
   }
 
   private fun onLargeAreaSelected() {
-    visibleBottomTextViewId.postValue(R.id.area_too_large_text_view)
+    bottomText.postValue(resources.getString(R.string.selected_offline_area_too_large))
     downloadButtonEnabled.postValue(false)
   }
 }

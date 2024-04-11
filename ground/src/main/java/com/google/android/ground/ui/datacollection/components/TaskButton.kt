@@ -26,7 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.TaskData
 
 class TaskButton(val action: ButtonAction) {
 
@@ -35,7 +35,7 @@ class TaskButton(val action: ButtonAction) {
   private var enabled: MutableState<Boolean> = mutableStateOf(true)
   private var hidden: MutableState<Boolean> = mutableStateOf(false)
 
-  private var taskUpdatedCallback: ((button: TaskButton, value: Value?) -> Unit)? = null
+  private var taskUpdatedCallback: ((button: TaskButton, taskData: TaskData?) -> Unit)? = null
 
   @Composable
   fun CreateButton() {
@@ -101,14 +101,14 @@ class TaskButton(val action: ButtonAction) {
     return this
   }
 
-  /** Register a callback to be invoked when [Value] is updated. */
-  fun setOnValueChanged(block: (button: TaskButton, value: Value?) -> Unit): TaskButton {
+  /** Register a callback to be invoked when [TaskData] is updated. */
+  fun setOnValueChanged(block: (button: TaskButton, taskData: TaskData?) -> Unit): TaskButton {
     this.taskUpdatedCallback = block
     return this
   }
 
-  /** Must be called when a new [Value] is available. */
-  fun onValueChanged(value: Value?) {
-    taskUpdatedCallback?.let { it(this, value) }
+  /** Must be called when a new [TaskData] is available. */
+  fun onValueChanged(taskData: TaskData?) {
+    taskUpdatedCallback?.let { it(this, taskData) }
   }
 }

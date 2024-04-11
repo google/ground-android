@@ -25,7 +25,7 @@ import androidx.work.testing.TestListenableWorkerBuilder
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
@@ -123,7 +123,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     val mutation = createSubmissionMutation() // a valid mutation
     val delt = buildList {
       addAll(mutation.deltas)
-      add(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, TextResponse("does_not_exist.jpg")))
+      add(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, TextTaskData("does_not_exist.jpg")))
     }
     val updatedMutation =
       mutation.copy(
@@ -199,7 +199,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     return SUBMISSION_MUTATION.copy(
       job = TEST_JOB,
       deltas =
-        listOf(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, TextResponse(photoName ?: photo.name)))
+        listOf(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, TextTaskData(photoName ?: photo.name)))
     )
   }
 
@@ -229,7 +229,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
         job = FakeData.JOB,
         surveyId = FakeData.SURVEY.id,
         deltas =
-          listOf(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, TextResponse("foo/$PHOTO_TASK_ID.jpg")))
+          listOf(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, TextTaskData("foo/$PHOTO_TASK_ID.jpg")))
       )
   }
 }

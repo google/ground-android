@@ -17,7 +17,7 @@ package com.google.android.ground.ui.datacollection.tasks.time
 
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.submission.TimeResponse.Companion.fromDate
+import com.google.android.ground.model.submission.TimeTaskData.Companion.fromDate
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.*
@@ -35,7 +35,7 @@ class TimeTaskViewModelTest : BaseHiltTest() {
   fun testUpdateResponse() = runWithTestDispatcher {
     timeFieldViewModel.updateResponse(TEST_DATE)
 
-    timeFieldViewModel.taskValue.test {
+    timeFieldViewModel.taskTaskData.test {
       assertThat(expectMostRecentItem()).isEqualTo(fromDate(TEST_DATE))
     }
   }

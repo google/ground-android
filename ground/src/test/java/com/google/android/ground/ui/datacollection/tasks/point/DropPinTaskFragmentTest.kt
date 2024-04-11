@@ -19,6 +19,7 @@ import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
+import com.google.android.ground.model.submission.DropPinTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.ui.common.ViewModelFactory
@@ -80,7 +81,7 @@ class DropPinTaskFragmentTest : BaseTaskFragmentTest<DropPinTaskFragment, DropPi
       .assertButtonIsEnabled("Undo", true)
       .assertButtonIsHidden("Drop pin")
 
-    hasValue(DropPinTaskResult(Point(Coordinates(10.0, 20.0))))
+    hasValue(DropPinTaskData(Point(Coordinates(10.0, 20.0))))
   }
 
   @Test

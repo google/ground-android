@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.polygon
+package com.google.android.ground.ui.common
 
-import com.google.android.ground.model.geometry.LineString
-import com.google.android.ground.model.submission.GeometryTaskResult
-
-/** User-provided "ongoing" response to a "draw an area" data collection [Task]. */
-data class DrawAreaTaskIncompleteResult constructor(val lineString: LineString) :
-  GeometryTaskResult(lineString) {
-  override fun isEmpty(): Boolean = lineString.isEmpty()
-}
+/**
+ * Annotates view models to indicate that a single instance should be shared by all fragments in an
+ * activity. Only one instance of such view models will be created per activity by
+ * [ViewModelFactory.get].
+ */
+@Retention(AnnotationRetention.RUNTIME) annotation class SharedViewModel

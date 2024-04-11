@@ -40,11 +40,21 @@ constructor(
   private val networkManager: NetworkManager,
   private val surveyRepository: SurveyRepository,
   private val remoteDataStore: RemoteDataStore,
-) : AuthenticationManager by authenticationManager {
+) {
+
+  fun getSignInState() = authenticationManager.signInState
+
+  fun init() = authenticationManager.init()
+
+  fun signIn() = authenticationManager.signIn()
+
+  fun signOut() = authenticationManager.signOut()
+
+  suspend fun getAuthenticatedUser() = authenticationManager.getAuthenticatedUser()
 
   /** Stores the current user's profile details into the local and remote dbs. */
   suspend fun saveUserDetails() {
-    localUserStore.insertOrUpdateUser(authenticationManager.getAuthenticatedUser())
+    localUserStore.insertOrUpdateUser(getAuthenticatedUser())
     updateRemoteUserInfo()
   }
 
@@ -54,7 +64,7 @@ constructor(
       Timber.d("Skipped refreshing user profile as device is offline.")
       return
     }
-    if (!authenticationManager.getAuthenticatedUser().isAnonymous) {
+    if (!getAuthenticatedUser().isAnonymous) {
       remoteDataStore.refreshUserProfile()
     }
   }

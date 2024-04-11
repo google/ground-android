@@ -15,18 +15,13 @@
  */
 package com.google.android.ground.model.submission
 
-import kotlinx.serialization.Serializable
+/** User-provided value for a single data collection [Task]. */
+interface TaskData {
+  fun getDetailsText(): String
 
-/** A user-provided value to a text question task. */
-@Serializable
-data class TextResponse(val text: String) : Value {
-  override fun getDetailsText(): String = text
-
-  override fun isEmpty(): Boolean = text.trim { it <= ' ' }.isEmpty()
-
-  override fun toString(): String = text
-
-  companion object {
-    fun fromString(text: String): Value? = if (text.isEmpty()) null else TextResponse(text)
-  }
+  fun isEmpty(): Boolean
 }
+
+fun TaskData?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true
+
+fun TaskData?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()

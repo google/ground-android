@@ -20,7 +20,8 @@ import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
-import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.DropPinTaskData
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -44,13 +45,13 @@ constructor(
   /** Whether the instructions dialog has been shown or not. */
   var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
 
-  override fun initialize(job: Job, task: Task, value: Value?) {
-    super.initialize(job, task, value)
+  override fun initialize(job: Job, task: Task, taskData: TaskData?) {
+    super.initialize(job, task, taskData)
     pinColor = job.getDefaultColor()
 
     // Drop a marker for current value
     // TODO: The restored marker appears to be slightly shifted. Check for accuracy of lat/lng.
-    (value as? DropPinTaskResult)?.let { dropMarker(it.location) }
+    (taskData as? DropPinTaskData)?.let { dropMarker(it.location) }
   }
 
   fun updateCameraPosition(position: CameraPosition) {
@@ -63,7 +64,7 @@ constructor(
   }
 
   fun updateResponse(point: Point) {
-    setValue(DropPinTaskResult(point))
+    setValue(DropPinTaskData(point))
     dropMarker(point)
   }
 

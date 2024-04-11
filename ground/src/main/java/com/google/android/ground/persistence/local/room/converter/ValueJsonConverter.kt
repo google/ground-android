@@ -18,21 +18,22 @@ package com.google.android.ground.persistence.local.room.converter
 
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.model.submission.DateResponse
-import com.google.android.ground.model.submission.MultipleChoiceResponse
-import com.google.android.ground.model.submission.NumberResponse
-import com.google.android.ground.model.submission.PhotoResponse
-import com.google.android.ground.model.submission.TextResponse
-import com.google.android.ground.model.submission.TimeResponse
-import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.CaptureLocationTaskData
+import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.DrawAreaTaskData
+import com.google.android.ground.model.submission.DropPinTaskData
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
+import com.google.android.ground.model.submission.NumberTaskData
+import com.google.android.ground.model.submission.PhotoTaskData
+import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager
 import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.ACCURACY_KEY
 import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.ALTITUDE_KEY
 import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.GEOMETRY_KEY
-import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskResult
-import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskResult
-import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskResult
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -47,24 +48,25 @@ internal object ValueJsonConverter {
 
   private const val ISO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mmZ"
 
-  fun toJsonObject(value: Value?): Any {
-    if (value == null) return JSONObject.NULL
-    return when (value) {
-      is TextResponse -> value.text
-      is MultipleChoiceResponse -> toJsonArray(value)
-      is NumberResponse -> value.value
-      is DateResponse -> dateToIsoString(value.date)
-      is TimeResponse -> dateToIsoString(value.time)
-      is PhotoResponse -> value.getDetailsText()
-      is DrawAreaTaskResult -> GeometryWrapperTypeConverter.toString(value.geometry)
-      is DropPinTaskResult -> GeometryWrapperTypeConverter.toString(value.geometry)
-      is CaptureLocationTaskResult ->
+  fun toJsonObject(taskData: TaskData?): Any {
+    if (taskData == null) return JSONObject.NULL
+    return when (taskData) {
+      is TextTaskData -> taskData.text
+      is MultipleChoiceTaskData -> toJsonArray(taskData)
+      is NumberTaskData -> taskData.value
+      is DateTaskData -> dateToIsoString(taskData.date)
+      is TimeTaskData -> dateToIsoString(taskData.time)
+      is PhotoTaskData ->
+        FirebaseStorageManager.getRemoteMediaPath(taskData.surveyId, taskData.filename)
+      is DrawAreaTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
+      is DropPinTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
+      is CaptureLocationTaskData ->
         JSONObject().apply {
-          put("accuracy", value.accuracy)
-          put("altitude", value.altitude)
-          put("geometry", GeometryWrapperTypeConverter.toString(value.geometry))
+          put("accuracy", taskData.accuracy)
+          put("altitude", taskData.altitude)
+          put("geometry", GeometryWrapperTypeConverter.toString(taskData.geometry))
         }
-      else -> throw UnsupportedOperationException("Unimplemented value class ${value.javaClass}")
+      else -> throw UnsupportedOperationException("Unimplemented value class ${taskData.javaClass}")
     }
   }
 
@@ -78,10 +80,10 @@ internal object ValueJsonConverter {
       .apply { timeZone = TimeZone.getTimeZone("UTC") }
       .parse(isoString)
 
-  private fun toJsonArray(response: MultipleChoiceResponse): JSONArray =
+  private fun toJsonArray(response: MultipleChoiceTaskData): JSONArray =
     JSONArray().apply { response.selectedOptionIds.forEach { this.put(it) } }
 
-  fun toResponse(task: Task, obj: Any): Value? {
+  fun toResponse(task: Task, obj: Any): TaskData? {
     if (JSONObject.NULL === obj) {
       return null
     }
@@ -89,37 +91,37 @@ internal object ValueJsonConverter {
       Task.Type.TEXT,
       Task.Type.PHOTO -> {
         DataStoreException.checkType(String::class.java, obj)
-        TextResponse.fromString(obj as String)
+        TextTaskData.fromString(obj as String)
       }
       Task.Type.MULTIPLE_CHOICE -> {
         DataStoreException.checkType(JSONArray::class.java, obj)
-        MultipleChoiceResponse.fromList(task.multipleChoice, toList(obj as JSONArray))
+        MultipleChoiceTaskData.fromList(task.multipleChoice, toList(obj as JSONArray))
       }
       Task.Type.NUMBER -> {
         DataStoreException.checkType(Number::class.java, obj)
-        NumberResponse.fromNumber(obj.toString())
+        NumberTaskData.fromNumber(obj.toString())
       }
       Task.Type.DATE -> {
         DataStoreException.checkType(String::class.java, obj)
-        DateResponse.fromDate(isoStringToDate(obj as String))
+        DateTaskData.fromDate(isoStringToDate(obj as String))
       }
       Task.Type.TIME -> {
         DataStoreException.checkType(String::class.java, obj)
-        TimeResponse.fromDate(isoStringToDate(obj as String))
+        TimeTaskData.fromDate(isoStringToDate(obj as String))
       }
       Task.Type.DRAW_AREA -> {
         DataStoreException.checkType(String::class.java, obj)
         val geometry = GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
         DataStoreException.checkNotNull(geometry, "Missing geometry in draw area task result")
         DataStoreException.checkType(Polygon::class.java, geometry!!)
-        DrawAreaTaskResult(geometry as Polygon)
+        DrawAreaTaskData(geometry as Polygon)
       }
       Task.Type.DROP_PIN -> {
         DataStoreException.checkType(String::class.java, obj)
         val geometry = GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
         DataStoreException.checkNotNull(geometry, "Missing geometry in drop pin task result")
         DataStoreException.checkType(Point::class.java, geometry!!)
-        DropPinTaskResult(geometry as Point)
+        DropPinTaskData(geometry as Point)
       }
       Task.Type.CAPTURE_LOCATION -> {
         DataStoreException.checkType(JSONObject::class.java, obj)
@@ -133,13 +135,13 @@ internal object ValueJsonConverter {
 
   private fun captureLocationResultFromJsonObject(
     data: JSONObject
-  ): Result<CaptureLocationTaskResult> =
+  ): Result<CaptureLocationTaskData> =
     Result.runCatching {
       val accuracy = data.getDouble(ACCURACY_KEY)
       val altitude = data.getDouble(ALTITUDE_KEY)
       val geometry =
         GeometryWrapperTypeConverter.fromString(data.getString(GEOMETRY_KEY))?.getGeometry()
-      CaptureLocationTaskResult(geometry as Point, accuracy, altitude)
+      CaptureLocationTaskData(geometry as Point, accuracy, altitude)
     }
 
   private fun toList(jsonArray: JSONArray): List<String> {

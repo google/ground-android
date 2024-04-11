@@ -232,14 +232,18 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     verify(surveyRepository).removeOfflineSurvey(TEST_SURVEY_2.id)
   }
 
-  private fun setUpFragment(optBundle: Bundle = bundleOf(Pair("shouldExitApp", false))) {
-    launchFragmentInHiltContainer<SurveySelectorFragment>(optBundle) {
-      fragment = this as SurveySelectorFragment
+  private fun setUpFragment(optBundle: Bundle = bundleOf(Pair("shouldExitApp", false))) =
+    runWithTestDispatcher {
+      launchFragmentInHiltContainer<SurveySelectorFragment>(optBundle) {
+        fragment = this as SurveySelectorFragment
+      }
+
+      // Wait for survey cards to be populated
+      advanceUntilIdle()
     }
-  }
 
   private fun setSurveyList(surveys: List<SurveyListItem>) = runWithTestDispatcher {
-    whenever(surveyRepository.getSurveyList(FakeData.USER)).thenReturn(listOf(surveys).asFlow())
+    whenever(surveyRepository.getSurveyList(TEST_USER)).thenReturn(listOf(surveys).asFlow())
   }
 
   private fun setLocalSurveys(surveys: List<SurveyListItem>) {

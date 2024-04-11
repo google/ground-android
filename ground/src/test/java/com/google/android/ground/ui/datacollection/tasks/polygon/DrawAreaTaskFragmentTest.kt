@@ -21,6 +21,8 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
+import com.google.android.ground.model.submission.DrawAreaTaskData
+import com.google.android.ground.model.submission.DrawAreaTaskIncompleteData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -117,7 +119,7 @@ class DrawAreaTaskFragmentTest :
     updateLastVertexAndAddPoint(COORDINATE_3)
 
     hasValue(
-      DrawAreaTaskIncompleteResult(
+      DrawAreaTaskIncompleteData(
         LineString(
           listOf(
             Coordinates(0.0, 0.0),
@@ -158,7 +160,7 @@ class DrawAreaTaskFragmentTest :
       .assertButtonIsEnabled("Complete")
 
     hasValue(
-      DrawAreaTaskResult(
+      DrawAreaTaskData(
         Polygon(
           LinearRing(
             listOf(

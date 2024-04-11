@@ -29,7 +29,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.CustomViewActions
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.MultipleChoiceResponse
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
@@ -115,7 +115,7 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 1")).perform(click())
     onView(withText("Option 2")).perform(click())
 
-    hasValue(MultipleChoiceResponse(multipleChoice, listOf("option id 2")))
+    hasValue(MultipleChoiceTaskData(multipleChoice, listOf("option id 2")))
     runner().assertButtonIsEnabled("Next")
   }
 
@@ -141,7 +141,7 @@ class MultipleChoiceTaskFragmentTest :
     onView(withText("Option 1")).perform(click())
     onView(withText("Option 2")).perform(click())
 
-    hasValue(MultipleChoiceResponse(multipleChoice, listOf("option id 1", "option id 2")))
+    hasValue(MultipleChoiceTaskData(multipleChoice, listOf("option id 1", "option id 2")))
     runner().assertButtonIsEnabled("Next")
   }
 
@@ -155,7 +155,7 @@ class MultipleChoiceTaskFragmentTest :
     onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
       .perform(CustomViewActions.forceTypeText(userInput))
 
-    hasValue(MultipleChoiceResponse(multipleChoice, listOf("[ $userInput ]")))
+    hasValue(MultipleChoiceTaskData(multipleChoice, listOf("[ $userInput ]")))
     runner().assertButtonIsEnabled("Next")
   }
 
@@ -168,7 +168,7 @@ class MultipleChoiceTaskFragmentTest :
     onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
       .perform(CustomViewActions.forceTypeText(userInput))
     onView(withText("Other")).check(matches(isChecked()))
-    hasValue(MultipleChoiceResponse(multipleChoice, listOf("[ $userInput ]")))
+    hasValue(MultipleChoiceTaskData(multipleChoice, listOf("[ $userInput ]")))
   }
 
   @Test
@@ -183,7 +183,7 @@ class MultipleChoiceTaskFragmentTest :
         .perform(CustomViewActions.forceTypeText(userInput))
       onView(withText("Option 1")).check(matches(isNotChecked()))
       onView(withText("Other")).check(matches(isChecked()))
-      hasValue(MultipleChoiceResponse(multipleChoice, listOf("[ $userInput ]")))
+      hasValue(MultipleChoiceTaskData(multipleChoice, listOf("[ $userInput ]")))
     }
 
   @Test
@@ -266,7 +266,7 @@ class MultipleChoiceTaskFragmentTest :
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = false))
 
     runner()
-      .assertButtonIsHidden("Previous")
+      .assertButtonIsDisabled("Previous")
       .assertButtonIsDisabled("Next")
       .assertButtonIsEnabled("Skip")
   }
@@ -297,7 +297,7 @@ class MultipleChoiceTaskFragmentTest :
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = true))
 
     runner()
-      .assertButtonIsHidden("Previous")
+      .assertButtonIsDisabled("Previous")
       .assertButtonIsDisabled("Next")
       .assertButtonIsHidden("Skip")
   }

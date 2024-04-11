@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,20 @@
  */
 package com.google.android.ground.model.submission
 
-/** User-provided value for a single data collection [Task]. */
-interface Value {
-  fun getDetailsText(): String
+import kotlinx.serialization.Serializable
 
-  fun isEmpty(): Boolean
+/** A user provided response to a number question task. */
+@Serializable
+data class NumberTaskData constructor(private val number: String) : TaskData {
+  val value: Double
+    get() = number.toDouble()
+
+  override fun getDetailsText(): String = number
+
+  override fun isEmpty(): Boolean = number.isEmpty()
+
+  companion object {
+    fun fromNumber(number: String): TaskData? =
+      if (number.isEmpty()) null else NumberTaskData(number)
+  }
 }
-
-fun Value?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true
-
-fun Value?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()

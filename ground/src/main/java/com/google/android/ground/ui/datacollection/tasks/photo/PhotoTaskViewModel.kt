@@ -19,13 +19,11 @@ import android.content.res.Resources
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import com.google.android.ground.model.submission.PhotoResponse
+import com.google.android.ground.model.submission.PhotoTaskData
 import com.google.android.ground.model.submission.isNotNullOrEmpty
-import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager.Companion.getRemoteMediaPath
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.util.BitmapUtil
-import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 import kotlinx.coroutines.flow.map
@@ -36,7 +34,7 @@ class PhotoTaskViewModel
 constructor(
   private val userMediaRepository: UserMediaRepository,
   private val bitmapUtil: BitmapUtil,
-  resources: Resources
+  resources: Resources,
 ) : AbstractTaskViewModel(resources) {
 
   /**
@@ -45,94 +43,27 @@ constructor(
    */
   var taskWaitingForPhoto: String? = null
 
-  /**
-   * Full path of the captured photo in local storage. In case of selecting a photo from storage,
-   * URI is returned. But when capturing a photo using camera, we need to pass a valid URI and the
-   * result returns true/false based on whether the operation passed or not. As only 1 photo result
-   * is returned at a time, we can directly map it 1:1 with the path of the captured photo.
-   */
-  var capturedPhotoPath: String? = null
-
   lateinit var surveyId: String
 
   val uri: LiveData<Uri> =
-    taskValue.map { userMediaRepository.getDownloadUrl(it?.getDetailsText()) }.asLiveData()
+    taskTaskData.map { userMediaRepository.getDownloadUrl(it?.getDetailsText()) }.asLiveData()
+  val isPhotoPresent: LiveData<Boolean> = taskTaskData.map { it.isNotNullOrEmpty() }.asLiveData()
 
-  val isPhotoPresent: LiveData<Boolean> = taskValue.map { it.isNotNullOrEmpty() }.asLiveData()
-
-  private fun onPhotoResult(photoResult: PhotoResult) {
-    if (photoResult.taskId != task.id) {
-      // Update belongs to another task.
-      return
-    }
-    try {
-      val imageFile = getFileFromResult(photoResult)
-      val filename = imageFile.name
-      val path = imageFile.absolutePath
-
-      // Add image to gallery.
-      userMediaRepository.addImageToGallery(path, filename)
-
-      // Update value..
-      val remoteDestinationPath = getRemoteMediaPath(surveyId, filename)
-      setValue(PhotoResponse(remoteDestinationPath))
-    } catch (e: IOException) {
-      Timber.e(e, "Failed to save photo")
-    }
-  }
-
-  fun onSelectPhotoResult(uri: Uri?) {
-    if (uri == null) {
-      Timber.v("Select photo failed or canceled")
-      return
-    }
+  /**
+   * Saves photo data stored on an on-device URI in Ground-associated storage and prepares it for
+   * inclusion in a data collection submission.
+   */
+  fun savePhotoTaskData(uri: Uri) {
     val currentTask = taskWaitingForPhoto
-    if (currentTask == null) {
-      Timber.e("Photo captured but no task waiting for the result")
-      return
-    }
+    requireNotNull(currentTask) { "Photo captured but no task waiting for the result" }
+
     try {
-      onPhotoProvided(PhotoResult(currentTask, bitmapUtil.fromUri(uri), null))
-      Timber.v("Select photo result returned")
+      val bitmap = bitmapUtil.fromUri(uri)
+      val file = userMediaRepository.savePhoto(bitmap, currentTask)
+      userMediaRepository.addImageToGallery(file.absolutePath, file.name)
+      setValue(PhotoTaskData(file.absolutePath, surveyId))
     } catch (e: IOException) {
       Timber.e(e, "Error getting photo selected from storage")
     }
-  }
-
-  fun onCapturePhotoResult(result: Boolean) {
-    if (!result) {
-      Timber.v("Capture photo failed or canceled")
-      // TODO: Cleanup created file if it exists.
-      return
-    }
-    val currentTask = taskWaitingForPhoto
-    if (currentTask == null) {
-      Timber.e("Photo captured but no task waiting for the result")
-      return
-    }
-    if (capturedPhotoPath == null) {
-      Timber.e("Photo captured but no path available to read the result")
-      return
-    }
-    onPhotoProvided(PhotoResult(currentTask, null, capturedPhotoPath))
-    Timber.v("Photo capture result returned")
-  }
-
-  private fun onPhotoProvided(result: PhotoResult) {
-    capturedPhotoPath = null
-    taskWaitingForPhoto = null
-    onPhotoResult(result)
-  }
-
-  private fun getFileFromResult(result: PhotoResult): File {
-    if (result.bitmap != null) {
-      return userMediaRepository.savePhoto(result.bitmap, result.taskId)
-    }
-    if (result.path != null) {
-      Timber.d("Photo saved %s : %b", result.path, File(result.path).exists())
-      return File(result.path)
-    }
-
-    error("PhotoResult is empty")
   }
 }

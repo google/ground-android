@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.time
+package com.google.android.ground.ui.common
 
-import android.content.res.Resources
-import com.google.android.ground.model.submission.TimeTaskData.Companion.fromDate
-import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
-import java.util.Date
-import javax.inject.Inject
+import androidx.lifecycle.ViewModel
+import dagger.MapKey
+import kotlin.reflect.KClass
 
-class TimeTaskViewModel @Inject constructor(resources: Resources) :
-  AbstractTaskViewModel(resources) {
-
-  fun updateResponse(date: Date) {
-    setValue(fromDate(date))
-  }
-}
+@MapKey
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ViewModelKey(val value: KClass<out ViewModel>)

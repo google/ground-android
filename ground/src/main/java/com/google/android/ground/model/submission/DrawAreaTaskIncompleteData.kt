@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model.submission
 
-package com.google.android.ground.ui.common;
+import com.google.android.ground.model.geometry.LineString
 
-import androidx.lifecycle.ViewModel;
-import dagger.MapKey;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
-@MapKey
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ViewModelKey {
-
-  Class<? extends ViewModel> value();
+/** User-provided "ongoing" response to a "draw an area" data collection [Task]. */
+data class DrawAreaTaskIncompleteData constructor(val lineString: LineString) :
+  GeometryTaskData(lineString) {
+  override fun isEmpty(): Boolean = lineString.isEmpty()
 }

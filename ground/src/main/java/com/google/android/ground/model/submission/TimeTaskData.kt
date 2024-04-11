@@ -24,7 +24,7 @@ import kotlinx.serialization.Serializable
 
 /** A user-provided response to a time question task. */
 @Serializable
-data class TimeResponse(val time: @Contextual Date) : Value {
+data class TimeTaskData(val time: @Contextual Date) : TaskData {
   // TODO(#752): Use device localization preferences.
   private val timeFormat: @Contextual DateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
@@ -36,7 +36,7 @@ data class TimeResponse(val time: @Contextual Date) : Value {
   override fun isEmpty(): Boolean = time.time == 0L
 
   companion object {
-    fun fromDate(time: Date?): Value? =
-      if (time == null || time.time == 0L) null else TimeResponse(time)
+    fun fromDate(time: Date?): TaskData? =
+      if (time == null || time.time == 0L) null else TimeTaskData(time)
   }
 }

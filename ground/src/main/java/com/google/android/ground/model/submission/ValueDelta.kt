@@ -22,6 +22,6 @@ import com.google.android.ground.model.task.Task
  *
  * @property taskId the id of the task task being updated.
  * @property taskType the type of task being updated.
- * @property newValue the new value of the value, or empty if removed.
+ * @property newTaskData the new value of the value, or empty if removed.
  */
-data class ValueDelta(val taskId: String, val taskType: Task.Type, val newValue: Value?)
+data class ValueDelta(val taskId: String, val taskType: Task.Type, val newTaskData: TaskData?)

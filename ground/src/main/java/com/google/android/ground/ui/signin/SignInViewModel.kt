@@ -45,7 +45,7 @@ internal constructor(
 
   fun onSignInButtonClick() {
     viewModelScope.launch {
-      val signInState = userRepository.signInState.first()
+      val signInState = userRepository.getSignInState().first()
       when (signInState.state) {
         SignInState.State.SIGNED_OUT,
         SignInState.State.ERROR -> userRepository.signIn()

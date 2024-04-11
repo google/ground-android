@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.location
+package com.google.android.ground.model.submission
 
 import android.location.Location
 import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.model.geometry.LatLngConverter
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.submission.GeometryTaskResult
-import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
 /** User-provided response to a "capture location" data collection [Task]. */
-// TODO(#2039): Refactor into DropPinResponse and CaptureLocationResponse.
-data class CaptureLocationTaskResult
-constructor(
+data class CaptureLocationTaskData(
   val location: Point,
   val altitude: Double?, // in metres
-  val accuracy: Double? // in metres
-) : GeometryTaskResult(location) {
+  val accuracy: Double?, // in metres
+) : GeometryTaskData(location) {
   override fun getDetailsText(): String {
     // TODO: Move to strings.xml for i18n
     val df = DecimalFormat("#.##")
@@ -44,13 +41,13 @@ constructor(
   override fun isEmpty(): Boolean = false
 
   companion object {
-    fun Location.toCaptureLocationResult(): CaptureLocationTaskResult {
+    fun Location.toCaptureLocationResult(): CaptureLocationTaskData {
       val altitude = if (hasAltitude()) altitude else null
       val accuracy = if (hasAccuracy()) accuracy else null
-      return CaptureLocationTaskResult(
+      return CaptureLocationTaskData(
         Point(Coordinates(latitude, longitude)),
         altitude,
-        accuracy?.toDouble()
+        accuracy?.toDouble(),
       )
     }
   }

@@ -21,16 +21,16 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.MultipleChoiceResponse
-import com.google.android.ground.model.submission.NumberResponse
-import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.DrawAreaTaskData
+import com.google.android.ground.model.submission.DropPinTaskData
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
+import com.google.android.ground.model.submission.NumberTaskData
+import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskResult
-import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskResult
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.GeoPoint
 import com.sharedtest.FakeData
@@ -50,10 +50,10 @@ class SubmissionMutationConverterTest {
   private val loiId = "loi_id_1"
   private val clientTimestamp = Date()
 
-  private val textResponse = TextResponse.fromString("some data")
+  private val textTaskData = TextTaskData.fromString("some data")
 
   private val singleChoiceResponse =
-    MultipleChoiceResponse.fromList(
+    MultipleChoiceTaskData.fromList(
       MultipleChoice(
         persistentListOf(
           Option("option id 1", "code1", "Option 1"),
@@ -64,8 +64,8 @@ class SubmissionMutationConverterTest {
       ids = listOf("option id 1")
     )
 
-  private val multipleChoiceResponse =
-    MultipleChoiceResponse.fromList(
+  private val multipleChoiceTaskData =
+    MultipleChoiceTaskData.fromList(
       MultipleChoice(
         persistentListOf(
           Option("option id 1", "code1", "Option 1"),
@@ -76,12 +76,12 @@ class SubmissionMutationConverterTest {
       ids = listOf("option id 1", "option id 2")
     )
 
-  private val numberResponse = NumberResponse.fromNumber("123")
+  private val numberTaskData = NumberTaskData.fromNumber("123")
 
-  private val dropPinTaskResult = DropPinTaskResult(Point(Coordinates(10.0, 20.0)))
+  private val dropPinTaskResult = DropPinTaskData(Point(Coordinates(10.0, 20.0)))
 
   private val drawAreaTaskResult =
-    DrawAreaTaskResult(
+    DrawAreaTaskData(
       Polygon(
         LinearRing(
           listOf(
@@ -104,31 +104,31 @@ class SubmissionMutationConverterTest {
       job = job,
       deltas =
         listOf(
-          ValueDelta(taskId = "text_task", taskType = Task.Type.TEXT, newValue = textResponse),
+          ValueDelta(taskId = "text_task", taskType = Task.Type.TEXT, newTaskData = textTaskData),
           ValueDelta(
             taskId = "single_choice_task",
             taskType = Task.Type.MULTIPLE_CHOICE,
-            newValue = singleChoiceResponse
+            newTaskData = singleChoiceResponse
           ),
           ValueDelta(
             taskId = "multiple_choice_task",
             taskType = Task.Type.MULTIPLE_CHOICE,
-            newValue = multipleChoiceResponse
+            newTaskData = multipleChoiceTaskData
           ),
           ValueDelta(
             taskId = "number_task",
             taskType = Task.Type.NUMBER,
-            newValue = numberResponse
+            newTaskData = numberTaskData
           ),
           ValueDelta(
             taskId = "drop_pin_task",
             taskType = Task.Type.DROP_PIN,
-            newValue = dropPinTaskResult
+            newTaskData = dropPinTaskResult
           ),
           ValueDelta(
             taskId = "draw_area_task",
             taskType = Task.Type.DRAW_AREA,
-            newValue = drawAreaTaskResult
+            newTaskData = drawAreaTaskResult
           )
         )
     )

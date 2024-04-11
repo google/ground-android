@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.common;
+package com.google.android.ground.util
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import androidx.core.graphics.Insets
+import androidx.core.view.WindowInsetsCompat
 
-/**
- * Annotates view models to indicate that a single instance should be shared by all fragments in an
- * activity. Only one instance of such view models will be created per activity by
- * {@link ViewModelFactory#get(Fragment, Class)}.
- */
-@Retention(RetentionPolicy.RUNTIME)
-public @interface SharedViewModel {
-
-}
+fun WindowInsetsCompat.systemInsets(): Insets = getInsets(WindowInsetsCompat.Type.systemBars())

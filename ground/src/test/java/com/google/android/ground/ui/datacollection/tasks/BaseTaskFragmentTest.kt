@@ -27,7 +27,7 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -70,8 +70,8 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     onView(withId(R.id.card_value)).check(matches(withText(value)))
   }
 
-  protected suspend fun hasValue(value: Value?) {
-    viewModel.taskValue.test { assertThat(expectMostRecentItem()).isEqualTo(value) }
+  protected suspend fun hasValue(taskData: TaskData?) {
+    viewModel.taskTaskData.test { assertThat(expectMostRecentItem()).isEqualTo(taskData) }
   }
 
   /** Asserts that the task fragment has the given list of buttons in the exact same order. */

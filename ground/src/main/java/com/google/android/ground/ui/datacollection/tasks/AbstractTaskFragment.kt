@@ -35,7 +35,7 @@ import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
-import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.model.task.Task
@@ -130,20 +130,22 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** Invoked when the all [ButtonAction]s are added to the current [TaskView]. */
   open fun onActionButtonsCreated() {
-    viewLifecycleOwner.lifecycleScope.launch { viewModel.taskValue.collect { onValueChanged(it) } }
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewModel.taskTaskData.collect { onValueChanged(it) }
+    }
   }
 
   /** Invoked when the data associated with the current task gets modified. */
-  protected open fun onValueChanged(value: Value?) {
+  protected open fun onValueChanged(taskData: TaskData?) {
     for ((_, button) in buttonDataList) {
-      button.onValueChanged(value)
+      button.onValueChanged(taskData)
     }
   }
 
   private fun addPreviousButton() =
     addButton(ButtonAction.PREVIOUS)
       .setOnClickListener { moveToPrevious() }
-      .showIfTrue(!dataCollectionViewModel.isFirstPosition(taskId))
+      .enableIfTrue(!dataCollectionViewModel.isFirstPosition(taskId))
 
   protected fun addNextButton() =
     addButton(ButtonAction.NEXT)
@@ -228,7 +230,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   fun getTask(): Task = viewModel.task
 
-  fun getCurrentValue(): Value? = viewModel.taskValue.value
+  fun getCurrentValue(): TaskData? = viewModel.taskTaskData.value
 
   private fun launchLoiNameDialog() {
     dataCollectionViewModel.loiNameDialogOpen.value = true

@@ -23,7 +23,7 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 
 /** A user-provided response to a geometry-based task ("drop a pin" or "draw an area"). */
-abstract class GeometryTaskResult(val geometry: Geometry) : Value {
+abstract class GeometryTaskData(val geometry: Geometry) : TaskData {
 
   // TODO(#1733): Move strings to view layer.
   override fun getDetailsText(): String =

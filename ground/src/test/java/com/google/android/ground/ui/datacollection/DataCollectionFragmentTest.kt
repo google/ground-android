@@ -22,7 +22,7 @@ import com.google.android.ground.R
 import com.google.android.ground.capture
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.launchFragmentWithNavController
-import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
@@ -253,13 +253,13 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     private const val TASK_ID_1 = "1"
     const val TASK_1_NAME = "task 1"
     private const val TASK_1_RESPONSE = "response 1"
-    private val TASK_1_VALUE = TextResponse.fromString(TASK_1_RESPONSE)
+    private val TASK_1_VALUE = TextTaskData.fromString(TASK_1_RESPONSE)
     private val TASK_1_VALUE_DELTA = ValueDelta(TASK_ID_1, Task.Type.TEXT, TASK_1_VALUE)
 
     private const val TASK_ID_2 = "2"
     const val TASK_2_NAME = "task 2"
     private const val TASK_2_RESPONSE = "response 2"
-    private val TASK_2_VALUE = TextResponse.fromString(TASK_2_RESPONSE)
+    private val TASK_2_VALUE = TextTaskData.fromString(TASK_2_RESPONSE)
     private val TASK_2_VALUE_DELTA = ValueDelta(TASK_ID_2, Task.Type.TEXT, TASK_2_VALUE)
 
     private val TASKS =
