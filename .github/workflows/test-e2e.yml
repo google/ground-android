@@ -29,6 +29,6 @@ jobs:
     steps:
       - name: Start
         run: |
-          gh workflow run --repo google/ground-platform/.github/workflows --ref sufy/1699/e2e-testing emulator.yml
+          gh workflow run --repo google/ground-platform emulator.yml
           sleep 60
           gh workflow run emulator.yml
