@@ -41,6 +41,7 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
+import com.google.android.ground.util.systemInsets
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,10 +71,7 @@ class HomeScreenFragment :
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    getViewModel(MainViewModel::class.java).windowInsets.observe(this) { insets: WindowInsetsCompat
-      ->
-      onApplyWindowInsets(insets)
-    }
+    getViewModel(MainViewModel::class.java).windowInsets.observe(this) { onApplyWindowInsets(it) }
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     lifecycleScope.launch { homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() } }
   }
@@ -141,12 +139,8 @@ class HomeScreenFragment :
   }
 
   private fun onApplyWindowInsets(insets: WindowInsetsCompat) {
-    updateNavViewInsets(insets)
-  }
-
-  private fun updateNavViewInsets(insets: WindowInsetsCompat) {
     val headerView = binding.navView.getHeaderView(0)
-    headerView.setPadding(0, insets.systemWindowInsetTop, 0, 0)
+    headerView.setPadding(0, insets.systemInsets().top, 0, 0)
   }
 
   override fun onBack(): Boolean = false
