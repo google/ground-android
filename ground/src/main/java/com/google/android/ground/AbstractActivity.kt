@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.ground.util.Debug
+import com.google.android.ground.util.systemInsets
 import javax.annotation.OverridingMethodsMustInvokeSuper
 
 /** Base activity class containing common helper methods. */
@@ -44,7 +45,7 @@ abstract class AbstractActivity : AppCompatActivity() {
   @OverridingMethodsMustInvokeSuper
   protected open fun onWindowInsetChanged(insets: WindowInsetsCompat) {
     findViewById<View>(R.id.status_bar_scrim).layoutParams =
-      FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, insets.systemWindowInsetTop)
+      FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, insets.systemInsets().top)
   }
 
   override fun onStart() {

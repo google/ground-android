@@ -54,6 +54,7 @@ import com.google.android.ground.ui.map.gms.mog.MogCollection
 import com.google.android.ground.ui.map.gms.mog.MogTileProvider
 import com.google.android.ground.ui.util.BitmapUtil
 import com.google.android.ground.util.invert
+import com.google.android.ground.util.systemInsets
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlin.math.min
@@ -108,13 +109,12 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     get() = map.cameraPosition.zoom
 
   private fun onApplyWindowInsets(view: View, insets: WindowInsetsCompat): WindowInsetsCompat {
-    val insetBottom = insets.systemWindowInsetBottom
     // TODO: Move extra padding to dimens.xml.
     // HACK: Fix padding when keyboard is shown; we limit the padding here to prevent the
     // watermark from flying up too high due to the combination of translateY and big inset
     // size due to keyboard.
-    setCompassPadding(view, 0, insets.systemWindowInsetTop + 200, 0, 0)
-    setWatermarkPadding(view, 20, 0, 0, min(insetBottom, 250) + 8)
+    setCompassPadding(view, 0, insets.systemInsets().top + 200, 0, 0)
+    setWatermarkPadding(view, 20, 0, 0, min(insets.systemInsets().bottom, 250) + 8)
     return insets
   }
 
