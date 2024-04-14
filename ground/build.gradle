@@ -198,6 +198,7 @@ dependencies {
     // Needed for createComposeRule(), but not for createAndroidComposeRule<YourActivity>():
     debugImplementation('androidx.compose.ui:ui-test-manifest:1.6.4')
     stagingImplementation('androidx.compose.ui:ui-test-manifest:1.6.4')
+    implementation 'androidx.compose.runtime:runtime-livedata:1.6.5'
 
     // Google Play Services.
     implementation 'com.google.android.gms:play-services-auth:21.0.0'

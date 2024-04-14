@@ -22,8 +22,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -41,8 +41,7 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
-import com.google.android.ground.ui.theme.AppTheme
-import com.google.android.ground.util.systemInsets
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -71,7 +70,10 @@ class HomeScreenFragment :
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    getViewModel(MainViewModel::class.java).windowInsets.observe(this) { onApplyWindowInsets(it) }
+    getViewModel(MainViewModel::class.java).windowInsets.observe(this) { insets: WindowInsetsCompat
+      ->
+      onApplyWindowInsets(insets)
+    }
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     lifecycleScope.launch { homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() } }
   }
@@ -100,6 +102,10 @@ class HomeScreenFragment :
     val navHeader = binding.navView.getHeaderView(0)
     navHeader.findViewById<TextView>(R.id.switch_survey_button).setOnClickListener {
       homeScreenViewModel.showSurveySelector()
+    }
+    navHeader.findViewById<ShapeableImageView>(R.id.user_image).setOnClickListener {
+      homeScreenViewModel.reInitializeDialogFlags()
+      showSignOutConfirmationDialog()
     }
     updateNavHeader()
     binding.navView.findViewById<TextView>(R.id.view_licenses).setOnClickListener { showLicenses() }
@@ -135,8 +141,12 @@ class HomeScreenFragment :
   }
 
   private fun onApplyWindowInsets(insets: WindowInsetsCompat) {
+    updateNavViewInsets(insets)
+  }
+
+  private fun updateNavViewInsets(insets: WindowInsetsCompat) {
     val headerView = binding.navView.getHeaderView(0)
-    headerView.setPadding(0, insets.systemInsets().top, 0, 0)
+    headerView.setPadding(0, insets.systemWindowInsetTop, 0, 0)
   }
 
   override fun onBack(): Boolean = false
@@ -146,7 +156,6 @@ class HomeScreenFragment :
       R.id.sync_status -> homeScreenViewModel.showSyncStatus()
       R.id.nav_offline_areas -> homeScreenViewModel.showOfflineAreas()
       R.id.nav_settings -> homeScreenViewModel.showSettings()
-      R.id.nav_sign_out -> showSignOutConfirmationDialog()
     }
     closeDrawer()
     return true
@@ -158,12 +167,18 @@ class HomeScreenFragment :
     // compose.
     binding.composeView.apply {
       setContent {
-        val openDialog = remember { mutableStateOf(true) }
-
-        // Reset the state for recomposition
-        openDialog.value = true
-
-        AppTheme { SignOutConfirmationDialog(openDialog) { userRepository.signOut() } }
+        val showUserDetailsDialog by homeScreenViewModel.showUserDetailsDialog.observeAsState(true)
+        val showSignOutDialog by homeScreenViewModel.showSignOutDialog.observeAsState(false)
+        if (showUserDetailsDialog) {
+          UserDetailsDialog(context = requireContext(), homeScreenViewModel = homeScreenViewModel)
+        } else if (showSignOutDialog) {
+          SignOutConfirmationDialog(
+            context = requireContext(),
+            homeScreenViewModel = homeScreenViewModel,
+          ) {
+            userRepository.signOut()
+          }
+        }
       }
     }
   }

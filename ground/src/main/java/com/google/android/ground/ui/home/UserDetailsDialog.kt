@@ -17,6 +17,7 @@ package com.google.android.ground.ui.home
 
 import android.content.Context
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -25,20 +26,17 @@ import com.google.android.ground.R
 import com.google.android.material.color.MaterialColors
 
 @Composable
-fun SignOutConfirmationDialog(
-  context: Context,
-  homeScreenViewModel: HomeScreenViewModel,
-  signOutCallback: () -> Unit,
-) {
+fun UserDetailsDialog(context: Context, homeScreenViewModel: HomeScreenViewModel) {
+  val user = homeScreenViewModel.userDetails.value
   fun dismissDialog() {
     homeScreenViewModel.dismissDialogs()
   }
   AlertDialog(
     onDismissRequest = { dismissDialog() },
-    title = { Text(text = context.getString(R.string.sign_out_dialog_title)) },
-    text = { Text(text = context.getString(R.string.sign_out_dialog_body)) },
+    title = { user?.displayName?.let { Text(it) } },
+    text = { user?.email?.let { Text(it) } },
     dismissButton = {
-      TextButton(onClick = { dismissDialog() }) {
+      OutlinedButton(onClick = { dismissDialog() }) {
         Text(
           text = context.getString(R.string.cancel),
           color = Color(MaterialColors.getColor(context, R.attr.colorOnSurface, "")),
@@ -46,12 +44,7 @@ fun SignOutConfirmationDialog(
       }
     },
     confirmButton = {
-      TextButton(
-        onClick = {
-          signOutCallback()
-          dismissDialog()
-        }
-      ) {
+      TextButton(onClick = { homeScreenViewModel.showSignOutConfirmationDialog() }) {
         Text(
           text = context.getString(R.string.sign_out),
           color = Color(MaterialColors.getColor(context, R.attr.colorError, "")),

@@ -54,6 +54,12 @@ internal constructor(
   private val _userDetails = MutableLiveData<User>()
   val userDetails: LiveData<User> = _userDetails
 
+  private val _showUserDetailsDialog = MutableLiveData(true)
+  val showUserDetailsDialog: LiveData<Boolean> = _showUserDetailsDialog
+
+  private val _showSignOutDialog = MutableLiveData(false)
+  val showSignOutDialog: LiveData<Boolean> = _showSignOutDialog
+
   init {
     viewModelScope.launch { _userDetails.value = authenticationManager.getAuthenticatedUser() }
   }
@@ -117,5 +123,20 @@ internal constructor(
 
   fun showSyncStatus() {
     navigator.navigate(HomeScreenFragmentDirections.showSyncStatus())
+  }
+
+  fun reInitializeDialogFlags() {
+    _showUserDetailsDialog.value = true
+    _showSignOutDialog.value = false
+  }
+
+  fun showSignOutConfirmationDialog() {
+    _showUserDetailsDialog.value = false
+    _showSignOutDialog.value = true
+  }
+
+  fun dismissDialogs() {
+    _showUserDetailsDialog.value = false
+    _showSignOutDialog.value = false
   }
 }
