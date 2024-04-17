@@ -95,11 +95,26 @@
         app:layout_constraintRight_toLeftOf="@id/right_mask"
         app:layout_constraintTop_toBottomOf="@id/top_mask" />
 
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/location_lock_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:onClick="@{() -> viewModel.onLocationLockClick()}"
+        app:backgroundTint="?attr/colorSurface"
+        app:fabSize="mini"
+        app:imageResource="@{viewModel.getLocationLockIcon()}"
+        app:layout_constraintBottom_toBottomOf="@id/viewport_outline"
+        app:layout_constraintEnd_toEndOf="@id/viewport_outline"
+        app:tint="@{viewModel.getLocationLockIconTint()}"
+        app:useCompatPadding="true" />
+
       <FrameLayout
         android:id="@+id/bottom_mask"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        app:layout_constraintBottom_toTopOf="@id/button_buttons">
+        app:layout_constraintBottom_toTopOf="@id/button_buttons"
+        app:layout_constraintTop_toBottomOf="@id/viewport_outline">
 
         <View
           android:layout_width="match_parent"
@@ -108,40 +123,14 @@
           android:background="@color/blackOverlay" />
 
         <TextView
-          android:id="@+id/no_imagery_available_text_view"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_gravity="center"
           android:layout_marginHorizontal="64dp"
-          android:text="@string/no_imagery_available_for_area"
+          android:text="@{viewModel.bottomText}"
           android:textAlignment="center"
           android:textColor="@color/textOverMap"
-          android:textSize="14sp"
-          android:visibility="@{viewModel.visibleBottomTextViewId == R.id.no_imagery_available_text_view ? View.VISIBLE : View.GONE}" />
-
-        <TextView
-          android:id="@+id/size_on_disk_text_view"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:layout_marginHorizontal="64dp"
-          android:text="@{@string/selected_offline_area_size(viewModel.sizeOnDisk)}"
-          android:textAlignment="center"
-          android:textColor="@color/textOverMap"
-          android:textSize="14sp"
-          android:visibility="@{viewModel.visibleBottomTextViewId == R.id.size_on_disk_text_view ? View.VISIBLE : View.GONE}" />
-
-        <TextView
-          android:id="@+id/area_too_large_text_view"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:layout_marginHorizontal="64dp"
-          android:text="@string/selected_offline_area_too_large"
-          android:textAlignment="center"
-          android:textColor="@color/textOverMap"
-          android:textSize="14sp"
-          android:visibility="@{viewModel.visibleBottomTextViewId == R.id.area_too_large_text_view ? View.VISIBLE : View.GONE}" />
+          android:textSize="14sp" />
       </FrameLayout>
 
       <LinearLayout
