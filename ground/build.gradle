@@ -322,9 +322,12 @@ dependencies {
 
     implementation "com.google.guava:guava:31.1-android"
 
-    api "com.google.protobuf:protobuf-kotlin-lite:4.26.1"
-
+    api("com.google.protobuf:protobuf-kotlin-lite:4.26.1")
+    // TODO: Move protos into shared module and set correct path here.
+//    testProtobuf(files("lib/protos-test.tar.gz"))
+//    implementation("com.google.protobuf:protobuf-java-util:3.25.0")
 }
+
 protobuf {
     protoc {
         artifact = "com.google.protobuf:protoc:4.26.1"
