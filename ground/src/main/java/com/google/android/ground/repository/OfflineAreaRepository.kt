@@ -19,13 +19,10 @@ import com.google.android.ground.Config
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
-import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.mog.MogClient
-import com.google.android.ground.ui.map.gms.mog.MogCollection
-import com.google.android.ground.ui.map.gms.mog.MogSource
 import com.google.android.ground.ui.map.gms.mog.MogTileDownloader
 import com.google.android.ground.ui.map.gms.mog.getTilePath
 import com.google.android.ground.ui.map.gms.mog.maxZoom
@@ -57,8 +54,8 @@ constructor(
   private val surveyRepository: SurveyRepository,
   private val fileUtil: FileUtil,
   private val geocodingManager: GeocodingManager,
+  private val mogClient: MogClient,
   private val offlineUuidGenerator: OfflineUuidGenerator,
-  private val remoteStorageManager: RemoteStorageManager,
 ) {
 
   private suspend fun addOfflineArea(bounds: Bounds, zoomRange: IntRange) {
@@ -69,7 +66,7 @@ constructor(
         OfflineArea.State.DOWNLOADED,
         bounds,
         areaName,
-        zoomRange
+        zoomRange,
       )
     )
   }
@@ -89,12 +86,11 @@ constructor(
    * number of bytes processed and total expected bytes as the download progresses.
    */
   suspend fun downloadTiles(bounds: Bounds): Flow<Pair<Int, Int>> = flow {
-    val client = getMogClient()
-    val requests = client.buildTilesRequests(bounds)
+    val requests = mogClient.buildTilesRequests(bounds)
     val totalBytes = requests.sumOf { it.totalBytes }
     var bytesDownloaded = 0
     val tilePath = getLocalTileSourcePath()
-    MogTileDownloader(client, tilePath).downloadTiles(requests).collect {
+    MogTileDownloader(mogClient, tilePath).downloadTiles(requests).collect {
       bytesDownloaded += it
       emit(Pair(bytesDownloaded, totalBytes))
     }
@@ -114,37 +110,24 @@ constructor(
 
   private suspend fun applyBounds(
     tileSources: List<TileSource>?,
-    bounds: List<Bounds>
+    bounds: List<Bounds>,
   ): List<TileSource> =
     tileSources?.mapNotNull { tileSource -> toOfflineTileSource(tileSource, bounds) } ?: listOf()
 
   private suspend fun toOfflineTileSource(
     tileSource: TileSource,
-    clipBounds: List<Bounds>
+    clipBounds: List<Bounds>,
   ): TileSource? {
     if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
     return TileSource(
       "file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg",
       TileSource.Type.TILED_WEB_MAP,
-      clipBounds
+      clipBounds,
     )
   }
 
   private fun getOfflineAreaBounds(): Flow<List<Bounds>> =
     localOfflineAreaStore.offlineAreas().map { list -> list.map { it.bounds } }
-
-  /**
-   * Uses the first tile source URL of the currently active survey and returns a [MogClient], or
-   * throws an error if no survey is active or if no tile sources are defined.
-   */
-  private fun getMogClient(): MogClient {
-    val mogCollection = MogCollection(getMogSources())
-    // TODO(#1754): Create a factory and inject rather than instantiating here. Add tests.
-    return MogClient(mogCollection, remoteStorageManager)
-  }
-
-  private fun getMogSources(): List<MogSource> =
-    Config.getMogSources(getDefaultTileSources().first().url)
 
   /** Returns the default configured tile sources. */
   fun getDefaultTileSources(): List<TileSource> =
@@ -153,14 +136,12 @@ constructor(
     )
 
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
-    val client = getMogClient()
-    val maxZoom = client.collection.sources.maxZoom()
-    return client.buildTilesRequests(bounds, maxZoom..maxZoom).isNotEmpty()
+    val maxZoom = mogClient.collection.sources.maxZoom()
+    return mogClient.buildTilesRequests(bounds, maxZoom..maxZoom).isNotEmpty()
   }
 
   suspend fun estimateSizeOnDisk(bounds: Bounds): Int {
-    val client = getMogClient()
-    val requests = client.buildTilesRequests(bounds)
+    val requests = mogClient.buildTilesRequests(bounds)
     return requests.sumOf { it.totalBytes }
   }
 
