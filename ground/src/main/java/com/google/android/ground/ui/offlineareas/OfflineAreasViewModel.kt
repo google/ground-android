@@ -34,7 +34,7 @@ class OfflineAreasViewModel
 @Inject
 internal constructor(
   private val navigator: Navigator,
-  private val offlineAreaRepository: OfflineAreaRepository
+  private val offlineAreaRepository: OfflineAreaRepository,
 ) : AbstractViewModel() {
 
   /**
@@ -56,15 +56,14 @@ internal constructor(
     showList = offlineAreas.map { it.isNotEmpty() }.onStart { emit(false) }.asLiveData()
   }
 
-  private suspend fun toViewModel(
-    offlineAreas: List<OfflineArea>
-  ): List<OfflineAreaListItemViewModel> = offlineAreas.map { toViewModel(it) }
+  private fun toViewModel(offlineAreas: List<OfflineArea>): List<OfflineAreaListItemViewModel> =
+    offlineAreas.map { toViewModel(it) }
 
-  private suspend fun toViewModel(offlineArea: OfflineArea) =
+  private fun toViewModel(offlineArea: OfflineArea) =
     OfflineAreaListItemViewModel(
       navigator,
       offlineArea,
-      offlineAreaRepository.sizeOnDevice(offlineArea).toMb().toMbString()
+      offlineAreaRepository.sizeOnDevice(offlineArea).toMb().toMbString(),
     )
 
   /** Navigate to the area selector for offline map imagery. */
