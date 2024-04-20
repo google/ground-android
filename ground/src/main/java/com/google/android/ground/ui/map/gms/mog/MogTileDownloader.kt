@@ -16,13 +16,9 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
-import java.io.File
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.io.File
 
 /**
  * Downloads tiles across regions at multiple zoom levels.
@@ -37,26 +33,15 @@ class MogTileDownloader(private val client: MogClient, private val outputBasePat
    * the form `{z}/{x}/{y}.jpg`.
    */
   suspend fun downloadTiles(requests: List<MogTilesRequest>) = flow {
-    client
-      .getTiles(requests)
-      .map { tile ->
-        val gmsTile = tile.toGmsTile()
-        val data = gmsTile.data!!
-        val result =
-          withContext(Dispatchers.IO) {
-            async {
-              val outFile = File(outputBasePath, tile.metadata.tileCoordinates.getTilePath())
-              outFile.parentFile?.mkdirs()
-              outFile.writeBytes(data)
-              Timber.d("Saved ${data.size} bytes to ${outFile.path}")
-            }
-          }
-
-        emit(data.size)
-        return@map result
-      }
-      .collect { it.await() }
-    //      .collect { it.await() }
+    client.getTiles(requests).collect { tile ->
+      val outFile = File(outputBasePath, tile.metadata.tileCoordinates.getTilePath())
+      outFile.parentFile?.mkdirs()
+      val gmsTile = tile.toGmsTile()
+      val data = gmsTile.data!!
+      outFile.writeBytes(data)
+      Timber.d("Saved ${data.size} bytes to ${outFile.path}")
+      emit(data.size)
+    }
   }
 }
 
