@@ -27,6 +27,7 @@ class MogTileReader(private val inputStream: InputStream, initialOffset: Long) {
   private var offset: Long = initialOffset
 
   fun readTiles(tiles: List<MogTileMetadata>): Flow<MogTile> = flow {
+    // Tiles must be read sequentially since input stream is shared among all.
     tiles.forEach { emit(readTile(it)) }
   }
 
