@@ -101,23 +101,17 @@ constructor(
   }
 
   // TODO(#1730): Generate local tiles path based on source base path.
-  private suspend fun getLocalTileSourcePath(): String = File(fileUtil.getFilesDir(), "tiles").path
+  private fun getLocalTileSourcePath(): String = File(fileUtil.getFilesDir(), "tiles").path
 
   fun getOfflineTileSourcesFlow() =
     surveyRepository.activeSurveyFlow.combine(getOfflineAreaBounds()) { _, bounds ->
       applyBounds(tileSources, bounds)
     }
 
-  private suspend fun applyBounds(
-    tileSources: List<TileSource>?,
-    bounds: List<Bounds>,
-  ): List<TileSource> =
+  private fun applyBounds(tileSources: List<TileSource>?, bounds: List<Bounds>): List<TileSource> =
     tileSources?.mapNotNull { tileSource -> toOfflineTileSource(tileSource, bounds) } ?: listOf()
 
-  private suspend fun toOfflineTileSource(
-    tileSource: TileSource,
-    clipBounds: List<Bounds>,
-  ): TileSource? {
+  private fun toOfflineTileSource(tileSource: TileSource, clipBounds: List<Bounds>): TileSource? {
     if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
     return TileSource(
       "file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg",
@@ -140,7 +134,7 @@ constructor(
   }
 
   /** Returns the number of bytes occupied by tiles on the local device. */
-  suspend fun sizeOnDevice(offlineArea: OfflineArea): ByteCount =
+  fun sizeOnDevice(offlineArea: OfflineArea): ByteCount =
     offlineArea.tiles.sumOf { File(getLocalTileSourcePath(), it.getTilePath()).length().toInt() }
 
   /**
