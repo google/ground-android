@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.ground.Config
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
@@ -50,6 +49,7 @@ const val AREA_NAME_SENSITIVITY = 0.5
 class OfflineAreaRepository
 @Inject
 constructor(
+  private val tileSources: List<TileSource>,
   private val localOfflineAreaStore: LocalOfflineAreaStore,
   private val surveyRepository: SurveyRepository,
   private val fileUtil: FileUtil,
@@ -105,7 +105,7 @@ constructor(
 
   fun getOfflineTileSourcesFlow() =
     surveyRepository.activeSurveyFlow.combine(getOfflineAreaBounds()) { _, bounds ->
-      applyBounds(getDefaultTileSources(), bounds)
+      applyBounds(tileSources, bounds)
     }
 
   private suspend fun applyBounds(
@@ -128,12 +128,6 @@ constructor(
 
   private fun getOfflineAreaBounds(): Flow<List<Bounds>> =
     localOfflineAreaStore.offlineAreas().map { list -> list.map { it.bounds } }
-
-  /** Returns the default configured tile sources. */
-  fun getDefaultTileSources(): List<TileSource> =
-    listOf(
-      TileSource(url = Config.DEFAULT_MOG_TILE_LOCATION, type = TileSource.Type.MOG_COLLECTION)
-    )
 
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
     val maxZoom = mogClient.collection.sources.maxZoom()
