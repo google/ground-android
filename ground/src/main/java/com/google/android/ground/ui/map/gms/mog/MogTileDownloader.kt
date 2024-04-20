@@ -16,9 +16,9 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
+import java.io.File
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
-import java.io.File
 
 /**
  * Downloads tiles across regions at multiple zoom levels.
