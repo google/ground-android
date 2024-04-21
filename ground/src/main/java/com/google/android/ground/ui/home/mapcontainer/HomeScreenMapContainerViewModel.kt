@@ -81,7 +81,7 @@ internal constructor(
 
   private val selectedLoiIdFlow = MutableStateFlow<String?>(null)
 
-  val activeSurvey: StateFlow<Survey?> = surveyRepository.activeSurveyFlow
+  private val activeSurvey: StateFlow<Survey?> = surveyRepository.activeSurveyFlow
 
   /** Captures essential, high-level derived properties for a given survey. */
   data class SurveyProperties(val addLoiPermitted: Boolean, val noLois: Boolean)
@@ -104,7 +104,7 @@ internal constructor(
    * List of [LocationOfInterest] for the active survey that are present within the viewport and
    * zoom level is clustering threshold or higher.
    */
-  val loisInViewport: StateFlow<List<LocationOfInterest>>
+  private val loisInViewport: StateFlow<List<LocationOfInterest>>
 
   /** [LocationOfInterest] clicked by the user. */
   val loiClicks: MutableStateFlow<LocationOfInterest?> = MutableStateFlow(null)
@@ -113,7 +113,7 @@ internal constructor(
    * List of [Job]s which allow LOIs to be added during field collection, populated only when zoomed
    * in far enough.
    */
-  val adHocLoiJobs: Flow<List<Job>>
+  private val adHocLoiJobs: Flow<List<Job>>
 
   /** Emits when the zoom has crossed the threshold. */
   private val _zoomThresholdCrossed: MutableSharedFlow<Unit> = MutableSharedFlow()
@@ -176,8 +176,8 @@ internal constructor(
       .toSet()
 
   override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
+    onZoomChange(currentCameraPosition.value?.zoomLevel, newCameraPosition.zoomLevel)
     super.onMapCameraMoved(newCameraPosition)
-    onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
   }
 
   private fun onZoomChange(oldZoomLevel: Float?, newZoomLevel: Float?) {
