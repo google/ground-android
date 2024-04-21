@@ -17,7 +17,6 @@ package com.google.android.ground.ui.home.mapcontainer
 
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
-import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
@@ -33,7 +32,6 @@ import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
-import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.isLocationOfInterest
@@ -41,7 +39,6 @@ import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -53,7 +50,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -115,9 +111,6 @@ internal constructor(
    */
   private val adHocLoiJobs: Flow<List<Job>>
 
-  /** Emits when the zoom has crossed the threshold. */
-  private val _zoomThresholdCrossed: MutableSharedFlow<Unit> = MutableSharedFlow()
-
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
   val isZoomedInFlow: Flow<Boolean>
 
@@ -174,22 +167,6 @@ internal constructor(
     features
       .map { it.withSelected(it.isLocationOfInterest() && it.tag.id == selectedLoiId) }
       .toSet()
-
-  override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
-    onZoomChange(currentCameraPosition.value?.zoomLevel, newCameraPosition.zoomLevel)
-    super.onMapCameraMoved(newCameraPosition)
-  }
-
-  private fun onZoomChange(oldZoomLevel: Float?, newZoomLevel: Float?) {
-    if (oldZoomLevel == null || newZoomLevel == null) return
-
-    val zoomThresholdCrossed =
-      oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD ||
-        oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD
-    if (zoomThresholdCrossed) {
-      viewModelScope.launch { _zoomThresholdCrossed.emit(Unit) }
-    }
-  }
 
   /**
    * Intended as a callback for when a specific map [Feature] is clicked. If the click is ambiguous,
