@@ -29,6 +29,7 @@ import com.google.android.ground.persistence.local.room.fields.MutationEntitySyn
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.UserMediaRepository
+import com.google.android.ground.repository.UserRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.io.FileNotFoundException
@@ -53,6 +54,7 @@ constructor(
   @Assisted workerParams: WorkerParameters,
   private val remoteStorageManager: RemoteStorageManager,
   private val mutationRepository: MutationRepository,
+  private val userRepository: UserRepository,
   private val userMediaRepository: UserMediaRepository,
 ) : CoroutineWorker(context, workerParams) {
 
@@ -65,9 +67,11 @@ constructor(
     check(loiId.isNotEmpty()) { "work was queued for an empty location of interest ID" }
     Timber.d("Starting media upload for LOI: $loiId")
 
+    val user = userRepository.getAuthenticatedUser()
     val mutations =
       mutationRepository.getSubmissionMutations(
         loiId,
+        user.id,
         MutationEntitySyncStatus.MEDIA_UPLOAD_PENDING,
         MutationEntitySyncStatus.MEDIA_UPLOAD_AWAITING_RETRY
       )
