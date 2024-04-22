@@ -24,9 +24,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asExecutor
+import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -40,5 +40,6 @@ object LocalDatabaseModule {
     Room.databaseBuilder(context, LocalDatabase::class.java, Config.DB_NAME)
       // Run queries and transactions on background I/O thread.
       .setQueryExecutor(ioDispatcher.asExecutor())
+      .fallbackToDestructiveMigration()
       .build()
 }

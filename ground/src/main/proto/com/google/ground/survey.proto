@@ -7,7 +7,6 @@ message Survey {
     string id = 1;
     string title = 2;
     string description = 3;
-//    val jobMap: Map<String, Job>,
-//    val tileSources: List<TileSource> = listOf(),
-//    val acl: Map<String, String> = mapOf()
+    //    val jobMap: Map<String, Job>,
+    map<string, string> acl = 5;
 }
