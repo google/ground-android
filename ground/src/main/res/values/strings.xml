@@ -154,4 +154,6 @@
   <string name="undo">Undo</string>
   <string name="view_licenses"><u>View Licenses</u></string>
   <string name="view_licenses_title">Licenses</string>
+  <string name="about">About\n</string>
+  <string name="terms_of_service">Terms of service</string>
 </resources>
