@@ -15,33 +15,32 @@
  */
 package com.google.android.ground.ui.home
 
-import android.content.Context
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.MutableState
+import androidx.compose.ui.res.stringResource
 import com.google.android.ground.R
-import com.google.android.material.color.MaterialColors
 
 @Composable
 fun SignOutConfirmationDialog(
-  context: Context,
-  homeScreenViewModel: HomeScreenViewModel,
+  showUserDetailsDialog: MutableState<Boolean>,
+  showSignOutDialog: MutableState<Boolean>,
   signOutCallback: () -> Unit,
 ) {
   fun dismissDialog() {
-    homeScreenViewModel.dismissDialogs()
+    showUserDetailsDialog.value = false
+    showSignOutDialog.value = false
   }
   AlertDialog(
     onDismissRequest = { dismissDialog() },
-    title = { Text(text = context.getString(R.string.sign_out_dialog_title)) },
-    text = { Text(text = context.getString(R.string.sign_out_dialog_body)) },
+    title = { Text(text = stringResource(R.string.sign_out_dialog_title)) },
+    text = { Text(text = stringResource(R.string.sign_out_dialog_body)) },
     dismissButton = {
       TextButton(onClick = { dismissDialog() }) {
         Text(
-          text = context.getString(R.string.cancel),
-          color = Color(MaterialColors.getColor(context, R.attr.colorOnSurface, "")),
+          text = stringResource(R.string.cancel),
         )
       }
     },
@@ -53,8 +52,7 @@ fun SignOutConfirmationDialog(
         }
       ) {
         Text(
-          text = context.getString(R.string.sign_out),
-          color = Color(MaterialColors.getColor(context, R.attr.colorError, "")),
+          text = stringResource(R.string.sign_out),
         )
       }
     },

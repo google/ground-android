@@ -22,8 +22,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -41,6 +41,7 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
+import com.google.android.ground.ui.theme.AppTheme
 import com.google.android.ground.util.systemInsets
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.navigation.NavigationView
@@ -102,8 +103,7 @@ class HomeScreenFragment :
       homeScreenViewModel.showSurveySelector()
     }
     navHeader.findViewById<ShapeableImageView>(R.id.user_image).setOnClickListener {
-      homeScreenViewModel.reInitializeDialogFlags()
-      showSignOutConfirmationDialog()
+      showSignOutConfirmationDialogs()
     }
     updateNavHeader()
     binding.navView.findViewById<TextView>(R.id.view_licenses).setOnClickListener { showLicenses() }
@@ -155,22 +155,35 @@ class HomeScreenFragment :
     return true
   }
 
-  private fun showSignOutConfirmationDialog() {
+  private fun showSignOutConfirmationDialogs() {
     // Note: Adding a compose view to the fragment's view dynamically causes the navigation click to
     // stop working after 1st time. Revisit this once the navigation drawer is also generated using
     // compose.
     binding.composeView.apply {
       setContent {
-        val showUserDetailsDialog by homeScreenViewModel.showUserDetailsDialog.observeAsState(true)
-        val showSignOutDialog by homeScreenViewModel.showSignOutDialog.observeAsState(false)
-        if (showUserDetailsDialog) {
-          UserDetailsDialog(context = requireContext(), homeScreenViewModel = homeScreenViewModel)
-        } else if (showSignOutDialog) {
-          SignOutConfirmationDialog(
-            context = requireContext(),
-            homeScreenViewModel = homeScreenViewModel,
-          ) {
-            userRepository.signOut()
+        val showUserDetailsDialog = remember { mutableStateOf(true) }
+        val showSignOutDialog = remember { mutableStateOf(false) }
+
+        // reset the state for recomposition
+        showUserDetailsDialog.value = true
+        showSignOutDialog.value = false
+
+        val user = homeScreenViewModel.userDetails.value!!
+        AppTheme {
+          if (showUserDetailsDialog.value) {
+            UserDetailsDialog(
+              showUserDetailsDialog,
+              showSignOutDialog,
+              user,
+            )
+          }
+          if (showSignOutDialog.value) {
+            SignOutConfirmationDialog(
+              showUserDetailsDialog,
+              showSignOutDialog,
+            ) {
+              userRepository.signOut()
+            }
           }
         }
       }

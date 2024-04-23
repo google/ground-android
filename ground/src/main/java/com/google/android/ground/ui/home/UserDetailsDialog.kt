@@ -15,39 +15,47 @@
  */
 package com.google.android.ground.ui.home
 
-import android.content.Context
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.MutableState
+import androidx.compose.ui.res.stringResource
 import com.google.android.ground.R
-import com.google.android.material.color.MaterialColors
+import com.google.android.ground.model.User
 
 @Composable
-fun UserDetailsDialog(context: Context, homeScreenViewModel: HomeScreenViewModel) {
-  val user = homeScreenViewModel.userDetails.value
+fun UserDetailsDialog(
+  showUserDetailsDialog: MutableState<Boolean>,
+  showSignOutDialog: MutableState<Boolean>,
+  user: User,
+) {
+
   fun dismissDialog() {
-    homeScreenViewModel.dismissDialogs()
+    showUserDetailsDialog.value = false
+    showSignOutDialog.value = false
   }
+  fun showSignOutConfirmationDialog() {
+    showUserDetailsDialog.value = false
+    showSignOutDialog.value = true
+  }
+
   AlertDialog(
     onDismissRequest = { dismissDialog() },
-    title = { user?.displayName?.let { Text(it) } },
-    text = { user?.email?.let { Text(it) } },
+    title = { Text(user.displayName) },
+    text = { Text(user.email) },
     dismissButton = {
       OutlinedButton(onClick = { dismissDialog() }) {
         Text(
-          text = context.getString(R.string.cancel),
-          color = Color(MaterialColors.getColor(context, R.attr.colorOnSurface, "")),
+          text = stringResource(R.string.close),
         )
       }
     },
     confirmButton = {
-      TextButton(onClick = { homeScreenViewModel.showSignOutConfirmationDialog() }) {
+      TextButton(onClick = { showSignOutConfirmationDialog() }) {
         Text(
-          text = context.getString(R.string.sign_out),
-          color = Color(MaterialColors.getColor(context, R.attr.colorError, "")),
+          text = stringResource(R.string.sign_out),
         )
       }
     },
