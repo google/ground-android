@@ -23,7 +23,7 @@
     android:title="@string/sync_status" />
   <item
     android:id="@+id/nav_offline_areas"
-    android:icon="@drawable/ic_satellite"
+    android:icon="@drawable/cloud_off"
     android:title="@string/offline_map_imagery" />
   <item
     android:id="@+id/nav_settings"
