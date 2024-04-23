@@ -73,6 +73,9 @@
     <action
       android:id="@+id/action_home_screen_fragment_to_dataCollectionFragment"
       app:destination="@id/data_collection" />
+    <action
+      android:id="@+id/showTermsOfService"
+      app:destination="@id/terms_of_service_fragment" />
   </fragment>
   <fragment
     android:id="@+id/sync_status_fragment"
@@ -86,7 +89,7 @@
       android:name="locationOfInterestId"
       type="string"
       app:nullable="true" />
-      <argument
+    <argument
       android:name="locationOfInterestName"
       type="string"
       app:nullable="true" />

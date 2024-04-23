@@ -23,12 +23,11 @@ import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.databinding.FragmentTermsServiceBinding
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.common.BackPressListener
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class TermsOfServiceFragment : AbstractFragment(), BackPressListener {
+class TermsOfServiceFragment : AbstractFragment() {
 
   private lateinit var viewModel: TermsOfServiceViewModel
 
@@ -51,10 +50,5 @@ class TermsOfServiceFragment : AbstractFragment(), BackPressListener {
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
     return binding.root
-  }
-
-  override fun onBack(): Boolean {
-    requireActivity().finish()
-    return false
   }
 }
