@@ -108,11 +108,6 @@ constructor(
       applyBounds(bounds)
     }
 
-  fun getDefaultTileSources(): List<TileSource> =
-    listOf(
-      TileSource(url = Config.DEFAULT_MOG_TILE_LOCATION, type = TileSource.Type.MOG_COLLECTION)
-    )
-
   private fun applyBounds(bounds: List<Bounds>): List<TileSource> =
     getDefaultTileSources().mapNotNull { tileSource -> toOfflineTileSource(tileSource, bounds) }
 
@@ -127,6 +122,12 @@ constructor(
 
   private fun getOfflineAreaBounds(): Flow<List<Bounds>> =
     localOfflineAreaStore.offlineAreas().map { list -> list.map { it.bounds } }
+
+  /** Returns the default configured tile sources. */
+  fun getDefaultTileSources(): List<TileSource> =
+    listOf(
+      TileSource(url = Config.DEFAULT_MOG_TILE_LOCATION, type = TileSource.Type.MOG_COLLECTION)
+    )
 
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
     val maxZoom = mogClient.collection.sources.maxZoom()
