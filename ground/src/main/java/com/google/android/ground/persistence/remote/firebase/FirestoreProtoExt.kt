@@ -21,52 +21,93 @@ import com.google.protobuf.GeneratedMessageLite
 import com.google.protobuf.MapFieldLite
 import timber.log.Timber
 import java.lang.ClassCastException
+import java.lang.reflect.Field
+import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
 typealias FirestoreKey = String
 typealias FirestoreValue = Any
-typealias MessageFieldKey = String
+typealias Message = GeneratedMessageLite<*, *>
+typealias MessageFieldName = String
 typealias MessageFieldValue = Any
 typealias MessageMap = MapFieldLite<Any, Any>
 
-fun <T : GeneratedMessageLite<*, *>> DocumentSnapshot.copyInto(message: T) {
+// TODO: Stop modifying immutable object, use builder.instance instead.
+fun <T : Message> DocumentSnapshot.copyInto(message: T): T {
   val map = data
-  // TODO: Replace `id` with `uuid`?
+  // TODO: set this on the Message instead of modifying the data map.
   map?.set("id", id)
-  map?.forEach { (key: FirestoreKey, value: FirestoreValue) ->
+  map?.copyInto(message)
+  return message
+}
+
+fun Map<String, Any>.copyInto(message: Message) {
+  forEach { (key: FirestoreKey, value: FirestoreValue) ->
+    val messageFieldName = key.toMessageFieldName()
     try {
-      message.set(key + "_", value.toMessageFieldValue())
+      val messageField = message.getField(messageFieldName)
+      val messageMapValueType = message.getMapValueType(messageFieldName)
+      val messageFieldValue =
+        value.toMessageFieldValue(messageField.type.kotlin, messageMapValueType)
+      message.set(
+        messageField,
+        messageFieldValue
+      )
     } catch (e: IllegalArgumentException) {
-      Timber.v(e, "Can't set incompatible value on ${message.javaClass}: $key=$value")
+      Timber.v(e, "Can't set incompatible value on ${message.javaClass}: $messageFieldName=$value")
     } catch (e: ClassCastException) {
-      Timber.v("Can't set incompatible type on ${message.javaClass}:  $key=$value")
+      Timber.v(e, "Can't set incompatible type on ${message.javaClass}:  $messageFieldName=$value")
     } catch (e: NoSuchFieldException) {
-      Timber.v("Skipping unknown field in ${message.javaClass}: $key=$value")
+      Timber.v(e, "Skipping unknown field in ${message.javaClass}: $messageFieldName=$value")
     }
   }
 }
 
-private fun GeneratedMessageLite<*, *>.set(
-  key: MessageFieldKey,
-  value: MessageFieldValue?
-) =
-  with(javaClass.getDeclaredField(key)) {
-    isAccessible = true
-    set(this@set, value)
-    isAccessible = false
-  }
+private fun FirestoreKey.toMessageFieldName(): MessageFieldName = this
 
-fun Any.toMessageFieldValue(type: Class<*>): MessageFieldValue =
-  if (type.isAssignableFrom(String::class.java)) {
+private fun Message.getMapValueType(key: FirestoreKey): KClass<*>? =
+  javaClass.declaredMethods.find {
+    it.name == key.toMapValueGetterMethodName()
+  }?.returnType?.kotlin
+
+
+private fun FirestoreKey.toMapValueGetterMethodName(): String =
+  "get${
+    replaceFirstChar {
+      if (it.isLowerCase()) it.uppercaseChar() else it.lowercaseChar()
+    }
+  }OrDefault"
+
+
+private fun Message.getField(name: MessageFieldName): Field =
+  javaClass.getDeclaredField(name + "_")
+
+
+private fun Message.set(
+  field: Field,
+  value: Any?
+) {
+  field.isAccessible = true
+  field.set(this, value)
+  field.isAccessible = false
+}
+
+fun Any.toMessageFieldValue(
+  targetType: KClass<*>,
+  mapValueType: KClass<*>?
+): MessageFieldValue =
+  if (targetType == String::class) {
     this as String
-  } else if (Map::class.java.isAssignableFrom(type)) {
-    (this as Map<*, *>).toMessageFieldValue()
+  } else if (targetType.isSubclassOf(Map::class)) {
+    (this as Map<*, *>).toMessageFieldValue(mapValueType!!)
+  } else if (targetType.isSubclassOf(GeneratedMessageLite::class)) {
+    Timber.e("!!!! TODO: Impl copy to $targetType")
+    "TODO"
   } else {
     ""
     // TODO: Handle maps, arrays, GeoPoint, and other types.
     // throw UnsupportedOperationException()
   }
-
-fun Any.toMessageFieldValue() = toMessageFieldValue(javaClass)
 
 private fun newMessageMap(): MessageMap =
   MapFieldLite.emptyMapField<Any, Any>().mutableCopy()
@@ -77,7 +118,7 @@ private fun messageMapOf(data: Map<*, *>): MessageMap =
     it.makeImmutable()
   }
 
-fun Map<*, *>.toMessageFieldValue(): MessageMap =
-  messageMapOf(mapValues { (_, v) -> v?.toMessageFieldValue() }
+fun Map<*, *>.toMessageFieldValue(valueType: KClass<*>): MessageMap =
+  messageMapOf(mapValues { (_, v) -> v?.toMessageFieldValue(valueType, null) }
     .filterValues { v -> v != null }
   )

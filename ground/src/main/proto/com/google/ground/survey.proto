@@ -7,6 +7,15 @@ message Survey {
     string id = 1;
     string title = 2;
     string description = 3;
-    //    val jobMap: Map<String, Job>,
+    map<string, Job> jobs = 4;
     map<string, string> acl = 5;
+}
+
+message Job {
+    string id = 1;
+    string name = 2;
+//    val defaultStyle: StyleNestedObject? = null,
+//    val tasks: Map<String, TaskNestedObject>? = null,
+//    val strategy: String = MIXED.toString()
+
 }

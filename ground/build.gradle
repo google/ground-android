@@ -171,6 +171,7 @@ dependencies {
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$project.kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$project.kotlinVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.6.3"
     implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7"
