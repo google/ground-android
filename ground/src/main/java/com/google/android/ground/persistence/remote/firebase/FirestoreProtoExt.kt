@@ -20,47 +20,64 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.GeneratedMessageLite
 import com.google.protobuf.MapFieldLite
 import timber.log.Timber
+import java.lang.ClassCastException
 
-fun <T : GeneratedMessageLite<*, *>> DocumentSnapshot.copyInto(proto: T?): T? {
-  proto ?: return null
+typealias FirestoreKey = String
+typealias FirestoreValue = Any
+typealias MessageFieldKey = String
+typealias MessageFieldValue = Any
+typealias MessageMap = MapFieldLite<Any, Any>
+
+fun <T : GeneratedMessageLite<*, *>> DocumentSnapshot.copyInto(message: T) {
   val map = data
   // TODO: Replace `id` with `uuid`?
   map?.set("id", id)
-  map?.forEach { (key, value) ->
+  map?.forEach { (key: FirestoreKey, value: FirestoreValue) ->
     try {
-      val field = proto::class.java.getDeclaredField(key + "_")
-      field.isAccessible = true
-      // TODO: Catch IllegalArgumentException and ClassCastException thrown when value is wrong
-      // type.
-      val convertedValue = convertValue(value, field.type)
-      field.set(proto, convertedValue)
-      // TODO: Handle maps, arrays, GeoPoint, and other types.
-
-      field.isAccessible = false
-    } catch (e: NoSuchFieldException) {
-      Timber.v("Skipping unknown field: $key")
+      message.set(key + "_", value.toMessageFieldValue())
     } catch (e: IllegalArgumentException) {
-      // TODO: Add expected and actual
-      Timber.v("Skipping field with wrong type: $key")
+      Timber.v("Can't set incompatible value on ${message.javaClass}: $key=$value")
+    } catch (e: ClassCastException) {
+      Timber.v("Can't set incompatible type on ${message.javaClass}:  $key=$value")
+    } catch (e: NoSuchFieldException) {
+      Timber.v("Skipping unknown field in ${message.javaClass}: $key=$value")
     }
   }
-  return proto
 }
 
-fun convertValue(value: Any, type: Class<*>): Any =
+private fun GeneratedMessageLite<*, *>.set(
+  key: MessageFieldKey,
+  value: MessageFieldValue?
+) {
+  val field = javaClass.getDeclaredField(key + "_")
+  field.isAccessible = true
+  field.set(value, value)
+  field.isAccessible = false
+}
+
+fun Any.toMessageFieldValue(type: Class<*>): MessageFieldValue =
   if (type.isAssignableFrom(String::class.java)) {
-    value as String
+    this as String
   } else if (Map::class.java.isAssignableFrom(type)) {
-    convertMapValue(value as Map<*, *>)
+    (this as Map<*, *>).toMessageFieldValue()
   } else {
     ""
+    // TODO: Handle maps, arrays, GeoPoint, and other types.
     // throw UnsupportedOperationException()
   }
 
-fun convertValue(value: Any?) = value?.let { convertValue(it, it.javaClass) }
+fun Any.toMessageFieldValue() = toMessageFieldValue(javaClass)
 
-fun convertMapValue(mapValue: Map<*, *>): MapFieldLite<Any, Any?> {
-  val newMap = MapFieldLite.emptyMapField<Any?, Any?>().mutableCopy()
-  mapValue.entries.forEach { (k, v) -> newMap[k as String] = convertValue(v) }
-  return newMap
-}
+private fun newMessageMap(): MessageMap =
+  MapFieldLite.emptyMapField<Any, Any>().mutableCopy()
+
+private fun messageMapOf(data: Map<*, *>): MessageMap =
+  newMessageMap().also {
+    it.putAll(data)
+    it.makeImmutable()
+  }
+
+fun Map<*, *>.toMessageFieldValue(): MessageMap =
+  messageMapOf(mapValues { (_, v) -> v?.toMessageFieldValue() }
+    .filterValues { v -> v != null }
+  )
