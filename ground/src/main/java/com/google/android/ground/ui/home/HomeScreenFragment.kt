@@ -102,7 +102,7 @@ class HomeScreenFragment :
     navHeader.findViewById<TextView>(R.id.switch_survey_button).setOnClickListener {
       homeScreenViewModel.showSurveySelector()
     }
-    navHeader.findViewById<ShapeableImageView>(R.id.user_image).setOnClickListener {
+    navHeader.findViewById<ShapeableImageView>(R.id.ground_logo).setOnClickListener {
       showSignOutConfirmationDialogs()
     }
     updateNavHeader()
