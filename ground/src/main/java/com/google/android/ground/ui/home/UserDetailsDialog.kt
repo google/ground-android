@@ -40,22 +40,24 @@ fun UserDetailsDialog(
     showUserDetailsDialog.value = false
     showSignOutDialog.value = true
   }
-
+  // In this AlertDialog instance, the button roles are reversed to match the provided design:
+  // `dismissButton` is used for "Sign Out" and `confirmButton` is used for "Close".
+  // This arrangement is due to the AlertDialog's fixed order of dismiss and confirm buttons.
   AlertDialog(
     onDismissRequest = { dismissDialog() },
     title = { Text(user.displayName) },
     text = { Text(user.email) },
     dismissButton = {
-      OutlinedButton(onClick = { dismissDialog() }) {
+      TextButton(onClick = { showSignOutConfirmationDialog() }) {
         Text(
-          text = stringResource(R.string.close),
+          text = stringResource(R.string.sign_out),
         )
       }
     },
     confirmButton = {
-      TextButton(onClick = { showSignOutConfirmationDialog() }) {
+      OutlinedButton(onClick = { dismissDialog() }) {
         Text(
-          text = stringResource(R.string.sign_out),
+          text = stringResource(R.string.close),
         )
       }
     },
