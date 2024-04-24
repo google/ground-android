@@ -36,7 +36,7 @@ fun <T : GeneratedMessageLite<*, *>> DocumentSnapshot.copyInto(message: T) {
     try {
       message.set(key + "_", value.toMessageFieldValue())
     } catch (e: IllegalArgumentException) {
-      Timber.v("Can't set incompatible value on ${message.javaClass}: $key=$value")
+      Timber.v(e, "Can't set incompatible value on ${message.javaClass}: $key=$value")
     } catch (e: ClassCastException) {
       Timber.v("Can't set incompatible type on ${message.javaClass}:  $key=$value")
     } catch (e: NoSuchFieldException) {
@@ -48,12 +48,12 @@ fun <T : GeneratedMessageLite<*, *>> DocumentSnapshot.copyInto(message: T) {
 private fun GeneratedMessageLite<*, *>.set(
   key: MessageFieldKey,
   value: MessageFieldValue?
-) {
-  val field = javaClass.getDeclaredField(key + "_")
-  field.isAccessible = true
-  field.set(value, value)
-  field.isAccessible = false
-}
+) =
+  with(javaClass.getDeclaredField(key)) {
+    isAccessible = true
+    set(this@set, value)
+    isAccessible = false
+  }
 
 fun Any.toMessageFieldValue(type: Class<*>): MessageFieldValue =
   if (type.isAssignableFrom(String::class.java)) {
