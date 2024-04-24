@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.map.gms.mog
 
 import com.google.android.ground.Config
-import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import dagger.Module
 import dagger.Provides
@@ -27,27 +26,12 @@ import dagger.hilt.components.SingletonComponent
 @Module
 class MogProviderModule {
   @Provides
-  fun provideMogClient(
-    mogCollection: MogCollection,
-    remoteStorageManager: RemoteStorageManager,
-  ): MogClient {
-    return MogClient(mogCollection, remoteStorageManager)
+  fun provideMogClient(remoteStorageManager: RemoteStorageManager): MogClient {
+    return MogClient(DEFAULT_MOG_COLLECTION, remoteStorageManager)
   }
 
-  @Provides
-  fun provideMogCollection(mogSources: List<MogSource>): MogCollection {
-    return MogCollection(mogSources)
-  }
-
-  @Provides
-  fun provideMogSources(defaultTileSources: List<TileSource>): List<MogSource> {
-    return Config.getMogSources(defaultTileSources.first().url)
-  }
-
-  @Provides
-  fun provideDefaultTileSources(): List<TileSource> {
-    return listOf(
-      TileSource(url = Config.DEFAULT_MOG_TILE_LOCATION, type = TileSource.Type.MOG_COLLECTION)
-    )
+  companion object {
+    private val DEFAULT_MOG_SOURCES = Config.getMogSources(Config.DEFAULT_MOG_TILE_LOCATION)
+    private val DEFAULT_MOG_COLLECTION = MogCollection(DEFAULT_MOG_SOURCES)
   }
 }

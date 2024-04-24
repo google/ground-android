@@ -22,7 +22,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.databinding.OfflineAreaSelectorFragBinding
-import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
@@ -36,7 +35,6 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
 
-  @Inject lateinit var tileSources: List<TileSource>
   @Inject lateinit var popups: EphemeralPopups
 
   private lateinit var viewModel: OfflineAreaSelectorViewModel
@@ -70,7 +68,7 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
     viewLifecycleOwner.lifecycleScope.launch {
       mapContainerViewModel.mapLoiFeatures.collect { map.setFeatures(it) }
     }
-    tileSources.forEach { map.addTileOverlay(it) }
+    viewModel.remoteTileSources.forEach { map.addTileOverlay(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel

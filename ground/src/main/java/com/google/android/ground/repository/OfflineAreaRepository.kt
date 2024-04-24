@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.repository
 
+import com.google.android.ground.Config
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
@@ -49,7 +50,6 @@ const val AREA_NAME_SENSITIVITY = 0.5
 class OfflineAreaRepository
 @Inject
 constructor(
-  private val tileSources: List<TileSource>,
   private val localOfflineAreaStore: LocalOfflineAreaStore,
   private val surveyRepository: SurveyRepository,
   private val fileUtil: FileUtil,
@@ -105,11 +105,16 @@ constructor(
 
   fun getOfflineTileSourcesFlow() =
     surveyRepository.activeSurveyFlow.combine(getOfflineAreaBounds()) { _, bounds ->
-      applyBounds(tileSources, bounds)
+      applyBounds(bounds)
     }
 
-  private fun applyBounds(tileSources: List<TileSource>?, bounds: List<Bounds>): List<TileSource> =
-    tileSources?.mapNotNull { tileSource -> toOfflineTileSource(tileSource, bounds) } ?: listOf()
+  fun getDefaultTileSources(): List<TileSource> =
+    listOf(
+      TileSource(url = Config.DEFAULT_MOG_TILE_LOCATION, type = TileSource.Type.MOG_COLLECTION)
+    )
+
+  private fun applyBounds(bounds: List<Bounds>): List<TileSource> =
+    getDefaultTileSources().mapNotNull { tileSource -> toOfflineTileSource(tileSource, bounds) }
 
   private fun toOfflineTileSource(tileSource: TileSource, clipBounds: List<Bounds>): TileSource? {
     if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null

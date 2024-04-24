@@ -20,7 +20,6 @@ import android.util.LruCache
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.ui.map.Bounds
 import java.io.InputStream
-import javax.inject.Inject
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
@@ -33,9 +32,7 @@ typealias MogPathOrUrl = String
 typealias MogUrl = String
 
 /** Client responsible for fetching and caching MOG metadata and image tiles. */
-class MogClient
-@Inject
-constructor(val collection: MogCollection, val remoteStorageManager: RemoteStorageManager) {
+class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteStorageManager) {
 
   private val cache: LruCache<String, Deferred<MogMetadata?>> = LruCache(16)
 
