@@ -91,15 +91,6 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
   }
 
-  @Test
-  fun pressBack_shouldFinishActivity() {
-    launchFragmentInHiltContainer<TermsOfServiceFragment> {
-      val fragment = this as TermsOfServiceFragment
-      assertThat(fragment.onBack()).isFalse()
-      assertThat(activity?.isFinishing).isTrue()
-    }
-  }
-
   companion object {
     const val TEST_TOS_TEXT = "Sample terms of service"
     val TEST_TOS = TermsOfService("TERMS_OF_SERVICE", TEST_TOS_TEXT)

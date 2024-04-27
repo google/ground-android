@@ -112,7 +112,10 @@ class MainViewModelTest : BaseHiltTest() {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
 
-    testNavigateTo(navigator.getNavigateRequests(), SignInFragmentDirections.showTermsOfService()) {
+    testNavigateTo(
+      navigator.getNavigateRequests(),
+      SignInFragmentDirections.showTermsOfService(false),
+    ) {
       fakeAuthenticationManager.signIn()
     }
 
@@ -128,7 +131,7 @@ class MainViewModelTest : BaseHiltTest() {
 
     testNavigateTo(
       navigator.getNavigateRequests(),
-      SignInFragmentDirections.showSurveySelectorScreen(true)
+      SignInFragmentDirections.showSurveySelectorScreen(true),
     ) {
       fakeAuthenticationManager.signIn()
     }
@@ -145,13 +148,13 @@ class MainViewModelTest : BaseHiltTest() {
       Result.failure(
         FirebaseFirestoreException(
           "permission denied",
-          FirebaseFirestoreException.Code.PERMISSION_DENIED
+          FirebaseFirestoreException.Code.PERMISSION_DENIED,
         )
       )
 
     testNavigateTo(
       navigator.getNavigateRequests(),
-      SignInFragmentDirections.showPermissionDeniedDialogFragment()
+      SignInFragmentDirections.showPermissionDeniedDialogFragment(),
     ) {
       fakeAuthenticationManager.signIn()
     }
