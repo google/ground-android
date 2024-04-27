@@ -46,8 +46,10 @@ class TermsOfServiceFragment : AbstractFragment() {
     container: ViewGroup?,
     savedInstanceState: Bundle?,
   ): View {
+    val args = TermsOfServiceFragmentArgs.fromBundle(requireArguments())
     val binding = FragmentTermsServiceBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
+    binding.isViewOnly = args.isViewOnly
     binding.lifecycleOwner = this
     return binding.root
   }

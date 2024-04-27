@@ -110,6 +110,8 @@ internal constructor(
   }
 
   fun showTermsOfService() {
-    navigator.navigate(HomeScreenFragmentDirections.showTermsOfService())
+    navigator.navigate(
+      HomeScreenFragmentDirections.showTermsOfService(true)
+    )
   }
 }

@@ -240,6 +240,9 @@
     android:name="com.google.android.ground.ui.tos.TermsOfServiceFragment"
     android:label="@string/tos_title"
     tools:layout="@layout/fragment_terms_service">
+    <argument
+      android:name="isViewOnly"
+      app:argType="boolean" />
     <action
       android:id="@+id/proceedToHomeScreen"
       app:destination="@id/home_screen_fragment"
