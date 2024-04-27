@@ -62,13 +62,11 @@ class AboutFragment : AbstractFragment() {
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?,
-  ): View {
-    return ComposeView(requireContext()).apply { setContent { AppTheme { CreateAbout() } } }
-  }
+  ): View = ComposeView(requireContext()).apply { setContent { AppTheme { CreateView() } } }
 
   @Preview
   @Composable
-  fun CreateAbout() {
+  private fun CreateView() {
     Scaffold(topBar = { Toolbar { findNavController().navigateUp() } }) { innerPadding ->
       Column(modifier = Modifier.padding(innerPadding).padding(horizontal = 35.dp)) {
         Image(
@@ -103,7 +101,7 @@ class AboutFragment : AbstractFragment() {
 
   @OptIn(ExperimentalMaterial3Api::class)
   @Composable
-  fun Toolbar(onNavigationIconClick: () -> Unit = {}) {
+  private fun Toolbar(onNavigationIconClick: () -> Unit = {}) {
     TopAppBar(
       title = { Text(text = stringResource(R.string.about)) },
       navigationIcon = {
