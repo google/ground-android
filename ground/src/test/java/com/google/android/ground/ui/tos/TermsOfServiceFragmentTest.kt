@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.tos
 
+import androidx.core.os.bundleOf
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -51,7 +52,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun termsOfServiceText_shouldBeDisplayed() {
-    launchFragmentInHiltContainer<TermsOfServiceFragment>()
+    launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
 
     onView(withId(R.id.termsText))
       .check(matches(isDisplayed()))
@@ -60,7 +61,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun agreeButton_default_shouldNotBeEnabled() {
-    launchFragmentInHiltContainer<TermsOfServiceFragment>()
+    launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
 
     onView(withId(R.id.agreeCheckBox)).check(matches(isNotChecked()))
     onView(withId(R.id.agreeButton)).check(matches(not(isEnabled())))
@@ -68,7 +69,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun agreeButton_whenCheckBoxClicked_shouldBeEnabled() {
-    launchFragmentInHiltContainer<TermsOfServiceFragment>()
+    launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
 
     onView(withId(R.id.agreeCheckBox)).perform(click()).check(matches(isChecked()))
     onView(withId(R.id.agreeButton)).check(matches(isEnabled()))
@@ -76,7 +77,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun agreeButton_whenPressed_shouldUpdatePrefAndNavigate() = runWithTestDispatcher {
-    launchFragmentInHiltContainer<TermsOfServiceFragment>()
+    launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
 
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isFalse()
 
@@ -89,6 +90,14 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
     }
 
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
+  }
+
+  @Test
+  fun viewOnlyMode_controlsHidden() = runWithTestDispatcher {
+    launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", true)))
+
+    onView(withId(R.id.agreeCheckBox)).check(matches(not(isDisplayed())))
+    onView(withId(R.id.agreeButton)).check(matches(not(isDisplayed())))
   }
 
   companion object {
