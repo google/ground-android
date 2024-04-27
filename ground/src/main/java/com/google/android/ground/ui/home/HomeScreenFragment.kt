@@ -147,6 +147,7 @@ class HomeScreenFragment :
       R.id.nav_offline_areas -> homeScreenViewModel.showOfflineAreas()
       R.id.nav_settings -> homeScreenViewModel.showSettings()
       R.id.nav_sign_out -> showSignOutConfirmationDialog()
+      R.id.about -> homeScreenViewModel.showAbout()
       R.id.terms_of_service -> homeScreenViewModel.showTermsOfService()
     }
     closeDrawer()

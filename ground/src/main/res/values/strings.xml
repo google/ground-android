@@ -154,6 +154,7 @@
   <string name="undo">Undo</string>
   <string name="view_licenses"><u>View Licenses</u></string>
   <string name="view_licenses_title">Licenses</string>
-  <string name="about">About\n</string>
+  <string name="about">About</string>
   <string name="terms_of_service">Terms of service</string>
+  <string name="about_ground">Ground is an open-source community project built by Google and FAO under the Forest Data Partnership with help from SIG, Ecam, and open-source community contributors. \n\nIt is licensed under the <annotation type="apache_license">Apache License, Version 2.0</annotation>. \n\nView other <annotation type="all_licenses">Licenses</annotation></string>
 </resources>

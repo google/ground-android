@@ -76,6 +76,8 @@
     <action
       android:id="@+id/showTermsOfService"
       app:destination="@id/terms_of_service_fragment" />
+    <action android:id="@+id/showAbout"
+      app:destination="@id/aboutFragment" />
   </fragment>
   <fragment
     android:id="@+id/sync_status_fragment"
@@ -273,4 +275,8 @@
     android:id="@+id/permissionDeniedDialogFragment"
     android:name="com.google.android.ground.ui.common.PermissionDeniedDialogFragment"
     android:label="PermissionDeniedDialogFragment" />
+  <fragment
+    android:id="@+id/aboutFragment"
+    android:name="com.google.android.ground.ui.home.AboutFragment"
+    android:label="AboutFragment" />
 </navigation>
