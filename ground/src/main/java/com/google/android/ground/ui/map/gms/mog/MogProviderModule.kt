@@ -25,13 +25,11 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 @Module
 class MogProviderModule {
-  @Provides
-  fun provideMogClient(remoteStorageManager: RemoteStorageManager): MogClient {
-    return MogClient(DEFAULT_MOG_COLLECTION, remoteStorageManager)
-  }
 
-  companion object {
-    private val DEFAULT_MOG_SOURCES = Config.getMogSources(Config.DEFAULT_MOG_TILE_LOCATION)
-    private val DEFAULT_MOG_COLLECTION = MogCollection(DEFAULT_MOG_SOURCES)
-  }
+  private val defaultMogSources = Config.getMogSources(Config.DEFAULT_MOG_TILE_LOCATION)
+  private val defaultMogCollection = MogCollection(defaultMogSources)
+
+  @Provides
+  fun provideMogClient(remoteStorageManager: RemoteStorageManager) =
+    MogClient(defaultMogCollection, remoteStorageManager)
 }
