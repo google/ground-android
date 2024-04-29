@@ -26,6 +26,10 @@
     android:icon="@drawable/cloud_off"
     android:title="@string/offline_map_imagery" />
   <item
+    android:id="@+id/nav_settings"
+    android:icon="@drawable/ic_settings"
+    android:title="@string/settings" />
+  <item
     android:id="@+id/about"
     android:icon="@drawable/info_outline"
     android:title="@string/about" />
@@ -33,10 +37,6 @@
     android:id="@+id/terms_of_service"
     android:icon="@drawable/feed"
     android:title="@string/terms_of_service" />
-  <item
-    android:id="@+id/nav_settings"
-    android:icon="@drawable/ic_settings"
-    android:title="@string/settings" />
   <item
     android:id="@+id/nav_sign_out"
     android:icon="@drawable/ic_sign_out"
