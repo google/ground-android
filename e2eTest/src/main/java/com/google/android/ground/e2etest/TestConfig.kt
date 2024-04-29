@@ -13,9 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.e2etest
 
-plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.4.0'
+import com.google.android.ground.model.task.Task
+
+object TestConfig {
+  const val LONG_TIMEOUT = 3000L
+  const val SHORT_TIMEOUT = 1000L
+  const val GROUND_PACKAGE = "com.google.android.ground"
+  val TEST_SURVEY_TASKS_ADHOC =
+    listOf(
+      Task.Type.DROP_PIN,
+      Task.Type.TEXT,
+      Task.Type.MULTIPLE_CHOICE,
+      Task.Type.MULTIPLE_CHOICE,
+      Task.Type.NUMBER,
+      Task.Type.DATE,
+      Task.Type.TIME,
+      Task.Type.PHOTO,
+      Task.Type.CAPTURE_LOCATION,
+    )
+  const val TEST_SURVEY_IDENTIFIER = "test"
 }
-
-include ':ground', ':sharedTest', ':e2eTest'
