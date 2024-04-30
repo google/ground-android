@@ -30,7 +30,7 @@ data class Job(
     PREDEFINED,
     AD_HOC,
     MIXED,
-    UNKNOWN
+    UNKNOWN,
   }
 
   class TaskNotFoundException(taskId: String) : Throwable(message = "unknown task $taskId")

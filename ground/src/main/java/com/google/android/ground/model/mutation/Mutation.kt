@@ -43,7 +43,7 @@ sealed class Mutation {
     DELETE,
 
     /** Indicates database skew or an implementation bug. */
-    UNKNOWN
+    UNKNOWN,
   }
 
   /** Status of mutation being applied to remote data store. */
@@ -73,7 +73,7 @@ sealed class Mutation {
     COMPLETED,
 
     /** Failed indicates all retries have failed. */
-    FAILED
+    FAILED,
   }
 
   override fun toString(): String = "$syncStatus $type $clientTimestamp"

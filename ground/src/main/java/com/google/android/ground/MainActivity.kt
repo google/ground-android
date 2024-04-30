@@ -37,9 +37,9 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.ProgressDialogs.modalSpinner
 import com.google.android.ground.ui.common.ViewModelFactory
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * The app's main activity. The app consists of multiples Fragments that live under this activity.

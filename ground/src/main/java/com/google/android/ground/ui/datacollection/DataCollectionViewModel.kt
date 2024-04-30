@@ -256,6 +256,7 @@ internal constructor(
     }
     return tasks.indexOf(tasks.first { it.id == currentTaskId.value })
   }
+
   /** Persists the collected data as draft to local storage. */
   private fun saveDraft() {
     externalScope.launch(ioDispatcher) {

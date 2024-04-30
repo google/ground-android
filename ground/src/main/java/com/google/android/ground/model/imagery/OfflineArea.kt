@@ -34,6 +34,6 @@ data class OfflineArea(
     PENDING,
     IN_PROGRESS,
     DOWNLOADED,
-    FAILED
+    FAILED,
   }
 }

@@ -48,6 +48,7 @@ data class Bounds(val southwest: Coordinates, val northeast: Coordinates) {
 
   val southeast
     get() = Coordinates(south, east)
+
   /**
    * The corners of the bounds in counterclockwise order starting from the northwestern most vertex.
    */

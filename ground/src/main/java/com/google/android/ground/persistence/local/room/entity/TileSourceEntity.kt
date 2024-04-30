@@ -45,6 +45,6 @@ data class TileSourceEntity(
     GEOJSON,
     IMAGE,
     MOG,
-    UNKNOWN
+    UNKNOWN,
   }
 }

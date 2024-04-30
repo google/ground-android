@@ -28,6 +28,7 @@ import timber.log.Timber
 
 /** Aliases a relative path or a URL to a MOG. */
 typealias MogPathOrUrl = String
+
 /** Aliases a fetch-able URL to a MOG. */
 typealias MogUrl = String
 
