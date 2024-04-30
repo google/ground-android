@@ -53,7 +53,7 @@ constructor(
   private val remoteDataStore: RemoteDataStore,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val uuidGenerator: OfflineUuidGenerator,
-  private val authenticationManager: AuthenticationManager
+  private val authenticationManager: AuthenticationManager,
 ) {
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
   suspend fun syncLocationsOfInterest(survey: Survey) {
@@ -97,7 +97,7 @@ constructor(
       lastModified = auditInfo,
       ownerEmail = user.email,
       properties = generateProperties(loiName),
-      isPredefined = false
+      isPredefined = false,
     )
   }
 

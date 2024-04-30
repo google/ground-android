@@ -34,17 +34,14 @@ interface AutomatorRunner {
 
   fun stringResource(
     @StringRes resId: Int,
-    context: Context = InstrumentationRegistry.getInstrumentation().targetContext
+    context: Context = InstrumentationRegistry.getInstrumentation().targetContext,
   ): String = context.getString(resId)
 
   fun byText(@StringRes resId: Int): BySelector = By.text(stringResource(resId))
 
   fun <T : Any> byClass(kclass: KClass<T>): BySelector = By.clazz(kclass.java.name)
 
-  fun waitClickGone(
-    selector: BySelector,
-    timeout: Long = SHORT_TIMEOUT,
-  ): Boolean {
+  fun waitClickGone(selector: BySelector, timeout: Long = SHORT_TIMEOUT): Boolean {
     device.wait(Until.hasObject(selector), timeout)
     device.findObject(selector)?.click()
     return device.wait(Until.gone(selector), timeout)

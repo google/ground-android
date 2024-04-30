@@ -36,7 +36,7 @@ internal object JobConverter {
       style = obj.defaultStyle?.toStyle(),
       name = obj.name,
       strategy = TaskConverter.toStrategy(obj.strategy),
-      tasks = taskMap.toPersistentMap()
+      tasks = taskMap.toPersistentMap(),
     )
   }
 }

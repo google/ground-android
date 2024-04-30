@@ -24,7 +24,7 @@ data class Job(
   val style: Style? = null,
   val name: String? = null,
   val tasks: Map<String, Task> = mapOf(),
-  val strategy: DataCollectionStrategy = DataCollectionStrategy.UNKNOWN
+  val strategy: DataCollectionStrategy = DataCollectionStrategy.UNKNOWN,
 ) {
   enum class DataCollectionStrategy {
     PREDEFINED,

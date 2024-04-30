@@ -21,8 +21,5 @@ import dagger.assisted.AssistedFactory
 
 @AssistedFactory
 interface DataCollectionViewPagerAdapterFactory {
-  fun create(
-    fragment: Fragment,
-    tasks: List<Task>,
-  ): DataCollectionViewPagerAdapter
+  fun create(fragment: Fragment, tasks: List<Task>): DataCollectionViewPagerAdapter
 }

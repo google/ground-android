@@ -34,7 +34,7 @@ interface SubmissionMutationDao : BaseDao<SubmissionMutationEntity> {
   )
   suspend fun findByLocationOfInterestId(
     locationOfInterestId: String,
-    vararg allowedStates: MutationEntitySyncStatus
+    vararg allowedStates: MutationEntitySyncStatus,
   ): List<SubmissionMutationEntity>
 
   @Query(
@@ -45,7 +45,7 @@ interface SubmissionMutationDao : BaseDao<SubmissionMutationEntity> {
   suspend fun getSubmissionMutationCount(
     loiId: String,
     mutationType: MutationEntityType,
-    vararg allowedStates: MutationEntitySyncStatus
+    vararg allowedStates: MutationEntitySyncStatus,
   ): Int
 
   @Query(
@@ -54,7 +54,7 @@ interface SubmissionMutationDao : BaseDao<SubmissionMutationEntity> {
   )
   suspend fun findBySubmissionId(
     submissionId: String,
-    vararg allowedStates: MutationEntitySyncStatus
+    vararg allowedStates: MutationEntitySyncStatus,
   ): List<SubmissionMutationEntity>?
 
   @Query(
@@ -63,6 +63,6 @@ interface SubmissionMutationDao : BaseDao<SubmissionMutationEntity> {
   )
   fun findByLoiIdFlow(
     locationOfInterestId: String,
-    vararg allowedStates: MutationEntitySyncStatus
+    vararg allowedStates: MutationEntitySyncStatus,
   ): Flow<List<SubmissionMutationEntity>>
 }

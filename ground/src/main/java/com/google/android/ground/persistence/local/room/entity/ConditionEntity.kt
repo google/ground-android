@@ -30,10 +30,10 @@ import com.google.android.ground.persistence.local.room.fields.MatchEntityType
         entity = TaskEntity::class,
         parentColumns = ["id"],
         childColumns = ["parent_task_id"],
-        onDelete = ForeignKey.CASCADE
+        onDelete = ForeignKey.CASCADE,
       )
     ],
-  indices = [Index("parent_task_id")]
+  indices = [Index("parent_task_id")],
 )
 data class ConditionEntity(
   @ColumnInfo(name = "parent_task_id") @PrimaryKey val parentTaskId: String,

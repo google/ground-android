@@ -30,10 +30,7 @@ internal object ConditionConverter {
       Timber.e("Unsupported matchType: $matchType")
       return null
     }
-    return Condition(
-      matchType = matchType,
-      expressions = (expressions ?: listOf()).toExpressions(),
-    )
+    return Condition(matchType = matchType, expressions = (expressions ?: listOf()).toExpressions())
   }
 
   // Note: Key value must be in sync with web app.

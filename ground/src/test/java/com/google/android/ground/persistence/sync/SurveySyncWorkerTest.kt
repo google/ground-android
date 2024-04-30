@@ -51,7 +51,7 @@ class SurveySyncWorkerTest : BaseHiltTest() {
       override fun createWorker(
         appContext: Context,
         workerClassName: String,
-        workerParameters: WorkerParameters
+        workerParameters: WorkerParameters,
       ) = SurveySyncWorker(appContext, workerParameters, syncSurvey)
     }
 

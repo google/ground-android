@@ -31,7 +31,7 @@ data class SubmissionMutation(
   override val lastError: String = "",
   val job: Job,
   val submissionId: String = "",
-  val deltas: List<ValueDelta> = listOf()
+  val deltas: List<ValueDelta> = listOf(),
 ) : Mutation() {
 
   override fun toString(): String = super.toString() + "deltas= $deltas"

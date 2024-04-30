@@ -50,10 +50,10 @@ class LoiConverterTest {
       newTask(
         "task2",
         Task.Type.MULTIPLE_CHOICE,
-        MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE)
+        MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
       ),
       newTask("task3", Task.Type.MULTIPLE_CHOICE),
-      newTask("task4", Task.Type.PHOTO)
+      newTask("task4", Task.Type.PHOTO),
     )
     mockLoiDocumentSnapshot(
       "loi001",
@@ -64,8 +64,8 @@ class LoiConverterTest {
         /* geoJson */ null,
         /* geometry */ null,
         /* created */ AUDIT_INFO_1_NESTED_OBJECT,
-        /* lastModified */ AUDIT_INFO_2_NESTED_OBJECT
-      )
+        /* lastModified */ AUDIT_INFO_2_NESTED_OBJECT,
+      ),
     )
     assertThat(toLocationOfInterest().isFailure).isTrue()
   }
@@ -79,10 +79,10 @@ class LoiConverterTest {
       newTask(
         "task2",
         Task.Type.MULTIPLE_CHOICE,
-        MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE)
+        MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
       ),
       newTask("task3", Task.Type.MULTIPLE_CHOICE),
-      newTask("task4", Task.Type.PHOTO)
+      newTask("task4", Task.Type.PHOTO),
     )
     mockLoiDocumentSnapshot(
       "loi001",
@@ -93,8 +93,8 @@ class LoiConverterTest {
         null,
         noVerticesGeometry,
         AUDIT_INFO_1_NESTED_OBJECT,
-        AUDIT_INFO_2_NESTED_OBJECT
-      )
+        AUDIT_INFO_2_NESTED_OBJECT,
+      ),
     )
     assertThat(toLocationOfInterest().isFailure).isTrue()
   }
@@ -126,13 +126,13 @@ class LoiConverterTest {
       AuditInfoNestedObject(
         UserNestedObject("user1", null, null),
         Timestamp(Date(100)),
-        Timestamp(Date(101))
+        Timestamp(Date(101)),
       )
     private val AUDIT_INFO_2_NESTED_OBJECT =
       AuditInfoNestedObject(
         UserNestedObject("user2", null, null),
         Timestamp(Date(200)),
-        Timestamp(Date(201))
+        Timestamp(Date(201)),
       )
   }
 }

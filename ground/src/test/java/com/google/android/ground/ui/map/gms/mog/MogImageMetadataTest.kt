@@ -31,7 +31,7 @@ class MogImageMetadataTest {
       byteCounts = listOf(),
       imageWidth = 1024,
       imageLength = 1024,
-      jpegTables = ByteArray(10)
+      jpegTables = ByteArray(10),
     )
 
   @Test

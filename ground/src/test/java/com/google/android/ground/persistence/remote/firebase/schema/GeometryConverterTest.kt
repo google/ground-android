@@ -38,7 +38,7 @@ class GeometryConverterTest {
       -89.63659134 to 41.88937530,
       -89.62886658 to 41.88956698,
       -89.62800827 to 41.89544507,
-      -89.63410225 to 41.89729784
+      -89.63410225 to 41.89729784,
     )
   private val path2 =
     arrayOf(
@@ -46,7 +46,7 @@ class GeometryConverterTest {
       -89.63118400 to 41.89090878,
       -89.63066902 to 41.89397560,
       -89.63358726 to 41.89480618,
-      -89.63453141 to 41.89193106
+      -89.63453141 to 41.89193106,
     )
   private val path3 =
     arrayOf(
@@ -54,7 +54,7 @@ class GeometryConverterTest {
       -89.61479034 to 41.89832003,
       -89.61719360 to 41.89455062,
       -89.61521950 to 41.89154771,
-      -89.61006966 to 41.89333669
+      -89.61006966 to 41.89333669,
     )
   private val path4 =
     arrayOf(
@@ -62,14 +62,14 @@ class GeometryConverterTest {
       -89.61290207 to 41.89429505,
       -89.61418953 to 41.89538118,
       -89.61513367 to 41.89416727,
-      -89.61393204 to 41.89320891
+      -89.61393204 to 41.89320891,
     )
 
   @Test
   fun toFirestoreMap_point() {
     assertIsSuccessWith(
       mapOf("type" to "Point", "coordinates" to GeoPoint(x, y)),
-      GeometryConverter.toFirestoreMap(point(x, y))
+      GeometryConverter.toFirestoreMap(point(x, y)),
     )
   }
 
@@ -78,9 +78,9 @@ class GeometryConverterTest {
     assertIsSuccessWith(
       mapOf(
         "type" to "Polygon",
-        "coordinates" to mapOf("0" to indexedGeoPointMap(path1), "1" to indexedGeoPointMap(path2))
+        "coordinates" to mapOf("0" to indexedGeoPointMap(path1), "1" to indexedGeoPointMap(path2)),
       ),
-      GeometryConverter.toFirestoreMap(polygon(path1, path2))
+      GeometryConverter.toFirestoreMap(polygon(path1, path2)),
     )
   }
 
@@ -92,10 +92,10 @@ class GeometryConverterTest {
         "coordinates" to
           mapOf(
             "0" to mapOf("0" to indexedGeoPointMap(path1), "1" to indexedGeoPointMap(path2)),
-            "1" to mapOf("0" to indexedGeoPointMap(path3), "1" to indexedGeoPointMap(path4))
-          )
+            "1" to mapOf("0" to indexedGeoPointMap(path3), "1" to indexedGeoPointMap(path4)),
+          ),
       ),
-      GeometryConverter.toFirestoreMap(multiPolygon(polygon(path1, path2), polygon(path3, path4)))
+      GeometryConverter.toFirestoreMap(multiPolygon(polygon(path1, path2), polygon(path3, path4))),
     )
   }
 
@@ -103,7 +103,7 @@ class GeometryConverterTest {
   fun fromFirestoreMap_point() {
     assertIsSuccessWith(
       point(x, y),
-      GeometryConverter.fromFirestoreMap(mapOf("type" to "Point", "coordinates" to GeoPoint(x, y)))
+      GeometryConverter.fromFirestoreMap(mapOf("type" to "Point", "coordinates" to GeoPoint(x, y))),
     )
   }
 
@@ -145,9 +145,9 @@ class GeometryConverterTest {
       GeometryConverter.fromFirestoreMap(
         mapOf(
           "type" to "Polygon",
-          "coordinates" to mapOf("0" to indexedGeoPointMap(path1), "1" to indexedGeoPointMap(path2))
+          "coordinates" to mapOf("0" to indexedGeoPointMap(path1), "1" to indexedGeoPointMap(path2)),
         )
-      )
+      ),
     )
   }
 
@@ -157,7 +157,7 @@ class GeometryConverterTest {
       GeometryConverter.fromFirestoreMap(
         mapOf(
           "type" to "Polygon",
-          "coordinates" to mapOf("0" to indexedGeoPointMap(path1), "2" to indexedGeoPointMap(path2))
+          "coordinates" to mapOf("0" to indexedGeoPointMap(path1), "2" to indexedGeoPointMap(path2)),
         )
       )
     )
@@ -169,7 +169,7 @@ class GeometryConverterTest {
       GeometryConverter.fromFirestoreMap(
         mapOf(
           "type" to "Polygon",
-          "coordinates" to mapOf("1" to indexedGeoPointMap(path1), "2" to indexedGeoPointMap(path2))
+          "coordinates" to mapOf("1" to indexedGeoPointMap(path1), "2" to indexedGeoPointMap(path2)),
         )
       )
     )
@@ -181,7 +181,7 @@ class GeometryConverterTest {
       GeometryConverter.fromFirestoreMap(
         mapOf(
           "type" to "Polygon",
-          "coordinates" to mapOf("1" to indexedGeoPointMap(path1), "2" to indexedGeoPointMap(path2))
+          "coordinates" to mapOf("1" to indexedGeoPointMap(path1), "2" to indexedGeoPointMap(path2)),
         )
       )
     )
@@ -197,10 +197,10 @@ class GeometryConverterTest {
           "coordinates" to
             mapOf(
               "0" to mapOf("0" to indexedGeoPointMap(path1), "1" to indexedGeoPointMap(path2)),
-              "1" to mapOf("0" to indexedGeoPointMap(path3), "1" to indexedGeoPointMap(path4))
-            )
+              "1" to mapOf("0" to indexedGeoPointMap(path3), "1" to indexedGeoPointMap(path4)),
+            ),
         )
-      )
+      ),
     )
   }
 

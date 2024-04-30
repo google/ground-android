@@ -24,7 +24,7 @@ class StartupViewModel
 @Inject
 internal constructor(
   private val googleApiManager: GoogleApiManager,
-  private val userRepository: UserRepository
+  private val userRepository: UserRepository,
 ) : AbstractViewModel() {
 
   /** Checks & installs Google Play Services and initializes the login flow. */

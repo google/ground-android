@@ -28,5 +28,5 @@ import com.google.android.ground.persistence.local.room.entity.TaskEntity
 data class JobEntityAndRelations(
   @Embedded val jobEntity: JobEntity,
   @Relation(parentColumn = "id", entityColumn = "job_id", entity = TaskEntity::class)
-  val taskEntityAndRelations: List<TaskEntityAndRelations>
+  val taskEntityAndRelations: List<TaskEntityAndRelations>,
 )

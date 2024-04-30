@@ -54,7 +54,7 @@ interface MapFragment {
   fun attachToParent(
     containerFragment: AbstractFragment,
     @IdRes containerId: Int,
-    onMapReadyCallback: (MapFragment) -> Unit
+    onMapReadyCallback: (MapFragment) -> Unit,
   )
 
   /** Enables map gestures like pan and zoom. */

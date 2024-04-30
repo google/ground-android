@@ -48,7 +48,7 @@ abstract class AbstractDialogFragment : AppCompatDialogFragment() {
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View? {
     Debug.logLifecycleEvent(this)
     return super.onCreateView(inflater, container, savedInstanceState)

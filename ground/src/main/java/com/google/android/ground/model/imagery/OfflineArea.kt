@@ -25,7 +25,7 @@ data class OfflineArea(
   val bounds: Bounds,
   val name: String,
   /** The range of zoom levels downloaded. */
-  val zoomRange: IntRange
+  val zoomRange: IntRange,
 ) {
   val tiles
     get() = zoomRange.flatMap { TileCoordinates.withinBounds(bounds, it) }

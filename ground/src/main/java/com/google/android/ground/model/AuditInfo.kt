@@ -30,5 +30,5 @@ import java.util.Date
 data class AuditInfo(
   val user: User,
   val clientTimestamp: Date = Date(),
-  val serverTimestamp: Date? = null
+  val serverTimestamp: Date? = null,
 )

@@ -46,7 +46,7 @@ constructor(resources: Resources, private val markerIconFactory: IconFactory) :
     geometry: Point,
     style: Feature.Style,
     selected: Boolean,
-    visible: Boolean
+    visible: Boolean,
   ): Marker {
     val markerOptions = MarkerOptions()
     with(markerOptions) {

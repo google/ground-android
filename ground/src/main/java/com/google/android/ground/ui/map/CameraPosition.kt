@@ -22,7 +22,7 @@ import timber.log.Timber
 data class CameraPosition(
   val target: Coordinates? = null,
   val zoomLevel: Float? = null,
-  val bounds: Bounds? = null
+  val bounds: Bounds? = null,
 ) {
 
   fun serialize(): String =

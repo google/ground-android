@@ -28,7 +28,7 @@ data class Bounds(val southwest: Coordinates, val northeast: Coordinates) {
     south: Double,
     west: Double,
     north: Double,
-    east: Double
+    east: Double,
   ) : this(Coordinates(south, west), Coordinates(north, east))
 
   val north
@@ -63,7 +63,7 @@ data class Bounds(val southwest: Coordinates, val northeast: Coordinates) {
     val lngOffset = (east - west) * factor * 0.5
     return Bounds(
       Coordinates(south + latOffset, west + lngOffset),
-      Coordinates(north - latOffset, east - lngOffset)
+      Coordinates(north - latOffset, east - lngOffset),
     )
   }
 }
