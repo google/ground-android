@@ -20,7 +20,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.IoDispatcher
-import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
@@ -70,7 +69,7 @@ internal constructor(
     locationOfInterestRepository,
   ) {
 
-  val remoteTileSources: List<TileSource> = offlineAreaRepository.getDefaultTileSources()
+  val remoteTileSources = offlineAreaRepository.getDefaultTileSources()
   private var viewport: Bounds? = null
   private val offlineAreaSizeLoadingSymbol =
     resources.getString(R.string.offline_area_size_loading_symbol)
