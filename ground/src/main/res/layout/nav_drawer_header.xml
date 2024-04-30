@@ -62,17 +62,18 @@
         <TextView
           android:layout_height="wrap_content"
           android:layout_width="wrap_content"
-          android:textSize="22sp"
+          android:textSize="18pt"
           android:paddingStart="4dp"
           android:paddingEnd="4dp"
-          android:text="@string/app_name"/>
+          android:text="@string/app_name"
+          android:fontFamily="@font/google_sans"/>
 
       </LinearLayout>
       <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/user_image"
         style="@style/NavDrawerHeader.Image"
         app:imageUrl="@{user.photoUrl}"
-        android:layout_marginEnd="4dp"
+        android:layout_marginEnd="24px"
         tools:background="@drawable/ground_logo" />
 
     </LinearLayout>
