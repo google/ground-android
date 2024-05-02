@@ -106,7 +106,7 @@ internal constructor(
   val tasks: List<Task> =
     if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
 
-  val surveyId: String = surveyRepository.lastActiveSurveyId
+  val surveyId: String = requireNotNull(surveyRepository.activeSurvey?.id)
 
   val jobName: StateFlow<String> =
     MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
