@@ -18,6 +18,7 @@ package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.GeneratedMessageLite
+import com.google.protobuf.MapFieldLite
 import java.lang.reflect.Field
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
@@ -34,7 +35,9 @@ typealias Message = GeneratedMessageLite<*, *>
 
 typealias MessageFieldName = String
 
-typealias MessageFieldValue = Any
+typealias MessageValue = Any
+
+typealias MessageMap = MapFieldLite<*, *>
 
 /** TODO: Add note about this function being tightly bound to protobuf lite codegen's impl. */
 fun <T : Message> DocumentSnapshot.toMessage(messageType: KClass<T>): T {
@@ -46,14 +49,21 @@ fun <T : Message> DocumentSnapshot.toMessage(messageType: KClass<T>): T {
 
 private fun <T : Message> FirestoreMap.toMessage(messageType: KClass<T>): T {
   val message = messageType.newInstance()
-  forEach { (key: FirestoreKey, value: FirestoreValue) -> message.set(key, value) }
+  forEach { (key: FirestoreKey, value: FirestoreValue) ->
+    println("$key -> $value")
+    message.set(key, value)
+  }
   return message
 }
 
-private fun FirestoreMap.toMessageMap(mapValueType: KClass<*>): MessageFieldValue =
-  mapValues { (_: FirestoreValue, value: FirestoreValue) ->
-    value.toMessageFieldValue(mapValueType)
+private fun FirestoreMap.toMessageMap(mapValueType: KClass<*>): MessageMap {
+  val mapField = MessageMap.emptyMapField<Any, Any>().mutableCopy()
+  forEach { (key: FirestoreValue, value: FirestoreValue) ->
+    mapField[key] = value.toMessageFieldValue(mapValueType)
   }
+  mapField.makeImmutable()
+  return mapField
+}
 
 private fun <T : Message> KClass<T>.newInstance(): T =
   constructors.first().apply { isAccessible = true }.call()
@@ -71,9 +81,9 @@ private fun Message.set(key: FirestoreKey, value: FirestoreValue) {
       }
     setPrivate(field, fieldValue)
   } catch (e: IllegalArgumentException) {
-    Timber.e(e, "Can't set incompatible value on ${javaClass}: $key=$value")
+    Timber.e(e, "Skipping incompatible value on ${javaClass}: $key=$value")
   } catch (e: ClassCastException) {
-    Timber.e(e, "Can't set incompatible type on ${javaClass}:  $key=$value")
+    Timber.e(e, "Skipping incompatible type on ${javaClass}:  $key=$value")
   } catch (e: NoSuchFieldException) {
     Timber.v(e, "Skipping unknown field in ${javaClass}: $key=$value")
   } catch (e: NoSuchMethodException) {
@@ -104,16 +114,15 @@ private fun Message.setPrivate(field: Field, value: Any?) {
   field.isAccessible = false
 }
 
-fun FirestoreValue.toMessageFieldValue(targetType: KClass<*>): MessageFieldValue =
+fun FirestoreValue.toMessageFieldValue(targetType: KClass<*>): MessageValue =
   // TODO: Check source types.
   if (targetType == String::class) {
     this as String
   } else if (targetType.isSubclassOf(GeneratedMessageLite::class)) {
     (this as FirestoreMap).toMessage(targetType as KClass<GeneratedMessageLite<*, *>>)
-    "TODO"
   } else {
     ""
-    // TODO: Handle maps, arrays, GeoPoint, and other types.
+    // TODO: Handle arrays, GeoPoint, and other types.
     // throw UnsupportedOperationException()
   }
 
