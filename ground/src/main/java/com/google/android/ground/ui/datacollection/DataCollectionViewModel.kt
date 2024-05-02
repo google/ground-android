@@ -106,7 +106,7 @@ internal constructor(
   val tasks: List<Task> =
     if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
 
-  val surveyId: String = surveyRepository.lastActiveSurveyId
+  val surveyId: String = requireNotNull(surveyRepository.activeSurvey?.id)
 
   val jobName: StateFlow<String> =
     MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
@@ -256,6 +256,7 @@ internal constructor(
     }
     return tasks.indexOf(tasks.first { it.id == currentTaskId.value })
   }
+
   /** Persists the collected data as draft to local storage. */
   private fun saveDraft() {
     externalScope.launch(ioDispatcher) {

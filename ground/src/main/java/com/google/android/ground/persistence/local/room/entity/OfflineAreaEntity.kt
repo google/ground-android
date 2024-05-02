@@ -32,5 +32,5 @@ data class OfflineAreaEntity(
   @ColumnInfo(name = "east") val east: Double,
   @ColumnInfo(name = "west") val west: Double,
   @ColumnInfo(name = "min_zoom") val minZoom: Int,
-  @ColumnInfo(name = "max_zoom") val maxZoom: Int
+  @ColumnInfo(name = "max_zoom") val maxZoom: Int,
 )

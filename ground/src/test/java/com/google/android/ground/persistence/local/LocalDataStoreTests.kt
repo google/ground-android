@@ -217,7 +217,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       .getSubmissionMutationsByLoiIdFlow(
         TEST_SURVEY,
         TEST_LOI_MUTATION.locationOfInterestId,
-        MutationEntitySyncStatus.PENDING
+        MutationEntitySyncStatus.PENDING,
       )
       .test { assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_SUBMISSION_MUTATION)) }
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, FakeData.LOI_ID)!!
@@ -230,7 +230,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         ValueDelta(
           "task id",
           Task.Type.TEXT,
-          TextTaskData.fromString("value for the really new task")
+          TextTaskData.fromString("value for the really new task"),
         )
       )
     val mutation =
@@ -242,7 +242,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       .getSubmissionMutationsByLoiIdFlow(
         TEST_SURVEY,
         TEST_LOI_MUTATION.locationOfInterestId,
-        MutationEntitySyncStatus.PENDING
+        MutationEntitySyncStatus.PENDING,
       )
       .test {
         assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_SUBMISSION_MUTATION, mutation))
@@ -386,7 +386,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         tileSources =
           listOf(
             TileSource(url = "dummy URL", type = TileSource.Type.TILED_WEB_MAP),
-            TileSource(url = "other dummy URL", type = TileSource.Type.TILED_WEB_MAP)
+            TileSource(url = "other dummy URL", type = TileSource.Type.TILED_WEB_MAP),
           )
       )
     private val TEST_POINT = Point(Coordinates(110.0, -23.1))
@@ -398,7 +398,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         Coordinates(49.872919, 8.651628),
         Coordinates(49.873164, 8.653515),
         Coordinates(49.874343, 8.653038),
-        Coordinates(49.874502, 8.655993)
+        Coordinates(49.874502, 8.655993),
       )
     private val TEST_POLYGON_2 =
       listOf(
@@ -407,7 +407,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         Coordinates(49.864664, 8.650387),
         Coordinates(49.863102, 8.650445),
         Coordinates(49.863051, 8.647306),
-        Coordinates(49.865374, 8.646920)
+        Coordinates(49.865374, 8.646920),
       )
     private val TEST_LOI_MUTATION = FakeData.newLoiMutation(TEST_POINT)
     private val TEST_POLYGON_LOI_MUTATION = FakeData.newAoiMutation(TEST_POLYGON_1)
@@ -422,7 +422,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         syncStatus = SyncStatus.PENDING,
         surveyId = FakeData.SURVEY_ID,
         locationOfInterestId = FakeData.LOI_ID,
-        userId = FakeData.USER_ID
+        userId = FakeData.USER_ID,
       )
     private val TEST_OFFLINE_AREA =
       OfflineArea("id_1", OfflineArea.State.PENDING, Bounds(0.0, 0.0, 0.0, 0.0), "Test Area", 0..14)
@@ -436,7 +436,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       assertThat(mutation.userId).isEqualTo(submission.created.user.id)
       MatcherAssert.assertThat(
         SubmissionData().copyWithDeltas(mutation.deltas),
-        Matchers.samePropertyValuesAs(submission.data)
+        Matchers.samePropertyValuesAs(submission.data),
       )
     }
   }

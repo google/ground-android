@@ -27,11 +27,11 @@ import com.google.android.ground.persistence.local.room.fields.EntityState
         entity = LocationOfInterestEntity::class,
         parentColumns = ["id"],
         childColumns = ["location_of_interest_id"],
-        onDelete = ForeignKey.CASCADE
+        onDelete = ForeignKey.CASCADE,
       )
     ],
   tableName = "submission",
-  indices = [Index("location_of_interest_id", "job_id", "state")]
+  indices = [Index("location_of_interest_id", "job_id", "state")],
 )
 data class SubmissionEntity(
   @ColumnInfo(name = "id") @PrimaryKey val id: String,

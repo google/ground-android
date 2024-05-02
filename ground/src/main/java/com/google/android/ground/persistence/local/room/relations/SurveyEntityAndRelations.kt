@@ -31,5 +31,5 @@ data class SurveyEntityAndRelations(
   @Relation(parentColumn = "id", entityColumn = "survey_id", entity = JobEntity::class)
   val jobEntityAndRelations: List<JobEntityAndRelations>,
   @Relation(parentColumn = "id", entityColumn = "survey_id", entity = TileSourceEntity::class)
-  val tileSourceEntityAndRelations: List<TileSourceEntity>
+  val tileSourceEntityAndRelations: List<TileSourceEntity>,
 )

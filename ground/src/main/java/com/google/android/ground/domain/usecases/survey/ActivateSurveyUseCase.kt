@@ -23,7 +23,7 @@ class ActivateSurveyUseCase
 @Inject
 constructor(
   private val surveyRepository: SurveyRepository,
-  private val makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase
+  private val makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase,
 ) {
   /**
    * Sets the survey with the specified ID as the currently active. First attempts to load the

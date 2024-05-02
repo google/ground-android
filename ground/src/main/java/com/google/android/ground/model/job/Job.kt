@@ -24,13 +24,13 @@ data class Job(
   val style: Style? = null,
   val name: String? = null,
   val tasks: Map<String, Task> = mapOf(),
-  val strategy: DataCollectionStrategy = DataCollectionStrategy.UNKNOWN
+  val strategy: DataCollectionStrategy = DataCollectionStrategy.UNKNOWN,
 ) {
   enum class DataCollectionStrategy {
     PREDEFINED,
     AD_HOC,
     MIXED,
-    UNKNOWN
+    UNKNOWN,
   }
 
   class TaskNotFoundException(taskId: String) : Throwable(message = "unknown task $taskId")

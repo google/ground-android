@@ -44,7 +44,7 @@ class SignInFragment : AbstractFragment(), BackPressListener {
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View {
     binding = SignInFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
@@ -68,7 +68,7 @@ class SignInFragment : AbstractFragment(), BackPressListener {
     Snackbar.make(
         requireView(),
         getString(R.string.network_error_when_signing_in),
-        Snackbar.LENGTH_LONG
+        Snackbar.LENGTH_LONG,
       )
       .show()
   }

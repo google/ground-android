@@ -53,7 +53,7 @@ constructor(
   permissionsManager: PermissionsManager,
   surveyRepository: SurveyRepository,
   locationOfInterestRepository: LocationOfInterestRepository,
-  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) :
   BaseMapViewModel(
     locationManager,
@@ -62,7 +62,7 @@ constructor(
     offlineAreaRepository,
     permissionsManager,
     surveyRepository,
-    locationOfInterestRepository
+    locationOfInterestRepository,
   ) {
 
   /** Returns the offline area associated with this view model. */
@@ -78,7 +78,7 @@ constructor(
       super.mapConfig.copy(
         showOfflineImagery = true,
         overrideMapType = MapType.TERRAIN,
-        allowGestures = false
+        allowGestures = false,
       )
 
   /** Initialize the view model with the given arguments. */

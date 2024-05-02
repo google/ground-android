@@ -35,7 +35,7 @@ internal constructor(
   mapStateRepository: MapStateRepository,
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
-  locationOfInterestRepository: LocationOfInterestRepository
+  locationOfInterestRepository: LocationOfInterestRepository,
 ) :
   BaseMapViewModel(
     locationManager,
@@ -44,7 +44,7 @@ internal constructor(
     offlineAreaRepository,
     permissionsManager,
     surveyRepository,
-    locationOfInterestRepository
+    locationOfInterestRepository,
   ) {
 
   override val mapConfig: MapConfig

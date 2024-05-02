@@ -46,7 +46,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 class ValueJsonConverterTest(
   private val task: Task,
   private val taskData: TaskData,
-  private val input: Any
+  private val input: Any,
 ) : BaseHiltTest() {
 
   @Test
@@ -75,7 +75,7 @@ class ValueJsonConverterTest(
     private val singleChoiceResponse =
       MultipleChoiceTaskData.fromList(
         MultipleChoice(multipleChoiceOptions, MultipleChoice.Cardinality.SELECT_ONE),
-        listOf("option id 1")
+        listOf("option id 1"),
       )
 
     private val singleChoiceResponseJson = JSONArray().apply { put("option id 1") }
@@ -83,7 +83,7 @@ class ValueJsonConverterTest(
     private val multipleChoiceTaskData =
       MultipleChoiceTaskData.fromList(
         MultipleChoice(multipleChoiceOptions, MultipleChoice.Cardinality.SELECT_MULTIPLE),
-        listOf("option id 1", "option id 2")
+        listOf("option id 1", "option id 2"),
       )
 
     private val multipleChoiceResponseJson =
@@ -105,7 +105,7 @@ class ValueJsonConverterTest(
               Coordinates(10.0, 20.0),
               Coordinates(20.0, 30.0),
               Coordinates(30.0, 40.0),
-              Coordinates(10.0, 20.0)
+              Coordinates(10.0, 20.0),
             )
           )
         )
@@ -122,34 +122,34 @@ class ValueJsonConverterTest(
         arrayOf(
           FakeData.newTask(type = Task.Type.TEXT),
           TextTaskData.fromString("sample text"),
-          "sample text"
+          "sample text",
         ),
         arrayOf(
           FakeData.newTask(type = Task.Type.MULTIPLE_CHOICE),
           singleChoiceResponse,
-          singleChoiceResponseJson
+          singleChoiceResponseJson,
         ),
         arrayOf(
           FakeData.newTask(type = Task.Type.MULTIPLE_CHOICE),
           multipleChoiceTaskData,
-          multipleChoiceResponseJson
+          multipleChoiceResponseJson,
         ),
         arrayOf(
           FakeData.newTask(type = Task.Type.NUMBER),
           NumberTaskData.fromNumber("12345.0"),
-          12345.0
+          12345.0,
         ),
         arrayOf(FakeData.newTask(type = Task.Type.DATE), DateTaskData.fromDate(DATE), DATE_STRING),
         arrayOf(FakeData.newTask(type = Task.Type.TIME), TimeTaskData.fromDate(DATE), DATE_STRING),
         arrayOf(
           FakeData.newTask(type = Task.Type.DROP_PIN),
           dropPinTaskResponse,
-          dropPinGeometryTaskResponseString
+          dropPinGeometryTaskResponseString,
         ),
         arrayOf(
           FakeData.newTask(type = Task.Type.DRAW_AREA),
           drawAreaTaskResponse,
-          polygonGeometryTaskResponseString
+          polygonGeometryTaskResponseString,
         ),
       )
   }

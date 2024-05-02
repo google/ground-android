@@ -23,7 +23,7 @@ class ReactivateLastSurveyUseCase
 @Inject
 constructor(
   private val surveyRepository: SurveyRepository,
-  private val activateSurvey: ActivateSurveyUseCase
+  private val activateSurvey: ActivateSurveyUseCase,
 ) {
   suspend operator fun invoke() {
     // Do nothing if never activated.

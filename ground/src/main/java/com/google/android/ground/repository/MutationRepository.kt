@@ -62,7 +62,7 @@ constructor(
    */
   suspend fun getSubmissionMutations(
     loiId: String,
-    vararg entitySyncStatus: MutationEntitySyncStatus
+    vararg entitySyncStatus: MutationEntitySyncStatus,
   ) = getMutations(loiId, *entitySyncStatus).filterIsInstance<SubmissionMutation>()
 
   /**
@@ -71,7 +71,7 @@ constructor(
    */
   suspend fun getMutations(
     loiId: String,
-    vararg entitySyncStatus: MutationEntitySyncStatus
+    vararg entitySyncStatus: MutationEntitySyncStatus,
   ): List<Mutation> {
     val loiMutations =
       localLocationOfInterestStore
@@ -139,7 +139,7 @@ constructor(
 
   private fun combineAndSortMutations(
     locationOfInterestMutations: List<LocationOfInterestMutation>,
-    submissionMutations: List<SubmissionMutation>
+    submissionMutations: List<SubmissionMutation>,
   ): List<Mutation> =
     (locationOfInterestMutations + submissionMutations).sortedWith(
       Mutation.byDescendingClientTimestamp()
@@ -164,7 +164,7 @@ constructor(
 // exclude/include them in further processing runs.
 private fun List<Mutation>.updateMutationStatus(
   syncStatus: Mutation.SyncStatus,
-  error: Throwable? = null
+  error: Throwable? = null,
 ): List<Mutation> = map {
   val hasSyncFailed = syncStatus == Mutation.SyncStatus.FAILED
   val retryCount = if (hasSyncFailed) it.retryCount + 1 else it.retryCount

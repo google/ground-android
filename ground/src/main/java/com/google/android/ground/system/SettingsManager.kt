@@ -35,7 +35,7 @@ class SettingsManager
 @Inject
 constructor(
   private val activityStreams: ActivityStreams,
-  private val settingsClient: SettingsClient
+  private val settingsClient: SettingsClient,
 ) {
 
   /**

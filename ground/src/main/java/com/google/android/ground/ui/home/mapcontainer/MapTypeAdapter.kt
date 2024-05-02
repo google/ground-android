@@ -34,7 +34,7 @@ class MapTypeAdapter(
   private val context: Context,
   private val itemsList: List<MapType>,
   private var selectedIndex: Int,
-  private val callback: (Int) -> Unit
+  private val callback: (Int) -> Unit,
 ) : RecyclerView.Adapter<ViewHolder>() {
 
   /** Creates a new [ViewHolder] item without any data. */
@@ -58,7 +58,7 @@ class MapTypeAdapter(
           R.attr.colorPrimary
         } else {
           R.attr.colorOnSurface
-        }
+        },
       )
     )
     holder.binding.card.apply {
