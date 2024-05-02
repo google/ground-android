@@ -3,6 +3,8 @@ syntax = "proto3";
 option java_package = "com.google.android.ground.proto";
 option java_multiple_files = true;
 
+import "com/google/ground/job.proto";
+
 message Survey {
     string id = 1;
     string title = 2;
@@ -11,11 +13,3 @@ message Survey {
     map<string, string> acl = 5;
 }
 
-message Job {
-    string id = 1;
-    string name = 2;
-//    val defaultStyle: StyleNestedObject? = null,
-//    val tasks: Map<String, TaskNestedObject>? = null,
-//    val strategy: String = MIXED.toString()
-
-}

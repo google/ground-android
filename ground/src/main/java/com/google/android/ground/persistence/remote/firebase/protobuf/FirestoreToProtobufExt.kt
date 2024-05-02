@@ -49,10 +49,7 @@ fun <T : Message> DocumentSnapshot.toMessage(messageType: KClass<T>): T {
 
 private fun <T : Message> FirestoreMap.toMessage(messageType: KClass<T>): T {
   val message = messageType.newInstance()
-  forEach { (key: FirestoreKey, value: FirestoreValue) ->
-    println("$key -> $value")
-    message.set(key, value)
-  }
+  forEach { (key: FirestoreKey, value: FirestoreValue) -> message.set(key, value) }
   return message
 }
 

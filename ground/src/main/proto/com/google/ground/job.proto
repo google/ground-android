@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_package = "com.google.android.ground.proto";
+option java_multiple_files = true;
+
+import "com/google/ground/style.proto";
+
+message Job {
+    string id = 1;
+    string name = 2;
+    Style default_style = 3;
+    //    val tasks: Map<String, TaskNestedObject>? = null,
+    //    val strategy: String = MIXED.toString()
+}
