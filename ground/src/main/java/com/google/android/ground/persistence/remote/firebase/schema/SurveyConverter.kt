@@ -20,22 +20,16 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.android.ground.persistence.remote.firebase.copyInto
 import com.google.android.ground.persistence.remote.firebase.schema.JobConverter.toJob
-import com.google.android.ground.proto.survey
 import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
-import timber.log.Timber
 
 /** Converts between Firestore documents and [Survey] instances. */
 internal object SurveyConverter {
 
   @Throws(DataStoreException::class)
   fun toSurvey(doc: DocumentSnapshot): Survey {
-
-    Timber.e("!!! Survey: " + doc.copyInto(survey {}))
-
     if (!doc.exists()) throw DataStoreException("Missing survey")
 
     val pd =
@@ -57,7 +51,7 @@ internal object SurveyConverter {
       pd.description.orEmpty(),
       jobMap.toPersistentMap(),
       tileSources.toPersistentList(),
-      pd.acl ?: mapOf()
+      pd.acl ?: mapOf(),
     )
   }
 
