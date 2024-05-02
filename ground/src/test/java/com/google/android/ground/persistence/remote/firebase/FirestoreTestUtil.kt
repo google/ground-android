@@ -20,7 +20,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import org.mockito.Mockito
 import org.mockito.kotlin.whenever
 
-fun newDocumentSnapshot(id: String, data: Map<String, Any>): DocumentSnapshot {
+fun newDocumentSnapshot(id: String, data: Map<String, Any>? = null): DocumentSnapshot {
   val mockSnapshot = Mockito.mock(DocumentSnapshot::class.java)
   whenever(mockSnapshot.id).thenReturn(id)
   whenever(mockSnapshot.data).thenReturn(data)

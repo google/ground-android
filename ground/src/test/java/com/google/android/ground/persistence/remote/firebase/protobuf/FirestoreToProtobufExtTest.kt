@@ -22,12 +22,19 @@ import com.google.android.ground.proto.survey
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.junit.MockitoJUnitRunner
+import org.junit.runners.Parameterized
 
-@RunWith(MockitoJUnitRunner::class)
+@RunWith(Parameterized::class)
 class FirestoreToProtobufExtTest {
   @Test
-  fun `copyInto() converts string fields`() {
+  fun `toMessage() converts id`() {
+    val documentSnapshot = newDocumentSnapshot(id = "12345")
+    val message = documentSnapshot.toMessage(Survey::class)
+    assertThat(message).isEqualTo(survey { id = "12345" })
+  }
+
+  @Test
+  fun `toMessage() converts strings`() {
     val documentSnapshot = newDocumentSnapshot(id = "", data = mapOf("title" to "Test survey"))
     val message = documentSnapshot.toMessage(Survey::class)
     assertThat(message).isEqualTo(survey { title = "Test survey" })
