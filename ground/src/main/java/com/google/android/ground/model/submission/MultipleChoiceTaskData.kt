@@ -23,7 +23,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 class MultipleChoiceTaskData(
   private val multipleChoice: MultipleChoice?,
-  val selectedOptionIds: List<String>
+  val selectedOptionIds: List<String>,
 ) : TaskData {
 
   // TODO: Make these inner classes non-static and access Task directly.

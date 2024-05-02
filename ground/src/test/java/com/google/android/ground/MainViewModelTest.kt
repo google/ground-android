@@ -128,7 +128,7 @@ class MainViewModelTest : BaseHiltTest() {
 
     testNavigateTo(
       navigator.getNavigateRequests(),
-      SignInFragmentDirections.showSurveySelectorScreen(true)
+      SignInFragmentDirections.showSurveySelectorScreen(true),
     ) {
       fakeAuthenticationManager.signIn()
     }
@@ -145,13 +145,13 @@ class MainViewModelTest : BaseHiltTest() {
       Result.failure(
         FirebaseFirestoreException(
           "permission denied",
-          FirebaseFirestoreException.Code.PERMISSION_DENIED
+          FirebaseFirestoreException.Code.PERMISSION_DENIED,
         )
       )
 
     testNavigateTo(
       navigator.getNavigateRequests(),
-      SignInFragmentDirections.showPermissionDeniedDialogFragment()
+      SignInFragmentDirections.showPermissionDeniedDialogFragment(),
     ) {
       fakeAuthenticationManager.signIn()
     }

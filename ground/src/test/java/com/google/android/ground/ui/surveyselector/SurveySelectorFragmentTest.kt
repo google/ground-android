@@ -214,7 +214,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
       .perform(
         actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(
           1,
-          recyclerChildAction<Button>(R.id.overflowMenu) { performClick() }
+          recyclerChildAction<Button>(R.id.overflowMenu) { performClick() },
         )
       )
     advanceUntilIdle()

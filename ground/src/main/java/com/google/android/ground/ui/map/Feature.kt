@@ -24,7 +24,7 @@ data class Feature(
   val geometry: Geometry,
   val style: Style,
   val clusterable: Boolean,
-  val selected: Boolean = false
+  val selected: Boolean = false,
 ) {
   constructor(
     id: String,
@@ -33,7 +33,7 @@ data class Feature(
     flag: Boolean = false,
     style: Style,
     clusterable: Boolean,
-    selected: Boolean = false
+    selected: Boolean = false,
   ) : this(Tag(id, type, flag), geometry, style, clusterable, selected)
 
   /** Tag used to uniquely identifier a feature on the map. */
@@ -47,7 +47,7 @@ data class Feature(
     val type: Int,
     /** An arbitrary slot for boolean flag. The interpretation of this field is type-dependent. */
     // TODO: This is not part of the unique identifier for the feature - should not live in Tag!
-    val flag: Boolean = false
+    val flag: Boolean = false,
   )
 
   data class Style(@ColorInt val color: Int, val vertexStyle: VertexStyle? = VertexStyle.NONE)

@@ -45,7 +45,7 @@ class OfflineAreasFragment : AbstractFragment() {
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
     val binding = OfflineAreasFragBinding.inflate(inflater, container, false)

@@ -40,7 +40,7 @@ class BitmapUtil @Inject internal constructor(@ApplicationContext private val co
       Bitmap.createBitmap(
         vectorDrawable.intrinsicWidth,
         vectorDrawable.intrinsicHeight,
-        Bitmap.Config.ARGB_8888
+        Bitmap.Config.ARGB_8888,
       )
     val canvas = Canvas(bitmap)
     vectorDrawable.draw(canvas)

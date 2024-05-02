@@ -59,7 +59,7 @@ buildscript {
 plugins {
     id "org.jetbrains.kotlin.android" version "$kotlinVersion" apply false
     id "org.jetbrains.kotlin.plugin.serialization" version "$kotlinVersion"
-    id "com.ncorti.ktfmt.gradle" version "0.17.0"
+    id "com.ncorti.ktfmt.gradle" version "0.18.0"
     id "com.google.dagger.hilt.android" version "$hiltVersion" apply false
     id "io.gitlab.arturbosch.detekt" version "1.23.5"
 }

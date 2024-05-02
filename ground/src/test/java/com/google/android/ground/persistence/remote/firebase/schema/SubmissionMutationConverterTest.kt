@@ -59,9 +59,9 @@ class SubmissionMutationConverterTest {
           Option("option id 1", "code1", "Option 1"),
           Option("option id 2", "code2", "Option 2"),
         ),
-        MultipleChoice.Cardinality.SELECT_ONE
+        MultipleChoice.Cardinality.SELECT_ONE,
       ),
-      ids = listOf("option id 1")
+      ids = listOf("option id 1"),
     )
 
   private val multipleChoiceTaskData =
@@ -71,9 +71,9 @@ class SubmissionMutationConverterTest {
           Option("option id 1", "code1", "Option 1"),
           Option("option id 2", "code2", "Option 2"),
         ),
-        MultipleChoice.Cardinality.SELECT_MULTIPLE
+        MultipleChoice.Cardinality.SELECT_MULTIPLE,
       ),
-      ids = listOf("option id 1", "option id 2")
+      ids = listOf("option id 1", "option id 2"),
     )
 
   private val numberTaskData = NumberTaskData.fromNumber("123")
@@ -88,7 +88,7 @@ class SubmissionMutationConverterTest {
             Coordinates(10.0, 20.0),
             Coordinates(20.0, 30.0),
             Coordinates(30.0, 20.0),
-            Coordinates(10.0, 20.0)
+            Coordinates(10.0, 20.0),
           )
         )
       )
@@ -108,29 +108,29 @@ class SubmissionMutationConverterTest {
           ValueDelta(
             taskId = "single_choice_task",
             taskType = Task.Type.MULTIPLE_CHOICE,
-            newTaskData = singleChoiceResponse
+            newTaskData = singleChoiceResponse,
           ),
           ValueDelta(
             taskId = "multiple_choice_task",
             taskType = Task.Type.MULTIPLE_CHOICE,
-            newTaskData = multipleChoiceTaskData
+            newTaskData = multipleChoiceTaskData,
           ),
           ValueDelta(
             taskId = "number_task",
             taskType = Task.Type.NUMBER,
-            newTaskData = numberTaskData
+            newTaskData = numberTaskData,
           ),
           ValueDelta(
             taskId = "drop_pin_task",
             taskType = Task.Type.DROP_PIN,
-            newTaskData = dropPinTaskResult
+            newTaskData = dropPinTaskResult,
           ),
           ValueDelta(
             taskId = "draw_area_task",
             taskType = Task.Type.DRAW_AREA,
-            newTaskData = drawAreaTaskResult
-          )
-        )
+            newTaskData = drawAreaTaskResult,
+          ),
+        ),
     )
 
   private val expected =
@@ -141,7 +141,7 @@ class SubmissionMutationConverterTest {
       Pair("number_task", 123.0),
       Pair(
         "drop_pin_task",
-        mapOf(Pair("type", "Point"), Pair("coordinates", GeoPoint(10.0, 20.0)))
+        mapOf(Pair("type", "Point"), Pair("coordinates", GeoPoint(10.0, 20.0))),
       ),
       Pair(
         "draw_area_task",
@@ -156,13 +156,13 @@ class SubmissionMutationConverterTest {
                   Pair("0", GeoPoint(10.0, 20.0)),
                   Pair("1", GeoPoint(20.0, 30.0)),
                   Pair("2", GeoPoint(30.0, 20.0)),
-                  Pair("3", GeoPoint(10.0, 20.0))
-                )
+                  Pair("3", GeoPoint(10.0, 20.0)),
+                ),
               )
-            )
-          )
-        )
-      )
+            ),
+          ),
+        ),
+      ),
     )
 
   private val auditInfoObject = AuditInfoConverter.fromMutationAndUser(submissionMutation, user)
@@ -172,7 +172,7 @@ class SubmissionMutationConverterTest {
     assertThat(
         SubmissionMutationConverter.toMap(
           submissionMutation.copy(type = Mutation.Type.CREATE),
-          user
+          user,
         )
       )
       .isEqualTo(
@@ -181,7 +181,7 @@ class SubmissionMutationConverterTest {
           Pair("lastModified", auditInfoObject),
           Pair("loiId", loiId),
           Pair("jobId", job.id),
-          Pair("data", expected)
+          Pair("data", expected),
         )
       )
   }
@@ -191,7 +191,7 @@ class SubmissionMutationConverterTest {
     assertThat(
         SubmissionMutationConverter.toMap(
           submissionMutation.copy(type = Mutation.Type.UPDATE),
-          user
+          user,
         )
       )
       .isEqualTo(
@@ -199,7 +199,7 @@ class SubmissionMutationConverterTest {
           Pair("lastModified", auditInfoObject),
           Pair("loiId", loiId),
           Pair("jobId", job.id),
-          Pair("data", expected)
+          Pair("data", expected),
         )
       )
   }

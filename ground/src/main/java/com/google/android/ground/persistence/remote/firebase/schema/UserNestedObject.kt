@@ -20,7 +20,7 @@ package com.google.android.ground.persistence.remote.firebase.schema
 data class UserNestedObject(
   val id: String? = null,
   val email: String? = null,
-  val displayName: String? = null
+  val displayName: String? = null,
 ) {
   companion object {
     /** Fallback value when reading invalid or legacy schemas. */

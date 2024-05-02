@@ -24,7 +24,7 @@ import org.junit.runners.Parameterized
 class TiffTagDataTypeTest(
   private val dataType: TiffTagDataType,
   private val sizeInBytes: Int,
-  private val position: Int
+  private val position: Int,
 ) {
 
   @Test

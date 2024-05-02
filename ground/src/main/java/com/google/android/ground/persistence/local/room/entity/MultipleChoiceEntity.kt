@@ -26,13 +26,13 @@ import com.google.android.ground.persistence.local.room.fields.MultipleChoiceEnt
         entity = TaskEntity::class,
         parentColumns = ["id"],
         childColumns = ["task_id"],
-        onDelete = ForeignKey.CASCADE
+        onDelete = ForeignKey.CASCADE,
       )
     ],
-  indices = [Index("task_id")]
+  indices = [Index("task_id")],
 )
 data class MultipleChoiceEntity(
   @ColumnInfo(name = "task_id") @PrimaryKey val taskId: String,
   @ColumnInfo(name = "type") val type: MultipleChoiceEntityType,
-  @ColumnInfo(name = "has_other_option") val hasOtherOption: Boolean
+  @ColumnInfo(name = "has_other_option") val hasOtherOption: Boolean,
 )

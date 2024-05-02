@@ -76,7 +76,7 @@ class PermissionsManagerTest : BaseHiltTest() {
           arrayOf(testPermission),
           intArrayOf(
             if (granted) PackageManager.PERMISSION_GRANTED else PackageManager.PERMISSION_DENIED
-          )
+          ),
         )
       )
   }
