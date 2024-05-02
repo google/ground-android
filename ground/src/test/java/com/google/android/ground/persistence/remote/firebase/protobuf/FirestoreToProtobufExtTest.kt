@@ -18,14 +18,12 @@ package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.android.ground.persistence.remote.firebase.newDocumentSnapshot
 import com.google.android.ground.proto.Survey
+import com.google.android.ground.proto.job
 import com.google.android.ground.proto.survey
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
-@RunWith(Parameterized::class)
 class FirestoreToProtobufExtTest {
   @Test
   fun `toMessage() converts id`() {
@@ -35,8 +33,15 @@ class FirestoreToProtobufExtTest {
 
   @Test
   fun `toMessage() converts strings`() {
-    val doc = newDocumentSnapshot(id = "", data = mapOf("title" to "Test survey"))
+    val doc = newDocumentSnapshot(data = mapOf("title" to "Test survey"))
     assertThat(doc.toMessage()).isEqualTo(survey { title = "Test survey" })
+  }
+
+  @Test
+  fun `toMessage() converts message maps`() {
+    val doc =
+      newDocumentSnapshot(data = mapOf("jobs" to mapOf("job123" to mapOf("name" to "Test job"))))
+    assertThat(doc.toMessage()).isEqualTo(survey { jobs["job123"] = job { name = "Test job" } })
   }
 
   private fun DocumentSnapshot.toMessage(): Survey = toMessage(Survey::class)

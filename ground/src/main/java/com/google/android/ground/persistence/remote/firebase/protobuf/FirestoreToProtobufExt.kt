@@ -18,7 +18,6 @@ package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.GeneratedMessageLite
-import com.google.protobuf.MapFieldLite
 import java.lang.reflect.Field
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
@@ -29,53 +28,68 @@ typealias FirestoreKey = String
 
 typealias FirestoreValue = Any
 
+typealias FirestoreMap = Map<FirestoreKey, FirestoreValue>
+
 typealias Message = GeneratedMessageLite<*, *>
 
 typealias MessageFieldName = String
 
 typealias MessageFieldValue = Any
 
-typealias MessageMap = MapFieldLite<Any, Any>
-
 /** TODO: Add note about this function being tightly bound to protobuf lite codegen's impl. */
 fun <T : Message> DocumentSnapshot.toMessage(messageType: KClass<T>): T {
   val message = messageType.newInstance()
   message.set("id", id)
-  data?.forEach { (key: FirestoreKey, value: FirestoreValue) ->
-    try {
-      message.set(key, value)
-    } catch (e: IllegalArgumentException) {
-      Timber.v(e, "Can't set incompatible value on ${message.javaClass}: $key=$value")
-    } catch (e: ClassCastException) {
-      Timber.v(e, "Can't set incompatible type on ${message.javaClass}:  $key=$value")
-    } catch (e: NoSuchFieldException) {
-      Timber.v(e, "Skipping unknown field in ${message.javaClass}: $key=$value")
-    }
-  }
-
+  data?.forEach { (key: FirestoreKey, value: FirestoreValue) -> message.set(key, value) }
   return message
 }
+
+private fun <T : Message> FirestoreMap.toMessage(messageType: KClass<T>): T {
+  val message = messageType.newInstance()
+  forEach { (key: FirestoreKey, value: FirestoreValue) -> message.set(key, value) }
+  return message
+}
+
+private fun FirestoreMap.toMessageMap(mapValueType: KClass<*>): MessageFieldValue =
+  mapValues { (_: FirestoreValue, value: FirestoreValue) ->
+    value.toMessageFieldValue(mapValueType)
+  }
 
 private fun <T : Message> KClass<T>.newInstance(): T =
   constructors.first().apply { isAccessible = true }.call()
 
 private fun Message.set(key: FirestoreKey, value: FirestoreValue) {
-  val fieldName: MessageFieldName = key
-  val field = getFieldByName(fieldName)
-  //  val fieldValue: MessageFieldValue = toFieldValue(field, value)
-  //  val messageMapValueType = getMapValueType(fieldName)
-  //  (this as Map<*, *>).toMessageFieldValue(mapValueType!!)
-  val fieldType = field.type.kotlin
-  val fieldValue =
-    if (fieldType.isSubclassOf(Map::class)) null else value.toMessageFieldValue(fieldType)
-  setPrivate(field, fieldValue)
+  try {
+    val fieldName: MessageFieldName = key
+    val field = getFieldByName(fieldName)
+    val fieldType = field.type.kotlin
+    val fieldValue =
+      if (fieldType.isSubclassOf(Map::class)) {
+        (value as FirestoreMap).toMessageMap(getMapValueType(fieldName))
+      } else {
+        value.toMessageFieldValue(fieldType)
+      }
+    setPrivate(field, fieldValue)
+  } catch (e: IllegalArgumentException) {
+    Timber.e(e, "Can't set incompatible value on ${javaClass}: $key=$value")
+  } catch (e: ClassCastException) {
+    Timber.e(e, "Can't set incompatible type on ${javaClass}:  $key=$value")
+  } catch (e: NoSuchFieldException) {
+    Timber.v(e, "Skipping unknown field in ${javaClass}: $key=$value")
+  } catch (e: NoSuchMethodException) {
+    Timber.v(e, "Skipping unknown method in ${javaClass}: $key=$value")
+  }
 }
 
 private fun Message.getFieldByName(fieldName: String): Field =
   javaClass.getDeclaredField("${fieldName}_")
 
-private fun Message.getMapValueType(key: FirestoreKey): KClass<*>? =
-  javaClass.declaredMethods.find { it.name == key.toMapValueGetterMethodName() }?.returnType?.kotlin
+private fun Message.getMapValueType(key: FirestoreKey): KClass<*> {
+  val mapValueGetterName = key.toMapValueGetterMethodName()
+  val mapValueGetterMethod = javaClass.declaredMethods.find { it.name == mapValueGetterName }
+  return mapValueGetterMethod?.returnType?.kotlin
+    ?: throw NoSuchMethodError("$mapValueGetterName method")
+}
 
 private fun FirestoreKey.toMapValueGetterMethodName(): String =
   "get${
@@ -90,11 +104,12 @@ private fun Message.setPrivate(field: Field, value: Any?) {
   field.isAccessible = false
 }
 
-fun Any.toMessageFieldValue(targetType: KClass<*>): MessageFieldValue =
+fun FirestoreValue.toMessageFieldValue(targetType: KClass<*>): MessageFieldValue =
+  // TODO: Check source types.
   if (targetType == String::class) {
     this as String
   } else if (targetType.isSubclassOf(GeneratedMessageLite::class)) {
-    Timber.e("!!!! TODO: Impl copy to $targetType")
+    (this as FirestoreMap).toMessage(targetType as KClass<GeneratedMessageLite<*, *>>)
     "TODO"
   } else {
     ""
