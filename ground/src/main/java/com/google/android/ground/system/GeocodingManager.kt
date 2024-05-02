@@ -37,7 +37,7 @@ class GeocodingManager
 constructor(
   private val geocoder: Geocoder,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  resources: Resources
+  resources: Resources,
 ) {
   private val defaultAreaName: String = resources.getString(R.string.unnamed_area)
   private val multipleRegionsLabel: String = resources.getString(R.string.multiple_regions)
@@ -60,7 +60,7 @@ constructor(
         Address::getCountryName,
         Address::getAdminArea,
         Address::getSubAdminArea,
-        Address::getLocality
+        Address::getLocality,
       )
     return when (nameComponents.size) {
       0 -> defaultAreaName
@@ -77,7 +77,7 @@ constructor(
    */
   private fun findCommonComponents(
     samplePointAddresses: List<List<Address>>,
-    vararg getters: (Address) -> String?
+    vararg getters: (Address) -> String?,
   ): MutableList<String> {
     val commonComponents = mutableListOf<String>()
     for (getter in getters) {

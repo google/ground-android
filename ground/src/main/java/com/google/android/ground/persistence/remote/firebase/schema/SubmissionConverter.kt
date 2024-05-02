@@ -146,7 +146,7 @@ internal object SubmissionConverter {
   private fun putCaptureLocationResult(
     taskId: String,
     obj: Any,
-    data: MutableMap<String, TaskData>
+    data: MutableMap<String, TaskData>,
   ) =
     CaptureLocationResultConverter.fromFirestoreMap(obj as Map<String, *>).onSuccess {
       data[taskId] = it

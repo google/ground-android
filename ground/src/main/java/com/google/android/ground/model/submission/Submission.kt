@@ -35,5 +35,5 @@ constructor(
   val job: Job,
   val created: AuditInfo,
   val lastModified: AuditInfo,
-  val data: SubmissionData = SubmissionData()
+  val data: SubmissionData = SubmissionData(),
 )

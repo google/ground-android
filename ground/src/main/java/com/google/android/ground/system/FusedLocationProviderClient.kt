@@ -46,7 +46,7 @@ class FusedLocationProviderClient @Inject constructor(@ApplicationContext contex
   @SuppressLint("MissingPermission")
   suspend fun requestLocationUpdates(
     locationRequest: LocationRequest,
-    locationCallback: LocationSharedFlowCallback
+    locationCallback: LocationSharedFlowCallback,
   ) {
     fusedLocationProviderClient
       .requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())

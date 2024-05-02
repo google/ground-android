@@ -33,6 +33,7 @@ const val TOPIC_PREFIX = "/topics/"
 class FirebaseMessagingService : FirebaseMessagingService() {
 
   @Inject lateinit var surveySyncService: SurveySyncService
+
   /**
    * Processes new messages, enqueuing a worker to sync the survey with the id specified in the
    * message topic.

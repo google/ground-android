@@ -96,7 +96,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
                   // close.
                   setProgressBarPosition(view)
                 },
-                100
+                100,
               )
           }
         }

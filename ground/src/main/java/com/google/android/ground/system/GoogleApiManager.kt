@@ -30,7 +30,7 @@ class GoogleApiManager
 constructor(
   @ApplicationContext private val context: Context,
   private val googleApiAvailability: GoogleApiAvailability,
-  private val activityStreams: ActivityStreams
+  private val activityStreams: ActivityStreams,
 ) {
 
   /**

@@ -39,7 +39,7 @@ class PolygonRenderer @Inject constructor(resources: Resources) :
     geometry: Polygon,
     style: Feature.Style,
     selected: Boolean,
-    visible: Boolean
+    visible: Boolean,
   ): MapsPolygon {
     val strokeScale = if (selected) 2f else 1f
     val options = PolygonOptions()

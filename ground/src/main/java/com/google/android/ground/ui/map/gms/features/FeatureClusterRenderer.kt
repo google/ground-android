@@ -41,7 +41,7 @@ class FeatureClusterRenderer(
   context: Context,
   map: GoogleMap,
   clusterManager: ClusterManager<FeatureClusterItem>,
-  var zoom: Float
+  var zoom: Float,
 ) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
   /**
    * Called when the cluster balloon is shown so that implementations can unhide related map items.
@@ -80,7 +80,7 @@ class FeatureClusterRenderer(
    */
   override fun onBeforeClusterRendered(
     cluster: Cluster<FeatureClusterItem>,
-    markerOptions: MarkerOptions
+    markerOptions: MarkerOptions,
   ) {
     // Hide cluster's items when clustered.
     cluster.items.forEach { onClusterRendered(it.feature.tag) }

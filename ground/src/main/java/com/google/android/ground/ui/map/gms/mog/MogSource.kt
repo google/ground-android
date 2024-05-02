@@ -32,10 +32,7 @@ package com.google.android.ground.ui.map.gms.mog
  *   val region = MogSource(8..14, "/offline-imagery/default/{z}/{x}/{y}.tif")
  * ```
  */
-data class MogSource(
-  val zoomRange: IntRange,
-  val pathTemplate: String,
-) {
+data class MogSource(val zoomRange: IntRange, val pathTemplate: String) {
   /** Returns the bounds of the MOG containing the tile with the specified coordinates. */
   fun getMogBoundsForTile(tileCoordinates: TileCoordinates): TileCoordinates {
     check(zoomRange.contains(tileCoordinates.zoom)) {

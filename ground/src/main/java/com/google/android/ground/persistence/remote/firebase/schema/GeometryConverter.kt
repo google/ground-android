@@ -110,7 +110,7 @@ object GeometryConverter {
     val rings = indexedMapToList(ringsMap)
     return Polygon(
       indexedMapToLinearRing(rings.first()),
-      rings.drop(1).map(this::indexedMapToLinearRing)
+      rings.drop(1).map(this::indexedMapToLinearRing),
     )
   }
 

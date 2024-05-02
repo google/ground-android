@@ -51,7 +51,7 @@ class FirestoreDataStore
 internal constructor(
   private val firebaseFunctions: FirebaseFunctions,
   private val firestoreProvider: FirebaseFirestoreProvider,
-  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : RemoteDataStore {
 
   private suspend fun db() = GroundFirestore(firestoreProvider.get())
@@ -113,7 +113,7 @@ internal constructor(
   private suspend fun addLocationOfInterestMutationToBatch(
     mutation: LocationOfInterestMutation,
     user: User,
-    batch: WriteBatch
+    batch: WriteBatch,
   ) {
     db()
       .surveys()
@@ -126,7 +126,7 @@ internal constructor(
   private suspend fun addSubmissionMutationToBatch(
     mutation: SubmissionMutation,
     user: User,
-    batch: WriteBatch
+    batch: WriteBatch,
   ) {
     db()
       .surveys()

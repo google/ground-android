@@ -60,7 +60,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
    */
   override suspend fun getLocationOfInterest(
     survey: Survey,
-    locationOfInterestId: String
+    locationOfInterestId: String,
   ): LocationOfInterest? =
     locationOfInterestDao.findById(locationOfInterestId)?.toModelObject(survey)
 
@@ -102,7 +102,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
 
   private fun toLocationsOfInterest(
     survey: Survey,
-    locationOfInterestEntities: List<LocationOfInterestEntity>
+    locationOfInterestEntities: List<LocationOfInterestEntity>,
   ): Set<LocationOfInterest> =
     locationOfInterestEntities.mapNotNull { logOnFailure { it.toModelObject(survey) } }.toSet()
 
@@ -122,7 +122,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
 
   override suspend fun findByLocationOfInterestId(
     id: String,
-    vararg states: MutationEntitySyncStatus
+    vararg states: MutationEntitySyncStatus,
   ): List<LocationOfInterestMutationEntity> =
     locationOfInterestMutationDao.getMutations(id, *states) ?: listOf()
 

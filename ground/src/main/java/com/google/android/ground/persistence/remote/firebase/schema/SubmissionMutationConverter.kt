@@ -20,7 +20,6 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.*
-import com.google.android.ground.model.submission.CaptureLocationTaskData
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.AuditInfoConverter.fromMutationAndUser
 import com.google.firebase.firestore.FieldValue

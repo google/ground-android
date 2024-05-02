@@ -83,7 +83,7 @@ constructor(
           else -> null
         }
       },
-      { onUserSignInError(it) }
+      { onUserSignInError(it) },
     )
   }
 

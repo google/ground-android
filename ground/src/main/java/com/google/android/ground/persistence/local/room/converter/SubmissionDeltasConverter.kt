@@ -43,7 +43,7 @@ object SubmissionDeltasConverter {
               delta.taskId,
               JSONObject()
                 .put(KEY_TASK_TYPE, delta.taskType.name)
-                .put(KEY_NEW_VALUE, ValueJsonConverter.toJsonObject(delta.newTaskData))
+                .put(KEY_NEW_VALUE, ValueJsonConverter.toJsonObject(delta.newTaskData)),
             )
           } catch (e: JSONException) {
             Timber.e(e, "Error building JSON")
@@ -70,7 +70,7 @@ object SubmissionDeltasConverter {
             ValueDelta(
               taskId,
               toEnum(Task.Type::class.java, jsonDelta.getString(KEY_TASK_TYPE)),
-              ValueJsonConverter.toResponse(task, jsonDelta[KEY_NEW_VALUE])
+              ValueJsonConverter.toResponse(task, jsonDelta[KEY_NEW_VALUE]),
             )
           )
         } catch (e: LocalDataConsistencyException) {
