@@ -112,10 +112,6 @@ constructor(
   var currentCameraPosition = MutableStateFlow<CameraPosition?>(null)
     private set
 
-  /** Last camera position. */
-  var lastCameraPosition: CameraPosition? = null
-    private set
-
   init {
     offlineTileSources =
       offlineAreaRepository
@@ -256,7 +252,6 @@ constructor(
   /** Called when the map camera is moved. */
   open fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     Timber.d("Camera moved : ${newCameraPosition.target}")
-    lastCameraPosition = currentCameraPosition.value
     currentCameraPosition.value = newCameraPosition
     mapStateRepository.setCameraPosition(newCameraPosition)
   }
