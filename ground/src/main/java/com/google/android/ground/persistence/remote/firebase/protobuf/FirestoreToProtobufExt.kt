@@ -40,16 +40,12 @@ typealias MessageValue = Any
 typealias MessageMap = MapFieldLite<*, *>
 
 /** TODO: Add note about this function being tightly bound to protobuf lite codegen's impl. */
-fun <T : Message> DocumentSnapshot.toMessage(messageType: KClass<T>): T {
-  val message = messageType.newInstance()
-  message.set("id", id)
-  data?.forEach { (key: FirestoreKey, value: FirestoreValue) -> message.set(key, value) }
-  return message
-}
+fun <T : Message> DocumentSnapshot.toMessage(messageType: KClass<T>): T =
+  data.toMessage(messageType).apply { set("id", id) }
 
-private fun <T : Message> FirestoreMap.toMessage(messageType: KClass<T>): T {
+private fun <T : Message> FirestoreMap?.toMessage(messageType: KClass<T>): T {
   val message = messageType.newInstance()
-  forEach { (key: FirestoreKey, value: FirestoreValue) -> message.set(key, value) }
+  this?.forEach { (k, v) -> message.set(k, v) }
   return message
 }
 
@@ -118,5 +114,5 @@ fun FirestoreValue.toMessageValue(targetType: KClass<*>): MessageValue =
     (this as FirestoreMap).toMessage(targetType as KClass<GeneratedMessageLite<*, *>>)
   } else {
     throw UnsupportedOperationException("Unsupported message field type $targetType")
-    // TODO: Handle arrays, GeoPoint, int, and other types.
+    // TODO(#1748): Handle arrays, GeoPoint, int, and other types.
   }
