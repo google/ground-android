@@ -40,6 +40,5 @@ object LocalDatabaseModule {
     Room.databaseBuilder(context, LocalDatabase::class.java, Config.DB_NAME)
       // Run queries and transactions on background I/O thread.
       .setQueryExecutor(ioDispatcher.asExecutor())
-      .fallbackToDestructiveMigration()
       .build()
 }
