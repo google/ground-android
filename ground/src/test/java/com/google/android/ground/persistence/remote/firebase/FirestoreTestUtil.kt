@@ -20,6 +20,9 @@ import com.google.firebase.firestore.DocumentSnapshot
 import org.mockito.Mockito
 import org.mockito.kotlin.whenever
 
+/**
+ * Returns a new mock [DocumentSnapshot] for testing which provides the specified [id] and [data].
+ */
 fun newDocumentSnapshot(id: String = "", data: Map<String, Any>? = null): DocumentSnapshot {
   val mockSnapshot = Mockito.mock(DocumentSnapshot::class.java)
   whenever(mockSnapshot.id).thenReturn(id)
