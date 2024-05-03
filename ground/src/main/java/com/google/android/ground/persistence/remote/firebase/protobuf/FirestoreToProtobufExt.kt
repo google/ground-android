@@ -56,7 +56,7 @@ private fun <T : Message> FirestoreMap.toMessage(messageType: KClass<T>): T {
 private fun FirestoreMap.toMessageMap(mapValueType: KClass<*>): MessageMap {
   val mapField = MessageMap.emptyMapField<Any, Any>().mutableCopy()
   forEach { (key: FirestoreValue, value: FirestoreValue) ->
-    mapField[key] = value.toMessageFieldValue(mapValueType)
+    mapField[key] = value.toMessageValue(mapValueType)
   }
   mapField.makeImmutable()
   return mapField
@@ -69,22 +69,10 @@ private fun Message.set(key: FirestoreKey, value: FirestoreValue) {
   try {
     val fieldName: MessageFieldName = key
     val field = getFieldByName(fieldName)
-    val fieldType = field.type.kotlin
-    val fieldValue =
-      if (fieldType.isSubclassOf(Map::class)) {
-        (value as FirestoreMap).toMessageMap(getMapValueType(fieldName))
-      } else {
-        value.toMessageFieldValue(fieldType)
-      }
+    val fieldValue = value.toMessageValue(this, fieldName)
     setPrivate(field, fieldValue)
-  } catch (e: IllegalArgumentException) {
-    Timber.e(e, "Skipping incompatible value on ${javaClass}: $key=$value")
-  } catch (e: ClassCastException) {
-    Timber.e(e, "Skipping incompatible type on ${javaClass}:  $key=$value")
-  } catch (e: NoSuchFieldException) {
-    Timber.v(e, "Skipping unknown field in ${javaClass}: $key=$value")
-  } catch (e: NoSuchMethodException) {
-    Timber.v(e, "Skipping unknown method in ${javaClass}: $key=$value")
+  } catch (e: Throwable) {
+    Timber.e(e, "Skipping incompatible Firestore value. ${javaClass}: $key=$value")
   }
 }
 
@@ -111,28 +99,24 @@ private fun Message.setPrivate(field: Field, value: Any?) {
   field.isAccessible = false
 }
 
-fun FirestoreValue.toMessageFieldValue(targetType: KClass<*>): MessageValue =
-  // TODO: Check source types.
+@Suppress("UNCHECKED_CAST")
+fun FirestoreValue.toMessageValue(message: Message, fieldName: String): MessageValue {
+  val field = message.getFieldByName(fieldName)
+  val fieldType = field.type.kotlin
+  return if (fieldType.isSubclassOf(Map::class)) {
+    (this as FirestoreMap).toMessageMap(message.getMapValueType(fieldName))
+  } else {
+    toMessageValue(fieldType)
+  }
+}
+
+@Suppress("UNCHECKED_CAST")
+fun FirestoreValue.toMessageValue(targetType: KClass<*>): MessageValue =
   if (targetType == String::class) {
     this as String
   } else if (targetType.isSubclassOf(GeneratedMessageLite::class)) {
     (this as FirestoreMap).toMessage(targetType as KClass<GeneratedMessageLite<*, *>>)
   } else {
-    ""
-    // TODO: Handle arrays, GeoPoint, and other types.
-    // throw UnsupportedOperationException()
+    throw UnsupportedOperationException("Unsupported message field type $targetType")
+    // TODO: Handle arrays, GeoPoint, int, and other types.
   }
-
-// private fun newMessageMap(): MessageMap = MapFieldLite.emptyMapField<Any, Any>().mutableCopy()
-
-// private fun messageMapOf(data: Map<*, *>): MessageMap =
-//  newMessageMap().also {
-//    it.putAll(data)
-//    it.makeImmutable()
-//  }
-
-// fun Map<*, *>.toMessageFieldValue(valueType: KClass<*>): MessageMap =
-//  messageMapOf(
-//    mapValues { (_, v) -> v?.toMessageFieldValue(valueType, null) }.filterValues { v -> v != null
-// }
-//  )
