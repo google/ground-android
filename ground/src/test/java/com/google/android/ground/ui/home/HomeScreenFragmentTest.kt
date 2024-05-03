@@ -182,7 +182,7 @@ class NavigationDrawerItemClickTest(
       listOf(
         // TODO(#2385): Restore tests deleted in #2382.
         arrayOf(
-          "Sync status",
+          "History and sync status",
           TEST_SURVEY_WITHOUT_OFFLINE_TILES,
           HomeScreenFragmentDirections.showSyncStatus(),
           true,

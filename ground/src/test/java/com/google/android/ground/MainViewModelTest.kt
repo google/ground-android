@@ -112,7 +112,10 @@ class MainViewModelTest : BaseHiltTest() {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
 
-    testNavigateTo(navigator.getNavigateRequests(), SignInFragmentDirections.showTermsOfService()) {
+    testNavigateTo(
+      navigator.getNavigateRequests(),
+      SignInFragmentDirections.showTermsOfService(false),
+    ) {
       fakeAuthenticationManager.signIn()
     }
 
