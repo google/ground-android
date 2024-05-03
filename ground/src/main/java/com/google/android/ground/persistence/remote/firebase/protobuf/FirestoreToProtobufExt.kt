@@ -25,19 +25,26 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.jvm.isAccessible
 import timber.log.Timber
 
-typealias FirestoreKey = String
+/** A key used in a document or a nested object in Firestore. */
+private typealias FirestoreKey = String
 
-typealias FirestoreValue = Any
+/** A value used in a document or a nested object in Firestore. */
+private typealias FirestoreValue = Any
 
-typealias FirestoreMap = Map<FirestoreKey, FirestoreValue>
+/** A nested object, aka map value in a Firestore document. */
+private typealias FirestoreMap = Map<FirestoreKey, FirestoreValue>
 
-typealias Message = GeneratedMessageLite<*, *>
+/** A Protocol Buffer message instance. */
+private typealias Message = GeneratedMessageLite<*, *>
 
-typealias MessageFieldName = String
+/** The name of an individual field in a message instance. */
+private typealias MessageFieldName = String
 
-typealias MessageValue = Any
+/** An individual field value in a message instance. */
+private typealias MessageValue = Any
 
-typealias MessageMap = MapFieldLite<*, *>
+/** The value of a map field in a message instance. */
+private typealias MessageMap = MapFieldLite<*, *>
 
 /**
  * Returns a new instance of the specified [Message] populated with the document's id and data.
@@ -100,7 +107,7 @@ private fun Message.setPrivate(field: Field, value: Any?) {
 }
 
 @Suppress("UNCHECKED_CAST")
-fun FirestoreValue.toMessageValue(message: Message, fieldName: String): MessageValue {
+private fun FirestoreValue.toMessageValue(message: Message, fieldName: String): MessageValue {
   val field = message.getFieldByName(fieldName)
   val fieldType = field.type.kotlin
   return if (fieldType.isSubclassOf(Map::class)) {
@@ -111,7 +118,7 @@ fun FirestoreValue.toMessageValue(message: Message, fieldName: String): MessageV
 }
 
 @Suppress("UNCHECKED_CAST")
-fun FirestoreValue.toMessageValue(targetType: KClass<*>): MessageValue =
+private fun FirestoreValue.toMessageValue(targetType: KClass<*>): MessageValue =
   if (targetType == String::class) {
     this as String
   } else if (targetType.isSubclassOf(GeneratedMessageLite::class)) {
