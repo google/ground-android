@@ -39,10 +39,22 @@ class FirestoreToProtobufExtTest {
   }
 
   @Test
+  fun `toMessage() ignores invalid type for strings`() {
+    val doc = newDocumentSnapshot(data = mapOf("title" to 123))
+    assertThat(doc.toMessage()).isEqualTo(survey {})
+  }
+
+  @Test
   fun `toMessage() converts message maps`() {
     val doc =
       newDocumentSnapshot(data = mapOf("jobs" to mapOf("job123" to mapOf("name" to "Test job"))))
     assertThat(doc.toMessage()).isEqualTo(survey { jobs["job123"] = job { name = "Test job" } })
+  }
+
+  @Test
+  fun `toMessage() ignores invalid type for maps`() {
+    val doc = newDocumentSnapshot(data = mapOf("jobs" to 123))
+    assertThat(doc.toMessage()).isEqualTo(survey {})
   }
 
   @Test
@@ -53,6 +65,12 @@ class FirestoreToProtobufExtTest {
       )
     assertThat(doc.toMessage())
       .isEqualTo(survey { jobs["job123"] = job { style { color = "#112233" } } })
+  }
+
+  @Test
+  fun `toMessage() ignores invalid type for nested objects`() {
+    val doc = newDocumentSnapshot(data = mapOf("jobs" to mapOf("job123" to mapOf("style" to 123))))
+    assertThat(doc.toMessage()).isEqualTo(survey { jobs["job123"] = job { style {} } })
   }
 
   private fun DocumentSnapshot.toMessage(): Survey = toMessage(Survey::class)

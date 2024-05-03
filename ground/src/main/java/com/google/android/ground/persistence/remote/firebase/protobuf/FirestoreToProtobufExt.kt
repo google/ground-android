@@ -76,18 +76,17 @@ private fun Message.getFieldByName(fieldName: String): Field =
   javaClass.getDeclaredField("${fieldName}_")
 
 private fun Message.getMapValueType(key: FirestoreKey): KClass<*> {
-  val mapValueGetterName = key.toMapValueGetterMethodName()
+  val mapValueGetterName = key.toMessageMapGetterMethodName()
   val mapValueGetterMethod = javaClass.declaredMethods.find { it.name == mapValueGetterName }
   return mapValueGetterMethod?.returnType?.kotlin
     ?: throw NoSuchMethodError("$mapValueGetterName method")
 }
 
-private fun FirestoreKey.toMapValueGetterMethodName(): String =
-  "get${
-    replaceFirstChar {
-      if (it.isLowerCase()) it.uppercaseChar() else it.lowercaseChar()
-    }
-  }OrDefault"
+private fun FirestoreKey.toMessageMapGetterMethodName() = "get${toSentenceCase()}OrDefault"
+
+private fun String.toSentenceCase() = replaceFirstChar {
+  if (it.isLowerCase()) it.uppercaseChar() else it.lowercaseChar()
+}
 
 private fun Message.setPrivate(field: Field, value: Any?) {
   field.isAccessible = true
