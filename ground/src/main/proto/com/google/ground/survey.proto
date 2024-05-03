@@ -12,5 +12,3 @@ message Survey {
     map<string, Job> jobs = 4;
     map<string, string> acl = 5;
 }
-
-
