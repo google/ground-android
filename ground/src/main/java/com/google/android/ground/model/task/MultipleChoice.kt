@@ -30,7 +30,7 @@ constructor(
 ) {
   enum class Cardinality {
     SELECT_ONE,
-    SELECT_MULTIPLE
+    SELECT_MULTIPLE,
   }
 
   fun getOptionById(id: String): Option? = options.firstOrNull { it.id == id }

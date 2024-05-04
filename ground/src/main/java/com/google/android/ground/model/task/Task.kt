@@ -49,6 +49,6 @@ constructor(
     TIME,
     DROP_PIN,
     DRAW_AREA,
-    CAPTURE_LOCATION
+    CAPTURE_LOCATION,
   }
 }

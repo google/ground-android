@@ -39,7 +39,7 @@ data class AuditInfoNestedObject(
    * details. This will be null until the server updates the write time and syncs it back to the
    * client.
    */
-  @ServerTimestamp val serverTimestamp: Timestamp? = null
+  @ServerTimestamp val serverTimestamp: Timestamp? = null,
 ) {
   companion object {
     private val EPOCH = Timestamp(0, 0)

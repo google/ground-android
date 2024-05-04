@@ -37,19 +37,19 @@ import kotlinx.coroutines.test.advanceUntilIdle
 suspend fun TestScope.testNavigateTo(
   testSharedFlow: SharedFlow<NavigationRequest>,
   expectedNavDirections: NavDirections,
-  runOnSubscription: () -> Unit
+  runOnSubscription: () -> Unit,
 ) {
   testNavigateTo(
     testSharedFlow,
     { navDirections -> assertThat(navDirections).isEqualTo(expectedNavDirections) },
-    runOnSubscription
+    runOnSubscription,
   )
 }
 
 suspend fun TestScope.testNavigateTo(
   testSharedFlow: SharedFlow<NavigationRequest>,
   validate: (NavDirections) -> Unit,
-  runOnSubscription: () -> Unit
+  runOnSubscription: () -> Unit,
 ) {
   testNavigate(
     testSharedFlow,
@@ -57,7 +57,7 @@ suspend fun TestScope.testNavigateTo(
       assertThat(navigationRequest).isInstanceOf(NavigateTo::class.java)
       validate((navigationRequest as NavigateTo).directions)
     },
-    runOnSubscription
+    runOnSubscription,
   )
 }
 
@@ -65,7 +65,7 @@ suspend fun TestScope.testNavigateTo(
 suspend fun TestScope.testNavigate(
   testSharedFlow: SharedFlow<NavigationRequest>,
   validate: (NavigationRequest) -> Unit,
-  runOnSubscription: () -> Unit
+  runOnSubscription: () -> Unit,
 ) {
   testSharedFlow
     .onSubscription {
@@ -78,7 +78,7 @@ suspend fun TestScope.testNavigate(
 @OptIn(ExperimentalCoroutinesApi::class)
 suspend fun TestScope.testNoNavigation(
   testSharedFlow: SharedFlow<NavigationRequest>,
-  runOnSubscription: () -> Unit
+  runOnSubscription: () -> Unit,
 ) {
   testSharedFlow
     .onSubscription {
@@ -95,7 +95,7 @@ suspend fun TestScope.testNoNavigation(
 suspend fun TestScope.testMaybeNavigateTo(
   testSharedFlow: SharedFlow<NavigationRequest>,
   expectedNavDirections: NavDirections?,
-  runOnSubscription: () -> Unit
+  runOnSubscription: () -> Unit,
 ) {
   if (expectedNavDirections == null) {
     testNoNavigation(testSharedFlow, runOnSubscription)

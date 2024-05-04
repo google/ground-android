@@ -26,6 +26,6 @@ interface MapsItemRenderer<T : Geometry, U> {
     geometry: T,
     style: Feature.Style,
     selected: Boolean,
-    visible: Boolean
+    visible: Boolean,
   ): U
 }

@@ -31,8 +31,9 @@ import kotlinx.coroutines.flow.callbackFlow
 
 enum class NetworkStatus {
   AVAILABLE,
-  UNAVAILABLE
+  UNAVAILABLE,
 }
+
 /** Abstracts access to network state. */
 @Singleton
 class NetworkManager @Inject constructor(@ApplicationContext private val context: Context) {

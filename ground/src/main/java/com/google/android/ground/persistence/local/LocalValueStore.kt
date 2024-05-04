@@ -46,7 +46,6 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
    * survey activation process is complete.
    */
   var lastActiveSurveyId: String
-    // TODO(#1592): Stop using this field to identify current survey.
     get() = allowThreadDiskReads { preferences.getString(ACTIVE_SURVEY_ID_KEY, "").orEmpty() }
     set(id) = allowThreadDiskWrites {
       preferences.edit().putString(ACTIVE_SURVEY_ID_KEY, id).apply()

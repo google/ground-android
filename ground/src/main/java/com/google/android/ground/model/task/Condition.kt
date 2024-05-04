@@ -20,6 +20,7 @@ import com.google.android.ground.model.submission.TaskData
 
 /** The task ID. */
 typealias TaskId = String
+
 /** The selected values keyed by task ID. */
 typealias TaskSelections = Map<String, TaskData>
 

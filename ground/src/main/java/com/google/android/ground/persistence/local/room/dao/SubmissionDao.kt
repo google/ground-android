@@ -38,6 +38,6 @@ interface SubmissionDao : BaseDao<SubmissionEntity> {
   suspend fun findByLocationOfInterestId(
     locationOfInterestId: String,
     jobId: String,
-    state: EntityState
+    state: EntityState,
   ): List<SubmissionEntity>?
 }

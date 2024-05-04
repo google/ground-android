@@ -31,7 +31,7 @@ import javax.inject.Singleton
 @Module
 @TestInstallIn(
   components = [SingletonComponent::class],
-  replaces = [RemotePersistenceModule::class]
+  replaces = [RemotePersistenceModule::class],
 )
 abstract class TestRemoteStorageModule {
   @Binds

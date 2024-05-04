@@ -57,7 +57,7 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
         },
         hour,
         minute,
-        DateFormat.is24HourFormat(requireContext())
+        DateFormat.is24HourFormat(requireContext()),
       )
       .apply {
         show()

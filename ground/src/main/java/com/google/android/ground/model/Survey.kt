@@ -26,7 +26,7 @@ data class Survey(
   val jobMap: Map<String, Job>,
   // TODO(#1730): Remove tileSources from survey.
   val tileSources: List<TileSource> = listOf(),
-  val acl: Map<String, String> = mapOf()
+  val acl: Map<String, String> = mapOf(),
 ) {
   val jobs: Collection<Job>
     get() = jobMap.values

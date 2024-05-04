@@ -18,5 +18,5 @@ package com.google.android.ground.ui.map
 data class CameraUpdateRequest(
   val cameraPosition: CameraPosition,
   val shouldAnimate: Boolean = false,
-  val isAllowZoomOut: Boolean = false
+  val isAllowZoomOut: Boolean = false,
 )

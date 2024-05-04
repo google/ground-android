@@ -33,7 +33,7 @@ class SubmitDataUseCase
 constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val submissionRepository: SubmissionRepository,
-  private val userRepository: UserRepository
+  private val userRepository: UserRepository,
 ) {
 
   /**

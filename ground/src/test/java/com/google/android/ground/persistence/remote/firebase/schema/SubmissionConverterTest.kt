@@ -65,7 +65,7 @@ class SubmissionConverterTest {
       newTask(
         "task2",
         Task.Type.MULTIPLE_CHOICE,
-        MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE)
+        MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
       ),
       newTask("task3", Task.Type.MULTIPLE_CHOICE),
       newTask("task4", Task.Type.PHOTO),
@@ -83,7 +83,7 @@ class SubmissionConverterTest {
           job,
           AUDIT_INFO_1,
           AUDIT_INFO_2,
-          TEST_SUBMISSION_DATA
+          TEST_SUBMISSION_DATA,
         )
       )
   }
@@ -98,8 +98,8 @@ class SubmissionConverterTest {
         "task001",
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
-        mapOf(Pair("task1", ""))
-      )
+        mapOf(Pair("task1", "")),
+      ),
     )
     Assert.assertThrows(DataStoreException::class.java) { this.toSubmission() }
   }
@@ -114,8 +114,8 @@ class SubmissionConverterTest {
         "task001",
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
-        null
-      )
+        null,
+      ),
     )
     assertThat(toSubmission())
       .isEqualTo(
@@ -125,7 +125,7 @@ class SubmissionConverterTest {
           locationOfInterest,
           job,
           AUDIT_INFO_1,
-          AUDIT_INFO_2
+          AUDIT_INFO_2,
         )
       )
   }
@@ -140,8 +140,8 @@ class SubmissionConverterTest {
         "task001",
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
-        mapOf(Pair("task1", ""))
-      )
+        mapOf(Pair("task1", "")),
+      ),
     )
     assertThat(toSubmission())
       .isEqualTo(
@@ -151,7 +151,7 @@ class SubmissionConverterTest {
           locationOfInterest,
           job,
           AUDIT_INFO_1,
-          AUDIT_INFO_2
+          AUDIT_INFO_2,
         )
       )
   }
@@ -166,8 +166,8 @@ class SubmissionConverterTest {
         "task001",
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
-        mapOf(Pair("task1", listOf<Any>()))
-      )
+        mapOf(Pair("task1", listOf<Any>())),
+      ),
     )
     assertThat(toSubmission())
       .isEqualTo(
@@ -177,7 +177,7 @@ class SubmissionConverterTest {
           locationOfInterest,
           job,
           AUDIT_INFO_1,
-          AUDIT_INFO_2
+          AUDIT_INFO_2,
         )
       )
   }
@@ -192,8 +192,8 @@ class SubmissionConverterTest {
         "task001",
         AUDIT_INFO_1_NESTED_OBJECT,
         AUDIT_INFO_2_NESTED_OBJECT,
-        mapOf(Pair("task1", "Unknown"), Pair("task2", "Text response"))
-      )
+        mapOf(Pair("task1", "Unknown"), Pair("task2", "Text response")),
+      ),
     )
     assertThat(toSubmission())
       .isEqualTo(
@@ -205,7 +205,7 @@ class SubmissionConverterTest {
           AUDIT_INFO_1,
           AUDIT_INFO_2,
           // Field "task1" with unknown field type ignored.
-          SubmissionData(mapOf(Pair("task2", TextTaskData("Text response"))))
+          SubmissionData(mapOf(Pair("task2", TextTaskData("Text response")))),
         )
       )
   }
@@ -234,13 +234,13 @@ class SubmissionConverterTest {
       AuditInfoNestedObject(
         UserNestedObject("user1", null, null),
         Timestamp(Date(100)),
-        Timestamp(Date(101))
+        Timestamp(Date(101)),
       )
     private val AUDIT_INFO_2_NESTED_OBJECT =
       AuditInfoNestedObject(
         UserNestedObject("user2", null, null),
         Timestamp(Date(200)),
-        Timestamp(Date(201))
+        Timestamp(Date(201)),
       )
     private const val SUBMISSION_ID = "submission123"
     private const val TEST_SURVEY_ID = "survey001"
@@ -252,12 +252,12 @@ class SubmissionConverterTest {
           "task2" to
             MultipleChoiceTaskData(
               MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
-              listOf("option2")
+              listOf("option2"),
             ),
           "task3" to
             MultipleChoiceTaskData(
               MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
-              listOf("optionA", "optionB")
+              listOf("optionA", "optionB"),
             ),
           "task4" to TextTaskData("Photo URL"),
           "task5" to DropPinTaskData(Point(Coordinates(10.0, 20.0))),
@@ -269,11 +269,11 @@ class SubmissionConverterTest {
                     Coordinates(10.0, 20.0),
                     Coordinates(20.0, 30.0),
                     Coordinates(30.0, 20.0),
-                    Coordinates(10.0, 20.0)
+                    Coordinates(10.0, 20.0),
                   )
                 )
               )
-            )
+            ),
         )
       )
     private val TEST_SUBMISSION_DOCUMENT =
@@ -298,11 +298,11 @@ class SubmissionConverterTest {
                       "0" to GeoPoint(10.0, 20.0),
                       "1" to GeoPoint(20.0, 30.0),
                       "2" to GeoPoint(30.0, 20.0),
-                      "3" to GeoPoint(10.0, 20.0)
+                      "3" to GeoPoint(10.0, 20.0),
                     )
-                )
-            )
-        )
+                ),
+            ),
+        ),
       )
   }
 }

@@ -16,37 +16,11 @@
 package com.google.android.ground.ui.util
 
 import android.content.Context
-import com.google.android.ground.coroutines.IoDispatcher
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.withContext
 
-class FileUtil
-@Inject
-constructor(
-  @ApplicationContext private val context: Context,
-  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
-) {
+class FileUtil @Inject constructor(@ApplicationContext private val context: Context) {
 
-  suspend fun getFilesDir(): File = withContext(ioDispatcher) { context.filesDir }
-
-  /**
-   * Get a file by name relative to the app's file directory
-   * /data/data/com.google.android.ground/files.
-   *
-   * If the file doesn't exist, creates a new empty file named {@param filename} in the app's file
-   * directory.
-   */
-  fun getOrCreateFile(filename: String): File = File(context.filesDir, filename)
-
-  /** Attempts to delete a file relative to the app's file directory when it exists. */
-  fun deleteFile(filename: String) {
-    val file = getOrCreateFile(filename)
-    if (!file.exists()) {
-      return
-    }
-    file.delete()
-  }
+  fun getFilesDir(): File = context.filesDir
 }

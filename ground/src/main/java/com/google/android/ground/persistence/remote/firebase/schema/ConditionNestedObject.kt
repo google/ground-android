@@ -30,5 +30,5 @@ data class ConditionNestedObject(
 data class ExpressionNestedObject(
   val expressionType: String? = null,
   val taskId: String? = null,
-  val optionIds: List<String>? = null
+  val optionIds: List<String>? = null,
 )

@@ -62,7 +62,7 @@ constructor(
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
   private val networkManager: NetworkManager,
-  @ApplicationScope private val externalScope: CoroutineScope
+  @ApplicationScope private val externalScope: CoroutineScope,
 ) {
   private val _selectedSurveyIdFlow = MutableStateFlow<String?>(null)
   var selectedSurveyId: String?

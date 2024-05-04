@@ -26,7 +26,7 @@ data class MogImageMetadata(
   val imageWidth: Int,
   val imageLength: Int,
   val jpegTables: ByteArray,
-  val noDataValue: Int? = null
+  val noDataValue: Int? = null,
 ) {
   private val tileCountX = imageWidth / tileWidth
   private val tileCountY = imageLength / tileLength
@@ -88,7 +88,7 @@ data class MogImageMetadata(
         (tiffTagToValue[TiffTag.JPEGTables] as? List<*>)
           ?.map { (it as Int).toByte() }
           ?.toByteArray() ?: byteArrayOf(),
-        (tiffTagToValue[TiffTag.GdalNodata] as? String)?.toIntOrNull()
+        (tiffTagToValue[TiffTag.GdalNodata] as? String)?.toIntOrNull(),
       )
   }
 }
