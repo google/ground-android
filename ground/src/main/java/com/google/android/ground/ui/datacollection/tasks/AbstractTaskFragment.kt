@@ -192,9 +192,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  fun addUndoButton() =
+  fun addUndoButton() = addUndoButton { viewModel.clearResponse() }
+
+  fun addUndoButton(clickHandler: () -> Unit) =
     addButton(ButtonAction.UNDO)
-      .setOnClickListener { viewModel.clearResponse() }
+      .setOnClickListener { clickHandler() }
       .setOnValueChanged { button, value -> button.showIfTrue(value.isNotNullOrEmpty()) }
       .hide()
 
