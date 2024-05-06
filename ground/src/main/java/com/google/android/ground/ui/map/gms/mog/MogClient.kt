@@ -21,9 +21,13 @@ import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.ui.map.Bounds
 import java.io.InputStream
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /** Aliases a relative path or a URL to a MOG. */
@@ -87,9 +91,23 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
    * Returns a [Flow] which emits the tiles for the specified tile coordinates along with each
    * tile's respective coordinates.
    */
+  @OptIn(ExperimentalCoroutinesApi::class)
   fun getTiles(requests: List<MogTilesRequest>): Flow<MogTile> = flow {
     // TODO(#1704): Use thread pool to request multiple ranges in parallel.
-    requests.forEach { emitAll(getTiles(it)) }
+    val results = mutableListOf<Deferred<Flow<MogTile>>>()
+    withContext(Dispatchers.IO.limitedParallelism(200)) {
+      for (request in requests) {
+        val result = async { getTiles(request) }
+        results.add(result)
+      }
+    }
+
+    // Wait for all requests to complete
+    val finalResult = results.awaitAll()
+
+    for (result in finalResult) {
+      emitAll(result)
+    }
   }
 
   /**
