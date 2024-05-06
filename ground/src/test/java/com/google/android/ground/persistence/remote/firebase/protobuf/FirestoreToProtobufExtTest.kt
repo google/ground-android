@@ -17,67 +17,75 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.android.ground.persistence.remote.firebase.newDocumentSnapshot
-import com.google.android.ground.proto.Survey
 import com.google.android.ground.proto.job
 import com.google.android.ground.proto.style
 import com.google.android.ground.proto.survey
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.protobuf.GeneratedMessageLite
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
-class FirestoreToProtobufExtTest {
+@RunWith(Parameterized::class)
+class FirestoreToProtobufExtTest(
+  private val desc: String,
+  private val input: DocumentSnapshot,
+  private val expectedOutput: GeneratedMessageLite<*, *>,
+) {
   @Test
-  fun `toMessage() converts id`() {
-    val doc = newDocumentSnapshot(id = "12345")
-    assertThat(doc.toMessage()).isEqualTo(survey { id = "12345" })
+  fun toMessage() {
+    assertThat(input.toMessage(expectedOutput.javaClass.kotlin)).isEqualTo(expectedOutput)
   }
 
-  @Test
-  fun `toMessage() ignores fields with unknown keys`() {
-    val doc = newDocumentSnapshot(data = mapOf("foo" to "bar"))
-    assertThat(doc.toMessage()).isEqualTo(survey {})
-  }
-
-  @Test
-  fun `toMessage() converts strings`() {
-    val doc = newDocumentSnapshot(data = mapOf("title" to "Test survey"))
-    assertThat(doc.toMessage()).isEqualTo(survey { title = "Test survey" })
-  }
-
-  @Test
-  fun `toMessage() ignores invalid type for strings`() {
-    val doc = newDocumentSnapshot(data = mapOf("title" to 123))
-    assertThat(doc.toMessage()).isEqualTo(survey {})
-  }
-
-  @Test
-  fun `toMessage() converts message maps`() {
-    val doc =
-      newDocumentSnapshot(data = mapOf("jobs" to mapOf("job123" to mapOf("name" to "Test job"))))
-    assertThat(doc.toMessage()).isEqualTo(survey { jobs["job123"] = job { name = "Test job" } })
-  }
-
-  @Test
-  fun `toMessage() ignores invalid type for maps`() {
-    val doc = newDocumentSnapshot(data = mapOf("jobs" to 123))
-    assertThat(doc.toMessage()).isEqualTo(survey {})
-  }
-
-  @Test
-  fun `toMessage() converts nested objects`() {
-    val doc =
-      newDocumentSnapshot(
-        data = mapOf("jobs" to mapOf("job123" to mapOf("style" to mapOf("color" to "#112233"))))
+  companion object {
+    @JvmStatic
+    @Parameterized.Parameters(name = "{0}")
+    fun data() =
+      listOf(
+        testCase(desc = "converts document id", id = "12345", expected = survey { id = "12345" }),
+        testCase(
+          desc = "converts string fields",
+          data = mapOf("title" to "something"),
+          expected = survey { title = "something" },
+        ),
+        testCase(
+          desc = "ignores unknown fields",
+          data = mapOf("foo" to "bar"),
+          expected = survey {},
+        ),
+        testCase(
+          desc = "ignores bad type in string field",
+          data = mapOf("title" to 123),
+          expected = survey {},
+        ),
+        testCase(
+          desc = "converts map<string, Message> fields",
+          data = mapOf("jobs" to mapOf("job123" to mapOf("name" to "A job"))),
+          expected = survey { jobs["job123"] = job { name = "A job" } },
+        ),
+        testCase(
+          desc = "ignores bad type in map",
+          data = mapOf("jobs" to 123),
+          expected = survey {},
+        ),
+        testCase(
+          desc = "converts nested objects",
+          data = mapOf("jobs" to mapOf("job123" to mapOf("style" to mapOf("color" to "#112233")))),
+          expected = survey { jobs["job123"] = job { style { color = "#112233" } } },
+        ),
+        testCase(
+          desc = "ignores bad type for nested object",
+          data = mapOf("jobs" to mapOf("job123" to mapOf("style" to 123))),
+          expected = survey { jobs["job123"] = job { style {} } },
+        ),
       )
-    assertThat(doc.toMessage())
-      .isEqualTo(survey { jobs["job123"] = job { style { color = "#112233" } } })
-  }
 
-  @Test
-  fun `toMessage() ignores invalid type for nested objects`() {
-    val doc = newDocumentSnapshot(data = mapOf("jobs" to mapOf("job123" to mapOf("style" to 123))))
-    assertThat(doc.toMessage()).isEqualTo(survey { jobs["job123"] = job { style {} } })
+    private fun testCase(
+      desc: String,
+      id: String = "",
+      data: Map<String, Any> = mapOf(),
+      expected: GeneratedMessageLite<*, *>,
+    ) = arrayOf(desc, newDocumentSnapshot(id = id, data = data), expected)
   }
-
-  private fun DocumentSnapshot.toMessage(): Survey = toMessage(Survey::class)
 }
