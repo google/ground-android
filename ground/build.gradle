@@ -22,6 +22,7 @@ apply plugin: 'com.google.dagger.hilt.android'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.android.gms.oss-licenses-plugin'
+apply plugin: 'com.google.protobuf'
 
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
@@ -170,6 +171,7 @@ dependencies {
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$project.kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$project.kotlinVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.6.3"
     implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7"
@@ -321,6 +323,30 @@ dependencies {
     stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
 
     implementation "com.google.guava:guava:31.1-android"
+
+    // TODO(#1748): Move protos into shared module and set correct path here.
+    api("com.google.protobuf:protobuf-kotlin-lite:4.26.1")
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:4.26.1"
+    }
+    generateProtoTasks {
+        all().each {
+            it.plugins {
+                // Generated Kotlin classes depend on these.
+                create("java") {
+                    option("lite")
+                }
+            }
+            it.builtins {
+                create("kotlin") {
+                    option("lite")
+                }
+            }
+        }
+    }
 }
 
 // Allow references to generated code.
