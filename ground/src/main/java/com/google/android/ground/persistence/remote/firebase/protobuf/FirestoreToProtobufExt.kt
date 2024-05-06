@@ -65,6 +65,9 @@ private fun FirestoreMap.toMessageMap(mapValueType: KClass<*>): MessageMap {
   val mapField = MessageMap.emptyMapField<Any, Any>().mutableCopy()
   forEach { (key: FirestoreValue, value: FirestoreValue) ->
     mapField[key] = value.toMessageValue(mapValueType)
+    if (mapField[key] is Message) {
+      (mapField[key] as Message).set("id", key)
+    }
   }
   mapField.makeImmutable()
   return mapField

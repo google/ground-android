@@ -62,7 +62,13 @@ class FirestoreToProtobufExtTest(
         testCase(
           desc = "converts map<string, Message> fields",
           data = mapOf("jobs" to mapOf("job123" to mapOf("name" to "A job"))),
-          expected = survey { jobs["job123"] = job { name = "A job" } },
+          expected =
+            survey {
+              jobs["job123"] = job {
+                id = "job123"
+                name = "A job"
+              }
+            },
         ),
         testCase(
           desc = "ignores bad type in map",
@@ -72,12 +78,24 @@ class FirestoreToProtobufExtTest(
         testCase(
           desc = "converts nested objects",
           data = mapOf("jobs" to mapOf("job123" to mapOf("style" to mapOf("color" to "#112233")))),
-          expected = survey { jobs["job123"] = job { style { color = "#112233" } } },
+          expected =
+            survey {
+              jobs["job123"] = job {
+                id = "job123"
+                style { color = "#112233" }
+              }
+            },
         ),
         testCase(
           desc = "ignores bad type for nested object",
           data = mapOf("jobs" to mapOf("job123" to mapOf("style" to 123))),
-          expected = survey { jobs["job123"] = job { style {} } },
+          expected =
+            survey {
+              jobs["job123"] = job {
+                id = "job123"
+                style {}
+              }
+            },
         ),
       )
 
