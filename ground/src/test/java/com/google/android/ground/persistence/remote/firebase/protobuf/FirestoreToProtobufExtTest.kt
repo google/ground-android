@@ -33,6 +33,12 @@ class FirestoreToProtobufExtTest {
   }
 
   @Test
+  fun `toMessage() ignores fields with unknown keys`() {
+    val doc = newDocumentSnapshot(data = mapOf("foo" to "bar"))
+    assertThat(doc.toMessage()).isEqualTo(survey {})
+  }
+
+  @Test
   fun `toMessage() converts strings`() {
     val doc = newDocumentSnapshot(data = mapOf("title" to "Test survey"))
     assertThat(doc.toMessage()).isEqualTo(survey { title = "Test survey" })
