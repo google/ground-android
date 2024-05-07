@@ -18,36 +18,11 @@ package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.GeneratedMessageLite
-import com.google.protobuf.MapFieldLite
 import java.lang.reflect.Field
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.jvm.isAccessible
 import timber.log.Timber
-
-/** The name of the message field where document and nested ids are written. */
-private const val ID_FIELD_NAME = "id"
-
-/** A key used in a document or a nested object in Firestore. */
-private typealias FirestoreKey = String
-
-/** A value used in a document or a nested object in Firestore. */
-private typealias FirestoreValue = Any
-
-/** A nested object, aka map value in a Firestore document. */
-private typealias FirestoreMap = Map<FirestoreKey, FirestoreValue>
-
-/** A Protocol Buffer message instance. */
-private typealias Message = GeneratedMessageLite<*, *>
-
-/** The name of an individual field in a message instance. */
-private typealias MessageFieldName = String
-
-/** An individual field value in a message instance. */
-private typealias MessageValue = Any
-
-/** The value of a map field in a message instance. */
-private typealias MessageMap = MapFieldLite<*, *>
 
 /**
  * Returns a new instance of the specified [Message] populated with the document's id and data.
