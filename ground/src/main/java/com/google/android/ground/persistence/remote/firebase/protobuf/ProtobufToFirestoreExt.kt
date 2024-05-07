@@ -27,7 +27,7 @@ private fun Message.toFirestoreValue(property: KProperty<*>): Pair<String, Any>?
   val key = property.name.toFirestoreKey()
   val value = property.get(this)
   println("$key : $value")
-  return null
+  return if (value == null) null else key to value
 }
 
 private fun KProperty<*>.get(obj: Any): Any? {
