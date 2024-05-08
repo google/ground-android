@@ -24,13 +24,15 @@ import org.junit.Test
 class ProtobufToFirestoreExtTest {
   @Test
   fun test() {
-    survey {
-        id = "123"
-        jobs["job123"] = job {
-          id = "job123"
-          style { color = "#112233" }
+    println(
+      survey {
+          id = "123"
+          jobs["job123"] = job {
+            name = "test"
+            defaultStyle = style { color = "#112233" }
+          }
         }
-      }
-      .toMap()
+        .toMap()
+    )
   }
 }
