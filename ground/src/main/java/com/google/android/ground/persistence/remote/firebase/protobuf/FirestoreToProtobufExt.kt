@@ -20,9 +20,14 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.GeneratedMessageLite
 import java.lang.reflect.Field
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.full.declaredFunctions
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.kotlinFunction
 import timber.log.Timber
+
+typealias MessageBuilder = GeneratedMessageLite.Builder<*, *>
 
 /**
  * Returns a new instance of the specified [Message] populated with the document's id and data.
@@ -37,21 +42,27 @@ import timber.log.Timber
  * protobuf-kotlin-lite. Future versions of the library may require changes to this util.
  */
 fun <T : Message> DocumentSnapshot.toMessage(messageType: KClass<T>): T =
-  data.toMessage(messageType).apply { set(ID_FIELD_NAME, id) }
+  data.toMessage(messageType)
 
+// .apply { set(ID_FIELD_NAME, id) }
+
+@Suppress("UNCHECKED_CAST")
 private fun <T : Message> FirestoreMap?.toMessage(messageType: KClass<T>): T {
-  val message = messageType.newInstance()
-  this?.forEach { (k, v) -> message.set(k, v) }
-  return message
+  val newBuilderFun =
+    messageType.java.getDeclaredMethod("newBuilder").kotlinFunction
+      ?: throw UnsupportedOperationException("newBuilder not() found")
+  val builder = newBuilderFun.call() as MessageBuilder
+  this?.forEach { (k, v) -> builder.set(k, v) }
+  return builder.build() as T
 }
 
 private fun FirestoreMap.toMessageMap(mapValueType: KClass<*>): MessageMap {
   val mapField = MessageMap.emptyMapField<Any, Any>().mutableCopy()
   forEach { (key: FirestoreValue, value: FirestoreValue) ->
     mapField[key] = value.toMessageValue(mapValueType)
-    if (mapField[key] is Message) {
-      (mapField[key] as Message).set(ID_FIELD_NAME, key)
-    }
+    //    if (mapField[key] is Message) {
+    //      (mapField[key] as Message).set(ID_FIELD_NAME, key)
+    //    }
   }
   mapField.makeImmutable()
   return mapField
@@ -60,21 +71,26 @@ private fun FirestoreMap.toMessageMap(mapValueType: KClass<*>): MessageMap {
 private fun <T : Message> KClass<T>.newInstance(): T =
   constructors.first().apply { isAccessible = true }.call()
 
-private fun Message.set(key: FirestoreKey, value: FirestoreValue) {
+private fun MessageBuilder.set(key: FirestoreKey, value: FirestoreValue) {
   try {
     val fieldName: MessageFieldName = key
-    val field = getFieldByName(fieldName)
+    val setter = getSetterByFieldName(fieldName)
     val fieldValue = value.toMessageValue(this, fieldName)
-    setPrivate(field, fieldValue)
+    setter.call(this, fieldValue)
   } catch (e: Throwable) {
     Timber.e(e, "Skipping incompatible Firestore value. ${javaClass}: $key=$value")
   }
 }
 
-private fun Message.getFieldByName(fieldName: String): Field =
-  javaClass.getDeclaredField("${fieldName}_")
+private fun MessageBuilder.getFieldTypeByName(fieldName: String): KClass<*> =
+  javaClass.getDeclaredMethod("get${fieldName.toSentenceCase()}").returnType?.kotlin
+    ?: throw UnsupportedOperationException("Getter not found for field $fieldName")
 
-private fun Message.getMapValueType(key: FirestoreKey): KClass<*> {
+private fun MessageBuilder.getSetterByFieldName(fieldName: String): KFunction<*> =
+  this::class.declaredFunctions.find { it.name == "set${fieldName.toSentenceCase()}" }
+    ?: throw UnsupportedOperationException("Setter not found for field $fieldName")
+
+private fun MessageBuilder.getMapValueType(key: FirestoreKey): KClass<*> {
   val mapValueGetterName = key.toMessageMapGetterMethodName()
   val mapValueGetterMethod = javaClass.declaredMethods.find { it.name == mapValueGetterName }
   return mapValueGetterMethod?.returnType?.kotlin
@@ -84,7 +100,7 @@ private fun Message.getMapValueType(key: FirestoreKey): KClass<*> {
 private fun FirestoreKey.toMessageMapGetterMethodName() = "get${toSentenceCase()}OrDefault"
 
 private fun String.toSentenceCase() = replaceFirstChar {
-  if (it.isLowerCase()) it.uppercaseChar() else it.lowercaseChar()
+  if (it.isLowerCase()) it.uppercaseChar() else it
 }
 
 private fun Message.setPrivate(field: Field, value: Any?) {
@@ -94,9 +110,11 @@ private fun Message.setPrivate(field: Field, value: Any?) {
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun FirestoreValue.toMessageValue(message: Message, fieldName: String): MessageValue {
-  val field = message.getFieldByName(fieldName)
-  val fieldType = field.type.kotlin
+private fun FirestoreValue.toMessageValue(
+  message: MessageBuilder,
+  fieldName: String,
+): MessageValue {
+  val fieldType = message.getFieldTypeByName(fieldName)
   return if (fieldType.isSubclassOf(Map::class)) {
     (this as FirestoreMap).toMessageMap(message.getMapValueType(fieldName))
   } else {
