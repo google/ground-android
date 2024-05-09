@@ -35,7 +35,8 @@ class FirestoreToProtobufExtTest(
 ) {
   @Test
   fun toMessage() {
-    assertThat(input.toMessage(expectedOutput.javaClass.kotlin)).isEqualTo(expectedOutput)
+    val output = input.toMessage(expectedOutput.javaClass.kotlin)
+    assertThat(output).isEqualTo(expectedOutput)
   }
 
   companion object {
@@ -77,25 +78,22 @@ class FirestoreToProtobufExtTest(
         ),
         testCase(
           desc = "converts nested objects",
-          data = mapOf("jobs" to mapOf("job123" to mapOf("style" to mapOf("color" to "#112233")))),
+          data =
+            mapOf(
+              "jobs" to mapOf("job123" to mapOf("defaultStyle" to mapOf("color" to "#112233")))
+            ),
           expected =
             survey {
               jobs["job123"] = job {
                 id = "job123"
-                style { color = "#112233" }
+                defaultStyle = style { color = "#112233" }
               }
             },
         ),
         testCase(
           desc = "ignores bad type for nested object",
-          data = mapOf("jobs" to mapOf("job123" to mapOf("style" to 123))),
-          expected =
-            survey {
-              jobs["job123"] = job {
-                id = "job123"
-                style {}
-              }
-            },
+          data = mapOf("jobs" to mapOf("job123" to mapOf("defaultStyle" to 123))),
+          expected = survey { jobs["job123"] = job { id = "job123" } },
         ),
       )
 
