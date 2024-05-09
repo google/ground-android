@@ -32,12 +32,32 @@ fun KClass<MessageBuilder>.getFieldTypeByName(fieldName: String): KClass<*> =
   java.getDeclaredMethod("get${fieldName.toSentenceCase()}").returnType?.kotlin
     ?: throw UnsupportedOperationException("Getter not found for field $fieldName")
 
-fun MessageBuilder.getSetterByFieldName(fieldName: String): KFunction<*> =
+private fun MessageBuilder.getSetterByFieldName(fieldName: String): KFunction<*> =
   this::class.declaredFunctions.find { it.name == "set${fieldName.toSentenceCase()}" }
-    ?: throw UnsupportedOperationException("Setter not found for field $fieldName")
+    ?: throw UnsupportedOperationException("set*() not found for field $fieldName")
+
+private fun MessageBuilder.getPutAllByFieldName(fieldName: String): KFunction<*> =
+  this::class.declaredFunctions.find { it.name == "putAll${fieldName.toSentenceCase()}" }
+    ?: throw UnsupportedOperationException("putAll*() not found for field $fieldName")
 
 fun KClass<Message>.newBuilderForType() =
   java.getDeclaredMethod("newBuilder").invoke(null) as MessageBuilder
+
+fun MessageBuilder.setOrLog(fieldName: MessageFieldName, value: MessageValue) {
+  try {
+    set(fieldName, value)
+  } catch (e: Throwable) {
+    Timber.e(e, "Skipping incompatible value in ${javaClass}: $fieldName=$value")
+  }
+}
+
+fun MessageBuilder.putAllOrLog(fieldName: MessageFieldName, value: MessageMap) {
+  try {
+    putAll(fieldName, value)
+  } catch (e: Throwable) {
+    Timber.e(e, "Skipping incompatible value in ${javaClass}: $fieldName=$value")
+  }
+}
 
 private fun String.toMessageMapGetterMethodName() = "get${toSentenceCase()}OrDefault"
 
@@ -46,14 +66,9 @@ private fun String.toSentenceCase() = replaceFirstChar {
 }
 
 private fun MessageBuilder.set(fieldName: MessageFieldName, value: MessageValue) {
-  val setter = getSetterByFieldName(fieldName)
-  setter.call(this, value)
+  getSetterByFieldName(fieldName).call(this, value)
 }
 
-fun MessageBuilder.setOrLog(fieldName: MessageFieldName, value: MessageValue) {
-  try {
-    set(fieldName, value)
-  } catch (e: Throwable) {
-    Timber.e(e, "Skipping incompatible value in ${javaClass}: $fieldName=$value")
-  }
+private fun MessageBuilder.putAll(fieldName: MessageFieldName, value: MessageMap) {
+  getPutAllByFieldName(fieldName).call(this, value)
 }

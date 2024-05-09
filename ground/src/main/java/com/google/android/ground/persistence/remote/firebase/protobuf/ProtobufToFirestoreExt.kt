@@ -20,12 +20,10 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
 
-private typealias FirestoreMapEntry = Pair<FirestoreKey, FirestoreValue>
-
 fun Message.toMap(): FirestoreMap =
   javaClass.kotlin.declaredMemberProperties.mapNotNull { toFirestoreValue(it) }.toMap()
 
-private fun Message.toFirestoreValue(property: KProperty<*>): FirestoreMapEntry? {
+private fun Message.toFirestoreValue(property: KProperty<*>): Pair<FirestoreKey, FirestoreValue>? {
   if (!hasValue(property)) return null
   val key = property.name.toFirestoreKey()
   val value = get(property)?.toFirestoreValue() ?: return null

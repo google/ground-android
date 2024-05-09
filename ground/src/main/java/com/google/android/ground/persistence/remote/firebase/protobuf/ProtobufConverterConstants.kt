@@ -17,7 +17,6 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.protobuf.GeneratedMessageLite
-import com.google.protobuf.MapFieldLite
 
 /** The name of the message field where document and nested ids are written. */
 internal const val ID_FIELD_NAME = "id"
@@ -45,4 +44,4 @@ internal typealias MessageValue = Any
 internal typealias MessageField = Pair<MessageFieldName, MessageValue>
 
 /** The value of a map field in a message instance. */
-internal typealias MessageMap = MapFieldLite<*, *>
+internal typealias MessageMap = Map<*, *>

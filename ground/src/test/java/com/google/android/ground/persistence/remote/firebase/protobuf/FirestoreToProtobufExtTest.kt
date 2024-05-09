@@ -61,7 +61,7 @@ class FirestoreToProtobufExtTest(
           expected = survey {},
         ),
         testCase(
-          desc = "converts map<string, Message> fields",
+          desc = "converts map<string, Message>",
           data = mapOf("jobs" to mapOf("job123" to mapOf("name" to "A job"))),
           expected = survey { jobs["job123"] = job { name = "A job" } },
         ),

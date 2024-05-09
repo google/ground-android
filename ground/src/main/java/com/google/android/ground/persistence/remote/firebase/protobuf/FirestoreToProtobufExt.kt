@@ -18,9 +18,9 @@ package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.GeneratedMessageLite
-import timber.log.Timber
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
+import timber.log.Timber
 
 typealias MessageBuilder = GeneratedMessageLite.Builder<*, *>
 
@@ -54,7 +54,9 @@ private fun FirestoreMap?.copyInto(builder: MessageBuilder) {
 }
 
 private fun FirestoreMapEntry.copyInto(builder: MessageBuilder) {
-  toMessageField(builder.javaClass.kotlin)?.also { (k, v) -> builder.setOrLog(k, v) }
+  toMessageField(builder.javaClass.kotlin)?.also { (k, v) ->
+    if (v is MessageMap) builder.putAllOrLog(k, v) else builder.setOrLog(k, v)
+  }
 }
 
 private fun FirestoreMapEntry.toMessageField(builderType: KClass<MessageBuilder>): MessageField? =
@@ -67,14 +69,9 @@ private fun FirestoreMapEntry.toMessageField(builderType: KClass<MessageBuilder>
     null
   }
 
-private fun FirestoreMap.toMessageMap(mapValueType: KClass<*>): MessageMap {
-  val mapField = MessageMap.emptyMapField<Any, Any>().mutableCopy()
-  forEach { (key: FirestoreValue, value: FirestoreValue) ->
-    mapField[key] = value.toMessageValue(mapValueType)
-  }
-  mapField.makeImmutable()
-  return mapField
-}
+private fun FirestoreMap.toMessageMap(mapValueType: KClass<*>): MessageMap =
+  map { (key: FirestoreValue, value: FirestoreValue) -> key to value.toMessageValue(mapValueType) }
+    .toMap()
 
 @Suppress("UNCHECKED_CAST")
 private fun FirestoreValue.toMessageValue(
