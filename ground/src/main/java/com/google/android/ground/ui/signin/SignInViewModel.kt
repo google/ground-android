@@ -34,7 +34,7 @@ class SignInViewModel
 @Inject
 internal constructor(
   private val networkManager: NetworkManager,
-  private val userRepository: UserRepository
+  private val userRepository: UserRepository,
 ) : AbstractViewModel() {
 
   @OptIn(ExperimentalCoroutinesApi::class)

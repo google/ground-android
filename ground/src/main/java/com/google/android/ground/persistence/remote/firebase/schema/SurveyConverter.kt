@@ -51,7 +51,7 @@ internal object SurveyConverter {
       pd.description.orEmpty(),
       jobMap.toPersistentMap(),
       tileSources.toPersistentList(),
-      pd.acl ?: mapOf()
+      pd.acl ?: mapOf(),
     )
   }
 

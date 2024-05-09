@@ -31,7 +31,7 @@ data class ConditionEntityAndRelations(
   @Relation(
     parentColumn = "parent_task_id",
     entityColumn = "parent_task_id",
-    entity = ExpressionEntity::class
+    entity = ExpressionEntity::class,
   )
-  val expressionEntities: List<ExpressionEntity>
+  val expressionEntities: List<ExpressionEntity>,
 )

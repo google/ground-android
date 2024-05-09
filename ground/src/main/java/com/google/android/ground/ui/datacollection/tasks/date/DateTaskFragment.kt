@@ -58,7 +58,7 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
         },
         year,
         month,
-        day
+        day,
       )
       .apply {
         show()

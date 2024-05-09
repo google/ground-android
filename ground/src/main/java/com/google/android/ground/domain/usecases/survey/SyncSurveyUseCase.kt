@@ -25,7 +25,7 @@ class SyncSurveyUseCase
 @Inject
 constructor(
   private val surveyRepository: SurveyRepository,
-  private val loiRepository: LocationOfInterestRepository
+  private val loiRepository: LocationOfInterestRepository,
 ) {
   /**
    * Downloads the survey with the specified ID and related LOIs from remote and inserts and/or

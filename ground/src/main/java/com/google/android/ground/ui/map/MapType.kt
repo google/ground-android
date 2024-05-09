@@ -28,7 +28,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 enum class MapType(
   @field:StringRes @StringRes val labelId: Int,
-  @field:DrawableRes @DrawableRes val imageId: Int
+  @field:DrawableRes @DrawableRes val imageId: Int,
 ) : Parcelable {
   ROAD(R.string.road_map, R.drawable.map_type_roadmap),
   TERRAIN(R.string.terrain, R.drawable.map_type_terrain),

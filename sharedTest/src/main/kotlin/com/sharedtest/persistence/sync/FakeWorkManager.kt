@@ -50,7 +50,7 @@ class FakeWorkManager : WorkManager() {
   override fun beginUniqueWork(
     uniqueWorkName: String,
     existingWorkPolicy: ExistingWorkPolicy,
-    work: List<OneTimeWorkRequest>
+    work: List<OneTimeWorkRequest>,
   ): WorkContinuation {
     throw NotImplementedError()
   }
@@ -58,7 +58,7 @@ class FakeWorkManager : WorkManager() {
   override fun enqueueUniqueWork(
     uniqueWorkName: String,
     existingWorkPolicy: ExistingWorkPolicy,
-    work: List<OneTimeWorkRequest>
+    work: List<OneTimeWorkRequest>,
   ): Operation {
     throw NotImplementedError()
   }
@@ -66,7 +66,7 @@ class FakeWorkManager : WorkManager() {
   override fun enqueueUniquePeriodicWork(
     uniqueWorkName: String,
     existingPeriodicWorkPolicy: ExistingPeriodicWorkPolicy,
-    periodicWork: PeriodicWorkRequest
+    periodicWork: PeriodicWorkRequest,
   ): Operation {
     throw NotImplementedError()
   }

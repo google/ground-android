@@ -36,7 +36,7 @@ class ConditionConverterTest {
       listOf(
           "MATCH_ANY" to Condition.MatchType.MATCH_ANY,
           "MATCH_ALL" to Condition.MatchType.MATCH_ALL,
-          "MATCH_ONE" to Condition.MatchType.MATCH_ONE
+          "MATCH_ONE" to Condition.MatchType.MATCH_ONE,
         )
         .forEach {
           assertThat(ConditionNestedObject(matchType = it.first).toCondition()?.matchType)
@@ -63,9 +63,9 @@ class ConditionConverterTest {
               ExpressionNestedObject(
                 expressionType = "ANY_OF_SELECTED",
                 taskId = TASK_ID,
-                optionIds = TEST_OPTION_IDS
+                optionIds = TEST_OPTION_IDS,
               )
-            )
+            ),
         )
         .toCondition()
         ?.expressions
@@ -90,7 +90,7 @@ class ConditionConverterTest {
               taskId = TASK_ID,
               optionIds = TEST_OPTION_IDS,
             )
-          )
+          ),
       )
     }
     listOf(
@@ -116,7 +116,7 @@ class ConditionConverterTest {
                 ExpressionNestedObject(expressionType = "TWO_OF_SELECTED", taskId = TASK_ID),
                 // Case sensitive.
                 ExpressionNestedObject(expressionType = "any_of_selected", taskId = TASK_ID),
-              )
+              ),
           )
           .toCondition()
           ?.expressions
@@ -141,7 +141,7 @@ class ConditionConverterTest {
                   expressionType = "ANY_OF_SELECTED",
                   optionIds = TEST_OPTION_IDS,
                 ),
-              )
+              ),
           )
           .toCondition()
           ?.expressions
@@ -163,11 +163,8 @@ class ConditionConverterTest {
                   optionIds = TEST_OPTION_IDS,
                 ),
                 // Missing option IDs.
-                ExpressionNestedObject(
-                  expressionType = "ANY_OF_SELECTED",
-                  taskId = TASK_ID,
-                ),
-              )
+                ExpressionNestedObject(expressionType = "ANY_OF_SELECTED", taskId = TASK_ID),
+              ),
           )
           .toCondition()
           ?.expressions

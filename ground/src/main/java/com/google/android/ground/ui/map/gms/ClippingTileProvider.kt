@@ -29,7 +29,7 @@ private const val MAX_ZOOM = 19
 
 class ClippingTileProvider(
   private val sourceTileProvider: TileProvider,
-  clipBounds: List<LatLngBounds>
+  clipBounds: List<LatLngBounds>,
 ) : TileProvider {
 
   private val pixelBounds = clipBounds.map { it.toPixelBounds(MAX_ZOOM) }

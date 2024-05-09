@@ -85,6 +85,6 @@ internal class SyncStatusListAdapter(private val context: Context) :
       null,
       null,
       drawable,
-      null
+      null,
     )
 }

@@ -71,17 +71,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom">
         <TextView
-          android:id="@+id/view_licenses"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_gravity="bottom"
-          android:clickable="true"
-          android:focusable="true"
-          android:padding="8dp"
-          android:text="@string/view_licenses"
-          app:layout_constraintBottom_toTopOf="@id/version_text"
-          tools:text="@string/view_licenses" />
-        <TextView
           android:id="@+id/version_text"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"

@@ -38,7 +38,7 @@ class MogTileTest {
         width = WIDTH,
         height = HEIGHT,
         jpegTables = byteArrayOf(100, 101, 102, 103, 104),
-        byteRange = LongRange(0, 10)
+        byteRange = LongRange(0, 10),
       )
     private val EXPECTED_DATA =
       byteArrayOf(
@@ -67,7 +67,7 @@ class MogTileTest {
         3,
         4,
         -1,
-        -39
+        -39,
       )
   }
 }

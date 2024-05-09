@@ -22,7 +22,7 @@ import com.google.android.ground.model.User
 data class UserDetails(
   @ColumnInfo(name = "id") val id: String,
   @ColumnInfo(name = "email") val email: String,
-  @ColumnInfo(name = "display_name") val displayName: String
+  @ColumnInfo(name = "display_name") val displayName: String,
 ) {
   companion object {
     fun fromUser(user: User) = UserDetails(user.id, user.email, user.displayName)

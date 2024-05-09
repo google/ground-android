@@ -118,4 +118,12 @@ internal constructor(
   fun showSyncStatus() {
     navigator.navigate(HomeScreenFragmentDirections.showSyncStatus())
   }
+
+  fun showAbout() {
+    navigator.navigate(HomeScreenFragmentDirections.showAbout())
+  }
+
+  fun showTermsOfService() {
+    navigator.navigate(HomeScreenFragmentDirections.showTermsOfService(true))
+  }
 }

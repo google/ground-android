@@ -33,7 +33,7 @@ class MapsItemManager(
   private val map: GoogleMap,
   private val pointRenderer: PointRenderer,
   private val polygonRenderer: PolygonRenderer,
-  private val lineStringRenderer: LineStringRenderer
+  private val lineStringRenderer: LineStringRenderer,
 ) {
   private val itemsByTag = mutableMapOf<Feature.Tag, List<Any>>()
 

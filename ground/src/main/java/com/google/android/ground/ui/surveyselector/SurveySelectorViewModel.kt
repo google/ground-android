@@ -52,7 +52,7 @@ internal constructor(
   private val activateSurveyUseCase: ActivateSurveyUseCase,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  private val userRepository: UserRepository
+  private val userRepository: UserRepository,
 ) : AbstractViewModel() {
 
   // TODO(#2081): Expose non-mutable state flow.

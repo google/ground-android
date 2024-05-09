@@ -25,15 +25,15 @@ import androidx.room.*
         entity = TaskEntity::class,
         parentColumns = ["id"],
         childColumns = ["task_id"],
-        onDelete = ForeignKey.CASCADE
+        onDelete = ForeignKey.CASCADE,
       )
     ],
   indices = [Index("task_id")],
-  primaryKeys = ["id"]
+  primaryKeys = ["id"],
 )
 data class OptionEntity(
   @ColumnInfo(name = "id") val id: String,
   @ColumnInfo(name = "code") val code: String,
   @ColumnInfo(name = "label") val label: String,
-  @ColumnInfo(name = "task_id") val taskId: String
+  @ColumnInfo(name = "task_id") val taskId: String,
 )

@@ -33,7 +33,7 @@ class TermsOfServiceRepository
 constructor(
   private val networkManager: NetworkManager,
   private val remoteDataStore: RemoteDataStore,
-  private val localValueStore: LocalValueStore
+  private val localValueStore: LocalValueStore,
 ) {
 
   var isTermsOfServiceAccepted: Boolean by localValueStore::isTermsOfServiceAccepted
