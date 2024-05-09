@@ -31,6 +31,8 @@ internal typealias FirestoreValue = Any
 /** A nested object, aka map value in a Firestore document. */
 internal typealias FirestoreMap = Map<FirestoreKey, FirestoreValue>
 
+internal typealias FirestoreMapEntry = Map.Entry<FirestoreKey, FirestoreValue>
+
 /** A Protocol Buffer message instance. */
 internal typealias Message = GeneratedMessageLite<*, *>
 
@@ -39,6 +41,8 @@ internal typealias MessageFieldName = String
 
 /** An individual field value in a message instance. */
 internal typealias MessageValue = Any
+
+internal typealias MessageField = Pair<MessageFieldName, MessageValue>
 
 /** The value of a map field in a message instance. */
 internal typealias MessageMap = MapFieldLite<*, *>
