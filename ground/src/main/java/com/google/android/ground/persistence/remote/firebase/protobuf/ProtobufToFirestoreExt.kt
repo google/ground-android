@@ -20,22 +20,37 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
 
+private typealias FirestoreMapEntry = Pair<FirestoreKey, FirestoreValue>
+
 fun Message.toMap(): FirestoreMap =
   javaClass.kotlin.declaredMemberProperties.mapNotNull { toFirestoreValue(it) }.toMap()
 
-private fun Message.toFirestoreValue(property: KProperty<*>): Pair<String, Any>? {
+private fun Message.toFirestoreValue(property: KProperty<*>): FirestoreMapEntry? {
+  if (!hasValue(property)) return null
   val key = property.name.toFirestoreKey()
-  val value = property.get(this)
-  println("$key : $value")
-  return if (value == null) null else key to value
+  val value = get(property)?.toFirestoreValue() ?: return null
+  return key to value
 }
 
-private fun KProperty<*>.get(obj: Any): Any? {
-  isAccessible = true
-  val value = call(obj)
-  isAccessible = false
+private fun Message.hasValue(property: KProperty<*>): Boolean {
+  val value = get(property)
+  return value != null && value != defaultInstanceForType.get(property)
+}
+
+private fun Message.get(property: KProperty<*>): Any? {
+  property.isAccessible = true
+  val value = property.call(this)
+  property.isAccessible = false
   return value
 }
+
+private fun MessageValue.toFirestoreValue(): FirestoreValue =
+  // TODO(#1748): Convert enums and other types.
+  when (this) {
+    is Message -> toMap()
+    is Map<*, *> -> mapValues { it.value?.toFirestoreValue() }
+    else -> this
+  }
 
 private fun String.toFirestoreKey(): FirestoreKey {
   check(last() == '_') { "Unsupported field $this in Message; must end with '_'" }
