@@ -82,7 +82,11 @@ class FirestoreToProtobufExtTest(
           desc = "ignores bad type for nested object",
           data =
             mapOf("title" to "test", "jobs" to mapOf("job123" to mapOf("defaultStyle" to 123))),
-          expected = survey { title = "test" },
+          expected =
+            survey {
+              title = "test"
+              jobs["job123"] = job {}
+            },
         ),
       )
 
