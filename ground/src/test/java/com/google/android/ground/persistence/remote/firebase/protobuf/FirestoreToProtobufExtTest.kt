@@ -36,8 +36,8 @@ class FirestoreToProtobufExtTest(
   private val expectedOutput: GeneratedMessageLite<*, *>,
 ) {
   @Test
-  fun toMessage() {
-    val output = input.toMessage(expectedOutput.javaClass.kotlin)
+  fun parseFrom() {
+    val output = expectedOutput.javaClass.kotlin.parseFrom(input)
     assertThat(output).isEqualTo(expectedOutput)
   }
 
