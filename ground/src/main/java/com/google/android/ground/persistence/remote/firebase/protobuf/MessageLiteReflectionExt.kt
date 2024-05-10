@@ -19,7 +19,9 @@ package com.google.android.ground.persistence.remote.firebase.protobuf
 import com.google.protobuf.GeneratedMessageLite
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
+import kotlin.reflect.KType
 import kotlin.reflect.full.declaredFunctions
+import kotlin.reflect.full.isSubclassOf
 import timber.log.Timber
 
 /** The name of the message field where document and nested ids are written. */
@@ -62,8 +64,14 @@ fun KClass<MessageBuilder>.getFieldTypeByName(fieldName: String): KClass<*> =
     ?: throw UnsupportedOperationException("Getter not found for field $fieldName")
 
 private fun MessageBuilder.getSetterByFieldName(fieldName: String): KFunction<*> =
-  this::class.declaredFunctions.find { it.name == "set${fieldName.toSentenceCase()}" }
-    ?: throw UnsupportedOperationException("set*() not found for field $fieldName")
+  // Message fields generated two setters; ignore the Builder's setter in favor of the
+  // message setter.
+  this::class.declaredFunctions.find {
+    it.name == "set${fieldName.toSentenceCase()}" && !it.parameters[1].type.isBuilder()
+  } ?: throw UnsupportedOperationException("Setter not found for field $fieldName")
+
+private fun KType.isBuilder() =
+  (classifier as KClass<*>).isSubclassOf(GeneratedMessageLite.Builder::class)
 
 private fun MessageBuilder.getPutAllByFieldName(fieldName: String): KFunction<*> =
   this::class.declaredFunctions.find { it.name == "putAll${fieldName.toSentenceCase()}" }
