@@ -16,10 +16,39 @@
 
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
+import com.google.protobuf.GeneratedMessageLite
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.declaredFunctions
 import timber.log.Timber
+
+/** The name of the message field where document and nested ids are written. */
+internal const val ID_FIELD_NAME = "id"
+
+/** A key used in a document or a nested object in Firestore. */
+internal typealias FirestoreKey = String
+
+/** A value used in a document or a nested object in Firestore. */
+internal typealias FirestoreValue = Any
+
+/** A nested object, aka map value in a Firestore document. */
+internal typealias FirestoreMap = Map<FirestoreKey, FirestoreValue>
+
+internal typealias FirestoreMapEntry = Map.Entry<FirestoreKey, FirestoreValue>
+
+/** A Protocol Buffer message instance. */
+internal typealias Message = GeneratedMessageLite<*, *>
+
+/** The name of an individual field in a message instance. */
+internal typealias MessageFieldName = String
+
+/** An individual field value in a message instance. */
+internal typealias MessageValue = Any
+
+internal typealias MessageField = Pair<MessageFieldName, MessageValue>
+
+/** The value of a map field in a message instance. */
+internal typealias MessageMap = Map<*, *>
 
 fun KClass<MessageBuilder>.getMapValueType(key: String): KClass<*> {
   val mapValueGetterName = key.toMessageMapGetterMethodName()
