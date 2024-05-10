@@ -23,6 +23,8 @@ import com.google.android.ground.proto.survey
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.GeneratedMessageLite
+import com.sharedtest.TimberTestRule
+import org.junit.ClassRule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -40,6 +42,8 @@ class FirestoreToProtobufExtTest(
   }
 
   companion object {
+    @get:ClassRule @JvmStatic var timberRule = TimberTestRule()
+
     @JvmStatic
     @Parameterized.Parameters(name = "{0}")
     fun data() =

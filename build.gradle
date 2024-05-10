@@ -23,6 +23,8 @@ buildscript {
         hiltVersion = "2.51"
         navigationVersion = "2.7.7"
         roomVersion = "2.6.1"
+        junitVersion = "4.13.2"
+        timberVersion = "5.0.1"
     }
     repositories {
         google()
