@@ -17,6 +17,7 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.protobuf.GeneratedMessageLite
+import java.lang.IllegalArgumentException
 import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -94,14 +95,13 @@ fun MessageBuilder.setOrLog(fieldName: MessageFieldName, value: MessageValue) {
   }
 }
 
-fun <T : MessageBuilder> KClass<T>.getFieldName(fieldNumber: MessageFieldNumber): MessageFieldName {
-  return getMessageClass()
+fun <T : MessageBuilder> KClass<T>.getFieldName(fieldNumber: MessageFieldNumber): MessageFieldName =
+  getMessageClass()
     .getStaticFields()
     .find { it.name.endsWith(FIELD_NUMBER_CONST_SUFFIX) && it.get(null) == fieldNumber }
     ?.name
     ?.removeSuffix(FIELD_NUMBER_CONST_SUFFIX)
-    ?.lowercase() ?: throw Error("Field $fieldNumber not found in $java")
-}
+    ?.lowercase() ?: throw IllegalArgumentException("Field $fieldNumber not found in $java")
 
 @Suppress("UNCHECKED_CAST")
 private fun <T : MessageBuilder> KClass<T>.getMessageClass() =

@@ -18,6 +18,7 @@ package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.GeneratedMessageLite
+import java.lang.IllegalArgumentException
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 import timber.log.Timber
@@ -74,7 +75,7 @@ private fun FirestoreMapEntry.toMessageField(
   }
 
 private fun FirestoreKey.toMessageFieldNumber() =
-  toIntOrNull() ?: throw Error("Non-numeric document key $this")
+  toIntOrNull() ?: throw IllegalArgumentException("Non-numeric document key $this")
 
 private fun FirestoreMap.toMessageMap(mapValueType: KClass<*>): MessageMap =
   map { (key: FirestoreValue, value: FirestoreValue) -> key to value.toMessageValue(mapValueType) }
