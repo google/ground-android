@@ -48,22 +48,7 @@
       android:text="@string/camera"
       app:icon="@drawable/outline_photo_camera"
       app:iconTint="?attr/colorOnSurface"
-      app:layout_constraintEnd_toStartOf="@id/btn_library"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.button.MaterialButton
-      android:id="@+id/btn_library"
-      style="@style/TaskChipButton.LightGreen"
-      visible="@{!viewModel.isPhotoPresent()}"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:onClick="@{()-> fragment.onSelectPhoto()}"
-      android:text="@string/library"
-      app:icon="@drawable/outline_photo_library"
-      app:iconTint="?attr/colorOnSurface"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toEndOf="@id/btn_camera"
       app:layout_constraintTop_toTopOf="parent" />
 
     <include
