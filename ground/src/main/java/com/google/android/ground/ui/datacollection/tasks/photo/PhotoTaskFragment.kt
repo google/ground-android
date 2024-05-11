@@ -30,8 +30,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.FileProvider
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.R
@@ -46,7 +46,7 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.material.color.MaterialColors
+import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -63,19 +63,16 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject lateinit var popups: EphemeralPopups
   @Inject lateinit var navigator: Navigator
 
-  private var selectPhotoLauncher: ActivityResultLauncher<String> =
-    registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-      viewModel.onSelectPhotoResult(uri)
-    }
-
+  // Registers a callback to execute after a user captures a photo from the on-device camera.
   private var capturePhotoLauncher: ActivityResultLauncher<Uri> =
     registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-      viewModel.onCapturePhotoResult(result)
+      if (result) viewModel.savePhotoTaskData(capturedPhotoUri)
     }
 
   private var hasRequestedPermissionsOnResume = false
   private var taskWaitingForPhoto: String? = null
   private var capturedPhotoPath: String? = null
+  private lateinit var capturedPhotoUri: Uri
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
@@ -98,7 +95,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   override fun onTaskViewAttached() {
     viewModel.surveyId = dataCollectionViewModel.surveyId
     viewModel.taskWaitingForPhoto = taskWaitingForPhoto
-    viewModel.capturedPhotoPath = capturedPhotoPath
   }
 
   override fun onCreateActionButtons() {
@@ -119,9 +115,11 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
     outState.putString(TASK_WAITING_FOR_PHOTO, viewModel.taskWaitingForPhoto)
-    outState.putString(CAPTURED_PHOTO_PATH, viewModel.capturedPhotoPath)
+    outState.putString(CAPTURED_PHOTO_PATH, capturedPhotoPath)
   }
 
+  // Requests camera/photo access permissions from the device, executing an optional callback
+  // when permission is granted.
   private fun obtainCapturePhotoPermissions(onPermissionsGranted: () -> Unit = {}) {
     externalScope.launch {
       try {
@@ -141,7 +139,9 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
       } catch (_: PermissionDeniedException) {
         mainScope.launch {
           (view as ViewGroup).addView(
-            ComposeView(requireContext()).apply { setContent { PermissionDeniedDialog() } }
+            ComposeView(requireContext()).apply {
+              setContent { AppTheme { PermissionDeniedDialog() } }
+            }
           )
         }
       }
@@ -159,47 +159,28 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     if (openDialog.value) {
       AlertDialog(
         onDismissRequest = { dismissDialog() },
-        title = { Text(text = getString(R.string.permission_denied)) },
-        text = { Text(text = getString(R.string.camera_permissions_needed)) },
+        title = { Text(text = stringResource(R.string.permission_denied)) },
+        text = { Text(text = stringResource(R.string.camera_permissions_needed)) },
         confirmButton = {
-          TextButton(onClick = { dismissDialog() }) {
-            Text(
-              text = getString(R.string.ok),
-              color = Color(MaterialColors.getColor(context, R.attr.colorPrimary, "")),
-            )
-          }
+          TextButton(onClick = { dismissDialog() }) { Text(text = stringResource(R.string.ok)) }
         },
       )
     }
   }
 
   fun onTakePhoto() {
-    // TODO(#1600): Launch intent is not invoked if the permission is not granted by default.
     obtainCapturePhotoPermissions { launchPhotoCapture(viewModel.task.id) }
-  }
-
-  fun onSelectPhoto() {
-    obtainCapturePhotoPermissions { launchPhotoSelector(viewModel.task.id) }
   }
 
   private fun launchPhotoCapture(taskId: String) {
     try {
       val photoFile = userMediaRepository.createImageFile(taskId)
-      val uri = FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID, photoFile)
+      capturedPhotoUri =
+        FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID, photoFile)
       viewModel.taskWaitingForPhoto = taskId
-      viewModel.capturedPhotoPath = photoFile.absolutePath
-      capturePhotoLauncher.launch(uri)
+      capturedPhotoPath = capturedPhotoUri.path
+      capturePhotoLauncher.launch(capturedPhotoUri)
       Timber.d("Capture photo intent sent")
-    } catch (e: IllegalArgumentException) {
-      popups.ErrorPopup().show(R.string.error_message)
-      Timber.e(e)
-    }
-  }
-
-  private fun launchPhotoSelector(taskId: String) {
-    try {
-      viewModel.taskWaitingForPhoto = taskId
-      selectPhotoLauncher.launch("image/*")
     } catch (e: IllegalArgumentException) {
       popups.ErrorPopup().show(R.string.error_message)
       Timber.e(e)

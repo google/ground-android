@@ -34,7 +34,7 @@ class SignInViewModel
 @Inject
 internal constructor(
   private val networkManager: NetworkManager,
-  private val userRepository: UserRepository
+  private val userRepository: UserRepository,
 ) : AbstractViewModel() {
 
   @OptIn(ExperimentalCoroutinesApi::class)
@@ -45,7 +45,7 @@ internal constructor(
 
   fun onSignInButtonClick() {
     viewModelScope.launch {
-      val signInState = userRepository.signInState.first()
+      val signInState = userRepository.getSignInState().first()
       when (signInState.state) {
         SignInState.State.SIGNED_OUT,
         SignInState.State.ERROR -> userRepository.signIn()

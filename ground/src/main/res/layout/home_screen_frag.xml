@@ -66,13 +66,20 @@
       app:itemTextColor="@color/nav_drawer_item"
       app:menu="@menu/nav_drawer_menu">
 
-      <TextView
-        android:id="@+id/version_text"
+      <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:padding="8dp"
-        tools:text="Build number" />
+        android:layout_gravity="bottom">
+        <TextView
+          android:id="@+id/version_text"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_gravity="bottom"
+          android:layout_marginBottom="32dp"
+          android:padding="8dp"
+          app:layout_constraintBottom_toBottomOf="parent"
+          tools:text="Build number" />
+      </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.navigation.NavigationView>
 

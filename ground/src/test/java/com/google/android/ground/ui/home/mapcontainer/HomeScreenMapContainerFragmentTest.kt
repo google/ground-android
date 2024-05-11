@@ -52,7 +52,7 @@ class HomeScreenMapContainerFragmentTest : BaseHiltTest() {
         val actualRequest = it as ShowMapTypeDialogFragment
         assertThat(actualRequest.mapTypes).isEqualTo(MapType.values())
       },
-      { onView(withId(R.id.map_type_btn)).perform(click()).check(matches(isEnabled())) }
+      { onView(withId(R.id.map_type_btn)).perform(click()).check(matches(isEnabled())) },
     )
   }
 }

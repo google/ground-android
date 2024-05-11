@@ -50,7 +50,7 @@ constructor(
   private val mutationRepository: MutationRepository,
   private val localUserStore: LocalUserStore,
   private val remoteDataStore: RemoteDataStore,
-  private val mediaUploadWorkManager: MediaUploadWorkManager
+  private val mediaUploadWorkManager: MediaUploadWorkManager,
 ) : CoroutineWorker(context, params) {
 
   private val locationOfInterestId: String =

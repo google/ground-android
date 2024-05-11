@@ -42,7 +42,7 @@ class UserMediaRepository
 constructor(
   @ApplicationContext private val context: Context,
   private val remoteStorageManager: RemoteStorageManager,
-  private val uuidGenerator: OfflineUuidGenerator
+  private val uuidGenerator: OfflineUuidGenerator,
 ) {
 
   private var strFilePattern = Regex("^[a-zA-Z0-9._ -]+\\.(png|jpg)$")

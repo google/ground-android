@@ -24,7 +24,7 @@ class MakeSurveyAvailableOfflineUseCase
 @Inject
 constructor(
   private val surveyRepository: SurveyRepository,
-  private val syncSurvey: SyncSurveyUseCase
+  private val syncSurvey: SyncSurveyUseCase,
 ) {
   /**
    * Makes the survey with the specified ID and related LOIs available offline. Subscribes to

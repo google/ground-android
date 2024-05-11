@@ -154,7 +154,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     expectedVerticesCount: Int,
     isLineString: Boolean = false,
     isLinearRing: Boolean = false,
-    isPolygon: Boolean = false
+    isPolygon: Boolean = false,
   ) {
     val geometry = featureTestObserver.value()?.geometry
     if (expectedVerticesCount == 0) {

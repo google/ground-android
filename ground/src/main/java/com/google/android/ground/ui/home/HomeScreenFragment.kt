@@ -39,6 +39,8 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
+import com.google.android.ground.ui.theme.AppTheme
+import com.google.android.ground.util.systemInsets
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -67,10 +69,7 @@ class HomeScreenFragment :
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    getViewModel(MainViewModel::class.java).windowInsets.observe(this) { insets: WindowInsetsCompat
-      ->
-      onApplyWindowInsets(insets)
-    }
+    getViewModel(MainViewModel::class.java).windowInsets.observe(this) { onApplyWindowInsets(it) }
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     lifecycleScope.launch { homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() } }
   }
@@ -101,7 +100,6 @@ class HomeScreenFragment :
       homeScreenViewModel.showSurveySelector()
     }
     updateNavHeader()
-
     // Re-open data collection screen if any drafts are present
     viewLifecycleOwner.lifecycleScope.launch {
       homeScreenViewModel.maybeNavigateToDraftSubmission()
@@ -134,12 +132,8 @@ class HomeScreenFragment :
   }
 
   private fun onApplyWindowInsets(insets: WindowInsetsCompat) {
-    updateNavViewInsets(insets)
-  }
-
-  private fun updateNavViewInsets(insets: WindowInsetsCompat) {
     val headerView = binding.navView.getHeaderView(0)
-    headerView.setPadding(0, insets.systemWindowInsetTop, 0, 0)
+    headerView.setPadding(0, insets.systemInsets().top, 0, 0)
   }
 
   override fun onBack(): Boolean = false
@@ -150,6 +144,8 @@ class HomeScreenFragment :
       R.id.nav_offline_areas -> homeScreenViewModel.showOfflineAreas()
       R.id.nav_settings -> homeScreenViewModel.showSettings()
       R.id.nav_sign_out -> showSignOutConfirmationDialog()
+      R.id.about -> homeScreenViewModel.showAbout()
+      R.id.terms_of_service -> homeScreenViewModel.showTermsOfService()
     }
     closeDrawer()
     return true
@@ -166,7 +162,7 @@ class HomeScreenFragment :
         // Reset the state for recomposition
         openDialog.value = true
 
-        SignOutConfirmationDialog(requireContext(), openDialog) { userRepository.signOut() }
+        AppTheme { SignOutConfirmationDialog(openDialog) { userRepository.signOut() } }
       }
     }
   }

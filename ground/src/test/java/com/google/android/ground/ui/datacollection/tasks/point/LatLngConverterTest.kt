@@ -18,7 +18,7 @@ package com.google.android.ground.ui.datacollection.tasks.point
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.ui.datacollection.tasks.point.LatLngConverter.formatCoordinates
+import com.google.android.ground.model.geometry.LatLngConverter.formatCoordinates
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Test

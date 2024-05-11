@@ -50,7 +50,7 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
     geometry: LineString,
     style: Feature.Style,
     selected: Boolean,
-    visible: Boolean
+    visible: Boolean,
   ): Polyline {
     val options = PolylineOptions()
     with(options) {

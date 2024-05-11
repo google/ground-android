@@ -27,6 +27,7 @@ import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -43,7 +44,7 @@ class SignInFragment : AbstractFragment(), BackPressListener {
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View {
     binding = SignInFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
@@ -55,7 +56,7 @@ class SignInFragment : AbstractFragment(), BackPressListener {
     super.onViewCreated(view, savedInstanceState)
 
     lifecycleScope.launch(Dispatchers.Main) {
-      viewModel.getNetworkFlow().collect { connected ->
+      viewModel.getNetworkFlow().filterNotNull().collect { connected ->
         if (!connected) {
           displayNetworkError()
         }
@@ -67,7 +68,7 @@ class SignInFragment : AbstractFragment(), BackPressListener {
     Snackbar.make(
         requireView(),
         getString(R.string.network_error_when_signing_in),
-        Snackbar.LENGTH_LONG
+        Snackbar.LENGTH_LONG,
       )
       .show()
   }

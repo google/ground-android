@@ -15,13 +15,14 @@
  */
 package com.google.android.ground.model.task
 
-import com.google.android.ground.model.submission.MultipleChoiceResponse
-import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
+import com.google.android.ground.model.submission.TaskData
 
 /** The task ID. */
 typealias TaskId = String
+
 /** The selected values keyed by task ID. */
-typealias TaskSelections = Map<String, Value>
+typealias TaskSelections = Map<String, TaskData>
 
 /**
  * Describes a user-defined condition on a task, which determines whether the given task should be
@@ -73,9 +74,9 @@ data class Expression(
   fun fulfilledBy(taskSelections: TaskSelections): Boolean =
     taskSelections[this.taskId]?.let { selection -> this.fulfilled(selection) } ?: false
 
-  private fun fulfilled(value: Value): Boolean {
-    if (value !is MultipleChoiceResponse) return false
-    val selectedOptions = value.selectedOptionIds.toSet()
+  private fun fulfilled(taskData: TaskData): Boolean {
+    if (taskData !is MultipleChoiceTaskData) return false
+    val selectedOptions = taskData.selectedOptionIds.toSet()
     return when (expressionType) {
       ExpressionType.ANY_OF_SELECTED -> optionIds.any { it in selectedOptions }
       ExpressionType.ALL_OF_SELECTED -> selectedOptions.containsAll(optionIds)

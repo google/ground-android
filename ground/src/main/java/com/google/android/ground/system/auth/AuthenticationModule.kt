@@ -33,7 +33,7 @@ class AuthenticationModule {
   @Singleton
   fun authenticationManager(
     anonymousAuthenticationManager: AnonymousAuthenticationManager,
-    googleAuthenticationManager: GoogleAuthenticationManager
+    googleAuthenticationManager: GoogleAuthenticationManager,
   ): AuthenticationManager =
     if (USE_EMULATORS) anonymousAuthenticationManager else googleAuthenticationManager
 

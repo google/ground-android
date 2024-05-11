@@ -24,7 +24,7 @@ import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.submission.SubmitDataUseCase
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.model.task.Condition
@@ -106,7 +106,7 @@ internal constructor(
   val tasks: List<Task> =
     if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
 
-  val surveyId: String = surveyRepository.lastActiveSurveyId
+  val surveyId: String = requireNotNull(surveyRepository.activeSurvey?.id)
 
   val jobName: StateFlow<String> =
     MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
@@ -129,7 +129,7 @@ internal constructor(
   private val taskViewModels: MutableStateFlow<MutableMap<String, AbstractTaskViewModel>> =
     MutableStateFlow(mutableMapOf())
 
-  private val data: MutableMap<Task, Value?> = LinkedHashMap()
+  private val data: MutableMap<Task, TaskData?> = LinkedHashMap()
 
   // Tracks the current task ID to compute the position in the list of tasks for the current job.
   var currentTaskId: StateFlow<String> =
@@ -155,7 +155,7 @@ internal constructor(
     return draftDeltas as List<ValueDelta>
   }
 
-  private fun getValueFromDraft(task: Task): Value? {
+  private fun getValueFromDraft(task: Task): TaskData? {
     for ((taskId, taskType, value) in getDraftDeltas()) {
       if (taskId == task.id && taskType == task.type) {
         Timber.d("Value $value found for task $task")
@@ -179,8 +179,8 @@ internal constructor(
       val viewModel = viewModelFactory.create(getViewModelClass(task.type))
       taskViewModels.value[task.id] = viewModel
 
-      val value: Value? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
-      viewModel.initialize(job, task, value)
+      val taskData: TaskData? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
+      viewModel.initialize(job, task, taskData)
       viewModel
     } catch (e: Exception) {
       Timber.e("ignoring task with invalid type: $task.type")
@@ -193,7 +193,7 @@ internal constructor(
     check(getPositionInTaskSequence().first != 0)
 
     val task = taskViewModel.task
-    val taskValue = taskViewModel.taskValue.firstOrNull()
+    val taskValue = taskViewModel.taskTaskData.firstOrNull()
 
     // Skip validation if the task is empty
     if (taskValue.isNullOrEmpty()) {
@@ -223,7 +223,7 @@ internal constructor(
       return
     }
 
-    data[taskViewModel.task] = taskViewModel.taskValue.firstOrNull()
+    data[taskViewModel.task] = taskViewModel.taskTaskData.firstOrNull()
 
     if (!isLastPosition()) {
       step(1)
@@ -256,6 +256,7 @@ internal constructor(
     }
     return tasks.indexOf(tasks.first { it.id == currentTaskId.value })
   }
+
   /** Persists the collected data as draft to local storage. */
   private fun saveDraft() {
     externalScope.launch(ioDispatcher) {

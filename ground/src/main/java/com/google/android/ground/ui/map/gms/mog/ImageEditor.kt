@@ -29,7 +29,7 @@ object ImageEditor {
    */
   fun setTransparentIf(
     sourceImage: ByteArray,
-    isTransparent: (bitmap: Bitmap, x: Int, y: Int) -> Boolean
+    isTransparent: (bitmap: Bitmap, x: Int, y: Int) -> Boolean,
   ): ByteArray {
     val opts = BitmapFactory.Options()
     opts.inMutable = true

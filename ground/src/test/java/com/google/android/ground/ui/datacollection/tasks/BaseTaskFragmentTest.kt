@@ -16,12 +16,10 @@
 
 package com.google.android.ground.ui.datacollection.tasks
 
-import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import app.cash.turbine.test
@@ -29,10 +27,11 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
+import com.google.android.ground.ui.datacollection.TaskFragmentRunner
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -47,6 +46,8 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
 
   lateinit var fragment: F
   lateinit var viewModel: VM
+
+  protected fun runner() = TaskFragmentRunner(this)
 
   protected fun hasTaskViewWithHeader(task: Task) {
     onView(withId(R.id.data_collection_header))
@@ -69,45 +70,19 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     onView(withId(R.id.card_value)).check(matches(withText(value)))
   }
 
-  protected suspend fun hasValue(value: Value?) {
-    viewModel.taskValue.test { assertThat(expectMostRecentItem()).isEqualTo(value) }
+  protected suspend fun hasValue(taskData: TaskData?) {
+    viewModel.taskTaskData.test { assertThat(expectMostRecentItem()).isEqualTo(taskData) }
   }
 
   /** Asserts that the task fragment has the given list of buttons in the exact same order. */
   protected fun assertFragmentHasButtons(vararg buttonActions: ButtonAction) {
     // TODO: Also verify the visibility/state of the button
-    assertThat(fragment.getButtons().keys).containsExactlyElementsIn(buttonActions)
+    assertThat(fragment.buttonDataList.map { it.button.action })
+      .containsExactlyElementsIn(buttonActions)
     buttonActions.withIndex().forEach { (index, expected) ->
-      val actual = fragment.getButtonsIndex()[index]
+      val actual = fragment.buttonDataList[index].button.action
       assertWithMessage("Incorrect button order").that(actual).isEqualTo(expected)
     }
-  }
-
-  protected fun getButton(buttonAction: ButtonAction): View =
-    fragment.getButtons()[buttonAction]!!.getView()
-
-  protected fun buttonIsHidden(buttonAction: ButtonAction) {
-    val button = getButton(buttonAction)
-    assertThat(button.visibility).isEqualTo(View.GONE)
-  }
-
-  protected fun buttonIsHidden(buttonText: String) {
-    onView(withText(buttonText)).check(matches(not(isDisplayed())))
-  }
-
-  protected fun buttonIsEnabled(buttonAction: ButtonAction) {
-    val button = getButton(buttonAction)
-    assertThat(buttonAction.type).isEqualTo(ButtonAction.Type.ICON)
-    assertThat(button.visibility).isEqualTo(View.VISIBLE)
-    assertThat(button.isEnabled).isEqualTo(true)
-  }
-
-  protected fun buttonIsEnabled(buttonText: String) {
-    onView(withText(buttonText)).check(matches(isDisplayed())).check(matches(isEnabled()))
-  }
-
-  protected fun buttonIsDisabled(buttonText: String) {
-    onView(withText(buttonText)).check(matches(isDisplayed())).check(matches(not(isEnabled())))
   }
 
   protected inline fun <reified T : Fragment> setupTaskFragment(job: Job, task: Task) {
@@ -120,7 +95,7 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
       preTransactionAction = {
         fragment = this as F
         fragment.taskId = task.id
-      }
+      },
     )
   }
 }

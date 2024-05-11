@@ -25,5 +25,5 @@ data class SurveyDocument(
   val description: String? = null,
   val jobs: Map<String, JobNestedObject>? = null,
   val acl: Map<String, String>? = null,
-  val tileSources: List<TileSourceNestedObject>? = null
+  val tileSources: List<TileSourceNestedObject>? = null,
 )

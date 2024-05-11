@@ -17,8 +17,7 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools">
+  xmlns:app="http://schemas.android.com/apk/res-auto">
   <data>
     <import type="android.view.View" />
     <variable
@@ -41,7 +40,6 @@
       android:adjustViewBounds="true"
       android:contentDescription="@string/photo_preview"
       android:scaleType="centerCrop"
-      app:imageUri="@{viewModel.uri}"
-      tools:src="@drawable/splash_background" />
+      app:imageUri="@{viewModel.uri}" />
   </FrameLayout>
 </layout>

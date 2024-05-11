@@ -15,10 +15,13 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.time
 
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.assertion.ViewAssertions
-import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.isEnabled
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.task.Task
@@ -26,11 +29,10 @@ import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -60,22 +62,23 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   fun testResponse_defaultIsEmpty() {
     setupTaskFragment<TimeTaskFragment>(job, task)
 
-    Espresso.onView(ViewMatchers.withId(R.id.user_response_text))
-      .check(ViewAssertions.matches(ViewMatchers.withText("")))
-      .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-      .check(ViewAssertions.matches(ViewMatchers.isEnabled()))
+    onView(withId(R.id.user_response_text))
+      .check(matches(withText("")))
+      .check(matches(isDisplayed()))
+      .check(matches(isEnabled()))
 
-    Truth.assertThat(viewModel.responseText.value).isEqualTo("")
-    buttonIsDisabled("Next")
+    assertThat(viewModel.responseText.value).isEqualTo("")
+
+    runner().assertButtonIsDisabled("Next")
   }
 
   @Test
   fun testResponse_onUserInput() {
     setupTaskFragment<TimeTaskFragment>(job, task)
 
-    Truth.assertThat(fragment.getTimePickerDialog()).isNull()
-    Espresso.onView(ViewMatchers.withId(R.id.user_response_text)).perform(ViewActions.click())
-    Truth.assertThat(fragment.getTimePickerDialog()!!.isShowing).isTrue()
+    assertThat(fragment.getTimePickerDialog()).isNull()
+    onView(withId(R.id.user_response_text)).perform(click())
+    assertThat(fragment.getTimePickerDialog()!!.isShowing).isTrue()
   }
 
   @Test
@@ -89,15 +92,13 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<TimeTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsDisabled("Next")
-    buttonIsEnabled("Skip")
+    runner().assertButtonIsDisabled("Next").assertButtonIsEnabled("Skip")
   }
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<TimeTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsDisabled("Next")
-    buttonIsHidden("Skip")
+    runner().assertButtonIsDisabled("Next").assertButtonIsHidden("Skip")
   }
 }

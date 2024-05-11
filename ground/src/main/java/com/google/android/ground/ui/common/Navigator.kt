@@ -40,7 +40,7 @@ class Navigator
 @Inject
 constructor(
   @MainDispatcher private val dispatcher: CoroutineDispatcher,
-  @MainScope private val coroutineScope: CoroutineScope
+  @MainScope private val coroutineScope: CoroutineScope,
 ) {
   private val _navigateRequests = MutableSharedFlow<NavigationRequest>()
 

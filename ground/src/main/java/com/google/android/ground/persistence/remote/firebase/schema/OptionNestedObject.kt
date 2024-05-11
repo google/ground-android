@@ -20,5 +20,5 @@ package com.google.android.ground.persistence.remote.firebase.schema
 data class OptionNestedObject(
   val index: Int? = -1,
   val code: String? = null,
-  val label: String? = null
+  val label: String? = null,
 )

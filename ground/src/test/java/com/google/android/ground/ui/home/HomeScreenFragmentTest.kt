@@ -126,7 +126,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
       "Test survey description",
       mapOf(FakeData.JOB.id to FakeData.JOB),
       listOf(),
-      mapOf(Pair(FakeData.USER.email, "data-collector"))
+      mapOf(Pair(FakeData.USER.email, "data-collector")),
     )
 
   @Test
@@ -147,7 +147,7 @@ class NavigationDrawerItemClickTest(
   private val survey: Survey,
   private val expectedNavDirection: NavDirections?,
   private val shouldDrawerCloseAfterClick: Boolean,
-  private val testLabel: String
+  private val testLabel: String,
 ) : AbstractHomeScreenFragmentTest() {
 
   @Inject lateinit var navigator: Navigator
@@ -182,11 +182,11 @@ class NavigationDrawerItemClickTest(
       listOf(
         // TODO(#2385): Restore tests deleted in #2382.
         arrayOf(
-          "Sync status",
+          "History and sync status",
           TEST_SURVEY_WITHOUT_OFFLINE_TILES,
           HomeScreenFragmentDirections.showSyncStatus(),
           true,
-          "Clicking 'Sync status' should navigate to fragment"
+          "Clicking 'Sync status' should navigate to fragment",
         )
       )
   }

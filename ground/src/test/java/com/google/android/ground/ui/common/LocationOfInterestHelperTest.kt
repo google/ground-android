@@ -87,7 +87,7 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
         loiHelper.getDisplayLoiName(
           TEST_LOI.copy(
             customId = "some value",
-            properties = mapOf(LOI_NAME_PROPERTY to "custom name")
+            properties = mapOf(LOI_NAME_PROPERTY to "custom name"),
           )
         )
       )

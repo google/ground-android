@@ -41,7 +41,7 @@ class SetPreferencesRule : TestWatcher() {
     super.starting(description)
     EntryPointAccessors.fromApplication(
         getApplicationContext(),
-        SetPreferencesRuleEntryPoint::class.java
+        SetPreferencesRuleEntryPoint::class.java,
       )
       .preferenceStorage()
       .apply {

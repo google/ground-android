@@ -20,5 +20,5 @@ data class TileSourceNestedObject(
   val url: String? = null,
   val type: String? = null,
   val minHiResZoom: Int? = null,
-  val maxHiResZoom: Int? = null
+  val maxHiResZoom: Int? = null,
 )

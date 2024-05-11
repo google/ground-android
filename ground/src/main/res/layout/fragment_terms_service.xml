@@ -23,6 +23,9 @@
     <variable
       name="viewModel"
       type="com.google.android.ground.ui.tos.TermsOfServiceViewModel" />
+    <variable
+      name="isViewOnly"
+      type="Boolean" />
   </data>
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
@@ -61,6 +64,7 @@
     </ScrollView>
     <Button
       android:id="@+id/agreeButton"
+      visible="@{!isViewOnly}"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginBottom="32dp"
@@ -72,6 +76,7 @@
       app:layout_constraintStart_toStartOf="parent" />
     <CheckBox
       android:id="@+id/agreeCheckBox"
+      visible="@{!isViewOnly}"
       android:layout_width="0dp"
       android:layout_height="wrap_content"
       android:layout_margin="16dp"

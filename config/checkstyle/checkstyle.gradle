@@ -40,7 +40,6 @@ tasks.register("checkstyle", Checkstyle) {
     showViolations true
 
     source 'src'
-    include '**/*.java'
     include '**/*.xml'
     exclude '**/gen/**'
     classpath = files()
