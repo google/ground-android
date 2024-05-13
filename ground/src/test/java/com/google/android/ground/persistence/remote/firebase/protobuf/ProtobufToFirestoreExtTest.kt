@@ -46,14 +46,24 @@ class ProtobufToFirestoreExtTest(
     fun data() =
       listOf(
         testCase(
-          "converts nested objects",
-          message = survey { jobs["job123"] = job { defaultStyle = style { color = "#112233" } } },
+          desc = "converts string fields",
+          input = survey { title = "something" },
+          expected = mapOf("2" to "something"),
+        ),
+        testCase(
+          desc = "converts map<string, Message>",
+          input = survey { jobs["job123"] = job { name = "A job" } },
+          expected = mapOf("4" to mapOf("job123" to mapOf("2" to "A job"))),
+        ),
+        testCase(
+          desc = "converts nested objects",
+          input = survey { jobs["job123"] = job { defaultStyle = style { color = "#112233" } } },
           expected = mapOf("4" to mapOf("job123" to mapOf("3" to mapOf("1" to "#112233")))),
-        )
+        ),
       )
 
     /** Help to improve readability by provided named args for positional test constructor args. */
-    private fun testCase(desc: String, message: Message, expected: Map<String, Any>) =
-      arrayOf(desc, message, expected)
+    private fun testCase(desc: String, input: Message, expected: Map<String, Any>) =
+      arrayOf(desc, input, expected)
   }
 }
