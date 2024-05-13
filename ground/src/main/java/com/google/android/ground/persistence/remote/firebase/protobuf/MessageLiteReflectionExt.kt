@@ -17,17 +17,15 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.protobuf.GeneratedMessageLite
-import java.lang.IllegalArgumentException
 import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
+import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.declaredFunctions
+import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.isSubclassOf
 import timber.log.Timber
-
-/** The name of the message field where document and nested ids are written. */
-internal const val ID_FIELD_NAME = "id"
 
 /** A key used in a document or a nested object in Firestore. */
 internal typealias FirestoreKey = String
@@ -42,6 +40,8 @@ internal typealias FirestoreMapEntry = Map.Entry<FirestoreKey, FirestoreValue>
 
 /** A Protocol Buffer message instance. */
 internal typealias Message = GeneratedMessageLite<*, *>
+
+private const val BIT_FIELD_PROPERTY_PREFIX = "bitField"
 
 private const val FIELD_NUMBER_CONST_SUFFIX = "_FIELD_NUMBER"
 
@@ -95,16 +95,21 @@ fun MessageBuilder.setOrLog(fieldName: MessageFieldName, value: MessageValue) {
   }
 }
 
-fun <T : MessageBuilder> KClass<T>.getFieldName(fieldNumber: MessageFieldNumber): MessageFieldName =
-  getMessageClass()
-    .getStaticFields()
+fun <T : Message> KClass<T>.getFieldName(fieldNumber: MessageFieldNumber): MessageFieldName =
+  getStaticFields()
     .find { it.name.endsWith(FIELD_NUMBER_CONST_SUFFIX) && it.get(null) == fieldNumber }
     ?.name
     ?.removeSuffix(FIELD_NUMBER_CONST_SUFFIX)
     ?.lowercase() ?: throw IllegalArgumentException("Field $fieldNumber not found in $java")
 
+fun <T : Message> KClass<T>.getFieldNumber(fieldName: MessageFieldName): MessageFieldNumber =
+  getStaticFields().find { it.name == fieldName.toFieldNumberConstantName() }?.get(null)
+    as? MessageFieldNumber ?: throw IllegalArgumentException("Field $fieldName not found in $java")
+
+private fun String.toFieldNumberConstantName(): String = uppercase() + FIELD_NUMBER_CONST_SUFFIX
+
 @Suppress("UNCHECKED_CAST")
-private fun <T : MessageBuilder> KClass<T>.getMessageClass() =
+fun <T : MessageBuilder> KClass<T>.getMessageClass() =
   java.enclosingClass!!.kotlin as KClass<Message>
 
 private fun KClass<*>.getStaticFields() =
@@ -135,3 +140,11 @@ private fun MessageBuilder.set(fieldName: MessageFieldName, value: MessageValue)
 private fun MessageBuilder.putAll(fieldName: MessageFieldName, value: MessageMap) {
   getPutAllByFieldName(fieldName).call(this, value)
 }
+
+fun <T : Message> KClass<T>.getFieldProperties(): List<KProperty<*>> =
+  declaredMemberProperties.filter { it.isMessageFieldProperty() }
+
+private fun KProperty<*>.isMessageFieldProperty(): Boolean =
+  name.endsWith("_") && !name.startsWith(BIT_FIELD_PROPERTY_PREFIX)
+
+fun String.toSnakeCase() = replace(Regex("[A-Z]")) { "_${it.value}" }.lowercase()
