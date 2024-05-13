@@ -17,6 +17,8 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.android.ground.persistence.remote.firebase.newDocumentSnapshot
+import com.google.android.ground.proto.Style
+import com.google.android.ground.proto.Survey
 import com.google.android.ground.proto.job
 import com.google.android.ground.proto.style
 import com.google.android.ground.proto.survey
@@ -37,7 +39,7 @@ class FirestoreToProtobufExtTest(
 ) {
   @Test
   fun parseFrom() {
-    val output = expectedOutput.javaClass.kotlin.parseFrom(input)
+    val output = expectedOutput::class.parseFrom(input)
     assertThat(output).isEqualTo(expectedOutput)
   }
 
@@ -51,41 +53,44 @@ class FirestoreToProtobufExtTest(
         testCase(desc = "converts document id", id = "12345", expected = survey { id = "12345" }),
         testCase(
           desc = "converts string fields",
-          data = mapOf("title" to "something"),
+          data = mapOf("2" to "something"),
           expected = survey { title = "something" },
         ),
         testCase(
-          desc = "ignores unknown fields",
+          desc = "ignores non-numeric fields",
           data = mapOf("foo" to "bar"),
           expected = survey {},
         ),
         testCase(
+          desc = "ignores unknown field numbers",
+          data = mapOf("3000" to "bar"),
+          expected = survey {},
+        ),
+        testCase(
           desc = "ignores bad type in string field",
-          data = mapOf("title" to 123),
+          data = mapOf("2" to 123),
           expected = survey {},
         ),
         testCase(
           desc = "converts map<string, Message>",
-          data = mapOf("jobs" to mapOf("job123" to mapOf("name" to "A job"))),
+          data = mapOf("4" to mapOf("job123" to mapOf("2" to "A job"))),
           expected = survey { jobs["job123"] = job { name = "A job" } },
         ),
-        testCase(
-          desc = "ignores bad type in map",
-          data = mapOf("jobs" to 123),
-          expected = survey {},
-        ),
+        testCase(desc = "ignores bad type in map", data = mapOf("4" to 123), expected = survey {}),
         testCase(
           desc = "converts nested objects",
           data =
             mapOf(
-              "jobs" to mapOf("job123" to mapOf("defaultStyle" to mapOf("color" to "#112233")))
+              Survey.JOBS_FIELD_NUMBER.toString() to
+                mapOf(
+                  "job123" to mapOf("3" to mapOf(Style.COLOR_FIELD_NUMBER.toString() to "#112233"))
+                )
             ),
           expected = survey { jobs["job123"] = job { defaultStyle = style { color = "#112233" } } },
         ),
         testCase(
           desc = "ignores bad type for nested object",
-          data =
-            mapOf("title" to "test", "jobs" to mapOf("job123" to mapOf("defaultStyle" to 123))),
+          data = mapOf("2" to "test", "4" to mapOf("job123" to mapOf("3" to 123))),
           expected =
             survey {
               title = "test"
