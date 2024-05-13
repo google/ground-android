@@ -16,9 +16,9 @@
 
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
-import timber.log.Timber
 import kotlin.reflect.KProperty
 import kotlin.reflect.jvm.isAccessible
+import timber.log.Timber
 
 /**
  * Returns the map representation of this message ready for serialization in Firestore. The map is
