@@ -25,16 +25,22 @@ import timber.log.Timber
  * keyed by message field numbers represented as strings, while field values are converted to
  * corresponding Firestore data types. Caveats:
  * * Proto field names starting with `bit_field` are not supported.
- * * TODO: Handle ids
+ * * If specified, the field with the provided field number will be skipped. This is useful when
+ *   converting documents, in which case IDs are specified externally on they write call.
  */
-fun Message.toFirestoreMap(): FirestoreMap =
-  this::class.getFieldProperties().mapNotNull { toFirestoreValue(it) }.toMap()
+fun Message.toFirestoreMap(idField: MessageFieldNumber? = null): FirestoreMap =
+  this::class.getFieldProperties().mapNotNull { toFirestoreValue(it, idField) }.toMap()
 
-private fun Message.toFirestoreValue(property: KProperty<*>): Pair<FirestoreKey, FirestoreValue>? {
+private fun Message.toFirestoreValue(
+  property: KProperty<*>,
+  idField: MessageFieldNumber?,
+): Pair<FirestoreKey, FirestoreValue>? {
   try {
     if (!hasValue(property)) return null
     val fieldName = property.name.toMessageFieldName()
-    val key = this::class.getFieldNumber(fieldName).toString()
+    val fieldNumber = this::class.getFieldNumber(fieldName)
+    if (idField == fieldNumber) return null
+    val key = fieldNumber.toString()
     val value = get(property)?.toFirestoreValue() ?: return null
     return key to value
   } catch (e: Throwable) {

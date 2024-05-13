@@ -16,6 +16,7 @@
 
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
+import com.google.android.ground.proto.Survey
 import com.google.android.ground.proto.job
 import com.google.android.ground.proto.style
 import com.google.android.ground.proto.survey
@@ -30,11 +31,12 @@ import org.junit.runners.Parameterized
 class ProtobufToFirestoreExtTest(
   private val desc: String,
   private val input: Message,
+  private val idField: MessageFieldNumber?,
   private val expectedOutput: Map<String, Any>,
 ) {
   @Test
   fun toFirestoreMap() {
-    val output = input.toFirestoreMap()
+    val output = input.toFirestoreMap(idField)
     Truth.assertThat(output).isEqualTo(expectedOutput)
   }
 
@@ -45,6 +47,16 @@ class ProtobufToFirestoreExtTest(
     @Parameterized.Parameters(name = "{0}")
     fun data() =
       listOf(
+        testCase(
+          desc = "ignores id field",
+          input =
+            survey {
+              id = "123"
+              title = "title"
+            },
+          idField = Survey.ID_FIELD_NUMBER,
+          expected = mapOf("2" to "title"),
+        ),
         testCase(
           desc = "converts string fields",
           input = survey { title = "something" },
@@ -63,7 +75,11 @@ class ProtobufToFirestoreExtTest(
       )
 
     /** Help to improve readability by provided named args for positional test constructor args. */
-    private fun testCase(desc: String, input: Message, expected: Map<String, Any>) =
-      arrayOf(desc, input, expected)
+    private fun testCase(
+      desc: String,
+      input: Message,
+      idField: MessageFieldNumber? = null,
+      expected: Map<String, Any>,
+    ) = arrayOf(desc, input, idField, expected)
   }
 }
