@@ -17,6 +17,7 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.android.ground.persistence.remote.firebase.newDocumentSnapshot
+import com.google.android.ground.proto.Survey
 import com.google.android.ground.proto.job
 import com.google.android.ground.proto.style
 import com.google.android.ground.proto.survey
@@ -33,11 +34,12 @@ import org.junit.runners.Parameterized
 class FirestoreToProtobufExtTest(
   private val desc: String,
   private val input: DocumentSnapshot,
+  private val idField: MessageFieldNumber?,
   private val expectedOutput: GeneratedMessageLite<*, *>,
 ) {
   @Test
   fun parseFrom() {
-    val output = expectedOutput::class.parseFrom(input)
+    val output = expectedOutput::class.parseFrom(input, idField)
     assertThat(output).isEqualTo(expectedOutput)
   }
 
@@ -48,7 +50,18 @@ class FirestoreToProtobufExtTest(
     @Parameterized.Parameters(name = "{0}")
     fun data() =
       listOf(
-        testCase(desc = "converts document id", id = "12345", expected = survey { id = "12345" }),
+        testCase(
+          desc = "converts document id",
+          id = "12345",
+          idField = Survey.ID_FIELD_NUMBER,
+          expected = survey { id = "12345" },
+        ),
+        testCase(
+          desc = "ignores id when idField not specified",
+          id = "12345",
+          input = mapOf("2" to "n/a"),
+          expected = survey { title = "n/a" },
+        ),
         testCase(
           desc = "converts string fields",
           input = mapOf("2" to "something"),
@@ -96,7 +109,8 @@ class FirestoreToProtobufExtTest(
       desc: String,
       id: String = "",
       input: Map<String, Any> = mapOf(),
+      idField: MessageFieldNumber? = null,
       expected: GeneratedMessageLite<*, *>,
-    ) = arrayOf(desc, newDocumentSnapshot(id = id, data = input), expected)
+    ) = arrayOf(desc, newDocumentSnapshot(id = id, data = input), idField, expected)
   }
 }

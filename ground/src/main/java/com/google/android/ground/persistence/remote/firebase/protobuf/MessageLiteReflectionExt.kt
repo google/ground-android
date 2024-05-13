@@ -27,9 +27,6 @@ import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.isSubclassOf
 import timber.log.Timber
 
-/** The name of the message field where document and nested ids are written. */
-internal const val ID_FIELD_NAME = "id"
-
 /** A key used in a document or a nested object in Firestore. */
 internal typealias FirestoreKey = String
 
@@ -98,9 +95,8 @@ fun MessageBuilder.setOrLog(fieldName: MessageFieldName, value: MessageValue) {
   }
 }
 
-fun <T : MessageBuilder> KClass<T>.getFieldName(fieldNumber: MessageFieldNumber): MessageFieldName =
-  getMessageClass()
-    .getStaticFields()
+fun <T : Message> KClass<T>.getFieldName(fieldNumber: MessageFieldNumber): MessageFieldName =
+  getStaticFields()
     .find { it.name.endsWith(FIELD_NUMBER_CONST_SUFFIX) && it.get(null) == fieldNumber }
     ?.name
     ?.removeSuffix(FIELD_NUMBER_CONST_SUFFIX)
@@ -108,12 +104,12 @@ fun <T : MessageBuilder> KClass<T>.getFieldName(fieldNumber: MessageFieldNumber)
 
 fun <T : Message> KClass<T>.getFieldNumber(fieldName: MessageFieldName): MessageFieldNumber =
   getStaticFields().find { it.name == fieldName.toFieldNumberConstantName() }?.get(null)
-    as MessageFieldNumber? ?: throw IllegalArgumentException("Field $fieldName not found in $java")
+    as? MessageFieldNumber ?: throw IllegalArgumentException("Field $fieldName not found in $java")
 
 private fun String.toFieldNumberConstantName(): String = uppercase() + FIELD_NUMBER_CONST_SUFFIX
 
 @Suppress("UNCHECKED_CAST")
-private fun <T : MessageBuilder> KClass<T>.getMessageClass() =
+fun <T : MessageBuilder> KClass<T>.getMessageClass() =
   java.enclosingClass!!.kotlin as KClass<Message>
 
 private fun KClass<*>.getStaticFields() =

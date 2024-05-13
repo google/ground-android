@@ -16,9 +16,9 @@
 
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
+import timber.log.Timber
 import kotlin.reflect.KProperty
 import kotlin.reflect.jvm.isAccessible
-import timber.log.Timber
 
 /**
  * Returns the map representation of this message ready for serialization in Firestore. The map is
@@ -29,24 +29,32 @@ import timber.log.Timber
  *   converting documents, in which case IDs are specified externally on they write call.
  */
 fun Message.toFirestoreMap(idField: MessageFieldNumber? = null): FirestoreMap =
-  this::class.getFieldProperties().mapNotNull { toFirestoreValue(it, idField) }.toMap()
+  this::class
+    .getFieldProperties()
+    .filter { hasValue(it) }
+    .mapNotNull { toFirestoreMapEntry(it, idField) }
+    .toMap()
 
-private fun Message.toFirestoreValue(
+private fun Message.toFirestoreMapEntry(
   property: KProperty<*>,
   idField: MessageFieldNumber?,
-): Pair<FirestoreKey, FirestoreValue>? {
+): Pair<FirestoreKey, FirestoreValue>? =
   try {
-    if (!hasValue(property)) return null
     val fieldName = property.name.toMessageFieldName()
     val fieldNumber = this::class.getFieldNumber(fieldName)
-    if (idField == fieldNumber) return null
-    val key = fieldNumber.toString()
-    val value = get(property)?.toFirestoreValue() ?: return null
-    return key to value
+    if (idField == fieldNumber) null else toFirestoreMapEntryUnchecked(fieldNumber, property)
   } catch (e: Throwable) {
     Timber.v(e, "Skipping property $property")
-    return null
+    null
   }
+
+private fun Message.toFirestoreMapEntryUnchecked(
+  fieldNumber: MessageFieldNumber,
+  property: KProperty<*>,
+): Pair<FirestoreKey, FirestoreValue>? {
+  val key = fieldNumber.toString()
+  val value = get(property)?.toFirestoreValue()
+  return value?.let { key to value }
 }
 
 private fun Message.hasValue(property: KProperty<*>): Boolean {
