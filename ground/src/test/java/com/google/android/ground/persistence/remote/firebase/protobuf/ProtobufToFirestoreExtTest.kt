@@ -17,9 +17,10 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.android.ground.proto.Survey
-import com.google.android.ground.proto.job
-import com.google.android.ground.proto.style
 import com.google.android.ground.proto.survey
+import com.google.android.ground.test.deepNestedTestObject
+import com.google.android.ground.test.nestedTestObject
+import com.google.android.ground.test.testDocument
 import com.google.common.truth.Truth
 import com.sharedtest.TimberTestRule
 import org.junit.ClassRule
@@ -64,13 +65,13 @@ class ProtobufToFirestoreExtTest(
         ),
         testCase(
           desc = "converts map<string, Message>",
-          input = survey { jobs["job123"] = job { name = "A job" } },
-          expected = mapOf("4" to mapOf("job123" to mapOf("2" to "A job"))),
+          input = testDocument { nestedTestObject { name = "foo" } },
+          expected = mapOf("2" to mapOf("1" to "foo")),
         ),
         testCase(
-          desc = "converts nested objects",
-          input = survey { jobs["job123"] = job { defaultStyle = style { color = "#112233" } } },
-          expected = mapOf("4" to mapOf("job123" to mapOf("3" to mapOf("1" to "#112233")))),
+          desc = "converts deep nested objects",
+          input = testDocument { nestedTestObject { deepNestedTestObject { id = "123" } } },
+          expected = mapOf("2" to mapOf("2" to mapOf("2" to mapOf("1" to "123")))),
         ),
       )
 

@@ -18,9 +18,10 @@ package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.android.ground.persistence.remote.firebase.newDocumentSnapshot
 import com.google.android.ground.proto.Survey
-import com.google.android.ground.proto.job
-import com.google.android.ground.proto.style
 import com.google.android.ground.proto.survey
+import com.google.android.ground.test.deepNestedTestObject
+import com.google.android.ground.test.nestedTestObject
+import com.google.android.ground.test.testDocument
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.GeneratedMessageLite
@@ -84,22 +85,30 @@ class FirestoreToProtobufExtTest(
         ),
         testCase(
           desc = "converts map<string, Message>",
-          input = mapOf("4" to mapOf("job123" to mapOf("2" to "A job"))),
-          expected = survey { jobs["job123"] = job { name = "A job" } },
+          input = mapOf("2" to mapOf("key" to mapOf("1" to "foo"))),
+          expected = testDocument { objMap["key"] = nestedTestObject { name = "foo" } },
         ),
         testCase(desc = "ignores bad type in map", input = mapOf("4" to 123), expected = survey {}),
         testCase(
-          desc = "converts nested objects",
-          input = mapOf("4" to mapOf("job123" to mapOf("3" to mapOf("1" to "#112233")))),
-          expected = survey { jobs["job123"] = job { defaultStyle = style { color = "#112233" } } },
+          desc = "converts deep nested objects",
+          input = mapOf("2" to mapOf("key" to mapOf("2" to mapOf("1" to "123")))),
+          expected =
+            testDocument {
+              objMap["key"] = nestedTestObject { otherThing = deepNestedTestObject { id = "123" } }
+            },
         ),
         testCase(
-          desc = "ignores bad type for nested object",
-          input = mapOf("2" to "test", "4" to mapOf("job123" to mapOf("3" to 123))),
+          desc = "ignores wrong type in map",
+          input = mapOf("1" to "id123", "2" to mapOf("key" to "not a message!")),
+          expected = testDocument { id = "id123" },
+        ),
+        testCase(
+          desc = "ignores wrong type in deep nested object",
+          input = mapOf("1" to "id234", "2" to mapOf("key" to mapOf("2" to "also not a message!"))),
           expected =
-            survey {
-              title = "test"
-              jobs["job123"] = job {}
+            testDocument {
+              id = "id234"
+              objMap["key"] = nestedTestObject {}
             },
         ),
       )
