@@ -156,6 +156,5 @@ private fun getEnumValues(enumClass: KClass<out Enum<*>>): List<Enum<*>> =
 @Suppress("UNCHECKED_CAST")
 fun <T : EnumLite> KClass<T>.findByNumber(number: Int): T? {
   require(isSubclassOf(Enum::class))
-  // "0" is reserved for unspecified values.
   return getEnumValues(this as KClass<Enum<*>>).find { (it as EnumLite).number == number } as? T
 }
