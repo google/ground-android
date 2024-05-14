@@ -17,6 +17,7 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.protobuf.GeneratedMessageLite
+import com.google.protobuf.Internal.EnumLite
 import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -148,3 +149,13 @@ private fun KProperty<*>.isMessageFieldProperty(): Boolean =
   name.endsWith("_") && !name.startsWith(BIT_FIELD_PROPERTY_PREFIX)
 
 fun String.toSnakeCase() = replace(Regex("[A-Z]")) { "_${it.value}" }.lowercase()
+
+private fun getEnumValues(enumClass: KClass<out Enum<*>>): List<Enum<*>> =
+  enumClass.java.enumConstants.toList()
+
+@Suppress("UNCHECKED_CAST")
+fun <T : EnumLite> KClass<T>.findByNumber(number: Int): T? {
+  require(isSubclassOf(Enum::class))
+  // "0" is reserved for unspecified values.
+  return getEnumValues(this as KClass<Enum<*>>).find { (it as EnumLite).number == number } as? T
+}

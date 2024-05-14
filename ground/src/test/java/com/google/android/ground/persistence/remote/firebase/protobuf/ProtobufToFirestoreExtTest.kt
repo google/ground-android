@@ -17,7 +17,9 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.android.ground.proto.Survey
+import com.google.android.ground.proto.Task
 import com.google.android.ground.proto.survey
+import com.google.android.ground.proto.task
 import com.google.android.ground.test.deepNestedTestObject
 import com.google.android.ground.test.nestedTestObject
 import com.google.android.ground.test.testDocument
@@ -76,6 +78,17 @@ class ProtobufToFirestoreExtTest(
             },
           expected = mapOf("2" to mapOf("key" to mapOf("2" to mapOf("1" to "123")))),
         ),
+        testCase(
+          desc = "converts enum value",
+          input = task { type = Task.Type.DATE },
+          expected = mapOf("2" to 5),
+        ),
+        testCase(
+          desc = "skips enum value 0",
+          input = task { type = Task.Type.UNSPECIFIED_TASK_TYPE },
+          expected = mapOf(),
+        ),
+        testCase(desc = "skips unspecified enum value", input = task {}, expected = mapOf()),
       )
 
     /** Help to improve readability by provided named args for positional test constructor args. */

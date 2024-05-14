@@ -24,8 +24,27 @@ message Job {
     string name = 2;
     Style default_style = 3;
     // TODO(#1748): Add `tasks` and `strategy` fields.
+    repeated Task tasks = 4;
 }
 
 message Style {
     string color = 1;
+}
+
+message Task {
+    string id = 1;
+
+    enum Type {
+        UNSPECIFIED_TASK_TYPE = 0;
+        TEXT = 1;
+        MULTIPLE_CHOICE = 2;
+        PHOTO = 3;
+        NUMBER = 4;
+        DATE = 5;
+        TIME = 6;
+        DROP_PIN = 7;
+        DRAW_AREA = 8;
+        CAPTURE_LOCATION = 9;
+    }
+    Type type = 2;
 }
