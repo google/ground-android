@@ -17,6 +17,7 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.android.ground.persistence.remote.firebase.newDocumentSnapshot
+import com.google.android.ground.proto.Survey
 import com.google.android.ground.proto.job
 import com.google.android.ground.proto.style
 import com.google.android.ground.proto.survey
@@ -33,11 +34,12 @@ import org.junit.runners.Parameterized
 class FirestoreToProtobufExtTest(
   private val desc: String,
   private val input: DocumentSnapshot,
+  private val idField: MessageFieldNumber?,
   private val expectedOutput: GeneratedMessageLite<*, *>,
 ) {
   @Test
   fun parseFrom() {
-    val output = expectedOutput.javaClass.kotlin.parseFrom(input)
+    val output = expectedOutput::class.parseFrom(input, idField)
     assertThat(output).isEqualTo(expectedOutput)
   }
 
@@ -48,44 +50,52 @@ class FirestoreToProtobufExtTest(
     @Parameterized.Parameters(name = "{0}")
     fun data() =
       listOf(
-        testCase(desc = "converts document id", id = "12345", expected = survey { id = "12345" }),
+        testCase(
+          desc = "converts document id",
+          id = "12345",
+          idField = Survey.ID_FIELD_NUMBER,
+          expected = survey { id = "12345" },
+        ),
+        testCase(
+          desc = "ignores id when idField not specified",
+          id = "12345",
+          input = mapOf("2" to "n/a"),
+          expected = survey { title = "n/a" },
+        ),
         testCase(
           desc = "converts string fields",
-          data = mapOf("title" to "something"),
+          input = mapOf("2" to "something"),
           expected = survey { title = "something" },
         ),
         testCase(
-          desc = "ignores unknown fields",
-          data = mapOf("foo" to "bar"),
+          desc = "ignores non-numeric fields",
+          input = mapOf("foo" to "bar"),
+          expected = survey {},
+        ),
+        testCase(
+          desc = "ignores unknown field numbers",
+          input = mapOf("3000" to "bar"),
           expected = survey {},
         ),
         testCase(
           desc = "ignores bad type in string field",
-          data = mapOf("title" to 123),
+          input = mapOf("2" to 123),
           expected = survey {},
         ),
         testCase(
           desc = "converts map<string, Message>",
-          data = mapOf("jobs" to mapOf("job123" to mapOf("name" to "A job"))),
+          input = mapOf("4" to mapOf("job123" to mapOf("2" to "A job"))),
           expected = survey { jobs["job123"] = job { name = "A job" } },
         ),
-        testCase(
-          desc = "ignores bad type in map",
-          data = mapOf("jobs" to 123),
-          expected = survey {},
-        ),
+        testCase(desc = "ignores bad type in map", input = mapOf("4" to 123), expected = survey {}),
         testCase(
           desc = "converts nested objects",
-          data =
-            mapOf(
-              "jobs" to mapOf("job123" to mapOf("defaultStyle" to mapOf("color" to "#112233")))
-            ),
+          input = mapOf("4" to mapOf("job123" to mapOf("3" to mapOf("1" to "#112233")))),
           expected = survey { jobs["job123"] = job { defaultStyle = style { color = "#112233" } } },
         ),
         testCase(
           desc = "ignores bad type for nested object",
-          data =
-            mapOf("title" to "test", "jobs" to mapOf("job123" to mapOf("defaultStyle" to 123))),
+          input = mapOf("2" to "test", "4" to mapOf("job123" to mapOf("3" to 123))),
           expected =
             survey {
               title = "test"
@@ -94,11 +104,13 @@ class FirestoreToProtobufExtTest(
         ),
       )
 
+    /** Help to improve readability by provided named args for positional test constructor args. */
     private fun testCase(
       desc: String,
       id: String = "",
-      data: Map<String, Any> = mapOf(),
+      input: Map<String, Any> = mapOf(),
+      idField: MessageFieldNumber? = null,
       expected: GeneratedMessageLite<*, *>,
-    ) = arrayOf(desc, newDocumentSnapshot(id = id, data = data), expected)
+    ) = arrayOf(desc, newDocumentSnapshot(id = id, data = input), idField, expected)
   }
 }
