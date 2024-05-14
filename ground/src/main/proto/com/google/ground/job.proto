@@ -56,20 +56,25 @@ message Task {
     bool required = 4;
 
     // Defines possible values of the `level` field.
-    enum Level {
+    enum DataCollectionLevel {
         // Default value when level is not specified.
-        UNSPECIFIED_TASK_LEVEL = 0;
-        // Data collected in this task is associated directly with a location of
-        // interest. If the associated property or geometry already exists, it
-        // is updated.
-        LOI_PROPERTIES = 1;
-        // Data collected in this task is appended to the location of interest
-        // as part of a data submission.
-        LOI_DATA = 2;
+        UNSPECIFIED_DATA_COLLECTION_LEVEL = 0;
+        // Data collected at this level is used to define a location of
+        // interest (LOI). Specifically, geometry tasks of this type may be used
+        // to allow data collectors to define the LOI's geometry. Future
+        // implementations may use this to allow other LOI properties to be
+        // added or modified.
+        LOCATION_OF_INTEREST_METADATA = 1;
+        // Data collected at this level is associated with, but does not define,
+        // a location of interest (LOI). Specifically, geometry tasks of this
+        // type define one or more annotations of the associated LOI. rather
+        // than the geometry of the LOI itself.
+        LOCATION_OF_INTEREST_DATA = 2;
     }
     // Defines to which entity data collected in this task is associated with.
-    // Defaults to LOI_DATA.
-    Level level = 5;
+    // Defaults to LOCATION_OF_INTEREST_DATA.
+    DataCollectionLevel level = 5;
+
 
     // Conditions which control whether this task is shown during data
     // collection. All conditions must be evaluate to `true` for the task to
