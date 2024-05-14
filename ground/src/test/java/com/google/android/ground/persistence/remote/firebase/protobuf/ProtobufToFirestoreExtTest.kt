@@ -53,25 +53,28 @@ class ProtobufToFirestoreExtTest(
           input =
             survey {
               id = "123"
-              title = "title"
+              name = "title"
             },
           idField = Survey.ID_FIELD_NUMBER,
           expected = mapOf("2" to "title"),
         ),
         testCase(
           desc = "converts string fields",
-          input = survey { title = "something" },
+          input = survey { name = "something" },
           expected = mapOf("2" to "something"),
         ),
         testCase(
           desc = "converts map<string, Message>",
-          input = testDocument { nestedTestObject { name = "foo" } },
-          expected = mapOf("2" to mapOf("1" to "foo")),
+          input = testDocument { objMap["key"] = nestedTestObject { name = "foo" } },
+          expected = mapOf("2" to mapOf("key" to mapOf("1" to "foo"))),
         ),
         testCase(
           desc = "converts deep nested objects",
-          input = testDocument { nestedTestObject { deepNestedTestObject { id = "123" } } },
-          expected = mapOf("2" to mapOf("2" to mapOf("2" to mapOf("1" to "123")))),
+          input =
+            testDocument {
+              objMap["key"] = nestedTestObject { otherThing = deepNestedTestObject { id = "123" } }
+            },
+          expected = mapOf("2" to mapOf("key" to mapOf("2" to mapOf("1" to "123")))),
         ),
       )
 

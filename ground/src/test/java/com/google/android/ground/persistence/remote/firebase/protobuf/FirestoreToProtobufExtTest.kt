@@ -61,12 +61,12 @@ class FirestoreToProtobufExtTest(
           desc = "ignores id when idField not specified",
           id = "12345",
           input = mapOf("2" to "n/a"),
-          expected = survey { title = "n/a" },
+          expected = survey { name = "n/a" },
         ),
         testCase(
           desc = "converts string fields",
           input = mapOf("2" to "something"),
-          expected = survey { title = "something" },
+          expected = survey { name = "something" },
         ),
         testCase(
           desc = "ignores non-numeric fields",
