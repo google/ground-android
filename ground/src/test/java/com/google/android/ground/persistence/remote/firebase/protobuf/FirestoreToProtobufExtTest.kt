@@ -54,6 +54,7 @@ class FirestoreToProtobufExtTest(
 
     @JvmStatic
     @Parameterized.Parameters(name = "{0}")
+    @Suppress("LongMethod")
     fun data() =
       listOf(
         testCase(
