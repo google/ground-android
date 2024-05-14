@@ -31,13 +31,14 @@ message Survey {
     map<string, Role> acl = 4;
 }
 
+// Defines a user's role in a survey.
 enum Role {
     // Default value when role is missing.
     UNSPECIFIED_ROLE = 0;
     // User may access survey in read-only model.
     VIEWER = 1;
-    // User may submit data, but not modify jobs or other survey metadata.
+    // User may also submit data, but not modify jobs or other survey metadata.
     DATA_COLLECTOR = 2;
-    // User may manage the survey, update locations of interest, etc.
+    // User may also manage the survey, update locations of interest, etc.
     SURVEY_ORGANIZER = 3;
 }
