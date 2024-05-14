@@ -67,11 +67,13 @@ message Task {
     }
 
     message TextQuestion {
+        // Valid values for the `type` field.
         enum Type {
             UNSPECIFIED_TEXT_QUESTION_TYPE = 0;
+            // A single line of text.
             SHORT_TEXT = 1;
-            PARAGRAPH = 2;
         }
+        // The type of text question. Defaults to SHORT_TEXT.
         Type type = 1;
     }
 
@@ -79,14 +81,20 @@ message Task {
     }
 
     message MultipleChoiceQuestion {
+        // Valid values for the `type` field.
         enum Type {
             UNSPECIFIED_MULTIPLE_CHOICE_QUESTION_TYPE = 0;
+            // Allow only one valid to be selected.
             SELECT_ONE = 1;
+            // Allow one or more values to be selected.
             SELECT_MULTIPLE = 2;
         }
+        // The type of multiple choice question.
         Type type = 1;
+        // The list of allowed multiple choice options.
         repeated Option options = 2;
 
+        // A single selectable multiple choice option.
         message Option {
             // UUID of the option.
             string id = 1;
