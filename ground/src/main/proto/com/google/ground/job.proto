@@ -23,8 +23,7 @@ message Job {
     string id = 1;
     string name = 2;
     Style default_style = 3;
-    // TODO(#1748): Add `tasks` and `strategy` fields.
-    repeated Task tasks = 4;
+    repeated Task tasks = 5;
 }
 
 message Style {
@@ -33,18 +32,112 @@ message Style {
 
 message Task {
     string id = 1;
+    int32 index = 2;
+    string prompt = 3;
+    bool required = 4;
 
-    enum Type {
-        UNSPECIFIED_TASK_TYPE = 0;
-        TEXT = 1;
-        MULTIPLE_CHOICE = 2;
-        PHOTO = 3;
-        NUMBER = 4;
-        DATE = 5;
-        TIME = 6;
-        DROP_PIN = 7;
-        DRAW_AREA = 8;
-        CAPTURE_LOCATION = 9;
+    // Defines possible values of the [level] field.
+    enum Level {
+        UNSPECIFIED_TASK_LEVEL = 0;
+        // Data collected in this task is associated directly with a location of
+        // interest. If the associated property or geometry already exists, it
+        // is updated.
+        LOI_PROPERTIES = 1;
+        // Data collected in this task is appended to the location of interest
+        // as part of a data submission.
+        LOI_DATA = 2;
     }
-    Type type = 2;
+    // Defines to which entity data collected in this task is associated with.
+    // Defaults to LOI_DATA.
+    Level level = 5;
+
+    // Conditions which control whether this task is shown during data
+    // collection. All conditions must be evaluate to `true` for the task to
+    // be triggered.
+    repeated Condition conditions = 6;
+
+    oneof task_type {
+        TextQuestion text_question = 7;
+        NumberQuestion number_question = 8;
+        DateTimeQuestion date_time_question = 9;
+        MultipleChoiceQuestion multiple_choice_question = 10;
+        DrawGeometry draw_geometry = 11;
+        CaptureLocation capture_location = 12;
+        TakePhoto take_photo = 13;
+    }
+
+    message TextQuestion {
+        enum Type {
+            UNSPECIFIED_TEXT_QUESTION_TYPE = 0;
+            SHORT_TEXT = 1;
+            PARAGRAPH = 2;
+        }
+        Type type = 1;
+    }
+
+    message NumberQuestion {
+    }
+
+    message MultipleChoiceQuestion {
+        enum Type {
+            UNSPECIFIED_MULTIPLE_CHOICE_QUESTION_TYPE = 0;
+            SELECT_ONE = 1;
+            SELECT_MULTIPLE = 2;
+        }
+        Type type = 1;
+        repeated Option options = 2;
+
+        message Option {
+            // UUID of the option.
+            string id = 1;
+            // The index of the option when shown as a list.
+            int32 index = 2;
+            // The user-facing label of the option.
+            string label = 3;
+            // When true, the user may add qualifying text to the option. If
+            // label is omitted, clients should apply a default label
+            // "Other (specify)" or equivalent.
+            bool other_option = 4;
+        }
+    }
+
+    message DateTimeQuestion {
+        enum Type {
+            UNSPECIFIED_DATE_TIME_QUESTION_TYPE = 0;
+            DATE_ONLY = 1;
+            TIME_ONLY = 2;
+            BOTH_DATE_AND_TIME = 3;
+        }
+        Type type = 1;
+    }
+
+    message TakePhoto {
+    }
+
+    message DrawGeometry {
+        enum Type {
+            UNSPECIFIED_GEOMETRY_TASK_TYPE = 0;
+            DROP_PIN = 1;
+            DRAW_AREA = 2;
+        }
+        repeated Type allowed_types = 1;
+    }
+
+    message CaptureLocation {
+    }
+
+    // Defines a single condition used to determine whether a task should be
+    // shown.
+    message Condition {
+        oneof condition_type {
+            MultipleChoiceSelection multiple_choice = 1;
+        }
+    }
+
+    message MultipleChoiceSelection {
+        // List of multiple choice option IDs which trigger the associated task;
+        // the task is shown if one or more of the related options are selected.
+        repeated string option_ids = 1;
+    }
 }
+

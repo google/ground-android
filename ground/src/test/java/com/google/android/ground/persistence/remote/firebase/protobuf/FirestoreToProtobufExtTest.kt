@@ -18,7 +18,10 @@ package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.android.ground.persistence.remote.firebase.newDocumentSnapshot
 import com.google.android.ground.proto.Survey
-import com.google.android.ground.proto.Task
+import com.google.android.ground.proto.Task.DateTimeQuestion.Type.BOTH_DATE_AND_TIME
+import com.google.android.ground.proto.Task.MultipleChoiceQuestion.Type.SELECT_MULTIPLE
+import com.google.android.ground.proto.TaskKt.dateTimeQuestion
+import com.google.android.ground.proto.TaskKt.multipleChoiceQuestion
 import com.google.android.ground.proto.survey
 import com.google.android.ground.proto.task
 import com.google.android.ground.test.deepNestedTestObject
@@ -115,11 +118,17 @@ class FirestoreToProtobufExtTest(
         ),
         testCase(
           desc = "converts enum value",
-          input = mapOf("2" to 5),
-          expected = task { type = Task.Type.DATE },
+          input = mapOf("1" to 3),
+          expected = dateTimeQuestion { type = BOTH_DATE_AND_TIME },
         ),
-        testCase(desc = "skips enum value 0", input = mapOf("2" to 0), expected = task {}),
+        testCase(desc = "skips enum value 0", input = mapOf("3" to 0), expected = task {}),
         testCase(desc = "skips an unspecified enum value", input = mapOf(), expected = task {}),
+        testCase(
+          desc = "converts oneof messages",
+          input = mapOf("10" to mapOf("1" to 2)),
+          expected =
+            task { multipleChoiceQuestion = multipleChoiceQuestion { type = SELECT_MULTIPLE } },
+        ),
       )
 
     /** Help to improve readability by provided named args for positional test constructor args. */

@@ -17,7 +17,9 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.android.ground.proto.Survey
-import com.google.android.ground.proto.Task
+import com.google.android.ground.proto.Task.DateTimeQuestion.Type.BOTH_DATE_AND_TIME
+import com.google.android.ground.proto.Task.DateTimeQuestion.Type.UNSPECIFIED_DATE_TIME_QUESTION_TYPE
+import com.google.android.ground.proto.TaskKt.dateTimeQuestion
 import com.google.android.ground.proto.survey
 import com.google.android.ground.proto.task
 import com.google.android.ground.test.deepNestedTestObject
@@ -80,12 +82,12 @@ class ProtobufToFirestoreExtTest(
         ),
         testCase(
           desc = "converts enum value",
-          input = task { type = Task.Type.DATE },
-          expected = mapOf("2" to 5),
+          input = dateTimeQuestion { type = BOTH_DATE_AND_TIME },
+          expected = mapOf("1" to 3),
         ),
         testCase(
           desc = "skips enum value 0",
-          input = task { type = Task.Type.UNSPECIFIED_TASK_TYPE },
+          input = dateTimeQuestion { type = UNSPECIFIED_DATE_TIME_QUESTION_TYPE },
           expected = mapOf(),
         ),
         testCase(desc = "skips unspecified enum value", input = task {}, expected = mapOf()),
