@@ -19,16 +19,25 @@ syntax = "proto3";
 option java_package = "com.google.android.ground.proto";
 option java_multiple_files = true;
 
+// Describes a single data collection survey. Top level entity in the app.
 message Survey {
+    // UUID of the survey.
     string id = 1;
+    // User-facing name of the survey.
     string name = 2;
+    // User-facing description of the survey.
     string description = 3;
+    // Defines who has access to do what with this survey.
     map<string, Role> acl = 4;
 }
 
 enum Role {
+    // Default value when role is missing.
     UNSPECIFIED_ROLE = 0;
+    // User may access survey in read-only model.
     VIEWER = 1;
+    // User may submit data, but not modify jobs or other survey metadata.
     DATA_COLLECTOR = 2;
+    // User may manage the survey, update locations of interest, etc.
     SURVEY_ORGANIZER = 3;
 }
