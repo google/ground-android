@@ -24,7 +24,7 @@ import com.google.android.ground.proto.TaskKt.dateTimeQuestion
 import com.google.android.ground.proto.TaskKt.multipleChoiceQuestion
 import com.google.android.ground.proto.survey
 import com.google.android.ground.proto.task
-import com.google.android.ground.test.deepNestedTestObject
+import com.google.android.ground.test.deeplyNestedTestObject
 import com.google.android.ground.test.nestedTestObject
 import com.google.android.ground.test.testDocument
 import com.google.common.truth.Truth.assertThat
@@ -100,7 +100,9 @@ class FirestoreToProtobufExtTest(
           input = mapOf("2" to mapOf("key" to mapOf("2" to mapOf("1" to "123")))),
           expected =
             testDocument {
-              objMap["key"] = nestedTestObject { otherThing = deepNestedTestObject { id = "123" } }
+              objMap["key"] = nestedTestObject {
+                otherThing = deeplyNestedTestObject { id = "123" }
+              }
             },
         ),
         testCase(

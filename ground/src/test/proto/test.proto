@@ -26,9 +26,9 @@ message TestDocument {
 
 message NestedTestObject {
     string name = 1;
-    DeepNestedTestObject other_thing = 2;
+    DeeplyNestedTestObject other_thing = 2;
 }
 
-message DeepNestedTestObject {
+message DeeplyNestedTestObject {
     string id = 1;
 }
