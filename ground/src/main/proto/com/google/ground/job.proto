@@ -87,7 +87,7 @@ message Task {
         TextQuestion text_question = 7;
         // A question whose response is entered manually as a number.
         NumberQuestion number_question = 8;
-        // A question whose response is entered manually as a data and/or time.
+        // A question whose response is entered manually as a date and/or time.
         DateTimeQuestion date_time_question = 9;
         // A question whose response is manually selected from a list of
         // options.
@@ -146,6 +146,11 @@ message Task {
         // The list of allowed multiple choice options.
         repeated Option options = 2;
 
+        // When true, an additional option is presented to data collectors with
+        // the label "Other (specify)" or equivalent along with a short text
+        // field.
+        bool has_other_option = 3;
+
         // A single selectable multiple choice option.
         message Option {
             // UUID of the option.
@@ -154,10 +159,6 @@ message Task {
             int32 index = 2;
             // The user-facing label of the option.
             string label = 3;
-            // When true, the user may add qualifying text to the option. If
-            // label is omitted, clients should apply a default label
-            // "Other (specify)" or equivalent.
-            bool other_option = 4;
         }
     }
 

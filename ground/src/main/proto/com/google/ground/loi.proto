@@ -28,8 +28,11 @@ message LocationOfInterest {
     // Required. A system-defined ID.
     string id = 1;
 
+    // Required. The system-defined of the job to which this LOI belongs.
+    string job_id = 2;
+
     // Required. The geometry associated with this LOI.
-    Geometry geometry = 2;
+    Geometry geometry = 3;
 
     // Required. The number of submissions associated with this LOI.
     int32 submission_count = 4;
