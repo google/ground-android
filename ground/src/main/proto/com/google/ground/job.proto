@@ -30,7 +30,7 @@ message Job {
     string name = 3;
     // The style used when rendering geometries and other UI elements associated
     // with this job.
-    Style default_style = 4;
+    Style style = 4;
     // One or more data collection tasks to be carried out by the user in order
     // to collect and submit data.
     repeated Task tasks = 5;
