@@ -23,6 +23,7 @@ import "google/protobuf/timestamp.proto";
 import "com/google/ground/audit_info.proto";
 import "com/google/ground/geometry.proto";
 
+// Data submitted by data collectors for relevant tasks in a job.
 message Submission {
     // Required. A system-defined ID.
     string id = 1;
@@ -123,7 +124,7 @@ message TaskData {
 
     // The result of a "take a photo" task.
     message TakePhoto {
-        // Path of photo in storage.
+        // Relative path of photo in remote storage.
         string photo_path = 1;
     }
 }
