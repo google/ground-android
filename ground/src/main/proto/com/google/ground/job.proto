@@ -192,7 +192,7 @@ message Task {
         // A condition is defined by one of the following constraints:
         oneof condition_type {
             // A condition which passes if any of the specified values are
-            //selected.
+            // selected.
             MultipleChoiceSelection multiple_choice = 1;
         }
     }
