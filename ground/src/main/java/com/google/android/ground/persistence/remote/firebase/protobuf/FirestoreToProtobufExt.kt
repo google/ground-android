@@ -18,6 +18,7 @@ package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.GeneratedMessageLite
+import com.google.protobuf.Internal.EnumLite
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 import timber.log.Timber
@@ -104,6 +105,10 @@ private fun FirestoreValue.toMessageValue(targetType: KClass<*>): MessageValue =
     this as String
   } else if (targetType.isSubclassOf(GeneratedMessageLite::class)) {
     (targetType as KClass<Message>).parseFrom(this as FirestoreMap)
+  } else if (targetType.isSubclassOf(EnumLite::class)) {
+    require(this is Int) { "Expected Int but got ${this::class}" }
+    (targetType as KClass<EnumLite>).findByNumber(this)
+      ?: throw IllegalArgumentException("Unrecognized enum number $this")
   } else {
     throw UnsupportedOperationException("Unsupported message field type $targetType")
     // TODO(#1748): Handle arrays, GeoPoint, int, and other types.
