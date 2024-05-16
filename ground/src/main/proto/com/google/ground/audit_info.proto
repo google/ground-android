@@ -21,10 +21,11 @@ option java_multiple_files = true;
 
 import "google/protobuf/timestamp.proto";
 
-// Audit info about "who" performed a particular action and "when".
+// Audit info about "who" performed a particular action and "when". User email
+// addresses are omitted for privacy reasons.
 message AuditInfo {
-    // Required. The uid of the user performing the action.
-    string uid = 1;
+    // Required. The id of the user performing the action.
+    string user_id = 1;
 
     // Required. Time and date reported by the client.
     google.protobuf.Timestamp client_timestamp = 2;
@@ -37,5 +38,4 @@ message AuditInfo {
 
     // URL of the user's profile picture.
     string photo_url = 5;
-
 }

@@ -19,12 +19,12 @@ syntax = "proto3";
 option java_package = "com.google.android.ground.proto";
 option java_multiple_files = true;
 
-// A single job, defined by one or more tasks, and zero or more locations of
-// interest (aka data collection sites).
+// A single job, defined by one or more tasks, and associated with zero or more
+// locations of interest (aka data collection sites) by ID.
 message Job {
-    // UUID of the job.
+    // Required. The system-defined unique identifier of this entity.
     string id = 1;
-    // Index of the job when shown in lists.
+    // Required. Index of the job when shown in lists.
     int32 index = 2;
     // User-facing name of the job.
     string name = 3;
@@ -45,7 +45,7 @@ message Style {
 // A data collection task to be carried out by the user/ to collect and submit
 // data.
 message Task {
-    // UUID of the task.
+    // Required. The system-defined unique identifier of this entity.
     string id = 1;
     // Index of the task when shown in lists.
     int32 index = 2;
@@ -153,9 +153,9 @@ message Task {
 
         // A single selectable multiple choice option.
         message Option {
-            // UUID of the option.
+            // Required. The system-defined unique identifier of this entity.
             string id = 1;
-            // The index of the option when shown as a list.
+            // Required. The index of the option when shown as a list.
             int32 index = 2;
             // The user-facing label of the option.
             string label = 3;

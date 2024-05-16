@@ -25,7 +25,7 @@ import "com/google/ground/geometry.proto";
 
 // Data submitted by data collectors for relevant tasks in a job.
 message Submission {
-    // Required. A system-defined ID.
+    // Required. The system-defined unique identifier of this entity.
     string id = 1;
 
     // Required. The ID of the location of interest to which this submission
@@ -56,24 +56,27 @@ message TaskData {
     // Required. ID of the task to which this task data refers.
     string task_id = 2;
 
-    // Indicates this task was skipped pr
+    // Indicates this task was skipped or left blank / unselected during data
+    // collection.
+    bool skipped = 3;
+
     // User-provided data must be one of the followng types:
     oneof task_data_type {
         // A manually entered text response.
-        Text text = 3;
+        Text text = 4;
         // A manually entered number response.
-        Number number = 4;
+        Number number = 5;
         // A manually selected date and/or time response.
-        DateTime date_time = 5;
+        DateTime date_time = 6;
         // Response to a multiple-choice question.
-        MultipleChoice multiple_choice_question = 6;
+        MultipleChoice multiple_choice_question = 7;
         // Result of data collector drawing a geometry (e.g., dropping a pin,
         // drawing or walking a perimeter).
-        DrawGeometry draw_geometry = 7;
+        DrawGeometry draw_geometry = 8;
         // The result of capturing the device's current fused location.
-        CaptureLocation capture_location = 8;
+        CaptureLocation capture_location = 9;
         // The result of a "take a photo" task.
-        TakePhoto take_photo = 9;
+        TakePhoto take_photo = 10;
     }
 
     // A manually entered text response.

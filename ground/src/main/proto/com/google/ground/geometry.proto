@@ -21,10 +21,9 @@ option java_multiple_files = true;
 
 // An arbitrary geometry, represented using WGS 84 Web Mercator coordinate
 // system. Designed for compatibility with Google Maps Platform and GeoJSON
-// format.
+// format defined at geojson.org.
 message Geometry {
-    // A geometry may be one of the following types:
-    // Required.
+    // Required. A geometry may be one of the following types:
     oneof geometry_type {
         // A point geometry.
         Point point = 1;
@@ -45,13 +44,14 @@ message Coordinates {
 
 // A single point on the map.
 message Point {
-    // Required. The point's coordinates..
+    // Required. The point's coordinates.
     Coordinates coordinates = 1;
 }
 
-// A linear ring geometry.
+// A closed line-string with four or more vertices.
 message LinearRing {
-    // Required. The coordinates of the ring's vertices.
+    // Required. The coordinates of the ring's vertices. The first and last
+    // positions must contain identical values.
     repeated Coordinates coordinates = 1;
 }
 

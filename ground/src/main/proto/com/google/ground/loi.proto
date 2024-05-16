@@ -25,7 +25,7 @@ import "com/google/ground/audit_info.proto";
 // A location of interest (LOI, presented to the user as "[data collection]
 // sites"). All data submitted by data collectors is associated with an LOI.
 message LocationOfInterest {
-    // Required. A system-defined ID.
+    // Required. The system-defined unique identifier of this entity.
     string id = 1;
 
     // Required. The system-defined of the job to which this LOI belongs.
@@ -38,7 +38,7 @@ message LocationOfInterest {
     int32 submission_count = 4;
 
     // Required. The user ID of the LOI's owner.
-    string owner_uid = 5;
+    string owner_id = 5;
 
     // Required. Info about who created this LOI and when.
     AuditInfo created = 6;
@@ -47,8 +47,9 @@ message LocationOfInterest {
     // the LOI was never modified after it was created.
     AuditInfo last_modified = 7;
 
-    // A user-defined ID for this location of interest.
-    string custom_id = 8;
+    // A user-defined identifier for this LOI, generally imported from the `id`
+    // field in GeoJSON Features.
+    string custom_tag = 8;
 
     // If `true`, the LOI was defined by the survey organizer or generated
     // by a backend. If `false` or unset, the LOI was added by data collectors
