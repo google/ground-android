@@ -19,12 +19,12 @@ syntax = "proto3";
 option java_package = "com.google.android.ground.proto";
 option java_multiple_files = true;
 
-// A single job, defined by one or more tasks, and zero or more locations of
-// interest (aka data collection sites).
+// A single job, defined by one or more tasks, and associated with zero or more
+// locations of interest (aka data collection sites) by ID.
 message Job {
-    // UUID of the job.
+    // Required. The system-defined unique identifier of this entity.
     string id = 1;
-    // Index of the job when shown in lists.
+    // Required. Index of the job when shown in lists.
     int32 index = 2;
     // User-facing name of the job.
     string name = 3;
@@ -45,7 +45,7 @@ message Style {
 // A data collection task to be carried out by the user/ to collect and submit
 // data.
 message Task {
-    // UUID of the task.
+    // Required. The system-defined unique identifier of this entity.
     string id = 1;
     // Index of the task when shown in lists.
     int32 index = 2;
@@ -64,12 +64,12 @@ message Task {
         // to allow data collectors to define the LOI's geometry. Future
         // implementations may use this to allow other LOI properties to be
         // added or modified.
-        LOCATION_OF_INTEREST_METADATA = 1;
+        LOI_METADATA = 1;
         // Data collected at this level is associated with, but does not define,
         // a location of interest (LOI). Specifically, geometry tasks of this
         // type define one or more annotations of the associated LOI. rather
         // than the geometry of the LOI itself.
-        LOCATION_OF_INTEREST_DATA = 2;
+        LOI_DATA = 2;
     }
     // Defines to which entity data collected in this task is associated with.
     // Defaults to LOCATION_OF_INTEREST_DATA.
@@ -87,7 +87,7 @@ message Task {
         TextQuestion text_question = 7;
         // A question whose response is entered manually as a number.
         NumberQuestion number_question = 8;
-        // A question whose response is entered manually as a data and/or time.
+        // A question whose response is entered manually as a date and/or time.
         DateTimeQuestion date_time_question = 9;
         // A question whose response is manually selected from a list of
         // options.
@@ -146,18 +146,19 @@ message Task {
         // The list of allowed multiple choice options.
         repeated Option options = 2;
 
+        // When true, an additional option is presented to data collectors with
+        // the label "Other (specify)" or equivalent along with a short text
+        // field.
+        bool has_other_option = 3;
+
         // A single selectable multiple choice option.
         message Option {
-            // UUID of the option.
+            // Required. The system-defined unique identifier of this entity.
             string id = 1;
-            // The index of the option when shown as a list.
+            // Required. The index of the option when shown as a list.
             int32 index = 2;
             // The user-facing label of the option.
             string label = 3;
-            // When true, the user may add qualifying text to the option. If
-            // label is omitted, clients should apply a default label
-            // "Other (specify)" or equivalent.
-            bool other_option = 4;
         }
     }
 

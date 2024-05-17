@@ -21,8 +21,7 @@ option java_multiple_files = true;
 
 // Describes a single data collection survey. Top level entity in the app.
 message Survey {
-    // UUID of the survey.
-    // Required.
+    // Required. The system-defined unique identifier of this entity.
     string id = 1;
     // User-facing name of the survey.
     string name = 2;
