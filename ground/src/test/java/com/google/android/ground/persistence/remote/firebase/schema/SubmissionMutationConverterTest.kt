@@ -21,6 +21,7 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.model.submission.CaptureLocationTaskData
 import com.google.android.ground.model.submission.DrawAreaTaskData
 import com.google.android.ground.model.submission.DropPinTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
@@ -94,6 +95,13 @@ class SubmissionMutationConverterTest {
       )
     )
 
+  private val captureLocationTaskResult =
+    CaptureLocationTaskData(
+      location = Point(Coordinates(10.0, 20.0)),
+      accuracy = 80.8,
+      altitude = 112.31,
+    )
+
   private val submissionMutation =
     SubmissionMutation(
       id = 1,
@@ -130,6 +138,11 @@ class SubmissionMutationConverterTest {
             taskType = Task.Type.DRAW_AREA,
             newTaskData = drawAreaTaskResult,
           ),
+          ValueDelta(
+            taskId = "capture_location",
+            taskType = Task.Type.CAPTURE_LOCATION,
+            newTaskData = captureLocationTaskResult,
+          ),
         ),
     )
 
@@ -161,6 +174,14 @@ class SubmissionMutationConverterTest {
               )
             ),
           ),
+        ),
+      ),
+      Pair(
+        "capture_location",
+        mapOf(
+          "accuracy" to 80.8,
+          "altitude" to 112.31,
+          "geometry" to mapOf("type" to "Point", "coordinates" to GeoPoint(10.0, 20.0)),
         ),
       ),
     )
