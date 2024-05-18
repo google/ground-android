@@ -148,42 +148,31 @@ class SubmissionMutationConverterTest {
 
   private val expected =
     mapOf(
-      Pair("text_task", "some data"),
-      Pair("single_choice_task", listOf("option id 1")),
-      Pair("multiple_choice_task", listOf("option id 1", "option id 2")),
-      Pair("number_task", 123.0),
-      Pair(
-        "drop_pin_task",
-        mapOf(Pair("type", "Point"), Pair("coordinates", GeoPoint(10.0, 20.0))),
-      ),
-      Pair(
-        "draw_area_task",
+      "text_task" to "some data",
+      "single_choice_task" to listOf("option id 1"),
+      "multiple_choice_task" to listOf("option id 1", "option id 2"),
+      "number_task" to 123.0,
+      "drop_pin_task" to mapOf("type" to "Point", "coordinates" to GeoPoint(10.0, 20.0)),
+      "draw_area_task" to
         mapOf(
-          Pair("type", "Polygon"),
-          Pair(
-            "coordinates",
+          "type" to "Polygon",
+          "coordinates" to
             mapOf(
-              Pair(
-                "0",
+              "0" to
                 mapOf(
-                  Pair("0", GeoPoint(10.0, 20.0)),
-                  Pair("1", GeoPoint(20.0, 30.0)),
-                  Pair("2", GeoPoint(30.0, 20.0)),
-                  Pair("3", GeoPoint(10.0, 20.0)),
-                ),
-              )
+                  "0" to GeoPoint(10.0, 20.0),
+                  "1" to GeoPoint(20.0, 30.0),
+                  "2" to GeoPoint(30.0, 20.0),
+                  "3" to GeoPoint(10.0, 20.0),
+                )
             ),
-          ),
         ),
-      ),
-      Pair(
-        "capture_location",
+      "capture_location" to
         mapOf(
           "accuracy" to 80.8,
           "altitude" to 112.31,
           "geometry" to mapOf("type" to "Point", "coordinates" to GeoPoint(10.0, 20.0)),
         ),
-      ),
     )
 
   private val auditInfoObject = AuditInfoConverter.fromMutationAndUser(submissionMutation, user)
@@ -198,11 +187,11 @@ class SubmissionMutationConverterTest {
       )
       .isEqualTo(
         mapOf(
-          Pair("created", auditInfoObject),
-          Pair("lastModified", auditInfoObject),
-          Pair("loiId", loiId),
-          Pair("jobId", job.id),
-          Pair("data", expected),
+          "created" to auditInfoObject,
+          "lastModified" to auditInfoObject,
+          "loiId" to loiId,
+          "jobId" to job.id,
+          "data" to expected,
         )
       )
   }
@@ -217,10 +206,10 @@ class SubmissionMutationConverterTest {
       )
       .isEqualTo(
         mapOf(
-          Pair("lastModified", auditInfoObject),
-          Pair("loiId", loiId),
-          Pair("jobId", job.id),
-          Pair("data", expected),
+          "lastModified" to auditInfoObject,
+          "loiId" to loiId,
+          "jobId" to job.id,
+          "data" to expected,
         )
       )
   }
