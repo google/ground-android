@@ -22,11 +22,13 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.CaptureLocationTaskData
+import com.google.android.ground.model.submission.DateTaskData
 import com.google.android.ground.model.submission.DrawAreaTaskData
 import com.google.android.ground.model.submission.DropPinTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
@@ -35,6 +37,7 @@ import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.GeoPoint
 import com.sharedtest.FakeData
+import java.time.Instant
 import java.util.Date
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Assert.assertThrows
@@ -42,7 +45,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 
-// TODO(#1734): Add coverage for date, time task types
 @RunWith(MockitoJUnitRunner::class)
 class SubmissionMutationConverterTest {
 
@@ -102,6 +104,10 @@ class SubmissionMutationConverterTest {
       altitude = 112.31,
     )
 
+  private val dateTaskResult = DateTaskData(Date.from(Instant.EPOCH))
+
+  private val timeTaskResult = TimeTaskData(Date.from(Instant.EPOCH))
+
   private val submissionMutation =
     SubmissionMutation(
       id = 1,
@@ -143,6 +149,8 @@ class SubmissionMutationConverterTest {
             taskType = Task.Type.CAPTURE_LOCATION,
             newTaskData = captureLocationTaskResult,
           ),
+          ValueDelta(taskId = "date_task", taskType = Task.Type.DATE, newTaskData = dateTaskResult),
+          ValueDelta(taskId = "time_task", taskType = Task.Type.TIME, newTaskData = timeTaskResult),
         ),
     )
 
@@ -173,6 +181,8 @@ class SubmissionMutationConverterTest {
           "altitude" to 112.31,
           "geometry" to mapOf("type" to "Point", "coordinates" to GeoPoint(10.0, 20.0)),
         ),
+      "date_task" to Date.from(Instant.EPOCH),
+      "time_task" to Date.from(Instant.EPOCH),
     )
 
   private val auditInfoObject = AuditInfoConverter.fromMutationAndUser(submissionMutation, user)
