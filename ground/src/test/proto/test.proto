@@ -16,9 +16,19 @@
 
 syntax = "proto3";
 
-option java_package = "com.google.android.ground.proto";
+option java_package = "com.google.android.ground.test";
 option java_multiple_files = true;
 
-message Style {
-    string color = 1;
+message TestDocument {
+    string id = 1;
+    map<string, NestedTestObject> obj_map = 2;
+}
+
+message NestedTestObject {
+    string name = 1;
+    DeeplyNestedTestObject other_thing = 2;
+}
+
+message DeeplyNestedTestObject {
+    string id = 1;
 }

@@ -17,9 +17,14 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.android.ground.proto.Survey
-import com.google.android.ground.proto.job
-import com.google.android.ground.proto.style
+import com.google.android.ground.proto.Task.DateTimeQuestion.Type.BOTH_DATE_AND_TIME
+import com.google.android.ground.proto.Task.DateTimeQuestion.Type.UNSPECIFIED_DATE_TIME_QUESTION_TYPE
+import com.google.android.ground.proto.TaskKt.dateTimeQuestion
 import com.google.android.ground.proto.survey
+import com.google.android.ground.proto.task
+import com.google.android.ground.test.deeplyNestedTestObject
+import com.google.android.ground.test.nestedTestObject
+import com.google.android.ground.test.testDocument
 import com.google.common.truth.Truth
 import com.sharedtest.TimberTestRule
 import org.junit.ClassRule
@@ -52,26 +57,42 @@ class ProtobufToFirestoreExtTest(
           input =
             survey {
               id = "123"
-              title = "title"
+              name = "title"
             },
           idField = Survey.ID_FIELD_NUMBER,
           expected = mapOf("2" to "title"),
         ),
         testCase(
           desc = "converts string fields",
-          input = survey { title = "something" },
+          input = survey { name = "something" },
           expected = mapOf("2" to "something"),
         ),
         testCase(
           desc = "converts map<string, Message>",
-          input = survey { jobs["job123"] = job { name = "A job" } },
-          expected = mapOf("4" to mapOf("job123" to mapOf("2" to "A job"))),
+          input = testDocument { objMap["key"] = nestedTestObject { name = "foo" } },
+          expected = mapOf("2" to mapOf("key" to mapOf("1" to "foo"))),
         ),
         testCase(
-          desc = "converts nested objects",
-          input = survey { jobs["job123"] = job { defaultStyle = style { color = "#112233" } } },
-          expected = mapOf("4" to mapOf("job123" to mapOf("3" to mapOf("1" to "#112233")))),
+          desc = "converts deep nested objects",
+          input =
+            testDocument {
+              objMap["key"] = nestedTestObject {
+                otherThing = deeplyNestedTestObject { id = "123" }
+              }
+            },
+          expected = mapOf("2" to mapOf("key" to mapOf("2" to mapOf("1" to "123")))),
         ),
+        testCase(
+          desc = "converts enum value",
+          input = dateTimeQuestion { type = BOTH_DATE_AND_TIME },
+          expected = mapOf("1" to 3),
+        ),
+        testCase(
+          desc = "skips enum value 0",
+          input = dateTimeQuestion { type = UNSPECIFIED_DATE_TIME_QUESTION_TYPE },
+          expected = mapOf(),
+        ),
+        testCase(desc = "skips unspecified enum value", input = task {}, expected = mapOf()),
       )
 
     /** Help to improve readability by provided named args for positional test constructor args. */

@@ -1,0 +1,58 @@
+/*
+ * Copyright 2024 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+option java_package = "com.google.android.ground.proto";
+option java_multiple_files = true;
+
+import "com/google/ground/geometry.proto";
+import "com/google/ground/audit_info.proto";
+
+// A location of interest (LOI, presented to the user as "[data collection]
+// sites"). All data submitted by data collectors is associated with an LOI.
+message LocationOfInterest {
+    // Required. The system-defined unique identifier of this entity.
+    string id = 1;
+
+    // Required. The system-defined of the job to which this LOI belongs.
+    string job_id = 2;
+
+    // Required. The geometry associated with this LOI.
+    Geometry geometry = 3;
+
+    // Required. The number of submissions associated with this LOI.
+    int32 submission_count = 4;
+
+    // Required. The user ID of the LOI's owner.
+    string owner_id = 5;
+
+    // Required. Info about who created this LOI and when.
+    AuditInfo created = 6;
+
+    // Info about who last modified this LOI and when. If unset, it is assumed
+    // the LOI was never modified after it was created.
+    AuditInfo last_modified = 7;
+
+    // A user-defined identifier for this LOI, generally imported from the `id`
+    // field in GeoJSON Features.
+    string custom_tag = 8;
+
+    // If `true`, the LOI was defined by the survey organizer or generated
+    // by a backend. If `false` or unset, the LOI was added by data collectors
+    // during the data collection process.
+    bool predefined = 9;
+}
