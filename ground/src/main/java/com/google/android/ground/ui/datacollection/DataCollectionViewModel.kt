@@ -34,6 +34,7 @@ import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.AbstractViewModel
+import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.ViewModelFactory
@@ -50,6 +51,7 @@ import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
@@ -73,6 +75,7 @@ class DataCollectionViewModel
 internal constructor(
   private val viewModelFactory: ViewModelFactory,
   private val locationOfInterestHelper: LocationOfInterestHelper,
+  private val popups: Provider<EphemeralPopups>,
   private val navigator: Navigator,
   private val submitDataUseCase: SubmitDataUseCase,
   @ApplicationScope private val externalScope: CoroutineScope,
@@ -216,7 +219,7 @@ internal constructor(
 
     val validationError = taskViewModel.validate()
     if (validationError != null) {
-      _uiState.emit(UiState.Error(validationError))
+      popups.get().ErrorPopup().show(validationError)
       return
     }
 
@@ -231,7 +234,7 @@ internal constructor(
   suspend fun onNextClicked(taskViewModel: AbstractTaskViewModel) {
     val validationError = taskViewModel.validate()
     if (validationError != null) {
-      _uiState.emit(UiState.Error(validationError))
+      popups.get().ErrorPopup().show(validationError)
       return
     }
 

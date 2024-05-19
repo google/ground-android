@@ -34,7 +34,6 @@ import com.google.android.ground.databinding.DataCollectionFragBinding
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
-import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -45,7 +44,6 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var navigator: Navigator
-  @Inject lateinit var popups: EphemeralPopups
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
   private val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
@@ -109,7 +107,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     when (uiState) {
       is UiState.TaskListAvailable -> loadTasks(uiState.tasks, uiState.taskPosition)
       is UiState.TaskUpdated -> onTaskChanged(uiState.taskPosition)
-      is UiState.Error -> popups.ErrorPopup().show(uiState.message)
     }
   }
 
