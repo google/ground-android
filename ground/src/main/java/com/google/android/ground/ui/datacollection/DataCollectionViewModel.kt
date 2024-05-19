@@ -34,7 +34,6 @@ import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.AbstractViewModel
-import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.ViewModelFactory
@@ -51,7 +50,6 @@ import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import javax.inject.Provider
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
@@ -61,6 +59,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
@@ -74,7 +73,6 @@ class DataCollectionViewModel
 internal constructor(
   private val viewModelFactory: ViewModelFactory,
   private val locationOfInterestHelper: LocationOfInterestHelper,
-  private val popups: Provider<EphemeralPopups>,
   private val navigator: Navigator,
   private val submitDataUseCase: SubmitDataUseCase,
   @ApplicationScope private val externalScope: CoroutineScope,
@@ -84,6 +82,9 @@ internal constructor(
   locationOfInterestRepository: LocationOfInterestRepository,
   surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
+
+  private val _uiState: MutableStateFlow<UiState?> = MutableStateFlow(null)
+  var uiState: StateFlow<UiState?>
 
   private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
@@ -103,7 +104,7 @@ internal constructor(
     }
 
   // LOI creation task is included only on "new data collection site" flow..
-  val tasks: List<Task> =
+  private val tasks: List<Task> =
     if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
 
   val surveyId: String = requireNotNull(surveyRepository.activeSurvey?.id)
@@ -132,10 +133,21 @@ internal constructor(
   private val data: MutableMap<Task, TaskData?> = LinkedHashMap()
 
   // Tracks the current task ID to compute the position in the list of tasks for the current job.
-  var currentTaskId: StateFlow<String> =
+  private val currentTaskId: StateFlow<String> =
     savedStateHandle.getStateFlow(TASK_POSITION_ID, tasks.firstOrNull()?.id ?: "")
 
   lateinit var submissionId: String
+
+  init {
+    uiState =
+      _uiState
+        .asStateFlow()
+        .stateIn(
+          viewModelScope,
+          SharingStarted.Lazily,
+          UiState.TaskListAvailable(tasks, getTaskPosition()),
+        )
+  }
 
   fun setLoiName(name: String) {
     customLoiName = name
@@ -204,7 +216,7 @@ internal constructor(
 
     val validationError = taskViewModel.validate()
     if (validationError != null) {
-      popups.get().ErrorPopup().show(validationError)
+      _uiState.emit(UiState.Error(validationError))
       return
     }
 
@@ -219,7 +231,7 @@ internal constructor(
   suspend fun onNextClicked(taskViewModel: AbstractTaskViewModel) {
     val validationError = taskViewModel.validate()
     if (validationError != null) {
-      popups.get().ErrorPopup().show(validationError)
+      _uiState.emit(UiState.Error(validationError))
       return
     }
 
@@ -250,7 +262,7 @@ internal constructor(
     }
   }
 
-  fun getAbsolutePosition(): Int {
+  private fun getAbsolutePosition(): Int {
     if (currentTaskId.value == "") {
       return 0
     }
@@ -279,7 +291,7 @@ internal constructor(
    * Get the current index within the computed task sequence, and the number of tasks in the
    * sequence, e.g (0, 2) means the first task of 2.
    */
-  fun getPositionInTaskSequence(): Pair<Int, Int> {
+  private fun getPositionInTaskSequence(): Pair<Int, Int> {
     var currentIndex = 0
     var size = 0
     getTaskSequence().forEachIndexed { index, task ->
@@ -309,7 +321,7 @@ internal constructor(
   }
 
   /** Displays the task at the relative position to the current one. Supports negative steps. */
-  fun step(stepCount: Int) {
+  suspend fun step(stepCount: Int) {
     val reverse = stepCount < 0
     val task =
       getTaskSequence(startId = currentTaskId.value, reversed = reverse)
@@ -320,6 +332,17 @@ internal constructor(
     // Save collected data as draft
     clearDraft()
     saveDraft()
+
+    _uiState.emit(UiState.TaskUpdated(getTaskPosition()))
+  }
+
+  private fun getTaskPosition(): TaskPosition {
+    val (index, size) = getPositionInTaskSequence()
+    return TaskPosition(
+      absoluteIndex = getAbsolutePosition(),
+      relativeIndex = index,
+      sequenceSize = size,
+    )
   }
 
   /** Returns true if the given [taskId] is first in the sequence of displayed tasks. */
