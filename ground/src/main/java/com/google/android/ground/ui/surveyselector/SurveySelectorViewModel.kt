@@ -36,7 +36,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -53,15 +52,14 @@ internal constructor(
   private val userRepository: UserRepository,
 ) : AbstractViewModel() {
 
-  private val _uiState: MutableStateFlow<UiState?> = MutableStateFlow(null)
-  val uiState: StateFlow<UiState?> = _uiState.asStateFlow()
+  private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.FetchingSurveys)
+  val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
   init {
     viewModelScope.launch {
-      getSurveyList()
-        .distinctUntilChanged()
-        .onStart { _uiState.emit(UiState.FetchingSurveys) }
-        .collect { _uiState.emit(UiState.SurveyListAvailable(it)) }
+      getSurveyList().distinctUntilChanged().collect {
+        _uiState.emit(UiState.SurveyListAvailable(it))
+      }
     }
   }
 

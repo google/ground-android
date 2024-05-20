@@ -30,7 +30,6 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.util.visibleIf
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.filterNotNull
 
 /** User interface implementation of survey selector screen. */
 @AndroidEntryPoint
@@ -44,7 +43,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(SurveySelectorViewModel::class.java)
     adapter = SurveyListAdapter(viewModel, this)
-    viewModel.uiState.filterNotNull().launchWhenStartedAndCollect { updateUI(it) }
+    viewModel.uiState.launchWhenStartedAndCollect { updateUI(it) }
   }
 
   private fun updateUI(uiState: UiState) {
