@@ -19,13 +19,24 @@ import com.google.android.ground.model.SurveyListItem
 
 sealed class UiState {
 
+  /** Represents that surveys are being fetched from the remote server. */
   data object FetchingSurveys : UiState()
 
+  /**
+   * Represents that surveys have been successfully fetched and are available to be shown to the
+   * user.
+   */
   data class SurveyListAvailable(val surveys: List<SurveyListItem>) : UiState()
 
+  /** Represents that the selected survey and its associated LOIs are being persisted locally. */
   data object ActivatingSurvey : UiState()
 
+  /**
+   * Represents that the selected survey and its associated LOIs have been successfully saved
+   * locally and is ready to be loaded.
+   */
   data object SurveyActivated : UiState()
 
+  /** Represents that there was an error while activating surveys. */
   data class Error(val errorResId: Int) : UiState()
 }
