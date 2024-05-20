@@ -56,6 +56,13 @@ def getCommitSha1 = { ->
 
 android {
     compileSdk rootProject.androidCompileSdk
+    sourceSets {
+        test {
+            proto {
+                srcDir 'src/test/proto'
+            }
+        }
+    }
     defaultConfig {
         applicationId "com.google.android.ground"
         minSdkVersion rootProject.androidMinSdk

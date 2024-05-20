@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.ui.datacollection
 
-syntax = "proto3";
+import com.google.android.ground.model.task.Task
 
-option java_package = "com.google.android.ground.proto";
-option java_multiple_files = true;
+sealed class UiState {
 
-message Style {
-    string color = 1;
+  data class TaskListAvailable(val tasks: List<Task>, val taskPosition: TaskPosition) : UiState()
+
+  data class TaskUpdated(val taskPosition: TaskPosition) : UiState()
 }

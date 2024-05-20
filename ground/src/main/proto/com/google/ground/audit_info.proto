@@ -1,0 +1,41 @@
+/*
+ * Copyright 2024 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+option java_package = "com.google.android.ground.proto";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+
+// Audit info about "who" performed a particular action and "when". User email
+// addresses are omitted for privacy reasons.
+message AuditInfo {
+    // Required. The id of the user performing the action.
+    string user_id = 1;
+
+    // Required. Time and date reported by the client.
+    google.protobuf.Timestamp client_timestamp = 2;
+
+    // Required. Time and date reported by the server.
+    google.protobuf.Timestamp server_timestamp = 3;
+
+    // The user-facing name of the user.
+    string display_name = 4;
+
+    // URL of the user's profile picture.
+    string photo_url = 5;
+}
