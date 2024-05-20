@@ -17,6 +17,7 @@ package com.google.android.ground.e2etest
 
 import android.content.Context
 import android.content.Intent
+import android.widget.EditText
 import androidx.annotation.StringRes
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
@@ -26,30 +27,30 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import com.google.android.ground.e2etest.TestConfig.LONG_TIMEOUT
 import com.google.android.ground.e2etest.TestConfig.SHORT_TIMEOUT
+import kotlin.reflect.KClass
 
 interface AutomatorRunner {
   var device: UiDevice
 
   fun stringResource(
     @StringRes resId: Int,
-    context: Context = InstrumentationRegistry.getInstrumentation().targetContext
-  ): String {
-    return context.getString(resId)
-  }
+    context: Context = InstrumentationRegistry.getInstrumentation().targetContext,
+  ): String = context.getString(resId)
 
-  fun waitClickGone(
-    selector: BySelector,
-    timeout: Long = SHORT_TIMEOUT,
-  ): Boolean {
+  fun byText(@StringRes resId: Int): BySelector = By.text(stringResource(resId))
+
+  fun <T : Any> byClass(kclass: KClass<T>): BySelector = By.clazz(kclass.java.name)
+
+  fun waitClickGone(selector: BySelector, timeout: Long = SHORT_TIMEOUT): Boolean {
     device.wait(Until.hasObject(selector), timeout)
     device.findObject(selector)?.click()
     return device.wait(Until.gone(selector), timeout)
   }
 
-  fun hasTextField() = device.hasObject(By.clazz("android.widget.EditText"))
+  fun hasTextField() = device.hasObject(byClass(EditText::class))
 
   fun enterText(text: String) {
-    val textSelector = By.clazz("android.widget.EditText")
+    val textSelector = byClass(EditText::class)
     device.wait(Until.hasObject(textSelector), SHORT_TIMEOUT)
     device.findObject(textSelector).text = text
   }

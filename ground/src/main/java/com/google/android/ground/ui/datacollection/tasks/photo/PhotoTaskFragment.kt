@@ -63,12 +63,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject lateinit var popups: EphemeralPopups
   @Inject lateinit var navigator: Navigator
 
-  // Registers a callback to execute after a user selects a photo from the on-device gallery.
-  private var selectPhotoLauncher: ActivityResultLauncher<String> =
-    registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-      uri?.let { viewModel.savePhotoTaskData(it) }
-    }
-
   // Registers a callback to execute after a user captures a photo from the on-device camera.
   private var capturePhotoLauncher: ActivityResultLauncher<Uri> =
     registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
@@ -178,10 +172,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     obtainCapturePhotoPermissions { launchPhotoCapture(viewModel.task.id) }
   }
 
-  fun onSelectPhoto() {
-    obtainCapturePhotoPermissions { launchPhotoSelector(viewModel.task.id) }
-  }
-
   private fun launchPhotoCapture(taskId: String) {
     try {
       val photoFile = userMediaRepository.createImageFile(taskId)
@@ -191,16 +181,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
       capturedPhotoPath = capturedPhotoUri.path
       capturePhotoLauncher.launch(capturedPhotoUri)
       Timber.d("Capture photo intent sent")
-    } catch (e: IllegalArgumentException) {
-      popups.ErrorPopup().show(R.string.error_message)
-      Timber.e(e)
-    }
-  }
-
-  private fun launchPhotoSelector(taskId: String) {
-    try {
-      viewModel.taskWaitingForPhoto = taskId
-      selectPhotoLauncher.launch("image/*")
     } catch (e: IllegalArgumentException) {
       popups.ErrorPopup().show(R.string.error_message)
       Timber.e(e)

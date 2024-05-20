@@ -30,16 +30,16 @@ import java.util.*
         entity = LocationOfInterestEntity::class,
         parentColumns = ["id"],
         childColumns = ["location_of_interest_id"],
-        onDelete = ForeignKey.CASCADE
+        onDelete = ForeignKey.CASCADE,
       ),
       ForeignKey(
         entity = SubmissionEntity::class,
         parentColumns = ["id"],
         childColumns = ["submission_id"],
-        onDelete = ForeignKey.CASCADE
-      )
+        onDelete = ForeignKey.CASCADE,
+      ),
     ],
-  indices = [Index("location_of_interest_id"), Index("submission_id")]
+  indices = [Index("location_of_interest_id"), Index("submission_id")],
 )
 data class SubmissionMutationEntity(
   @ColumnInfo(name = "id") @PrimaryKey(autoGenerate = true) val id: Long? = 0,
@@ -60,5 +60,5 @@ data class SubmissionMutationEntity(
    *
    * This method returns `null` for mutation type [MutationEntityType.DELETE].
    */
-  @ColumnInfo(name = "deltas") val deltas: String?
+  @ColumnInfo(name = "deltas") val deltas: String?,
 )

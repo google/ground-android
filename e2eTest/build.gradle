@@ -61,12 +61,13 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.test.ext:junit:1.1.5'
     implementation 'androidx.test.espresso:espresso-core:3.5.1'
+    implementation 'androidx.cardview:cardview:1.0.0'
     androidTestUtil 'androidx.test:orchestrator:1.4.2'
     implementation "androidx.test:runner:1.5.2"
     implementation "androidx.test:rules:1.5.0"
     implementation "androidx.test.uiautomator:uiautomator:2.3.0"
     implementation 'com.google.truth:truth:1.4.2'
-    implementation 'junit:junit:4.13.2'
+    implementation "junit:junit:$junitVersion"
     implementation project(':ground')
 }
 

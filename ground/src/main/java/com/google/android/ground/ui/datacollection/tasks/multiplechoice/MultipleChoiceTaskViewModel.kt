@@ -75,11 +75,7 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
     updateMultipleChoiceItems()
   }
 
-  fun setItem(
-    item: MultipleChoiceItem,
-    selection: Boolean,
-    canSelectMultiple: Boolean,
-  ) {
+  fun setItem(item: MultipleChoiceItem, selection: Boolean, canSelectMultiple: Boolean) {
     if (!canSelectMultiple && selection) {
       selectedIds.clear()
     }
@@ -92,10 +88,7 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
     updateMultipleChoiceItems()
   }
 
-  fun toggleItem(
-    item: MultipleChoiceItem,
-    canSelectMultiple: Boolean,
-  ) {
+  fun toggleItem(item: MultipleChoiceItem, canSelectMultiple: Boolean) {
     val wasSelected = selectedIds.contains(item.option.id)
     setItem(item, !wasSelected, canSelectMultiple)
   }
@@ -131,7 +124,7 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
             multipleChoice.cardinality,
             selectedIds.contains(it.id),
             true,
-            otherText
+            otherText,
           )
         )
       }

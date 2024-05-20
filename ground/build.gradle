@@ -22,6 +22,7 @@ apply plugin: 'com.google.dagger.hilt.android'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.android.gms.oss-licenses-plugin'
+apply plugin: 'com.google.protobuf'
 
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
@@ -55,6 +56,13 @@ def getCommitSha1 = { ->
 
 android {
     compileSdk rootProject.androidCompileSdk
+    sourceSets {
+        test {
+            proto {
+                srcDir 'src/test/proto'
+            }
+        }
+    }
     defaultConfig {
         applicationId "com.google.android.ground"
         minSdkVersion rootProject.androidMinSdk
@@ -170,6 +178,7 @@ dependencies {
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$project.kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$project.kotlinVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.6.3"
     implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7"
@@ -197,6 +206,7 @@ dependencies {
     testImplementation('androidx.compose.ui:ui-test-junit4:1.6.4')
     // Needed for createComposeRule(), but not for createAndroidComposeRule<YourActivity>():
     debugImplementation('androidx.compose.ui:ui-test-manifest:1.6.4')
+    debugImplementation 'androidx.compose.ui:ui-tooling:1.6.6'
     stagingImplementation('androidx.compose.ui:ui-test-manifest:1.6.4')
 
     // Google Play Services.
@@ -264,7 +274,7 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
 
     // Logging
-    implementation 'com.jakewharton.timber:timber:5.0.1'
+    implementation "com.jakewharton.timber:timber:$timberVersion"
 
     // Room
     implementation "androidx.room:room-runtime:$roomVersion"
@@ -280,8 +290,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-oss-licenses:17.0.1'
 
     // Testing
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'junit:junit:4.13.2'
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "junit:junit:$junitVersion"
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     testImplementation 'com.google.truth:truth:1.4.2'
     androidTestImplementation 'com.google.truth:truth:1.4.2'
@@ -320,6 +330,30 @@ dependencies {
     stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
 
     implementation "com.google.guava:guava:31.1-android"
+
+    // TODO(#1748): Move protos into shared module and set correct path here.
+    api("com.google.protobuf:protobuf-kotlin-lite:4.26.1")
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:4.26.1"
+    }
+    generateProtoTasks {
+        all().each {
+            it.plugins {
+                // Generated Kotlin classes depend on these.
+                create("java") {
+                    option("lite")
+                }
+            }
+            it.builtins {
+                create("kotlin") {
+                    option("lite")
+                }
+            }
+        }
+    }
 }
 
 // Allow references to generated code.

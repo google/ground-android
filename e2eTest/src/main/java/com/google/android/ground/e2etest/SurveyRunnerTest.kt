@@ -15,6 +15,12 @@
  */
 package com.google.android.ground.e2etest
 
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.RadioButton
+import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -36,20 +42,6 @@ import org.junit.runner.RunWith
 class SurveyRunnerTest : AutomatorRunner {
 
   override lateinit var device: UiDevice
-
-  private val selectSurveyTitle = stringResource(R.string.select_survey_title)
-  private val collectData = stringResource(R.string.collect_data)
-  private val newDataCollectionSite = stringResource(R.string.new_site)
-  private val close = stringResource(R.string.close)
-  private val dropPin = stringResource(R.string.drop_pin)
-  private val addPoint = stringResource(R.string.add_point)
-  private val complete = stringResource(R.string.complete_polygon)
-  private val capture = stringResource(R.string.capture)
-  private val camera = stringResource(R.string.camera)
-  private val ok = stringResource(R.string.ok)
-  private val next = stringResource(R.string.next)
-  private val done = stringResource(R.string.done)
-  private val save = stringResource(R.string.save)
 
   @Test
   fun run() {
@@ -78,16 +70,16 @@ class SurveyRunnerTest : AutomatorRunner {
   }
 
   private fun signIn() {
-    if (!waitClickGone(By.clazz("android.widget.Button"), LONG_TIMEOUT)) {
+    if (!waitClickGone(byClass(Button::class), LONG_TIMEOUT)) {
       fail("Failed to sign in.")
     }
   }
 
   private fun selectTestSurvey() {
-    device.wait(Until.hasObject(By.text(selectSurveyTitle)), LONG_TIMEOUT)
+    device.wait(Until.hasObject(byText(R.string.select_survey_title)), LONG_TIMEOUT)
     val testSurveySelector =
-      By.clazz("androidx.cardview.widget.CardView")
-        .hasDescendant(By.clazz("android.widget.TextView").textContains(TEST_SURVEY_IDENTIFIER))
+      byClass(CardView::class)
+        .hasDescendant(byClass(TextView::class).textContains(TEST_SURVEY_IDENTIFIER))
     device.wait(Until.hasObject(testSurveySelector), LONG_TIMEOUT)
     // Need to double click on survey.
     waitClickGone(testSurveySelector)
@@ -99,31 +91,30 @@ class SurveyRunnerTest : AutomatorRunner {
   private fun zoomIntoLocation() {
     clickLocationLock()
     allowPermissions()
-    val dataCollectionCardSelector =
-      By.clazz("androidx.cardview.widget.CardView").hasDescendant(By.text(collectData))
-    if (device.wait(Until.hasObject(dataCollectionCardSelector), LONG_TIMEOUT) == null) {
+    val loiCardSelector = byClass(CardView::class).hasDescendant(byText(R.string.collect_data))
+    if (device.wait(Until.hasObject(loiCardSelector), LONG_TIMEOUT) == null) {
       fail("Failed to zoom in to location.")
     }
   }
 
   private fun startAdHocLoiTask() {
-    val dataCollectionCardSelector = By.clazz("androidx.cardview.widget.CardView")
-    device.wait(Until.hasObject(dataCollectionCardSelector), LONG_TIMEOUT)
-    val cards = device.findObjects(dataCollectionCardSelector)
+    val loiCardSelector = byClass(CardView::class)
+    device.wait(Until.hasObject(loiCardSelector), LONG_TIMEOUT)
+    val cards = device.findObjects(loiCardSelector)
     cards.forEach { it.swipe(Direction.LEFT, 1F) }
     val loiCollectDataButtonSelector =
-      By.text(collectData)
-        .hasAncestor(dataCollectionCardSelector.hasDescendant(By.text(newDataCollectionSite)))
+      byText(R.string.collect_data)
+        .hasAncestor(loiCardSelector.hasDescendant(byText(R.string.new_site)))
     if (!waitClickGone(loiCollectDataButtonSelector)) {
       fail("Failed to start ad-hoc loi data collection.")
     }
   }
 
   private fun startPredefinedLoiTask() {
-    val dataCollectionCardSelector = By.clazz("androidx.cardview.widget.CardView")
-    device.wait(Until.hasObject(dataCollectionCardSelector), LONG_TIMEOUT)
+    val loiCardSelector = byClass(CardView::class)
+    device.wait(Until.hasObject(loiCardSelector), LONG_TIMEOUT)
     // Assume that the first card is the predefined LOI.
-    val loiCollectDataButtonSelector = By.text(collectData)
+    val loiCollectDataButtonSelector = byText(R.string.collect_data)
     if (!waitClickGone(loiCollectDataButtonSelector)) {
       fail("Failed to start predefined loi data collection.")
     }
@@ -157,26 +148,26 @@ class SurveyRunnerTest : AutomatorRunner {
 
   private fun completeDropPinTask() {
     // Instructions dialog may be triggered.
-    waitClickGone(By.text(close))
-    waitClickGone(By.text(dropPin))
+    waitClickGone(byText(R.string.close))
+    waitClickGone(byText(R.string.drop_pin))
   }
 
   private fun completeDrawArea() {
     // Instructions dialog may be triggered.
-    waitClickGone(By.text(close))
-    waitClickGone(By.text(addPoint))
-    waitClickGone(By.text(addPoint))
-    waitClickGone(By.text(addPoint))
-    waitClickGone(By.text(complete))
+    waitClickGone(byText(R.string.close))
+    waitClickGone(byText(R.string.add_point))
+    waitClickGone(byText(R.string.add_point))
+    waitClickGone(byText(R.string.add_point))
+    waitClickGone(byText(R.string.complete_polygon))
   }
 
   private fun completeCaptureLocation() {
-    waitClickGone(By.text(capture))
+    waitClickGone(byText(R.string.capture))
   }
 
   private fun completeMultipleChoice() {
-    val radioSelector = By.clazz("android.widget.RadioButton")
-    val checkBoxSelector = By.clazz("android.widget.CheckBox")
+    val radioSelector = byClass(RadioButton::class)
+    val checkBoxSelector = byClass(CheckBox::class)
     val optionSelector = if (device.hasObject(radioSelector)) radioSelector else checkBoxSelector
     val options = device.findObjects(optionSelector)
     // Ensure that the first option is selected last.
@@ -192,7 +183,7 @@ class SurveyRunnerTest : AutomatorRunner {
 
   private fun completePhoto() {
     allowPermissions()
-    waitClickGone(By.text(camera))
+    waitClickGone(byText(R.string.camera))
     waitClickGone(By.res("com.android.camera2:id/shutter_button"))
     waitClickGone(By.res("com.android.camera2:id/done_button"))
   }
@@ -202,25 +193,25 @@ class SurveyRunnerTest : AutomatorRunner {
   }
 
   private fun completeDate() {
-    device.findObject(By.clazz("android.widget.EditText")).click()
-    waitClickGone(By.text(ok))
+    device.findObject(byClass(EditText::class)).click()
+    waitClickGone(byText(R.string.ok))
   }
 
   private fun completeTime() {
-    device.findObject(By.clazz("android.widget.EditText")).click()
-    waitClickGone(By.text(ok))
+    device.findObject(byClass(EditText::class)).click()
+    waitClickGone(byText(R.string.ok))
   }
 
   private fun clickNext() {
-    waitClickGone(By.text(next))
+    waitClickGone(byText(R.string.next))
   }
 
   private fun clickDone() {
-    waitClickGone(By.text(done))
+    waitClickGone(byText(R.string.done))
   }
 
   private fun clickSubmissionConfirmationDone() {
-    waitClickGone(By.text(done), LONG_TIMEOUT)
+    waitClickGone(byText(R.string.done), LONG_TIMEOUT)
   }
 
   private fun clickLocationLock() {
@@ -228,8 +219,8 @@ class SurveyRunnerTest : AutomatorRunner {
   }
 
   private fun setLoiName() {
-    device.wait(Until.hasObject(By.text(save)), SHORT_TIMEOUT)
+    device.wait(Until.hasObject(byText(R.string.save)), SHORT_TIMEOUT)
     enterText("An loi name")
-    waitClickGone(By.text(save))
+    waitClickGone(byText(R.string.save))
   }
 }

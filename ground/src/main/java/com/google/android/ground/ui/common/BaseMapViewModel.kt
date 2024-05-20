@@ -70,7 +70,7 @@ constructor(
   private val offlineAreaRepository: OfflineAreaRepository,
   private val permissionsManager: PermissionsManager,
   private val surveyRepository: SurveyRepository,
-  private val locationOfInterestRepository: LocationOfInterestRepository
+  private val locationOfInterestRepository: LocationOfInterestRepository,
 ) : AbstractViewModel() {
 
   val locationLock: MutableStateFlow<Result<Boolean>> =
@@ -112,10 +112,6 @@ constructor(
   var currentCameraPosition = MutableStateFlow<CameraPosition?>(null)
     private set
 
-  /** Last camera position. */
-  var lastCameraPosition: CameraPosition? = null
-    private set
-
   init {
     offlineTileSources =
       offlineAreaRepository
@@ -148,7 +144,7 @@ constructor(
         if (statusCode == SETTINGS_CHANGE_UNAVAILABLE) {
           Timber.e(
             throwable,
-            "User is offline, so fallback to user's current permission, which may also fail."
+            "User is offline, so fallback to user's current permission, which may also fail.",
           )
         } else {
           throw throwable
@@ -196,7 +192,7 @@ constructor(
   fun getCameraUpdateRequests(): SharedFlow<CameraUpdateRequest> =
     merge(
         getCameraUpdateRequestsForSurveyActivations(),
-        getCameraUpdateRequestsForDeviceLocationChanges()
+        getCameraUpdateRequestsForDeviceLocationChanges(),
       )
       .shareIn(viewModelScope, SharingStarted.Eagerly, replay = 0)
 
@@ -256,7 +252,6 @@ constructor(
   /** Called when the map camera is moved. */
   open fun onMapCameraMoved(newCameraPosition: CameraPosition) {
     Timber.d("Camera moved : ${newCameraPosition.target}")
-    lastCameraPosition = currentCameraPosition.value
     currentCameraPosition.value = newCameraPosition
     mapStateRepository.setCameraPosition(newCameraPosition)
   }

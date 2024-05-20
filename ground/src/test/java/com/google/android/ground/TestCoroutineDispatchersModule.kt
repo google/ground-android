@@ -31,7 +31,7 @@ import kotlinx.coroutines.test.TestDispatcher
 @Module
 @TestInstallIn(
   components = [SingletonComponent::class],
-  replaces = [CoroutineDispatchersModule::class]
+  replaces = [CoroutineDispatchersModule::class],
 )
 object TestCoroutineDispatchersModule {
   private val testDispatcher = StandardTestDispatcher()

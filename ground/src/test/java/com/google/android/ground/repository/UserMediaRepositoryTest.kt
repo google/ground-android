@@ -48,11 +48,7 @@ class UserMediaRepositoryTest : BaseHiltTest() {
 
   @Test
   fun getLocalFileFromRemotePath_validImageFilename() {
-    for (path in
-      listOf(
-        "/some/path/filename.png",
-        "/some/path/filename.jpg",
-      )) {
+    for (path in listOf("/some/path/filename.png", "/some/path/filename.jpg")) {
       val localFile = userMediaRepository.getLocalFileFromRemotePath(path)
       assertThat(localFile).isNotNull()
     }

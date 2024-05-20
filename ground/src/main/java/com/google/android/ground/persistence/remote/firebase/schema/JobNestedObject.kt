@@ -25,5 +25,5 @@ data class JobNestedObject(
   val defaultStyle: StyleNestedObject? = null,
   val name: String? = null,
   val tasks: Map<String, TaskNestedObject>? = null,
-  val strategy: String = MIXED.toString()
+  val strategy: String = MIXED.toString(),
 )

@@ -46,7 +46,7 @@ enum class TaskEntityType(private val intValue: Int) : IntEnum {
         Pair(TIME, Task.Type.TIME),
         Pair(POINT, Task.Type.DROP_PIN),
         Pair(POLYGON, Task.Type.DRAW_AREA),
-        Pair(CAPTURE_LOCATION, Task.Type.CAPTURE_LOCATION)
+        Pair(CAPTURE_LOCATION, Task.Type.CAPTURE_LOCATION),
       )
     private val REVERSE_TASK_TYPES: Map<Task.Type, TaskEntityType> =
       TASK_TYPES.entries.associateBy({ it.value }) { it.key }

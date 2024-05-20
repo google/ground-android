@@ -39,13 +39,13 @@ val TASK_A_EXPRESSION =
   Expression(
     expressionType = Expression.ExpressionType.ANY_OF_SELECTED,
     taskId = TASK_A_ID,
-    optionIds = setOf(TASK_A_OPTION_X)
+    optionIds = setOf(TASK_A_OPTION_X),
   )
 val Task_B_EXPRESSION =
   Expression(
     expressionType = Expression.ExpressionType.ANY_OF_SELECTED,
     taskId = TASK_B_ID,
-    optionIds = setOf(TASK_B_OPTION_X)
+    optionIds = setOf(TASK_B_OPTION_X),
   )
 
 fun makeValue(vararg selectedOptions: String) =
@@ -57,7 +57,7 @@ class ConditionTest {
     val condition =
       Condition(
         matchType = Condition.MatchType.MATCH_ALL,
-        listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION)
+        listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION),
       )
     listOf(
         // Expressions evaluate to [true, true].
@@ -81,7 +81,7 @@ class ConditionTest {
     val condition =
       Condition(
         matchType = Condition.MatchType.MATCH_ALL,
-        listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION)
+        listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION),
       )
     listOf(
         // Expressions evaluate to [true, true].
@@ -105,7 +105,7 @@ class ConditionTest {
     val condition =
       Condition(
         matchType = Condition.MatchType.MATCH_ONE,
-        listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION)
+        listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION),
       )
     listOf(
         // Expressions evaluate to [true, true].
@@ -129,7 +129,7 @@ class ConditionTest {
     val condition =
       Condition(
         matchType = Condition.MatchType.UNKNOWN,
-        listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION)
+        listOf(TASK_A_EXPRESSION, Task_B_EXPRESSION),
       )
     assertFailsWith<IllegalArgumentException> {
       condition.fulfilledBy(mapOf(TASK_A_ID to makeValue(TASK_A_OPTION_X)))
@@ -142,7 +142,7 @@ class ConditionTest {
       Expression(
         expressionType = Expression.ExpressionType.ANY_OF_SELECTED,
         taskId = TASK_A_ID,
-        optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)
+        optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y),
       )
     listOf(
         true to (TASK_A_ID to makeValue(TASK_A_OPTION_X)),
@@ -160,7 +160,7 @@ class ConditionTest {
       Expression(
         expressionType = Expression.ExpressionType.ALL_OF_SELECTED,
         taskId = TASK_A_ID,
-        optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)
+        optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y),
       )
     listOf(
         false to (TASK_A_ID to makeValue(TASK_A_OPTION_X)),
@@ -178,7 +178,7 @@ class ConditionTest {
       Expression(
         expressionType = Expression.ExpressionType.ONE_OF_SELECTED,
         taskId = TASK_A_ID,
-        optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)
+        optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y),
       )
     listOf(
         true to (TASK_A_ID to makeValue(TASK_A_OPTION_X)),
@@ -196,7 +196,7 @@ class ConditionTest {
       Expression(
         expressionType = Expression.ExpressionType.UNKNOWN,
         taskId = TASK_A_ID,
-        optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y)
+        optionIds = setOf(TASK_A_OPTION_X, TASK_A_OPTION_Y),
       )
     assertFailsWith<IllegalArgumentException> {
       expression.fulfilledBy(mapOf(TASK_A_ID to makeValue(TASK_A_OPTION_X)))

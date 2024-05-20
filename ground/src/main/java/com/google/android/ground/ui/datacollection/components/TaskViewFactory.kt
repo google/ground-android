@@ -32,7 +32,7 @@ object TaskViewFactory {
   fun createWithCombinedHeader(
     layoutInflater: LayoutInflater,
     @DrawableRes iconResId: Int? = null,
-    @StringRes labelResId: Int? = null
+    @StringRes labelResId: Int? = null,
   ): TaskView {
     val binding = TaskFragWithCombinedHeaderBinding.inflate(layoutInflater)
     iconResId?.let {

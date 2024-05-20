@@ -30,10 +30,10 @@ import com.google.android.ground.persistence.local.room.fields.TaskEntityType
         entity = JobEntity::class,
         parentColumns = ["id"],
         childColumns = ["job_id"],
-        onDelete = ForeignKey.CASCADE
+        onDelete = ForeignKey.CASCADE,
       )
     ],
-  indices = [Index("job_id")]
+  indices = [Index("job_id")],
 )
 data class TaskEntity(
   @ColumnInfo(name = "id") @PrimaryKey val id: String,

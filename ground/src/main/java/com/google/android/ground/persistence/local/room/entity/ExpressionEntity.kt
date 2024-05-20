@@ -30,10 +30,10 @@ import com.google.android.ground.persistence.local.room.fields.ExpressionEntityT
         entity = ConditionEntity::class,
         parentColumns = ["parent_task_id"],
         childColumns = ["parent_task_id"],
-        onDelete = ForeignKey.CASCADE
+        onDelete = ForeignKey.CASCADE,
       )
     ],
-  indices = [Index("parent_task_id")]
+  indices = [Index("parent_task_id")],
 )
 data class ExpressionEntity(
   @ColumnInfo(name = "parent_task_id") @PrimaryKey val parentTaskId: String,

@@ -35,5 +35,5 @@ data class TaskEntityAndRelations(
   @Relation(parentColumn = "id", entityColumn = "task_id", entity = OptionEntity::class)
   val optionEntities: List<OptionEntity>,
   @Relation(parentColumn = "id", entityColumn = "parent_task_id", entity = ConditionEntity::class)
-  val conditionEntityAndRelations: List<ConditionEntityAndRelations>
+  val conditionEntityAndRelations: List<ConditionEntityAndRelations>,
 )

@@ -37,7 +37,7 @@ data class MogMetadata(
   val sourceUrl: String,
   /** The web mercator tile coordinates corresponding to the bounding box of the source MOG. */
   val bounds: TileCoordinates,
-  val imageMetadata: List<MogImageMetadata>
+  val imageMetadata: List<MogImageMetadata>,
 ) {
   private val imageMetadataByZoom = imageMetadata.associateBy { it.zoom }
 

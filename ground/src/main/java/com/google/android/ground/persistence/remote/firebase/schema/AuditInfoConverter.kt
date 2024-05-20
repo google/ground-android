@@ -31,7 +31,7 @@ internal object AuditInfoConverter {
     return AuditInfo(
       UserConverter.toUser(doc.user),
       doc.clientTimestamp!!.toDate(),
-      doc.serverTimestamp?.toDate()
+      doc.serverTimestamp?.toDate(),
     )
   }
 
@@ -40,6 +40,6 @@ internal object AuditInfoConverter {
     AuditInfoNestedObject(
       UserConverter.toNestedObject(user),
       Timestamp(mutation.clientTimestamp),
-      null
+      null,
     )
 }

@@ -77,6 +77,6 @@ class MogTileRequestTest {
       256,
       256,
       byteArrayOf(),
-      LongRange(byteRange.first.toLong(), byteRange.last.toLong())
+      LongRange(byteRange.first.toLong(), byteRange.last.toLong()),
     )
 }

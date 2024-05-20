@@ -72,7 +72,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override suspend fun loadUserDefinedLois(
     survey: Survey,
-    creatorEmail: String
+    creatorEmail: String,
   ): List<LocationOfInterest> = userDefinedLois
 
   /** Returns true iff [subscribeToSurveyUpdates] has been called with the specified id. */

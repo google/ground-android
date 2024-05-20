@@ -23,7 +23,7 @@ data class SignInState(val state: State, val result: Result<User?>) {
     SIGNED_OUT,
     SIGNING_IN,
     SIGNED_IN,
-    ERROR
+    ERROR,
   }
 
   companion object {

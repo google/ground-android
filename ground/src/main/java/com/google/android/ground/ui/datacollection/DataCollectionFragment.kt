@@ -37,13 +37,13 @@ import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
 class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var navigator: Navigator
-
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
   private val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
@@ -81,9 +81,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewPager.isUserInputEnabled = false
     viewPager.offscreenPageLimit = 1
 
-    loadTasks(viewModel.tasks)
-    lifecycleScope.launch { viewModel.currentTaskId.collect { onTaskChanged() } }
-
     viewPager.registerOnPageChangeCallback(
       object : ViewPager2.OnPageChangeCallback() {
         override fun onPageScrollStateChanged(state: Int) {
@@ -96,12 +93,21 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
                   // close.
                   setProgressBarPosition(view)
                 },
-                100
+                100,
               )
           }
         }
       }
     )
+
+    lifecycleScope.launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
+  }
+
+  private fun updateUI(uiState: UiState) {
+    when (uiState) {
+      is UiState.TaskListAvailable -> loadTasks(uiState.tasks, uiState.taskPosition)
+      is UiState.TaskUpdated -> onTaskChanged(uiState.taskPosition)
+    }
   }
 
   private fun setProgressBarPosition(view: View) {
@@ -114,33 +120,34 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     guideline.setGuidelineBegin(guidelineTop)
   }
 
-  private fun loadTasks(tasks: List<Task>) {
+  private fun loadTasks(tasks: List<Task>, taskPosition: TaskPosition) {
     val currentAdapter = viewPager.adapter as? DataCollectionViewPagerAdapter
     if (currentAdapter == null || currentAdapter.tasks != tasks) {
       viewPager.adapter = viewPagerAdapterFactory.create(this, tasks)
     }
-
-    // Reset progress bar
-    val (start, taskSize) = viewModel.getPositionInTaskSequence()
-    progressBar.progress = start
-    progressBar.max = (taskSize - 1) * PROGRESS_SCALE
+    updateProgressBar(taskPosition, false)
   }
 
-  private fun onTaskChanged() {
-    viewPager.currentItem = viewModel.getAbsolutePosition()
+  private fun onTaskChanged(taskPosition: TaskPosition) {
+    viewPager.currentItem = taskPosition.absoluteIndex
+    updateProgressBar(taskPosition, true)
+  }
 
+  private fun updateProgressBar(taskPosition: TaskPosition, shouldAnimate: Boolean) {
     // Reset progress bar
-    val (currIndex, taskSize) = viewModel.getPositionInTaskSequence()
-    progressBar.max = (taskSize - 1) * PROGRESS_SCALE
-    progressBar.clearAnimation()
+    progressBar.max = (taskPosition.sequenceSize - 1) * PROGRESS_SCALE
 
-    val progressAnimator = ValueAnimator.ofInt(progressBar.progress, currIndex * PROGRESS_SCALE)
-    progressAnimator.duration = 400L
-    progressAnimator.interpolator = FastOutSlowInInterpolator()
-
-    progressAnimator.addUpdateListener { progressBar.progress = it.animatedValue as Int }
-
-    progressAnimator.start()
+    if (shouldAnimate) {
+      progressBar.clearAnimation()
+      with(ValueAnimator.ofInt(progressBar.progress, taskPosition.relativeIndex * PROGRESS_SCALE)) {
+        duration = 400L
+        interpolator = FastOutSlowInInterpolator()
+        addUpdateListener { progressBar.progress = it.animatedValue as Int }
+        start()
+      }
+    } else {
+      progressBar.progress = taskPosition.relativeIndex
+    }
   }
 
   override fun onBack(): Boolean =
@@ -151,7 +158,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       false
     } else {
       // Otherwise, select the previous step.
-      viewModel.step(-1)
+      lifecycleScope.launch { viewModel.step(-1) }
       true
     }
 

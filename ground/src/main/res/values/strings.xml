@@ -49,7 +49,6 @@
   <string name="offline_area_selector_prompt">Select a base map for offline use</string>
   <string name="offline_area_selector_download">Download</string>
   <string name="camera">Camera</string>
-  <string name="library">Library</string>
   <string name="photo_preview">Preview</string>
   <string name="settings">Settings</string>
   <string name="offline_area_viewer_title">Downloaded area</string>
@@ -67,7 +66,7 @@
   <string name="date">Date</string>
   <string name="time">Time</string>
   <!-- Other strings (to be organized) -->
-  <string name="sync_status">Sync status</string>
+  <string name="sync_status">History and sync status</string>
   <string name="layer_label_format">Job: %s</string>
 
   <string name="add_point">Add point</string>
@@ -152,6 +151,8 @@
   <string name="switch_survey">Switch survey</string>
   <string name="no_survey_selected">No survey selected</string>
   <string name="undo">Undo</string>
-  <string name="view_licenses"><u>View Licenses</u></string>
   <string name="view_licenses_title">Licenses</string>
+  <string name="about">About</string>
+  <string name="terms_of_service">Terms of service</string>
+  <string name="about_ground">Ground is an open-source community project built by Google and FAO under the Forest Data Partnership with help from SIG, Ecam, and open-source community contributors. \n\nIt is licensed under the <annotation type="apache_license">Apache License, Version 2.0</annotation>. \n\nView other <annotation type="all_licenses">Licenses</annotation></string>
 </resources>
