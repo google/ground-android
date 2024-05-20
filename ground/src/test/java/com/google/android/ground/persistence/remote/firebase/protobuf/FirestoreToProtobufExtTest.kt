@@ -23,6 +23,8 @@ import com.google.android.ground.proto.survey
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.GeneratedMessageLite
+import com.sharedtest.TimberTestRule
+import org.junit.ClassRule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -34,11 +36,14 @@ class FirestoreToProtobufExtTest(
   private val expectedOutput: GeneratedMessageLite<*, *>,
 ) {
   @Test
-  fun toMessage() {
-    assertThat(input.toMessage(expectedOutput.javaClass.kotlin)).isEqualTo(expectedOutput)
+  fun parseFrom() {
+    val output = expectedOutput.javaClass.kotlin.parseFrom(input)
+    assertThat(output).isEqualTo(expectedOutput)
   }
 
   companion object {
+    @get:ClassRule @JvmStatic var timberRule = TimberTestRule()
+
     @JvmStatic
     @Parameterized.Parameters(name = "{0}")
     fun data() =
@@ -60,15 +65,9 @@ class FirestoreToProtobufExtTest(
           expected = survey {},
         ),
         testCase(
-          desc = "converts map<string, Message> fields",
+          desc = "converts map<string, Message>",
           data = mapOf("jobs" to mapOf("job123" to mapOf("name" to "A job"))),
-          expected =
-            survey {
-              jobs["job123"] = job {
-                id = "job123"
-                name = "A job"
-              }
-            },
+          expected = survey { jobs["job123"] = job { name = "A job" } },
         ),
         testCase(
           desc = "ignores bad type in map",
@@ -77,24 +76,20 @@ class FirestoreToProtobufExtTest(
         ),
         testCase(
           desc = "converts nested objects",
-          data = mapOf("jobs" to mapOf("job123" to mapOf("style" to mapOf("color" to "#112233")))),
-          expected =
-            survey {
-              jobs["job123"] = job {
-                id = "job123"
-                style { color = "#112233" }
-              }
-            },
+          data =
+            mapOf(
+              "jobs" to mapOf("job123" to mapOf("defaultStyle" to mapOf("color" to "#112233")))
+            ),
+          expected = survey { jobs["job123"] = job { defaultStyle = style { color = "#112233" } } },
         ),
         testCase(
           desc = "ignores bad type for nested object",
-          data = mapOf("jobs" to mapOf("job123" to mapOf("style" to 123))),
+          data =
+            mapOf("title" to "test", "jobs" to mapOf("job123" to mapOf("defaultStyle" to 123))),
           expected =
             survey {
-              jobs["job123"] = job {
-                id = "job123"
-                style {}
-              }
+              title = "test"
+              jobs["job123"] = job {}
             },
         ),
       )
