@@ -43,10 +43,10 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(SurveySelectorViewModel::class.java)
     adapter = SurveyListAdapter(viewModel, this)
-    viewModel.uiState.launchWhenStartedAndCollect { updateUI(it) }
+    viewModel.uiState.launchWhenStartedAndCollect { updateUi(it) }
   }
 
-  private fun updateUI(uiState: UiState) {
+  private fun updateUi(uiState: UiState) {
     when (uiState) {
       UiState.ActivatingSurvey,
       UiState.FetchingSurveys -> {
