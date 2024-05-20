@@ -23,7 +23,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.databinding.SurveySelectorFragBinding
 import com.google.android.ground.model.SurveyListItem
@@ -32,7 +31,6 @@ import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.util.visibleIf
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.launch
 
 /** User interface implementation of survey selector screen. */
 @AndroidEntryPoint
@@ -70,8 +68,10 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun handleSurveyListUpdated(surveys: List<SurveyListItem>) {
-    binding.container.visibleIf(surveys.isNotEmpty())
-    binding.emptyContainer.visibleIf(surveys.isEmpty())
+    with(binding) {
+      container.visibleIf(surveys.isNotEmpty())
+      emptyContainer.visibleIf(surveys.isEmpty())
+    }
     adapter.updateData(surveys)
   }
 
