@@ -18,13 +18,11 @@ package com.google.android.ground.ui.home
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
@@ -45,18 +43,10 @@ internal constructor(
   private val offlineAreaRepository: OfflineAreaRepository,
   private val submissionRepository: SubmissionRepository,
   private val surveyRepository: SurveyRepository,
-  private val authenticationManager: AuthenticationManager,
 ) : AbstractViewModel() {
 
   private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
   val openDrawerRequestsFlow: SharedFlow<Unit> = _openDrawerRequests.asSharedFlow()
-
-  private val _userDetails = MutableLiveData<User>()
-  val userDetails: LiveData<User> = _userDetails
-
-  init {
-    viewModelScope.launch { _userDetails.value = authenticationManager.getAuthenticatedUser() }
-  }
 
   // TODO(#1730): Allow tile source configuration from a non-survey accessible source.
   val showOfflineAreaMenuItem: LiveData<Boolean> = MutableLiveData(true)

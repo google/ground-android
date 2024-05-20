@@ -49,17 +49,11 @@ fun UserDetailsDialog(
     text = { Text(user.email) },
     dismissButton = {
       TextButton(onClick = { showSignOutConfirmationDialog() }) {
-        Text(
-          text = stringResource(R.string.sign_out),
-        )
+        Text(text = stringResource(R.string.sign_out))
       }
     },
     confirmButton = {
-      OutlinedButton(onClick = { dismissDialog() }) {
-        Text(
-          text = stringResource(R.string.close),
-        )
-      }
+      OutlinedButton(onClick = { dismissDialog() }) { Text(text = stringResource(R.string.close)) }
     },
   )
 }

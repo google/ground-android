@@ -38,11 +38,7 @@ fun SignOutConfirmationDialog(
     title = { Text(text = stringResource(R.string.sign_out_dialog_title)) },
     text = { Text(text = stringResource(R.string.sign_out_dialog_body)) },
     dismissButton = {
-      TextButton(onClick = { dismissDialog() }) {
-        Text(
-          text = stringResource(R.string.cancel),
-        )
-      }
+      TextButton(onClick = { dismissDialog() }) { Text(text = stringResource(R.string.cancel)) }
     },
     confirmButton = {
       TextButton(
@@ -51,9 +47,7 @@ fun SignOutConfirmationDialog(
           dismissDialog()
         }
       ) {
-        Text(
-          text = stringResource(R.string.sign_out),
-        )
+        Text(text = stringResource(R.string.sign_out))
       }
     },
   )

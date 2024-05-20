@@ -32,6 +32,7 @@ import com.google.android.ground.MainViewModel
 import com.google.android.ground.R
 import com.google.android.ground.databinding.HomeScreenFragBinding
 import com.google.android.ground.databinding.NavDrawerHeaderBinding
+import com.google.android.ground.model.User
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
@@ -67,6 +68,7 @@ class HomeScreenFragment :
 
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var homeScreenViewModel: HomeScreenViewModel
+  private lateinit var user: User
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -100,7 +102,7 @@ class HomeScreenFragment :
     navHeader.findViewById<TextView>(R.id.switch_survey_button).setOnClickListener {
       homeScreenViewModel.showSurveySelector()
     }
-    navHeader.findViewById<ShapeableImageView>(R.id.ground_logo).setOnClickListener {
+    navHeader.findViewById<ShapeableImageView>(R.id.user_image).setOnClickListener {
       showSignOutConfirmationDialogs()
     }
     updateNavHeader()
@@ -115,6 +117,7 @@ class HomeScreenFragment :
       val navHeader = binding.navView.getHeaderView(0)
       val headerBinding = NavDrawerHeaderBinding.bind(navHeader)
       headerBinding.user = userRepository.getAuthenticatedUser()
+      user = userRepository.getAuthenticatedUser()
       surveyRepository.activeSurveyFlow.collect {
         if (it == null) {
           headerBinding.surveyInfo.visibility = View.GONE
@@ -167,20 +170,12 @@ class HomeScreenFragment :
         showUserDetailsDialog.value = true
         showSignOutDialog.value = false
 
-        val user = homeScreenViewModel.userDetails.value!!
         AppTheme {
           if (showUserDetailsDialog.value) {
-            UserDetailsDialog(
-              showUserDetailsDialog,
-              showSignOutDialog,
-              user,
-            )
+            UserDetailsDialog(showUserDetailsDialog, showSignOutDialog, user)
           }
           if (showSignOutDialog.value) {
-            SignOutConfirmationDialog(
-              showUserDetailsDialog,
-              showSignOutDialog,
-            ) {
+            SignOutConfirmationDialog(showUserDetailsDialog, showSignOutDialog) {
               userRepository.signOut()
             }
           }
