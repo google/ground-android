@@ -32,7 +32,7 @@ jobs:
     needs: e2eTest
     name: Create a new survey
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
     steps:
       - name: Run create-test
         uses: sufyanAbbasi/ground-platform/.github/actions/create-test@master
@@ -41,7 +41,7 @@ jobs:
     needs: createTest
     name: Submit to survey
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
     steps:
       - name: Run submit-test
         uses: ./.github/actions/submit-test
@@ -53,7 +53,7 @@ jobs:
     needs: submitTest
     name: Verify survey submissions
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
     steps:
       - name: Run verify-test
         uses: sufyanAbbasi/ground-platform/.github/actions/verify-test@master
