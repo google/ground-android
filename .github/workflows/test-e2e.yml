@@ -23,8 +23,10 @@ jobs:
     timeout-minutes: 5
     if: github.event.issue.pull_request && contains(github.event.comment.body, '/e2eTest')
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+      - name: Start test
+        run: |
+          echo "Begin end to end test"
+
 
   createTest:
     needs: e2eTest
@@ -32,8 +34,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-        - name: Run create-test
-          uses: sufyanAbbasi/ground-platform/.github/actions/create-test@master
+      - name: Run create-test
+        uses: sufyanAbbasi/ground-platform/.github/actions/create-test@master
 
   submitTest:
     needs: createTest
@@ -43,12 +45,15 @@ jobs:
     steps:
       - name: Run submit-test
         uses: ./.github/actions/submit-test
+        with:
+          android-repository: ${{ github.repository }}
+          
 
   verifyTest:
-      needs: submitTest
-      name: Verify survey submissions
-      runs-on: ubuntu-latest
-      timeout-minutes: 3
-      steps:
-        - name: Run verify-test
-          uses: sufyanAbbasi/ground-platform/.github/actions/verify-test@master
+    needs: submitTest
+    name: Verify survey submissions
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Run verify-test
+        uses: sufyanAbbasi/ground-platform/.github/actions/verify-test@master

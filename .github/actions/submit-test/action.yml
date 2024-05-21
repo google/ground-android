@@ -13,6 +13,15 @@
 # limitations under the License.
 name: Submit to survey
 
+inputs:
+  android-repository:
+    description: 'ground-android repository under test'
+    default: google/ground-android
+
+  platform-repository:
+    description: 'ground-platform repository under test (if applicable)'
+    default: google/ground-platform
+
 runs:
   using: composite
   steps:
@@ -48,6 +57,7 @@ runs:
 
     - name: Checkout
       uses: actions/checkout@v4
+      repository: ${{ inputs.android-repository }}
 
     - name: Copy CI gradle.properties
       shell: bash
@@ -65,7 +75,7 @@ runs:
     - name: Checkout ground-platform
       uses: actions/checkout@v4
       with:
-        repository: sufyanAbbasi/ground-platform
+        repository: ${{ inputs.platform-repository }}
         path: ground-platform
 
     - name: Copy Firebase emulator data
