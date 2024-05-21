@@ -23,6 +23,8 @@ jobs:
         timeout-minutes: 5
         if: github.event.issue.pull_request && contains(github.event.comment.body, '/e2eTest')
         steps:
+          - name: Check out code
+            uses: actions/checkout@v1
           - name: Run End To End Tests
             run: |
               gh workflow run --repo sufyanAbbasi/ground-platform test-e2e.yml
