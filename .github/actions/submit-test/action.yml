@@ -57,7 +57,8 @@ runs:
 
     - name: Checkout
       uses: actions/checkout@v4
-      repository: ${{ inputs.android-repository }}
+      with:
+        repository: ${{ inputs.android-repository }}
 
     - name: Copy CI gradle.properties
       shell: bash
