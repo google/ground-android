@@ -20,3 +20,5 @@ on:
 jobs:
     e2eTest:
         uses: sufyanAbbasi/ground-platform/.github/workflows/test-e2e.yml@master
+        secrets:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -15,6 +15,7 @@ name: End to End Test Dispatchers
 
 on:
     workflow_dispatch:
+    workflow_call:
 
 jobs:
     submitTest:
