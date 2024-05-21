@@ -24,7 +24,7 @@ jobs:
         if: github.event.issue.pull_request && contains(github.event.comment.body, '/e2eTest')
         steps:
           - name: Check out code
-            uses: actions/checkout@v1
+            uses: actions/checkout@v4
           - name: Run End To End Tests
             run: |
               gh workflow run --repo sufyanAbbasi/ground-platform test-e2e.yml
