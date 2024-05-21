@@ -19,8 +19,6 @@ on:
 
 jobs:
     e2eTest:
-        permissions:
-          actions: write
         runs-on: ubuntu-latest
         timeout-minutes: 5
         if: github.event.issue.pull_request && contains(github.event.comment.body, '/e2eTest')
@@ -29,5 +27,3 @@ jobs:
             uses: actions/checkout@v4
           - name: Run End To End Tests
             uses: sufyanAbbasi/ground-platform/.github/workflows/test-e2e.yml@master
-            env:
-              GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
