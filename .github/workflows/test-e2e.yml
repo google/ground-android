@@ -22,9 +22,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     if: github.event.issue.pull_request && contains(github.event.comment.body, '/e2eTest')
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
 
   createTest:
     needs: e2eTest
