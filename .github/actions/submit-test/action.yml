@@ -50,6 +50,7 @@ runs:
       uses: actions/checkout@v4
 
     - name: Copy CI gradle.properties
+      shell: bash
       run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
 
     - name: Set up JDK 17
@@ -78,6 +79,7 @@ runs:
       with:
         node-version: 18
     - name: Install firebase-tools
+      shell: bash
       run: |
         npm install -g firebase-tools
 
