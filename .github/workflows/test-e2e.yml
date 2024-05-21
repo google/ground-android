@@ -18,5 +18,37 @@ on:
     types: [created]
 
 jobs:
-    e2eTest:
-        uses: sufyanAbbasi/ground-platform/.github/workflows/test-e2e.yml@master
+  e2eTest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '/e2eTest')
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+  createTest:
+    needs: e2eTest
+    name: Create a new survey
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+        - name: Run create-test
+          uses: sufyanAbbasi/ground-platform/.github/actions/create-test.yml@master
+
+  submitTest:
+    needs: createTest
+    name: Submit to survey
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Run submit-test
+        uses: ./.github/actions/submit-test
+
+  verifyTest:
+      needs: submitTest
+      name: Verify survey submissions
+      runs-on: ubuntu-latest
+      timeout-minutes: 3
+      steps:
+        - name: Run verify-test
+          uses: sufyanAbbasi/ground-platform/.github/actions/verify-test.yml@master
