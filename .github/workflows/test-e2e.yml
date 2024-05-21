@@ -26,3 +26,5 @@ jobs:
           - name: Run End To End Tests
             run: |
               gh workflow run --repo sufyanAbbasi/ground-platform test-e2e.yml
+            env:
+              GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
