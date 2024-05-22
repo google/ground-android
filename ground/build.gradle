@@ -166,6 +166,10 @@ android {
     namespace 'com.google.android.ground'
 }
 
+configurations {
+    groundProtoJar
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
@@ -333,6 +337,8 @@ dependencies {
 
     // TODO(#1748): Move protos into shared module and set correct path here.
     api("com.google.protobuf:protobuf-kotlin-lite:4.26.1")
+
+    groundProtoJar "com.github.google:ground-platform:ginotemp-SNAPSHOT@jar"
 }
 
 protobuf {
@@ -352,8 +358,21 @@ protobuf {
                     option("lite")
                 }
             }
+            it.dependsOn extractGroundProtoJar
         }
     }
+}
+
+task extractGroundProtoJar(type: Copy) {
+    from(
+        // Defer resolution until after configuration phase.
+        provider {
+            configurations.groundProtoJar.collect {
+                zipTree(it)
+            }
+        })
+    into "$buildDir/extracted-protos"
+    include "**/*.proto"
 }
 
 // Allow references to generated code.
