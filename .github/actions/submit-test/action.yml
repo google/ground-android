@@ -84,7 +84,7 @@ runs:
       uses: actions/download-artifact@v4
       with:
         name: data-test
-        path: data
+        path: data/
 
     - name: List data folder
       shell: bash
@@ -117,12 +117,17 @@ runs:
 
     - name: Move Firebase emulator data (avoids .gitignore)
       shell: bash
-      run: mv data/test/ data/test-upload
+      run: mv data/test/ ./test
+
+    - name: List data
+      shell: bash
+      run: ls data
 
     - name: Copy Firebase emulator data
       uses: actions/upload-artifact@v4
       with:
         name: data-test
-        path: ground-android/data/test-upload
+        path: '**/test'
         retention-days: 1
         overwrite: true
+        if-no-files-found: error
