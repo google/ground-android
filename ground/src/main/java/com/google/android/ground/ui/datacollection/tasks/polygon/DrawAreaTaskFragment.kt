@@ -69,7 +69,7 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
 
   override fun onCreateActionButtons() {
     addSkipButton()
-    addUndoButton()
+    addUndoButton { removeLastVertex() }
     nextButton = addNextButton()
     addPointButton =
       addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
@@ -77,6 +77,15 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
       addButton(ButtonAction.COMPLETE).setOnClickListener {
         viewModel.onCompletePolygonButtonClick()
       }
+  }
+
+  /** Removes the last vertex from the polygon. */
+  private fun removeLastVertex() {
+    viewModel.removeLastVertex()
+
+    // Move the camera to the last vertex, if any.
+    val lastVertex = viewModel.getLastVertex() ?: return
+    drawAreaTaskMapFragment.moveToPosition(lastVertex)
   }
 
   override fun onTaskViewAttached() {
