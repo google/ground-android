@@ -86,6 +86,10 @@ runs:
         name: data-test
         path: data
 
+    - name: List data folder
+      shell: bash
+      run: ls data
+
     - name: Set up Node.js 18
       uses: actions/setup-node@v4
       with:
@@ -113,12 +117,12 @@ runs:
 
     - name: Move Firebase emulator data (avoids .gitignore)
       shell: bash
-      run: mv data/test/ data/test-upload/
+      run: mv data/test/ data/test-upload
 
     - name: Copy Firebase emulator data
       uses: actions/upload-artifact@v4
       with:
         name: data-test
-        path: data/test-upload
+        path: ground-android/data/test-upload
         retention-days: 1
         overwrite: true
