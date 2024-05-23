@@ -102,7 +102,7 @@ runs:
         force-avd-creation: false
         emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated
         disable-animations: true
-        script: firebase emulators:exec './gradlew :e2eTest:connectedLocalDebugAndroidTest' --config ground-platform/firebase.local.json --import data/test --export-on-exit data/test
+        script: firebase emulators:exec './gradlew :e2eTest:connectedLocalDebugAndroidTest' --config ground-platform/firebase.local.json --import data/data-test --export-on-exit data/test
 
     - name: Upload test reports
       if: always()
@@ -111,10 +111,14 @@ runs:
         name: test-reports-${{ matrix.api-level }}
         path: '**/build/reports/androidTests'
 
-    - name: Store data/test
+    - name: Move Firebase emulator data (avoids .gitignore)
+      shell: bash
+      run: mv data/test/ data/test-upload/
+
+    - name: Copy Firebase emulator data
       uses: actions/upload-artifact@v4
       with:
         name: data-test
-        path: data
+        path: data/test-upload
         retention-days: 1
         overwrite: true
