@@ -17,9 +17,16 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.android.ground.persistence.remote.firebase.newDocumentSnapshot
-import com.google.android.ground.proto.job
-import com.google.android.ground.proto.style
+import com.google.android.ground.proto.Survey
+import com.google.android.ground.proto.Task.DateTimeQuestion.Type.BOTH_DATE_AND_TIME
+import com.google.android.ground.proto.Task.MultipleChoiceQuestion.Type.SELECT_MULTIPLE
+import com.google.android.ground.proto.TaskKt.dateTimeQuestion
+import com.google.android.ground.proto.TaskKt.multipleChoiceQuestion
 import com.google.android.ground.proto.survey
+import com.google.android.ground.proto.task
+import com.google.android.ground.test.deeplyNestedTestObject
+import com.google.android.ground.test.nestedTestObject
+import com.google.android.ground.test.testDocument
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.GeneratedMessageLite
@@ -33,11 +40,12 @@ import org.junit.runners.Parameterized
 class FirestoreToProtobufExtTest(
   private val desc: String,
   private val input: DocumentSnapshot,
+  private val idField: MessageFieldNumber?,
   private val expectedOutput: GeneratedMessageLite<*, *>,
 ) {
   @Test
   fun parseFrom() {
-    val output = expectedOutput.javaClass.kotlin.parseFrom(input)
+    val output = expectedOutput::class.parseFrom(input, idField)
     assertThat(output).isEqualTo(expectedOutput)
   }
 
@@ -46,59 +54,93 @@ class FirestoreToProtobufExtTest(
 
     @JvmStatic
     @Parameterized.Parameters(name = "{0}")
+    @Suppress("LongMethod")
     fun data() =
       listOf(
-        testCase(desc = "converts document id", id = "12345", expected = survey { id = "12345" }),
         testCase(
-          desc = "converts string fields",
-          data = mapOf("title" to "something"),
-          expected = survey { title = "something" },
+          desc = "converts document id",
+          id = "12345",
+          idField = Survey.ID_FIELD_NUMBER,
+          expected = survey { id = "12345" },
         ),
         testCase(
-          desc = "ignores unknown fields",
-          data = mapOf("foo" to "bar"),
+          desc = "ignores id when idField not specified",
+          id = "12345",
+          input = mapOf("2" to "n/a"),
+          expected = survey { name = "n/a" },
+        ),
+        testCase(
+          desc = "converts string fields",
+          input = mapOf("2" to "something"),
+          expected = survey { name = "something" },
+        ),
+        testCase(
+          desc = "ignores non-numeric fields",
+          input = mapOf("foo" to "bar"),
+          expected = survey {},
+        ),
+        testCase(
+          desc = "ignores unknown field numbers",
+          input = mapOf("3000" to "bar"),
           expected = survey {},
         ),
         testCase(
           desc = "ignores bad type in string field",
-          data = mapOf("title" to 123),
+          input = mapOf("2" to 123),
           expected = survey {},
         ),
         testCase(
           desc = "converts map<string, Message>",
-          data = mapOf("jobs" to mapOf("job123" to mapOf("name" to "A job"))),
-          expected = survey { jobs["job123"] = job { name = "A job" } },
+          input = mapOf("2" to mapOf("key" to mapOf("1" to "foo"))),
+          expected = testDocument { objMap["key"] = nestedTestObject { name = "foo" } },
         ),
+        testCase(desc = "ignores bad type in map", input = mapOf("4" to 123), expected = survey {}),
         testCase(
-          desc = "ignores bad type in map",
-          data = mapOf("jobs" to 123),
-          expected = survey {},
-        ),
-        testCase(
-          desc = "converts nested objects",
-          data =
-            mapOf(
-              "jobs" to mapOf("job123" to mapOf("defaultStyle" to mapOf("color" to "#112233")))
-            ),
-          expected = survey { jobs["job123"] = job { defaultStyle = style { color = "#112233" } } },
-        ),
-        testCase(
-          desc = "ignores bad type for nested object",
-          data =
-            mapOf("title" to "test", "jobs" to mapOf("job123" to mapOf("defaultStyle" to 123))),
+          desc = "converts deep nested objects",
+          input = mapOf("2" to mapOf("key" to mapOf("2" to mapOf("1" to "123")))),
           expected =
-            survey {
-              title = "test"
-              jobs["job123"] = job {}
+            testDocument {
+              objMap["key"] = nestedTestObject {
+                otherThing = deeplyNestedTestObject { id = "123" }
+              }
             },
+        ),
+        testCase(
+          desc = "ignores wrong type in map",
+          input = mapOf("1" to "id123", "2" to mapOf("key" to "not a message!")),
+          expected = testDocument { id = "id123" },
+        ),
+        testCase(
+          desc = "ignores wrong type in deep nested object",
+          input = mapOf("1" to "id234", "2" to mapOf("key" to mapOf("2" to "also not a message!"))),
+          expected =
+            testDocument {
+              id = "id234"
+              objMap["key"] = nestedTestObject {}
+            },
+        ),
+        testCase(
+          desc = "converts enum value",
+          input = mapOf("1" to 3),
+          expected = dateTimeQuestion { type = BOTH_DATE_AND_TIME },
+        ),
+        testCase(desc = "skips enum value 0", input = mapOf("3" to 0), expected = task {}),
+        testCase(desc = "skips an unspecified enum value", input = mapOf(), expected = task {}),
+        testCase(
+          desc = "converts oneof messages",
+          input = mapOf("10" to mapOf("1" to 2)),
+          expected =
+            task { multipleChoiceQuestion = multipleChoiceQuestion { type = SELECT_MULTIPLE } },
         ),
       )
 
+    /** Help to improve readability by provided named args for positional test constructor args. */
     private fun testCase(
       desc: String,
       id: String = "",
-      data: Map<String, Any> = mapOf(),
+      input: Map<String, Any> = mapOf(),
+      idField: MessageFieldNumber? = null,
       expected: GeneratedMessageLite<*, *>,
-    ) = arrayOf(desc, newDocumentSnapshot(id = id, data = data), expected)
+    ) = arrayOf(desc, newDocumentSnapshot(id = id, data = input), idField, expected)
   }
 }

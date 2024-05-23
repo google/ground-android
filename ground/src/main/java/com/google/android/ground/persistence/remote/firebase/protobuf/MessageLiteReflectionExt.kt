@@ -17,15 +17,16 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.protobuf.GeneratedMessageLite
+import com.google.protobuf.Internal.EnumLite
+import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
+import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.full.declaredFunctions
+import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.isSubclassOf
 import timber.log.Timber
-
-/** The name of the message field where document and nested ids are written. */
-internal const val ID_FIELD_NAME = "id"
 
 /** A key used in a document or a nested object in Firestore. */
 internal typealias FirestoreKey = String
@@ -41,8 +42,15 @@ internal typealias FirestoreMapEntry = Map.Entry<FirestoreKey, FirestoreValue>
 /** A Protocol Buffer message instance. */
 internal typealias Message = GeneratedMessageLite<*, *>
 
-/** The name of an individual field in a message instance. */
+private const val BIT_FIELD_PROPERTY_PREFIX = "bitField"
+
+private const val FIELD_NUMBER_CONST_SUFFIX = "_FIELD_NUMBER"
+
+/** Lower snake case name of an individual field in a message instance. */
 internal typealias MessageFieldName = String
+
+/** The field number of an individual field in a message instance. */
+internal typealias MessageFieldNumber = Int
 
 /** An individual field value in a message instance. */
 internal typealias MessageValue = Any
@@ -52,32 +60,32 @@ internal typealias MessageField = Pair<MessageFieldName, MessageValue>
 /** The value of a map field in a message instance. */
 internal typealias MessageMap = Map<*, *>
 
-fun KClass<MessageBuilder>.getMapValueType(key: String): KClass<*> {
+fun <T : MessageBuilder> KClass<T>.getMapValueType(key: String): KClass<*> {
   val mapValueGetterName = key.toMessageMapGetterMethodName()
   val mapValueGetterMethod = java.declaredMethods.find { it.name == mapValueGetterName }
   return mapValueGetterMethod?.returnType?.kotlin
     ?: throw NoSuchMethodError("$mapValueGetterName method")
 }
 
-fun KClass<MessageBuilder>.getFieldTypeByName(fieldName: String): KClass<*> =
-  java.getDeclaredMethod("get${fieldName.toSentenceCase()}").returnType?.kotlin
+fun <T : MessageBuilder> KClass<T>.getFieldTypeByName(fieldName: String): KClass<*> =
+  java.getDeclaredMethod("get${fieldName.toUpperCamelCase()}").returnType?.kotlin
     ?: throw UnsupportedOperationException("Getter not found for field $fieldName")
 
 private fun MessageBuilder.getSetterByFieldName(fieldName: String): KFunction<*> =
   // Message fields generated two setters; ignore the Builder's setter in favor of the
   // message setter.
   this::class.declaredFunctions.find {
-    it.name == "set${fieldName.toSentenceCase()}" && !it.parameters[1].type.isBuilder()
+    it.name == "set${fieldName.toUpperCamelCase()}" && !it.parameters[1].type.isBuilder()
   } ?: throw UnsupportedOperationException("Setter not found for field $fieldName")
 
 private fun KType.isBuilder() =
   (classifier as KClass<*>).isSubclassOf(GeneratedMessageLite.Builder::class)
 
 private fun MessageBuilder.getPutAllByFieldName(fieldName: String): KFunction<*> =
-  this::class.declaredFunctions.find { it.name == "putAll${fieldName.toSentenceCase()}" }
-    ?: throw UnsupportedOperationException("putAll*() not found for field $fieldName")
+  this::class.declaredFunctions.find { it.name == "putAll${fieldName.toUpperCamelCase()}" }
+    ?: throw UnsupportedOperationException("Putter not found for field $fieldName")
 
-fun KClass<Message>.newBuilderForType() =
+fun <T : Message> KClass<T>.newBuilderForType() =
   java.getDeclaredMethod("newBuilder").invoke(null) as MessageBuilder
 
 fun MessageBuilder.setOrLog(fieldName: MessageFieldName, value: MessageValue) {
@@ -88,6 +96,26 @@ fun MessageBuilder.setOrLog(fieldName: MessageFieldName, value: MessageValue) {
   }
 }
 
+fun <T : Message> KClass<T>.getFieldName(fieldNumber: MessageFieldNumber): MessageFieldName =
+  getStaticFields()
+    .find { it.name.endsWith(FIELD_NUMBER_CONST_SUFFIX) && it.get(null) == fieldNumber }
+    ?.name
+    ?.removeSuffix(FIELD_NUMBER_CONST_SUFFIX)
+    ?.lowercase() ?: throw IllegalArgumentException("Field $fieldNumber not found in $java")
+
+fun <T : Message> KClass<T>.getFieldNumber(fieldName: MessageFieldName): MessageFieldNumber =
+  getStaticFields().find { it.name == fieldName.toFieldNumberConstantName() }?.get(null)
+    as? MessageFieldNumber ?: throw IllegalArgumentException("Field $fieldName not found in $java")
+
+private fun String.toFieldNumberConstantName(): String = uppercase() + FIELD_NUMBER_CONST_SUFFIX
+
+@Suppress("UNCHECKED_CAST")
+fun <T : MessageBuilder> KClass<T>.getMessageClass() =
+  java.enclosingClass!!.kotlin as KClass<Message>
+
+private fun KClass<*>.getStaticFields() =
+  java.declaredFields.filter { Modifier.isStatic(it.modifiers) }
+
 fun MessageBuilder.putAllOrLog(fieldName: MessageFieldName, value: MessageMap) {
   try {
     putAll(fieldName, value)
@@ -96,11 +124,15 @@ fun MessageBuilder.putAllOrLog(fieldName: MessageFieldName, value: MessageMap) {
   }
 }
 
-private fun String.toMessageMapGetterMethodName() = "get${toSentenceCase()}OrDefault"
+private fun String.toMessageMapGetterMethodName() = "get${toUpperCamelCase()}OrDefault"
 
-private fun String.toSentenceCase() = replaceFirstChar {
-  if (it.isLowerCase()) it.uppercaseChar() else it
+private fun MessageFieldName.toCamelCase(): String {
+  val pattern = "_[a-z]".toRegex()
+  return replace(pattern) { it.value.last().uppercase() }
 }
+
+private fun String.toUpperCamelCase(): String =
+  toCamelCase().replaceFirstChar { it.uppercaseChar() }
 
 private fun MessageBuilder.set(fieldName: MessageFieldName, value: MessageValue) {
   getSetterByFieldName(fieldName).call(this, value)
@@ -108,4 +140,21 @@ private fun MessageBuilder.set(fieldName: MessageFieldName, value: MessageValue)
 
 private fun MessageBuilder.putAll(fieldName: MessageFieldName, value: MessageMap) {
   getPutAllByFieldName(fieldName).call(this, value)
+}
+
+fun <T : Message> KClass<T>.getFieldProperties(): List<KProperty<*>> =
+  declaredMemberProperties.filter { it.isMessageFieldProperty() }
+
+private fun KProperty<*>.isMessageFieldProperty(): Boolean =
+  name.endsWith("_") && !name.startsWith(BIT_FIELD_PROPERTY_PREFIX)
+
+fun String.toSnakeCase() = replace(Regex("[A-Z]")) { "_${it.value}" }.lowercase()
+
+private fun getEnumValues(enumClass: KClass<out Enum<*>>): List<Enum<*>> =
+  enumClass.java.enumConstants.toList()
+
+@Suppress("UNCHECKED_CAST")
+fun <T : EnumLite> KClass<T>.findByNumber(number: Int): T? {
+  require(isSubclassOf(Enum::class))
+  return getEnumValues(this as KClass<Enum<*>>).find { (it as EnumLite).number == number } as? T
 }
