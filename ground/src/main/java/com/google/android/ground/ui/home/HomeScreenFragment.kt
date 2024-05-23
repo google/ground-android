@@ -102,6 +102,7 @@ class HomeScreenFragment :
     navHeader.findViewById<TextView>(R.id.switch_survey_button).setOnClickListener {
       homeScreenViewModel.showSurveySelector()
     }
+    viewLifecycleOwner.lifecycleScope.launch { user = userRepository.getAuthenticatedUser() }
     navHeader.findViewById<ShapeableImageView>(R.id.user_image).setOnClickListener {
       showSignOutConfirmationDialogs()
     }
@@ -117,7 +118,6 @@ class HomeScreenFragment :
       val navHeader = binding.navView.getHeaderView(0)
       val headerBinding = NavDrawerHeaderBinding.bind(navHeader)
       headerBinding.user = userRepository.getAuthenticatedUser()
-      user = userRepository.getAuthenticatedUser()
       surveyRepository.activeSurveyFlow.collect {
         if (it == null) {
           headerBinding.surveyInfo.visibility = View.GONE
