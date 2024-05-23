@@ -54,7 +54,7 @@ runs:
         path: |
           ~/.android/avd/*
           ~/.android/adb*
-        key: avd-${{ matrix.api-level }}
+        key: avd-24
 
     - name: Checkout
       uses: actions/checkout@v4
@@ -102,7 +102,7 @@ runs:
     - name: Build projects and run instrumentation tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: ${{ matrix.api-level }}
+        api-level: 24
         force-avd-creation: false
         emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated
         disable-animations: true
@@ -112,7 +112,7 @@ runs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-reports-${{ matrix.api-level }}
+        name: test-reports-24
         path: '**/build/reports/androidTests'
 
     - name: Move Firebase emulator data (avoids .gitignore)
