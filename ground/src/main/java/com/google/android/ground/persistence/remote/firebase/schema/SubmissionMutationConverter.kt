@@ -83,11 +83,11 @@ internal object SubmissionMutationConverter {
       is DateTaskData -> {
         taskData.date
       }
-      is GeometryTaskData -> {
-        GeometryConverter.toFirestoreMap(taskData.geometry).getOrThrow()
-      }
       is CaptureLocationTaskData -> {
         CaptureLocationResultConverter.toFirestoreMap(taskData).getOrThrow()
+      }
+      is GeometryTaskData -> {
+        GeometryConverter.toFirestoreMap(taskData.geometry).getOrThrow()
       }
       else -> {
         Timber.e("Unknown value type: %s", taskData?.javaClass?.name)
