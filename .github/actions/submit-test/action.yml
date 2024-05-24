@@ -96,11 +96,11 @@ runs:
         path: ground-platform
 
     - name: Build ground functions
-          shell: bash
-          run: |
-            cd ground-platform
-            npm run build:local
-            cd ../
+      shell: bash
+      run: |
+        cd ground-platform
+        npm run build:local
+        cd ../
 
     - name: Cache node modules
       id: cache-npm
