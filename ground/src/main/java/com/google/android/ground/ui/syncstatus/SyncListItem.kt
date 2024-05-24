@@ -108,14 +108,12 @@ fun SyncListItem(modifier: Modifier, detail: MutationDetail) {
 }
 
 @Composable
-private fun Date.toFormattedDate(): String {
-  return DateFormat.getDateFormat(LocalContext.current).format(this)
-}
+private fun Date.toFormattedDate(): String =
+  DateFormat.getDateFormat(LocalContext.current).format(this)
 
 @Composable
-private fun Date.toFormattedTime(): String {
-  return DateFormat.getTimeFormat(LocalContext.current).format(this)
-}
+private fun Date.toFormattedTime(): String =
+  DateFormat.getTimeFormat(LocalContext.current).format(this)
 
 private fun Mutation.SyncStatus.toLabel(): Int =
   when (this) {
