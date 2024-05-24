@@ -28,7 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -53,7 +53,6 @@ fun SyncListItem(modifier: Modifier, detail: MutationDetail) {
   Column {
     Row(modifier.fillMaxWidth().padding(top = 8.dp, end = 24.dp, bottom = 8.dp, start = 16.dp)) {
       Column(modifier.weight(1f)) {
-        // Timestamp
         val date = detail.mutation.clientTimestamp
         Text(
           text = "${date.toFormattedDate()} • ${date.toFormattedTime()}",
@@ -74,33 +73,19 @@ fun SyncListItem(modifier: Modifier, detail: MutationDetail) {
               color = MaterialTheme.colorScheme.onSurface,
             ),
         )
-        Text(
-          text = detail.loiLabel,
-          style =
-            TextStyle(
-              fontSize = 14.sp,
-              lineHeight = 20.sp,
-              fontFamily = googleSansFontFamily,
-              fontWeight = FontWeight(400),
-              color = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
-        )
-        Text(
-          text = detail.loiSubtitle,
-          style =
-            TextStyle(
-              fontSize = 14.sp,
-              lineHeight = 20.sp,
-              fontFamily = googleSansFontFamily,
-              fontWeight = FontWeight(400),
-              color = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
-        )
+        val textStyle =
+          TextStyle(
+            fontSize = 14.sp,
+            lineHeight = 20.sp,
+            fontFamily = googleSansFontFamily,
+            fontWeight = FontWeight(400),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        Text(text = detail.loiLabel, style = textStyle)
+        Text(text = detail.loiSubtitle, style = textStyle)
       }
-      Column(
-        modifier = modifier.padding(start = 16.dp).align(alignment = Alignment.CenterVertically)
-      ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+      Column(modifier = modifier.padding(start = 16.dp).align(alignment = CenterVertically)) {
+        Row(verticalAlignment = CenterVertically) {
           Text(text = stringResource(id = detail.mutation.syncStatus.toLabel()), fontSize = 11.sp)
           Spacer(modifier = Modifier.width(10.dp))
           Icon(
@@ -112,8 +97,6 @@ fun SyncListItem(modifier: Modifier, detail: MutationDetail) {
         }
       }
     }
-
-    // Divider
     HorizontalDivider(
       color = MaterialTheme.colorScheme.outlineVariant,
       thickness = 1.dp,
