@@ -61,9 +61,9 @@ runs:
       with:
         repository: ${{ inputs.android-repository }}
 
-    - name: Copy CI gradle.properties
-      shell: bash
-      run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
+    # - name: Copy CI gradle.properties
+    #   shell: bash
+    #   run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
 
     - name: Set up JDK 16
       uses: actions/setup-java@v4
