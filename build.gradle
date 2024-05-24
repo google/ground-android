@@ -119,5 +119,5 @@ ext {
     androidCompileSdk = 34
     androidMinSdk = 24
     androidTargetSdk = 33
-    jvmToolchainVersion = 17
+    jvmToolchainVersion = 16
 }
