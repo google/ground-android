@@ -56,6 +56,10 @@ def getCommitSha1 = { ->
 
 android {
     compileSdk rootProject.androidCompileSdk
+    compileOptions {
+        sourceCompatibility = rootProject.jvmToolchainVersion
+        targetCompatibility = rootProject.jvmToolchainVersion
+    }
     sourceSets {
         test {
             proto {

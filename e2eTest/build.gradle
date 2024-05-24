@@ -23,6 +23,11 @@ android {
     namespace 'com.google.android.ground.e2etest'
     compileSdk rootProject.androidCompileSdk
 
+    compileOptions {
+        sourceCompatibility = rootProject.jvmToolchainVersion
+        targetCompatibility = rootProject.jvmToolchainVersion
+    }
+
     defaultConfig {
         applicationId "com.google.android.ground.e2etest"
         minSdkVersion rootProject.androidMinSdk

@@ -24,6 +24,10 @@ apply from: '../config/jacoco/jacoco.gradle'
 android {
     namespace 'com.sharedtest'
     compileSdk rootProject.androidCompileSdk
+    compileOptions {
+        sourceCompatibility = rootProject.jvmToolchainVersion
+        targetCompatibility = rootProject.jvmToolchainVersion
+    }
 
     defaultConfig {
         minSdkVersion rootProject.androidMinSdk
