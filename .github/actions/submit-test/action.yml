@@ -95,13 +95,6 @@ runs:
         repository: ${{ inputs.platform-repository }}
         path: ground-platform
 
-    - name: Build ground functions
-      shell: bash
-      run: |
-        cd ground-platform
-        npm run build:local
-        cd ../
-
     - name: Cache node modules
       id: cache-npm
       uses: actions/cache@v3
@@ -115,6 +108,13 @@ runs:
           ${{ runner.os }}-build-${{ env.cache-name }}-
           ${{ runner.os }}-build-
           ${{ runner.os }}-
+
+    - name: Build ground functions
+      shell: bash
+      run: |
+        cd ground-platform
+        npm run build:local
+        cd ../
 
     - name: Install firebase-tools
       shell: bash
