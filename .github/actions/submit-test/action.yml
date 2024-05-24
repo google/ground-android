@@ -25,17 +25,6 @@ inputs:
 runs:
   using: composite
   steps:
-    # - name: Delete unnecessary tools 🔧
-    #   uses: jlumbroso/free-disk-space@v1.3.1
-    #   with:
-    #     android: false # Don't remove Android tools
-    #     tool-cache: true # Remove image tool cache - rm -rf "$AGENT_TOOLSDIRECTORY"
-    #     dotnet: true # rm -rf /usr/share/dotnet
-    #     haskell: true # rm -rf /opt/ghc...
-    #     swap-storage: true # rm -f /mnt/swapfile (4GiB)
-    #     docker-images: true # Takes 16s, enable if needed in the future
-    #     large-packages: true # includes google-cloud-sdk and it's slow
-
     - name: Enable KVM group perms
       shell: bash
       run: |
@@ -61,10 +50,6 @@ runs:
       with:
         repository: ${{ inputs.android-repository }}
 
-    # - name: Copy CI gradle.properties
-    #   shell: bash
-    #   run: mkdir -p ~/.gradle ; cp .github/ci-gradle.properties ~/.gradle/gradle.properties
-
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -73,16 +58,6 @@ runs:
 
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v3
-
-    - name: Copy Firebase emulator data
-      uses: actions/download-artifact@v4
-      with:
-        name: data-test
-        path: data/
-
-    - name: List data folder
-      shell: bash
-      run: ls data
 
     - name: Set up Node.js 18
       uses: actions/setup-node@v4
@@ -129,6 +104,12 @@ runs:
         restore-keys: |
           ${{ runner.os }}-firebase-emulators-
 
+    - name: Copy Firebase emulator data
+      uses: actions/download-artifact@v4
+      with:
+        name: data-create
+        path: data/
+
     - name: Build projects and run instrumentation tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
@@ -149,14 +130,10 @@ runs:
       shell: bash
       run: mv data/test/ ./test
 
-    - name: List data
-      shell: bash
-      run: ls data
-
     - name: Copy Firebase emulator data
       uses: actions/upload-artifact@v4
       with:
-        name: data-test
+        name: data-submit
         path: '**/test'
         retention-days: 1
         overwrite: true
