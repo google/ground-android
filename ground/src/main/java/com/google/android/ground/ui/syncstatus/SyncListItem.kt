@@ -45,7 +45,6 @@ import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.ui.common.googleSansFontFamily
 import java.util.Date
 
 @Composable
@@ -59,7 +58,6 @@ fun SyncListItem(modifier: Modifier, detail: MutationDetail) {
           color = MaterialTheme.colorScheme.onSurfaceVariant,
           fontSize = 12.sp,
           lineHeight = 16.sp,
-          fontFamily = googleSansFontFamily,
           fontWeight = FontWeight(500),
           letterSpacing = 0.1.sp,
         )
@@ -77,7 +75,6 @@ fun SyncListItem(modifier: Modifier, detail: MutationDetail) {
           TextStyle(
             fontSize = 14.sp,
             lineHeight = 20.sp,
-            fontFamily = googleSansFontFamily,
             fontWeight = FontWeight(400),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
