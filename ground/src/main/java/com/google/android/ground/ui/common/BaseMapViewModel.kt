@@ -40,6 +40,7 @@ import com.google.android.ground.ui.map.CameraUpdateRequest
 import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.toCoordinates
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -59,7 +60,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 open class BaseMapViewModel
 @Inject
@@ -103,8 +103,6 @@ constructor(
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-  val offlineTileSources: LiveData<List<TileSource>>
-
   /** Configuration to enable/disable base map features. */
   open val mapConfig: MapConfig = DEFAULT_MAP_CONFIG
 
@@ -112,15 +110,13 @@ constructor(
   var currentCameraPosition = MutableStateFlow<CameraPosition?>(null)
     private set
 
-  init {
-    offlineTileSources =
-      offlineAreaRepository
-        .getOfflineTileSourcesFlow()
-        .combine(mapStateRepository.offlineImageryEnabledFlow) { offlineSources, enabled ->
-          if (enabled) offlineSources else listOf()
-        }
-        .asLiveData()
-  }
+  val offlineTileSources: LiveData<List<TileSource>> =
+    offlineAreaRepository
+      .getOfflineTileSourcesFlow()
+      .combine(mapStateRepository.offlineImageryEnabledFlow) { offlineSources, enabled ->
+        if (enabled) offlineSources else listOf()
+      }
+      .asLiveData()
 
   /** Returns whether the user has granted fine location permission. */
   fun hasLocationPermission() =

@@ -21,16 +21,12 @@ import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.LocationSettingsResponse
 import com.google.android.gms.location.SettingsClient
 import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
 /** Thin wrapper around [SettingsClient] exposing key features as reactive streams. */
 class SettingsClient @Inject constructor(@ApplicationContext context: Context) {
-  private val settingsClient: SettingsClient
-
-  init {
-    settingsClient = LocationServices.getSettingsClient(context)
-  }
+  private val settingsClient = LocationServices.getSettingsClient(context)
 
   suspend fun checkLocationSettings(request: LocationSettingsRequest): LocationSettingsResponse =
     settingsClient.checkLocationSettings(request).await()
