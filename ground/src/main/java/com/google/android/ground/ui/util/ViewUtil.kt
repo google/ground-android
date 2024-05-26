@@ -17,24 +17,11 @@ package com.google.android.ground.ui.util
 
 import android.app.Activity
 import android.content.Context
-import android.util.DisplayMetrics
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 
 object ViewUtil {
-
-  fun getScreenWidth(activity: Activity): Int {
-    val displayMetrics = DisplayMetrics()
-    activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
-    return displayMetrics.widthPixels
-  }
-
-  fun getScreenHeight(activity: Activity): Int {
-    val displayMetrics = DisplayMetrics()
-    activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
-    return displayMetrics.heightPixels
-  }
 
   fun hideSoftInputFrom(fragment: Fragment) {
     hideSoftInputFrom(fragment.requireContext(), fragment.requireView().rootView)
