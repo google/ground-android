@@ -40,7 +40,6 @@ import com.google.android.ground.ui.map.CameraUpdateRequest
 import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.toCoordinates
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -60,6 +59,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 open class BaseMapViewModel
 @Inject
@@ -157,7 +157,7 @@ constructor(
     }
   }
 
-  suspend fun handleRequestLocationUpdateFailed(e: Throwable) {
+  private suspend fun handleRequestLocationUpdateFailed(e: Throwable) {
     Timber.e(e)
     locationLock.value = Result.failure(e)
     locationManager.disableLocationUpdates()
