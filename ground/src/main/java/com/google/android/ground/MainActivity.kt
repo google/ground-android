@@ -80,7 +80,7 @@ class MainActivity : AbstractActivity() {
     navHostFragment =
       supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
 
-    viewModel = viewModelFactory.get(this, MainViewModel::class.java)
+    viewModel = viewModelFactory[this, MainViewModel::class.java]
     viewModel.signInProgressDialogVisibility.observe(this) { visible: Boolean ->
       onSignInProgress(visible)
     }

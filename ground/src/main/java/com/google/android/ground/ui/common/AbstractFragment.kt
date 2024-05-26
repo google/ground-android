@@ -45,7 +45,7 @@ abstract class AbstractFragment : Fragment() {
   private var progressDialog: AlertDialog? = null
 
   protected fun <T : ViewModel> getViewModel(modelClass: Class<T>): T =
-    viewModelFactory.get(this, modelClass)
+    viewModelFactory[this, modelClass]
 
   override fun onAttach(context: Context) {
     Debug.logLifecycleEvent(this)
