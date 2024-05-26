@@ -80,17 +80,19 @@ constructor(
   val locationLockIconTint =
     locationLock
       .map { lockState ->
-        if (lockState.getOrDefault(false)) LOCATION_LOCK_ICON_TINT_ENABLED
-        else LOCATION_LOCK_ICON_TINT_DISABLED
+        if (lockState.getOrDefault(false)) R.color.md_theme_primary
+        else R.color.md_theme_onSurfaceVariant
       }
-      .stateIn(viewModelScope, SharingStarted.Lazily, LOCATION_LOCK_ICON_TINT_DISABLED)
+      .stateIn(viewModelScope, SharingStarted.Lazily, R.color.md_theme_onSurfaceVariant)
+
+  // TODO(#1789): Consider adding another icon for representing "GPS disabled" state.
   val locationLockIcon =
     locationLock
       .map { lockState ->
-        if (lockState.getOrDefault(false)) LOCATION_LOCK_ICON_ENABLED
-        else LOCATION_LOCK_ICON_DISABLED
+        if (lockState.getOrDefault(false)) R.drawable.ic_gps_lock
+        else R.drawable.ic_gps_lock_not_fixed
       }
-      .stateIn(viewModelScope, SharingStarted.Lazily, LOCATION_LOCK_ICON_DISABLED)
+      .stateIn(viewModelScope, SharingStarted.Lazily, R.drawable.ic_gps_lock_not_fixed)
 
   val location: StateFlow<Location?> =
     locationLock
@@ -253,13 +255,6 @@ constructor(
   }
 
   companion object {
-    private const val LOCATION_LOCK_ICON_TINT_ENABLED = R.color.md_theme_primary
-    private const val LOCATION_LOCK_ICON_TINT_DISABLED = R.color.md_theme_onSurfaceVariant
-
-    // TODO(#1789): Consider adding another icon for representing "GPS disabled" state.
-    private const val LOCATION_LOCK_ICON_ENABLED = R.drawable.ic_gps_lock
-    private const val LOCATION_LOCK_ICON_DISABLED = R.drawable.ic_gps_lock_not_fixed
-
     private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showOfflineImagery = true)
   }
 }
