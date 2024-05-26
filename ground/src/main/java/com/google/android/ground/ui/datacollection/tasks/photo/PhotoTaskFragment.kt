@@ -182,7 +182,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
       capturePhotoLauncher.launch(capturedPhotoUri)
       Timber.d("Capture photo intent sent")
     } catch (e: IllegalArgumentException) {
-      popups.ErrorPopup().show(R.string.error_message)
+      popups.ErrorPopup().unknownError()
       Timber.e(e)
     }
   }
