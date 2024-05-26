@@ -21,7 +21,7 @@ import java.math.RoundingMode
 import java.text.DecimalFormat
 
 /** User-provided response to a "drop a pin" data collection [Task]. */
-data class DropPinTaskData constructor(val location: Point) : GeometryTaskData(location) {
+data class DropPinTaskData(val location: Point) : GeometryTaskData(location) {
   override fun getDetailsText(): String {
     // TODO(#752): Move to strings.xml for i18n
     val df = DecimalFormat("#.##")

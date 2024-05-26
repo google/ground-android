@@ -18,7 +18,6 @@ package com.google.android.ground.model.submission
 import com.google.android.ground.model.geometry.LineString
 
 /** User-provided "ongoing" response to a "draw an area" data collection [Task]. */
-data class DrawAreaTaskIncompleteData constructor(val lineString: LineString) :
-  GeometryTaskData(lineString) {
+data class DrawAreaTaskIncompleteData(val lineString: LineString) : GeometryTaskData(lineString) {
   override fun isEmpty(): Boolean = lineString.isEmpty()
 }
