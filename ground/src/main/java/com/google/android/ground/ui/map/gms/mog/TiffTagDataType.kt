@@ -59,8 +59,8 @@ enum class TiffTagDataType(
 
   companion object {
     fun byId(id: Int): TiffTagDataType {
-      check(id >= 1 && id <= values().size) { "Unsupported tag data type $id" }
-      return values()[id - 1]
+      check(id >= 1 && id <= entries.size) { "Unsupported tag data type $id" }
+      return entries[id - 1]
     }
   }
 }

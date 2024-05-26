@@ -58,6 +58,7 @@ enum class TaskEntityType(private val intValue: Int) : IntEnum {
 
     @JvmStatic
     @TypeConverter
-    fun fromInt(intValue: Int): TaskEntityType = IntEnum.fromInt(values(), intValue, UNKNOWN)
+    fun fromInt(intValue: Int): TaskEntityType =
+      IntEnum.fromInt(entries.toTypedArray(), intValue, UNKNOWN)
   }
 }
