@@ -51,9 +51,7 @@
   <issue id="SpUsage" severity="error" />
   <issue id="TypographyEllipsis" severity="error" />
   <issue id="TypographyQuotes" severity="error" />
-  <issue id="Typos" severity="error">
-    <ignore path="res/values/font_certs.xml" />
-  </issue>
+  <issue id="Typos" severity="error" />
   <issue id="Untranslatable" severity="error" />
   <issue id="UnusedResources" severity="error">
     <ignore path="res/font/display_700.xml" />
