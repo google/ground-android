@@ -29,7 +29,7 @@ object CaptureLocationResultConverter {
       mapOf(
         ACCURACY_KEY to result.accuracy!!,
         ALTITUDE_KEY to result.altitude!!,
-        GEOMETRY_KEY to GeometryConverter.toFirestoreMap(result.geometry!!).getOrThrow(),
+        GEOMETRY_KEY to GeometryConverter.toFirestoreMap(result.geometry).getOrThrow(),
       )
     }
 
