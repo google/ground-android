@@ -24,8 +24,8 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.ground.system.channel.LocationSharedFlowCallback
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import kotlinx.coroutines.tasks.await
 
 /** Thin wrapper around [FusedLocationProviderClient] exposing key LOIs as reactive streams. */
 class FusedLocationProviderClient @Inject constructor(@ApplicationContext context: Context) {

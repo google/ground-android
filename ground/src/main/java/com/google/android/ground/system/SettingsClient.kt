@@ -21,8 +21,8 @@ import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.LocationSettingsResponse
 import com.google.android.gms.location.SettingsClient
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import kotlinx.coroutines.tasks.await
 
 /** Thin wrapper around [SettingsClient] exposing key features as reactive streams. */
 class SettingsClient @Inject constructor(@ApplicationContext context: Context) {

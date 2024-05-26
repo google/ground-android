@@ -34,8 +34,8 @@ import com.google.android.ground.ui.common.NavigateTo
 import com.google.android.ground.ui.common.NavigateUp
 import com.google.android.ground.ui.common.NavigationRequest
 import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.ui.common.ProgressDialogs.modalSpinner
 import com.google.android.ground.ui.common.ViewModelFactory
+import com.google.android.ground.ui.common.modalSpinner
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
