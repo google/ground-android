@@ -18,8 +18,7 @@ package com.google.android.ground.ui
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
-import androidx.appcompat.content.res.AppCompatResources.*
-import androidx.core.content.res.ResourcesCompat.*
+import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.common.truth.Truth.assertThat
