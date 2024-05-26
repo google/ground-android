@@ -38,5 +38,5 @@ sealed class UiState {
   data object SurveyActivated : UiState()
 
   /** Represents that there was an error while activating surveys. */
-  data class Error(val errorResId: Int) : UiState()
+  data object Error : UiState()
 }
