@@ -346,7 +346,8 @@ dependencies {
     // TODO(#1748): Move protos into shared module and set correct path here.
     api("com.google.protobuf:protobuf-kotlin-lite:4.26.1")
 
-    groundProtoJar "com.github.google:ground-platform:ginotemp-SNAPSHOT@jar"
+    // Pulls protodefs from the specified commit in the ground-platform repo.
+    groundProtoJar "com.github.google:ground-platform:5211a4f@jar"
 }
 
 protobuf {
