@@ -46,6 +46,8 @@ enum class MultipleChoiceEntityType(private val intValue: Int) : IntEnum {
 
     @JvmStatic @TypeConverter fun toInt(value: MultipleChoiceEntityType?) = toInt(value, UNKNOWN)
 
-    @JvmStatic @TypeConverter fun fromInt(intValue: Int) = fromInt(values(), intValue, UNKNOWN)
+    @JvmStatic
+    @TypeConverter
+    fun fromInt(intValue: Int) = fromInt(entries.toTypedArray(), intValue, UNKNOWN)
   }
 }

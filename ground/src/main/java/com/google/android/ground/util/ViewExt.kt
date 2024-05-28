@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,8 @@
  */
 package com.google.android.ground.util
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
+import android.view.View
 
-/** Combines a LiveData<T> with a LiveData<K> and returns a LiveData<R>. */
-fun <T, K, R> LiveData<T>.combineWith(liveData: LiveData<K>, block: (T?, K?) -> R): LiveData<R> {
-  val result = MediatorLiveData<R>()
-  result.addSource(this) { result.value = block(this.value, liveData.value) }
-  result.addSource(liveData) { result.value = block(this.value, liveData.value) }
-  return result
+fun View.visibleIf(condition: Boolean) {
+  visibility = if (condition) View.VISIBLE else View.GONE
 }

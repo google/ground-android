@@ -76,6 +76,8 @@ internal constructor(
 
   fun isMarkedComplete(): Boolean = isMarkedComplete
 
+  fun getLastVertex() = vertices.lastOrNull()
+
   /**
    * If the distance between the last added vertex and the given [target] is more than the
    * configured threshold, then updates the last vertex with the given [target]. Otherwise, snaps to
@@ -97,10 +99,6 @@ internal constructor(
     }
 
     addVertex(updatedTarget, true)
-  }
-
-  override fun clearResponse() {
-    removeLastVertex()
   }
 
   /** Attempts to remove the last vertex of drawn polygon, if any. */

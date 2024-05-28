@@ -31,6 +31,8 @@ enum class EntityState(private val intValue: Int) : IntEnum {
   companion object {
     @JvmStatic @TypeConverter fun toInt(value: EntityState?) = toInt(value, UNKNOWN)
 
-    @JvmStatic @TypeConverter fun fromInt(intValue: Int) = fromInt(values(), intValue, UNKNOWN)
+    @JvmStatic
+    @TypeConverter
+    fun fromInt(intValue: Int) = fromInt(entries.toTypedArray(), intValue, UNKNOWN)
   }
 }

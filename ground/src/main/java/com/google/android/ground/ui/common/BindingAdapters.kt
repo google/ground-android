@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.common
 
 import android.content.res.ColorStateList
-import android.graphics.Bitmap
 import android.net.Uri
 import android.text.TextWatcher
 import android.view.View
@@ -35,12 +34,6 @@ import timber.log.Timber
  * injectable, since binding adapters must be static.
  */
 object BindingAdapters {
-
-  @JvmStatic
-  @BindingAdapter("src")
-  fun bindImageBitmap(imageView: ImageView, bitmap: Bitmap?) {
-    imageView.setImageBitmap(bitmap)
-  }
 
   @JvmStatic
   @BindingAdapter("onClick")

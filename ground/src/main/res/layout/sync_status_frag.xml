@@ -38,10 +38,10 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
       app:navigationIcon="@drawable/ic_arrow_back"
-      app:title="@string/sync_status" />
+      app:title="@string/history" />
 
-    <androidx.recyclerview.widget.RecyclerView
-      android:id="@+id/sync_status_list"
+    <androidx.compose.ui.platform.ComposeView
+      android:id="@+id/compose_view"
       android:layout_width="0dp"
       android:layout_height="0dp"
       app:layout_constraintBottom_toBottomOf="parent"

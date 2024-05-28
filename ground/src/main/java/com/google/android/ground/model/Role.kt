@@ -22,6 +22,6 @@ enum class Role {
   VIEWER;
 
   companion object {
-    fun valueStrings() = values().map(Role::toString)
+    fun valueStrings() = entries.map(Role::toString)
   }
 }

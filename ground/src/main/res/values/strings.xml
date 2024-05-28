@@ -127,7 +127,6 @@
   <string name="previous">Previous</string>
   <string name="network_error_when_signing_in">Connect to the internet to sign in</string>
   <string name="camera_permissions_needed">You need to grant this application camera permissions to submit photos.</string>
-  <string name="error_message">Something went wrong</string>
   <string name="incomplete_area">Incomplete area</string>
   <string name="initializing">Initializing…</string>
   <string name="draw_area_task_instruction">Move the map and tap “Add point” to add points around the desired area.</string>
@@ -155,4 +154,12 @@
   <string name="about">About</string>
   <string name="terms_of_service">Terms of service</string>
   <string name="about_ground">Ground is an open-source community project built by Google and FAO under the Forest Data Partnership with help from SIG, Ecam, and open-source community contributors. \n\nIt is licensed under the <annotation type="apache_license">Apache License, Version 2.0</annotation>. \n\nView other <annotation type="all_licenses">Licenses</annotation></string>
+  <string name="failed">Failed</string>
+  <string name="synced">Synced</string>
+  <string name="syncing">Syncing</string>
+  <string name="upload_pending">Upload pending</string>
+  <string name="data_synced_media_pending">Data synced\n(media pending)</string>
+  <string name="data_synced_media_pending_retry">Data synced\n(media pending retry)</string>
+  <string name="media_syncing">Media syncing</string>
+  <string name="history">History</string>
 </resources>

@@ -22,19 +22,21 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
-import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.databinding.SurveySelectorFragBinding
+import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
+import com.google.android.ground.ui.common.EphemeralPopups
+import com.google.android.ground.util.visibleIf
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /** User interface implementation of survey selector screen. */
 @AndroidEntryPoint
 class SurveySelectorFragment : AbstractFragment(), BackPressListener {
 
+  @Inject lateinit var ephemeralPopups: EphemeralPopups
   private lateinit var viewModel: SurveySelectorViewModel
   private lateinit var binding: SurveySelectorFragBinding
   private lateinit var adapter: SurveyListAdapter
@@ -43,16 +45,35 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(SurveySelectorViewModel::class.java)
     adapter = SurveyListAdapter(viewModel, this)
-    // TODO(#2081): Merge the survey list flow and survey list state flow into a single stream.
-    lifecycleScope.launch { viewModel.getSurveyList().collect { adapter.updateData(it) } }
-    lifecycleScope.launch {
-      viewModel.surveyListState.collect { state -> state?.let { handleSurveyListState(it) } }
-    }
-    lifecycleScope.launch {
-      viewModel.errorFlow.collect {
-        Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+    viewModel.uiState.launchWhenStartedAndCollect { updateUi(it) }
+  }
+
+  private fun updateUi(uiState: UiState) {
+    when (uiState) {
+      UiState.ActivatingSurvey,
+      UiState.FetchingSurveys -> {
+        showProgressDialog()
+      }
+      UiState.SurveyActivated -> {
+        dismissProgressDialog()
+      }
+      is UiState.SurveyListAvailable -> {
+        handleSurveyListUpdated(uiState.surveys)
+        dismissProgressDialog()
+      }
+      is UiState.Error -> {
+        dismissProgressDialog()
+        ephemeralPopups.ErrorPopup().unknownError()
       }
     }
+  }
+
+  private fun handleSurveyListUpdated(surveys: List<SurveyListItem>) {
+    with(binding) {
+      container.visibleIf(surveys.isNotEmpty())
+      emptyContainer.visibleIf(surveys.isEmpty())
+    }
+    adapter.updateData(surveys)
   }
 
   override fun onCreateView(
@@ -92,13 +113,6 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
       show()
     }
   }
-
-  private fun handleSurveyListState(state: SurveySelectorViewModel.State) =
-    when (state) {
-      SurveySelectorViewModel.State.LOADING -> showProgressDialog()
-      SurveySelectorViewModel.State.LOADED,
-      SurveySelectorViewModel.State.NOT_FOUND -> dismissProgressDialog()
-    }
 
   private fun shouldExitApp(): Boolean =
     arguments?.let { SurveySelectorFragmentArgs.fromBundle(it).shouldExitApp } ?: false
