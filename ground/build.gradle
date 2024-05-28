@@ -57,6 +57,11 @@ def getCommitSha1 = { ->
 android {
     compileSdk rootProject.androidCompileSdk
     sourceSets {
+        main {
+            proto {
+                srcDir "$buildDir/extracted-ground-protos"
+            }
+        }
         test {
             proto {
                 srcDir 'src/test/proto'
@@ -371,7 +376,7 @@ task extractGroundProtoJar(type: Copy) {
                 zipTree(it)
             }
         })
-    into "$buildDir/extracted-protos"
+    into "$buildDir/extracted-ground-protos"
     include "**/*.proto"
 }
 
