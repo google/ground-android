@@ -91,21 +91,6 @@
     <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.App.CornerSize50Percent</item>
   </style>
 
-  <style name="NavDrawerHeader.PrimaryText">
-    <item name="android:layout_width">wrap_content</item>
-    <item name="android:layout_height">wrap_content</item>
-    <item name="android:textAppearance">@style/TextAppearance.AppCompat.Subhead</item>
-    <item name="android:textColor">?attr/colorOnSurface</item>
-    <item name="android:textStyle">bold</item>
-  </style>
-
-  <style name="NavDrawerHeader.SecondaryText">
-    <item name="android:layout_width">wrap_content</item>
-    <item name="android:layout_height">wrap_content</item>
-    <item name="android:textAppearance">@style/TextAppearance.AppCompat.Small</item>
-    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
-  </style>
-
   <style name="TaskChipButton" parent="Widget.MaterialComponents.Chip.Action">
     <item name="android:layout_width">wrap_content</item>
     <item name="android:layout_height">wrap_content</item>

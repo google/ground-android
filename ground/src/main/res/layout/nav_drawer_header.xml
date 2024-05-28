@@ -49,29 +49,33 @@
       android:paddingBottom="24dp">
 
       <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/user_image"
+        android:id="@+id/ground_logo"
         style="@style/NavDrawerHeader.Image"
-        app:imageUrl="@{user.photoUrl}"
-        tools:background="@drawable/ground_logo" />
+        android:src="@drawable/ground_logo" />
 
       <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:orientation="vertical">
 
         <TextView
-          android:id="@+id/user_display_name"
-          style="@style/NavDrawerHeader.PrimaryText"
-          android:text="@{user.displayName}"
-          tools:text="User name" />
-
-        <TextView
-          android:id="@+id/user_email"
-          style="@style/NavDrawerHeader.SecondaryText"
-          android:text="@{user.email}"
-          tools:text="User email" />
+          android:layout_height="wrap_content"
+          android:layout_width="wrap_content"
+          android:textSize="18sp"
+          android:paddingStart="4dp"
+          android:paddingEnd="4dp"
+          android:text="@string/app_name"
+          android:fontFamily="@font/google_sans"/>
 
       </LinearLayout>
+      <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/user_image"
+        style="@style/NavDrawerHeader.Image"
+        app:imageUrl="@{user.photoUrl}"
+        android:layout_marginEnd="24dp"
+        tools:background="@drawable/ground_logo" />
+
     </LinearLayout>
     <LinearLayout
       style="@style/NavDrawerHeader"
