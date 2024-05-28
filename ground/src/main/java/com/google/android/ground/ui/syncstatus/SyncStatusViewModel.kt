@@ -70,8 +70,8 @@ internal constructor(
     return MutationDetail(
       user = user.displayName,
       mutation = mutation,
-      loiLabel = locationOfInterestHelper.getDisplayLoiName(loi),
-      loiSubtitle = locationOfInterestHelper.getSubtitle(loi),
+      loiLabel = locationOfInterestHelper.getJobName(loi) ?: "",
+      loiSubtitle = locationOfInterestHelper.getDisplayLoiName(loi),
     )
   }
 }
