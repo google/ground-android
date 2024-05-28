@@ -372,6 +372,7 @@ protobuf {
     }
 }
 
+// Extracts protodefs in downloaded JAR to the build/extracted-protos dirs.
 task extractGroundProtoJar(type: Copy) {
     from(
         // Defer resolution until after configuration phase.
