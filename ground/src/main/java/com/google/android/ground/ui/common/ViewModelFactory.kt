@@ -54,5 +54,5 @@ constructor(
 
   /** Returns an instance of the specified view model scoped to the provided activity. */
   operator fun <T : ViewModel> get(activity: FragmentActivity, modelClass: Class<T>): T =
-    ViewModelProviders.of(activity, this).get(modelClass)
+    ViewModelProviders.of(activity, this)[modelClass]
 }

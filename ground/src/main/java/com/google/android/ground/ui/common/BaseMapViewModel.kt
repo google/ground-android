@@ -80,17 +80,19 @@ constructor(
   val locationLockIconTint =
     locationLock
       .map { lockState ->
-        if (lockState.getOrDefault(false)) LOCATION_LOCK_ICON_TINT_ENABLED
-        else LOCATION_LOCK_ICON_TINT_DISABLED
+        if (lockState.getOrDefault(false)) R.color.md_theme_primary
+        else R.color.md_theme_onSurfaceVariant
       }
-      .stateIn(viewModelScope, SharingStarted.Lazily, LOCATION_LOCK_ICON_TINT_DISABLED)
+      .stateIn(viewModelScope, SharingStarted.Lazily, R.color.md_theme_onSurfaceVariant)
+
+  // TODO(#1789): Consider adding another icon for representing "GPS disabled" state.
   val locationLockIcon =
     locationLock
       .map { lockState ->
-        if (lockState.getOrDefault(false)) LOCATION_LOCK_ICON_ENABLED
-        else LOCATION_LOCK_ICON_DISABLED
+        if (lockState.getOrDefault(false)) R.drawable.ic_gps_lock
+        else R.drawable.ic_gps_lock_not_fixed
       }
-      .stateIn(viewModelScope, SharingStarted.Lazily, LOCATION_LOCK_ICON_DISABLED)
+      .stateIn(viewModelScope, SharingStarted.Lazily, R.drawable.ic_gps_lock_not_fixed)
 
   val location: StateFlow<Location?> =
     locationLock
@@ -103,8 +105,6 @@ constructor(
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-  val offlineTileSources: LiveData<List<TileSource>>
-
   /** Configuration to enable/disable base map features. */
   open val mapConfig: MapConfig = DEFAULT_MAP_CONFIG
 
@@ -112,15 +112,13 @@ constructor(
   var currentCameraPosition = MutableStateFlow<CameraPosition?>(null)
     private set
 
-  init {
-    offlineTileSources =
-      offlineAreaRepository
-        .getOfflineTileSourcesFlow()
-        .combine(mapStateRepository.offlineImageryEnabledFlow) { offlineSources, enabled ->
-          if (enabled) offlineSources else listOf()
-        }
-        .asLiveData()
-  }
+  val offlineTileSources: LiveData<List<TileSource>> =
+    offlineAreaRepository
+      .getOfflineTileSourcesFlow()
+      .combine(mapStateRepository.offlineImageryEnabledFlow) { offlineSources, enabled ->
+        if (enabled) offlineSources else listOf()
+      }
+      .asLiveData()
 
   /** Returns whether the user has granted fine location permission. */
   fun hasLocationPermission() =
@@ -157,7 +155,7 @@ constructor(
     }
   }
 
-  suspend fun handleRequestLocationUpdateFailed(e: Throwable) {
+  private suspend fun handleRequestLocationUpdateFailed(e: Throwable) {
     Timber.e(e)
     locationLock.value = Result.failure(e)
     locationManager.disableLocationUpdates()
@@ -257,13 +255,6 @@ constructor(
   }
 
   companion object {
-    private val LOCATION_LOCK_ICON_TINT_ENABLED = R.color.md_theme_primary
-    private val LOCATION_LOCK_ICON_TINT_DISABLED = R.color.md_theme_onSurfaceVariant
-
-    // TODO(#1789): Consider adding another icon for representing "GPS disabled" state.
-    private val LOCATION_LOCK_ICON_ENABLED = R.drawable.ic_gps_lock
-    private val LOCATION_LOCK_ICON_DISABLED = R.drawable.ic_gps_lock_not_fixed
-
     private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showOfflineImagery = true)
   }
 }

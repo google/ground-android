@@ -15,4 +15,4 @@
  */
 package com.google.android.ground.model.job
 
-data class Style constructor(val color: String)
+data class Style(val color: String)

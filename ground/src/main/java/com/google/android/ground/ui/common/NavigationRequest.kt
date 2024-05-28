@@ -21,6 +21,6 @@ sealed interface NavigationRequest
 
 data class NavigateTo(val directions: NavDirections) : NavigationRequest
 
-object NavigateUp : NavigationRequest
+data object NavigateUp : NavigationRequest
 
-object FinishApp : NavigationRequest
+data object FinishApp : NavigationRequest
