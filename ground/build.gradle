@@ -56,10 +56,6 @@ def getCommitSha1 = { ->
 
 android {
     compileSdk rootProject.androidCompileSdk
-    compileOptions {
-        sourceCompatibility = rootProject.jvmToolchainVersion
-        targetCompatibility = rootProject.jvmToolchainVersion
-    }
     sourceSets {
         test {
             proto {
@@ -156,7 +152,7 @@ android {
         viewBinding true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion "1.5.5"
+        kotlinCompilerExtensionVersion "1.5.13"
     }
     testOptions {
         unitTests {
