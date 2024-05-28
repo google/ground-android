@@ -38,6 +38,9 @@ project.ext {
     coroutinesVersion = "1.6.4"
 }
 
+// Directory where downloaded Protocol Buffer definitions are extracted to.
+def extractedGroundProtoPath = layout.buildDirectory.dir('extracted-ground-protos')
+
 // Extract API key from google-services.json for use with Google Maps SDK.
 import groovy.json.JsonSlurper
 
@@ -59,7 +62,7 @@ android {
     sourceSets {
         main {
             proto {
-                srcDir "$buildDir/extracted-ground-protos"
+                srcDir extractedGroundProtoPath
             }
         }
         test {
@@ -376,7 +379,7 @@ task extractGroundProtoJar(type: Copy) {
                 zipTree(it)
             }
         })
-    into "$buildDir/extracted-ground-protos"
+    into extractedGroundProtoPath
     include "**/*.proto"
 }
 
