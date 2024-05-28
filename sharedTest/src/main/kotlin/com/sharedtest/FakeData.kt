@@ -94,7 +94,7 @@ object FakeData {
 
   val LOCATION_OF_INTEREST_CLUSTER_ITEM = FeatureClusterItem(LOCATION_OF_INTEREST_FEATURE)
 
-  val VERTICES: List<Point> =
+  private val VERTICES: List<Point> =
     listOf(
       Point(Coordinates(0.0, 0.0)),
       Point(Coordinates(10.0, 10.0)),
@@ -118,8 +118,8 @@ object FakeData {
   val COORDINATES = Coordinates(42.0, 18.0)
 
   private const val SUBMISSION_ID = "789"
-  const val TASK_1_NAME = "task 1"
-  const val TASK_2_NAME = "task 2"
+  private const val TASK_1_NAME = "task 1"
+  private const val TASK_2_NAME = "task 2"
 
   val SUBMISSION: Submission =
     Submission(

@@ -43,7 +43,6 @@ import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
 import org.junit.Before
@@ -52,7 +51,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class LocalMutationSyncWorkerTest : BaseHiltTest() {

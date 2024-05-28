@@ -24,8 +24,6 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -34,7 +32,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadow.api.Shadow.extract
 import org.robolectric.shadows.ShadowApplication
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class PermissionsManagerTest : BaseHiltTest() {

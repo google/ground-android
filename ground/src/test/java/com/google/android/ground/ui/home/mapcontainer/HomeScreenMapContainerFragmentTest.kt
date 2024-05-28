@@ -50,7 +50,7 @@ class HomeScreenMapContainerFragmentTest : BaseHiltTest() {
       navigator.getNavigateRequests(),
       {
         val actualRequest = it as ShowMapTypeDialogFragment
-        assertThat(actualRequest.mapTypes).isEqualTo(MapType.values())
+        assertThat(actualRequest.mapTypes).isEqualTo(MapType.entries.toTypedArray())
       },
       { onView(withId(R.id.map_type_btn)).perform(click()).check(matches(isEnabled())) },
     )

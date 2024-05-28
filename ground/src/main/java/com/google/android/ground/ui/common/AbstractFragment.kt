@@ -30,7 +30,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.AbstractActivity
 import com.google.android.ground.R
-import com.google.android.ground.ui.common.ProgressDialogs.modalSpinner
 import com.google.android.ground.ui.util.ViewUtil
 import com.google.android.ground.util.Debug
 import javax.inject.Inject
@@ -45,7 +44,7 @@ abstract class AbstractFragment : Fragment() {
   private var progressDialog: AlertDialog? = null
 
   protected fun <T : ViewModel> getViewModel(modelClass: Class<T>): T =
-    viewModelFactory.get(this, modelClass)
+    viewModelFactory[this, modelClass]
 
   override fun onAttach(context: Context) {
     Debug.logLifecycleEvent(this)

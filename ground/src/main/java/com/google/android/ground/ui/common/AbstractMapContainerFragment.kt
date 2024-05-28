@@ -20,10 +20,12 @@ import android.view.View
 import android.widget.Toast
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.DefaultDispatcher
+import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
+import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.CameraUpdateRequest
 import com.google.android.ground.ui.map.MapFragment
 import javax.inject.Inject
@@ -126,6 +128,18 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
         else -> R.string.location_updates_unknown_error
       }
     Toast.makeText(context, messageId, Toast.LENGTH_LONG).show()
+  }
+
+  /** Moves the camera to a given position. */
+  fun moveToPosition(
+    coordinates: Coordinates,
+    shouldAnimate: Boolean = true,
+    isAllowZoomOut: Boolean = false,
+  ) {
+    onCameraUpdateRequest(
+      CameraUpdateRequest(CameraPosition(coordinates), shouldAnimate, isAllowZoomOut),
+      map,
+    )
   }
 
   private fun onCameraUpdateRequest(cameraUpdateRequest: CameraUpdateRequest, map: MapFragment) {

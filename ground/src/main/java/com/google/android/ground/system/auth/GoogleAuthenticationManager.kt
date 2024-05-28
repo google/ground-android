@@ -52,16 +52,14 @@ constructor(
   @ApplicationScope private val externalScope: CoroutineScope,
 ) : BaseAuthenticationManager() {
 
-  private val googleSignInOptions: GoogleSignInOptions
+  private val googleSignInOptions: GoogleSignInOptions =
+    GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+      .requestIdToken(resources.getString(R.string.default_web_client_id))
+      .requestEmail()
+      .requestProfile()
+      .build()
 
   init {
-    googleSignInOptions =
-      GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(resources.getString(R.string.default_web_client_id))
-        .requestEmail()
-        .requestProfile()
-        .build()
-
     externalScope.launch {
       activityStreams.getActivityResults(signInRequestCode).collect { onActivityResult(it) }
     }

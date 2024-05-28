@@ -26,12 +26,8 @@ import kotlinx.coroutines.tasks.await
 
 /** Thin wrapper around [SettingsClient] exposing key features as reactive streams. */
 class SettingsClient @Inject constructor(@ApplicationContext context: Context) {
-  private val settingsClient: SettingsClient
-
-  init {
-    settingsClient = LocationServices.getSettingsClient(context)
-  }
+  private val client = LocationServices.getSettingsClient(context)
 
   suspend fun checkLocationSettings(request: LocationSettingsRequest): LocationSettingsResponse =
-    settingsClient.checkLocationSettings(request).await()
+    client.checkLocationSettings(request).await()
 }

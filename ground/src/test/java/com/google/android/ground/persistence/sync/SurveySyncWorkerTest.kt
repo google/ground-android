@@ -31,7 +31,6 @@ import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.SURVEY
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,7 +39,6 @@ import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class SurveySyncWorkerTest : BaseHiltTest() {
   private lateinit var context: Context

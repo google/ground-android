@@ -24,7 +24,6 @@ import com.google.android.ground.ui.map.gms.GmsExt.center
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
-import java.util.*
 import javax.inject.Inject
 import kotlin.test.assertEquals
 import org.junit.Test

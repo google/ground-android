@@ -19,7 +19,10 @@ import androidx.core.os.bundleOf
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.hasChildCount
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
@@ -77,7 +80,7 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
 
   private fun setupFragment() {
     launchFragmentInHiltContainer<MapTypeDialogFragment>(
-      bundleOf(Pair("mapTypes", MapType.values()))
+      bundleOf(Pair("mapTypes", MapType.entries.toTypedArray()))
     ) {
       fragment = this as MapTypeDialogFragment
     }
