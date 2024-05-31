@@ -112,8 +112,10 @@ runs:
 
     - name: Replace Google Maps API key
       shell: bash
+      env:
+        GOOGLE_MAPS_KEY: ${{ secrets.GOOGLE_MAPS_KEY }}
       run: |
-        sed -E -i '' 's/("current_key": ")[[:alnum:]_-]+(")/\1${{ secrets.GOOGLE_MAPS_KEY }}\2/' ground/src/debug/local/google-services.json
+        sed -E -i '' 's/("current_key": ")[[:alnum:]_-]+(")/\1'"$GOOGLE_MAPS_KEY"'\2/' ground/src/debug/local/google-services.json
 
     - name: Move the local google-services.json
       shell: bash
