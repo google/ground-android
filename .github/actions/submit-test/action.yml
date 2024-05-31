@@ -110,6 +110,16 @@ runs:
         name: data-create
         path: data/
 
+    - name: Replace Google Maps API key
+      shell: bash
+      run: |
+        sed -E -i '' 's/("current_key": ")[[:alnum:]_-]+(")/\1${{ secrets.GOOGLE_MAPS_KEY }}\2/' ground/src/debug/local/google-services.json
+
+    - name: Move the local google-services.json
+      shell: bash
+      run: |
+        cp -r ground/src/debug/local/google-services.json ground/src/debug/
+
     - name: Build projects and run instrumentation tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
