@@ -28,17 +28,17 @@ jobs:
           echo "Begin end to end test"
 
 
-  createTest:
-    needs: e2eTest
-    name: Create a new survey
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Run create-test
-        uses: sufyanAbbasi/ground-platform/.github/actions/create-test@master
+  # createTest:
+  #   needs: e2eTest
+  #   name: Create a new survey
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 5
+  #   steps:
+  #     - name: Run create-test
+  #       uses: sufyanAbbasi/ground-platform/.github/actions/create-test@master
 
   submitTest:
-    needs: createTest
+    # needs: createTest
     name: Submit to survey
     runs-on: ubuntu-latest
     timeout-minutes: 5
