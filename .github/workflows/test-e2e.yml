@@ -47,6 +47,7 @@ jobs:
         uses: ./.github/actions/submit-test
         with:
           android-repository: ${{ github.repository }}
+          google-maps-key: ${{ secrets.GOOGLE_MAPS_KEY }}
           
 
   verifyTest:

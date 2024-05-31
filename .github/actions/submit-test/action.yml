@@ -22,6 +22,9 @@ inputs:
     description: 'ground-platform repository under test (if applicable)'
     default: sufyanAbbasi/ground-platform
 
+  google-maps-key:
+    description: 'A Google Maps API key'
+
 runs:
   using: composite
   steps:
@@ -113,7 +116,7 @@ runs:
     - name: Replace Google Maps API key
       shell: bash
       env:
-        GOOGLE_MAPS_KEY: ${{ secrets.GOOGLE_MAPS_KEY }}
+        GOOGLE_MAPS_KEY: ${{ inputs.google-maps-key }}
       run: |
         sed -E -i '' 's/("current_key": ")[[:alnum:]_-]+(")/\1'"$GOOGLE_MAPS_KEY"'\2/' ground/src/debug/local/google-services.json
 
