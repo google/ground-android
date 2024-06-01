@@ -118,7 +118,7 @@ runs:
       env:
         GOOGLE_MAPS_KEY: ${{ inputs.google-maps-key }}
       run: |
-        sed -E -i '' 's/("current_key": ")[[:alnum:]_-]+(")/\1'"$GOOGLE_MAPS_KEY"'\2/' ground/src/debug/local/google-services.json
+        sed -E -i 's/("current_key": ")[[:alnum:]_-]+(")/\1'"$GOOGLE_MAPS_KEY"'\2/' ground/src/debug/local/google-services.json
 
     - name: Move the local google-services.json
       shell: bash
