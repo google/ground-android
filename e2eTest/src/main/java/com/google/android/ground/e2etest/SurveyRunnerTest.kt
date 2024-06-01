@@ -256,7 +256,6 @@ class SurveyRunnerTest : AutomatorRunner {
 
   private fun setLoiName() {
       takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
-    fail("Failed to find loi name popup")
     if (device.wait(Until.hasObject(byText(R.string.save)), SHORT_TIMEOUT) == null) {
       takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
       fail("Failed to find loi name popup")
