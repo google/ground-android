@@ -138,8 +138,15 @@ runs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-reports-24
+        name: test-reports
         path: '**/build/reports/androidTests'
+
+    - name: Upload screenshots
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-screenshots
+        path: '**/build/outputs/connected_android_test_additional_output'
 
     - name: Move Firebase emulator data (avoids .gitignore)
       shell: bash
