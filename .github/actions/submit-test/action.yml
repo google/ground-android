@@ -22,6 +22,14 @@ inputs:
     description: 'ground-platform repository under test (if applicable)'
     default: sufyanAbbasi/ground-platform
 
+  use-repo-data:
+    description: 'Whether to use the local repository emulator data or not'
+    default: 'true'
+
+  upload-artifacts:
+    description: 'Whether to upload the final emulator data artifacts'
+    default: 'false'
+
   google-maps-key:
     description: 'A Google Maps API key'
 
@@ -109,9 +117,16 @@ runs:
 
     - name: Copy Firebase emulator data
       uses: actions/download-artifact@v4
+      if: inputs.use-repo-data != 'true'
       with:
         name: data-create
         path: data/
+
+    - name: Copy the local repo data
+      uses: actions/download-artifact@v4
+      if: inputs.use-repo-data == 'true'
+      shell: bash
+      run: cp -r data/test-create data/test
 
     - name: Replace Google Maps API key
       shell: bash
@@ -153,6 +168,7 @@ runs:
       run: mv data/test/ ./test
 
     - name: Copy Firebase emulator data
+      if: inputs.upload-artifacts == 'true'
       uses: actions/upload-artifact@v4
       with:
         name: data-submit

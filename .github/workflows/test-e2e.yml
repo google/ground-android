@@ -36,6 +36,7 @@ jobs:
     steps:
       - name: Run create-test
         uses: sufyanAbbasi/ground-platform/.github/actions/create-test@master
+        upload-artifacts: true
 
   submitTest:
     needs: createTest
@@ -48,6 +49,8 @@ jobs:
         with:
           android-repository: ${{ github.repository }}
           google-maps-key: ${{ secrets.GOOGLE_MAPS_KEY }}
+          use-repo-data: false
+          upload-artifacts: true
           
 
   verifyTest:
@@ -58,3 +61,4 @@ jobs:
     steps:
       - name: Run verify-test
         uses: sufyanAbbasi/ground-platform/.github/actions/verify-test@master
+        use-repo-data: false
