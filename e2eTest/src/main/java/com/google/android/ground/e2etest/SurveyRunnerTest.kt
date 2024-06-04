@@ -86,16 +86,14 @@ class SurveyRunnerTest : AutomatorRunner {
       takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
       fail("Failed to launch app.")
     }
+    device.wait(Until.hasObject(byText(R.string.initializing)), SHORT_TIMEOUT)
+    if (device.wait(Until.gone(byText(R.string.initializing)), LONG_TIMEOUT) == null) {
+      takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
+      fail("Timed out while initializing.")
+    }
   }
 
   private fun signIn() {
-    device.wait(Until.hasObject(byText(R.string.initializing)), SHORT_TIMEOUT)
-    if (device.wait(Until.gone(byText(R.string.initializing)), LONG_TIMEOUT) == null) {
-      fail("Timed out while initializing.")
-    }
-    if (device.wait(Until.hasObject(byText(R.string.select_survey_title)), LONG_TIMEOUT) == null) {
-      fail("Failed to start initialize.")
-    }
     if (!waitClickGone(byClass(Button::class), LONG_TIMEOUT)) {
       takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
       fail("Failed to sign in.")
