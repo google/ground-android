@@ -149,7 +149,11 @@ runs:
         script: |
           adb logcat -c
           firebase emulators:exec './gradlew :e2eTest:connectedLocalDebugAndroidTest --stacktrace' --config ground-platform/firebase.local.json --project ground-local-dev --import data/test --export-on-exit data/test
-          adb logcat -d > latestLogCat.txt
+
+    - name: Output LogCat logs to file
+      if: always()
+      shell: bash
+      run: adb logcat -d > latestLogCat.txt
 
     - name: Upload LogCat logs
       if: always()
