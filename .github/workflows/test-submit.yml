@@ -22,7 +22,7 @@ jobs:
     if: github.event.issue.pull_request && contains(github.event.comment.body, '/submitTest')
     name: Submit to survey
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
