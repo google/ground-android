@@ -139,10 +139,6 @@ runs:
       run: |
         cp -r ground/src/debug/local/google-services.json ground/src/debug/
 
-    - name: Set LogCat log level
-      shell: bash
-      run: adb logcat -c
-
     - name: Build projects and run instrumentation tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
@@ -150,12 +146,10 @@ runs:
         force-avd-creation: false
         emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated
         disable-animations: true
-        script: firebase emulators:exec './gradlew :e2eTest:connectedLocalDebugAndroidTest --stacktrace' --config ground-platform/firebase.local.json --project ground-local-dev --import data/test --export-on-exit data/test
-
-    - name: Output LogCat logs to file
-      if: always()
-      shell: bash
-      run: adb logcat -d > latestLogCat.txt
+        script: |
+          adb logcat -c
+          firebase emulators:exec './gradlew :e2eTest:connectedLocalDebugAndroidTest --stacktrace' --config ground-platform/firebase.local.json --project ground-local-dev --import data/test --export-on-exit data/test
+          adb logcat -d > latestLogCat.txt
 
     - name: Upload LogCat logs
       if: always()
