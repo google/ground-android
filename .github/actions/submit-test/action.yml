@@ -125,7 +125,7 @@ runs:
     - name: Copy the local repo data
       if: inputs.use-repo-data == 'true'
       shell: bash
-      run: cp -r data/test-create data/test
+      run: cp -r ground-platform/data/test-create ground-platform/data/test
 
     - name: Replace Google Maps API key
       shell: bash
