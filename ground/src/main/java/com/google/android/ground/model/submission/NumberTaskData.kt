@@ -19,7 +19,7 @@ import kotlinx.serialization.Serializable
 
 /** A user provided response to a number question task. */
 @Serializable
-data class NumberTaskData constructor(private val number: String) : TaskData {
+data class NumberTaskData(private val number: String) : TaskData {
   val value: Double
     get() = number.toDouble()
 

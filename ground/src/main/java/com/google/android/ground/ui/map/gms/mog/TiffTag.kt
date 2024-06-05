@@ -33,6 +33,6 @@ enum class TiffTag(val id: Int, val isArray: Boolean) {
    * @return tag id
    */
   companion object {
-    val byId: Map<Int, TiffTag> = values().associateBy { it.id }
+    val byId: Map<Int, TiffTag> = entries.associateBy { it.id }
   }
 }

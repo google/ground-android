@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.surveyselector
 
 import androidx.lifecycle.viewModelScope
-import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
@@ -83,7 +82,7 @@ internal constructor(
           },
           onFailure = { exception ->
             Timber.e(exception)
-            _uiState.emit(UiState.Error(R.string.error_message))
+            _uiState.emit(UiState.Error)
           },
         )
     }

@@ -29,11 +29,7 @@ import kotlinx.coroutines.tasks.await
 
 /** Thin wrapper around [FusedLocationProviderClient] exposing key LOIs as reactive streams. */
 class FusedLocationProviderClient @Inject constructor(@ApplicationContext context: Context) {
-  private val fusedLocationProviderClient: FusedLocationProviderClient
-
-  init {
-    fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
-  }
+  private val client = LocationServices.getFusedLocationProviderClient(context)
 
   /**
    * Returns the most recent historical location currently available. Will return null if no
@@ -41,19 +37,17 @@ class FusedLocationProviderClient @Inject constructor(@ApplicationContext contex
    * clients should check how old the location is to see if it suits their purposes.
    */
   @SuppressLint("MissingPermission")
-  suspend fun getLastLocation(): Location? = fusedLocationProviderClient.lastLocation.await()
+  suspend fun getLastLocation(): Location? = client.lastLocation.await()
 
   @SuppressLint("MissingPermission")
   suspend fun requestLocationUpdates(
     locationRequest: LocationRequest,
     locationCallback: LocationSharedFlowCallback,
   ) {
-    fusedLocationProviderClient
-      .requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
-      .await()
+    client.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper()).await()
   }
 
   suspend fun removeLocationUpdates(locationCallback: LocationSharedFlowCallback) {
-    fusedLocationProviderClient.removeLocationUpdates(locationCallback).await()
+    client.removeLocationUpdates(locationCallback).await()
   }
 }

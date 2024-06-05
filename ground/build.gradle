@@ -38,6 +38,9 @@ project.ext {
     coroutinesVersion = "1.6.4"
 }
 
+// Directory where downloaded Protocol Buffer definitions are extracted to.
+def extractedGroundProtoPath = layout.buildDirectory.dir('extracted-ground-protos')
+
 // Extract API key from google-services.json for use with Google Maps SDK.
 import groovy.json.JsonSlurper
 
@@ -57,6 +60,11 @@ def getCommitSha1 = { ->
 android {
     compileSdk rootProject.androidCompileSdk
     sourceSets {
+        main {
+            proto {
+                srcDir extractedGroundProtoPath
+            }
+        }
         test {
             proto {
                 srcDir 'src/test/proto'
@@ -166,6 +174,10 @@ android {
     namespace 'com.google.android.ground'
 }
 
+configurations {
+    groundProtoJar
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
@@ -194,20 +206,21 @@ dependencies {
 
     // UI widgets.
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     // Jetpack Compose
-    implementation 'androidx.compose.ui:ui:1.6.4'
-    implementation 'androidx.compose.compiler:compiler:1.5.11'
+    implementation 'androidx.compose.ui:ui:1.6.7'
+    implementation 'androidx.compose.compiler:compiler:1.5.14'
     implementation 'androidx.compose.material3:material3-android:1.2.1'
-    implementation 'androidx.compose.ui:ui-tooling-preview-android:1.6.4'
+    implementation 'androidx.compose.ui:ui-tooling-preview-android:1.6.7'
     // Test rules and transitive dependencies:
-    testImplementation('androidx.compose.ui:ui-test-junit4:1.6.4')
+    testImplementation('androidx.compose.ui:ui-test-junit4:1.6.7')
     // Needed for createComposeRule(), but not for createAndroidComposeRule<YourActivity>():
-    debugImplementation('androidx.compose.ui:ui-test-manifest:1.6.4')
-    debugImplementation 'androidx.compose.ui:ui-tooling:1.6.6'
-    stagingImplementation('androidx.compose.ui:ui-test-manifest:1.6.4')
+    debugImplementation('androidx.compose.ui:ui-test-manifest:1.6.7')
+    debugImplementation 'androidx.compose.ui:ui-tooling:1.6.7'
+    stagingImplementation('androidx.compose.ui:ui-test-manifest:1.6.7')
+    implementation 'androidx.compose.runtime:runtime-livedata:1.6.7'
 
     // Google Play Services.
     implementation 'com.google.android.gms:play-services-auth:21.0.0'
@@ -333,6 +346,9 @@ dependencies {
 
     // TODO(#1748): Move protos into shared module and set correct path here.
     api("com.google.protobuf:protobuf-kotlin-lite:4.26.1")
+
+    // Pulls protodefs from the specified commit in the ground-platform repo.
+    groundProtoJar "com.github.google:ground-platform:5211a4f@jar"
 }
 
 protobuf {
@@ -352,8 +368,22 @@ protobuf {
                     option("lite")
                 }
             }
+            it.dependsOn extractGroundProtoJar
         }
     }
+}
+
+// Extracts protodefs in downloaded JAR to the build/extracted-protos dirs.
+task extractGroundProtoJar(type: Copy) {
+    from(
+        // Defer resolution until after configuration phase.
+        provider {
+            configurations.groundProtoJar.collect {
+                zipTree(it)
+            }
+        })
+    into extractedGroundProtoPath
+    include "**/*.proto"
 }
 
 // Allow references to generated code.

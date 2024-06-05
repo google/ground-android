@@ -58,9 +58,7 @@ class MogMetadataReader(private val seekable: SeekableInputStream) {
 
   private fun createDataInput(byteOrderCode: String): DataInput =
     when (byteOrderCode) {
-      BYTE_ORDER_LITTLE_ENDIAN ->
-        // TODO: Upgrade to Guava 31.2 once released and remove @Suppress.
-        @Suppress("UnstableApiUsage") LittleEndianDataInputStream(seekable)
+      BYTE_ORDER_LITTLE_ENDIAN -> LittleEndianDataInputStream(seekable)
       BYTE_ORDER_BIG_ENDIAN -> DataInputStream(seekable)
       else -> error("Invalid byte order: $byteOrderCode")
     }

@@ -45,10 +45,12 @@ enum class MutationEntitySyncStatus(private val intValue: Int, private val enumV
 
   companion object {
     fun fromMutationSyncStatus(syncStatus: SyncStatus) =
-      values().firstOrNull { s: MutationEntitySyncStatus -> s.enumValue === syncStatus } ?: UNKNOWN
+      entries.firstOrNull { s: MutationEntitySyncStatus -> s.enumValue === syncStatus } ?: UNKNOWN
 
     @JvmStatic @TypeConverter fun toInt(value: MutationEntitySyncStatus?) = toInt(value, UNKNOWN)
 
-    @JvmStatic @TypeConverter fun fromInt(intValue: Int) = fromInt(values(), intValue, UNKNOWN)
+    @JvmStatic
+    @TypeConverter
+    fun fromInt(intValue: Int) = fromInt(entries.toTypedArray(), intValue, UNKNOWN)
   }
 }

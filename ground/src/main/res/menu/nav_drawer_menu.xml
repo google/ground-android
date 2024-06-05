@@ -37,8 +37,4 @@
     android:id="@+id/terms_of_service"
     android:icon="@drawable/feed"
     android:title="@string/terms_of_service" />
-  <item
-    android:id="@+id/nav_sign_out"
-    android:icon="@drawable/ic_sign_out"
-    android:title="@string/sign_out" />
 </menu>

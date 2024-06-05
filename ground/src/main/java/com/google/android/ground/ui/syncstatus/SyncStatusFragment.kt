@@ -19,10 +19,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Modifier
 import com.google.android.ground.databinding.SyncStatusFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.LocationOfInterestHelper
+import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -47,16 +54,17 @@ class SyncStatusFragment : AbstractFragment() {
     val binding = SyncStatusFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
-
+    binding.composeView.setContent { AppTheme { ShowSyncItems() } }
     getAbstractActivity().setSupportActionBar(binding.syncStatusToolbar)
-
-    val syncStatusListAdapter = SyncStatusListAdapter(requireContext())
-    val recyclerView = binding.syncStatusList
-    recyclerView.setHasFixedSize(true)
-    recyclerView.layoutManager = LinearLayoutManager(context)
-    recyclerView.adapter = syncStatusListAdapter
-
-    viewModel.mutations.observe(viewLifecycleOwner) { syncStatusListAdapter.update(it) }
     return binding.root
+  }
+
+  @Composable
+  private fun ShowSyncItems() {
+    val list by viewModel.mutations.observeAsState()
+    if (list == null) return
+    LazyColumn(Modifier.fillMaxSize()) {
+      items(list!!) { SyncListItem(modifier = Modifier, detail = it) }
+    }
   }
 }

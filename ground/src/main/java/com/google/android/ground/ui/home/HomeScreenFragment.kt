@@ -32,6 +32,7 @@ import com.google.android.ground.MainViewModel
 import com.google.android.ground.R
 import com.google.android.ground.databinding.HomeScreenFragBinding
 import com.google.android.ground.databinding.NavDrawerHeaderBinding
+import com.google.android.ground.model.User
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
@@ -41,6 +42,7 @@ import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.theme.AppTheme
 import com.google.android.ground.util.systemInsets
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -66,6 +68,7 @@ class HomeScreenFragment :
 
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var homeScreenViewModel: HomeScreenViewModel
+  private lateinit var user: User
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -98,6 +101,10 @@ class HomeScreenFragment :
     val navHeader = binding.navView.getHeaderView(0)
     navHeader.findViewById<TextView>(R.id.switch_survey_button).setOnClickListener {
       homeScreenViewModel.showSurveySelector()
+    }
+    viewLifecycleOwner.lifecycleScope.launch { user = userRepository.getAuthenticatedUser() }
+    navHeader.findViewById<ShapeableImageView>(R.id.user_image).setOnClickListener {
+      showSignOutConfirmationDialogs()
     }
     updateNavHeader()
     // Re-open data collection screen if any drafts are present
@@ -143,7 +150,6 @@ class HomeScreenFragment :
       R.id.sync_status -> homeScreenViewModel.showSyncStatus()
       R.id.nav_offline_areas -> homeScreenViewModel.showOfflineAreas()
       R.id.nav_settings -> homeScreenViewModel.showSettings()
-      R.id.nav_sign_out -> showSignOutConfirmationDialog()
       R.id.about -> homeScreenViewModel.showAbout()
       R.id.terms_of_service -> homeScreenViewModel.showTermsOfService()
     }
@@ -151,18 +157,29 @@ class HomeScreenFragment :
     return true
   }
 
-  private fun showSignOutConfirmationDialog() {
+  private fun showSignOutConfirmationDialogs() {
     // Note: Adding a compose view to the fragment's view dynamically causes the navigation click to
     // stop working after 1st time. Revisit this once the navigation drawer is also generated using
     // compose.
     binding.composeView.apply {
       setContent {
-        val openDialog = remember { mutableStateOf(true) }
+        val showUserDetailsDialog = remember { mutableStateOf(true) }
+        val showSignOutDialog = remember { mutableStateOf(false) }
 
-        // Reset the state for recomposition
-        openDialog.value = true
+        // reset the state for recomposition
+        showUserDetailsDialog.value = true
+        showSignOutDialog.value = false
 
-        AppTheme { SignOutConfirmationDialog(openDialog) { userRepository.signOut() } }
+        AppTheme {
+          if (showUserDetailsDialog.value) {
+            UserDetailsDialog(showUserDetailsDialog, showSignOutDialog, user)
+          }
+          if (showSignOutDialog.value) {
+            SignOutConfirmationDialog(showUserDetailsDialog, showSignOutDialog) {
+              userRepository.signOut()
+            }
+          }
+        }
       }
     }
   }

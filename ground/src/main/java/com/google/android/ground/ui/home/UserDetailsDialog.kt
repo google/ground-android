@@ -16,39 +16,44 @@
 package com.google.android.ground.ui.home
 
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.res.stringResource
 import com.google.android.ground.R
+import com.google.android.ground.model.User
 
 @Composable
-fun SignOutConfirmationDialog(
+fun UserDetailsDialog(
   showUserDetailsDialog: MutableState<Boolean>,
   showSignOutDialog: MutableState<Boolean>,
-  signOutCallback: () -> Unit,
+  user: User,
 ) {
+
   fun dismissDialog() {
     showUserDetailsDialog.value = false
     showSignOutDialog.value = false
   }
+  fun showSignOutConfirmationDialog() {
+    showUserDetailsDialog.value = false
+    showSignOutDialog.value = true
+  }
+  // In this AlertDialog instance, the button roles are reversed to match the provided design:
+  // `dismissButton` is used for "Sign Out" and `confirmButton` is used for "Close".
+  // This arrangement is due to the AlertDialog's fixed order of dismiss and confirm buttons.
   AlertDialog(
     onDismissRequest = { dismissDialog() },
-    title = { Text(text = stringResource(R.string.sign_out_dialog_title)) },
-    text = { Text(text = stringResource(R.string.sign_out_dialog_body)) },
+    title = { Text(user.displayName) },
+    text = { Text(user.email) },
     dismissButton = {
-      TextButton(onClick = { dismissDialog() }) { Text(text = stringResource(R.string.cancel)) }
-    },
-    confirmButton = {
-      TextButton(
-        onClick = {
-          signOutCallback()
-          dismissDialog()
-        }
-      ) {
+      TextButton(onClick = { showSignOutConfirmationDialog() }) {
         Text(text = stringResource(R.string.sign_out))
       }
+    },
+    confirmButton = {
+      OutlinedButton(onClick = { dismissDialog() }) { Text(text = stringResource(R.string.close)) }
     },
   )
 }

@@ -22,19 +22,21 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
-import android.widget.Toast
 import com.google.android.ground.R
 import com.google.android.ground.databinding.SurveySelectorFragBinding
 import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
+import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.util.visibleIf
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /** User interface implementation of survey selector screen. */
 @AndroidEntryPoint
 class SurveySelectorFragment : AbstractFragment(), BackPressListener {
 
+  @Inject lateinit var ephemeralPopups: EphemeralPopups
   private lateinit var viewModel: SurveySelectorViewModel
   private lateinit var binding: SurveySelectorFragBinding
   private lateinit var adapter: SurveyListAdapter
@@ -61,7 +63,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
       }
       is UiState.Error -> {
         dismissProgressDialog()
-        Toast.makeText(requireContext(), uiState.errorResId, Toast.LENGTH_SHORT).show()
+        ephemeralPopups.ErrorPopup().unknownError()
       }
     }
   }

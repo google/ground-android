@@ -35,7 +35,6 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
-import java.util.Objects
 import kotlinx.collections.immutable.toPersistentMap
 import timber.log.Timber
 
@@ -50,16 +49,16 @@ internal object SubmissionConverter {
       throw DataStoreException("Submission doc featureId doesn't match specified loiId")
     }
     // Degrade gracefully when audit info missing in remote db.
-    val created = Objects.requireNonNullElse(doc.created, AuditInfoNestedObject.FALLBACK_VALUE)
-    val lastModified = Objects.requireNonNullElse(doc.lastModified, created)
+    val created = doc.created ?: AuditInfoNestedObject.FALLBACK_VALUE
+    val lastModified = doc.lastModified ?: created
     val job = loi.job
     return Submission(
       snapshot.id,
       loi.surveyId,
       loi,
       job,
-      AuditInfoConverter.toAuditInfo(created!!),
-      AuditInfoConverter.toAuditInfo(lastModified!!),
+      AuditInfoConverter.toAuditInfo(created),
+      AuditInfoConverter.toAuditInfo(lastModified),
       // TODO(#2058): Remove reference to `responses` once dev dbs updated or reset.
       toSubmissionData(snapshot.id, job, doc.data ?: doc.responses),
     )
