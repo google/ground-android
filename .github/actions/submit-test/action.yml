@@ -145,7 +145,7 @@ runs:
         api-level: 24
         target: google_apis_playstore
         force-avd-creation: false
-        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated -logcat '*:w *:e'
+        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated -logcat '*:e'
         disable-animations: true
         script: |
           firebase emulators:exec './gradlew :e2eTest:connectedLocalDebugAndroidTest --stacktrace' --config ground-platform/firebase.local.json --project ground-local-dev --import data/test --export-on-exit data/test
