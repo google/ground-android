@@ -144,16 +144,11 @@ runs:
       with:
         api-level: 24
         force-avd-creation: false
-        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated
+        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated -logcat *:w
         disable-animations: true
         script: |
           adb logcat -c
           firebase emulators:exec './gradlew :e2eTest:connectedLocalDebugAndroidTest --stacktrace' --config ground-platform/firebase.local.json --project ground-local-dev --import data/test --export-on-exit data/test
-
-    - name: Output LogCat logs to file
-      if: always()
-      shell: bash
-      run: adb logcat -d > latestLogCat.txt
 
     - name: Upload LogCat logs
       if: always()
