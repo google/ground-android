@@ -143,19 +143,12 @@ runs:
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 24
+        target: google_apis_playstore
         force-avd-creation: false
         emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated -logcat '*:w *:e'
         disable-animations: true
         script: |
-          adb logcat -c
           firebase emulators:exec './gradlew :e2eTest:connectedLocalDebugAndroidTest --stacktrace' --config ground-platform/firebase.local.json --project ground-local-dev --import data/test --export-on-exit data/test
-
-    - name: Upload LogCat logs
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: logcat
-        path: '**/latestLogCat.txt'
 
     - name: Upload test reports
       if: always()
