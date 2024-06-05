@@ -144,7 +144,7 @@ runs:
       with:
         api-level: 24
         force-avd-creation: false
-        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated -logcat '*:w,*:e'
+        emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated -logcat '*:w *:e'
         disable-animations: true
         script: |
           adb logcat -c
