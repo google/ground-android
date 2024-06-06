@@ -83,39 +83,39 @@ class SurveyRunnerTest : AutomatorRunner {
 
     // Wait for the app to appear.
     if (!device.wait(Until.hasObject(By.pkg(GROUND_PACKAGE).depth(0)), LONG_TIMEOUT)) {
-      takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
+      takeScreenshot(getScreenshotName())
       fail("Failed to launch app.")
     }
     device.wait(Until.hasObject(byText(R.string.initializing)), SHORT_TIMEOUT)
     if (device.wait(Until.gone(byText(R.string.initializing)), LONG_TIMEOUT) == null) {
-      takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
+      takeScreenshot(getScreenshotName())
       fail("Timed out while initializing.")
     }
   }
 
   private fun signIn() {
     if (!waitClickGone(byClass(Button::class), LONG_TIMEOUT)) {
-      takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
+      takeScreenshot(getScreenshotName())
       fail("Failed to sign in.")
     }
   }
 
   private fun selectTestSurvey() {
     if (device.wait(Until.hasObject(byText(R.string.select_survey_title)), LONG_TIMEOUT) == null) {
-      takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
+      takeScreenshot(getScreenshotName())
       fail("Failed to find select survey title")
     }
     val testSurveySelector =
       byClass(CardView::class)
         .hasDescendant(byClass(TextView::class).textContains(TEST_SURVEY_IDENTIFIER))
     if (device.wait(Until.hasObject(testSurveySelector), LONG_TIMEOUT) == null) {
-      takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
+      takeScreenshot(getScreenshotName())
       fail("Failed to find test survey")
     }
     // Need to double click on survey.
     waitClickGone(testSurveySelector)
     if (!waitClickGone(testSurveySelector, timeout = LONG_TIMEOUT)) {
-      takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
+      takeScreenshot(getScreenshotName())
       fail("Failed to select survey.")
     }
   }
@@ -125,7 +125,7 @@ class SurveyRunnerTest : AutomatorRunner {
     allowPermissions()
     val loiCardSelector = byClass(CardView::class).hasDescendant(byText(R.string.collect_data))
     if (device.wait(Until.hasObject(loiCardSelector), LONG_TIMEOUT) == null) {
-      takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
+      takeScreenshot(getScreenshotName())
       fail("Failed to zoom in to location.")
     }
   }
@@ -133,7 +133,7 @@ class SurveyRunnerTest : AutomatorRunner {
   private fun startAdHocLoiTask() {
     val loiCardSelector = byClass(CardView::class)
     if (device.wait(Until.hasObject(loiCardSelector), LONG_TIMEOUT) == null) {
-      takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
+      takeScreenshot(getScreenshotName())
       fail("Failed to find ad-hoc loi card")
     }
     val cards = device.findObjects(loiCardSelector)
@@ -142,7 +142,7 @@ class SurveyRunnerTest : AutomatorRunner {
       byText(R.string.collect_data)
         .hasAncestor(loiCardSelector.hasDescendant(byText(R.string.new_site)))
     if (!waitClickGone(loiCollectDataButtonSelector)) {
-      takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
+      takeScreenshot(getScreenshotName())
       fail("Failed to start ad-hoc loi data collection.")
     }
   }
@@ -150,13 +150,13 @@ class SurveyRunnerTest : AutomatorRunner {
   private fun startPredefinedLoiTask() {
     val loiCardSelector = byClass(CardView::class)
     if (device.wait(Until.hasObject(loiCardSelector), LONG_TIMEOUT) == null) {
-      takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
+      takeScreenshot(getScreenshotName())
       fail("Failed to find predefined loi card")
     }
     // Assume that the first card is the predefined LOI.
     val loiCollectDataButtonSelector = byText(R.string.collect_data)
     if (!waitClickGone(loiCollectDataButtonSelector)) {
-      takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
+      takeScreenshot(getScreenshotName())
       fail("Failed to start predefined loi data collection.")
     }
   }
@@ -260,12 +260,14 @@ class SurveyRunnerTest : AutomatorRunner {
   }
 
   private fun setLoiName() {
-      takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
+      takeScreenshot(getScreenshotName())
     if (device.wait(Until.hasObject(byText(R.string.save)), SHORT_TIMEOUT) == null) {
-      takeScreenshot("${javaClass.simpleName}_${nameRule.methodName}")
+      takeScreenshot(getScreenshotName())
       fail("Failed to find loi name popup")
     }
     enterText("An loi name")
     waitClickGone(byText(R.string.save))
   }
+
+  private fun getScreenshotName() = "${javaClass.simpleName}_${nameRule.methodName}"
 }
