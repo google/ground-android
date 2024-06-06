@@ -21,6 +21,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
+import com.google.android.ground.Config.MAX_SYNC_WORKER_RETRY_ATTEMPTS
 import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -51,8 +52,13 @@ constructor(
       Timber.d("Syncing survey $surveyId")
       syncSurvey(surveyId)
     } catch (e: Throwable) {
-      Timber.v(e, "Survey sync (attempt %s). Retrying...", this.runAttemptCount)
-      Result.retry()
+      return if (this.runAttemptCount > MAX_SYNC_WORKER_RETRY_ATTEMPTS) {
+        Timber.v(e, "Survey sync failed too many times. Giving up.")
+        Result.failure()
+      } else {
+        Timber.v(e, "Survey sync. Retrying...")
+        Result.retry()
+      }
     }
 
     return Result.success()
