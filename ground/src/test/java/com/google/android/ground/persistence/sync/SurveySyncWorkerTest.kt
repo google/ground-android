@@ -99,6 +99,6 @@ class SurveySyncWorkerTest : BaseHiltTest() {
         .setWorkerFactory(factory)
         .build()
     val result = worker.doWork()
-    assertThat(result).isEqualTo(Result.retry())
+    assertThat(result).isEqualTo(Result.success())
   }
 }

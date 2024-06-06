@@ -25,7 +25,6 @@ import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.Config
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
@@ -159,13 +158,13 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
       val result = createAndDoWork(context, TEST_LOI_ID)
 
-      // Worker should skip this attempt, hence would prevent infinite retries.
-      assertThat(result).isEqualTo(success())
+      // Worker should retry again.
+      assertThat(result).isEqualTo(retry())
 
       // Verify that the retryCount and last error hasn't changed
       assertMutationsState(
         failed = 2,
-        retryCount = listOf(retryCount, retryCount),
+        retryCount = listOf(retryCount+1, retryCount+1),
         lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE),
       )
     }
