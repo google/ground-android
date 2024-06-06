@@ -16,11 +16,11 @@ name: Submit to survey
 inputs:
   android-repository:
     description: 'ground-android repository under test'
-    default: sufyanAbbasi/ground-android
+    default: google/ground-android
 
   platform-repository:
     description: 'ground-platform repository under test (if applicable)'
-    default: sufyanAbbasi/ground-platform
+    default: google/ground-platform
 
   use-repo-data:
     description: 'Whether to use the local repository emulator data or not'
