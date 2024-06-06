@@ -138,36 +138,35 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     }
 
   @Test
-  fun `Worker retries indefinitely`() =
-    runWithTestDispatcher {
-      fakeRemoteDataStore.applyMutationError = Error(ERROR_MESSAGE)
-      addPendingMutations()
+  fun `Worker retries indefinitely`() = runWithTestDispatcher {
+    fakeRemoteDataStore.applyMutationError = Error(ERROR_MESSAGE)
+    addPendingMutations()
 
-      val retryCount = 3
-      // Run the worker 3 times
-      for (i in 1..retryCount) {
-        val result = createAndDoWork(context, TEST_LOI_ID)
-
-        assertThat(result).isEqualTo(retry())
-        assertMutationsState(
-          failed = 2,
-          retryCount = listOf(i, i),
-          lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE),
-        )
-      }
-
+    val retryCount = 3
+    // Run the worker 3 times
+    for (i in 1..retryCount) {
       val result = createAndDoWork(context, TEST_LOI_ID)
 
-      // Worker should retry again.
       assertThat(result).isEqualTo(retry())
-
-      // Verify that the retryCount and last error hasn't changed
       assertMutationsState(
         failed = 2,
-        retryCount = listOf(retryCount+1, retryCount+1),
+        retryCount = listOf(i, i),
         lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE),
       )
     }
+
+    val result = createAndDoWork(context, TEST_LOI_ID)
+
+    // Worker should retry again.
+    assertThat(result).isEqualTo(retry())
+
+    // Verify that the retryCount and last error hasn't changed
+    assertMutationsState(
+      failed = 2,
+      retryCount = listOf(retryCount + 1, retryCount + 1),
+      lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE),
+    )
+  }
 
   private suspend fun assertMutationsState(
     pending: Int = 0,

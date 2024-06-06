@@ -77,8 +77,7 @@ constructor(
     val pendingMutations =
       mutationRepository.getMutations(locationOfInterestId, MutationEntitySyncStatus.PENDING)
     val failedMutationsEligibleForRetry =
-      mutationRepository
-        .getMutations(locationOfInterestId, MutationEntitySyncStatus.FAILED)
+      mutationRepository.getMutations(locationOfInterestId, MutationEntitySyncStatus.FAILED)
     return pendingMutations + failedMutationsEligibleForRetry
   }
 
