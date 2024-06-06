@@ -20,7 +20,7 @@ import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.submission.GeometryTaskResult
+import com.google.android.ground.model.submission.GeometryTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
@@ -33,7 +33,7 @@ class SubmitDataUseCase
 constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val submissionRepository: SubmissionRepository,
-  private val userRepository: UserRepository
+  private val userRepository: UserRepository,
 ) {
 
   /**
@@ -70,8 +70,8 @@ constructor(
     val addLoiTask = job.getAddLoiTask() ?: error("Null LOI ID but no add LOI task")
     val addLoiTaskId = deltas.indexOfFirst { it.taskId == addLoiTask.id }
     if (addLoiTaskId < 0) error("Add LOI task response missing")
-    val addLoiValue = deltas.removeAt(addLoiTaskId).newValue
-    if (addLoiValue !is GeometryTaskResult) error("Invalid add LOI task response")
+    val addLoiValue = deltas.removeAt(addLoiTaskId).newTaskData
+    if (addLoiValue !is GeometryTaskData) error("Invalid add LOI task response")
     return saveLoi(addLoiValue.geometry, job, surveyId, loiName).id
   }
 

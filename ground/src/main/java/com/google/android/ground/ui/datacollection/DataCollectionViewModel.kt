@@ -24,8 +24,9 @@ import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.submission.SubmitDataUseCase
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.ValueDelta
+import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
@@ -60,6 +61,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
@@ -84,6 +86,9 @@ internal constructor(
   surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
+  private val _uiState: MutableStateFlow<UiState?> = MutableStateFlow(null)
+  var uiState: StateFlow<UiState?>
+
   private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
 
@@ -102,10 +107,10 @@ internal constructor(
     }
 
   // LOI creation task is included only on "new data collection site" flow..
-  val tasks: List<Task> =
+  private val tasks: List<Task> =
     if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
 
-  val surveyId: String = surveyRepository.lastActiveSurveyId
+  val surveyId: String = requireNotNull(surveyRepository.activeSurvey?.id)
 
   val jobName: StateFlow<String> =
     MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
@@ -125,16 +130,27 @@ internal constructor(
 
   val loiNameDialogOpen: MutableState<Boolean> = mutableStateOf(false)
 
-  private val taskViewModels: MutableStateFlow<MutableList<AbstractTaskViewModel>> =
-    MutableStateFlow(mutableListOf())
+  private val taskViewModels: MutableStateFlow<MutableMap<String, AbstractTaskViewModel>> =
+    MutableStateFlow(mutableMapOf())
 
-  private val data: MutableMap<Task, Value?> = LinkedHashMap()
+  private val data: MutableMap<Task, TaskData?> = LinkedHashMap()
 
   // Tracks the current task ID to compute the position in the list of tasks for the current job.
-  var currentTaskId: StateFlow<String> =
-    savedStateHandle.getStateFlow(TASK_POSITION_ID, tasks.first().id)
+  private val currentTaskId: StateFlow<String> =
+    savedStateHandle.getStateFlow(TASK_POSITION_ID, tasks.firstOrNull()?.id ?: "")
 
   lateinit var submissionId: String
+
+  init {
+    uiState =
+      _uiState
+        .asStateFlow()
+        .stateIn(
+          viewModelScope,
+          SharingStarted.Lazily,
+          UiState.TaskListAvailable(tasks, getTaskPosition()),
+        )
+  }
 
   fun setLoiName(name: String) {
     customLoiName = name
@@ -154,7 +170,7 @@ internal constructor(
     return draftDeltas as List<ValueDelta>
   }
 
-  private fun getValueFromDraft(task: Task): Value? {
+  private fun getValueFromDraft(task: Task): TaskData? {
     for ((taskId, taskType, value) in getDraftDeltas()) {
       if (taskId == task.id && taskType == task.type) {
         Timber.d("Value $value found for task $task")
@@ -165,18 +181,21 @@ internal constructor(
     return null
   }
 
-  fun getTaskViewModel(position: Int): AbstractTaskViewModel? {
+  fun getTaskViewModel(taskId: String): AbstractTaskViewModel? {
     val viewModels = taskViewModels.value
 
-    val task = tasks[position]
-    if (position < viewModels.size) {
-      return viewModels[position]
+    val task = tasks.first { it.id == taskId }
+
+    if (viewModels.containsKey(taskId)) {
+      return viewModels[taskId]
     }
+
     return try {
       val viewModel = viewModelFactory.create(getViewModelClass(task.type))
-      val value: Value? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
-      viewModel.initialize(job, task, value)
-      addTaskViewModel(viewModel)
+      taskViewModels.value[task.id] = viewModel
+
+      val taskData: TaskData? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
+      viewModel.initialize(job, task, taskData)
       viewModel
     } catch (e: Exception) {
       Timber.e("ignoring task with invalid type: $task.type")
@@ -184,17 +203,19 @@ internal constructor(
     }
   }
 
-  private fun addTaskViewModel(taskViewModel: AbstractTaskViewModel) {
-    taskViewModels.value.add(taskViewModel)
-    taskViewModels.value = taskViewModels.value
-  }
-
-  /**
-   * Validates the user's input and displays an error if the user input was invalid. Moves back to
-   * the previous Data Collection screen if the user input was valid.
-   */
+  /** Moves back to the previous task in the sequence if the current value is valid or empty. */
   suspend fun onPreviousClicked(taskViewModel: AbstractTaskViewModel) {
     check(getPositionInTaskSequence().first != 0)
+
+    val task = taskViewModel.task
+    val taskValue = taskViewModel.taskTaskData.firstOrNull()
+
+    // Skip validation if the task is empty
+    if (taskValue.isNullOrEmpty()) {
+      data[task] = taskValue
+      step(-1)
+      return
+    }
 
     val validationError = taskViewModel.validate()
     if (validationError != null) {
@@ -202,8 +223,7 @@ internal constructor(
       return
     }
 
-    data[taskViewModel.task] = taskViewModel.taskValue.firstOrNull()
-
+    data[task] = taskValue
     step(-1)
   }
 
@@ -218,7 +238,7 @@ internal constructor(
       return
     }
 
-    data[taskViewModel.task] = taskViewModel.taskValue.firstOrNull()
+    data[taskViewModel.task] = taskViewModel.taskTaskData.firstOrNull()
 
     if (!isLastPosition()) {
       step(1)
@@ -245,12 +265,13 @@ internal constructor(
     }
   }
 
-  fun getAbsolutePosition(): Int {
+  private fun getAbsolutePosition(): Int {
     if (currentTaskId.value == "") {
       return 0
     }
     return tasks.indexOf(tasks.first { it.id == currentTaskId.value })
   }
+
   /** Persists the collected data as draft to local storage. */
   private fun saveDraft() {
     externalScope.launch(ioDispatcher) {
@@ -273,7 +294,7 @@ internal constructor(
    * Get the current index within the computed task sequence, and the number of tasks in the
    * sequence, e.g (0, 2) means the first task of 2.
    */
-  fun getPositionInTaskSequence(): Pair<Int, Int> {
+  private fun getPositionInTaskSequence(): Pair<Int, Int> {
     var currentIndex = 0
     var size = 0
     getTaskSequence().forEachIndexed { index, task ->
@@ -303,7 +324,7 @@ internal constructor(
   }
 
   /** Displays the task at the relative position to the current one. Supports negative steps. */
-  fun step(stepCount: Int) {
+  suspend fun step(stepCount: Int) {
     val reverse = stepCount < 0
     val task =
       getTaskSequence(startId = currentTaskId.value, reversed = reverse)
@@ -314,15 +335,25 @@ internal constructor(
     // Save collected data as draft
     clearDraft()
     saveDraft()
+
+    _uiState.emit(UiState.TaskUpdated(getTaskPosition()))
   }
 
-  /** Returns true if the given task index is last if set, or the current active task. */
-  fun isLastPosition(taskIndex: Int? = null): Boolean =
-    if (taskIndex == null) {
-      currentTaskId.value
-    } else {
-      tasks[taskIndex].id
-    } == getTaskSequence().last().id
+  private fun getTaskPosition(): TaskPosition {
+    val (index, size) = getPositionInTaskSequence()
+    return TaskPosition(
+      absoluteIndex = getAbsolutePosition(),
+      relativeIndex = index,
+      sequenceSize = size,
+    )
+  }
+
+  /** Returns true if the given [taskId] is first in the sequence of displayed tasks. */
+  fun isFirstPosition(taskId: String): Boolean = taskId == getTaskSequence().first().id
+
+  /** Returns true if the given [taskId] is last if set, or the current active task. */
+  fun isLastPosition(taskId: String? = null): Boolean =
+    (taskId ?: currentTaskId.value) == getTaskSequence().last().id
 
   /** Evaluates the task condition against the current inputs. */
   private fun evaluateCondition(condition: Condition): Boolean =

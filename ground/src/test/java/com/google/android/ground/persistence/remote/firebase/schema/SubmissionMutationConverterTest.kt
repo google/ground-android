@@ -21,19 +21,23 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.MultipleChoiceResponse
-import com.google.android.ground.model.submission.NumberResponse
-import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.CaptureLocationTaskData
+import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.DrawAreaTaskData
+import com.google.android.ground.model.submission.DropPinTaskData
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
+import com.google.android.ground.model.submission.NumberTaskData
+import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskResult
-import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskResult
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.GeoPoint
 import com.sharedtest.FakeData
+import java.time.Instant
 import java.util.Date
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Assert.assertThrows
@@ -41,7 +45,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 
-// TODO(#1734): Add coverage for date, time task types
 @RunWith(MockitoJUnitRunner::class)
 class SubmissionMutationConverterTest {
 
@@ -50,49 +53,60 @@ class SubmissionMutationConverterTest {
   private val loiId = "loi_id_1"
   private val clientTimestamp = Date()
 
-  private val textResponse = TextResponse.fromString("some data")
+  private val textTaskData = TextTaskData.fromString("some data")
 
   private val singleChoiceResponse =
-    MultipleChoiceResponse.fromList(
+    MultipleChoiceTaskData.fromList(
       MultipleChoice(
         persistentListOf(
           Option("option id 1", "code1", "Option 1"),
           Option("option id 2", "code2", "Option 2"),
         ),
-        MultipleChoice.Cardinality.SELECT_ONE
+        MultipleChoice.Cardinality.SELECT_ONE,
       ),
-      ids = listOf("option id 1")
+      ids = listOf("option id 1"),
     )
 
-  private val multipleChoiceResponse =
-    MultipleChoiceResponse.fromList(
+  private val multipleChoiceTaskData =
+    MultipleChoiceTaskData.fromList(
       MultipleChoice(
         persistentListOf(
           Option("option id 1", "code1", "Option 1"),
           Option("option id 2", "code2", "Option 2"),
         ),
-        MultipleChoice.Cardinality.SELECT_MULTIPLE
+        MultipleChoice.Cardinality.SELECT_MULTIPLE,
       ),
-      ids = listOf("option id 1", "option id 2")
+      ids = listOf("option id 1", "option id 2"),
     )
 
-  private val numberResponse = NumberResponse.fromNumber("123")
+  private val numberTaskData = NumberTaskData.fromNumber("123")
 
-  private val dropPinTaskResult = DropPinTaskResult(Point(Coordinates(10.0, 20.0)))
+  private val dropPinTaskResult = DropPinTaskData(Point(Coordinates(10.0, 20.0)))
 
   private val drawAreaTaskResult =
-    DrawAreaTaskResult(
+    DrawAreaTaskData(
       Polygon(
         LinearRing(
           listOf(
             Coordinates(10.0, 20.0),
             Coordinates(20.0, 30.0),
             Coordinates(30.0, 20.0),
-            Coordinates(10.0, 20.0)
+            Coordinates(10.0, 20.0),
           )
         )
       )
     )
+
+  private val captureLocationTaskResult =
+    CaptureLocationTaskData(
+      location = Point(Coordinates(10.0, 20.0)),
+      accuracy = 80.8,
+      altitude = 112.31,
+    )
+
+  private val dateTaskResult = DateTaskData(Date.from(Instant.EPOCH))
+
+  private val timeTaskResult = TimeTaskData(Date.from(Instant.EPOCH))
 
   private val submissionMutation =
     SubmissionMutation(
@@ -104,65 +118,71 @@ class SubmissionMutationConverterTest {
       job = job,
       deltas =
         listOf(
-          ValueDelta(taskId = "text_task", taskType = Task.Type.TEXT, newValue = textResponse),
+          ValueDelta(taskId = "text_task", taskType = Task.Type.TEXT, newTaskData = textTaskData),
           ValueDelta(
             taskId = "single_choice_task",
             taskType = Task.Type.MULTIPLE_CHOICE,
-            newValue = singleChoiceResponse
+            newTaskData = singleChoiceResponse,
           ),
           ValueDelta(
             taskId = "multiple_choice_task",
             taskType = Task.Type.MULTIPLE_CHOICE,
-            newValue = multipleChoiceResponse
+            newTaskData = multipleChoiceTaskData,
           ),
           ValueDelta(
             taskId = "number_task",
             taskType = Task.Type.NUMBER,
-            newValue = numberResponse
+            newTaskData = numberTaskData,
           ),
           ValueDelta(
             taskId = "drop_pin_task",
             taskType = Task.Type.DROP_PIN,
-            newValue = dropPinTaskResult
+            newTaskData = dropPinTaskResult,
           ),
           ValueDelta(
             taskId = "draw_area_task",
             taskType = Task.Type.DRAW_AREA,
-            newValue = drawAreaTaskResult
-          )
-        )
+            newTaskData = drawAreaTaskResult,
+          ),
+          ValueDelta(
+            taskId = "capture_location",
+            taskType = Task.Type.CAPTURE_LOCATION,
+            newTaskData = captureLocationTaskResult,
+          ),
+          ValueDelta(taskId = "date_task", taskType = Task.Type.DATE, newTaskData = dateTaskResult),
+          ValueDelta(taskId = "time_task", taskType = Task.Type.TIME, newTaskData = timeTaskResult),
+        ),
     )
 
   private val expected =
     mapOf(
-      Pair("text_task", "some data"),
-      Pair("single_choice_task", listOf("option id 1")),
-      Pair("multiple_choice_task", listOf("option id 1", "option id 2")),
-      Pair("number_task", 123.0),
-      Pair(
-        "drop_pin_task",
-        mapOf(Pair("type", "Point"), Pair("coordinates", GeoPoint(10.0, 20.0)))
-      ),
-      Pair(
-        "draw_area_task",
+      "text_task" to "some data",
+      "single_choice_task" to listOf("option id 1"),
+      "multiple_choice_task" to listOf("option id 1", "option id 2"),
+      "number_task" to 123.0,
+      "drop_pin_task" to mapOf("type" to "Point", "coordinates" to GeoPoint(10.0, 20.0)),
+      "draw_area_task" to
         mapOf(
-          Pair("type", "Polygon"),
-          Pair(
-            "coordinates",
+          "type" to "Polygon",
+          "coordinates" to
             mapOf(
-              Pair(
-                "0",
+              "0" to
                 mapOf(
-                  Pair("0", GeoPoint(10.0, 20.0)),
-                  Pair("1", GeoPoint(20.0, 30.0)),
-                  Pair("2", GeoPoint(30.0, 20.0)),
-                  Pair("3", GeoPoint(10.0, 20.0))
+                  "0" to GeoPoint(10.0, 20.0),
+                  "1" to GeoPoint(20.0, 30.0),
+                  "2" to GeoPoint(30.0, 20.0),
+                  "3" to GeoPoint(10.0, 20.0),
                 )
-              )
-            )
-          )
-        )
-      )
+            ),
+        ),
+      "capture_location" to
+        mapOf(
+          "accuracy" to 80.8,
+          "altitude" to 112.31,
+          "geometry" to mapOf("type" to "Point", "coordinates" to GeoPoint(10.0, 20.0)),
+        ),
+      "date_task" to Date.from(Instant.EPOCH),
+      "time_task" to Date.from(Instant.EPOCH),
     )
 
   private val auditInfoObject = AuditInfoConverter.fromMutationAndUser(submissionMutation, user)
@@ -172,16 +192,16 @@ class SubmissionMutationConverterTest {
     assertThat(
         SubmissionMutationConverter.toMap(
           submissionMutation.copy(type = Mutation.Type.CREATE),
-          user
+          user,
         )
       )
       .isEqualTo(
         mapOf(
-          Pair("created", auditInfoObject),
-          Pair("lastModified", auditInfoObject),
-          Pair("loiId", loiId),
-          Pair("jobId", job.id),
-          Pair("data", expected)
+          "created" to auditInfoObject,
+          "lastModified" to auditInfoObject,
+          "loiId" to loiId,
+          "jobId" to job.id,
+          "data" to expected,
         )
       )
   }
@@ -191,15 +211,15 @@ class SubmissionMutationConverterTest {
     assertThat(
         SubmissionMutationConverter.toMap(
           submissionMutation.copy(type = Mutation.Type.UPDATE),
-          user
+          user,
         )
       )
       .isEqualTo(
         mapOf(
-          Pair("lastModified", auditInfoObject),
-          Pair("loiId", loiId),
-          Pair("jobId", job.id),
-          Pair("data", expected)
+          "lastModified" to auditInfoObject,
+          "loiId" to loiId,
+          "jobId" to job.id,
+          "data" to expected,
         )
       )
   }

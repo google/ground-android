@@ -21,6 +21,8 @@ apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.google.dagger.hilt.android'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'com.google.android.gms.oss-licenses-plugin'
+apply plugin: 'com.google.protobuf'
 
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
@@ -35,6 +37,9 @@ project.ext {
     mockitoVersion = "5.11.0"
     coroutinesVersion = "1.6.4"
 }
+
+// Directory where downloaded Protocol Buffer definitions are extracted to.
+def extractedGroundProtoPath = layout.buildDirectory.dir('extracted-ground-protos')
 
 // Extract API key from google-services.json for use with Google Maps SDK.
 import groovy.json.JsonSlurper
@@ -54,6 +59,18 @@ def getCommitSha1 = { ->
 
 android {
     compileSdk rootProject.androidCompileSdk
+    sourceSets {
+        main {
+            proto {
+                srcDir extractedGroundProtoPath
+            }
+        }
+        test {
+            proto {
+                srcDir 'src/test/proto'
+            }
+        }
+    }
     defaultConfig {
         applicationId "com.google.android.ground"
         minSdkVersion rootProject.androidMinSdk
@@ -157,6 +174,10 @@ android {
     namespace 'com.google.android.ground'
 }
 
+configurations {
+    groundProtoJar
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
@@ -169,6 +190,7 @@ dependencies {
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$project.kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$project.kotlinVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.6.3"
     implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7"
@@ -184,11 +206,21 @@ dependencies {
 
     // UI widgets.
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.compose.ui:ui:1.6.2'
-    implementation 'androidx.compose.compiler:compiler:1.5.10'
-    implementation 'androidx.compose.material3:material3-android:1.2.0'
+
+    // Jetpack Compose
+    implementation 'androidx.compose.ui:ui:1.6.7'
+    implementation 'androidx.compose.compiler:compiler:1.5.14'
+    implementation 'androidx.compose.material3:material3-android:1.2.1'
+    implementation 'androidx.compose.ui:ui-tooling-preview-android:1.6.7'
+    // Test rules and transitive dependencies:
+    testImplementation('androidx.compose.ui:ui-test-junit4:1.6.7')
+    // Needed for createComposeRule(), but not for createAndroidComposeRule<YourActivity>():
+    debugImplementation('androidx.compose.ui:ui-test-manifest:1.6.7')
+    debugImplementation 'androidx.compose.ui:ui-tooling:1.6.7'
+    stagingImplementation('androidx.compose.ui:ui-test-manifest:1.6.7')
+    implementation 'androidx.compose.runtime:runtime-livedata:1.6.7'
 
     // Google Play Services.
     implementation 'com.google.android.gms:play-services-auth:21.0.0'
@@ -255,7 +287,7 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
 
     // Logging
-    implementation 'com.jakewharton.timber:timber:5.0.1'
+    implementation "com.jakewharton.timber:timber:$timberVersion"
 
     // Room
     implementation "androidx.room:room-runtime:$roomVersion"
@@ -267,9 +299,12 @@ dependencies {
     implementation "androidx.work:work-runtime-ktx:$workVersion"
     testImplementation "androidx.work:work-testing:$workVersion"
 
+    // OSS Licenses Plugin
+    implementation 'com.google.android.gms:play-services-oss-licenses:17.0.1'
+
     // Testing
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'junit:junit:4.13.2'
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "junit:junit:$junitVersion"
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     testImplementation 'com.google.truth:truth:1.4.2'
     androidTestImplementation 'com.google.truth:truth:1.4.2'
@@ -308,6 +343,47 @@ dependencies {
     stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
 
     implementation "com.google.guava:guava:31.1-android"
+
+    // TODO(#1748): Move protos into shared module and set correct path here.
+    api("com.google.protobuf:protobuf-kotlin-lite:4.26.1")
+
+    // Pulls protodefs from the specified commit in the ground-platform repo.
+    groundProtoJar "com.github.google:ground-platform:5211a4f@jar"
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:4.26.1"
+    }
+    generateProtoTasks {
+        all().each {
+            it.plugins {
+                // Generated Kotlin classes depend on these.
+                create("java") {
+                    option("lite")
+                }
+            }
+            it.builtins {
+                create("kotlin") {
+                    option("lite")
+                }
+            }
+            it.dependsOn extractGroundProtoJar
+        }
+    }
+}
+
+// Extracts protodefs in downloaded JAR to the build/extracted-protos dirs.
+task extractGroundProtoJar(type: Copy) {
+    from(
+        // Defer resolution until after configuration phase.
+        provider {
+            configurations.groundProtoJar.collect {
+                zipTree(it)
+            }
+        })
+    into extractedGroundProtoPath
+    include "**/*.proto"
 }
 
 // Allow references to generated code.

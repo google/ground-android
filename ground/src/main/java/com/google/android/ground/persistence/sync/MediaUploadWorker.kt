@@ -69,7 +69,7 @@ constructor(
       mutationRepository.getSubmissionMutations(
         loiId,
         MutationEntitySyncStatus.MEDIA_UPLOAD_PENDING,
-        MutationEntitySyncStatus.MEDIA_UPLOAD_AWAITING_RETRY
+        MutationEntitySyncStatus.MEDIA_UPLOAD_AWAITING_RETRY,
       )
     val results = uploadMedia(mutations)
     return if (results.any { it.mediaUploadPending() }) Result.retry() else Result.success()
@@ -108,7 +108,7 @@ constructor(
             syncStatus = Mutation.SyncStatus.MEDIA_UPLOAD_AWAITING_RETRY,
             lastError = cause,
           )
-        }
+        },
       )
 
   private suspend fun uploadPhotos(mutation: SubmissionMutation): kotlin.Result<Unit> =

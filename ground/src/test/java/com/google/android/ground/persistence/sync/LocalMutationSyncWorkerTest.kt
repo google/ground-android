@@ -43,7 +43,6 @@ import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
 import org.junit.Before
@@ -52,7 +51,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class LocalMutationSyncWorkerTest : BaseHiltTest() {
@@ -78,7 +76,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
       override fun createWorker(
         appContext: Context,
         workerClassName: String,
-        workerParameters: WorkerParameters
+        workerParameters: WorkerParameters,
       ): ListenableWorker =
         LocalMutationSyncWorker(
           appContext,
@@ -86,7 +84,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
           mutationRepository,
           localUserStore,
           fakeRemoteDataStore,
-          mockMediaUploadWorkManager
+          mockMediaUploadWorkManager,
         )
     }
 
@@ -136,7 +134,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
       assertMutationsState(
         failed = 2,
         retryCount = listOf(1, 1),
-        lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE)
+        lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE),
       )
     }
 
@@ -155,7 +153,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
         assertMutationsState(
           failed = 2,
           retryCount = listOf(i, i),
-          lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE)
+          lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE),
         )
       }
 
@@ -168,7 +166,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
       assertMutationsState(
         failed = 2,
         retryCount = listOf(retryCount, retryCount),
-        lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE)
+        lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE),
       )
     }
 
@@ -178,7 +176,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     complete: Int = 0,
     failed: Int = 0,
     retryCount: List<Int> = listOf(),
-    lastErrors: List<String> = listOf()
+    lastErrors: List<String> = listOf(),
   ) {
     assertWithMessage("Unknown mutations count incorrect")
       .that(mutationRepository.getMutations(TEST_LOI_ID, UNKNOWN))
@@ -211,7 +209,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
       locationOfInterestId = TEST_LOI_ID,
       userId = TEST_USER_ID,
       surveyId = TEST_SURVEY_ID,
-      geometry = TEST_GEOMETRY
+      geometry = TEST_GEOMETRY,
     )
 
   private fun createSubmissionMutation() =
@@ -221,13 +219,13 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
       locationOfInterestId = TEST_LOI_ID,
       userId = TEST_USER_ID,
       job = TEST_JOB,
-      surveyId = TEST_SURVEY_ID
+      surveyId = TEST_SURVEY_ID,
     )
 
   private suspend fun createAndDoWork(context: Context, loiId: String?): ListenableWorker.Result =
     TestListenableWorkerBuilder<LocalMutationSyncWorker>(
         context,
-        inputData = workDataOf(Pair(LOCATION_OF_INTEREST_ID_PARAM_KEY, loiId))
+        inputData = workDataOf(Pair(LOCATION_OF_INTEREST_ID_PARAM_KEY, loiId)),
       )
       .setWorkerFactory(factory)
       .build()

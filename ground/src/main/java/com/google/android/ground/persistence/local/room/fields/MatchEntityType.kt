@@ -50,6 +50,7 @@ enum class MatchEntityType(private val intValue: Int) : IntEnum {
 
     @JvmStatic
     @TypeConverter
-    fun fromInt(intValue: Int): MatchEntityType = IntEnum.fromInt(values(), intValue, UNKNOWN)
+    fun fromInt(intValue: Int): MatchEntityType =
+      IntEnum.fromInt(entries.toTypedArray(), intValue, UNKNOWN)
   }
 }

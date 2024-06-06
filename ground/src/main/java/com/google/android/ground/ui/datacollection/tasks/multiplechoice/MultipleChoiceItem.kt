@@ -15,10 +15,12 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
+import com.google.android.ground.model.task.MultipleChoice.Cardinality
 import com.google.android.ground.model.task.Option
 
 data class MultipleChoiceItem(
   val option: Option,
+  val cardinality: Cardinality,
   val isSelected: Boolean = false,
   val isOtherOption: Boolean = false,
   val otherText: String = "",

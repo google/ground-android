@@ -42,4 +42,17 @@ object CustomViewActions {
         uiController?.loopMainThreadUntilIdle()
       }
     }
+
+  /** Removes number of characters from text input. */
+  internal fun clearText(): ViewAction =
+    object : ViewAction {
+      override fun getDescription(): String = "force type text"
+
+      override fun getConstraints(): Matcher<View> = allOf(isEnabled())
+
+      override fun perform(uiController: UiController?, view: View?) {
+        (view as? EditText)?.setText("")
+        uiController?.loopMainThreadUntilIdle()
+      }
+    }
 }

@@ -19,17 +19,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.unit.dp
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
-import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.model.task.Task
@@ -38,9 +44,8 @@ import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.LoiNameDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
-import com.google.android.ground.ui.datacollection.components.TaskButtonFactory
 import com.google.android.ground.ui.datacollection.components.TaskView
-import java.util.EnumMap
+import com.google.android.ground.ui.theme.AppTheme
 import kotlin.properties.Delegates
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
@@ -50,30 +55,30 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   protected val dataCollectionViewModel: DataCollectionViewModel by
     hiltNavGraphViewModels(R.id.data_collection)
 
-  private val buttons: EnumMap<ButtonAction, TaskButton> = EnumMap(ButtonAction::class.java)
-  private val buttonsIndex: MutableMap<Int, ButtonAction> = mutableMapOf()
+  @TestOnly val buttonDataList: MutableList<ButtonData> = mutableListOf()
+
   private lateinit var taskView: TaskView
   protected lateinit var viewModel: T
 
-  /** Position of the task in the Job's sorted task list. Used for instantiating the [viewModel]. */
-  var position by Delegates.notNull<Int>()
+  /** ID of the associated task in the Job. Used for instantiating the [viewModel]. */
+  var taskId by Delegates.notNull<String>()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     if (savedInstanceState != null) {
-      position = savedInstanceState.getInt(POSITION)
+      taskId = requireNotNull(savedInstanceState.getString(TASK_ID))
     }
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    outState.putInt(POSITION, position)
+    outState.putString(TASK_ID, taskId)
   }
 
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
-    savedInstanceState: Bundle?
+    savedInstanceState: Bundle?,
   ): View? {
     super.onCreateView(inflater, container, savedInstanceState)
     taskView = onCreateTaskView(inflater)
@@ -84,7 +89,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     super.onViewCreated(view, savedInstanceState)
     view.doOnAttach {
       @Suppress("UNCHECKED_CAST", "LabeledExpression")
-      val vm = dataCollectionViewModel.getTaskViewModel(position) as? T ?: return@doOnAttach
+      val vm = dataCollectionViewModel.getTaskViewModel(taskId) as? T ?: return@doOnAttach
 
       viewModel = vm
       taskView.bind(this, viewModel)
@@ -93,6 +98,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       // Add actions buttons after the view model is bound to the view.
       addPreviousButton()
       onCreateActionButtons()
+      renderButtons()
       onActionButtonsCreated()
 
       onTaskViewAttached()
@@ -124,20 +130,22 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** Invoked when the all [ButtonAction]s are added to the current [TaskView]. */
   open fun onActionButtonsCreated() {
-    viewLifecycleOwner.lifecycleScope.launch { viewModel.taskValue.collect { onValueChanged(it) } }
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewModel.taskTaskData.collect { onValueChanged(it) }
+    }
   }
 
   /** Invoked when the data associated with the current task gets modified. */
-  protected open fun onValueChanged(value: Value?) {
-    for ((_, button) in buttons) {
-      button.onValueChanged(value)
+  protected open fun onValueChanged(taskData: TaskData?) {
+    for ((_, button) in buttonDataList) {
+      button.onValueChanged(taskData)
     }
   }
 
   private fun addPreviousButton() =
     addButton(ButtonAction.PREVIOUS)
       .setOnClickListener { moveToPrevious() }
-      .showIfTrue(position != 0)
+      .enableIfTrue(!dataCollectionViewModel.isFirstPosition(taskId))
 
   protected fun addNextButton() =
     addButton(ButtonAction.NEXT)
@@ -184,40 +192,47 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  fun addUndoButton() =
+  fun addUndoButton() = addUndoButton { viewModel.clearResponse() }
+
+  fun addUndoButton(clickHandler: () -> Unit) =
     addButton(ButtonAction.UNDO)
-      .setOnClickListener { viewModel.clearResponse() }
+      .setOnClickListener { clickHandler() }
       .setOnValueChanged { button, value -> button.showIfTrue(value.isNotNullOrEmpty()) }
       .hide()
 
   protected fun addButton(buttonAction: ButtonAction): TaskButton {
     val action = if (buttonAction.shouldReplaceWithDoneButton()) ButtonAction.DONE else buttonAction
-    check(!buttons.contains(action)) { "Button $action already bound" }
-    val button =
-      TaskButtonFactory.createAndAttachButton(
-        action,
-        when (buttonAction.location) {
-          ButtonAction.Location.START -> taskView.actionButtonsContainer.startButtons
-          ButtonAction.Location.END -> taskView.actionButtonsContainer.endButtons
-        },
-        layoutInflater
-      )
-    buttonsIndex[buttons.size] = action
-    buttons[action] = button
+    check(!buttonDataList.any { it.button.action == action }) { "Button $action already bound" }
+    val button = TaskButton(action)
+    buttonDataList.add(ButtonData(index = buttonDataList.size, button))
     return button
+  }
+
+  /** Adds the action buttons to the UI. */
+  private fun renderButtons() {
+    taskView.actionButtonsContainer.composeView.apply {
+      setContent {
+        AppTheme {
+          Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+          ) {
+            // TODO(#2417): Previous button should always be positioned to the left of the screen.
+            //  Rest buttons should be aligned to the right side of the screen.
+            buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
+          }
+        }
+      }
+    }
   }
 
   /** Returns true if the given [ButtonAction] should be replace with "Done" button. */
   private fun ButtonAction.shouldReplaceWithDoneButton() =
-    this == ButtonAction.NEXT && dataCollectionViewModel.isLastPosition(position)
+    this == ButtonAction.NEXT && dataCollectionViewModel.isLastPosition(taskId)
 
   fun getTask(): Task = viewModel.task
 
-  fun getCurrentValue(): Value? = viewModel.taskValue.value
-
-  @TestOnly fun getButtons() = buttons
-
-  @TestOnly fun getButtonsIndex() = buttonsIndex
+  fun getCurrentValue(): TaskData? = viewModel.taskTaskData.value
 
   private fun launchLoiNameDialog() {
     dataCollectionViewModel.loiNameDialogOpen.value = true
@@ -225,9 +240,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       (view as ViewGroup).addView(
         ComposeView(requireContext()).apply {
           setContent {
-            // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
-            ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
-              handleLoiNameSet(loiName = it)
+            AppTheme {
+              // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
+              ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
+                handleLoiNameSet(loiName = it)
+              }
             }
           }
         }
@@ -250,13 +267,14 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
           name = initialNameValue
           openAlertDialog = false
         },
-        onTextFieldChange = { name = it }
+        onTextFieldChange = { name = it },
       )
     }
   }
 
+  data class ButtonData(val index: Int, val button: TaskButton)
+
   companion object {
-    /** Key used to store the position of the task in the Job's sorted tasklist. */
-    const val POSITION = "position"
+    const val TASK_ID = "taskId"
   }
 }

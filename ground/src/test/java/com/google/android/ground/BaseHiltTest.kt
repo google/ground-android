@@ -16,6 +16,7 @@
 package com.google.android.ground
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import com.google.android.ground.persistence.local.room.LocalDatabase
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltTestApplication
@@ -42,6 +43,8 @@ open class BaseHiltTest {
 
   /* Allows creating mocks using @Mock annotation. */
   @get:Rule(order = 2) var rule: MockitoRule = MockitoJUnit.rule()
+
+  @get:Rule(order = 3) val composeTestRule = createComposeRule()
 
   @Inject lateinit var database: LocalDatabase
   @Inject lateinit var testDispatcher: TestDispatcher

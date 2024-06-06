@@ -32,13 +32,11 @@ import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MainViewModelTest : BaseHiltTest() {
@@ -112,7 +110,10 @@ class MainViewModelTest : BaseHiltTest() {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
 
-    testNavigateTo(navigator.getNavigateRequests(), SignInFragmentDirections.showTermsOfService()) {
+    testNavigateTo(
+      navigator.getNavigateRequests(),
+      SignInFragmentDirections.showTermsOfService(false),
+    ) {
       fakeAuthenticationManager.signIn()
     }
 
@@ -128,7 +129,7 @@ class MainViewModelTest : BaseHiltTest() {
 
     testNavigateTo(
       navigator.getNavigateRequests(),
-      SignInFragmentDirections.showSurveySelectorScreen(true)
+      SignInFragmentDirections.showSurveySelectorScreen(true),
     ) {
       fakeAuthenticationManager.signIn()
     }
@@ -145,13 +146,13 @@ class MainViewModelTest : BaseHiltTest() {
       Result.failure(
         FirebaseFirestoreException(
           "permission denied",
-          FirebaseFirestoreException.Code.PERMISSION_DENIED
+          FirebaseFirestoreException.Code.PERMISSION_DENIED,
         )
       )
 
     testNavigateTo(
       navigator.getNavigateRequests(),
-      SignInFragmentDirections.showPermissionDeniedDialogFragment()
+      SignInFragmentDirections.showPermissionDeniedDialogFragment(),
     ) {
       fakeAuthenticationManager.signIn()
     }

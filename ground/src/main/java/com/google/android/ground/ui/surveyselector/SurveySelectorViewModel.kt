@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.surveyselector
 
 import androidx.lifecycle.viewModelScope
-import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
@@ -31,14 +30,11 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -52,41 +48,43 @@ internal constructor(
   private val activateSurveyUseCase: ActivateSurveyUseCase,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  private val userRepository: UserRepository
+  private val userRepository: UserRepository,
 ) : AbstractViewModel() {
 
-  // TODO(#2081): Expose non-mutable state flow.
-  val surveyListState: MutableStateFlow<State?> = MutableStateFlow(null)
-  private val _errorFlow: MutableSharedFlow<Int?> = MutableSharedFlow()
-  val errorFlow: Flow<Int> = _errorFlow.asSharedFlow().filterNotNull()
+  private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.FetchingSurveys)
+  val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+  init {
+    viewModelScope.launch {
+      getSurveyList().distinctUntilChanged().collect {
+        _uiState.emit(UiState.SurveyListAvailable(it))
+      }
+    }
+  }
 
   /** Returns a flow of [SurveyListItem] to be displayed to the user. */
-  suspend fun getSurveyList(): Flow<List<SurveyListItem>> =
-    surveyRepository
-      .getSurveyList(authManager.getAuthenticatedUser())
-      .distinctUntilChanged()
-      .onStart { setLoading() }
-      .map { surveys -> surveys.sortedWith(compareBy({ !it.availableOffline }, { it.title })) }
-      .onEach {
-        if (it.isEmpty()) {
-          setNotFound()
-        } else {
-          setLoaded()
-        }
-      }
+  private suspend fun getSurveyList(): Flow<List<SurveyListItem>> =
+    surveyRepository.getSurveyList(authManager.getAuthenticatedUser()).map { surveys ->
+      surveys.sortedWith(compareBy({ !it.availableOffline }, { it.title }))
+    }
 
   /** Triggers the specified survey to be loaded and activated. */
   fun activateSurvey(surveyId: String) =
     viewModelScope.launch {
-      setLoading()
-      val result = runCatching { activateSurveyUseCase(surveyId) }
-      setLoaded()
-      if (result.isSuccess) {
-        navigateToHomeScreen()
-      } else {
-        Timber.e(result.exceptionOrNull())
-        _errorFlow.emit(R.string.error_message)
-      }
+      runCatching {
+          _uiState.emit(UiState.ActivatingSurvey)
+          activateSurveyUseCase(surveyId)
+        }
+        .fold(
+          onSuccess = {
+            _uiState.emit(UiState.SurveyActivated)
+            navigateToHomeScreen()
+          },
+          onFailure = { exception ->
+            Timber.e(exception)
+            _uiState.emit(UiState.Error)
+          },
+        )
     }
 
   private fun navigateToHomeScreen() {
@@ -99,23 +97,5 @@ internal constructor(
 
   fun signOut() {
     userRepository.signOut()
-  }
-
-  private fun setNotFound() {
-    surveyListState.value = State.NOT_FOUND
-  }
-
-  private fun setLoading() {
-    surveyListState.value = State.LOADING
-  }
-
-  private fun setLoaded() {
-    surveyListState.value = State.LOADED
-  }
-
-  enum class State {
-    NOT_FOUND,
-    LOADING,
-    LOADED,
   }
 }

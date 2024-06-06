@@ -24,7 +24,9 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
-import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.DrawAreaTaskData
+import com.google.android.ground.model.submission.DrawAreaTaskIncompleteData
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -67,12 +69,14 @@ internal constructor(
 
   private var strokeColor: Int = 0
 
-  override fun initialize(job: Job, task: Task, value: Value?) {
-    super.initialize(job, task, value)
+  override fun initialize(job: Job, task: Task, taskData: TaskData?) {
+    super.initialize(job, task, taskData)
     strokeColor = job.getDefaultColor()
   }
 
   fun isMarkedComplete(): Boolean = isMarkedComplete
+
+  fun getLastVertex() = vertices.lastOrNull()
 
   /**
    * If the distance between the last added vertex and the given [target] is more than the
@@ -97,10 +101,6 @@ internal constructor(
     addVertex(updatedTarget, true)
   }
 
-  override fun clearResponse() {
-    removeLastVertex()
-  }
-
   /** Attempts to remove the last vertex of drawn polygon, if any. */
   fun removeLastVertex() {
     // Do nothing if there are no vertices to remove.
@@ -119,7 +119,7 @@ internal constructor(
     if (updatedVertices.isEmpty()) {
       setValue(null)
     } else {
-      setValue(DrawAreaTaskIncompleteResult(LineString(updatedVertices)))
+      setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
     }
   }
 
@@ -146,7 +146,7 @@ internal constructor(
 
     // Save response iff it is user initiated
     if (!shouldOverwriteLastVertex) {
-      setValue(DrawAreaTaskIncompleteResult(LineString(updatedVertices.toImmutableList())))
+      setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices.toImmutableList())))
     }
   }
 
@@ -162,7 +162,7 @@ internal constructor(
     isMarkedComplete = true
 
     refreshMap()
-    setValue(DrawAreaTaskResult(Polygon(LinearRing(vertices))))
+    setValue(DrawAreaTaskData(Polygon(LinearRing(vertices))))
   }
 
   /** Updates the [Feature] drawn on map based on the value of [vertices]. */
@@ -182,12 +182,12 @@ internal constructor(
       }
   }
 
-  override fun validate(task: Task, value: Value?): String? {
+  override fun validate(task: Task, taskData: TaskData?): String? {
     // Invalid response for draw area task.
-    if (task.type == Task.Type.DRAW_AREA && value is DrawAreaTaskIncompleteResult) {
+    if (task.type == Task.Type.DRAW_AREA && taskData is DrawAreaTaskIncompleteData) {
       return resources.getString(R.string.incomplete_area)
     }
-    return super.validate(task, value)
+    return super.validate(task, taskData)
   }
 
   companion object {

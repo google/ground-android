@@ -31,10 +31,6 @@
     <item name="toolbarNavigationButtonStyle">@style/Widget.App.Toolbar.Button.Navigation</item>
   </style>
 
-  <style name="AppTheme.Launcher">
-    <item name="android:windowBackground">@drawable/launch_screen</item>
-  </style>
-
   <style name="AppTheme.Base" parent="Theme.Material3.DayNight.NoActionBar">
     <!-- See https://material.io/develop/android/theming/color/ for full list. -->
     <item name="colorPrimary">@color/md_theme_primary</item>
@@ -58,6 +54,8 @@
     <item name="colorOnBackground">@color/md_theme_onBackground</item>
     <item name="colorSurface">@color/md_theme_surface</item>
     <item name="colorSurfaceContainer">@color/md_theme_surfaceContainer</item>
+    <item name="colorSurfaceContainerLow">@color/md_theme_surfaceContainerLow</item>
+    <item name="colorSurfaceContainerLowest">@color/md_theme_surfaceContainerLowest</item>
     <item name="colorOnSurface">@color/md_theme_onSurface</item>
     <item name="colorSurfaceVariant">@color/md_theme_surfaceVariant</item>
     <item name="colorOnSurfaceVariant">@color/md_theme_onSurfaceVariant</item>
@@ -90,25 +88,7 @@
   <style name="NavDrawerHeader.Image">
     <item name="android:layout_width">@dimen/nav_drawer_profile_image_size</item>
     <item name="android:layout_height">@dimen/nav_drawer_profile_image_size</item>
-    <item name="android:layout_marginTop">24dp</item>
     <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.App.CornerSize50Percent</item>
-  </style>
-
-  <style name="NavDrawerHeader.PrimaryText">
-    <item name="android:layout_width">wrap_content</item>
-    <item name="android:layout_height">wrap_content</item>
-    <item name="android:layout_marginTop">24dp</item>
-    <item name="android:textAppearance">@style/TextAppearance.AppCompat.Headline</item>
-    <item name="android:textColor">?attr/colorOnSurface</item>
-    <item name="android:textStyle">bold</item>
-  </style>
-
-  <style name="NavDrawerHeader.SecondaryText">
-    <item name="android:layout_width">wrap_content</item>
-    <item name="android:layout_height">wrap_content</item>
-    <item name="android:layout_marginBottom">24dp</item>
-    <item name="android:textAppearance">@style/TextAppearance.AppCompat.Small</item>
-    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
   </style>
 
   <style name="TaskChipButton" parent="Widget.MaterialComponents.Chip.Action">
@@ -122,28 +102,9 @@
     <item name="android:paddingBottom">10dp</item>
   </style>
 
-  <style name="TaskChipButton.DarkGreen">
-    <item name="android:backgroundTint">@drawable/task_dark_green_btn_selector</item>
-    <item name="android:textColor">@color/task_dark_green_btn_selector</item>
-  </style>
-
   <style name="TaskChipButton.LightGreen">
     <item name="android:backgroundTint">@drawable/task_light_green_btn_selector</item>
     <item name="android:textColor">?attr/colorOnSurface</item>
-  </style>
-
-  <style name="TaskChipButton.Transparent">
-    <item name="android:backgroundTint">@drawable/task_transparent_btn_selector</item>
-    <item name="android:textColor">@color/task_transparent_btn_selector</item>
-  </style>
-
-  <style name="TaskChipButton.Transparent.Outline">
-    <item name="strokeColor">?attr/colorOutline</item>
-    <item name="strokeWidth">2dp</item>
-  </style>
-
-  <style name="TaskChipButton.Transparent.TextAndIcon">
-    <item name="iconTint">?attr/colorPrimary</item>
   </style>
 
   <style name="TextAppearance.App.TitleSmall" parent="TextAppearance.Material3.TitleSmall">

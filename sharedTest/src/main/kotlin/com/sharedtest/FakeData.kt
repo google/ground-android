@@ -55,7 +55,7 @@ object FakeData {
       name = "Job",
       id = "JOB",
       style = Style("#000"),
-      strategy = Job.DataCollectionStrategy.MIXED
+      strategy = Job.DataCollectionStrategy.MIXED,
     )
 
   val USER = User("user_id", "user@gmail.com", "User")
@@ -67,7 +67,7 @@ object FakeData {
       "Test survey description",
       mapOf(JOB.id to JOB),
       listOf(),
-      mapOf(USER.email to "data-collector")
+      mapOf(USER.email to "data-collector"),
     )
 
   const val LOCATION_OF_INTEREST_NAME = "Test LOI Name"
@@ -89,12 +89,12 @@ object FakeData {
       type = FeatureType.LOCATION_OF_INTEREST.ordinal,
       geometry = LOCATION_OF_INTEREST.geometry,
       style = Feature.Style(0),
-      clusterable = true
+      clusterable = true,
     )
 
   val LOCATION_OF_INTEREST_CLUSTER_ITEM = FeatureClusterItem(LOCATION_OF_INTEREST_FEATURE)
 
-  val VERTICES: List<Point> =
+  private val VERTICES: List<Point> =
     listOf(
       Point(Coordinates(0.0, 0.0)),
       Point(Coordinates(10.0, 10.0)),
@@ -118,8 +118,8 @@ object FakeData {
   val COORDINATES = Coordinates(42.0, 18.0)
 
   private const val SUBMISSION_ID = "789"
-  const val TASK_1_NAME = "task 1"
-  const val TASK_2_NAME = "task 2"
+  private const val TASK_1_NAME = "task 1"
+  private const val TASK_2_NAME = "task 2"
 
   val SUBMISSION: Submission =
     Submission(
@@ -130,17 +130,17 @@ object FakeData {
         tasks =
           mapOf(
             "field id" to Task("field id", 0, Task.Type.TEXT, TASK_1_NAME, true),
-            "field id 2" to Task("field id 2", 1, Task.Type.TEXT, TASK_2_NAME, true)
+            "field id 2" to Task("field id 2", 1, Task.Type.TEXT, TASK_2_NAME, true),
           )
       ),
       AUDIT_INFO,
-      AUDIT_INFO
+      AUDIT_INFO,
     )
 
   fun newTask(
     id: String = "",
     type: Task.Type = Task.Type.TEXT,
-    multipleChoice: MultipleChoice? = null
+    multipleChoice: MultipleChoice? = null,
   ): Task = Task(id, 0, type, "", false, multipleChoice)
 
   fun newLoiMutation(
@@ -158,7 +158,7 @@ object FakeData {
       userId = USER_ID,
       surveyId = SURVEY_ID,
       clientTimestamp = Date(),
-      properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME)
+      properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
     )
 
   fun newAoiMutation(
@@ -176,6 +176,6 @@ object FakeData {
       userId = USER_ID,
       surveyId = SURVEY_ID,
       clientTimestamp = Date(),
-      properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME)
+      properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
     )
 }

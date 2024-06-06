@@ -39,8 +39,8 @@ class SurveyTest {
           Pair(viewerEmail, Role.VIEWER.toString()),
           Pair(dataCollectorEmail, Role.DATA_COLLECTOR.toString()),
           Pair(surveyOrganizerEmail, Role.SURVEY_ORGANIZER.toString()),
-          Pair(badRoleEmail, "UNKNOWN_ROLE")
-        )
+          Pair(badRoleEmail, "UNKNOWN_ROLE"),
+        ),
     )
 
   @Test

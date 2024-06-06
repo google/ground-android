@@ -25,7 +25,7 @@ import androidx.work.testing.TestListenableWorkerBuilder
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
@@ -69,14 +69,14 @@ class MediaUploadWorkerTest : BaseHiltTest() {
       override fun createWorker(
         appContext: Context,
         workerClassName: String,
-        workerParameters: WorkerParameters
+        workerParameters: WorkerParameters,
       ): ListenableWorker =
         MediaUploadWorker(
           context,
           workerParameters,
           fakeRemoteStorageManager,
           mutationRepository,
-          userMediaRepository
+          userMediaRepository,
         )
     }
 
@@ -123,12 +123,12 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     val mutation = createSubmissionMutation() // a valid mutation
     val delt = buildList {
       addAll(mutation.deltas)
-      add(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, TextResponse("does_not_exist.jpg")))
+      add(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, TextTaskData("does_not_exist.jpg")))
     }
     val updatedMutation =
       mutation.copy(
         deltas = delt,
-        syncStatus = Mutation.SyncStatus.MEDIA_UPLOAD_PENDING
+        syncStatus = Mutation.SyncStatus.MEDIA_UPLOAD_PENDING,
       ) // add an additional non-existent photo to the mutation
 
     localUserStore.insertOrUpdateUser(FakeData.USER)
@@ -168,7 +168,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
   private suspend fun createAndDoWork(context: Context, loiId: String) {
     TestListenableWorkerBuilder<MediaUploadWorker>(
         context,
-        MediaUploadWorker.createInputData(loiId)
+        MediaUploadWorker.createInputData(loiId),
       )
       .setWorkerFactory(factory)
       .build()
@@ -177,12 +177,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
 
   // Assert a given number of mutations of the specified status exist.
   private suspend fun assertThatMutationCountEquals(status: MutationEntitySyncStatus, count: Int) {
-    assertThat(
-        mutationRepository.getMutations(
-          FakeData.LOCATION_OF_INTEREST.id,
-          status,
-        )
-      )
+    assertThat(mutationRepository.getMutations(FakeData.LOCATION_OF_INTEREST.id, status))
       .hasSize(count)
   }
 
@@ -193,13 +188,13 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     val photo =
       userMediaRepository.savePhoto(
         Bitmap.createBitmap(1, 1, Bitmap.Config.HARDWARE),
-        TEST_PHOTO_TASK.id
+        TEST_PHOTO_TASK.id,
       )
 
     return SUBMISSION_MUTATION.copy(
       job = TEST_JOB,
       deltas =
-        listOf(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, TextResponse(photoName ?: photo.name)))
+        listOf(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, TextTaskData(photoName ?: photo.name))),
     )
   }
 
@@ -229,7 +224,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
         job = FakeData.JOB,
         surveyId = FakeData.SURVEY.id,
         deltas =
-          listOf(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, TextResponse("foo/$PHOTO_TASK_ID.jpg")))
+          listOf(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, TextTaskData("foo/$PHOTO_TASK_ID.jpg"))),
       )
   }
 }

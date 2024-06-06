@@ -17,7 +17,6 @@ package com.google.android.ground.ui.home.mapcontainer
 
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
-import com.google.android.ground.Config.ZOOM_LEVEL_THRESHOLD
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
@@ -33,7 +32,6 @@ import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
-import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.isLocationOfInterest
@@ -41,7 +39,6 @@ import javax.inject.Inject
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -53,7 +50,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -81,10 +77,10 @@ internal constructor(
 
   private val selectedLoiIdFlow = MutableStateFlow<String?>(null)
 
-  val activeSurvey: StateFlow<Survey?> = surveyRepository.activeSurveyFlow
+  private val activeSurvey: StateFlow<Survey?> = surveyRepository.activeSurveyFlow
 
   /** Captures essential, high-level derived properties for a given survey. */
-  data class SurveyProperties(val addLoiPermitted: Boolean, val readOnly: Boolean)
+  data class SurveyProperties(val addLoiPermitted: Boolean, val noLois: Boolean)
 
   /**
    * This flow emits [SurveyProperties] when the active survey changes. Callers can use this data to
@@ -93,7 +89,8 @@ internal constructor(
   val surveyUpdateFlow: Flow<SurveyProperties> =
     activeSurvey.filterNotNull().map { survey ->
       val lois = loiRepository.getLocationsOfInterests(survey).first()
-      SurveyProperties(survey.jobs.any { job -> job.canDataCollectorsAddLois }, lois.isEmpty())
+      val addLoiPermitted = survey.jobs.any { job -> job.canDataCollectorsAddLois }
+      SurveyProperties(addLoiPermitted = addLoiPermitted, noLois = lois.isEmpty())
     }
 
   /** Set of [Feature] to render on the map. */
@@ -103,7 +100,7 @@ internal constructor(
    * List of [LocationOfInterest] for the active survey that are present within the viewport and
    * zoom level is clustering threshold or higher.
    */
-  val loisInViewport: StateFlow<List<LocationOfInterest>>
+  private val loisInViewport: StateFlow<List<LocationOfInterest>>
 
   /** [LocationOfInterest] clicked by the user. */
   val loiClicks: MutableStateFlow<LocationOfInterest?> = MutableStateFlow(null)
@@ -112,10 +109,7 @@ internal constructor(
    * List of [Job]s which allow LOIs to be added during field collection, populated only when zoomed
    * in far enough.
    */
-  val adHocLoiJobs: Flow<List<Job>>
-
-  /** Emits when the zoom has crossed the threshold. */
-  private val _zoomThresholdCrossed: MutableSharedFlow<Unit> = MutableSharedFlow()
+  private val adHocLoiJobs: Flow<List<Job>>
 
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
   val isZoomedInFlow: Flow<Boolean>
@@ -173,22 +167,6 @@ internal constructor(
     features
       .map { it.withSelected(it.isLocationOfInterest() && it.tag.id == selectedLoiId) }
       .toSet()
-
-  override fun onMapCameraMoved(newCameraPosition: CameraPosition) {
-    super.onMapCameraMoved(newCameraPosition)
-    onZoomChange(lastCameraPosition?.zoomLevel, newCameraPosition.zoomLevel)
-  }
-
-  private fun onZoomChange(oldZoomLevel: Float?, newZoomLevel: Float?) {
-    if (oldZoomLevel == null || newZoomLevel == null) return
-
-    val zoomThresholdCrossed =
-      oldZoomLevel < ZOOM_LEVEL_THRESHOLD && newZoomLevel >= ZOOM_LEVEL_THRESHOLD ||
-        oldZoomLevel >= ZOOM_LEVEL_THRESHOLD && newZoomLevel < ZOOM_LEVEL_THRESHOLD
-    if (zoomThresholdCrossed) {
-      viewModelScope.launch { _zoomThresholdCrossed.emit(Unit) }
-    }
-  }
 
   /**
    * Intended as a callback for when a specific map [Feature] is clicked. If the click is ambiguous,

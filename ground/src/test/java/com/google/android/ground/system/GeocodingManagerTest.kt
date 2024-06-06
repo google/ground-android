@@ -24,7 +24,6 @@ import com.google.android.ground.ui.map.gms.GmsExt.center
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
-import java.util.*
 import javax.inject.Inject
 import kotlin.test.assertEquals
 import org.junit.Test
@@ -91,7 +90,7 @@ class GeocodingManagerTest(
       countryName: String? = null,
       adminArea: String? = null,
       subAdminArea: String? = null,
-      locality: String? = null
+      locality: String? = null,
     ) =
       mock<Address> {
         whenever(it.countryName).thenReturn(countryName)
@@ -108,52 +107,52 @@ class GeocodingManagerTest(
           "$MULTIPLE_REGIONS, $COUNTRY1",
           "Points with matching country-only addresses",
           addresses(NE, level1Address1),
-          addresses(CENTER, level1Address1)
+          addresses(CENTER, level1Address1),
         ),
         testCase(
           UNNAMED_AREA,
           "Points with distinct countries",
           addresses(CENTER, level1Address1),
-          addresses(SW, level1Address2)
+          addresses(SW, level1Address2),
         ),
         testCase(
           "$ADMIN_AREA1, $COUNTRY1",
           "Points with matching admin areas",
           addresses(NE, level2Address1),
-          addresses(NW, level2Address1)
+          addresses(NW, level2Address1),
         ),
         testCase(
           "$SUB_ADMIN_AREA, $ADMIN_AREA1, $COUNTRY1",
           "Points with matching sub-admin areas",
           addresses(NE, level3Address),
-          addresses(SE, level3Address)
+          addresses(SE, level3Address),
         ),
         testCase(
           "$LOCALITY, $SUB_ADMIN_AREA, $ADMIN_AREA1, $COUNTRY1",
           "Points with matching localities",
           addresses(NE, level4Address),
-          addresses(SE, level4Address)
+          addresses(SE, level4Address),
         ),
         testCase(
           "$ADMIN_AREA1, $COUNTRY1",
           "Points with multiple admin area names: return shortest",
           addresses(NE, level2Address2, level2Address1),
-          addresses(SW, level2Address1, level2Address2)
+          addresses(SW, level2Address1, level2Address2),
         ),
         testCase(
           "$ADMIN_AREA1, $COUNTRY1",
           "Ignore null addresses",
           addresses(NE, level2Address2, nullLevel2Address, level2Address1),
-          addresses(SE, level2Address1, level2Address2, nullLevel2Address)
+          addresses(SE, level2Address1, level2Address2, nullLevel2Address),
         ),
         testCase(UNNAMED_AREA, "Only one point with address", addresses(NE, level2Address1)),
-        testCase(UNNAMED_AREA, "All points with no address")
+        testCase(UNNAMED_AREA, "All points with no address"),
       )
 
     private fun testCase(
       expectedAreaName: String,
       message: String,
-      vararg areas: Pair<Coordinates, List<Address>>
+      vararg areas: Pair<Coordinates, List<Address>>,
     ) = arrayOf(expectedAreaName, message, areas.toList())
 
     private fun addresses(coordinates: Coordinates, vararg addresses: Address) =

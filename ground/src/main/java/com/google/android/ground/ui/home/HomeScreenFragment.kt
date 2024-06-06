@@ -20,6 +20,9 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -29,12 +32,17 @@ import com.google.android.ground.MainViewModel
 import com.google.android.ground.R
 import com.google.android.ground.databinding.HomeScreenFragBinding
 import com.google.android.ground.databinding.NavDrawerHeaderBinding
+import com.google.android.ground.model.User
 import com.google.android.ground.repository.LocationOfInterestRepository
+import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
+import com.google.android.ground.ui.theme.AppTheme
+import com.google.android.ground.util.systemInsets
+import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -56,16 +64,15 @@ class HomeScreenFragment :
   @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
   @Inject lateinit var popups: EphemeralPopups
   @Inject lateinit var userRepository: UserRepository
+  @Inject lateinit var surveyRepository: SurveyRepository
 
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var homeScreenViewModel: HomeScreenViewModel
+  private lateinit var user: User
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    getViewModel(MainViewModel::class.java).windowInsets.observe(this) { insets: WindowInsetsCompat
-      ->
-      onApplyWindowInsets(insets)
-    }
+    getViewModel(MainViewModel::class.java).windowInsets.observe(this) { onApplyWindowInsets(it) }
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     lifecycleScope.launch { homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() } }
   }
@@ -91,8 +98,15 @@ class HomeScreenFragment :
     }
 
     binding.navView.setNavigationItemSelectedListener(this)
+    val navHeader = binding.navView.getHeaderView(0)
+    navHeader.findViewById<TextView>(R.id.switch_survey_button).setOnClickListener {
+      homeScreenViewModel.showSurveySelector()
+    }
+    viewLifecycleOwner.lifecycleScope.launch { user = userRepository.getAuthenticatedUser() }
+    navHeader.findViewById<ShapeableImageView>(R.id.user_image).setOnClickListener {
+      showSignOutConfirmationDialogs()
+    }
     updateNavHeader()
-
     // Re-open data collection screen if any drafts are present
     viewLifecycleOwner.lifecycleScope.launch {
       homeScreenViewModel.maybeNavigateToDraftSubmission()
@@ -104,6 +118,16 @@ class HomeScreenFragment :
       val navHeader = binding.navView.getHeaderView(0)
       val headerBinding = NavDrawerHeaderBinding.bind(navHeader)
       headerBinding.user = userRepository.getAuthenticatedUser()
+      surveyRepository.activeSurveyFlow.collect {
+        if (it == null) {
+          headerBinding.surveyInfo.visibility = View.GONE
+          headerBinding.noSurveysInfo.visibility = View.VISIBLE
+        } else {
+          headerBinding.noSurveysInfo.visibility = View.GONE
+          headerBinding.surveyInfo.visibility = View.VISIBLE
+          headerBinding.survey = it
+        }
+      }
     }
 
   private fun openDrawer() {
@@ -115,25 +139,48 @@ class HomeScreenFragment :
   }
 
   private fun onApplyWindowInsets(insets: WindowInsetsCompat) {
-    updateNavViewInsets(insets)
-  }
-
-  private fun updateNavViewInsets(insets: WindowInsetsCompat) {
     val headerView = binding.navView.getHeaderView(0)
-    headerView.setPadding(0, insets.systemWindowInsetTop, 0, 0)
+    headerView.setPadding(0, insets.systemInsets().top, 0, 0)
   }
 
   override fun onBack(): Boolean = false
 
   override fun onNavigationItemSelected(item: MenuItem): Boolean {
     when (item.itemId) {
-      R.id.nav_change_survey -> homeScreenViewModel.showSurveySelector()
       R.id.sync_status -> homeScreenViewModel.showSyncStatus()
       R.id.nav_offline_areas -> homeScreenViewModel.showOfflineAreas()
       R.id.nav_settings -> homeScreenViewModel.showSettings()
-      R.id.nav_sign_out -> homeScreenViewModel.showSignOutConfirmation()
+      R.id.about -> homeScreenViewModel.showAbout()
+      R.id.terms_of_service -> homeScreenViewModel.showTermsOfService()
     }
     closeDrawer()
     return true
+  }
+
+  private fun showSignOutConfirmationDialogs() {
+    // Note: Adding a compose view to the fragment's view dynamically causes the navigation click to
+    // stop working after 1st time. Revisit this once the navigation drawer is also generated using
+    // compose.
+    binding.composeView.apply {
+      setContent {
+        val showUserDetailsDialog = remember { mutableStateOf(true) }
+        val showSignOutDialog = remember { mutableStateOf(false) }
+
+        // reset the state for recomposition
+        showUserDetailsDialog.value = true
+        showSignOutDialog.value = false
+
+        AppTheme {
+          if (showUserDetailsDialog.value) {
+            UserDetailsDialog(showUserDetailsDialog, showSignOutDialog, user)
+          }
+          if (showSignOutDialog.value) {
+            SignOutConfirmationDialog(showUserDetailsDialog, showSignOutDialog) {
+              userRepository.signOut()
+            }
+          }
+        }
+      }
+    }
   }
 }

@@ -49,19 +49,17 @@ constructor(
   resources: Resources,
   private val activityStreams: ActivityStreams,
   private val firebaseAuth: FirebaseAuth,
-  @ApplicationScope private val externalScope: CoroutineScope
-) : AuthenticationManager {
+  @ApplicationScope private val externalScope: CoroutineScope,
+) : BaseAuthenticationManager() {
 
-  private val googleSignInOptions: GoogleSignInOptions
+  private val googleSignInOptions: GoogleSignInOptions =
+    GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+      .requestIdToken(resources.getString(R.string.default_web_client_id))
+      .requestEmail()
+      .requestProfile()
+      .build()
 
   init {
-    googleSignInOptions =
-      GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(resources.getString(R.string.default_web_client_id))
-        .requestEmail()
-        .requestProfile()
-        .build()
-
     externalScope.launch {
       activityStreams.getActivityResults(signInRequestCode).collect { onActivityResult(it) }
     }
@@ -70,9 +68,11 @@ constructor(
   private val _signInStateFlow = MutableStateFlow<SignInState?>(null)
   override val signInState: Flow<SignInState> = _signInStateFlow.asStateFlow().filterNotNull()
 
-  override fun init() {
-    val user = firebaseAuth.currentUser?.toUser()
-    setState(if (user == null) SignInState.signedOut() else SignInState.signedIn(user))
+  override fun initInternal() {
+    firebaseAuth.addAuthStateListener { auth ->
+      val user = auth.currentUser?.toUser()
+      setState(if (user == null) SignInState.signedOut() else SignInState.signedIn(user))
+    }
   }
 
   private fun setState(nextState: SignInState) {

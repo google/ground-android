@@ -28,7 +28,7 @@ class TermsOfServiceViewModel
 @Inject
 constructor(
   private val navigator: Navigator,
-  private val termsOfServiceRepository: TermsOfServiceRepository
+  private val termsOfServiceRepository: TermsOfServiceRepository,
 ) : AbstractViewModel() {
   val agreeCheckboxChecked: MutableLiveData<Boolean> = MutableLiveData()
 

@@ -16,11 +16,10 @@
 package com.google.android.ground.model
 
 /** Represents a single application user. */
-data class User
-constructor(
+data class User(
   val id: String,
   val email: String,
   val displayName: String,
   val photoUrl: String? = null,
-  val isAnonymous: Boolean = false
+  val isAnonymous: Boolean = false,
 )

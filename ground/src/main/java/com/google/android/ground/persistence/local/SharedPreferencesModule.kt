@@ -18,9 +18,6 @@ package com.google.android.ground.persistence.local
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.android.ground.Config
-import com.google.android.ground.persistence.local.room.dao.*
-import com.google.android.ground.persistence.local.room.stores.*
-import com.google.android.ground.persistence.local.stores.*
 import com.google.android.ground.util.allowThreadDiskReads
 import dagger.Module
 import dagger.Provides

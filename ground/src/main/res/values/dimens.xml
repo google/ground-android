@@ -27,12 +27,11 @@
 
   <!-- Task selection tabs -->
   <dimen name="map_btn_margin_bottom">48dp</dimen>
-  <dimen name="fab_margin">16dp</dimen>
   <!-- TODO: Make dimensions relative using Android data binding. -->
   <dimen name="toolbar_elevation">4dp</dimen>
 
   <!-- Navigation drawer -->
-  <dimen name="nav_drawer_profile_image_size">64dp</dimen>
+  <dimen name="nav_drawer_profile_image_size">36dp</dimen>
 
   <!-- LOI bottom card -->
   <dimen name="loi_card_item_margin">10dp</dimen>

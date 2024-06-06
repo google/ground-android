@@ -25,15 +25,15 @@ import androidx.room.*
         entity = SurveyEntity::class,
         parentColumns = ["id"],
         childColumns = ["survey_id"],
-        onDelete = ForeignKey.CASCADE
+        onDelete = ForeignKey.CASCADE,
       )
     ],
-  indices = [Index("survey_id")]
+  indices = [Index("survey_id")],
 )
 data class JobEntity(
   @PrimaryKey @ColumnInfo(name = "id") val id: String,
   @ColumnInfo(name = "name") val name: String?,
   @ColumnInfo(name = "survey_id") val surveyId: String?,
   @ColumnInfo(name = "strategy") val strategy: String,
-  @Embedded(prefix = "style_") val style: StyleEntity?
+  @Embedded(prefix = "style_") val style: StyleEntity?,
 )

@@ -22,7 +22,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -40,7 +39,7 @@ class Navigator
 @Inject
 constructor(
   @MainDispatcher private val dispatcher: CoroutineDispatcher,
-  @MainScope private val coroutineScope: CoroutineScope
+  @MainScope private val coroutineScope: CoroutineScope,
 ) {
   private val _navigateRequests = MutableSharedFlow<NavigationRequest>()
 

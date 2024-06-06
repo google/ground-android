@@ -33,7 +33,7 @@ interface LocalLocationOfInterestStore :
   /** Returns the LOI with the specified UUID from the local data store, if found. */
   suspend fun getLocationOfInterest(
     survey: Survey,
-    locationOfInterestId: String
+    locationOfInterestId: String,
   ): LocationOfInterest?
 
   /** Deletes LOI from local database. */
@@ -48,7 +48,7 @@ interface LocalLocationOfInterestStore :
 
   suspend fun findByLocationOfInterestId(
     id: String,
-    vararg states: MutationEntitySyncStatus
+    vararg states: MutationEntitySyncStatus,
   ): List<LocationOfInterestMutationEntity>
 
   suspend fun insertOrUpdate(loi: LocationOfInterest)

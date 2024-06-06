@@ -20,17 +20,17 @@ import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.model.submission.DateResponse
-import com.google.android.ground.model.submission.MultipleChoiceResponse
-import com.google.android.ground.model.submission.NumberResponse
-import com.google.android.ground.model.submission.TextResponse
-import com.google.android.ground.model.submission.TimeResponse
-import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.DrawAreaTaskData
+import com.google.android.ground.model.submission.DropPinTaskData
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
+import com.google.android.ground.model.submission.NumberTaskData
+import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskResult
-import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskResult
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -45,18 +45,18 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class ValueJsonConverterTest(
   private val task: Task,
-  private val value: Value,
-  private val input: Any
+  private val taskData: TaskData,
+  private val input: Any,
 ) : BaseHiltTest() {
 
   @Test
   fun testToJsonObject() {
-    assertThat(ValueJsonConverter.toJsonObject(value)).isEqualTo(input)
+    assertThat(ValueJsonConverter.toJsonObject(taskData)).isEqualTo(input)
   }
 
   @Test
   fun testToResponse() {
-    assertThat(ValueJsonConverter.toResponse(task, input)).isEqualTo(value)
+    assertThat(ValueJsonConverter.toResponse(task, input)).isEqualTo(taskData)
   }
 
   companion object {
@@ -73,17 +73,17 @@ class ValueJsonConverterTest(
       )
 
     private val singleChoiceResponse =
-      MultipleChoiceResponse.fromList(
+      MultipleChoiceTaskData.fromList(
         MultipleChoice(multipleChoiceOptions, MultipleChoice.Cardinality.SELECT_ONE),
-        listOf("option id 1")
+        listOf("option id 1"),
       )
 
     private val singleChoiceResponseJson = JSONArray().apply { put("option id 1") }
 
-    private val multipleChoiceResponse =
-      MultipleChoiceResponse.fromList(
+    private val multipleChoiceTaskData =
+      MultipleChoiceTaskData.fromList(
         MultipleChoice(multipleChoiceOptions, MultipleChoice.Cardinality.SELECT_MULTIPLE),
-        listOf("option id 1", "option id 2")
+        listOf("option id 1", "option id 2"),
       )
 
     private val multipleChoiceResponseJson =
@@ -92,20 +92,20 @@ class ValueJsonConverterTest(
         put("option id 2")
       }
 
-    private val dropPinTaskResponse = DropPinTaskResult(Point(Coordinates(10.0, 20.0)))
+    private val dropPinTaskResponse = DropPinTaskData(Point(Coordinates(10.0, 20.0)))
 
     private const val dropPinGeometryTaskResponseString =
       "HQoFcG9pbnQSFAoSCQAAAAAAACRAEQAAAAAAADRA\n"
 
     private val drawAreaTaskResponse =
-      DrawAreaTaskResult(
+      DrawAreaTaskData(
         Polygon(
           LinearRing(
             listOf(
               Coordinates(10.0, 20.0),
               Coordinates(20.0, 30.0),
               Coordinates(30.0, 40.0),
-              Coordinates(10.0, 20.0)
+              Coordinates(10.0, 20.0),
             )
           )
         )
@@ -121,35 +121,35 @@ class ValueJsonConverterTest(
       listOf(
         arrayOf(
           FakeData.newTask(type = Task.Type.TEXT),
-          TextResponse.fromString("sample text"),
-          "sample text"
+          TextTaskData.fromString("sample text"),
+          "sample text",
         ),
         arrayOf(
           FakeData.newTask(type = Task.Type.MULTIPLE_CHOICE),
           singleChoiceResponse,
-          singleChoiceResponseJson
+          singleChoiceResponseJson,
         ),
         arrayOf(
           FakeData.newTask(type = Task.Type.MULTIPLE_CHOICE),
-          multipleChoiceResponse,
-          multipleChoiceResponseJson
+          multipleChoiceTaskData,
+          multipleChoiceResponseJson,
         ),
         arrayOf(
           FakeData.newTask(type = Task.Type.NUMBER),
-          NumberResponse.fromNumber("12345.0"),
-          12345.0
+          NumberTaskData.fromNumber("12345.0"),
+          12345.0,
         ),
-        arrayOf(FakeData.newTask(type = Task.Type.DATE), DateResponse.fromDate(DATE), DATE_STRING),
-        arrayOf(FakeData.newTask(type = Task.Type.TIME), TimeResponse.fromDate(DATE), DATE_STRING),
+        arrayOf(FakeData.newTask(type = Task.Type.DATE), DateTaskData.fromDate(DATE), DATE_STRING),
+        arrayOf(FakeData.newTask(type = Task.Type.TIME), TimeTaskData.fromDate(DATE), DATE_STRING),
         arrayOf(
           FakeData.newTask(type = Task.Type.DROP_PIN),
           dropPinTaskResponse,
-          dropPinGeometryTaskResponseString
+          dropPinGeometryTaskResponseString,
         ),
         arrayOf(
           FakeData.newTask(type = Task.Type.DRAW_AREA),
           drawAreaTaskResponse,
-          polygonGeometryTaskResponseString
+          polygonGeometryTaskResponseString,
         ),
       )
   }

@@ -21,45 +21,37 @@ import com.google.android.ground.R
 
 /** Defines a unique action that can be bound to a [TaskButton], along with the UI styling. */
 enum class ButtonAction(
-  val type: Type,
   val theme: Theme,
   @StringRes val textId: Int? = null,
   @DrawableRes val drawableId: Int? = null,
-  val location: Location = Location.END
+  @StringRes val contentDescription: Int? = null,
 ) {
 
   // All tasks
-  DONE(Type.TEXT, Theme.DARK_GREEN, textId = R.string.done),
-  NEXT(Type.TEXT, Theme.DARK_GREEN, textId = R.string.next),
-  PREVIOUS(Type.TEXT, Theme.TRANSPARENT, textId = R.string.previous, null, Location.START),
-  SKIP(Type.TEXT, Theme.TRANSPARENT, textId = R.string.skip),
-  UNDO(Type.ICON, Theme.LIGHT_GREEN, drawableId = R.drawable.ic_undo_black),
+  DONE(Theme.DARK_GREEN, textId = R.string.done),
+  NEXT(Theme.DARK_GREEN, textId = R.string.next),
+  PREVIOUS(Theme.TRANSPARENT, textId = R.string.previous),
+  SKIP(Theme.TRANSPARENT, textId = R.string.skip),
+  UNDO(
+    Theme.LIGHT_GREEN,
+    drawableId = R.drawable.ic_undo_black,
+    contentDescription = R.string.undo,
+  ),
 
   // Drop a pin task
-  DROP_PIN(Type.TEXT, Theme.OUTLINED, textId = R.string.drop_pin),
+  DROP_PIN(Theme.OUTLINED, textId = R.string.drop_pin),
 
   // Draw a polygon task
-  ADD_POINT(Type.TEXT, Theme.OUTLINED, textId = R.string.add_point),
-  COMPLETE(Type.TEXT, Theme.LIGHT_GREEN, textId = R.string.complete_polygon),
+  ADD_POINT(Theme.OUTLINED, textId = R.string.add_point),
+  COMPLETE(Theme.LIGHT_GREEN, textId = R.string.complete_polygon),
 
   // Capture location task
-  CAPTURE_LOCATION(Type.TEXT, Theme.OUTLINED, textId = R.string.capture);
-
-  enum class Type {
-    TEXT,
-    ICON,
-    TEXT_ICON,
-  }
+  CAPTURE_LOCATION(Theme.OUTLINED, textId = R.string.capture);
 
   enum class Theme {
     DARK_GREEN,
     LIGHT_GREEN,
     OUTLINED,
     TRANSPARENT,
-  }
-
-  enum class Location {
-    START,
-    END,
   }
 }

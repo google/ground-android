@@ -29,6 +29,7 @@ import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
+import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.GmsExt.contains
 import javax.inject.Inject
@@ -52,10 +53,16 @@ constructor(
   private val remoteDataStore: RemoteDataStore,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val uuidGenerator: OfflineUuidGenerator,
+  private val authenticationManager: AuthenticationManager,
 ) {
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
   suspend fun syncLocationsOfInterest(survey: Survey) {
-    val lois = remoteDataStore.loadLocationsOfInterest(survey)
+    // TODO(#2384): Allow survey organizers to make ad hoc LOIs visible to all data collectors.
+    val creatorEmail = authenticationManager.getAuthenticatedUser().email
+    val lois =
+      with(remoteDataStore) {
+        loadPredefinedLois(survey) + loadUserDefinedLois(survey, creatorEmail)
+      }
     mergeAll(survey.id, lois)
   }
 
@@ -90,7 +97,7 @@ constructor(
       lastModified = auditInfo,
       ownerEmail = user.email,
       properties = generateProperties(loiName),
-      isPredefined = false
+      isPredefined = false,
     )
   }
 

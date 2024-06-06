@@ -50,6 +50,7 @@ enum class ExpressionEntityType(private val intValue: Int) : IntEnum {
 
     @JvmStatic
     @TypeConverter
-    fun fromInt(intValue: Int): ExpressionEntityType = IntEnum.fromInt(values(), intValue, UNKNOWN)
+    fun fromInt(intValue: Int): ExpressionEntityType =
+      IntEnum.fromInt(entries.toTypedArray(), intValue, UNKNOWN)
   }
 }

@@ -20,11 +20,16 @@ import android.widget.RadioButton
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.hasChildCount
+import androidx.test.espresso.matcher.ViewMatchers.isChecked
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.isNotChecked
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.CustomViewActions
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.MultipleChoiceResponse
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
@@ -77,21 +82,21 @@ class MultipleChoiceTaskFragmentTest :
     )
 
   @Test
-  fun taskFails_whenMultipleChoiceIsNull() {
+  fun `fails when multiple choice is null`() {
     assertThrows(IllegalStateException::class.java) {
       setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = null))
     }
   }
 
   @Test
-  fun testHeader() {
+  fun `renders header`() {
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)
   }
 
   @Test
-  fun testMultipleChoice_whenSelectOne() {
+  fun `renders SELECT_ONE options`() {
     setupTaskFragment<MultipleChoiceTaskFragment>(
       job,
       task.copy(multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)),
@@ -103,19 +108,19 @@ class MultipleChoiceTaskFragmentTest :
   }
 
   @Test
-  fun testMultipleChoice_whenSelectOne_click() = runWithTestDispatcher {
+  fun `allows only one selection for SELECT_ONE cardinality`() = runWithTestDispatcher {
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
     onView(withText("Option 1")).perform(click())
     onView(withText("Option 2")).perform(click())
 
-    hasValue(MultipleChoiceResponse(multipleChoice, listOf("option id 2")))
-    buttonIsEnabled("Next")
+    hasValue(MultipleChoiceTaskData(multipleChoice, listOf("option id 2")))
+    runner().assertButtonIsEnabled("Next")
   }
 
   @Test
-  fun testMultipleChoice_whenSelectMultiple() {
+  fun `renders SELECT_MULTIPLE options`() {
     setupTaskFragment<MultipleChoiceTaskFragment>(
       job,
       task.copy(
@@ -129,19 +134,19 @@ class MultipleChoiceTaskFragmentTest :
   }
 
   @Test
-  fun testMultipleChoice_whenSelectMultiple_click() = runWithTestDispatcher {
+  fun `allows multiple selection for SELECT_MULTIPLE cardinality`() = runWithTestDispatcher {
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_MULTIPLE)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
     onView(withText("Option 1")).perform(click())
     onView(withText("Option 2")).perform(click())
 
-    hasValue(MultipleChoiceResponse(multipleChoice, listOf("option id 1", "option id 2")))
-    buttonIsEnabled("Next")
+    hasValue(MultipleChoiceTaskData(multipleChoice, listOf("option id 1", "option id 2")))
+    runner().assertButtonIsEnabled("Next")
   }
 
   @Test
-  fun testMultipleChoice_whenOtherOptionSelected() = runWithTestDispatcher {
+  fun `saves other text when selected`() = runWithTestDispatcher {
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_MULTIPLE, true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
     val userInput = "User inputted text"
@@ -150,19 +155,105 @@ class MultipleChoiceTaskFragmentTest :
     onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
       .perform(CustomViewActions.forceTypeText(userInput))
 
-    hasValue(MultipleChoiceResponse(multipleChoice, listOf("[ $userInput ]")))
-    buttonIsEnabled("Next")
+    hasValue(MultipleChoiceTaskData(multipleChoice, listOf("[ $userInput ]")))
+    runner().assertButtonIsEnabled("Next")
   }
 
   @Test
-  fun testActionButtons() {
+  fun `selects other option on text input`() = runWithTestDispatcher {
+    val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_MULTIPLE, true)
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
+    val userInput = "A"
+    onView(withText("Other")).perform(click())
+    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
+      .perform(CustomViewActions.forceTypeText(userInput))
+    onView(withText("Other")).check(matches(isChecked()))
+    hasValue(MultipleChoiceTaskData(multipleChoice, listOf("[ $userInput ]")))
+  }
+
+  @Test
+  fun `selects other option on text input and deselects other radio inputs`() =
+    runWithTestDispatcher {
+      val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE, true)
+      setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
+      onView(withText("Option 1")).perform(click())
+      onView(withText("Other")).check(matches(isNotChecked()))
+      val userInput = "A"
+      onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
+        .perform(CustomViewActions.forceTypeText(userInput))
+      onView(withText("Option 1")).check(matches(isNotChecked()))
+      onView(withText("Other")).check(matches(isChecked()))
+      hasValue(MultipleChoiceTaskData(multipleChoice, listOf("[ $userInput ]")))
+    }
+
+  @Test
+  fun `deselects other option on text clear and required`() = runWithTestDispatcher {
+    val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE, true)
+    setupTaskFragment<MultipleChoiceTaskFragment>(
+      job,
+      task.copy(multipleChoice = multipleChoice, isRequired = true),
+    )
+
+    onView(withText("Other")).check(matches(isNotChecked()))
+    val userInput = "A"
+    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
+      .perform(CustomViewActions.forceTypeText(userInput))
+    onView(withText("Other")).check(matches(isChecked()))
+
+    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
+      .perform(CustomViewActions.clearText())
+
+    onView(withText("Other")).check(matches(isNotChecked()))
+  }
+
+  @Test
+  fun `no deselection of other option on text clear when not required`() = runWithTestDispatcher {
+    val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE, true)
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
+
+    onView(withText("Other")).check(matches(isNotChecked()))
+    val userInput = "A"
+    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
+      .perform(CustomViewActions.forceTypeText(userInput))
+    onView(withText("Other")).check(matches(isChecked()))
+
+    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
+      .perform(CustomViewActions.clearText())
+
+    onView(withText("Other")).check(matches(isChecked()))
+  }
+
+  @Test
+  fun `no deselection of non-other selection when other is cleared`() = runWithTestDispatcher {
+    val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE, true)
+    setupTaskFragment<MultipleChoiceTaskFragment>(
+      job,
+      task.copy(multipleChoice = multipleChoice, isRequired = true),
+    )
+
+    val userInput = "A"
+    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
+      .perform(CustomViewActions.forceTypeText(userInput))
+    onView(withText("Option 1")).perform(click())
+    onView(withText("Other")).check(matches(isNotChecked()))
+    onView(withText("Option 1")).check(matches(isChecked()))
+
+    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
+      .perform(CustomViewActions.clearText())
+
+    onView(withText("Option 1")).check(matches(isChecked()))
+    onView(withText("Other")).check(matches(isNotChecked()))
+  }
+
+  @Test
+  fun `renders action buttons`() {
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
     assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)
   }
 
   @Test
-  fun testActionButtons_whenLastTask() {
+  fun `renders action buttons on last task`() {
     whenever(dataCollectionViewModel.isLastPosition(any())).thenReturn(true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
@@ -170,48 +261,55 @@ class MultipleChoiceTaskFragmentTest :
   }
 
   @Test
-  fun testActionButtons_whenTaskIsOptional() {
+  fun `renders action buttons when first task and optional`() {
+    whenever(dataCollectionViewModel.isFirstPosition(task.id)).thenReturn(true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsHidden("Previous")
-    buttonIsDisabled("Next")
-    buttonIsEnabled("Skip")
+    runner()
+      .assertButtonIsDisabled("Previous")
+      .assertButtonIsDisabled("Next")
+      .assertButtonIsEnabled("Skip")
   }
 
   @Test
-  fun `Skip button gets hidden on selecting an option`() {
+  fun `hides skip button when option is selected`() {
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
     onView(withText("Option 1")).perform(click())
 
-    buttonIsHidden("Skip")
+    runner().assertButtonIsHidden("Skip")
   }
 
   @Test
-  fun testActionButtons_noDataEntered_skipButtonTapped_confirmationDialogIsNotShown() {
+  fun `no confirmation dialog shown when no data is entered and skipped`() {
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
-    onView(withText("Skip")).perform(click())
+    runner().clickButton("Skip")
+
     assertThat(ShadowAlertDialog.getShownDialogs().isEmpty()).isTrue()
   }
 
   @Test
-  fun testActionButtons_whenTaskIsRequired() {
+  fun `renders action buttons when task is first and required`() {
+    whenever(dataCollectionViewModel.isFirstPosition(task.id)).thenReturn(true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsHidden("Previous")
-    buttonIsDisabled("Next")
-    buttonIsHidden("Skip")
+    runner()
+      .assertButtonIsDisabled("Previous")
+      .assertButtonIsDisabled("Next")
+      .assertButtonIsHidden("Skip")
   }
 
   @Test
-  fun testActionButtons_whenTaskIsSecond() {
-    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(index = 1))
+  fun `renders action buttons when task is not first`() {
+    whenever(dataCollectionViewModel.isFirstPosition(task.id)).thenReturn(false)
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
-    buttonIsEnabled("Previous")
-    buttonIsDisabled("Next")
-    buttonIsEnabled("Skip")
+    runner()
+      .assertButtonIsEnabled("Previous")
+      .assertButtonIsDisabled("Next")
+      .assertButtonIsEnabled("Skip")
   }
 }

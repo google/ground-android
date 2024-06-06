@@ -29,7 +29,7 @@ import com.google.android.ground.ui.surveyselector.SurveyListAdapter.ViewHolder
  */
 class SurveyListAdapter(
   private val viewModel: SurveySelectorViewModel,
-  private val fragment: SurveySelectorFragment
+  private val fragment: SurveySelectorFragment,
 ) : RecyclerView.Adapter<ViewHolder>() {
 
   private val surveys: MutableList<SurveyListItem> = mutableListOf()

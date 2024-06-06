@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 
 private const val NULL_CHAR = 0.toChar()
+
 // TODO(#1596): Add unit tests.
 /** Instances of this class are not thread-safe. */
 class MogMetadataReader(private val seekable: SeekableInputStream) {
@@ -57,9 +58,7 @@ class MogMetadataReader(private val seekable: SeekableInputStream) {
 
   private fun createDataInput(byteOrderCode: String): DataInput =
     when (byteOrderCode) {
-      BYTE_ORDER_LITTLE_ENDIAN ->
-        // TODO: Upgrade to Guava 31.2 once released and remove @Suppress.
-        @Suppress("UnstableApiUsage") LittleEndianDataInputStream(seekable)
+      BYTE_ORDER_LITTLE_ENDIAN -> LittleEndianDataInputStream(seekable)
       BYTE_ORDER_BIG_ENDIAN -> DataInputStream(seekable)
       else -> error("Invalid byte order: $byteOrderCode")
     }

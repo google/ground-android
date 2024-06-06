@@ -27,6 +27,7 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.remote.RemoteDataStore
+import com.google.android.ground.persistence.remote.firebase.schema.GroundFirestore
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.ktx.Firebase
@@ -49,11 +50,11 @@ class FirestoreDataStore
 @Inject
 internal constructor(
   private val firebaseFunctions: FirebaseFunctions,
-  private val groundFirestoreProvider: GroundFirestoreProvider,
-  @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+  private val firestoreProvider: FirebaseFirestoreProvider,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : RemoteDataStore {
 
-  private suspend fun db() = groundFirestoreProvider.get()
+  private suspend fun db() = GroundFirestore(firestoreProvider.get())
 
   override suspend fun loadSurvey(surveyId: String): Survey =
     withContext(ioDispatcher) { db().surveys().survey(surveyId).get() }
@@ -79,8 +80,11 @@ internal constructor(
     )
   }
 
-  override suspend fun loadLocationsOfInterest(survey: Survey) =
-    db().surveys().survey(survey.id).lois().locationsOfInterest(survey)
+  override suspend fun loadPredefinedLois(survey: Survey) =
+    db().surveys().survey(survey.id).lois().fetchPredefined(survey)
+
+  override suspend fun loadUserDefinedLois(survey: Survey, creatorEmail: String) =
+    db().surveys().survey(survey.id).lois().fetchUserDefined(survey, creatorEmail)
 
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {
     Timber.d("Subscribing to FCM topic $surveyId")
@@ -109,7 +113,7 @@ internal constructor(
   private suspend fun addLocationOfInterestMutationToBatch(
     mutation: LocationOfInterestMutation,
     user: User,
-    batch: WriteBatch
+    batch: WriteBatch,
   ) {
     db()
       .surveys()
@@ -122,7 +126,7 @@ internal constructor(
   private suspend fun addSubmissionMutationToBatch(
     mutation: SubmissionMutation,
     user: User,
-    batch: WriteBatch
+    batch: WriteBatch,
   ) {
     db()
       .surveys()

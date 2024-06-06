@@ -31,7 +31,6 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.testMaybeNavigateTo
@@ -127,7 +126,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
       "Test survey description",
       mapOf(FakeData.JOB.id to FakeData.JOB),
       listOf(),
-      mapOf(Pair(FakeData.USER.email, "data-collector"))
+      mapOf(Pair(FakeData.USER.email, "data-collector")),
     )
 
   @Test
@@ -148,7 +147,7 @@ class NavigationDrawerItemClickTest(
   private val survey: Survey,
   private val expectedNavDirection: NavDirections?,
   private val shouldDrawerCloseAfterClick: Boolean,
-  private val testLabel: String
+  private val testLabel: String,
 ) : AbstractHomeScreenFragmentTest() {
 
   @Inject lateinit var navigator: Navigator
@@ -177,42 +176,17 @@ class NavigationDrawerItemClickTest(
   companion object {
     private val TEST_SURVEY_WITHOUT_OFFLINE_TILES = FakeData.SURVEY.copy(tileSources = listOf())
 
-    private val TEST_SURVEY_WITH_OFFLINE_TILES =
-      FakeData.SURVEY.copy(
-        tileSources = listOf(TileSource(url = "url1", type = TileSource.Type.MOG_COLLECTION))
-      )
-
     @JvmStatic
     @ParameterizedRobolectricTestRunner.Parameters(name = "{4}")
     fun data() =
       listOf(
+        // TODO(#2385): Restore tests deleted in #2382.
         arrayOf(
-          "Surveys",
-          TEST_SURVEY_WITHOUT_OFFLINE_TILES,
-          HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false),
-          true,
-          "Clicking 'change survey' should navigate to fragment"
-        ),
-        arrayOf(
-          "Sync status",
+          "History and sync status",
           TEST_SURVEY_WITHOUT_OFFLINE_TILES,
           HomeScreenFragmentDirections.showSyncStatus(),
           true,
-          "Clicking 'sync status' should navigate to fragment"
-        ),
-        arrayOf(
-          "Offline map imagery",
-          TEST_SURVEY_WITH_OFFLINE_TILES,
-          HomeScreenFragmentDirections.showOfflineAreas(),
-          true,
-          "Clicking 'offline map imagery' should navigate to fragment"
-        ),
-        arrayOf(
-          "Settings",
-          TEST_SURVEY_WITHOUT_OFFLINE_TILES,
-          HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity(),
-          true,
-          "Clicking 'settings' should navigate to fragment"
+          "Clicking 'Sync status' should navigate to fragment",
         )
       )
   }

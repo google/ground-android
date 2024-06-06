@@ -29,22 +29,22 @@ import androidx.room.PrimaryKey
         entity = SurveyEntity::class,
         parentColumns = ["id"],
         childColumns = ["survey_id"],
-        onDelete = ForeignKey.CASCADE
+        onDelete = ForeignKey.CASCADE,
       )
     ],
-  indices = [Index("survey_id")]
+  indices = [Index("survey_id")],
 )
 data class TileSourceEntity(
   @ColumnInfo(name = "id") @PrimaryKey(autoGenerate = true) val id: Int = 0,
   @ColumnInfo(name = "survey_id") val surveyId: String,
   @ColumnInfo(name = "url") val url: String,
-  @ColumnInfo(name = "type") val type: TileSourceEntityType
+  @ColumnInfo(name = "type") val type: TileSourceEntityType,
 ) {
 
   enum class TileSourceEntityType {
     GEOJSON,
     IMAGE,
     MOG,
-    UNKNOWN
+    UNKNOWN,
   }
 }

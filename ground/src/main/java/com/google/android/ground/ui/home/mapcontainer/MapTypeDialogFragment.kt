@@ -42,7 +42,7 @@ class MapTypeDialogFragment : BottomSheetDialogFragment() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    viewModel = viewModelFactory.get(this, MapTypeViewModel::class.java)
+    viewModel = viewModelFactory[this, MapTypeViewModel::class.java]
   }
 
   // TODO(#936): Remove the suppress annotation when fragment dependency is upgraded to 1.3.4

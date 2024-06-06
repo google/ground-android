@@ -19,9 +19,10 @@ import android.content.res.Resources
 import android.text.Editable
 import android.text.TextWatcher
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.MultipleChoiceResponse
-import com.google.android.ground.model.submission.MultipleChoiceResponse.Companion.fromList
-import com.google.android.ground.model.submission.Value
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
+import com.google.android.ground.model.submission.MultipleChoiceTaskData.Companion.fromList
+import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.task.MultipleChoice.Cardinality.SELECT_MULTIPLE
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
@@ -40,10 +41,22 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
   private val selectedIds: MutableSet<String> = mutableSetOf()
   private var otherText: String = ""
 
-  val textWatcher =
+  val otherTextWatcher =
     object : TextWatcher {
       override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
         otherText = s.toString()
+        // Set the other option.
+        _items.value
+          .firstOrNull { it.isOtherOption }
+          ?.let {
+            val selected =
+              if (task.isRequired) {
+                otherText != ""
+              } else {
+                true
+              }
+            setItem(it, selected, it.cardinality == SELECT_MULTIPLE)
+          }
         updateResponse()
       }
 
@@ -56,25 +69,28 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
       }
     }
 
-  override fun initialize(job: Job, task: Task, value: Value?) {
-    super.initialize(job, task, value)
+  override fun initialize(job: Job, task: Task, taskData: TaskData?) {
+    super.initialize(job, task, taskData)
     loadPendingSelections()
     updateMultipleChoiceItems()
   }
 
-  fun toggleItem(item: MultipleChoiceItem, canSelectMultiple: Boolean) {
-    val wasSelected = selectedIds.contains(item.option.id)
-    val isSelected = !wasSelected
-    if (!canSelectMultiple) {
+  fun setItem(item: MultipleChoiceItem, selection: Boolean, canSelectMultiple: Boolean) {
+    if (!canSelectMultiple && selection) {
       selectedIds.clear()
     }
-    if (isSelected) {
+    if (selection) {
       selectedIds.add(item.option.id)
     } else {
       selectedIds.remove(item.option.id)
     }
     updateResponse()
     updateMultipleChoiceItems()
+  }
+
+  fun toggleItem(item: MultipleChoiceItem, canSelectMultiple: Boolean) {
+    val wasSelected = selectedIds.contains(item.option.id)
+    setItem(item, !wasSelected, canSelectMultiple)
   }
 
   fun updateResponse() {
@@ -96,13 +112,21 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
 
     itemsFromOptions.addAll(
       multipleChoice.options.map { option ->
-        MultipleChoiceItem(option, selectedIds.contains(option.id))
+        MultipleChoiceItem(option, multipleChoice.cardinality, selectedIds.contains(option.id))
       }
     )
 
     if (multipleChoice.hasOtherOption) {
       Option(OTHER_ID, "", "").let {
-        itemsFromOptions.add(MultipleChoiceItem(it, selectedIds.contains(it.id), true, otherText))
+        itemsFromOptions.add(
+          MultipleChoiceItem(
+            it,
+            multipleChoice.cardinality,
+            selectedIds.contains(it.id),
+            true,
+            otherText,
+          )
+        )
       }
     }
     this._items.value = itemsFromOptions
@@ -110,7 +134,7 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
 
   /* Reads the saved task value and adds selected items to the selected list*/
   private fun loadPendingSelections() {
-    val selectedOptionIds = (taskValue.value as? MultipleChoiceResponse)?.selectedOptionIds
+    val selectedOptionIds = (taskTaskData.value as? MultipleChoiceTaskData)?.selectedOptionIds
     val multipleChoice = checkNotNull(task.multipleChoice)
     val optionIds = multipleChoice.options.map { option -> option.id }
     selectedOptionIds?.forEach {

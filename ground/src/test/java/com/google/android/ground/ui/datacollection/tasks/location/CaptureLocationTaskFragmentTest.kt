@@ -16,12 +16,10 @@
 package com.google.android.ground.ui.datacollection.tasks.location
 
 import android.location.Location
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.submission.CaptureLocationTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
@@ -51,7 +49,7 @@ class CaptureLocationTaskFragmentTest :
       index = 0,
       type = Task.Type.CAPTURE_LOCATION,
       label = "Task for capturing current location",
-      isRequired = false
+      isRequired = false,
     )
   private val job = Job(id = "job1")
 
@@ -68,12 +66,14 @@ class CaptureLocationTaskFragmentTest :
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     viewModel.updateLocation(location)
-    onView(withText("Capture")).perform(click())
+
+    runner()
+      .clickButton("Capture")
+      .assertButtonIsEnabled("Next")
+      .assertButtonIsEnabled("Undo", true)
+      .assertButtonIsHidden("Capture")
 
     hasValue(TASK_DATA)
-    buttonIsEnabled("Next")
-    buttonIsEnabled(ButtonAction.UNDO)
-    buttonIsHidden("Capture")
   }
 
   @Test
@@ -89,12 +89,14 @@ class CaptureLocationTaskFragmentTest :
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     viewModel.updateLocation(location)
-    onView(withText("Capture")).perform(click())
-    getButton(ButtonAction.UNDO).performClick()
+
+    runner()
+      .clickButton("Capture")
+      .clickButton("Undo", true)
+      .assertButtonIsHidden("Next")
+      .assertButtonIsEnabled("Capture")
 
     hasValue(null)
-    buttonIsHidden("Next")
-    buttonIsEnabled("Capture")
   }
 
   @Test
@@ -106,7 +108,7 @@ class CaptureLocationTaskFragmentTest :
       ButtonAction.SKIP,
       ButtonAction.UNDO,
       ButtonAction.CAPTURE_LOCATION,
-      ButtonAction.NEXT
+      ButtonAction.NEXT,
     )
   }
 
@@ -114,20 +116,22 @@ class CaptureLocationTaskFragmentTest :
   fun testActionButtons_whenTaskIsOptional() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = false))
 
-    buttonIsHidden("Next")
-    buttonIsEnabled("Skip")
-    buttonIsHidden(ButtonAction.UNDO)
-    buttonIsEnabled("Capture")
+    runner()
+      .assertButtonIsHidden("Next")
+      .assertButtonIsEnabled("Skip")
+      .assertButtonIsHidden("Undo", true)
+      .assertButtonIsEnabled("Capture")
   }
 
   @Test
   fun testActionButtons_whenTaskIsRequired() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = true))
 
-    buttonIsHidden("Next")
-    buttonIsHidden("Skip")
-    buttonIsHidden(ButtonAction.UNDO)
-    buttonIsEnabled("Capture")
+    runner()
+      .assertButtonIsHidden("Next")
+      .assertButtonIsHidden("Skip")
+      .assertButtonIsHidden("Undo", true)
+      .assertButtonIsEnabled("Capture")
   }
 
   private fun setupLocation(): Location =
@@ -146,6 +150,6 @@ class CaptureLocationTaskFragmentTest :
     private const val ACCURACY = 5.0
     private const val ALTITUDE = 150.0
     private val GEOMETRY = Point(Coordinates(LATITUDE, LONGITUDE))
-    private val TASK_DATA = CaptureLocationTaskResult(GEOMETRY, ALTITUDE, ACCURACY)
+    private val TASK_DATA = CaptureLocationTaskData(GEOMETRY, ALTITUDE, ACCURACY)
   }
 }

@@ -51,7 +51,7 @@ inline fun <reified T : Fragment> launchFragmentWithNavController(
   @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
   destId: Int,
   crossinline preTransactionAction: Fragment.() -> Unit = {},
-  crossinline postTransactionAction: Fragment.() -> Unit = {}
+  crossinline postTransactionAction: Fragment.() -> Unit = {},
 ): ActivityScenario<HiltTestActivity> =
   hiltActivityScenario(themeResId).launchFragment<T>(
     fragmentArgs,
@@ -69,20 +69,20 @@ inline fun <reified T : Fragment> launchFragmentWithNavController(
           Navigation.setViewNavController(requireView(), navController)
         }
       }
-    }
+    },
   ) {
     this.postTransactionAction()
   }
 
 /** Instantiates a new activity scenario with Hilt support. */
 fun hiltActivityScenario(
-  @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
+  @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme
 ): ActivityScenario<HiltTestActivity> {
   val startActivityIntent =
     Intent.makeMainActivity(ComponentName(getApplicationContext(), HiltTestActivity::class.java))
       .putExtra(
         "androidx.fragment.app.testing.FragmentScenario.EmptyFragmentActivity.THEME_EXTRAS_BUNDLE_KEY",
-        themeResId
+        themeResId,
       )
 
   return ActivityScenario.launch(startActivityIntent)
@@ -95,13 +95,13 @@ fun hiltActivityScenario(
 inline fun <reified T : Fragment> ActivityScenario<HiltTestActivity>.launchFragment(
   fragmentArgs: Bundle? = null,
   crossinline preTransactionAction: Fragment.() -> Unit = {},
-  crossinline postTransactionAction: Fragment.() -> Unit = {}
+  crossinline postTransactionAction: Fragment.() -> Unit = {},
 ): ActivityScenario<HiltTestActivity> =
   this.onActivity { activity ->
     val fragment: Fragment =
       activity.supportFragmentManager.fragmentFactory.instantiate(
         Preconditions.checkNotNull(T::class.java.classLoader),
-        T::class.java.name
+        T::class.java.name,
       )
     fragment.arguments = fragmentArgs
 

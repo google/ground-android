@@ -35,6 +35,7 @@ import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.collectLatest
@@ -68,7 +69,7 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
 
   override fun onCreateActionButtons() {
     addSkipButton()
-    addUndoButton()
+    addUndoButton { removeLastVertex() }
     nextButton = addNextButton()
     addPointButton =
       addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
@@ -76,6 +77,15 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
       addButton(ButtonAction.COMPLETE).setOnClickListener {
         viewModel.onCompletePolygonButtonClick()
       }
+  }
+
+  /** Removes the last vertex from the polygon. */
+  private fun removeLastVertex() {
+    viewModel.removeLastVertex()
+
+    // Move the camera to the last vertex, if any.
+    val lastVertex = viewModel.getLastVertex() ?: return
+    drawAreaTaskMapFragment.moveToPosition(lastVertex)
   }
 
   override fun onTaskViewAttached() {
@@ -107,8 +117,10 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
           val openAlertDialog = remember { mutableStateOf(true) }
           when {
             openAlertDialog.value -> {
-              InstructionsDialog(R.drawable.touch_app_24, R.string.draw_area_task_instruction) {
-                openAlertDialog.value = false
+              AppTheme {
+                InstructionsDialog(R.drawable.touch_app_24, R.string.draw_area_task_instruction) {
+                  openAlertDialog.value = false
+                }
               }
             }
           }

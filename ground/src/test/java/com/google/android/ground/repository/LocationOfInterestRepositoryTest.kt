@@ -70,7 +70,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
       // Setup survey and LOIs
       fakeRemoteDataStore.surveys = listOf(TEST_SURVEY)
-      fakeRemoteDataStore.lois = TEST_LOCATIONS_OF_INTEREST
+      fakeRemoteDataStore.predefinedLois = TEST_LOCATIONS_OF_INTEREST
       activateSurvey(TEST_SURVEY.id)
       advanceUntilIdle()
     }
@@ -83,7 +83,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       LOCATION_OF_INTEREST.copy(
         customId = "",
         // TODO(#1562): Remove once creation time is preserved in local db.
-        lastModified = LOCATION_OF_INTEREST.created
+        lastModified = LOCATION_OF_INTEREST.created,
       )
     locationOfInterestRepository.applyAndEnqueue(loi.toMutation(CREATE, TEST_USER.id))
 
@@ -157,7 +157,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
             TEST_POINT_OF_INTEREST_2,
             TEST_POINT_OF_INTEREST_3,
             TEST_AREA_OF_INTEREST_1,
-            TEST_AREA_OF_INTEREST_2
+            TEST_AREA_OF_INTEREST_2,
           )
         )
     }
@@ -187,7 +187,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         TEST_POINT_OF_INTEREST_2,
         TEST_POINT_OF_INTEREST_3,
         TEST_AREA_OF_INTEREST_1,
-        TEST_AREA_OF_INTEREST_2
+        TEST_AREA_OF_INTEREST_2,
       )
 
     private fun createPoint(id: String, coordinate: Coordinates) =
@@ -195,7 +195,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         id = id,
         geometry = Point(coordinate),
         surveyId = TEST_SURVEY.id,
-        customId = ""
+        customId = "",
       )
 
     private fun createPolygon(id: String, coordinates: List<Coordinates>) =
@@ -203,7 +203,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         id = id,
         geometry = Polygon(LinearRing(coordinates)),
         surveyId = TEST_SURVEY.id,
-        customId = ""
+        customId = "",
       )
   }
 }

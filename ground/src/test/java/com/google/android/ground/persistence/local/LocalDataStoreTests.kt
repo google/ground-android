@@ -32,7 +32,7 @@ import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.SubmissionData
-import com.google.android.ground.model.submission.TextResponse
+import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.LocalDataStoreException
@@ -42,13 +42,16 @@ import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDa
 import com.google.android.ground.persistence.local.room.dao.SubmissionDao
 import com.google.android.ground.persistence.local.room.fields.EntityState
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.persistence.local.stores.*
+import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
+import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
+import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
+import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.GmsExt.getShellCoordinates
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
-import java.util.*
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -217,7 +220,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       .getSubmissionMutationsByLoiIdFlow(
         TEST_SURVEY,
         TEST_LOI_MUTATION.locationOfInterestId,
-        MutationEntitySyncStatus.PENDING
+        MutationEntitySyncStatus.PENDING,
       )
       .test { assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_SUBMISSION_MUTATION)) }
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, FakeData.LOI_ID)!!
@@ -230,7 +233,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         ValueDelta(
           "task id",
           Task.Type.TEXT,
-          TextResponse.fromString("value for the really new task")
+          TextTaskData.fromString("value for the really new task"),
         )
       )
     val mutation =
@@ -242,7 +245,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       .getSubmissionMutationsByLoiIdFlow(
         TEST_SURVEY,
         TEST_LOI_MUTATION.locationOfInterestId,
-        MutationEntitySyncStatus.PENDING
+        MutationEntitySyncStatus.PENDING,
       )
       .test {
         assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_SUBMISSION_MUTATION, mutation))
@@ -265,11 +268,11 @@ class LocalDataStoreTests : BaseHiltTest() {
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
     localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION)
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, FakeData.LOI_ID)!!
-    val data = SubmissionData(mapOf(Pair("task id", TextResponse.fromString("foo value"))))
+    val data = SubmissionData(mapOf(Pair("task id", TextTaskData.fromString("foo value"))))
     val submission = localSubmissionStore.getSubmission(loi, "submission id").copy(data = data)
     localSubmissionStore.merge(submission)
     val mergedData = localSubmissionStore.getSubmission(loi, submission.id).data
-    assertThat(mergedData.getValue("task id")).isEqualTo(TextResponse.fromString("updated value"))
+    assertThat(mergedData.getValue("task id")).isEqualTo(TextTaskData.fromString("updated value"))
   }
 
   @Test
@@ -386,7 +389,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         tileSources =
           listOf(
             TileSource(url = "dummy URL", type = TileSource.Type.TILED_WEB_MAP),
-            TileSource(url = "other dummy URL", type = TileSource.Type.TILED_WEB_MAP)
+            TileSource(url = "other dummy URL", type = TileSource.Type.TILED_WEB_MAP),
           )
       )
     private val TEST_POINT = Point(Coordinates(110.0, -23.1))
@@ -398,7 +401,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         Coordinates(49.872919, 8.651628),
         Coordinates(49.873164, 8.653515),
         Coordinates(49.874343, 8.653038),
-        Coordinates(49.874502, 8.655993)
+        Coordinates(49.874502, 8.655993),
       )
     private val TEST_POLYGON_2 =
       listOf(
@@ -407,7 +410,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         Coordinates(49.864664, 8.650387),
         Coordinates(49.863102, 8.650445),
         Coordinates(49.863051, 8.647306),
-        Coordinates(49.865374, 8.646920)
+        Coordinates(49.865374, 8.646920),
       )
     private val TEST_LOI_MUTATION = FakeData.newLoiMutation(TEST_POINT)
     private val TEST_POLYGON_LOI_MUTATION = FakeData.newAoiMutation(TEST_POLYGON_1)
@@ -416,13 +419,13 @@ class LocalDataStoreTests : BaseHiltTest() {
         job = TEST_JOB,
         submissionId = "submission id",
         deltas =
-          listOf(ValueDelta("task id", Task.Type.TEXT, TextResponse.fromString("updated value"))),
+          listOf(ValueDelta("task id", Task.Type.TEXT, TextTaskData.fromString("updated value"))),
         id = 1L,
         type = Mutation.Type.CREATE,
         syncStatus = SyncStatus.PENDING,
         surveyId = FakeData.SURVEY_ID,
         locationOfInterestId = FakeData.LOI_ID,
-        userId = FakeData.USER_ID
+        userId = FakeData.USER_ID,
       )
     private val TEST_OFFLINE_AREA =
       OfflineArea("id_1", OfflineArea.State.PENDING, Bounds(0.0, 0.0, 0.0, 0.0), "Test Area", 0..14)
@@ -436,7 +439,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       assertThat(mutation.userId).isEqualTo(submission.created.user.id)
       MatcherAssert.assertThat(
         SubmissionData().copyWithDeltas(mutation.deltas),
-        Matchers.samePropertyValuesAs(submission.data)
+        Matchers.samePropertyValuesAs(submission.data),
       )
     }
   }

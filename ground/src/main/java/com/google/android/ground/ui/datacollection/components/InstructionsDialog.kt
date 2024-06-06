@@ -38,7 +38,6 @@ fun InstructionsDialog(iconId: Int, stringId: Int, onDismissRequest: () -> Unit)
         imageVector = ImageVector.vectorResource(id = iconId),
         contentDescription = "",
         modifier = Modifier.width(48.dp).height(48.dp),
-        tint = colorAttribute(R.attr.colorSecondary),
       )
     },
     title = { Text(text = stringResource(stringId), fontSize = 18.sp) },
@@ -46,13 +45,8 @@ fun InstructionsDialog(iconId: Int, stringId: Int, onDismissRequest: () -> Unit)
     confirmButton = {}, // Hide confirm button
     dismissButton = {
       OutlinedButton(onClick = { onDismissRequest() }) {
-        Text(
-          text = stringResource(R.string.close),
-          color = colorAttribute(R.attr.colorPrimary),
-        )
+        Text(text = stringResource(R.string.close))
       }
     },
-    containerColor = colorAttribute(R.attr.colorBackgroundFloating),
-    textContentColor = colorAttribute(R.attr.colorOnBackground),
   )
 }

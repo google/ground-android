@@ -31,7 +31,8 @@ import kotlinx.coroutines.flow.flowOf
 
 @Singleton
 class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
-  var lois = emptyList<LocationOfInterest>()
+  var predefinedLois = emptyList<LocationOfInterest>()
+  var userDefinedLois = emptyList<LocationOfInterest>()
   var surveys = emptyList<Survey>()
   var onLoadSurvey = { surveyId: String -> surveys.firstOrNull { it.id == surveyId } }
   var userProfileRefreshCount = 0
@@ -49,7 +50,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override suspend fun loadTermsOfService(): TermsOfService? = termsOfService?.getOrThrow()
 
-  override suspend fun loadLocationsOfInterest(survey: Survey) = lois
+  override suspend fun loadPredefinedLois(survey: Survey) = predefinedLois
 
   override suspend fun loadSubmissions(locationOfInterest: LocationOfInterest): List<Submission> {
     TODO("Missing implementation")
@@ -68,6 +69,11 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   override suspend fun refreshUserProfile() {
     userProfileRefreshCount++
   }
+
+  override suspend fun loadUserDefinedLois(
+    survey: Survey,
+    creatorEmail: String,
+  ): List<LocationOfInterest> = userDefinedLois
 
   /** Returns true iff [subscribeToSurveyUpdates] has been called with the specified id. */
   fun isSubscribedToSurveyUpdates(surveyId: String): Boolean =
