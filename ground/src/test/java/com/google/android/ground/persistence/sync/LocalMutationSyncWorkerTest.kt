@@ -138,34 +138,29 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     }
 
   @Test
-  fun `Worker retries indefinitely`() = runWithTestDispatcher {
+  fun `Worker retries on failure`() = runWithTestDispatcher {
     fakeRemoteDataStore.applyMutationError = Error(ERROR_MESSAGE)
     addPendingMutations()
 
-    val retryCount = 3
-    // Run the worker 3 times
-    for (i in 1..retryCount) {
-      val result = createAndDoWork(context, TEST_LOI_ID)
+    var result = createAndDoWork(context, TEST_LOI_ID)
+    assertThat(result).isEqualTo(retry())
+    assertMutationsState(
+      failed = 2,
+      retryCount = listOf(1, 1),
+      lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE),
+    )
 
+    for (i in 1..10) {
+      // Worker should retry N times.
+      result = createAndDoWork(context, TEST_LOI_ID)
       assertThat(result).isEqualTo(retry())
+      // Verify that the retryCount has incremented.
       assertMutationsState(
         failed = 2,
-        retryCount = listOf(i, i),
+        retryCount = listOf(i + 1, i + 1),
         lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE),
       )
     }
-
-    val result = createAndDoWork(context, TEST_LOI_ID)
-
-    // Worker should retry again.
-    assertThat(result).isEqualTo(retry())
-
-    // Verify that the retryCount and last error hasn't changed
-    assertMutationsState(
-      failed = 2,
-      retryCount = listOf(retryCount + 1, retryCount + 1),
-      lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE),
-    )
   }
 
   private suspend fun assertMutationsState(
