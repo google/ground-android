@@ -139,12 +139,12 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     }
 
   @Test
-  fun `Worker retries if retryCount is less than MAX_SUBMISSION_WORKER_RETRY_ATTEMPTS for any mutation`() =
+  fun `Worker retries indefinitely`() =
     runWithTestDispatcher {
       fakeRemoteDataStore.applyMutationError = Error(ERROR_MESSAGE)
       addPendingMutations()
-      val retryCount = Config.MAX_SUBMISSION_WORKER_RETRY_ATTEMPTS
 
+      val retryCount = 3
       // Run the worker 3 times
       for (i in 1..retryCount) {
         val result = createAndDoWork(context, TEST_LOI_ID)

@@ -22,7 +22,6 @@ import androidx.work.Data
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
-import com.google.android.ground.Config.MAX_SUBMISSION_WORKER_RETRY_ATTEMPTS
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
@@ -80,7 +79,6 @@ constructor(
     val failedMutationsEligibleForRetry =
       mutationRepository
         .getMutations(locationOfInterestId, MutationEntitySyncStatus.FAILED)
-        .filter { it.retryCount < MAX_SUBMISSION_WORKER_RETRY_ATTEMPTS }
     return pendingMutations + failedMutationsEligibleForRetry
   }
 
