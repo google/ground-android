@@ -16,13 +16,13 @@
 package com.google.android.ground.e2etest
 
 import android.util.Log
-import androidx.test.core.app.takeScreenshot
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.test.core.app.takeScreenshot
 import androidx.test.core.graphics.writeToTestStorage
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -37,27 +37,26 @@ import com.google.android.ground.e2etest.TestConfig.SHORT_TIMEOUT
 import com.google.android.ground.e2etest.TestConfig.TEST_SURVEY_IDENTIFIER
 import com.google.android.ground.e2etest.TestConfig.TEST_SURVEY_TASKS_ADHOC
 import com.google.android.ground.model.task.Task
+import java.io.IOException
 import junit.framework.TestCase.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
 import org.junit.runner.RunWith
-import java.io.IOException
 
 private fun takeScreenshot(screenShotName: String) {
-    Log.d("Screenshots", "Taking screenshot of '$screenShotName'")
-    try {
-      takeScreenshot().writeToTestStorage(screenShotName)
-    } catch (ex: IOException) {
-        Log.e("Screenshots", "Could not take the screenshot", ex)
-    }
+  Log.d("Screenshots", "Taking screenshot of '$screenShotName'")
+  try {
+    takeScreenshot().writeToTestStorage(screenShotName)
+  } catch (ex: IOException) {
+    Log.e("Screenshots", "Could not take the screenshot", ex)
+  }
 }
 
 @RunWith(AndroidJUnit4::class)
 class SurveyRunnerTest : AutomatorRunner {
 
-  @get:Rule
-  var nameRule = TestName()
+  @get:Rule var nameRule = TestName()
 
   override lateinit var device: UiDevice
 
@@ -260,7 +259,7 @@ class SurveyRunnerTest : AutomatorRunner {
   }
 
   private fun setLoiName() {
-      takeScreenshot(getScreenshotName())
+    takeScreenshot(getScreenshotName())
     if (device.wait(Until.hasObject(byText(R.string.save)), SHORT_TIMEOUT) == null) {
       takeScreenshot(getScreenshotName())
       fail("Failed to find loi name popup")
