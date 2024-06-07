@@ -25,7 +25,6 @@ import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.Config
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
@@ -139,36 +138,30 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     }
 
   @Test
-  fun `Worker retries if retryCount is less than MAX_SUBMISSION_WORKER_RETRY_ATTEMPTS for any mutation`() =
-    runWithTestDispatcher {
-      fakeRemoteDataStore.applyMutationError = Error(ERROR_MESSAGE)
-      addPendingMutations()
-      val retryCount = Config.MAX_SUBMISSION_WORKER_RETRY_ATTEMPTS
+  fun `Worker retries on failure`() = runWithTestDispatcher {
+    fakeRemoteDataStore.applyMutationError = Error(ERROR_MESSAGE)
+    addPendingMutations()
 
-      // Run the worker 3 times
-      for (i in 1..retryCount) {
-        val result = createAndDoWork(context, TEST_LOI_ID)
+    var result = createAndDoWork(context, TEST_LOI_ID)
+    assertThat(result).isEqualTo(retry())
+    assertMutationsState(
+      failed = 2,
+      retryCount = listOf(1, 1),
+      lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE),
+    )
 
-        assertThat(result).isEqualTo(retry())
-        assertMutationsState(
-          failed = 2,
-          retryCount = listOf(i, i),
-          lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE),
-        )
-      }
-
-      val result = createAndDoWork(context, TEST_LOI_ID)
-
-      // Worker should skip this attempt, hence would prevent infinite retries.
-      assertThat(result).isEqualTo(success())
-
-      // Verify that the retryCount and last error hasn't changed
+    for (i in 1..10) {
+      // Worker should retry N times.
+      result = createAndDoWork(context, TEST_LOI_ID)
+      assertThat(result).isEqualTo(retry())
+      // Verify that the retryCount has incremented.
       assertMutationsState(
         failed = 2,
-        retryCount = listOf(retryCount, retryCount),
+        retryCount = listOf(i + 1, i + 1),
         lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE),
       )
     }
+  }
 
   private suspend fun assertMutationsState(
     pending: Int = 0,

@@ -47,9 +47,6 @@ object Config {
   /** Maximum number of attempts for retrying unsuccessful syncs. */
   const val MAX_SYNC_WORKER_RETRY_ATTEMPTS = 10
 
-  /** Maximum number of attempts for retrying unsuccessful submission uploads. */
-  const val MAX_SUBMISSION_WORKER_RETRY_ATTEMPTS = 25
-
   /** Maximum number of attempts for retrying unsuccessful media uploads. */
   const val MAX_MEDIA_UPLOAD_RETRY_COUNT = 5
 
