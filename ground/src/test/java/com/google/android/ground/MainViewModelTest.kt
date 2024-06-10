@@ -16,6 +16,7 @@
 package com.google.android.ground
 
 import android.content.SharedPreferences
+import app.cash.turbine.test
 import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
@@ -150,15 +151,14 @@ class MainViewModelTest : BaseHiltTest() {
         )
       )
 
-    testNavigateTo(
-      navigator.getNavigateRequests(),
-      SignInFragmentDirections.showPermissionDeniedDialogFragment(),
-    ) {
-      fakeAuthenticationManager.signIn()
-    }
+    testNoNavigation(navigator.getNavigateRequests()) { fakeAuthenticationManager.signIn() }
 
     verifyProgressDialogVisible(false)
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+
+    viewModel.uiState.test {
+      assertThat(expectMostRecentItem()).isEqualTo(MainUiState.onPermissionDenied)
+    }
   }
 
   @Test
