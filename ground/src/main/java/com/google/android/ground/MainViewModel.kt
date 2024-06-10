@@ -34,11 +34,14 @@ import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.signin.SignInFragmentDirections
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.android.ground.util.isPermissionDeniedException
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
 
 /** Top-level view model representing state of the [MainActivity] shared by all fragments. */
 @SharedViewModel
@@ -54,6 +57,9 @@ constructor(
   navigator: Navigator,
   authenticationManager: AuthenticationManager,
 ) : AbstractViewModel() {
+
+  private val _uiState: MutableStateFlow<MainUiState?> = MutableStateFlow(null)
+  var uiState: StateFlow<MainUiState?> = _uiState.asStateFlow()
 
   /** The window insets determined by the activity. */
   val windowInsets: MutableLiveData<WindowInsetsCompat> = MutableLiveData()
@@ -87,10 +93,11 @@ constructor(
     )
   }
 
-  private fun onUserSignInError(error: Throwable): NavDirections {
+  private suspend fun onUserSignInError(error: Throwable): NavDirections? {
     Timber.e(error, "Sign in failed")
     return if (error.isPermissionDeniedException()) {
-      SignInFragmentDirections.showPermissionDeniedDialogFragment()
+      _uiState.emit(MainUiState.onPermissionDenied)
+      null
     } else {
       // TODO(#1808): Display some error dialog to the user with a helpful user-readable messagez.
       onUserSignedOut()
