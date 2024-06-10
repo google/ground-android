@@ -34,6 +34,7 @@ import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.signin.SignInFragmentDirections
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.android.ground.util.isPermissionDeniedException
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,7 +42,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import javax.inject.Inject
 
 /** Top-level view model representing state of the [MainActivity] shared by all fragments. */
 @SharedViewModel
@@ -118,7 +118,7 @@ constructor(
     return SignInFragmentDirections.showSignInScreen()
   }
 
-  private suspend fun onUserSignedIn(): NavDirections =
+  private suspend fun onUserSignedIn(): NavDirections? =
     try {
       userRepository.saveUserDetails()
       val tos = termsOfServiceRepository.getTermsOfService()

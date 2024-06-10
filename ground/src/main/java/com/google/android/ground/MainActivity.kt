@@ -20,6 +20,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -105,21 +109,29 @@ class MainActivity : AbstractActivity() {
       ComposeView(this).apply {
         setContent {
           AppTheme {
-            PermissionDeniedDialog(
-              getSignUpLink(),
-              onSignOut = { userRepository.signOut() },
-              onCloseApp = { navigator.finishApp() },
-            )
+            var showDialog by remember { mutableStateOf(true) }
+            if (showDialog) {
+              PermissionDeniedDialog(
+                getSignUpLink(),
+                onSignOut = {
+                  showDialog = false
+                  userRepository.signOut()
+                },
+                onCloseApp = {
+                  showDialog = false
+                  navigator.finishApp()
+                },
+              )
+            }
           }
         }
       }
     )
   }
 
-  private fun getSignUpLink(): String {
-    // TODO(#2402): Read url from Firestore config/properties/signUpUrl
-    return getString(R.string.contact_survey_organizer_to_obtain_access)
-  }
+  // TODO(#2402): Read url from Firestore config/properties/signUpUrl
+  private fun getSignUpLink(): String =
+    getString(R.string.contact_survey_organizer_to_obtain_access)
 
   override fun onWindowInsetChanged(insets: WindowInsetsCompat) {
     super.onWindowInsetChanged(insets)

@@ -18,7 +18,6 @@ package com.google.android.ground
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -27,10 +26,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
@@ -44,97 +39,84 @@ import timber.log.Timber
 
 @Composable
 fun PermissionDeniedDialog(signupLink: String?, onSignOut: () -> Unit, onCloseApp: () -> Unit) {
-  var showDialog by remember { mutableStateOf(true) }
+  AlertDialog(
+    onDismissRequest = {},
+    title = {
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+          painter = painterResource(id = R.drawable.baseline_warning_24),
+          contentDescription = "Alert Icon",
+          tint = MaterialTheme.colorScheme.error,
+        )
 
-  if (showDialog) {
-    AlertDialog(
-      onDismissRequest = { showDialog = false },
-      title = {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-          Icon(
-            painter = painterResource(id = R.drawable.baseline_warning_24),
-            contentDescription = "Alert Icon",
-            tint = MaterialTheme.colorScheme.error,
-          )
+        // Add some space between icon and title
+        Spacer(modifier = Modifier.width(12.dp))
 
-          // Add some space between icon and title
-          Spacer(modifier = Modifier.width(12.dp))
-
+        Text(
+          stringResource(id = R.string.permission_denied),
+          style = MaterialTheme.typography.titleLarge,
+        )
+      }
+    },
+    text = {
+      Column {
+        if (signupLink.isNullOrEmpty()) {
           Text(
-            stringResource(id = R.string.permission_denied),
-            style = MaterialTheme.typography.titleLarge,
-          )
-        }
-      },
-      text = {
-        Column {
-          if (signupLink.isNullOrEmpty()) {
-            Text(
-              stringResource(R.string.admin_request_access),
-              style = MaterialTheme.typography.bodyMedium,
-            )
-          } else {
-            val uriHandler = LocalUriHandler.current
-            HyperlinkText(
-              modifier = Modifier.fillMaxWidth(),
-              textStyle = MaterialTheme.typography.bodyMedium,
-              fullTextResId = R.string.signup_request_access,
-              linkTextColor = MaterialTheme.colorScheme.primary,
-              hyperLinks =
-                mapOf(
-                  "sign_up_link" to
-                    {
-                      runCatching { uriHandler.openUri(signupLink) }
-                        .onFailure { Timber.e(it, "Failed to open signup link") }
-                    }
-                ),
-            )
-          }
-
-          // Empty line
-          Text(text = "")
-
-          Text(
-            stringResource(R.string.signout_warning),
+            stringResource(R.string.admin_request_access),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.error,
           )
+        } else {
+          SignupLink(signupLink)
         }
-      },
-      dismissButton = {
-        OutlinedButton(
-          onClick = {
-            showDialog = false
-            onSignOut()
-          }
-        ) {
-          Text(stringResource(id = R.string.sign_out))
-        }
-      },
-      confirmButton = {
-        Button(
-          onClick = {
-            showDialog = false
-            onCloseApp()
-          }
-        ) {
-          Text(stringResource(id = R.string.close_app))
-        }
-      },
-    )
-  }
+
+        // Empty line
+        Text(text = "")
+
+        Text(
+          stringResource(R.string.signout_warning),
+          style = MaterialTheme.typography.bodyMedium,
+          color = MaterialTheme.colorScheme.error,
+        )
+      }
+    },
+    dismissButton = {
+      OutlinedButton(onClick = { onSignOut() }) { Text(stringResource(id = R.string.sign_out)) }
+    },
+    confirmButton = {
+      Button(onClick = { onCloseApp() }) { Text(stringResource(id = R.string.close_app)) }
+    },
+  )
 }
 
 @Composable
+private fun SignupLink(signupLink: String) {
+  val uriHandler = LocalUriHandler.current
+
+  HyperlinkText(
+    textStyle = MaterialTheme.typography.bodyMedium,
+    fullTextResId = R.string.signup_request_access,
+    linkTextColor = MaterialTheme.colorScheme.primary,
+    hyperLinks =
+      mapOf(
+        "sign_up_link" to
+          {
+            runCatching { uriHandler.openUri(signupLink) }
+              .onFailure { Timber.e(it, "Failed to open sign-up link") }
+          }
+      ),
+  )
+}
+
 @Preview
-private fun PermissionDeniedDialogWithSignupLinkPreview() {
+@Composable
+fun PermissionDeniedDialogWithSignupLinkPreview() {
   AppTheme {
     PermissionDeniedDialog(signupLink = "www.google.com", onSignOut = {}, onCloseApp = {})
   }
 }
 
-@Composable
 @Preview
-private fun PermissionDeniedDialogWithoutSignupLinkPreview() {
+@Composable
+fun PermissionDeniedDialogWithoutSignupLinkPreview() {
   AppTheme { PermissionDeniedDialog(signupLink = null, onSignOut = {}, onCloseApp = {}) }
 }
