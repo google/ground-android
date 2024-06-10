@@ -24,7 +24,6 @@ android {
     compileSdk rootProject.androidCompileSdk
 
     defaultConfig {
-        applicationId "com.google.android.ground.e2etest"
         minSdkVersion rootProject.androidMinSdk
         targetSdkVersion rootProject.androidTargetSdk
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -35,6 +34,10 @@ android {
         execution 'ANDROIDX_TEST_ORCHESTRATOR'
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     buildTypes {
         staging {
         }
@@ -43,15 +46,19 @@ android {
     productFlavors {
         local {
             dimension "backend"
+            buildConfigField "boolean", "USE_EMULATORS", "true"
         }
         dev {
             dimension "backend"
+            buildConfigField "boolean", "USE_EMULATORS", "false"
         }
         sig {
             dimension "backend"
+            buildConfigField "boolean", "USE_EMULATORS", "false"
         }
         ecam {
             dimension "backend"
+            buildConfigField "boolean", "USE_EMULATORS", "false"
         }
     }
 }
