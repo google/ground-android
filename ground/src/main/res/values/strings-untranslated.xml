@@ -21,4 +21,7 @@
   <string name="app_name" translatable="false">Ground</string>
   <string name="ground_website" translatable="false">https://groundplatform.org/</string>
 
+  <!--  Replace with valid url to be used in the permission denied dialog. -->
+  <string name="contact_survey_organizer_to_obtain_access" translatable="false" />
+
 </resources>
