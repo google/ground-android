@@ -229,19 +229,19 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .clickNextButton()
       .validateTextIsDisplayed(TASK_2_NAME)
       // Select the option to unhide the conditional task.
-      .selectMultipleChoiceOption(TASK_2_OPTION_HIDDEN_LABEL)
+      .selectMultipleChoiceOption(TASK_2_OPTION_CONDITIONAL_LABEL)
       // TODO(#2394): Next button should be rendered here.
       .clickDoneButton()
-      // Hidden task is rendered.
-      .validateTextIsDisplayed(TASK_HIDDEN_NAME)
-      .inputText(TASK_HIDDEN_RESPONSE)
+      // Conditional task is rendered.
+      .validateTextIsDisplayed(TASK_CONDITIONAL_NAME)
+      .inputText(TASK_CONDITIONAL_RESPONSE)
       .clickNextButton()
 
     verify(submissionRepository)
       .saveSubmission(eq(SURVEY.id), eq(LOCATION_OF_INTEREST.id), capture(deltaCaptor))
 
-    // Hidden task data is submitted.
-    listOf(TASK_1_VALUE_DELTA, TASK_2_HIDDEN_VALUE_DELTA, TASK_HIDDEN_VALUE_DELTA).forEach { value
+    // Conditional task data is submitted.
+    listOf(TASK_1_VALUE_DELTA, TASK_2_CONDITIONAL_VALUE_DELTA, TASK_CONDITIONAL_VALUE_DELTA).forEach { value
       ->
       assertThat(deltaCaptor.value).contains(value)
     }
@@ -255,24 +255,24 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         .clickNextButton()
         .validateTextIsDisplayed(TASK_2_NAME)
         // Select the option to unhide the conditional task.
-        .selectMultipleChoiceOption(TASK_2_OPTION_HIDDEN_LABEL)
+        .selectMultipleChoiceOption(TASK_2_OPTION_CONDITIONAL_LABEL)
         // TODO(#2394): Next button should be rendered here.
         .clickDoneButton()
-        .validateTextIsDisplayed(TASK_HIDDEN_NAME)
+        .validateTextIsDisplayed(TASK_CONDITIONAL_NAME)
         // Input a value, then go back to hide the task again.
-        .inputText(TASK_HIDDEN_RESPONSE)
+        .inputText(TASK_CONDITIONAL_RESPONSE)
         .clickPreviousButton()
         .validateTextIsDisplayed(TASK_2_NAME)
         // Unselect the option to hide the conditional task.
-        .selectMultipleChoiceOption(TASK_2_OPTION_HIDDEN_LABEL)
+        .selectMultipleChoiceOption(TASK_2_OPTION_CONDITIONAL_LABEL)
         .selectMultipleChoiceOption(TASK_2_OPTION_LABEL)
         .clickDoneButton()
-        .validateTextIsNotDisplayed(TASK_HIDDEN_NAME)
+        .validateTextIsNotDisplayed(TASK_CONDITIONAL_NAME)
 
       verify(submissionRepository)
         .saveSubmission(eq(SURVEY.id), eq(LOCATION_OF_INTEREST.id), capture(deltaCaptor))
 
-      // Hidden task data is not submitted.
+      // Conditional task data is not submitted.
       listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA).forEach { value ->
         assertThat(deltaCaptor.value).contains(value)
       }
@@ -322,30 +322,30 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     const val TASK_2_NAME = "task 2"
     private const val TASK_2_OPTION = "option 1"
     private const val TASK_2_OPTION_LABEL = "Option 1"
-    private const val TASK_2_OPTION_HIDDEN = "option 2"
-    private const val TASK_2_OPTION_HIDDEN_LABEL = "Option 2"
+    private const val TASK_2_OPTION_CONDITIONAL = "option 2"
+    private const val TASK_2_OPTION_CONDITIONAL_LABEL = "Option 2"
     private val TASK_2_MULTIPLE_CHOICE =
       MultipleChoice(
         persistentListOf(
           Option(TASK_2_OPTION, "code1", TASK_2_OPTION_LABEL),
-          Option(TASK_2_OPTION_HIDDEN, "code2", TASK_2_OPTION_HIDDEN_LABEL),
+          Option(TASK_2_OPTION_CONDITIONAL, "code2", TASK_2_OPTION_CONDITIONAL_LABEL),
         ),
         MultipleChoice.Cardinality.SELECT_MULTIPLE,
       )
     private val TASK_2_VALUE =
       MultipleChoiceTaskData.fromList(TASK_2_MULTIPLE_CHOICE, listOf(TASK_2_OPTION))
-    private val TASK_2_HIDDEN_VALUE =
-      MultipleChoiceTaskData.fromList(TASK_2_MULTIPLE_CHOICE, listOf(TASK_2_OPTION_HIDDEN))
+    private val TASK_2_CONDITIONAL_VALUE =
+      MultipleChoiceTaskData.fromList(TASK_2_MULTIPLE_CHOICE, listOf(TASK_2_OPTION_CONDITIONAL))
     private val TASK_2_VALUE_DELTA = ValueDelta(TASK_ID_2, Task.Type.MULTIPLE_CHOICE, TASK_2_VALUE)
-    private val TASK_2_HIDDEN_VALUE_DELTA =
-      ValueDelta(TASK_ID_2, Task.Type.MULTIPLE_CHOICE, TASK_2_HIDDEN_VALUE)
+    private val TASK_2_CONDITIONAL_VALUE_DELTA =
+      ValueDelta(TASK_ID_2, Task.Type.MULTIPLE_CHOICE, TASK_2_CONDITIONAL_VALUE)
 
-    private const val TASK_ID_HIDDEN = "hidden"
-    const val TASK_HIDDEN_NAME = "task hidden"
-    private const val TASK_HIDDEN_RESPONSE = "response hidden"
-    private val TASK_HIDDEN_VALUE = TextTaskData.fromString(TASK_HIDDEN_RESPONSE)
-    private val TASK_HIDDEN_VALUE_DELTA =
-      ValueDelta(TASK_ID_HIDDEN, Task.Type.TEXT, TASK_HIDDEN_VALUE)
+    private const val TASK_ID_CONDITIONAL = "conditional"
+    const val TASK_CONDITIONAL_NAME = "conditional task"
+    private const val TASK_CONDITIONAL_RESPONSE = "conditional response"
+    private val TASK_CONDITIONAL_VALUE = TextTaskData.fromString(TASK_CONDITIONAL_RESPONSE)
+    private val TASK_CONDITIONAL_VALUE_DELTA =
+      ValueDelta(TASK_ID_CONDITIONAL, Task.Type.TEXT, TASK_CONDITIONAL_VALUE)
 
     private val TASKS =
       listOf(
@@ -359,10 +359,10 @@ class DataCollectionFragmentTest : BaseHiltTest() {
           multipleChoice = TASK_2_MULTIPLE_CHOICE,
         ),
         Task(
-          TASK_ID_HIDDEN,
+          TASK_ID_CONDITIONAL,
           2,
           Task.Type.TEXT,
-          TASK_HIDDEN_NAME,
+          TASK_CONDITIONAL_NAME,
           true,
           condition =
             Condition(
@@ -372,7 +372,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
                   Expression(
                     Expression.ExpressionType.ANY_OF_SELECTED,
                     TASK_ID_2,
-                    optionIds = setOf(TASK_2_OPTION_HIDDEN),
+                    optionIds = setOf(TASK_2_OPTION_CONDITIONAL),
                   )
                 ),
             ),
