@@ -241,10 +241,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .saveSubmission(eq(SURVEY.id), eq(LOCATION_OF_INTEREST.id), capture(deltaCaptor))
 
     // Conditional task data is submitted.
-    listOf(TASK_1_VALUE_DELTA, TASK_2_CONDITIONAL_VALUE_DELTA, TASK_CONDITIONAL_VALUE_DELTA).forEach { value
-      ->
-      assertThat(deltaCaptor.value).contains(value)
-    }
+    listOf(TASK_1_VALUE_DELTA, TASK_2_CONDITIONAL_VALUE_DELTA, TASK_CONDITIONAL_VALUE_DELTA)
+      .forEach { value -> assertThat(deltaCaptor.value).contains(value) }
   }
 
   @Test
