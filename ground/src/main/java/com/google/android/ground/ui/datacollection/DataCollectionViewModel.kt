@@ -256,7 +256,10 @@ internal constructor(
   }
 
   private fun getDeltas(): List<ValueDelta> =
-    data.map { (task, value) -> ValueDelta(task.id, task.type, value) }
+    // Filter deltas to valid tasks.
+    data
+      .filter { (task) -> task in getTaskSequence() }
+      .map { (task, value) -> ValueDelta(task.id, task.type, value) }
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(deltas: List<ValueDelta>) {
