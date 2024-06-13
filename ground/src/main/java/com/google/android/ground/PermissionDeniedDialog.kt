@@ -38,7 +38,7 @@ import com.google.android.ground.ui.theme.AppTheme
 import timber.log.Timber
 
 @Composable
-fun PermissionDeniedDialog(signupLink: String?, onSignOut: () -> Unit, onCloseApp: () -> Unit) {
+fun PermissionDeniedDialog(signupLink: String, onSignOut: () -> Unit, onCloseApp: () -> Unit) {
   AlertDialog(
     onDismissRequest = {},
     title = {
@@ -60,13 +60,13 @@ fun PermissionDeniedDialog(signupLink: String?, onSignOut: () -> Unit, onCloseAp
     },
     text = {
       Column {
-        if (signupLink.isNullOrEmpty()) {
+        if (signupLink.isNotEmpty()) {
+          SignupLink(signupLink)
+        } else {
           Text(
             stringResource(R.string.admin_request_access),
             style = MaterialTheme.typography.bodyMedium,
           )
-        } else {
-          SignupLink(signupLink)
         }
 
         // Empty line
@@ -118,5 +118,5 @@ fun PermissionDeniedDialogWithSignupLinkPreview() {
 @Preview
 @Composable
 fun PermissionDeniedDialogWithoutSignupLinkPreview() {
-  AppTheme { PermissionDeniedDialog(signupLink = null, onSignOut = {}, onCloseApp = {}) }
+  AppTheme { PermissionDeniedDialog(signupLink = "", onSignOut = {}, onCloseApp = {}) }
 }

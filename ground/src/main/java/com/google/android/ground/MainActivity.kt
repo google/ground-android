@@ -112,7 +112,8 @@ class MainActivity : AbstractActivity() {
             var showDialog by remember { mutableStateOf(true) }
             if (showDialog) {
               PermissionDeniedDialog(
-                getSignUpLink(),
+                // TODO(#2402): Read url from Firestore config/properties/signUpUrl
+                BuildConfig.SIGNUP_FORM_LINK,
                 onSignOut = {
                   showDialog = false
                   userRepository.signOut()
@@ -128,10 +129,6 @@ class MainActivity : AbstractActivity() {
       }
     )
   }
-
-  // TODO(#2402): Read url from Firestore config/properties/signUpUrl
-  private fun getSignUpLink(): String =
-    getString(R.string.contact_survey_organizer_to_obtain_access)
 
   override fun onWindowInsetChanged(insets: WindowInsetsCompat) {
     super.onWindowInsetChanged(insets)
