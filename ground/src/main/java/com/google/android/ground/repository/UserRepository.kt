@@ -65,7 +65,11 @@ constructor(
       return
     }
     if (!getAuthenticatedUser().isAnonymous) {
-      remoteDataStore.refreshUserProfile()
+      runCatching { remoteDataStore.refreshUserProfile() }
+        .fold(
+          { Timber.i("Profile refreshed") },
+          { throwable -> Timber.e(throwable, "Failed to refresh profile") },
+        )
     }
   }
 
