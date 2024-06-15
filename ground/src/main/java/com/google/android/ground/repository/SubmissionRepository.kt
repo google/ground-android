@@ -15,19 +15,21 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.DraftSubmission
-import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
+import com.google.android.ground.proto.AuditInfo
+import com.google.android.ground.proto.Submission
+import com.google.protobuf.Timestamp
+import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -49,13 +51,26 @@ constructor(
 ) {
 
   suspend fun createSubmission(surveyId: String, locationOfInterestId: String): Submission {
-    val auditInfo = AuditInfo(userRepository.getAuthenticatedUser())
+    val user = userRepository.getAuthenticatedUser()
+    val auditInfo =
+      AuditInfo.newBuilder()
+        .setDisplayName(user.displayName)
+        .setPhotoUrl(user.photoUrl)
+        .setClientTimestamp(Timestamp.newBuilder().setSeconds(Date().time))
+        .build()
+
     val loi = locationOfInterestRepository.getOfflineLoi(surveyId, locationOfInterestId)
-    return Submission(uuidGenerator.generateUuid(), surveyId, loi, loi.job, auditInfo, auditInfo)
+
+    return Submission.newBuilder()
+      .setId(uuidGenerator.generateUuid())
+      .setLoiId(locationOfInterestId)
+      .setJobId(loi.job.id)
+      .setCreated(auditInfo)
+      .build()
   }
 
   private suspend fun createOrUpdateSubmission(
-    submission: Submission,
+    submission: com.google.android.ground.model.submission.Submission,
     deltas: List<ValueDelta>,
     isNew: Boolean,
   ) =
