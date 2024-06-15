@@ -26,10 +26,7 @@ import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.google.android.ground.proto.AuditInfo
 import com.google.android.ground.proto.Submission
-import com.google.protobuf.Timestamp
-import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -50,50 +47,27 @@ constructor(
   private val uuidGenerator: OfflineUuidGenerator,
 ) {
 
-  suspend fun createSubmission(surveyId: String, locationOfInterestId: String): Submission {
-    val user = userRepository.getAuthenticatedUser()
-    val auditInfo =
-      AuditInfo.newBuilder()
-        .setDisplayName(user.displayName)
-        .setPhotoUrl(user.photoUrl)
-        .setClientTimestamp(Timestamp.newBuilder().setSeconds(Date().time))
-        .build()
-
-    val loi = locationOfInterestRepository.getOfflineLoi(surveyId, locationOfInterestId)
-
-    return Submission.newBuilder()
-      .setId(uuidGenerator.generateUuid())
-      .setLoiId(locationOfInterestId)
-      .setJobId(loi.job.id)
-      .setCreated(auditInfo)
-      .build()
-  }
-
-  private suspend fun createOrUpdateSubmission(
-    submission: com.google.android.ground.model.submission.Submission,
-    deltas: List<ValueDelta>,
-    isNew: Boolean,
-  ) =
-    applyAndEnqueue(
-      SubmissionMutation(
-        job = submission.job,
-        submissionId = submission.id,
-        deltas = deltas,
-        type = if (isNew) Mutation.Type.CREATE else Mutation.Type.UPDATE,
-        syncStatus = SyncStatus.PENDING,
-        surveyId = submission.surveyId,
-        locationOfInterestId = submission.locationOfInterest.id,
-        userId = submission.lastModified.user.id,
-      )
-    )
-
+  /** Creates a new submission in the local data store and enqueues a sync worker. */
   suspend fun saveSubmission(
     surveyId: String,
     locationOfInterestId: String,
     deltas: List<ValueDelta>,
   ) {
-    val submission = createSubmission(surveyId, locationOfInterestId)
-    createOrUpdateSubmission(submission, deltas, isNew = true)
+    val newId = uuidGenerator.generateUuid()
+    val userId = userRepository.getAuthenticatedUser().id
+    val job = locationOfInterestRepository.getOfflineLoi(surveyId, locationOfInterestId).job
+    val mutation =
+      SubmissionMutation(
+        job = job,
+        submissionId = newId,
+        deltas = deltas,
+        type = Mutation.Type.CREATE,
+        syncStatus = SyncStatus.PENDING,
+        surveyId = surveyId,
+        locationOfInterestId = locationOfInterestId,
+        userId = userId,
+      )
+    applyAndEnqueue(mutation)
   }
 
   suspend fun getDraftSubmission(draftSubmissionId: String, survey: Survey): DraftSubmission? =
