@@ -21,12 +21,12 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.DraftSubmission
+import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.google.android.ground.proto.Submission
 import javax.inject.Inject
 import javax.inject.Singleton
 
