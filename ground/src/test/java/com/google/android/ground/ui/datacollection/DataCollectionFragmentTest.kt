@@ -51,7 +51,6 @@ import org.mockito.Mock
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowToast
 
@@ -277,9 +276,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     }
 
   private fun setupSubmission() = runWithTestDispatcher {
-    whenever(submissionRepository.createSubmission(SURVEY.id, LOCATION_OF_INTEREST.id))
-      .thenReturn(SUBMISSION)
-
     fakeRemoteDataStore.surveys = listOf(SURVEY)
     fakeRemoteDataStore.predefinedLois = listOf(LOCATION_OF_INTEREST)
     activateSurvey(SURVEY.id)
@@ -378,7 +374,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       )
 
     private val JOB = FakeData.JOB.copy(tasks = TASKS.associateBy { it.id })
-    private val SUBMISSION = FakeData.SUBMISSION.copy(job = JOB)
     private val SURVEY = FakeData.SURVEY.copy(jobMap = mapOf(Pair(JOB.id, JOB)))
   }
 }
