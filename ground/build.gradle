@@ -86,6 +86,7 @@ android {
         buildConfigField "String", "EMULATOR_HOST", "\"10.0.2.2\""
         buildConfigField "int", "FIRESTORE_EMULATOR_PORT", "8080"
         buildConfigField "int", "AUTH_EMULATOR_PORT", "9099"
+        buildConfigField "String", "SIGNUP_FORM_LINK", "\"\""
         manifestPlaceholders.usesCleartextTraffic = true
     }
 

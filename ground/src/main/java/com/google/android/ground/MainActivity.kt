@@ -18,7 +18,13 @@ package com.google.android.ground
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
@@ -36,8 +42,10 @@ import com.google.android.ground.ui.common.NavigationRequest
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.common.modalSpinner
+import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -84,6 +92,42 @@ class MainActivity : AbstractActivity() {
     viewModel.signInProgressDialogVisibility.observe(this) { visible: Boolean ->
       onSignInProgress(visible)
     }
+
+    lifecycleScope.launch {
+      viewModel.uiState.filterNotNull().collect { updateUi(binding.root, it) }
+    }
+  }
+
+  private fun updateUi(viewGroup: ViewGroup, uiState: MainUiState) {
+    when (uiState) {
+      MainUiState.onPermissionDenied -> showPermissionDeniedDialog(viewGroup)
+    }
+  }
+
+  private fun showPermissionDeniedDialog(viewGroup: ViewGroup) {
+    viewGroup.addView(
+      ComposeView(this).apply {
+        setContent {
+          AppTheme {
+            var showDialog by remember { mutableStateOf(true) }
+            if (showDialog) {
+              PermissionDeniedDialog(
+                // TODO(#2402): Read url from Firestore config/properties/signUpUrl
+                BuildConfig.SIGNUP_FORM_LINK,
+                onSignOut = {
+                  showDialog = false
+                  userRepository.signOut()
+                },
+                onCloseApp = {
+                  showDialog = false
+                  navigator.finishApp()
+                },
+              )
+            }
+          }
+        }
+      }
+    )
   }
 
   override fun onWindowInsetChanged(insets: WindowInsetsCompat) {

@@ -99,11 +99,9 @@
   <string name="offline_map_imagery_download_progress_dialog_message">Downloading offline map imagery…</string>
   <string name="multiple_regions">Multiple regions</string>
   <string name="permission_denied">Permission denied</string>
-  <string name="contact_survey_organizer_to_obtain_access">Contact your system administrator to request access</string>
   <string name="close_app">Close app</string>
   <string name="cancel">Cancel</string>
   <string name="save">Save</string>
-  <string name="warning_sign_out">Warning: If you sign out, all unsaved data will be lost</string>
   <string name="no_imagery_available_for_area">No imagery for this area. Select an area with imagery to download to your device.</string>
   <string name="selected_offline_area_size">The selected area may take up to %s\u00A0MB of space on your device</string>
   <string name="selected_offline_area_too_large">Zoom in and select a smaller area to download to your device</string>
@@ -162,4 +160,7 @@
   <string name="data_synced_media_pending_retry">Data synced\n(media pending retry)</string>
   <string name="media_syncing">Media syncing</string>
   <string name="history">History</string>
+  <string name="signout_warning">If you sign out, all unsaved data will be lost.</string>
+  <string name="admin_request_access">To continue, contact your system administrator to request access.</string>
+  <string name="signup_request_access">To continue, <annotation type="sign_up_link">sign up to request access</annotation>.</string>
 </resources>
