@@ -21,7 +21,6 @@ import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.submission.Submission
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -48,12 +47,6 @@ interface RemoteDataStore {
 
   /** Returns LOIs created by the specified email in the specified survey. Main-safe. */
   suspend fun loadUserDefinedLois(survey: Survey, creatorEmail: String): List<LocationOfInterest>
-
-  /**
-   * Returns a list of all submissions associated with the specified LOI, or an empty list if none
-   * are found.
-   */
-  suspend fun loadSubmissions(locationOfInterest: LocationOfInterest): List<Submission>
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one

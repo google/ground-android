@@ -16,14 +16,9 @@
 
 package com.google.android.ground.persistence.remote.firebase.base
 
-import com.google.android.ground.system.NetworkManager
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.Query
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.tasks.await
-import timber.log.Timber
 
 open class FluentCollectionReference
 protected constructor(
@@ -31,35 +26,6 @@ protected constructor(
   protected val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
   protected val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) {
-
-  private val context = reference.firestore.app.applicationContext
-
-  /**
-   * Runs the specified query, returning a Single containing a List of values created by applying
-   * the mappingFunction to all results. Fails immediately with an error if an active network is not
-   * available.
-   */
-  protected suspend fun <T> runQuery(
-    query: Query,
-    mappingFunction: (snapshot: DocumentSnapshot) -> T,
-  ): List<T> {
-    NetworkManager(context).requireNetworkConnection()
-    val querySnapshot = query.get().await()
-    return querySnapshot.documents
-      .filter { it.exists() }
-      .mapNotNull { applyFunctionAndIgnoreFailures(it, mappingFunction) }
-  }
-
-  private fun <T> applyFunctionAndIgnoreFailures(
-    value: DocumentSnapshot,
-    mappingFunction: (snapshot: DocumentSnapshot) -> T,
-  ): T? =
-    try {
-      mappingFunction(value)
-    } catch (e: Throwable) {
-      Timber.e(e, "Skipping corrupt remote document: ${value.id}")
-      null
-    }
 
   protected fun reference(): CollectionReference = reference
 

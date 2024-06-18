@@ -20,11 +20,9 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.remote.firebase.schema.GroundFirestore
@@ -58,15 +56,6 @@ internal constructor(
 
   override suspend fun loadSurvey(surveyId: String): Survey =
     withContext(ioDispatcher) { db().surveys().survey(surveyId).get() }
-
-  override suspend fun loadSubmissions(locationOfInterest: LocationOfInterest): List<Submission> =
-    withContext(ioDispatcher) {
-      db()
-        .surveys()
-        .survey(locationOfInterest.surveyId)
-        .submissions()
-        .submissionsByLocationOfInterestId(locationOfInterest)
-    }
 
   override suspend fun loadTermsOfService(): TermsOfService? =
     withContext(ioDispatcher) { db().termsOfService().terms().get() }
