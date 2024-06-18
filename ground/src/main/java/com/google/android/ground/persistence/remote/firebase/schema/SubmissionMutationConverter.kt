@@ -29,7 +29,7 @@ import timber.log.Timber
 /** Converts between Firestore maps used to merge updates and [SubmissionMutation] instances. */
 internal object SubmissionMutationConverter {
 
-  const val LOI_ID = "loiId"
+  private const val LOI_ID = "loiId"
   private const val JOB_ID = "jobId"
   private const val DATA = "data"
   private const val CREATED = "created"
