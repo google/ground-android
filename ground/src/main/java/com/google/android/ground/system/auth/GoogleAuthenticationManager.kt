@@ -71,7 +71,7 @@ constructor(
   override fun initInternal() {
     firebaseAuth.addAuthStateListener { auth ->
       val user = auth.currentUser?.toUser()
-      setState(if (user == null) SignInState.signedOut() else SignInState.signedIn(user))
+      setState(if (user == null) SignInState.SignedOut else SignInState.SignedIn(user))
     }
   }
 
@@ -80,7 +80,7 @@ constructor(
   }
 
   override fun signIn() {
-    setState(SignInState.signingIn())
+    setState(SignInState.SigningIn)
     showSignInDialog()
   }
 
@@ -92,7 +92,7 @@ constructor(
 
   override fun signOut() {
     firebaseAuth.signOut()
-    setState(SignInState.signedOut())
+    setState(SignInState.SignedOut)
     activityStreams.withActivity { getGoogleSignInClient(it).signOut() }
   }
 
@@ -108,7 +108,7 @@ constructor(
       googleSignInTask.getResult(ApiException::class.java)?.let { onGoogleSignIn(it) }
     } catch (e: ApiException) {
       Timber.e(e, "Sign in failed")
-      setState(SignInState.error(e))
+      setState(SignInState.Error(e))
     }
   }
 
@@ -116,10 +116,10 @@ constructor(
     firebaseAuth
       .signInWithCredential(getFirebaseAuthCredential(googleAccount))
       .addOnSuccessListener { authResult: AuthResult -> onFirebaseAuthSuccess(authResult) }
-      .addOnFailureListener { setState(SignInState.error(it)) }
+      .addOnFailureListener { setState(SignInState.Error(it)) }
 
   private fun onFirebaseAuthSuccess(authResult: AuthResult) {
-    setState(SignInState.signedIn(authResult.user!!.toUser()))
+    setState(SignInState.SignedIn(authResult.user!!.toUser()))
   }
 
   private fun getFirebaseAuthCredential(googleAccount: GoogleSignInAccount): AuthCredential =

@@ -79,18 +79,14 @@ constructor(
 
   private suspend fun onSignInStateChange(signInState: SignInState): NavDirections? {
     // Display progress only when signing in.
-    signInProgressDialogVisibility.postValue(signInState.state == SignInState.State.SIGNING_IN)
+    signInProgressDialogVisibility.postValue(signInState == SignInState.SigningIn)
 
-    return signInState.result.fold(
-      {
-        when (signInState.state) {
-          SignInState.State.SIGNED_IN -> onUserSignedIn()
-          SignInState.State.SIGNED_OUT -> onUserSignedOut()
-          else -> null
-        }
-      },
-      { onUserSignInError(it) },
-    )
+    return when (signInState) {
+      is SignInState.Error -> onUserSignInError(signInState.error)
+      is SignInState.SignedIn -> onUserSignedIn()
+      is SignInState.SignedOut -> onUserSignedOut()
+      is SignInState.SigningIn -> null
+    }
   }
 
   private suspend fun onUserSignInError(error: Throwable): NavDirections? {
