@@ -52,9 +52,9 @@ constructor(
 
   suspend fun getAuthenticatedUser() = authenticationManager.getAuthenticatedUser()
 
-  /** Stores the current user's profile details into the local and remote dbs. */
-  suspend fun saveUserDetails() {
-    localUserStore.insertOrUpdateUser(getAuthenticatedUser())
+  /** Stores the given user to the local and remote dbs. */
+  suspend fun saveUserDetails(user: User) {
+    localUserStore.insertOrUpdateUser(user)
     updateRemoteUserInfo()
   }
 
