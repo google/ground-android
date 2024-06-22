@@ -22,9 +22,9 @@ import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.system.NetworkManager
 import com.google.android.ground.system.auth.AuthenticationManager
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 /**
  * Coordinates persistence of [User] instance in local data store. For more details on this pattern
@@ -55,16 +55,16 @@ constructor(
   /** Stores the given user to the local and remote dbs. */
   suspend fun saveUserDetails(user: User) {
     localUserStore.insertOrUpdateUser(user)
-    updateRemoteUserInfo()
+    updateRemoteUserInfo(user)
   }
 
   /** Attempts to refresh current user's profile in remote database if network is available. */
-  private suspend fun updateRemoteUserInfo() {
+  private suspend fun updateRemoteUserInfo(user: User) {
     if (!networkManager.isNetworkConnected()) {
       Timber.d("Skipped refreshing user profile as device is offline.")
       return
     }
-    if (!getAuthenticatedUser().isAnonymous) {
+    if (!user.isAnonymous) {
       runCatching { remoteDataStore.refreshUserProfile() }
         .fold(
           { Timber.i("Profile refreshed") },
