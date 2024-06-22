@@ -32,7 +32,6 @@ import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.GmsExt.contains
-import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
@@ -94,7 +93,6 @@ constructor(
         surveyId = surveyId,
         locationOfInterestId = newId,
         userId = user.id,
-        clientTimestamp = Date(),
         geometry = geometry,
         ownerEmail = user.email,
         properties = generateProperties(loiName),
