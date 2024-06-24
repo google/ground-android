@@ -25,7 +25,6 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import com.google.android.ground.persistence.remote.NotFoundException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -76,10 +75,10 @@ constructor(
   }
 
   /** This only works if the survey and location of interests are already cached to local db. */
-  suspend fun getOfflineLoi(surveyId: String, locationOfInterest: String): LocationOfInterest =
-    localSurveyStore.getSurveyById(surveyId)?.let {
-      localLoiStore.getLocationOfInterest(it, locationOfInterest)
-    } ?: throw NotFoundException("Location of interest not found $locationOfInterest")
+  suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest {
+    val survey = localSurveyStore.getSurveyById(surveyId) ?: error("Survey not found: $surveyId")
+    return localLoiStore.getLocationOfInterest(survey, loiId) ?: error("LOI not found: $loiId")
+  }
 
   /** Saves a new LOI in the local db and enqueues a sync worker. */
   suspend fun saveLoi(geometry: Geometry, job: Job, surveyId: String, loiName: String?): String {
