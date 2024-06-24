@@ -15,14 +15,14 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.User
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.generateProperties
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
+import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
@@ -51,6 +51,7 @@ constructor(
   private val localLoiStore: LocalLocationOfInterestStore,
   private val remoteDataStore: RemoteDataStore,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
+  private val userRepository: UserRepository,
   private val uuidGenerator: OfflineUuidGenerator,
   private val authenticationManager: AuthenticationManager,
 ) {
@@ -79,25 +80,25 @@ constructor(
     return localLoiStore.getLocationOfInterest(survey, loiId) ?: error("LOI not found: $loiId")
   }
 
-  fun createLocationOfInterest(
-    geometry: Geometry,
-    job: Job,
-    surveyId: String,
-    user: User,
-    loiName: String?,
-  ): LocationOfInterest {
-    val auditInfo = AuditInfo(user)
-    return LocationOfInterest(
-      id = uuidGenerator.generateUuid(),
-      surveyId = surveyId,
-      geometry = geometry,
-      job = job,
-      created = auditInfo,
-      lastModified = auditInfo,
-      ownerEmail = user.email,
-      properties = generateProperties(loiName),
-      isPredefined = false,
-    )
+  /** Saves a new LOI in the local db and enqueues a sync worker. */
+  suspend fun saveLoi(geometry: Geometry, job: Job, surveyId: String, loiName: String?): String {
+    val newId = uuidGenerator.generateUuid()
+    val user = userRepository.getAuthenticatedUser()
+    val mutation =
+      LocationOfInterestMutation(
+        jobId = job.id,
+        type = Mutation.Type.CREATE,
+        syncStatus = SyncStatus.PENDING,
+        surveyId = surveyId,
+        locationOfInterestId = newId,
+        userId = user.id,
+        geometry = geometry,
+        ownerEmail = user.email,
+        properties = generateProperties(loiName),
+        isPredefined = false,
+      )
+    applyAndEnqueue(mutation)
+    return newId
   }
 
   /**
