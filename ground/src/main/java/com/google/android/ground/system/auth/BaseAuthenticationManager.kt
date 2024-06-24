@@ -16,9 +16,8 @@
 package com.google.android.ground.system.auth
 
 import com.google.android.ground.model.User
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
 
 abstract class BaseAuthenticationManager : AuthenticationManager {
 
@@ -36,9 +35,6 @@ abstract class BaseAuthenticationManager : AuthenticationManager {
       init()
     }
 
-    return signInState
-      .filter { it.state == SignInState.State.SIGNED_IN }
-      .mapNotNull { it.result.getOrNull() }
-      .first()
+    return signInState.filterIsInstance<SignInState.SignedIn>().first().user
   }
 }

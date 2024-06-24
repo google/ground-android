@@ -59,7 +59,7 @@ class SignInFragmentTest : BaseHiltTest() {
   @Before
   override fun setUp() {
     super.setUp()
-    fakeAuthenticationManager.setState(SignInState.signedOut())
+    fakeAuthenticationManager.setState(SignInState.SignedOut)
   }
 
   @Test
@@ -73,8 +73,7 @@ class SignInFragmentTest : BaseHiltTest() {
       advanceUntilIdle()
 
       fakeAuthenticationManager.signInState.test {
-        assertThat(expectMostRecentItem())
-          .isEqualTo(SignInState(SignInState.State.SIGNED_IN, Result.success(TEST_USER)))
+        assertThat(expectMostRecentItem()).isEqualTo(SignInState.SignedIn(TEST_USER))
       }
     }
 
@@ -88,8 +87,7 @@ class SignInFragmentTest : BaseHiltTest() {
 
     // Assert that the sign-in state is still signed out
     fakeAuthenticationManager.signInState.test {
-      assertThat(expectMostRecentItem())
-        .isEqualTo(SignInState(SignInState.State.SIGNED_OUT, Result.success(null)))
+      assertThat(expectMostRecentItem()).isEqualTo(SignInState.SignedOut)
     }
 
     onView(withId(com.google.android.material.R.id.snackbar_text))
@@ -107,8 +105,7 @@ class SignInFragmentTest : BaseHiltTest() {
     advanceUntilIdle()
 
     fakeAuthenticationManager.signInState.test {
-      assertThat(awaitItem())
-        .isEqualTo(SignInState(SignInState.State.SIGNED_IN, Result.success(TEST_USER)))
+      assertThat(awaitItem()).isEqualTo(SignInState.SignedIn(TEST_USER))
       // Fails if there are further emitted sign-in events.
     }
   }

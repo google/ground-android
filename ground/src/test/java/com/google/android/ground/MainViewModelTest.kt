@@ -20,8 +20,7 @@ import app.cash.turbine.test
 import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
-import com.google.android.ground.system.auth.SignInState.Companion.error
-import com.google.android.ground.system.auth.SignInState.Companion.signingIn
+import com.google.android.ground.system.auth.SignInState
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.signin.SignInFragmentDirections
 import com.google.common.truth.Truth.assertThat
@@ -95,7 +94,7 @@ class MainViewModelTest : BaseHiltTest() {
   @Test
   fun testSignInStateChanged_onSigningIn() = runWithTestDispatcher {
     testNoNavigation(navigator.getNavigateRequests()) {
-      fakeAuthenticationManager.setState(signingIn())
+      fakeAuthenticationManager.setState(SignInState.SigningIn)
     }
 
     verifyProgressDialogVisible(true)
@@ -180,7 +179,7 @@ class MainViewModelTest : BaseHiltTest() {
     setupUserPreferences()
 
     testNavigateTo(navigator.getNavigateRequests(), SignInFragmentDirections.showSignInScreen()) {
-      fakeAuthenticationManager.setState(error(Exception()))
+      fakeAuthenticationManager.setState(SignInState.Error(Exception()))
     }
 
     verifyProgressDialogVisible(false)

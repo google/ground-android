@@ -21,6 +21,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavDirections
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.survey.ReactivateLastSurveyUseCase
+import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.room.LocalDatabase
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.TermsOfServiceRepository
@@ -79,18 +80,14 @@ constructor(
 
   private suspend fun onSignInStateChange(signInState: SignInState): NavDirections? {
     // Display progress only when signing in.
-    signInProgressDialogVisibility.postValue(signInState.state == SignInState.State.SIGNING_IN)
+    signInProgressDialogVisibility.postValue(signInState == SignInState.SigningIn)
 
-    return signInState.result.fold(
-      {
-        when (signInState.state) {
-          SignInState.State.SIGNED_IN -> onUserSignedIn()
-          SignInState.State.SIGNED_OUT -> onUserSignedOut()
-          else -> null
-        }
-      },
-      { onUserSignInError(it) },
-    )
+    return when (signInState) {
+      is SignInState.Error -> onUserSignInError(signInState.error)
+      is SignInState.SignedIn -> onUserSignedIn(signInState.user)
+      is SignInState.SignedOut -> onUserSignedOut()
+      is SignInState.SigningIn -> null
+    }
   }
 
   private suspend fun onUserSignInError(error: Throwable): NavDirections? {
@@ -118,9 +115,9 @@ constructor(
     return SignInFragmentDirections.showSignInScreen()
   }
 
-  private suspend fun onUserSignedIn(): NavDirections? =
+  private suspend fun onUserSignedIn(user: User): NavDirections? =
     try {
-      userRepository.saveUserDetails()
+      userRepository.saveUserDetails(user)
       val tos = termsOfServiceRepository.getTermsOfService()
       if (tos == null || termsOfServiceRepository.isTermsOfServiceAccepted) {
         reactivateLastSurvey()
