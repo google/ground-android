@@ -59,20 +59,18 @@ class UserRepositoryTest : BaseHiltTest() {
 
   @Test
   fun `saveUserDetails() updates local user profile`() = runWithTestDispatcher {
-    fakeAuthenticationManager.setUser(FakeData.USER)
     whenever(networkManager.isNetworkConnected()).thenReturn(true)
 
-    userRepository.saveUserDetails()
+    userRepository.saveUserDetails(FakeData.USER)
 
     assertThat(localUserStore.getUser(FakeData.USER.id)).isEqualTo(FakeData.USER)
   }
 
   @Test
   fun `saveUserDetails() updates remote user profile`() = runWithTestDispatcher {
-    fakeAuthenticationManager.setUser(FakeData.USER)
     whenever(networkManager.isNetworkConnected()).thenReturn(true)
 
-    userRepository.saveUserDetails()
+    userRepository.saveUserDetails(FakeData.USER)
 
     assertThat(fakeRemoteDataStore.userProfileRefreshCount).isEqualTo(1)
   }
@@ -80,10 +78,9 @@ class UserRepositoryTest : BaseHiltTest() {
   @Test
   fun `saveUserDetails() doesn't update remote user profile when offline `() =
     runWithTestDispatcher {
-      fakeAuthenticationManager.setUser(FakeData.USER)
       whenever(networkManager.isNetworkConnected()).thenReturn(false)
 
-      userRepository.saveUserDetails()
+      userRepository.saveUserDetails(FakeData.USER)
 
       assertThat(fakeRemoteDataStore.userProfileRefreshCount).isEqualTo(0)
     }

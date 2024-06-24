@@ -16,13 +16,11 @@
 
 package com.google.android.ground.ui.home.mapcontainer
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.ground.databinding.MapTypeDialogFragmentBinding
-import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.map.MapType
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -33,7 +31,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MapTypeDialogFragment : BottomSheetDialogFragment() {
 
-  @Inject lateinit var mapStateRepository: MapStateRepository
   @Inject lateinit var viewModelFactory: ViewModelFactory
 
   private lateinit var binding: MapTypeDialogFragmentBinding
@@ -45,15 +42,12 @@ class MapTypeDialogFragment : BottomSheetDialogFragment() {
     viewModel = viewModelFactory[this, MapTypeViewModel::class.java]
   }
 
-  // TODO(#936): Remove the suppress annotation when fragment dependency is upgraded to 1.3.4
-  // TODO(#1753): Handle click for help icon
-  @SuppressLint("UseRequireInsteadOfGet")
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?,
   ): View {
-    mapTypes = MapTypeDialogFragmentArgs.fromBundle(arguments!!).mapTypes.toList()
+    mapTypes = MapTypeDialogFragmentArgs.fromBundle(requireArguments()).mapTypes.toList()
     binding = MapTypeDialogFragmentBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     return binding.root

@@ -19,8 +19,6 @@ import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.User
 import com.google.android.ground.system.auth.BaseAuthenticationManager
 import com.google.android.ground.system.auth.SignInState
-import com.google.android.ground.system.auth.SignInState.Companion.signedIn
-import com.google.android.ground.system.auth.SignInState.Companion.signedOut
 import com.sharedtest.FakeData
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -52,9 +50,9 @@ constructor(@ApplicationScope private val externalScope: CoroutineScope) :
     externalScope.launch { _signInStateFlow.emit(state) }
   }
 
-  override fun initInternal() = setState(signedIn(currentUser))
+  override fun initInternal() = setState(SignInState.SignedIn(currentUser))
 
-  override fun signIn() = setState(signedIn(currentUser))
+  override fun signIn() = setState(SignInState.SignedIn(currentUser))
 
-  override fun signOut() = setState(signedOut())
+  override fun signOut() = setState(SignInState.SignedOut)
 }
