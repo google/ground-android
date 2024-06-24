@@ -16,15 +16,11 @@
 package com.google.android.ground.domain.usecases.submission
 
 import androidx.room.Transaction
-import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.GeometryTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
-import com.google.android.ground.repository.UserRepository
 import javax.inject.Inject
 import timber.log.Timber
 
@@ -33,7 +29,6 @@ class SubmitDataUseCase
 constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val submissionRepository: SubmissionRepository,
-  private val userRepository: UserRepository,
 ) {
 
   /**
@@ -72,19 +67,6 @@ constructor(
     if (addLoiTaskId < 0) error("Add LOI task response missing")
     val addLoiValue = deltas.removeAt(addLoiTaskId).newTaskData
     if (addLoiValue !is GeometryTaskData) error("Invalid add LOI task response")
-    return saveLoi(addLoiValue.geometry, job, surveyId, loiName).id
-  }
-
-  private suspend fun saveLoi(
-    geometry: Geometry,
-    job: Job,
-    surveyId: String,
-    loiName: String?,
-  ): LocationOfInterest {
-    val user = userRepository.getAuthenticatedUser()
-    val loi =
-      locationOfInterestRepository.createLocationOfInterest(geometry, job, surveyId, user, loiName)
-    locationOfInterestRepository.applyAndEnqueue(loi.toMutation(Mutation.Type.CREATE, user.id))
-    return loi
+    return locationOfInterestRepository.saveLoi(addLoiValue.geometry, job, surveyId, loiName)
   }
 }
