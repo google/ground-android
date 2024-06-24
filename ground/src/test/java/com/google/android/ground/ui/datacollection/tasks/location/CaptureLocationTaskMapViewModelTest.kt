@@ -35,10 +35,4 @@ class CaptureLocationTaskMapViewModelTest : BaseHiltTest() {
     assertThat(captureLocationTaskMapViewModel.mapConfig)
       .isEqualTo(MapConfig(showOfflineImagery = true, allowGestures = false))
   }
-
-  @Test
-  fun testGetMapConfigWithNoOfflineImagery() {
-    assertThat(captureLocationTaskMapViewModel.mapConfig)
-      .isNotEqualTo(MapConfig(showOfflineImagery = false, allowGestures = false))
-  }
 }
