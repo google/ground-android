@@ -66,6 +66,18 @@ class GeometryTest {
   }
 
   @Test
+  fun testPointIsEmpty() {
+    val point = point(x, y)
+    assertThat(POINT_IS_EMPTY).isEqualTo(point.isEmpty())
+  }
+
+  @Test
+  fun testPointArea() {
+    val point = point(x, y)
+    assertThat(POINT_AREA).isEqualTo(point.area)
+  }
+
+  @Test
   fun testPolygonSerialization() {
     val polygon = polygon(path1, path2)
 
@@ -131,5 +143,8 @@ class GeometryTest {
 
     private val OPEN_LOOP = listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3)
     private val CLOSED_LOOP = listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1)
+
+    private const val POINT_AREA = 0.0
+    private const val POINT_IS_EMPTY = false
   }
 }
