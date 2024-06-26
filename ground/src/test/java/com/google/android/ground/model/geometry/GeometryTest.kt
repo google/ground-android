@@ -68,7 +68,8 @@ class GeometryTest {
   @Test
   fun testPointIsEmpty() {
     val point = point(x, y)
-    assertThat(false).isEqualTo(point.isEmpty())
+
+    assertThat(point.isEmpty()).isEqualTo(false)
   }
 
   @Test
