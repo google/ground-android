@@ -74,7 +74,7 @@ class GeometryTest {
   @Test
   fun testPointArea() {
     val point = point(x, y)
-    assertThat(POINT_AREA).isEqualTo(point.area)
+    assertThat(ZERO_AREA).isEqualTo(point.area)
   }
 
   @Test
@@ -123,6 +123,17 @@ class GeometryTest {
     assertThat(LineString(CLOSED_LOOP).isClosed()).isTrue()
   }
 
+  @Test
+  fun testCenterOfLineString() {
+    assertThat(LineString(CLOSED_LOOP).center()).isEqualTo(COORDINATE_2)
+    assertThat(LineString(OPEN_LOOP).center()).isEqualTo(COORDINATE_2)
+  }
+
+  @Test
+  fun testAreaOfLineString() {
+    assertThat(LineString(CLOSED_LOOP).area).isEqualTo(ZERO_AREA)
+  }
+
   private fun point(x: Double, y: Double) = Point(Coordinates(x, y))
 
   private fun linearRing(path: Path) = LinearRing(toCoordinateList(path))
@@ -144,7 +155,7 @@ class GeometryTest {
     private val OPEN_LOOP = listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3)
     private val CLOSED_LOOP = listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1)
 
-    private const val POINT_AREA = 0.0
+    private const val ZERO_AREA = 0.0
     private const val POINT_IS_EMPTY = false
   }
 }
