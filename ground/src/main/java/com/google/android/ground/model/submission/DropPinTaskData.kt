@@ -26,7 +26,7 @@ data class DropPinTaskData(val location: Point) : GeometryTaskData(location) {
     // TODO(#752): Move to strings.xml for i18n
     val df = DecimalFormat("#.##")
     df.roundingMode = RoundingMode.DOWN
-    return LatLngConverter.formatCoordinates(location.coordinates) ?: ""
+    return LatLngConverter.toDmsFormat(location.coordinates) ?: ""
   }
 
   override fun isEmpty(): Boolean = false

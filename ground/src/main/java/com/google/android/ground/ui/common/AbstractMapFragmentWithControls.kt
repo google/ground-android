@@ -85,7 +85,7 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
       return
     }
     val target = position.target
-    val processedCoordinates = LatLngConverter.formatCoordinates(target)
+    val processedCoordinates = LatLngConverter.toDmsFormat(target)
     updateLocationInfoCard(R.string.map_location, processedCoordinates)
   }
 }

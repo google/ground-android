@@ -32,7 +32,7 @@ data class CaptureLocationTaskData(
     // TODO: Move to strings.xml for i18n
     val df = DecimalFormat("#.##")
     df.roundingMode = RoundingMode.DOWN
-    val coordinatesString = LatLngConverter.formatCoordinates(location.coordinates)
+    val coordinatesString = LatLngConverter.toDmsFormat(location.coordinates)
     val altitudeString = altitude?.let { df.format(it) } ?: "?"
     val accuracyString = accuracy?.let { df.format(it) } ?: "?"
     return "$coordinatesString\nAltitude: $altitudeString m\nAccuracy: $accuracyString m"
