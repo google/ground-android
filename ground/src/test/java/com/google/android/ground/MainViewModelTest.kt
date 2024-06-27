@@ -21,22 +21,22 @@ import com.google.android.ground.persistence.local.room.LocalDataStoreException
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.auth.SignInState
-import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.ui.signin.SignInFragmentDirections
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.sharedtest.FakeData
-import com.sharedtest.TestObservers.observeUntilFirstChange
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MainViewModelTest : BaseHiltTest() {
@@ -44,7 +44,6 @@ class MainViewModelTest : BaseHiltTest() {
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var viewModel: MainViewModel
-  @Inject lateinit var navigator: Navigator
   @Inject lateinit var sharedPreferences: SharedPreferences
   @Inject lateinit var tosRepository: TermsOfServiceRepository
   @Inject lateinit var userRepository: UserRepository
@@ -72,20 +71,18 @@ class MainViewModelTest : BaseHiltTest() {
     assertFailsWith<LocalDataStoreException> { userRepository.getUser(FakeData.USER.id) }
   }
 
-  private fun verifyProgressDialogVisible(visible: Boolean) {
-    observeUntilFirstChange(viewModel.signInProgressDialogVisibility)
-    assertThat(viewModel.signInProgressDialogVisibility.value).isEqualTo(visible)
+  private fun verifyUiState(uiState: MainUiState) = runWithTestDispatcher {
+    viewModel.uiState.test { assertThat(expectMostRecentItem()).isEqualTo(uiState) }
   }
 
   @Test
   fun testSignInStateChanged_onSignedOut() = runWithTestDispatcher {
     setupUserPreferences()
 
-    testNavigateTo(navigator.getNavigateRequests(), SignInFragmentDirections.showSignInScreen()) {
-      fakeAuthenticationManager.signOut()
-    }
+    fakeAuthenticationManager.signOut()
+    advanceUntilIdle()
 
-    verifyProgressDialogVisible(false)
+    verifyUiState(MainUiState.OnUserSignedOut)
     verifyUserPreferencesCleared()
     verifyUserNotSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
@@ -93,11 +90,10 @@ class MainViewModelTest : BaseHiltTest() {
 
   @Test
   fun testSignInStateChanged_onSigningIn() = runWithTestDispatcher {
-    testNoNavigation(navigator.getNavigateRequests()) {
-      fakeAuthenticationManager.setState(SignInState.SigningIn)
-    }
+    fakeAuthenticationManager.setState(SignInState.SigningIn)
+    advanceUntilIdle()
 
-    verifyProgressDialogVisible(true)
+    verifyUiState(MainUiState.OnUserSigningIn)
     verifyUserNotSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
   }
@@ -110,14 +106,10 @@ class MainViewModelTest : BaseHiltTest() {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
 
-    testNavigateTo(
-      navigator.getNavigateRequests(),
-      SignInFragmentDirections.showTermsOfService(false),
-    ) {
-      fakeAuthenticationManager.signIn()
-    }
+    fakeAuthenticationManager.signIn()
+    advanceUntilIdle()
 
-    verifyProgressDialogVisible(false)
+    verifyUiState(MainUiState.TosNotAccepted)
     verifyUserSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
   }
@@ -127,14 +119,10 @@ class MainViewModelTest : BaseHiltTest() {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService = null
 
-    testNavigateTo(
-      navigator.getNavigateRequests(),
-      SignInFragmentDirections.showSurveySelectorScreen(true),
-    ) {
-      fakeAuthenticationManager.signIn()
-    }
+    fakeAuthenticationManager.signIn()
+    advanceUntilIdle()
 
-    verifyProgressDialogVisible(false)
+    verifyUiState(MainUiState.NoActiveSurvey)
     verifyUserSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
   }
@@ -150,14 +138,11 @@ class MainViewModelTest : BaseHiltTest() {
         )
       )
 
-    testNoNavigation(navigator.getNavigateRequests()) { fakeAuthenticationManager.signIn() }
+    fakeAuthenticationManager.signIn()
+    advanceUntilIdle()
 
-    verifyProgressDialogVisible(false)
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-
-    viewModel.uiState.test {
-      assertThat(expectMostRecentItem()).isEqualTo(MainUiState.onPermissionDenied)
-    }
+    verifyUiState(MainUiState.OnPermissionDenied)
   }
 
   @Test
@@ -166,23 +151,21 @@ class MainViewModelTest : BaseHiltTest() {
       tosRepository.isTermsOfServiceAccepted = false
       fakeRemoteDataStore.termsOfService = Result.failure(Error("user error"))
 
-      testNavigateTo(navigator.getNavigateRequests(), SignInFragmentDirections.showSignInScreen()) {
-        fakeAuthenticationManager.signIn()
-      }
+      fakeAuthenticationManager.signIn()
+      advanceUntilIdle()
 
-      verifyProgressDialogVisible(false)
       assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+      verifyUiState(MainUiState.OnUserSignedOut)
     }
 
   @Test
   fun testSignInStateChanged_onSignInError() = runWithTestDispatcher {
     setupUserPreferences()
 
-    testNavigateTo(navigator.getNavigateRequests(), SignInFragmentDirections.showSignInScreen()) {
-      fakeAuthenticationManager.setState(SignInState.Error(Exception()))
-    }
+    fakeAuthenticationManager.setState(SignInState.Error(Exception()))
+    advanceUntilIdle()
 
-    verifyProgressDialogVisible(false)
+    verifyUiState(MainUiState.OnUserSignedOut)
     verifyUserPreferencesCleared()
     verifyUserNotSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
