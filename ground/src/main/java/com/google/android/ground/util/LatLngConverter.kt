@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.model.geometry
+package com.google.android.ground.util
 
 import android.location.Location
+import com.google.android.ground.model.geometry.Coordinates
 import kotlin.math.abs
 
 /**
