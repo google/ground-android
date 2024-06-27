@@ -32,9 +32,10 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.util.isPermissionDeniedException
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -50,21 +51,16 @@ constructor(
   private val termsOfServiceRepository: TermsOfServiceRepository,
   private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  authenticationManager: AuthenticationManager,
+  private val authenticationManager: AuthenticationManager,
 ) : AbstractViewModel() {
-
-  private val _uiState: MutableStateFlow<MainUiState?> = MutableStateFlow(null)
-  var uiState: StateFlow<MainUiState?> = _uiState.asStateFlow()
 
   /** The window insets determined by the activity. */
   val windowInsets: MutableLiveData<WindowInsetsCompat> = MutableLiveData()
 
-  init {
-    viewModelScope.launch {
-      // TODO: Check auth status whenever fragments resumes
-      authenticationManager.signInState.collect { _uiState.emit(onSignInStateChange(it)) }
-    }
-  }
+  suspend fun getUiState(): StateFlow<MainUiState?> =
+    authenticationManager.signInState
+      .map { onSignInStateChange(it) }
+      .stateIn(scope = viewModelScope, started = SharingStarted.Lazily, initialValue = null)
 
   private suspend fun onSignInStateChange(signInState: SignInState): MainUiState =
     when (signInState) {

@@ -90,7 +90,7 @@ class MainActivity : AbstractActivity() {
     viewModel = viewModelFactory[this, MainViewModel::class.java]
 
     lifecycleScope.launch {
-      viewModel.uiState.filterNotNull().collect { updateUi(binding.root, it) }
+      viewModel.getUiState().filterNotNull().collect { updateUi(binding.root, it) }
     }
   }
 
