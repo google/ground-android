@@ -18,7 +18,6 @@ package com.google.android.ground.util
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.util.LatLngConverter.toDmsFormat
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Test
@@ -27,7 +26,7 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class LatLngConverterTest : BaseHiltTest() {
+class CoordinatesExtTest : BaseHiltTest() {
 
   @Test
   fun testProcessCoordinates_ne() {

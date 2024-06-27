@@ -16,7 +16,7 @@
 package com.google.android.ground.model.submission
 
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.util.LatLngConverter.toDmsFormat
+import com.google.android.ground.util.toDmsFormat
 import java.math.RoundingMode
 import java.text.DecimalFormat
 

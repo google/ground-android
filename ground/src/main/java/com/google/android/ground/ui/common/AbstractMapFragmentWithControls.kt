@@ -28,7 +28,7 @@ import com.google.android.ground.databinding.MapTaskFragBinding
 import com.google.android.ground.model.submission.CaptureLocationTaskData.Companion.toCaptureLocationResult
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
-import com.google.android.ground.util.LatLngConverter.toDmsFormat
+import com.google.android.ground.util.toDmsFormat
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.MustBeInvokedByOverriders
 
