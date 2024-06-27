@@ -100,15 +100,24 @@ class MainActivity : AbstractActivity() {
 
   private fun updateUi(viewGroup: ViewGroup, uiState: MainUiState) {
     when (uiState) {
-      MainUiState.OnPermissionDenied -> showPermissionDeniedDialog(viewGroup)
-      MainUiState.OnUserSignedOut -> navigator.navigate(SignInFragmentDirections.showSignInScreen())
-      MainUiState.TosNotAccepted ->
+      MainUiState.OnPermissionDenied -> {
+        showPermissionDeniedDialog(viewGroup)
+      }
+      MainUiState.OnUserSignedOut -> {
+        navigator.navigate(SignInFragmentDirections.showSignInScreen())
+      }
+      MainUiState.TosNotAccepted -> {
         navigator.navigate(SignInFragmentDirections.showTermsOfService(false))
-      MainUiState.NoActiveSurvey ->
+      }
+      MainUiState.NoActiveSurvey -> {
         navigator.navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
-      MainUiState.ShowHomeScreen ->
+      }
+      MainUiState.ShowHomeScreen -> {
         navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
-      MainUiState.OnUserSigningIn -> onSignInProgress(true)
+      }
+      MainUiState.OnUserSigningIn -> {
+        onSignInProgress(true)
+      }
     }
 
     if (uiState != MainUiState.OnUserSigningIn) {
