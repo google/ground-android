@@ -31,21 +31,21 @@ class LatLngConverterTest : BaseHiltTest() {
 
   @Test
   fun testProcessCoordinates_ne() {
-    assertThat(toDmsFormat(Coordinates(10.555, 10.555))).isEqualTo("10°33'18\" N 10°33'18\" E")
+    assertThat(Coordinates(10.555, 10.555).toDmsFormat()).isEqualTo("10°33'18\" N 10°33'18\" E")
   }
 
   @Test
   fun testProcessCoordinates_se() {
-    assertThat(toDmsFormat(Coordinates(-10.555, 10.555))).isEqualTo("10°33'18\" S 10°33'18\" E")
+    assertThat(Coordinates(-10.555, 10.555).toDmsFormat()).isEqualTo("10°33'18\" S 10°33'18\" E")
   }
 
   @Test
   fun testProcessCoordinates_nw() {
-    assertThat(toDmsFormat(Coordinates(10.555, -10.555))).isEqualTo("10°33'18\" N 10°33'18\" W")
+    assertThat(Coordinates(10.555, -10.555).toDmsFormat()).isEqualTo("10°33'18\" N 10°33'18\" W")
   }
 
   @Test
   fun testProcessCoordinates_sw() {
-    assertThat(toDmsFormat(Coordinates(-10.555, -10.555))).isEqualTo("10°33'18\" S 10°33'18\" W")
+    assertThat(Coordinates(-10.555, -10.555).toDmsFormat()).isEqualTo("10°33'18\" S 10°33'18\" W")
   }
 }

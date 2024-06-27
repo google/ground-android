@@ -16,7 +16,7 @@
 package com.google.android.ground.model.submission
 
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.util.LatLngConverter
+import com.google.android.ground.util.LatLngConverter.toDmsFormat
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
@@ -26,7 +26,7 @@ data class DropPinTaskData(val location: Point) : GeometryTaskData(location) {
     // TODO(#752): Move to strings.xml for i18n
     val df = DecimalFormat("#.##")
     df.roundingMode = RoundingMode.DOWN
-    return LatLngConverter.toDmsFormat(location.coordinates) ?: ""
+    return location.coordinates.toDmsFormat() ?: ""
   }
 
   override fun isEmpty(): Boolean = false
