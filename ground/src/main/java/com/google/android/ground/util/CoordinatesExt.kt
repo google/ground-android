@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,19 @@ import com.google.android.ground.model.geometry.Coordinates
 import kotlin.math.abs
 
 /** Converts the given coordinates in decimal format to D°M′S″ format. */
-fun Coordinates.toDmsFormat(): String = "${convertLatToDMS(lat)} ${convertLongToDMS(lng)}"
+fun Coordinates.toDmsFormat(): String = "${convertLatToDms(lat)} ${convertLongToDms(lng)}"
 
-private fun convertLatToDMS(lat: Double): String {
+private fun convertLatToDms(lat: Double): String {
   val orientation = if (lat > 0) "N" else "S"
-  return "${decimalToDMS(lat)} $orientation"
+  return "${decimalToDms(lat)} $orientation"
 }
 
-private fun convertLongToDMS(long: Double): String {
+private fun convertLongToDms(long: Double): String {
   val orientation = if (long > 0) "E" else "W"
-  return "${decimalToDMS(long)} $orientation"
+  return "${decimalToDms(long)} $orientation"
 }
 
-private fun decimalToDMS(latOrLong: Double): String {
+private fun decimalToDms(latOrLong: Double): String {
   val dmsFormat = Location.convert(abs(latOrLong), Location.FORMAT_SECONDS)
   val (degrees, minutes, seconds) = dmsFormat.split(":".toRegex())
   return "$degrees°$minutes'$seconds\""
