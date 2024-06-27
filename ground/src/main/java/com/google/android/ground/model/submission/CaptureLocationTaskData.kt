@@ -17,8 +17,8 @@ package com.google.android.ground.model.submission
 
 import android.location.Location
 import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.model.geometry.LatLngConverter
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.util.toDmsFormat
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
@@ -32,7 +32,7 @@ data class CaptureLocationTaskData(
     // TODO: Move to strings.xml for i18n
     val df = DecimalFormat("#.##")
     df.roundingMode = RoundingMode.DOWN
-    val coordinatesString = LatLngConverter.formatCoordinates(location.coordinates)
+    val coordinatesString = location.coordinates.toDmsFormat()
     val altitudeString = altitude?.let { df.format(it) } ?: "?"
     val accuracyString = accuracy?.let { df.format(it) } ?: "?"
     return "$coordinatesString\nAltitude: $altitudeString m\nAccuracy: $accuracyString m"
