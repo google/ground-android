@@ -85,10 +85,46 @@ class GeometryTest {
   }
 
   @Test
+  fun testPolygonArea() {
+    val polygon = polygon(path1, path2)
+
+    assertThat(polygon.area).isEqualTo(4130.091187385864)
+  }
+
+  @Test
+  fun testPolygonCenter() {
+    val polygon = polygon(path1, path2)
+
+    assertThat(polygon.center()).isEqualTo(Coordinates(lat=-89.633029365, lng=41.89333657))
+  }
+
+  @Test
   fun testMultiPolygonSerialization() {
     val multiPolygon = multiPolygon(polygon(path1, path2), polygon(path3, path4))
 
     assertThat(multiPolygon).isEqualTo(multiPolygon.toLocalDataStoreObject().getGeometry())
+  }
+
+  @Test
+  fun testMultiPolygonArea() {
+    val multiPolygon = multiPolygon(polygon(path1, path2), polygon(path3, path4))
+
+    assertThat(multiPolygon.area).isEqualTo(5953.0440156963905)
+  }
+
+  @Test
+  fun testMultiPolygonCenter() {
+    val multiPolygon = multiPolygon(polygon(path1, path2), polygon(path3, path4))
+
+    assertThat(multiPolygon.center())
+      .isEqualTo(Coordinates(lat=-89.62333049749999, lng=41.89413522))
+  }
+
+  @Test
+  fun testMultiPolygonIsEmpty() {
+    val multiPolygon = multiPolygon(polygon(path1, path2), polygon(path3, path4))
+
+    assertThat(multiPolygon.isEmpty()).isEqualTo(false)
   }
 
   @Test
