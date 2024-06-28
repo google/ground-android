@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.repository
 
-import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
@@ -48,37 +47,27 @@ constructor(
   private val uuidGenerator: OfflineUuidGenerator,
 ) {
 
-  suspend fun createSubmission(surveyId: String, locationOfInterestId: String): Submission {
-    val auditInfo = AuditInfo(userRepository.getAuthenticatedUser())
-    val loi = locationOfInterestRepository.getOfflineLoi(surveyId, locationOfInterestId)
-    return Submission(uuidGenerator.generateUuid(), surveyId, loi, loi.job, auditInfo, auditInfo)
-  }
-
-  private suspend fun createOrUpdateSubmission(
-    submission: Submission,
-    deltas: List<ValueDelta>,
-    isNew: Boolean,
-  ) =
-    applyAndEnqueue(
-      SubmissionMutation(
-        job = submission.job,
-        submissionId = submission.id,
-        deltas = deltas,
-        type = if (isNew) Mutation.Type.CREATE else Mutation.Type.UPDATE,
-        syncStatus = SyncStatus.PENDING,
-        surveyId = submission.surveyId,
-        locationOfInterestId = submission.locationOfInterest.id,
-        userId = submission.lastModified.user.id,
-      )
-    )
-
+  /** Creates a new submission in the local data store and enqueues a sync worker. */
   suspend fun saveSubmission(
     surveyId: String,
     locationOfInterestId: String,
     deltas: List<ValueDelta>,
   ) {
-    val submission = createSubmission(surveyId, locationOfInterestId)
-    createOrUpdateSubmission(submission, deltas, isNew = true)
+    val newId = uuidGenerator.generateUuid()
+    val userId = userRepository.getAuthenticatedUser().id
+    val job = locationOfInterestRepository.getOfflineLoi(surveyId, locationOfInterestId).job
+    val mutation =
+      SubmissionMutation(
+        job = job,
+        submissionId = newId,
+        deltas = deltas,
+        type = Mutation.Type.CREATE,
+        syncStatus = SyncStatus.PENDING,
+        surveyId = surveyId,
+        locationOfInterestId = locationOfInterestId,
+        userId = userId,
+      )
+    applyAndEnqueue(mutation)
   }
 
   suspend fun getDraftSubmission(draftSubmissionId: String, survey: Survey): DraftSubmission? =

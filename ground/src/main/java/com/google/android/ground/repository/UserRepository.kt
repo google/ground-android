@@ -52,20 +52,24 @@ constructor(
 
   suspend fun getAuthenticatedUser() = authenticationManager.getAuthenticatedUser()
 
-  /** Stores the current user's profile details into the local and remote dbs. */
-  suspend fun saveUserDetails() {
-    localUserStore.insertOrUpdateUser(getAuthenticatedUser())
-    updateRemoteUserInfo()
+  /** Stores the given user to the local and remote dbs. */
+  suspend fun saveUserDetails(user: User) {
+    localUserStore.insertOrUpdateUser(user)
+    updateRemoteUserInfo(user)
   }
 
   /** Attempts to refresh current user's profile in remote database if network is available. */
-  private suspend fun updateRemoteUserInfo() {
+  private suspend fun updateRemoteUserInfo(user: User) {
     if (!networkManager.isNetworkConnected()) {
       Timber.d("Skipped refreshing user profile as device is offline.")
       return
     }
-    if (!getAuthenticatedUser().isAnonymous) {
-      remoteDataStore.refreshUserProfile()
+    if (!user.isAnonymous) {
+      runCatching { remoteDataStore.refreshUserProfile() }
+        .fold(
+          { Timber.i("Profile refreshed") },
+          { throwable -> Timber.e(throwable, "Failed to refresh profile") },
+        )
     }
   }
 

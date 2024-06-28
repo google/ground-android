@@ -21,7 +21,6 @@ import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import javax.inject.Inject
@@ -51,10 +50,6 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   override suspend fun loadTermsOfService(): TermsOfService? = termsOfService?.getOrThrow()
 
   override suspend fun loadPredefinedLois(survey: Survey) = predefinedLois
-
-  override suspend fun loadSubmissions(locationOfInterest: LocationOfInterest): List<Submission> {
-    TODO("Missing implementation")
-  }
 
   override suspend fun applyMutations(mutations: List<Mutation>, user: User) {
     if (applyMutationError != null) {

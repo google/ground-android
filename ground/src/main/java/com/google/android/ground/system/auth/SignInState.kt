@@ -17,23 +17,13 @@ package com.google.android.ground.system.auth
 
 import com.google.android.ground.model.User
 
-data class SignInState(val state: State, val result: Result<User?>) {
+sealed class SignInState {
 
-  enum class State {
-    SIGNED_OUT,
-    SIGNING_IN,
-    SIGNED_IN,
-    ERROR,
-  }
+  data object SignedOut : SignInState()
 
-  companion object {
+  data object SigningIn : SignInState()
 
-    fun signedOut() = SignInState(State.SIGNED_OUT, Result.success(null))
+  data class SignedIn(val user: User) : SignInState()
 
-    fun signingIn() = SignInState(State.SIGNING_IN, Result.success(null))
-
-    fun signedIn(user: User) = SignInState(State.SIGNED_IN, Result.success(user))
-
-    fun error(error: Throwable) = SignInState(State.ERROR, Result.failure(error))
-  }
+  data class Error(val error: Throwable) : SignInState()
 }

@@ -66,6 +66,19 @@ class GeometryTest {
   }
 
   @Test
+  fun testPointIsEmpty() {
+    val point = point(x, y)
+
+    assertThat(point.isEmpty()).isEqualTo(false)
+  }
+
+  @Test
+  fun testPointArea() {
+    val point = point(x, y)
+    assertThat(point.area).isEqualTo(0.0)
+  }
+
+  @Test
   fun testPolygonSerialization() {
     val polygon = polygon(path1, path2)
 
@@ -109,6 +122,17 @@ class GeometryTest {
   @Test
   fun isComplete_whenCountIsFour_whenFirstAndLastAreSame() {
     assertThat(LineString(CLOSED_LOOP).isClosed()).isTrue()
+  }
+
+  @Test
+  fun testCenterOfLineString() {
+    assertThat(LineString(CLOSED_LOOP).center()).isEqualTo(COORDINATE_2)
+    assertThat(LineString(OPEN_LOOP).center()).isEqualTo(COORDINATE_2)
+  }
+
+  @Test
+  fun testAreaOfLineString() {
+    assertThat(LineString(CLOSED_LOOP).area).isEqualTo(0.0)
   }
 
   private fun point(x: Double, y: Double) = Point(Coordinates(x, y))

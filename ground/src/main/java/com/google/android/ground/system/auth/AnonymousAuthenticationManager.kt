@@ -43,8 +43,8 @@ constructor(
 
   override fun initInternal() {
     setState(
-      if (firebaseAuth.currentUser == null) SignInState.signedOut()
-      else SignInState.signedIn(anonymousUser)
+      if (firebaseAuth.currentUser == null) SignInState.SignedOut
+      else SignInState.SignedIn(anonymousUser)
     )
   }
 
@@ -53,13 +53,13 @@ constructor(
   }
 
   override fun signIn() {
-    setState(SignInState.signingIn())
+    setState(SignInState.SigningIn)
     externalScope.launch { firebaseAuth.signInAnonymously().await() }
-    setState(SignInState.signedIn(anonymousUser))
+    setState(SignInState.SignedIn(anonymousUser))
   }
 
   override fun signOut() {
     firebaseAuth.signOut()
-    setState(SignInState.signedOut())
+    setState(SignInState.SignedOut)
   }
 }

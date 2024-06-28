@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.common
+package com.google.android.ground
 
-import com.google.android.ground.repository.UserRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+sealed class MainUiState {
 
-@HiltViewModel
-class PermissionDeniedDialogViewModel
-@Inject
-internal constructor(private val navigator: Navigator, private val userRepository: UserRepository) :
-  AbstractViewModel() {
+  data object OnPermissionDenied : MainUiState()
 
-  fun closeApp() {
-    navigator.finishApp()
-  }
+  data object OnUserSignedOut : MainUiState()
 
-  fun signOut() {
-    userRepository.signOut()
-  }
+  data object OnUserSigningIn : MainUiState()
+
+  data object TosNotAccepted : MainUiState()
+
+  data object NoActiveSurvey : MainUiState()
+
+  data object ShowHomeScreen : MainUiState()
 }

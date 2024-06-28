@@ -47,7 +47,7 @@ class MainActivityTest : BaseHiltTest() {
       controller.setup() // Moves Activity to RESUMED state
       activity = controller.get()
 
-      fakeAuthenticationManager.setState(SignInState.signingIn())
+      fakeAuthenticationManager.setState(SignInState.SigningIn)
       advanceUntilIdle()
 
       assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isTrue()
@@ -60,8 +60,8 @@ class MainActivityTest : BaseHiltTest() {
       controller.setup() // Moves Activity to RESUMED state
       activity = controller.get()
 
-      fakeAuthenticationManager.setState(SignInState.signingIn())
-      fakeAuthenticationManager.setState(SignInState.signedOut())
+      fakeAuthenticationManager.setState(SignInState.SigningIn)
+      fakeAuthenticationManager.setState(SignInState.SignedOut)
       advanceUntilIdle()
 
       assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isFalse()

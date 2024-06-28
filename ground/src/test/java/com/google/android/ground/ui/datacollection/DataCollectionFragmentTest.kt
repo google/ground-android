@@ -22,8 +22,13 @@ import com.google.android.ground.R
 import com.google.android.ground.capture
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.launchFragmentWithNavController
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.ValueDelta
+import com.google.android.ground.model.task.Condition
+import com.google.android.ground.model.task.Expression
+import com.google.android.ground.model.task.MultipleChoice
+import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
 import com.google.android.ground.repository.SubmissionRepository
@@ -35,6 +40,7 @@ import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
@@ -45,7 +51,6 @@ import org.mockito.Mock
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowToast
 
@@ -134,7 +139,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
-      .inputText(TASK_2_RESPONSE)
+      .selectMultipleChoiceOption(TASK_2_OPTION_LABEL)
       .clickPreviousButton()
 
     // Both deletion and creating happens twice as we do it on every previous/next step
@@ -187,7 +192,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     runner()
       .validateTextIsDisplayed(TASK_1_RESPONSE)
       .clickNextButton()
-      .validateTextIsDisplayed(TASK_2_RESPONSE)
+      .validateTextIsDisplayed(TASK_2_OPTION_LABEL)
   }
 
   @Test
@@ -197,7 +202,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .clickNextButton()
       .validateTextIsNotDisplayed(TASK_1_NAME)
       .validateTextIsDisplayed(TASK_2_NAME)
-      .inputText(TASK_2_RESPONSE)
+      .selectMultipleChoiceOption(TASK_2_OPTION_LABEL)
       .clickDoneButton() // Click "done" on final task
 
     verify(submissionRepository)
@@ -216,10 +221,61 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       verify(submissionRepository, times(1)).deleteDraftSubmission()
     }
 
-  private fun setupSubmission() = runWithTestDispatcher {
-    whenever(submissionRepository.createSubmission(SURVEY.id, LOCATION_OF_INTEREST.id))
-      .thenReturn(SUBMISSION)
+  @Test
+  fun `Clicking done after triggering conditional task saves task data`() = runWithTestDispatcher {
+    runner()
+      .inputText(TASK_1_RESPONSE)
+      .clickNextButton()
+      .validateTextIsDisplayed(TASK_2_NAME)
+      // Select the option to unhide the conditional task.
+      .selectMultipleChoiceOption(TASK_2_OPTION_CONDITIONAL_LABEL)
+      // TODO(#2394): Next button should be rendered here.
+      .clickDoneButton()
+      // Conditional task is rendered.
+      .validateTextIsDisplayed(TASK_CONDITIONAL_NAME)
+      .inputText(TASK_CONDITIONAL_RESPONSE)
+      .clickNextButton()
 
+    verify(submissionRepository)
+      .saveSubmission(eq(SURVEY.id), eq(LOCATION_OF_INTEREST.id), capture(deltaCaptor))
+
+    // Conditional task data is submitted.
+    listOf(TASK_1_VALUE_DELTA, TASK_2_CONDITIONAL_VALUE_DELTA, TASK_CONDITIONAL_VALUE_DELTA)
+      .forEach { value -> assertThat(deltaCaptor.value).contains(value) }
+  }
+
+  @Test
+  fun `Clicking done after editing conditional task state doesn't save inputted conditional task`() =
+    runWithTestDispatcher {
+      runner()
+        .inputText(TASK_1_RESPONSE)
+        .clickNextButton()
+        .validateTextIsDisplayed(TASK_2_NAME)
+        // Select the option to unhide the conditional task.
+        .selectMultipleChoiceOption(TASK_2_OPTION_CONDITIONAL_LABEL)
+        // TODO(#2394): Next button should be rendered here.
+        .clickDoneButton()
+        .validateTextIsDisplayed(TASK_CONDITIONAL_NAME)
+        // Input a value, then go back to hide the task again.
+        .inputText(TASK_CONDITIONAL_RESPONSE)
+        .clickPreviousButton()
+        .validateTextIsDisplayed(TASK_2_NAME)
+        // Unselect the option to hide the conditional task.
+        .selectMultipleChoiceOption(TASK_2_OPTION_CONDITIONAL_LABEL)
+        .selectMultipleChoiceOption(TASK_2_OPTION_LABEL)
+        .clickDoneButton()
+        .validateTextIsNotDisplayed(TASK_CONDITIONAL_NAME)
+
+      verify(submissionRepository)
+        .saveSubmission(eq(SURVEY.id), eq(LOCATION_OF_INTEREST.id), capture(deltaCaptor))
+
+      // Conditional task data is not submitted.
+      listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA).forEach { value ->
+        assertThat(deltaCaptor.value).contains(value)
+      }
+    }
+
+  private fun setupSubmission() = runWithTestDispatcher {
     fakeRemoteDataStore.surveys = listOf(SURVEY)
     fakeRemoteDataStore.predefinedLois = listOf(LOCATION_OF_INTEREST)
     activateSurvey(SURVEY.id)
@@ -258,18 +314,66 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     private const val TASK_ID_2 = "2"
     const val TASK_2_NAME = "task 2"
-    private const val TASK_2_RESPONSE = "response 2"
-    private val TASK_2_VALUE = TextTaskData.fromString(TASK_2_RESPONSE)
-    private val TASK_2_VALUE_DELTA = ValueDelta(TASK_ID_2, Task.Type.TEXT, TASK_2_VALUE)
+    private const val TASK_2_OPTION = "option 1"
+    private const val TASK_2_OPTION_LABEL = "Option 1"
+    private const val TASK_2_OPTION_CONDITIONAL = "option 2"
+    private const val TASK_2_OPTION_CONDITIONAL_LABEL = "Option 2"
+    private val TASK_2_MULTIPLE_CHOICE =
+      MultipleChoice(
+        persistentListOf(
+          Option(TASK_2_OPTION, "code1", TASK_2_OPTION_LABEL),
+          Option(TASK_2_OPTION_CONDITIONAL, "code2", TASK_2_OPTION_CONDITIONAL_LABEL),
+        ),
+        MultipleChoice.Cardinality.SELECT_MULTIPLE,
+      )
+    private val TASK_2_VALUE =
+      MultipleChoiceTaskData.fromList(TASK_2_MULTIPLE_CHOICE, listOf(TASK_2_OPTION))
+    private val TASK_2_CONDITIONAL_VALUE =
+      MultipleChoiceTaskData.fromList(TASK_2_MULTIPLE_CHOICE, listOf(TASK_2_OPTION_CONDITIONAL))
+    private val TASK_2_VALUE_DELTA = ValueDelta(TASK_ID_2, Task.Type.MULTIPLE_CHOICE, TASK_2_VALUE)
+    private val TASK_2_CONDITIONAL_VALUE_DELTA =
+      ValueDelta(TASK_ID_2, Task.Type.MULTIPLE_CHOICE, TASK_2_CONDITIONAL_VALUE)
+
+    private const val TASK_ID_CONDITIONAL = "conditional"
+    const val TASK_CONDITIONAL_NAME = "conditional task"
+    private const val TASK_CONDITIONAL_RESPONSE = "conditional response"
+    private val TASK_CONDITIONAL_VALUE = TextTaskData.fromString(TASK_CONDITIONAL_RESPONSE)
+    private val TASK_CONDITIONAL_VALUE_DELTA =
+      ValueDelta(TASK_ID_CONDITIONAL, Task.Type.TEXT, TASK_CONDITIONAL_VALUE)
 
     private val TASKS =
       listOf(
         Task(TASK_ID_1, 0, Task.Type.TEXT, TASK_1_NAME, true),
-        Task(TASK_ID_2, 1, Task.Type.TEXT, TASK_2_NAME, true),
+        Task(
+          TASK_ID_2,
+          1,
+          Task.Type.MULTIPLE_CHOICE,
+          TASK_2_NAME,
+          true,
+          multipleChoice = TASK_2_MULTIPLE_CHOICE,
+        ),
+        Task(
+          TASK_ID_CONDITIONAL,
+          2,
+          Task.Type.TEXT,
+          TASK_CONDITIONAL_NAME,
+          true,
+          condition =
+            Condition(
+              Condition.MatchType.MATCH_ANY,
+              expressions =
+                listOf(
+                  Expression(
+                    Expression.ExpressionType.ANY_OF_SELECTED,
+                    TASK_ID_2,
+                    optionIds = setOf(TASK_2_OPTION_CONDITIONAL),
+                  )
+                ),
+            ),
+        ),
       )
 
     private val JOB = FakeData.JOB.copy(tasks = TASKS.associateBy { it.id })
-    private val SUBMISSION = FakeData.SUBMISSION.copy(job = JOB)
     private val SURVEY = FakeData.SURVEY.copy(jobMap = mapOf(Pair(JOB.id, JOB)))
   }
 }

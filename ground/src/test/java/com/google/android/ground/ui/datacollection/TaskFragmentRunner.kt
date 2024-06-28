@@ -27,6 +27,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -71,6 +72,11 @@ class TaskFragmentRunner(
     onView(withId(R.id.user_response_text))
       .check(matches(withInputType(InputType.TYPE_CLASS_NUMBER)))
       .perform(forceTypeText(number.toString()))
+    return this
+  }
+
+  internal fun selectMultipleChoiceOption(optionText: String): TaskFragmentRunner {
+    onView(withText(optionText)).perform(click())
     return this
   }
 

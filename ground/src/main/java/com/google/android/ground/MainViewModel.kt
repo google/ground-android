@@ -18,9 +18,9 @@ package com.google.android.ground
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavDirections
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.survey.ReactivateLastSurveyUseCase
+import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.room.LocalDatabase
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.TermsOfServiceRepository
@@ -28,14 +28,13 @@ import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.system.auth.SignInState
 import com.google.android.ground.ui.common.AbstractViewModel
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
-import com.google.android.ground.ui.home.HomeScreenFragmentDirections
-import com.google.android.ground.ui.signin.SignInFragmentDirections
-import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.android.ground.util.isPermissionDeniedException
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -51,53 +50,41 @@ constructor(
   private val termsOfServiceRepository: TermsOfServiceRepository,
   private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  navigator: Navigator,
   authenticationManager: AuthenticationManager,
 ) : AbstractViewModel() {
+
+  private val _uiState: MutableStateFlow<MainUiState?> = MutableStateFlow(null)
+  var uiState: StateFlow<MainUiState?> = _uiState.asStateFlow()
 
   /** The window insets determined by the activity. */
   val windowInsets: MutableLiveData<WindowInsetsCompat> = MutableLiveData()
 
-  /** The state of sign in progress dialog visibility. */
-  val signInProgressDialogVisibility: MutableLiveData<Boolean> = MutableLiveData()
-
   init {
     viewModelScope.launch {
       // TODO: Check auth status whenever fragments resumes
-      authenticationManager.signInState.collect {
-        val nextState = onSignInStateChange(it)
-        nextState?.let { navigator.navigate(nextState) }
-      }
+      authenticationManager.signInState.collect { _uiState.emit(onSignInStateChange(it)) }
     }
   }
 
-  private suspend fun onSignInStateChange(signInState: SignInState): NavDirections? {
-    // Display progress only when signing in.
-    signInProgressDialogVisibility.postValue(signInState.state == SignInState.State.SIGNING_IN)
+  private suspend fun onSignInStateChange(signInState: SignInState): MainUiState =
+    when (signInState) {
+      is SignInState.Error -> onUserSignInError(signInState.error)
+      is SignInState.SignedIn -> onUserSignedIn(signInState.user)
+      is SignInState.SignedOut -> onUserSignedOut()
+      is SignInState.SigningIn -> MainUiState.OnUserSigningIn
+    }
 
-    return signInState.result.fold(
-      {
-        when (signInState.state) {
-          SignInState.State.SIGNED_IN -> onUserSignedIn()
-          SignInState.State.SIGNED_OUT -> onUserSignedOut()
-          else -> null
-        }
-      },
-      { onUserSignInError(it) },
-    )
-  }
-
-  private fun onUserSignInError(error: Throwable): NavDirections {
+  private fun onUserSignInError(error: Throwable): MainUiState {
     Timber.e(error, "Sign in failed")
     return if (error.isPermissionDeniedException()) {
-      SignInFragmentDirections.showPermissionDeniedDialogFragment()
+      MainUiState.OnPermissionDenied
     } else {
       // TODO(#1808): Display some error dialog to the user with a helpful user-readable messagez.
       onUserSignedOut()
     }
   }
 
-  private fun onUserSignedOut(): NavDirections {
+  private fun onUserSignedOut(): MainUiState {
     // Scope of subscription is until view model is cleared. Dispose it manually otherwise, firebase
     // attempts to maintain a connection even after user has logged out and throws an error.
     surveyRepository.clearActiveSurvey()
@@ -107,28 +94,36 @@ constructor(
     //  currently being done to prevent one user's data to be submitted as another user after
     //  re-login.
     viewModelScope.launch { withContext(ioDispatcher) { localDatabase.clearAllTables() } }
-
-    return SignInFragmentDirections.showSignInScreen()
+    return MainUiState.OnUserSignedOut
   }
 
-  private suspend fun onUserSignedIn(): NavDirections =
+  private suspend fun onUserSignedIn(user: User): MainUiState =
     try {
-      userRepository.saveUserDetails()
-      val tos = termsOfServiceRepository.getTermsOfService()
-      if (tos == null || termsOfServiceRepository.isTermsOfServiceAccepted) {
-        reactivateLastSurvey()
-        getDirectionAfterSignIn()
+      userRepository.saveUserDetails(user)
+      if (!isTosMissingOrAccepted()) {
+        MainUiState.TosNotAccepted
+      } else if (!attemptToReactiveLastActiveSurvey()) {
+        MainUiState.NoActiveSurvey
       } else {
-        SignInFragmentDirections.showTermsOfService(false)
+        // Everything is fine, show the home screen
+        MainUiState.ShowHomeScreen
       }
     } catch (e: Throwable) {
       onUserSignInError(e)
     }
 
-  private fun getDirectionAfterSignIn(): NavDirections =
-    if (surveyRepository.selectedSurveyId != null) {
-      HomeScreenFragmentDirections.showHomeScreen()
-    } else {
-      SurveySelectorFragmentDirections.showSurveySelectorScreen(true)
-    }
+  /**
+   * Returns true if the terms of service are missing from firestore config or if the user has not
+   * accepted it yet.
+   */
+  private suspend fun isTosMissingOrAccepted(): Boolean {
+    val tos = termsOfServiceRepository.getTermsOfService()
+    return tos == null || termsOfServiceRepository.isTermsOfServiceAccepted
+  }
+
+  /** Returns true if the last survey was successfully reactivated, if any. */
+  private suspend fun attemptToReactiveLastActiveSurvey(): Boolean {
+    reactivateLastSurvey()
+    return surveyRepository.selectedSurveyId != null
+  }
 }

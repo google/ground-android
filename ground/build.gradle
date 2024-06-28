@@ -38,6 +38,9 @@ project.ext {
     coroutinesVersion = "1.6.4"
 }
 
+// Directory where downloaded Protocol Buffer definitions are extracted to.
+def extractedGroundProtoPath = layout.buildDirectory.dir('extracted-ground-protos')
+
 // Extract API key from google-services.json for use with Google Maps SDK.
 import groovy.json.JsonSlurper
 
@@ -57,6 +60,11 @@ def getCommitSha1 = { ->
 android {
     compileSdk rootProject.androidCompileSdk
     sourceSets {
+        main {
+            proto {
+                srcDir extractedGroundProtoPath
+            }
+        }
         test {
             proto {
                 srcDir 'src/test/proto'
@@ -78,6 +86,7 @@ android {
         buildConfigField "String", "EMULATOR_HOST", "\"10.0.2.2\""
         buildConfigField "int", "FIRESTORE_EMULATOR_PORT", "8080"
         buildConfigField "int", "AUTH_EMULATOR_PORT", "9099"
+        buildConfigField "String", "SIGNUP_FORM_LINK", "\"\""
         manifestPlaceholders.usesCleartextTraffic = true
     }
 
@@ -152,7 +161,7 @@ android {
         viewBinding true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion "1.5.5"
+        kotlinCompilerExtensionVersion "1.5.13"
     }
     testOptions {
         unitTests {
@@ -164,6 +173,10 @@ android {
         animationsDisabled = true
     }
     namespace 'com.google.android.ground'
+}
+
+configurations {
+    groundProtoJar
 }
 
 dependencies {
@@ -334,6 +347,9 @@ dependencies {
 
     // TODO(#1748): Move protos into shared module and set correct path here.
     api("com.google.protobuf:protobuf-kotlin-lite:4.26.1")
+
+    // Pulls protodefs from the specified commit in the ground-platform repo.
+    groundProtoJar "com.github.google:ground-platform:5211a4f@jar"
 }
 
 protobuf {
@@ -353,8 +369,22 @@ protobuf {
                     option("lite")
                 }
             }
+            it.dependsOn extractGroundProtoJar
         }
     }
+}
+
+// Extracts protodefs in downloaded JAR to the build/extracted-protos dirs.
+task extractGroundProtoJar(type: Copy) {
+    from(
+        // Defer resolution until after configuration phase.
+        provider {
+            configurations.groundProtoJar.collect {
+                zipTree(it)
+            }
+        })
+    into extractedGroundProtoPath
+    include "**/*.proto"
 }
 
 // Allow references to generated code.
