@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.ui.datacollection.tasks.point
+package com.google.android.ground.util
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.model.geometry.LatLngConverter.formatCoordinates
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Test
@@ -27,29 +26,25 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class LatLngConverterTest : BaseHiltTest() {
+class CoordinatesExtTest : BaseHiltTest() {
 
   @Test
   fun testProcessCoordinates_ne() {
-    assertThat(formatCoordinates(Coordinates(10.555, 10.555)))
-      .isEqualTo("10°33'18\" N 10°33'18\" E")
+    assertThat(Coordinates(10.555, 10.555).toDmsFormat()).isEqualTo("10°33'18\" N 10°33'18\" E")
   }
 
   @Test
   fun testProcessCoordinates_se() {
-    assertThat(formatCoordinates(Coordinates(-10.555, 10.555)))
-      .isEqualTo("10°33'18\" S 10°33'18\" E")
+    assertThat(Coordinates(-10.555, 10.555).toDmsFormat()).isEqualTo("10°33'18\" S 10°33'18\" E")
   }
 
   @Test
   fun testProcessCoordinates_nw() {
-    assertThat(formatCoordinates(Coordinates(10.555, -10.555)))
-      .isEqualTo("10°33'18\" N 10°33'18\" W")
+    assertThat(Coordinates(10.555, -10.555).toDmsFormat()).isEqualTo("10°33'18\" N 10°33'18\" W")
   }
 
   @Test
   fun testProcessCoordinates_sw() {
-    assertThat(formatCoordinates(Coordinates(-10.555, -10.555)))
-      .isEqualTo("10°33'18\" S 10°33'18\" W")
+    assertThat(Coordinates(-10.555, -10.555).toDmsFormat()).isEqualTo("10°33'18\" S 10°33'18\" W")
   }
 }
