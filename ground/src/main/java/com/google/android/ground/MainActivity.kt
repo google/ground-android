@@ -42,6 +42,9 @@ import com.google.android.ground.ui.common.NavigationRequest
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.common.modalSpinner
+import com.google.android.ground.ui.home.HomeScreenFragmentDirections
+import com.google.android.ground.ui.signin.SignInFragmentDirections
+import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -89,9 +92,6 @@ class MainActivity : AbstractActivity() {
       supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
 
     viewModel = viewModelFactory[this, MainViewModel::class.java]
-    viewModel.signInProgressDialogVisibility.observe(this) { visible: Boolean ->
-      onSignInProgress(visible)
-    }
 
     lifecycleScope.launch {
       viewModel.uiState.filterNotNull().collect { updateUi(binding.root, it) }
@@ -100,7 +100,28 @@ class MainActivity : AbstractActivity() {
 
   private fun updateUi(viewGroup: ViewGroup, uiState: MainUiState) {
     when (uiState) {
-      MainUiState.onPermissionDenied -> showPermissionDeniedDialog(viewGroup)
+      MainUiState.OnPermissionDenied -> {
+        showPermissionDeniedDialog(viewGroup)
+      }
+      MainUiState.OnUserSignedOut -> {
+        navigator.navigate(SignInFragmentDirections.showSignInScreen())
+      }
+      MainUiState.TosNotAccepted -> {
+        navigator.navigate(SignInFragmentDirections.showTermsOfService(false))
+      }
+      MainUiState.NoActiveSurvey -> {
+        navigator.navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
+      }
+      MainUiState.ShowHomeScreen -> {
+        navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
+      }
+      MainUiState.OnUserSigningIn -> {
+        onSignInProgress(true)
+      }
+    }
+
+    if (uiState != MainUiState.OnUserSigningIn) {
+      onSignInProgress(false)
     }
   }
 

@@ -25,10 +25,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTaskFragBinding
-import com.google.android.ground.model.geometry.LatLngConverter
 import com.google.android.ground.model.submission.CaptureLocationTaskData.Companion.toCaptureLocationResult
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.util.toDmsFormat
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.MustBeInvokedByOverriders
 
@@ -85,7 +85,7 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
       return
     }
     val target = position.target
-    val processedCoordinates = LatLngConverter.formatCoordinates(target)
+    val processedCoordinates = target?.toDmsFormat()
     updateLocationInfoCard(R.string.map_location, processedCoordinates)
   }
 }

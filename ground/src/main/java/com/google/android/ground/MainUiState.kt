@@ -18,7 +18,15 @@ package com.google.android.ground
 
 sealed class MainUiState {
 
-  // TODO(#2402): Move remaining ui states from view model
+  data object OnPermissionDenied : MainUiState()
 
-  data object onPermissionDenied : MainUiState()
+  data object OnUserSignedOut : MainUiState()
+
+  data object OnUserSigningIn : MainUiState()
+
+  data object TosNotAccepted : MainUiState()
+
+  data object NoActiveSurvey : MainUiState()
+
+  data object ShowHomeScreen : MainUiState()
 }
