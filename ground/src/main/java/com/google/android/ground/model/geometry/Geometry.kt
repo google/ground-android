@@ -88,6 +88,7 @@ data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
 /** A sequence of two or more vertices modelling an OCG style line string. */
 @Serializable
 @SerialName("line_string")
+// TODO(#2499): Deprecate usages of LineString
 data class LineString(val coordinates: List<Coordinates>) : Geometry {
   override val area: Double
     get() = 0.0
@@ -110,6 +111,7 @@ data class LineString(val coordinates: List<Coordinates>) : Geometry {
  */
 @Serializable
 @SerialName("linear_ring")
+// TODO(#2499): Deprecate usages of LinearRing
 data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
   override val area: Double
     get() = 0.0

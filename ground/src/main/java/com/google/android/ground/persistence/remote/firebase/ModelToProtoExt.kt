@@ -52,12 +52,11 @@ private fun Geometry.toProtoBuf(): GeometryProto {
   val geometryBuilder = GeometryProto.newBuilder()
   when (this) {
     is Point -> geometryBuilder.setPoint(toProtoBuf())
-    is LineString -> throw UnsupportedOperationException("Unsupported type $this")
-    is LinearRing -> throw UnsupportedOperationException("Unsupported type $this")
     is MultiPolygon -> geometryBuilder.setMultiPolygon(toProtoBuf())
     is Polygon -> geometryBuilder.setPolygon(toProtoBuf())
+    is LineString,
+    is LinearRing -> throw UnsupportedOperationException("Unsupported type $this")
   }
-
   return geometryBuilder.build()
 }
 
