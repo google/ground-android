@@ -33,16 +33,18 @@ import com.google.android.ground.proto.Polygon as PolygonProto
 import com.google.protobuf.Timestamp
 import java.util.Date
 
-private fun AuditInfo.toProtoBuf(): AuditInfoProto =
-  AuditInfoProto.newBuilder()
-    .setUserId(user.id)
-    .setPhotoUrl(user.photoUrl)
-    .setDisplayName(user.displayName)
-    .setClientTimestamp(clientTimestamp.toTimestamp())
-    .setServerTimestamp(
-      serverTimestamp?.toTimestamp() // TODO: Check if null values will throw an exception or not
-    )
-    .build()
+private fun AuditInfo.toProtoBuf(): AuditInfoProto {
+  val builder =
+    AuditInfoProto.newBuilder()
+      .setUserId(user.id)
+      .setPhotoUrl(user.photoUrl)
+      .setDisplayName(user.displayName)
+      .setClientTimestamp(clientTimestamp.toTimestamp())
+  if (serverTimestamp != null) {
+    builder.setServerTimestamp(serverTimestamp.toTimestamp())
+  }
+  return builder.build()
+}
 
 private fun Date.toTimestamp(): Timestamp = Timestamp.newBuilder().setSeconds(time * 1000).build()
 
