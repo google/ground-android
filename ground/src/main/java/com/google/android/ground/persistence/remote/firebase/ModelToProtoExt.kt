@@ -1,0 +1,87 @@
+/*
+ * Copyright 2024 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.google.android.ground.persistence.remote.firebase
+
+import com.google.android.ground.model.AuditInfo
+import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.model.geometry.Geometry
+import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.MultiPolygon
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
+import com.google.protobuf.Timestamp
+import java.util.Date
+
+private fun AuditInfo.toProtoBuf(): com.google.android.ground.proto.AuditInfo {
+  return com.google.android.ground.proto.AuditInfo.newBuilder()
+    .setUserId(user.id)
+    .setPhotoUrl(user.photoUrl)
+    .setDisplayName(user.displayName)
+    .setClientTimestamp(clientTimestamp.toTimestamp())
+    .setServerTimestamp(
+      serverTimestamp?.toTimestamp() // TODO: Check if null values will throw an exception or not
+    )
+    .build()
+}
+
+private fun Date.toTimestamp(): Timestamp = Timestamp.newBuilder().setSeconds(time * 1000).build()
+
+private fun Geometry.toProtoBuf(): com.google.android.ground.proto.Geometry {
+  val geometryBuilder = com.google.android.ground.proto.Geometry.newBuilder()
+
+  when (this) {
+    is Point -> geometryBuilder.setPoint(toProtoBuf())
+    is LineString -> TODO()
+    is LinearRing -> TODO()
+    is MultiPolygon -> geometryBuilder.setMultiPolygon(toProtoBuf())
+    is Polygon -> geometryBuilder.setPolygon(toProtoBuf())
+  }
+
+  return geometryBuilder.build()
+}
+
+private fun Coordinates.toProtoBuf(): com.google.android.ground.proto.Coordinates {
+  return com.google.android.ground.proto.Coordinates.newBuilder()
+    .setLatitude(lat)
+    .setLongitude(lng)
+    .build()
+}
+
+private fun Point.toProtoBuf(): com.google.android.ground.proto.Point {
+  return com.google.android.ground.proto.Point.newBuilder()
+    .setCoordinates(coordinates.toProtoBuf())
+    .build()
+}
+
+private fun LinearRing.toProtoBuf(): com.google.android.ground.proto.LinearRing {
+  return com.google.android.ground.proto.LinearRing.newBuilder()
+    .addAllCoordinates(coordinates.map { it.toProtoBuf() })
+    .build()
+}
+
+private fun Polygon.toProtoBuf(): com.google.android.ground.proto.Polygon {
+  return com.google.android.ground.proto.Polygon.newBuilder()
+    .setShell(shell.toProtoBuf())
+    .addAllHoles(holes.map { it.toProtoBuf() })
+    .build()
+}
+
+private fun MultiPolygon.toProtoBuf(): com.google.android.ground.proto.MultiPolygon {
+  return com.google.android.ground.proto.MultiPolygon.newBuilder()
+    .addAllPolygons(polygons.map { it.toProtoBuf() })
+    .build()
+}
