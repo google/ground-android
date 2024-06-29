@@ -26,8 +26,8 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.protobuf.Timestamp
 import java.util.Date
 
-private fun AuditInfo.toProtoBuf(): com.google.android.ground.proto.AuditInfo {
-  return com.google.android.ground.proto.AuditInfo.newBuilder()
+private fun AuditInfo.toProtoBuf(): com.google.android.ground.proto.AuditInfo =
+  com.google.android.ground.proto.AuditInfo.newBuilder()
     .setUserId(user.id)
     .setPhotoUrl(user.photoUrl)
     .setDisplayName(user.displayName)
@@ -36,7 +36,6 @@ private fun AuditInfo.toProtoBuf(): com.google.android.ground.proto.AuditInfo {
       serverTimestamp?.toTimestamp() // TODO: Check if null values will throw an exception or not
     )
     .build()
-}
 
 private fun Date.toTimestamp(): Timestamp = Timestamp.newBuilder().setSeconds(time * 1000).build()
 
@@ -45,8 +44,8 @@ private fun Geometry.toProtoBuf(): com.google.android.ground.proto.Geometry {
 
   when (this) {
     is Point -> geometryBuilder.setPoint(toProtoBuf())
-    is LineString -> TODO()
-    is LinearRing -> TODO()
+    is LineString -> throw UnsupportedOperationException("Unsupported type $this")
+    is LinearRing -> throw UnsupportedOperationException("Unsupported type $this")
     is MultiPolygon -> geometryBuilder.setMultiPolygon(toProtoBuf())
     is Polygon -> geometryBuilder.setPolygon(toProtoBuf())
   }
@@ -54,34 +53,29 @@ private fun Geometry.toProtoBuf(): com.google.android.ground.proto.Geometry {
   return geometryBuilder.build()
 }
 
-private fun Coordinates.toProtoBuf(): com.google.android.ground.proto.Coordinates {
-  return com.google.android.ground.proto.Coordinates.newBuilder()
+private fun Coordinates.toProtoBuf(): com.google.android.ground.proto.Coordinates =
+  com.google.android.ground.proto.Coordinates.newBuilder()
     .setLatitude(lat)
     .setLongitude(lng)
     .build()
-}
 
-private fun Point.toProtoBuf(): com.google.android.ground.proto.Point {
-  return com.google.android.ground.proto.Point.newBuilder()
+private fun Point.toProtoBuf(): com.google.android.ground.proto.Point =
+  com.google.android.ground.proto.Point.newBuilder()
     .setCoordinates(coordinates.toProtoBuf())
     .build()
-}
 
-private fun LinearRing.toProtoBuf(): com.google.android.ground.proto.LinearRing {
-  return com.google.android.ground.proto.LinearRing.newBuilder()
+private fun LinearRing.toProtoBuf(): com.google.android.ground.proto.LinearRing =
+  com.google.android.ground.proto.LinearRing.newBuilder()
     .addAllCoordinates(coordinates.map { it.toProtoBuf() })
     .build()
-}
 
-private fun Polygon.toProtoBuf(): com.google.android.ground.proto.Polygon {
-  return com.google.android.ground.proto.Polygon.newBuilder()
+private fun Polygon.toProtoBuf(): com.google.android.ground.proto.Polygon =
+  com.google.android.ground.proto.Polygon.newBuilder()
     .setShell(shell.toProtoBuf())
     .addAllHoles(holes.map { it.toProtoBuf() })
     .build()
-}
 
-private fun MultiPolygon.toProtoBuf(): com.google.android.ground.proto.MultiPolygon {
-  return com.google.android.ground.proto.MultiPolygon.newBuilder()
+private fun MultiPolygon.toProtoBuf(): com.google.android.ground.proto.MultiPolygon =
+  com.google.android.ground.proto.MultiPolygon.newBuilder()
     .addAllPolygons(polygons.map { it.toProtoBuf() })
     .build()
-}
