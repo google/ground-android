@@ -25,8 +25,6 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LoiProperties
-import com.google.protobuf.Timestamp
-import java.util.Date
 import com.google.android.ground.proto.AuditInfo as AuditInfoProto
 import com.google.android.ground.proto.Coordinates as CoordinatesProto
 import com.google.android.ground.proto.Geometry as GeometryProto
@@ -37,6 +35,8 @@ import com.google.android.ground.proto.LocationOfInterest.Source as SourceProto
 import com.google.android.ground.proto.MultiPolygon as MultiPolygonProto
 import com.google.android.ground.proto.Point as PointProto
 import com.google.android.ground.proto.Polygon as PolygonProto
+import com.google.protobuf.Timestamp
+import java.util.Date
 
 fun LocationOfInterest.toProtoBuf(): LocationOfInterestProto =
   LocationOfInterestProto.newBuilder()
