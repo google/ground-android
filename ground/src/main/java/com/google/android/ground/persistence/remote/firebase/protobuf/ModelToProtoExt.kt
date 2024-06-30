@@ -25,13 +25,14 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LoiProperties
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
+import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.proto.AuditInfo as AuditInfoProto
 import com.google.android.ground.proto.Coordinates as CoordinatesProto
 import com.google.android.ground.proto.Geometry as GeometryProto
 import com.google.android.ground.proto.LinearRing as LinearRingProto
 import com.google.android.ground.proto.LocationOfInterest as LocationOfInterestProto
 import com.google.android.ground.proto.LocationOfInterest.Property as PropertyProto
-import com.google.android.ground.proto.LocationOfInterest.Source as SourceProto
+import com.google.android.ground.proto.LocationOfInterest.Source
 import com.google.android.ground.proto.MultiPolygon as MultiPolygonProto
 import com.google.android.ground.proto.Point as PointProto
 import com.google.android.ground.proto.Polygon as PolygonProto
@@ -41,26 +42,41 @@ import java.util.Date
 fun LocationOfInterestMutation.createLoiProto(user: User): LocationOfInterestProto {
   assert(userId == user.id) { "UserId doesn't match: expected $userId, found ${user.id}" }
 
-  val auditInfo = createAuditInfo(user, clientTimestamp, clientTimestamp)
-
-  val source =
-    if (isPredefined == null) SourceProto.SOURCE_UNSPECIFIED
-    else if (isPredefined) SourceProto.FIELD_DATA else SourceProto.IMPORTED
-
   val builder =
     LocationOfInterestProto.newBuilder()
       .setId(locationOfInterestId)
       .setJobId(jobId)
       .setSubmissionCount(submissionCount)
       .setOwnerId(userId)
-      .setCreated(auditInfo)
-      .setLastModified(auditInfo)
       .setCustomTag(customId)
-      .setSource(source)
-      .putAllProperties(properties.toProtoBuf())
+
+  if (properties.isNotEmpty()) {
+    builder.putAllProperties(properties.toProtoBuf())
+  }
 
   if (geometry != null) {
     builder.setGeometry(geometry.toProtoBuf())
+  }
+
+  val auditInfo = createAuditInfo(user, clientTimestamp, clientTimestamp)
+
+  when (type) {
+    Mutation.Type.CREATE -> {
+      builder
+        .setCreated(auditInfo)
+        .setLastModified(auditInfo)
+        .setSource(
+          if (isPredefined == null) Source.SOURCE_UNSPECIFIED
+          else if (isPredefined) Source.FIELD_DATA else Source.IMPORTED
+        )
+    }
+    Mutation.Type.UPDATE -> {
+      builder.setLastModified(auditInfo)
+    }
+    Mutation.Type.DELETE,
+    Mutation.Type.UNKNOWN -> {
+      throw UnsupportedOperationException()
+    }
   }
 
   return builder.build()
