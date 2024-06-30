@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
-import com.google.android.ground.model.AuditInfo
+import com.google.android.ground.model.User
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.geometry.LineString
@@ -23,8 +23,8 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.locationofinterest.LoiProperties
+import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.proto.AuditInfo as AuditInfoProto
 import com.google.android.ground.proto.Coordinates as CoordinatesProto
 import com.google.android.ground.proto.Geometry as GeometryProto
@@ -38,37 +38,48 @@ import com.google.android.ground.proto.Polygon as PolygonProto
 import com.google.protobuf.Timestamp
 import java.util.Date
 
-fun LocationOfInterest.toProtoBuf(): LocationOfInterestProto =
-  LocationOfInterestProto.newBuilder()
-    .setId(id)
-    .setJobId(job.id)
-    .setGeometry(geometry.toProtoBuf())
-    .setSubmissionCount(submissionCount)
-    // TODO(#2499): Add ownerId
-    .setCreated(created.toProtoBuf())
-    .setLastModified(lastModified.toProtoBuf())
-    // TODO(#2499): Add customTag
-    .setSource(
-      if (isPredefined == null) SourceProto.SOURCE_UNSPECIFIED
-      else if (isPredefined) SourceProto.FIELD_DATA else SourceProto.IMPORTED
-    )
-    .putAllProperties(properties.toProtoBuf())
-    .build()
+fun LocationOfInterestMutation.createLoiProto(user: User): LocationOfInterestProto {
+  assert(userId == user.id) { "UserId doesn't match: expected $userId, found ${user.id}" }
 
-private fun AuditInfo.toProtoBuf(): AuditInfoProto {
+  val auditInfo = createAuditInfo(user, clientTimestamp, clientTimestamp)
+
+  val source =
+    if (isPredefined == null) SourceProto.SOURCE_UNSPECIFIED
+    else if (isPredefined) SourceProto.FIELD_DATA else SourceProto.IMPORTED
+
   val builder =
-    AuditInfoProto.newBuilder()
-      .setUserId(user.id)
-      .setPhotoUrl(user.photoUrl)
-      .setDisplayName(user.displayName)
-      .setClientTimestamp(clientTimestamp.toTimestamp())
-  if (serverTimestamp != null) {
-    builder.setServerTimestamp(serverTimestamp.toTimestamp())
+    LocationOfInterestProto.newBuilder()
+      .setId(locationOfInterestId)
+      .setJobId(jobId)
+      .setSubmissionCount(submissionCount)
+      .setOwnerId(userId)
+      .setCreated(auditInfo)
+      .setLastModified(auditInfo)
+      .setCustomTag(customId)
+      .setSource(source)
+      .putAllProperties(properties.toProtoBuf())
+
+  if (geometry != null) {
+    builder.setGeometry(geometry.toProtoBuf())
   }
+
   return builder.build()
 }
 
-private fun Date.toTimestamp(): Timestamp = Timestamp.newBuilder().setSeconds(time * 1000).build()
+private fun createAuditInfo(
+  user: User,
+  clientTimestamp: Date,
+  serverTimestamp: Date,
+): AuditInfoProto =
+  com.google.android.ground.proto.AuditInfo.newBuilder()
+    .setUserId(user.id)
+    .setPhotoUrl(user.photoUrl)
+    .setDisplayName(user.displayName)
+    .setClientTimestamp(clientTimestamp.toProtoBuf())
+    .setServerTimestamp(serverTimestamp.toProtoBuf())
+    .build()
+
+private fun Date.toProtoBuf(): Timestamp = Timestamp.newBuilder().setSeconds(time * 1000).build()
 
 private fun Geometry.toProtoBuf(): GeometryProto {
   val geometryBuilder = GeometryProto.newBuilder()
