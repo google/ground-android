@@ -86,14 +86,18 @@ private fun createAuditInfo(
   user: User,
   clientTimestamp: Date,
   serverTimestamp: Date,
-): AuditInfoProto =
-  com.google.android.ground.proto.AuditInfo.newBuilder()
-    .setUserId(user.id)
-    .setPhotoUrl(user.photoUrl)
-    .setDisplayName(user.displayName)
-    .setClientTimestamp(clientTimestamp.toProtoBuf())
-    .setServerTimestamp(serverTimestamp.toProtoBuf())
-    .build()
+): AuditInfoProto {
+  val builder =
+    com.google.android.ground.proto.AuditInfo.newBuilder()
+      .setUserId(user.id)
+      .setDisplayName(user.displayName)
+      .setClientTimestamp(clientTimestamp.toProtoBuf())
+      .setServerTimestamp(serverTimestamp.toProtoBuf())
+  if (user.photoUrl != null) {
+    builder.setPhotoUrl(user.photoUrl)
+  }
+  return builder.build()
+}
 
 private fun Date.toProtoBuf(): Timestamp = Timestamp.newBuilder().setSeconds(time * 1000).build()
 
