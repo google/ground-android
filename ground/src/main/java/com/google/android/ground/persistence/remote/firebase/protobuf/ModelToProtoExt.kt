@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.persistence.remote.firebase
+package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.geometry.Coordinates
