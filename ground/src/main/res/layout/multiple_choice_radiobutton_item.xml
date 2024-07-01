@@ -64,6 +64,7 @@
         android:inputType="text"
         android:text="@{item.otherText}"
         android:visibility="@{item.isOtherOption ? View.VISIBLE: View.GONE}"
+        android:enabled="@{viewModel.isOtherOptionAndSelected(item)}"
         app:textChangedListener="@{viewModel.otherTextWatcher}" />
     </com.google.android.material.textfield.TextInputLayout>
   </androidx.constraintlayout.widget.ConstraintLayout>
