@@ -17,8 +17,11 @@ package com.google.android.ground.repository
 
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapType
 import com.google.common.truth.Truth.assertThat
+import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import org.junit.Test
@@ -30,6 +33,7 @@ import org.robolectric.RobolectricTestRunner
 class MapStateRepositoryTest : BaseHiltTest() {
 
   @Inject lateinit var mapStateRepository: MapStateRepository
+  @Inject lateinit var localValueStore: LocalValueStore
 
   @Test
   fun getMapType_whenNotSet_returnsDefault() {
@@ -65,4 +69,27 @@ class MapStateRepositoryTest : BaseHiltTest() {
       assertThat(expectMostRecentItem()).isTrue()
     }
   }
+
+  @Test
+  fun isLocationEnabled_whenNotSet_returnsDefault() {
+    assertThat(mapStateRepository.isLocationLockEnabled).isEqualTo(false)
+
+    mapStateRepository.isLocationLockEnabled = true
+    assertThat(mapStateRepository.isLocationLockEnabled).isEqualTo(true)
+  }
+
+  @Test
+  fun cameraPosition_whenSet_returnsCameraPosition() {
+    localValueStore.lastActiveSurveyId = SURVEY_ID
+    mapStateRepository.setCameraPosition(CameraPosition(target = TARGET))
+
+    assertThat(mapStateRepository.getCameraPosition(SURVEY_ID))
+      .isEqualTo(CameraPosition(target = TARGET))
+  }
+
+  companion object {
+    private val TARGET = FakeData.COORDINATES
+    private const val SURVEY_ID = "survey_id"
+  }
+
 }
