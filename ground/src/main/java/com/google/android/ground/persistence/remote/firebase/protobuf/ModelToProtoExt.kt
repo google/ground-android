@@ -26,18 +26,21 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LoiProperties
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.proto.LocationOfInterest.Source
-import com.google.protobuf.Timestamp
-import java.util.Date
 import com.google.android.ground.proto.AuditInfo as AuditInfoProto
 import com.google.android.ground.proto.Coordinates as CoordinatesProto
-import com.google.android.ground.proto.Geometry as GeometryProto
 import com.google.android.ground.proto.LinearRing as LinearRingProto
 import com.google.android.ground.proto.LocationOfInterest as LocationOfInterestProto
 import com.google.android.ground.proto.LocationOfInterest.Property as PropertyProto
+import com.google.android.ground.proto.LocationOfInterest.Source
+import com.google.android.ground.proto.LocationOfInterestKt.property
 import com.google.android.ground.proto.MultiPolygon as MultiPolygonProto
 import com.google.android.ground.proto.Point as PointProto
 import com.google.android.ground.proto.Polygon as PolygonProto
+import com.google.android.ground.proto.coordinates
+import com.google.android.ground.proto.geometry
+import com.google.android.ground.proto.point
+import com.google.protobuf.timestamp
+import java.util.Date
 
 fun LocationOfInterestMutation.createLoiMessage(user: User): LocationOfInterestProto {
   assert(userId == user.id) { "UserId doesn't match: expected $userId, found ${user.id}" }
@@ -99,25 +102,26 @@ private fun createAuditInfoMessage(
   return builder.build()
 }
 
-private fun Date.toMessage(): Timestamp = Timestamp.newBuilder().setSeconds(time * 1000).build()
+private fun Date.toMessage() = timestamp { seconds = time * 1000 }
 
-private fun Geometry.toMessage(): GeometryProto {
-  val geometryBuilder = GeometryProto.newBuilder()
+private fun Geometry.toMessage() =
   when (this) {
-    is Point -> geometryBuilder.setPoint(toMessage())
-    is MultiPolygon -> geometryBuilder.setMultiPolygon(toMessage())
-    is Polygon -> geometryBuilder.setPolygon(toMessage())
+    is Point -> geometry { point = toMessage() }
+    is MultiPolygon -> geometry { multiPolygon = toMessage() }
+    is Polygon -> geometry { polygon = toMessage() }
     is LineString,
     is LinearRing -> throw UnsupportedOperationException("Unsupported type $this")
   }
-  return geometryBuilder.build()
+
+private fun Coordinates.toMessage(): CoordinatesProto = coordinates {
+  latitude = lat
+  longitude = lng
 }
 
-private fun Coordinates.toMessage(): CoordinatesProto =
-  CoordinatesProto.newBuilder().setLatitude(lat).setLongitude(lng).build()
-
-private fun Point.toMessage(): PointProto =
-  PointProto.newBuilder().setCoordinates(coordinates.toMessage()).build()
+private fun Point.toMessage(): PointProto {
+  val coordinatesMessage = coordinates.toMessage()
+  return point { coordinates = coordinatesMessage }
+}
 
 private fun LinearRing.toMessage(): LinearRingProto =
   LinearRingProto.newBuilder().addAllCoordinates(coordinates.map { it.toMessage() }).build()
@@ -134,13 +138,12 @@ private fun MultiPolygon.toMessage(): MultiPolygonProto =
 private fun LoiProperties.toMessage(): Map<String, PropertyProto> {
   val propertiesBuilder = mutableMapOf<String, PropertyProto>()
   for ((key, value) in this) {
-    val property = PropertyProto.newBuilder()
-    when (value) {
-      is String -> property.setStringValue(value)
-      is Number -> property.setNumericValue(value.toDouble())
-      else -> throw UnsupportedOperationException("Unknown type $value")
-    }
-    propertiesBuilder[key] = property.build()
+    propertiesBuilder[key] =
+      when (value) {
+        is String -> property { stringValue = value }
+        is Number -> property { numericValue = value.toDouble() }
+        else -> throw UnsupportedOperationException("Unknown type $value")
+      }
   }
   return propertiesBuilder.toMutableMap()
 }
