@@ -121,5 +121,10 @@ abstract class LocalDataStoreModule {
     fun expressionDao(localDatabase: LocalDatabase): ExpressionDao {
       return localDatabase.expressionDao()
     }
+
+    @Provides
+    fun mediaMutationDao(localDatabase: LocalDatabase): MediaMutationDao {
+      return localDatabase.mediaMutationDao()
+    }
   }
 }

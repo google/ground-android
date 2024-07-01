@@ -18,6 +18,7 @@ package com.google.android.ground.repository
 
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
+import com.google.android.ground.model.mutation.MediaMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.persistence.local.room.converter.toModelObject
@@ -122,6 +123,7 @@ constructor(
           is LocationOfInterestMutation -> {
             localLocationOfInterestStore.deleteLocationOfInterest(mutation.locationOfInterestId)
           }
+          is MediaMutation -> {} // no-op for now
         }
       }
 
@@ -174,6 +176,8 @@ private fun List<Mutation>.updateMutationStatus(
     is LocationOfInterestMutation ->
       it.copy(syncStatus = syncStatus, retryCount = retryCount, lastError = errorMessage)
     is SubmissionMutation ->
+      it.copy(syncStatus = syncStatus, retryCount = retryCount, lastError = errorMessage)
+    is MediaMutation ->
       it.copy(syncStatus = syncStatus, retryCount = retryCount, lastError = errorMessage)
   }
 }
