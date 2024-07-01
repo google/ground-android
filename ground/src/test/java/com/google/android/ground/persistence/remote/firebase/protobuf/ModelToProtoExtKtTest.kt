@@ -31,7 +31,7 @@ class ModelToProtoExtKtTest {
         properties = generateProperties("loiName"),
         isPredefined = false,
       )
-    val proto = mutation.createLoiProto(user)
+    val proto = mutation.createLoiMessage(user)
     val output = proto.toFirestoreMap()
 
     assertThat(output)
