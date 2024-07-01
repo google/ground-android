@@ -52,7 +52,6 @@ class LoiCollectionReference internal constructor(ref: CollectionReference) :
   /** Retrieves LOIs created by the specified email in the specified survey. Main-safe. */
   suspend fun fetchUserDefined(survey: Survey, creatorEmail: String): List<LocationOfInterest> =
     withContext(ioDispatcher) {
-      Timber.e(creatorEmail)
       val query =
         reference()
           .whereEqualTo(PREDEFINED_FIELD, false)
