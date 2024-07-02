@@ -18,7 +18,7 @@ package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.android.ground.proto.Survey
 import com.google.android.ground.proto.Task.DateTimeQuestion.Type.BOTH_DATE_AND_TIME
-import com.google.android.ground.proto.Task.DateTimeQuestion.Type.UNSPECIFIED_DATE_TIME_QUESTION_TYPE
+import com.google.android.ground.proto.Task.DateTimeQuestion.Type.TYPE_UNSPECIFIED
 import com.google.android.ground.proto.TaskKt.dateTimeQuestion
 import com.google.android.ground.proto.survey
 import com.google.android.ground.proto.task
@@ -89,7 +89,7 @@ class ProtobufToFirestoreExtTest(
         ),
         testCase(
           desc = "skips enum value 0",
-          input = dateTimeQuestion { type = UNSPECIFIED_DATE_TIME_QUESTION_TYPE },
+          input = dateTimeQuestion { type = TYPE_UNSPECIFIED },
           expected = mapOf(),
         ),
         testCase(desc = "skips unspecified enum value", input = task {}, expected = mapOf()),
