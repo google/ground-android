@@ -22,9 +22,9 @@ import com.google.android.ground.model.locationofinterest.generateProperties
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
 import java.time.Instant
 import java.util.Date
+import org.junit.Test
 
 class ModelToProtoExtKtTest {
 
