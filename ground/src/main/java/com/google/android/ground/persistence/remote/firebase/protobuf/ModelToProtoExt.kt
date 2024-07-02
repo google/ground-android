@@ -36,6 +36,7 @@ import com.google.android.ground.proto.LocationOfInterestKt.property
 import com.google.android.ground.proto.MultiPolygon as MultiPolygonProto
 import com.google.android.ground.proto.Point as PointProto
 import com.google.android.ground.proto.Polygon as PolygonProto
+import com.google.android.ground.proto.auditInfo
 import com.google.android.ground.proto.coordinates
 import com.google.android.ground.proto.geometry
 import com.google.android.ground.proto.point
@@ -61,7 +62,7 @@ fun LocationOfInterestMutation.createLoiMessage(user: User): LocationOfInterestP
     builder.setGeometry(geometry.toMessage())
   }
 
-  val auditInfo = createAuditInfoMessage(user, clientTimestamp, clientTimestamp)
+  val auditInfo = createAuditInfoMessage(user, clientTimestamp)
 
   when (type) {
     Mutation.Type.CREATE -> {
@@ -85,21 +86,12 @@ fun LocationOfInterestMutation.createLoiMessage(user: User): LocationOfInterestP
   return builder.build()
 }
 
-private fun createAuditInfoMessage(
-  user: User,
-  clientTimestamp: Date,
-  serverTimestamp: Date,
-): AuditInfoProto {
-  val builder =
-    com.google.android.ground.proto.AuditInfo.newBuilder()
-      .setUserId(user.id)
-      .setDisplayName(user.displayName)
-      .setClientTimestamp(clientTimestamp.toMessage())
-      .setServerTimestamp(serverTimestamp.toMessage())
-  if (user.photoUrl != null) {
-    builder.setPhotoUrl(user.photoUrl)
-  }
-  return builder.build()
+private fun createAuditInfoMessage(user: User, timestamp: Date): AuditInfoProto = auditInfo {
+  userId = user.id
+  displayName = user.displayName
+  photoUrl = user.photoUrl ?: photoUrl
+  clientTimestamp = timestamp.toMessage()
+  serverTimestamp = timestamp.toMessage()
 }
 
 private fun Date.toMessage() = timestamp { seconds = time * 1000 }
