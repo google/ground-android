@@ -59,25 +59,25 @@ class MultipleChoiceItemTest: BaseHiltTest() {
 
 
   @Test
-  fun testIsTheSameItemTrue() {
+  fun `isTheSameItem returns true when IDs are the same`() {
     assertThat(multipleChoiceItemOne.isTheSameItem(multipleChoiceItemMultiple))
       .isEqualTo(true)
   }
 
   @Test
-  fun testIsTheSameItemFalse() {
+  fun `isTheSameItem returns false when IDs are not same`() {
     assertThat(multipleChoiceItemOne.isTheSameItem(multipleChoiceItemOneId))
       .isEqualTo(false)
   }
 
   @Test
-  fun testAreContentsTheSameTrue() {
+  fun `areContentsTheSame returns true when isSelected is same`() {
     assertThat(multipleChoiceItemOne.areContentsTheSame(multipleChoiceItemMultiple))
       .isEqualTo(true)
   }
 
   @Test
-  fun testAreContentsTheSameFalse() {
+  fun `areContentsTheSame returns false when isSelected is not same`() {
     assertThat(multipleChoiceItemOne.areContentsTheSame(multipleChoiceItemOneId))
       .isEqualTo(false)
   }
