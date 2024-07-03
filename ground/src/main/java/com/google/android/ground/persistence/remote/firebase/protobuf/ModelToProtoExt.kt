@@ -29,7 +29,6 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.proto.AuditInfo as AuditInfoProto
 import com.google.android.ground.proto.Coordinates as CoordinatesProto
 import com.google.android.ground.proto.LinearRing as LinearRingProto
-import com.google.android.ground.proto.LocationOfInterest as LocationOfInterestProto
 import com.google.android.ground.proto.LocationOfInterest.Property as PropertyProto
 import com.google.android.ground.proto.LocationOfInterest.Source
 import com.google.android.ground.proto.LocationOfInterestKt.property
@@ -39,51 +38,48 @@ import com.google.android.ground.proto.Polygon as PolygonProto
 import com.google.android.ground.proto.auditInfo
 import com.google.android.ground.proto.coordinates
 import com.google.android.ground.proto.geometry
+import com.google.android.ground.proto.locationOfInterest
 import com.google.android.ground.proto.point
 import com.google.protobuf.timestamp
 import java.util.Date
 
-fun LocationOfInterestMutation.createLoiMessage(user: User): LocationOfInterestProto {
+fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest {
   assert(userId == user.id) { "UserId doesn't match: expected $userId, found ${user.id}" }
 
-  val builder =
-    LocationOfInterestProto.newBuilder()
-      .setId(locationOfInterestId)
-      .setJobId(jobId)
-      .setSubmissionCount(submissionCount)
-      .setOwnerId(userId)
-      .setCustomTag(customId)
+  val me = this@createLoiMessage
 
-  if (properties.isNotEmpty()) {
-    builder.putAllProperties(properties.toMessage())
-  }
+  id = locationOfInterestId
+  jobId = me.jobId
+  submissionCount = me.submissionCount
+  ownerId = me.userId
+  customTag = me.customId
 
-  if (geometry != null) {
-    builder.setGeometry(geometry.toMessage())
-  }
+  // If the map is empty this has no effect:
+  properties.putAll(me.properties.toMessageMap())
+
+  // If you prefer functional style:
+  me.geometry?.toMessage()?.let { geometry = it }
+  // Or more old-school null checking:
+  if (me.geometry != null) geometry = me.geometry.toMessage()
 
   val auditInfo = createAuditInfoMessage(user, clientTimestamp)
 
   when (type) {
     Mutation.Type.CREATE -> {
-      builder
-        .setCreated(auditInfo)
-        .setLastModified(auditInfo)
-        .setSource(
-          if (isPredefined == null) Source.SOURCE_UNSPECIFIED
-          else if (isPredefined) Source.FIELD_DATA else Source.IMPORTED
-        )
+      created = auditInfo
+      lastModified = auditInfo
+      source =
+        if (isPredefined == null) Source.SOURCE_UNSPECIFIED
+        else if (isPredefined) Source.FIELD_DATA else Source.IMPORTED
     }
     Mutation.Type.UPDATE -> {
-      builder.setLastModified(auditInfo)
+      lastModified = auditInfo
     }
     Mutation.Type.DELETE,
     Mutation.Type.UNKNOWN -> {
       throw UnsupportedOperationException()
     }
   }
-
-  return builder.build()
 }
 
 private fun createAuditInfoMessage(user: User, timestamp: Date): AuditInfoProto = auditInfo {
@@ -127,7 +123,7 @@ private fun Polygon.toMessage(): PolygonProto =
 private fun MultiPolygon.toMessage(): MultiPolygonProto =
   MultiPolygonProto.newBuilder().addAllPolygons(polygons.map { it.toMessage() }).build()
 
-private fun LoiProperties.toMessage(): Map<String, PropertyProto> {
+private fun LoiProperties.toMessageMap(): Map<String, PropertyProto> {
   val propertiesBuilder = mutableMapOf<String, PropertyProto>()
   for ((key, value) in this) {
     propertiesBuilder[key] =
