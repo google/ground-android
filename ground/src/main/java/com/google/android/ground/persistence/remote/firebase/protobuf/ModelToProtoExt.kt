@@ -26,67 +26,55 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.locationofinterest.LoiProperties
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.proto.AuditInfo as AuditInfoProto
-import com.google.android.ground.proto.Coordinates as CoordinatesProto
 import com.google.android.ground.proto.LinearRing as LinearRingProto
-import com.google.android.ground.proto.LocationOfInterest as LocationOfInterestProto
-import com.google.android.ground.proto.LocationOfInterest.Property as PropertyProto
+import com.google.android.ground.proto.LocationOfInterest.Property
 import com.google.android.ground.proto.LocationOfInterest.Source
 import com.google.android.ground.proto.LocationOfInterestKt.property
 import com.google.android.ground.proto.MultiPolygon as MultiPolygonProto
-import com.google.android.ground.proto.Point as PointProto
 import com.google.android.ground.proto.Polygon as PolygonProto
 import com.google.android.ground.proto.auditInfo
 import com.google.android.ground.proto.coordinates
 import com.google.android.ground.proto.geometry
+import com.google.android.ground.proto.locationOfInterest
 import com.google.android.ground.proto.point
 import com.google.protobuf.timestamp
 import java.util.Date
 
-fun LocationOfInterestMutation.createLoiMessage(user: User): LocationOfInterestProto {
+fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest {
   assert(userId == user.id) { "UserId doesn't match: expected $userId, found ${user.id}" }
 
-  val builder =
-    LocationOfInterestProto.newBuilder()
-      .setId(locationOfInterestId)
-      .setJobId(jobId)
-      .setSubmissionCount(submissionCount)
-      .setOwnerId(userId)
-      .setCustomTag(customId)
+  val me = this@createLoiMessage
+  id = locationOfInterestId
+  jobId = me.jobId
+  submissionCount = me.submissionCount
+  ownerId = me.userId
+  customTag = me.customId
 
-  if (properties.isNotEmpty()) {
-    builder.putAllProperties(properties.toMessage())
-  }
+  properties.putAll(me.properties.toMessageMap())
 
-  if (geometry != null) {
-    builder.setGeometry(geometry.toMessage())
-  }
+  me.geometry?.toMessage()?.let { geometry = it }
 
   val auditInfo = createAuditInfoMessage(user, clientTimestamp)
 
   when (type) {
     Mutation.Type.CREATE -> {
-      builder
-        .setCreated(auditInfo)
-        .setLastModified(auditInfo)
-        .setSource(
-          if (isPredefined == null) Source.SOURCE_UNSPECIFIED
-          else if (isPredefined) Source.FIELD_DATA else Source.IMPORTED
-        )
+      created = auditInfo
+      lastModified = auditInfo
+      source =
+        if (isPredefined == null) Source.SOURCE_UNSPECIFIED
+        else if (isPredefined) Source.FIELD_DATA else Source.IMPORTED
     }
     Mutation.Type.UPDATE -> {
-      builder.setLastModified(auditInfo)
+      lastModified = auditInfo
     }
     Mutation.Type.DELETE,
     Mutation.Type.UNKNOWN -> {
       throw UnsupportedOperationException()
     }
   }
-
-  return builder.build()
 }
 
-private fun createAuditInfoMessage(user: User, timestamp: Date): AuditInfoProto = auditInfo {
+private fun createAuditInfoMessage(user: User, timestamp: Date) = auditInfo {
   userId = user.id
   displayName = user.displayName
   photoUrl = user.photoUrl ?: photoUrl
@@ -105,15 +93,12 @@ private fun Geometry.toMessage() =
     is LinearRing -> throw UnsupportedOperationException("Unsupported type $this")
   }
 
-private fun Coordinates.toMessage(): CoordinatesProto = coordinates {
+private fun Coordinates.toMessage() = coordinates {
   latitude = lat
   longitude = lng
 }
 
-private fun Point.toMessage(): PointProto {
-  val coordinatesMessage = coordinates.toMessage()
-  return point { coordinates = coordinatesMessage }
-}
+private fun Point.toMessage() = point { coordinates = this@toMessage.coordinates.toMessage() }
 
 private fun LinearRing.toMessage(): LinearRingProto =
   LinearRingProto.newBuilder().addAllCoordinates(coordinates.map { it.toMessage() }).build()
@@ -127,8 +112,8 @@ private fun Polygon.toMessage(): PolygonProto =
 private fun MultiPolygon.toMessage(): MultiPolygonProto =
   MultiPolygonProto.newBuilder().addAllPolygons(polygons.map { it.toMessage() }).build()
 
-private fun LoiProperties.toMessage(): Map<String, PropertyProto> {
-  val propertiesBuilder = mutableMapOf<String, PropertyProto>()
+private fun LoiProperties.toMessageMap(): Map<String, Property> {
+  val propertiesBuilder = mutableMapOf<String, Property>()
   for ((key, value) in this) {
     propertiesBuilder[key] =
       when (value) {
