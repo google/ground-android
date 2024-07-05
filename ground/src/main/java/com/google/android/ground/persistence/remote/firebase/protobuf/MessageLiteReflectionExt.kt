@@ -113,7 +113,7 @@ fun <T : Message> KClass<T>.getFieldNumber(fieldName: MessageFieldName): Message
 fun Message.getSetOneOfFieldNumber(fieldName: String): MessageFieldNumber? {
   val casePropertyName = fieldName.toCamelCase() + ONE_OF_CASE_PROPERTY_SUFFIX
   val caseProperty = this::class.declaredMemberProperties.find { it.name == casePropertyName }
-  return caseProperty?.let { get(it) } as MessageFieldNumber?
+  return caseProperty?.let { get(it) } as? MessageFieldNumber
 }
 
 fun Message.get(property: KProperty<*>): Any? {
