@@ -18,7 +18,6 @@ package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.protobuf.GeneratedMessageLite
 import com.google.protobuf.Internal.EnumLite
-import timber.log.Timber
 import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -28,6 +27,7 @@ import kotlin.reflect.full.declaredFunctions
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.jvm.isAccessible
+import timber.log.Timber
 
 /** A key used in a document or a nested object in Firestore. */
 internal typealias FirestoreKey = String
