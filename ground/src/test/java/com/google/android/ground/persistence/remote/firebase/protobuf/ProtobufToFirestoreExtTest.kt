@@ -105,6 +105,7 @@ class ProtobufToFirestoreExtTest(
             },
           expected = mapOf("10" to mapOf("1" to 2)),
         ),
+        testCase(desc = "ignores unset oneof message", input = task {}, expected = mapOf()),
       )
 
     /** Help to improve readability by provided named args for positional test constructor args. */
