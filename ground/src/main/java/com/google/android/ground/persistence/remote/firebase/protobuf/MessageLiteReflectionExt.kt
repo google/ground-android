@@ -103,9 +103,9 @@ fun <T : Message> KClass<T>.getFieldName(fieldNumber: MessageFieldNumber): Messa
     ?.removeSuffix(FIELD_NUMBER_CONST_SUFFIX)
     ?.lowercase() ?: throw IllegalArgumentException("Field $fieldNumber not found in $java")
 
-fun <T : Message> KClass<T>.getFieldNumber(fieldName: MessageFieldName): MessageFieldNumber =
+fun <T : Message> KClass<T>.getFieldNumber(fieldName: MessageFieldName): MessageFieldNumber? =
   getStaticFields().find { it.name == fieldName.toFieldNumberConstantName() }?.get(null)
-    as? MessageFieldNumber ?: throw IllegalArgumentException("Field $fieldName not found in $java")
+    as MessageFieldNumber?
 
 private fun String.toFieldNumberConstantName(): String = uppercase() + FIELD_NUMBER_CONST_SUFFIX
 

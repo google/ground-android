@@ -42,7 +42,9 @@ private fun Message.toFirestoreMapEntry(
   try {
     val fieldName = property.name.toMessageFieldName()
     val fieldNumber = this::class.getFieldNumber(fieldName)
-    if (idField == fieldNumber) null else toFirestoreMapEntryUnchecked(fieldNumber, property)
+    // Skip ID field and member properties which do not correspond to proto fields.
+    if (fieldNumber == null || idField == fieldNumber) null
+    else toFirestoreMapEntryUnchecked(fieldNumber, property)
   } catch (e: Throwable) {
     Timber.v(e, "Skipping property $property")
     null
