@@ -17,9 +17,11 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import com.google.android.ground.proto.Survey
+import com.google.android.ground.proto.Task
 import com.google.android.ground.proto.Task.DateTimeQuestion.Type.BOTH_DATE_AND_TIME
 import com.google.android.ground.proto.Task.DateTimeQuestion.Type.TYPE_UNSPECIFIED
 import com.google.android.ground.proto.TaskKt.dateTimeQuestion
+import com.google.android.ground.proto.TaskKt.multipleChoiceQuestion
 import com.google.android.ground.proto.survey
 import com.google.android.ground.proto.task
 import com.google.android.ground.test.deeplyNestedTestObject
@@ -93,6 +95,17 @@ class ProtobufToFirestoreExtTest(
           expected = mapOf(),
         ),
         testCase(desc = "skips unspecified enum value", input = task {}, expected = mapOf()),
+        testCase(
+          desc = "converts oneof messages",
+          input =
+            task {
+              multipleChoiceQuestion = multipleChoiceQuestion {
+                type = Task.MultipleChoiceQuestion.Type.SELECT_MULTIPLE
+              }
+            },
+          expected = mapOf("10" to mapOf("1" to 2)),
+        ),
+        testCase(desc = "ignores unset oneof message", input = task {}, expected = mapOf()),
       )
 
     /** Help to improve readability by provided named args for positional test constructor args. */
