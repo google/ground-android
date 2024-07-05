@@ -54,7 +54,7 @@ class ModelToProtoExtKtTest {
         mapOf(
           "1" to "loiId",
           "2" to "jobId",
-          "3" to mapOf<String, Any>(),
+          "3" to mapOf("1" to mapOf("1" to mapOf("1" to 10.0, "2" to 20.0))),
           "4" to 1,
           "5" to "userId",
           "6" to
@@ -73,7 +73,7 @@ class ModelToProtoExtKtTest {
             ),
           "8" to "customId",
           "9" to 1,
-          "10" to mapOf("name" to mapOf<String, Any>()),
+          "10" to mapOf("name" to mapOf("1" to "loiName")),
         )
       )
   }
