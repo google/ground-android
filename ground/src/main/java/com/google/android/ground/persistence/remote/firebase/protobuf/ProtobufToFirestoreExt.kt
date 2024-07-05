@@ -17,6 +17,7 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import kotlin.reflect.KProperty
+import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
 import timber.log.Timber
 
@@ -41,7 +42,15 @@ private fun Message.toFirestoreMapEntry(
 ): Pair<FirestoreKey, FirestoreValue>? =
   try {
     val fieldName = property.name.toMessageFieldName()
-    val fieldNumber = this::class.getFieldNumber(fieldName)
+    var fieldNumber = this::class.getFieldNumber(fieldName)
+    // TODO: Refactor
+    if (fieldNumber == null) {
+      val casePropertyName = fieldName.dropLast(1) + "Case_"
+      val caseProperty = this::class.declaredMemberProperties.find { it.name === casePropertyName }
+      if (caseProperty != null) { // && is int
+        fieldNumber = get(caseProperty) as Int
+      }
+    }
     // Skip ID field and member properties which do not correspond to proto fields.
     if (fieldNumber == null || idField == fieldNumber) null
     else toFirestoreMapEntryUnchecked(fieldNumber, property)
