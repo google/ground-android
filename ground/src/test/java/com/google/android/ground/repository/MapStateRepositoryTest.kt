@@ -36,19 +36,19 @@ class MapStateRepositoryTest : BaseHiltTest() {
   @Inject lateinit var localValueStore: LocalValueStore
 
   @Test
-  fun getMapType_whenNotSet_returnsDefault() {
+  fun `getMapType() should return default value when not set`() {
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.DEFAULT)
   }
 
   @Test
-  fun getMapType_whenTerrain_returnsTerrain() {
+  fun `getMapType() should return terrain value when set to terrain`() {
     mapStateRepository.mapType = MapType.TERRAIN
 
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)
   }
 
   @Test
-  fun mapTypeFlowable_whenTerrain_returnsTerrain() = runWithTestDispatcher {
+  fun `mapTypeFlow should have value terrain when set to terrain`() = runWithTestDispatcher {
     mapStateRepository.mapType = MapType.TERRAIN
 
     mapStateRepository.mapTypeFlow.test {
@@ -57,12 +57,12 @@ class MapStateRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun isOfflineImageryEnabled_default() = runWithTestDispatcher {
+  fun `isOfflineImageryEnabled have value true by default`() = runWithTestDispatcher {
     assertThat(mapStateRepository.isOfflineImageryEnabled).isTrue()
   }
 
   @Test
-  fun isOfflineImageryEnabled_whenEnabled_returnsTrue() = runWithTestDispatcher {
+  fun `isOfflineImageryEnabled have true when enabled`() = runWithTestDispatcher {
     mapStateRepository.isOfflineImageryEnabled = true
 
     mapStateRepository.offlineImageryEnabledFlow.test {
@@ -71,15 +71,18 @@ class MapStateRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun isLocationEnabled_whenNotSet_returnsDefault() {
+  fun `isLocationLockEnabled is false by default`() {
     assertThat(mapStateRepository.isLocationLockEnabled).isEqualTo(false)
+  }
 
+  @Test
+  fun `isLocationLockEnabled is true when set to true`() {
     mapStateRepository.isLocationLockEnabled = true
     assertThat(mapStateRepository.isLocationLockEnabled).isEqualTo(true)
   }
 
   @Test
-  fun cameraPosition_whenSet_returnsCameraPosition() {
+  fun `getCameraPosition() should return same value as passed to setCameraPosition()`() {
     localValueStore.lastActiveSurveyId = SURVEY_ID
     mapStateRepository.setCameraPosition(CameraPosition(target = TARGET))
 
