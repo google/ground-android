@@ -26,6 +26,7 @@ import kotlin.reflect.KType
 import kotlin.reflect.full.declaredFunctions
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.jvm.isAccessible
 import timber.log.Timber
 
 /** A key used in a document or a nested object in Firestore. */
@@ -45,6 +46,8 @@ internal typealias Message = GeneratedMessageLite<*, *>
 private const val BIT_FIELD_PROPERTY_PREFIX = "bitField"
 
 private const val FIELD_NUMBER_CONST_SUFFIX = "_FIELD_NUMBER"
+
+private const val ONE_OF_CASE_PROPERTY_SUFFIX = "Case_"
 
 /** Lower snake case name of an individual field in a message instance. */
 internal typealias MessageFieldName = String
@@ -103,9 +106,22 @@ fun <T : Message> KClass<T>.getFieldName(fieldNumber: MessageFieldNumber): Messa
     ?.removeSuffix(FIELD_NUMBER_CONST_SUFFIX)
     ?.lowercase() ?: throw IllegalArgumentException("Field $fieldNumber not found in $java")
 
-fun <T : Message> KClass<T>.getFieldNumber(fieldName: MessageFieldName): MessageFieldNumber =
+fun <T : Message> KClass<T>.getFieldNumber(fieldName: MessageFieldName): MessageFieldNumber? =
   getStaticFields().find { it.name == fieldName.toFieldNumberConstantName() }?.get(null)
-    as? MessageFieldNumber ?: throw IllegalArgumentException("Field $fieldName not found in $java")
+    as? MessageFieldNumber
+
+fun Message.getSetOneOfFieldNumber(fieldName: String): MessageFieldNumber? {
+  val casePropertyName = fieldName.toCamelCase() + ONE_OF_CASE_PROPERTY_SUFFIX
+  val caseProperty = this::class.declaredMemberProperties.find { it.name == casePropertyName }
+  return caseProperty?.let { get(it) } as? MessageFieldNumber
+}
+
+fun Message.get(property: KProperty<*>): Any? {
+  property.isAccessible = true
+  val value = property.call(this)
+  property.isAccessible = false
+  return value
+}
 
 private fun String.toFieldNumberConstantName(): String = uppercase() + FIELD_NUMBER_CONST_SUFFIX
 
@@ -146,7 +162,9 @@ fun <T : Message> KClass<T>.getFieldProperties(): List<KProperty<*>> =
   declaredMemberProperties.filter { it.isMessageFieldProperty() }
 
 private fun KProperty<*>.isMessageFieldProperty(): Boolean =
-  name.endsWith("_") && !name.startsWith(BIT_FIELD_PROPERTY_PREFIX)
+  name.endsWith("_") &&
+    !name.startsWith(BIT_FIELD_PROPERTY_PREFIX) &&
+    !name.endsWith(ONE_OF_CASE_PROPERTY_SUFFIX)
 
 fun String.toSnakeCase() = replace(Regex("[A-Z]")) { "_${it.value}" }.lowercase()
 

@@ -17,7 +17,6 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import kotlin.reflect.KProperty
-import kotlin.reflect.jvm.isAccessible
 import timber.log.Timber
 
 /**
@@ -41,7 +40,12 @@ private fun Message.toFirestoreMapEntry(
 ): Pair<FirestoreKey, FirestoreValue>? =
   try {
     val fieldName = property.name.toMessageFieldName()
-    val fieldNumber = this::class.getFieldNumber(fieldName)
+    val fieldNumber =
+      this::class.getFieldNumber(fieldName)
+        ?: getSetOneOfFieldNumber(fieldName)
+        ?: throw UnsupportedOperationException(
+          "Unsupported protobuf-lite property $fieldName in $javaClass"
+        )
     if (idField == fieldNumber) null else toFirestoreMapEntryUnchecked(fieldNumber, property)
   } catch (e: Throwable) {
     Timber.v(e, "Skipping property $property")
@@ -60,13 +64,6 @@ private fun Message.toFirestoreMapEntryUnchecked(
 private fun Message.hasValue(property: KProperty<*>): Boolean {
   val value = get(property)
   return value != null && value != defaultInstanceForType.get(property)
-}
-
-private fun Message.get(property: KProperty<*>): Any? {
-  property.isAccessible = true
-  val value = property.call(this)
-  property.isAccessible = false
-  return value
 }
 
 private fun MessageValue.toFirestoreValue(): FirestoreValue =
