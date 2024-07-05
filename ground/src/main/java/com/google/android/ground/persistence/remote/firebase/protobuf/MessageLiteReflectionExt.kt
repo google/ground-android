@@ -108,7 +108,7 @@ fun <T : Message> KClass<T>.getFieldName(fieldNumber: MessageFieldNumber): Messa
 
 fun <T : Message> KClass<T>.getFieldNumber(fieldName: MessageFieldName): MessageFieldNumber? =
   getStaticFields().find { it.name == fieldName.toFieldNumberConstantName() }?.get(null)
-    as MessageFieldNumber?
+    as? MessageFieldNumber
 
 fun Message.getSetOneOfFieldNumber(fieldName: String): MessageFieldNumber? {
   val casePropertyName = fieldName.toCamelCase() + ONE_OF_CASE_PROPERTY_SUFFIX
