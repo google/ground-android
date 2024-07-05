@@ -17,8 +17,6 @@
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
 import kotlin.reflect.KProperty
-import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.jvm.isAccessible
 import timber.log.Timber
 
 /**
@@ -42,18 +40,13 @@ private fun Message.toFirestoreMapEntry(
 ): Pair<FirestoreKey, FirestoreValue>? =
   try {
     val fieldName = property.name.toMessageFieldName()
-    var fieldNumber = this::class.getFieldNumber(fieldName)
-    // TODO: Refactor
-    if (fieldNumber == null) {
-      val casePropertyName = fieldName.dropLast(1) + "Case_"
-      val caseProperty = this::class.declaredMemberProperties.find { it.name === casePropertyName }
-      if (caseProperty != null) { // && is int
-        fieldNumber = get(caseProperty) as Int
-      }
-    }
-    // Skip ID field and member properties which do not correspond to proto fields.
-    if (fieldNumber == null || idField == fieldNumber) null
-    else toFirestoreMapEntryUnchecked(fieldNumber, property)
+    val fieldNumber =
+      this::class.getFieldNumber(fieldName)
+        ?: getSetOneOfFieldNumber(fieldName)
+        ?: throw UnsupportedOperationException(
+          "Unsupported protobuf-lite property $fieldName in $javaClass"
+        )
+    if (idField == fieldNumber) null else toFirestoreMapEntryUnchecked(fieldNumber, property)
   } catch (e: Throwable) {
     Timber.v(e, "Skipping property $property")
     null
@@ -71,13 +64,6 @@ private fun Message.toFirestoreMapEntryUnchecked(
 private fun Message.hasValue(property: KProperty<*>): Boolean {
   val value = get(property)
   return value != null && value != defaultInstanceForType.get(property)
-}
-
-private fun Message.get(property: KProperty<*>): Any? {
-  property.isAccessible = true
-  val value = property.call(this)
-  property.isAccessible = false
-  return value
 }
 
 private fun MessageValue.toFirestoreValue(): FirestoreValue =
