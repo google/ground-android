@@ -62,7 +62,7 @@ fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest
       lastModified = auditInfo
       source =
         if (isPredefined == null) Source.SOURCE_UNSPECIFIED
-        else if (isPredefined) Source.FIELD_DATA else Source.IMPORTED
+        else if (isPredefined) Source.IMPORTED else Source.FIELD_DATA
     }
     Mutation.Type.UPDATE -> {
       lastModified = auditInfo

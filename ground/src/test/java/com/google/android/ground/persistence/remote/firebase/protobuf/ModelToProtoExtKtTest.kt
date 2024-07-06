@@ -21,7 +21,15 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.locationofinterest.generateProperties
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.proto.LocationOfInterest
+import com.google.android.ground.proto.LocationOfInterestKt.property
+import com.google.android.ground.proto.auditInfo
+import com.google.android.ground.proto.coordinates
+import com.google.android.ground.proto.geometry
+import com.google.android.ground.proto.locationOfInterest
+import com.google.android.ground.proto.point
 import com.google.common.truth.Truth.assertThat
+import com.google.protobuf.timestamp
 import java.time.Instant
 import java.util.Date
 import org.junit.Assert.assertThrows
@@ -47,34 +55,34 @@ class ModelToProtoExtKtTest {
         properties = generateProperties("loiName"),
         isPredefined = false,
       )
-    val proto = mutation.createLoiMessage(user)
-    val output = proto.toFirestoreMap()
+
+    val output = mutation.createLoiMessage(user)
 
     assertThat(output)
       .isEqualTo(
-        mapOf(
-          "1" to "loiId",
-          "2" to "jobId",
-          "4" to 1,
-          "5" to "userId",
-          "6" to
-            mapOf(
-              "1" to "userId",
-              "2" to mapOf("1" to 1000000L),
-              "3" to mapOf("1" to 1000000L),
-              "4" to "User",
-            ),
-          "7" to
-            mapOf(
-              "1" to "userId",
-              "2" to mapOf("1" to 1000000L),
-              "3" to mapOf("1" to 1000000L),
-              "4" to "User",
-            ),
-          "8" to "customId",
-          "9" to 1,
-          "10" to mapOf("name" to mapOf("1" to "loiName")),
-        )
+        locationOfInterest {
+          id = "loiId"
+          jobId = "jobId"
+          submissionCount = 1
+          ownerId = "userId"
+          created = auditInfo {
+            userId = "userId"
+            displayName = "User"
+            photoUrl = ""
+            clientTimestamp = timestamp { seconds = 1000000L }
+            serverTimestamp = timestamp { seconds = 1000000L }
+          }
+          lastModified = auditInfo {
+            userId = "userId"
+            displayName = "User"
+            photoUrl = ""
+            clientTimestamp = timestamp { seconds = 1000000L }
+            serverTimestamp = timestamp { seconds = 1000000L }
+          }
+          customTag = "customId"
+          source = LocationOfInterest.Source.FIELD_DATA
+          properties.putAll(mapOf("name" to property { stringValue = "loiName" }))
+        }
       )
   }
 
@@ -96,34 +104,41 @@ class ModelToProtoExtKtTest {
         properties = generateProperties("loiName"),
         isPredefined = null,
       )
-    val proto = mutation.createLoiMessage(user)
-    val output = proto.toFirestoreMap()
+
+    val output = mutation.createLoiMessage(user)
 
     assertThat(output)
       .isEqualTo(
-        mapOf(
-          "1" to "loiId",
-          "2" to "jobId",
-          "3" to mapOf("1" to mapOf("1" to mapOf("1" to 10.0, "2" to 20.0))),
-          "4" to 1,
-          "5" to "userId",
-          "6" to
-            mapOf(
-              "1" to "userId",
-              "2" to mapOf("1" to 1000000L),
-              "3" to mapOf("1" to 1000000L),
-              "4" to "User",
-            ),
-          "7" to
-            mapOf(
-              "1" to "userId",
-              "2" to mapOf("1" to 1000000L),
-              "3" to mapOf("1" to 1000000L),
-              "4" to "User",
-            ),
-          "8" to "customId",
-          "10" to mapOf("name" to mapOf("1" to "loiName")),
-        )
+        locationOfInterest {
+          id = "loiId"
+          jobId = "jobId"
+          submissionCount = 1
+          ownerId = "userId"
+          created = auditInfo {
+            userId = "userId"
+            displayName = "User"
+            photoUrl = ""
+            clientTimestamp = timestamp { seconds = 1000000L }
+            serverTimestamp = timestamp { seconds = 1000000L }
+          }
+          lastModified = auditInfo {
+            userId = "userId"
+            displayName = "User"
+            photoUrl = ""
+            clientTimestamp = timestamp { seconds = 1000000L }
+            serverTimestamp = timestamp { seconds = 1000000L }
+          }
+          customTag = "customId"
+          geometry = geometry {
+            point = point {
+              coordinates = coordinates {
+                latitude = 10.0
+                longitude = 20.0
+              }
+            }
+          }
+          properties.putAll(mapOf("name" to property { stringValue = "loiName" }))
+        }
       )
   }
 
@@ -145,35 +160,42 @@ class ModelToProtoExtKtTest {
         properties = generateProperties("loiName"),
         isPredefined = true,
       )
-    val proto = mutation.createLoiMessage(user)
-    val output = proto.toFirestoreMap()
+
+    val output = mutation.createLoiMessage(user)
 
     assertThat(output)
       .isEqualTo(
-        mapOf(
-          "1" to "loiId",
-          "2" to "jobId",
-          "3" to mapOf("1" to mapOf("1" to mapOf("1" to 10.0, "2" to 20.0))),
-          "4" to 1,
-          "5" to "userId",
-          "6" to
-            mapOf(
-              "1" to "userId",
-              "2" to mapOf("1" to 1000000L),
-              "3" to mapOf("1" to 1000000L),
-              "4" to "User",
-            ),
-          "7" to
-            mapOf(
-              "1" to "userId",
-              "2" to mapOf("1" to 1000000L),
-              "3" to mapOf("1" to 1000000L),
-              "4" to "User",
-            ),
-          "8" to "customId",
-          "9" to 2,
-          "10" to mapOf("name" to mapOf("1" to "loiName")),
-        )
+        locationOfInterest {
+          id = "loiId"
+          jobId = "jobId"
+          submissionCount = 1
+          ownerId = "userId"
+          created = auditInfo {
+            userId = "userId"
+            displayName = "User"
+            photoUrl = ""
+            clientTimestamp = timestamp { seconds = 1000000L }
+            serverTimestamp = timestamp { seconds = 1000000L }
+          }
+          lastModified = auditInfo {
+            userId = "userId"
+            displayName = "User"
+            photoUrl = ""
+            clientTimestamp = timestamp { seconds = 1000000L }
+            serverTimestamp = timestamp { seconds = 1000000L }
+          }
+          customTag = "customId"
+          geometry = geometry {
+            point = point {
+              coordinates = coordinates {
+                latitude = 10.0
+                longitude = 20.0
+              }
+            }
+          }
+          source = LocationOfInterest.Source.IMPORTED
+          properties.putAll(mapOf("name" to property { stringValue = "loiName" }))
+        }
       )
   }
 
@@ -195,35 +217,42 @@ class ModelToProtoExtKtTest {
         properties = generateProperties("loiName"),
         isPredefined = false,
       )
-    val proto = mutation.createLoiMessage(user)
-    val output = proto.toFirestoreMap()
+
+    val output = mutation.createLoiMessage(user)
 
     assertThat(output)
       .isEqualTo(
-        mapOf(
-          "1" to "loiId",
-          "2" to "jobId",
-          "3" to mapOf("1" to mapOf("1" to mapOf("1" to 10.0, "2" to 20.0))),
-          "4" to 1,
-          "5" to "userId",
-          "6" to
-            mapOf(
-              "1" to "userId",
-              "2" to mapOf("1" to 1000000L),
-              "3" to mapOf("1" to 1000000L),
-              "4" to "User",
-            ),
-          "7" to
-            mapOf(
-              "1" to "userId",
-              "2" to mapOf("1" to 1000000L),
-              "3" to mapOf("1" to 1000000L),
-              "4" to "User",
-            ),
-          "8" to "customId",
-          "9" to 1,
-          "10" to mapOf("name" to mapOf("1" to "loiName")),
-        )
+        locationOfInterest {
+          id = "loiId"
+          jobId = "jobId"
+          submissionCount = 1
+          ownerId = "userId"
+          created = auditInfo {
+            userId = "userId"
+            displayName = "User"
+            photoUrl = ""
+            clientTimestamp = timestamp { seconds = 1000000L }
+            serverTimestamp = timestamp { seconds = 1000000L }
+          }
+          lastModified = auditInfo {
+            userId = "userId"
+            displayName = "User"
+            photoUrl = ""
+            clientTimestamp = timestamp { seconds = 1000000L }
+            serverTimestamp = timestamp { seconds = 1000000L }
+          }
+          customTag = "customId"
+          geometry = geometry {
+            point = point {
+              coordinates = coordinates {
+                latitude = 10.0
+                longitude = 20.0
+              }
+            }
+          }
+          source = LocationOfInterest.Source.FIELD_DATA
+          properties.putAll(mapOf("name" to property { stringValue = "loiName" }))
+        }
       )
   }
 
@@ -245,27 +274,34 @@ class ModelToProtoExtKtTest {
         properties = generateProperties("loiName"),
         isPredefined = false,
       )
-    val proto = mutation.createLoiMessage(user)
-    val output = proto.toFirestoreMap()
+
+    val output = mutation.createLoiMessage(user)
 
     assertThat(output)
       .isEqualTo(
-        mapOf(
-          "1" to "loiId",
-          "2" to "jobId",
-          "3" to mapOf("1" to mapOf("1" to mapOf("1" to 10.0, "2" to 20.0))),
-          "4" to 1,
-          "5" to "userId",
-          "7" to
-            mapOf(
-              "1" to "userId",
-              "2" to mapOf("1" to 1000000L),
-              "3" to mapOf("1" to 1000000L),
-              "4" to "User",
-            ),
-          "8" to "customId",
-          "10" to mapOf("name" to mapOf("1" to "loiName")),
-        )
+        locationOfInterest {
+          id = "loiId"
+          jobId = "jobId"
+          submissionCount = 1
+          ownerId = "userId"
+          lastModified = auditInfo {
+            userId = "userId"
+            displayName = "User"
+            photoUrl = ""
+            clientTimestamp = timestamp { seconds = 1000000L }
+            serverTimestamp = timestamp { seconds = 1000000L }
+          }
+          customTag = "customId"
+          geometry = geometry {
+            point = point {
+              coordinates = coordinates {
+                latitude = 10.0
+                longitude = 20.0
+              }
+            }
+          }
+          properties.putAll(mapOf("name" to property { stringValue = "loiName" }))
+        }
       )
   }
 
