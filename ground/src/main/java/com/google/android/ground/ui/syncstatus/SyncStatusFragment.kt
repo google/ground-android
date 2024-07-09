@@ -28,16 +28,13 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import com.google.android.ground.databinding.SyncStatusFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 /** Fragment containing a list of mutations and their respective upload statuses. */
 @AndroidEntryPoint
 class SyncStatusFragment : AbstractFragment() {
 
-  @Inject lateinit var locationOfInterestHelper: LocationOfInterestHelper
   lateinit var viewModel: SyncStatusViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {

@@ -26,7 +26,6 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LineString.Companion.lineStringOf
-import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.InstructionsDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
@@ -44,7 +43,6 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
 
-  @Inject lateinit var markerIconFactory: IconFactory
   @Inject lateinit var map: MapFragment
 
   // Action buttons
