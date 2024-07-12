@@ -64,7 +64,6 @@
   <string name="time">Hora</string>
   <!-- Other strings (to be organized) -->
   <string name="sync_status">Historial y estado de sincronización</string>
-  <string name="layer_label_format">Capa: %s</string>
 
   <string name="add_point">Agregar punto</string>
   <string name="complete_polygon">Completo</string>
