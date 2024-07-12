@@ -25,7 +25,6 @@ import androidx.compose.ui.platform.ComposeView
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
-import com.google.android.ground.ui.IconFactory
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.InstructionsDialog
 import com.google.android.ground.ui.datacollection.components.TaskView
@@ -39,7 +38,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class DropPinTaskFragment : AbstractTaskFragment<DropPinTaskViewModel>() {
 
-  @Inject lateinit var markerIconFactory: IconFactory
   @Inject lateinit var map: MapFragment
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
