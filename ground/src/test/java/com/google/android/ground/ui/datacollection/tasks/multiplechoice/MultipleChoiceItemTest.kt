@@ -24,7 +24,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MultipleChoiceItemTest: BaseHiltTest() {
