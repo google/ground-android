@@ -29,7 +29,6 @@ import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.submission.Submission
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.map.Feature
@@ -116,26 +115,6 @@ object FakeData {
     )
 
   val COORDINATES = Coordinates(42.0, 18.0)
-
-  private const val SUBMISSION_ID = "789"
-  private const val TASK_1_NAME = "task 1"
-  private const val TASK_2_NAME = "task 2"
-
-  val SUBMISSION: Submission =
-    Submission(
-      SUBMISSION_ID,
-      SURVEY.id,
-      LOCATION_OF_INTEREST,
-      JOB.copy(
-        tasks =
-          mapOf(
-            "field id" to Task("field id", 0, Task.Type.TEXT, TASK_1_NAME, true),
-            "field id 2" to Task("field id 2", 1, Task.Type.TEXT, TASK_2_NAME, true),
-          )
-      ),
-      AUDIT_INFO,
-      AUDIT_INFO,
-    )
 
   fun newTask(
     id: String = "",

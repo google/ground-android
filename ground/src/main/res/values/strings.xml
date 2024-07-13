@@ -67,7 +67,6 @@
   <string name="time">Time</string>
   <!-- Other strings (to be organized) -->
   <string name="sync_status">History and sync status</string>
-  <string name="layer_label_format">Job: %s</string>
 
   <string name="add_point">Add point</string>
   <string name="complete_polygon">Complete</string>
