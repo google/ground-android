@@ -92,10 +92,24 @@ class LoiMutationConverterTest {
 
     val geometry = map[GEOMETRY_FIELD_NUMBER.toString()]
 
-    // TODO(#2541): Add support for repeated fields in proto to firebase map converter
     if (geometry is MutableMap<*, *>) {
       assertThat(geometry[POLYGON_FIELD_NUMBER.toString()])
-        .isEqualTo(mapOf(SHELL_FIELD_NUMBER.toString() to mapOf<String, Any>()))
+        .isEqualTo(
+          mapOf(
+            SHELL_FIELD_NUMBER.toString() to
+              mapOf(
+                COORDINATES_FIELD_NUMBER.toString() to
+                  listOf(
+                    mapOf(LONGITUDE_FIELD_NUMBER.toString() to 1.0),
+                    mapOf(
+                      LATITUDE_FIELD_NUMBER.toString() to 1.0,
+                      LONGITUDE_FIELD_NUMBER.toString() to 1.0,
+                    ),
+                    mapOf(LONGITUDE_FIELD_NUMBER.toString() to 1.0),
+                  )
+              )
+          )
+        )
     } else {
       fail("GEOMETRY field, $geometry, is not a map.")
     }
@@ -133,7 +147,6 @@ class LoiMutationConverterTest {
       )
     assertThat(map[CREATED_FIELD_NUMBER.toString()])
       .isEqualTo(map[LAST_MODIFIED_FIELD_NUMBER.toString()])
-    // TODO: Should this be SOURCE_UNSPECIFIED?
     assertThat(map[SOURCE_FIELD_NUMBER.toString()]).isNull()
   }
 
