@@ -32,9 +32,7 @@ import com.google.android.ground.databinding.MainActBinding
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.ActivityCallback
 import com.google.android.ground.system.ActivityStreams
-import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BackPressListener
-import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.FinishApp
 import com.google.android.ground.ui.common.NavigateTo
 import com.google.android.ground.ui.common.NavigateUp
@@ -59,10 +57,8 @@ import timber.log.Timber
 class MainActivity : AbstractActivity() {
   @Inject lateinit var activityStreams: ActivityStreams
   @Inject lateinit var viewModelFactory: ViewModelFactory
-  @Inject lateinit var settingsManager: SettingsManager
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var userRepository: UserRepository
-  @Inject lateinit var popups: EphemeralPopups
 
   private lateinit var viewModel: MainViewModel
   private lateinit var navHostFragment: NavHostFragment

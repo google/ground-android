@@ -38,8 +38,6 @@ import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
-import com.google.android.ground.ui.common.EphemeralPopups
-import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.theme.AppTheme
 import com.google.android.ground.util.systemInsets
 import com.google.android.material.imageview.ShapeableImageView
@@ -60,9 +58,7 @@ class HomeScreenFragment :
   // TODO: It's not obvious which locations of interest are in HomeScreen vs MapContainer;
   //  make this more intuitive.
 
-  @Inject lateinit var locationOfInterestHelper: LocationOfInterestHelper
   @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
-  @Inject lateinit var popups: EphemeralPopups
   @Inject lateinit var userRepository: UserRepository
   @Inject lateinit var surveyRepository: SurveyRepository
 
