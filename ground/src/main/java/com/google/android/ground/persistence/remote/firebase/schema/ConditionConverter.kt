@@ -20,10 +20,29 @@ import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.Condition.MatchType
 import com.google.android.ground.model.task.Expression
 import com.google.android.ground.model.task.Expression.ExpressionType
+import com.google.android.ground.proto.Task
 import timber.log.Timber
 
 /** Converts between Firestore nested objects and [Condition] instances. */
 internal object ConditionConverter {
+
+  fun Task.Condition.toCondition(): Condition? {
+    if (conditionTypeCase != Task.Condition.ConditionTypeCase.MULTIPLE_CHOICE) {
+      Timber.e("Unsupported conditionType: $conditionTypeCase")
+      return null
+    }
+    // TODO(google/ground-platform#1899): Supply taskID field here when available.
+    val expressions =
+      listOf(
+        Expression(
+          ExpressionType.ANY_OF_SELECTED,
+          taskId = "",
+          multipleChoice.optionIdsList.toSet(),
+        )
+      )
+    return Condition(MatchType.MATCH_ANY, expressions)
+  }
+
   fun ConditionNestedObject.toCondition(): Condition? {
     val matchType = matchType.toMatchType()
     if (matchType == MatchType.UNKNOWN) {

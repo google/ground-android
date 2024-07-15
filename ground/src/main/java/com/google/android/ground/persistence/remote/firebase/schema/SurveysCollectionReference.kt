@@ -35,6 +35,8 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
 
   fun getReadable(user: User): Flow<List<Survey>> =
     reference().whereIn(FieldPath.of(ACL_FIELD, user.email), Role.valueStrings()).snapshots().map {
-      it.documents.map { doc -> SurveyConverter.toSurvey(doc) }
+      it.documents.map { doc -> doc.let {
+        SurveyConverter.toSurvey(doc)
+      }}
     }
 }

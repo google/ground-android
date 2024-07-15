@@ -386,14 +386,12 @@ fun SubmissionMutation.toLocalDataStoreObject() =
 
 fun SurveyEntityAndRelations.toModelObject(): Survey {
   val jobMap = jobEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
-  val tileSources = tileSourceEntityAndRelations.map { it.toModelObject() }
 
   return Survey(
     surveyEntity.id,
     surveyEntity.title!!,
     surveyEntity.description!!,
     jobMap.toPersistentMap(),
-    tileSources.toPersistentList(),
     surveyEntity.acl?.toStringMap()!!,
   )
 }

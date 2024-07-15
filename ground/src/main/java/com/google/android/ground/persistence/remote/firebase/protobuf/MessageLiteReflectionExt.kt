@@ -67,8 +67,18 @@ fun <T : MessageBuilder> KClass<T>.getMapValueType(key: String): KClass<*> {
     ?: throw NoSuchMethodError("$mapValueGetterName method")
 }
 
-fun <T : MessageBuilder> KClass<T>.getFieldTypeByName(fieldName: String): KClass<*> =
-  java.getDeclaredMethod("get${fieldName.toUpperCamelCase()}").returnType?.kotlin
+fun <T : MessageBuilder> KClass<T>.getFieldTypeByName(fieldName: String): KClass<*> = try {
+    java.getDeclaredMethod("get${fieldName.toUpperCamelCase()}").returnType?.kotlin
+    ?: throw UnsupportedOperationException("Getter not found for field $fieldName")
+  } catch (e: NoSuchMethodException) {
+    // Could be a list type instead. Check for a `getFieldList()` method.
+    java.getDeclaredMethod("get${fieldName.toUpperCamelCase()}List").returnType?.kotlin
+    ?: throw UnsupportedOperationException("Getter not found for field $fieldName")
+  }
+
+fun <T : MessageBuilder> KClass<T>.getListElementFieldTypeByName(fieldName: String): KClass<*> =
+    // Each list field has a getter with an index.
+    java.getDeclaredMethod("get${fieldName.toUpperCamelCase()}",  Int::class.java).returnType?.kotlin
     ?: throw UnsupportedOperationException("Getter not found for field $fieldName")
 
 private fun MessageBuilder.getSetterByFieldName(fieldName: String): KFunction<*> =

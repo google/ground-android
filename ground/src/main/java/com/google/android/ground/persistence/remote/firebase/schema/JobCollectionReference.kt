@@ -16,15 +16,18 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.task.Option
-import com.google.android.ground.proto.Task
+import com.google.android.ground.model.job.Job
+import com.google.android.ground.persistence.remote.firebase.base.FluentCollectionReference
+import com.google.firebase.firestore.CollectionReference
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 
-/** Converts between Firestore nested objects and [Option] instances. */
-internal object OptionConverter {
-
-  fun toOption(option: Task.MultipleChoiceQuestion.Option): Option =
-    Option(option.id, option.id, option.label)
-
-  fun toOption(id: String, option: OptionNestedObject): Option =
-    Option(id, option.code.orEmpty(), option.label.orEmpty())
+class JobCollectionReference internal constructor(ref: CollectionReference) :
+  FluentCollectionReference(ref) {
+  fun get(): Flow<List<Job>> = callbackFlow {
+    reference()
+      .get()
+      .addOnSuccessListener { trySend(it.documents.map { doc -> JobConverter.toJob(doc) }) }
+      .addOnFailureListener { trySend(listOf()) }
+  }
 }

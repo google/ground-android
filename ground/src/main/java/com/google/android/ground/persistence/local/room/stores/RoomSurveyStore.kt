@@ -71,7 +71,6 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
     jobDao.deleteBySurveyId(survey.id)
     insertOrUpdateJobs(survey.id, survey.jobs)
     tileSourceDao.deleteBySurveyId(survey.id)
-    insertOfflineBaseMapSources(survey)
   }
 
   /**
@@ -124,9 +123,4 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
 
   private suspend fun insertOrUpdateJobs(surveyId: String, jobs: Collection<Job>) =
     jobs.forEach { insertOrUpdateJob(surveyId, it) }
-
-  private suspend fun insertOfflineBaseMapSources(survey: Survey) =
-    survey.tileSources.forEach {
-      tileSourceDao.insertOrUpdate(it.toLocalDataStoreObject(surveyId = survey.id))
-    }
 }

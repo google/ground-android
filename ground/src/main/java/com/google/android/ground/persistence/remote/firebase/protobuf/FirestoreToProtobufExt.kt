@@ -22,6 +22,7 @@ import com.google.protobuf.Internal.EnumLite
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 import timber.log.Timber
+import java.util.ArrayList
 
 typealias MessageBuilder = GeneratedMessageLite.Builder<*, *>
 
@@ -94,6 +95,9 @@ private fun FirestoreValue.toMessageValue(
   val fieldType = builderType.getFieldTypeByName(fieldName)
   return if (fieldType.isSubclassOf(Map::class)) {
     (this as FirestoreMap).toMessageMap(builderType.getMapValueType(fieldName))
+  } else if (fieldType.isSubclassOf(List::class)) {
+    val elementType = builderType.getListElementFieldTypeByName(fieldName)
+    (this as List<FirestoreMap>).map{it.toMessageValue(elementType)}
   } else {
     toMessageValue(fieldType)
   }
@@ -103,11 +107,23 @@ private fun FirestoreValue.toMessageValue(
 private fun FirestoreValue.toMessageValue(targetType: KClass<*>): MessageValue =
   if (targetType == String::class) {
     this as String
+  } else if (targetType == Int::class) {
+    var number = this
+    if (number is Long) {
+      number = number.toInt()
+    }
+    number
+  } else if (targetType == Boolean::class) {
+    this as Boolean
   } else if (targetType.isSubclassOf(GeneratedMessageLite::class)) {
     (targetType as KClass<Message>).parseFrom(this as FirestoreMap)
   } else if (targetType.isSubclassOf(EnumLite::class)) {
-    require(this is Int) { "Expected Int but got ${this::class}" }
-    (targetType as KClass<EnumLite>).findByNumber(this)
+    var number = this
+    if (number is Long) {
+      number = number.toInt()
+    }
+    require(number is Int) { "Expected Int but got ${number::class}" }
+    (targetType as KClass<EnumLite>).findByNumber(number)
       ?: throw IllegalArgumentException("Unrecognized enum number $this")
   } else {
     throw UnsupportedOperationException("Unsupported message field type $targetType")
