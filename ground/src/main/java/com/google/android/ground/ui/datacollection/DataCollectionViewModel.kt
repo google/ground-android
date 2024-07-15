@@ -50,12 +50,6 @@ import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import javax.inject.Provider
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
-import kotlin.math.abs
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -67,6 +61,12 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
+import kotlin.math.abs
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -315,7 +315,20 @@ internal constructor(
    * reversed is set, will generate the previous tasks from there.
    */
   private fun getTaskSequence(startId: String? = null, reversed: Boolean = false): Sequence<Task> {
-    val startIndex = tasks.indexOf(tasks.first { it.id == (startId ?: tasks[0].id) })
+    if (tasks.isEmpty()) {
+      error("Can't generate sequence for empty task list")
+    }
+
+    val task = tasks.filter { it.id == (startId ?: tasks[0].id) }
+
+    // Cleanup once https://github.com/google/ground-android/issues/2539 is resolved.
+    if (task.isEmpty()) {
+      error(
+        "Unable to find a task with id startId=$startId, firstTaskId=${tasks[0].id}, allTasks=${tasks.map { it.id }}"
+      )
+    }
+
+    val startIndex = tasks.indexOf(task.first())
     return if (reversed) {
         tasks.subList(0, startIndex + 1).reversed()
       } else {
