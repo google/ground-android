@@ -46,7 +46,6 @@ import com.sharedtest.FakeData
 import com.sharedtest.FakeData.LOCATION_OF_INTEREST_NAME
 import java.time.Instant
 import java.util.Date
-import kotlin.test.fail
 import org.junit.Assert.assertThrows
 import org.junit.Test
 
@@ -67,21 +66,17 @@ class LoiMutationConverterTest {
 
     val map = mutation.createLoiMessage(TEST_USER).toFirestoreMap()
 
-    val geometry = map[GEOMETRY_FIELD_NUMBER.toString()]
-    if (geometry is MutableMap<*, *>) {
-      assertThat(geometry[POINT_FIELD_NUMBER.toString()])
-        .isEqualTo(
-          mapOf(
-            COORDINATES_FIELD_NUMBER.toString() to
-              mapOf(
-                LATITUDE_FIELD_NUMBER.toString() to 88.0,
-                LONGITUDE_FIELD_NUMBER.toString() to -23.1,
-              )
-          )
+    val geometry = map[GEOMETRY_FIELD_NUMBER.toString()] as MutableMap<*, *>
+    assertThat(geometry[POINT_FIELD_NUMBER.toString()])
+      .isEqualTo(
+        mapOf(
+          COORDINATES_FIELD_NUMBER.toString() to
+            mapOf(
+              LATITUDE_FIELD_NUMBER.toString() to 88.0,
+              LONGITUDE_FIELD_NUMBER.toString() to -23.1,
+            )
         )
-    } else {
-      fail("GEOMETRY field, $geometry, is not a map.")
-    }
+      )
   }
 
   @Test
@@ -90,29 +85,24 @@ class LoiMutationConverterTest {
 
     val map = mutation.createLoiMessage(TEST_USER).toFirestoreMap()
 
-    val geometry = map[GEOMETRY_FIELD_NUMBER.toString()]
-
-    if (geometry is MutableMap<*, *>) {
-      assertThat(geometry[POLYGON_FIELD_NUMBER.toString()])
-        .isEqualTo(
-          mapOf(
-            SHELL_FIELD_NUMBER.toString() to
-              mapOf(
-                COORDINATES_FIELD_NUMBER.toString() to
-                  listOf(
-                    mapOf(LONGITUDE_FIELD_NUMBER.toString() to 1.0),
-                    mapOf(
-                      LATITUDE_FIELD_NUMBER.toString() to 1.0,
-                      LONGITUDE_FIELD_NUMBER.toString() to 1.0,
-                    ),
-                    mapOf(LONGITUDE_FIELD_NUMBER.toString() to 1.0),
-                  )
-              )
-          )
+    val geometry = map[GEOMETRY_FIELD_NUMBER.toString()] as MutableMap<*, *>
+    assertThat(geometry[POLYGON_FIELD_NUMBER.toString()])
+      .isEqualTo(
+        mapOf(
+          SHELL_FIELD_NUMBER.toString() to
+            mapOf(
+              COORDINATES_FIELD_NUMBER.toString() to
+                listOf(
+                  mapOf(LONGITUDE_FIELD_NUMBER.toString() to 1.0),
+                  mapOf(
+                    LATITUDE_FIELD_NUMBER.toString() to 1.0,
+                    LONGITUDE_FIELD_NUMBER.toString() to 1.0,
+                  ),
+                  mapOf(LONGITUDE_FIELD_NUMBER.toString() to 1.0),
+                )
+            )
         )
-    } else {
-      fail("GEOMETRY field, $geometry, is not a map.")
-    }
+      )
   }
 
   @Test
