@@ -39,6 +39,7 @@ import com.google.android.ground.proto.locationOfInterest
 import com.google.android.ground.proto.point
 import com.google.protobuf.timestamp
 import java.util.Date
+import kotlinx.collections.immutable.toImmutableMap
 
 fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest {
   assert(userId == user.id) { "UserId doesn't match: expected $userId, found ${user.id}" }
@@ -122,5 +123,5 @@ private fun LoiProperties.toMessageMap(): Map<String, Property> {
         else -> throw UnsupportedOperationException("Unknown type $value")
       }
   }
-  return propertiesBuilder.toMutableMap()
+  return propertiesBuilder.toImmutableMap()
 }
