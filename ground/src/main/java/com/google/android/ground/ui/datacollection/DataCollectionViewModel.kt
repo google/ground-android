@@ -321,7 +321,7 @@ internal constructor(
 
     val task = tasks.filter { it.id == (startId ?: tasks[0].id) }
 
-    // Cleanup once https://github.com/google/ground-android/issues/2539 is resolved.
+    // TODO(#2539): Cleanup once https://github.com/google/ground-android/issues/2539 is resolved.
     if (task.isEmpty()) {
       error(
         "Unable to find a task with id startId=$startId, firstTaskId=${tasks[0].id}, allTasks=${tasks.map { it.id }}"
