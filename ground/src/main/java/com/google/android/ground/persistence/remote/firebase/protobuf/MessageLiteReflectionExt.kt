@@ -88,6 +88,13 @@ private fun MessageBuilder.getSetterByFieldName(fieldName: String): KFunction<*>
     it.name == "set${fieldName.toUpperCamelCase()}" && !it.parameters[1].type.isBuilder()
   } ?: throw UnsupportedOperationException("Setter not found for field $fieldName")
 
+private fun MessageBuilder.getAddAllByFieldName(fieldName: String): KFunction<*> =
+  // Message fields generated two setters; ignore the Builder's setter in favor of the
+  // message setter.
+  this::class.declaredFunctions.find {
+    it.name == "addAll${fieldName.toUpperCamelCase()}" && !it.parameters[1].type.isBuilder()
+  } ?: throw UnsupportedOperationException("addAll not found for field $fieldName")
+
 private fun KType.isBuilder() =
   (classifier as KClass<*>).isSubclassOf(GeneratedMessageLite.Builder::class)
 
@@ -101,6 +108,14 @@ fun <T : Message> KClass<T>.newBuilderForType() =
 fun MessageBuilder.setOrLog(fieldName: MessageFieldName, value: MessageValue) {
   try {
     set(fieldName, value)
+  } catch (e: Throwable) {
+    Timber.e(e, "Skipping incompatible value in ${javaClass}: $fieldName=$value")
+  }
+}
+
+fun MessageBuilder.addAllOrLog(fieldName: MessageFieldName, value: MessageValue) {
+  try {
+    addAll(fieldName, value)
   } catch (e: Throwable) {
     Timber.e(e, "Skipping incompatible value in ${javaClass}: $fieldName=$value")
   }
@@ -146,6 +161,10 @@ private fun String.toUpperCamelCase(): String =
 
 private fun MessageBuilder.set(fieldName: MessageFieldName, value: MessageValue) {
   getSetterByFieldName(fieldName).call(this, value)
+}
+
+private fun MessageBuilder.addAll(fieldName: MessageFieldName, value: MessageValue) {
+  getAddAllByFieldName(fieldName).call(this, value)
 }
 
 private fun MessageBuilder.putAll(fieldName: MessageFieldName, value: MessageMap) {

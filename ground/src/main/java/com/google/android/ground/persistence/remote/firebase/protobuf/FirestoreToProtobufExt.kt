@@ -19,6 +19,7 @@ package com.google.android.ground.persistence.remote.firebase.protobuf
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.GeneratedMessageLite
 import com.google.protobuf.Internal.EnumLite
+import com.google.protobuf.MessageLite
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 import timber.log.Timber
@@ -63,7 +64,7 @@ private fun FirestoreMap?.copyInto(builder: MessageBuilder) {
 
 private fun FirestoreMapEntry.copyInto(builder: MessageBuilder) {
   toMessageField(builder::class)?.also { (k, v) ->
-    if (v is MessageMap) builder.putAllOrLog(k, v) else builder.setOrLog(k, v)
+    if (v is MessageMap) builder.putAllOrLog(k, v) else if (v is List<*>) builder.addAllOrLog(k, v) else builder.setOrLog(k, v)
   }
 }
 
@@ -97,7 +98,13 @@ private fun FirestoreValue.toMessageValue(
     (this as FirestoreMap).toMessageMap(builderType.getMapValueType(fieldName))
   } else if (fieldType.isSubclassOf(List::class)) {
     val elementType = builderType.getListElementFieldTypeByName(fieldName)
-    (this as List<FirestoreMap>).map{it.toMessageValue(elementType)}
+    (this as List<FirestoreValue>).map{
+      if (elementType.isSubclassOf(GeneratedMessageLite::class)) {
+        (elementType as KClass<Message>).parseFrom(it as FirestoreMap)
+      } else {
+         it.toMessageValue(elementType)
+      }
+    }
   } else {
     toMessageValue(fieldType)
   }

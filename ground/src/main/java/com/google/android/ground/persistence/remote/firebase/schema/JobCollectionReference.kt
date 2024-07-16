@@ -19,6 +19,7 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.persistence.remote.firebase.base.FluentCollectionReference
 import com.google.firebase.firestore.CollectionReference
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
@@ -29,5 +30,9 @@ class JobCollectionReference internal constructor(ref: CollectionReference) :
       .get()
       .addOnSuccessListener { trySend(it.documents.map { doc -> JobConverter.toJob(doc) }) }
       .addOnFailureListener { trySend(listOf()) }
+
+    awaitClose {
+      // Cannot cancel or detach listeners here.
+    }
   }
 }

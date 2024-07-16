@@ -32,24 +32,23 @@ internal object SurveyConverter {
   fun toSurvey(doc: DocumentSnapshot, jobs: List<Job> = listOf()): SurveyModel {
     if (!doc.exists()) throw DataStoreException("Missing survey")
 
-    val surveyProto = SurveyProto::class.parseFrom(doc, 1)
+    val surveyFromProto = SurveyProto::class.parseFrom(doc, 1)
     val surveyFromDocument =
       DataStoreException.checkNotNull(doc.toObject(SurveyDocument::class.java), "surveyDocument")
 
     val jobMap =
-      if (jobs.isEmpty() && surveyFromDocument.jobs != null) {
-        mapOf()
-//        surveyFromDocument.jobs.entries.associate { it.key to toJob(it.key, it.value) }
+      if (surveyFromDocument.jobs != null) {
+        surveyFromDocument.jobs.entries.associate { it.key to toJob(it.key, it.value) }
       } else {
         jobs.associate { it.id to it }
       }
 
     return SurveyModel(
-      surveyProto.id.ifEmpty { doc.id },
-      surveyProto.name.ifEmpty { surveyFromDocument.title.orEmpty() },
-      surveyProto.description.ifEmpty { surveyFromDocument.description.orEmpty() },
+      surveyFromProto.id.ifEmpty { doc.id },
+      surveyFromProto.name.ifEmpty { surveyFromDocument.title.orEmpty() },
+      surveyFromProto.description.ifEmpty { surveyFromDocument.description.orEmpty() },
       jobMap.toPersistentMap(),
-      surveyProto.aclMap
+      surveyFromProto.aclMap
         .ifEmpty { surveyFromDocument.acl ?: mapOf() }
         .entries
         .associate { it.key to it.value.toString() },
