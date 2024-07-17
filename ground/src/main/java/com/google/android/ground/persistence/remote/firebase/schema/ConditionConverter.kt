@@ -31,11 +31,11 @@ internal object ConditionConverter {
       Timber.e("Unsupported conditionType: $conditionTypeCase")
       return null
     }
-    // TODO(google/ground-platform#1899): Supply taskID field here when available.
     val expressions =
       listOf(
         Expression(
           ExpressionType.ANY_OF_SELECTED,
+          // TODO(google/ground-platform#1899): Supply taskID field here when available.
           taskId = "",
           multipleChoice.optionIdsList.toSet(),
         )

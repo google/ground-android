@@ -19,7 +19,10 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.Expression
 import com.google.android.ground.persistence.remote.firebase.schema.ConditionConverter.toCondition
+import com.google.android.ground.proto.Task
+import com.google.android.ground.proto.Task.MultipleChoiceSelection
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertNull
 import org.junit.Test
 
 const val TASK_ID = "task-id-123"
@@ -30,6 +33,37 @@ const val TEST_OPTION_ID_C = "option-id-c-123"
 val TEST_OPTION_IDS = listOf(TEST_OPTION_ID_A, TEST_OPTION_ID_B, TEST_OPTION_ID_C)
 
 class ConditionConverterTest {
+
+  @Test
+  fun `toCondition() converts return null for empty proto`() {
+    with(ConditionConverter) { assertNull(Task.Condition.newBuilder().build().toCondition()) }
+  }
+
+  @Test
+  fun `toCondition() converts from proto`() {
+    with(ConditionConverter) {
+      val conditionProto =
+        Task.Condition.newBuilder()
+          .setMultipleChoice(
+            MultipleChoiceSelection.newBuilder().addAllOptionIds(listOf("optionId1", "optionId2"))
+          )
+          .build()
+      assertThat(conditionProto.toCondition())
+        .isEqualTo(
+          Condition(
+            Condition.MatchType.MATCH_ANY,
+            listOf(
+              Expression(
+                Expression.ExpressionType.ANY_OF_SELECTED,
+                taskId = "",
+                setOf("optionId1", "optionId2"),
+              )
+            ),
+          )
+        )
+    }
+  }
+
   @Test
   fun `toCondition() converts match types`() {
     with(ConditionConverter) {
