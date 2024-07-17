@@ -146,6 +146,7 @@ class NavigationDrawerItemClickTest(
   private val survey: Survey,
   private val expectedNavDirection: NavDirections?,
   private val shouldDrawerCloseAfterClick: Boolean,
+  private val testLabel: String,
 ) : AbstractHomeScreenFragmentTest() {
 
   @Inject lateinit var navigator: Navigator
