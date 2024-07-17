@@ -19,9 +19,7 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.Survey
 import com.google.android.ground.persistence.remote.firebase.base.FluentDocumentReference
 import com.google.firebase.firestore.DocumentReference
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.tasks.await
 
 private const val LOIS = "lois"
