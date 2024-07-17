@@ -25,7 +25,7 @@ import com.google.android.ground.proto.Survey as SurveyProto
 import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.collections.immutable.toPersistentMap
 
-/** Converts between Firestore documents and [Survey] instances. */
+/** Converts between Firestore documents and [SurveyModel] instances. */
 internal object SurveyConverter {
 
   @Throws(DataStoreException::class)

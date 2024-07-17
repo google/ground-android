@@ -16,40 +16,11 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.imagery.TileSource
-import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
-import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.whenever
 
 class SurveyConverterTest {
-  @Test
-  fun toSurvey_whenPresent_convertsTileSources() {
-    val testUrl = "http://test123"
-    val doc = SurveyDocument(tileSources = listOf(TileSourceNestedObject(url = testUrl)))
-    val snapshot = createSurveyDocumentSnapshot(doc)
-
-    assertThat(SurveyConverter.toSurvey(snapshot).tileSources)
-      .containsExactly(TileSource(testUrl, TileSource.Type.MOG_COLLECTION))
-  }
-
-  @Test
-  fun toSurvey_whenMissing_skipsTileSources() {
-    val doc = SurveyDocument()
-    val snapshot = createSurveyDocumentSnapshot(doc)
-
-    assertThat(SurveyConverter.toSurvey(snapshot).tileSources).isEmpty()
-  }
-
-  @Test
-  fun toSurvey_whenUrlMissing_skipsTileSources() {
-    val doc = SurveyDocument(tileSources = listOf(TileSourceNestedObject(url = null)))
-    val snapshot = createSurveyDocumentSnapshot(doc)
-
-    assertThat(SurveyConverter.toSurvey(snapshot).tileSources).isEmpty()
-  }
-
   private fun createSurveyDocumentSnapshot(surveyDocument: SurveyDocument): DocumentSnapshot {
     val snapshot = mock(DocumentSnapshot::class.java)
     whenever(snapshot.id).thenReturn(DOCUMENT_ID)
