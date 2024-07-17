@@ -25,17 +25,9 @@ import com.google.firebase.firestore.DocumentSnapshot
 /** Converts between Firestore documents and [LocationOfInterest] instances. */
 object LoiConverter {
   // TODO(#2392): Define field names on DocumentReference objects, not converters.
-  const val JOB_ID = "jobId"
-  const val CREATED = "created"
-  const val LAST_MODIFIED = "lastModified"
+  private const val JOB_ID = "jobId"
   const val GEOMETRY_TYPE = "type"
-  const val POINT_TYPE = "Point"
   const val POLYGON_TYPE = "Polygon"
-  const val GEOMETRY_COORDINATES = "coordinates"
-  const val GEOMETRY = "geometry"
-  const val SUBMISSION_COUNT = "submissionCount"
-  const val IS_PREDEFINED = "predefined"
-  const val PROPERTIES = "properties"
 
   fun toLoi(survey: Survey, doc: DocumentSnapshot): Result<LocationOfInterest> = runCatching {
     toLoiUnchecked(survey, doc)
