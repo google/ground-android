@@ -56,7 +56,7 @@ object FakeData {
       name = "Job",
       id = "JOB",
       style = Style("#000"),
-      strategy = Job.DataCollectionStrategy.MIXED,
+      strategy = Job.DataCollectionStrategy.PREDEFINED,
     )
 
   val JOB_NESTED_OBJECT =
@@ -64,7 +64,7 @@ object FakeData {
       defaultStyle = StyleNestedObject(color = JOB.style?.color.orEmpty()),
       name = JOB.name,
       tasks = null,
-      strategy = Job.DataCollectionStrategy.MIXED.toString(),
+      strategy = Job.DataCollectionStrategy.PREDEFINED.toString(),
     )
 
   val USER = User("user_id", "user@gmail.com", "User")
