@@ -24,6 +24,7 @@ import com.google.android.ground.persistence.remote.firebase.schema.ConditionCon
 import com.google.android.ground.persistence.remote.firebase.schema.MultipleChoiceConverter.toMultipleChoice
 import com.google.android.ground.proto.Task as TaskProto
 import com.google.android.ground.proto.Task.DataCollectionLevel
+import com.google.android.ground.proto.Task.DrawGeometry.Method
 import com.google.android.ground.proto.Task.TaskTypeCase
 import timber.log.Timber
 
@@ -43,23 +44,40 @@ internal object TaskConverter {
               else -> Task.Type.DATE
             }
           TaskTypeCase.MULTIPLE_CHOICE_QUESTION -> Task.Type.MULTIPLE_CHOICE
-          TaskTypeCase.DRAW_GEOMETRY -> Task.Type.DRAW_AREA
-          TaskTypeCase.CAPTURE_LOCATION -> Task.Type.DROP_PIN
+          TaskTypeCase.DRAW_GEOMETRY ->
+            if (task.drawGeometry?.allowedMethodsList?.contains(Method.DRAW_AREA) ?: false) {
+              Task.Type.DRAW_AREA
+            } else {
+              Task.Type.DROP_PIN
+            }
+          TaskTypeCase.CAPTURE_LOCATION -> Task.Type.CAPTURE_LOCATION
           TaskTypeCase.TAKE_PHOTO -> Task.Type.PHOTO
           TaskTypeCase.TASKTYPE_NOT_SET -> Task.Type.UNKNOWN
           null -> Task.Type.UNKNOWN
         }
+      val multipleChoice =
+        if (taskType == Task.Type.MULTIPLE_CHOICE) {
+          task.multipleChoiceQuestion?.let { toMultipleChoice(it) }
+        } else {
+          null
+        }
       // Merge list of condition expressions into one condition.
       val expressions = conditionsList.mapNotNull { it.toCondition()?.expressions }.flatten()
+      val condition =
+        if (expressions.isNotEmpty()) {
+          Condition(Condition.MatchType.MATCH_ANY, expressions)
+        } else {
+          null
+        }
       Task(
         id,
         index,
         taskType,
         prompt,
         required,
-        task.multipleChoiceQuestion?.let { toMultipleChoice(it) },
+        multipleChoice,
         task.level == DataCollectionLevel.LOI_METADATA,
-        Condition(Condition.MatchType.MATCH_ANY, expressions),
+        condition = condition,
       )
     }
 
