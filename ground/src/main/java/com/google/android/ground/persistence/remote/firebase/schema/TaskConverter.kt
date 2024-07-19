@@ -31,30 +31,32 @@ import timber.log.Timber
 /** Converts between Firestore nested objects and [Task] instances. */
 internal object TaskConverter {
 
+  private fun TaskProto.toTaskType() =
+    when (taskTypeCase) {
+      TaskTypeCase.TEXT_QUESTION -> Task.Type.TEXT
+      TaskTypeCase.NUMBER_QUESTION -> Task.Type.NUMBER
+      TaskTypeCase.DATE_TIME_QUESTION ->
+        when (dateTimeQuestion?.type) {
+          TaskProto.DateTimeQuestion.Type.DATE_ONLY -> Task.Type.DATE
+          TaskProto.DateTimeQuestion.Type.TIME_ONLY -> Task.Type.TIME
+          else -> Task.Type.DATE
+        }
+      TaskTypeCase.MULTIPLE_CHOICE_QUESTION -> Task.Type.MULTIPLE_CHOICE
+      TaskTypeCase.DRAW_GEOMETRY ->
+        if (drawGeometry?.allowedMethodsList?.contains(Method.DRAW_AREA) == true) {
+          Task.Type.DRAW_AREA
+        } else {
+          Task.Type.DROP_PIN
+        }
+      TaskTypeCase.CAPTURE_LOCATION -> Task.Type.CAPTURE_LOCATION
+      TaskTypeCase.TAKE_PHOTO -> Task.Type.PHOTO
+      TaskTypeCase.TASKTYPE_NOT_SET -> Task.Type.UNKNOWN
+      null -> Task.Type.UNKNOWN
+    }
+
   fun toTask(task: TaskProto): Task =
     with(task) {
-      val taskType =
-        when (taskTypeCase) {
-          TaskTypeCase.TEXT_QUESTION -> Task.Type.TEXT
-          TaskTypeCase.NUMBER_QUESTION -> Task.Type.NUMBER
-          TaskTypeCase.DATE_TIME_QUESTION ->
-            when (dateTimeQuestion?.type) {
-              TaskProto.DateTimeQuestion.Type.DATE_ONLY -> Task.Type.DATE
-              TaskProto.DateTimeQuestion.Type.TIME_ONLY -> Task.Type.TIME
-              else -> Task.Type.DATE
-            }
-          TaskTypeCase.MULTIPLE_CHOICE_QUESTION -> Task.Type.MULTIPLE_CHOICE
-          TaskTypeCase.DRAW_GEOMETRY ->
-            if (task.drawGeometry?.allowedMethodsList?.contains(Method.DRAW_AREA) ?: false) {
-              Task.Type.DRAW_AREA
-            } else {
-              Task.Type.DROP_PIN
-            }
-          TaskTypeCase.CAPTURE_LOCATION -> Task.Type.CAPTURE_LOCATION
-          TaskTypeCase.TAKE_PHOTO -> Task.Type.PHOTO
-          TaskTypeCase.TASKTYPE_NOT_SET -> Task.Type.UNKNOWN
-          null -> Task.Type.UNKNOWN
-        }
+      val taskType = task.toTaskType()
       val multipleChoice =
         if (taskType == Task.Type.MULTIPLE_CHOICE) {
           task.multipleChoiceQuestion?.let { toMultipleChoice(it) }

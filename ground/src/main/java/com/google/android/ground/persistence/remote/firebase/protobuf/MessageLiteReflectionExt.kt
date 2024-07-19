@@ -70,6 +70,7 @@ fun <T : MessageBuilder> KClass<T>.getMapValueType(key: String): KClass<*> {
     ?: throw NoSuchMethodError("$mapValueGetterName method")
 }
 
+@Suppress("StringLiteralDuplication", "SwallowedException")
 fun <T : MessageBuilder> KClass<T>.getFieldTypeByName(fieldName: String): KClass<*> =
   try {
     java.getDeclaredMethod("get${fieldName.toUpperCamelCase()}").returnType?.kotlin
@@ -109,6 +110,7 @@ private fun MessageBuilder.getPutAllByFieldName(fieldName: String): KFunction<*>
 fun <T : Message> KClass<T>.newBuilderForType() =
   java.getDeclaredMethod("newBuilder").invoke(null) as MessageBuilder
 
+@Suppress("StringLiteralDuplication")
 fun MessageBuilder.setOrLog(fieldName: MessageFieldName, value: MessageValue) {
   try {
     set(fieldName, value)
@@ -117,6 +119,7 @@ fun MessageBuilder.setOrLog(fieldName: MessageFieldName, value: MessageValue) {
   }
 }
 
+@Suppress("StringLiteralDuplication")
 fun MessageBuilder.addAllOrLog(fieldName: MessageFieldName, value: MessageValue) {
   try {
     addAll(fieldName, value)

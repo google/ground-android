@@ -90,6 +90,7 @@ class TaskConverterTest(
   }
 
   companion object {
+    @Suppress("LongMethod")
     @JvmStatic
     @Parameterized.Parameters(name = "{0}")
     fun data() =
