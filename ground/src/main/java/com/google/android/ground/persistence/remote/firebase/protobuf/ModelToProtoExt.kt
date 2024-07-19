@@ -135,17 +135,16 @@ private fun ValueDelta.toMessage() = taskData {
   // TODO: Add skipped field
   when (taskType) {
     Task.Type.TEXT -> textResponse = textResponse { text = (newTaskData as TextTaskData).text }
-    Task.Type.NUMBER -> numberResponse { number = (newTaskData as NumberTaskData).value }
-    Task.Type.DATE ->
-      dateTimeResponse {
+    Task.Type.NUMBER -> numberResponse = numberResponse {
+        number = (newTaskData as NumberTaskData).value
+      }
+    Task.Type.DATE -> dateTimeResponse = dateTimeResponse {
         dateTime = timestamp { seconds = (newTaskData as DateTaskData).date.time * 1000 }
       }
-    Task.Type.TIME ->
-      dateTimeResponse {
+    Task.Type.TIME -> dateTimeResponse = dateTimeResponse {
         dateTime = timestamp { seconds = (newTaskData as TimeTaskData).time.time * 1000 }
       }
-    Task.Type.MULTIPLE_CHOICE ->
-      multipleChoiceResponses {
+    Task.Type.MULTIPLE_CHOICE -> multipleChoiceResponses = multipleChoiceResponses {
         (newTaskData as MultipleChoiceTaskData).selectedOptionIds.forEach {
           selectedOptionIds.add(it)
         }
@@ -154,17 +153,19 @@ private fun ValueDelta.toMessage() = taskData {
         }
       }
     Task.Type.DROP_PIN,
-    Task.Type.DRAW_AREA ->
-      drawGeometryResult { geometry = (newTaskData as GeometryTaskData).geometry.toMessage() }
-    Task.Type.CAPTURE_LOCATION ->
-      captureLocationResult {
+    Task.Type.DRAW_AREA -> drawGeometryResult = drawGeometryResult {
+        geometry = (newTaskData as GeometryTaskData).geometry.toMessage()
+      }
+    Task.Type.CAPTURE_LOCATION -> captureLocationResult = captureLocationResult {
         val data = newTaskData as CaptureLocationTaskData
         data.altitude?.let { altitude = it }
         data.accuracy?.let { accuracy = it }
         coordinates = data.location.coordinates.toMessage()
         // TODO: Add timestamp
       }
-    Task.Type.PHOTO -> takePhotoResult { photoPath = (newTaskData as PhotoTaskData).path }
+    Task.Type.PHOTO -> takePhotoResult = takePhotoResult {
+        photoPath = (newTaskData as PhotoTaskData).path
+      }
     Task.Type.UNKNOWN -> error("Unknown task type")
   }
 }
