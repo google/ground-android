@@ -19,9 +19,10 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.Expression
 import com.google.android.ground.persistence.remote.firebase.schema.ConditionConverter.toCondition
-import com.google.android.ground.proto.Task
-import com.google.android.ground.proto.Task.MultipleChoiceSelection
+import com.google.android.ground.proto.TaskKt.condition
+import com.google.android.ground.proto.TaskKt.multipleChoiceSelection
 import com.google.common.truth.Truth.assertThat
+import com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode
 import kotlin.test.assertNull
 import org.junit.Test
 
@@ -36,20 +37,19 @@ class ConditionConverterTest {
 
   @Test
   fun `toCondition() converts return null for empty proto`() {
-    with(ConditionConverter) { assertNull(Task.Condition.newBuilder().build().toCondition()) }
+    with(ConditionConverter) { assertNull(condition {}.toCondition()) }
   }
 
+  @OptIn(OnlyForUseByGeneratedProtoCode::class)
   @Test
   fun `toCondition() converts from proto`() {
     with(ConditionConverter) {
-      val conditionProto =
-        Task.Condition.newBuilder()
-          .setMultipleChoice(
-            MultipleChoiceSelection.newBuilder()
-              .addAllOptionIds(listOf("optionId1", "optionId2"))
-              .setTaskId(TASK_ID)
-          )
-          .build()
+      val conditionProto = condition {
+        multipleChoice = multipleChoiceSelection {
+          taskId = TASK_ID
+          optionIds.addAll(listOf("optionId1", "optionId2"))
+        }
+      }
       assertThat(conditionProto.toCondition())
         .isEqualTo(
           Condition(

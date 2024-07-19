@@ -19,8 +19,10 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.job.Job as JobModel
 import com.google.android.ground.persistence.remote.firebase.protobuf.toFirestoreMap
 import com.google.android.ground.proto.Job
-import com.google.android.ground.proto.Style
 import com.google.android.ground.proto.Task
+import com.google.android.ground.proto.job
+import com.google.android.ground.proto.style
+import com.google.android.ground.proto.task
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
 import com.sharedtest.FakeData
@@ -38,12 +40,11 @@ class JobConverterTest {
   @Test
   fun `Converts to Job from Job proto`() {
     with(FakeData) {
-      val jobProto =
-        Job.newBuilder()
-          .setId(JOB.id)
-          .setName(JOB.name)
-          .setStyle(Style.newBuilder().setColor(JOB.style?.color.orEmpty()))
-          .build()
+      val jobProto = job {
+        id = JOB.id
+        name = JOB.name.orEmpty()
+        style = style { color = JOB.style?.color.orEmpty() }
+      }
       val snapshot = createDocumentSnapshot(jobProto)
       assertThat(JobConverter.toJob(snapshot)).isEqualTo(JOB)
     }
@@ -52,15 +53,12 @@ class JobConverterTest {
   @Test
   fun `Detects MIXED Job strategy from nested task proto`() {
     with(FakeData) {
-      val jobProto =
-        Job.newBuilder()
-          .setId(JOB.id)
-          .setName(JOB.name)
-          .setStyle(Style.newBuilder().setColor(JOB.style?.color.orEmpty()))
-          .addAllTasks(
-            listOf(Task.newBuilder().setLevel(Task.DataCollectionLevel.LOI_METADATA).build())
-          )
-          .build()
+      val jobProto = job {
+        id = JOB.id
+        name = JOB.name.orEmpty()
+        style = style { color = JOB.style?.color.orEmpty() }
+        tasks.addAll(listOf(task { level = Task.DataCollectionLevel.LOI_METADATA }))
+      }
       val snapshot = createDocumentSnapshot(jobProto)
       assertThat(JobConverter.toJob(snapshot).strategy)
         .isEqualTo(JobModel.DataCollectionStrategy.MIXED)

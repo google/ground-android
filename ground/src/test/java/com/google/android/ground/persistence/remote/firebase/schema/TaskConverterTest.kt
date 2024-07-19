@@ -21,6 +21,13 @@ import com.google.android.ground.model.task.Task as TaskModel
 import com.google.android.ground.model.task.Task.Type
 import com.google.android.ground.proto.Task
 import com.google.android.ground.proto.Task.DrawGeometry.Method
+import com.google.android.ground.proto.TaskKt.captureLocation
+import com.google.android.ground.proto.TaskKt.dateTimeQuestion
+import com.google.android.ground.proto.TaskKt.drawGeometry
+import com.google.android.ground.proto.TaskKt.multipleChoiceQuestion
+import com.google.android.ground.proto.TaskKt.numberQuestion
+import com.google.android.ground.proto.TaskKt.takePhoto
+import com.google.android.ground.proto.TaskKt.textQuestion
 import com.google.common.truth.Truth.assertThat
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
@@ -91,9 +98,7 @@ class TaskConverterTest(
           testLabel = "text",
           taskTypeNestedObjectLabel = "text_field",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
-            taskBuilder.setTextQuestion(
-              Task.TextQuestion.newBuilder().setType(Task.TextQuestion.Type.SHORT_TEXT)
-            )
+            taskBuilder.setTextQuestion(textQuestion { type = Task.TextQuestion.Type.SHORT_TEXT })
           },
           taskType = Type.TEXT,
         ),
@@ -101,9 +106,7 @@ class TaskConverterTest(
           testLabel = "number",
           taskTypeNestedObjectLabel = "number",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
-            taskBuilder.setNumberQuestion(
-              Task.NumberQuestion.newBuilder().setType(Task.NumberQuestion.Type.FLOAT)
-            )
+            taskBuilder.setNumberQuestion(numberQuestion { type = Task.NumberQuestion.Type.FLOAT })
           },
           taskType = Type.NUMBER,
         ),
@@ -112,7 +115,7 @@ class TaskConverterTest(
           taskTypeNestedObjectLabel = "date",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder.setDateTimeQuestion(
-              Task.DateTimeQuestion.newBuilder().setType(Task.DateTimeQuestion.Type.DATE_ONLY)
+              dateTimeQuestion { type = Task.DateTimeQuestion.Type.DATE_ONLY }
             )
           },
           taskType = Type.DATE,
@@ -122,7 +125,7 @@ class TaskConverterTest(
           taskTypeNestedObjectLabel = "date_time",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder.setDateTimeQuestion(
-              Task.DateTimeQuestion.newBuilder().setType(Task.DateTimeQuestion.Type.TIME_ONLY)
+              dateTimeQuestion { type = Task.DateTimeQuestion.Type.TIME_ONLY }
             )
           },
           taskType = Type.TIME,
@@ -133,8 +136,7 @@ class TaskConverterTest(
           taskTypeNestedObjectLabel = "date",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder.setDateTimeQuestion(
-              Task.DateTimeQuestion.newBuilder()
-                .setType(Task.DateTimeQuestion.Type.BOTH_DATE_AND_TIME)
+              dateTimeQuestion { type = Task.DateTimeQuestion.Type.BOTH_DATE_AND_TIME }
             )
           },
           taskType = Type.DATE,
@@ -144,8 +146,7 @@ class TaskConverterTest(
           taskTypeNestedObjectLabel = "multiple_choice",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder.setMultipleChoiceQuestion(
-              Task.MultipleChoiceQuestion.newBuilder()
-                .setType(Task.MultipleChoiceQuestion.Type.SELECT_ONE)
+              multipleChoiceQuestion { type = Task.MultipleChoiceQuestion.Type.SELECT_ONE }
             )
           },
           taskType = Type.MULTIPLE_CHOICE,
@@ -161,9 +162,7 @@ class TaskConverterTest(
           taskTypeNestedObjectLabel = "draw_area",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder
-              .setDrawGeometry(
-                Task.DrawGeometry.newBuilder().addAllAllowedMethods(listOf(Method.DRAW_AREA))
-              )
+              .setDrawGeometry(drawGeometry { allowedMethods.addAll(listOf(Method.DRAW_AREA)) })
               .setLevel(Task.DataCollectionLevel.LOI_METADATA)
           },
           taskType = Type.DRAW_AREA,
@@ -174,9 +173,7 @@ class TaskConverterTest(
           taskTypeNestedObjectLabel = "drop_pin",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder
-              .setDrawGeometry(
-                Task.DrawGeometry.newBuilder().addAllAllowedMethods(listOf(Method.DROP_PIN))
-              )
+              .setDrawGeometry(drawGeometry { allowedMethods.addAll(listOf(Method.DROP_PIN)) })
               .setLevel(Task.DataCollectionLevel.LOI_METADATA)
           },
           taskType = Type.DROP_PIN,
@@ -187,7 +184,7 @@ class TaskConverterTest(
           taskTypeNestedObjectLabel = "capture_location",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder
-              .setCaptureLocation(Task.CaptureLocation.newBuilder().setMinAccuracyMeters(10f))
+              .setCaptureLocation(captureLocation { minAccuracyMeters = 10f })
               .setLevel(Task.DataCollectionLevel.LOI_METADATA)
           },
           taskType = Type.CAPTURE_LOCATION,
@@ -198,7 +195,10 @@ class TaskConverterTest(
           taskTypeNestedObjectLabel = "photo",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder.setTakePhoto(
-              Task.TakePhoto.newBuilder().setMinHeadingDegrees(10).setMaxHeadingDegrees(10)
+              takePhoto {
+                minHeadingDegrees = 10
+                maxHeadingDegrees = 10
+              }
             )
           },
           taskType = Type.PHOTO,

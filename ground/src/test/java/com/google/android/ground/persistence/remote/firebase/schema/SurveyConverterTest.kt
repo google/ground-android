@@ -19,6 +19,7 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.persistence.remote.firebase.protobuf.toFirestoreMap
 import com.google.android.ground.proto.Role
 import com.google.android.ground.proto.Survey
+import com.google.android.ground.proto.survey
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
 import com.sharedtest.FakeData
@@ -46,12 +47,11 @@ class SurveyConverterTest {
   @Test
   fun `Converts to Survey from Survey proto`() {
     with(FakeData) {
-      val surveyProto =
-        Survey.newBuilder()
-          .setName(SURVEY.title)
-          .setDescription(SURVEY.description)
-          .putAcl(USER.email, Role.DATA_COLLECTOR)
-          .build()
+      val surveyProto = survey {
+        name = SURVEY.title
+        description = SURVEY.description
+        acl.put(USER.email, Role.DATA_COLLECTOR)
+      }
       val snapshot = createSurveyProtoDocumentSnapshot(surveyProto)
       assertThat(SurveyConverter.toSurvey(snapshot, listOf(JOB))).isEqualTo(SURVEY)
     }

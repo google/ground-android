@@ -19,6 +19,8 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.persistence.remote.firebase.schema.MultipleChoiceConverter.toMultipleChoice
 import com.google.android.ground.proto.Task
+import com.google.android.ground.proto.TaskKt.MultipleChoiceQuestionKt.option
+import com.google.android.ground.proto.TaskKt.multipleChoiceQuestion
 import com.google.common.truth.Truth.assertThat
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Assert.assertThrows
@@ -28,24 +30,22 @@ class MultipleChoiceConverterTest {
 
   @Test
   fun `toMultipleChoice() converts from proto`() {
-    val multipleChoiceProto =
-      Task.MultipleChoiceQuestion.newBuilder()
-        .setType(Task.MultipleChoiceQuestion.Type.SELECT_ONE)
-        .setHasOtherOption(true)
-        .addAllOptions(
-          listOf(
-            Task.MultipleChoiceQuestion.Option.newBuilder()
-              .setId("id_1")
-              .setLabel("option 1")
-              .build(),
-            Task.MultipleChoiceQuestion.Option.newBuilder()
-              .setId("id_2")
-              .setLabel("option 2")
-              .build(),
-          )
+    val multipleChoiceProto = multipleChoiceQuestion {
+      type = Task.MultipleChoiceQuestion.Type.SELECT_ONE
+      hasOtherOption = true
+      options.addAll(
+        listOf(
+          option {
+            id = "id_1"
+            label = "option 1"
+          },
+          option {
+            id = "id_2"
+            label = "option 2"
+          },
         )
-        .build()
-
+      )
+    }
     assertThat(toMultipleChoice(multipleChoiceProto))
       .isEqualTo(
         MultipleChoice(
