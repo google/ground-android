@@ -26,58 +26,44 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class MultipleChoiceItemTest: BaseHiltTest() {
+class MultipleChoiceItemTest : BaseHiltTest() {
 
-  private val multipleChoiceItemOne = MultipleChoiceItem(
-    option = Option(
-      id = "id",
-      code = "code",
-      label = "label"
-    ),
-    cardinality = Cardinality.SELECT_ONE
-  )
+  private val multipleChoiceItemOne =
+    MultipleChoiceItem(
+      option = Option(id = "id", code = "code", label = "label"),
+      cardinality = Cardinality.SELECT_ONE,
+    )
 
-  private val multipleChoiceItemMultiple = MultipleChoiceItem(
-    option = Option(
-      id = "id",
-      code = "code",
-      label = "label"
-    ),
-    cardinality = Cardinality.SELECT_MULTIPLE
-  )
+  private val multipleChoiceItemMultiple =
+    MultipleChoiceItem(
+      option = Option(id = "id", code = "code", label = "label"),
+      cardinality = Cardinality.SELECT_MULTIPLE,
+    )
 
-  private val multipleChoiceItemOneId = MultipleChoiceItem(
-    option = Option(
-      id = "new id",
-      code = "code",
-      label = "label"
-    ),
-    isSelected = true,
-    cardinality = Cardinality.SELECT_MULTIPLE
-  )
-
+  private val multipleChoiceItemOneId =
+    MultipleChoiceItem(
+      option = Option(id = "new id", code = "code", label = "label"),
+      isSelected = true,
+      cardinality = Cardinality.SELECT_MULTIPLE,
+    )
 
   @Test
   fun `isTheSameItem returns true when IDs are the same`() {
-    assertThat(multipleChoiceItemOne.isTheSameItem(multipleChoiceItemMultiple))
-      .isEqualTo(true)
+    assertThat(multipleChoiceItemOne.isTheSameItem(multipleChoiceItemMultiple)).isEqualTo(true)
   }
 
   @Test
   fun `isTheSameItem returns false when IDs are not same`() {
-    assertThat(multipleChoiceItemOne.isTheSameItem(multipleChoiceItemOneId))
-      .isEqualTo(false)
+    assertThat(multipleChoiceItemOne.isTheSameItem(multipleChoiceItemOneId)).isEqualTo(false)
   }
 
   @Test
   fun `areContentsTheSame returns true when isSelected is same`() {
-    assertThat(multipleChoiceItemOne.areContentsTheSame(multipleChoiceItemMultiple))
-      .isEqualTo(true)
+    assertThat(multipleChoiceItemOne.areContentsTheSame(multipleChoiceItemMultiple)).isEqualTo(true)
   }
 
   @Test
   fun `areContentsTheSame returns false when isSelected is not same`() {
-    assertThat(multipleChoiceItemOne.areContentsTheSame(multipleChoiceItemOneId))
-      .isEqualTo(false)
+    assertThat(multipleChoiceItemOne.areContentsTheSame(multipleChoiceItemOneId)).isEqualTo(false)
   }
 }
