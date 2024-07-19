@@ -94,5 +94,4 @@ class MapStateRepositoryTest : BaseHiltTest() {
     private val TARGET = FakeData.COORDINATES
     private const val SURVEY_ID = "survey_id"
   }
-
 }
