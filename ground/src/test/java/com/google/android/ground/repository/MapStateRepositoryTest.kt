@@ -17,8 +17,11 @@ package com.google.android.ground.repository
 
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapType
 import com.google.common.truth.Truth.assertThat
+import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import org.junit.Test
@@ -30,21 +33,22 @@ import org.robolectric.RobolectricTestRunner
 class MapStateRepositoryTest : BaseHiltTest() {
 
   @Inject lateinit var mapStateRepository: MapStateRepository
+  @Inject lateinit var localValueStore: LocalValueStore
 
   @Test
-  fun getMapType_whenNotSet_returnsDefault() {
+  fun `getMapType() should return default value when not set`() {
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.DEFAULT)
   }
 
   @Test
-  fun getMapType_whenTerrain_returnsTerrain() {
+  fun `getMapType() should return terrain value when set to terrain`() {
     mapStateRepository.mapType = MapType.TERRAIN
 
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)
   }
 
   @Test
-  fun mapTypeFlowable_whenTerrain_returnsTerrain() = runWithTestDispatcher {
+  fun `mapTypeFlow should have value terrain when set to terrain`() = runWithTestDispatcher {
     mapStateRepository.mapType = MapType.TERRAIN
 
     mapStateRepository.mapTypeFlow.test {
@@ -53,16 +57,41 @@ class MapStateRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun isOfflineImageryEnabled_default() = runWithTestDispatcher {
+  fun `isOfflineImageryEnabled have value true by default`() = runWithTestDispatcher {
     assertThat(mapStateRepository.isOfflineImageryEnabled).isTrue()
   }
 
   @Test
-  fun isOfflineImageryEnabled_whenEnabled_returnsTrue() = runWithTestDispatcher {
+  fun `isOfflineImageryEnabled have true when enabled`() = runWithTestDispatcher {
     mapStateRepository.isOfflineImageryEnabled = true
 
     mapStateRepository.offlineImageryEnabledFlow.test {
       assertThat(expectMostRecentItem()).isTrue()
     }
+  }
+
+  @Test
+  fun `isLocationLockEnabled is false by default`() {
+    assertThat(mapStateRepository.isLocationLockEnabled).isEqualTo(false)
+  }
+
+  @Test
+  fun `isLocationLockEnabled is true when set to true`() {
+    mapStateRepository.isLocationLockEnabled = true
+    assertThat(mapStateRepository.isLocationLockEnabled).isEqualTo(true)
+  }
+
+  @Test
+  fun `getCameraPosition() should return same value as passed to setCameraPosition()`() {
+    localValueStore.lastActiveSurveyId = SURVEY_ID
+    mapStateRepository.setCameraPosition(CameraPosition(target = TARGET))
+
+    assertThat(mapStateRepository.getCameraPosition(SURVEY_ID))
+      .isEqualTo(CameraPosition(target = TARGET))
+  }
+
+  companion object {
+    private val TARGET = FakeData.COORDINATES
+    private const val SURVEY_ID = "survey_id"
   }
 }
