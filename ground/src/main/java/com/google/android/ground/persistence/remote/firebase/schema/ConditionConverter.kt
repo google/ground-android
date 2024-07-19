@@ -35,8 +35,7 @@ internal object ConditionConverter {
       listOf(
         Expression(
           ExpressionType.ANY_OF_SELECTED,
-          // TODO(google/ground-platform#1899): Supply taskID field here when available.
-          taskId = "",
+          taskId = multipleChoice.taskId,
           multipleChoice.optionIdsList.toSet(),
         )
       )

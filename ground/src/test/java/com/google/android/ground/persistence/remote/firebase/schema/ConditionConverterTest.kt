@@ -45,7 +45,9 @@ class ConditionConverterTest {
       val conditionProto =
         Task.Condition.newBuilder()
           .setMultipleChoice(
-            MultipleChoiceSelection.newBuilder().addAllOptionIds(listOf("optionId1", "optionId2"))
+            MultipleChoiceSelection.newBuilder()
+              .addAllOptionIds(listOf("optionId1", "optionId2"))
+              .setTaskId(TASK_ID)
           )
           .build()
       assertThat(conditionProto.toCondition())
@@ -55,7 +57,7 @@ class ConditionConverterTest {
             listOf(
               Expression(
                 Expression.ExpressionType.ANY_OF_SELECTED,
-                taskId = "",
+                taskId = TASK_ID,
                 setOf("optionId1", "optionId2"),
               )
             ),
