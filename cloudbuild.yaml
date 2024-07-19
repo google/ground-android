@@ -205,7 +205,7 @@ steps:
       - |
         curl -Os https://uploader.codecov.io/latest/linux/codecov
         chmod +x codecov
-        ./codecov --verbose upload-process --fail-on-error -t ${_CODECOV_TOKEN} -n 'service'-${{ github.run_id }} -F service -f coverage-service.xml
+        ./codecov --verbose upload-process --fail-on-error -t ${_CODECOV_TOKEN} -n 'service'-$BUILD_ID -F service -f coverage-service.xml
 
   - name: 'gcr.io/$PROJECT_ID/android:base'
     id: &compress_cache 'Compress gradle build cache'
