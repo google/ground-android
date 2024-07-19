@@ -94,6 +94,40 @@ fun SubmissionMutation.createSubmissionMessage(user: User) = submission {
   }
 }
 
+fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest {
+  assert(userId == user.id) { "UserId doesn't match: expected $userId, found ${user.id}" }
+
+  val me = this@createLoiMessage
+  id = locationOfInterestId
+  jobId = me.jobId
+  submissionCount = me.submissionCount
+  ownerId = me.userId
+  customTag = me.customId
+
+  properties.putAll(me.properties.toMessageMap())
+
+  me.geometry?.toMessage()?.let { geometry = it }
+
+  val auditInfo = createAuditInfoMessage(user, clientTimestamp)
+
+  when (type) {
+    Mutation.Type.CREATE -> {
+      created = auditInfo
+      lastModified = auditInfo
+      source =
+        if (isPredefined == null) Source.SOURCE_UNSPECIFIED
+        else if (isPredefined) Source.IMPORTED else Source.FIELD_DATA
+    }
+    Mutation.Type.UPDATE -> {
+      lastModified = auditInfo
+    }
+    Mutation.Type.DELETE,
+    Mutation.Type.UNKNOWN -> {
+      throw UnsupportedOperationException()
+    }
+  }
+}
+
 private fun ValueDelta.toMessage() = taskData {
   val me = this@toMessage
   // TODO: What should be the ID?
@@ -132,40 +166,6 @@ private fun ValueDelta.toMessage() = taskData {
       }
     Task.Type.PHOTO -> takePhotoResult { photoPath = (newTaskData as PhotoTaskData).path }
     Task.Type.UNKNOWN -> error("Unknown task type")
-  }
-}
-
-fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest {
-  assert(userId == user.id) { "UserId doesn't match: expected $userId, found ${user.id}" }
-
-  val me = this@createLoiMessage
-  id = locationOfInterestId
-  jobId = me.jobId
-  submissionCount = me.submissionCount
-  ownerId = me.userId
-  customTag = me.customId
-
-  properties.putAll(me.properties.toMessageMap())
-
-  me.geometry?.toMessage()?.let { geometry = it }
-
-  val auditInfo = createAuditInfoMessage(user, clientTimestamp)
-
-  when (type) {
-    Mutation.Type.CREATE -> {
-      created = auditInfo
-      lastModified = auditInfo
-      source =
-        if (isPredefined == null) Source.SOURCE_UNSPECIFIED
-        else if (isPredefined) Source.IMPORTED else Source.FIELD_DATA
-    }
-    Mutation.Type.UPDATE -> {
-      lastModified = auditInfo
-    }
-    Mutation.Type.DELETE,
-    Mutation.Type.UNKNOWN -> {
-      throw UnsupportedOperationException()
-    }
   }
 }
 
