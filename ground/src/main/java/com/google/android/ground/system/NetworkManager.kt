@@ -22,7 +22,6 @@ import android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
 import android.net.NetworkRequest
 import androidx.annotation.RequiresPermission
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.net.ConnectException
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.channels.awaitClose
@@ -68,12 +67,5 @@ class NetworkManager @Inject constructor(@ApplicationContext private val context
     val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val networkInfo = cm.activeNetworkInfo
     return networkInfo?.isConnected ?: false
-  }
-
-  /** Throws an error if network isn't available. */
-  fun requireNetworkConnection() {
-    if (!isNetworkConnected()) {
-      throw ConnectException()
-    }
   }
 }

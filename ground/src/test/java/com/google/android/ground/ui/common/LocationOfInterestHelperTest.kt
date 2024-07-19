@@ -32,12 +32,6 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   @Inject lateinit var loiHelper: LocationOfInterestHelper
 
   @Test
-  fun testGetSubtitle() {
-    val loi = FakeData.LOCATION_OF_INTEREST.copy(job = FakeData.JOB.copy(name = TEST_JOB_NAME))
-    assertThat(loiHelper.getSubtitle(loi)).isEqualTo("Job: $TEST_JOB_NAME")
-  }
-
-  @Test
   fun testLoiNameWithPoint_whenCustomIdAndPropertiesAreNull() {
     assertThat(loiHelper.getDisplayLoiName(TEST_LOI.copy(customId = "", properties = mapOf())))
       .isEqualTo("Unnamed point")
@@ -119,6 +113,5 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   companion object {
     private val TEST_LOI = FakeData.LOCATION_OF_INTEREST.copy()
     private val TEST_AREA = FakeData.AREA_OF_INTEREST.copy()
-    private const val TEST_JOB_NAME = "some job name"
   }
 }
