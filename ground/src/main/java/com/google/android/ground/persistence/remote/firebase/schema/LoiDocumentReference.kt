@@ -19,6 +19,8 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.remote.firebase.base.FluentDocumentReference
+import com.google.android.ground.persistence.remote.firebase.protobuf.createLoiMessage
+import com.google.android.ground.persistence.remote.firebase.protobuf.toFirestoreMap
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.WriteBatch
 
@@ -29,7 +31,7 @@ class LoiDocumentReference internal constructor(ref: DocumentReference) :
   fun addMutationToBatch(mutation: LocationOfInterestMutation, user: User, batch: WriteBatch) =
     when (mutation.type) {
       Mutation.Type.CREATE,
-      Mutation.Type.UPDATE -> merge(LoiMutationConverter.toMap(mutation, user), batch)
+      Mutation.Type.UPDATE -> merge(mutation.createLoiMessage(user).toFirestoreMap(), batch)
       Mutation.Type.DELETE ->
         // The server is expected to do a cascading delete of all submissions for the deleted LOI.
         delete(batch)

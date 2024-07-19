@@ -27,9 +27,9 @@ internal object JobConverter {
   fun toJob(id: String, obj: JobNestedObject): Job {
     val taskMap = mutableMapOf<String, Task>()
     obj.tasks?.let {
-      it.entries.map { (key, value) ->
-        TaskConverter.toTask(key, value)?.let { task -> taskMap[task.id] = task }
-      }
+      it.entries
+        .mapNotNull { (key, value) -> TaskConverter.toTask(key, value) }
+        .forEach { task -> taskMap[task.id] = task }
     }
     return Job(
       id = id,
