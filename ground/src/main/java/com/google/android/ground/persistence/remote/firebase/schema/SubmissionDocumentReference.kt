@@ -20,6 +20,8 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.persistence.remote.firebase.base.FluentDocumentReference
+import com.google.android.ground.persistence.remote.firebase.protobuf.createSubmissionMessage
+import com.google.android.ground.persistence.remote.firebase.protobuf.toFirestoreMap
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.WriteBatch
 
@@ -30,7 +32,7 @@ class SubmissionDocumentReference internal constructor(ref: DocumentReference) :
   fun addMutationToBatch(mutation: SubmissionMutation, user: User, batch: WriteBatch) {
     when (mutation.type) {
       Mutation.Type.CREATE,
-      Mutation.Type.UPDATE -> merge(SubmissionMutationConverter.toMap(mutation, user), batch)
+      Mutation.Type.UPDATE -> merge(mutation.createSubmissionMessage(user).toFirestoreMap(), batch)
       Mutation.Type.DELETE -> delete(batch)
       else -> throw IllegalArgumentException("Unknown mutation type ${mutation.type}")
     }
