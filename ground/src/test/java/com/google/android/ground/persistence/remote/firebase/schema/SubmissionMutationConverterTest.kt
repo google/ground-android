@@ -318,14 +318,14 @@ class SubmissionMutationConverterTest {
   @Test
   fun testToMap_delete() {
     assertThrows("Unsupported mutation type", UnsupportedOperationException::class.java) {
-      SubmissionMutationConverter.toMap(submissionMutation.copy(type = Mutation.Type.DELETE), user)
+      submissionMutation.copy(type = Mutation.Type.DELETE).createSubmissionMessage(user)
     }
   }
 
   @Test
   fun testToMap_unknown() {
     assertThrows("Unsupported mutation type", UnsupportedOperationException::class.java) {
-      SubmissionMutationConverter.toMap(submissionMutation.copy(type = Mutation.Type.UNKNOWN), user)
+      submissionMutation.copy(type = Mutation.Type.UNKNOWN).createSubmissionMessage(user)
     }
   }
 }
