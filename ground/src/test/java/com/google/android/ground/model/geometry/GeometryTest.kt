@@ -96,7 +96,7 @@ class GeometryTest {
   fun testPolygonCenter() {
     val polygon = polygon(path1, path2)
 
-    assertThat(polygon.center()).isEqualTo(Coordinates(lat=-89.633029365, lng=41.89333657))
+    assertThat(polygon.center()).isEqualTo(Coordinates(lat = -89.633029365, lng = 41.89333657))
   }
 
   @Test
@@ -118,7 +118,7 @@ class GeometryTest {
     val multiPolygon = multiPolygon(polygon(path1, path2), polygon(path3, path4))
 
     assertThat(multiPolygon.center())
-      .isEqualTo(Coordinates(lat=-89.62333049749999, lng=41.89413522))
+      .isEqualTo(Coordinates(lat = -89.62333049749999, lng = 41.89413522))
   }
 
   @Test
