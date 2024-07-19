@@ -59,7 +59,4 @@ class LocationOfInterestHelper @Inject internal constructor(private val resource
       is MultiPolygon -> resources.getString(R.string.unnamed_area)
       else -> throw IllegalArgumentException("Unsupported geometry type $this")
     }
-
-  fun getSubtitle(loi: LocationOfInterest): String =
-    resources.getString(R.string.layer_label_format, loi.job.name)
 }

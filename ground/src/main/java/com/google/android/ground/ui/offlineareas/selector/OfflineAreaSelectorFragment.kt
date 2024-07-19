@@ -24,18 +24,14 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.databinding.OfflineAreaSelectorFragBinding
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 /** Map UI used to select areas for download and viewing offline. */
 @AndroidEntryPoint
 class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
-
-  @Inject lateinit var popups: EphemeralPopups
 
   private lateinit var viewModel: OfflineAreaSelectorViewModel
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel

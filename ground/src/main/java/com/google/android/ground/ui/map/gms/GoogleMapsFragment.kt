@@ -52,7 +52,6 @@ import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.ui.map.gms.features.FeatureManager
 import com.google.android.ground.ui.map.gms.mog.MogCollection
 import com.google.android.ground.ui.map.gms.mog.MogTileProvider
-import com.google.android.ground.ui.util.BitmapUtil
 import com.google.android.ground.util.invert
 import com.google.android.ground.util.systemInsets
 import dagger.hilt.android.AndroidEntryPoint
@@ -83,7 +82,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
 
   @Inject lateinit var featureManager: FeatureManager
-  @Inject lateinit var bitmapUtil: BitmapUtil
   @Inject lateinit var remoteStorageManager: RemoteStorageManager
 
   private lateinit var map: GoogleMap
