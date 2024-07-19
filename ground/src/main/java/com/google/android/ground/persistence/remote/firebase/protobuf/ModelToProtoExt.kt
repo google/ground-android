@@ -62,6 +62,7 @@ import com.google.protobuf.timestamp
 import java.util.Date
 import kotlinx.collections.immutable.toImmutableMap
 
+// TODO: Add test coverage
 fun SubmissionMutation.createSubmissionMessage(user: User) = submission {
   assert(userId == user.id) { "UserId doesn't match: expected $userId, found ${user.id}" }
 
@@ -123,7 +124,7 @@ private fun ValueDelta.toMessage() = taskData {
       drawGeometryResult { geometry = (newTaskData as GeometryTaskData).geometry.toMessage() }
     Task.Type.CAPTURE_LOCATION ->
       captureLocationResult {
-        val data = (newTaskData as CaptureLocationTaskData)
+        val data = newTaskData as CaptureLocationTaskData
         data.altitude?.let { altitude = it }
         data.accuracy?.let { accuracy = it }
         coordinates = data.location.coordinates.toMessage()
