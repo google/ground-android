@@ -38,9 +38,12 @@ import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.proto.LinearRing as LinearRingProto
 import com.google.android.ground.proto.LocationOfInterest.Property
 import com.google.android.ground.proto.LocationOfInterest.Source
 import com.google.android.ground.proto.LocationOfInterestKt.property
+import com.google.android.ground.proto.MultiPolygon as MultiPolygonProto
+import com.google.android.ground.proto.Polygon as PolygonProto
 import com.google.android.ground.proto.TaskDataKt.captureLocationResult
 import com.google.android.ground.proto.TaskDataKt.dateTimeResponse
 import com.google.android.ground.proto.TaskDataKt.drawGeometryResult
@@ -56,11 +59,8 @@ import com.google.android.ground.proto.point
 import com.google.android.ground.proto.submission
 import com.google.android.ground.proto.taskData
 import com.google.protobuf.timestamp
-import kotlinx.collections.immutable.toImmutableMap
 import java.util.Date
-import com.google.android.ground.proto.LinearRing as LinearRingProto
-import com.google.android.ground.proto.MultiPolygon as MultiPolygonProto
-import com.google.android.ground.proto.Polygon as PolygonProto
+import kotlinx.collections.immutable.toImmutableMap
 
 // TODO: Add test coverage
 fun SubmissionMutation.createSubmissionMessage(user: User) = submission {
