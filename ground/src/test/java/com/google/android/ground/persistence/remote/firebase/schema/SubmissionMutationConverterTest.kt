@@ -55,7 +55,9 @@ import com.google.android.ground.proto.Submission.TASK_DATA_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.CAPTURE_LOCATION_RESULT_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.CaptureLocationResult.ACCURACY_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.CaptureLocationResult.ALTITUDE_FIELD_NUMBER
+import com.google.android.ground.proto.TaskData.DATE_TIME_RESPONSE_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.DRAW_GEOMETRY_RESULT_FIELD_NUMBER
+import com.google.android.ground.proto.TaskData.DateTimeResponse.DATE_TIME_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.DrawGeometryResult.GEOMETRY_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.MULTIPLE_CHOICE_RESPONSES_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.MultipleChoiceResponses.SELECTED_OPTION_IDS_FIELD_NUMBER
@@ -135,9 +137,9 @@ class SubmissionMutationConverterTest {
       altitude = 112.31,
     )
 
-  private val dateTaskResult = DateTaskData(Date.from(Instant.EPOCH))
+  private val dateTaskResult = DateTaskData(Date.from(Instant.ofEpochMilli(2000)))
 
-  private val timeTaskResult = TimeTaskData(Date.from(Instant.EPOCH))
+  private val timeTaskResult = TimeTaskData(Date.from(Instant.ofEpochMilli(3000)))
 
   private val submissionMutation =
     SubmissionMutation(
@@ -272,8 +274,16 @@ class SubmissionMutationConverterTest {
           ),
         TASK_ID_FIELD_NUMBER.toString() to "capture_location",
       ),
-      //      "date_task" to Date.from(Instant.EPOCH),
-      //      "time_task" to Date.from(Instant.EPOCH),
+      mapOf(
+        DATE_TIME_RESPONSE_FIELD_NUMBER.toString() to
+          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 2000000L)),
+        TASK_ID_FIELD_NUMBER.toString() to "date_task",
+      ),
+      mapOf(
+        DATE_TIME_RESPONSE_FIELD_NUMBER.toString() to
+          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 3000000L)),
+        TASK_ID_FIELD_NUMBER.toString() to "time_task",
+      ),
     )
 
   private val auditInfoObject =
