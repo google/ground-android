@@ -17,6 +17,7 @@
 package com.google.android.ground.ui.surveyselector
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.SurveyCardItemBinding
@@ -42,10 +43,17 @@ class SurveyListAdapter(
 
   /** Binds [SurveyListItem] data to [ViewHolder]. */
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    val item: SurveyListItem = surveys[position]
-    holder.binding.item = item
-    holder.binding.viewModel = viewModel
-    holder.binding.fragment = fragment
+    val surveyListItem = surveys[position]
+    with(holder.binding) {
+      val me = this@SurveyListAdapter
+      item = surveyListItem
+      viewModel = me.viewModel
+      fragment = me.fragment
+
+      val offlineVisibility = if (surveyListItem.availableOffline) View.VISIBLE else View.GONE
+      offlineIcon.visibility = offlineVisibility
+      overflowMenu.visibility = offlineVisibility
+    }
   }
 
   /** Returns the size of the list. */
