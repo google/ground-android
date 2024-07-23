@@ -15,16 +15,32 @@
  */
 package com.google.android.ground.persistence.remote.firebase.schema
 
+import com.google.android.ground.assertIsSuccessWith
+import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.remote.firebase.protobuf.toFirestoreMap
 import com.google.android.ground.persistence.remote.firebase.schema.LoiConverter.toLoi
+import com.google.android.ground.proto.LocationOfInterest as LocationOfInterestProto
+import com.google.android.ground.proto.LocationOfInterest.Source
+import com.google.android.ground.proto.LocationOfInterestKt.property
+import com.google.android.ground.proto.auditInfo
+import com.google.android.ground.proto.coordinates
+import com.google.android.ground.proto.geometry
+import com.google.android.ground.proto.locationOfInterest
+import com.google.android.ground.proto.point
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.protobuf.timestamp
+import com.sharedtest.FakeData.USER
+import com.sharedtest.FakeData.USER_ID
 import com.sharedtest.FakeData.newTask
 import java.util.*
 import kotlinx.collections.immutable.persistentListOf
@@ -41,8 +57,73 @@ class LoiConverterTest {
   private lateinit var survey: Survey
   private lateinit var noVerticesGeometry: MutableMap<String, Any>
 
+  private var testLoiProto = locationOfInterest {
+    id = "loi001"
+    jobId = "job001"
+    geometry = geometry {
+      point = point {
+        coordinates = coordinates {
+          latitude = 1.0
+          longitude = 2.0
+        }
+      }
+    }
+    submissionCount = 1
+    ownerId = USER_ID
+    created = auditInfo {
+      userId = USER.id
+      displayName = USER.displayName
+      photoUrl = USER.photoUrl.orEmpty()
+      clientTimestamp = timestamp { seconds = 987654321 }
+      serverTimestamp = timestamp { seconds = 9876543210 }
+    }
+    lastModified = auditInfo {
+      userId = USER.id
+      displayName = USER.displayName
+      photoUrl = USER.photoUrl.orEmpty()
+      clientTimestamp = timestamp { seconds = 987654321 }
+      serverTimestamp = timestamp { seconds = 9876543210 }
+    }
+    customTag = "a custom loi"
+    source = Source.IMPORTED
+    properties.put("property1", property { stringValue = "value1" })
+    properties.put("property2", property { numericValue = 123.0 })
+  }
+
   @Test
-  fun testToLoi_whenNullLocation_returnsFailure() {
+  fun `parses LocationOfInterest proto from DocumentSnapshot`() {
+    setUpTestSurvey(
+      "job001",
+      newTask("task1"),
+      newTask(
+        "task2",
+        Task.Type.MULTIPLE_CHOICE,
+        MultipleChoice(persistentListOf(), MultipleChoice.Cardinality.SELECT_ONE),
+      ),
+      newTask("task3", Task.Type.MULTIPLE_CHOICE),
+      newTask("task4", Task.Type.PHOTO),
+    )
+    mockLoiProtoDocumentSnapshot("loi001", testLoiProto)
+    assertIsSuccessWith(
+      LocationOfInterest(
+        id = "loi001",
+        surveyId = "",
+        job = survey.getJob("job001")!!,
+        customId = "a custom loi",
+        created = AuditInfo(user = USER, Date(987654321L * 1000), Date(9876543210L * 1000)),
+        lastModified = AuditInfo(user = USER, Date(987654321L * 1000), Date(9876543210L * 1000)),
+        geometry = Point(coordinates = Coordinates(1.0, 2.0)),
+        submissionCount = 1,
+        ownerEmail = null,
+        properties = mapOf("property1" to "value1", "property2" to 123.0),
+        isPredefined = true,
+      ),
+      toLocationOfInterest(),
+    )
+  }
+
+  @Test
+  fun `fails when converting null location of interest`() {
     setUpTestGeometry()
     setUpTestSurvey(
       "job001",
@@ -71,7 +152,7 @@ class LoiConverterTest {
   }
 
   @Test
-  fun testToLoi_whenZeroVertices_returnsFailure() {
+  fun `fails when converting location of interest with zero indices`() {
     setUpTestGeometry()
     setUpTestSurvey(
       "job001",
@@ -114,6 +195,13 @@ class LoiConverterTest {
   private fun mockLoiDocumentSnapshot(id: String, doc: LoiDocument) {
     whenever(loiDocumentSnapshot.id).thenReturn(id)
     whenever(loiDocumentSnapshot.toObject(LoiDocument::class.java)).thenReturn(doc)
+    whenever(loiDocumentSnapshot.exists()).thenReturn(true)
+  }
+
+  /** Mock submission document snapshot to return the specified id and proto representation. */
+  private fun mockLoiProtoDocumentSnapshot(id: String, loiProto: LocationOfInterestProto) {
+    whenever(loiDocumentSnapshot.id).thenReturn(id)
+    whenever(loiDocumentSnapshot.data).thenReturn(loiProto.toFirestoreMap())
     whenever(loiDocumentSnapshot.exists()).thenReturn(true)
   }
 

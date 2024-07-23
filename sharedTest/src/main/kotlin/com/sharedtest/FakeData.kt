@@ -67,7 +67,7 @@ object FakeData {
       strategy = Job.DataCollectionStrategy.PREDEFINED.toString(),
     )
 
-  val USER = User("user_id", "user@gmail.com", "User")
+  val USER = User("user_id", "", "User")
 
   val SURVEY: Survey =
     Survey(

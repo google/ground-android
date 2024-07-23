@@ -112,16 +112,24 @@ private fun FirestoreValue.toMessageValue(
   }
 }
 
-@Suppress("UNCHECKED_CAST")
+@Suppress("UNCHECKED_CAST", "CognitiveComplexMethod")
 private fun FirestoreValue.toMessageValue(targetType: KClass<*>): MessageValue =
   if (targetType == String::class) {
     this as String
   } else if (targetType == Int::class) {
-    var number = this
-    if (number is Long) {
-      number = number.toInt()
+    if (this is Long) {
+      this.toInt()
+    } else {
+      this
     }
-    number
+  } else if (targetType == Long::class) {
+    if (this is Long) {
+      this.toLong()
+    } else {
+      this
+    }
+  } else if (targetType == Double::class) {
+    this
   } else if (targetType == Boolean::class) {
     this as Boolean
   } else if (targetType.isSubclassOf(GeneratedMessageLite::class)) {
