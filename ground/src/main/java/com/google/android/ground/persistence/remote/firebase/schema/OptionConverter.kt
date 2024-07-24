@@ -24,7 +24,4 @@ internal object OptionConverter {
 
   fun toOption(option: Task.MultipleChoiceQuestion.Option): Option =
     Option(option.id, option.id, option.label)
-
-  fun toOption(id: String, option: OptionNestedObject): Option =
-    Option(id, option.code.orEmpty(), option.label.orEmpty())
 }

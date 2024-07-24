@@ -18,7 +18,6 @@ package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.task.Condition
-import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firebase.schema.ConditionConverter.toCondition
 import com.google.android.ground.persistence.remote.firebase.schema.MultipleChoiceConverter.toMultipleChoice
@@ -82,27 +81,6 @@ internal object TaskConverter {
         condition = condition,
       )
     }
-
-  fun toTask(id: String, em: TaskNestedObject): Task? {
-    val type = toTaskType(em.type)
-    if (type == Task.Type.UNKNOWN) {
-      Timber.e("Unsupported task type: ${em.type}")
-      return null
-    }
-    // Default index to -1 to degrade gracefully on older dev db instances and surveys.
-    val multipleChoice: MultipleChoice? =
-      if (type == Task.Type.MULTIPLE_CHOICE) toMultipleChoice(em) else null
-    return Task(
-      id,
-      em.index ?: -1,
-      type,
-      em.label!!,
-      em.required != null && em.required,
-      multipleChoice,
-      em.addLoiTask ?: false,
-      em.condition?.toCondition(),
-    )
-  }
 
   // Note: Key value must be in sync with web app.
   private fun toTaskType(typeStr: String?): Task.Type =

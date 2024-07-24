@@ -77,7 +77,6 @@ data class LocationOfInterest(
       clientTimestamp = lastModified.clientTimestamp,
       geometry = geometry,
       submissionCount = submissionCount,
-      ownerEmail = ownerEmail,
       properties = properties,
       isPredefined = isPredefined,
     )

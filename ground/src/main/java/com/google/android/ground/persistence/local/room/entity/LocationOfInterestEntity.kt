@@ -38,7 +38,6 @@ data class LocationOfInterestEntity(
   val geometry: GeometryWrapper?,
   val customId: String,
   val submissionCount: Int,
-  val ownerEmail: String?,
   val properties: LoiProperties,
   val isPredefined: Boolean?,
 )

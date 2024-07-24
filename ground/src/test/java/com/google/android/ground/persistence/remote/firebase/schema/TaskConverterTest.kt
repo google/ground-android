@@ -37,37 +37,11 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class TaskConverterTest(
   private val testLabel: String,
-  private val taskTypeNestedObjectLabel: String,
   private val protoBuilderLambda: (Task.Builder) -> Task.Builder,
   private val taskType: Type,
   private val multipleChoice: MultipleChoice?,
   private val isLoiTask: Boolean,
 ) {
-
-  @Test
-  fun `Converts to Task from TaskNestedObject`() {
-    val taskNestedObject =
-      TaskNestedObject(
-        index = 1,
-        type = taskTypeNestedObjectLabel,
-        label = "task label",
-        required = true,
-        cardinality = multipleChoice?.cardinality.toString(),
-        addLoiTask = isLoiTask,
-      )
-    assertThat(TaskConverter.toTask(TASK_ID, taskNestedObject))
-      .isEqualTo(
-        TaskModel(
-          id = TASK_ID,
-          index = 1,
-          type = taskType,
-          label = "task label",
-          isRequired = true,
-          multipleChoice = multipleChoice,
-          isAddLoiTask = isLoiTask,
-        )
-      )
-  }
 
   @Test
   fun `Converts to Task from Task proto`() {
@@ -97,7 +71,6 @@ class TaskConverterTest(
       listOf(
         testCase(
           testLabel = "text",
-          taskTypeNestedObjectLabel = "text_field",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder.setTextQuestion(textQuestion { type = Task.TextQuestion.Type.SHORT_TEXT })
           },
@@ -105,7 +78,6 @@ class TaskConverterTest(
         ),
         testCase(
           testLabel = "number",
-          taskTypeNestedObjectLabel = "number",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder.setNumberQuestion(numberQuestion { type = Task.NumberQuestion.Type.FLOAT })
           },
@@ -113,7 +85,6 @@ class TaskConverterTest(
         ),
         testCase(
           testLabel = "date",
-          taskTypeNestedObjectLabel = "date",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder.setDateTimeQuestion(
               dateTimeQuestion { type = Task.DateTimeQuestion.Type.DATE_ONLY }
@@ -123,7 +94,6 @@ class TaskConverterTest(
         ),
         testCase(
           testLabel = "time",
-          taskTypeNestedObjectLabel = "date_time",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder.setDateTimeQuestion(
               dateTimeQuestion { type = Task.DateTimeQuestion.Type.TIME_ONLY }
@@ -134,7 +104,6 @@ class TaskConverterTest(
         // Defaults to date when set to BOTH_DATE_AND_TIME
         testCase(
           testLabel = "both_date_and_time",
-          taskTypeNestedObjectLabel = "date",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder.setDateTimeQuestion(
               dateTimeQuestion { type = Task.DateTimeQuestion.Type.BOTH_DATE_AND_TIME }
@@ -144,7 +113,6 @@ class TaskConverterTest(
         ),
         testCase(
           testLabel = "multiple_choice",
-          taskTypeNestedObjectLabel = "multiple_choice",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder.setMultipleChoiceQuestion(
               multipleChoiceQuestion { type = Task.MultipleChoiceQuestion.Type.SELECT_ONE }
@@ -160,7 +128,6 @@ class TaskConverterTest(
         ),
         testCase(
           testLabel = "draw_area",
-          taskTypeNestedObjectLabel = "draw_area",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder
               .setDrawGeometry(drawGeometry { allowedMethods.addAll(listOf(Method.DRAW_AREA)) })
@@ -171,7 +138,6 @@ class TaskConverterTest(
         ),
         testCase(
           testLabel = "drop_pin",
-          taskTypeNestedObjectLabel = "drop_pin",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder
               .setDrawGeometry(drawGeometry { allowedMethods.addAll(listOf(Method.DROP_PIN)) })
@@ -182,7 +148,6 @@ class TaskConverterTest(
         ),
         testCase(
           testLabel = "capture_location",
-          taskTypeNestedObjectLabel = "capture_location",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder
               .setCaptureLocation(captureLocation { minAccuracyMeters = 10f })
@@ -193,7 +158,6 @@ class TaskConverterTest(
         ),
         testCase(
           testLabel = "photo",
-          taskTypeNestedObjectLabel = "photo",
           protoBuilderLambda = { taskBuilder: Task.Builder ->
             taskBuilder.setTakePhoto(
               takePhoto {
@@ -208,19 +172,10 @@ class TaskConverterTest(
     /** Help to improve readability by provided named args for positional test constructor args. */
     private fun testCase(
       testLabel: String,
-      taskTypeNestedObjectLabel: String,
       protoBuilderLambda: (Task.Builder) -> Task.Builder,
       taskType: Type,
       multipleChoice: MultipleChoice? = null,
       isLoiTask: Boolean = false,
-    ) =
-      arrayOf(
-        testLabel,
-        taskTypeNestedObjectLabel,
-        protoBuilderLambda,
-        taskType,
-        multipleChoice,
-        isLoiTask,
-      )
+    ) = arrayOf(testLabel, protoBuilderLambda, taskType, multipleChoice, isLoiTask)
   }
 }
