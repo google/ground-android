@@ -92,7 +92,7 @@ class LoiConverterTest {
   @Test
   fun `parses LocationOfInterest proto from DocumentSnapshot`() {
     setUpTestSurvey(
-      "job001",
+      JOB_ID,
       newTask("task1"),
       newTask(
         "task2",
@@ -102,12 +102,12 @@ class LoiConverterTest {
       newTask("task3", Task.Type.MULTIPLE_CHOICE),
       newTask("task4", Task.Type.PHOTO),
     )
-    mockLoiProtoDocumentSnapshot("loi001", testLoiProto)
+    mockLoiProtoDocumentSnapshot(LOI_ID, testLoiProto)
     assertIsSuccessWith(
       LocationOfInterest(
-        id = "loi001",
+        id = LOI_ID,
         surveyId = "",
-        job = survey.getJob("job001")!!,
+        job = survey.getJob(JOB_ID)!!,
         customId = "a custom loi",
         created = AuditInfo(user = USER, Date(987654321L * 1000), Date(9876543210L * 1000)),
         lastModified = AuditInfo(user = USER, Date(987654321L * 1000), Date(9876543210L * 1000)),
@@ -125,7 +125,7 @@ class LoiConverterTest {
   fun `fails when converting null location of interest`() {
     setUpTestGeometry()
     setUpTestSurvey(
-      "job001",
+      JOB_ID,
       newTask("task1"),
       newTask(
         "task2",
@@ -142,7 +142,7 @@ class LoiConverterTest {
   fun `fails when converting location of interest with zero indices`() {
     setUpTestGeometry()
     setUpTestSurvey(
-      "job001",
+      JOB_ID,
       newTask("task1"),
       newTask(
         "task2",
@@ -177,8 +177,8 @@ class LoiConverterTest {
     toLoi(survey, loiDocumentSnapshot)
 
   companion object {
-    private val JOB_ID = "job001"
-    private val LOI_ID = "loi001"
+    private const val JOB_ID = "job001"
+    private const val LOI_ID = "loi001"
     private val TEST_STYLE = Style("#112233")
   }
 }
