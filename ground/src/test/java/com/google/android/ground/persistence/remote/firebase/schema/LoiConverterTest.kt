@@ -136,18 +136,6 @@ class LoiConverterTest {
       newTask("task3", Task.Type.MULTIPLE_CHOICE),
       newTask("task4", Task.Type.PHOTO),
     )
-    mockLoiDocumentSnapshot(
-      "loi001",
-      LoiDocument(
-        /* jobId */ "job001",
-        /* customId */ null,
-        /* location */ null,
-        /* geoJson */ null,
-        /* geometry */ null,
-        /* created */ AUDIT_INFO_1_NESTED_OBJECT,
-        /* lastModified */ AUDIT_INFO_2_NESTED_OBJECT,
-      ),
-    )
     assertThat(toLocationOfInterest().isFailure).isTrue()
   }
 
@@ -165,18 +153,6 @@ class LoiConverterTest {
       newTask("task3", Task.Type.MULTIPLE_CHOICE),
       newTask("task4", Task.Type.PHOTO),
     )
-    mockLoiDocumentSnapshot(
-      "loi001",
-      LoiDocument(
-        "job001",
-        null,
-        null,
-        null,
-        noVerticesGeometry,
-        AUDIT_INFO_1_NESTED_OBJECT,
-        AUDIT_INFO_2_NESTED_OBJECT,
-      ),
-    )
     assertThat(toLocationOfInterest().isFailure).isTrue()
   }
 
@@ -191,13 +167,6 @@ class LoiConverterTest {
     noVerticesGeometry[LoiConverter.GEOMETRY_TYPE] = LoiConverter.POLYGON_TYPE
   }
 
-  /** Mock submission document snapshot to return the specified id and object representation. */
-  private fun mockLoiDocumentSnapshot(id: String, doc: LoiDocument) {
-    whenever(loiDocumentSnapshot.id).thenReturn(id)
-    whenever(loiDocumentSnapshot.toObject(LoiDocument::class.java)).thenReturn(doc)
-    whenever(loiDocumentSnapshot.exists()).thenReturn(true)
-  }
-
   /** Mock submission document snapshot to return the specified id and proto representation. */
   private fun mockLoiProtoDocumentSnapshot(id: String, loiProto: LocationOfInterestProto) {
     whenever(loiDocumentSnapshot.id).thenReturn(id)
@@ -210,17 +179,4 @@ class LoiConverterTest {
 
   companion object {
     private val TEST_STYLE = Style("#112233")
-    private val AUDIT_INFO_1_NESTED_OBJECT =
-      AuditInfoNestedObject(
-        UserNestedObject("user1", null, null),
-        Timestamp(Date(100)),
-        Timestamp(Date(101)),
-      )
-    private val AUDIT_INFO_2_NESTED_OBJECT =
-      AuditInfoNestedObject(
-        UserNestedObject("user2", null, null),
-        Timestamp(Date(200)),
-        Timestamp(Date(201)),
-      )
-  }
 }
