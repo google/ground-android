@@ -31,6 +31,8 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.remote.firebase.schema.JobNestedObject
+import com.google.android.ground.persistence.remote.firebase.schema.StyleNestedObject
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.gms.features.FeatureClusterItem
@@ -54,7 +56,15 @@ object FakeData {
       name = "Job",
       id = "JOB",
       style = Style("#000"),
-      strategy = Job.DataCollectionStrategy.MIXED,
+      strategy = Job.DataCollectionStrategy.PREDEFINED,
+    )
+
+  val JOB_NESTED_OBJECT =
+    JobNestedObject(
+      defaultStyle = StyleNestedObject(color = JOB.style?.color.orEmpty()),
+      name = JOB.name,
+      tasks = null,
+      strategy = Job.DataCollectionStrategy.PREDEFINED.toString(),
     )
 
   val USER = User("user_id", "user@gmail.com", "User")
@@ -65,8 +75,7 @@ object FakeData {
       "Survey title",
       "Test survey description",
       mapOf(JOB.id to JOB),
-      listOf(),
-      mapOf(USER.email to "data-collector"),
+      mapOf(USER.email to "DATA_COLLECTOR"),
     )
 
   const val LOCATION_OF_INTEREST_NAME = "Test LOI Name"

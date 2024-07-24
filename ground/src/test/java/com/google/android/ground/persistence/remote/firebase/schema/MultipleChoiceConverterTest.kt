@@ -18,12 +18,47 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.persistence.remote.firebase.schema.MultipleChoiceConverter.toMultipleChoice
+import com.google.android.ground.proto.Task
+import com.google.android.ground.proto.TaskKt.MultipleChoiceQuestionKt.option
+import com.google.android.ground.proto.TaskKt.multipleChoiceQuestion
 import com.google.common.truth.Truth.assertThat
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Assert.assertThrows
 import org.junit.Test
 
 class MultipleChoiceConverterTest {
+
+  @Test
+  fun `toMultipleChoice() converts from proto`() {
+    val multipleChoiceProto = multipleChoiceQuestion {
+      type = Task.MultipleChoiceQuestion.Type.SELECT_ONE
+      hasOtherOption = true
+      options.addAll(
+        listOf(
+          option {
+            id = "id_1"
+            label = "option 1"
+          },
+          option {
+            id = "id_2"
+            label = "option 2"
+          },
+        )
+      )
+    }
+    assertThat(toMultipleChoice(multipleChoiceProto))
+      .isEqualTo(
+        MultipleChoice(
+          options =
+            persistentListOf(
+              Option(id = "id_1", code = "id_1", label = "option 1"),
+              Option(id = "id_2", code = "id_2", label = "option 2"),
+            ),
+          cardinality = MultipleChoice.Cardinality.SELECT_ONE,
+          hasOtherOption = true,
+        )
+      )
+  }
 
   @Test
   fun `toMultipleChoice() converts options when present`() {

@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.model
 
-import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
 
 /** Configuration, schema, and ACLs for a single survey. */
@@ -24,8 +23,6 @@ data class Survey(
   val title: String,
   val description: String,
   val jobMap: Map<String, Job>,
-  // TODO(#1730): Remove tileSources from survey.
-  val tileSources: List<TileSource> = listOf(),
   val acl: Map<String, String> = mapOf(),
 ) {
   val jobs: Collection<Job>

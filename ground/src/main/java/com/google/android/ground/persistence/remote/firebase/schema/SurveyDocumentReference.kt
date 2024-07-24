@@ -19,10 +19,12 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.Survey
 import com.google.android.ground.persistence.remote.firebase.base.FluentDocumentReference
 import com.google.firebase.firestore.DocumentReference
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.tasks.await
 
 private const val LOIS = "lois"
 private const val SUBMISSIONS = "submissions"
+private const val JOBS = "jobs"
 
 class SurveyDocumentReference internal constructor(ref: DocumentReference) :
   FluentDocumentReference(ref) {
@@ -31,8 +33,11 @@ class SurveyDocumentReference internal constructor(ref: DocumentReference) :
 
   fun submissions() = SubmissionCollectionReference(reference().collection(SUBMISSIONS))
 
+  private fun jobs() = JobCollectionReference(reference().collection(JOBS))
+
   suspend fun get(): Survey {
     val document = reference().get().await()
-    return SurveyConverter.toSurvey(document)
+    val jobs = jobs().get().firstOrNull() ?: listOf()
+    return SurveyConverter.toSurvey(document, jobs)
   }
 }
