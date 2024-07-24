@@ -31,8 +31,6 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.persistence.remote.firebase.schema.JobNestedObject
-import com.google.android.ground.persistence.remote.firebase.schema.StyleNestedObject
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.gms.features.FeatureClusterItem
@@ -59,15 +57,7 @@ object FakeData {
       strategy = Job.DataCollectionStrategy.PREDEFINED,
     )
 
-  val JOB_NESTED_OBJECT =
-    JobNestedObject(
-      defaultStyle = StyleNestedObject(color = JOB.style?.color.orEmpty()),
-      name = JOB.name,
-      tasks = null,
-      strategy = Job.DataCollectionStrategy.PREDEFINED.toString(),
-    )
-
-  val USER = User("user_id", "user@gmail.com", "User")
+  val USER = User("user_id", "", "User")
 
   val SURVEY: Survey =
     Survey(

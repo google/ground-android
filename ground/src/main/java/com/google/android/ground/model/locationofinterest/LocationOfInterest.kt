@@ -52,6 +52,7 @@ data class LocationOfInterest(
    * The email of the owner of this LOI, set to the current user's email when an LOI is created by
    * the user.
    */
+  // TODO(#2573): Remove (email is deprecated for PII reasons).
   val ownerEmail: String? = null,
   /** Custom map of properties for this LOI. Corresponds to the properties field in GeoJSON */
   val properties: LoiProperties = mapOf(),

@@ -16,16 +16,18 @@
 package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.android.ground.persistence.remote.firebase.protobuf.parseFrom
+import com.google.android.ground.persistence.remote.firebase.schema.GeometryConverter.toGeometry
+import com.google.android.ground.proto.LocationOfInterest as LocationOfInterestProto
+import com.google.android.ground.proto.LocationOfInterest.Source
 import com.google.firebase.firestore.DocumentSnapshot
 
 // TODO: Add tests.
 /** Converts between Firestore documents and [LocationOfInterest] instances. */
 object LoiConverter {
   // TODO(#2392): Define field names on DocumentReference objects, not converters.
-  private const val JOB_ID = "jobId"
   const val GEOMETRY_TYPE = "type"
   const val POLYGON_TYPE = "Polygon"
 
@@ -33,41 +35,48 @@ object LoiConverter {
     toLoiUnchecked(survey, doc)
   }
 
+  @Suppress("CognitiveComplexMethod", "LongMethod")
   private fun toLoiUnchecked(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
     if (!doc.exists()) throw DataStoreException("LOI missing")
     val loiId = doc.id
-    val loiDoc =
-      DataStoreException.checkNotNull(doc.toObject(LoiDocument::class.java), "loi document")
-    val geometryMap = DataStoreException.checkNotNull(loiDoc.geometry, "geometry")
-    val geometry = GeometryConverter.fromFirestoreMap(geometryMap).getOrThrow()
-
-    return createLocationOfInterest(survey, loiId, loiDoc, geometry)
-  }
-
-  private fun createLocationOfInterest(
-    survey: Survey,
-    loiId: String,
-    loiDoc: LoiDocument,
-    geometry: Geometry,
-  ): LocationOfInterest {
-    val jobId = DataStoreException.checkNotNull(loiDoc.jobId, JOB_ID)
-    val job = DataStoreException.checkNotNull(survey.getJob(jobId), "job ${loiDoc.jobId}")
+    val loiProto = LocationOfInterestProto::class.parseFrom(doc, 1)
+    val geometry = loiProto.geometry.toGeometry().getOrThrow()
+    val jobId = loiProto.jobId
+    val job = DataStoreException.checkNotNull(survey.getJob(jobId), "job $jobId")
     // Degrade gracefully when audit info missing in remote db.
-    val created = loiDoc.created ?: AuditInfoNestedObject.FALLBACK_VALUE
-    val lastModified = loiDoc.lastModified ?: created
-    val submissionCount = loiDoc.submissionCount ?: 0
+    val created = AuditInfoConverter.toAuditInfo(loiProto.created)
+    val lastModified =
+      if (loiProto.lastModified != null) {
+        AuditInfoConverter.toAuditInfo(loiProto.lastModified)
+      } else {
+        created
+      }
+    val submissionCount = loiProto.submissionCount
+
+    val properties =
+      loiProto.propertiesMap.entries.associate {
+        val propertyValue =
+          if (it.value.hasNumericValue()) {
+            it.value.numericValue
+          } else {
+            it.value.stringValue
+          }
+        it.key to propertyValue
+      }
+    val isPredefined = loiProto.source == Source.IMPORTED
     return LocationOfInterest(
       id = loiId,
       surveyId = survey.id,
-      customId = loiDoc.customId ?: "",
+      customId = loiProto.customTag,
       job = job,
-      created = AuditInfoConverter.toAuditInfo(created),
-      lastModified = AuditInfoConverter.toAuditInfo(lastModified),
+      created = created,
+      lastModified = lastModified,
       // TODO(#929): Set geometry once LOI has been updated to use our own model.
       geometry = geometry,
       submissionCount = submissionCount,
-      properties = loiDoc.properties ?: mapOf(),
-      isPredefined = loiDoc.predefined,
+      ownerEmail = created.user.displayName,
+      properties = properties,
+      isPredefined = isPredefined,
     )
   }
 }
