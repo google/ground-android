@@ -36,7 +36,6 @@ import com.google.android.ground.proto.geometry
 import com.google.android.ground.proto.locationOfInterest
 import com.google.android.ground.proto.point
 import com.google.common.truth.Truth.assertThat
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.timestamp
 import com.sharedtest.FakeData.USER
@@ -179,4 +178,5 @@ class LoiConverterTest {
 
   companion object {
     private val TEST_STYLE = Style("#112233")
+  }
 }
