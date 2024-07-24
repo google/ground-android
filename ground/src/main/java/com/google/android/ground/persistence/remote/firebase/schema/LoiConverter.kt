@@ -28,7 +28,6 @@ import com.google.firebase.firestore.DocumentSnapshot
 /** Converts between Firestore documents and [LocationOfInterest] instances. */
 object LoiConverter {
   // TODO(#2392): Define field names on DocumentReference objects, not converters.
-  private const val JOB_ID = "jobId"
   const val GEOMETRY_TYPE = "type"
   const val POLYGON_TYPE = "Polygon"
 
@@ -41,59 +40,34 @@ object LoiConverter {
     if (!doc.exists()) throw DataStoreException("LOI missing")
     val loiId = doc.id
     val loiProto = LocationOfInterestProto::class.parseFrom(doc, 1)
-    // TODO(#2468): Remove this.
-    val loiDoc = doc.toObject(LoiDocument::class.java)
-    val geometry =
-      if (loiProto.geometry != null) {
-        loiProto.geometry.toGeometry().getOrThrow()
-      } else {
-        val geometryMap = DataStoreException.checkNotNull(loiDoc?.geometry, "geometry")
-        GeometryConverter.fromFirestoreMap(geometryMap).getOrThrow()
-      }
-    val jobId = loiProto.jobId.ifEmpty { DataStoreException.checkNotNull(loiDoc?.jobId, JOB_ID) }
+    val geometry = loiProto.geometry.toGeometry().getOrThrow()
+    val jobId = loiProto.jobId
     val job = DataStoreException.checkNotNull(survey.getJob(jobId), "job $jobId")
     // Degrade gracefully when audit info missing in remote db.
-    val created =
-      if (loiProto.created != null) {
-        AuditInfoConverter.toAuditInfo(loiProto.created)
-      } else {
-        AuditInfoConverter.toAuditInfo(loiDoc?.created ?: AuditInfoNestedObject.FALLBACK_VALUE)
-      }
+    val created = AuditInfoConverter.toAuditInfo(loiProto.created)
     val lastModified =
       if (loiProto.lastModified != null) {
         AuditInfoConverter.toAuditInfo(loiProto.lastModified)
-      } else if (loiDoc?.lastModified != null) {
-        AuditInfoConverter.toAuditInfo(loiDoc.lastModified)
       } else {
         created
       }
-    val submissionCount =
-      if (loiProto.submissionCount > 0) loiProto.submissionCount else loiDoc?.submissionCount ?: 0
+    val submissionCount = loiProto.submissionCount
 
     val properties =
-      if (loiProto.propertiesMap.isNotEmpty()) {
-        loiProto.propertiesMap.entries.associate {
-          val propertyValue =
-            if (it.value.hasNumericValue()) {
-              it.value.numericValue
-            } else {
-              it.value.stringValue
-            }
-          it.key to propertyValue
-        }
-      } else {
-        loiDoc?.properties ?: mapOf()
+      loiProto.propertiesMap.entries.associate {
+        val propertyValue =
+          if (it.value.hasNumericValue()) {
+            it.value.numericValue
+          } else {
+            it.value.stringValue
+          }
+        it.key to propertyValue
       }
-    val isPredefined =
-      if (loiProto.source != Source.UNRECOGNIZED) {
-        loiProto.source == Source.IMPORTED
-      } else {
-        loiDoc?.predefined
-      }
+    val isPredefined = loiProto.source == Source.IMPORTED
     return LocationOfInterest(
       id = loiId,
       surveyId = survey.id,
-      customId = loiProto.customTag.ifEmpty { loiDoc?.customId ?: "" },
+      customId = loiProto.customTag,
       job = job,
       created = created,
       lastModified = lastModified,
