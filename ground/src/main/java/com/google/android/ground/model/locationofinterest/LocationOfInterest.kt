@@ -48,12 +48,6 @@ data class LocationOfInterest(
   val geometry: Geometry,
   /** The number of submissions that have been made for this LOI. */
   val submissionCount: Int = 0,
-  /**
-   * The email of the owner of this LOI, set to the current user's email when an LOI is created by
-   * the user.
-   */
-  // TODO(#2573): Remove (email is deprecated for PII reasons).
-  val ownerEmail: String? = null,
   /** Custom map of properties for this LOI. Corresponds to the properties field in GeoJSON */
   val properties: LoiProperties = mapOf(),
   /** Whether the LOI was predefined in the survey or not (i.e. added ad hoc). */
@@ -77,7 +71,6 @@ data class LocationOfInterest(
       clientTimestamp = lastModified.clientTimestamp,
       geometry = geometry,
       submissionCount = submissionCount,
-      ownerEmail = ownerEmail,
       properties = properties,
       isPredefined = isPredefined,
     )

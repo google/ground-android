@@ -149,7 +149,6 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     geometry = geometry.toLocalDataStoreObject(),
     customId = customId,
     submissionCount = submissionCount,
-    ownerEmail = ownerEmail,
     properties = properties,
     isPredefined = isPredefined,
   )
@@ -197,7 +196,6 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(user: User): LocationOfInt
     geometry = geometry?.toLocalDataStoreObject(),
     customId = customId,
     submissionCount = submissionCount,
-    ownerEmail = ownerEmail,
     properties = properties,
     isPredefined = isPredefined,
   )

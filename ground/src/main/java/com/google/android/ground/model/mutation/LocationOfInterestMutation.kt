@@ -33,7 +33,6 @@ data class LocationOfInterestMutation(
   val customId: String = "",
   val geometry: Geometry? = null,
   val submissionCount: Int = 0,
-  val ownerEmail: String? = null,
   val properties: LoiProperties = mapOf(),
   val isPredefined: Boolean? = null,
 ) : Mutation()

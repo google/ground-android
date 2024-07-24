@@ -113,7 +113,6 @@ class LoiConverterTest {
         lastModified = AuditInfo(user = USER, Date(987654321L * 1000), Date(9876543210L * 1000)),
         geometry = Point(coordinates = Coordinates(1.0, 2.0)),
         submissionCount = 1,
-        ownerEmail = USER.displayName,
         properties = mapOf("property1" to "value1", "property2" to 123.0),
         isPredefined = true,
       ),
