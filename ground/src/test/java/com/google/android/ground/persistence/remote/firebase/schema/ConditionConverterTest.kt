@@ -18,7 +18,6 @@ package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.Expression
-import com.google.android.ground.persistence.remote.firebase.schema.ConditionConverter.toCondition
 import com.google.android.ground.proto.TaskKt.condition
 import com.google.android.ground.proto.TaskKt.multipleChoiceSelection
 import com.google.common.truth.Truth.assertThat
@@ -27,11 +26,6 @@ import kotlin.test.assertNull
 import org.junit.Test
 
 const val TASK_ID = "task-id-123"
-const val TEST_MATCH_TYPE = "MATCH_ANY"
-const val TEST_OPTION_ID_A = "option-id-a-123"
-const val TEST_OPTION_ID_B = "option-id-b-123"
-const val TEST_OPTION_ID_C = "option-id-c-123"
-val TEST_OPTION_IDS = listOf(TEST_OPTION_ID_A, TEST_OPTION_ID_B, TEST_OPTION_ID_C)
 
 class ConditionConverterTest {
 

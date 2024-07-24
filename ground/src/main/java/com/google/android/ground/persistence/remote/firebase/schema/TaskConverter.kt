@@ -16,7 +16,6 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.firebase.schema.ConditionConverter.toCondition
@@ -25,7 +24,6 @@ import com.google.android.ground.proto.Task as TaskProto
 import com.google.android.ground.proto.Task.DataCollectionLevel
 import com.google.android.ground.proto.Task.DrawGeometry.Method
 import com.google.android.ground.proto.Task.TaskTypeCase
-import timber.log.Timber
 
 /** Converts between Firestore nested objects and [Task] instances. */
 internal object TaskConverter {
@@ -80,28 +78,5 @@ internal object TaskConverter {
         task.level == DataCollectionLevel.LOI_METADATA,
         condition = condition,
       )
-    }
-
-  // Note: Key value must be in sync with web app.
-  private fun toTaskType(typeStr: String?): Task.Type =
-    when (typeStr) {
-      "text_field" -> Task.Type.TEXT
-      "multiple_choice" -> Task.Type.MULTIPLE_CHOICE
-      "photo" -> Task.Type.PHOTO
-      "drop_pin" -> Task.Type.DROP_PIN
-      "draw_area" -> Task.Type.DRAW_AREA
-      "number" -> Task.Type.NUMBER
-      "date" -> Task.Type.DATE
-      "date_time" -> Task.Type.TIME
-      "capture_location" -> Task.Type.CAPTURE_LOCATION
-      else -> Task.Type.UNKNOWN
-    }
-
-  fun toStrategy(strategyStr: String): Job.DataCollectionStrategy =
-    try {
-      Job.DataCollectionStrategy.valueOf(strategyStr)
-    } catch (e: IllegalArgumentException) {
-      Timber.e("unknown data collection strategy", e)
-      Job.DataCollectionStrategy.UNKNOWN
     }
 }
