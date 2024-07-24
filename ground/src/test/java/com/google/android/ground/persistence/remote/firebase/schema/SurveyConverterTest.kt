@@ -30,21 +30,6 @@ import org.mockito.kotlin.whenever
 class SurveyConverterTest {
 
   @Test
-  fun `Converts to Survey from SurveyDocument`() {
-    with(FakeData) {
-      val doc =
-        SurveyDocument(
-          title = SURVEY.title,
-          description = SURVEY.description,
-          jobs = mapOf(JOB.id to JOB_NESTED_OBJECT),
-          acl = SURVEY.acl,
-        )
-      val snapshot = createSurveyDocumentSnapshot(doc)
-      assertThat(SurveyConverter.toSurvey(snapshot)).isEqualTo(SURVEY)
-    }
-  }
-
-  @Test
   fun `Converts to Survey from Survey proto`() {
     with(FakeData) {
       val surveyProto = survey {
@@ -55,14 +40,6 @@ class SurveyConverterTest {
       val snapshot = createSurveyProtoDocumentSnapshot(surveyProto)
       assertThat(SurveyConverter.toSurvey(snapshot, listOf(JOB))).isEqualTo(SURVEY)
     }
-  }
-
-  private fun createSurveyDocumentSnapshot(surveyDocument: SurveyDocument): DocumentSnapshot {
-    val snapshot = mock(DocumentSnapshot::class.java)
-    whenever(snapshot.id).thenReturn(FakeData.SURVEY.id)
-    whenever(snapshot.toObject(SurveyDocument::class.java)).thenReturn(surveyDocument)
-    whenever(snapshot.exists()).thenReturn(true)
-    return snapshot
   }
 
   private fun createSurveyProtoDocumentSnapshot(surveyProto: Survey): DocumentSnapshot {

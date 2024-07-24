@@ -20,7 +20,6 @@ import com.google.android.ground.model.Survey as SurveyModel
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.protobuf.parseFrom
-import com.google.android.ground.persistence.remote.firebase.schema.JobConverter.toJob
 import com.google.android.ground.proto.Survey as SurveyProto
 import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.collections.immutable.toPersistentMap
@@ -33,24 +32,13 @@ internal object SurveyConverter {
     if (!doc.exists()) throw DataStoreException("Missing survey")
 
     val surveyFromProto = SurveyProto::class.parseFrom(doc, 1)
-    val surveyFromDocument = doc.toObject(SurveyDocument::class.java)
-
-    val jobMap =
-      if (surveyFromDocument?.jobs == null) {
-        jobs.associateBy { it.id }
-      } else {
-        surveyFromDocument.jobs.entries.associate { it.key to toJob(it.key, it.value) }
-      }
-
+    val jobMap = jobs.associateBy { it.id }
     return SurveyModel(
       surveyFromProto.id.ifEmpty { doc.id },
-      surveyFromProto.name.ifEmpty { surveyFromDocument?.title.orEmpty() },
-      surveyFromProto.description.ifEmpty { surveyFromDocument?.description.orEmpty() },
+      surveyFromProto.name,
+      surveyFromProto.description,
       jobMap.toPersistentMap(),
-      surveyFromProto.aclMap
-        .ifEmpty { surveyFromDocument?.acl ?: mapOf() }
-        .entries
-        .associate { it.key to it.value.toString() },
+      surveyFromProto.aclMap.entries.associate { it.key to it.value.toString() },
     )
   }
 }

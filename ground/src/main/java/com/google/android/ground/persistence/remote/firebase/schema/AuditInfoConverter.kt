@@ -18,10 +18,8 @@ package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.User
-import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.proto.AuditInfo as AuditInfoProto
-import com.google.firebase.Timestamp
 import java.util.Date
 
 /** Converts between Firestore nested objects and [AuditInfo] instances. */
@@ -51,12 +49,4 @@ internal object AuditInfoConverter {
       doc.serverTimestamp?.toDate(),
     )
   }
-
-  @JvmStatic
-  fun fromMutationAndUser(mutation: Mutation, user: User): AuditInfoNestedObject =
-    AuditInfoNestedObject(
-      UserConverter.toNestedObject(user),
-      Timestamp(mutation.clientTimestamp),
-      null,
-    )
 }
