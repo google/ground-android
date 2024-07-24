@@ -18,7 +18,6 @@ package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style as StyleModel
-import com.google.android.ground.model.task.Task as TaskModel
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.protobuf.parseFrom
 import com.google.android.ground.proto.Job as JobProto
@@ -27,23 +26,6 @@ import kotlinx.collections.immutable.toPersistentMap
 
 /** Converts between Firestore documents and [Job] instances. */
 internal object JobConverter {
-
-  @JvmStatic
-  fun toJob(id: String, obj: JobNestedObject): Job {
-    val taskMap = mutableMapOf<String, TaskModel>()
-    obj.tasks?.let {
-      it.entries
-        .mapNotNull { (key, value) -> TaskConverter.toTask(key, value) }
-        .forEach { task -> taskMap[task.id] = task }
-    }
-    return Job(
-      id = id,
-      style = obj.defaultStyle?.toStyle(),
-      name = obj.name,
-      strategy = TaskConverter.toStrategy(obj.strategy),
-      tasks = taskMap.toPersistentMap(),
-    )
-  }
 
   @Throws(DataStoreException::class)
   fun toJob(doc: DocumentSnapshot): Job {

@@ -33,11 +33,6 @@ import org.mockito.kotlin.whenever
 class JobConverterTest {
 
   @Test
-  fun `Converts to Job from JobNestedObject`() {
-    with(FakeData) { assertThat(JobConverter.toJob(JOB.id, JOB_NESTED_OBJECT)).isEqualTo(JOB) }
-  }
-
-  @Test
   fun `Converts to Job from Job proto`() {
     with(FakeData) {
       val jobProto = job {
