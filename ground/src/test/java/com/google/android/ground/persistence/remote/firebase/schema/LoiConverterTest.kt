@@ -57,8 +57,8 @@ class LoiConverterTest {
   private lateinit var noVerticesGeometry: MutableMap<String, Any>
 
   private var testLoiProto = locationOfInterest {
-    id = "loi001"
-    jobId = "job001"
+    id = LOI_ID
+    jobId = JOB_ID
     geometry = geometry {
       point = point {
         coordinates = coordinates {
@@ -177,6 +177,8 @@ class LoiConverterTest {
     toLoi(survey, loiDocumentSnapshot)
 
   companion object {
+    private val JOB_ID = "job001"
+    private val LOI_ID = "loi001"
     private val TEST_STYLE = Style("#112233")
   }
 }
