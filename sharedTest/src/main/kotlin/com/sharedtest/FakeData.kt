@@ -21,6 +21,7 @@ import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.model.User
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
+import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.job.Job
@@ -99,6 +100,14 @@ object FakeData {
       Point(Coordinates(20.0, 20.0)),
       Point(Coordinates(0.0, 0.0)),
     )
+
+  val LOCATION_OF_INTEREST_WITH_MULTIPOLYGON =
+    LOCATION_OF_INTEREST.copy(
+      geometry = MultiPolygon(listOf(Polygon(LinearRing(VERTICES.map { it.coordinates }))))
+    )
+
+  val LOCATION_OF_INTEREST_WITH_LINEARRING =
+    LOCATION_OF_INTEREST.copy(geometry = LinearRing(VERTICES.map { it.coordinates }))
 
   private val AUDIT_INFO = AuditInfo(USER)
 
