@@ -19,7 +19,6 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.AuditInfo as AuditInfoModel
 import com.google.android.ground.proto.auditInfo
 import com.google.common.truth.Truth.assertThat
-import com.google.firebase.Timestamp
 import com.google.protobuf.timestamp
 import com.sharedtest.FakeData.USER
 import java.util.Date
@@ -49,17 +48,5 @@ class AuditInfoConverterTest {
       clientTimestamp = timestamp { seconds = 987654321 }
     }
     assertThat(AuditInfoConverter.toAuditInfo(taskProto).serverTimestamp).isNull()
-  }
-
-  @Test
-  fun `Converts to AuditInfo from AuditInfoNestedObject`() {
-    val taskNestedObject =
-      AuditInfoNestedObject(
-        user = UserNestedObject(USER.id, USER.email, USER.displayName),
-        clientTimestamp = Timestamp(Date(987654321L * 1000)),
-        serverTimestamp = Timestamp(Date(9876543210L * 1000)),
-      )
-    assertThat(AuditInfoConverter.toAuditInfo(taskNestedObject))
-      .isEqualTo(AuditInfoModel(user = USER, Date(987654321L * 1000), Date(9876543210L * 1000)))
   }
 }

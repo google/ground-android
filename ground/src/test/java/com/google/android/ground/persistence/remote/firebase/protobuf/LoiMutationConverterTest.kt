@@ -32,6 +32,7 @@ import com.google.android.ground.proto.Coordinates.LONGITUDE_FIELD_NUMBER
 import com.google.android.ground.proto.Geometry.POINT_FIELD_NUMBER
 import com.google.android.ground.proto.Geometry.POLYGON_FIELD_NUMBER
 import com.google.android.ground.proto.LocationOfInterest.CREATED_FIELD_NUMBER
+import com.google.android.ground.proto.LocationOfInterest.CUSTOM_TAG_FIELD_NUMBER
 import com.google.android.ground.proto.LocationOfInterest.GEOMETRY_FIELD_NUMBER
 import com.google.android.ground.proto.LocationOfInterest.JOB_ID_FIELD_NUMBER
 import com.google.android.ground.proto.LocationOfInterest.LAST_MODIFIED_FIELD_NUMBER
@@ -121,6 +122,27 @@ class LoiMutationConverterTest {
   }
 
   @Test
+  fun `toMap() retains customTag`() {
+    val mutation = newLoiMutation()
+
+    val map = mutation.createLoiMessage(TEST_USER).toFirestoreMap()
+    assertThat(map[CUSTOM_TAG_FIELD_NUMBER.toString()]).isEqualTo(mutation.customId)
+  }
+
+  @Test
+  fun `toMap() customTag falls back to name property when empty`() {
+    val mutation =
+      LocationOfInterestMutation(
+        userId = TEST_USER.id,
+        type = Mutation.Type.CREATE,
+        properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
+      )
+
+    val map = mutation.createLoiMessage(TEST_USER).toFirestoreMap()
+    assertThat(map[CUSTOM_TAG_FIELD_NUMBER.toString()]).isEqualTo(LOCATION_OF_INTEREST_NAME)
+  }
+
+  @Test
   fun `toMap() converts CREATE mutation to map`() {
     val mutation = newLoiMutation(mutationType = Mutation.Type.CREATE)
 
@@ -131,8 +153,8 @@ class LoiMutationConverterTest {
         mapOf(
           USER_ID_FIELD_NUMBER.toString() to TEST_USER.id,
           DISPLAY_NAME_FIELD_NUMBER.toString() to TEST_USER.displayName,
-          CLIENT_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 1000000L),
-          SERVER_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 1000000L),
+          CLIENT_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 987654321L),
+          SERVER_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 987654321L),
         )
       )
     assertThat(map[CREATED_FIELD_NUMBER.toString()])
@@ -153,8 +175,8 @@ class LoiMutationConverterTest {
         mapOf(
           USER_ID_FIELD_NUMBER.toString() to TEST_USER.id,
           DISPLAY_NAME_FIELD_NUMBER.toString() to TEST_USER.displayName,
-          CLIENT_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 1000000L),
-          SERVER_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 1000000L),
+          CLIENT_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 987654321L),
+          SERVER_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 987654321L),
         )
       )
   }
@@ -193,9 +215,10 @@ class LoiMutationConverterTest {
         syncStatus = syncStatus,
         userId = TEST_USER.id,
         surveyId = "surveyId",
-        clientTimestamp = Date.from(Instant.ofEpochMilli(1000)),
+        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
         submissionCount = 10,
         properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
+        customId = "a custom loi",
       )
 
     fun newAoiMutation(
@@ -212,8 +235,9 @@ class LoiMutationConverterTest {
         syncStatus = syncStatus,
         userId = TEST_USER.id,
         surveyId = "surveyId",
-        clientTimestamp = Date.from(Instant.ofEpochMilli(1000)),
+        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
         properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
+        customId = "a custom loi",
       )
   }
 }

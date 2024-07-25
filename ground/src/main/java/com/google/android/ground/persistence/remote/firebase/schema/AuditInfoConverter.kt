@@ -18,7 +18,6 @@ package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.User
-import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.proto.AuditInfo as AuditInfoProto
 import java.util.Date
 
@@ -39,14 +38,4 @@ internal object AuditInfoConverter {
         info.serverTimestamp.toDate()
       },
     )
-
-  @Throws(DataStoreException::class)
-  fun toAuditInfo(doc: AuditInfoNestedObject): AuditInfo {
-    DataStoreException.checkNotNull(doc.clientTimestamp, "clientTimestamp")
-    return AuditInfo(
-      UserConverter.toUser(doc.user),
-      doc.clientTimestamp!!.toDate(),
-      doc.serverTimestamp?.toDate(),
-    )
-  }
 }

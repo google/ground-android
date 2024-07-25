@@ -82,7 +82,7 @@ class SubmissionMutationConverterTest {
   private val user = FakeData.USER.copy(id = "user_id_1")
   private val job = FakeData.JOB
   private val loiId = "loi_id_1"
-  private val clientTimestamp = Date.from(Instant.ofEpochMilli(1000))
+  private val clientTimestamp = Date.from(Instant.ofEpochSecond(987654321))
 
   private val textTaskData = TextTaskData.fromString("some data")
 
@@ -137,9 +137,9 @@ class SubmissionMutationConverterTest {
       altitude = 112.31,
     )
 
-  private val dateTaskResult = DateTaskData(Date.from(Instant.ofEpochMilli(2000)))
+  private val dateTaskResult = DateTaskData(Date.from(Instant.ofEpochSecond(918273645)))
 
-  private val timeTaskResult = TimeTaskData(Date.from(Instant.ofEpochMilli(3000)))
+  private val timeTaskResult = TimeTaskData(Date.from(Instant.ofEpochSecond(123456789)))
 
   private val submissionMutation =
     SubmissionMutation(
@@ -276,12 +276,12 @@ class SubmissionMutationConverterTest {
       ),
       mapOf(
         DATE_TIME_RESPONSE_FIELD_NUMBER.toString() to
-          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 2000000L)),
+          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 918273645L)),
         TASK_ID_FIELD_NUMBER.toString() to "date_task",
       ),
       mapOf(
         DATE_TIME_RESPONSE_FIELD_NUMBER.toString() to
-          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 3000000L)),
+          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 123456789L)),
         TASK_ID_FIELD_NUMBER.toString() to "time_task",
       ),
     )
@@ -290,8 +290,8 @@ class SubmissionMutationConverterTest {
     mapOf(
       USER_ID_FIELD_NUMBER.toString() to user.id,
       DISPLAY_NAME_FIELD_NUMBER.toString() to user.displayName,
-      CLIENT_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 1000000L),
-      SERVER_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 1000000L),
+      CLIENT_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 987654321L),
+      SERVER_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 987654321L),
     )
 
   @Test

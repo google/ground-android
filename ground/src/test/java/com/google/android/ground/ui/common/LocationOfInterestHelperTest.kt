@@ -44,6 +44,16 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   }
 
   @Test
+  fun testLoiNameWithMultiPolygon_whenCustomIdAndPropertiesAreNull() {
+    assertThat(
+        loiHelper.getDisplayLoiName(
+          TEST_LOI_WITH_MULTIPOLYGON.copy(customId = "", properties = mapOf())
+        )
+      )
+      .isEqualTo("Unnamed area")
+  }
+
+  @Test
   fun testLoiName_whenCustomIdIsAvailable() {
     assertThat(loiHelper.getDisplayLoiName(TEST_LOI.copy(customId = "some value")))
       .isEqualTo("Point (some value)")
@@ -110,8 +120,47 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
     assertThat(loiHelper.getJobName(TEST_LOI.copy(job = job))).isEqualTo("job name")
   }
 
+  @Test
+  fun testLoiName_whenCustomIdIsNotEmptyAndGeometryIsPolygon() {
+    assertThat(loiHelper.getDisplayLoiName(TEST_AREA.copy(customId = "id"))).isEqualTo("Area (id)")
+  }
+
+  @Test
+  fun testLoiName_whenCustomIdIsNotEmptyAndGeometryIsMultiPolygon() {
+    assertThat(loiHelper.getDisplayLoiName(TEST_LOI_WITH_MULTIPOLYGON.copy(customId = "id")))
+      .isEqualTo("Area (id)")
+  }
+
+  @Test
+  fun testLoiName_whenCustomIdIsNotEmptyAndUnsupportedGeometry() {
+    try {
+      loiHelper.getDisplayLoiName(TEST_LOI_WITH_LINEARRING.copy(customId = "id"))
+    } catch (e: Exception) {
+      assertThat(e.message)
+        .isEqualTo(
+          "Unsupported geometry type LinearRing(coordinates=[Coordinates(lat=0.0, lng=0.0), " +
+            "Coordinates(lat=10.0, lng=10.0), Coordinates(lat=20.0, lng=20.0), Coordinates(lat=0.0, lng=0.0)])"
+        )
+    }
+  }
+
+  @Test
+  fun testLoiName_whenCustomIdIsEmptyAndUnsupportedGeometry() {
+    try {
+      loiHelper.getDisplayLoiName(TEST_LOI_WITH_LINEARRING.copy(customId = ""))
+    } catch (e: Exception) {
+      assertThat(e.message)
+        .isEqualTo(
+          "Unsupported geometry type LinearRing(coordinates=[Coordinates(lat=0.0, lng=0.0), " +
+            "Coordinates(lat=10.0, lng=10.0), Coordinates(lat=20.0, lng=20.0), Coordinates(lat=0.0, lng=0.0)])"
+        )
+    }
+  }
+
   companion object {
     private val TEST_LOI = FakeData.LOCATION_OF_INTEREST.copy()
     private val TEST_AREA = FakeData.AREA_OF_INTEREST.copy()
+    private val TEST_LOI_WITH_MULTIPOLYGON = FakeData.LOCATION_OF_INTEREST_WITH_MULTIPOLYGON.copy()
+    private val TEST_LOI_WITH_LINEARRING = FakeData.LOCATION_OF_INTEREST_WITH_LINEARRING.copy()
   }
 }

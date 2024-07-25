@@ -23,6 +23,7 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.model.locationofinterest.LoiProperties
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
@@ -102,7 +103,7 @@ fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest
   jobId = me.jobId
   submissionCount = me.submissionCount
   ownerId = me.userId
-  customTag = me.customId
+  customTag = me.customId.ifEmpty { me.properties[LOI_NAME_PROPERTY]?.toString() ?: "" }
 
   properties.putAll(me.properties.toMessageMap())
 
@@ -140,11 +141,11 @@ private fun ValueDelta.toMessage() = taskData {
       }
     // TODO: Ensure the dates are always converted to UTC time zone.
     Task.Type.DATE -> dateTimeResponse = dateTimeResponse {
-        dateTime = timestamp { seconds = (newTaskData as DateTaskData).date.time * 1000 }
+        dateTime = timestamp { seconds = (newTaskData as DateTaskData).date.time / 1000 }
       }
     // TODO: Ensure the dates are always converted to UTC time zone.
     Task.Type.TIME -> dateTimeResponse = dateTimeResponse {
-        dateTime = timestamp { seconds = (newTaskData as TimeTaskData).time.time * 1000 }
+        dateTime = timestamp { seconds = (newTaskData as TimeTaskData).time.time / 1000 }
       }
     Task.Type.MULTIPLE_CHOICE -> multipleChoiceResponses = multipleChoiceResponses {
         (newTaskData as MultipleChoiceTaskData).selectedOptionIds.forEach {
@@ -180,7 +181,7 @@ private fun createAuditInfoMessage(user: User, timestamp: Date) = auditInfo {
   serverTimestamp = timestamp.toMessage()
 }
 
-private fun Date.toMessage() = timestamp { seconds = time * 1000 }
+private fun Date.toMessage() = timestamp { seconds = time / 1000 }
 
 private fun Geometry.toMessage() =
   when (this) {
