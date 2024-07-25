@@ -74,7 +74,6 @@ object LoiConverter {
       // TODO(#929): Set geometry once LOI has been updated to use our own model.
       geometry = geometry,
       submissionCount = submissionCount,
-      ownerEmail = created.user.displayName,
       properties = properties,
       isPredefined = isPredefined,
     )
