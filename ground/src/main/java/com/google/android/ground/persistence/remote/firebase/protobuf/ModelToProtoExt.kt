@@ -23,6 +23,7 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.model.locationofinterest.LoiProperties
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
@@ -102,7 +103,7 @@ fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest
   jobId = me.jobId
   submissionCount = me.submissionCount
   ownerId = me.userId
-  customTag = me.customId
+  customTag = me.customId.ifEmpty { me.properties[LOI_NAME_PROPERTY]?.toString() ?: "" }
 
   properties.putAll(me.properties.toMessageMap())
 
