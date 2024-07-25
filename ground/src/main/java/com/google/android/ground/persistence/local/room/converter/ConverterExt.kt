@@ -20,7 +20,6 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.imagery.OfflineArea
-import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Job.DataCollectionStrategy
 import com.google.android.ground.model.job.Style
@@ -61,25 +60,6 @@ fun AuditInfo.toLocalDataStoreObject(): AuditInfoEntity =
 
 fun AuditInfoEntity.toModelObject() =
   AuditInfo(UserDetails.toUser(user), Date(clientTimestamp), serverTimestamp?.let { Date(it) })
-
-private fun TileSource.Type.toLocalDataStoreObject() =
-  when (this) {
-    TileSource.Type.TILED_WEB_MAP -> TileSourceEntity.TileSourceEntityType.IMAGE
-    TileSource.Type.MOG_COLLECTION -> TileSourceEntity.TileSourceEntityType.MOG
-    else -> TileSourceEntity.TileSourceEntityType.UNKNOWN
-  }
-
-private fun TileSourceEntity.TileSourceEntityType.toModelObject() =
-  when (this) {
-    TileSourceEntity.TileSourceEntityType.IMAGE -> TileSource.Type.TILED_WEB_MAP
-    TileSourceEntity.TileSourceEntityType.MOG -> TileSource.Type.MOG_COLLECTION
-    else -> TileSource.Type.UNKNOWN
-  }
-
-fun TileSource.toLocalDataStoreObject(surveyId: String) =
-  TileSourceEntity(surveyId = surveyId, url = url, type = type.toLocalDataStoreObject())
-
-fun TileSourceEntity.toModelObject() = TileSource(url = url, type = type.toModelObject())
 
 fun Geometry.toLocalDataStoreObject() = GeometryWrapper.fromGeometry(this)
 

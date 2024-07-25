@@ -19,7 +19,6 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.proto.Task.MultipleChoiceQuestion
-import com.google.android.ground.util.Enums.toEnum
 import kotlinx.collections.immutable.toPersistentList
 
 internal object MultipleChoiceConverter {
@@ -35,22 +34,5 @@ internal object MultipleChoiceConverter {
         else -> MultipleChoice.Cardinality.SELECT_ONE
       }
     return MultipleChoice(options.toPersistentList(), cardinality, em.hasOtherOption)
-  }
-
-  fun toMultipleChoice(em: TaskNestedObject): MultipleChoice {
-    var options: List<Option> = listOf()
-    if (em.options != null) {
-      options =
-        em.options.entries
-          .sortedBy { it.value.index }
-          .map { (key, value): Map.Entry<String, OptionNestedObject> ->
-            OptionConverter.toOption(key, value)
-          }
-    }
-    return MultipleChoice(
-      options.toPersistentList(),
-      toEnum(MultipleChoice.Cardinality::class.java, em.cardinality!!),
-      em.hasOtherOption ?: false,
-    )
   }
 }
