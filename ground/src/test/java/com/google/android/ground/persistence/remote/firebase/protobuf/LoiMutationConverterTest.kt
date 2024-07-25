@@ -153,8 +153,8 @@ class LoiMutationConverterTest {
         mapOf(
           USER_ID_FIELD_NUMBER.toString() to TEST_USER.id,
           DISPLAY_NAME_FIELD_NUMBER.toString() to TEST_USER.displayName,
-          CLIENT_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 1000000L),
-          SERVER_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 1000000L),
+          CLIENT_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 987654321L),
+          SERVER_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 987654321L),
         )
       )
     assertThat(map[CREATED_FIELD_NUMBER.toString()])
@@ -175,8 +175,8 @@ class LoiMutationConverterTest {
         mapOf(
           USER_ID_FIELD_NUMBER.toString() to TEST_USER.id,
           DISPLAY_NAME_FIELD_NUMBER.toString() to TEST_USER.displayName,
-          CLIENT_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 1000000L),
-          SERVER_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 1000000L),
+          CLIENT_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 987654321L),
+          SERVER_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 987654321L),
         )
       )
   }
@@ -215,7 +215,7 @@ class LoiMutationConverterTest {
         syncStatus = syncStatus,
         userId = TEST_USER.id,
         surveyId = "surveyId",
-        clientTimestamp = Date.from(Instant.ofEpochMilli(1000)),
+        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
         submissionCount = 10,
         properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
         customId = "a custom loi",
@@ -235,7 +235,7 @@ class LoiMutationConverterTest {
         syncStatus = syncStatus,
         userId = TEST_USER.id,
         surveyId = "surveyId",
-        clientTimestamp = Date.from(Instant.ofEpochMilli(1000)),
+        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
         properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
         customId = "a custom loi",
       )
