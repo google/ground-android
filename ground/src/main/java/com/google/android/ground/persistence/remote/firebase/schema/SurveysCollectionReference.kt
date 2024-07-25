@@ -16,17 +16,18 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.Role
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.remote.firebase.base.FluentCollectionReference
+import com.google.android.ground.proto.Role
+import com.google.android.ground.proto.Survey as SurveyProto
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.snapshots
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-private const val ACL_FIELD = "acl"
+private const val ACL_FIELD = SurveyProto.ACL_FIELD_NUMBER.toString()
 
 class SurveysCollectionReference internal constructor(ref: CollectionReference) :
   FluentCollectionReference(ref) {
@@ -34,7 +35,11 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
   fun survey(id: String) = SurveyDocumentReference(reference().document(id))
 
   fun getReadable(user: User): Flow<List<Survey>> =
-    reference().whereIn(FieldPath.of(ACL_FIELD, user.email), Role.valueStrings()).snapshots().map {
-      it.documents.map { doc -> doc.let { SurveyConverter.toSurvey(doc) } }
-    }
+    reference()
+      .whereIn(
+        FieldPath.of(ACL_FIELD, user.email),
+        listOf(Role.SURVEY_ORGANIZER, Role.DATA_COLLECTOR, Role.VIEWER).map { it.ordinal },
+      )
+      .snapshots()
+      .map { it.documents.map { doc -> doc.let { SurveyConverter.toSurvey(doc) } } }
 }
