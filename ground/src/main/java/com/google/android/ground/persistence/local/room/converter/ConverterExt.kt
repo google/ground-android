@@ -149,7 +149,6 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     geometry = geometry.toLocalDataStoreObject(),
     customId = customId,
     submissionCount = submissionCount,
-    ownerEmail = ownerEmail,
     properties = properties,
     isPredefined = isPredefined,
   )
@@ -197,7 +196,6 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(user: User): LocationOfInt
     geometry = geometry?.toLocalDataStoreObject(),
     customId = customId,
     submissionCount = submissionCount,
-    ownerEmail = ownerEmail,
     properties = properties,
     isPredefined = isPredefined,
   )
@@ -386,14 +384,12 @@ fun SubmissionMutation.toLocalDataStoreObject() =
 
 fun SurveyEntityAndRelations.toModelObject(): Survey {
   val jobMap = jobEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
-  val tileSources = tileSourceEntityAndRelations.map { it.toModelObject() }
 
   return Survey(
     surveyEntity.id,
     surveyEntity.title!!,
     surveyEntity.description!!,
     jobMap.toPersistentMap(),
-    tileSources.toPersistentList(),
     surveyEntity.acl?.toStringMap()!!,
   )
 }

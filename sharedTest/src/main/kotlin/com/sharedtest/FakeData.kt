@@ -54,10 +54,10 @@ object FakeData {
       name = "Job",
       id = "JOB",
       style = Style("#000"),
-      strategy = Job.DataCollectionStrategy.MIXED,
+      strategy = Job.DataCollectionStrategy.PREDEFINED,
     )
 
-  val USER = User("user_id", "user@gmail.com", "User")
+  val USER = User("user_id", "", "User")
 
   val SURVEY: Survey =
     Survey(
@@ -65,8 +65,7 @@ object FakeData {
       "Survey title",
       "Test survey description",
       mapOf(JOB.id to JOB),
-      listOf(),
-      mapOf(USER.email to "data-collector"),
+      mapOf(USER.email to "DATA_COLLECTOR"),
     )
 
   const val LOCATION_OF_INTEREST_NAME = "Test LOI Name"

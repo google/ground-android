@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,23 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.Role
-import com.google.android.ground.model.Survey
-import com.google.android.ground.model.User
+import com.google.android.ground.model.job.Job
 import com.google.android.ground.persistence.remote.firebase.base.FluentCollectionReference
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.FieldPath
-import com.google.firebase.firestore.snapshots
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.callbackFlow
 
-private const val ACL_FIELD = "acl"
-
-class SurveysCollectionReference internal constructor(ref: CollectionReference) :
+class JobCollectionReference internal constructor(ref: CollectionReference) :
   FluentCollectionReference(ref) {
+  fun get(): Flow<List<Job>> = callbackFlow {
+    reference()
+      .get()
+      .addOnSuccessListener { trySend(it.documents.map { doc -> JobConverter.toJob(doc) }) }
+      .addOnFailureListener { trySend(listOf()) }
 
-  fun survey(id: String) = SurveyDocumentReference(reference().document(id))
-
-  fun getReadable(user: User): Flow<List<Survey>> =
-    reference().whereIn(FieldPath.of(ACL_FIELD, user.email), Role.valueStrings()).snapshots().map {
-      it.documents.map { doc -> doc.let { SurveyConverter.toSurvey(doc) } }
+    awaitClose {
+      // Cannot cancel or detach listeners here.
     }
+  }
 }

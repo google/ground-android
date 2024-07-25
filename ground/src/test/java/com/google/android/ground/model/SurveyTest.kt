@@ -32,7 +32,6 @@ class SurveyTest {
       title = "Survey title",
       description = "Survey description",
       jobMap = mapOf(),
-      tileSources = listOf(),
       acl =
         mapOf(
           Pair(ownerEmail, Role.OWNER.toString()),

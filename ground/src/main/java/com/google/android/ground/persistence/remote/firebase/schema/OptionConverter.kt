@@ -17,9 +17,13 @@
 package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.task.Option
+import com.google.android.ground.proto.Task
 
 /** Converts between Firestore nested objects and [Option] instances. */
 internal object OptionConverter {
+
+  fun toOption(option: Task.MultipleChoiceQuestion.Option): Option =
+    Option(option.id, option.id, option.label)
 
   fun toOption(id: String, option: OptionNestedObject): Option =
     Option(id, option.code.orEmpty(), option.label.orEmpty())
