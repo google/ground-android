@@ -49,7 +49,7 @@ class ModelToProtoExtKtTest {
         userId = "userId",
         jobId = "jobId",
         customId = "customId",
-        clientTimestamp = Date.from(Instant.ofEpochMilli(1000)),
+        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
         geometry = null,
         submissionCount = 1,
         properties = generateProperties("loiName"),
@@ -69,15 +69,15 @@ class ModelToProtoExtKtTest {
             userId = "userId"
             displayName = "User"
             photoUrl = ""
-            clientTimestamp = timestamp { seconds = 1000000L }
-            serverTimestamp = timestamp { seconds = 1000000L }
+            clientTimestamp = timestamp { seconds = 987654321L }
+            serverTimestamp = timestamp { seconds = 987654321L }
           }
           lastModified = auditInfo {
             userId = "userId"
             displayName = "User"
             photoUrl = ""
-            clientTimestamp = timestamp { seconds = 1000000L }
-            serverTimestamp = timestamp { seconds = 1000000L }
+            clientTimestamp = timestamp { seconds = 987654321L }
+            serverTimestamp = timestamp { seconds = 987654321L }
           }
           customTag = "customId"
           source = LocationOfInterest.Source.FIELD_DATA
@@ -98,7 +98,7 @@ class ModelToProtoExtKtTest {
         userId = "userId",
         jobId = "jobId",
         customId = "customId",
-        clientTimestamp = Date.from(Instant.ofEpochMilli(1000)),
+        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
@@ -118,15 +118,15 @@ class ModelToProtoExtKtTest {
             userId = "userId"
             displayName = "User"
             photoUrl = ""
-            clientTimestamp = timestamp { seconds = 1000000L }
-            serverTimestamp = timestamp { seconds = 1000000L }
+            clientTimestamp = timestamp { seconds = 987654321L }
+            serverTimestamp = timestamp { seconds = 987654321L }
           }
           lastModified = auditInfo {
             userId = "userId"
             displayName = "User"
             photoUrl = ""
-            clientTimestamp = timestamp { seconds = 1000000L }
-            serverTimestamp = timestamp { seconds = 1000000L }
+            clientTimestamp = timestamp { seconds = 987654321L }
+            serverTimestamp = timestamp { seconds = 987654321L }
           }
           customTag = "customId"
           geometry = geometry {
@@ -154,7 +154,7 @@ class ModelToProtoExtKtTest {
         userId = "userId",
         jobId = "jobId",
         customId = "customId",
-        clientTimestamp = Date.from(Instant.ofEpochMilli(1000)),
+        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
@@ -174,15 +174,15 @@ class ModelToProtoExtKtTest {
             userId = "userId"
             displayName = "User"
             photoUrl = ""
-            clientTimestamp = timestamp { seconds = 1000000L }
-            serverTimestamp = timestamp { seconds = 1000000L }
+            clientTimestamp = timestamp { seconds = 987654321L }
+            serverTimestamp = timestamp { seconds = 987654321L }
           }
           lastModified = auditInfo {
             userId = "userId"
             displayName = "User"
             photoUrl = ""
-            clientTimestamp = timestamp { seconds = 1000000L }
-            serverTimestamp = timestamp { seconds = 1000000L }
+            clientTimestamp = timestamp { seconds = 987654321L }
+            serverTimestamp = timestamp { seconds = 987654321L }
           }
           customTag = "customId"
           geometry = geometry {
@@ -211,7 +211,7 @@ class ModelToProtoExtKtTest {
         userId = "userId",
         jobId = "jobId",
         customId = "customId",
-        clientTimestamp = Date.from(Instant.ofEpochMilli(1000)),
+        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
@@ -231,15 +231,15 @@ class ModelToProtoExtKtTest {
             userId = "userId"
             displayName = "User"
             photoUrl = ""
-            clientTimestamp = timestamp { seconds = 1000000L }
-            serverTimestamp = timestamp { seconds = 1000000L }
+            clientTimestamp = timestamp { seconds = 987654321L }
+            serverTimestamp = timestamp { seconds = 987654321L }
           }
           lastModified = auditInfo {
             userId = "userId"
             displayName = "User"
             photoUrl = ""
-            clientTimestamp = timestamp { seconds = 1000000L }
-            serverTimestamp = timestamp { seconds = 1000000L }
+            clientTimestamp = timestamp { seconds = 987654321L }
+            serverTimestamp = timestamp { seconds = 987654321L }
           }
           customTag = "customId"
           geometry = geometry {
@@ -268,7 +268,7 @@ class ModelToProtoExtKtTest {
         userId = "userId",
         jobId = "jobId",
         customId = "customId",
-        clientTimestamp = Date.from(Instant.ofEpochMilli(1000)),
+        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
@@ -288,8 +288,8 @@ class ModelToProtoExtKtTest {
             userId = "userId"
             displayName = "User"
             photoUrl = ""
-            clientTimestamp = timestamp { seconds = 1000000L }
-            serverTimestamp = timestamp { seconds = 1000000L }
+            clientTimestamp = timestamp { seconds = 987654321L }
+            serverTimestamp = timestamp { seconds = 987654321L }
           }
           customTag = "customId"
           geometry = geometry {
@@ -317,7 +317,7 @@ class ModelToProtoExtKtTest {
         userId = "userId",
         jobId = "jobId",
         customId = "customId",
-        clientTimestamp = Date.from(Instant.ofEpochMilli(1000)),
+        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
@@ -339,7 +339,7 @@ class ModelToProtoExtKtTest {
         userId = "userId",
         jobId = "jobId",
         customId = "customId",
-        clientTimestamp = Date.from(Instant.ofEpochMilli(1000)),
+        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),

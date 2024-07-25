@@ -141,11 +141,11 @@ private fun ValueDelta.toMessage() = taskData {
       }
     // TODO: Ensure the dates are always converted to UTC time zone.
     Task.Type.DATE -> dateTimeResponse = dateTimeResponse {
-        dateTime = timestamp { seconds = (newTaskData as DateTaskData).date.time * 1000 }
+        dateTime = timestamp { seconds = (newTaskData as DateTaskData).date.time / 1000 }
       }
     // TODO: Ensure the dates are always converted to UTC time zone.
     Task.Type.TIME -> dateTimeResponse = dateTimeResponse {
-        dateTime = timestamp { seconds = (newTaskData as TimeTaskData).time.time * 1000 }
+        dateTime = timestamp { seconds = (newTaskData as TimeTaskData).time.time / 1000 }
       }
     Task.Type.MULTIPLE_CHOICE -> multipleChoiceResponses = multipleChoiceResponses {
         (newTaskData as MultipleChoiceTaskData).selectedOptionIds.forEach {
@@ -181,7 +181,7 @@ private fun createAuditInfoMessage(user: User, timestamp: Date) = auditInfo {
   serverTimestamp = timestamp.toMessage()
 }
 
-private fun Date.toMessage() = timestamp { seconds = time * 1000 }
+private fun Date.toMessage() = timestamp { seconds = time / 1000 }
 
 private fun Geometry.toMessage() =
   when (this) {
