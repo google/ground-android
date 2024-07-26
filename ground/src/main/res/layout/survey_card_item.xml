@@ -34,12 +34,12 @@
 
   <com.google.android.material.card.MaterialCardView
     android:id="@+id/survey_card"
+    style="@style/Widget.App.CardView.SurfaceContainerLowest"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="24dp"
     android:layout_marginTop="16dp"
     android:layout_marginEnd="24dp"
-    style="@style/Widget.App.CardView.SurfaceContainerLowest"
     android:clickable="true"
     android:focusable="true"
     android:onClick="@{() -> viewModel.activateSurvey(item.id)}"
@@ -56,8 +56,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:text="@{item.title}"
         app:layout_constraintEnd_toStartOf="@id/survey_card_item_widgets"
         app:layout_constraintStart_toStartOf="parent"
@@ -70,16 +70,16 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
         android:text="@{item.description}"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="@id/title"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title"
-        app:layout_constraintBottom_toBottomOf="parent"
         tools:text="Report areas of suspected or observed deforestation." />
 
       <LinearLayout
@@ -87,8 +87,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
         <ImageView
           android:id="@+id/offlineIcon"
           android:layout_width="24dp"
@@ -100,8 +100,7 @@
           app:layout_constraintBottom_toBottomOf="@id/overflowMenu"
           app:layout_constraintEnd_toStartOf="@+id/overflowMenu"
           app:layout_constraintTop_toTopOf="@id/overflowMenu"
-          app:srcCompat="@drawable/ic_offline_pin"
-          app:visible="@{item.availableOffline}" />
+          app:srcCompat="@drawable/ic_offline_pin" />
 
         <!-- Overflow menu "..." affordance. -->
         <Button
@@ -109,9 +108,8 @@
           style="@style/Widget.App.Button.IconButton"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:translationX="4dp"
           android:onClick="@{(view) -> fragment.showPopupMenu(view, item.id)}"
-          app:visible="@{item.availableOffline}"
+          android:translationX="4dp"
           app:icon="@drawable/ic_more_vert" />
       </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
