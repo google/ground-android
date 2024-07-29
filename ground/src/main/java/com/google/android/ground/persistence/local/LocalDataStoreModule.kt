@@ -103,11 +103,6 @@ abstract class LocalDataStoreModule {
     }
 
     @Provides
-    fun tileSourceDao(localDatabase: LocalDatabase): TileSourceDao {
-      return localDatabase.tileSourceDao()
-    }
-
-    @Provides
     fun userDao(localDatabase: LocalDatabase): UserDao {
       return localDatabase.userDao()
     }

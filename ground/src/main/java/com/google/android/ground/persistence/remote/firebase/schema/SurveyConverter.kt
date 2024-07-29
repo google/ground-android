@@ -16,48 +16,29 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.Survey
-import com.google.android.ground.model.imagery.TileSource
+import com.google.android.ground.model.Survey as SurveyModel
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.android.ground.persistence.remote.firebase.schema.JobConverter.toJob
+import com.google.android.ground.persistence.remote.firebase.protobuf.parseFrom
+import com.google.android.ground.proto.Survey as SurveyProto
 import com.google.firebase.firestore.DocumentSnapshot
-import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
 
-/** Converts between Firestore documents and [Survey] instances. */
+/** Converts between Firestore documents and [SurveyModel] instances. */
 internal object SurveyConverter {
 
   @Throws(DataStoreException::class)
-  fun toSurvey(doc: DocumentSnapshot): Survey {
+  fun toSurvey(doc: DocumentSnapshot, jobs: List<Job> = listOf()): SurveyModel {
     if (!doc.exists()) throw DataStoreException("Missing survey")
 
-    val pd =
-      DataStoreException.checkNotNull(doc.toObject(SurveyDocument::class.java), "surveyDocument")
-
-    val jobMap = mutableMapOf<String, Job>()
-    if (pd.jobs != null) {
-      pd.jobs.forEach { (id: String, obj: JobNestedObject) -> jobMap[id] = toJob(id, obj) }
-    }
-
-    val tileSources = mutableListOf<TileSource>()
-    if (pd.tileSources != null) {
-      convertTileSources(pd, tileSources)
-    }
-
-    return Survey(
-      doc.id,
-      pd.title.orEmpty(),
-      pd.description.orEmpty(),
+    val surveyFromProto = SurveyProto::class.parseFrom(doc, 1)
+    val jobMap = jobs.associateBy { it.id }
+    return SurveyModel(
+      surveyFromProto.id.ifEmpty { doc.id },
+      surveyFromProto.name,
+      surveyFromProto.description,
       jobMap.toPersistentMap(),
-      tileSources.toPersistentList(),
-      pd.acl ?: mapOf(),
+      surveyFromProto.aclMap.entries.associate { it.key to it.value.toString() },
     )
-  }
-
-  private fun convertTileSources(pd: SurveyDocument, builder: MutableList<TileSource>) {
-    pd.tileSources
-      ?.mapNotNull { it.url }
-      ?.forEach { url -> builder.add(TileSource(url, TileSource.Type.MOG_COLLECTION)) }
   }
 }

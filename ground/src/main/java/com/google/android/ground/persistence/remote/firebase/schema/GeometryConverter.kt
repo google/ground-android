@@ -23,6 +23,11 @@ import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.android.ground.proto.Geometry as GeometryProto
+import com.google.android.ground.proto.LinearRing as LinearRingProto
+import com.google.android.ground.proto.MultiPolygon as MultiPolygonProto
+import com.google.android.ground.proto.Point as PointProto
+import com.google.android.ground.proto.Polygon as PolygonProto
 import com.google.firebase.firestore.GeoPoint
 
 /** Alias for maps whose keys represent an index in an ordered data structure like a [List]. */
@@ -45,6 +50,26 @@ object GeometryConverter {
   private const val POINT_TYPE = "Point"
   private const val POLYGON_TYPE = "Polygon"
   private const val MULTI_POLYGON_TYPE = "MultiPolygon"
+
+  private fun PointProto.toPoint() = Point(Coordinates(coordinates.latitude, coordinates.longitude))
+
+  private fun LinearRingProto.toLinearRing() =
+    LinearRing(coordinatesList.map { Coordinates(it.latitude, it.longitude) })
+
+  private fun PolygonProto.toPolygon() =
+    Polygon(shell.toLinearRing(), holesList.map { it.toLinearRing() })
+
+  private fun MultiPolygonProto.toMultiPolygon() = MultiPolygon(polygonsList.map { it.toPolygon() })
+
+  fun GeometryProto.toGeometry(): Result<Geometry> =
+    Result.runCatching {
+      when (geometryTypeCase) {
+        GeometryProto.GeometryTypeCase.POINT -> point.toPoint()
+        GeometryProto.GeometryTypeCase.POLYGON -> polygon.toPolygon()
+        GeometryProto.GeometryTypeCase.MULTI_POLYGON -> multiPolygon.toMultiPolygon()
+        else -> throw UnsupportedOperationException("Can't convert $geometryTypeCase")
+      }
+    }
 
   /**
    * Returns the remote db representation of a `Geometry` object. Errors are always returned as a

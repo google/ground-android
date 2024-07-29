@@ -37,7 +37,6 @@ import com.google.android.ground.persistence.local.room.dao.SubmissionDao
 import com.google.android.ground.persistence.local.room.dao.SubmissionMutationDao
 import com.google.android.ground.persistence.local.room.dao.SurveyDao
 import com.google.android.ground.persistence.local.room.dao.TaskDao
-import com.google.android.ground.persistence.local.room.dao.TileSourceDao
 import com.google.android.ground.persistence.local.room.dao.UserDao
 import com.google.android.ground.persistence.local.room.entity.ConditionEntity
 import com.google.android.ground.persistence.local.room.entity.DraftSubmissionEntity
@@ -52,7 +51,6 @@ import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
 import com.google.android.ground.persistence.local.room.entity.SurveyEntity
 import com.google.android.ground.persistence.local.room.entity.TaskEntity
-import com.google.android.ground.persistence.local.room.entity.TileSourceEntity
 import com.google.android.ground.persistence.local.room.entity.UserEntity
 import com.google.android.ground.persistence.local.room.fields.EntityState
 import com.google.android.ground.persistence.local.room.fields.ExpressionEntityType
@@ -82,7 +80,6 @@ import com.google.android.ground.persistence.local.room.fields.TileSetEntityStat
       MultipleChoiceEntity::class,
       OptionEntity::class,
       SurveyEntity::class,
-      TileSourceEntity::class,
       SubmissionEntity::class,
       SubmissionMutationEntity::class,
       OfflineAreaEntity::class,
@@ -125,8 +122,6 @@ abstract class LocalDatabase : RoomDatabase() {
   abstract fun optionDao(): OptionDao
 
   abstract fun surveyDao(): SurveyDao
-
-  abstract fun tileSourceDao(): TileSourceDao
 
   abstract fun submissionDao(): SubmissionDao
 

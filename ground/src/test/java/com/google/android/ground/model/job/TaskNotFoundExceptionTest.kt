@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.model.job
 
-package com.google.android.ground.persistence.remote.firebase.schema
+import com.google.android.ground.BaseHiltTest
+import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.testing.HiltAndroidTest
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
-import com.google.firebase.firestore.IgnoreExtraProperties
+@HiltAndroidTest
+@RunWith(RobolectricTestRunner::class)
+class TaskNotFoundExceptionTest : BaseHiltTest() {
 
-/** Firestore representation of a task condition. */
-@IgnoreExtraProperties
-data class ConditionNestedObject(
-  val matchType: String? = null,
-  val expressions: List<ExpressionNestedObject>? = null,
-)
-
-/** Firestore representation of a task condition expression. */
-@IgnoreExtraProperties
-data class ExpressionNestedObject(
-  val expressionType: String? = null,
-  val taskId: String? = null,
-  val optionIds: List<String>? = null,
-)
+  @Test
+  fun testCustomLocalizedMessage() {
+    val obj = Job.TaskNotFoundException(taskId = "1")
+    assertThat(obj.localizedMessage).isEqualTo("unknown task 1")
+  }
+}

@@ -30,7 +30,6 @@ import com.google.android.ground.persistence.local.room.dao.MultipleChoiceDao
 import com.google.android.ground.persistence.local.room.dao.OptionDao
 import com.google.android.ground.persistence.local.room.dao.SurveyDao
 import com.google.android.ground.persistence.local.room.dao.TaskDao
-import com.google.android.ground.persistence.local.room.dao.TileSourceDao
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import javax.inject.Inject
@@ -51,8 +50,6 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
 
   @Inject lateinit var surveyDao: SurveyDao
 
-  @Inject lateinit var tileSourceDao: TileSourceDao
-
   @Inject lateinit var conditionDao: ConditionDao
 
   @Inject lateinit var expressionDao: ExpressionDao
@@ -70,8 +67,6 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
     surveyDao.insertOrUpdate(survey.toLocalDataStoreObject())
     jobDao.deleteBySurveyId(survey.id)
     insertOrUpdateJobs(survey.id, survey.jobs)
-    tileSourceDao.deleteBySurveyId(survey.id)
-    insertOfflineBaseMapSources(survey)
   }
 
   /**
@@ -124,9 +119,4 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
 
   private suspend fun insertOrUpdateJobs(surveyId: String, jobs: Collection<Job>) =
     jobs.forEach { insertOrUpdateJob(surveyId, it) }
-
-  private suspend fun insertOfflineBaseMapSources(survey: Survey) =
-    survey.tileSources.forEach {
-      tileSourceDao.insertOrUpdate(it.toLocalDataStoreObject(surveyId = survey.id))
-    }
 }

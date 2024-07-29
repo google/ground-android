@@ -18,26 +18,21 @@ package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
-import com.google.android.ground.util.Enums.toEnum
+import com.google.android.ground.proto.Task.MultipleChoiceQuestion
 import kotlinx.collections.immutable.toPersistentList
 
 internal object MultipleChoiceConverter {
-
-  @JvmStatic
-  fun toMultipleChoice(em: TaskNestedObject): MultipleChoice {
+  fun toMultipleChoice(em: MultipleChoiceQuestion): MultipleChoice {
     var options: List<Option> = listOf()
-    if (em.options != null) {
-      options =
-        em.options.entries
-          .sortedBy { it.value.index }
-          .map { (key, value): Map.Entry<String, OptionNestedObject> ->
-            OptionConverter.toOption(key, value)
-          }
+    if (em.optionsList != null) {
+      options = em.optionsList.sortedBy { it.index }.map { OptionConverter.toOption(it) }
     }
-    return MultipleChoice(
-      options.toPersistentList(),
-      toEnum(MultipleChoice.Cardinality::class.java, em.cardinality!!),
-      em.hasOtherOption ?: false,
-    )
+    val cardinality =
+      when (em.type) {
+        MultipleChoiceQuestion.Type.SELECT_ONE -> MultipleChoice.Cardinality.SELECT_ONE
+        MultipleChoiceQuestion.Type.SELECT_MULTIPLE -> MultipleChoice.Cardinality.SELECT_MULTIPLE
+        else -> MultipleChoice.Cardinality.SELECT_ONE
+      }
+    return MultipleChoice(options.toPersistentList(), cardinality, em.hasOtherOption)
   }
 }

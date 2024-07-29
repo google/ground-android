@@ -23,23 +23,77 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.model.locationofinterest.LoiProperties
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.model.submission.CaptureLocationTaskData
+import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.GeometryTaskData
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
+import com.google.android.ground.model.submission.NumberTaskData
+import com.google.android.ground.model.submission.PhotoTaskData
+import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.submission.TimeTaskData
+import com.google.android.ground.model.submission.ValueDelta
+import com.google.android.ground.model.submission.isNotNullOrEmpty
+import com.google.android.ground.model.task.Task
 import com.google.android.ground.proto.LinearRing as LinearRingProto
 import com.google.android.ground.proto.LocationOfInterest.Property
 import com.google.android.ground.proto.LocationOfInterest.Source
 import com.google.android.ground.proto.LocationOfInterestKt.property
 import com.google.android.ground.proto.MultiPolygon as MultiPolygonProto
 import com.google.android.ground.proto.Polygon as PolygonProto
+import com.google.android.ground.proto.TaskDataKt.captureLocationResult
+import com.google.android.ground.proto.TaskDataKt.dateTimeResponse
+import com.google.android.ground.proto.TaskDataKt.drawGeometryResult
+import com.google.android.ground.proto.TaskDataKt.multipleChoiceResponses
+import com.google.android.ground.proto.TaskDataKt.numberResponse
+import com.google.android.ground.proto.TaskDataKt.takePhotoResult
+import com.google.android.ground.proto.TaskDataKt.textResponse
 import com.google.android.ground.proto.auditInfo
 import com.google.android.ground.proto.coordinates
 import com.google.android.ground.proto.geometry
 import com.google.android.ground.proto.locationOfInterest
 import com.google.android.ground.proto.point
+import com.google.android.ground.proto.submission
+import com.google.android.ground.proto.taskData
 import com.google.protobuf.timestamp
 import java.util.Date
 import kotlinx.collections.immutable.toImmutableMap
+
+// TODO: Add test coverage
+fun SubmissionMutation.createSubmissionMessage(user: User) = submission {
+  assert(userId == user.id) { "UserId doesn't match: expected $userId, found ${user.id}" }
+
+  val me = this@createSubmissionMessage
+  id = submissionId
+  loiId = locationOfInterestId
+  jobId = job.id
+  ownerId = me.userId
+
+  deltas.forEach {
+    if (it.newTaskData.isNotNullOrEmpty()) {
+      taskData.add(it.toMessage())
+    }
+  }
+
+  val auditInfo = createAuditInfoMessage(user, clientTimestamp)
+  when (type) {
+    Mutation.Type.CREATE -> {
+      created = auditInfo
+      lastModified = auditInfo
+    }
+    Mutation.Type.UPDATE -> {
+      lastModified = auditInfo
+    }
+    Mutation.Type.DELETE,
+    Mutation.Type.UNKNOWN -> {
+      throw UnsupportedOperationException()
+    }
+  }
+}
 
 fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest {
   assert(userId == user.id) { "UserId doesn't match: expected $userId, found ${user.id}" }
@@ -49,7 +103,7 @@ fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest
   jobId = me.jobId
   submissionCount = me.submissionCount
   ownerId = me.userId
-  customTag = me.customId
+  customTag = me.customId.ifEmpty { me.properties[LOI_NAME_PROPERTY]?.toString() ?: "" }
 
   properties.putAll(me.properties.toMessageMap())
 
@@ -75,6 +129,50 @@ fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest
   }
 }
 
+private fun ValueDelta.toMessage() = taskData {
+  val me = this@toMessage
+  // TODO: What should be the ID?
+  taskId = me.taskId
+  // TODO: Add "skipped" field
+  when (taskType) {
+    Task.Type.TEXT -> textResponse = textResponse { text = (newTaskData as TextTaskData).text }
+    Task.Type.NUMBER -> numberResponse = numberResponse {
+        number = (newTaskData as NumberTaskData).value
+      }
+    // TODO: Ensure the dates are always converted to UTC time zone.
+    Task.Type.DATE -> dateTimeResponse = dateTimeResponse {
+        dateTime = timestamp { seconds = (newTaskData as DateTaskData).date.time / 1000 }
+      }
+    // TODO: Ensure the dates are always converted to UTC time zone.
+    Task.Type.TIME -> dateTimeResponse = dateTimeResponse {
+        dateTime = timestamp { seconds = (newTaskData as TimeTaskData).time.time / 1000 }
+      }
+    Task.Type.MULTIPLE_CHOICE -> multipleChoiceResponses = multipleChoiceResponses {
+        (newTaskData as MultipleChoiceTaskData).selectedOptionIds.forEach {
+          selectedOptionIds.add(it)
+        }
+        if (newTaskData.hasOtherText()) {
+          otherText = newTaskData.getOtherText()
+        }
+      }
+    Task.Type.DROP_PIN,
+    Task.Type.DRAW_AREA -> drawGeometryResult = drawGeometryResult {
+        geometry = (newTaskData as GeometryTaskData).geometry.toMessage()
+      }
+    Task.Type.CAPTURE_LOCATION -> captureLocationResult = captureLocationResult {
+        val data = newTaskData as CaptureLocationTaskData
+        data.altitude?.let { altitude = it }
+        data.accuracy?.let { accuracy = it }
+        coordinates = data.location.coordinates.toMessage()
+        // TODO: Add timestamp
+      }
+    Task.Type.PHOTO -> takePhotoResult = takePhotoResult {
+        photoPath = (newTaskData as PhotoTaskData).path
+      }
+    Task.Type.UNKNOWN -> error("Unknown task type")
+  }
+}
+
 private fun createAuditInfoMessage(user: User, timestamp: Date) = auditInfo {
   userId = user.id
   displayName = user.displayName
@@ -83,7 +181,7 @@ private fun createAuditInfoMessage(user: User, timestamp: Date) = auditInfo {
   serverTimestamp = timestamp.toMessage()
 }
 
-private fun Date.toMessage() = timestamp { seconds = time * 1000 }
+private fun Date.toMessage() = timestamp { seconds = time / 1000 }
 
 private fun Geometry.toMessage() =
   when (this) {

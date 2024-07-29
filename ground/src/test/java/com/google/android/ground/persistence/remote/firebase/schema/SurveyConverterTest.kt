@@ -16,49 +16,37 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.imagery.TileSource
+import com.google.android.ground.persistence.remote.firebase.protobuf.toFirestoreMap
+import com.google.android.ground.proto.Role
+import com.google.android.ground.proto.Survey
+import com.google.android.ground.proto.survey
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
+import com.sharedtest.FakeData
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.whenever
 
 class SurveyConverterTest {
-  @Test
-  fun toSurvey_whenPresent_convertsTileSources() {
-    val testUrl = "http://test123"
-    val doc = SurveyDocument(tileSources = listOf(TileSourceNestedObject(url = testUrl)))
-    val snapshot = createSurveyDocumentSnapshot(doc)
-
-    assertThat(SurveyConverter.toSurvey(snapshot).tileSources)
-      .containsExactly(TileSource(testUrl, TileSource.Type.MOG_COLLECTION))
-  }
 
   @Test
-  fun toSurvey_whenMissing_skipsTileSources() {
-    val doc = SurveyDocument()
-    val snapshot = createSurveyDocumentSnapshot(doc)
-
-    assertThat(SurveyConverter.toSurvey(snapshot).tileSources).isEmpty()
+  fun `Converts to Survey from Survey proto`() {
+    with(FakeData) {
+      val surveyProto = survey {
+        name = SURVEY.title
+        description = SURVEY.description
+        acl.put(USER.email, Role.DATA_COLLECTOR)
+      }
+      val snapshot = createSurveyProtoDocumentSnapshot(surveyProto)
+      assertThat(SurveyConverter.toSurvey(snapshot, listOf(JOB))).isEqualTo(SURVEY)
+    }
   }
 
-  @Test
-  fun toSurvey_whenUrlMissing_skipsTileSources() {
-    val doc = SurveyDocument(tileSources = listOf(TileSourceNestedObject(url = null)))
-    val snapshot = createSurveyDocumentSnapshot(doc)
-
-    assertThat(SurveyConverter.toSurvey(snapshot).tileSources).isEmpty()
-  }
-
-  private fun createSurveyDocumentSnapshot(surveyDocument: SurveyDocument): DocumentSnapshot {
+  private fun createSurveyProtoDocumentSnapshot(surveyProto: Survey): DocumentSnapshot {
     val snapshot = mock(DocumentSnapshot::class.java)
-    whenever(snapshot.id).thenReturn(DOCUMENT_ID)
-    whenever(snapshot.toObject(SurveyDocument::class.java)).thenReturn(surveyDocument)
+    whenever(snapshot.id).thenReturn(FakeData.SURVEY.id)
     whenever(snapshot.exists()).thenReturn(true)
+    whenever(snapshot.data).thenReturn(surveyProto.toFirestoreMap())
     return snapshot
-  }
-
-  companion object {
-    const val DOCUMENT_ID = "id1"
   }
 }

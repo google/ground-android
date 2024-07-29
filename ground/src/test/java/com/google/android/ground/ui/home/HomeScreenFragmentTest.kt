@@ -125,7 +125,6 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
       "Survey title",
       "Test survey description",
       mapOf(FakeData.JOB.id to FakeData.JOB),
-      listOf(),
       mapOf(Pair(FakeData.USER.email, "data-collector")),
     )
 
@@ -174,7 +173,7 @@ class NavigationDrawerItemClickTest(
   }
 
   companion object {
-    private val TEST_SURVEY_WITHOUT_OFFLINE_TILES = FakeData.SURVEY.copy(tileSources = listOf())
+    private val TEST_SURVEY = FakeData.SURVEY.copy()
 
     @JvmStatic
     @ParameterizedRobolectricTestRunner.Parameters(name = "{4}")
@@ -183,7 +182,7 @@ class NavigationDrawerItemClickTest(
         // TODO(#2385): Restore tests deleted in #2382.
         arrayOf(
           "History and sync status",
-          TEST_SURVEY_WITHOUT_OFFLINE_TILES,
+          TEST_SURVEY,
           HomeScreenFragmentDirections.showSyncStatus(),
           true,
           "Clicking 'Sync status' should navigate to fragment",
