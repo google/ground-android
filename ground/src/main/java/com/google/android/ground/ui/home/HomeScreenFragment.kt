@@ -33,8 +33,6 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.HomeScreenFragBinding
 import com.google.android.ground.databinding.NavDrawerHeaderBinding
 import com.google.android.ground.model.User
-import com.google.android.ground.repository.LocationOfInterestRepository
-import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
@@ -44,6 +42,7 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /**
@@ -58,10 +57,7 @@ class HomeScreenFragment :
   // TODO: It's not obvious which locations of interest are in HomeScreen vs MapContainer;
   //  make this more intuitive.
 
-  @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
   @Inject lateinit var userRepository: UserRepository
-  @Inject lateinit var surveyRepository: SurveyRepository
-
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var user: User
@@ -114,7 +110,7 @@ class HomeScreenFragment :
       val navHeader = binding.navView.getHeaderView(0)
       val headerBinding = NavDrawerHeaderBinding.bind(navHeader)
       headerBinding.user = userRepository.getAuthenticatedUser()
-      surveyRepository.activeSurveyFlow.collect {
+      homeScreenViewModel.surveyRepository.activeSurveyFlow.collect {
         if (it == null) {
           headerBinding.surveyInfo.visibility = View.GONE
           headerBinding.noSurveysInfo.visibility = View.VISIBLE
@@ -172,7 +168,7 @@ class HomeScreenFragment :
           }
           if (showSignOutDialog.value) {
             SignOutConfirmationDialog(showUserDetailsDialog, showSignOutDialog) {
-              userRepository.signOut()
+              homeScreenViewModel.signOut()
             }
           }
         }

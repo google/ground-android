@@ -23,6 +23,7 @@ import com.google.android.ground.persistence.local.room.converter.SubmissionDelt
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
@@ -42,7 +43,8 @@ internal constructor(
   private val navigator: Navigator,
   private val offlineAreaRepository: OfflineAreaRepository,
   private val submissionRepository: SubmissionRepository,
-  private val surveyRepository: SurveyRepository,
+  val surveyRepository: SurveyRepository,
+  val userRepository: UserRepository,
 ) : AbstractViewModel() {
 
   private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
@@ -115,5 +117,9 @@ internal constructor(
 
   fun showTermsOfService() {
     navigator.navigate(HomeScreenFragmentDirections.showTermsOfService(true))
+  }
+
+  fun signOut() {
+    viewModelScope.launch { userRepository.signOut() }
   }
 }
