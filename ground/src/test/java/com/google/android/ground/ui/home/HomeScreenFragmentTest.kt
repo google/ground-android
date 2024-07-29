@@ -16,8 +16,10 @@
 package com.google.android.ground.ui.home
 
 import android.content.Context
+import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.drawerlayout.widget.DrawerLayout
@@ -49,6 +51,7 @@ import kotlin.test.assertFalse
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
@@ -130,6 +133,12 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
   @Inject lateinit var surveyRepository: SurveyRepository
 
+  /**
+   * composeTestRule has to be created in the specific test file in order to access the required
+   * activity. [composeTestRule.activity]
+   */
+  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+
   private val surveyWithoutBasemap: Survey =
     Survey(
       "SURVEY",
@@ -163,29 +172,51 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
     onView(withId(R.id.user_image)).check(matches(isDisplayed()))
     openSignOutDialog()
 
-    composeTestRule.onNodeWithText("Sign out").assertIsDisplayed()
-    composeTestRule.onNodeWithText("Close").assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.close))
+      .assertIsDisplayed()
 
-    composeTestRule.onNodeWithText("Close").performClick()
-    composeTestRule.onNodeWithText("Close").assertIsNotDisplayed()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.close))
+      .performClick()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.close))
+      .assertIsNotDisplayed()
 
     openSignOutWarningDialog()
 
     advanceUntilIdle()
 
-    composeTestRule.onNodeWithText("Unsynced data").assertIsDisplayed()
     composeTestRule
-      .onNodeWithText("If you sign out, any unsynced data will be discarded")
+      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out_dialog_title))
       .assertIsDisplayed()
-    composeTestRule.onNodeWithText("Cancel").assertIsDisplayed()
-    composeTestRule.onNodeWithText("Sign out").assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out_dialog_body))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out))
+      .assertIsDisplayed()
 
-    composeTestRule.onNodeWithText("Cancel").performClick()
-    composeTestRule.onNodeWithText("Cancel").assertIsNotDisplayed()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
+      .performClick()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
+      .assertIsNotDisplayed()
 
     openSignOutWarningDialog()
-    composeTestRule.onNodeWithText("Sign out").performClick()
-    composeTestRule.onNodeWithText("Sign out").assertIsNotDisplayed()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out))
+      .performClick()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out))
+      .assertIsNotDisplayed()
   }
 
   @Test
