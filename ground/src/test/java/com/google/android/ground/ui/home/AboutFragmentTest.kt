@@ -36,6 +36,10 @@ class AboutFragmentTest : BaseHiltTest() {
 
   private lateinit var fragment: AboutFragment
 
+  /**
+   * composeTestRule has to be created in the specific test file in order to access the required
+   * activity. [composeTestRule.activity]
+   */
   @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Before
