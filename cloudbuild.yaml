@@ -110,12 +110,10 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex testDevStagingUnitTest --no-daemon 2> unit-test-logs.txt || echo "fail" > build-status.txt
+        ./gradlew -PdisablePreDex testDevDebugUnitTest --no-daemon 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
-        if [[ "${_PUSH_TO_MASTER}" ]]; then
-          ./gradlew jacocoTestStagingUnitTestReport --no-daemon
-        fi        
+        ./gradlew jacocoDevDebugUnitTestReport --no-daemon
 
   - name: 'gcr.io/$PROJECT_ID/android:34'
     id: &authenticate_gcloud 'Authorize gcloud'
@@ -205,7 +203,7 @@ steps:
       - |
         curl -Os https://uploader.codecov.io/latest/linux/codecov
         chmod +x codecov
-        ./codecov --verbose upload-process --fail-on-error -t ${_CODECOV_TOKEN} -n 'service'-$BUILD_ID -F service -f coverage-service.xml
+        ./codecov --verbose upload-process --fail-on-error -t ${_CODECOV_TOKEN} -n 'service'-$BUILD_ID -F service -f ground/build/reports/jacoco/jacocoDevDebugUnitTestReport/jacocoDevDebugUnitTestReport.xml
 
   - name: 'gcr.io/$PROJECT_ID/android:base'
     id: &compress_cache 'Compress gradle build cache'
