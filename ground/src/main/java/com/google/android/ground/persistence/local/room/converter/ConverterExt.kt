@@ -20,7 +20,6 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.model.geometry.*
 import com.google.android.ground.model.imagery.OfflineArea
-import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Job.DataCollectionStrategy
 import com.google.android.ground.model.job.Style
@@ -61,25 +60,6 @@ fun AuditInfo.toLocalDataStoreObject(): AuditInfoEntity =
 
 fun AuditInfoEntity.toModelObject() =
   AuditInfo(UserDetails.toUser(user), Date(clientTimestamp), serverTimestamp?.let { Date(it) })
-
-private fun TileSource.Type.toLocalDataStoreObject() =
-  when (this) {
-    TileSource.Type.TILED_WEB_MAP -> TileSourceEntity.TileSourceEntityType.IMAGE
-    TileSource.Type.MOG_COLLECTION -> TileSourceEntity.TileSourceEntityType.MOG
-    else -> TileSourceEntity.TileSourceEntityType.UNKNOWN
-  }
-
-private fun TileSourceEntity.TileSourceEntityType.toModelObject() =
-  when (this) {
-    TileSourceEntity.TileSourceEntityType.IMAGE -> TileSource.Type.TILED_WEB_MAP
-    TileSourceEntity.TileSourceEntityType.MOG -> TileSource.Type.MOG_COLLECTION
-    else -> TileSource.Type.UNKNOWN
-  }
-
-fun TileSource.toLocalDataStoreObject(surveyId: String) =
-  TileSourceEntity(surveyId = surveyId, url = url, type = type.toLocalDataStoreObject())
-
-fun TileSourceEntity.toModelObject() = TileSource(url = url, type = type.toModelObject())
 
 fun Geometry.toLocalDataStoreObject() = GeometryWrapper.fromGeometry(this)
 
@@ -149,7 +129,6 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     geometry = geometry.toLocalDataStoreObject(),
     customId = customId,
     submissionCount = submissionCount,
-    ownerEmail = ownerEmail,
     properties = properties,
     isPredefined = isPredefined,
   )
@@ -197,7 +176,6 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(user: User): LocationOfInt
     geometry = geometry?.toLocalDataStoreObject(),
     customId = customId,
     submissionCount = submissionCount,
-    ownerEmail = ownerEmail,
     properties = properties,
     isPredefined = isPredefined,
   )
@@ -386,14 +364,12 @@ fun SubmissionMutation.toLocalDataStoreObject() =
 
 fun SurveyEntityAndRelations.toModelObject(): Survey {
   val jobMap = jobEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
-  val tileSources = tileSourceEntityAndRelations.map { it.toModelObject() }
 
   return Survey(
     surveyEntity.id,
     surveyEntity.title!!,
     surveyEntity.description!!,
     jobMap.toPersistentMap(),
-    tileSources.toPersistentList(),
     surveyEntity.acl?.toStringMap()!!,
   )
 }

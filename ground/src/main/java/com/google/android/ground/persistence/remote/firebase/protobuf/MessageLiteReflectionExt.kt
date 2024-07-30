@@ -70,8 +70,20 @@ fun <T : MessageBuilder> KClass<T>.getMapValueType(key: String): KClass<*> {
     ?: throw NoSuchMethodError("$mapValueGetterName method")
 }
 
+@Suppress("StringLiteralDuplication", "SwallowedException")
 fun <T : MessageBuilder> KClass<T>.getFieldTypeByName(fieldName: String): KClass<*> =
-  java.getDeclaredMethod("get${fieldName.toUpperCamelCase()}").returnType?.kotlin
+  try {
+    java.getDeclaredMethod("get${fieldName.toUpperCamelCase()}").returnType?.kotlin
+      ?: throw UnsupportedOperationException("Getter not found for field $fieldName")
+  } catch (e: NoSuchMethodException) {
+    // Could be a list type instead. Check for a `getFieldList()` method.
+    java.getDeclaredMethod("get${fieldName.toUpperCamelCase()}List").returnType?.kotlin
+      ?: throw UnsupportedOperationException("Getter not found for field $fieldName")
+  }
+
+fun <T : MessageBuilder> KClass<T>.getListElementFieldTypeByName(fieldName: String): KClass<*> =
+  // Each list field has a getter with an index.
+  java.getDeclaredMethod("get${fieldName.toUpperCamelCase()}", Int::class.java).returnType?.kotlin
     ?: throw UnsupportedOperationException("Getter not found for field $fieldName")
 
 private fun MessageBuilder.getSetterByFieldName(fieldName: String): KFunction<*> =
@@ -80,6 +92,13 @@ private fun MessageBuilder.getSetterByFieldName(fieldName: String): KFunction<*>
   this::class.declaredFunctions.find {
     it.name == "set${fieldName.toUpperCamelCase()}" && !it.parameters[1].type.isBuilder()
   } ?: throw UnsupportedOperationException("Setter not found for field $fieldName")
+
+private fun MessageBuilder.getAddAllByFieldName(fieldName: String): KFunction<*> =
+  // Message fields generated two setters; ignore the Builder's setter in favor of the
+  // message setter.
+  this::class.declaredFunctions.find {
+    it.name == "addAll${fieldName.toUpperCamelCase()}" && !it.parameters[1].type.isBuilder()
+  } ?: throw UnsupportedOperationException("addAll not found for field $fieldName")
 
 private fun KType.isBuilder() =
   (classifier as KClass<*>).isSubclassOf(GeneratedMessageLite.Builder::class)
@@ -91,9 +110,19 @@ private fun MessageBuilder.getPutAllByFieldName(fieldName: String): KFunction<*>
 fun <T : Message> KClass<T>.newBuilderForType() =
   java.getDeclaredMethod("newBuilder").invoke(null) as MessageBuilder
 
+@Suppress("StringLiteralDuplication")
 fun MessageBuilder.setOrLog(fieldName: MessageFieldName, value: MessageValue) {
   try {
     set(fieldName, value)
+  } catch (e: Throwable) {
+    Timber.e(e, "Skipping incompatible value in ${javaClass}: $fieldName=$value")
+  }
+}
+
+@Suppress("StringLiteralDuplication")
+fun MessageBuilder.addAllOrLog(fieldName: MessageFieldName, value: MessageValue) {
+  try {
+    addAll(fieldName, value)
   } catch (e: Throwable) {
     Timber.e(e, "Skipping incompatible value in ${javaClass}: $fieldName=$value")
   }
@@ -152,6 +181,10 @@ private fun String.toUpperCamelCase(): String =
 
 private fun MessageBuilder.set(fieldName: MessageFieldName, value: MessageValue) {
   getSetterByFieldName(fieldName).call(this, value)
+}
+
+private fun MessageBuilder.addAll(fieldName: MessageFieldName, value: MessageValue) {
+  getAddAllByFieldName(fieldName).call(this, value)
 }
 
 private fun MessageBuilder.putAll(fieldName: MessageFieldName, value: MessageMap) {

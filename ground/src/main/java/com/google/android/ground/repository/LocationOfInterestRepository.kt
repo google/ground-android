@@ -93,7 +93,6 @@ constructor(
         locationOfInterestId = newId,
         userId = user.id,
         geometry = geometry,
-        ownerEmail = user.email,
         properties = generateProperties(loiName),
         isPredefined = false,
       )

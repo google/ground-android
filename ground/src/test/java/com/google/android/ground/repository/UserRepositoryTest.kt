@@ -21,6 +21,7 @@ import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.system.NetworkManager
+import com.google.android.ground.system.auth.SignInState
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
@@ -29,6 +30,7 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -116,6 +118,17 @@ class UserRepositoryTest : BaseHiltTest() {
 
       assertThat(userRepository.canUserSubmitData()).isFalse()
     }
+
+  @Test
+  fun `signOut() should sign out the user`() {
+    runWithTestDispatcher {
+      fakeAuthenticationManager.setUser(FakeData.USER)
+      fakeAuthenticationManager.setState(SignInState.SignedIn(FakeData.USER))
+
+      userRepository.signOut()
+      assertThat(fakeAuthenticationManager.signInState.first()).isEqualTo(SignInState.SignedOut)
+    }
+  }
 
   @Test
   fun `canUserSubmitData() when user email is empty returns false`() = runWithTestDispatcher {

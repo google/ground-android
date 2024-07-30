@@ -26,6 +26,14 @@ class MultipleChoiceTaskData(
   val selectedOptionIds: List<String>,
 ) : TaskData {
 
+  // TODO: Reuse the key value here and in the view model
+  fun hasOtherText(): Boolean = selectedOptionIds.contains("OTHER_ID")
+
+  fun getOtherText(): String {
+    val otherId = selectedOptionIds.firstOrNull { it == "OTHER_ID" } ?: return ""
+    return multipleChoice?.getOptionById(otherId)?.label ?: ""
+  }
+
   // TODO: Make these inner classes non-static and access Task directly.
   override fun getDetailsText(): String =
     selectedOptionIds

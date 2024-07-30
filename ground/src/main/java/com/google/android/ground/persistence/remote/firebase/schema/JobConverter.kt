@@ -17,25 +17,32 @@
 package com.google.android.ground.persistence.remote.firebase.schema
 
 import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.task.Task
+import com.google.android.ground.model.job.Style as StyleModel
+import com.google.android.ground.persistence.remote.DataStoreException
+import com.google.android.ground.persistence.remote.firebase.protobuf.parseFrom
+import com.google.android.ground.proto.Job as JobProto
+import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.collections.immutable.toPersistentMap
 
 /** Converts between Firestore documents and [Job] instances. */
 internal object JobConverter {
 
-  @JvmStatic
-  fun toJob(id: String, obj: JobNestedObject): Job {
-    val taskMap = mutableMapOf<String, Task>()
-    obj.tasks?.let {
-      it.entries
-        .mapNotNull { (key, value) -> TaskConverter.toTask(key, value) }
-        .forEach { task -> taskMap[task.id] = task }
-    }
+  @Throws(DataStoreException::class)
+  fun toJob(doc: DocumentSnapshot): Job {
+    if (!doc.exists()) throw DataStoreException("Missing job")
+    val jobProto = JobProto::class.parseFrom(doc)
+    val taskMap = jobProto.tasksList.associate { it.id to TaskConverter.toTask(it) }
+    val strategy =
+      if (taskMap.values.map { it.isAddLoiTask }.none()) {
+        Job.DataCollectionStrategy.PREDEFINED
+      } else {
+        Job.DataCollectionStrategy.MIXED
+      }
     return Job(
-      id = id,
-      style = obj.defaultStyle?.toStyle(),
-      name = obj.name,
-      strategy = TaskConverter.toStrategy(obj.strategy),
+      id = jobProto.id.ifEmpty { doc.id },
+      style = StyleModel(jobProto.style.color),
+      name = jobProto.name,
+      strategy = strategy,
       tasks = taskMap.toPersistentMap(),
     )
   }

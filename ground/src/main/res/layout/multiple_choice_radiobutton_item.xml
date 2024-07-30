@@ -17,7 +17,8 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
   <data>
     <import type="android.view.View" />
     <variable
@@ -44,8 +45,8 @@
       android:padding="16dp"
       android:text="@{ item.isOtherOption ? @string/other : item.option.label }"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent" />
-
+      app:layout_constraintTop_toTopOf="parent"
+      tools:text="Option 1" />
 
     <com.google.android.material.textfield.TextInputLayout
       android:id="@+id/text_input"
