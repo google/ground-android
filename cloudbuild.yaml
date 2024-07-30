@@ -110,7 +110,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex testDevStagingUnitTest --no-daemon 2> unit-test-logs.txt || echo "fail" > build-status.txt
+        ./gradlew -PdisablePreDex testDevDebugUnitTest --no-daemon 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
         ./gradlew jacocoDevDebugUnitTestReport --no-daemon
