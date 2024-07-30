@@ -23,6 +23,7 @@ object TestConfig {
   const val GROUND_PACKAGE = "com.google.android.ground"
   val TEST_SURVEY_TASKS_ADHOC =
     listOf(
+      Task.Type.CAPTURE_LOCATION,
       Task.Type.DROP_PIN,
       Task.Type.TEXT,
       Task.Type.MULTIPLE_CHOICE,
@@ -33,5 +34,6 @@ object TestConfig {
       Task.Type.PHOTO,
       Task.Type.CAPTURE_LOCATION,
     )
+  val TEST_SURVEY_LOI_TASK_INDEX = 1
   const val TEST_SURVEY_IDENTIFIER = "test"
 }
