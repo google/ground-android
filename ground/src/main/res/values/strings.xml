@@ -162,4 +162,14 @@
   <string name="signout_warning">If you sign out, all unsaved data will be lost.</string>
   <string name="admin_request_access">To continue, contact your system administrator to request access.</string>
   <string name="signup_request_access">To continue, <annotation type="sign_up_link">sign up to request access</annotation>.</string>
+
+  <!-- Settings -->
+  <string name="general_title">General</string>
+  <string name="upload_media_title">Upload Media</string>
+  <string name="over_wifi_summary">Over Wi-Fi only</string>
+  <string name="help_title">Help</string>
+  <string name="visit_website_title">Visit website</string>
+  <string name="send_feedback_title">Send feedback</string>
+  <string name="report_summary">Report technical issues or suggest new locationsOfInterest</string>
+  <string name="not_yet_impl_title">Not yet implemented</string>
 </resources>
