@@ -43,7 +43,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -73,8 +72,7 @@ class AboutFragment : AbstractFragment() {
         Image(
           bitmap = R.drawable.ground_logo.toImageBitmap(),
           contentDescription = "Logo",
-          modifier =
-            Modifier.testTag("logo").padding(0.dp, 8.dp, 0.dp, 22.dp).width(122.dp).height(122.dp),
+          modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 22.dp).width(122.dp).height(122.dp),
         )
 
         val uriHandler = LocalUriHandler.current
