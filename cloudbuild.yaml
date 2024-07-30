@@ -113,9 +113,7 @@ steps:
         ./gradlew -PdisablePreDex testDevStagingUnitTest --no-daemon 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
-        if [[ "${_PUSH_TO_MASTER}" ]]; then
-          ./gradlew jacocoDevDebugUnitTestReport --no-daemon
-        fi        
+        ./gradlew jacocoDevDebugUnitTestReport --no-daemon
 
   - name: 'gcr.io/$PROJECT_ID/android:34'
     id: &authenticate_gcloud 'Authorize gcloud'
