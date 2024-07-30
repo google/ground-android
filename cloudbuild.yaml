@@ -114,7 +114,7 @@ steps:
         cat unit-test-logs.txt
 
         if [[ "${_PUSH_TO_MASTER}" ]]; then
-          ./gradlew jacocoTestStagingUnitTestReport --no-daemon
+          ./gradlew jacocoDevDebugUnitTestReport --no-daemon
         fi        
 
   - name: 'gcr.io/$PROJECT_ID/android:34'
