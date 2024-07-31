@@ -318,17 +318,18 @@ internal constructor(
     if (tasks.isEmpty()) {
       error("Can't generate sequence for empty task list")
     }
-
-    val task = tasks.filter { it.id == (startId ?: tasks[0].id) }
-
-    // TODO(#2539): Cleanup once https://github.com/google/ground-android/issues/2539 is resolved.
-    if (task.isEmpty()) {
-      error(
-        "Unable to find a task with id startId=$startId, firstTaskId=${tasks[0].id}, allTasks=${tasks.map { it.id }}"
-      )
-    }
-
-    val startIndex = tasks.indexOf(task.first())
+    val startIndex =
+      tasks
+        .indexOfFirst { it.id == (startId ?: tasks[0].id) }
+        .let {
+          // NOTE(#2539) Fallback to the first task if startId is not found.
+          if (it < 0) {
+            Timber.w("startId, $startId, was not found. Defaulting to 0")
+            0
+          } else {
+            it
+          }
+        }
     return if (reversed) {
         tasks.subList(0, startIndex + 1).reversed()
       } else {
