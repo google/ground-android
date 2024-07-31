@@ -34,13 +34,12 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFragment() {
 
-  private lateinit var viewModel: OfflineAreaViewerViewModel
+  @Inject lateinit var viewModel: OfflineAreaViewerViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     val args = OfflineAreaViewerFragmentArgs.fromBundle(requireNotNull(arguments))
-    viewModel = getViewModel(OfflineAreaViewerViewModel::class.java)
-    viewModel.initialize(args)
+    viewModel.initialize(args.offlineAreaId)
   }
 
   override fun onMapReady(map: MapFragment) {
