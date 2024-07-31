@@ -44,7 +44,7 @@ open class BaseHiltTest {
   /* Allows creating mocks using @Mock annotation. */
   @get:Rule(order = 2) var rule: MockitoRule = MockitoJUnit.rule()
 
-  @get:Rule(order = 3) val composeTestRule = createComposeRule()
+  @get:Rule(order = 3) open val composeTestRule = createComposeRule()
 
   @Inject lateinit var database: LocalDatabase
   @Inject lateinit var testDispatcher: TestDispatcher
