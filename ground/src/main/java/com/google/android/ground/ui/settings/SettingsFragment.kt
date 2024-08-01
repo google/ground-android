@@ -55,8 +55,8 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
   override fun onPreferenceClick(preference: Preference): Boolean {
     when (preference.key) {
       Keys.VISIT_WEBSITE -> openUrl(preference.summary.toString())
-      Keys.FEEDBACK -> Toast.makeText(context, "Not yet implemented", Toast.LENGTH_SHORT).show()
-      else -> return false
+      Keys.FEEDBACK ->
+        Toast.makeText(context, R.string.not_yet_impl_title, Toast.LENGTH_SHORT).show()
     }
     return true
   }

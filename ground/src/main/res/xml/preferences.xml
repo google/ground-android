@@ -21,33 +21,33 @@
   <PreferenceCategory
     app:iconSpaceReserved="false"
     app:key="general_category"
-    app:title="General">
+    app:title="@string/general_title">
 
     <SwitchPreferenceCompat
       app:iconSpaceReserved="false"
       app:key="upload_media"
-      app:summary="Over Wi-Fi only"
-      app:title="Upload media" />
+      app:summary="@string/over_wifi_summary"
+      app:title="@string/upload_media_title" />
   </PreferenceCategory>
 
   <PreferenceCategory
     app:iconSpaceReserved="false"
     app:key="help_category"
-    app:title="Help">
+    app:title="@string/help_title">
 
     <Preference
       app:iconSpaceReserved="false"
       app:key="visit_website"
       app:summary="@string/ground_website"
-      app:title="Visit website" />
+      app:title="@string/visit_website_title" />
 
     <!-- TODO(https://github.com/google/ground-android/pull/742): Re-enable once the locationOfInterest is implemented -->
     <Preference
       app:iconSpaceReserved="false"
       app:isPreferenceVisible="false"
       app:key="feedback"
-      app:summary="Report technical issues or suggest new locationsOfInterest"
-      app:title="Send feedback" />
+      app:summary="@string/report_summary"
+      app:title="@string/send_feedback_title" />
 
   </PreferenceCategory>
 
