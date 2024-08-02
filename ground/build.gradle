@@ -303,6 +303,9 @@ dependencies {
     // OSS Licenses Plugin
     implementation 'com.google.android.gms:play-services-oss-licenses:17.0.1'
 
+    // Markdown Parser
+    implementation 'org.jetbrains:markdown:0.7.3'
+
     // Testing
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "junit:junit:$junitVersion"

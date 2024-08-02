@@ -21,6 +21,7 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
@@ -64,6 +65,7 @@ internal constructor(
   offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
   surveyRepository: SurveyRepository,
+  private val localValueStore: LocalValueStore,
 ) :
   BaseMapViewModel(
     locationManager,
@@ -114,6 +116,9 @@ internal constructor(
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
   val isZoomedInFlow: Flow<Boolean>
 
+  /** Emits when data consent for the active survey has changed. */
+  val activeSurveyDataConsentFlow: Flow<Boolean>
+
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     // TODO: Clear location of interest markers when survey is deactivated.
@@ -146,6 +151,10 @@ internal constructor(
         if (survey == null || !isZoomedIn) listOf()
         else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
       }
+
+    activeSurveyDataConsentFlow = activeSurvey.mapNotNull {
+      if (it == null) false else getDataConsent(it)
+    }
   }
 
   /**
@@ -182,6 +191,8 @@ internal constructor(
       }
     }
   }
+
+  private fun getDataConsent(survey: Survey) = localValueStore.getDataConsent(survey.id)
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
     loiRepository.getLocationsOfInterests(survey).map {

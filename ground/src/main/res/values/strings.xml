@@ -130,6 +130,7 @@
   <string name="draw_area_task_instruction">Move the map and tap “Add point” to add points around the desired area.</string>
   <string name="close">Close</string>
   <string name="map_location">Map location</string>
+  <string name="data_consent_dialog_title">Agree to survey data sharing terms to continue</string>
   <string name="sign_out_dialog_title">Unsynced data</string>
   <string name="sign_out_dialog_body">If you sign out, any unsynced data will be discarded</string>
   <string name="suggest_data_collection_hint">Zoom in to start collecting data</string>
