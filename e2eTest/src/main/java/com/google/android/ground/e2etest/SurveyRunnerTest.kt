@@ -35,6 +35,7 @@ import com.google.android.ground.e2etest.TestConfig.GROUND_PACKAGE
 import com.google.android.ground.e2etest.TestConfig.LONG_TIMEOUT
 import com.google.android.ground.e2etest.TestConfig.SHORT_TIMEOUT
 import com.google.android.ground.e2etest.TestConfig.TEST_SURVEY_IDENTIFIER
+import com.google.android.ground.e2etest.TestConfig.TEST_SURVEY_LOI_TASK_INDEX
 import com.google.android.ground.e2etest.TestConfig.TEST_SURVEY_TASKS_ADHOC
 import com.google.android.ground.model.task.Task
 import java.io.IOException
@@ -61,7 +62,7 @@ class SurveyRunnerTest : AutomatorRunner {
     fillOutTaskData(isAdHoc = true, TEST_SURVEY_TASKS_ADHOC)
     clickSubmissionConfirmationDone()
     startPredefinedLoiTask()
-    fillOutTaskData(isAdHoc = false, TEST_SURVEY_TASKS_ADHOC.drop(1))
+    fillOutTaskData(isAdHoc = false, TEST_SURVEY_TASKS_ADHOC)
     clickSubmissionConfirmationDone()
   }
 
@@ -154,6 +155,9 @@ class SurveyRunnerTest : AutomatorRunner {
   private fun fillOutTaskData(isAdHoc: Boolean, taskList: List<Task.Type>) {
     taskList.forEachIndexed { i, it ->
       device.waitForIdle()
+      if (!isAdHoc && i == TEST_SURVEY_LOI_TASK_INDEX) {
+        return@forEachIndexed
+      }
       when (it) {
         Task.Type.DROP_PIN -> completeDropPinTask()
         Task.Type.DRAW_AREA -> completeDrawArea()
@@ -168,7 +172,7 @@ class SurveyRunnerTest : AutomatorRunner {
       }
       if (i < taskList.size - 1) {
         clickNext()
-        if (isAdHoc && i == 0) {
+        if (isAdHoc && i == TEST_SURVEY_LOI_TASK_INDEX) {
           setLoiName()
         }
       } else {
