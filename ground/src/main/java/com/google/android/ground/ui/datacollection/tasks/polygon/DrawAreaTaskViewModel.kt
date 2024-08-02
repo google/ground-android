@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import timber.log.Timber
 
 @SharedViewModel
 class DrawAreaTaskViewModel
@@ -72,6 +73,19 @@ internal constructor(
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
     super.initialize(job, task, taskData)
     strokeColor = job.getDefaultColor()
+    (taskData as? DrawAreaTaskData)?.let {
+      updateVertices(it.area.getShellCoordinates())
+      try {
+        completePolygon()
+      } catch (e: IllegalStateException) {
+        // This state can theoretically happen if the coordinates form an incomplete ring, but
+        // construction of a DrawAreaTaskData is impossible without a complete ring anyway so it is
+        // unlikely to happen. This can also happen if `isMarkedComplete` is true at initialization
+        // time, which is also unlikely.
+        Timber.e(e, "Error when loading draw area from saved state")
+        updateVertices(listOf())
+      }
+    }
   }
 
   fun isMarkedComplete(): Boolean = isMarkedComplete
@@ -155,7 +169,7 @@ internal constructor(
     refreshMap()
   }
 
-  fun onCompletePolygonButtonClick() {
+  fun completePolygon() {
     check(LineString(vertices).isClosed()) { "Polygon is not complete" }
     check(!isMarkedComplete) { "Already marked complete" }
 

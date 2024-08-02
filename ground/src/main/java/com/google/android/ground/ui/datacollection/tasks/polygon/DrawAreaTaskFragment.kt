@@ -74,9 +74,7 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
     addPointButton =
       addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
     completeButton =
-      addButton(ButtonAction.COMPLETE).setOnClickListener {
-        viewModel.onCompletePolygonButtonClick()
-      }
+      addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.completePolygon() }
   }
 
   /** Removes the last vertex from the polygon. */
