@@ -27,15 +27,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -43,7 +36,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
@@ -52,6 +44,7 @@ import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.google.android.ground.R
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.compose.HyperlinkText
+import com.google.android.ground.ui.compose.Toolbar
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -67,7 +60,11 @@ class AboutFragment : AbstractFragment() {
   @Preview
   @Composable
   private fun CreateView() {
-    Scaffold(topBar = { Toolbar { findNavController().navigateUp() } }) { innerPadding ->
+    Scaffold(
+      topBar = {
+        Toolbar(stringRes = R.string.about, iconClick = { findNavController().navigateUp() })
+      }
+    ) { innerPadding ->
       Column(modifier = Modifier.padding(innerPadding).padding(horizontal = 35.dp)) {
         Image(
           bitmap = R.drawable.ground_logo.toImageBitmap(),
@@ -97,19 +94,6 @@ class AboutFragment : AbstractFragment() {
         )
       }
     }
-  }
-
-  @OptIn(ExperimentalMaterial3Api::class)
-  @Composable
-  private fun Toolbar(onNavigationIconClick: () -> Unit = {}) {
-    TopAppBar(
-      title = { Text(text = stringResource(R.string.about)) },
-      navigationIcon = {
-        IconButton(onClick = onNavigationIconClick) {
-          Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-        }
-      },
-    )
   }
 
   @Composable
