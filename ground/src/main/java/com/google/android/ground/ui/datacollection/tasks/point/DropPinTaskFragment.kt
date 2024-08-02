@@ -44,7 +44,9 @@ class DropPinTaskFragment : AbstractTaskFragment<DropPinTaskViewModel>() {
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
+    // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
+    // Otherwise, the sequentially generated ID might conflict with an ID produced by Google Maps.
+    val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11617 }
     parentFragmentManager
       .beginTransaction()
       .add(rowLayout.id, DropPinTaskMapFragment.newInstance(viewModel, map), "Drop a pin fragment")
