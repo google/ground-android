@@ -56,7 +56,9 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_draw)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() }
+    // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
+    // Otherwise, the sequentially generated ID might conflict with an ID produced by Google Maps.
+    val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11411 }
     drawAreaTaskMapFragment = DrawAreaTaskMapFragment.newInstance(viewModel, map)
     parentFragmentManager
       .beginTransaction()
@@ -72,9 +74,7 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
     addPointButton =
       addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
     completeButton =
-      addButton(ButtonAction.COMPLETE).setOnClickListener {
-        viewModel.onCompletePolygonButtonClick()
-      }
+      addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.completePolygon() }
   }
 
   /** Removes the last vertex from the polygon. */
