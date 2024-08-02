@@ -15,6 +15,8 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.time
 
+import android.view.View
+import android.view.ViewGroup
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -75,6 +77,12 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   @Test
   fun testResponse_onUserInput() {
     setupTaskFragment<TimeTaskFragment>(job, task)
+    // NOTE: The task container layout is given 0dp height to allow Android's constraint system to
+    // determine the appropriate height. Unfortunately, Espresso does not perform actions on views
+    // with height zero, and it doesn't seem to repro constraint calculations. Force the view to
+    // have a height of 1 to ensure the action performed below actually takes place.
+    val view: View? = fragment.view?.findViewById(R.id.task_container)
+    view?.layoutParams = ViewGroup.LayoutParams(0, 1)
 
     assertThat(fragment.getTimePickerDialog()).isNull()
     onView(withId(R.id.user_response_text)).perform(click())

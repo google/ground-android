@@ -26,6 +26,7 @@
     android:divider="@null"
     android:dividerHeight="0dp"
     android:orientation="vertical"
+    android:paddingBottom="10dp"
     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
 </layout>
