@@ -19,7 +19,7 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.ui.map.MapType
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData.TEST_OFFLINE_AREA
+import com.sharedtest.FakeData.OFFLINE_AREA
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -36,19 +36,19 @@ class OfflineAreaViewerViewModelTest : BaseHiltTest() {
 
   @Test
   fun `viewModel initialized the required values`() = runWithTestDispatcher {
-    localOfflineAreaStore.insertOrUpdate(TEST_OFFLINE_AREA)
+    localOfflineAreaStore.insertOrUpdate(OFFLINE_AREA)
 
     offlineAreaViewerViewModel.initialize("id_1")
     advanceUntilIdle()
 
-    assertThat(offlineAreaViewerViewModel.area.value).isEqualTo(TEST_OFFLINE_AREA)
+    assertThat(offlineAreaViewerViewModel.area.value).isEqualTo(OFFLINE_AREA)
     assertThat(offlineAreaViewerViewModel.areaSize.value).isEqualTo("<1")
     assertThat(offlineAreaViewerViewModel.areaName.value).isEqualTo("Test Area")
   }
 
   @Test
   fun `remove downloaded area is successful`() = runWithTestDispatcher {
-    localOfflineAreaStore.insertOrUpdate(TEST_OFFLINE_AREA)
+    localOfflineAreaStore.insertOrUpdate(OFFLINE_AREA)
     offlineAreaViewerViewModel.initialize("id_1")
     advanceUntilIdle()
 
