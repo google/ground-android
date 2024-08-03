@@ -126,7 +126,7 @@ object FakeData {
 
   val COORDINATES = Coordinates(42.0, 18.0)
 
-  val TEST_OFFLINE_AREA =
+  val OFFLINE_AREA =
     OfflineArea("id_1", OfflineArea.State.PENDING, Bounds(0.0, 0.0, 0.0, 0.0), "Test Area", 0..14)
 
   fun newTask(
