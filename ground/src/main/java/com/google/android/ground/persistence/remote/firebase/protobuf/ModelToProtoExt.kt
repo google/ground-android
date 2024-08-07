@@ -177,6 +177,7 @@ private fun ValueDelta.toMessage() = taskData {
 private fun createAuditInfoMessage(user: User, timestamp: Date) = auditInfo {
   userId = user.id
   displayName = user.displayName
+  emailAddress = user.email
   photoUrl = user.photoUrl ?: photoUrl
   clientTimestamp = timestamp.toMessage()
   serverTimestamp = timestamp.toMessage()
