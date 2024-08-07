@@ -394,6 +394,5 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     private val JOB = FakeData.JOB.copy(tasks = TASKS.associateBy { it.id })
     private val SURVEY = FakeData.SURVEY.copy(jobMap = mapOf(Pair(JOB.id, JOB)))
-    private val COLLECTION_ID = "collectionId"
   }
 }
