@@ -5,3 +5,15 @@ comment:
   require_base: false
   require_head: false
   hide_project_coverage: false
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        # Max. allowed drop in coverage of the entire project.
+        threshold: 1%
+    patch:
+      default:
+        target: auto
+        # Max. allowed drop in coverage of modified lines.
+        threshold: 60%
