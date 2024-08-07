@@ -136,6 +136,7 @@ class LoiMutationConverterTest {
         userId = TEST_USER.id,
         type = Mutation.Type.CREATE,
         properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
+        collectionId = "collectionId"
       )
 
     val map = mutation.createLoiMessage(TEST_USER).toFirestoreMap()
@@ -219,6 +220,7 @@ class LoiMutationConverterTest {
         submissionCount = 10,
         properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
         customId = "a custom loi",
+        collectionId = "collectionId",
       )
 
     fun newAoiMutation(
@@ -238,6 +240,7 @@ class LoiMutationConverterTest {
         clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
         properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
         customId = "a custom loi",
+        collectionId = "collectionId",
       )
   }
 }

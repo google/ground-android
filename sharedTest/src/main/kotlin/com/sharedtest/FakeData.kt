@@ -151,6 +151,7 @@ object FakeData {
       surveyId = SURVEY_ID,
       clientTimestamp = Date(),
       properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
+      collectionId = "",
     )
 
   fun newAoiMutation(
@@ -169,5 +170,6 @@ object FakeData {
       surveyId = SURVEY_ID,
       clientTimestamp = Date(),
       properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
+      collectionId = "",
     )
 }
