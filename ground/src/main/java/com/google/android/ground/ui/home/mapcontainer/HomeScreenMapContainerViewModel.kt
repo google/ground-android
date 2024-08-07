@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -116,8 +117,8 @@ internal constructor(
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
   val isZoomedInFlow: Flow<Boolean>
 
-  /** Emits when data consent for the active survey has changed. */
-  val activeSurveyDataConsentFlow: Flow<Boolean>
+  /** Emits the data consent object when the active survey has changed. Null to show none. */
+  val activeSurveyDataConsentFlow: Flow<DataSharingConsent?>
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
@@ -152,9 +153,20 @@ internal constructor(
         else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
       }
 
-    activeSurveyDataConsentFlow = activeSurvey.mapNotNull {
-      if (it == null) false else getDataConsent(it)
-    }
+    activeSurveyDataConsentFlow =
+      activeSurvey.flatMapLatest {
+        flowOf(
+          if (it?.dataSharingConsent == null) {
+            null
+          } else {
+            if (getDataConsent(it)) {
+              null
+            } else {
+              it.dataSharingConsent
+            }
+          }
+        )
+      }
   }
 
   /**
@@ -192,7 +204,18 @@ internal constructor(
     }
   }
 
+  suspend fun updateDataConsent(dataConsent: Boolean) {
+    activeSurvey.collectLatest {
+      if (it != null) {
+        setDataConsent(it, dataConsent)
+      }
+    }
+  }
+
   private fun getDataConsent(survey: Survey) = localValueStore.getDataConsent(survey.id)
+
+  private fun setDataConsent(survey: Survey, dataConsent: Boolean) =
+    localValueStore.setDataConsent(survey.id, dataConsent)
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
     loiRepository.getLocationsOfInterests(survey).map {

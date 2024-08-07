@@ -23,6 +23,7 @@ import android.widget.TextView
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -52,6 +53,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -85,7 +88,14 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
       // Handle collect button clicks
       adapter.setCollectDataListener {
-        onCollectData(canUserSubmitData, hasValidTasks(it), it)
+        val job =
+          lifecycleScope.launch {
+            mapContainerViewModel.activeSurveyDataConsentFlow.cancellable().collectLatest {
+              hasDataConsent ->
+              onCollectData(canUserSubmitData, hasValidTasks(it), hasDataConsent, it)
+            }
+          }
+        job.cancel()
       }
 
       // Bind data for cards
@@ -106,9 +116,10 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     }
 
   /** Invoked when user clicks on the map cards to collect data. */
-  private fun onCollectData(
+  private suspend fun onCollectData(
     canUserSubmitData: Boolean,
     hasTasks: Boolean,
+    hasDataConsent: DataSharingConsent?,
     cardUiData: MapCardUiData,
   ) {
     if (!canUserSubmitData) {
@@ -122,27 +133,28 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       ephemeralPopups.ErrorPopup().show(getString(R.string.no_tasks_error))
       return
     }
-    mapContainerViewModel.activeSurveyDataConsentFlow.launchWhenStartedAndCollectFirst { hasDataConsent ->
-      if (!hasDataConsent) {
-        (view as ViewGroup).addView(
-          ComposeView(requireContext()).apply {
-            setContent {
-              val showDataConsentDialog = remember { mutableStateOf(true) }
-              when {
-                showDataConsentDialog.value -> {
-                  AppTheme {
-                    DataConsentDialog(showDataConsentDialog, EXAMPLE_TEXT) {
-                      navigateToDataCollectionFragment(cardUiData)
-                    }
+    if (hasDataConsent != null) {
+      (view as ViewGroup).addView(
+        ComposeView(requireContext()).apply {
+          setContent {
+            val showDataConsentDialog = remember { mutableStateOf(true) }
+            when {
+              showDataConsentDialog.value -> {
+                AppTheme {
+                  DataConsentDialog(showDataConsentDialog, hasDataConsent) {
+                    val job =
+                      lifecycleScope.launch { mapContainerViewModel.updateDataConsent(true) }
+                    job.cancel()
+                    navigateToDataCollectionFragment(cardUiData)
                   }
                 }
               }
             }
           }
-        )
-      } else {
-        navigateToDataCollectionFragment(cardUiData)
-      }
+        }
+      )
+    } else {
+      navigateToDataCollectionFragment(cardUiData)
     }
   }
 
@@ -175,7 +187,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     setupMenuFab()
     setupBottomLoiCards()
     showDataCollectionHint()
-    setupDataConsentFlows()
   }
 
   /**
@@ -264,12 +275,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     }
   }
 
-  private fun setupDataConsentFlows() {
-//    mapContainerViewModel.activeSurvey.combine(mapContainerViewModel.dataConsentUpdatedFlow) {
-//
-//    }
-  }
-
   private fun navigateToDataCollectionFragment(cardUiData: MapCardUiData) {
     when (cardUiData) {
       is MapCardUiData.LoiCardUiData ->
@@ -308,65 +313,4 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel
-
-  companion object {
-    const val EXAMPLE_TEXT = """
-# Introduction
-
-Ground values your privacy and is committed to protecting your personal information. This form explains how we may collect, use, and share your data for research or other purposes. By signing this form, you consent to the practices described below.
-
-## What Data We Collect
-
-We may collect the following types of data:
-
-*   Personal Information: Name, contact details, demographic information (if applicable).
-*   Research Data: Responses to surveys, interviews, or other study-related data.
-*   Usage Data: Information about how you interact with our services or website (if applicable).
-
-## How We Use Your Data
-
-We may use your data for the following purposes:
-
-*   Research: To analyze and publish findings, contribute to scientific knowledge, and improve our services.
-*   Internal Analysis: To understand how our services are used and to make improvements.
-*   Communication: To contact you with updates, information about research results, or opportunities to participate in future studies.
-
-## How We Share Your Data
-
-We may share your data with:
-
-*   Researchers: We may share de-identified data with qualified researchers for approved studies.
-*   Partners: We may share de-identified data with partner organizations for research or analysis.
-*   Service Providers: We may share your data with trusted third-party service providers who help us deliver our services (e.g., data storage, analysis).
-
-## Your Rights
-
-You have the right to:
-
-*   Access Your Data: Request a copy of the personal data we hold about you.
-*   Correct Your Data: Ask us to correct any inaccurate or incomplete data.
-*   Withdraw Consent: You may withdraw your consent to data sharing at any time.
-*   Object to Processing: You can object to certain types of processing (e.g., direct marketing).
-
-## Data Security
-
-We take appropriate technical and organizational measures to protect your data from unauthorized access, disclosure, alteration, or destruction.
-
-## Data Retention
-
-We will retain your data for as long as necessary to fulfill the purposes outlined in this form or as required by law.
-
-## Changes to this Form
-
-We may update this form from time to time. We will notify you of any material changes.
-
-## Contact Us
-
-If you have any questions or concerns about our data practices, please contact us at [email address removed].
-
-## Consent
-
-By agreeing below, I acknowledge that I have read and understood this data sharing consent form. I freely give my consent for Ground to collect, use, and share my data as described above.
-"""
-  }
 }

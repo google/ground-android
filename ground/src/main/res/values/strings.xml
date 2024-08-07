@@ -174,4 +174,14 @@
   <string name="send_feedback_title">Send feedback</string>
   <string name="report_summary">Report technical issues or suggest new locationsOfInterest</string>
   <string name="not_yet_impl_title">Not yet implemented</string>
+
+  <!-- Data Sharing Consent Text -->
+  <string name="data_sharing_public_message">
+    ## How Your Data Will Be Shared
+    \nYour data submissions will **only be accessible to** survey organizers
+  </string>
+  <string name="data_sharing_private_message">
+    ## How Your Data Will Be Shared
+    \nYour data submissions can be **shared publicly** by survey organizers
+  </string>
 </resources>

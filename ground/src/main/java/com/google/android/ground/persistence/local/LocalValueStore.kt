@@ -133,11 +133,11 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
   }
 
   fun setDataConsent(surveyId: String, consent: Boolean) {
-      return preferences.edit().putBoolean(DATA_CONSENT + surveyId, consent).apply()
+    preferences.edit().putBoolean(DATA_CONSENT + surveyId, consent).apply()
   }
 
   fun getDataConsent(surveyId: String): Boolean = allowThreadDiskReads {
-      return preferences.getBoolean(DATA_CONSENT + surveyId, false)
+    return preferences.getBoolean(DATA_CONSENT + surveyId, false)
   }
 
   companion object {

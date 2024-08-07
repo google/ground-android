@@ -26,4 +26,5 @@ data class SurveyEntity(
   @ColumnInfo(name = "title") val title: String?,
   @ColumnInfo(name = "description") val description: String?,
   @ColumnInfo(name = "acl") val acl: JSONObject?,
+  @ColumnInfo(name = "data_sharing_consent") val dataSharingConsent: JSONObject?,
 )
