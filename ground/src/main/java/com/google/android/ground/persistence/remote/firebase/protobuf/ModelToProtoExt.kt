@@ -167,7 +167,8 @@ private fun ValueDelta.toMessage() = taskData {
         // TODO: Add timestamp
       }
     Task.Type.PHOTO -> takePhotoResult = takePhotoResult {
-        photoPath = (newTaskData as PhotoTaskData).path
+        val data = newTaskData as PhotoTaskData
+        photoPath = data.remoteFilename
       }
     Task.Type.UNKNOWN -> error("Unknown task type")
   }
