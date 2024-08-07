@@ -210,8 +210,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .clickDoneButton() // Click "done" on final task
 
     verify(submissionRepository)
-      .saveSubmission(eq(SURVEY.id), eq(LOCATION_OF_INTEREST.id), capture(deltaCaptor), eq(
-        collectionId))
+      .saveSubmission(
+        eq(SURVEY.id),
+        eq(LOCATION_OF_INTEREST.id),
+        capture(deltaCaptor),
+        eq(collectionId),
+      )
 
     listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA).forEach { value ->
       assertThat(deltaCaptor.value).contains(value)
@@ -242,7 +246,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .clickNextButton()
 
     verify(submissionRepository)
-      .saveSubmission(eq(SURVEY.id), eq(LOCATION_OF_INTEREST.id), capture(deltaCaptor), eq(collectionId))
+      .saveSubmission(
+        eq(SURVEY.id),
+        eq(LOCATION_OF_INTEREST.id),
+        capture(deltaCaptor),
+        eq(collectionId),
+      )
 
     // Conditional task data is submitted.
     listOf(TASK_1_VALUE_DELTA, TASK_2_CONDITIONAL_VALUE_DELTA, TASK_CONDITIONAL_VALUE_DELTA)
@@ -272,7 +281,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         .validateTextIsNotDisplayed(TASK_CONDITIONAL_NAME)
 
       verify(submissionRepository)
-        .saveSubmission(eq(SURVEY.id), eq(LOCATION_OF_INTEREST.id), capture(deltaCaptor), eq(collectionId))
+        .saveSubmission(
+          eq(SURVEY.id),
+          eq(LOCATION_OF_INTEREST.id),
+          capture(deltaCaptor),
+          eq(collectionId),
+        )
 
       // Conditional task data is not submitted.
       listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA).forEach { value ->

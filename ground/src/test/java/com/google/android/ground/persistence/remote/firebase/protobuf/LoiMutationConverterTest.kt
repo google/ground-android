@@ -136,7 +136,7 @@ class LoiMutationConverterTest {
         userId = TEST_USER.id,
         type = Mutation.Type.CREATE,
         properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
-        collectionId = "collectionId"
+        collectionId = "collectionId",
       )
 
     val map = mutation.createLoiMessage(TEST_USER).toFirestoreMap()
