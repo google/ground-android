@@ -49,19 +49,13 @@ class SyncStatusFragmentTest : BaseHiltTest() {
     launchFragmentInHiltContainer<SyncStatusFragment>()
   }
 
-  /**
-   * Confirming the Toolbar visibility.
-   */
   @Test
-  fun `MaterialToolbar should be Displayed`() {
+  fun `Toolbar should be displayed`() {
     onView(withId(R.id.sync_status_toolbar)).check(matches(isDisplayed()))
   }
 
-  /**
-   * Confirming the SyncItem List visibility.
-   */
   @Test
-  fun `SyncItem List should Displayed`() = runWithTestDispatcher {
+  fun `Sync items should be displayed`() = runWithTestDispatcher {
     fakeRemoteDataStore.surveys = listOf(SURVEY)
     localSurveyStore.insertOrUpdateSurvey(SURVEY)
     surveyRepository.selectedSurveyId = SURVEY.id
@@ -70,11 +64,8 @@ class SyncStatusFragmentTest : BaseHiltTest() {
     composeTestRule.onNodeWithTag("sync list").assertIsDisplayed()
   }
 
-  /**
-   * Without Data, the list will not be visible on the screen.
-   */
   @Test
-  fun `SyncItem List should Not Displayed`() {
+  fun `Sync items should not be displayed`() {
     composeTestRule.onNodeWithTag("sync list").assertIsNotDisplayed()
   }
 }

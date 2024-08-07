@@ -69,8 +69,5 @@ class SyncStatusFragment : AbstractFragment() {
         }
       }
     }
-      ?: run {
-        return
-      }
   }
 }
