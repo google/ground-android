@@ -16,14 +16,22 @@
 package com.google.android.ground.ui.home
 
 import android.content.Context
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavDirections
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerMatchers.isClosed
 import androidx.test.espresso.contrib.DrawerMatchers.isOpen
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
@@ -39,9 +47,11 @@ import com.sharedtest.FakeData
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlin.test.assertFalse
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
@@ -50,7 +60,7 @@ import org.robolectric.RobolectricTestRunner
 abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var localSurveyStore: LocalSurveyStore
-  private lateinit var fragment: HomeScreenFragment
+  lateinit var fragment: HomeScreenFragment
   private var initializedPicasso = false
 
   @Before
@@ -80,6 +90,10 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
     onView(withId(R.id.hamburger_btn)).check(matches(ViewMatchers.isDisplayed())).perform(click())
     verifyDrawerOpen()
     onView(withId(R.id.nav_view)).check(matches(ViewMatchers.isDisplayed()))
+  }
+
+  protected fun swipeUpDrawer() {
+    onView(withId(R.id.drawer_layout)).perform(swipeUp())
   }
 
   protected fun verifyDrawerOpen() {
@@ -119,6 +133,12 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
   @Inject lateinit var surveyRepository: SurveyRepository
 
+  /**
+   * composeTestRule has to be created in the specific test file in order to access the required
+   * activity. [composeTestRule.activity]
+   */
+  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+
   private val surveyWithoutBasemap: Survey =
     Survey(
       "SURVEY",
@@ -129,12 +149,88 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
     )
 
   @Test
-  fun `offline map imagery menu is always enabled`() = runWithTestDispatcher {
+  fun `all menu item is always enabled`() = runWithTestDispatcher {
     surveyRepository.selectedSurveyId = surveyWithoutBasemap.id
     advanceUntilIdle()
 
     openDrawer()
     onView(withId(R.id.nav_offline_areas)).check(matches(isEnabled()))
+    onView(withId(R.id.sync_status)).check(matches(isEnabled()))
+    onView(withId(R.id.nav_settings)).check(matches(isEnabled()))
+    onView(withId(R.id.about)).check(matches(isEnabled()))
+
+    swipeUpDrawer()
+
+    onView(withId(R.id.terms_of_service)).check(matches(isEnabled()))
+    onView(withId(R.id.version_text)).check(matches(isDisplayed()))
+  }
+
+  @Test
+  fun `signOut dialog is Displayed`() = runWithTestDispatcher {
+    openDrawer()
+
+    onView(withId(R.id.user_image)).check(matches(isDisplayed()))
+    openSignOutDialog()
+
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.close))
+      .assertIsDisplayed()
+
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.close))
+      .performClick()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.close))
+      .assertIsNotDisplayed()
+
+    openSignOutWarningDialog()
+
+    advanceUntilIdle()
+
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out_dialog_title))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out_dialog_body))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out))
+      .assertIsDisplayed()
+
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
+      .performClick()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
+      .assertIsNotDisplayed()
+
+    openSignOutWarningDialog()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out))
+      .performClick()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out))
+      .assertIsNotDisplayed()
+  }
+
+  @Test
+  fun `onBack() should return false and do nothing`() {
+    assertFalse(fragment.onBack())
+  }
+
+  private fun openSignOutDialog() {
+    onView(withId(R.id.user_image)).perform(click())
+  }
+
+  private fun openSignOutWarningDialog() {
+    openSignOutDialog()
+    composeTestRule.onNodeWithText("Sign out").performClick()
   }
 }
 

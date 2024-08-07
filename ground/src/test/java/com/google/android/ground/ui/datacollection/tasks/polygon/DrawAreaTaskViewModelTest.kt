@@ -21,6 +21,10 @@ import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.job.Style
+import com.google.android.ground.model.submission.DrawAreaTaskData
+import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel.Companion.DISTANCE_THRESHOLD_DP
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.gms.GmsExt.getShellCoordinates
@@ -33,6 +37,8 @@ import kotlin.test.assertNotNull
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.doNothing
+import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 
 // TODO: Convert to fragment test for better coverage
@@ -50,7 +56,36 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testAddVertex() {
+  fun `Initializes with null task data`() {
+    viewModel.initialize(JOB, TASK, taskData = null)
+    assertGeometry(0)
+    assertThat(viewModel.isMarkedComplete()).isFalse()
+  }
+
+  @Test
+  fun `Initializes with complete polygon`() {
+    val polygon =
+      Polygon(
+        shell =
+          LinearRing(coordinates = listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1))
+      )
+    viewModel.initialize(JOB, TASK, taskData = DrawAreaTaskData(area = polygon))
+    assertGeometry(4, isLineString = true)
+    assertThat(viewModel.isMarkedComplete()).isTrue()
+  }
+
+  @Test
+  fun `Initializes with incomplete polygon`() {
+    val linearRingMock = mock(LinearRing::class.java)
+    doNothing().`when`(linearRingMock).validate()
+    val polygon = Polygon(shell = linearRingMock)
+    viewModel.initialize(JOB, TASK, taskData = DrawAreaTaskData(area = polygon))
+    assertGeometry(0)
+    assertThat(viewModel.isMarkedComplete()).isFalse()
+  }
+
+  @Test
+  fun `Can add vertex`() {
     updateLastVertexAndAdd(COORDINATE_1)
 
     // One vertex is selected and another is temporary vertex for rendering.
@@ -58,7 +93,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testAddVertex_multiplePoints() {
+  fun `Can add multiple vertices`() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
@@ -67,7 +102,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testUpdateLastVertex_closeToFirstVertex_vertexCountIs2() {
+  fun `Detects when last coordinate is close to starting one for three vertices`() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
 
@@ -77,7 +112,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testUpdateLastVertex_closeToFirstVertex_vertexCountIs3() {
+  fun `Detects when last coordinate is close to starting one for four vertices`() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
@@ -88,7 +123,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testRemoveLastVertex_twoVertices() {
+  fun `Can remove last vertex on two vertices`() {
     updateLastVertexAndAdd(COORDINATE_1)
 
     viewModel.removeLastVertex()
@@ -97,7 +132,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testRemoveLastVertex_oneVertex() {
+  fun `Can remove last vertex on one vertex`() {
     updateLastVertex(COORDINATE_1)
 
     viewModel.removeLastVertex()
@@ -106,7 +141,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testRemoveLastVertex_whenEmpty_doesNothing() {
+  fun `Removing last vertex on no vertices does nothing`() {
     updateLastVertex(COORDINATE_1)
     viewModel.removeLastVertex()
 
@@ -116,7 +151,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testRemoveLastVertex_whenPolygonIsComplete() {
+  fun `Removing last vertex on complete polygon`() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
@@ -128,24 +163,24 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testOnCompletePolygonButtonClick_whenPolygonIsIncomplete() {
+  fun `Cannot complete polygon when polygon is not complete`() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertex(COORDINATE_3, false)
 
     assertThrows("Polygon is not complete", IllegalStateException::class.java) {
-      viewModel.onCompletePolygonButtonClick()
+      viewModel.completePolygon()
     }
   }
 
   @Test
-  fun testOnCompletePolygonButtonClick_whenPolygonIsComplete() {
+  fun `Completes a polygon`() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
     updateLastVertex(COORDINATE_4, true)
 
-    viewModel.onCompletePolygonButtonClick()
+    viewModel.completePolygon()
 
     assertGeometry(4, isLineString = true)
   }
@@ -192,5 +227,15 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     private val COORDINATE_2 = Coordinates(10.0, 10.0)
     private val COORDINATE_3 = Coordinates(20.0, 20.0)
     private val COORDINATE_4 = Coordinates(30.0, 30.0)
+
+    private val TASK =
+      Task(
+        id = "task_1",
+        index = 0,
+        type = Task.Type.DRAW_AREA,
+        label = "Task for drawing a polygon",
+        isRequired = false,
+      )
+    private val JOB = Job("job", Style("#112233"))
   }
 }
