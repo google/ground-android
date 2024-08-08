@@ -150,6 +150,7 @@ class SubmissionMutationConverterTest {
       userId = user.id,
       clientTimestamp = clientTimestamp,
       job = job,
+      collectionId = "collectionId",
       deltas =
         listOf(
           ValueDelta(taskId = "text_task", taskType = Task.Type.TEXT, newTaskData = textTaskData),

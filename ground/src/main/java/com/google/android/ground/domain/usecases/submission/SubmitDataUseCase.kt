@@ -44,12 +44,13 @@ constructor(
     surveyId: String,
     deltas: List<ValueDelta>,
     loiName: String?,
+    collectionId: String,
   ) {
     Timber.v("Submitting data for LOI: $selectedLoiId")
     val deltasToSubmit = deltas.toMutableList()
     val submissionLoiId =
-      selectedLoiId ?: addLocationOfInterest(surveyId, job, deltasToSubmit, loiName)
-    submissionRepository.saveSubmission(surveyId, submissionLoiId, deltasToSubmit)
+      selectedLoiId ?: addLocationOfInterest(surveyId, job, deltasToSubmit, loiName, collectionId)
+    submissionRepository.saveSubmission(surveyId, submissionLoiId, deltasToSubmit, collectionId)
   }
 
   /**
@@ -61,12 +62,19 @@ constructor(
     job: Job,
     deltas: MutableList<ValueDelta>,
     loiName: String?,
+    collectionId: String,
   ): String {
     val addLoiTask = job.getAddLoiTask() ?: error("Null LOI ID but no add LOI task")
     val addLoiTaskId = deltas.indexOfFirst { it.taskId == addLoiTask.id }
     if (addLoiTaskId < 0) error("Add LOI task response missing")
     val addLoiValue = deltas.removeAt(addLoiTaskId).newTaskData
     if (addLoiValue !is GeometryTaskData) error("Invalid add LOI task response")
-    return locationOfInterestRepository.saveLoi(addLoiValue.geometry, job, surveyId, loiName)
+    return locationOfInterestRepository.saveLoi(
+      addLoiValue.geometry,
+      job,
+      surveyId,
+      loiName,
+      collectionId,
+    )
   }
 }

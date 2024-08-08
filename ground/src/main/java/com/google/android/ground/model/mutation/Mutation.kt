@@ -22,15 +22,32 @@ import java.util.Date
  * store.
  */
 sealed class Mutation {
+  /** A unique identifier for this mutation. */
   abstract val id: Long?
+  /** The kind of data manipulation operation this mutation represents. See [Mutation.Type]. */
   abstract val type: Type
+  /**
+   * Indicates whether or not this mutation has been reflected in remote storage. See
+   * [Mutation.SyncStatus].
+   */
   abstract val syncStatus: SyncStatus
+  /** The ID of the survey containing the data this mutation alters. */
   abstract val surveyId: String
+  /** The ID of the LOI containing the data this mutation alters. */
   abstract val locationOfInterestId: String
+  /** The ID of the user who initiated this mutation. */
   abstract val userId: String
+  /** The time at which this mutation was issued on the client. */
   abstract val clientTimestamp: Date
+  /** The number of times the system has attempted to apply this mutation to remote storage. */
   abstract val retryCount: Long
+  /** The error last encountered when attempting to apply this mutation to the remote storage. */
   abstract val lastError: String
+  /**
+   * A unique identifier tying this mutation to a singular instance of data collection. Multiple
+   * mutations are associated using this identifier.
+   */
+  abstract val collectionId: String
 
   enum class Type {
     /** Indicates a new entity should be created. */

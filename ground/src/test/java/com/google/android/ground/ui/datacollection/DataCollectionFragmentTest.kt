@@ -31,6 +31,7 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
+import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
@@ -64,9 +65,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   @BindValue @Mock lateinit var submissionRepository: SubmissionRepository
   @Captor lateinit var deltaCaptor: ArgumentCaptor<List<ValueDelta>>
   lateinit var fragment: DataCollectionFragment
+  @Inject lateinit var uuidGenerator: OfflineUuidGenerator
+  lateinit var collectionId: String
 
   override fun setUp() {
     super.setUp()
+    collectionId = uuidGenerator.generateUuid()
 
     setupSubmission()
     setupFragment()
@@ -206,7 +210,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .clickDoneButton() // Click "done" on final task
 
     verify(submissionRepository)
-      .saveSubmission(eq(SURVEY.id), eq(LOCATION_OF_INTEREST.id), capture(deltaCaptor))
+      .saveSubmission(
+        eq(SURVEY.id),
+        eq(LOCATION_OF_INTEREST.id),
+        capture(deltaCaptor),
+        eq(collectionId),
+      )
 
     listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA).forEach { value ->
       assertThat(deltaCaptor.value).contains(value)
@@ -237,7 +246,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .clickNextButton()
 
     verify(submissionRepository)
-      .saveSubmission(eq(SURVEY.id), eq(LOCATION_OF_INTEREST.id), capture(deltaCaptor))
+      .saveSubmission(
+        eq(SURVEY.id),
+        eq(LOCATION_OF_INTEREST.id),
+        capture(deltaCaptor),
+        eq(collectionId),
+      )
 
     // Conditional task data is submitted.
     listOf(TASK_1_VALUE_DELTA, TASK_2_CONDITIONAL_VALUE_DELTA, TASK_CONDITIONAL_VALUE_DELTA)
@@ -267,7 +281,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         .validateTextIsNotDisplayed(TASK_CONDITIONAL_NAME)
 
       verify(submissionRepository)
-        .saveSubmission(eq(SURVEY.id), eq(LOCATION_OF_INTEREST.id), capture(deltaCaptor))
+        .saveSubmission(
+          eq(SURVEY.id),
+          eq(LOCATION_OF_INTEREST.id),
+          capture(deltaCaptor),
+          eq(collectionId),
+        )
 
       // Conditional task data is not submitted.
       listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA).forEach { value ->
