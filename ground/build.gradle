@@ -346,7 +346,7 @@ dependencies {
     implementation "com.google.guava:guava:31.1-android"
 
     api("com.google.protobuf:protobuf-kotlin-lite:4.26.1")
-    api("com.google.protobuf:protobuf-java:4.26.1")
+    api("com.google.protobuf:protobuf-javalite:4.26.1")
 
     // Pulls protodefs from the specified commit in the ground-platform repo.
     groundProtoJar "com.github.google:ground-platform:3e9162a@jar"
