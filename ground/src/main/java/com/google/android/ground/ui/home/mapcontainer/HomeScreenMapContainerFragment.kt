@@ -79,7 +79,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       val canUserSubmitData = userRepository.canUserSubmitData()
 
       // Handle collect button clicks
-      adapter.setCollectDataListener { onCollectData(canUserSubmitData, it) }
+      adapter.setCollectDataListener { onCollectData(canUserSubmitData, hasValidTasks(it), it) }
 
       // Bind data for cards
       mapContainerViewModel.getMapCardUiData().launchWhenStartedAndCollect { (mapCards, loiCount) ->
@@ -90,15 +90,32 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     map.featureClicks.launchWhenStartedAndCollect { mapContainerViewModel.onFeatureClicked(it) }
   }
 
+  private fun hasValidTasks(cardUiData: MapCardUiData) =
+    when (cardUiData) {
+      // LOI tasks are filtered out of the tasks list for pre-defined tasks.
+      is MapCardUiData.LoiCardUiData ->
+        cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
+      is MapCardUiData.AddLoiCardUiData -> cardUiData.job.tasks.values.isNotEmpty()
+    }
+
   /** Invoked when user clicks on the map cards to collect data. */
-  private fun onCollectData(canUserSubmitData: Boolean, cardUiData: MapCardUiData) {
-    if (canUserSubmitData) {
-      navigateToDataCollectionFragment(cardUiData)
-    } else {
+  private fun onCollectData(
+    canUserSubmitData: Boolean,
+    hasTasks: Boolean,
+    cardUiData: MapCardUiData,
+  ) {
+    if (!canUserSubmitData) {
       // Skip data collection screen if the user can't submit any data
       // TODO(#1667): Revisit UX for displaying view only mode
       ephemeralPopups.ErrorPopup().show(getString(R.string.collect_data_viewer_error))
+      return
     }
+    if (!hasTasks) {
+      // NOTE(#2539): The DataCollectionFragment will crash if there are no tasks.
+      ephemeralPopups.ErrorPopup().show(getString(R.string.no_tasks_error))
+      return
+    }
+    navigateToDataCollectionFragment(cardUiData)
   }
 
   /** Updates the given [TextView] with the submission count for the given [LocationOfInterest]. */
