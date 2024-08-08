@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.offlineareas.viewer
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.model.imagery.OfflineArea
@@ -67,11 +66,9 @@ constructor(
 
   /** Returns the offline area associated with this view model. */
   val area = MutableLiveData<OfflineArea>()
-  val areaName = area.map { it.name }
+  val areaName = MutableLiveData<String>()
   val areaSize = MutableLiveData<String>()
   val progressOverlayVisible = MutableLiveData<Boolean>()
-
-  private lateinit var offlineAreaId: String
 
   override val mapConfig: MapConfig
     get() =
@@ -82,12 +79,12 @@ constructor(
       )
 
   /** Initialize the view model with the given arguments. */
-  fun initialize(args: OfflineAreaViewerFragmentArgs) {
-    offlineAreaId = args.offlineAreaId
+  fun initialize(offlineAreaId: String) {
     viewModelScope.launch(ioDispatcher) {
       val thisArea = offlineAreaRepository.getOfflineArea(offlineAreaId)!!
       area.postValue(thisArea)
       areaSize.postValue(offlineAreaRepository.sizeOnDevice(thisArea).toMb().toMbString())
+      areaName.postValue(thisArea.name)
     }
   }
 
