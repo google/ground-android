@@ -54,6 +54,7 @@ class ModelToProtoExtKtTest {
         submissionCount = 1,
         properties = generateProperties("loiName"),
         isPredefined = false,
+        collectionId = "collectionId",
       )
 
     val output = mutation.createLoiMessage(user)
@@ -105,6 +106,7 @@ class ModelToProtoExtKtTest {
         submissionCount = 1,
         properties = generateProperties("loiName"),
         isPredefined = null,
+        collectionId = "collectionId",
       )
 
     val output = mutation.createLoiMessage(user)
@@ -163,6 +165,7 @@ class ModelToProtoExtKtTest {
         submissionCount = 1,
         properties = generateProperties("loiName"),
         isPredefined = true,
+        collectionId = "collectionId",
       )
 
     val output = mutation.createLoiMessage(user)
@@ -222,6 +225,7 @@ class ModelToProtoExtKtTest {
         submissionCount = 1,
         properties = generateProperties("loiName"),
         isPredefined = false,
+        collectionId = "collectionId",
       )
 
     val output = mutation.createLoiMessage(user)
@@ -281,6 +285,7 @@ class ModelToProtoExtKtTest {
         submissionCount = 1,
         properties = generateProperties("loiName"),
         isPredefined = false,
+        collectionId = "collectionId",
       )
 
     val output = mutation.createLoiMessage(user)
@@ -331,6 +336,7 @@ class ModelToProtoExtKtTest {
         submissionCount = 1,
         properties = generateProperties("loiName"),
         isPredefined = false,
+        collectionId = "collectionId",
       )
 
     assertThrows(UnsupportedOperationException::class.java) { mutation.createLoiMessage(user) }
@@ -353,6 +359,7 @@ class ModelToProtoExtKtTest {
         submissionCount = 1,
         properties = generateProperties("loiName"),
         isPredefined = false,
+        collectionId = "collectionId",
       )
 
     assertThrows(UnsupportedOperationException::class.java) { mutation.createLoiMessage(user) }

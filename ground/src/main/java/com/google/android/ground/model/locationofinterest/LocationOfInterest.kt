@@ -73,6 +73,7 @@ data class LocationOfInterest(
       submissionCount = submissionCount,
       properties = properties,
       isPredefined = isPredefined,
+      collectionId = "",
     )
 
   fun getProperty(key: String): String = properties[key]?.toString() ?: ""

@@ -17,6 +17,7 @@
 package com.google.android.ground.model.submission
 
 import com.google.android.ground.model.task.MultipleChoice
+import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
 import kotlinx.serialization.Serializable
 
 /** User responses to a select-one (radio) or select-multiple (checkbox) field. */
@@ -26,13 +27,18 @@ class MultipleChoiceTaskData(
   val selectedOptionIds: List<String>,
 ) : TaskData {
 
-  // TODO: Reuse the key value here and in the view model
-  fun hasOtherText(): Boolean = selectedOptionIds.contains("OTHER_ID")
+  fun getSelectedOptionsIdsExceptOther(): List<String> =
+    selectedOptionIds.filterNot { it.isOtherText() }
 
-  fun getOtherText(): String {
-    val otherId = selectedOptionIds.firstOrNull { it == "OTHER_ID" } ?: return ""
-    return multipleChoice?.getOptionById(otherId)?.label ?: ""
-  }
+  fun hasOtherText(): Boolean = selectedOptionIds.any { it.isOtherText() }
+
+  fun getOtherText(): String =
+    selectedOptionIds
+      .firstOrNull { it.isOtherText() }
+      ?.removeSurrounding(
+        prefix = MultipleChoiceTaskViewModel.OTHER_PREFIX,
+        suffix = MultipleChoiceTaskViewModel.OTHER_SUFFIX,
+      ) ?: ""
 
   // TODO: Make these inner classes non-static and access Task directly.
   override fun getDetailsText(): String =
@@ -54,6 +60,10 @@ class MultipleChoiceTaskData(
   override fun hashCode(): Int = selectedOptionIds.hashCode()
 
   override fun toString(): String = selectedOptionIds.sorted().joinToString()
+
+  private fun String.isOtherText(): Boolean =
+    startsWith(MultipleChoiceTaskViewModel.OTHER_PREFIX) &&
+      endsWith(MultipleChoiceTaskViewModel.OTHER_SUFFIX)
 
   companion object {
     fun fromList(multipleChoice: MultipleChoice?, ids: List<String>): TaskData? =

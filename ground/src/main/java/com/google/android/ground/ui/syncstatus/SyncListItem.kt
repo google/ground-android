@@ -142,7 +142,12 @@ fun PreviewSyncListItem(
       user = "Jane Doe",
       loiLabel = "Map the farms",
       loiSubtitle = "IDX21311",
-      mutation = SubmissionMutation(job = Job(id = "123"), syncStatus = Mutation.SyncStatus.PENDING),
+      mutation =
+        SubmissionMutation(
+          job = Job(id = "123"),
+          syncStatus = Mutation.SyncStatus.PENDING,
+          collectionId = "example",
+        ),
     )
 ) {
   SyncListItem(Modifier, detail)

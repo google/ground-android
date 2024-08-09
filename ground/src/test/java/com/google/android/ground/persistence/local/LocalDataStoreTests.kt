@@ -411,6 +411,7 @@ class LocalDataStoreTests : BaseHiltTest() {
         surveyId = FakeData.SURVEY_ID,
         locationOfInterestId = FakeData.LOI_ID,
         userId = FakeData.USER_ID,
+        collectionId = "",
       )
     private val TEST_OFFLINE_AREA =
       OfflineArea("id_1", OfflineArea.State.PENDING, Bounds(0.0, 0.0, 0.0, 0.0), "Test Area", 0..14)
