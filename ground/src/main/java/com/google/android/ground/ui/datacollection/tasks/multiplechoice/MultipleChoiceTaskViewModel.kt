@@ -147,6 +147,9 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
     }
   }
 
+  fun isOtherOptionAndSelected(item: MultipleChoiceItem): Boolean =
+    item.isOtherOption && item.isSelected
+
   companion object {
     private const val OTHER_ID: String = "OTHER_ID"
     private const val OTHER_PREFIX: String = "[ "
