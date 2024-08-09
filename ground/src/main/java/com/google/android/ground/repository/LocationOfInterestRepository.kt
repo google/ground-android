@@ -81,7 +81,13 @@ constructor(
   }
 
   /** Saves a new LOI in the local db and enqueues a sync worker. */
-  suspend fun saveLoi(geometry: Geometry, job: Job, surveyId: String, loiName: String?): String {
+  suspend fun saveLoi(
+    geometry: Geometry,
+    job: Job,
+    surveyId: String,
+    loiName: String?,
+    collectionId: String,
+  ): String {
     val newId = uuidGenerator.generateUuid()
     val user = userRepository.getAuthenticatedUser()
     val mutation =
@@ -95,6 +101,7 @@ constructor(
         geometry = geometry,
         properties = generateProperties(loiName),
         isPredefined = false,
+        collectionId = collectionId,
       )
     applyAndEnqueue(mutation)
     return newId

@@ -29,6 +29,7 @@ data class SubmissionMutation(
   override val clientTimestamp: Date = Date(),
   override val retryCount: Long = 0,
   override val lastError: String = "",
+  override val collectionId: String,
   val job: Job,
   val submissionId: String = "",
   val deltas: List<ValueDelta> = listOf(),
