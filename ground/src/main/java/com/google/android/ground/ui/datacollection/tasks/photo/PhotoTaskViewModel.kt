@@ -21,13 +21,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.model.submission.PhotoTaskData
 import com.google.android.ground.model.submission.isNotNullOrEmpty
+import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.util.BitmapUtil
-import java.io.IOException
-import javax.inject.Inject
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
+import java.io.IOException
+import javax.inject.Inject
 
 class PhotoTaskViewModel
 @Inject
@@ -61,7 +62,8 @@ constructor(
       val bitmap = bitmapUtil.fromUri(uri)
       val file = userMediaRepository.savePhoto(bitmap, currentTask)
       userMediaRepository.addImageToGallery(file.absolutePath, file.name)
-      setValue(PhotoTaskData(file.absolutePath, surveyId))
+      val remoteFilename = FirebaseStorageManager.getRemoteMediaPath(surveyId, file.absolutePath)
+      setValue(PhotoTaskData(remoteFilename))
     } catch (e: IOException) {
       Timber.e(e, "Error getting photo selected from storage")
     }

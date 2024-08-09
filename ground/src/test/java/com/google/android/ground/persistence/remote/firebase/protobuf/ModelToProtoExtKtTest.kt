@@ -68,14 +68,16 @@ class ModelToProtoExtKtTest {
           ownerId = "userId"
           created = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
           }
           lastModified = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
@@ -118,14 +120,16 @@ class ModelToProtoExtKtTest {
           ownerId = "userId"
           created = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
           }
           lastModified = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
@@ -175,14 +179,16 @@ class ModelToProtoExtKtTest {
           ownerId = "userId"
           created = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
           }
           lastModified = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
@@ -233,14 +239,16 @@ class ModelToProtoExtKtTest {
           ownerId = "userId"
           created = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
           }
           lastModified = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
@@ -291,7 +299,8 @@ class ModelToProtoExtKtTest {
           ownerId = "userId"
           lastModified = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
