@@ -53,6 +53,7 @@ data class SubmissionMutationEntity(
   @ColumnInfo(name = "location_of_interest_id") val locationOfInterestId: String,
   @ColumnInfo(name = "job_id") val jobId: String,
   @ColumnInfo(name = "submission_id") val submissionId: String,
+  @ColumnInfo(name = "collection_id") val collectionId: String,
   /**
    * For mutations of type [MutationEntityType.CREATE] and [MutationEntityType.UPDATE], returns a
    * [JSONObject] with the new values of modified submission data, with `null` values representing

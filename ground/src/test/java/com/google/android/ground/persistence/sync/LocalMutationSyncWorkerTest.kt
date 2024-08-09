@@ -203,6 +203,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
       userId = TEST_USER_ID,
       surveyId = TEST_SURVEY_ID,
       geometry = TEST_GEOMETRY,
+      collectionId = "collectionId",
     )
 
   private fun createSubmissionMutation() =
@@ -213,6 +214,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
       userId = TEST_USER_ID,
       job = TEST_JOB,
       surveyId = TEST_SURVEY_ID,
+      collectionId = "collectionId",
     )
 
   private suspend fun createAndDoWork(context: Context, loiId: String?): ListenableWorker.Result =
