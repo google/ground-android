@@ -148,7 +148,7 @@ private fun ValueDelta.toMessage() = taskData {
         dateTime = timestamp { seconds = (newTaskData as TimeTaskData).time.time / 1000 }
       }
     Task.Type.MULTIPLE_CHOICE -> multipleChoiceResponses = multipleChoiceResponses {
-        (newTaskData as MultipleChoiceTaskData).selectedOptionIds.forEach {
+        (newTaskData as MultipleChoiceTaskData).getSelectedOptionsIdsExceptOther().forEach {
           selectedOptionIds.add(it)
         }
         if (newTaskData.hasOtherText()) {

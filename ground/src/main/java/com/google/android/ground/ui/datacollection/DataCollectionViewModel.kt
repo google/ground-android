@@ -240,7 +240,7 @@ internal constructor(
       return
     }
 
-    data[taskViewModel.task] = taskViewModel.taskTaskData.firstOrNull()
+    data[taskViewModel.task] = taskViewModel.taskTaskData.value
 
     if (!isLastPosition()) {
       step(1)

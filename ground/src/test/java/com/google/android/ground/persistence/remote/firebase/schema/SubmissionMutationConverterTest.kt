@@ -60,6 +60,7 @@ import com.google.android.ground.proto.TaskData.DRAW_GEOMETRY_RESULT_FIELD_NUMBE
 import com.google.android.ground.proto.TaskData.DateTimeResponse.DATE_TIME_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.DrawGeometryResult.GEOMETRY_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.MULTIPLE_CHOICE_RESPONSES_FIELD_NUMBER
+import com.google.android.ground.proto.TaskData.MultipleChoiceResponses.OTHER_TEXT_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.MultipleChoiceResponses.SELECTED_OPTION_IDS_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.NUMBER_RESPONSE_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.NumberResponse.NUMBER_FIELD_NUMBER
@@ -86,7 +87,6 @@ class SubmissionMutationConverterTest {
 
   private val textTaskData = TextTaskData.fromString("some data")
 
-  // TODO: Add test coverage for "other" value
   private val singleChoiceResponse =
     MultipleChoiceTaskData.fromList(
       MultipleChoice(
@@ -99,7 +99,18 @@ class SubmissionMutationConverterTest {
       ids = listOf("option id 1"),
     )
 
-  // TODO: Add test coverage for "other" value
+  private val singleChoiceResponseOther =
+    MultipleChoiceTaskData.fromList(
+      MultipleChoice(
+        persistentListOf(
+          Option("option id 1", "code1", "Option 1"),
+          Option("option id 2", "code2", "Option 2"),
+        ),
+        MultipleChoice.Cardinality.SELECT_ONE,
+      ),
+      ids = listOf("[ other value ]"),
+    )
+
   private val multipleChoiceTaskData =
     MultipleChoiceTaskData.fromList(
       MultipleChoice(
@@ -110,6 +121,18 @@ class SubmissionMutationConverterTest {
         MultipleChoice.Cardinality.SELECT_MULTIPLE,
       ),
       ids = listOf("option id 1", "option id 2"),
+    )
+
+  private val multipleChoiceTaskDataOther =
+    MultipleChoiceTaskData.fromList(
+      MultipleChoice(
+        persistentListOf(
+          Option("option id 1", "code1", "Option 1"),
+          Option("option id 2", "code2", "Option 2"),
+        ),
+        MultipleChoice.Cardinality.SELECT_MULTIPLE,
+      ),
+      ids = listOf("option id 1", "option id 2", "[ other value ]"),
     )
 
   private val numberTaskData = NumberTaskData.fromNumber("123")
@@ -160,9 +183,19 @@ class SubmissionMutationConverterTest {
             newTaskData = singleChoiceResponse,
           ),
           ValueDelta(
+            taskId = "single_choice_task_other",
+            taskType = Task.Type.MULTIPLE_CHOICE,
+            newTaskData = singleChoiceResponseOther,
+          ),
+          ValueDelta(
             taskId = "multiple_choice_task",
             taskType = Task.Type.MULTIPLE_CHOICE,
             newTaskData = multipleChoiceTaskData,
+          ),
+          ValueDelta(
+            taskId = "multiple_choice_task_other",
+            taskType = Task.Type.MULTIPLE_CHOICE,
+            newTaskData = multipleChoiceTaskDataOther,
           ),
           ValueDelta(
             taskId = "number_task",
@@ -202,10 +235,23 @@ class SubmissionMutationConverterTest {
       ),
       mapOf(
         MULTIPLE_CHOICE_RESPONSES_FIELD_NUMBER.toString() to
+          mapOf(OTHER_TEXT_FIELD_NUMBER.toString() to "other value"),
+        TASK_ID_FIELD_NUMBER.toString() to "single_choice_task_other",
+      ),
+      mapOf(
+        MULTIPLE_CHOICE_RESPONSES_FIELD_NUMBER.toString() to
           mapOf(
             SELECTED_OPTION_IDS_FIELD_NUMBER.toString() to listOf("option id 1", "option id 2")
           ),
         TASK_ID_FIELD_NUMBER.toString() to "multiple_choice_task",
+      ),
+      mapOf(
+        MULTIPLE_CHOICE_RESPONSES_FIELD_NUMBER.toString() to
+          mapOf(
+            SELECTED_OPTION_IDS_FIELD_NUMBER.toString() to listOf("option id 1", "option id 2"),
+            OTHER_TEXT_FIELD_NUMBER.toString() to "other value",
+          ),
+        TASK_ID_FIELD_NUMBER.toString() to "multiple_choice_task_other",
       ),
       mapOf(
         NUMBER_RESPONSE_FIELD_NUMBER.toString() to mapOf(NUMBER_FIELD_NUMBER.toString() to 123.0),
