@@ -25,10 +25,10 @@ import com.google.android.ground.persistence.remote.firebase.FirebaseStorageMana
 import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.util.BitmapUtil
-import kotlinx.coroutines.flow.map
-import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
+import kotlinx.coroutines.flow.map
+import timber.log.Timber
 
 class PhotoTaskViewModel
 @Inject
