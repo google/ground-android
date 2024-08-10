@@ -65,10 +65,8 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
     userProfileRefreshCount++
   }
 
-  override suspend fun loadUserLois(
-    survey: Survey,
-    ownerUserId: String,
-  ): List<LocationOfInterest> = userLois
+  override suspend fun loadUserLois(survey: Survey, ownerUserId: String): List<LocationOfInterest> =
+    userLois
 
   /** Returns true iff [subscribeToSurveyUpdates] has been called with the specified id. */
   fun isSubscribedToSurveyUpdates(surveyId: String): Boolean =

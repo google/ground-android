@@ -60,9 +60,7 @@ constructor(
     // TODO(#2384): Allow survey organizers to make ad hoc LOIs visible to all data collectors.
     val ownerUserId = authenticationManager.getAuthenticatedUser().id
     val lois =
-      with(remoteDataStore) {
-        loadPredefinedLois(survey) + loadUserLois(survey, ownerUserId)
-      }
+      with(remoteDataStore) { loadPredefinedLois(survey) + loadUserLois(survey, ownerUserId) }
     mergeAll(survey.id, lois)
   }
 
