@@ -25,13 +25,14 @@ import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
-import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.CameraUpdateRequest
 import com.google.android.ground.ui.map.MapFragment
-import javax.inject.Inject
-import kotlin.math.max
+import com.google.android.ground.ui.map.PositionViaBounds
+import com.google.android.ground.ui.map.PositionViaCoordinates
 import kotlinx.coroutines.CoroutineDispatcher
 import timber.log.Timber
+import javax.inject.Inject
+import kotlin.math.max
 
 /** Injects a [MapFragment] in the container with id "map" and provides shared map functionality. */
 abstract class AbstractMapContainerFragment : AbstractFragment() {
@@ -137,33 +138,33 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     isAllowZoomOut: Boolean = false,
   ) {
     onCameraUpdateRequest(
-      CameraUpdateRequest(CameraPosition(coordinates), shouldAnimate, isAllowZoomOut),
+      CameraUpdateRequest(PositionViaCoordinates(coordinates), shouldAnimate, isAllowZoomOut),
       map,
     )
   }
 
   private fun onCameraUpdateRequest(cameraUpdateRequest: CameraUpdateRequest, map: MapFragment) {
     Timber.v("Update camera: $cameraUpdateRequest")
-    val newPosition = cameraUpdateRequest.cameraPosition
-    val shouldAnimate = cameraUpdateRequest.shouldAnimate
-    val isAllowZoomOut = cameraUpdateRequest.isAllowZoomOut
-    val bounds = newPosition.bounds
-    val target = newPosition.target
-    var zoomLevel = newPosition.zoomLevel
-
-    if (target != null && zoomLevel != null && !isAllowZoomOut) {
-      zoomLevel = max(zoomLevel, map.currentZoomLevel)
-    }
-
-    // TODO(#1712): Fix this once CameraPosition is refactored to not contain duplicated state
-    if (bounds != null) {
-      map.moveCamera(bounds, shouldAnimate)
-    } else if (target != null && zoomLevel != null) {
-      map.moveCamera(target, zoomLevel, shouldAnimate)
-    } else if (target != null) {
-      map.moveCamera(target, shouldAnimate)
-    } else {
-      error("Must have either target or bounds set")
+    when (val position = cameraUpdateRequest.position) {
+      is PositionViaCoordinates -> {
+        if (position.zoomLevel != null) {
+          map.moveCamera(
+            position.coordinates,
+            zoomLevel =
+              if (cameraUpdateRequest.isAllowZoomOut) position.zoomLevel
+              else max(position.zoomLevel, map.currentZoomLevel),
+            cameraUpdateRequest.shouldAnimate,
+          )
+        } else {
+          map.moveCamera(position.coordinates, cameraUpdateRequest.shouldAnimate)
+        }
+      }
+      is PositionViaBounds -> {
+        map.moveCamera(position.bounds, cameraUpdateRequest.shouldAnimate)
+      }
+      else -> {
+        error("Must have either target or bounds set")
+      }
     }
   }
 
