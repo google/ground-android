@@ -54,6 +54,7 @@ class ModelToProtoExtKtTest {
         submissionCount = 1,
         properties = generateProperties("loiName"),
         isPredefined = false,
+        collectionId = "collectionId",
       )
 
     val output = mutation.createLoiMessage(user)
@@ -67,14 +68,16 @@ class ModelToProtoExtKtTest {
           ownerId = "userId"
           created = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
           }
           lastModified = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
@@ -103,6 +106,7 @@ class ModelToProtoExtKtTest {
         submissionCount = 1,
         properties = generateProperties("loiName"),
         isPredefined = null,
+        collectionId = "collectionId",
       )
 
     val output = mutation.createLoiMessage(user)
@@ -116,14 +120,16 @@ class ModelToProtoExtKtTest {
           ownerId = "userId"
           created = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
           }
           lastModified = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
@@ -159,6 +165,7 @@ class ModelToProtoExtKtTest {
         submissionCount = 1,
         properties = generateProperties("loiName"),
         isPredefined = true,
+        collectionId = "collectionId",
       )
 
     val output = mutation.createLoiMessage(user)
@@ -172,14 +179,16 @@ class ModelToProtoExtKtTest {
           ownerId = "userId"
           created = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
           }
           lastModified = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
@@ -216,6 +225,7 @@ class ModelToProtoExtKtTest {
         submissionCount = 1,
         properties = generateProperties("loiName"),
         isPredefined = false,
+        collectionId = "collectionId",
       )
 
     val output = mutation.createLoiMessage(user)
@@ -229,14 +239,16 @@ class ModelToProtoExtKtTest {
           ownerId = "userId"
           created = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
           }
           lastModified = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
@@ -273,6 +285,7 @@ class ModelToProtoExtKtTest {
         submissionCount = 1,
         properties = generateProperties("loiName"),
         isPredefined = false,
+        collectionId = "collectionId",
       )
 
     val output = mutation.createLoiMessage(user)
@@ -286,7 +299,8 @@ class ModelToProtoExtKtTest {
           ownerId = "userId"
           lastModified = auditInfo {
             userId = "userId"
-            displayName = "User"
+            displayName = user.displayName
+            emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
             serverTimestamp = timestamp { seconds = 987654321L }
@@ -322,6 +336,7 @@ class ModelToProtoExtKtTest {
         submissionCount = 1,
         properties = generateProperties("loiName"),
         isPredefined = false,
+        collectionId = "collectionId",
       )
 
     assertThrows(UnsupportedOperationException::class.java) { mutation.createLoiMessage(user) }
@@ -344,6 +359,7 @@ class ModelToProtoExtKtTest {
         submissionCount = 1,
         properties = generateProperties("loiName"),
         isPredefined = false,
+        collectionId = "collectionId",
       )
 
     assertThrows(UnsupportedOperationException::class.java) { mutation.createLoiMessage(user) }
