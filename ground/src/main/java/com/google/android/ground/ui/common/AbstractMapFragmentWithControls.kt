@@ -29,6 +29,8 @@ import com.google.android.ground.model.submission.CaptureLocationTaskData.Compan
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.util.toDmsFormat
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.MustBeInvokedByOverriders
 
@@ -53,8 +55,14 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
         getMapViewModel().location.collect {
-          val locationText = it?.toCaptureLocationResult()?.getDetailsText()
-          updateLocationInfoCard(R.string.current_location, locationText)
+          val taskData = it?.toCaptureLocationResult()
+          val locationText = taskData?.location?.coordinates?.toDmsFormat()
+
+          val df = DecimalFormat("#.##")
+          df.roundingMode = RoundingMode.DOWN
+          val accuracyText = taskData?.accuracy?.let { value -> df.format(value) + "m" } ?: "?"
+
+          updateLocationInfoCard(R.string.current_location, locationText, accuracyText)
         }
       }
     }
@@ -68,15 +76,28 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
     return binding.root
   }
 
-  private fun updateLocationInfoCard(@StringRes title: Int, locationText: String?) {
-    if (locationText.isNullOrEmpty()) {
-      binding.infoCard.visibility = View.GONE
-    } else {
-      binding.cardTitle.setText(title)
-      binding.cardValue.text = locationText
-      binding.infoCard.visibility = View.VISIBLE
+  private fun updateLocationInfoCard(
+    @StringRes title: Int,
+    locationText: String?,
+    accuracyText: String? = null,
+  ) =
+    with(binding) {
+      if (locationText.isNullOrEmpty()) {
+        infoCard.visibility = View.GONE
+      } else {
+        infoCard.visibility = View.VISIBLE
+        currentLocationTitle.text = getString(title)
+        currentLocationValue.text = locationText
+      }
+
+      if (accuracyText.isNullOrEmpty()) {
+        accuracy.visibility = View.GONE
+      } else {
+        accuracy.visibility = View.VISIBLE
+        accuracyTitle.setText(R.string.accuracy)
+        accuracyValue.text = accuracyText
+      }
     }
-  }
 
   @MustBeInvokedByOverriders
   protected open fun onMapCameraMoved(position: CameraPosition) {
