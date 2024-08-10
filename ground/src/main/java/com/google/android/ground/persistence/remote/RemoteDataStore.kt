@@ -45,8 +45,8 @@ interface RemoteDataStore {
   /** Returns predefined LOIs in the specified survey. Main-safe. */
   suspend fun loadPredefinedLois(survey: Survey): List<LocationOfInterest>
 
-  /** Returns LOIs created by the specified email in the specified survey. Main-safe. */
-  suspend fun loadUserDefinedLois(survey: Survey, creatorEmail: String): List<LocationOfInterest>
+  /** Returns LOIs owned by the specified user in the specified survey. Main-safe. */
+  suspend fun loadUserLois(survey: Survey, ownerUserId: String): List<LocationOfInterest>
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one
