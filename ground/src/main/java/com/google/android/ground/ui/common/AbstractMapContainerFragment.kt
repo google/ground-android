@@ -29,10 +29,10 @@ import com.google.android.ground.ui.map.CameraUpdateRequest
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.PositionViaBounds
 import com.google.android.ground.ui.map.PositionViaCoordinates
-import kotlinx.coroutines.CoroutineDispatcher
-import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.max
+import kotlinx.coroutines.CoroutineDispatcher
+import timber.log.Timber
 
 /** Injects a [MapFragment] in the container with id "map" and provides shared map functionality. */
 abstract class AbstractMapContainerFragment : AbstractFragment() {
@@ -132,13 +132,9 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   /** Moves the camera to a given position. */
-  fun moveToPosition(
-    coordinates: Coordinates,
-    shouldAnimate: Boolean = true,
-    isAllowZoomOut: Boolean = false,
-  ) {
+  fun moveToPosition(coordinates: Coordinates) {
     onCameraUpdateRequest(
-      CameraUpdateRequest(PositionViaCoordinates(coordinates), shouldAnimate, isAllowZoomOut),
+      CameraUpdateRequest(PositionViaCoordinates(coordinates), shouldAnimate = true),
       map,
     )
   }
@@ -151,7 +147,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
           map.moveCamera(
             position.coordinates,
             zoomLevel =
-              if (cameraUpdateRequest.isAllowZoomOut) position.zoomLevel
+              if (position.isAllowZoomOut) position.zoomLevel
               else max(position.zoomLevel, map.currentZoomLevel),
             cameraUpdateRequest.shouldAnimate,
           )

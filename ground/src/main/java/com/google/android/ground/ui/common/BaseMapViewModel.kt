@@ -42,6 +42,7 @@ import com.google.android.ground.ui.map.PositionViaBounds
 import com.google.android.ground.ui.map.PositionViaCoordinates
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.toCoordinates
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -61,7 +62,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 open class BaseMapViewModel
 @Inject
@@ -243,10 +243,9 @@ constructor(
     if (savedPosition != null) {
       with(savedPosition) {
         return CameraUpdateRequest(
-          if (target != null) PositionViaCoordinates(target, zoomLevel)
+          if (target != null) PositionViaCoordinates(target, zoomLevel, isAllowZoomOut = true)
           else if (bounds != null) PositionViaBounds(bounds)
-          else error("Saved position is invalid: $this"),
-          isAllowZoomOut = true,
+          else error("Saved position is invalid: $this")
         )
       }
     }
