@@ -243,7 +243,8 @@ constructor(
     if (savedPosition != null) {
       with(savedPosition) {
         return CameraUpdateRequest(
-          if (target != null) PositionViaCoordinates(target, zoomLevel, isAllowZoomOut = true)
+          if (coordinates != null)
+            PositionViaCoordinates(coordinates, zoomLevel, isAllowZoomOut = true)
           else if (bounds != null) PositionViaBounds(bounds)
           else error("Saved position is invalid: $this")
         )
@@ -257,7 +258,7 @@ constructor(
 
   /** Called when the map camera is moved. */
   open fun onMapCameraMoved(newCameraPosition: CameraPosition) {
-    Timber.d("Camera moved : ${newCameraPosition.target}")
+    Timber.d("Camera moved : ${newCameraPosition.coordinates}")
     currentCameraPosition.value = newCameraPosition
     mapStateRepository.setCameraPosition(newCameraPosition)
   }

@@ -105,8 +105,8 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
       // Don't update the info card as it is already showing current location
       return
     }
-    val target = position.target
-    val processedCoordinates = target?.toDmsFormat()
+    val coordinates = position.coordinates
+    val processedCoordinates = coordinates?.toDmsFormat()
     updateLocationInfoCard(R.string.map_location, processedCoordinates)
   }
 }

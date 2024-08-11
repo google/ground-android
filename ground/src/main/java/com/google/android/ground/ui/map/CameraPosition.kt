@@ -18,17 +18,17 @@ package com.google.android.ground.ui.map
 import com.google.android.ground.model.geometry.Coordinates
 import timber.log.Timber
 
-// TODO(#1712): Fix duplicate parameters, (target, zoomLevel) & bounds model the same info.
+/** Represents current camera position of the map. */
 data class CameraPosition(
-  val target: Coordinates? = null,
+  val coordinates: Coordinates? = null,
   val zoomLevel: Float? = null,
   val bounds: Bounds? = null,
 ) {
 
   fun serialize(): String =
     arrayOf<Any>(
-        target?.lat.toString(),
-        target?.lng.toString(),
+        coordinates?.lat.toString(),
+        coordinates?.lng.toString(),
         zoomLevel.toString(),
         bounds?.south.toString(),
         bounds?.west.toString(),
