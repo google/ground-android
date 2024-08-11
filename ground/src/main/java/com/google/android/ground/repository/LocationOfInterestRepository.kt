@@ -58,11 +58,9 @@ constructor(
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
   suspend fun syncLocationsOfInterest(survey: Survey) {
     // TODO(#2384): Allow survey organizers to make ad hoc LOIs visible to all data collectors.
-    val creatorEmail = authenticationManager.getAuthenticatedUser().email
+    val ownerUserId = authenticationManager.getAuthenticatedUser().id
     val lois =
-      with(remoteDataStore) {
-        loadPredefinedLois(survey) + loadUserDefinedLois(survey, creatorEmail)
-      }
+      with(remoteDataStore) { loadPredefinedLois(survey) + loadUserLois(survey, ownerUserId) }
     mergeAll(survey.id, lois)
   }
 
@@ -81,7 +79,13 @@ constructor(
   }
 
   /** Saves a new LOI in the local db and enqueues a sync worker. */
-  suspend fun saveLoi(geometry: Geometry, job: Job, surveyId: String, loiName: String?): String {
+  suspend fun saveLoi(
+    geometry: Geometry,
+    job: Job,
+    surveyId: String,
+    loiName: String?,
+    collectionId: String,
+  ): String {
     val newId = uuidGenerator.generateUuid()
     val user = userRepository.getAuthenticatedUser()
     val mutation =
@@ -95,6 +99,7 @@ constructor(
         geometry = geometry,
         properties = generateProperties(loiName),
         isPredefined = false,
+        collectionId = collectionId,
       )
     applyAndEnqueue(mutation)
     return newId
