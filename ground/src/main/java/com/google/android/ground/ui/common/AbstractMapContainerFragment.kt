@@ -30,7 +30,6 @@ import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.NewPositionViaBounds
 import com.google.android.ground.ui.map.NewPositionViaCoordinates
 import javax.inject.Inject
-import kotlin.math.max
 import kotlinx.coroutines.CoroutineDispatcher
 import timber.log.Timber
 
@@ -143,16 +142,11 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     Timber.v("Update camera: $cameraUpdateRequest")
     when (val position = cameraUpdateRequest.newPosition) {
       is NewPositionViaCoordinates -> {
-        if (position.zoomLevel != null) {
-          map.moveCamera(
-            position.coordinates,
-            zoomLevel =
-              if (position.isAllowZoomOut) position.zoomLevel
-              else max(position.zoomLevel, map.currentZoomLevel),
-            cameraUpdateRequest.shouldAnimate,
-          )
-        } else {
+        val zoomLevel = position.getZoomLevel(map.currentZoomLevel)
+        if (zoomLevel == null) {
           map.moveCamera(position.coordinates, cameraUpdateRequest.shouldAnimate)
+        } else {
+          map.moveCamera(position.coordinates, zoomLevel, cameraUpdateRequest.shouldAnimate)
         }
       }
       is NewPositionViaBounds -> {
