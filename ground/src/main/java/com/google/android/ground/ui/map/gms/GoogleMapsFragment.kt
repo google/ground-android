@@ -212,8 +212,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       shouldAnimate,
     )
 
-  override fun moveCamera(bounds: Bounds, shouldAnimate: Boolean) =
-    moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 100), shouldAnimate)
+  override fun moveCamera(bounds: Bounds, padding: Int, shouldAnimate: Boolean) =
+    moveCamera(
+      CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), padding),
+      shouldAnimate,
+    )
 
   private fun moveCamera(cameraUpdate: CameraUpdate, shouldAnimate: Boolean) =
     if (shouldAnimate) map.animateCamera(cameraUpdate) else map.moveCamera(cameraUpdate)

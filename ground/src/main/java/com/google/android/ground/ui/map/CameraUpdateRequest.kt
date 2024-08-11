@@ -26,7 +26,7 @@ sealed class NewPosition
 // nothing has changed. This is probably because the bound calculation is approximate, causing the
 // zoom levels to change slightly each time. Currently, we only set the position via bounds when
 // there are no saved positions i.e. on first open.
-data class NewPositionViaBounds(val bounds: Bounds) : NewPosition()
+data class NewPositionViaBounds(val bounds: Bounds, val padding: Int) : NewPosition()
 
 data class NewPositionViaCoordinates(
   val coordinates: Coordinates,

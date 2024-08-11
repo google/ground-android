@@ -150,7 +150,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
         }
       }
       is NewPositionViaBounds -> {
-        map.moveCamera(position.bounds, cameraUpdateRequest.shouldAnimate)
+        map.moveCamera(position.bounds, position.padding, cameraUpdateRequest.shouldAnimate)
       }
     }
   }

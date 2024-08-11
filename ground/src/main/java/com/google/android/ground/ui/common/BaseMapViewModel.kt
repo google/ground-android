@@ -252,7 +252,9 @@ constructor(
 
     // Compute the default viewport which includes all LOIs in the given survey.
     val geometries = locationOfInterestRepository.getAllGeometries(survey)
-    return geometries.toBounds()?.let { CameraUpdateRequest(NewPositionViaBounds(it)) }
+    return geometries.toBounds()?.let {
+      CameraUpdateRequest(NewPositionViaBounds(bounds = it, padding = 100))
+    }
   }
 
   /** Called when the map camera is moved. */
