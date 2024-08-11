@@ -27,8 +27,8 @@ import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
 import com.google.android.ground.ui.map.CameraUpdateRequest
 import com.google.android.ground.ui.map.MapFragment
-import com.google.android.ground.ui.map.PositionViaBounds
-import com.google.android.ground.ui.map.PositionViaCoordinates
+import com.google.android.ground.ui.map.NewPositionViaBounds
+import com.google.android.ground.ui.map.NewPositionViaCoordinates
 import javax.inject.Inject
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineDispatcher
@@ -134,15 +134,15 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   /** Moves the camera to a given position. */
   fun moveToPosition(coordinates: Coordinates) {
     onCameraUpdateRequest(
-      CameraUpdateRequest(PositionViaCoordinates(coordinates), shouldAnimate = true),
+      CameraUpdateRequest(NewPositionViaCoordinates(coordinates), shouldAnimate = true),
       map,
     )
   }
 
   private fun onCameraUpdateRequest(cameraUpdateRequest: CameraUpdateRequest, map: MapFragment) {
     Timber.v("Update camera: $cameraUpdateRequest")
-    when (val position = cameraUpdateRequest.position) {
-      is PositionViaCoordinates -> {
+    when (val position = cameraUpdateRequest.newPosition) {
+      is NewPositionViaCoordinates -> {
         if (position.zoomLevel != null) {
           map.moveCamera(
             position.coordinates,
@@ -155,7 +155,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
           map.moveCamera(position.coordinates, cameraUpdateRequest.shouldAnimate)
         }
       }
-      is PositionViaBounds -> {
+      is NewPositionViaBounds -> {
         map.moveCamera(position.bounds, cameraUpdateRequest.shouldAnimate)
       }
       else -> {

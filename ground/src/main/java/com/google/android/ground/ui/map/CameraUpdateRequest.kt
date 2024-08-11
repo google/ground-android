@@ -17,18 +17,21 @@ package com.google.android.ground.ui.map
 
 import com.google.android.ground.model.geometry.Coordinates
 
-data class CameraUpdateRequest(val position: Position? = null, val shouldAnimate: Boolean = false)
+data class CameraUpdateRequest(
+  val newPosition: NewPosition? = null,
+  val shouldAnimate: Boolean = false,
+)
 
-// Prefer setting the position via coordinates as it doesn't cause the map to zoom out even if
+sealed class NewPosition
+
+// Note: Prefer setting the position via coordinates as it doesn't cause the map to zoom out even if
 // nothing has changed. This is probably because the bound calculation is approximate, causing the
 // zoom levels to change slightly each time. Currently, we only set the position via bounds when
 // there are no saved positions i.e. on first open.
-sealed class Position
+data class NewPositionViaBounds(val bounds: Bounds) : NewPosition()
 
-data class PositionViaBounds(val bounds: Bounds) : Position()
-
-data class PositionViaCoordinates(
+data class NewPositionViaCoordinates(
   val coordinates: Coordinates,
   val zoomLevel: Float? = null,
   val isAllowZoomOut: Boolean = false,
-) : Position()
+) : NewPosition()
