@@ -27,9 +27,9 @@ import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
 import com.google.android.ground.ui.map.CameraUpdateRequest
 import com.google.android.ground.ui.map.MapFragment
-import com.google.android.ground.ui.map.NewPositionViaBounds
-import com.google.android.ground.ui.map.NewPositionViaCoordinates
-import com.google.android.ground.ui.map.NewPositionViaCoordinatesAndZoomLevel
+import com.google.android.ground.ui.map.NewCameraPositionViaBounds
+import com.google.android.ground.ui.map.NewCameraPositionViaCoordinates
+import com.google.android.ground.ui.map.NewCameraPositionViaCoordinatesAndZoomLevel
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import timber.log.Timber
@@ -133,27 +133,24 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   /** Moves the camera to a given position. */
   fun moveToPosition(coordinates: Coordinates) {
-    onCameraUpdateRequest(
-      CameraUpdateRequest(NewPositionViaCoordinates(coordinates), shouldAnimate = true),
-      map,
-    )
+    onCameraUpdateRequest(NewCameraPositionViaCoordinates(coordinates, shouldAnimate = true), map)
   }
 
-  private fun onCameraUpdateRequest(cameraUpdateRequest: CameraUpdateRequest, map: MapFragment) {
-    Timber.v("Update camera: $cameraUpdateRequest")
-    when (val position = cameraUpdateRequest.newPosition) {
-      is NewPositionViaCoordinates -> {
-        map.moveCamera(position.coordinates, cameraUpdateRequest.shouldAnimate)
+  private fun onCameraUpdateRequest(request: CameraUpdateRequest, map: MapFragment) {
+    Timber.v("Update camera: $request")
+    when (request) {
+      is NewCameraPositionViaCoordinates -> {
+        map.moveCamera(request.coordinates, request.shouldAnimate)
       }
-      is NewPositionViaCoordinatesAndZoomLevel -> {
+      is NewCameraPositionViaCoordinatesAndZoomLevel -> {
         map.moveCamera(
-          position.coordinates,
-          position.getZoomLevel(map.currentZoomLevel),
-          cameraUpdateRequest.shouldAnimate,
+          request.coordinates,
+          request.getZoomLevel(map.currentZoomLevel),
+          request.shouldAnimate,
         )
       }
-      is NewPositionViaBounds -> {
-        map.moveCamera(position.bounds, position.padding, cameraUpdateRequest.shouldAnimate)
+      is NewCameraPositionViaBounds -> {
+        map.moveCamera(request.bounds, request.padding, request.shouldAnimate)
       }
     }
   }
