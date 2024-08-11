@@ -17,10 +17,7 @@ package com.google.android.ground.ui.map
 
 import com.google.android.ground.model.geometry.Coordinates
 
-data class CameraUpdateRequest(
-  val newPosition: NewPosition? = null,
-  val shouldAnimate: Boolean = false,
-)
+data class CameraUpdateRequest(val newPosition: NewPosition, val shouldAnimate: Boolean = false)
 
 sealed class NewPosition
 
