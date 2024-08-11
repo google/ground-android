@@ -158,9 +158,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
       is NewPositionViaBounds -> {
         map.moveCamera(position.bounds, cameraUpdateRequest.shouldAnimate)
       }
-      else -> {
-        error("Must have either target or bounds set")
-      }
     }
   }
 
