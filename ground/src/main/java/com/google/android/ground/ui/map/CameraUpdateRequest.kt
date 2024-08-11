@@ -24,15 +24,15 @@ sealed class NewPosition
 
 data class NewPositionViaBounds(val bounds: Bounds, val padding: Int) : NewPosition()
 
-data class NewPositionViaCoordinates(
+data class NewPositionViaCoordinates(val coordinates: Coordinates) : NewPosition()
+
+data class NewPositionViaCoordinatesAndZoomLevel(
   val coordinates: Coordinates,
-  private val zoomLevel: Float? = null,
-  private val isAllowZoomOut: Boolean = false,
+  private val zoomLevel: Float,
+  private val isAllowZoomOut: Boolean,
 ) : NewPosition() {
 
   /** Returns the resolved zoom level based on request parameters. */
-  fun getZoomLevel(currentZoomLevel: Float): Float? {
-    if (zoomLevel == null) return null
-    return if (isAllowZoomOut) zoomLevel else max(zoomLevel, currentZoomLevel)
-  }
+  fun getZoomLevel(currentZoomLevel: Float) =
+    if (isAllowZoomOut) zoomLevel else max(zoomLevel, currentZoomLevel)
 }

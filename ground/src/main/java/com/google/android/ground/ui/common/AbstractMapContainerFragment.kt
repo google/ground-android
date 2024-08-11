@@ -29,6 +29,7 @@ import com.google.android.ground.ui.map.CameraUpdateRequest
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.NewPositionViaBounds
 import com.google.android.ground.ui.map.NewPositionViaCoordinates
+import com.google.android.ground.ui.map.NewPositionViaCoordinatesAndZoomLevel
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import timber.log.Timber
@@ -142,12 +143,14 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     Timber.v("Update camera: $cameraUpdateRequest")
     when (val position = cameraUpdateRequest.newPosition) {
       is NewPositionViaCoordinates -> {
-        val zoomLevel = position.getZoomLevel(map.currentZoomLevel)
-        if (zoomLevel == null) {
-          map.moveCamera(position.coordinates, cameraUpdateRequest.shouldAnimate)
-        } else {
-          map.moveCamera(position.coordinates, zoomLevel, cameraUpdateRequest.shouldAnimate)
-        }
+        map.moveCamera(position.coordinates, cameraUpdateRequest.shouldAnimate)
+      }
+      is NewPositionViaCoordinatesAndZoomLevel -> {
+        map.moveCamera(
+          position.coordinates,
+          position.getZoomLevel(map.currentZoomLevel),
+          cameraUpdateRequest.shouldAnimate,
+        )
       }
       is NewPositionViaBounds -> {
         map.moveCamera(position.bounds, position.padding, cameraUpdateRequest.shouldAnimate)

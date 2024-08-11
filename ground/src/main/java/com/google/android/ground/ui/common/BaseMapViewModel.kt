@@ -40,6 +40,7 @@ import com.google.android.ground.ui.map.CameraUpdateRequest
 import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.ui.map.NewPositionViaBounds
 import com.google.android.ground.ui.map.NewPositionViaCoordinates
+import com.google.android.ground.ui.map.NewPositionViaCoordinatesAndZoomLevel
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.toCoordinates
 import javax.inject.Inject
@@ -218,7 +219,14 @@ constructor(
 
   private suspend fun onLocationUpdate(index: Int, coordinates: Coordinates): CameraUpdateRequest =
     if (index == 0) {
-      CameraUpdateRequest(NewPositionViaCoordinates(coordinates, DEFAULT_LOI_ZOOM_LEVEL), true)
+      CameraUpdateRequest(
+        NewPositionViaCoordinatesAndZoomLevel(
+          coordinates,
+          DEFAULT_LOI_ZOOM_LEVEL,
+          isAllowZoomOut = false,
+        ),
+        true,
+      )
     } else {
       // Set a small delay before emitting another value to allow previous zoom animation to
       // finish. Otherwise, the map camera stops at some other zoom level.
@@ -241,13 +249,16 @@ constructor(
     // Attempt to fetch last saved position from local storage.
     val savedPosition = mapStateRepository.getCameraPosition(survey.id)
     if (savedPosition != null) {
-      return CameraUpdateRequest(
-        NewPositionViaCoordinates(
-          savedPosition.coordinates,
-          savedPosition.zoomLevel,
-          isAllowZoomOut = true,
+      return if (savedPosition.zoomLevel == null) {
+        CameraUpdateRequest(NewPositionViaCoordinates(savedPosition.coordinates))
+      } else
+        CameraUpdateRequest(
+          NewPositionViaCoordinatesAndZoomLevel(
+            savedPosition.coordinates,
+            savedPosition.zoomLevel,
+            isAllowZoomOut = true,
+          )
         )
-      )
     }
 
     // Compute the default viewport which includes all LOIs in the given survey.
