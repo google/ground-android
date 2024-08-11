@@ -66,8 +66,8 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
 
   protected fun infoCardShown(title: String, value: String) {
     onView(withId(R.id.infoCard)).check(matches(isDisplayed()))
-    onView(withId(R.id.card_title)).check(matches(withText(title)))
-    onView(withId(R.id.card_value)).check(matches(withText(value)))
+    onView(withId(R.id.current_location_title)).check(matches(withText(title)))
+    onView(withId(R.id.current_location_value)).check(matches(withText(value)))
   }
 
   protected suspend fun hasValue(taskData: TaskData?) {
