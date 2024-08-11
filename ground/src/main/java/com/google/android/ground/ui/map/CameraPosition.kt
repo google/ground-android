@@ -20,15 +20,15 @@ import timber.log.Timber
 
 /** Represents current camera position of the map. */
 data class CameraPosition(
-  val coordinates: Coordinates? = null,
+  val coordinates: Coordinates,
   val zoomLevel: Float? = null,
   val bounds: Bounds? = null,
 ) {
 
   fun serialize(): String =
     arrayOf<Any>(
-        coordinates?.lat.toString(),
-        coordinates?.lng.toString(),
+        coordinates.lat.toString(),
+        coordinates.lng.toString(),
         zoomLevel.toString(),
         bounds?.south.toString(),
         bounds?.west.toString(),

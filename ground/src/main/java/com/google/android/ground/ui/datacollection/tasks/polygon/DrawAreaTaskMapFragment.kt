@@ -49,7 +49,7 @@ class DrawAreaTaskMapFragment(private val viewModel: DrawAreaTaskViewModel) :
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
     if (!viewModel.isMarkedComplete()) {
-      val mapCenter = position.coordinates!!
+      val mapCenter = position.coordinates
       viewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->
         map.getDistanceInPixels(c1, c2)
       }

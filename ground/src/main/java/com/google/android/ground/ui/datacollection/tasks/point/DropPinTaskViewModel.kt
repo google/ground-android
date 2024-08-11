@@ -86,6 +86,6 @@ constructor(
     )
 
   fun dropPin() {
-    lastCameraPosition?.let { updateResponse(Point(it.coordinates!!)) }
+    lastCameraPosition?.let { updateResponse(Point(it.coordinates)) }
   }
 }
