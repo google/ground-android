@@ -38,6 +38,8 @@ class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFrag
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+
+    // requireNotNull will throw error, it should be handle smoothly
     val args = OfflineAreaViewerFragmentArgs.fromBundle(requireNotNull(arguments))
     viewModel = getViewModel(OfflineAreaViewerViewModel::class.java)
     viewModel.initialize(args.offlineAreaId)
