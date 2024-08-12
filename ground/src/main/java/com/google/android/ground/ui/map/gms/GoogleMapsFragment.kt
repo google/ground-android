@@ -39,9 +39,9 @@ import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.android.gms.maps.model.TileProvider
 import com.google.android.ground.Config
 import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.model.imagery.MogCollectionSource
 import com.google.android.ground.model.imagery.TileSource
-import com.google.android.ground.model.imagery.TileSource.Type.MOG_COLLECTION
-import com.google.android.ground.model.imagery.TileSource.Type.TILED_WEB_MAP
+import com.google.android.ground.model.imagery.TiledWebMapSource
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.Bounds
@@ -273,10 +273,9 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   }
 
   override fun addTileOverlay(source: TileSource) =
-    when (source.type) {
-      MOG_COLLECTION -> addRemoteMogTileOverlay(source.url)
-      TILED_WEB_MAP -> addLocalTileOverlay(source.url, source.clipBounds)
-      else -> error("Unsupported tile source type ${source.type}")
+    when (source) {
+      is MogCollectionSource -> addRemoteMogTileOverlay(source.url)
+      is TiledWebMapSource -> addLocalTileOverlay(source.url, source.clipBounds)
     }
 
   private fun addRemoteMogTileOverlay(url: String) {

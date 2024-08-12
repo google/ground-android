@@ -18,11 +18,8 @@ package com.google.android.ground.model.imagery
 import com.google.android.ground.ui.map.Bounds
 
 /** Represents a single source of tiled map imagery. */
-data class TileSource(val url: String, val type: Type, val clipBounds: List<Bounds> = listOf()) {
-  // TODO(#1790): Consider creating specialized classes for each type of TileSource.
-  enum class Type {
-    TILED_WEB_MAP,
-    MOG_COLLECTION,
-    UNKNOWN,
-  }
-}
+sealed class TileSource
+
+data class TiledWebMapSource(val url: String, val clipBounds: List<Bounds>) : TileSource()
+
+data class MogCollectionSource(val url: String) : TileSource()

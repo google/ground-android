@@ -16,8 +16,10 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.Config
+import com.google.android.ground.model.imagery.MogCollectionSource
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.imagery.TileSource
+import com.google.android.ground.model.imagery.TiledWebMapSource
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.system.GeocodingManager
@@ -112,12 +114,11 @@ constructor(
     getDefaultTileSources().mapNotNull { tileSource -> toOfflineTileSource(tileSource, bounds) }
 
   private fun toOfflineTileSource(tileSource: TileSource, clipBounds: List<Bounds>): TileSource? {
-    if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
-    return TileSource(
-      "file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg",
-      TileSource.Type.TILED_WEB_MAP,
-      clipBounds,
-    )
+    return when (tileSource) {
+      is TiledWebMapSource -> null
+      is MogCollectionSource ->
+        TiledWebMapSource("file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg", clipBounds)
+    }
   }
 
   private fun getOfflineAreaBounds(): Flow<List<Bounds>> =
@@ -125,9 +126,7 @@ constructor(
 
   /** Returns the default configured tile sources. */
   fun getDefaultTileSources(): List<TileSource> =
-    listOf(
-      TileSource(url = Config.DEFAULT_MOG_TILE_LOCATION, type = TileSource.Type.MOG_COLLECTION)
-    )
+    listOf(MogCollectionSource(url = Config.DEFAULT_MOG_TILE_LOCATION))
 
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
     val maxZoom = mogClient.collection.sources.maxZoom()
