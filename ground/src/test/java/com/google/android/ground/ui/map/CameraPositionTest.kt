@@ -23,22 +23,22 @@ class CameraPositionTest {
 
   @Test
   fun serialize_deserialize_when_only_target_is_available() {
-    serializeAndDeserialize(CameraPosition(target = TARGET))
+    serializeAndDeserialize(CameraPosition(coordinates = COORDINATES))
   }
 
   @Test
   fun serialize_deserialize_when_target_and_zoomLevel_are_available() {
-    serializeAndDeserialize(CameraPosition(target = TARGET, zoomLevel = ZOOM_LEVEL))
+    serializeAndDeserialize(CameraPosition(coordinates = COORDINATES, zoomLevel = ZOOM_LEVEL))
   }
 
   @Test
   fun serialize_deserialize_when_target_and_bounds_are_available() {
-    serializeAndDeserialize(CameraPosition(target = TARGET, bounds = BOUNDS))
+    serializeAndDeserialize(CameraPosition(coordinates = COORDINATES, bounds = BOUNDS))
   }
 
   @Test
   fun serialize_deserialize_when_all_fields_present() {
-    serializeAndDeserialize(CameraPosition(TARGET, ZOOM_LEVEL, BOUNDS))
+    serializeAndDeserialize(CameraPosition(COORDINATES, ZOOM_LEVEL, BOUNDS))
   }
 
   private fun serializeAndDeserialize(cameraPosition: CameraPosition) {
@@ -49,7 +49,7 @@ class CameraPositionTest {
 
   companion object {
     private val BOUNDS = Bounds(-10.0, -20.0, 10.0, 20.0)
-    private val TARGET = FakeData.COORDINATES
+    private val COORDINATES = FakeData.COORDINATES
     private const val ZOOM_LEVEL = 13.0f
   }
 }

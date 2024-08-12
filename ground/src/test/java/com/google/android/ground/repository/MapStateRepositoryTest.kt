@@ -84,14 +84,14 @@ class MapStateRepositoryTest : BaseHiltTest() {
   @Test
   fun `getCameraPosition() should return same value as passed to setCameraPosition()`() {
     localValueStore.lastActiveSurveyId = SURVEY_ID
-    mapStateRepository.setCameraPosition(CameraPosition(target = TARGET))
+    mapStateRepository.setCameraPosition(CameraPosition(coordinates = COORDINATES))
 
     assertThat(mapStateRepository.getCameraPosition(SURVEY_ID))
-      .isEqualTo(CameraPosition(target = TARGET))
+      .isEqualTo(CameraPosition(coordinates = COORDINATES))
   }
 
   companion object {
-    private val TARGET = FakeData.COORDINATES
+    private val COORDINATES = FakeData.COORDINATES
     private const val SURVEY_ID = "survey_id"
   }
 }
