@@ -25,6 +25,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.android.ground.R
 import com.google.android.ground.proto.Survey
 import com.google.android.ground.ui.compose.HtmlText
@@ -43,7 +44,7 @@ fun DataSharingTermsDialog(
   }
   AlertDialog(
     onDismissRequest = { dismissDialog() },
-    title = { Text(text = stringResource(R.string.data_consent_dialog_title)) },
+    title = { Text(text = stringResource(R.string.data_consent_dialog_title), fontSize = 22.sp) },
     text = {
       val markdownSrc =
         when (dataSharingTerms.type) {

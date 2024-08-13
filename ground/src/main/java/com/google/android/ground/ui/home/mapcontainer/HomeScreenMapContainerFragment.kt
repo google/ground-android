@@ -116,23 +116,27 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       is MapCardUiData.AddLoiCardUiData -> cardUiData.job.tasks.values.isNotEmpty()
     }
 
-  private fun renderDataSharingTermsDialog(cardUiData: MapCardUiData, dataSharingTerms: DataSharingTerms) = ComposeView(requireContext()).apply {
-    setContent {
-      val showDataSharingTermsDialog = remember { mutableStateOf(true) }
-      when {
-        showDataSharingTermsDialog.value -> {
-          AppTheme {
-            DataSharingTermsDialog(showDataSharingTermsDialog, dataSharingTerms) {
-              val job =
-                lifecycleScope.launch { mapContainerViewModel.updateDataSharingConsent(true) }
-              job.cancel()
-              navigateToDataCollectionFragment(cardUiData)
+  private fun renderDataSharingTermsDialog(
+    cardUiData: MapCardUiData,
+    dataSharingTerms: DataSharingTerms,
+  ) =
+    ComposeView(requireContext()).apply {
+      setContent {
+        val showDataSharingTermsDialog = remember { mutableStateOf(true) }
+        when {
+          showDataSharingTermsDialog.value -> {
+            AppTheme {
+              DataSharingTermsDialog(showDataSharingTermsDialog, dataSharingTerms) {
+                val job =
+                  lifecycleScope.launch { mapContainerViewModel.updateDataSharingConsent(true) }
+                job.cancel()
+                navigateToDataCollectionFragment(cardUiData)
+              }
             }
           }
         }
       }
     }
-  }
 
   /** Invoked when user clicks on the map cards to collect data. */
   private fun onCollectData(
@@ -153,7 +157,10 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       return
     }
     if (hasDataSharingTerms != null) {
-      if (hasDataSharingTerms.type == DataSharingTerms.Type.CUSTOM && hasDataSharingTerms.customText.isBlank()) {
+      if (
+        hasDataSharingTerms.type == DataSharingTerms.Type.CUSTOM &&
+          hasDataSharingTerms.customText.isBlank()
+      ) {
         ephemeralPopups.ErrorPopup().show(getString(R.string.invalid_data_sharing_terms))
         return
       }

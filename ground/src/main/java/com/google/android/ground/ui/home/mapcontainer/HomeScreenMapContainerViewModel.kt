@@ -214,7 +214,8 @@ internal constructor(
     }
   }
 
-  private fun getDataSharingConsent(survey: Survey) = localValueStore.getDataSharingConsent(survey.id)
+  private fun getDataSharingConsent(survey: Survey) =
+    localValueStore.getDataSharingConsent(survey.id)
 
   private fun setDataSharingConsent(survey: Survey, dataSharingTerms: Boolean) =
     localValueStore.setDataSharingConsent(survey.id, dataSharingTerms)
