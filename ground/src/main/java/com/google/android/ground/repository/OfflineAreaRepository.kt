@@ -32,14 +32,14 @@ import com.google.android.ground.ui.util.FileUtil
 import com.google.android.ground.util.ByteCount
 import com.google.android.ground.util.deleteIfEmpty
 import com.google.android.ground.util.rangeOf
+import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
-import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
@@ -113,7 +113,7 @@ constructor(
 
   /** Returns the default configured tile source. */
   fun getRemoteTileSource(): TileSource =
-    RemoteMogTileSource(remoteUrl = Config.DEFAULT_MOG_TILE_LOCATION)
+    RemoteMogTileSource(remotePath = Config.DEFAULT_MOG_TILE_LOCATION)
 
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
     val maxZoom = mogClient.collection.sources.maxZoom()

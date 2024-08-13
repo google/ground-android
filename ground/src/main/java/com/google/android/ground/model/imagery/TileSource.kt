@@ -22,4 +22,4 @@ sealed class TileSource
 
 data class LocalTileSource(val localFilePath: String, val clipBounds: List<Bounds>) : TileSource()
 
-data class RemoteMogTileSource(val remoteUrl: String) : TileSource()
+data class RemoteMogTileSource(val remotePath: String) : TileSource()

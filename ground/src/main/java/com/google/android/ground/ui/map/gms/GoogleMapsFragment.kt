@@ -269,7 +269,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override fun addTileOverlay(source: TileSource) =
     when (source) {
       is LocalTileSource -> addLocalTileOverlay(source.localFilePath, source.clipBounds)
-      is RemoteMogTileSource -> addRemoteMogTileOverlay(source.remoteUrl)
+      is RemoteMogTileSource -> addRemoteMogTileOverlay(source.remotePath)
     }
 
   private fun addLocalTileOverlay(url: String, bounds: List<Bounds>) {
