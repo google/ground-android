@@ -29,6 +29,7 @@ data class LocationOfInterestMutation(
   override val clientTimestamp: Date = Date(),
   override val retryCount: Long = 0,
   override val lastError: String = "",
+  override val collectionId: String,
   val jobId: String = "",
   val customId: String = "",
   val geometry: Geometry? = null,

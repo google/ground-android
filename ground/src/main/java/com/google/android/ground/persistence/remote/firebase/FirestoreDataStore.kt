@@ -72,8 +72,8 @@ internal constructor(
   override suspend fun loadPredefinedLois(survey: Survey) =
     db().surveys().survey(survey.id).lois().fetchPredefined(survey)
 
-  override suspend fun loadUserDefinedLois(survey: Survey, creatorEmail: String) =
-    db().surveys().survey(survey.id).lois().fetchUserDefined(survey, creatorEmail)
+  override suspend fun loadUserLois(survey: Survey, ownerUserId: String) =
+    db().surveys().survey(survey.id).lois().fetchUserDefined(survey, ownerUserId)
 
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {
     Timber.d("Subscribing to FCM topic $surveyId")

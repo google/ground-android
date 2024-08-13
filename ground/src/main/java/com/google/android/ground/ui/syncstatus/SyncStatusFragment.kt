@@ -26,6 +26,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import com.google.android.ground.databinding.SyncStatusFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.theme.AppTheme
@@ -59,9 +62,12 @@ class SyncStatusFragment : AbstractFragment() {
   @Composable
   private fun ShowSyncItems() {
     val list by viewModel.mutations.observeAsState()
-    if (list == null) return
-    LazyColumn(Modifier.fillMaxSize()) {
-      items(list!!) { SyncListItem(modifier = Modifier, detail = it) }
+    list?.let {
+      LazyColumn(Modifier.fillMaxSize().testTag("sync list")) {
+        items(it) {
+          SyncListItem(modifier = Modifier.semantics { testTag = "item ${it.user}" }, detail = it)
+        }
+      }
     }
   }
 }

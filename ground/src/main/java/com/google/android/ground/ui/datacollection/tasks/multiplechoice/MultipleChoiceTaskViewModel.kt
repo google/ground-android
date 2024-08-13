@@ -148,8 +148,8 @@ class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
   }
 
   companion object {
-    private const val OTHER_ID: String = "OTHER_ID"
-    private const val OTHER_PREFIX: String = "[ "
-    private const val OTHER_SUFFIX: String = " ]"
+    const val OTHER_ID: String = "OTHER_ID"
+    const val OTHER_PREFIX: String = "[ "
+    const val OTHER_SUFFIX: String = " ]"
   }
 }

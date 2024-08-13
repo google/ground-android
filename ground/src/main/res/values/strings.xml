@@ -88,7 +88,7 @@
   <string name="new_site">New data collection site</string>
   <string name="new_site_hint_text">Add new site and submit related data</string>
   <string name="drop_a_pin_tooltip_text">Drag your map until the center pin is on the desired location</string>
-  <string name="current_location">Current location</string>
+  <string name="current_location">Current location:</string>
   <string name="loading">Loading…</string>
   <string name="no_tasks_error">This job has no more tasks to complete</string>
   <string name="collect_data_viewer_error">Can’t collect data as user is a VIEWER</string>
@@ -129,8 +129,8 @@
   <string name="initializing">Initializing…</string>
   <string name="draw_area_task_instruction">Move the map and tap “Add point” to add points around the desired area.</string>
   <string name="close">Close</string>
-  <string name="map_location">Map location</string>
   <string name="data_consent_dialog_title">Agree to survey data sharing terms to continue</string>
+  <string name="map_location">Map location:</string>
   <string name="sign_out_dialog_title">Unsynced data</string>
   <string name="sign_out_dialog_body">If you sign out, any unsynced data will be discarded</string>
   <string name="suggest_data_collection_hint">Zoom in to start collecting data</string>
@@ -174,7 +174,7 @@
   <string name="send_feedback_title">Send feedback</string>
   <string name="report_summary">Report technical issues or suggest new locationsOfInterest</string>
   <string name="not_yet_impl_title">Not yet implemented</string>
-
+  <string name="accuracy">Accuracy:</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_public_message">
     ## How Your Data Will Be Shared

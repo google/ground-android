@@ -24,6 +24,7 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.Style
 import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
@@ -32,6 +33,7 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.gms.features.FeatureClusterItem
@@ -124,6 +126,9 @@ object FakeData {
 
   val COORDINATES = Coordinates(42.0, 18.0)
 
+  val OFFLINE_AREA =
+    OfflineArea("id_1", OfflineArea.State.PENDING, Bounds(0.0, 0.0, 0.0, 0.0), "Test Area", 0..14)
+
   fun newTask(
     id: String = "",
     type: Task.Type = Task.Type.TEXT,
@@ -146,6 +151,7 @@ object FakeData {
       surveyId = SURVEY_ID,
       clientTimestamp = Date(),
       properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
+      collectionId = "",
     )
 
   fun newAoiMutation(
@@ -164,5 +170,6 @@ object FakeData {
       surveyId = SURVEY_ID,
       clientTimestamp = Date(),
       properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
+      collectionId = "",
     )
 }

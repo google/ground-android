@@ -121,6 +121,7 @@ constructor(
     } catch (t: Throwable) {
       // Mark all mutations as having failed since the remote datastore only commits when all
       // mutations have succeeded.
+      Timber.d(t, "Local mutation sync failed")
       mutationRepository.markAsFailed(mutations, t)
       false
     }

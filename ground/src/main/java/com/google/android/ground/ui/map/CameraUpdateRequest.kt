@@ -15,8 +15,30 @@
  */
 package com.google.android.ground.ui.map
 
-data class CameraUpdateRequest(
-  val cameraPosition: CameraPosition,
+import com.google.android.ground.model.geometry.Coordinates
+import kotlin.math.max
+
+sealed class CameraUpdateRequest
+
+data class NewCameraPositionViaBounds(
+  val bounds: Bounds,
+  val padding: Int,
   val shouldAnimate: Boolean = false,
-  val isAllowZoomOut: Boolean = false,
-)
+) : CameraUpdateRequest()
+
+data class NewCameraPositionViaCoordinates(
+  val coordinates: Coordinates,
+  val shouldAnimate: Boolean = false,
+) : CameraUpdateRequest()
+
+data class NewCameraPositionViaCoordinatesAndZoomLevel(
+  val coordinates: Coordinates,
+  private val zoomLevel: Float,
+  private val isAllowZoomOut: Boolean,
+  val shouldAnimate: Boolean = false,
+) : CameraUpdateRequest() {
+
+  /** Returns the resolved zoom level based on request parameters. */
+  fun getZoomLevel(currentZoomLevel: Float) =
+    if (isAllowZoomOut) zoomLevel else max(zoomLevel, currentZoomLevel)
+}
