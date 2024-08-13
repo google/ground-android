@@ -36,7 +36,6 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -53,7 +52,6 @@ class OfflineAreaRepository
 @Inject
 constructor(
   private val localOfflineAreaStore: LocalOfflineAreaStore,
-  private val surveyRepository: SurveyRepository,
   private val fileUtil: FileUtil,
   private val geocodingManager: GeocodingManager,
   private val mogClient: MogClient,
@@ -105,24 +103,13 @@ constructor(
   // TODO(#1730): Generate local tiles path based on source base path.
   private fun getLocalTileSourcePath(): String = File(fileUtil.getFilesDir(), "tiles").path
 
-  fun getOfflineTileSourcesFlow() =
-    surveyRepository.activeSurveyFlow.combine(getOfflineAreaBounds()) { _, bounds ->
-      applyBounds(bounds)
-    }
-
-  private fun applyBounds(bounds: List<Bounds>): List<TileSource> =
-    getDefaultTileSources().mapNotNull { tileSource -> toOfflineTileSource(tileSource, bounds) }
-
-  private fun toOfflineTileSource(tileSource: TileSource, clipBounds: List<Bounds>): TileSource? {
-    return when (tileSource) {
-      is TiledWebMapSource -> null
-      is MogCollectionSource ->
-        TiledWebMapSource("file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg", clipBounds)
-    }
-  }
-
-  private fun getOfflineAreaBounds(): Flow<List<Bounds>> =
-    localOfflineAreaStore.offlineAreas().map { list -> list.map { it.bounds } }
+  fun getOfflineTileSourcesFlow(): Flow<TileSource> =
+    localOfflineAreaStore
+      .offlineAreas()
+      .map { list -> list.map { it.bounds } }
+      .map { bounds ->
+        TiledWebMapSource("file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg", bounds)
+      }
 
   /** Returns the default configured tile sources. */
   fun getDefaultTileSources(): List<TileSource> =
