@@ -148,7 +148,7 @@ private fun ValueDelta.toMessage() = taskData {
         dateTime = timestamp { seconds = (newTaskData as TimeTaskData).time.time / 1000 }
       }
     Task.Type.MULTIPLE_CHOICE -> multipleChoiceResponses = multipleChoiceResponses {
-        (newTaskData as MultipleChoiceTaskData).selectedOptionIds.forEach {
+        (newTaskData as MultipleChoiceTaskData).getSelectedOptionsIdsExceptOther().forEach {
           selectedOptionIds.add(it)
         }
         if (newTaskData.hasOtherText()) {
@@ -167,7 +167,8 @@ private fun ValueDelta.toMessage() = taskData {
         // TODO: Add timestamp
       }
     Task.Type.PHOTO -> takePhotoResult = takePhotoResult {
-        photoPath = (newTaskData as PhotoTaskData).path
+        val data = newTaskData as PhotoTaskData
+        photoPath = data.remoteFilename
       }
     Task.Type.UNKNOWN -> error("Unknown task type")
   }
@@ -176,6 +177,7 @@ private fun ValueDelta.toMessage() = taskData {
 private fun createAuditInfoMessage(user: User, timestamp: Date) = auditInfo {
   userId = user.id
   displayName = user.displayName
+  emailAddress = user.email
   photoUrl = user.photoUrl ?: photoUrl
   clientTimestamp = timestamp.toMessage()
   serverTimestamp = timestamp.toMessage()

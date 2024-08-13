@@ -52,6 +52,7 @@ constructor(
     surveyId: String,
     locationOfInterestId: String,
     deltas: List<ValueDelta>,
+    collectionId: String,
   ) {
     val newId = uuidGenerator.generateUuid()
     val userId = userRepository.getAuthenticatedUser().id
@@ -66,6 +67,7 @@ constructor(
         surveyId = surveyId,
         locationOfInterestId = locationOfInterestId,
         userId = userId,
+        collectionId = collectionId,
       )
     applyAndEnqueue(mutation)
   }

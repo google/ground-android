@@ -81,7 +81,7 @@ interface MapFragment {
   /**
    * Centers the map viewport around the specified [Bounds] are included at the least zoom level.
    */
-  fun moveCamera(bounds: Bounds, shouldAnimate: Boolean)
+  fun moveCamera(bounds: Bounds, padding: Int, shouldAnimate: Boolean)
 
   /** Displays user location indicator on the map. */
   @SuppressLint("MissingPermission") fun enableCurrentLocationIndicator()

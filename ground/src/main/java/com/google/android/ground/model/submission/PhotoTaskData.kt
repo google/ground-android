@@ -21,24 +21,10 @@ import kotlinx.serialization.Serializable
 
 /** Represents a single photo associated with a given [LocationOfInterest] and [Job]. */
 @Serializable
-class PhotoTaskData : TaskData {
-  val surveyId: String
-  val path: String
-  val filename: String
-    get() = path.split("/").last()
+class PhotoTaskData(val remoteFilename: String) : TaskData {
+  override fun getDetailsText(): String = remoteFilename
 
-  constructor(path: String, surveyId: String) {
-    val filePattern = Regex("^[a-zA-Z0-9._ -]+\\.(png|jpg)$")
-    val filename = path.split("/").last()
-    require(filename.matches(filePattern)) { "Invalid photo file name" }
+  override fun isEmpty(): Boolean = remoteFilename.isEmpty()
 
-    this.path = path
-    this.surveyId = surveyId
-  }
-
-  override fun getDetailsText(): String = path
-
-  override fun isEmpty(): Boolean = path.isEmpty()
-
-  override fun toString(): String = path
+  override fun toString(): String = remoteFilename
 }

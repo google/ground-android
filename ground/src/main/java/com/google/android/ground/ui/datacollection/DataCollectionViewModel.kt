@@ -30,6 +30,7 @@ import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
+import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -82,6 +83,7 @@ internal constructor(
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   private val savedStateHandle: SavedStateHandle,
   private val submissionRepository: SubmissionRepository,
+  private val offlineUuidGenerator: OfflineUuidGenerator,
   locationOfInterestRepository: LocationOfInterestRepository,
   surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
@@ -238,7 +240,7 @@ internal constructor(
       return
     }
 
-    data[taskViewModel.task] = taskViewModel.taskTaskData.firstOrNull()
+    data[taskViewModel.task] = taskViewModel.taskTaskData.value
 
     if (!isLastPosition()) {
       step(1)
@@ -263,8 +265,9 @@ internal constructor(
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(deltas: List<ValueDelta>) {
+    val collectionId = offlineUuidGenerator.generateUuid()
     externalScope.launch(ioDispatcher) {
-      submitDataUseCase.invoke(loiId, job, surveyId, deltas, customLoiName)
+      submitDataUseCase.invoke(loiId, job, surveyId, deltas, customLoiName, collectionId)
     }
   }
 

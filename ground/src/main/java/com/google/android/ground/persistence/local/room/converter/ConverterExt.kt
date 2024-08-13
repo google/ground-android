@@ -197,6 +197,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject() =
     retryCount = retryCount,
     newProperties = properties,
     isPredefined = isPredefined,
+    collectionId = collectionId,
   )
 
 fun LocationOfInterestMutationEntity.toModelObject() =
@@ -215,6 +216,7 @@ fun LocationOfInterestMutationEntity.toModelObject() =
     retryCount = retryCount,
     properties = newProperties,
     isPredefined = isPredefined,
+    collectionId = collectionId,
   )
 
 fun MultipleChoiceEntity.toModelObject(optionEntities: List<OptionEntity>): MultipleChoice {
@@ -343,6 +345,7 @@ fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
     lastError = lastError,
     userId = userId,
     clientTimestamp = Date(clientTimestamp),
+    collectionId = collectionId,
   )
 }
 
@@ -360,6 +363,7 @@ fun SubmissionMutation.toLocalDataStoreObject() =
     lastError = lastError,
     userId = userId,
     clientTimestamp = clientTimestamp.time,
+    collectionId = collectionId,
   )
 
 fun SurveyEntityAndRelations.toModelObject(): Survey {
