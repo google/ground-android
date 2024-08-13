@@ -115,11 +115,11 @@ constructor(
   var currentCameraPosition = MutableStateFlow<CameraPosition?>(null)
     private set
 
-  val offlineTileSources: LiveData<List<TileSource>> =
+  val offlineTileSources: LiveData<TileSource?> =
     offlineAreaRepository
       .getOfflineTileSourcesFlow()
       .combine(mapStateRepository.offlineImageryEnabledFlow) { offlineSources, enabled ->
-        if (enabled) offlineSources else listOf()
+        if (enabled) offlineSources else null
       }
       .asLiveData()
 
