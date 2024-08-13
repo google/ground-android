@@ -22,6 +22,7 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.android.ground.proto.Survey.DataSharingTerms
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
@@ -118,7 +119,7 @@ internal constructor(
   val isZoomedInFlow: Flow<Boolean>
 
   /** Emits the data consent object when the active survey has changed. Null to show none. */
-  val activeSurveyDataConsentFlow: Flow<DataSharingConsent?>
+  val activeSurveyDataConsentFlow: Flow<DataSharingTerms?>
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
@@ -156,14 +157,14 @@ internal constructor(
     activeSurveyDataConsentFlow =
       activeSurvey.flatMapLatest {
         flowOf(
-          if (it?.dataSharingConsent == null) {
+          if (it?.dataSharingTerms == null) {
+            // No terms added to the survey.
+            null
+          } else if (getDataConsent(it)) {
+            // User previously agreed to the terms.
             null
           } else {
-            if (getDataConsent(it)) {
-              null
-            } else {
-              it.dataSharingConsent
-            }
+            it.dataSharingTerms
           }
         )
       }

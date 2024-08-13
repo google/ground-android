@@ -37,6 +37,7 @@ import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.proto.Survey
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
@@ -119,7 +120,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private suspend fun onCollectData(
     canUserSubmitData: Boolean,
     hasTasks: Boolean,
-    hasDataConsent: DataSharingConsent?,
+    hasDataConsent: Survey.DataSharingTerms?,
     cardUiData: MapCardUiData,
   ) {
     if (!canUserSubmitData) {

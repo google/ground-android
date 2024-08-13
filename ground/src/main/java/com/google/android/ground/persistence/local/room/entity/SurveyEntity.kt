@@ -18,6 +18,7 @@ package com.google.android.ground.persistence.local.room.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.protobuf.ByteString
 import org.json.JSONObject
 
 @Entity(tableName = "survey")
@@ -26,5 +27,5 @@ data class SurveyEntity(
   @ColumnInfo(name = "title") val title: String?,
   @ColumnInfo(name = "description") val description: String?,
   @ColumnInfo(name = "acl") val acl: JSONObject?,
-  @ColumnInfo(name = "data_sharing_consent") val dataSharingConsent: JSONObject?,
+  @ColumnInfo(name = "data_sharing_terms") val dataSharingTerms: ByteArray?,
 )
