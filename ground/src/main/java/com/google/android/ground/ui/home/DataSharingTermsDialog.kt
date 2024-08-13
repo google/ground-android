@@ -58,7 +58,7 @@ fun DataSharingTermsDialog(
       val flavor = CommonMarkFlavourDescriptor()
       val parsedTree = MarkdownParser(flavor).buildMarkdownTreeFromString(markdownSrc)
       val html = HtmlGenerator(markdownSrc, parsedTree, flavor).generateHtml()
-      val dialogSize = Modifier.height(450.dp).padding(0.dp)
+      val dialogSize = Modifier.height(450.dp)
       HtmlText(html, dialogSize)
     },
     dismissButton = {
