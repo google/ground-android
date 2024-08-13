@@ -111,9 +111,9 @@ constructor(
         TiledWebMapSource("file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg", bounds)
       }
 
-  /** Returns the default configured tile sources. */
-  fun getDefaultTileSources(): List<TileSource> =
-    listOf(MogCollectionSource(url = Config.DEFAULT_MOG_TILE_LOCATION))
+  /** Returns the default configured tile source. */
+  fun getRemoteTileSource(): TileSource =
+    MogCollectionSource(url = Config.DEFAULT_MOG_TILE_LOCATION)
 
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
     val maxZoom = mogClient.collection.sources.maxZoom()

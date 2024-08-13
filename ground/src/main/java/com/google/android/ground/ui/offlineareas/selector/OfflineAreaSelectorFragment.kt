@@ -64,7 +64,7 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
     viewLifecycleOwner.lifecycleScope.launch {
       mapContainerViewModel.mapLoiFeatures.collect { map.setFeatures(it) }
     }
-    viewModel.remoteTileSources.forEach { map.addTileOverlay(it) }
+    map.addTileOverlay(viewModel.remoteTileSource)
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel

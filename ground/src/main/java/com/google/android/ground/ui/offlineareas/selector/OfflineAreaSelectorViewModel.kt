@@ -69,7 +69,7 @@ internal constructor(
     locationOfInterestRepository,
   ) {
 
-  val remoteTileSources = offlineAreaRepository.getDefaultTileSources()
+  val remoteTileSource = offlineAreaRepository.getRemoteTileSource()
   private var viewport: Bounds? = null
   private val offlineAreaSizeLoadingSymbol =
     resources.getString(R.string.offline_area_size_loading_symbol)
