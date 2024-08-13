@@ -38,6 +38,9 @@ import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.CameraUpdateRequest
 import com.google.android.ground.ui.map.MapType
+import com.google.android.ground.ui.map.NewCameraPositionViaBounds
+import com.google.android.ground.ui.map.NewCameraPositionViaCoordinates
+import com.google.android.ground.ui.map.NewCameraPositionViaCoordinatesAndZoomLevel
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.toCoordinates
 import javax.inject.Inject
@@ -216,7 +219,12 @@ constructor(
 
   private suspend fun onLocationUpdate(index: Int, coordinates: Coordinates): CameraUpdateRequest =
     if (index == 0) {
-      CameraUpdateRequest(CameraPosition(coordinates, DEFAULT_LOI_ZOOM_LEVEL), true)
+      NewCameraPositionViaCoordinatesAndZoomLevel(
+        coordinates,
+        DEFAULT_LOI_ZOOM_LEVEL,
+        isAllowZoomOut = false,
+        true,
+      )
     } else {
       // Set a small delay before emitting another value to allow previous zoom animation to
       // finish. Otherwise, the map camera stops at some other zoom level.
@@ -225,7 +233,7 @@ constructor(
       }
 
       // TODO(#1889): Track the zoom level in a VM associated with the MapFragment and use here
-      CameraUpdateRequest(CameraPosition(coordinates), true)
+      NewCameraPositionViaCoordinates(coordinates, shouldAnimate = true)
     }
 
   /** Emits a new camera update request when active survey changes. */
@@ -239,17 +247,24 @@ constructor(
     // Attempt to fetch last saved position from local storage.
     val savedPosition = mapStateRepository.getCameraPosition(survey.id)
     if (savedPosition != null) {
-      return CameraUpdateRequest(savedPosition, isAllowZoomOut = true)
+      return if (savedPosition.zoomLevel == null) {
+        NewCameraPositionViaCoordinates(savedPosition.coordinates)
+      } else
+        NewCameraPositionViaCoordinatesAndZoomLevel(
+          savedPosition.coordinates,
+          savedPosition.zoomLevel,
+          isAllowZoomOut = true,
+        )
     }
 
     // Compute the default viewport which includes all LOIs in the given survey.
     val geometries = locationOfInterestRepository.getAllGeometries(survey)
-    return geometries.toBounds()?.let { CameraUpdateRequest(CameraPosition(bounds = it)) }
+    return geometries.toBounds()?.let { NewCameraPositionViaBounds(bounds = it, padding = 100) }
   }
 
   /** Called when the map camera is moved. */
   open fun onMapCameraMoved(newCameraPosition: CameraPosition) {
-    Timber.d("Camera moved : ${newCameraPosition.target}")
+    Timber.d("Camera moved : ${newCameraPosition.coordinates}")
     currentCameraPosition.value = newCameraPosition
     mapStateRepository.setCameraPosition(newCameraPosition)
   }
