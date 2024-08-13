@@ -145,6 +145,7 @@ class MapCardAdapter(
       with(binding) {
         loiName.text = loiHelper.getDisplayLoiName(loi)
         jobName.text = loiHelper.getJobName(loi)
+        // NOTE(#2539): The DataCollectionFragment will crash if there are no non-LOI tasks.
         collectData.visibility =
           if (canUserSubmitData && loi.job.hasNonLoiTasks()) View.VISIBLE else View.GONE
         updateSubmissionCount(loi, submissions)
