@@ -321,9 +321,10 @@ internal constructor(
     if (tasks.isEmpty()) {
       error("Can't generate sequence for empty task list")
     }
+    val firstTaskId = tasks[0].id
     val startIndex =
       tasks
-        .indexOfFirst { it.id == (startId ?: tasks[0].id) }
+        .indexOfFirst { it.id == (startId ?: firstTaskId) }
         .let {
           // NOTE(#2539) Fallback to the first task if startId is not found.
           if (it < 0) {
