@@ -39,9 +39,9 @@ import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.android.gms.maps.model.TileProvider
 import com.google.android.ground.Config
 import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.model.imagery.MogCollectionSource
+import com.google.android.ground.model.imagery.LocalTileSource
+import com.google.android.ground.model.imagery.RemoteMogTileSource
 import com.google.android.ground.model.imagery.TileSource
-import com.google.android.ground.model.imagery.TiledWebMapSource
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.Bounds
@@ -266,17 +266,17 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
+  override fun addTileOverlay(source: TileSource) =
+    when (source) {
+      is LocalTileSource -> addLocalTileOverlay(source.localFilePath, source.clipBounds)
+      is RemoteMogTileSource -> addRemoteMogTileOverlay(source.remoteUrl)
+    }
+
   private fun addLocalTileOverlay(url: String, bounds: List<Bounds>) {
     addTileOverlay(
       ClippingTileProvider(TemplateUrlTileProvider(url), bounds.map { it.toGoogleMapsObject() })
     )
   }
-
-  override fun addTileOverlay(source: TileSource) =
-    when (source) {
-      is MogCollectionSource -> addRemoteMogTileOverlay(source.url)
-      is TiledWebMapSource -> addLocalTileOverlay(source.url, source.clipBounds)
-    }
 
   private fun addRemoteMogTileOverlay(url: String) {
     // TODO(#1730): Make sub-paths configurable and stop hardcoding here.

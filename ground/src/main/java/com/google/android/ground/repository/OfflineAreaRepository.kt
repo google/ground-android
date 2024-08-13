@@ -16,10 +16,10 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.Config
-import com.google.android.ground.model.imagery.MogCollectionSource
+import com.google.android.ground.model.imagery.LocalTileSource
 import com.google.android.ground.model.imagery.OfflineArea
+import com.google.android.ground.model.imagery.RemoteMogTileSource
 import com.google.android.ground.model.imagery.TileSource
-import com.google.android.ground.model.imagery.TiledWebMapSource
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import com.google.android.ground.system.GeocodingManager
@@ -32,14 +32,14 @@ import com.google.android.ground.ui.util.FileUtil
 import com.google.android.ground.util.ByteCount
 import com.google.android.ground.util.deleteIfEmpty
 import com.google.android.ground.util.rangeOf
-import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
+import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
@@ -108,12 +108,12 @@ constructor(
       .offlineAreas()
       .map { list -> list.map { it.bounds } }
       .map { bounds ->
-        TiledWebMapSource("file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg", bounds)
+        LocalTileSource("file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg", bounds)
       }
 
   /** Returns the default configured tile source. */
   fun getRemoteTileSource(): TileSource =
-    MogCollectionSource(url = Config.DEFAULT_MOG_TILE_LOCATION)
+    RemoteMogTileSource(remoteUrl = Config.DEFAULT_MOG_TILE_LOCATION)
 
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
     val maxZoom = mogClient.collection.sources.maxZoom()

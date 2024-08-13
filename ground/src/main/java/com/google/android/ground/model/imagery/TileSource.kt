@@ -20,6 +20,6 @@ import com.google.android.ground.ui.map.Bounds
 /** Represents a single source of tiled map imagery. */
 sealed class TileSource
 
-data class TiledWebMapSource(val url: String, val clipBounds: List<Bounds>) : TileSource()
+data class LocalTileSource(val localFilePath: String, val clipBounds: List<Bounds>) : TileSource()
 
-data class MogCollectionSource(val url: String) : TileSource()
+data class RemoteMogTileSource(val remoteUrl: String) : TileSource()
