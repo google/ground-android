@@ -146,7 +146,7 @@ class MapCardAdapter(
         loiName.text = loiHelper.getDisplayLoiName(loi)
         jobName.text = loiHelper.getJobName(loi)
         collectData.visibility =
-          if (canUserSubmitData && loi.job.hasTasks()) View.VISIBLE else View.GONE
+          if (canUserSubmitData && loi.job.hasNonLoiTasks()) View.VISIBLE else View.GONE
         updateSubmissionCount(loi, submissions)
       }
     }
