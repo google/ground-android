@@ -34,7 +34,7 @@ class DownloadProgressDialogFragment : AbstractDialogFragment() {
     binding.viewModel = getViewModel(OfflineAreaSelectorViewModel::class.java)
     val dialog =
       AlertDialog.Builder(requireActivity())
-        .setTitle("Download progress")
+        .setTitle(getString(R.string.offline_map_imagery_download_progress_dialog_title))
         .setMessage(getString(R.string.offline_map_imagery_download_progress_dialog_message))
         .setView(binding.root)
         .setCancelable(false)
