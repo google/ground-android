@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.ui.home
 
-import android.text.method.ScrollingMovementMethod
-import android.widget.TextView
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
@@ -27,31 +25,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.text.HtmlCompat
 import com.google.android.ground.R
 import com.google.android.ground.proto.Survey
+import com.google.android.ground.ui.compose.HtmlText
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
-
-@Composable
-fun HtmlText(html: String, modifier: Modifier = Modifier) {
-  AndroidView(
-    modifier = modifier,
-    factory = { context -> TextView(context) },
-    update = {
-      it.text = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY)
-      it.movementMethod = ScrollingMovementMethod()
-      it.setBackgroundResource(R.color.md_theme_onPrimary)
-      it.setPadding(32, 32, 32, 32)
-    },
-  )
-}
-
-@Composable fun Modifier.longDialog() = this.height(400.dp).padding(0.dp)
-
-@Composable fun Modifier.shortDialog() = this.height(135.dp).padding(0.dp)
 
 @Composable
 fun DataSharingTermsDialog(
@@ -73,18 +52,12 @@ fun DataSharingTermsDialog(
           Survey.DataSharingTerms.Type.PUBLIC_CC0 ->
             stringResource(R.string.data_sharing_public_message)
           Survey.DataSharingTerms.Type.CUSTOM -> dataSharingTerms.customText
-          else -> "*No terms to display.*"
+          else -> stringResource(R.string.data_sharing_no_terms)
         }
-      val flavour = CommonMarkFlavourDescriptor()
-      val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(markdownSrc)
-      val html = HtmlGenerator(markdownSrc, parsedTree, flavour).generateHtml()
-      val dialogSize =
-        when (dataSharingTerms.type) {
-          Survey.DataSharingTerms.Type.PRIVATE -> Modifier.shortDialog()
-          Survey.DataSharingTerms.Type.PUBLIC_CC0 -> Modifier.longDialog()
-          Survey.DataSharingTerms.Type.CUSTOM -> Modifier.longDialog()
-          else -> Modifier.shortDialog()
-        }
+      val flavor = CommonMarkFlavourDescriptor()
+      val parsedTree = MarkdownParser(flavor).buildMarkdownTreeFromString(markdownSrc)
+      val html = HtmlGenerator(markdownSrc, parsedTree, flavor).generateHtml()
+      val dialogSize = Modifier.height(450.dp).padding(0.dp)
       HtmlText(html, dialogSize)
     },
     dismissButton = {

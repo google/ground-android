@@ -37,7 +37,7 @@ import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.proto.Survey
+import com.google.android.ground.proto.Survey.DataSharingTerms
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
@@ -116,11 +116,29 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       is MapCardUiData.AddLoiCardUiData -> cardUiData.job.tasks.values.isNotEmpty()
     }
 
+  private fun renderDataSharingTermsDialog(cardUiData: MapCardUiData, dataSharingTerms: DataSharingTerms) = ComposeView(requireContext()).apply {
+    setContent {
+      val showDataSharingTermsDialog = remember { mutableStateOf(true) }
+      when {
+        showDataSharingTermsDialog.value -> {
+          AppTheme {
+            DataSharingTermsDialog(showDataSharingTermsDialog, dataSharingTerms) {
+              val job =
+                lifecycleScope.launch { mapContainerViewModel.updateDataSharingConsent(true) }
+              job.cancel()
+              navigateToDataCollectionFragment(cardUiData)
+            }
+          }
+        }
+      }
+    }
+  }
+
   /** Invoked when user clicks on the map cards to collect data. */
-  private suspend fun onCollectData(
+  private fun onCollectData(
     canUserSubmitData: Boolean,
     hasTasks: Boolean,
-    hasDataSharingTerms: Survey.DataSharingTerms?,
+    hasDataSharingTerms: DataSharingTerms?,
     cardUiData: MapCardUiData,
   ) {
     if (!canUserSubmitData) {
@@ -135,28 +153,14 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       return
     }
     if (hasDataSharingTerms != null) {
-      (view as ViewGroup).addView(
-        ComposeView(requireContext()).apply {
-          setContent {
-            val showDataSharingTermsDialog = remember { mutableStateOf(true) }
-            when {
-              showDataSharingTermsDialog.value -> {
-                AppTheme {
-                  DataSharingTermsDialog(showDataSharingTermsDialog, hasDataSharingTerms) {
-                    val job =
-                      lifecycleScope.launch { mapContainerViewModel.updateDataSharingTerms(true) }
-                    job.cancel()
-                    navigateToDataCollectionFragment(cardUiData)
-                  }
-                }
-              }
-            }
-          }
-        }
-      )
-    } else {
-      navigateToDataCollectionFragment(cardUiData)
+      if (hasDataSharingTerms.type == DataSharingTerms.Type.CUSTOM && hasDataSharingTerms.customText.isBlank()) {
+        ephemeralPopups.ErrorPopup().show(getString(R.string.invalid_data_sharing_terms))
+        return
+      }
+      (view as ViewGroup).addView(renderDataSharingTermsDialog(cardUiData, hasDataSharingTerms))
+      return
     }
+    navigateToDataCollectionFragment(cardUiData)
   }
 
   /** Updates the given [TextView] with the submission count for the given [LocationOfInterest]. */

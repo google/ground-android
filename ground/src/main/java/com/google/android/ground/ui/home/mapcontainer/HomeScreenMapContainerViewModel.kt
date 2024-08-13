@@ -159,7 +159,7 @@ internal constructor(
         flowOf(
           survey?.let {
             it.dataSharingTerms?.let { dataTerms ->
-              if (getDataSharingTerms(it)) {
+              if (getDataSharingConsent(it)) {
                 // User previously agreed to the terms.
                 null
               } else {
@@ -206,18 +206,18 @@ internal constructor(
     }
   }
 
-  suspend fun updateDataSharingTerms(dataSharingTerms: Boolean) {
+  suspend fun updateDataSharingConsent(dataSharingTerms: Boolean) {
     activeSurvey.collectLatest {
       if (it != null) {
-        setDataSharingTerms(it, dataSharingTerms)
+        setDataSharingConsent(it, dataSharingTerms)
       }
     }
   }
 
-  private fun getDataSharingTerms(survey: Survey) = localValueStore.getDataSharingTerms(survey.id)
+  private fun getDataSharingConsent(survey: Survey) = localValueStore.getDataSharingConsent(survey.id)
 
-  private fun setDataSharingTerms(survey: Survey, dataSharingTerms: Boolean) =
-    localValueStore.setDataSharingTerms(survey.id, dataSharingTerms)
+  private fun setDataSharingConsent(survey: Survey, dataSharingTerms: Boolean) =
+    localValueStore.setDataSharingConsent(survey.id, dataSharingTerms)
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
     loiRepository.getLocationsOfInterests(survey).map {
