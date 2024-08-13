@@ -21,8 +21,6 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.protobuf.parseFrom
 import com.google.android.ground.proto.Survey as SurveyProto
-import com.google.android.ground.proto.Survey
-import com.google.android.ground.proto.SurveyKt.dataSharingTerms
 import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.collections.immutable.toPersistentMap
 
@@ -35,18 +33,21 @@ internal object SurveyConverter {
 
     val surveyFromProto = SurveyProto::class.parseFrom(doc, 1)
     val jobMap = jobs.associateBy { it.id }
-    val datasSharingTerms = if (surveyFromProto.dataSharingTerms == surveyFromProto.dataSharingTerms.defaultInstanceForType) {
-      null
-    } else {
-      surveyFromProto.dataSharingTerms
-    }
+    val datasSharingTerms =
+      if (
+        surveyFromProto.dataSharingTerms == surveyFromProto.dataSharingTerms.defaultInstanceForType
+      ) {
+        null
+      } else {
+        surveyFromProto.dataSharingTerms
+      }
     return SurveyModel(
       surveyFromProto.id.ifEmpty { doc.id },
       surveyFromProto.name,
       surveyFromProto.description,
       jobMap.toPersistentMap(),
       surveyFromProto.aclMap.entries.associate { it.key to it.value.toString() },
-      dataSharingTerms = datasSharingTerms
+      dataSharingTerms = datasSharingTerms,
     )
   }
 }

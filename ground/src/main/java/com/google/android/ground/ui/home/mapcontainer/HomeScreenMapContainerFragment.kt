@@ -43,7 +43,7 @@ import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
-import com.google.android.ground.ui.home.DataConsentDialog
+import com.google.android.ground.ui.home.DataSharingTermsDialog
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
@@ -91,9 +91,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       adapter.setCollectDataListener {
         val job =
           lifecycleScope.launch {
-            mapContainerViewModel.activeSurveyDataConsentFlow.cancellable().collectLatest {
-              hasDataConsent ->
-              onCollectData(canUserSubmitData, hasValidTasks(it), hasDataConsent, it)
+            mapContainerViewModel.activeSurveyDataSharingTermsFlow.cancellable().collectLatest {
+              hasDataSharingTerms ->
+              onCollectData(canUserSubmitData, hasValidTasks(it), hasDataSharingTerms, it)
             }
           }
         job.cancel()
@@ -120,7 +120,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private suspend fun onCollectData(
     canUserSubmitData: Boolean,
     hasTasks: Boolean,
-    hasDataConsent: Survey.DataSharingTerms?,
+    hasDataSharingTerms: Survey.DataSharingTerms?,
     cardUiData: MapCardUiData,
   ) {
     if (!canUserSubmitData) {
@@ -134,17 +134,17 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       ephemeralPopups.ErrorPopup().show(getString(R.string.no_tasks_error))
       return
     }
-    if (hasDataConsent != null) {
+    if (hasDataSharingTerms != null) {
       (view as ViewGroup).addView(
         ComposeView(requireContext()).apply {
           setContent {
-            val showDataConsentDialog = remember { mutableStateOf(true) }
+            val showDataSharingTermsDialog = remember { mutableStateOf(true) }
             when {
-              showDataConsentDialog.value -> {
+              showDataSharingTermsDialog.value -> {
                 AppTheme {
-                  DataConsentDialog(showDataConsentDialog, hasDataConsent) {
+                  DataSharingTermsDialog(showDataSharingTermsDialog, hasDataSharingTerms) {
                     val job =
-                      lifecycleScope.launch { mapContainerViewModel.updateDataConsent(true) }
+                      lifecycleScope.launch { mapContainerViewModel.updateDataSharingTerms(true) }
                     job.cancel()
                     navigateToDataCollectionFragment(cardUiData)
                   }

@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.home
 
-import android.annotation.SuppressLint
 import android.text.method.ScrollingMovementMethod
 import android.widget.TextView
 import androidx.compose.foundation.layout.height
@@ -50,20 +49,18 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
   )
 }
 
-@Composable
-fun Modifier.longDialog() = this.height(400.dp).padding(0.dp)
+@Composable fun Modifier.longDialog() = this.height(400.dp).padding(0.dp)
+
+@Composable fun Modifier.shortDialog() = this.height(135.dp).padding(0.dp)
 
 @Composable
-fun Modifier.shortDialog() = this.height(135.dp).padding(0.dp)
-
-@Composable
-fun DataConsentDialog(
-  showDataConsentDialog: MutableState<Boolean>,
+fun DataSharingTermsDialog(
+  showDataSharingTermsDialog: MutableState<Boolean>,
   dataSharingTerms: Survey.DataSharingTerms,
   consentGivenCallback: () -> Unit,
 ) {
   fun dismissDialog() {
-    showDataConsentDialog.value = false
+    showDataSharingTermsDialog.value = false
   }
   AlertDialog(
     onDismissRequest = { dismissDialog() },
@@ -81,12 +78,13 @@ fun DataConsentDialog(
       val flavour = CommonMarkFlavourDescriptor()
       val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(markdownSrc)
       val html = HtmlGenerator(markdownSrc, parsedTree, flavour).generateHtml()
-      val dialogSize = when(dataSharingTerms.type) {
-        Survey.DataSharingTerms.Type.PRIVATE -> Modifier.shortDialog()
-        Survey.DataSharingTerms.Type.PUBLIC_CC0 -> Modifier.longDialog()
-        Survey.DataSharingTerms.Type.CUSTOM -> Modifier.longDialog()
-        else -> Modifier.shortDialog()
-      }
+      val dialogSize =
+        when (dataSharingTerms.type) {
+          Survey.DataSharingTerms.Type.PRIVATE -> Modifier.shortDialog()
+          Survey.DataSharingTerms.Type.PUBLIC_CC0 -> Modifier.longDialog()
+          Survey.DataSharingTerms.Type.CUSTOM -> Modifier.longDialog()
+          else -> Modifier.shortDialog()
+        }
       HtmlText(html, dialogSize)
     },
     dismissButton = {

@@ -118,8 +118,8 @@ internal constructor(
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
   val isZoomedInFlow: Flow<Boolean>
 
-  /** Emits the data consent object when the active survey has changed. Null to show none. */
-  val activeSurveyDataConsentFlow: Flow<DataSharingTerms?>
+  /** Emits the data sharing terms object when the active survey has changed. Null to show none. */
+  val activeSurveyDataSharingTermsFlow: Flow<DataSharingTerms?>
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
@@ -154,17 +154,18 @@ internal constructor(
         else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
       }
 
-    activeSurveyDataConsentFlow =
-      activeSurvey.flatMapLatest {
+    activeSurveyDataSharingTermsFlow =
+      activeSurvey.flatMapLatest { survey ->
         flowOf(
-          if (it?.dataSharingTerms == null) {
-            // No terms added to the survey.
-            null
-          } else if (getDataConsent(it)) {
-            // User previously agreed to the terms.
-            null
-          } else {
-            it.dataSharingTerms
+          survey?.let {
+            it.dataSharingTerms?.let { dataTerms ->
+              if (getDataSharingTerms(it)) {
+                // User previously agreed to the terms.
+                null
+              } else {
+                dataTerms
+              }
+            }
           }
         )
       }
@@ -205,18 +206,18 @@ internal constructor(
     }
   }
 
-  suspend fun updateDataConsent(dataConsent: Boolean) {
+  suspend fun updateDataSharingTerms(dataSharingTerms: Boolean) {
     activeSurvey.collectLatest {
       if (it != null) {
-        setDataConsent(it, dataConsent)
+        setDataSharingTerms(it, dataSharingTerms)
       }
     }
   }
 
-  private fun getDataConsent(survey: Survey) = localValueStore.getDataConsent(survey.id)
+  private fun getDataSharingTerms(survey: Survey) = localValueStore.getDataSharingTerms(survey.id)
 
-  private fun setDataConsent(survey: Survey, dataConsent: Boolean) =
-    localValueStore.setDataConsent(survey.id, dataConsent)
+  private fun setDataSharingTerms(survey: Survey, dataSharingTerms: Boolean) =
+    localValueStore.setDataSharingTerms(survey.id, dataSharingTerms)
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
     loiRepository.getLocationsOfInterests(survey).map {

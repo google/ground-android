@@ -18,7 +18,6 @@ package com.google.android.ground.persistence.local.room.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.protobuf.ByteString
 import org.json.JSONObject
 
 @Entity(tableName = "survey")
