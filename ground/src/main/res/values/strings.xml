@@ -130,7 +130,7 @@
   <string name="initializing">Initializing…</string>
   <string name="draw_area_task_instruction">Move the map and tap “Add point” to add points around the desired area.</string>
   <string name="close">Close</string>
-  <string name="data_consent_dialog_title">Data collection agreement</string>
+  <string name="data_consent_dialog_title">Data sharing agreement</string>
   <string name="map_location">Map location:</string>
   <string name="sign_out_dialog_title">Unsynced data</string>
   <string name="sign_out_dialog_body">If you sign out, any unsynced data will be discarded</string>
