@@ -128,7 +128,7 @@ private fun FirestoreValue.toMessageValue(targetType: KClass<*>): MessageValue =
     } else {
       this
     }
-  } else if (targetType == Double::class) {
+  } else if (targetType == Double::class || targetType == Float::class) {
     this
   } else if (targetType == Boolean::class) {
     this as Boolean
