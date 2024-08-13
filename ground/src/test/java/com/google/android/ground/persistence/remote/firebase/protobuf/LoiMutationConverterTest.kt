@@ -130,7 +130,8 @@ class LoiMutationConverterTest {
   }
 
   @Test
-  fun `toMap() customTag falls back to name property when empty`() {
+  fun `toMap() customTag is empty when empty`() {
+    // NOTE(#2626): Was previously erroneously set to the property name.
     val mutation =
       LocationOfInterestMutation(
         userId = TEST_USER.id,
@@ -140,7 +141,7 @@ class LoiMutationConverterTest {
       )
 
     val map = mutation.createLoiMessage(TEST_USER).toFirestoreMap()
-    assertThat(map[CUSTOM_TAG_FIELD_NUMBER.toString()]).isEqualTo(LOCATION_OF_INTEREST_NAME)
+    assertThat(map[CUSTOM_TAG_FIELD_NUMBER.toString()]).isNull()
   }
 
   @Test

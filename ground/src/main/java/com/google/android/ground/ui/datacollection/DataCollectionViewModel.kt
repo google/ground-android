@@ -312,6 +312,14 @@ internal constructor(
     return currentIndex to size
   }
 
+  /** Returns the index of the task ID, or -1 if null or not found. */
+  private fun getIndexOfTask(taskId: String?) =
+    if (taskId == null) {
+      -1
+    } else {
+      tasks.indexOfFirst { it.id == taskId }
+    }
+
   /**
    * Retrieves the current task sequence given the inputs and conditions set on the tasks. Setting a
    * start ID will always generate a sequence with the start ID as the first element, and if
@@ -322,17 +330,15 @@ internal constructor(
       error("Can't generate sequence for empty task list")
     }
     val startIndex =
-      tasks
-        .indexOfFirst { it.id == (startId ?: tasks[0].id) }
-        .let {
-          // NOTE(#2539) Fallback to the first task if startId is not found.
-          if (it < 0) {
-            Timber.w("startId, $startId, was not found. Defaulting to 0")
-            0
-          } else {
-            it
-          }
+      getIndexOfTask(startId).let {
+        if (it < 0) {
+          // Default to 0 if startId is not found or is null.
+          if (startId != null) Timber.w("startId, $startId, was not found. Defaulting to 0")
+          0
+        } else {
+          it
         }
+      }
     return if (reversed) {
         tasks.subList(0, startIndex + 1).reversed()
       } else {
