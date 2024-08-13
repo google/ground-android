@@ -66,7 +66,7 @@
   <string name="date">Date</string>
   <string name="time">Time</string>
   <!-- Other strings (to be organized) -->
-  <string name="sync_status">History and sync status</string>
+  <string name="sync_status">Data sync status</string>
 
   <string name="add_point">Add point</string>
   <string name="complete_polygon">Complete</string>
@@ -159,7 +159,7 @@
   <string name="data_synced_media_pending">Data synced\n(media pending)</string>
   <string name="data_synced_media_pending_retry">Data synced\n(media pending retry)</string>
   <string name="media_syncing">Media syncing</string>
-  <string name="history">History</string>
+  <string name="data_sync_status">Data sync status</string>
   <string name="signout_warning">If you sign out, all unsaved data will be lost.</string>
   <string name="admin_request_access">To continue, contact your system administrator to request access.</string>
   <string name="signup_request_access">To continue, <annotation type="sign_up_link">sign up to request access</annotation>.</string>
