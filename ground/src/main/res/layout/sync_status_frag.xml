@@ -38,7 +38,7 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
       app:navigationIcon="@drawable/ic_arrow_back"
-      app:title="@string/history" />
+      app:title="@string/data_sync_status" />
 
     <androidx.compose.ui.platform.ComposeView
       android:id="@+id/compose_view"
