@@ -54,6 +54,9 @@ data class Job(
 
   /** Returns true if the job has one or more tasks. */
   fun hasTasks() = tasks.values.isNotEmpty()
+
+  /** Returns whether the job has non-LOI tasks. */
+  fun hasNonLoiTasks() = tasks.values.count { !it.isAddLoiTask } > 0
 }
 
 fun Job.getDefaultColor(): Int =

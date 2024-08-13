@@ -90,6 +90,7 @@
   <string name="drop_a_pin_tooltip_text">Drag your map until the center pin is on the desired location</string>
   <string name="current_location">Current location:</string>
   <string name="loading">Loading…</string>
+  <string name="no_tasks_error">This job has no more tasks to complete</string>
   <string name="collect_data_viewer_error">Can’t collect data as user is a VIEWER</string>
   <string name="offline_map_imagery">Offline map imagery</string>
   <string name="offline_map_imagery_pref_description">Hide or show downloaded imagery</string>
