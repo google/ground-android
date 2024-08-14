@@ -312,6 +312,14 @@ internal constructor(
     return currentIndex to size
   }
 
+  /** Returns the index of the task ID, or -1 if null or not found. */
+  private fun getIndexOfTask(taskId: String?) =
+    if (taskId == null) {
+      -1
+    } else {
+      tasks.indexOfFirst { it.id == taskId }
+    }
+
   /**
    * Retrieves the current task sequence given the inputs and conditions set on the tasks. Setting a
    * start ID will always generate a sequence with the start ID as the first element, and if
@@ -321,17 +329,16 @@ internal constructor(
     if (tasks.isEmpty()) {
       error("Can't generate sequence for empty task list")
     }
-
-    val task = tasks.filter { it.id == (startId ?: tasks[0].id) }
-
-    // TODO(#2539): Cleanup once https://github.com/google/ground-android/issues/2539 is resolved.
-    if (task.isEmpty()) {
-      error(
-        "Unable to find a task with id startId=$startId, firstTaskId=${tasks[0].id}, allTasks=${tasks.map { it.id }}"
-      )
-    }
-
-    val startIndex = tasks.indexOf(task.first())
+    val startIndex =
+      getIndexOfTask(startId).let {
+        if (it < 0) {
+          // Default to 0 if startId is not found or is null.
+          if (startId != null) Timber.w("startId, $startId, was not found. Defaulting to 0")
+          0
+        } else {
+          it
+        }
+      }
     return if (reversed) {
         tasks.subList(0, startIndex + 1).reversed()
       } else {

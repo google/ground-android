@@ -277,11 +277,11 @@ class NavigationDrawerItemClickTest(
       listOf(
         // TODO(#2385): Restore tests deleted in #2382.
         arrayOf(
-          "History and sync status",
+          "Data sync status",
           TEST_SURVEY,
           HomeScreenFragmentDirections.showSyncStatus(),
           true,
-          "Clicking 'Sync status' should navigate to fragment",
+          "Clicking 'Data sync status' should navigate to fragment",
         )
       )
   }
