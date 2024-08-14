@@ -31,8 +31,8 @@ import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.util.view.isGone
 import com.sharedtest.FakeData.OFFLINE_AREA
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.test.advanceUntilIdle
 import javax.inject.Inject
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -65,7 +65,7 @@ class OfflineAreaViewerFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `When no offline areas available`()= runWithTestDispatcher {
+  fun `When no offline areas available`() = runWithTestDispatcher {
     setupFragmentWithoutDb()
     advanceUntilIdle()
     onView(withId(R.id.offline_area_viewer_toolbar))
