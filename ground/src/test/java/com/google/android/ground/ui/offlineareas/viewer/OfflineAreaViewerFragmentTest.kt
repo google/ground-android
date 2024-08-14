@@ -31,6 +31,7 @@ import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.util.view.isGone
 import com.sharedtest.FakeData.OFFLINE_AREA
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.test.advanceUntilIdle
 import javax.inject.Inject
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,19 +44,16 @@ class OfflineAreaViewerFragmentTest : BaseHiltTest() {
   @Inject lateinit var localOfflineAreaStore: LocalOfflineAreaStore
   private lateinit var fragment: OfflineAreaViewerFragment
 
-  override fun setUp() {
-    super.setUp()
-    setupFragment()
-  }
-
   @Test
-  fun `RemoveButton is displayed and enable`() {
+  fun `RemoveButton is displayed and enable`() = runWithTestDispatcher {
+    setupFragment()
     onView(withId(R.id.remove_button)).check(matches(isDisplayed()))
     onView(withId(R.id.remove_button)).check(matches(isEnabled()))
   }
 
   @Test
-  fun `All values are correctly displayed`() {
+  fun `All values are correctly displayed`() = runWithTestDispatcher {
+    setupFragment()
     onView(withId(R.id.offline_area_name_text)).check(matches(withText(OFFLINE_AREA.name)))
     onView(withId(R.id.offline_area_size_on_device)).check(matches(withText("<1\u00A0MB on disk")))
     onView(withId(R.id.remove_button))
@@ -66,33 +64,10 @@ class OfflineAreaViewerFragmentTest : BaseHiltTest() {
       )
   }
 
-  private fun setupFragment(fragmentArgs: Bundle? = null) = runWithTestDispatcher {
-    localOfflineAreaStore.insertOrUpdate(OFFLINE_AREA)
-    val argsBundle =
-      fragmentArgs ?: OfflineAreaViewerFragmentArgs.Builder("id_1").build().toBundle()
-
-    launchFragmentWithNavController<OfflineAreaViewerFragment>(
-      argsBundle,
-      destId = R.id.offline_area_viewer_fragment,
-    ) {
-      fragment = this as OfflineAreaViewerFragment
-    }
-  }
-}
-
-@HiltAndroidTest
-@RunWith(RobolectricTestRunner::class)
-class OfflineAreaViewerFragmentWithoutOfflineAreaTest : BaseHiltTest() {
-
-  private lateinit var fragment: OfflineAreaViewerFragment
-
-  override fun setUp() {
-    super.setUp()
-    setupFragment()
-  }
-
   @Test
-  fun `When no offline areas available`() {
+  fun `When no offline areas available`()= runWithTestDispatcher {
+    setupFragmentWithoutDb()
+    advanceUntilIdle()
     onView(withId(R.id.offline_area_viewer_toolbar))
       .check(
         matches(hasDescendant(withText(fragment.getString(R.string.offline_area_viewer_title))))
@@ -104,7 +79,12 @@ class OfflineAreaViewerFragmentWithoutOfflineAreaTest : BaseHiltTest() {
       .check(matches(withText(fragment.getString(R.string.offline_area_viewer_remove_button))))
   }
 
-  private fun setupFragment(fragmentArgs: Bundle? = null) {
+  private fun setupFragment() = runWithTestDispatcher {
+    localOfflineAreaStore.insertOrUpdate(OFFLINE_AREA)
+    setupFragmentWithoutDb()
+  }
+
+  private fun setupFragmentWithoutDb(fragmentArgs: Bundle? = null) = runWithTestDispatcher {
     val argsBundle =
       fragmentArgs ?: OfflineAreaViewerFragmentArgs.Builder("id_1").build().toBundle()
 
