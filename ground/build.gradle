@@ -64,6 +64,9 @@ android {
             proto {
                 srcDir extractedGroundProtoPath
             }
+            assets {
+                srcDirs 'src/main/assets'
+            }
         }
         test {
             proto {

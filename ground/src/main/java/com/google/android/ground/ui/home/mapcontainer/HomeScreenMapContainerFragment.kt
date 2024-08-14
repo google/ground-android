@@ -88,12 +88,17 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       val canUserSubmitData = userRepository.canUserSubmitData()
 
       // Handle collect button clicks
-      adapter.setCollectDataListener {
+      adapter.setCollectDataListener { mapCardUiData ->
         val job =
           lifecycleScope.launch {
             mapContainerViewModel.activeSurveyDataSharingTermsFlow.cancellable().collectLatest {
               hasDataSharingTerms ->
-              onCollectData(canUserSubmitData, hasValidTasks(it), hasDataSharingTerms, it)
+              onCollectData(
+                canUserSubmitData,
+                hasValidTasks(mapCardUiData),
+                hasDataSharingTerms,
+                mapCardUiData,
+              )
             }
           }
         job.cancel()

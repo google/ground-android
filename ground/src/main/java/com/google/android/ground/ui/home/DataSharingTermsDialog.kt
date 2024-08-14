@@ -17,6 +17,7 @@ package com.google.android.ground.ui.home
 
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -24,13 +25,15 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.google.android.ground.R
 import com.google.android.ground.proto.Survey
 import com.google.android.ground.ui.compose.HtmlText
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
+
+fun getResourceAsText(path: String): String =
+  object {}.javaClass.getResource(path)?.readText().orEmpty()
 
 @Composable
 fun DataSharingTermsDialog(
@@ -43,14 +46,21 @@ fun DataSharingTermsDialog(
   }
   AlertDialog(
     onDismissRequest = { dismissDialog() },
-    title = { Text(text = stringResource(R.string.data_consent_dialog_title), fontSize = 22.sp) },
+    title = {
+      Text(
+        text = stringResource(R.string.data_consent_dialog_title),
+        style = MaterialTheme.typography.titleLarge,
+      )
+    },
     text = {
       val markdownSrc =
         when (dataSharingTerms.type) {
           Survey.DataSharingTerms.Type.PRIVATE ->
             stringResource(R.string.data_sharing_private_message)
           Survey.DataSharingTerms.Type.PUBLIC_CC0 ->
-            stringResource(R.string.data_sharing_public_message)
+            stringResource(R.string.data_sharing_public_message) +
+              "\n" +
+              getResourceAsText("/assets/licenses/cc0_license.txt")
           Survey.DataSharingTerms.Type.CUSTOM -> dataSharingTerms.customText
           else -> stringResource(R.string.data_sharing_no_terms)
         }
