@@ -21,6 +21,8 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.android.ground.proto.Survey.DataSharingTerms
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
@@ -42,6 +44,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -64,6 +67,7 @@ internal constructor(
   offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
   surveyRepository: SurveyRepository,
+  private val localValueStore: LocalValueStore,
 ) :
   BaseMapViewModel(
     locationManager,
@@ -114,6 +118,9 @@ internal constructor(
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
   val isZoomedInFlow: Flow<Boolean>
 
+  /** Emits the data sharing terms object when the active survey has changed. Null to show none. */
+  val activeSurveyDataSharingTermsFlow: Flow<DataSharingTerms?>
+
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
     // TODO: Clear location of interest markers when survey is deactivated.
@@ -145,6 +152,22 @@ internal constructor(
       activeSurvey.combine(isZoomedInFlow) { survey, isZoomedIn ->
         if (survey == null || !isZoomedIn) listOf()
         else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
+      }
+
+    activeSurveyDataSharingTermsFlow =
+      activeSurvey.flatMapLatest { survey ->
+        flowOf(
+          survey?.let {
+            it.dataSharingTerms?.let { dataTerms ->
+              if (getDataSharingConsent(it)) {
+                // User previously agreed to the terms.
+                null
+              } else {
+                dataTerms
+              }
+            }
+          }
+        )
       }
   }
 
@@ -182,6 +205,20 @@ internal constructor(
       }
     }
   }
+
+  suspend fun updateDataSharingConsent(dataSharingTerms: Boolean) {
+    activeSurvey.collectLatest {
+      if (it != null) {
+        setDataSharingConsent(it, dataSharingTerms)
+      }
+    }
+  }
+
+  private fun getDataSharingConsent(survey: Survey) =
+    localValueStore.getDataSharingConsent(survey.id)
+
+  private fun setDataSharingConsent(survey: Survey, dataSharingTerms: Boolean) =
+    localValueStore.setDataSharingConsent(survey.id, dataSharingTerms)
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
     loiRepository.getLocationsOfInterests(survey).map {

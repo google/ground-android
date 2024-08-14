@@ -132,6 +132,14 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     }
   }
 
+  fun setDataSharingConsent(surveyId: String, consent: Boolean) {
+    preferences.edit().putBoolean(DATA_SHARING_CONSENT_PREFIX + surveyId, consent).apply()
+  }
+
+  fun getDataSharingConsent(surveyId: String): Boolean = allowThreadDiskReads {
+    return preferences.getBoolean(DATA_SHARING_CONSENT_PREFIX + surveyId, false)
+  }
+
   companion object {
     const val ACTIVE_SURVEY_ID_KEY = "activeSurveyId"
     const val MAP_TYPE = "map_type"
@@ -142,5 +150,6 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     const val DRAW_AREA_INSTRUCTIONS_SHOWN = "draw_area_instructions_shown"
     const val DROP_PIN_INSTRUCTIONS_SHOWN = "drop_pin_instructions_shown"
     const val DRAFT_SUBMISSION_ID = "draft_submission_id"
+    const val DATA_SHARING_CONSENT_PREFIX = "data_consent_"
   }
 }
