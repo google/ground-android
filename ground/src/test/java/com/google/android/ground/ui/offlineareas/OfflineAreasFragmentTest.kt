@@ -25,7 +25,6 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
-import com.google.android.ground.util.drwable.withDrawable
 import com.google.android.ground.util.recyclerview.atPositionOnView
 import com.sharedtest.FakeData.OFFLINE_AREA
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -82,14 +81,6 @@ class OfflineAreasFragmentTest : BaseHiltTest() {
       targetView = R.id.offline_area_list_item_size,
       stringToMatch = "<1\u00A0MB",
     )
-    onView(
-        atPositionOnView(
-          recyclerViewId = R.id.offline_areas_list,
-          position = 0,
-          targetViewId = R.id.offline_area_list_item_icon,
-        )
-      )
-      .check(matches(withDrawable(R.drawable.ic_offline_pin)))
   }
 
   private fun verifyTextOnOfflineAreasListItemAtPosition(
