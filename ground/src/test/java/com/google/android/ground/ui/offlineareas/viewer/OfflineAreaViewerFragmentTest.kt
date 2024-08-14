@@ -21,12 +21,14 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
+import androidx.test.espresso.matcher.ViewMatchers.isNotEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
+import com.google.android.ground.util.view.isGone
 import com.sharedtest.FakeData.OFFLINE_AREA
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -39,8 +41,7 @@ import org.robolectric.RobolectricTestRunner
 class OfflineAreaViewerFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var localOfflineAreaStore: LocalOfflineAreaStore
-  lateinit var fragment: OfflineAreaViewerFragment
-  lateinit var viewModel: OfflineAreaViewerViewModel
+  private lateinit var fragment: OfflineAreaViewerFragment
 
   override fun setUp() {
     super.setUp()
@@ -67,6 +68,43 @@ class OfflineAreaViewerFragmentTest : BaseHiltTest() {
 
   private fun setupFragment(fragmentArgs: Bundle? = null) = runWithTestDispatcher {
     localOfflineAreaStore.insertOrUpdate(OFFLINE_AREA)
+    val argsBundle =
+      fragmentArgs ?: OfflineAreaViewerFragmentArgs.Builder("id_1").build().toBundle()
+
+    launchFragmentWithNavController<OfflineAreaViewerFragment>(
+      argsBundle,
+      destId = R.id.offline_area_viewer_fragment,
+    ) {
+      fragment = this as OfflineAreaViewerFragment
+    }
+  }
+}
+
+@HiltAndroidTest
+@RunWith(RobolectricTestRunner::class)
+class OfflineAreaViewerFragmentWithoutOfflineAreaTest : BaseHiltTest() {
+
+  private lateinit var fragment: OfflineAreaViewerFragment
+
+  override fun setUp() {
+    super.setUp()
+    setupFragment()
+  }
+
+  @Test
+  fun `When no offline areas available`() {
+    onView(withId(R.id.offline_area_viewer_toolbar))
+      .check(
+        matches(hasDescendant(withText(fragment.getString(R.string.offline_area_viewer_title))))
+      )
+    onView(withId(R.id.offline_area_name_text)).check(matches(withText("")))
+    onView(withId(R.id.offline_area_size_on_device)).check(matches(isGone()))
+    onView(withId(R.id.remove_button)).check(matches(isNotEnabled()))
+    onView(withId(R.id.remove_button))
+      .check(matches(withText(fragment.getString(R.string.offline_area_viewer_remove_button))))
+  }
+
+  private fun setupFragment(fragmentArgs: Bundle? = null) {
     val argsBundle =
       fragmentArgs ?: OfflineAreaViewerFragmentArgs.Builder("id_1").build().toBundle()
 
