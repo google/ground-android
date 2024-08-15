@@ -64,7 +64,7 @@ internal constructor(
   ): List<MutationDetail> = mutations.map { toMutationDetail(it) }
 
   private suspend fun toMutationDetail(mutation: Mutation): MutationDetail {
-    // TODO: Find a better solution here; perhaps return a null detail and do not render.
+    // TODO(#2652): Find a better solution here; perhaps return a null detail and do not render.
     val user = userRepository.getAuthenticatedUser()
     return try {
       val loi =
@@ -79,8 +79,8 @@ internal constructor(
       MutationDetail(
         user = user.displayName,
         mutation = mutation,
-        loiLabel = "Unknown Location",
-        loiSubtitle = "Unknown Location",
+        loiLabel = "## SITE DELETED ##",
+        loiSubtitle = "",
       )
     }
   }
