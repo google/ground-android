@@ -92,7 +92,7 @@ fun DataSharingTermsDialog(
 
 @Composable
 @Preview
-private fun DataSharingTermsDialogPreview_private() {
+fun DataSharingTermsDialogPreviewWithPrivateType() {
   AppTheme {
     DataSharingTermsDialog(
       showDataSharingTermsDialog = remember { mutableStateOf(false) },
@@ -104,7 +104,7 @@ private fun DataSharingTermsDialogPreview_private() {
 
 @Composable
 @Preview
-private fun DataSharingTermsDialogPreview_public() {
+fun DataSharingTermsDialogPreviewWithPublicType() {
   AppTheme {
     DataSharingTermsDialog(
       showDataSharingTermsDialog = remember { mutableStateOf(false) },
@@ -118,7 +118,7 @@ private fun DataSharingTermsDialogPreview_public() {
 
 @Composable
 @Preview
-private fun DataSharingTermsDialogPreview_custom() {
+fun DataSharingTermsDialogPreviewWithCustomType() {
   AppTheme {
     DataSharingTermsDialog(
       showDataSharingTermsDialog = remember { mutableStateOf(false) },
@@ -133,7 +133,7 @@ private fun DataSharingTermsDialogPreview_custom() {
 
 @Composable
 @Preview
-private fun DataSharingTermsDialogPreview_noTerms() {
+fun DataSharingTermsDialogPreviewWithNoType() {
   AppTheme {
     DataSharingTermsDialog(
       showDataSharingTermsDialog = remember { mutableStateOf(false) },

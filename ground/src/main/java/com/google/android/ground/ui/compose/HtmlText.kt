@@ -42,6 +42,6 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
 
 @Composable
 @Preview
-private fun PreviewHtmlText() {
+fun PreviewHtmlText() {
   AppTheme { HtmlText(html = "<h1>Hello World</h1><br/><p>This is a preview.") }
 }
