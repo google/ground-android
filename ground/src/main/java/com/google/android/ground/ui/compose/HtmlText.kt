@@ -20,9 +20,11 @@ import android.text.method.ScrollingMovementMethod
 import android.widget.TextView
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
 import com.google.android.ground.R
+import com.google.android.ground.ui.theme.AppTheme
 
 @Composable
 fun HtmlText(html: String, modifier: Modifier = Modifier) {
@@ -36,4 +38,10 @@ fun HtmlText(html: String, modifier: Modifier = Modifier) {
       it.setPadding(24, 16, 24, 16)
     },
   )
+}
+
+@Composable
+@Preview
+private fun PreviewHtmlText() {
+  AppTheme { HtmlText(html = "<h1>Hello World</h1><br/><p>This is a preview.") }
 }
