@@ -64,14 +64,24 @@ internal constructor(
   ): List<MutationDetail> = mutations.map { toMutationDetail(it) }
 
   private suspend fun toMutationDetail(mutation: Mutation): MutationDetail {
-    val loi =
-      locationOfInterestRepository.getOfflineLoi(mutation.surveyId, mutation.locationOfInterestId)
+    // TODO: Find a better solution here; perhaps return a null detail and do not render.
     val user = userRepository.getAuthenticatedUser()
-    return MutationDetail(
-      user = user.displayName,
-      mutation = mutation,
-      loiLabel = locationOfInterestHelper.getJobName(loi) ?: "",
-      loiSubtitle = locationOfInterestHelper.getDisplayLoiName(loi),
-    )
+    return try {
+      val loi =
+        locationOfInterestRepository.getOfflineLoi(mutation.surveyId, mutation.locationOfInterestId)
+      MutationDetail(
+        user = user.displayName,
+        mutation = mutation,
+        loiLabel = locationOfInterestHelper.getJobName(loi) ?: "",
+        loiSubtitle = locationOfInterestHelper.getDisplayLoiName(loi),
+      )
+    } catch (e: IllegalStateException) {
+      MutationDetail(
+        user = user.displayName,
+        mutation = mutation,
+        loiLabel = "Unknown Location",
+        loiSubtitle = "Unknown Location",
+      )
+    }
   }
 }
