@@ -37,8 +37,8 @@ interface RemoteDataStore {
   suspend fun loadSurvey(surveyId: String): Survey?
 
   /**
-   * Loads the app terms from the remote data store. Returns `null` if
-   * is not found. Throws an error if the remote data store is not available.
+   * Loads the app terms from the remote data store. Returns `null` if is not found. Throws an error
+   * if the remote data store is not available.
    */
   suspend fun loadTermsOfService(): TermsOfService?
 
