@@ -20,7 +20,6 @@ import android.net.Uri
 import android.text.TextWatcher
 import android.view.View
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.databinding.BindingAdapter
@@ -80,11 +79,5 @@ object BindingAdapters {
   @BindingAdapter("visible")
   fun bindVisible(view: View, visible: Boolean) {
     view.visibility = if (visible) View.VISIBLE else View.GONE
-  }
-
-  @JvmStatic
-  @BindingAdapter("text")
-  fun bindTextResult(view: TextView, result: Result<String>?) {
-    view.text = result?.getOrNull() ?: ""
   }
 }

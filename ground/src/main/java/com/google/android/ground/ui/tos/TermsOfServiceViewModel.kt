@@ -37,14 +37,13 @@ constructor(
 ) : AbstractViewModel() {
   val agreeCheckboxChecked: MutableLiveData<Boolean> = MutableLiveData()
 
-  val termsOfServiceText: LiveData<Result<String>> = liveData {
+  val termsOfServiceText: LiveData<String> = liveData {
     try {
       val tos = termsOfServiceRepository.getTermsOfService()
-      emit(Result.success(tos?.text ?: ""))
+      emit(tos?.text ?: "")
     } catch (e: Throwable) {
       popups.ErrorPopup().show(R.string.load_tos_failed)
       authManager.signOut()
-      emit(Result.failure(e))
     }
   }
 
