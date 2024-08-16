@@ -264,7 +264,7 @@ constructor(
 
   /** Called when the map camera is moved. */
   open fun onMapCameraMoved(newCameraPosition: CameraPosition) {
-    Timber.d("Camera moved : ${newCameraPosition.coordinates}")
+    Timber.v("Camera moved : ${newCameraPosition.coordinates}")
     currentCameraPosition.value = newCameraPosition
     mapStateRepository.setCameraPosition(newCameraPosition)
   }
