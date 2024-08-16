@@ -113,8 +113,7 @@ constructor(
     }
 
   /**
-   * Returns true if the terms of service are missing from firestore config or if the user has not
-   * accepted it yet.
+   * Returns true if the user has already accepted the Terms of Service.
    */
   private fun isTosAccepted(): Boolean = termsOfServiceRepository.isTermsOfServiceAccepted
 
