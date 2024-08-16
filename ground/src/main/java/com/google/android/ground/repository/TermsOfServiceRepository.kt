@@ -18,11 +18,12 @@ package com.google.android.ground.repository
 
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.system.NetworkManager
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS: Long = 30 * 1000
@@ -39,15 +40,15 @@ constructor(
   var isTermsOfServiceAccepted: Boolean by localValueStore::isTermsOfServiceAccepted
 
   /**
-   * @return [TermsOfService] from remote data store. Throws an error if the request times out or
-   *   network is unavailable.
+   * Fetches and returns [TermsOfService] from remote data store. Throws an error if the request
+   * times out or network is unavailable.
    */
   suspend fun getTermsOfService(): TermsOfService? {
     if (!networkManager.isNetworkConnected()) {
-      error("No network")
+      throw DataStoreException("No network")
     }
 
-    return withTimeoutOrNull(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS) {
+    return withTimeout(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS) {
       Timber.d("Loading Terms of Service")
       remoteDataStore.loadTermsOfService()
     }

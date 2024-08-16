@@ -84,7 +84,7 @@ object BindingAdapters {
 
   @JvmStatic
   @BindingAdapter("text")
-  fun bindTextResult(view: TextView, result: Result<String>) {
-    view.text = result.getOrDefault("")
+  fun bindTextResult(view: TextView, result: Result<String>?) {
+    view.text = result?.getOrNull() ?: ""
   }
 }

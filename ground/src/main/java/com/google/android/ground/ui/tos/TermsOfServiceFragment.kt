@@ -19,12 +19,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.asFlow
-import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.databinding.FragmentTermsServiceBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TermsOfServiceFragment : AbstractFragment() {
@@ -34,11 +31,6 @@ class TermsOfServiceFragment : AbstractFragment() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(TermsOfServiceViewModel::class.java)
-
-    showProgressDialog()
-    lifecycleScope.launch {
-      viewModel.termsOfServiceText.asFlow().collect { dismissProgressDialog() }
-    }
   }
 
   override fun onCreateView(

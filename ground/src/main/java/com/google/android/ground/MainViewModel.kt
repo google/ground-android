@@ -79,7 +79,7 @@ constructor(
     return if (error.isPermissionDeniedException()) {
       MainUiState.OnPermissionDenied
     } else {
-      // TODO(#1808): Display some error dialog to the user with a helpful user-readable messagez.
+      // TODO(#1808): Display some error dialog to the user with a helpful user-readable message.
       onUserSignedOut()
     }
   }
@@ -100,7 +100,7 @@ constructor(
   private suspend fun onUserSignedIn(user: User): MainUiState =
     try {
       userRepository.saveUserDetails(user)
-      if (!isTosMissingOrAccepted()) {
+      if (!isTosAccepted()) {
         MainUiState.TosNotAccepted
       } else if (!attemptToReactiveLastActiveSurvey()) {
         MainUiState.NoActiveSurvey
@@ -116,9 +116,8 @@ constructor(
    * Returns true if the terms of service are missing from firestore config or if the user has not
    * accepted it yet.
    */
-  private suspend fun isTosMissingOrAccepted(): Boolean {
-    val tos = termsOfServiceRepository.getTermsOfService()
-    return tos == null || termsOfServiceRepository.isTermsOfServiceAccepted
+  private fun isTosAccepted(): Boolean {
+    return termsOfServiceRepository.isTermsOfServiceAccepted
   }
 
   /** Returns true if the last survey was successfully reactivated, if any. */
