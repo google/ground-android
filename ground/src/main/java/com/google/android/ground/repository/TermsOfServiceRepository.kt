@@ -39,13 +39,12 @@ constructor(
   var isTermsOfServiceAccepted: Boolean by localValueStore::isTermsOfServiceAccepted
 
   /**
-   * @return [TermsOfService] from remote data store. Otherwise null if the request times out or
+   * @return [TermsOfService] from remote data store. Throws an error if the request times out or
    *   network is unavailable.
    */
   suspend fun getTermsOfService(): TermsOfService? {
-    // TODO(#1691): Maybe parse the exception and display to the user.
     if (!networkManager.isNetworkConnected()) {
-      return null
+      error("No network")
     }
 
     return withTimeoutOrNull(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS) {
