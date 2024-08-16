@@ -73,7 +73,6 @@ constructor(
    * Saves photo data stored on an on-device URI in Ground-associated storage and prepares it for
    * inclusion in a data collection submission.
    */
-  @RequiresApi(Build.VERSION_CODES.Q)
   fun savePhotoTaskData(uri: Uri) {
     val currentTask = taskWaitingForPhoto
     requireNotNull(currentTask) { "Photo captured but no task waiting for the result" }
