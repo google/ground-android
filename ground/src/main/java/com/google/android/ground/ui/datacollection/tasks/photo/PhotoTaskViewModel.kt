@@ -89,6 +89,9 @@ constructor(
     }
   }
 
+  /**
+   * Returns the EXIF orientation attribute of the JPEG image at the specified URI.
+   */
   private fun getOrientationFromExif(uri: Uri): Int {
     val inputStream =
       context.contentResolver.openInputStream(uri)
