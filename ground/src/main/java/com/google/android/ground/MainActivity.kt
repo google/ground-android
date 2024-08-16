@@ -180,7 +180,7 @@ class MainActivity : AbstractActivity() {
    */
   @Deprecated("Deprecated in Java")
   override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
-    Timber.d("Activity result received")
+    Timber.v("Activity result received")
     super.onActivityResult(requestCode, resultCode, intent)
     activityStreams.onActivityResult(requestCode, resultCode, intent)
   }

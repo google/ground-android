@@ -106,7 +106,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   private fun onLocationLockStateChange(result: Result<Boolean>, map: MapFragment) {
     result.fold(
       onSuccess = {
-        Timber.d("Location lock: $it")
+        Timber.v("Location lock success: $it")
         if (it) {
           try {
             map.enableCurrentLocationIndicator()

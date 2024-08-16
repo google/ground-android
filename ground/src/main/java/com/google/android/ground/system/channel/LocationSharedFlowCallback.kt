@@ -33,7 +33,7 @@ class LocationSharedFlowCallback(
   override fun onLocationResult(locationResult: LocationResult) {
     coroutineScope.launch {
       locationResult.lastLocation?.let {
-        Timber.d("Location updated $it")
+        Timber.v("Location updated $it")
         locationUpdates.emit(it)
       }
     }
