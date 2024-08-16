@@ -116,9 +116,7 @@ constructor(
    * Returns true if the terms of service are missing from firestore config or if the user has not
    * accepted it yet.
    */
-  private fun isTosAccepted(): Boolean {
-    return termsOfServiceRepository.isTermsOfServiceAccepted
-  }
+  private fun isTosAccepted(): Boolean = termsOfServiceRepository.isTermsOfServiceAccepted
 
   /** Returns true if the last survey was successfully reactivated, if any. */
   private suspend fun attemptToReactiveLastActiveSurvey(): Boolean {
