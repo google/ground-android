@@ -21,8 +21,6 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.media.ExifInterface
 import android.net.Uri
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.model.submission.PhotoTaskData
@@ -89,9 +87,7 @@ constructor(
     }
   }
 
-  /**
-   * Returns the EXIF orientation attribute of the JPEG image at the specified URI.
-   */
+  /** Returns the EXIF orientation attribute of the JPEG image at the specified URI. */
   private fun getOrientationFromExif(uri: Uri): Int {
     val inputStream =
       context.contentResolver.openInputStream(uri)
