@@ -34,6 +34,7 @@ import com.google.android.ground.ui.map.gms.GmsExt.contains
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -61,15 +62,31 @@ constructor(
     val ownerUserId = authenticationManager.getAuthenticatedUser().id
     val lois =
       with(remoteDataStore) { loadPredefinedLois(survey) + loadUserLois(survey, ownerUserId) }
-    mergeAll(survey.id, lois)
+    localLoiStore.getAllSurveyMutations(survey).collect { loiMutations ->
+      mergeAll(survey.id, lois, loiMutations)
+    }
   }
 
-  private suspend fun mergeAll(surveyId: String, lois: List<LocationOfInterest>) {
+  private suspend fun mergeAll(
+    surveyId: String,
+    lois: List<LocationOfInterest>,
+    loiMutations: List<LocationOfInterestMutation>,
+  ) {
     // Insert new or update existing LOIs in local db.
     lois.forEach { localLoiStore.insertOrUpdate(it) }
 
-    // Delete LOIs in local db not returned in latest list from server.
-    localLoiStore.deleteNotIn(surveyId, lois.map { it.id })
+    // NOTE(#2652): Don't delete pending locations of interest, since we can accidentally delete
+    // them here if we get to this routine before they can be synced up to the remote database.
+    val pendingMutations =
+      loiMutations.mapNotNull {
+        when (it.syncStatus) {
+          SyncStatus.PENDING, SyncStatus.IN_PROGRESS -> it.locationOfInterestId
+          else -> null
+        }
+      }
+
+    // Delete LOIs in local db not returned in latest list from server, skipping pending mutations.
+    localLoiStore.deleteNotIn(surveyId, lois.map { it.id } + pendingMutations)
   }
 
   /** This only works if the survey and location of interests are already cached to local db. */
