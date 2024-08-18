@@ -46,7 +46,7 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
 
   override fun add(
     map: GoogleMap,
-    featureTag: Feature.Tag,
+    tag: Feature.Tag,
     geometry: LineString,
     style: Feature.Style,
     selected: Boolean,
@@ -59,8 +59,8 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
       visible(visible)
     }
     val polyline = map.addPolyline(options)
+    polyline.tag = tag
     with(polyline) {
-      tag = featureTag
       if (style.vertexStyle == Feature.VertexStyle.CIRCLE) {
         startCap = circleCap
         endCap = circleCap
