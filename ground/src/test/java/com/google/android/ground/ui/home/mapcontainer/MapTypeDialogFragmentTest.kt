@@ -31,12 +31,12 @@ import com.google.android.ground.shouldHaveTextAtPosition
 import com.google.android.ground.ui.map.MapType
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
 import org.hamcrest.Matchers.allOf
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import javax.inject.Inject
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -60,7 +60,7 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
     onView(withText("Base map")).check(matches(isDisplayed()))
     onView(withId(R.id.recycler_view)).check(matches(allOf(isDisplayed(), hasChildCount(3))))
     with(R.id.recycler_view) {
-      shouldHaveTextAtPosition("Road map 2", 0)
+      shouldHaveTextAtPosition("Road map", 0)
       shouldHaveTextAtPosition("Terrain", 1)
       shouldHaveTextAtPosition("Satellite", 2)
     }
