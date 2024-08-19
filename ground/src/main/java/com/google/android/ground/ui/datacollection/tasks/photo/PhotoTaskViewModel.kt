@@ -31,6 +31,7 @@ import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.util.BitmapUtil
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.IOException
+import java.lang.UnsupportedOperationException
 import javax.inject.Inject
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
@@ -56,14 +57,12 @@ constructor(
     taskTaskData.map { userMediaRepository.getDownloadUrl(it?.getDetailsText()) }.asLiveData()
   val isPhotoPresent: LiveData<Boolean> = taskTaskData.map { it.isNotNullOrEmpty() }.asLiveData()
 
-  private fun rotateBitmap(bitmap: Bitmap, orientation: Int): Bitmap {
+  private fun rotateBitmap(bitmap: Bitmap, rotateDegrees: Float): Bitmap {
     val matrix = Matrix()
-    when (orientation) {
-      ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
-      ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
-      ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+    // Rotate iff rotation is non-zero.
+    if (rotateDegrees != 0f) {
+      matrix.postRotate(rotateDegrees)
     }
-
     return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true)
   }
 
@@ -77,7 +76,8 @@ constructor(
 
     try {
       val orientation = getOrientationFromExif(uri)
-      val bitmap = rotateBitmap(bitmapUtil.fromUri(uri), orientation)
+      val rotateDegrees = getRotationDegrees(orientation)
+      val bitmap = rotateBitmap(bitmapUtil.fromUri(uri), rotateDegrees)
       val file = userMediaRepository.savePhoto(bitmap, currentTask)
       userMediaRepository.addImageToGallery(file.absolutePath, file.name)
       val remoteFilename = FirebaseStorageManager.getRemoteMediaPath(surveyId, file.absolutePath)
@@ -86,6 +86,19 @@ constructor(
       Timber.e(e, "Error getting photo selected from storage")
     }
   }
+
+  /**
+   * Returns the number of degrees a photo should be rotated based on the value of its orientation
+   * EXIF tag.
+   */
+  private fun getRotationDegrees(orientation: Int): Float =
+    when (orientation) {
+      ExifInterface.ORIENTATION_NORMAL -> 0f
+      ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+      ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+      ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+      else -> throw UnsupportedOperationException("Unsupported photo orientation $orientation")
+    }
 
   /** Returns the EXIF orientation attribute of the JPEG image at the specified URI. */
   private fun getOrientationFromExif(uri: Uri): Int {
