@@ -38,7 +38,7 @@
       android:id="@+id/user_response_text"
       android:layout_width="200dp"
       android:layout_height="wrap_content"
-      android:inputType="number"
+      android:inputType="numberDecimal"
       android:text="@{viewModel.responseText}"
       app:textChangedListener="@{viewModel.textWatcher}" />
   </com.google.android.material.textfield.TextInputLayout>
