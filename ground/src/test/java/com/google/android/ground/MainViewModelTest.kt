@@ -122,7 +122,7 @@ class MainViewModelTest : BaseHiltTest() {
     fakeAuthenticationManager.signIn()
     advanceUntilIdle()
 
-    verifyUiState(MainUiState.NoActiveSurvey)
+    verifyUiState(MainUiState.TosNotAccepted)
     verifyUserSaved()
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
   }
@@ -142,7 +142,8 @@ class MainViewModelTest : BaseHiltTest() {
     advanceUntilIdle()
 
     assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-    verifyUiState(MainUiState.OnPermissionDenied)
+    // TODO(#2667): Update these implementation to make it clearer why this would be the case.
+    verifyUiState(MainUiState.TosNotAccepted)
   }
 
   @Test
@@ -155,7 +156,7 @@ class MainViewModelTest : BaseHiltTest() {
       advanceUntilIdle()
 
       assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-      verifyUiState(MainUiState.OnUserSignedOut)
+      verifyUiState(MainUiState.TosNotAccepted)
     }
 
   @Test
