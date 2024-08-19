@@ -112,9 +112,7 @@ constructor(
       onUserSignInError(e)
     }
 
-  /**
-   * Returns true if the user has already accepted the Terms of Service.
-   */
+  /** Returns true if the user has already accepted the Terms of Service. */
   private fun isTosAccepted(): Boolean = termsOfServiceRepository.isTermsOfServiceAccepted
 
   /** Returns true if the last survey was successfully reactivated, if any. */
