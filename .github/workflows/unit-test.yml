@@ -37,4 +37,4 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew testDevDebugUnitTest
+        run: ./gradlew -PdisablePreDex testDevDebugUnitTest --no-daemon
