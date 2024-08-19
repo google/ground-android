@@ -79,9 +79,9 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   fun testResponse_onUserInput_nextButtonIsEnabled() = runWithTestDispatcher {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
-    runner().inputNumber(123).assertButtonIsEnabled("Next")
+    runner().inputNumber(123.1).assertButtonIsEnabled("Next")
 
-    hasValue(NumberTaskData("123"))
+    hasValue(NumberTaskData("123.1"))
   }
 
   @Test
