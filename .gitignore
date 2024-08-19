@@ -1,6 +1,5 @@
 .*
 **/google-services.json
-!ground/src/debug/dev/google-services.json
 !ground/src/debug/local/google-services.json
 !.gitignore
 !gradle/
