@@ -19,6 +19,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import com.google.android.ground.R
+import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
@@ -26,6 +27,7 @@ import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import javax.inject.Inject
+import kotlinx.coroutines.TimeoutCancellationException
 
 class TermsOfServiceViewModel
 @Inject
@@ -42,9 +44,17 @@ constructor(
       val tos = termsOfServiceRepository.getTermsOfService()
       emit(tos?.text ?: "")
     } catch (e: Throwable) {
-      popups.ErrorPopup().show(R.string.load_tos_failed)
-      authManager.signOut()
+      when (e) {
+        is DataStoreException,
+        is TimeoutCancellationException -> onGetTosFailure()
+        else -> throw e
+      }
     }
+  }
+
+  private fun onGetTosFailure() {
+    popups.ErrorPopup().show(R.string.load_tos_failed)
+    authManager.signOut()
   }
 
   fun onButtonClicked() {
