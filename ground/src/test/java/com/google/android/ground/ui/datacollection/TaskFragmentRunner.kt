@@ -68,9 +68,10 @@ class TaskFragmentRunner(
     return this
   }
 
-  internal fun inputNumber(number: Int): TaskFragmentRunner {
+  internal fun inputNumber(number: Double): TaskFragmentRunner {
+    val decimalNumberFlag = InputType.TYPE_CLASS_NUMBER + InputType.TYPE_NUMBER_FLAG_DECIMAL
     onView(withId(R.id.user_response_text))
-      .check(matches(withInputType(InputType.TYPE_CLASS_NUMBER)))
+      .check(matches(withInputType(decimalNumberFlag)))
       .perform(forceTypeText(number.toString()))
     return this
   }
