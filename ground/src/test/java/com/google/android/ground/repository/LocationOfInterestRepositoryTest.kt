@@ -23,7 +23,6 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.Mutation.Type.CREATE
-import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.common.truth.Truth.assertThat
@@ -36,7 +35,6 @@ import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -76,11 +74,6 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       activateSurvey(TEST_SURVEY.id)
       advanceUntilIdle()
     }
-  }
-
-  @After
-  fun cleanUp() {
-//    localLoiStore.getAllSurveyMutations(TEST_SURVEY).complete()
   }
 
   @Test
