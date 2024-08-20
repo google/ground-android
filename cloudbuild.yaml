@@ -85,7 +85,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex assembleDevStaging assembleDevStagingUnitTest -PtestBuildType=staging --no-daemon
+        ./gradlew -PdisablePreDex assembleDevStaging assembleDevStagingUnitTest -PtestBuildType=staging
 
   # TODO(#1547): Re-enable once instrumentation tests are fixed.
   #        if [[ "${_PUSH_TO_MASTER}" ]]; then
@@ -100,7 +100,7 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex checkCode --no-daemon 2> check-logs.txt || echo "fail" > build-status.txt
+        ./gradlew -PdisablePreDex checkCode 2> check-logs.txt || echo "fail" > build-status.txt
         cat check-logs.txt
 
   - name: 'gcr.io/$PROJECT_ID/android:34'
@@ -110,10 +110,10 @@ steps:
     args:
       - '-c'
       - |
-        ./gradlew -PdisablePreDex testDevDebugUnitTest --no-daemon 2> unit-test-logs.txt || echo "fail" > build-status.txt
+        ./gradlew -PdisablePreDex testDevDebugUnitTest 2> unit-test-logs.txt || echo "fail" > build-status.txt
         cat unit-test-logs.txt
 
-        ./gradlew jacocoDevDebugUnitTestReport --no-daemon
+        ./gradlew jacocoDevDebugUnitTestReport
 
   - name: 'gcr.io/$PROJECT_ID/android:34'
     id: &authenticate_gcloud 'Authorize gcloud'
