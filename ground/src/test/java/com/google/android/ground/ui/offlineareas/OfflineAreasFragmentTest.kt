@@ -39,7 +39,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class OfflineAreasFragmentTest : BaseHiltTest() {
 
-  lateinit var fragment: OfflineAreasFragment
+  private lateinit var fragment: OfflineAreasFragment
   @Inject lateinit var localOfflineAreaStore: LocalOfflineAreaStore
 
   @Before
@@ -49,13 +49,13 @@ class OfflineAreasFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `toolbar text should be correct`() {
+  fun `Toolbar text is displayed`() {
     onView(withId(R.id.offline_areas_toolbar))
       .check(matches(hasDescendant(withText(fragment.getString(R.string.offline_map_imagery)))))
   }
 
   @Test
-  fun `heading should be correct`() {
+  fun `Heading text is displayed`() {
     onView(withId(R.id.offline_areas_list_title))
       .check(matches(withText(fragment.getString(R.string.offline_downloaded_areas))))
     onView(withId(R.id.offline_areas_list_tip))
@@ -65,7 +65,7 @@ class OfflineAreasFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `list is visible`() = runWithTestDispatcher {
+  fun `List is Displayed`() = runWithTestDispatcher {
     localOfflineAreaStore.insertOrUpdate(OFFLINE_AREA)
 
     advanceUntilIdle()
