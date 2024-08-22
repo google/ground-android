@@ -18,23 +18,43 @@ package com.google.android.ground.ui.tos
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
+import com.google.android.ground.R
+import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.repository.TermsOfServiceRepository
+import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
+import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import javax.inject.Inject
+import kotlinx.coroutines.TimeoutCancellationException
 
 class TermsOfServiceViewModel
 @Inject
 constructor(
   private val navigator: Navigator,
   private val termsOfServiceRepository: TermsOfServiceRepository,
+  private val popups: EphemeralPopups,
+  private val authManager: AuthenticationManager,
 ) : AbstractViewModel() {
   val agreeCheckboxChecked: MutableLiveData<Boolean> = MutableLiveData()
 
-  // TODO(#1478): Either cache terms of service text in repository or display a loading spinner.
-  val termsOfServiceText: LiveData<String?> = liveData {
-    emit(termsOfServiceRepository.getTermsOfService()?.text)
+  val termsOfServiceText: LiveData<String> = liveData {
+    try {
+      val tos = termsOfServiceRepository.getTermsOfService()
+      emit(tos?.text ?: "")
+    } catch (e: Throwable) {
+      when (e) {
+        is DataStoreException,
+        is TimeoutCancellationException -> onGetTosFailure()
+        else -> throw e
+      }
+    }
+  }
+
+  private fun onGetTosFailure() {
+    popups.ErrorPopup().show(R.string.load_tos_failed)
+    authManager.signOut()
   }
 
   fun onButtonClicked() {
