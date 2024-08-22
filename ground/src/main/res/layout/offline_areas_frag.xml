@@ -93,13 +93,22 @@
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent" />
+    <!-- TODO(#2118) Add content description -->
+    <ImageView
+      android:layout_width="200dp"
+      android:layout_height="200dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintBottom_toTopOf="@+id/no_areas_downloaded_message"
+      app:srcCompat="@drawable/offline_map_imagery"
+      app:visible="@{viewModel.showNoAreasMessage}"/>
     <TextView
       android:id="@+id/no_areas_downloaded_message"
       style="@style/TextAppearance.App.BodyMedium"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:contentDescription="@string/offline_area_selector_prompt"
-      android:padding="48dp"
+      android:paddingTop="16dp"
       android:text="@string/no_basemaps_downloaded"
       android:textAlignment="center"
       app:layout_constraintBottom_toBottomOf="parent"
