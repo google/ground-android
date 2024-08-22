@@ -86,9 +86,7 @@ constructor(
         area.postValue(it)
         areaSize.postValue(offlineAreaRepository.sizeOnDevice(it).toMb().toMbString())
         areaName.postValue(it.name)
-      } ?: run {
-        navigator.navigateUp()
-      }
+      } ?: run { navigator.navigateUp() }
     }
   }
 
