@@ -19,6 +19,8 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.persistence.remote.firebase.protobuf.toFirestoreMap
 import com.google.android.ground.proto.Role
 import com.google.android.ground.proto.Survey
+import com.google.android.ground.proto.SurveyKt.dataSharingTerms
+import com.google.android.ground.proto.copy
 import com.google.android.ground.proto.survey
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
@@ -36,6 +38,7 @@ class SurveyConverterTest {
         name = SURVEY.title
         description = SURVEY.description
         acl.put(USER.email, Role.DATA_COLLECTOR)
+        dataSharingTerms = DATA_SHARING_TERMS.copy {}
       }
       val snapshot = createSurveyProtoDocumentSnapshot(surveyProto)
       assertThat(SurveyConverter.toSurvey(snapshot, listOf(JOB))).isEqualTo(SURVEY)

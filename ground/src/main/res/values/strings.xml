@@ -91,6 +91,7 @@
   <string name="current_location">Current location:</string>
   <string name="loading">Loading…</string>
   <string name="no_tasks_error">This job has no more tasks to complete</string>
+  <string name="invalid_data_sharing_terms">This survey is misconfigured (no data sharing terms available). Please contact the survey organizer.</string>
   <string name="collect_data_viewer_error">Can’t collect data as user is a VIEWER</string>
   <string name="offline_map_imagery">Offline map imagery</string>
   <string name="offline_map_imagery_pref_description">Hide or show downloaded imagery</string>
@@ -130,6 +131,7 @@
   <string name="initializing">Initializing…</string>
   <string name="draw_area_task_instruction">Move the map and tap “Add point” to add points around the desired area.</string>
   <string name="close">Close</string>
+  <string name="data_consent_dialog_title">Data sharing agreement</string>
   <string name="map_location">Map location:</string>
   <string name="sign_out_dialog_title">Unsynced data</string>
   <string name="sign_out_dialog_body">If you sign out, any unsynced data will be discarded</string>
@@ -175,4 +177,15 @@
   <string name="report_summary">Report technical issues or suggest new locationsOfInterest</string>
   <string name="not_yet_impl_title">Not yet implemented</string>
   <string name="accuracy">Accuracy:</string>
+  <!-- Data Sharing Consent Text -->
+  <string name="data_sharing_no_terms">*No terms to display.*</string>
+  <string name="data_sharing_private_message">
+    ## Private data sharing
+    \nData will only be shared with survey organizers, who may not share and use collected data publicly.
+  </string>
+  <string name="data_sharing_public_message">
+    ## Public data sharing
+    \nSurvey organizers may share and use data publicly under the *Creative Commons CC0 1.0 License*:
+  </string>
+  <string name="load_tos_failed">Could not connect, try again later</string>
 </resources>
