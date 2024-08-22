@@ -93,10 +93,10 @@
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent" />
-    <!-- TODO(#2118) Add content description -->
     <ImageView
       android:layout_width="200dp"
       android:layout_height="200dp"
+      android:contentDescription="@string/offline_map_imagery_no_areas_downloaded_image"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintBottom_toTopOf="@+id/no_areas_downloaded_message"
