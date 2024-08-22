@@ -55,7 +55,7 @@
   <string name="offline_area_viewer_remove_button">Remove from device</string>
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_area_selector_select">Select area</string>
-  <string name="no_basemaps_downloaded">No imagery downloaded for offline use. Tap “Select and download” to get started.</string>
+  <string name="no_basemaps_downloaded">No map imagery downloaded for offline use</string>
   <string name="signing_in">Signing in</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Build %s</string>
