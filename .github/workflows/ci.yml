@@ -47,11 +47,7 @@ jobs:
         run: ./gradlew jacocoLocalDebugUnitTestReport
 
       - name: Upload codecov report
-        uses: codecov/codecov-action@v4
-        with:
-          fail_ci_if_error: true
-          name: service-${{ github.run_id }}
-          flags: service
-          files: ground/build/reports/jacoco/jacocoLocalDebugUnitTestReport/jacocoLocalDebugUnitTestReport.xml
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true
+        run:
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov --verbose upload-process --fail-on-error -t ${{ secrets.CODECOV_TOKEN }} -n 'service'-${{ github.run_id }} -F service -f ground/build/reports/jacoco/jacocoLocalDebugUnitTestReport/jacocoLocalDebugUnitTestReport.xml
