@@ -55,7 +55,7 @@
   <string name="offline_area_viewer_remove_button">Remove from device</string>
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_area_selector_select">Select area</string>
-  <string name="no_basemaps_downloaded">No imagery downloaded for offline use. Tap “Select and download” to get started.</string>
+  <string name="no_basemaps_downloaded">No map imagery downloaded for offline use</string>
   <string name="signing_in">Signing in</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Build %s</string>
@@ -94,6 +94,7 @@
   <string name="invalid_data_sharing_terms">This survey is misconfigured (no data sharing terms available). Please contact the survey organizer.</string>
   <string name="collect_data_viewer_error">Can’t collect data as user is a VIEWER</string>
   <string name="offline_map_imagery">Offline map imagery</string>
+  <string name="offline_map_imagery_no_areas_downloaded_image">No Imagery Downloaded</string>
   <string name="offline_map_imagery_pref_description">Hide or show downloaded imagery</string>
   <string name="layers">Layers</string>
   <string name="base_map">Base map</string>
@@ -187,4 +188,5 @@
     ## Public data sharing
     \nSurvey organizers may share and use data publicly under the *Creative Commons CC0 1.0 License*:
   </string>
+  <string name="load_tos_failed">Could not connect, try again later</string>
 </resources>
