@@ -38,4 +38,11 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run unit tests
-        run: ./gradlew testLocalDebugUnitTest --no-daemon
+        run: ./gradlew testLocalDebugUnitTest
+
+      - name: Run code quality checks
+        run: ./gradlew checkCode
+
+  #       TODO(#2670) : Upload codecov reports
+  #      - name: Generate codecov report
+  #        run: ./gradlew jacocoDevDebugUnitTestReport
