@@ -46,10 +46,12 @@ jobs:
       - name: Generate codecov report
         run: ./gradlew jacocoLocalDebugUnitTestReport
 
-      - name: Upload codecov report
+      - name: Setup codecov
         uses: enflo/curl-action@master
         with:
           curl: curl -Os https://uploader.codecov.io/latest/linux/codecov
+
+      - name: Upload codecov report
         run:
           chmod +x codecov
           ./codecov --verbose upload-process --fail-on-error -t ${{ secrets.CODECOV_TOKEN }} -n 'service'-${{ github.run_id }} -F service -f ground/build/reports/jacoco/jacocoLocalDebugUnitTestReport/jacocoLocalDebugUnitTestReport.xml
