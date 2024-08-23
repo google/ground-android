@@ -47,9 +47,7 @@ jobs:
         run: ./gradlew jacocoLocalDebugUnitTestReport
 
       - name: Setup codecov
-        uses: enflo/curl-action@master
-        with:
-          curl: https://uploader.codecov.io/latest/linux/codecov
+        run: curl -Os https://uploader.codecov.io/latest/linux/codecov
 
       - name: Grant execute permission for codecov
         run: chmod +x codecov
