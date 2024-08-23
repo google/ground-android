@@ -46,11 +46,8 @@ jobs:
       - name: Generate codecov report
         run: ./gradlew jacocoLocalDebugUnitTestReport
 
-      - name: Setup codecov
-        run: curl -Os https://uploader.codecov.io/latest/linux/codecov
-
-      - name: Grant execute permission for codecov
-        run: chmod +x codecov
-
-      - name: Upload codecov report
-        run: ./codecov --verbose upload-process --fail-on-error -t ${{ secrets.CODECOV_TOKEN }} -n 'service'-${{ github.run_id }} -F service -f ground/build/reports/jacoco/jacocoLocalDebugUnitTestReport/jacocoLocalDebugUnitTestReport.xml
+      - name: Upload coverage to Codecov
+        run: |
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov --verbose upload-process --fail-on-error -t ${{ secrets.CODECOV_TOKEN }} -n 'service'-${{ github.run_id }} -F service -f ground/build/reports/jacoco/jacocoLocalDebugUnitTestReport/jacocoLocalDebugUnitTestReport.xml
