@@ -81,10 +81,12 @@ constructor(
   /** Initialize the view model with the given arguments. */
   fun initialize(offlineAreaId: String) {
     viewModelScope.launch(ioDispatcher) {
-      val thisArea = offlineAreaRepository.getOfflineArea(offlineAreaId)!!
-      area.postValue(thisArea)
-      areaSize.postValue(offlineAreaRepository.sizeOnDevice(thisArea).toMb().toMbString())
-      areaName.postValue(thisArea.name)
+      val thisArea = offlineAreaRepository.getOfflineArea(offlineAreaId)
+      thisArea?.let {
+        area.postValue(it)
+        areaSize.postValue(offlineAreaRepository.sizeOnDevice(it).toMb().toMbString())
+        areaName.postValue(it.name)
+      } ?: run { navigator.navigateUp() }
     }
   }
 
