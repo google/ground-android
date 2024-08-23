@@ -35,7 +35,7 @@ tasks.register('jacocoLocalDebugUnitTestReport', JacocoReport) {
     html.required = true
   }
   classDirectories.from = fileTree(
-    dir: 'build/intermediates/classes/devDebug/transformDevDebugClassesWithAsm/dirs/com/google/android/ground',
+    dir: 'build/intermediates/classes/localDebug/transformLocalDebugClassesWithAsm/dirs/com/google/android/ground',
     excludes: [
       '**/databinding/*',
       '**/local/room/dao/*',
