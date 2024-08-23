@@ -43,6 +43,15 @@ jobs:
       - name: Run code quality checks
         run: ./gradlew checkCode
 
-  #       TODO(#2670) : Upload codecov reports
-  #      - name: Generate codecov report
-  #        run: ./gradlew jacocoDevDebugUnitTestReport
+      - name: Generate codecov report
+        run: ./gradlew jacocoDevDebugUnitTestReport
+
+      - name: Upload codecov report
+        uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: true
+          files: ground/build/reports/jacoco/jacocoDevDebugUnitTestReport/jacocoDevDebugUnitTestReport.xml
+          flags: unittests
+          name: codecov-umbrella
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
