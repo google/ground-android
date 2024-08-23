@@ -17,98 +17,98 @@
 apply plugin: 'jacoco'
 
 jacoco {
-    toolVersion = "0.8.9"
+  toolVersion = "0.8.9"
 }
 
 tasks.withType(Test).configureEach {
-    jacoco.includeNoLocationClasses = true
-    jacoco.excludes = ['jdk.internal.*']
+  jacoco.includeNoLocationClasses = true
+  jacoco.excludes = ['jdk.internal.*']
 }
 
-tasks.register('jacocoDevDebugUnitTestReport', JacocoReport) {
-    dependsOn 'testDevDebugUnitTest'
-    group = "Reporting"
-    description = "Run tests and generate coverage reports"
-    reports {
-        csv.required = false
-        xml.required = true
-        html.required = true
-    }
-    classDirectories.from = fileTree(
-        dir: 'build/intermediates/classes/devDebug/transformDevDebugClassesWithAsm/dirs/com/google/android/ground',
-        excludes: [
-            '**/databinding/*',
-            '**/local/room/dao/*',
-            '**/*_Factory*',
-            '**/*Hilt*',
-            '**/*Args*',
-            '**/*Directions*',
-            '**/LocalDatabase_Impl*',
-            '**/*Module*',
-            '**/persistence/remote/firebase/base/FluentCollectionReference*',
-            '**/persistence/remote/firebase/base/FluentDocumentReference*',
-            '**/persistence/remote/firebase/FirebaseStorageManager*',
-            '**/persistence/remote/firebase/schema/LoiCollectionReference*',
-            '**/persistence/remote/firebase/schema/LoiDocumentReference*',
-            '**/persistence/remote/firebase/schema/SubmissionCollectionReference*',
-            '**/persistence/remote/firebase/schema/SubmissionDocumentReference*',
-            '**/persistence/remote/firebase/schema/SurveyDocumentReference*',
-            '**/persistence/remote/firebase/schema/SurveysCollectionReference*',
-            '**/persistence/remote/firebase/schema/TermsOfServiceCollectionReference*',
-            '**/persistence/remote/firebase/schema/TermsOfServiceDocumentReference*',
-            '**/map/gms/features/FeatureManager*',
-            '**/map/gms/features/MapsItemManager*',
-            '**/persistence/sync/MediaUploadWorkManager*',
-            '**/persistence/sync/MutationSyncWorkManager*',
-            '**/system/channel/LocationSharedFlowCallback*',
-            '**/AbstractActivity*',
-            '**/common/AbstractDialogFragment*',
-            '**/common/AbstractFragment*',
-            '**/common/AbstractMapContainerFragment*',
-            '**/common/AbstractViewModel*',
-            '**/common/PermissionDeniedDialogViewModel*',
-            '**/datacollection/components/TaskButton*',
-            '**/datacollection/tasks/AbstractTaskFragment*',
-            '**/datacollection/tasks/AbstractTaskViewModel*',
-            '**/map/gms/ClippingTileProvider*',
-            '**/datacollection/DataSubmissionConfirmationDialogFragment*',
-            '**/common/AbstractMapFragmentWithControls*',
-            '**/map/gms/TemplateUrlTileProvider*',
-            '**/persistence/sync/WorkRequestBuilder*',
-            '**/persistence/remote/firebase/FirestoreUuidGenerator*',
-            '**/settings/SettingsFragment*',
-            '**/SettingsActivity*',
-            '**/signin/SignInViewModel*',
-            '**/startup/StartupFragment*',
-            '**/startup/StartupViewModel*',
-            '**/system/ActivityStreams*',
-            '**/map/gms/GoogleMapsFragment*',
-            '**/tos/TermsOfServiceViewModel*',
-            '**/util/BitmapUtil*',
-            '**/util/FileUtil*',
-            '**/home/mapcontainer/MapTypeAdapter*',
-            '**/common/EphemeralPopups*',
-            '**/common/PermissionDeniedDialogFragment*',
-            '**/common/MapConfig*',
-            '**/common/ViewModelFactory*',
-            '**/common/ViewModelModule*',
-            '**/datacollection/components/ButtonAction*',
-            '**/datacollection/components/TaskView*',
-            '**/datacollection/components/TaskView*',
-            '**/datacollection/DataCollectionViewPagerAdapter*',
-            '**/datacollection/tasks/multiplechoice/MultipleChoiceAdapter*',
-            '**/FirebaseCrashLogger*',
-            '**/home/AboutFragment*',
-            '**/home/mapcontainer/AdaptiveSpacingItemDecorator*',
-            '**/home/mapcontainer/cards/MapCardAdapter*',
-            '**/map/gms/mog/MogProviderModule*',
-            '**/offlineareas/OfflineAreaListAdapter*',
-            '**/offlineareas/selector/DownloadProgressDialogFragment*',
-            '**/system/RequestPermissionsResult*',
-            '**/system/SettingsClient*',
-            '**/util/AsyncSingletonProvider*',
-        ]
-    )
-    sourceDirectories.from = files('src/main/java/com/google/android/ground')
-    executionData.from = files('build/jacoco/testDevDebugUnitTest.exec')
+tasks.register('jacocoLocalDebugUnitTestReport', JacocoReport) {
+  dependsOn 'testLocalDebugUnitTest'
+  group = "Reporting"
+  description = "Run tests and generate coverage reports"
+  reports {
+    csv.required = false
+    xml.required = true
+    html.required = true
+  }
+  classDirectories.from = fileTree(
+    dir: 'build/intermediates/classes/devDebug/transformDevDebugClassesWithAsm/dirs/com/google/android/ground',
+    excludes: [
+      '**/databinding/*',
+      '**/local/room/dao/*',
+      '**/*_Factory*',
+      '**/*Hilt*',
+      '**/*Args*',
+      '**/*Directions*',
+      '**/LocalDatabase_Impl*',
+      '**/*Module*',
+      '**/persistence/remote/firebase/base/FluentCollectionReference*',
+      '**/persistence/remote/firebase/base/FluentDocumentReference*',
+      '**/persistence/remote/firebase/FirebaseStorageManager*',
+      '**/persistence/remote/firebase/schema/LoiCollectionReference*',
+      '**/persistence/remote/firebase/schema/LoiDocumentReference*',
+      '**/persistence/remote/firebase/schema/SubmissionCollectionReference*',
+      '**/persistence/remote/firebase/schema/SubmissionDocumentReference*',
+      '**/persistence/remote/firebase/schema/SurveyDocumentReference*',
+      '**/persistence/remote/firebase/schema/SurveysCollectionReference*',
+      '**/persistence/remote/firebase/schema/TermsOfServiceCollectionReference*',
+      '**/persistence/remote/firebase/schema/TermsOfServiceDocumentReference*',
+      '**/map/gms/features/FeatureManager*',
+      '**/map/gms/features/MapsItemManager*',
+      '**/persistence/sync/MediaUploadWorkManager*',
+      '**/persistence/sync/MutationSyncWorkManager*',
+      '**/system/channel/LocationSharedFlowCallback*',
+      '**/AbstractActivity*',
+      '**/common/AbstractDialogFragment*',
+      '**/common/AbstractFragment*',
+      '**/common/AbstractMapContainerFragment*',
+      '**/common/AbstractViewModel*',
+      '**/common/PermissionDeniedDialogViewModel*',
+      '**/datacollection/components/TaskButton*',
+      '**/datacollection/tasks/AbstractTaskFragment*',
+      '**/datacollection/tasks/AbstractTaskViewModel*',
+      '**/map/gms/ClippingTileProvider*',
+      '**/datacollection/DataSubmissionConfirmationDialogFragment*',
+      '**/common/AbstractMapFragmentWithControls*',
+      '**/map/gms/TemplateUrlTileProvider*',
+      '**/persistence/sync/WorkRequestBuilder*',
+      '**/persistence/remote/firebase/FirestoreUuidGenerator*',
+      '**/settings/SettingsFragment*',
+      '**/SettingsActivity*',
+      '**/signin/SignInViewModel*',
+      '**/startup/StartupFragment*',
+      '**/startup/StartupViewModel*',
+      '**/system/ActivityStreams*',
+      '**/map/gms/GoogleMapsFragment*',
+      '**/tos/TermsOfServiceViewModel*',
+      '**/util/BitmapUtil*',
+      '**/util/FileUtil*',
+      '**/home/mapcontainer/MapTypeAdapter*',
+      '**/common/EphemeralPopups*',
+      '**/common/PermissionDeniedDialogFragment*',
+      '**/common/MapConfig*',
+      '**/common/ViewModelFactory*',
+      '**/common/ViewModelModule*',
+      '**/datacollection/components/ButtonAction*',
+      '**/datacollection/components/TaskView*',
+      '**/datacollection/components/TaskView*',
+      '**/datacollection/DataCollectionViewPagerAdapter*',
+      '**/datacollection/tasks/multiplechoice/MultipleChoiceAdapter*',
+      '**/FirebaseCrashLogger*',
+      '**/home/AboutFragment*',
+      '**/home/mapcontainer/AdaptiveSpacingItemDecorator*',
+      '**/home/mapcontainer/cards/MapCardAdapter*',
+      '**/map/gms/mog/MogProviderModule*',
+      '**/offlineareas/OfflineAreaListAdapter*',
+      '**/offlineareas/selector/DownloadProgressDialogFragment*',
+      '**/system/RequestPermissionsResult*',
+      '**/system/SettingsClient*',
+      '**/util/AsyncSingletonProvider*',
+    ]
+  )
+  sourceDirectories.from = files('src/main/java/com/google/android/ground')
+  executionData.from = files('build/jacoco/testLocalDebugUnitTest.exec')
 }
