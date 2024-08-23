@@ -49,7 +49,7 @@ jobs:
       - name: Setup codecov
         uses: enflo/curl-action@master
         with:
-          curl: curl -Os https://uploader.codecov.io/latest/linux/codecov
+          curl: https://uploader.codecov.io/latest/linux/codecov
 
       - name: Upload codecov report
         run:
