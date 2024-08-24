@@ -30,11 +30,10 @@ import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.util.BitmapUtil
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.io.IOException
-import java.lang.UnsupportedOperationException
-import javax.inject.Inject
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
+import java.io.IOException
+import javax.inject.Inject
 
 class PhotoTaskViewModel
 @Inject
@@ -93,6 +92,7 @@ constructor(
    */
   private fun getRotationDegrees(orientation: Int): Float =
     when (orientation) {
+      ExifInterface.ORIENTATION_UNDEFINED,
       ExifInterface.ORIENTATION_NORMAL -> 0f
       ExifInterface.ORIENTATION_ROTATE_90 -> 90f
       ExifInterface.ORIENTATION_ROTATE_180 -> 180f
