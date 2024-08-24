@@ -29,15 +29,7 @@ import com.google.android.ground.proto.Point as PointProto
 import com.google.android.ground.proto.Polygon as PolygonProto
 
 /**
- * Converts between Geometry model objects and their equivalent remote representation using a
- * modified GeoJSON representation:
- * * The GeoJSON map hierarchy is converted to a Firestore nested map.
- * * Since Firestore does not allow nested arrays, arrays are replaced with nested maps, keyed by
- * * integer array index.
- * * Coordinates (two-element double arrays) are represented as a Firestore GeoPoint.
- *
- * Only `Point`, `Polygon`, and `MultiPolygon` are supported; behavior for other geometry types is
- * undefined.
+ * Converts between Geometry model objects and their equivalent remote representation using protos.
  */
 object GeometryConverter {
 
