@@ -51,13 +51,11 @@ object GeometryConverter {
 
   private fun MultiPolygonProto.toMultiPolygon() = MultiPolygon(polygonsList.map { it.toPolygon() })
 
-  fun GeometryProto.toGeometry(): Result<Geometry> =
-    Result.runCatching {
-      when (geometryTypeCase) {
-        GeometryProto.GeometryTypeCase.POINT -> point.toPoint()
-        GeometryProto.GeometryTypeCase.POLYGON -> polygon.toPolygon()
-        GeometryProto.GeometryTypeCase.MULTI_POLYGON -> multiPolygon.toMultiPolygon()
-        else -> throw UnsupportedOperationException("Can't convert $geometryTypeCase")
-      }
+  fun GeometryProto.toGeometry(): Geometry =
+    when (geometryTypeCase) {
+      GeometryProto.GeometryTypeCase.POINT -> point.toPoint()
+      GeometryProto.GeometryTypeCase.POLYGON -> polygon.toPolygon()
+      GeometryProto.GeometryTypeCase.MULTI_POLYGON -> multiPolygon.toMultiPolygon()
+      else -> throw UnsupportedOperationException("Can't convert $geometryTypeCase")
     }
 }

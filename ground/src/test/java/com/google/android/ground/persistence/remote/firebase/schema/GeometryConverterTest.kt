@@ -16,7 +16,6 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.ground.assertIsSuccessWith
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.MultiPolygon
@@ -29,6 +28,7 @@ import com.google.android.ground.proto.linearRing
 import com.google.android.ground.proto.multiPolygon
 import com.google.android.ground.proto.point
 import com.google.android.ground.proto.polygon
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 typealias Path = Array<Pair<Double, Double>>
@@ -56,18 +56,18 @@ class GeometryConverterTest {
 
   @Test
   fun `toGeometry converts point from proto`() {
-    assertIsSuccessWith(
-      Point(coordinates = Coordinates(x, y)),
-      geometry {
-          point = point {
-            coordinates = coordinates {
-              latitude = x
-              longitude = y
+    assertThat(
+        geometry {
+            point = point {
+              coordinates = coordinates {
+                latitude = x
+                longitude = y
+              }
             }
           }
-        }
-        .toGeometry(),
-    )
+          .toGeometry()
+      )
+      .isEqualTo(Point(coordinates = Coordinates(x, y)))
   }
 
   @Test
@@ -101,10 +101,8 @@ class GeometryConverterTest {
         }
       )
     }
-    assertIsSuccessWith(testPolygon, geometry { polygon = polygonProto }.toGeometry())
-    assertIsSuccessWith(
-      MultiPolygon(polygons = listOf(testPolygon)),
-      geometry { multiPolygon = multiPolygon { polygons.add(polygonProto) } }.toGeometry(),
-    )
+    assertThat(geometry { polygon = polygonProto }.toGeometry()).isEqualTo(testPolygon)
+    assertThat(geometry { multiPolygon = multiPolygon { polygons.add(polygonProto) } }.toGeometry())
+      .isEqualTo(MultiPolygon(polygons = listOf(testPolygon)))
   }
 }

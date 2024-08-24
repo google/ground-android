@@ -40,7 +40,7 @@ object LoiConverter {
     if (!doc.exists()) throw DataStoreException("LOI missing")
     val loiId = doc.id
     val loiProto = LocationOfInterestProto::class.parseFrom(doc, 1)
-    val geometry = loiProto.geometry.toGeometry().getOrThrow()
+    val geometry = loiProto.geometry.toGeometry()
     val jobId = loiProto.jobId
     val job = DataStoreException.checkNotNull(survey.getJob(jobId), "job $jobId")
     // Degrade gracefully when audit info missing in remote db.
