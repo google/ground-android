@@ -77,17 +77,15 @@ class OfflineAreasFragmentTest : BaseHiltTest() {
     localOfflineAreaStore.insertOrUpdate(OFFLINE_AREA)
     advanceUntilIdle()
 
-    with(composeTestRule.onNodeWithTag("offline area list")) {
-      // List is displayed
-      assertIsDisplayed()
+    // List is displayed
+    composeTestRule.onNodeWithTag("offline area list").assertIsDisplayed()
 
-      // Has exactly one item
-      onChildren().assertCountEquals(1)
+    // Has exactly one item
+    composeTestRule.onNodeWithTag("offline area list").onChildren().assertCountEquals(1)
+    composeTestRule.onNodeWithTag("offline area list").onChildAt(0).isDisplayed()
 
-      // Matches item's text
-      onChildAt(0).isDisplayed()
-      composeTestRule.onNodeWithText("Test Area").isDisplayed()
-      composeTestRule.onNodeWithText("<1\u00A0MB").isDisplayed()
-    }
+    // Matches item's text
+    composeTestRule.onNodeWithText("Test Area").isDisplayed()
+    composeTestRule.onNodeWithText("<1\u00A0MB").isDisplayed()
   }
 }
