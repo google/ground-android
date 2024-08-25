@@ -46,25 +46,25 @@ import com.google.android.ground.ui.theme.AppTheme
 
 @Composable
 fun OfflineAreaListItem(
-  modifier: Modifier, offlineAreaDetails: OfflineAreaDetails, itemClicked: () -> Unit = {}
+  modifier: Modifier,
+  offlineAreaDetails: OfflineAreaDetails,
+  itemClicked: () -> Unit = {},
 ) {
   Column {
     Row(
-      modifier = modifier
-        .fillMaxWidth()
-        .padding(start = 16.dp, top = 4.dp, end = 24.dp, bottom = 4.dp)
-        .clickable { itemClicked() },
+      modifier =
+        modifier
+          .fillMaxWidth()
+          .padding(start = 16.dp, top = 4.dp, end = 24.dp, bottom = 4.dp)
+          .clickable { itemClicked() },
       horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
       verticalAlignment = Alignment.CenterVertically,
     ) {
-
       Icon(
         imageVector = ImageVector.vectorResource(id = R.drawable.ic_offline_pin),
         contentDescription = "",
         tint = MaterialTheme.colorScheme.primary,
-        modifier = Modifier
-          .width(24.dp)
-          .height(24.dp)
+        modifier = Modifier.width(24.dp).height(24.dp),
       )
 
       Column(
@@ -72,27 +72,30 @@ fun OfflineAreaListItem(
         verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.Start,
       ) {
-
         Text(
           text = offlineAreaDetails.area.name,
-          style = TextStyle(
-            fontSize = 16.sp,
-            lineHeight = 24.sp,
-            fontFamily = FontFamily(Font(R.font.text_500)),
-            color = MaterialTheme.colorScheme.onSurface,
-          ),
+          style =
+            TextStyle(
+              fontSize = 16.sp,
+              lineHeight = 24.sp,
+              fontFamily = FontFamily(Font(R.font.text_500)),
+              color = MaterialTheme.colorScheme.onSurface,
+            ),
         )
 
         Text(
-          text = stringResource(
-            id = R.string.offline_area_list_item_size_on_disk_mb, offlineAreaDetails.sizeOnDisk
-          ),
-          style = TextStyle(
-            fontSize = 16.sp,
-            lineHeight = 24.sp,
-            fontFamily = FontFamily(Font(R.font.text_500)),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-          ),
+          text =
+            stringResource(
+              id = R.string.offline_area_list_item_size_on_disk_mb,
+              offlineAreaDetails.sizeOnDisk,
+            ),
+          style =
+            TextStyle(
+              fontSize = 16.sp,
+              lineHeight = 24.sp,
+              fontFamily = FontFamily(Font(R.font.text_500)),
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            ),
         )
       }
     }
@@ -101,20 +104,22 @@ fun OfflineAreaListItem(
 
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
-fun PreviewOfflineAreaListItem(
-) {
+fun PreviewOfflineAreaListItem() {
   AppTheme {
     OfflineAreaListItem(
-      modifier = Modifier, offlineAreaDetails = OfflineAreaDetails(
-        area = OfflineArea(
-          id = "id",
-          state = OfflineArea.State.DOWNLOADED,
-          bounds = Bounds(Coordinates(10.0, 10.0), Coordinates(10.0, 10.0)),
-          name = "Region name, Country",
-          zoomRange = 0..10,
+      modifier = Modifier,
+      offlineAreaDetails =
+        OfflineAreaDetails(
+          area =
+            OfflineArea(
+              id = "id",
+              state = OfflineArea.State.DOWNLOADED,
+              bounds = Bounds(Coordinates(10.0, 10.0), Coordinates(10.0, 10.0)),
+              name = "Region name, Country",
+              zoomRange = 0..10,
+            ),
+          sizeOnDisk = "12 MB",
         ),
-        sizeOnDisk = "12 MB",
-      )
     )
   }
 }

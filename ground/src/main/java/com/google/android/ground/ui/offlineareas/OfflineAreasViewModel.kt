@@ -23,15 +23,16 @@ import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.util.toMb
 import com.google.android.ground.util.toMbString
+import javax.inject.Inject
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
-import javax.inject.Inject
 
 /**
  * View model for the offline area manager fragment. Handles the current list of downloaded areas.
  */
 class OfflineAreasViewModel
-@Inject internal constructor(
+@Inject
+internal constructor(
   private val navigator: Navigator,
   private val offlineAreaRepository: OfflineAreaRepository,
 ) : AbstractViewModel() {
@@ -56,9 +57,8 @@ class OfflineAreasViewModel
     showList = offlineAreas.map { it.isNotEmpty() }.onStart { emit(false) }.asLiveData()
   }
 
-  private fun toOfflineAreaDetails(offlineArea: OfflineArea) = OfflineAreaDetails(
-    offlineArea, offlineArea.getSizeOnDevice()
-  )
+  private fun toOfflineAreaDetails(offlineArea: OfflineArea) =
+    OfflineAreaDetails(offlineArea, offlineArea.getSizeOnDevice())
 
   private fun OfflineArea.getSizeOnDevice() =
     offlineAreaRepository.sizeOnDevice(this).toMb().toMbString()

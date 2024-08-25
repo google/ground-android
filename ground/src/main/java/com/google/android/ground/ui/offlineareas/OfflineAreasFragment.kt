@@ -44,8 +44,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class OfflineAreasFragment : AbstractFragment() {
 
-  @Inject
-  lateinit var navigator: Navigator
+  @Inject lateinit var navigator: Navigator
   private lateinit var viewModel: OfflineAreasViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,11 +72,7 @@ class OfflineAreasFragment : AbstractFragment() {
   private fun ShowOfflineAreas() {
     val list by viewModel.offlineAreas.observeAsState()
     list?.let {
-      LazyColumn(
-        Modifier
-          .fillMaxSize()
-          .testTag("offline area list")
-      ) {
+      LazyColumn(Modifier.fillMaxSize().testTag("offline area list")) {
         items(it) {
           OfflineAreaListItem(
             modifier = Modifier.semantics { testTag = "item ${it.area.id}" },

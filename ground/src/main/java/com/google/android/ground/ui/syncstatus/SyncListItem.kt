@@ -51,11 +51,7 @@ import java.util.Date
 @Composable
 fun SyncListItem(modifier: Modifier, detail: MutationDetail) {
   Column {
-    Row(
-      modifier
-        .fillMaxWidth()
-        .padding(top = 8.dp, end = 24.dp, bottom = 8.dp, start = 16.dp)
-    ) {
+    Row(modifier.fillMaxWidth().padding(top = 8.dp, end = 24.dp, bottom = 8.dp, start = 16.dp)) {
       Column(modifier.weight(1f)) {
         val date = detail.mutation.clientTimestamp
         Text(
@@ -69,12 +65,12 @@ fun SyncListItem(modifier: Modifier, detail: MutationDetail) {
         Text(
           text = detail.user,
           style =
-          TextStyle(
-            fontSize = 16.sp,
-            lineHeight = 24.sp,
-            fontFamily = FontFamily(Font(R.font.text_500)),
-            color = MaterialTheme.colorScheme.onSurface,
-          ),
+            TextStyle(
+              fontSize = 16.sp,
+              lineHeight = 24.sp,
+              fontFamily = FontFamily(Font(R.font.text_500)),
+              color = MaterialTheme.colorScheme.onSurface,
+            ),
         )
         val textStyle =
           TextStyle(
@@ -86,11 +82,7 @@ fun SyncListItem(modifier: Modifier, detail: MutationDetail) {
         Text(text = detail.loiLabel, style = textStyle)
         Text(text = detail.loiSubtitle, style = textStyle)
       }
-      Column(
-        modifier = modifier
-          .padding(start = 16.dp)
-          .align(alignment = CenterVertically)
-      ) {
+      Column(modifier = modifier.padding(start = 16.dp).align(alignment = CenterVertically)) {
         Row(verticalAlignment = CenterVertically) {
           Text(text = stringResource(id = detail.mutation.syncStatus.toLabel()), fontSize = 11.sp)
           Spacer(modifier = Modifier.width(10.dp))
@@ -98,10 +90,7 @@ fun SyncListItem(modifier: Modifier, detail: MutationDetail) {
             imageVector = ImageVector.vectorResource(id = detail.mutation.syncStatus.toIcon()),
             contentDescription = "",
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-              .padding(1.dp)
-              .width(24.dp)
-              .height(24.dp),
+            modifier = Modifier.padding(1.dp).width(24.dp).height(24.dp),
           )
         }
       }
@@ -138,10 +127,8 @@ private fun Mutation.SyncStatus.toIcon(): Int =
   when (this) {
     Mutation.SyncStatus.MEDIA_UPLOAD_AWAITING_RETRY,
     Mutation.SyncStatus.PENDING -> R.drawable.baseline_hourglass_empty_24
-
     Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS,
     Mutation.SyncStatus.IN_PROGRESS -> R.drawable.ic_sync
-
     Mutation.SyncStatus.MEDIA_UPLOAD_PENDING -> R.drawable.baseline_check_24
     Mutation.SyncStatus.COMPLETED -> R.drawable.outline_done_all_24
     Mutation.SyncStatus.FAILED -> R.drawable.outline_error_outline_24
@@ -157,14 +144,12 @@ fun PreviewSyncListItem(
       loiLabel = "Map the farms",
       loiSubtitle = "IDX21311",
       mutation =
-      SubmissionMutation(
-        job = Job(id = "123"),
-        syncStatus = Mutation.SyncStatus.PENDING,
-        collectionId = "example",
-      ),
+        SubmissionMutation(
+          job = Job(id = "123"),
+          syncStatus = Mutation.SyncStatus.PENDING,
+          collectionId = "example",
+        ),
     )
 ) {
-  AppTheme {
-    SyncListItem(Modifier, detail)
-  }
+  AppTheme { SyncListItem(Modifier, detail) }
 }
