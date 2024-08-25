@@ -23,16 +23,15 @@ import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.util.toMb
 import com.google.android.ground.util.toMbString
-import javax.inject.Inject
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import javax.inject.Inject
 
 /**
  * View model for the offline area manager fragment. Handles the current list of downloaded areas.
  */
 class OfflineAreasViewModel
-@Inject
-internal constructor(
+@Inject internal constructor(
   private val navigator: Navigator,
   private val offlineAreaRepository: OfflineAreaRepository,
 ) : AbstractViewModel() {
@@ -42,29 +41,27 @@ internal constructor(
    * unexpected error accessing the local store is encountered, emits an empty list, circumventing
    * the error.
    */
-  val offlineAreas: LiveData<List<OfflineAreaListItemViewModel>>
+  val offlineAreas: LiveData<List<OfflineAreaDetails>>
 
   val showList: LiveData<Boolean>
   val showNoAreasMessage: LiveData<Boolean>
   val showProgressSpinner: LiveData<Boolean>
 
   init {
-    val offlineAreas = offlineAreaRepository.offlineAreas().map { toViewModel(it) }
+    val offlineAreas =
+      offlineAreaRepository.offlineAreas().map { list -> list.map { toOfflineAreaDetails(it) } }
     this.offlineAreas = offlineAreas.asLiveData()
     showProgressSpinner = offlineAreas.map { false }.onStart { emit(true) }.asLiveData()
     showNoAreasMessage = offlineAreas.map { it.isEmpty() }.onStart { emit(false) }.asLiveData()
     showList = offlineAreas.map { it.isNotEmpty() }.onStart { emit(false) }.asLiveData()
   }
 
-  private fun toViewModel(offlineAreas: List<OfflineArea>): List<OfflineAreaListItemViewModel> =
-    offlineAreas.map { toViewModel(it) }
+  private fun toOfflineAreaDetails(offlineArea: OfflineArea) = OfflineAreaDetails(
+    offlineArea, offlineArea.getSizeOnDevice()
+  )
 
-  private fun toViewModel(offlineArea: OfflineArea) =
-    OfflineAreaListItemViewModel(
-      navigator,
-      offlineArea,
-      offlineAreaRepository.sizeOnDevice(offlineArea).toMb().toMbString(),
-    )
+  private fun OfflineArea.getSizeOnDevice() =
+    offlineAreaRepository.sizeOnDevice(this).toMb().toMbString()
 
   /** Navigate to the area selector for offline map imagery. */
   fun showOfflineAreaSelector() {

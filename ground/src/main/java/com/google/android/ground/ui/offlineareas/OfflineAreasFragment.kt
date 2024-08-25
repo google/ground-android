@@ -81,7 +81,7 @@ class OfflineAreasFragment : AbstractFragment() {
         items(it) {
           OfflineAreaListItem(
             modifier = Modifier.semantics { testTag = "item ${it.area.id}" },
-            itemViewModel = it,
+            offlineAreaDetails = it,
           ) {
             navigator.navigate(OfflineAreasFragmentDirections.viewOfflineArea(it.area.id))
           }

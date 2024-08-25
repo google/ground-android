@@ -46,14 +46,11 @@ import com.google.android.ground.ui.theme.AppTheme
 
 @Composable
 fun OfflineAreaListItem(
-  modifier: Modifier,
-  itemViewModel: OfflineAreaListItemViewModel,
-  itemClicked: () -> Unit = {}
+  modifier: Modifier, offlineAreaDetails: OfflineAreaDetails, itemClicked: () -> Unit = {}
 ) {
   Column {
     Row(
-      modifier =
-      modifier
+      modifier = modifier
         .fillMaxWidth()
         .padding(start = 16.dp, top = 4.dp, end = 24.dp, bottom = 4.dp)
         .clickable { itemClicked() },
@@ -77,7 +74,7 @@ fun OfflineAreaListItem(
       ) {
 
         Text(
-          text = itemViewModel.areaName,
+          text = offlineAreaDetails.area.name,
           style = TextStyle(
             fontSize = 16.sp,
             lineHeight = 24.sp,
@@ -88,8 +85,7 @@ fun OfflineAreaListItem(
 
         Text(
           text = stringResource(
-            id = R.string.offline_area_list_item_size_on_disk_mb,
-            itemViewModel.sizeOnDisk
+            id = R.string.offline_area_list_item_size_on_disk_mb, offlineAreaDetails.sizeOnDisk
           ),
           style = TextStyle(
             fontSize = 16.sp,
@@ -106,19 +102,19 @@ fun OfflineAreaListItem(
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
 fun PreviewOfflineAreaListItem(
-  itemViewModel: OfflineAreaListItemViewModel = OfflineAreaListItemViewModel(
-    navigator = null,
-    area = OfflineArea(
-      id = "id",
-      state = OfflineArea.State.DOWNLOADED,
-      bounds = Bounds(Coordinates(10.0, 10.0), Coordinates(10.0, 10.0)),
-      name = "Region name, Country",
-      zoomRange = 0..10,
-    ),
-    sizeOnDisk = "12 MB",
-  )
 ) {
   AppTheme {
-    OfflineAreaListItem(Modifier, itemViewModel)
+    OfflineAreaListItem(
+      modifier = Modifier, offlineAreaDetails = OfflineAreaDetails(
+        area = OfflineArea(
+          id = "id",
+          state = OfflineArea.State.DOWNLOADED,
+          bounds = Bounds(Coordinates(10.0, 10.0), Coordinates(10.0, 10.0)),
+          name = "Region name, Country",
+          zoomRange = 0..10,
+        ),
+        sizeOnDisk = "12 MB",
+      )
+    )
   }
 }
