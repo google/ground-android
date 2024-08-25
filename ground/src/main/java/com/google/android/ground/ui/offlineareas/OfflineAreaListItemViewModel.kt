@@ -20,13 +20,13 @@ import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.ui.common.Navigator
 
 class OfflineAreaListItemViewModel(
-  private val navigator: Navigator,
+  private val navigator: Navigator?,
   val area: OfflineArea,
   val sizeOnDisk: String,
 ) {
   val areaName = area.name
 
   fun onClick() {
-    navigator.navigate(OfflineAreasFragmentDirections.viewOfflineArea(area.id))
+    navigator?.navigate(OfflineAreasFragmentDirections.viewOfflineArea(area.id))
   }
 }
