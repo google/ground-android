@@ -72,7 +72,7 @@ class OfflineAreasFragment : AbstractFragment() {
     list?.let {
       LazyColumn(Modifier.fillMaxSize().testTag("offline area list")) {
         items(it) {
-          OfflineAreaListItem(modifier = Modifier, offlineAreaDetails = it) { areaId ->
+          OfflineAreaListItem(offlineAreaDetails = it) { areaId ->
             navigator.navigate(OfflineAreasFragmentDirections.viewOfflineArea(areaId))
           }
         }

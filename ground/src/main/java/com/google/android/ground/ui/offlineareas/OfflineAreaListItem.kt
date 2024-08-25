@@ -20,9 +20,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,7 +42,7 @@ import com.google.android.ground.ui.theme.AppTheme
 
 @Composable
 fun OfflineAreaListItem(
-  modifier: Modifier,
+  modifier: Modifier = Modifier,
   offlineAreaDetails: OfflineAreaDetails,
   itemClicked: (areaId: String) -> Unit = {},
 ) {
@@ -61,7 +60,7 @@ fun OfflineAreaListItem(
         imageVector = ImageVector.vectorResource(id = R.drawable.ic_offline_pin),
         contentDescription = stringResource(id = R.string.offline_area_list_item_icon),
         tint = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.width(24.dp).height(24.dp),
+        modifier = Modifier.size(24.dp),
       )
 
       Column(
@@ -104,9 +103,8 @@ fun OfflineAreaListItem(
 fun PreviewOfflineAreaListItem() {
   AppTheme {
     OfflineAreaListItem(
-      modifier = Modifier,
       offlineAreaDetails =
-        OfflineAreaDetails(id = "id", name = "Region name, Country", sizeOnDisk = "12 MB"),
+        OfflineAreaDetails(id = "id", name = "Region name, Country", sizeOnDisk = "12 MB")
     )
   }
 }
