@@ -27,8 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTag
 import com.google.android.ground.databinding.OfflineAreasFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.Navigator
@@ -74,10 +72,7 @@ class OfflineAreasFragment : AbstractFragment() {
     list?.let {
       LazyColumn(Modifier.fillMaxSize().testTag("offline area list")) {
         items(it) {
-          OfflineAreaListItem(
-            modifier = Modifier.semantics { testTag = "item ${it.id}" },
-            offlineAreaDetails = it,
-          ) { areaId ->
+          OfflineAreaListItem(modifier = Modifier, offlineAreaDetails = it) { areaId ->
             navigator.navigate(OfflineAreasFragmentDirections.viewOfflineArea(areaId))
           }
         }

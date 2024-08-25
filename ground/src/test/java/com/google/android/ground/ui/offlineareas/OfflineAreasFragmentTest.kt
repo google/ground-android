@@ -15,31 +15,39 @@
  */
 package com.google.android.ground.ui.offlineareas
 
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.onChildAt
+import androidx.compose.ui.test.onChildren
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
-import com.google.android.ground.util.recyclerview.atPositionOnView
 import com.sharedtest.FakeData.OFFLINE_AREA
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class OfflineAreasFragmentTest : BaseHiltTest() {
 
   private lateinit var fragment: OfflineAreasFragment
+
   @Inject lateinit var localOfflineAreaStore: LocalOfflineAreaStore
 
   @Before
@@ -67,34 +75,19 @@ class OfflineAreasFragmentTest : BaseHiltTest() {
   @Test
   fun `List is Displayed`() = runWithTestDispatcher {
     localOfflineAreaStore.insertOrUpdate(OFFLINE_AREA)
-
     advanceUntilIdle()
-    onView(withId(R.id.offline_areas_list)).check(matches(isDisplayed()))
 
-    verifyTextOnOfflineAreasListItemAtPosition(
-      itemPosition = 0,
-      targetView = R.id.offline_area_list_item_name,
-      stringToMatch = "Test Area",
-    )
-    verifyTextOnOfflineAreasListItemAtPosition(
-      itemPosition = 0,
-      targetView = R.id.offline_area_list_item_size,
-      stringToMatch = "<1\u00A0MB",
-    )
-  }
+    with(composeTestRule.onNodeWithTag("offline area list")) {
+      // List is displayed
+      assertIsDisplayed()
 
-  private fun verifyTextOnOfflineAreasListItemAtPosition(
-    itemPosition: Int,
-    targetView: Int,
-    stringToMatch: String,
-  ) {
-    onView(
-        atPositionOnView(
-          recyclerViewId = R.id.offline_areas_list,
-          position = itemPosition,
-          targetViewId = targetView,
-        )
-      )
-      .check(matches(withText(stringToMatch)))
+      // Has exactly one item
+      onChildren().assertCountEquals(1)
+
+      // Matches item's text
+      onChildAt(0).isDisplayed()
+      composeTestRule.onNodeWithText("Test Area").isDisplayed()
+      composeTestRule.onNodeWithText("<1\u00A0MB").isDisplayed()
+    }
   }
 }
