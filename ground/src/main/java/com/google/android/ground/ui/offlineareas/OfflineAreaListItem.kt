@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.offlineareas
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,13 +45,18 @@ import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.theme.AppTheme
 
 @Composable
-fun OfflineAreaListItem(modifier: Modifier, itemViewModel: OfflineAreaListItemViewModel) {
+fun OfflineAreaListItem(
+  modifier: Modifier,
+  itemViewModel: OfflineAreaListItemViewModel,
+  itemClicked: () -> Unit = {}
+) {
   Column {
     Row(
       modifier =
       modifier
         .fillMaxWidth()
-        .padding(start = 16.dp, top = 4.dp, end = 24.dp, bottom = 4.dp),
+        .padding(start = 16.dp, top = 4.dp, end = 24.dp, bottom = 4.dp)
+        .clickable { itemClicked() },
       horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
       verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -94,8 +100,6 @@ fun OfflineAreaListItem(modifier: Modifier, itemViewModel: OfflineAreaListItemVi
         )
       }
     }
-
-    // TODO: Handle clicks
   }
 }
 

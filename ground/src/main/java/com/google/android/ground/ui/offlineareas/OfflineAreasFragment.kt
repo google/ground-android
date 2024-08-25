@@ -19,6 +19,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -78,7 +79,9 @@ class OfflineAreasFragment : AbstractFragment() {
           OfflineAreaListItem(
             modifier = Modifier.semantics { testTag = "item ${it.area.id}" },
             itemViewModel = it,
-          )
+          ) {
+            Toast.makeText(context, "Item clicked, id: ${it.area.id}", Toast.LENGTH_SHORT).show()
+          }
         }
       }
     }
