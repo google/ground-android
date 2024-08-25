@@ -16,6 +16,4 @@
 
 package com.google.android.ground.ui.offlineareas
 
-import com.google.android.ground.model.imagery.OfflineArea
-
-data class OfflineAreaDetails(val area: OfflineArea, val sizeOnDisk: String)
+data class OfflineAreaDetails(val id: String, val name: String, val sizeOnDisk: String)

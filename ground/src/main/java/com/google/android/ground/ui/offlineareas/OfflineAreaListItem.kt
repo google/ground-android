@@ -39,16 +39,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.ground.R
-import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.model.imagery.OfflineArea
-import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.theme.AppTheme
 
 @Composable
 fun OfflineAreaListItem(
   modifier: Modifier,
   offlineAreaDetails: OfflineAreaDetails,
-  itemClicked: () -> Unit = {},
+  itemClicked: (areaId: String) -> Unit = {},
 ) {
   Column {
     Row(
@@ -56,7 +53,7 @@ fun OfflineAreaListItem(
         modifier
           .fillMaxWidth()
           .padding(start = 16.dp, top = 4.dp, end = 24.dp, bottom = 4.dp)
-          .clickable { itemClicked() },
+          .clickable { itemClicked(offlineAreaDetails.id) },
       horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
       verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -73,7 +70,7 @@ fun OfflineAreaListItem(
         horizontalAlignment = Alignment.Start,
       ) {
         Text(
-          text = offlineAreaDetails.area.name,
+          text = offlineAreaDetails.name,
           style =
             TextStyle(
               fontSize = 16.sp,
@@ -109,17 +106,7 @@ fun PreviewOfflineAreaListItem() {
     OfflineAreaListItem(
       modifier = Modifier,
       offlineAreaDetails =
-        OfflineAreaDetails(
-          area =
-            OfflineArea(
-              id = "id",
-              state = OfflineArea.State.DOWNLOADED,
-              bounds = Bounds(Coordinates(10.0, 10.0), Coordinates(10.0, 10.0)),
-              name = "Region name, Country",
-              zoomRange = 0..10,
-            ),
-          sizeOnDisk = "12 MB",
-        ),
+        OfflineAreaDetails(id = "id", name = "Region name, Country", sizeOnDisk = "12 MB"),
     )
   }
 }
