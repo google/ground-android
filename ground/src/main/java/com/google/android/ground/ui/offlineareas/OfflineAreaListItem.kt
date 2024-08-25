@@ -59,7 +59,7 @@ fun OfflineAreaListItem(
     ) {
       Icon(
         imageVector = ImageVector.vectorResource(id = R.drawable.ic_offline_pin),
-        contentDescription = "",
+        contentDescription = stringResource(id = R.string.offline_area_list_item_icon),
         tint = MaterialTheme.colorScheme.primary,
         modifier = Modifier.width(24.dp).height(24.dp),
       )
