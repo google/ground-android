@@ -23,9 +23,9 @@ import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.util.toMb
 import com.google.android.ground.util.toMbString
+import javax.inject.Inject
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
-import javax.inject.Inject
 
 /**
  * View model for the offline area manager fragment. Handles the current list of downloaded areas.
