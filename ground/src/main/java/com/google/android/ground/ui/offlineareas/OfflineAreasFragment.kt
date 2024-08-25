@@ -19,7 +19,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -32,8 +31,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import com.google.android.ground.databinding.OfflineAreasFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Fragment containing a list of downloaded areas on the device. An area is a set of offline raster
@@ -43,6 +44,8 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class OfflineAreasFragment : AbstractFragment() {
 
+  @Inject
+  lateinit var navigator: Navigator
   private lateinit var viewModel: OfflineAreasViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,7 +83,7 @@ class OfflineAreasFragment : AbstractFragment() {
             modifier = Modifier.semantics { testTag = "item ${it.area.id}" },
             itemViewModel = it,
           ) {
-            Toast.makeText(context, "Item clicked, id: ${it.area.id}", Toast.LENGTH_SHORT).show()
+            navigator.navigate(OfflineAreasFragmentDirections.viewOfflineArea(it.area.id))
           }
         }
       }
