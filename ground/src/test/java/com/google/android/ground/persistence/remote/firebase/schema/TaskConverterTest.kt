@@ -169,6 +169,7 @@ class TaskConverterTest(
           taskType = Type.PHOTO,
         ),
       )
+
     /** Help to improve readability by provided named args for positional test constructor args. */
     private fun testCase(
       testLabel: String,
