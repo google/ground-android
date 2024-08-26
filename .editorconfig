@@ -3,7 +3,7 @@ charset = utf-8
 end_of_line = lf
 insert_final_newline = false
 indent_style = space
-indent_size = 2
+indent_size = 4
 
 [{*.jhm,*.rng,*.wsdl,*.fxml,*.xslt,*.jrxml,*.ant,*.xul,*.xsl,*.xsd,*.tld,*.jnlp,*.xml}]
 indent_size = 2
