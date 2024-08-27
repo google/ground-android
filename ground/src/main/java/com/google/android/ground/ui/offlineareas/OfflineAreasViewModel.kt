@@ -42,29 +42,26 @@ internal constructor(
    * unexpected error accessing the local store is encountered, emits an empty list, circumventing
    * the error.
    */
-  val offlineAreas: LiveData<List<OfflineAreaListItemViewModel>>
+  val offlineAreas: LiveData<List<OfflineAreaDetails>>
 
   val showList: LiveData<Boolean>
   val showNoAreasMessage: LiveData<Boolean>
   val showProgressSpinner: LiveData<Boolean>
 
   init {
-    val offlineAreas = offlineAreaRepository.offlineAreas().map { toViewModel(it) }
+    val offlineAreas =
+      offlineAreaRepository.offlineAreas().map { list -> list.map { toOfflineAreaDetails(it) } }
     this.offlineAreas = offlineAreas.asLiveData()
     showProgressSpinner = offlineAreas.map { false }.onStart { emit(true) }.asLiveData()
     showNoAreasMessage = offlineAreas.map { it.isEmpty() }.onStart { emit(false) }.asLiveData()
     showList = offlineAreas.map { it.isNotEmpty() }.onStart { emit(false) }.asLiveData()
   }
 
-  private fun toViewModel(offlineAreas: List<OfflineArea>): List<OfflineAreaListItemViewModel> =
-    offlineAreas.map { toViewModel(it) }
+  private fun toOfflineAreaDetails(offlineArea: OfflineArea) =
+    OfflineAreaDetails(offlineArea.id, offlineArea.name, offlineArea.getSizeOnDevice())
 
-  private fun toViewModel(offlineArea: OfflineArea) =
-    OfflineAreaListItemViewModel(
-      navigator,
-      offlineArea,
-      offlineAreaRepository.sizeOnDevice(offlineArea).toMb().toMbString(),
-    )
+  private fun OfflineArea.getSizeOnDevice() =
+    offlineAreaRepository.sizeOnDevice(this).toMb().toMbString()
 
   /** Navigate to the area selector for offline map imagery. */
   fun showOfflineAreaSelector() {
