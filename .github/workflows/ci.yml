@@ -43,6 +43,11 @@ jobs:
       - name: Run code quality checks
         run: ./gradlew checkCode
 
-  #       TODO(#2670) : Upload codecov reports
-  #      - name: Generate codecov report
-  #        run: ./gradlew jacocoDevDebugUnitTestReport
+      - name: Generate codecov report
+        run: ./gradlew jacocoLocalDebugUnitTestReport
+
+      - name: Upload coverage to Codecov
+        run: |
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov --verbose upload-process --fail-on-error -t ${{ secrets.CODECOV_TOKEN }} -n 'service'-${{ github.run_id }} -F service -f ground/build/reports/jacoco/jacocoLocalDebugUnitTestReport/jacocoLocalDebugUnitTestReport.xml

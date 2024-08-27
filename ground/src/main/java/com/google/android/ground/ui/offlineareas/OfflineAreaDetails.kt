@@ -16,17 +16,4 @@
 
 package com.google.android.ground.ui.offlineareas
 
-import com.google.android.ground.model.imagery.OfflineArea
-import com.google.android.ground.ui.common.Navigator
-
-class OfflineAreaListItemViewModel(
-  private val navigator: Navigator,
-  val area: OfflineArea,
-  val sizeOnDisk: String,
-) {
-  val areaName = area.name
-
-  fun onClick() {
-    navigator.navigate(OfflineAreasFragmentDirections.viewOfflineArea(area.id))
-  }
-}
+data class OfflineAreaDetails(val id: String, val name: String, val sizeOnDisk: String)

@@ -19,10 +19,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import com.google.android.ground.databinding.OfflineAreasFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Fragment containing a list of downloaded areas on the device. An area is a set of offline raster
@@ -32,14 +42,12 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class OfflineAreasFragment : AbstractFragment() {
 
-  private lateinit var offlineAreaListAdapter: OfflineAreaListAdapter
+  @Inject lateinit var navigator: Navigator
   private lateinit var viewModel: OfflineAreasViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(OfflineAreasViewModel::class.java)
-    offlineAreaListAdapter = OfflineAreaListAdapter()
-    viewModel.offlineAreas.observe(this) { offlineAreaListAdapter.update(it) }
   }
 
   override fun onCreateView(
@@ -51,13 +59,24 @@ class OfflineAreasFragment : AbstractFragment() {
     val binding = OfflineAreasFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
+    binding.offlineAreasListComposeView.setContent { AppTheme { ShowOfflineAreas() } }
 
     getAbstractActivity().setSupportActionBar(binding.offlineAreasToolbar)
 
-    val recyclerView = binding.offlineAreasList
-    recyclerView.setHasFixedSize(true)
-    recyclerView.layoutManager = LinearLayoutManager(context)
-    recyclerView.adapter = offlineAreaListAdapter
     return binding.root
+  }
+
+  @Composable
+  private fun ShowOfflineAreas() {
+    val list by viewModel.offlineAreas.observeAsState()
+    list?.let {
+      LazyColumn(Modifier.fillMaxSize().testTag("offline area list")) {
+        items(it) {
+          OfflineAreaListItem(offlineAreaDetails = it) { areaId ->
+            navigator.navigate(OfflineAreasFragmentDirections.viewOfflineArea(areaId))
+          }
+        }
+      }
+    }
   }
 }
