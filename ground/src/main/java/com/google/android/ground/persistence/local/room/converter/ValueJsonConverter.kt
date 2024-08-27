@@ -33,10 +33,6 @@ import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.ACCURACY_KEY
 import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.ALTITUDE_KEY
 import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.GEOMETRY_KEY
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
 import kotlinx.collections.immutable.toPersistentList
 import org.json.JSONArray
 import org.json.JSONException
@@ -45,16 +41,14 @@ import timber.log.Timber
 
 internal object ValueJsonConverter {
 
-  private const val ISO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mmZ"
-
   fun toJsonObject(taskData: TaskData?): Any {
     if (taskData == null) return JSONObject.NULL
     return when (taskData) {
       is TextTaskData -> taskData.text
       is MultipleChoiceTaskData -> toJsonArray(taskData)
       is NumberTaskData -> taskData.value
-      is DateTaskData -> dateToIsoString(taskData.date)
-      is TimeTaskData -> dateToIsoString(taskData.time)
+      is DateTaskData -> taskData.formattedDate
+      is TimeTaskData -> taskData.time
       is PhotoTaskData -> taskData.remoteFilename
       is DrawAreaTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is DropPinTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
@@ -67,16 +61,6 @@ internal object ValueJsonConverter {
       else -> throw UnsupportedOperationException("Unimplemented value class ${taskData.javaClass}")
     }
   }
-
-  private fun dateToIsoString(date: Date): String =
-    SimpleDateFormat(ISO_DATE_TIME_FORMAT, Locale.getDefault())
-      .apply { timeZone = TimeZone.getTimeZone("UTC") }
-      .format(date)
-
-  private fun isoStringToDate(isoString: String): Date? =
-    SimpleDateFormat(ISO_DATE_TIME_FORMAT, Locale.getDefault())
-      .apply { timeZone = TimeZone.getTimeZone("UTC") }
-      .parse(isoString)
 
   private fun toJsonArray(response: MultipleChoiceTaskData): JSONArray =
     JSONArray().apply { response.selectedOptionIds.forEach { this.put(it) } }
@@ -105,11 +89,11 @@ internal object ValueJsonConverter {
       }
       Task.Type.DATE -> {
         DataStoreException.checkType(String::class.java, obj)
-        DateTaskData.fromDate(isoStringToDate(obj as String))
+        DateTaskData.fromDate(obj as String, 0L) // Need to check the type of obj
       }
       Task.Type.TIME -> {
         DataStoreException.checkType(String::class.java, obj)
-        TimeTaskData.fromDate(isoStringToDate(obj as String))
+        TimeTaskData.fromDate(obj as String, 0L) // Need to check the type of obj
       }
       Task.Type.DRAW_AREA -> {
         DataStoreException.checkType(String::class.java, obj)

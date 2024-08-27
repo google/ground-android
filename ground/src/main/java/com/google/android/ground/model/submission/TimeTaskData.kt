@@ -24,19 +24,13 @@ import kotlinx.serialization.Serializable
 
 /** A user-provided response to a time question task. */
 @Serializable
-data class TimeTaskData(val time: @Contextual Date) : TaskData {
-  // TODO(#752): Use device localization preferences.
-  private val timeFormat: @Contextual DateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+data class TimeTaskData(val formattedDate: @Contextual String, val time: Long) : TaskData {
+  override fun getDetailsText(): String = formattedDate
 
-  override fun getDetailsText(): String =
-    synchronized(timeFormat) {
-      return timeFormat.format(time)
-    }
-
-  override fun isEmpty(): Boolean = time.time == 0L
+  override fun isEmpty(): Boolean = time == 0L
 
   companion object {
-    fun fromDate(time: Date?): TaskData? =
-      if (time == null || time.time == 0L) null else TimeTaskData(time)
+    fun fromDate(formattedDate: String, time: Long): TaskData =
+      TimeTaskData(formattedDate, time)
   }
 }
