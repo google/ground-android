@@ -45,6 +45,7 @@ import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.ui.theme.AppTheme
 import java.util.Date
 
 @Composable
@@ -150,5 +151,5 @@ fun PreviewSyncListItem(
         ),
     )
 ) {
-  SyncListItem(Modifier, detail)
+  AppTheme { SyncListItem(Modifier, detail) }
 }

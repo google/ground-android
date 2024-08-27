@@ -67,8 +67,8 @@
         android:textColor="?attr/colorOnSurfaceVariant" />
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-      android:id="@+id/offline_areas_list"
+    <androidx.compose.ui.platform.ComposeView
+      android:id="@+id/offline_areas_list_compose_view"
       android:layout_width="0dp"
       android:layout_height="0dp"
       android:layout_marginTop="16dp"
@@ -97,11 +97,11 @@
       android:layout_width="200dp"
       android:layout_height="200dp"
       android:contentDescription="@string/offline_map_imagery_no_areas_downloaded_image"
+      app:layout_constraintBottom_toTopOf="@+id/no_areas_downloaded_message"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintBottom_toTopOf="@+id/no_areas_downloaded_message"
       app:srcCompat="@drawable/offline_map_imagery"
-      app:visible="@{viewModel.showNoAreasMessage}"/>
+      app:visible="@{viewModel.showNoAreasMessage}" />
     <TextView
       android:id="@+id/no_areas_downloaded_message"
       style="@style/TextAppearance.App.BodyMedium"
