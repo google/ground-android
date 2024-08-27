@@ -25,8 +25,8 @@ tasks.withType(Test).configureEach {
     jacoco.excludes = ['jdk.internal.*']
 }
 
-tasks.register('jacocoDevDebugUnitTestReport', JacocoReport) {
-    dependsOn 'testDevDebugUnitTest'
+tasks.register('jacocoLocalDebugUnitTestReport', JacocoReport) {
+    dependsOn 'testLocalDebugUnitTest'
     group = "Reporting"
     description = "Run tests and generate coverage reports"
     reports {
@@ -35,7 +35,7 @@ tasks.register('jacocoDevDebugUnitTestReport', JacocoReport) {
         html.required = true
     }
     classDirectories.from = fileTree(
-        dir: 'build/intermediates/classes/devDebug/transformDevDebugClassesWithAsm/dirs/com/google/android/ground',
+        dir: 'build/intermediates/classes/localDebug/transformLocalDebugClassesWithAsm/dirs/com/google/android/ground',
         excludes: [
             '**/databinding/*',
             '**/local/room/dao/*',
@@ -110,5 +110,5 @@ tasks.register('jacocoDevDebugUnitTestReport', JacocoReport) {
         ]
     )
     sourceDirectories.from = files('src/main/java/com/google/android/ground')
-    executionData.from = files('build/jacoco/testDevDebugUnitTest.exec')
+    executionData.from = files('build/jacoco/testLocalDebugUnitTest.exec')
 }
