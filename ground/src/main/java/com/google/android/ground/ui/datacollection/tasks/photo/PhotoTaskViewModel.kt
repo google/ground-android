@@ -19,8 +19,8 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Matrix
-import android.media.ExifInterface
 import android.net.Uri
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.model.submission.PhotoTaskData
@@ -31,7 +31,6 @@ import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.util.BitmapUtil
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.IOException
-import java.lang.UnsupportedOperationException
 import javax.inject.Inject
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
@@ -93,6 +92,7 @@ constructor(
    */
   private fun getRotationDegrees(orientation: Int): Float =
     when (orientation) {
+      ExifInterface.ORIENTATION_UNDEFINED,
       ExifInterface.ORIENTATION_NORMAL -> 0f
       ExifInterface.ORIENTATION_ROTATE_90 -> 90f
       ExifInterface.ORIENTATION_ROTATE_180 -> 180f
