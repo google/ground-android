@@ -79,7 +79,7 @@ constructor(
       val bitmap = rotateBitmap(bitmapUtil.fromUri(uri), rotateDegrees)
       val file = userMediaRepository.savePhoto(bitmap, currentTask)
       userMediaRepository.addImageToGallery(file.absolutePath, file.name)
-      val remoteFilename = FirebaseStorageManager.getRemoteMediaPath(surveyId, file.absolutePath)
+      val remoteFilename = FirebaseStorageManager.getRemoteMediaPath(surveyId, file.name)
       setValue(PhotoTaskData(remoteFilename))
     } catch (e: IOException) {
       Timber.e(e, "Error getting photo selected from storage")
