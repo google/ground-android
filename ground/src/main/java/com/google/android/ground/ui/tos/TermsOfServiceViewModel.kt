@@ -28,6 +28,7 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import javax.inject.Inject
 import kotlinx.coroutines.TimeoutCancellationException
+import timber.log.Timber
 
 class TermsOfServiceViewModel
 @Inject
@@ -46,8 +47,13 @@ constructor(
     } catch (e: Throwable) {
       when (e) {
         is DataStoreException,
-        is TimeoutCancellationException -> onGetTosFailure()
-        else -> throw e
+        is TimeoutCancellationException -> {
+          onGetTosFailure()
+        }
+        else -> {
+          Timber.e("Unexpected error: ${e.message}")
+          onGetTosFailure()
+        }
       }
     }
   }
