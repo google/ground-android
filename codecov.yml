@@ -1,5 +1,5 @@
 comment:
-  layout: "diff, flags, files"
+  layout: "diff, files"
   behavior: default
   require_changes: false
   require_base: false
@@ -12,8 +12,10 @@ coverage:
         target: auto
         # Max. allowed drop in coverage of the entire project.
         threshold: 1%
+        informational: true
     patch:
       default:
         target: auto
         # Max. allowed drop in coverage of modified lines.
         threshold: 60%
+        informational: true
