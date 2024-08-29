@@ -39,9 +39,9 @@ import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.android.gms.maps.model.TileProvider
 import com.google.android.ground.Config
 import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.model.imagery.LocalTileSource
+import com.google.android.ground.model.imagery.RemoteMogTileSource
 import com.google.android.ground.model.imagery.TileSource
-import com.google.android.ground.model.imagery.TileSource.Type.MOG_COLLECTION
-import com.google.android.ground.model.imagery.TileSource.Type.TILED_WEB_MAP
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.map.Bounds
@@ -212,8 +212,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       shouldAnimate,
     )
 
-  override fun moveCamera(bounds: Bounds, shouldAnimate: Boolean) =
-    moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), 100), shouldAnimate)
+  override fun moveCamera(bounds: Bounds, padding: Int, shouldAnimate: Boolean) =
+    moveCamera(
+      CameraUpdateFactory.newLatLngBounds(bounds.toGoogleMapsObject(), padding),
+      shouldAnimate,
+    )
 
   private fun moveCamera(cameraUpdate: CameraUpdate, shouldAnimate: Boolean) =
     if (shouldAnimate) map.animateCamera(cameraUpdate) else map.moveCamera(cameraUpdate)
@@ -263,18 +266,17 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
+  override fun addTileOverlay(source: TileSource) =
+    when (source) {
+      is LocalTileSource -> addLocalTileOverlay(source.localFilePath, source.clipBounds)
+      is RemoteMogTileSource -> addRemoteMogTileOverlay(source.remotePath)
+    }
+
   private fun addLocalTileOverlay(url: String, bounds: List<Bounds>) {
     addTileOverlay(
       ClippingTileProvider(TemplateUrlTileProvider(url), bounds.map { it.toGoogleMapsObject() })
     )
   }
-
-  override fun addTileOverlay(source: TileSource) =
-    when (source.type) {
-      MOG_COLLECTION -> addRemoteMogTileOverlay(source.url)
-      TILED_WEB_MAP -> addLocalTileOverlay(source.url, source.clipBounds)
-      else -> error("Unsupported tile source type ${source.type}")
-    }
 
   private fun addRemoteMogTileOverlay(url: String) {
     // TODO(#1730): Make sub-paths configurable and stop hardcoding here.

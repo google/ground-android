@@ -141,9 +141,10 @@ constructor(
     locationOfInterestMutations: List<LocationOfInterestMutation>,
     submissionMutations: List<SubmissionMutation>,
   ): List<Mutation> =
-    (locationOfInterestMutations + submissionMutations).sortedWith(
-      Mutation.byDescendingClientTimestamp()
-    )
+    (locationOfInterestMutations + submissionMutations)
+      .groupBy { it.collectionId }
+      .map { it.value.reduce { a, b -> if (a.clientTimestamp > b.clientTimestamp) a else b } }
+      .sortedWith(Mutation.byDescendingClientTimestamp())
 }
 
 // TODO(#2119): Refactor this and the related markAs* methods out of this repository. Workers will

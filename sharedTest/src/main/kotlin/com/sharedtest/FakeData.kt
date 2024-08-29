@@ -33,6 +33,9 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.proto.Survey.DataSharingTerms
+import com.google.android.ground.proto.SurveyKt.dataSharingTerms
+import com.google.android.ground.proto.copy
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
@@ -62,6 +65,11 @@ object FakeData {
 
   val USER = User("user_id", "", "User")
 
+  val DATA_SHARING_TERMS = dataSharingTerms {
+    type = DataSharingTerms.Type.CUSTOM
+    customText = "## Introduction\n\nOnly one rule: **BE EXCELLENT TO ONE ANOTHER!**"
+  }
+
   val SURVEY: Survey =
     Survey(
       "SURVEY",
@@ -69,6 +77,7 @@ object FakeData {
       "Test survey description",
       mapOf(JOB.id to JOB),
       mapOf(USER.email to "DATA_COLLECTOR"),
+      DATA_SHARING_TERMS.copy {},
     )
 
   const val LOCATION_OF_INTEREST_NAME = "Test LOI Name"
@@ -151,6 +160,7 @@ object FakeData {
       surveyId = SURVEY_ID,
       clientTimestamp = Date(),
       properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
+      collectionId = "",
     )
 
   fun newAoiMutation(
@@ -169,5 +179,6 @@ object FakeData {
       surveyId = SURVEY_ID,
       clientTimestamp = Date(),
       properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
+      collectionId = "",
     )
 }

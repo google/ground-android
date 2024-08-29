@@ -33,7 +33,7 @@ import timber.log.Timber
  */
 const val SOURCE_FIELD = LocationOfInterestProto.SOURCE_FIELD_NUMBER.toString()
 /** Path of field on LOI documents representing the creator of the LOI. */
-const val CREATOR_FIELD = LocationOfInterestProto.OWNER_ID_FIELD_NUMBER.toString()
+const val OWNER_FIELD = LocationOfInterestProto.OWNER_ID_FIELD_NUMBER.toString()
 
 class LoiCollectionReference internal constructor(ref: CollectionReference) :
   FluentCollectionReference(ref) {
@@ -46,17 +46,17 @@ class LoiCollectionReference internal constructor(ref: CollectionReference) :
       // Use !=false rather than ==true to not break legacy dev surveys.
       // TODO(#2375): Switch to whereEqualTo(true) once legacy dev surveys deleted or migrated.
       val query =
-        reference().whereEqualTo(SOURCE_FIELD, LocationOfInterestProto.Source.IMPORTED.ordinal)
+        reference().whereEqualTo(SOURCE_FIELD, LocationOfInterestProto.Source.IMPORTED.number)
       toLois(survey, query.get().await())
     }
 
   /** Retrieves LOIs created by the specified email in the specified survey. Main-safe. */
-  suspend fun fetchUserDefined(survey: Survey, creatorEmail: String): List<LocationOfInterest> =
+  suspend fun fetchUserDefined(survey: Survey, ownerUserId: String): List<LocationOfInterest> =
     withContext(ioDispatcher) {
       val query =
         reference()
-          .whereEqualTo(SOURCE_FIELD, LocationOfInterestProto.Source.FIELD_DATA.ordinal)
-          .whereEqualTo(CREATOR_FIELD, creatorEmail)
+          .whereEqualTo(SOURCE_FIELD, LocationOfInterestProto.Source.FIELD_DATA.number)
+          .whereEqualTo(OWNER_FIELD, ownerUserId)
       toLois(survey, query.get().await())
     }
 

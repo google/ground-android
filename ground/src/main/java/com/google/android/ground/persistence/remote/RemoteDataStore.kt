@@ -37,16 +37,16 @@ interface RemoteDataStore {
   suspend fun loadSurvey(surveyId: String): Survey?
 
   /**
-   * Loads the survey terms from the remote data store. Returns `null` if the survey
-   * * is not found. Throws an error if the remote data store is not available.
+   * Loads the app terms from the remote data store. Returns `null` if is not found. Throws an error
+   * if the remote data store is not available.
    */
   suspend fun loadTermsOfService(): TermsOfService?
 
   /** Returns predefined LOIs in the specified survey. Main-safe. */
   suspend fun loadPredefinedLois(survey: Survey): List<LocationOfInterest>
 
-  /** Returns LOIs created by the specified email in the specified survey. Main-safe. */
-  suspend fun loadUserDefinedLois(survey: Survey, creatorEmail: String): List<LocationOfInterest>
+  /** Returns LOIs owned by the specified user in the specified survey. Main-safe. */
+  suspend fun loadUserLois(survey: Survey, ownerUserId: String): List<LocationOfInterest>
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one

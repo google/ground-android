@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground.util.view
 
-package com.google.android.ground.ui.offlineareas
+import android.view.View
+import androidx.test.espresso.matcher.BoundedMatcher
+import org.hamcrest.Description
+import org.hamcrest.Matcher
 
-import com.google.android.ground.model.imagery.OfflineArea
-import com.google.android.ground.ui.common.Navigator
+fun isGone(): Matcher<View> =
+  object : BoundedMatcher<View, View>(View::class.java) {
+    override fun describeTo(description: Description) {
+      description.appendText("view visibility must be GONE")
+    }
 
-class OfflineAreaListItemViewModel(
-  private val navigator: Navigator,
-  val area: OfflineArea,
-  val sizeOnDisk: String,
-) {
-  val areaName = area.name
-
-  fun onClick() {
-    navigator.navigate(OfflineAreasFragmentDirections.viewOfflineArea(area.id))
+    override fun matchesSafely(view: View): Boolean = view.visibility == View.GONE
   }
-}

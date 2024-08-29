@@ -25,11 +25,12 @@ import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
-import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.CameraUpdateRequest
 import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.NewCameraPositionViaBounds
+import com.google.android.ground.ui.map.NewCameraPositionViaCoordinates
+import com.google.android.ground.ui.map.NewCameraPositionViaCoordinatesAndZoomLevel
 import javax.inject.Inject
-import kotlin.math.max
 import kotlinx.coroutines.CoroutineDispatcher
 import timber.log.Timber
 
@@ -76,9 +77,9 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
     // Tile overlays.
     if (config.showOfflineImagery) {
-      viewModel.offlineTileSources.observe(viewLifecycleOwner) {
+      viewModel.offlineTileSources.observe(viewLifecycleOwner) { tileSource ->
         map.clearTileOverlays()
-        it.forEach(map::addTileOverlay)
+        tileSource?.let { map.addTileOverlay(it) }
       }
     }
 
@@ -105,7 +106,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   private fun onLocationLockStateChange(result: Result<Boolean>, map: MapFragment) {
     result.fold(
       onSuccess = {
-        Timber.d("Location lock: $it")
+        Timber.v("Location lock success: $it")
         if (it) {
           try {
             map.enableCurrentLocationIndicator()
@@ -131,39 +132,26 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   }
 
   /** Moves the camera to a given position. */
-  fun moveToPosition(
-    coordinates: Coordinates,
-    shouldAnimate: Boolean = true,
-    isAllowZoomOut: Boolean = false,
-  ) {
-    onCameraUpdateRequest(
-      CameraUpdateRequest(CameraPosition(coordinates), shouldAnimate, isAllowZoomOut),
-      map,
-    )
+  fun moveToPosition(coordinates: Coordinates) {
+    onCameraUpdateRequest(NewCameraPositionViaCoordinates(coordinates, shouldAnimate = true), map)
   }
 
-  private fun onCameraUpdateRequest(cameraUpdateRequest: CameraUpdateRequest, map: MapFragment) {
-    Timber.v("Update camera: $cameraUpdateRequest")
-    val newPosition = cameraUpdateRequest.cameraPosition
-    val shouldAnimate = cameraUpdateRequest.shouldAnimate
-    val isAllowZoomOut = cameraUpdateRequest.isAllowZoomOut
-    val bounds = newPosition.bounds
-    val target = newPosition.target
-    var zoomLevel = newPosition.zoomLevel
-
-    if (target != null && zoomLevel != null && !isAllowZoomOut) {
-      zoomLevel = max(zoomLevel, map.currentZoomLevel)
-    }
-
-    // TODO(#1712): Fix this once CameraPosition is refactored to not contain duplicated state
-    if (bounds != null) {
-      map.moveCamera(bounds, shouldAnimate)
-    } else if (target != null && zoomLevel != null) {
-      map.moveCamera(target, zoomLevel, shouldAnimate)
-    } else if (target != null) {
-      map.moveCamera(target, shouldAnimate)
-    } else {
-      error("Must have either target or bounds set")
+  private fun onCameraUpdateRequest(request: CameraUpdateRequest, map: MapFragment) {
+    Timber.v("Update camera: $request")
+    when (request) {
+      is NewCameraPositionViaCoordinates -> {
+        map.moveCamera(request.coordinates, request.shouldAnimate)
+      }
+      is NewCameraPositionViaCoordinatesAndZoomLevel -> {
+        map.moveCamera(
+          request.coordinates,
+          request.getZoomLevel(map.currentZoomLevel),
+          request.shouldAnimate,
+        )
+      }
+      is NewCameraPositionViaBounds -> {
+        map.moveCamera(request.bounds, request.padding, request.shouldAnimate)
+      }
     }
   }
 

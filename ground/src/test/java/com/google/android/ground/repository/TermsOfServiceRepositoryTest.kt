@@ -16,6 +16,7 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.system.NetworkManager
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestoreException
@@ -69,14 +70,16 @@ class TermsOfServiceRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testGetTermsOfService_whenOffline_returnsNull() = runBlocking {
+  fun testGetTermsOfService_whenOffline_throwsError() {
     whenever(mockNetworkManager.isNetworkConnected()).thenReturn(false)
     fakeRemoteDataStore.termsOfService =
       Result.failure(
         FirebaseFirestoreException("user error", FirebaseFirestoreException.Code.ABORTED)
       )
 
-    assertThat(termsOfServiceRepository.getTermsOfService()).isNull()
+    assertThrows(DataStoreException::class.java) {
+      runBlocking { termsOfServiceRepository.getTermsOfService() }
+    }
   }
 
   @Test

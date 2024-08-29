@@ -20,6 +20,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -33,20 +37,25 @@ import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.proto.Survey.DataSharingTerms
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
+import com.google.android.ground.ui.home.DataSharingTermsDialog
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -79,7 +88,21 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       val canUserSubmitData = userRepository.canUserSubmitData()
 
       // Handle collect button clicks
-      adapter.setCollectDataListener { onCollectData(canUserSubmitData, it) }
+      adapter.setCollectDataListener { mapCardUiData ->
+        val job =
+          lifecycleScope.launch {
+            mapContainerViewModel.activeSurveyDataSharingTermsFlow.cancellable().collectLatest {
+              hasDataSharingTerms ->
+              onCollectData(
+                canUserSubmitData,
+                hasValidTasks(mapCardUiData),
+                hasDataSharingTerms,
+                mapCardUiData,
+              )
+            }
+          }
+        job.cancel()
+      }
 
       // Bind data for cards
       mapContainerViewModel.getMapCardUiData().launchWhenStartedAndCollect { (mapCards, loiCount) ->
@@ -90,15 +113,66 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     map.featureClicks.launchWhenStartedAndCollect { mapContainerViewModel.onFeatureClicked(it) }
   }
 
+  private fun hasValidTasks(cardUiData: MapCardUiData) =
+    when (cardUiData) {
+      // LOI tasks are filtered out of the tasks list for pre-defined tasks.
+      is MapCardUiData.LoiCardUiData ->
+        cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
+      is MapCardUiData.AddLoiCardUiData -> cardUiData.job.tasks.values.isNotEmpty()
+    }
+
+  private fun renderDataSharingTermsDialog(
+    cardUiData: MapCardUiData,
+    dataSharingTerms: DataSharingTerms,
+  ) =
+    ComposeView(requireContext()).apply {
+      setContent {
+        val showDataSharingTermsDialog = remember { mutableStateOf(true) }
+        when {
+          showDataSharingTermsDialog.value -> {
+            AppTheme {
+              DataSharingTermsDialog(showDataSharingTermsDialog, dataSharingTerms) {
+                val job =
+                  lifecycleScope.launch { mapContainerViewModel.updateDataSharingConsent(true) }
+                job.cancel()
+                navigateToDataCollectionFragment(cardUiData)
+              }
+            }
+          }
+        }
+      }
+    }
+
   /** Invoked when user clicks on the map cards to collect data. */
-  private fun onCollectData(canUserSubmitData: Boolean, cardUiData: MapCardUiData) {
-    if (canUserSubmitData) {
-      navigateToDataCollectionFragment(cardUiData)
-    } else {
+  private fun onCollectData(
+    canUserSubmitData: Boolean,
+    hasTasks: Boolean,
+    hasDataSharingTerms: DataSharingTerms?,
+    cardUiData: MapCardUiData,
+  ) {
+    if (!canUserSubmitData) {
       // Skip data collection screen if the user can't submit any data
       // TODO(#1667): Revisit UX for displaying view only mode
       ephemeralPopups.ErrorPopup().show(getString(R.string.collect_data_viewer_error))
+      return
     }
+    if (!hasTasks) {
+      // NOTE(#2539): The DataCollectionFragment will crash if there are no tasks.
+      ephemeralPopups.ErrorPopup().show(getString(R.string.no_tasks_error))
+      return
+    }
+    if (hasDataSharingTerms != null) {
+      if (
+        hasDataSharingTerms.type == DataSharingTerms.Type.CUSTOM &&
+          hasDataSharingTerms.customText.isBlank()
+      ) {
+        ephemeralPopups.ErrorPopup().show(getString(R.string.invalid_data_sharing_terms))
+        return
+      }
+      (view as ViewGroup).addView(renderDataSharingTermsDialog(cardUiData, hasDataSharingTerms))
+      return
+    }
+    navigateToDataCollectionFragment(cardUiData)
   }
 
   /** Updates the given [TextView] with the submission count for the given [LocationOfInterest]. */

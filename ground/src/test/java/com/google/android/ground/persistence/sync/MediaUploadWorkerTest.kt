@@ -223,6 +223,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
         userId = FakeData.USER.id,
         job = FakeData.JOB,
         surveyId = FakeData.SURVEY.id,
+        collectionId = "collectionId",
         deltas =
           listOf(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, TextTaskData("foo/$PHOTO_TASK_ID.jpg"))),
       )

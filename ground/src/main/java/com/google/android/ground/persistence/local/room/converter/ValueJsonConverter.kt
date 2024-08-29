@@ -30,7 +30,6 @@ import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager
 import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.ACCURACY_KEY
 import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.ALTITUDE_KEY
 import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.GEOMETRY_KEY
@@ -56,8 +55,7 @@ internal object ValueJsonConverter {
       is NumberTaskData -> taskData.value
       is DateTaskData -> dateToIsoString(taskData.date)
       is TimeTaskData -> dateToIsoString(taskData.time)
-      is PhotoTaskData ->
-        FirebaseStorageManager.getRemoteMediaPath(taskData.surveyId, taskData.filename)
+      is PhotoTaskData -> taskData.remoteFilename
       is DrawAreaTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is DropPinTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is CaptureLocationTaskData ->
@@ -89,10 +87,13 @@ internal object ValueJsonConverter {
       return null
     }
     return when (task.type) {
-      Task.Type.TEXT,
-      Task.Type.PHOTO -> {
+      Task.Type.TEXT -> {
         DataStoreException.checkType(String::class.java, obj)
         TextTaskData.fromString(obj as String)
+      }
+      Task.Type.PHOTO -> {
+        DataStoreException.checkType(String::class.java, obj)
+        PhotoTaskData(obj as String)
       }
       Task.Type.MULTIPLE_CHOICE -> {
         DataStoreException.checkType(JSONArray::class.java, obj)

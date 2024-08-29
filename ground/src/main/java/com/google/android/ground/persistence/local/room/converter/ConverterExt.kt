@@ -42,6 +42,7 @@ import com.google.android.ground.persistence.local.room.relations.ConditionEntit
 import com.google.android.ground.persistence.local.room.relations.JobEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations
+import com.google.android.ground.proto.Survey.DataSharingTerms
 import com.google.android.ground.ui.map.Bounds
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
@@ -197,6 +198,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject() =
     retryCount = retryCount,
     newProperties = properties,
     isPredefined = isPredefined,
+    collectionId = collectionId,
   )
 
 fun LocationOfInterestMutationEntity.toModelObject() =
@@ -215,6 +217,7 @@ fun LocationOfInterestMutationEntity.toModelObject() =
     retryCount = retryCount,
     properties = newProperties,
     isPredefined = isPredefined,
+    collectionId = collectionId,
   )
 
 fun MultipleChoiceEntity.toModelObject(optionEntities: List<OptionEntity>): MultipleChoice {
@@ -343,6 +346,7 @@ fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
     lastError = lastError,
     userId = userId,
     clientTimestamp = Date(clientTimestamp),
+    collectionId = collectionId,
   )
 }
 
@@ -360,6 +364,7 @@ fun SubmissionMutation.toLocalDataStoreObject() =
     lastError = lastError,
     userId = userId,
     clientTimestamp = clientTimestamp.time,
+    collectionId = collectionId,
   )
 
 fun SurveyEntityAndRelations.toModelObject(): Survey {
@@ -371,6 +376,7 @@ fun SurveyEntityAndRelations.toModelObject(): Survey {
     surveyEntity.description!!,
     jobMap.toPersistentMap(),
     surveyEntity.acl?.toStringMap()!!,
+    surveyEntity.dataSharingTerms?.let { DataSharingTerms.parseFrom(surveyEntity.dataSharingTerms) },
   )
 }
 
@@ -386,6 +392,7 @@ fun Survey.toLocalDataStoreObject() =
     title = title,
     description = description,
     acl = JSONObject(acl as Map<*, *>),
+    dataSharingTerms = dataSharingTerms?.toByteArray(),
   )
 
 fun Task.toLocalDataStoreObject(jobId: String?) =

@@ -23,7 +23,6 @@ import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.MultiPolygon
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.model.locationofinterest.LoiProperties
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
@@ -103,7 +102,7 @@ fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest
   jobId = me.jobId
   submissionCount = me.submissionCount
   ownerId = me.userId
-  customTag = me.customId.ifEmpty { me.properties[LOI_NAME_PROPERTY]?.toString() ?: "" }
+  customTag = me.customId
 
   properties.putAll(me.properties.toMessageMap())
 
@@ -148,7 +147,7 @@ private fun ValueDelta.toMessage() = taskData {
         dateTime = timestamp { seconds = (newTaskData as TimeTaskData).time.time / 1000 }
       }
     Task.Type.MULTIPLE_CHOICE -> multipleChoiceResponses = multipleChoiceResponses {
-        (newTaskData as MultipleChoiceTaskData).selectedOptionIds.forEach {
+        (newTaskData as MultipleChoiceTaskData).getSelectedOptionsIdsExceptOther().forEach {
           selectedOptionIds.add(it)
         }
         if (newTaskData.hasOtherText()) {
@@ -167,7 +166,8 @@ private fun ValueDelta.toMessage() = taskData {
         // TODO: Add timestamp
       }
     Task.Type.PHOTO -> takePhotoResult = takePhotoResult {
-        photoPath = (newTaskData as PhotoTaskData).path
+        val data = newTaskData as PhotoTaskData
+        photoPath = data.remoteFilename
       }
     Task.Type.UNKNOWN -> error("Unknown task type")
   }
@@ -176,6 +176,7 @@ private fun ValueDelta.toMessage() = taskData {
 private fun createAuditInfoMessage(user: User, timestamp: Date) = auditInfo {
   userId = user.id
   displayName = user.displayName
+  emailAddress = user.email
   photoUrl = user.photoUrl ?: photoUrl
   clientTimestamp = timestamp.toMessage()
   serverTimestamp = timestamp.toMessage()

@@ -35,7 +35,7 @@ class PolygonRenderer @Inject constructor(resources: Resources) :
 
   override fun add(
     map: GoogleMap,
-    featureTag: Feature.Tag,
+    tag: Feature.Tag,
     geometry: Polygon,
     style: Feature.Style,
     selected: Boolean,
@@ -55,7 +55,7 @@ class PolygonRenderer @Inject constructor(resources: Resources) :
     }
 
     val mapsPolygon = map.addPolygon(options)
-    mapsPolygon.tag = featureTag
+    mapsPolygon.tag = tag
     return mapsPolygon
   }
 }

@@ -16,7 +16,9 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.Config
+import com.google.android.ground.model.imagery.LocalTileSource
 import com.google.android.ground.model.imagery.OfflineArea
+import com.google.android.ground.model.imagery.RemoteMogTileSource
 import com.google.android.ground.model.imagery.TileSource
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -34,7 +36,6 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -51,7 +52,6 @@ class OfflineAreaRepository
 @Inject
 constructor(
   private val localOfflineAreaStore: LocalOfflineAreaStore,
-  private val surveyRepository: SurveyRepository,
   private val fileUtil: FileUtil,
   private val geocodingManager: GeocodingManager,
   private val mogClient: MogClient,
@@ -103,31 +103,17 @@ constructor(
   // TODO(#1730): Generate local tiles path based on source base path.
   private fun getLocalTileSourcePath(): String = File(fileUtil.getFilesDir(), "tiles").path
 
-  fun getOfflineTileSourcesFlow() =
-    surveyRepository.activeSurveyFlow.combine(getOfflineAreaBounds()) { _, bounds ->
-      applyBounds(bounds)
-    }
+  fun getOfflineTileSourcesFlow(): Flow<TileSource> =
+    localOfflineAreaStore
+      .offlineAreas()
+      .map { list -> list.map { it.bounds } }
+      .map { bounds ->
+        LocalTileSource("file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg", bounds)
+      }
 
-  private fun applyBounds(bounds: List<Bounds>): List<TileSource> =
-    getDefaultTileSources().mapNotNull { tileSource -> toOfflineTileSource(tileSource, bounds) }
-
-  private fun toOfflineTileSource(tileSource: TileSource, clipBounds: List<Bounds>): TileSource? {
-    if (tileSource.type != TileSource.Type.MOG_COLLECTION) return null
-    return TileSource(
-      "file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg",
-      TileSource.Type.TILED_WEB_MAP,
-      clipBounds,
-    )
-  }
-
-  private fun getOfflineAreaBounds(): Flow<List<Bounds>> =
-    localOfflineAreaStore.offlineAreas().map { list -> list.map { it.bounds } }
-
-  /** Returns the default configured tile sources. */
-  fun getDefaultTileSources(): List<TileSource> =
-    listOf(
-      TileSource(url = Config.DEFAULT_MOG_TILE_LOCATION, type = TileSource.Type.MOG_COLLECTION)
-    )
+  /** Returns the default configured tile source. */
+  fun getRemoteTileSource(): TileSource =
+    RemoteMogTileSource(remotePath = Config.DEFAULT_MOG_TILE_LOCATION)
 
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
     val maxZoom = mogClient.collection.sources.maxZoom()

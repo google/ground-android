@@ -45,6 +45,7 @@ import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.ui.theme.AppTheme
 import java.util.Date
 
 @Composable
@@ -142,8 +143,13 @@ fun PreviewSyncListItem(
       user = "Jane Doe",
       loiLabel = "Map the farms",
       loiSubtitle = "IDX21311",
-      mutation = SubmissionMutation(job = Job(id = "123"), syncStatus = Mutation.SyncStatus.PENDING),
+      mutation =
+        SubmissionMutation(
+          job = Job(id = "123"),
+          syncStatus = Mutation.SyncStatus.PENDING,
+          collectionId = "example",
+        ),
     )
 ) {
-  SyncListItem(Modifier, detail)
+  AppTheme { SyncListItem(Modifier, detail) }
 }

@@ -36,6 +36,7 @@ import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 
 /**
@@ -58,20 +59,32 @@ constructor(
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
   suspend fun syncLocationsOfInterest(survey: Survey) {
     // TODO(#2384): Allow survey organizers to make ad hoc LOIs visible to all data collectors.
-    val creatorEmail = authenticationManager.getAuthenticatedUser().email
+    val ownerUserId = authenticationManager.getAuthenticatedUser().id
     val lois =
-      with(remoteDataStore) {
-        loadPredefinedLois(survey) + loadUserDefinedLois(survey, creatorEmail)
+      with(remoteDataStore) { loadPredefinedLois(survey) + loadUserLois(survey, ownerUserId) }
+    val loiMutations = localLoiStore.getAllSurveyMutations(survey).firstOrNull() ?: listOf()
+    // NOTE(#2652): Don't delete pending locations of interest, since we can accidentally delete
+    // them here if we get to this routine before they can be synced up to the remote database.
+    val pendingLois =
+      loiMutations.mapNotNull {
+        when (it.syncStatus) {
+          SyncStatus.PENDING,
+          SyncStatus.IN_PROGRESS -> it.locationOfInterestId
+          else -> null
+        }
       }
-    mergeAll(survey.id, lois)
+    mergeAll(survey.id, lois, pendingLois)
   }
 
-  private suspend fun mergeAll(surveyId: String, lois: List<LocationOfInterest>) {
+  private suspend fun mergeAll(
+    surveyId: String,
+    lois: List<LocationOfInterest>,
+    pendingLois: List<String>,
+  ) {
     // Insert new or update existing LOIs in local db.
     lois.forEach { localLoiStore.insertOrUpdate(it) }
-
-    // Delete LOIs in local db not returned in latest list from server.
-    localLoiStore.deleteNotIn(surveyId, lois.map { it.id })
+    // Delete LOIs in local db not returned in latest list from server, skipping pending mutations.
+    localLoiStore.deleteNotIn(surveyId, lois.map { it.id } + pendingLois)
   }
 
   /** This only works if the survey and location of interests are already cached to local db. */
@@ -81,7 +94,13 @@ constructor(
   }
 
   /** Saves a new LOI in the local db and enqueues a sync worker. */
-  suspend fun saveLoi(geometry: Geometry, job: Job, surveyId: String, loiName: String?): String {
+  suspend fun saveLoi(
+    geometry: Geometry,
+    job: Job,
+    surveyId: String,
+    loiName: String?,
+    collectionId: String,
+  ): String {
     val newId = uuidGenerator.generateUuid()
     val user = userRepository.getAuthenticatedUser()
     val mutation =
@@ -95,6 +114,7 @@ constructor(
         geometry = geometry,
         properties = generateProperties(loiName),
         isPredefined = false,
+        collectionId = collectionId,
       )
     applyAndEnqueue(mutation)
     return newId

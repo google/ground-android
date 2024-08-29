@@ -123,6 +123,7 @@
           android:background="@color/blackOverlay" />
 
         <TextView
+          android:id="@+id/bottom_text"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_gravity="center"
@@ -143,6 +144,7 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <Button
+          android:id="@+id/cancel_button"
           style="?attr/materialButtonOutlinedStyle"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
