@@ -50,9 +50,10 @@ constructor(
       val tos = termsOfServiceRepository.getTermsOfService()?.text ?: ""
       val flavor = CommonMarkFlavourDescriptor()
       val parser = MarkdownParser(flavor)
-      val html = parser.buildMarkdownTreeFromString(tos).run {
-        HtmlGenerator(tos, this, CommonMarkFlavourDescriptor()).generateHtml()
-      }
+      val html =
+        parser.buildMarkdownTreeFromString(tos).run {
+          HtmlGenerator(tos, this, CommonMarkFlavourDescriptor()).generateHtml()
+        }
       emit(Html.fromHtml(html, 0))
     } catch (e: Throwable) {
       when (e) {

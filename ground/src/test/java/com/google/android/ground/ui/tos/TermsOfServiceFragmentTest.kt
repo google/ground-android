@@ -52,8 +52,8 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepository
 
-  private fun withHtml(html: String): Matcher<View> {
-    return object : BaseMatcher<View>() {
+  private fun withHtml(html: String): Matcher<View> =
+    object : BaseMatcher<View>() {
       override fun describeTo(description: Description?) {
         description?.apply { this.appendText(html) }
       }
@@ -68,7 +68,6 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
         super.describeMismatch(item, description)
       }
     }
-  }
 
   override fun setUp() {
     super.setUp()
@@ -81,11 +80,29 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
     onView(withId(R.id.termsText))
       .check(matches(isDisplayed()))
-      .check(matches(withText("This is a heading\n\nSample terms of service\n\n")))
       .check(
         matches(
-         withHtml("<p dir=\"ltr\"><span style=\"font-size:1.50em;\"><b>This is a heading</b></span></p>\n" +
-           "<p dir=\"ltr\">Sample terms of service</p>\n")
+          withText(
+            """
+                |This is a heading
+                |
+                |Sample terms of service
+                |
+                |
+            """
+              .trimMargin()
+          )
+        )
+      )
+      .check(
+        matches(
+          withHtml(
+            """
+                |<p dir=\"ltr\"><span style=\"font-size:1.50em;\"><b>This is a heading</b></span></p>
+                |<p dir=\"ltr\">Sample terms of service</p>\n
+            """
+              .trimMargin()
+          )
         )
       )
   }
