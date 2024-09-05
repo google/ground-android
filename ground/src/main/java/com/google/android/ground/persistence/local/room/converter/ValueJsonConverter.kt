@@ -30,9 +30,8 @@ import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.ACCURACY_KEY
-import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.ALTITUDE_KEY
-import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.GEOMETRY_KEY
+import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.toCaptureLocationTaskData
+import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.toJSONObject
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -58,12 +57,7 @@ internal object ValueJsonConverter {
       is PhotoTaskData -> taskData.remoteFilename
       is DrawAreaTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is DropPinTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
-      is CaptureLocationTaskData ->
-        JSONObject().apply {
-          put("accuracy", taskData.accuracy)
-          put("altitude", taskData.altitude)
-          put("geometry", GeometryWrapperTypeConverter.toString(taskData.geometry))
-        }
+      is CaptureLocationTaskData -> taskData.toJSONObject()
       else -> throw UnsupportedOperationException("Unimplemented value class ${taskData.javaClass}")
     }
   }
@@ -127,24 +121,13 @@ internal object ValueJsonConverter {
       }
       Task.Type.CAPTURE_LOCATION -> {
         DataStoreException.checkType(JSONObject::class.java, obj)
-        captureLocationResultFromJsonObject(obj as JSONObject).getOrThrow()
+        (obj as JSONObject).toCaptureLocationTaskData()
       }
       Task.Type.UNKNOWN -> {
         throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
       }
     }
   }
-
-  private fun captureLocationResultFromJsonObject(
-    data: JSONObject
-  ): Result<CaptureLocationTaskData> =
-    Result.runCatching {
-      val accuracy = data.getDouble(ACCURACY_KEY)
-      val altitude = data.getDouble(ALTITUDE_KEY)
-      val geometry =
-        GeometryWrapperTypeConverter.fromString(data.getString(GEOMETRY_KEY))?.getGeometry()
-      CaptureLocationTaskData(geometry as Point, accuracy, altitude)
-    }
 
   private fun toList(jsonArray: JSONArray): List<String> {
     val list: MutableList<String> = ArrayList(jsonArray.length())

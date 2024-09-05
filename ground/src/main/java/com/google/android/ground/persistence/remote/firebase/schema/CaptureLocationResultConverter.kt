@@ -15,11 +15,28 @@
  */
 package com.google.android.ground.persistence.remote.firebase.schema
 
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.submission.CaptureLocationTaskData
+import com.google.android.ground.persistence.local.room.converter.GeometryWrapperTypeConverter
+import org.json.JSONObject
 
-/** Converts between [CaptureLocationTaskData] and its equivalent remote representation. */
+/** Converts between [CaptureLocationTaskData] and its equivalent [JSONObject] representation. */
 object CaptureLocationResultConverter {
-  const val ACCURACY_KEY = "accuracy"
-  const val ALTITUDE_KEY = "altitude"
-  const val GEOMETRY_KEY = "geometry"
+  private const val ACCURACY_KEY = "accuracy"
+  private const val ALTITUDE_KEY = "altitude"
+  private const val GEOMETRY_KEY = "geometry"
+
+  fun CaptureLocationTaskData.toJSONObject(): JSONObject =
+    JSONObject().apply {
+      put(ACCURACY_KEY, accuracy)
+      put(ALTITUDE_KEY, altitude)
+      put(GEOMETRY_KEY, GeometryWrapperTypeConverter.toString(geometry))
+    }
+
+  fun JSONObject.toCaptureLocationTaskData(): CaptureLocationTaskData {
+    val accuracy = getDouble(ACCURACY_KEY)
+    val altitude = getDouble(ALTITUDE_KEY)
+    val geometry = GeometryWrapperTypeConverter.fromString(getString(GEOMETRY_KEY))?.getGeometry()
+    return CaptureLocationTaskData(geometry as Point, accuracy, altitude)
+  }
 }
