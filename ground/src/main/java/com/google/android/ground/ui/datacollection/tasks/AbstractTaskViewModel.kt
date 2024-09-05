@@ -15,9 +15,7 @@
  */
 package com.google.android.ground.ui.datacollection.tasks
 
-import android.content.res.Resources
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
@@ -32,8 +30,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 
 /** Defines the state of an inflated [Task] and controls its UI. */
-open class AbstractTaskViewModel internal constructor(private val resources: Resources) :
-  AbstractViewModel() {
+open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
 
   /** Current value. */
   private val _taskDataFlow: MutableStateFlow<TaskData?> = MutableStateFlow(null)
@@ -41,9 +38,6 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
 
   /** Transcoded text to be displayed for the current [TaskData]. */
   val responseText: LiveData<String>
-
-  /** Error message to be displayed for the current [TaskData]. */
-  val error: MutableLiveData<String?> = MutableLiveData()
 
   lateinit var task: Task
 
@@ -59,16 +53,12 @@ open class AbstractTaskViewModel internal constructor(private val resources: Res
   private fun detailsTextFlow(): Flow<String> = taskTaskData.map { it?.getDetailsText() ?: "" }
 
   /** Checks if the current value is valid and updates error value. */
-  fun validate(): String? {
-    val result = validate(task, taskTaskData.value)
-    error.postValue(result)
-    return result
-  }
+  fun validate(): Int? = validate(task, taskTaskData.value)
 
-  open fun validate(task: Task, taskData: TaskData?): String? {
+  open fun validate(task: Task, taskData: TaskData?): Int? {
     // Empty response for a required task.
     if (task.isRequired && (taskData == null || taskData.isEmpty())) {
-      return resources.getString(R.string.required_task)
+      return R.string.required_task
     }
     return null
   }

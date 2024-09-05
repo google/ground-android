@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.point
 
-import android.content.res.Resources
 import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
@@ -34,10 +33,9 @@ import javax.inject.Inject
 class DropPinTaskViewModel
 @Inject
 constructor(
-  resources: Resources,
   private val uuidGenerator: OfflineUuidGenerator,
   private val localValueStore: LocalValueStore,
-) : AbstractTaskViewModel(resources) {
+) : AbstractTaskViewModel() {
 
   private var pinColor: Int = 0
   private var lastCameraPosition: CameraPosition? = null

@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
-import android.content.res.Resources
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.Coordinates
@@ -48,8 +47,7 @@ class DrawAreaTaskViewModel
 internal constructor(
   private val localValueStore: LocalValueStore,
   private val uuidGenerator: OfflineUuidGenerator,
-  private val resources: Resources,
-) : AbstractTaskViewModel(resources) {
+) : AbstractTaskViewModel() {
 
   /** Polygon [Feature] being drawn by the user. */
   private val _draftArea: MutableStateFlow<Feature?> = MutableStateFlow(null)
@@ -196,10 +194,10 @@ internal constructor(
       }
   }
 
-  override fun validate(task: Task, taskData: TaskData?): String? {
+  override fun validate(task: Task, taskData: TaskData?): Int? {
     // Invalid response for draw area task.
     if (task.type == Task.Type.DRAW_AREA && taskData is DrawAreaTaskIncompleteData) {
-      return resources.getString(R.string.incomplete_area)
+      return R.string.incomplete_area
     }
     return super.validate(task, taskData)
   }
