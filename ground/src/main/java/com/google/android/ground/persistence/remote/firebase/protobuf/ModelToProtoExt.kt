@@ -34,7 +34,6 @@ import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.submission.PhotoTaskData
 import com.google.android.ground.model.submission.TextTaskData
-import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.task.Task
@@ -139,12 +138,10 @@ private fun ValueDelta.toMessage() = taskData {
         number = (newTaskData as NumberTaskData).value
       }
     // TODO: Ensure the dates are always converted to UTC time zone.
-    Task.Type.DATE -> dateTimeResponse = dateTimeResponse {
-        dateTime = timestamp { seconds = (newTaskData as DateTaskData).time / 1000 }
-      }
-    // TODO: Ensure the dates are always converted to UTC time zone.
+    Task.Type.DATE,
     Task.Type.TIME -> dateTimeResponse = dateTimeResponse {
-        dateTime = timestamp { seconds = (newTaskData as TimeTaskData).time / 1000 }
+        println("newTaskData ==== $newTaskData")
+        dateTime = timestamp { seconds = (newTaskData as DateTaskData).time / 1000 }
       }
     Task.Type.MULTIPLE_CHOICE -> multipleChoiceResponses = multipleChoiceResponses {
         (newTaskData as MultipleChoiceTaskData).getSelectedOptionsIdsExceptOther().forEach {

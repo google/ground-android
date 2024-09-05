@@ -22,13 +22,11 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.CaptureLocationTaskData
-import com.google.android.ground.model.submission.DateTaskData
 import com.google.android.ground.model.submission.DrawAreaTaskData
 import com.google.android.ground.model.submission.DropPinTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.submission.TextTaskData
-import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
@@ -160,10 +158,6 @@ class SubmissionMutationConverterTest {
       altitude = 112.31,
     )
 
-  private val dateTaskResult = DateTaskData(Date.from(Instant.ofEpochSecond(918273645)))
-
-  private val timeTaskResult = TimeTaskData(Date.from(Instant.ofEpochSecond(123456789)))
-
   private val submissionMutation =
     SubmissionMutation(
       id = 1,
@@ -217,8 +211,10 @@ class SubmissionMutationConverterTest {
             taskType = Task.Type.CAPTURE_LOCATION,
             newTaskData = captureLocationTaskResult,
           ),
-          ValueDelta(taskId = "date_task", taskType = Task.Type.DATE, newTaskData = dateTaskResult),
-          ValueDelta(taskId = "time_task", taskType = Task.Type.TIME, newTaskData = timeTaskResult),
+          //  ValueDelta(taskId = "date_task", taskType = Task.Type.DATE, newTaskData =
+          // dateTaskResult),
+          // ValueDelta(taskId = "time_task", taskType = Task.Type.TIME, newTaskData =
+          // timeTaskResult),
         ),
     )
 

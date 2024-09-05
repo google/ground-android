@@ -27,7 +27,6 @@ import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.submission.PhotoTaskData
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
-import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.ACCURACY_KEY
@@ -47,8 +46,11 @@ internal object ValueJsonConverter {
       is TextTaskData -> taskData.text
       is MultipleChoiceTaskData -> toJsonArray(taskData)
       is NumberTaskData -> taskData.value
-      is DateTaskData -> taskData.formattedDate
-      is TimeTaskData -> taskData.time
+      is DateTaskData ->
+        JSONObject().apply {
+          put("DateString", taskData.formattedDate)
+          put("Time", taskData.time)
+        }
       is PhotoTaskData -> taskData.remoteFilename
       is DrawAreaTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is DropPinTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
@@ -87,13 +89,9 @@ internal object ValueJsonConverter {
         DataStoreException.checkType(Number::class.java, obj)
         NumberTaskData.fromNumber(obj.toString())
       }
-      Task.Type.DATE -> {
-        DataStoreException.checkType(String::class.java, obj)
-        DateTaskData.fromDate(obj as String, 0L) // Need to check the type of obj
-      }
-      Task.Type.TIME -> {
-        DataStoreException.checkType(String::class.java, obj)
-        TimeTaskData.fromDate(obj as String, 0L) // Need to check the type of obj
+      Task.Type.DATE, Task.Type.TIME -> {
+        DataStoreException.checkType(JSONObject::class.java, obj)
+        dateTimeFromJsonObject(obj as JSONObject).getOrThrow()
       }
       Task.Type.DRAW_AREA -> {
         DataStoreException.checkType(String::class.java, obj)
@@ -118,6 +116,13 @@ internal object ValueJsonConverter {
       }
     }
   }
+
+  private fun dateTimeFromJsonObject(data: JSONObject): Result<DateTaskData> =
+    Result.runCatching {
+      val formattedString = data.getString("DateString")
+      val time = data.getLong("Time")
+      DateTaskData(formattedString, time)
+    }
 
   private fun captureLocationResultFromJsonObject(
     data: JSONObject

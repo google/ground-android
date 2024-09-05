@@ -15,19 +15,17 @@
  */
 package com.google.android.ground.model.submission
 
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
 /** A user-provided response to a date question task. */
 @Serializable
-data class DateTaskData(val formattedDate: @Contextual String, val time: Long) : TaskData {
+data class DateTaskData(val formattedDate: String, val time: Long) : TaskData {
 
   override fun getDetailsText(): String = formattedDate
 
   override fun isEmpty(): Boolean = time == 0L
 
   companion object {
-    fun fromDate(formattedDate: String, time: Long): TaskData =
-      DateTaskData(formattedDate, time)
+    fun fromDate(formattedDate: String, time: Long): TaskData = DateTaskData(formattedDate, time)
   }
 }

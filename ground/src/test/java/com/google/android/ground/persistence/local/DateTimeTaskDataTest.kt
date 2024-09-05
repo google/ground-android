@@ -15,31 +15,55 @@
  */
 package com.google.android.ground.persistence.local
 
+import android.content.Context
+import android.text.format.DateFormat
+import androidx.test.core.app.ApplicationProvider
+import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.submission.DateTaskData
-import com.google.android.ground.model.submission.TimeTaskData
 import com.google.common.truth.Truth.assertThat
-import java.time.LocalDate
-import java.time.Month
-import java.time.ZoneId
+import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
-class DateTimeTaskDataTest {
+@HiltAndroidTest
+@RunWith(RobolectricTestRunner::class)
+class DateTimeTaskDataTest : BaseHiltTest() {
+
+  private lateinit var context: Context
+
+  override fun setUp() {
+    super.setUp()
+    context = ApplicationProvider.getApplicationContext()
+  }
+
   @Test
   fun testTimeResponse_textDetails() {
-    val instant = LocalDate.now().atTime(7, 30, 45).atZone(ZoneId.systemDefault()).toInstant()
-    val detailsText = TimeTaskData(Date.from(instant)).getDetailsText()
-    assertThat(detailsText).isEqualTo("07:30")
+    val date = DateFormat.getTimeFormat(context).format(getCalendar().time)
+    val detailsText = DateTaskData(date, CALENDAR.time.time).getDetailsText()
+    assertThat(detailsText).isEqualTo("10:30 AM")
   }
 
   @Test
   fun testDateResponse_textDetails() {
-    val instant =
-      LocalDate.of(2021, Month.OCTOBER, 23)
-        .atStartOfDay()
-        .atZone(ZoneId.systemDefault())
-        .toInstant()
-    val detailsText = DateTaskData(Date.from(instant)).getDetailsText()
-    assertThat(detailsText).isEqualTo("2021-10-23")
+    val date = DateFormat.getDateFormat(context).format(getCalendar().time)
+    val detailsText = DateTaskData(date, CALENDAR.time.time).getDetailsText()
+    assertThat(detailsText).isEqualTo("1/1/23")
+  }
+
+  companion object {
+    private val CALENDAR = Calendar.getInstance()
+
+    fun getCalendar(): Calendar {
+      // January 1, 2023, 10:30:15 AM
+      CALENDAR.set(Calendar.YEAR, 2023)
+      CALENDAR.set(Calendar.MONTH, Calendar.JANUARY) // 0-based, so January is 0
+      CALENDAR.set(Calendar.DAY_OF_MONTH, 1)
+      CALENDAR.set(Calendar.HOUR_OF_DAY, 10) // 24-hour format
+      CALENDAR.set(Calendar.MINUTE, 30)
+      CALENDAR.set(Calendar.SECOND, 15)
+      return CALENDAR
+    }
   }
 }

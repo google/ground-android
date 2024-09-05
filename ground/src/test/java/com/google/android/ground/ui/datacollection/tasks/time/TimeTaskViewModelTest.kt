@@ -15,9 +15,12 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.time
 
+import android.content.Context
+import android.text.format.DateFormat
+import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.submission.TimeTaskData.Companion.fromDate
+import com.google.android.ground.model.submission.DateTaskData.Companion.fromDate
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.*
@@ -30,18 +33,25 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class TimeTaskViewModelTest : BaseHiltTest() {
   @Inject lateinit var timeFieldViewModel: TimeTaskViewModel
+  private lateinit var context: Context
+  private lateinit var formattedDate: String
+
+  override fun setUp() {
+    super.setUp()
+    context = ApplicationProvider.getApplicationContext()
+    formattedDate = DateFormat.getDateFormat(context).format(CALENDAR.time)
+  }
 
   @Test
   fun testUpdateResponse() = runWithTestDispatcher {
-    timeFieldViewModel.updateResponse(TEST_DATE)
+    timeFieldViewModel.updateResponse(formattedDate, CALENDAR.time.time)
 
     timeFieldViewModel.taskTaskData.test {
-      assertThat(expectMostRecentItem()).isEqualTo(fromDate(TEST_DATE))
+      assertThat(expectMostRecentItem()).isEqualTo(fromDate(formattedDate, CALENDAR.time.time))
     }
   }
 
   companion object {
-    // Date represented in milliseconds for date: 2021-09-24T16:40+0000.
-    private val TEST_DATE = Date(1632501600000L)
+    private val CALENDAR = Calendar.getInstance()
   }
 }
