@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.location
 
-import android.content.res.Resources
 import android.location.Location
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.submission.CaptureLocationTaskData
@@ -41,8 +40,7 @@ private enum class LocationLockEnabledState {
   ENABLE,
 }
 
-class CaptureLocationTaskViewModel @Inject constructor(resources: Resources) :
-  AbstractTaskViewModel(resources) {
+class CaptureLocationTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
   private val lastLocation = MutableStateFlow<CaptureLocationTaskData?>(null)
   /** Allows control for triggering the location lock programmatically. */

@@ -17,7 +17,6 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
   <data>
@@ -46,7 +45,6 @@
       android:maxLines="1"
       android:onClick="@{__ -> fragment.showTimeDialog()}"
       android:text="@{viewModel.responseText}"
-      app:error="@{viewModel.error}"
       tools:text="@string/time" />
   </com.google.android.material.textfield.TextInputLayout>
 </layout>
