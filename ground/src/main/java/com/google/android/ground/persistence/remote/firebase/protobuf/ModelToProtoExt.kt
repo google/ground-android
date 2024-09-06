@@ -140,7 +140,6 @@ private fun ValueDelta.toMessage() = taskData {
     // TODO: Ensure the dates are always converted to UTC time zone.
     Task.Type.DATE,
     Task.Type.TIME -> dateTimeResponse = dateTimeResponse {
-        println("newTaskData ==== $newTaskData")
         dateTime = timestamp { seconds = (newTaskData as DateTaskData).time / 1000 }
       }
     Task.Type.MULTIPLE_CHOICE -> multipleChoiceResponses = multipleChoiceResponses {
