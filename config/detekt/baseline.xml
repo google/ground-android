@@ -2,8 +2,7 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>MemberNameEqualsClassName:FusedLocationProviderClient.kt$FusedLocationProviderClient$private val fusedLocationProviderClient: FusedLocationProviderClient</ID>
-    <ID>MemberNameEqualsClassName:SettingsClient.kt$SettingsClient$private val settingsClient: SettingsClient</ID>
+    <ID>ReturnCount:HomeScreenViewModel.kt$HomeScreenViewModel$suspend fun getDraftSubmission(): DraftSubmission?</ID>
     <ID>UnusedPrivateProperty:HomeScreenFragmentTest.kt$NavigationDrawerItemClickTest$private val testLabel: String</ID>
   </CurrentIssues>
 </SmellBaseline>

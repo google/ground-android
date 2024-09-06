@@ -188,5 +188,6 @@
     ## Public data sharing
     \nSurvey organizers may share and use data publicly under the *Creative Commons CC0 1.0 License*:
   </string>
+  <string name="draft_restored">Unsaved data restored</string>
   <string name="load_tos_failed">Could not connect, try again later</string>
 </resources>

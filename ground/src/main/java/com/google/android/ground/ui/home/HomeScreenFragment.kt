@@ -33,9 +33,12 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.HomeScreenFragBinding
 import com.google.android.ground.databinding.NavDrawerHeaderBinding
 import com.google.android.ground.model.User
+import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
+import com.google.android.ground.ui.common.EphemeralPopups
+import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.theme.AppTheme
 import com.google.android.ground.util.systemInsets
 import com.google.android.material.imageview.ShapeableImageView
@@ -56,6 +59,8 @@ class HomeScreenFragment :
   // TODO: It's not obvious which locations of interest are in HomeScreen vs MapContainer;
   //  make this more intuitive.
 
+  @Inject lateinit var ephemeralPopups: EphemeralPopups
+  @Inject lateinit var navigator: Navigator
   @Inject lateinit var userRepository: UserRepository
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -100,7 +105,21 @@ class HomeScreenFragment :
     updateNavHeader()
     // Re-open data collection screen if any drafts are present
     viewLifecycleOwner.lifecycleScope.launch {
-      homeScreenViewModel.maybeNavigateToDraftSubmission()
+      homeScreenViewModel.getDraftSubmission()?.let { draft ->
+        navigator.navigate(
+          HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+            draft.loiId,
+            draft.loiName ?: "",
+            draft.jobId,
+            true,
+            SubmissionDeltasConverter.toString(draft.deltas),
+          )
+        )
+
+        ephemeralPopups
+          .InfoPopup(binding.root, R.string.draft_restored, EphemeralPopups.PopupDuration.SHORT)
+          .show()
+      }
     }
   }
 
