@@ -190,4 +190,8 @@
   </string>
   <string name="draft_restored">Unsaved data restored</string>
   <string name="load_tos_failed">Could not connect, try again later</string>
+
+  <string name="drop_a_pin">Drop a pin</string>
+  <string name="choice_map_dialog">How will you map this site?</string>
+  <string name="draw_or_walk">Draw or walk perimeter</string>
 </resources>
