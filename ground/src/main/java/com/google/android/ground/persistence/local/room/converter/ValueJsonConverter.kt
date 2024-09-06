@@ -45,8 +45,7 @@ internal object ValueJsonConverter {
       is TextTaskData -> taskData.text
       is MultipleChoiceTaskData -> toJsonArray(taskData)
       is NumberTaskData -> taskData.value
-      is DateTaskData ->
-        JSONObject().apply {
+      is DateTaskData -> JSONObject().apply {
           put("DateString", taskData.formattedDate)
           put("Time", taskData.time)
         }

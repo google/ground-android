@@ -44,10 +44,10 @@ class TimeTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun testUpdateResponse() = runWithTestDispatcher {
-    timeFieldViewModel.updateResponse(formattedDate, CALENDAR.time.time)
+    timeFieldViewModel.updateResponse(formattedDate, CALENDAR.timeInMillis)
 
     timeFieldViewModel.taskTaskData.test {
-      assertThat(expectMostRecentItem()).isEqualTo(fromDate(formattedDate, CALENDAR.time.time))
+      assertThat(expectMostRecentItem()).isEqualTo(fromDate(formattedDate, CALENDAR.timeInMillis))
     }
   }
 

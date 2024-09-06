@@ -54,7 +54,7 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
           c[Calendar.DAY_OF_MONTH] = updatedDayOfMonth
           c[Calendar.MONTH] = updatedMonth
           c[Calendar.YEAR] = updatedYear
-          viewModel.updateResponse(getFormattedDate(c.time), c.time.time)
+          viewModel.updateResponse(getFormattedDate(c.time), c.timeInMillis)
         },
         year,
         month,

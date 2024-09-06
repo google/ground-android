@@ -39,15 +39,15 @@ class DateTaskViewModelTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     context = ApplicationProvider.getApplicationContext()
-    formattedDate = DateFormat.getDateFormat(context).format(CALENDAR)
+    formattedDate = DateFormat.getDateFormat(context).format(CALENDAR.time)
   }
 
   @Test
   fun testUpdateResponse() = runWithTestDispatcher {
-    dateTaskViewModel.updateResponse(formattedDate, CALENDAR.time.time)
+    dateTaskViewModel.updateResponse(formattedDate, CALENDAR.timeInMillis)
 
     dateTaskViewModel.taskTaskData.test {
-      assertThat(expectMostRecentItem()).isEqualTo(fromDate(formattedDate, CALENDAR.time.time))
+      assertThat(expectMostRecentItem()).isEqualTo(fromDate(formattedDate, CALENDAR.timeInMillis))
     }
   }
 

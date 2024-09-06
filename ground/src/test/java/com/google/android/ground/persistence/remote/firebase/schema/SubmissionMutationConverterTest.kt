@@ -22,6 +22,7 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.CaptureLocationTaskData
+import com.google.android.ground.model.submission.DateTaskData
 import com.google.android.ground.model.submission.DrawAreaTaskData
 import com.google.android.ground.model.submission.DropPinTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
@@ -158,6 +159,8 @@ class SubmissionMutationConverterTest {
       altitude = 112.31,
     )
 
+  private val dateTaskResult = DateTaskData("05/09/2024", 1725537603066)
+
   private val submissionMutation =
     SubmissionMutation(
       id = 1,
@@ -211,10 +214,10 @@ class SubmissionMutationConverterTest {
             taskType = Task.Type.CAPTURE_LOCATION,
             newTaskData = captureLocationTaskResult,
           ),
-          //  ValueDelta(taskId = "date_task", taskType = Task.Type.DATE, newTaskData =
-          // dateTaskResult),
-          // ValueDelta(taskId = "time_task", taskType = Task.Type.TIME, newTaskData =
-          // timeTaskResult),
+          ValueDelta(taskId = "date_task", taskType = Task.Type.DATE, newTaskData =
+          dateTaskResult),
+           ValueDelta(taskId = "time_task", taskType = Task.Type.TIME, newTaskData =
+           dateTaskResult),
         ),
     )
 
@@ -319,12 +322,12 @@ class SubmissionMutationConverterTest {
       ),
       mapOf(
         DATE_TIME_RESPONSE_FIELD_NUMBER.toString() to
-          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 918273645L)),
+          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 1725537603066)),
         TASK_ID_FIELD_NUMBER.toString() to "date_task",
       ),
       mapOf(
         DATE_TIME_RESPONSE_FIELD_NUMBER.toString() to
-          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 123456789L)),
+          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 1725537603066)),
         TASK_ID_FIELD_NUMBER.toString() to "time_task",
       ),
     )
