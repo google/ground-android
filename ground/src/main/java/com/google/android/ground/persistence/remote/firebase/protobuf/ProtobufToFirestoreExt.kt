@@ -72,6 +72,7 @@ private fun MessageValue.toFirestoreValue(): FirestoreValue =
     is List<*> -> map { it?.toFirestoreValue() }
     is Message -> toFirestoreMap()
     is Map<*, *> -> mapValues { it.value?.toFirestoreValue() }
+    is Boolean,
     is String,
     is Number -> this
     else -> throw UnsupportedOperationException("Unsupported type ${this::class}")

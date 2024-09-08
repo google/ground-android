@@ -33,9 +33,9 @@ import com.google.android.ground.model.submission.GeometryTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.submission.PhotoTaskData
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.TimeTaskData
-import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.proto.LinearRing as LinearRingProto
@@ -72,11 +72,12 @@ fun SubmissionMutation.createSubmissionMessage(user: User) = submission {
   jobId = job.id
   ownerId = me.userId
 
-  deltas.forEach {
-    if (it.newTaskData.isNotNullOrEmpty()) {
-      taskData.add(it.toMessage())
-    }
-  }
+  val tasksWithData = deltas.filter { it.newTaskData.isNotNullOrEmpty() }
+  tasksWithData.forEach { taskData.add(toTaskData(it.taskId, it.taskType, it.newTaskData!!)) }
+
+  val allTasks = job.tasks.keys.toMutableSet()
+  val skippedTasks = allTasks.filterNot { taskId -> tasksWithData.any { it.taskId == taskId } }
+  skippedTasks.forEach { taskId -> taskData.add(toSkippedTaskData(taskId)) }
 
   val auditInfo = createAuditInfoMessage(user, clientTimestamp)
   when (type) {
@@ -128,11 +129,16 @@ fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest
   }
 }
 
-private fun ValueDelta.toMessage() = taskData {
-  val me = this@toMessage
+private fun toSkippedTaskData(id: String) = taskData {
   // TODO: What should be the ID?
-  taskId = me.taskId
-  // TODO: Add "skipped" field
+  taskId = id
+  skipped = true
+}
+
+private fun toTaskData(id: String, taskType: Task.Type, newTaskData: TaskData) = taskData {
+  // TODO: What should be the ID?
+  taskId = id
+  skipped = false
   when (taskType) {
     Task.Type.TEXT -> textResponse = textResponse { text = (newTaskData as TextTaskData).text }
     Task.Type.NUMBER -> numberResponse = numberResponse {
