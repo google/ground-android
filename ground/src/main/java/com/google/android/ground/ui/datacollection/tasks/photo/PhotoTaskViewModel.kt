@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.datacollection.tasks.photo
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.net.Uri
@@ -41,8 +40,7 @@ constructor(
   @ApplicationContext private val context: Context,
   private val userMediaRepository: UserMediaRepository,
   private val bitmapUtil: BitmapUtil,
-  resources: Resources,
-) : AbstractTaskViewModel(resources) {
+) : AbstractTaskViewModel() {
 
   /**
    * Task id waiting for a photo result. As only one photo result is returned at a time, we can

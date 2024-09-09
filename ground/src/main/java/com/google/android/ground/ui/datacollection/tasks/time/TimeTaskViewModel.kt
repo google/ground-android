@@ -15,14 +15,12 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.time
 
-import android.content.res.Resources
 import com.google.android.ground.model.submission.TimeTaskData.Companion.fromDate
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import java.util.Date
 import javax.inject.Inject
 
-class TimeTaskViewModel @Inject constructor(resources: Resources) :
-  AbstractTaskViewModel(resources) {
+class TimeTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
   fun updateResponse(date: Date) {
     setValue(fromDate(date))
