@@ -169,7 +169,6 @@ internal constructor(
     }
 
     draftDeltas = SubmissionDeltasConverter.fromString(job, serializedDraftValues)
-    println("====== ${draftDeltas.toString()}")
     return draftDeltas as List<ValueDelta>
   }
 
@@ -292,7 +291,6 @@ internal constructor(
   /** Persists the collected data as draft to local storage. */
   private fun saveDraft() {
     externalScope.launch(ioDispatcher) {
-      println("====== $jobId --- $loiId --- $surveyId --- $customLoiName \n")
       submissionRepository.saveDraftSubmission(
         jobId = jobId,
         loiId = loiId,
