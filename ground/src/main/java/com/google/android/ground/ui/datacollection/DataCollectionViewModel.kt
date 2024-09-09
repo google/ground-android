@@ -169,6 +169,7 @@ internal constructor(
     }
 
     draftDeltas = SubmissionDeltasConverter.fromString(job, serializedDraftValues)
+    println("====== ${draftDeltas.toString()}")
     return draftDeltas as List<ValueDelta>
   }
 
@@ -257,6 +258,16 @@ internal constructor(
     }
   }
 
+  suspend fun saveCurrentState(taskViewModel: AbstractTaskViewModel) {
+    val validationError = taskViewModel.validate()
+    if (validationError != null) {
+      return
+    }
+
+    data[taskViewModel.task] = taskViewModel.taskTaskData.value
+    step(0)
+  }
+
   private fun getDeltas(): List<ValueDelta> =
     // Filter deltas to valid tasks.
     data
@@ -281,6 +292,7 @@ internal constructor(
   /** Persists the collected data as draft to local storage. */
   private fun saveDraft() {
     externalScope.launch(ioDispatcher) {
+      println("====== $jobId --- $loiId --- $surveyId --- $customLoiName \n")
       submissionRepository.saveDraftSubmission(
         jobId = jobId,
         loiId = loiId,
