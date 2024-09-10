@@ -33,6 +33,7 @@ import com.google.android.ground.model.submission.GeometryTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.submission.PhotoTaskData
+import com.google.android.ground.model.submission.SkippedTaskData
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.TimeTaskData
@@ -72,12 +73,17 @@ fun SubmissionMutation.createSubmissionMessage(user: User) = submission {
   jobId = job.id
   ownerId = me.userId
 
-  val tasksWithData = deltas.filter { it.newTaskData.isNotNullOrEmpty() }
-  tasksWithData.forEach { taskData.add(toTaskData(it.taskId, it.taskType, it.newTaskData!!)) }
-
-  val allTasks = job.tasks.keys.toMutableSet()
-  val skippedTasks = allTasks.filterNot { taskId -> tasksWithData.any { it.taskId == taskId } }
-  skippedTasks.forEach { taskId -> taskData.add(toSkippedTaskData(taskId)) }
+  deltas.forEach {
+    if (it.newTaskData.isNotNullOrEmpty()) {
+      taskData.add(
+        if (it.newTaskData is SkippedTaskData) {
+          toSkippedTaskData(it.taskId)
+        } else {
+          toTaskData(it.taskId, it.taskType, it.newTaskData!!)
+        }
+      )
+    }
+  }
 
   val auditInfo = createAuditInfoMessage(user, clientTimestamp)
   when (type) {
@@ -136,9 +142,11 @@ private fun toSkippedTaskData(id: String) = taskData {
 }
 
 private fun toTaskData(id: String, taskType: Task.Type, newTaskData: TaskData) = taskData {
+  check(newTaskData !is SkippedTaskData) { "Invalid task data: $newTaskData" }
+
   // TODO: What should be the ID?
   taskId = id
-  skipped = false
+
   when (taskType) {
     Task.Type.TEXT -> textResponse = textResponse { text = (newTaskData as TextTaskData).text }
     Task.Type.NUMBER -> numberResponse = numberResponse {

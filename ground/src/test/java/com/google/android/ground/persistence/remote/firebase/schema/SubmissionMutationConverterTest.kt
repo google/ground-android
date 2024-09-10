@@ -27,6 +27,7 @@ import com.google.android.ground.model.submission.DrawAreaTaskData
 import com.google.android.ground.model.submission.DropPinTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
+import com.google.android.ground.model.submission.SkippedTaskData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.submission.ValueDelta
@@ -399,7 +400,19 @@ class SubmissionMutationConverterTest {
                 Pair("task 2", Task("task 2", 2, Task.Type.NUMBER, "task 2", true)),
               )
           ),
-        deltas = listOf(),
+        deltas =
+          listOf(
+            ValueDelta(
+              taskId = "task 1",
+              taskType = Task.Type.TEXT,
+              newTaskData = SkippedTaskData(),
+            ),
+            ValueDelta(
+              taskId = "task 2",
+              taskType = Task.Type.NUMBER,
+              newTaskData = SkippedTaskData(),
+            ),
+          ),
         type = Mutation.Type.CREATE,
       )
 
@@ -439,7 +452,12 @@ class SubmissionMutationConverterTest {
               taskId = "task 1",
               taskType = Task.Type.TEXT,
               newTaskData = TextTaskData.fromString("some data"),
-            )
+            ),
+            ValueDelta(
+              taskId = "task 2",
+              taskType = Task.Type.NUMBER,
+              newTaskData = SkippedTaskData(),
+            ),
           ),
         type = Mutation.Type.CREATE,
       )
