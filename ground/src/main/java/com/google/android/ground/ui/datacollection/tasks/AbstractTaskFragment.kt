@@ -181,7 +181,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   private fun saveCurrentState() {
-    lifecycleScope.launch { dataCollectionViewModel.saveCurrentState(viewModel) }
+    dataCollectionViewModel.saveCurrentState(viewModel)
   }
 
   fun handleNext() {

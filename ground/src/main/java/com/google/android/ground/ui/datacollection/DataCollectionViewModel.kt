@@ -257,14 +257,18 @@ internal constructor(
     }
   }
 
-  suspend fun saveCurrentState(taskViewModel: AbstractTaskViewModel) {
-    val validationError = taskViewModel.validate()
-    if (validationError != null) {
-      return
-    }
+  fun saveCurrentState(taskViewModel: AbstractTaskViewModel) {
+    if(!data.containsKey(taskViewModel.task)) {
+      val validationError = taskViewModel.validate()
+      if (validationError != null) {
+        return
+      }
 
-    data[taskViewModel.task] = taskViewModel.taskTaskData.value
-    step(0)
+      data[taskViewModel.task] = taskViewModel.taskTaskData.value
+      savedStateHandle[TASK_POSITION_ID] = taskViewModel.task.id
+      clearDraft()
+      saveDraft()
+    }
   }
 
   private fun getDeltas(): List<ValueDelta> =
