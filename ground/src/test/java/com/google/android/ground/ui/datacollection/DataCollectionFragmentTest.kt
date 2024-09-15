@@ -147,8 +147,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .clickPreviousButton()
 
     // Both deletion and creating happens twice as we do it on every previous/next step
-    verify(submissionRepository, times(3)).deleteDraftSubmission()
-    verify(submissionRepository, times(3))
+    verify(submissionRepository, times(2)).deleteDraftSubmission()
+    verify(submissionRepository, times(2))
       .saveDraftSubmission(
         eq(JOB.id),
         eq(LOCATION_OF_INTEREST.id),
