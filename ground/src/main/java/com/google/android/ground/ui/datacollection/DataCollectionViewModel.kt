@@ -258,7 +258,7 @@ internal constructor(
   }
 
   fun saveCurrentState(taskViewModel: AbstractTaskViewModel) {
-    if(!data.containsKey(taskViewModel.task)) {
+    if (!data.containsKey(taskViewModel.task)) {
       val validationError = taskViewModel.validate()
       if (validationError != null) {
         return
