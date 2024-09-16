@@ -27,6 +27,7 @@ data class CaptureLocationTaskData(
   val location: Point,
   val altitude: Double?, // in metres
   val accuracy: Double?, // in metres
+  val timestampMillis: Long,
 ) : GeometryTaskData(location) {
   override fun getDetailsText(): String {
     // TODO: Move to strings.xml for i18n
@@ -41,13 +42,14 @@ data class CaptureLocationTaskData(
   override fun isEmpty(): Boolean = false
 
   companion object {
-    fun Location.toCaptureLocationResult(): CaptureLocationTaskData {
+    fun Location.toCaptureLocationResult(timestampMillis: Long): CaptureLocationTaskData {
       val altitude = if (hasAltitude()) altitude else null
       val accuracy = if (hasAccuracy()) accuracy else null
       return CaptureLocationTaskData(
         Point(Coordinates(latitude, longitude)),
         altitude,
         accuracy?.toDouble(),
+        timestampMillis,
       )
     }
   }

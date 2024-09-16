@@ -56,6 +56,7 @@ import com.google.android.ground.proto.Submission.TASK_DATA_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.CAPTURE_LOCATION_RESULT_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.CaptureLocationResult.ACCURACY_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.CaptureLocationResult.ALTITUDE_FIELD_NUMBER
+import com.google.android.ground.proto.TaskData.CaptureLocationResult.TIMESTAMP_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.DATE_TIME_RESPONSE_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.DRAW_GEOMETRY_RESULT_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.DateTimeResponse.DATE_TIME_FIELD_NUMBER
@@ -160,6 +161,7 @@ class SubmissionMutationConverterTest {
       location = Point(Coordinates(10.0, 20.0)),
       accuracy = 80.8,
       altitude = 112.31,
+      timestampMillis = 1000L,
     )
 
   private val dateTaskResult = DateTaskData(Date.from(Instant.ofEpochSecond(918273645)))
@@ -320,6 +322,7 @@ class SubmissionMutationConverterTest {
               ),
             ACCURACY_FIELD_NUMBER.toString() to 80.8,
             ALTITUDE_FIELD_NUMBER.toString() to 112.31,
+            TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 1L),
           ),
         TASK_ID_FIELD_NUMBER.toString() to "capture_location",
       ),

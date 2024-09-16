@@ -25,18 +25,21 @@ object CaptureLocationResultConverter {
   private const val ACCURACY_KEY = "accuracy"
   private const val ALTITUDE_KEY = "altitude"
   private const val GEOMETRY_KEY = "geometry"
+  private const val TIMESTAMP = "timestamp"
 
   fun CaptureLocationTaskData.toJSONObject(): JSONObject =
     JSONObject().apply {
       put(ACCURACY_KEY, accuracy)
       put(ALTITUDE_KEY, altitude)
       put(GEOMETRY_KEY, GeometryWrapperTypeConverter.toString(geometry))
+      put(TIMESTAMP, timestampMillis)
     }
 
   fun JSONObject.toCaptureLocationTaskData(): CaptureLocationTaskData {
     val accuracy = getDouble(ACCURACY_KEY)
     val altitude = getDouble(ALTITUDE_KEY)
     val geometry = GeometryWrapperTypeConverter.fromString(getString(GEOMETRY_KEY))?.getGeometry()
-    return CaptureLocationTaskData(geometry as Point, accuracy, altitude)
+    val timestampMillis = getLong(TIMESTAMP)
+    return CaptureLocationTaskData(geometry as Point, accuracy, altitude, timestampMillis)
   }
 }

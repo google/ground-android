@@ -153,7 +153,7 @@ private fun toTaskData(id: String, newTaskData: TaskData) = taskData {
         newTaskData.altitude?.let { altitude = it }
         newTaskData.accuracy?.let { accuracy = it }
         coordinates = newTaskData.location.coordinates.toMessage()
-        // TODO: Add timestamp
+        timestamp = timestamp { seconds = newTaskData.timestampMillis / 1000 }
       }
     is GeometryTaskData -> drawGeometryResult = drawGeometryResult {
         geometry = newTaskData.geometry.toMessage()
