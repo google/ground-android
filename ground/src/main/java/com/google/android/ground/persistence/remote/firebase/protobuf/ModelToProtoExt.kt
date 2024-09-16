@@ -33,11 +33,11 @@ import com.google.android.ground.model.submission.GeometryTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.submission.PhotoTaskData
+import com.google.android.ground.model.submission.SkippedTaskData
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.TimeTaskData
-import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.submission.isNotNullOrEmpty
-import com.google.android.ground.model.task.Task
 import com.google.android.ground.proto.LinearRing as LinearRingProto
 import com.google.android.ground.proto.LocationOfInterest.Property
 import com.google.android.ground.proto.LocationOfInterest.Source
@@ -74,7 +74,7 @@ fun SubmissionMutation.createSubmissionMessage(user: User) = submission {
 
   deltas.forEach {
     if (it.newTaskData.isNotNullOrEmpty()) {
-      taskData.add(it.toMessage())
+      taskData.add(toTaskData(it.taskId, it.newTaskData!!))
     }
   }
 
@@ -128,48 +128,39 @@ fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest
   }
 }
 
-private fun ValueDelta.toMessage() = taskData {
-  val me = this@toMessage
+private fun toTaskData(id: String, newTaskData: TaskData) = taskData {
   // TODO: What should be the ID?
-  taskId = me.taskId
-  // TODO: Add "skipped" field
-  when (taskType) {
-    Task.Type.TEXT -> textResponse = textResponse { text = (newTaskData as TextTaskData).text }
-    Task.Type.NUMBER -> numberResponse = numberResponse {
-        number = (newTaskData as NumberTaskData).value
+  taskId = id
+
+  when (newTaskData) {
+    is TextTaskData -> textResponse = textResponse { text = newTaskData.text }
+    is NumberTaskData -> numberResponse = numberResponse { number = newTaskData.value }
+    // TODO: Ensure the dates are always converted to UTC time zone.
+    is DateTaskData -> dateTimeResponse = dateTimeResponse {
+        dateTime = timestamp { seconds = newTaskData.date.time / 1000 }
       }
     // TODO: Ensure the dates are always converted to UTC time zone.
-    Task.Type.DATE -> dateTimeResponse = dateTimeResponse {
-        dateTime = timestamp { seconds = (newTaskData as DateTaskData).date.time / 1000 }
+    is TimeTaskData -> dateTimeResponse = dateTimeResponse {
+        dateTime = timestamp { seconds = newTaskData.time.time / 1000 }
       }
-    // TODO: Ensure the dates are always converted to UTC time zone.
-    Task.Type.TIME -> dateTimeResponse = dateTimeResponse {
-        dateTime = timestamp { seconds = (newTaskData as TimeTaskData).time.time / 1000 }
-      }
-    Task.Type.MULTIPLE_CHOICE -> multipleChoiceResponses = multipleChoiceResponses {
-        (newTaskData as MultipleChoiceTaskData).getSelectedOptionsIdsExceptOther().forEach {
-          selectedOptionIds.add(it)
-        }
+    is MultipleChoiceTaskData -> multipleChoiceResponses = multipleChoiceResponses {
+        newTaskData.getSelectedOptionsIdsExceptOther().forEach { selectedOptionIds.add(it) }
         if (newTaskData.hasOtherText()) {
           otherText = newTaskData.getOtherText()
         }
       }
-    Task.Type.DROP_PIN,
-    Task.Type.DRAW_AREA -> drawGeometryResult = drawGeometryResult {
-        geometry = (newTaskData as GeometryTaskData).geometry.toMessage()
-      }
-    Task.Type.CAPTURE_LOCATION -> captureLocationResult = captureLocationResult {
-        val data = newTaskData as CaptureLocationTaskData
-        data.altitude?.let { altitude = it }
-        data.accuracy?.let { accuracy = it }
-        coordinates = data.location.coordinates.toMessage()
+    is CaptureLocationTaskData -> captureLocationResult = captureLocationResult {
+        newTaskData.altitude?.let { altitude = it }
+        newTaskData.accuracy?.let { accuracy = it }
+        coordinates = newTaskData.location.coordinates.toMessage()
         // TODO: Add timestamp
       }
-    Task.Type.PHOTO -> takePhotoResult = takePhotoResult {
-        val data = newTaskData as PhotoTaskData
-        photoPath = data.remoteFilename
+    is GeometryTaskData -> drawGeometryResult = drawGeometryResult {
+        geometry = newTaskData.geometry.toMessage()
       }
-    Task.Type.UNKNOWN -> error("Unknown task type")
+    is PhotoTaskData -> takePhotoResult = takePhotoResult { photoPath = newTaskData.remoteFilename }
+    is SkippedTaskData -> skipped = true
+    else -> error("Unknown task type")
   }
 }
 
