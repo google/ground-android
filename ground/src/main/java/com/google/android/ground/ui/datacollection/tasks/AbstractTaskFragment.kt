@@ -152,7 +152,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .setOnClickListener { handleNext() }
       .setOnValueChanged { button, value ->
         button.enableIfTrue(value.isNotNullOrEmpty())
-        button.applyDoneState(checkLastPositionWithTaskData(value))
+        button.toggleDone(checkLastPositionWithTaskData(value))
       }
       .disable()
 
@@ -236,21 +236,12 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   /** Returns true if the current task is in the last position in the sequence. */
   private fun isLastPosition() = dataCollectionViewModel.isLastPosition(taskId)
 
-/**
-   * Returns true if the current task with the given task data would be last in sequence.
-   * Useful for handling conditional tasks, see #2394.
+  /**
+   * Returns true if the current task with the given task data would be last in sequence. Useful for
+   * handling conditional tasks, see #2394.
    */
-  private fun checkLastPositionWithTaskData(value: TaskData?) =
+  protected fun checkLastPositionWithTaskData(value: TaskData?) =
     dataCollectionViewModel.checkLastPositionWithTaskData(taskId, value)
-
-  /** Sets the given [TaskButton] to "Done" dynamically. */
-  private fun TaskButton.applyDoneState(done: Boolean) {
-    if (done) {
-      done()
-    } else {
-      next()
-    }
-  }
 
   fun getTask(): Task = viewModel.task
 

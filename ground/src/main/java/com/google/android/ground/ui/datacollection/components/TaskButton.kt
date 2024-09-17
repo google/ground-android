@@ -88,6 +88,15 @@ class TaskButton(initialAction: ButtonAction) {
     return this
   }
 
+  fun toggleDone(done: Boolean): TaskButton {
+    if (action.value == ButtonAction.NEXT && done) {
+      done()
+    } else if (action.value == ButtonAction.DONE) {
+      next()
+    }
+    return this
+  }
+
   fun show(): TaskButton {
     hidden.value = false
     return this
