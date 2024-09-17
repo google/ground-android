@@ -322,12 +322,12 @@ class SubmissionMutationConverterTest {
       ),
       mapOf(
         DATE_TIME_RESPONSE_FIELD_NUMBER.toString() to
-          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 1725537603066)),
+          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 1725537603)),
         TASK_ID_FIELD_NUMBER.toString() to "date_task",
       ),
       mapOf(
         DATE_TIME_RESPONSE_FIELD_NUMBER.toString() to
-          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 1725537603066)),
+          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 1725537603)),
         TASK_ID_FIELD_NUMBER.toString() to "time_task",
       ),
     )
