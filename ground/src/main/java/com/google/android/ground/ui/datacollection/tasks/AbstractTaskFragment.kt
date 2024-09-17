@@ -236,9 +236,9 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   /** Returns true if the current task is in the last position in the sequence. */
   private fun isLastPosition() = dataCollectionViewModel.isLastPosition(taskId)
 
-  /**
-   * Tests whether a given task value applied to the current task causes the current task to be last
-   * in sequence.
+/**
+   * Returns true if the current task with the given task data would be last in sequence.
+   * Useful for handling conditional tasks, see #2394.
    */
   private fun checkLastPositionWithTaskData(value: TaskData?) =
     dataCollectionViewModel.checkLastPositionWithTaskData(taskId, value)

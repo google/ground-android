@@ -383,17 +383,17 @@ internal constructor(
   /** Returns true if the given [taskId] is first in the sequence of displayed tasks. */
   fun isFirstPosition(taskId: String): Boolean = taskId == getTaskSequence().first().id
 
-  /** Returns true if the given [taskId] is last if set, or the current active task. */
-  fun isLastPosition(taskId: String? = null): Boolean =
-    (taskId ?: currentTaskId.value) == getTaskSequence().last().id
-
   /**
-   * Returns true if the given [taskId] and task data would be last, or the current active task.
-   * Useful for handling conditional tasks.
+   * Returns true if the given [taskId] with task data would be last in sequence. Defaults to the
+   * current active task if not set. Useful for handling conditional tasks, see #2394.
    */
   fun checkLastPositionWithTaskData(taskId: String? = null, value: TaskData?): Boolean =
     (taskId ?: currentTaskId.value) ==
       getTaskSequence(taskValueOverride = (taskId ?: currentTaskId.value) to value).last().id
+
+  /** Returns true if the given [taskId] is last if set, or the current active task. */
+  fun isLastPosition(taskId: String? = null): Boolean =
+    (taskId ?: currentTaskId.value) == getTaskSequence().last().id
 
   /** Evaluates the task condition against the current inputs. */
   private fun evaluateCondition(
