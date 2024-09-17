@@ -25,6 +25,7 @@ import com.google.android.ground.model.submission.DropPinTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.submission.PhotoTaskData
+import com.google.android.ground.model.submission.SkippedTaskData
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.Task
@@ -39,7 +40,8 @@ import timber.log.Timber
 
 internal object ValueJsonConverter {
 
-  // ipoch millis to date
+  private const val SKIPPED_KEY = "skipped"
+
   fun toJsonObject(taskData: TaskData?): Any {
     if (taskData == null) return JSONObject.NULL
     return when (taskData) {
@@ -51,6 +53,7 @@ internal object ValueJsonConverter {
       is DrawAreaTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is DropPinTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is CaptureLocationTaskData -> taskData.toJSONObject()
+      is SkippedTaskData -> JSONObject().put(SKIPPED_KEY, true)
       else -> throw UnsupportedOperationException("Unimplemented value class ${taskData.javaClass}")
     }
   }
@@ -63,6 +66,11 @@ internal object ValueJsonConverter {
     if (JSONObject.NULL === obj) {
       return null
     }
+
+    if (obj is JSONObject && obj.getBoolean(SKIPPED_KEY)) {
+      return SkippedTaskData()
+    }
+
     return when (task.type) {
       Task.Type.TEXT -> {
         DataStoreException.checkType(String::class.java, obj)
