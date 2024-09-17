@@ -53,7 +53,7 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
           val c = Calendar.getInstance()
           c[Calendar.HOUR_OF_DAY] = updatedHourOfDay
           c[Calendar.MINUTE] = updatedMinute
-          viewModel.updateResponse(getFormattedTime(c.time), c.timeInMillis)
+          viewModel.updateResponse(getTimeFormatter(), c.time)
         },
         hour,
         minute,

@@ -20,7 +20,6 @@ import android.text.format.DateFormat
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.model.submission.DateTaskData.Companion.fromDate
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.*
@@ -34,20 +33,20 @@ import org.robolectric.RobolectricTestRunner
 class DateTaskViewModelTest : BaseHiltTest() {
   @Inject lateinit var dateTaskViewModel: DateTaskViewModel
   private lateinit var context: Context
-  private lateinit var formattedDate: String
+  private lateinit var dateFormatter: java.text.DateFormat
 
   override fun setUp() {
     super.setUp()
     context = ApplicationProvider.getApplicationContext()
-    formattedDate = DateFormat.getDateFormat(context).format(CALENDAR.time)
+    dateFormatter = DateFormat.getDateFormat(context)
   }
 
   @Test
   fun testUpdateResponse() = runWithTestDispatcher {
-    dateTaskViewModel.updateResponse(formattedDate, CALENDAR.timeInMillis)
+    dateTaskViewModel.updateResponse(dateFormatter, CALENDAR.time)
 
-    dateTaskViewModel.taskTaskData.test {
-      assertThat(expectMostRecentItem()).isEqualTo(fromDate(formattedDate, CALENDAR.timeInMillis))
+    dateTaskViewModel.dateText.test {
+      assertThat(expectMostRecentItem()).isEqualTo(dateFormatter.format(CALENDAR.time))
     }
   }
 

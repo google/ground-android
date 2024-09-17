@@ -159,7 +159,7 @@ class SubmissionMutationConverterTest {
       altitude = 112.31,
     )
 
-  private val dateTaskResult = DateTaskData("05/09/2024", 1725537603066)
+  private val dateTaskResult = DateTaskData(1725537603066)
 
   private val submissionMutation =
     SubmissionMutation(
@@ -214,10 +214,8 @@ class SubmissionMutationConverterTest {
             taskType = Task.Type.CAPTURE_LOCATION,
             newTaskData = captureLocationTaskResult,
           ),
-          ValueDelta(taskId = "date_task", taskType = Task.Type.DATE, newTaskData =
-          dateTaskResult),
-           ValueDelta(taskId = "time_task", taskType = Task.Type.TIME, newTaskData =
-           dateTaskResult),
+          ValueDelta(taskId = "date_task", taskType = Task.Type.DATE, newTaskData = dateTaskResult),
+          ValueDelta(taskId = "time_task", taskType = Task.Type.TIME, newTaskData = dateTaskResult),
         ),
     )
 

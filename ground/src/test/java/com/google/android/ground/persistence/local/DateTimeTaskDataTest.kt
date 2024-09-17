@@ -16,7 +16,6 @@
 package com.google.android.ground.persistence.local
 
 import android.content.Context
-import android.text.format.DateFormat
 import androidx.test.core.app.ApplicationProvider
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.submission.DateTaskData
@@ -40,16 +39,8 @@ class DateTimeTaskDataTest : BaseHiltTest() {
 
   @Test
   fun testTimeResponse_textDetails() {
-    val date = DateFormat.getTimeFormat(context).format(getCalendar().time)
-    val detailsText = DateTaskData(date, CALENDAR.time.time).getDetailsText()
-    assertThat(detailsText).isEqualTo("10:30 AM")
-  }
-
-  @Test
-  fun testDateResponse_textDetails() {
-    val date = DateFormat.getDateFormat(context).format(getCalendar().time)
-    val detailsText = DateTaskData(date, CALENDAR.time.time).getDetailsText()
-    assertThat(detailsText).isEqualTo("1/1/23")
+    val detailsText = DateTaskData.fromDate(getCalendar().time.time)
+    assertThat(detailsText).isEqualTo(DateTaskData(time = 1672549215471))
   }
 
   companion object {

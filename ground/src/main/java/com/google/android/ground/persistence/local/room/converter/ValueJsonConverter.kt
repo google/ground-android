@@ -39,16 +39,14 @@ import timber.log.Timber
 
 internal object ValueJsonConverter {
 
+  // ipoch millis to date
   fun toJsonObject(taskData: TaskData?): Any {
     if (taskData == null) return JSONObject.NULL
     return when (taskData) {
       is TextTaskData -> taskData.text
       is MultipleChoiceTaskData -> toJsonArray(taskData)
       is NumberTaskData -> taskData.value
-      is DateTaskData -> JSONObject().apply {
-          put("DateString", taskData.formattedDate)
-          put("Time", taskData.time)
-        }
+      is DateTaskData -> taskData.time
       is PhotoTaskData -> taskData.remoteFilename
       is DrawAreaTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is DropPinTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
@@ -82,9 +80,10 @@ internal object ValueJsonConverter {
         DataStoreException.checkType(Number::class.java, obj)
         NumberTaskData.fromNumber(obj.toString())
       }
-      Task.Type.DATE, Task.Type.TIME -> {
-        DataStoreException.checkType(JSONObject::class.java, obj)
-        dateTimeFromJsonObject(obj as JSONObject).getOrThrow()
+      Task.Type.DATE,
+      Task.Type.TIME -> {
+        DataStoreException.checkType(Long::class.java, obj)
+        DateTaskData.fromDate(obj as Long)
       }
       Task.Type.DRAW_AREA -> {
         DataStoreException.checkType(String::class.java, obj)
@@ -109,13 +108,6 @@ internal object ValueJsonConverter {
       }
     }
   }
-
-  private fun dateTimeFromJsonObject(data: JSONObject): Result<DateTaskData> =
-    Result.runCatching {
-      val formattedString = data.getString("DateString")
-      val time = data.getLong("Time")
-      DateTaskData(formattedString, time)
-    }
 
   private fun toList(jsonArray: JSONArray): List<String> {
     val list: MutableList<String> = ArrayList(jsonArray.length())

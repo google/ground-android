@@ -19,13 +19,13 @@ import kotlinx.serialization.Serializable
 
 /** A user-provided response to a date question task. */
 @Serializable
-data class DateTaskData(val formattedDate: String, val time: Long) : TaskData {
+data class DateTaskData(val time: Long) : TaskData {
 
-  override fun getDetailsText(): String = formattedDate
+  override fun getDetailsText(): String = ""
 
   override fun isEmpty(): Boolean = time == 0L
 
   companion object {
-    fun fromDate(formattedDate: String, time: Long): TaskData = DateTaskData(formattedDate, time)
+    fun fromDate(time: Long): TaskData = DateTaskData(time)
   }
 }

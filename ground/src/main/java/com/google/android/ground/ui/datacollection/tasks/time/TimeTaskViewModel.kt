@@ -17,11 +17,21 @@ package com.google.android.ground.ui.datacollection.tasks.time
 
 import com.google.android.ground.model.submission.DateTaskData.Companion.fromDate
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
+import java.text.DateFormat
+import java.util.Date
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class TimeTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
-  fun updateResponse(formattedDate: String, time: Long) {
-    setValue(fromDate(formattedDate, time))
+  private var _timeText: MutableStateFlow<String> = MutableStateFlow("")
+  val timeText = _timeText.asStateFlow()
+
+  fun updateResponse(dateFormat: DateFormat?, date: Date) {
+    dateFormat?.let {
+      _timeText.value = it.format(date)
+      setValue(fromDate(date.time))
+    }
   }
 }

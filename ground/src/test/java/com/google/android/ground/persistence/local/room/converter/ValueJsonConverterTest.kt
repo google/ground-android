@@ -35,7 +35,6 @@ import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.collections.immutable.persistentListOf
 import org.json.JSONArray
-import org.json.JSONObject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
@@ -59,13 +58,9 @@ class ValueJsonConverterTest(
   }
 
   companion object {
-    // Date represented in JSON Object
-    private val dateTimeResponseJsonObject = JSONObject().apply {
-      put("DateString", "05/09/2024")
-      put("Time", 1725537603066)
-    }
+    private const val dateTimeResponse = 1725537603066
 
-    private val dateTimeResponse = DateTaskData.fromDate("05/09/2024", 1725537603066)
+    private val dateTimeOption = DateTaskData.fromDate(1725537603066)
 
     private val multipleChoiceOptions =
       persistentListOf(
@@ -140,10 +135,8 @@ class ValueJsonConverterTest(
           NumberTaskData.fromNumber("12345.0"),
           12345.0,
         ),
-        arrayOf(FakeData.newTask(type = Task.Type.DATE),
-          dateTimeResponse, dateTimeResponseJsonObject),
-        arrayOf(FakeData.newTask(type = Task.Type.TIME),
-          dateTimeResponse, dateTimeResponseJsonObject),
+        arrayOf(FakeData.newTask(type = Task.Type.DATE), dateTimeOption, dateTimeResponse),
+        arrayOf(FakeData.newTask(type = Task.Type.TIME), dateTimeOption, dateTimeResponse),
         arrayOf(
           FakeData.newTask(type = Task.Type.DROP_PIN),
           dropPinTaskResponse,
