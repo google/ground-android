@@ -91,7 +91,7 @@ class TaskButton(initialAction: ButtonAction) {
   fun toggleDone(done: Boolean): TaskButton {
     if (action.value == ButtonAction.NEXT && done) {
       done()
-    } else if (action.value == ButtonAction.DONE) {
+    } else if (action.value == ButtonAction.DONE && !done) {
       next()
     }
     return this

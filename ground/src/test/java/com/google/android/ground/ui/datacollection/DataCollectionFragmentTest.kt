@@ -242,8 +242,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       // Conditional task is rendered.
       .validateTextIsDisplayed(TASK_CONDITIONAL_NAME)
       .inputText(TASK_CONDITIONAL_RESPONSE)
-      // NOTE(#2394): This check happens faster than the callback to set Done correctly.
-      .clickNextButton()
+      .clickDoneButton()
 
     verify(submissionRepository)
       .saveSubmission(
@@ -276,9 +275,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         // Unselect the option to hide the conditional task.
         .selectMultipleChoiceOption(TASK_2_OPTION_CONDITIONAL_LABEL)
         .selectMultipleChoiceOption(TASK_2_OPTION_LABEL)
-        // NOTE(#2394): This check happens faster than the callback to set Done
-        // correctly.
-        .clickNextButton()
+        .clickDoneButton()
         .validateTextIsNotDisplayed(TASK_CONDITIONAL_NAME)
 
       verify(submissionRepository)
