@@ -28,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import com.google.android.ground.model.submission.TaskData
 
-class TaskButton(val action: ButtonAction) {
+class TaskButton(var action: MutableState<ButtonAction>) {
 
   private lateinit var clickCallback: () -> Unit
 
@@ -40,7 +40,7 @@ class TaskButton(val action: ButtonAction) {
   @Composable
   fun CreateButton() {
     if (!hidden.value) {
-      when (action.theme) {
+      when (action.value.theme) {
         ButtonAction.Theme.DARK_GREEN ->
           Button(onClick = { clickCallback() }, enabled = enabled.value) { Content() }
         ButtonAction.Theme.LIGHT_GREEN ->
@@ -58,15 +58,15 @@ class TaskButton(val action: ButtonAction) {
   @Composable
   private fun Content() {
     // Icon
-    action.drawableId?.let {
+    action.value.drawableId?.let {
       Icon(
         imageVector = ImageVector.vectorResource(id = it),
-        contentDescription = action.contentDescription?.let { resId -> stringResource(resId) },
+        contentDescription = action.value.contentDescription?.let { resId -> stringResource(resId) },
       )
     }
 
     // Label
-    action.textId?.let { textId -> Text(text = stringResource(id = textId)) }
+    action.value.textId?.let { textId -> Text(text = stringResource(id = textId)) }
   }
 
   /** Updates the `visibility` property button. */

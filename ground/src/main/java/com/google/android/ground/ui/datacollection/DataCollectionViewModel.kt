@@ -325,7 +325,11 @@ internal constructor(
    * start ID will always generate a sequence with the start ID as the first element, and if
    * reversed is set, will generate the previous tasks from there.
    */
-  private fun getTaskSequence(startId: String? = null, reversed: Boolean = false): Sequence<Task> {
+  private fun getTaskSequence(
+    startId: String? = null,
+    reversed: Boolean = false,
+    taskValueOverride: Pair<String, TaskData?>? = null,
+  ): Sequence<Task> {
     if (tasks.isEmpty()) {
       error("Can't generate sequence for empty task list")
     }
@@ -345,7 +349,9 @@ internal constructor(
         tasks.subList(startIndex, tasks.size)
       }
       .let { tasks ->
-        tasks.asSequence().filter { it.condition == null || evaluateCondition(it.condition) }
+        tasks.asSequence().filter {
+          it.condition == null || evaluateCondition(it.condition, taskValueOverride)
+        }
       }
   }
 
@@ -381,10 +387,36 @@ internal constructor(
   fun isLastPosition(taskId: String? = null): Boolean =
     (taskId ?: currentTaskId.value) == getTaskSequence().last().id
 
+  /**
+   * Returns true if the given [taskId] and task data would be last, or the current active task.
+   * Useful for handling conditional tasks.
+   */
+  fun testLastPosition(taskId: String? = null, value: TaskData?): Boolean =
+    (taskId ?: currentTaskId.value) ==
+      getTaskSequence(taskValueOverride = (taskId ?: currentTaskId.value) to value).last().id
+
   /** Evaluates the task condition against the current inputs. */
-  private fun evaluateCondition(condition: Condition): Boolean =
+  private fun evaluateCondition(
+    condition: Condition,
+    taskValueOverride: Pair<String, TaskData?>? = null,
+  ): Boolean =
     condition.fulfilledBy(
-      data.mapNotNull { (task, value) -> value?.let { task.id to value } }.toMap()
+      data
+        .mapNotNull { (task, value) -> value?.let { task.id to it } }
+        .let { pairs ->
+          if (taskValueOverride != null) {
+            if (taskValueOverride.second == null) {
+              // Remove pairs with the testTaskId if testValue is null.
+              pairs.filterNot { it.first == taskValueOverride.first }
+            } else {
+              // Override any task IDs with the test values.
+              pairs + (taskValueOverride.first to taskValueOverride.second!!)
+            }
+          } else {
+            pairs
+          }
+        }
+        .toMap()
     )
 
   companion object {

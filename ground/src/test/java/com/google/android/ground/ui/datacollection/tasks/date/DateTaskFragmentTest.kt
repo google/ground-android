@@ -94,7 +94,6 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   @Test
   fun testActionButtons() {
     setupTaskFragment<DateTaskFragment>(job, task)
-
     assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)
   }
 

@@ -150,7 +150,10 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   protected fun addNextButton() =
     addButton(ButtonAction.NEXT)
       .setOnClickListener { handleNext() }
-      .setOnValueChanged { button, value -> button.enableIfTrue(value.isNotNullOrEmpty()) }
+      .setOnValueChanged { button, value ->
+        button.enableIfTrue(value.isNotNullOrEmpty())
+        button.applyDoneState(testLastPosition(value))
+      }
       .disable()
 
   /** Skip button is only visible iff the task is optional and the task doesn't contain any data. */
@@ -202,9 +205,12 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .hide()
 
   protected fun addButton(buttonAction: ButtonAction): TaskButton {
-    val action = if (buttonAction.shouldReplaceWithDoneButton()) ButtonAction.DONE else buttonAction
-    check(!buttonDataList.any { it.button.action == action }) { "Button $action already bound" }
-    val button = TaskButton(action)
+    val action =
+      if (buttonAction == ButtonAction.NEXT && isLastPosition()) ButtonAction.DONE else buttonAction
+    check(!buttonDataList.any { it.button.action.value == action }) {
+      "Button $action already bound"
+    }
+    val button = TaskButton(mutableStateOf(action))
     buttonDataList.add(ButtonData(index = buttonDataList.size, button))
     return button
   }
@@ -227,9 +233,22 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  /** Returns true if the given [ButtonAction] should be replace with "Done" button. */
-  private fun ButtonAction.shouldReplaceWithDoneButton() =
-    this == ButtonAction.NEXT && dataCollectionViewModel.isLastPosition(taskId)
+  /** Returns true if the survey is in the last position. */
+  private fun isLastPosition() = dataCollectionViewModel.isLastPosition(taskId)
+
+  /** Tests whether a given value applied to the current task causes the . */
+  private fun testLastPosition(value: TaskData?) =
+    dataCollectionViewModel.testLastPosition(taskId, value)
+
+  /** Sets the given [TaskButton] to "Done" dynamically. */
+  private fun TaskButton.applyDoneState(done: Boolean) {
+    action.value =
+      if (done) {
+        ButtonAction.DONE
+      } else {
+        ButtonAction.NEXT
+      }
+  }
 
   fun getTask(): Task = viewModel.task
 
