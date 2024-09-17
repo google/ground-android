@@ -28,10 +28,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import com.google.android.ground.model.submission.TaskData
 
-class TaskButton(var action: MutableState<ButtonAction>) {
+class TaskButton(initialAction: ButtonAction) {
 
   private lateinit var clickCallback: () -> Unit
 
+  private var action: MutableState<ButtonAction> = mutableStateOf(initialAction)
   private var enabled: MutableState<Boolean> = mutableStateOf(true)
   private var hidden: MutableState<Boolean> = mutableStateOf(false)
 
@@ -74,6 +75,18 @@ class TaskButton(var action: MutableState<ButtonAction>) {
 
   /** Updates the `isEnabled` property of button. */
   fun enableIfTrue(result: Boolean): TaskButton = if (result) enable() else disable()
+
+  fun getAction(): ButtonAction = action.value
+
+  fun done(): TaskButton {
+    action.value = ButtonAction.DONE
+    return this
+  }
+
+  fun next(): TaskButton {
+    action.value = ButtonAction.NEXT
+    return this
+  }
 
   fun show(): TaskButton {
     hidden.value = false

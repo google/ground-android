@@ -152,7 +152,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .setOnClickListener { handleNext() }
       .setOnValueChanged { button, value ->
         button.enableIfTrue(value.isNotNullOrEmpty())
-        button.applyDoneState(testLastPosition(value))
+        button.applyDoneState(checkLastPositionWithTaskData(value))
       }
       .disable()
 
@@ -207,10 +207,10 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   protected fun addButton(buttonAction: ButtonAction): TaskButton {
     val action =
       if (buttonAction == ButtonAction.NEXT && isLastPosition()) ButtonAction.DONE else buttonAction
-    check(!buttonDataList.any { it.button.action.value == action }) {
+    check(!buttonDataList.any { it.button.getAction() == action }) {
       "Button $action already bound"
     }
-    val button = TaskButton(mutableStateOf(action))
+    val button = TaskButton(action)
     buttonDataList.add(ButtonData(index = buttonDataList.size, button))
     return button
   }
@@ -237,17 +237,16 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   private fun isLastPosition() = dataCollectionViewModel.isLastPosition(taskId)
 
   /** Tests whether a given value applied to the current task causes the . */
-  private fun testLastPosition(value: TaskData?) =
-    dataCollectionViewModel.testLastPosition(taskId, value)
+  private fun checkLastPositionWithTaskData(value: TaskData?) =
+    dataCollectionViewModel.checkLastPositionWithTaskData(taskId, value)
 
   /** Sets the given [TaskButton] to "Done" dynamically. */
   private fun TaskButton.applyDoneState(done: Boolean) {
-    action.value =
-      if (done) {
-        ButtonAction.DONE
-      } else {
-        ButtonAction.NEXT
-      }
+    if (done) {
+      done()
+    } else {
+      next()
+    }
   }
 
   fun getTask(): Task = viewModel.task

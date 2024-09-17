@@ -391,7 +391,7 @@ internal constructor(
    * Returns true if the given [taskId] and task data would be last, or the current active task.
    * Useful for handling conditional tasks.
    */
-  fun testLastPosition(taskId: String? = null, value: TaskData?): Boolean =
+  fun checkLastPositionWithTaskData(taskId: String? = null, value: TaskData?): Boolean =
     (taskId ?: currentTaskId.value) ==
       getTaskSequence(taskValueOverride = (taskId ?: currentTaskId.value) to value).last().id
 
