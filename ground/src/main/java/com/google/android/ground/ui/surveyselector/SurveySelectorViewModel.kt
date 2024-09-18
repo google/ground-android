@@ -72,6 +72,10 @@ internal constructor(
   fun activateSurvey(surveyId: String) =
     viewModelScope.launch {
       runCatching {
+          // Ignore extra clicks while survey is loading, see #2729.
+          if (_uiState.value is UiState.ActivatingSurvey) {
+            return@runCatching
+          }
           _uiState.emit(UiState.ActivatingSurvey)
           activateSurveyUseCase(surveyId)
         }
