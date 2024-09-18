@@ -73,11 +73,10 @@ internal constructor(
     viewModelScope.launch {
       runCatching {
           // Ignore extra clicks while survey is loading, see #2729.
-          if (_uiState.value is UiState.ActivatingSurvey) {
-            return@runCatching
+          if (_uiState.value !is UiState.ActivatingSurvey) {
+            _uiState.emit(UiState.ActivatingSurvey)
+            activateSurveyUseCase(surveyId)
           }
-          _uiState.emit(UiState.ActivatingSurvey)
-          activateSurveyUseCase(surveyId)
         }
         .fold(
           onSuccess = {
