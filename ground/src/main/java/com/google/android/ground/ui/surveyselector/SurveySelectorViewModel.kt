@@ -69,7 +69,12 @@ internal constructor(
     }
 
   /** Triggers the specified survey to be loaded and activated. */
-  fun activateSurvey(surveyId: String) =
+  fun activateSurvey(surveyId: String) {
+    if (_uiState.value is UiState.ActivatingSurvey) {
+      // Ignore extra clicks while survey is loading, see #2729.
+      Timber.v("Ignoring extra survey click.")
+      return
+    }
     viewModelScope.launch {
       runCatching {
           _uiState.emit(UiState.ActivatingSurvey)
@@ -86,6 +91,7 @@ internal constructor(
           },
         )
     }
+  }
 
   private fun navigateToHomeScreen() {
     navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
