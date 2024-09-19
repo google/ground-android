@@ -44,7 +44,7 @@
       android:inputType="datetime"
       android:maxLines="1"
       android:onClick="@{__ -> fragment.showTimeDialog()}"
-      android:text="@{viewModel.responseText}"
+      android:text="@{viewModel.timeText}"
       tools:text="@string/time" />
   </com.google.android.material.textfield.TextInputLayout>
 </layout>

@@ -28,7 +28,7 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.CaptureLocationTaskData
-import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.DateTimeTaskData
 import com.google.android.ground.model.submission.GeometryTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
@@ -36,7 +36,6 @@ import com.google.android.ground.model.submission.PhotoTaskData
 import com.google.android.ground.model.submission.SkippedTaskData
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
-import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.proto.LinearRing as LinearRingProto
 import com.google.android.ground.proto.LocationOfInterest.Property
@@ -135,13 +134,8 @@ private fun toTaskData(id: String, newTaskData: TaskData) = taskData {
   when (newTaskData) {
     is TextTaskData -> textResponse = textResponse { text = newTaskData.text }
     is NumberTaskData -> numberResponse = numberResponse { number = newTaskData.value }
-    // TODO: Ensure the dates are always converted to UTC time zone.
-    is DateTaskData -> dateTimeResponse = dateTimeResponse {
-        dateTime = timestamp { seconds = newTaskData.date.time / 1000 }
-      }
-    // TODO: Ensure the dates are always converted to UTC time zone.
-    is TimeTaskData -> dateTimeResponse = dateTimeResponse {
-        dateTime = timestamp { seconds = newTaskData.time.time / 1000 }
+    is DateTimeTaskData -> dateTimeResponse = dateTimeResponse {
+        dateTime = timestamp { seconds = newTaskData.timeInMillis / 1000 }
       }
     is MultipleChoiceTaskData -> multipleChoiceResponses = multipleChoiceResponses {
         newTaskData.getSelectedOptionsIdsExceptOther().forEach { selectedOptionIds.add(it) }
