@@ -65,5 +65,7 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
       }
   }
 
+  fun getTimeFormatter(): java.text.DateFormat? = DateFormat.getTimeFormat(requireContext())
+
   @TestOnly fun getTimePickerDialog(): TimePickerDialog? = timePickerDialog
 }

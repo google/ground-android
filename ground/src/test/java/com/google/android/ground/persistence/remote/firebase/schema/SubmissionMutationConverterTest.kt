@@ -22,7 +22,7 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.CaptureLocationTaskData
-import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.DateTimeTaskData
 import com.google.android.ground.model.submission.DrawAreaTaskData
 import com.google.android.ground.model.submission.DropPinTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
@@ -161,7 +161,7 @@ class SubmissionMutationConverterTest {
       altitude = 112.31,
     )
 
-  private val dateTaskResult = DateTaskData(1725537603066)
+  private val dateTaskResult = DateTimeTaskData(1725537603066)
 
   private val submissionMutation =
     SubmissionMutation(

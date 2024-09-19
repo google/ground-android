@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.persistence.local
 
-import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.DateTimeTaskData
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -23,7 +23,7 @@ class DateTimeTaskDataTest {
 
   @Test
   fun testTimeResponse_textDetails() {
-    val calendarTime = DateTaskData.fromDate(1672549215471)
-    assertThat(calendarTime).isEqualTo(DateTaskData(time = 1672549215471))
+    val calendarTime = DateTimeTaskData.fromDate(1672549215471)
+    assertThat(calendarTime).isEqualTo(DateTimeTaskData(timeInMillis = 1672549215471))
   }
 }

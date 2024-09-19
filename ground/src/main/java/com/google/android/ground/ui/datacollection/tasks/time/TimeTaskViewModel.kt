@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.time
 
-import com.google.android.ground.model.submission.DateTaskData.Companion.fromDate
+import com.google.android.ground.model.submission.DateTimeTaskData.Companion.fromDate
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import java.text.DateFormat
 import java.util.Date

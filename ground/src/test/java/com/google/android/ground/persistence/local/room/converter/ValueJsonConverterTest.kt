@@ -20,7 +20,7 @@ import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.DateTimeTaskData
 import com.google.android.ground.model.submission.DrawAreaTaskData
 import com.google.android.ground.model.submission.DropPinTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
@@ -60,7 +60,7 @@ class ValueJsonConverterTest(
   companion object {
     private const val dateTimeResponse = 1725537603066
 
-    private val dateTimeOption = DateTaskData.fromDate(1725537603066)
+    private val dateTimeOption = DateTimeTaskData.fromDate(1725537603066)
 
     private val multipleChoiceOptions =
       persistentListOf(

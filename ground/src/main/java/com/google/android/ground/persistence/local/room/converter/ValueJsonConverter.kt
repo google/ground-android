@@ -19,7 +19,7 @@ package com.google.android.ground.persistence.local.room.converter
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.submission.CaptureLocationTaskData
-import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.DateTimeTaskData
 import com.google.android.ground.model.submission.DrawAreaTaskData
 import com.google.android.ground.model.submission.DropPinTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
@@ -48,7 +48,7 @@ internal object ValueJsonConverter {
       is TextTaskData -> taskData.text
       is MultipleChoiceTaskData -> toJsonArray(taskData)
       is NumberTaskData -> taskData.value
-      is DateTaskData -> taskData.time
+      is DateTimeTaskData -> taskData.timeInMillis
       is PhotoTaskData -> taskData.remoteFilename
       is DrawAreaTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is DropPinTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
@@ -91,7 +91,7 @@ internal object ValueJsonConverter {
       Task.Type.DATE,
       Task.Type.TIME -> {
         DataStoreException.checkType(Long::class.java, obj)
-        DateTaskData.fromDate(obj as Long)
+        DateTimeTaskData.fromDate(obj as Long)
       }
       Task.Type.DRAW_AREA -> {
         DataStoreException.checkType(String::class.java, obj)

@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.datacollection.tasks
 
 import android.os.Bundle
-import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -275,10 +274,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   data class ButtonData(val index: Int, val button: TaskButton)
-
-  fun getDateFormatter(): java.text.DateFormat? = DateFormat.getDateFormat(requireContext())
-
-  fun getTimeFormatter(): java.text.DateFormat? = DateFormat.getTimeFormat(requireContext())
 
   companion object {
     const val TASK_ID = "taskId"
