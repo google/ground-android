@@ -17,6 +17,7 @@ package com.google.android.ground.model.mutation
 
 import com.google.android.ground.model.geometry.Geometry
 import com.google.android.ground.model.locationofinterest.LoiProperties
+import com.google.android.ground.proto.LocationOfInterest.Source
 import java.util.Date
 
 data class LocationOfInterestMutation(
@@ -35,5 +36,5 @@ data class LocationOfInterestMutation(
   val geometry: Geometry? = null,
   val submissionCount: Int = 0,
   val properties: LoiProperties = mapOf(),
-  val isPredefined: Boolean? = null,
+  val source: Source = Source.SOURCE_UNSPECIFIED,
 ) : Mutation()

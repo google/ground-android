@@ -28,6 +28,7 @@ import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
+import com.google.android.ground.proto.LocationOfInterest.Source
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.GmsExt.contains
@@ -113,7 +114,7 @@ constructor(
         userId = user.id,
         geometry = geometry,
         properties = generateProperties(loiName),
-        isPredefined = false,
+        source = Source.FIELD_DATA,
         collectionId = collectionId,
       )
     applyAndEnqueue(mutation)

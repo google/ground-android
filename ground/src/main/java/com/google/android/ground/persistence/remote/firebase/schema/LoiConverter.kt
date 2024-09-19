@@ -21,7 +21,6 @@ import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.protobuf.parseFrom
 import com.google.android.ground.persistence.remote.firebase.schema.GeometryConverter.toGeometry
 import com.google.android.ground.proto.LocationOfInterest as LocationOfInterestProto
-import com.google.android.ground.proto.LocationOfInterest.Source
 import com.google.firebase.firestore.DocumentSnapshot
 
 // TODO: Add tests.
@@ -63,7 +62,6 @@ object LoiConverter {
           }
         it.key to propertyValue
       }
-    val isPredefined = loiProto.source == Source.IMPORTED
     return LocationOfInterest(
       id = loiId,
       surveyId = survey.id,
@@ -75,7 +73,7 @@ object LoiConverter {
       geometry = geometry,
       submissionCount = submissionCount,
       properties = properties,
-      isPredefined = isPredefined,
+      source = loiProto.source,
     )
   }
 }

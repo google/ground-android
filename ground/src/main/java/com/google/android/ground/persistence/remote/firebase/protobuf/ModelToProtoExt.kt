@@ -40,7 +40,6 @@ import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.proto.LinearRing as LinearRingProto
 import com.google.android.ground.proto.LocationOfInterest.Property
-import com.google.android.ground.proto.LocationOfInterest.Source
 import com.google.android.ground.proto.LocationOfInterestKt.property
 import com.google.android.ground.proto.MultiPolygon as MultiPolygonProto
 import com.google.android.ground.proto.Polygon as PolygonProto
@@ -114,9 +113,7 @@ fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest
     Mutation.Type.CREATE -> {
       created = auditInfo
       lastModified = auditInfo
-      source =
-        if (isPredefined == null) Source.SOURCE_UNSPECIFIED
-        else if (isPredefined) Source.IMPORTED else Source.FIELD_DATA
+      source = me.source
     }
     Mutation.Type.UPDATE -> {
       lastModified = auditInfo

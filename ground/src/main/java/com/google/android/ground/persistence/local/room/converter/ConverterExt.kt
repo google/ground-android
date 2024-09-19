@@ -42,6 +42,7 @@ import com.google.android.ground.persistence.local.room.relations.ConditionEntit
 import com.google.android.ground.persistence.local.room.relations.JobEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
 import com.google.android.ground.persistence.local.room.relations.TaskEntityAndRelations
+import com.google.android.ground.proto.LocationOfInterest.Source
 import com.google.android.ground.proto.Survey.DataSharingTerms
 import com.google.android.ground.ui.map.Bounds
 import com.google.common.reflect.TypeToken
@@ -131,7 +132,7 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     customId = customId,
     submissionCount = submissionCount,
     properties = properties,
-    isPredefined = isPredefined,
+    source = source.number,
   )
 
 fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
@@ -147,7 +148,7 @@ fun LocationOfInterestEntity.toModelObject(survey: Survey): LocationOfInterest =
       geometry = geometry.getGeometry(),
       submissionCount = submissionCount,
       properties = properties,
-      isPredefined = isPredefined,
+      source = Source.forNumber(source),
       job =
         survey.getJob(jobId = jobId)
           ?: throw LocalDataConsistencyException(
@@ -178,7 +179,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(user: User): LocationOfInt
     customId = customId,
     submissionCount = submissionCount,
     properties = properties,
-    isPredefined = isPredefined,
+    source = source.number,
   )
 }
 
@@ -197,7 +198,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject() =
     lastError = lastError,
     retryCount = retryCount,
     newProperties = properties,
-    isPredefined = isPredefined,
+    source = source.number,
     collectionId = collectionId,
   )
 
@@ -216,7 +217,7 @@ fun LocationOfInterestMutationEntity.toModelObject() =
     lastError = lastError,
     retryCount = retryCount,
     properties = newProperties,
-    isPredefined = isPredefined,
+    source = Source.forNumber(source),
     collectionId = collectionId,
   )
 

@@ -114,7 +114,7 @@ class LoiConverterTest {
         geometry = Point(coordinates = Coordinates(1.0, 2.0)),
         submissionCount = 1,
         properties = mapOf("property1" to "value1", "property2" to 123.0),
-        isPredefined = true,
+        source = Source.IMPORTED,
       ),
       toLocationOfInterest(),
     )

@@ -21,6 +21,7 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
+import com.google.android.ground.proto.LocationOfInterest.Source
 
 /** Alias for a map of properties with string names. */
 typealias LoiProperties = Map<String, Any>
@@ -50,8 +51,8 @@ data class LocationOfInterest(
   val submissionCount: Int = 0,
   /** Custom map of properties for this LOI. Corresponds to the properties field in GeoJSON */
   val properties: LoiProperties = mapOf(),
-  /** Whether the LOI was predefined in the survey or not (i.e. added ad hoc). */
-  val isPredefined: Boolean? = null,
+  /** Indicates who created the LOI and when. */
+  val source: Source = Source.SOURCE_UNSPECIFIED,
 ) {
 
   /**
@@ -72,7 +73,7 @@ data class LocationOfInterest(
       geometry = geometry,
       submissionCount = submissionCount,
       properties = properties,
-      isPredefined = isPredefined,
+      source = source,
       collectionId = "",
     )
 

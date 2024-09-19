@@ -53,7 +53,7 @@ class ModelToProtoExtKtTest {
         geometry = null,
         submissionCount = 1,
         properties = generateProperties("loiName"),
-        isPredefined = false,
+        source = LocationOfInterest.Source.FIELD_DATA,
         collectionId = "collectionId",
       )
 
@@ -90,7 +90,7 @@ class ModelToProtoExtKtTest {
   }
 
   @Test
-  fun `createLoiMessage() when isPredefined is null and type is CREATE`() {
+  fun `createLoiMessage() when source is UNSPECIFIED and type is CREATE`() {
     val user = User("userId", "user@gmail.com", "User")
     val mutation =
       LocationOfInterestMutation(
@@ -105,7 +105,7 @@ class ModelToProtoExtKtTest {
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
-        isPredefined = null,
+        source = LocationOfInterest.Source.SOURCE_UNSPECIFIED,
         collectionId = "collectionId",
       )
 
@@ -149,7 +149,7 @@ class ModelToProtoExtKtTest {
   }
 
   @Test
-  fun `createLoiMessage() when isPredefined is true and type is CREATE`() {
+  fun `createLoiMessage() when source is IMPORTED and type is CREATE`() {
     val user = User("userId", "user@gmail.com", "User")
     val mutation =
       LocationOfInterestMutation(
@@ -164,7 +164,7 @@ class ModelToProtoExtKtTest {
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
-        isPredefined = true,
+        source = LocationOfInterest.Source.IMPORTED,
         collectionId = "collectionId",
       )
 
@@ -209,7 +209,7 @@ class ModelToProtoExtKtTest {
   }
 
   @Test
-  fun `createLoiMessage() when isPredefined is false and type is CREATE`() {
+  fun `createLoiMessage() when source is FIELD_DATA and type is CREATE`() {
     val user = User("userId", "user@gmail.com", "User")
     val mutation =
       LocationOfInterestMutation(
@@ -224,7 +224,7 @@ class ModelToProtoExtKtTest {
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
-        isPredefined = false,
+        source = LocationOfInterest.Source.FIELD_DATA,
         collectionId = "collectionId",
       )
 
@@ -284,7 +284,7 @@ class ModelToProtoExtKtTest {
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
-        isPredefined = false,
+        source = LocationOfInterest.Source.FIELD_DATA,
         collectionId = "collectionId",
       )
 
@@ -335,7 +335,7 @@ class ModelToProtoExtKtTest {
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
-        isPredefined = false,
+        source = LocationOfInterest.Source.FIELD_DATA,
         collectionId = "collectionId",
       )
 
@@ -358,7 +358,7 @@ class ModelToProtoExtKtTest {
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
-        isPredefined = false,
+        source = LocationOfInterest.Source.FIELD_DATA,
         collectionId = "collectionId",
       )
 

@@ -39,5 +39,5 @@ data class LocationOfInterestEntity(
   val customId: String,
   val submissionCount: Int,
   val properties: LoiProperties,
-  val isPredefined: Boolean?,
+  val source: Int,
 )
