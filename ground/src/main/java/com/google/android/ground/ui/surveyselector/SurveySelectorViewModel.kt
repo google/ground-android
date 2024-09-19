@@ -20,6 +20,7 @@ import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.SurveyListItem
+import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.auth.AuthenticationManager
@@ -49,6 +50,7 @@ internal constructor(
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   private val userRepository: UserRepository,
+  private val localValueStore: LocalValueStore,
 ) : AbstractViewModel() {
 
   private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.FetchingSurveys)
@@ -70,11 +72,6 @@ internal constructor(
 
   /** Triggers the specified survey to be loaded and activated. */
   fun activateSurvey(surveyId: String) {
-    if (_uiState.value is UiState.ActivatingSurvey) {
-      // Ignore extra clicks while survey is loading, see #2729.
-      Timber.v("Ignoring extra survey click.")
-      return
-    }
     viewModelScope.launch {
       runCatching {
           _uiState.emit(UiState.ActivatingSurvey)
@@ -83,7 +80,11 @@ internal constructor(
         .fold(
           onSuccess = {
             _uiState.emit(UiState.SurveyActivated)
-            navigateToHomeScreen()
+            if (localValueStore.isSurveySubscribed) {
+              navigateToHomeScreen()
+            } else {
+              _uiState.emit(UiState.ActivatingSurvey)
+            }
           },
           onFailure = { exception ->
             Timber.e(exception)

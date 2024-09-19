@@ -104,6 +104,13 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
       preferences.edit().putString(DRAFT_SUBMISSION_ID, value).apply()
     }
 
+  /** Is survey subscribed or not for the updated */
+  var isSurveySubscribed: Boolean
+    get() = allowThreadDiskReads { preferences.getBoolean(SURVEY_SUBSCRIBED_OFFLINE, false) }
+    set(value) = allowThreadDiskWrites {
+      preferences.edit().putBoolean(SURVEY_SUBSCRIBED_OFFLINE, value).apply()
+    }
+
   /** Removes all values stored in the local store. */
   fun clear() = allowThreadDiskWrites { preferences.edit().clear().apply() }
 
@@ -151,5 +158,6 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     const val DROP_PIN_INSTRUCTIONS_SHOWN = "drop_pin_instructions_shown"
     const val DRAFT_SUBMISSION_ID = "draft_submission_id"
     const val DATA_SHARING_CONSENT_PREFIX = "data_consent_"
+    const val SURVEY_SUBSCRIBED_OFFLINE = "survey_subscribed_offline"
   }
 }

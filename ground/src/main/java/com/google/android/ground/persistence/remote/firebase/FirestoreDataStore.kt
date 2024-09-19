@@ -24,6 +24,7 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.toListItem
+import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.remote.firebase.schema.GroundFirestore
 import com.google.firebase.firestore.WriteBatch
@@ -50,6 +51,7 @@ internal constructor(
   private val firebaseFunctions: FirebaseFunctions,
   private val firestoreProvider: FirebaseFirestoreProvider,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+  private val localValueStore: LocalValueStore,
 ) : RemoteDataStore {
 
   private suspend fun db() = GroundFirestore(firestoreProvider.get())
@@ -78,6 +80,7 @@ internal constructor(
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {
     Timber.d("Subscribing to FCM topic $surveyId")
     Firebase.messaging.subscribeToTopic(surveyId).await()
+    localValueStore.isSurveySubscribed = true
   }
 
   /**
