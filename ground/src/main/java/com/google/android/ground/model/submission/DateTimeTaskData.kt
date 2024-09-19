@@ -17,7 +17,7 @@ package com.google.android.ground.model.submission
 
 import kotlinx.serialization.Serializable
 
-/** A user-provided response to a date question task. */
+/** A user-provided response to a date and time question task. */
 @Serializable
 data class DateTimeTaskData(val timeInMillis: Long) : TaskData {
 
