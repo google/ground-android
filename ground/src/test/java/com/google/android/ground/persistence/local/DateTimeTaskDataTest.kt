@@ -23,7 +23,7 @@ class DateTimeTaskDataTest {
 
   @Test
   fun testTimeResponse_textDetails() {
-    val calendarTime = DateTimeTaskData.fromDate(1672549215471)
+    val calendarTime = DateTimeTaskData.fromMillis(1672549215471)
     assertThat(calendarTime).isEqualTo(DateTimeTaskData(timeInMillis = 1672549215471))
   }
 }

@@ -15,7 +15,7 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.time
 
-import com.google.android.ground.model.submission.DateTimeTaskData.Companion.fromDate
+import com.google.android.ground.model.submission.DateTimeTaskData.Companion.fromMillis
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import java.text.DateFormat
 import java.util.Date
@@ -31,7 +31,7 @@ class TimeTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
   fun updateResponse(dateFormat: DateFormat?, date: Date) {
     dateFormat?.let {
       _timeText.value = it.format(date)
-      setValue(fromDate(date.time))
+      setValue(fromMillis(date.time))
     }
   }
 }

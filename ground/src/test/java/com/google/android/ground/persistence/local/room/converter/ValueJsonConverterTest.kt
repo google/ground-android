@@ -60,7 +60,7 @@ class ValueJsonConverterTest(
   companion object {
     private const val dateTimeResponse = 1725537603066
 
-    private val dateTimeOption = DateTimeTaskData.fromDate(1725537603066)
+    private val dateTimeOption = DateTimeTaskData.fromMillis(1725537603066)
 
     private val multipleChoiceOptions =
       persistentListOf(

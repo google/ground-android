@@ -26,6 +26,6 @@ data class DateTimeTaskData(val timeInMillis: Long) : TaskData {
   override fun isEmpty(): Boolean = timeInMillis == 0L
 
   companion object {
-    fun fromDate(timeInMillis: Long): TaskData = DateTimeTaskData(timeInMillis)
+    fun fromMillis(timeInMillis: Long): TaskData = DateTimeTaskData(timeInMillis)
   }
 }

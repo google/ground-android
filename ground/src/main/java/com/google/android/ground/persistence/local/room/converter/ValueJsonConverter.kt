@@ -91,7 +91,7 @@ internal object ValueJsonConverter {
       Task.Type.DATE,
       Task.Type.TIME -> {
         DataStoreException.checkType(Long::class.java, obj)
-        DateTimeTaskData.fromDate(obj as Long)
+        DateTimeTaskData.fromMillis(obj as Long)
       }
       Task.Type.DRAW_AREA -> {
         DataStoreException.checkType(String::class.java, obj)
