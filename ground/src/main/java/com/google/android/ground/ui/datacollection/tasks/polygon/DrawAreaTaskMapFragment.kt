@@ -26,10 +26,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class DrawAreaTaskMapFragment(private val viewModel: DrawAreaTaskViewModel) :
-  AbstractMapFragmentWithControls() {
+class DrawAreaTaskMapFragment : AbstractMapFragmentWithControls() {
 
   private lateinit var mapViewModel: BaseMapViewModel
+  private lateinit var viewModel: DrawAreaTaskViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -40,15 +40,17 @@ class DrawAreaTaskMapFragment(private val viewModel: DrawAreaTaskViewModel) :
 
   override fun onMapReady(map: MapFragment) {
     viewLifecycleOwner.lifecycleScope.launch {
-      viewModel.draftArea.collect { feature: Feature? ->
-        map.setFeatures(if (feature == null) setOf() else setOf(feature))
+      if (this@DrawAreaTaskMapFragment::viewModel.isInitialized) {
+        viewModel.draftArea.collect { feature: Feature? ->
+          map.setFeatures(if (feature == null) setOf() else setOf(feature))
+        }
       }
     }
   }
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
-    if (!viewModel.isMarkedComplete()) {
+    if (this@DrawAreaTaskMapFragment::viewModel.isInitialized && !viewModel.isMarkedComplete()) {
       val mapCenter = position.coordinates
       viewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->
         map.getDistanceInPixels(c1, c2)
@@ -56,8 +58,11 @@ class DrawAreaTaskMapFragment(private val viewModel: DrawAreaTaskViewModel) :
     }
   }
 
+  fun setViewModel(viewModel: DrawAreaTaskViewModel) {
+    this.viewModel = viewModel
+  }
+
   companion object {
-    fun newInstance(viewModel: DrawAreaTaskViewModel, map: MapFragment) =
-      DrawAreaTaskMapFragment(viewModel).apply { this.map = map }
+    fun newInstance(map: MapFragment) = DrawAreaTaskMapFragment().apply { this.map = map }
   }
 }
