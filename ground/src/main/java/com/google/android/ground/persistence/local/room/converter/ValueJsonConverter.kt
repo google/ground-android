@@ -67,7 +67,7 @@ internal object ValueJsonConverter {
       return null
     }
 
-    if (obj is JSONObject && obj.getBoolean(SKIPPED_KEY)) {
+    if (obj is JSONObject && obj.optBoolean(SKIPPED_KEY, false)) {
       return SkippedTaskData()
     }
 
