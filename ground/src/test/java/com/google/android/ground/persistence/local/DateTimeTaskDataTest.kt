@@ -15,31 +15,15 @@
  */
 package com.google.android.ground.persistence.local
 
-import com.google.android.ground.model.submission.DateTaskData
-import com.google.android.ground.model.submission.TimeTaskData
+import com.google.android.ground.model.submission.DateTimeTaskData
 import com.google.common.truth.Truth.assertThat
-import java.time.LocalDate
-import java.time.Month
-import java.time.ZoneId
-import java.util.*
 import org.junit.Test
 
 class DateTimeTaskDataTest {
-  @Test
-  fun testTimeResponse_textDetails() {
-    val instant = LocalDate.now().atTime(7, 30, 45).atZone(ZoneId.systemDefault()).toInstant()
-    val detailsText = TimeTaskData(Date.from(instant)).getDetailsText()
-    assertThat(detailsText).isEqualTo("07:30")
-  }
 
   @Test
-  fun testDateResponse_textDetails() {
-    val instant =
-      LocalDate.of(2021, Month.OCTOBER, 23)
-        .atStartOfDay()
-        .atZone(ZoneId.systemDefault())
-        .toInstant()
-    val detailsText = DateTaskData(Date.from(instant)).getDetailsText()
-    assertThat(detailsText).isEqualTo("2021-10-23")
+  fun testTimeResponse_textDetails() {
+    val calendarTime = DateTimeTaskData.fromMillis(1672549215471)
+    assertThat(calendarTime).isEqualTo(DateTimeTaskData(timeInMillis = 1672549215471))
   }
 }
