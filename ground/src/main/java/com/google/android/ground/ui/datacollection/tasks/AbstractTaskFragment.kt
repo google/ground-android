@@ -169,6 +169,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   private fun onSkip() {
     check(viewModel.hasNoData()) { "User should not be able to skip a task with data." }
+    viewModel.setSkipped()
     moveToNext()
   }
 

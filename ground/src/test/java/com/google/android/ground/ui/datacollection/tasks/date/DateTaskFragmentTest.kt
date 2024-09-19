@@ -72,7 +72,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
 
     runner().assertButtonIsDisabled("Next")
 
-    assertThat(viewModel.responseText.value).isEqualTo("")
+    assertThat(viewModel.responseText.value).isEqualTo(null)
   }
 
   @Test

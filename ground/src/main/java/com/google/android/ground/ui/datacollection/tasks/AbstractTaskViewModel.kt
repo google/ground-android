@@ -19,6 +19,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.submission.SkippedTaskData
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.model.task.Task
@@ -61,6 +62,10 @@ open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
       return R.string.required_task
     }
     return null
+  }
+
+  fun setSkipped() {
+    setValue(SkippedTaskData())
   }
 
   fun setValue(taskData: TaskData?) {
