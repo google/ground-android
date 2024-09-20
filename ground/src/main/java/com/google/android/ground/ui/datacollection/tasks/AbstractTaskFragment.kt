@@ -150,7 +150,10 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   protected fun addNextButton() =
     addButton(ButtonAction.NEXT)
       .setOnClickListener { handleNext() }
-      .setOnValueChanged { button, value -> button.enableIfTrue(value.isNotNullOrEmpty()) }
+      .setOnValueChanged { button, value ->
+        button.enableIfTrue(value.isNotNullOrEmpty())
+        button.toggleDone(checkLastPositionWithTaskData(value))
+      }
       .disable()
 
   /** Skip button is only visible iff the task is optional and the task doesn't contain any data. */
@@ -202,8 +205,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .hide()
 
   protected fun addButton(buttonAction: ButtonAction): TaskButton {
-    val action = if (buttonAction.shouldReplaceWithDoneButton()) ButtonAction.DONE else buttonAction
-    check(!buttonDataList.any { it.button.action == action }) { "Button $action already bound" }
+    val action =
+      if (buttonAction == ButtonAction.NEXT && isLastPosition()) ButtonAction.DONE else buttonAction
+    check(!buttonDataList.any { it.button.getAction() == action }) {
+      "Button $action already bound"
+    }
     val button = TaskButton(action)
     buttonDataList.add(ButtonData(index = buttonDataList.size, button))
     return button
@@ -227,9 +233,15 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  /** Returns true if the given [ButtonAction] should be replace with "Done" button. */
-  private fun ButtonAction.shouldReplaceWithDoneButton() =
-    this == ButtonAction.NEXT && dataCollectionViewModel.isLastPosition(taskId)
+  /** Returns true if the current task is in the last position in the sequence. */
+  private fun isLastPosition() = dataCollectionViewModel.isLastPosition(taskId)
+
+  /**
+   * Returns true if the current task with the given task data would be last in sequence. Useful for
+   * handling conditional tasks, see #2394.
+   */
+  protected fun checkLastPositionWithTaskData(value: TaskData?) =
+    dataCollectionViewModel.checkLastPositionWithTaskData(taskId, value)
 
   fun getTask(): Task = viewModel.task
 
