@@ -22,6 +22,7 @@ import androidx.work.Data
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
+import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
@@ -122,6 +123,9 @@ constructor(
       // Mark all mutations as having failed since the remote datastore only commits when all
       // mutations have succeeded.
       Timber.d(t, "Local mutation sync failed")
+      val crashlytics = FirebaseCrashLogger()
+      crashlytics.setSelectedSurveyId(mutations.first().surveyId)
+      crashlytics.logException(t)
       mutationRepository.markAsFailed(mutations, t)
       false
     }
