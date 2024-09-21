@@ -62,10 +62,6 @@ class DropPinTaskMapFragment : AbstractMapFragmentWithControls() {
     }
   }
 
-  fun setViewModel(viewModel: DropPinTaskViewModel) {
-    this.viewModel = viewModel
-  }
-
   companion object {
     fun newInstance(map: MapFragment, taskId: String): DropPinTaskMapFragment {
       val fragment = DropPinTaskMapFragment().apply { this.map = map }
