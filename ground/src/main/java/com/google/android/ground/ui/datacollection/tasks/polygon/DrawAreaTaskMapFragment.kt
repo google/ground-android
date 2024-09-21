@@ -25,6 +25,7 @@ import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class DrawAreaTaskMapFragment : AbstractMapFragmentWithControls() {
@@ -36,11 +37,15 @@ class DrawAreaTaskMapFragment : AbstractMapFragmentWithControls() {
     super.onCreate(savedInstanceState)
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
     arguments?.let {
-      val taskId = it.getString("taskId")
-      taskId?.let {
-        viewModel =
-          (requireParentFragment() as DataCollectionFragment).viewModel.getTaskViewModel(taskId)
-            as DrawAreaTaskViewModel
+      try {
+        val taskId = it.getString("taskId")
+        taskId?.let {
+          viewModel =
+            (requireParentFragment() as DataCollectionFragment).viewModel.getTaskViewModel(taskId)
+              as DrawAreaTaskViewModel
+        }
+      } catch (e: Exception) {
+        Timber.e("DrawAreaTaskMapFragment - $e")
       }
     }
   }
