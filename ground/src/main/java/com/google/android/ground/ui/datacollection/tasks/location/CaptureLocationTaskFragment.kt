@@ -41,7 +41,7 @@ class CaptureLocationTaskFragment : AbstractTaskFragment<CaptureLocationTaskView
     // NOTE(#2493): Multiplying by a random prime to allow for some mathematical uniqueness.
     // Otherwise, the sequentially generated ID might conflict with an ID produced by Google Maps.
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11149 }
-    val fragment = CaptureLocationTaskMapFragment.newInstance(map).apply { setViewModel(viewModel) }
+    val fragment = CaptureLocationTaskMapFragment.newInstance(map, super.taskId)
     parentFragmentManager
       .beginTransaction()
       .add(rowLayout.id, fragment, CaptureLocationTaskMapFragment::class.java.simpleName)

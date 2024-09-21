@@ -22,9 +22,11 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.datacollection.DataCollectionFragment
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class CaptureLocationTaskMapFragment : AbstractMapFragmentWithControls() {
@@ -35,6 +37,18 @@ class CaptureLocationTaskMapFragment : AbstractMapFragmentWithControls() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     mapViewModel = getViewModel(CaptureLocationTaskMapViewModel::class.java)
+    arguments?.let {
+      try {
+        val taskId = it.getString("taskId")
+        taskId?.let {
+          viewModel =
+            (requireParentFragment() as DataCollectionFragment).viewModel.getTaskViewModel(taskId)
+              as CaptureLocationTaskViewModel
+        }
+      } catch (e: Exception) {
+        Timber.e("CaptureLocationTaskMapFragment - $e")
+      }
+    }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
@@ -62,11 +76,12 @@ class CaptureLocationTaskMapFragment : AbstractMapFragmentWithControls() {
     }
   }
 
-  fun setViewModel(viewModel: CaptureLocationTaskViewModel) {
-    this.viewModel = viewModel
-  }
-
   companion object {
-    fun newInstance(map: MapFragment) = CaptureLocationTaskMapFragment().apply { this.map = map }
+    fun newInstance(map: MapFragment, taskId: String): CaptureLocationTaskMapFragment {
+      val fragment = CaptureLocationTaskMapFragment().apply { this.map = map }
+      val args = Bundle().apply { putString("taskId", taskId) }
+      fragment.arguments = args
+      return fragment
+    }
   }
 }
