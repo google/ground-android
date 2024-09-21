@@ -238,12 +238,11 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .validateTextIsDisplayed(TASK_2_NAME)
       // Select the option to unhide the conditional task.
       .selectMultipleChoiceOption(TASK_2_OPTION_CONDITIONAL_LABEL)
-      // TODO(#2394): Next button should be rendered here.
-      .clickDoneButton()
+      .clickNextButton()
       // Conditional task is rendered.
       .validateTextIsDisplayed(TASK_CONDITIONAL_NAME)
       .inputText(TASK_CONDITIONAL_RESPONSE)
-      .clickNextButton()
+      .clickDoneButton()
 
     verify(submissionRepository)
       .saveSubmission(
@@ -267,8 +266,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         .validateTextIsDisplayed(TASK_2_NAME)
         // Select the option to unhide the conditional task.
         .selectMultipleChoiceOption(TASK_2_OPTION_CONDITIONAL_LABEL)
-        // TODO(#2394): Next button should be rendered here.
-        .clickDoneButton()
+        .clickNextButton()
         .validateTextIsDisplayed(TASK_CONDITIONAL_NAME)
         // Input a value, then go back to hide the task again.
         .inputText(TASK_CONDITIONAL_RESPONSE)
