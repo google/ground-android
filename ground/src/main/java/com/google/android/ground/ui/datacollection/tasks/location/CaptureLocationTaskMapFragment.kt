@@ -27,10 +27,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class CaptureLocationTaskMapFragment(private val viewModel: CaptureLocationTaskViewModel) :
-  AbstractMapFragmentWithControls() {
+class CaptureLocationTaskMapFragment : AbstractMapFragmentWithControls() {
 
   private lateinit var mapViewModel: CaptureLocationTaskMapViewModel
+  private lateinit var viewModel: CaptureLocationTaskViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -46,18 +46,27 @@ class CaptureLocationTaskMapFragment(private val viewModel: CaptureLocationTaskV
   ): View {
     val root = super.onCreateView(inflater, container, savedInstanceState)
     viewLifecycleOwner.lifecycleScope.launch {
-      getMapViewModel().getLocationUpdates().collect { viewModel.updateLocation(it) }
+      if (this@CaptureLocationTaskMapFragment::viewModel.isInitialized) {
+        getMapViewModel().getLocationUpdates().collect { viewModel.updateLocation(it) }
+      }
     }
     return root
   }
 
   override fun onMapReady(map: MapFragment) {
     binding.locationLockBtn.isClickable = false
-    viewLifecycleOwner.lifecycleScope.launch { viewModel.onMapReady(mapViewModel) }
+    viewLifecycleOwner.lifecycleScope.launch {
+      if (this@CaptureLocationTaskMapFragment::viewModel.isInitialized) {
+        viewModel.onMapReady(mapViewModel)
+      }
+    }
+  }
+
+  fun setViewModel(viewModel: CaptureLocationTaskViewModel) {
+    this.viewModel = viewModel
   }
 
   companion object {
-    fun newInstance(viewModel: CaptureLocationTaskViewModel, map: MapFragment) =
-      CaptureLocationTaskMapFragment(viewModel).apply { this.map = map }
+    fun newInstance(map: MapFragment) = CaptureLocationTaskMapFragment().apply { this.map = map }
   }
 }
