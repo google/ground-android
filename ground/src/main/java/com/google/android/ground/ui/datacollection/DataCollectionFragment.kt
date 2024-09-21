@@ -46,7 +46,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
-  private val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
+  val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
 
   private lateinit var binding: DataCollectionFragBinding
   private lateinit var progressBar: ProgressBar

@@ -19,6 +19,7 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.datacollection.DataCollectionFragment
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
@@ -34,6 +35,14 @@ class DrawAreaTaskMapFragment : AbstractMapFragmentWithControls() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
+    arguments?.let {
+      val taskId = it.getString("taskId")
+      taskId?.let {
+        viewModel =
+          (requireParentFragment() as DataCollectionFragment).viewModel.getTaskViewModel(taskId)
+            as DrawAreaTaskViewModel
+      }
+    }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
@@ -58,11 +67,12 @@ class DrawAreaTaskMapFragment : AbstractMapFragmentWithControls() {
     }
   }
 
-  fun setViewModel(viewModel: DrawAreaTaskViewModel) {
-    this.viewModel = viewModel
-  }
-
   companion object {
-    fun newInstance(map: MapFragment) = DrawAreaTaskMapFragment().apply { this.map = map }
+    fun newInstance(map: MapFragment, taskId: String): DrawAreaTaskMapFragment {
+      val fragment = DrawAreaTaskMapFragment().apply { this.map = map }
+      val args = Bundle().apply { putString("taskId", taskId) }
+      fragment.arguments = args
+      return fragment
+    }
   }
 }

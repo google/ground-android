@@ -59,8 +59,8 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
     // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
     // Otherwise, the sequentially generated ID might conflict with an ID produced by Google Maps.
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11411 }
-    drawAreaTaskMapFragment =
-      DrawAreaTaskMapFragment.newInstance(map).apply { setViewModel(viewModel) }
+    drawAreaTaskMapFragment = DrawAreaTaskMapFragment.newInstance(map, super.taskId)
+    println("====== DrawAreaTaskFragment ${viewModel}")
     parentFragmentManager
       .beginTransaction()
       .add(rowLayout.id, drawAreaTaskMapFragment, DrawAreaTaskMapFragment::class.java.simpleName)
