@@ -23,10 +23,10 @@ import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class DropPinTaskMapFragment(private val viewModel: DropPinTaskViewModel) :
-  AbstractMapFragmentWithControls() {
+class DropPinTaskMapFragment : AbstractMapFragmentWithControls() {
 
   private lateinit var mapViewModel: BaseMapViewModel
+  private lateinit var viewModel: DropPinTaskViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -36,16 +36,23 @@ class DropPinTaskMapFragment(private val viewModel: DropPinTaskViewModel) :
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   override fun onMapReady(map: MapFragment) {
-    viewModel.features.observe(this) { map.setFeatures(it) }
+    if (this@DropPinTaskMapFragment::viewModel.isInitialized) {
+      viewModel.features.observe(this) { map.setFeatures(it) }
+    }
   }
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
-    viewModel.updateCameraPosition(position)
+    if (this@DropPinTaskMapFragment::viewModel.isInitialized) {
+      viewModel.updateCameraPosition(position)
+    }
+  }
+
+  fun setViewModel(viewModel: DropPinTaskViewModel) {
+    this.viewModel = viewModel
   }
 
   companion object {
-    fun newInstance(viewModel: DropPinTaskViewModel, map: MapFragment) =
-      DropPinTaskMapFragment(viewModel).apply { this.map = map }
+    fun newInstance(map: MapFragment) = DropPinTaskMapFragment().apply { this.map = map }
   }
 }
