@@ -18,9 +18,11 @@ package com.google.android.ground.ui.datacollection.tasks.point
 import android.os.Bundle
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.datacollection.DataCollectionFragment
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class DropPinTaskMapFragment : AbstractMapFragmentWithControls() {
@@ -31,6 +33,18 @@ class DropPinTaskMapFragment : AbstractMapFragmentWithControls() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
+    arguments?.let {
+      try {
+        val taskId = it.getString("taskId")
+        taskId?.let {
+          viewModel =
+            (requireParentFragment() as DataCollectionFragment).viewModel.getTaskViewModel(taskId)
+              as DropPinTaskViewModel
+        }
+      } catch (e: Exception) {
+        Timber.e("DropPinTaskMapFragment - $e")
+      }
+    }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
@@ -53,6 +67,11 @@ class DropPinTaskMapFragment : AbstractMapFragmentWithControls() {
   }
 
   companion object {
-    fun newInstance(map: MapFragment) = DropPinTaskMapFragment().apply { this.map = map }
+    fun newInstance(map: MapFragment, taskId: String): DropPinTaskMapFragment {
+      val fragment = DropPinTaskMapFragment().apply { this.map = map }
+      val args = Bundle().apply { putString("taskId", taskId) }
+      fragment.arguments = args
+      return fragment
+    }
   }
 }
