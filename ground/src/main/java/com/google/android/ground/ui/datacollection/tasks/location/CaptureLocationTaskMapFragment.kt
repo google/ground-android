@@ -46,7 +46,7 @@ class CaptureLocationTaskMapFragment : AbstractMapFragmentWithControls() {
               as CaptureLocationTaskViewModel
         }
       } catch (e: Exception) {
-        Timber.e("CaptureLocationTaskMapFragment - $e")
+        Timber.e(e)
       }
     }
   }

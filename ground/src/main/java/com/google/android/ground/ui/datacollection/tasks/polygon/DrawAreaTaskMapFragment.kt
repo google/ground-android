@@ -45,7 +45,7 @@ class DrawAreaTaskMapFragment : AbstractMapFragmentWithControls() {
               as DrawAreaTaskViewModel
         }
       } catch (e: Exception) {
-        Timber.e("DrawAreaTaskMapFragment - $e")
+        Timber.e(e)
       }
     }
   }

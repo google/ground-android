@@ -42,7 +42,7 @@ class DropPinTaskMapFragment : AbstractMapFragmentWithControls() {
               as DropPinTaskViewModel
         }
       } catch (e: Exception) {
-        Timber.e("DropPinTaskMapFragment - $e")
+        Timber.e(e)
       }
     }
   }
