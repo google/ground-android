@@ -22,4 +22,6 @@ sealed class UiState {
   data class TaskListAvailable(val tasks: List<Task>, val taskPosition: TaskPosition) : UiState()
 
   data class TaskUpdated(val taskPosition: TaskPosition) : UiState()
+
+  data object TaskSubmitted : UiState()
 }
