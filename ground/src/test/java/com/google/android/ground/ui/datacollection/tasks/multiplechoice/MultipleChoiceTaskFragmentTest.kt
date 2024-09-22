@@ -49,6 +49,7 @@ import org.hamcrest.Matchers.instanceOf
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mock
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
@@ -255,6 +256,8 @@ class MultipleChoiceTaskFragmentTest :
   @Test
   fun `renders action buttons on last task`() {
     whenever(dataCollectionViewModel.isLastPosition(any())).thenReturn(true)
+    whenever(dataCollectionViewModel.checkLastPositionWithTaskData(any(), eq(null)))
+      .thenReturn(true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
     assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.DONE)
