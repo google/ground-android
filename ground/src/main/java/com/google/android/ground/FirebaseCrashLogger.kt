@@ -33,6 +33,12 @@ class FirebaseCrashLogger @Inject constructor() {
     }
   }
 
+  fun logException(t: Throwable) {
+    if (isReleaseBuild()) {
+      FirebaseCrashlytics.getInstance().recordException(t)
+    }
+  }
+
   fun setSelectedSurveyId(surveyId: String?) {
     setCustomKeys { key("selectedSurveyId", surveyId ?: "") }
   }
