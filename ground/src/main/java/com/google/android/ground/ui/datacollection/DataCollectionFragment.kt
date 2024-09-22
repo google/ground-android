@@ -35,10 +35,11 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
@@ -107,6 +108,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     when (uiState) {
       is UiState.TaskListAvailable -> loadTasks(uiState.tasks, uiState.taskPosition)
       is UiState.TaskUpdated -> onTaskChanged(uiState.taskPosition)
+      is UiState.TaskSubmitted -> onTaskSubmitted()
     }
   }
 
@@ -131,6 +133,14 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   private fun onTaskChanged(taskPosition: TaskPosition) {
     viewPager.currentItem = taskPosition.absoluteIndex
     updateProgressBar(taskPosition, true)
+  }
+
+  private fun onTaskSubmitted() {
+    // Move to home screen and display a confirmation dialog after that.
+    navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
+    navigator.navigate(
+      DataSubmissionConfirmationDialogFragmentDirections.showSubmissionConfirmationDialogFragment()
+    )
   }
 
   private fun updateProgressBar(taskPosition: TaskPosition, shouldAnimate: Boolean) {
