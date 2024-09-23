@@ -70,5 +70,4 @@
 
   <string name="add_point">Adicionar ponto</string>
   <string name="complete_polygon">Completa</string>
-  <string name="add_polygon_instructions">Arraste o mapa e toque em “Adicionar ponto“ para adicionar pontos ao seu polígono. Para terminar, volte ao ponto original e toque em “Concluir“.</string>
 </resources>

@@ -70,7 +70,6 @@
 
   <string name="add_point">Add point</string>
   <string name="complete_polygon">Complete</string>
-  <string name="add_polygon_instructions">Drag the map and tap “Add point“ to add points to your polygon. To finish, return to the original point and tap “Complete“.</string>
 
   <string name="road_map">Road map</string>
   <string name="satellite">Satellite</string>
@@ -78,8 +77,6 @@
   <string name="next">Next</string>
   <string name="select_survey_title">Select a survey</string>
   <string name="survey_sync_hint">Once opened, surveys are available offline and synced automatically when online.</string>
-  <string name="sync_dialog_subtitle">Your data will be synced shortly.</string>
-  <string name="data_collected">Data collected</string>
   <string name="done">Done</string>
   <string name="skip">Skip</string>
 
@@ -188,4 +185,7 @@
   </string>
   <string name="draft_restored">Unsaved data restored</string>
   <string name="load_tos_failed">Could not connect, try again later</string>
+  <string name="data_submitted_image">Data submitted image</string>
+  <string name="data_collection_complete">Data collection complete!</string>
+  <string name="data_collection_complete_details">Your data has been saved and will be automatically synced when you’re online.</string>
 </resources>
