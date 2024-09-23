@@ -37,7 +37,6 @@ import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
@@ -49,7 +48,6 @@ import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskViewMo
 import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
-import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -77,7 +75,6 @@ internal constructor(
   private val viewModelFactory: ViewModelFactory,
   private val locationOfInterestHelper: LocationOfInterestHelper,
   private val popups: Provider<EphemeralPopups>,
-  private val navigator: Navigator,
   private val submitDataUseCase: SubmitDataUseCase,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
@@ -240,13 +237,7 @@ internal constructor(
     } else {
       clearDraft()
       saveChanges(getDeltas())
-
-      // Move to home screen and display a confirmation dialog after that.
-      navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
-      navigator.navigate(
-        DataSubmissionConfirmationDialogFragmentDirections
-          .showSubmissionConfirmationDialogFragment()
-      )
+      _uiState.emit(UiState.TaskSubmitted)
     }
   }
 
