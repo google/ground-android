@@ -72,7 +72,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
 
     runner().assertButtonIsDisabled("Next")
 
-    assertThat(viewModel.responseText.value).isEqualTo("")
+    assertThat(viewModel.responseText.value).isEqualTo(null)
   }
 
   @Test
@@ -94,7 +94,6 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   @Test
   fun testActionButtons() {
     setupTaskFragment<DateTaskFragment>(job, task)
-
     assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)
   }
 

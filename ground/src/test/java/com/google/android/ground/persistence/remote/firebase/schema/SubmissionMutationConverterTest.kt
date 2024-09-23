@@ -22,13 +22,13 @@ import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.CaptureLocationTaskData
-import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.DateTimeTaskData
 import com.google.android.ground.model.submission.DrawAreaTaskData
 import com.google.android.ground.model.submission.DropPinTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
+import com.google.android.ground.model.submission.SkippedTaskData
 import com.google.android.ground.model.submission.TextTaskData
-import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
@@ -64,6 +64,7 @@ import com.google.android.ground.proto.TaskData.MultipleChoiceResponses.OTHER_TE
 import com.google.android.ground.proto.TaskData.MultipleChoiceResponses.SELECTED_OPTION_IDS_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.NUMBER_RESPONSE_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.NumberResponse.NUMBER_FIELD_NUMBER
+import com.google.android.ground.proto.TaskData.SKIPPED_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.TASK_ID_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.TEXT_RESPONSE_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.TextResponse.TEXT_FIELD_NUMBER
@@ -160,9 +161,7 @@ class SubmissionMutationConverterTest {
       altitude = 112.31,
     )
 
-  private val dateTaskResult = DateTaskData(Date.from(Instant.ofEpochSecond(918273645)))
-
-  private val timeTaskResult = TimeTaskData(Date.from(Instant.ofEpochSecond(123456789)))
+  private val dateTaskResult = DateTimeTaskData(1725537603066)
 
   private val submissionMutation =
     SubmissionMutation(
@@ -218,7 +217,7 @@ class SubmissionMutationConverterTest {
             newTaskData = captureLocationTaskResult,
           ),
           ValueDelta(taskId = "date_task", taskType = Task.Type.DATE, newTaskData = dateTaskResult),
-          ValueDelta(taskId = "time_task", taskType = Task.Type.TIME, newTaskData = timeTaskResult),
+          ValueDelta(taskId = "time_task", taskType = Task.Type.TIME, newTaskData = dateTaskResult),
         ),
     )
 
@@ -323,12 +322,12 @@ class SubmissionMutationConverterTest {
       ),
       mapOf(
         DATE_TIME_RESPONSE_FIELD_NUMBER.toString() to
-          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 918273645L)),
+          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 1725537603L)),
         TASK_ID_FIELD_NUMBER.toString() to "date_task",
       ),
       mapOf(
         DATE_TIME_RESPONSE_FIELD_NUMBER.toString() to
-          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 123456789L)),
+          mapOf(DATE_TIME_FIELD_NUMBER.toString() to mapOf("1" to 1725537603L)),
         TASK_ID_FIELD_NUMBER.toString() to "time_task",
       ),
     )
@@ -384,5 +383,98 @@ class SubmissionMutationConverterTest {
     assertThrows("Unsupported mutation type", UnsupportedOperationException::class.java) {
       submissionMutation.copy(type = Mutation.Type.UNKNOWN).createSubmissionMessage(user)
     }
+  }
+
+  @Test
+  fun testToMap_allTaskDataSkipped() {
+    val mutation =
+      submissionMutation.copy(
+        job =
+          job.copy(
+            tasks =
+              mapOf(
+                Pair("task 1", Task("task 1", 1, Task.Type.TEXT, "task 1", true)),
+                Pair("task 2", Task("task 2", 2, Task.Type.NUMBER, "task 2", true)),
+              )
+          ),
+        deltas =
+          listOf(
+            ValueDelta(
+              taskId = "task 1",
+              taskType = Task.Type.TEXT,
+              newTaskData = SkippedTaskData(),
+            ),
+            ValueDelta(
+              taskId = "task 2",
+              taskType = Task.Type.NUMBER,
+              newTaskData = SkippedTaskData(),
+            ),
+          ),
+        type = Mutation.Type.CREATE,
+      )
+
+    val map = mutation.createSubmissionMessage(user).toFirestoreMap()
+
+    // Only verify "skipped" field as rest of the details have already been verified in previous one
+    assertThat(map[TASK_DATA_FIELD_NUMBER.toString()])
+      .isEqualTo(
+        listOf(
+          mapOf(
+            TASK_ID_FIELD_NUMBER.toString() to "task 1",
+            SKIPPED_FIELD_NUMBER.toString() to true,
+          ),
+          mapOf(
+            TASK_ID_FIELD_NUMBER.toString() to "task 2",
+            SKIPPED_FIELD_NUMBER.toString() to true,
+          ),
+        )
+      )
+  }
+
+  @Test
+  fun testToMap_someTaskDataSkipped() {
+    val mutation =
+      submissionMutation.copy(
+        job =
+          job.copy(
+            tasks =
+              mapOf(
+                Pair("task 1", Task("task 1", 1, Task.Type.TEXT, "task 1", true)),
+                Pair("task 2", Task("task 2", 2, Task.Type.NUMBER, "task 2", true)),
+              )
+          ),
+        deltas =
+          listOf(
+            ValueDelta(
+              taskId = "task 1",
+              taskType = Task.Type.TEXT,
+              newTaskData = TextTaskData.fromString("some data"),
+            ),
+            ValueDelta(
+              taskId = "task 2",
+              taskType = Task.Type.NUMBER,
+              newTaskData = SkippedTaskData(),
+            ),
+          ),
+        type = Mutation.Type.CREATE,
+      )
+
+    val map = mutation.createSubmissionMessage(user).toFirestoreMap()
+
+    // Only verify "skipped" field as rest of the details have already been verified in previous one
+    assertThat(map[TASK_DATA_FIELD_NUMBER.toString()])
+      .isEqualTo(
+        listOf(
+          mapOf(
+            TEXT_RESPONSE_FIELD_NUMBER.toString() to
+              mapOf(TEXT_FIELD_NUMBER.toString() to "some data"),
+            TASK_ID_FIELD_NUMBER.toString() to "task 1",
+          ),
+          mapOf(
+            TASK_ID_FIELD_NUMBER.toString() to "task 2",
+            SKIPPED_FIELD_NUMBER.toString() to true,
+          ),
+        )
+      )
   }
 }

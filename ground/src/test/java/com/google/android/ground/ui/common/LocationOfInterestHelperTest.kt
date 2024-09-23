@@ -56,13 +56,13 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   @Test
   fun testLoiName_whenCustomIdIsAvailable() {
     assertThat(loiHelper.getDisplayLoiName(TEST_LOI.copy(customId = "some value")))
-      .isEqualTo("Point (some value)")
+      .isEqualTo("Unnamed point (some value)")
   }
 
   @Test
   fun testArea_whenCustomIdIsAvailable() {
     assertThat(loiHelper.getDisplayLoiName(TEST_AREA.copy(customId = "some value")))
-      .isEqualTo("Area (some value)")
+      .isEqualTo("Unnamed area (some value)")
   }
 
   @Test
@@ -72,7 +72,7 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
           TEST_AREA.copy(customId = "", properties = mapOf("id" to "property id"))
         )
       )
-      .isEqualTo("Area (property id)")
+      .isEqualTo("Unnamed area (property id)")
   }
 
   @Test
@@ -122,13 +122,14 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
 
   @Test
   fun testLoiName_whenCustomIdIsNotEmptyAndGeometryIsPolygon() {
-    assertThat(loiHelper.getDisplayLoiName(TEST_AREA.copy(customId = "id"))).isEqualTo("Area (id)")
+    assertThat(loiHelper.getDisplayLoiName(TEST_AREA.copy(customId = "id")))
+      .isEqualTo("Unnamed area (id)")
   }
 
   @Test
   fun testLoiName_whenCustomIdIsNotEmptyAndGeometryIsMultiPolygon() {
     assertThat(loiHelper.getDisplayLoiName(TEST_LOI_WITH_MULTIPOLYGON.copy(customId = "id")))
-      .isEqualTo("Area (id)")
+      .isEqualTo("Unnamed area (id)")
   }
 
   @Test

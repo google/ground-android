@@ -232,9 +232,6 @@
   <action
     android:id="@+id/showMapTypeDialogFragment"
     app:destination="@id/mapTypeDialogFragment" />
-  <action
-    android:id="@+id/showSubmissionConfirmationDialogFragment"
-    app:destination="@id/submissionConfirmationDialogFragment" />
   <fragment
     android:id="@+id/terms_of_service_fragment"
     android:name="com.google.android.ground.ui.tos.TermsOfServiceFragment"
@@ -265,10 +262,6 @@
       android:name="mapTypes"
       app:argType="com.google.android.ground.ui.map.MapType[]" />
   </dialog>
-  <dialog
-    android:id="@+id/submissionConfirmationDialogFragment"
-    android:name="com.google.android.ground.ui.datacollection.DataSubmissionConfirmationDialogFragment"
-    android:label="DataSubmittedConfirmationDialogFragment" />
   <fragment
     android:id="@+id/aboutFragment"
     android:name="com.google.android.ground.ui.home.AboutFragment"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.persistence.local
+package com.google.android.ground.model.submission
 
-import com.google.android.ground.model.submission.DateTimeTaskData
-import com.google.common.truth.Truth.assertThat
-import org.junit.Test
+import kotlinx.serialization.Serializable
 
-class DateTimeTaskDataTest {
+/** User skipped the response for the given task. */
+@Serializable
+class SkippedTaskData : TaskData {
 
-  @Test
-  fun testTimeResponse_textDetails() {
-    val calendarTime = DateTimeTaskData.fromMillis(1672549215471)
-    assertThat(calendarTime).isEqualTo(DateTimeTaskData(timeInMillis = 1672549215471))
-  }
+  override fun getDetailsText(): String = ""
+
+  override fun isEmpty(): Boolean = false
 }
