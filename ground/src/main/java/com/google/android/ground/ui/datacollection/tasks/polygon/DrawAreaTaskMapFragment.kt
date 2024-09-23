@@ -24,8 +24,8 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class DrawAreaTaskMapFragment @Inject constructor() : AbstractMapFragmentWithControls() {
@@ -37,9 +37,9 @@ class DrawAreaTaskMapFragment @Inject constructor() : AbstractMapFragmentWithCon
     super.onCreate(savedInstanceState)
 
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
-    val taskId = arguments?.getString(TASK_ID_ARG_KEY)
+    val taskId = arguments?.getString(TASK_ID_ARG_KEY) ?: error("null taskId arg")
     val dcf = requireParentFragment() as DataCollectionFragment
-    viewModel = dcf.viewModel.getTaskViewModel(taskId!!) as DrawAreaTaskViewModel
+    viewModel = dcf.viewModel.getTaskViewModel(taskId) as DrawAreaTaskViewModel
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
