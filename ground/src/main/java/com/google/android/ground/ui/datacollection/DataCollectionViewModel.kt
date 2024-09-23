@@ -51,12 +51,6 @@ import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import javax.inject.Provider
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
-import kotlin.math.abs
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -68,6 +62,12 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
+import kotlin.math.abs
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -89,7 +89,7 @@ internal constructor(
 ) : AbstractViewModel() {
 
   private val _uiState: MutableStateFlow<UiState?> = MutableStateFlow(null)
-  var uiState: StateFlow<UiState?>
+  var uiState = _uiState.asStateFlow().stateIn(viewModelScope, SharingStarted.Lazily, null)
 
   private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
@@ -143,15 +143,8 @@ internal constructor(
 
   lateinit var submissionId: String
 
-  init {
-    uiState =
-      _uiState
-        .asStateFlow()
-        .stateIn(
-          viewModelScope,
-          SharingStarted.Lazily,
-          UiState.TaskListAvailable(tasks, getTaskPosition()),
-        )
+  suspend fun init() {
+    _uiState.emit(UiState.TaskListAvailable(tasks, getTaskPosition()))
   }
 
   fun setLoiName(name: String) {

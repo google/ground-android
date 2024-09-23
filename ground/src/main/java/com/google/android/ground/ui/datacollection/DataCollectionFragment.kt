@@ -36,9 +36,9 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
@@ -100,7 +100,10 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     )
 
-    lifecycleScope.launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
+    lifecycleScope.launch {
+      viewModel.init()
+      viewModel.uiState.filterNotNull().collect { updateUI(it) }
+    }
   }
 
   private fun updateUI(uiState: UiState) {
