@@ -49,7 +49,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   private lateinit var addPointButton: TaskButton
   private lateinit var nextButton: TaskButton
 
-  private lateinit var mapFragment: DrawAreaTaskMapFragment
+  private lateinit var drawAreaTaskMapFragment: DrawAreaTaskMapFragment
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_draw)
@@ -58,13 +58,13 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
     // Otherwise, the sequentially generated ID might conflict with an ID produced by Google Maps.
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11411 }
-    mapFragment = drawAreaTaskMapFragmentProvider.get()
+    drawAreaTaskMapFragment = drawAreaTaskMapFragmentProvider.get()
     val args = Bundle()
     args.putString("taskId", taskId)
-    mapFragment.arguments = args
+    drawAreaTaskMapFragment.arguments = args
     parentFragmentManager
       .beginTransaction()
-      .add(rowLayout.id, mapFragment, DrawAreaTaskMapFragment::class.java.simpleName)
+      .add(rowLayout.id, drawAreaTaskMapFragment, DrawAreaTaskMapFragment::class.java.simpleName)
       .commit()
     return rowLayout
   }
@@ -85,7 +85,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
     // Move the camera to the last vertex, if any.
     val lastVertex = viewModel.getLastVertex() ?: return
-    mapFragment.moveToPosition(lastVertex)
+    drawAreaTaskMapFragment.moveToPosition(lastVertex)
   }
 
   override fun onTaskViewAttached() {
