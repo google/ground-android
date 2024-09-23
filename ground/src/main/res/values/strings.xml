@@ -115,8 +115,6 @@
   <string name="surveys">Surveys</string>
   <string name="offline_icon_description">Icon shown when the survey is available offline</string>
   <string name="remove_offline_access">Remove offline access</string>
-  <string name="point">Point</string>
-  <string name="area">Area</string>
   <string name="unnamed_point">Unnamed point</string>
   <string name="unnamed_area">Unnamed area</string>
   <string name="offline_area_size_on_disk_mb">%s\u00A0MB on disk</string>
