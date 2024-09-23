@@ -47,6 +47,8 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
     container: ViewGroup?,
     savedInstanceState: Bundle?,
   ): View {
+    super.onCreateView(inflater, container, savedInstanceState)
+
     binding = MapTaskFragBinding.inflate(inflater, container, false)
     binding.fragment = this
     binding.viewModel = getMapViewModel()
@@ -67,13 +69,16 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
       }
     }
 
+    return binding.root
+  }
+
+  @MustBeInvokedByOverriders
+  override fun onMapReady(map: MapFragment) {
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
         getMapViewModel().getCurrentCameraPosition().collect { onMapCameraMoved(it) }
       }
     }
-
-    return binding.root
   }
 
   private fun updateLocationInfoCard(

@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,24 +34,22 @@ import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
-
-  @Inject lateinit var map: MapFragment
-
+class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawAreaTaskViewModel>() {
+  @Inject lateinit var drawAreaTaskMapFragmentProvider: Provider<DrawAreaTaskMapFragment>
   // Action buttons
   private lateinit var completeButton: TaskButton
   private lateinit var addPointButton: TaskButton
   private lateinit var nextButton: TaskButton
 
-  private lateinit var drawAreaTaskMapFragment: DrawAreaTaskMapFragment
+  private lateinit var mapFragment: DrawAreaTaskMapFragment
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_draw)
@@ -59,10 +58,13 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
     // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
     // Otherwise, the sequentially generated ID might conflict with an ID produced by Google Maps.
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11411 }
-    drawAreaTaskMapFragment = DrawAreaTaskMapFragment.newInstance(viewModel, map)
+    mapFragment = drawAreaTaskMapFragmentProvider.get()
+    val args = Bundle()
+    args.putString("taskId", taskId)
+    mapFragment.arguments = args
     parentFragmentManager
       .beginTransaction()
-      .add(rowLayout.id, drawAreaTaskMapFragment, DrawAreaTaskMapFragment::class.java.simpleName)
+      .add(rowLayout.id, mapFragment, DrawAreaTaskMapFragment::class.java.simpleName)
       .commit()
     return rowLayout
   }
@@ -83,7 +85,7 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
 
     // Move the camera to the last vertex, if any.
     val lastVertex = viewModel.getLastVertex() ?: return
-    drawAreaTaskMapFragment.moveToPosition(lastVertex)
+    mapFragment.moveToPosition(lastVertex)
   }
 
   override fun onTaskViewAttached() {

@@ -19,26 +19,33 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.datacollection.DataCollectionFragment
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class DrawAreaTaskMapFragment(private val viewModel: DrawAreaTaskViewModel) :
-  AbstractMapFragmentWithControls() {
+class DrawAreaTaskMapFragment @Inject constructor() : AbstractMapFragmentWithControls() {
 
   private lateinit var mapViewModel: BaseMapViewModel
+  private lateinit var viewModel: DrawAreaTaskViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
+    val taskId = arguments?.getString("taskId")
+    val dcf = requireParentFragment() as DataCollectionFragment
+    viewModel = dcf.viewModel.getTaskViewModel(taskId!!) as DrawAreaTaskViewModel
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   override fun onMapReady(map: MapFragment) {
+    super.onMapReady(map)
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.draftArea.collect { feature: Feature? ->
         map.setFeatures(if (feature == null) setOf() else setOf(feature))
@@ -54,10 +61,5 @@ class DrawAreaTaskMapFragment(private val viewModel: DrawAreaTaskViewModel) :
         map.getDistanceInPixels(c1, c2)
       }
     }
-  }
-
-  companion object {
-    fun newInstance(viewModel: DrawAreaTaskViewModel, map: MapFragment) =
-      DrawAreaTaskMapFragment(viewModel).apply { this.map = map }
   }
 }
