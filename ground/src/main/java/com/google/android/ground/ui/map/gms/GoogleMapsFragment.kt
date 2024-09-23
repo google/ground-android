@@ -160,7 +160,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private fun onMapReady(map: GoogleMap) {
     Timber.v("Map event: onMapReady()")
 
-    Timber.e("!!! onMapReady $this")
     this.map = map
 
     featureManager.onMapReady(map)
