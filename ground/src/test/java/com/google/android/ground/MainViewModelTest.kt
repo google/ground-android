@@ -72,7 +72,7 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   private fun verifyUiState(uiState: MainUiState) = runWithTestDispatcher {
-    viewModel.uiState.test { assertThat(expectMostRecentItem()).isEqualTo(uiState) }
+    viewModel.navigationRequests.test { assertThat(expectMostRecentItem()).isEqualTo(uiState) }
   }
 
   @Test
