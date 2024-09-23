@@ -64,6 +64,6 @@ class DrawAreaTaskMapFragment @Inject constructor() : AbstractMapFragmentWithCon
   }
 
   companion object {
-    val TASK_ID_ARG_KEY = "taskId"
+    const val TASK_ID_ARG_KEY = "taskId"
   }
 }
