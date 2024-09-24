@@ -57,7 +57,9 @@ class CaptureLocationTaskFragment @Inject constructor() :
 
   override fun onTaskResume() {
     // Ensure that the location lock is enabled, if it hasn't been.
-    viewModel.enableLocationLock()
+    if (isVisible) {
+      viewModel.enableLocationLock()
+    }
   }
 
   override fun onCreateActionButtons() {
