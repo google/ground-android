@@ -20,6 +20,8 @@ import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import com.google.android.ground.databinding.DateTaskFragBinding
+import com.google.android.ground.model.submission.DateTimeTaskData
+import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
@@ -40,6 +42,10 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
     taskBinding.lifecycleOwner = this
     taskBinding.fragment = this
     taskBinding.viewModel = viewModel
+    if (viewModel.taskTaskData.value.isNotNullOrEmpty()) {
+      val timestamp = (viewModel.taskTaskData.value as DateTimeTaskData).timeInMillis
+      viewModel.updateResponse(getDateFormatter(), Date(timestamp))
+    }
     return taskBinding.root
   }
 
