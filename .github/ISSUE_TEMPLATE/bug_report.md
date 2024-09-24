@@ -10,10 +10,8 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-**App versions**
+**App version**
 Android:
-
-Web:
 
 **To Reproduce**
 Steps to reproduce the behavior:
