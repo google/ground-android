@@ -65,7 +65,10 @@ class CaptureLocationTaskFragment : AbstractTaskFragment<CaptureLocationTaskView
       .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
     addButton(ButtonAction.NEXT)
       .setOnClickListener { handleNext() }
-      .setOnValueChanged { button, value -> button.showIfTrue(value.isNotNullOrEmpty()) }
+      .setOnValueChanged { button, value ->
+        button.showIfTrue(value.isNotNullOrEmpty())
+        button.toggleDone(checkLastPositionWithTaskData(value))
+      }
       .hide()
   }
 }

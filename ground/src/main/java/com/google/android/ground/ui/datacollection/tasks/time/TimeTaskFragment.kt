@@ -53,7 +53,7 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
           val c = Calendar.getInstance()
           c[Calendar.HOUR_OF_DAY] = updatedHourOfDay
           c[Calendar.MINUTE] = updatedMinute
-          viewModel.updateResponse(c.time)
+          viewModel.updateResponse(getTimeFormatter(), c.time)
         },
         hour,
         minute,
@@ -64,6 +64,8 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
         timePickerDialog = this
       }
   }
+
+  fun getTimeFormatter(): java.text.DateFormat? = DateFormat.getTimeFormat(requireContext())
 
   @TestOnly fun getTimePickerDialog(): TimePickerDialog? = timePickerDialog
 }

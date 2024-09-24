@@ -19,23 +19,19 @@ package com.google.android.ground.persistence.local.room.converter
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.submission.CaptureLocationTaskData
-import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.DateTimeTaskData
 import com.google.android.ground.model.submission.DrawAreaTaskData
 import com.google.android.ground.model.submission.DropPinTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.submission.PhotoTaskData
+import com.google.android.ground.model.submission.SkippedTaskData
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
-import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.toCaptureLocationTaskData
 import com.google.android.ground.persistence.remote.firebase.schema.CaptureLocationResultConverter.toJSONObject
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
 import kotlinx.collections.immutable.toPersistentList
 import org.json.JSONArray
 import org.json.JSONException
@@ -44,7 +40,7 @@ import timber.log.Timber
 
 internal object ValueJsonConverter {
 
-  private const val ISO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mmZ"
+  private const val SKIPPED_KEY = "skipped"
 
   fun toJsonObject(taskData: TaskData?): Any {
     if (taskData == null) return JSONObject.NULL
@@ -52,25 +48,15 @@ internal object ValueJsonConverter {
       is TextTaskData -> taskData.text
       is MultipleChoiceTaskData -> toJsonArray(taskData)
       is NumberTaskData -> taskData.value
-      is DateTaskData -> dateToIsoString(taskData.date)
-      is TimeTaskData -> dateToIsoString(taskData.time)
+      is DateTimeTaskData -> taskData.timeInMillis
       is PhotoTaskData -> taskData.remoteFilename
       is DrawAreaTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is DropPinTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is CaptureLocationTaskData -> taskData.toJSONObject()
+      is SkippedTaskData -> JSONObject().put(SKIPPED_KEY, true)
       else -> throw UnsupportedOperationException("Unimplemented value class ${taskData.javaClass}")
     }
   }
-
-  private fun dateToIsoString(date: Date): String =
-    SimpleDateFormat(ISO_DATE_TIME_FORMAT, Locale.getDefault())
-      .apply { timeZone = TimeZone.getTimeZone("UTC") }
-      .format(date)
-
-  private fun isoStringToDate(isoString: String): Date? =
-    SimpleDateFormat(ISO_DATE_TIME_FORMAT, Locale.getDefault())
-      .apply { timeZone = TimeZone.getTimeZone("UTC") }
-      .parse(isoString)
 
   private fun toJsonArray(response: MultipleChoiceTaskData): JSONArray =
     JSONArray().apply { response.selectedOptionIds.forEach { this.put(it) } }
@@ -80,6 +66,11 @@ internal object ValueJsonConverter {
     if (JSONObject.NULL === obj) {
       return null
     }
+
+    if (obj is JSONObject && obj.optBoolean(SKIPPED_KEY, false)) {
+      return SkippedTaskData()
+    }
+
     return when (task.type) {
       Task.Type.TEXT -> {
         DataStoreException.checkType(String::class.java, obj)
@@ -97,13 +88,10 @@ internal object ValueJsonConverter {
         DataStoreException.checkType(Number::class.java, obj)
         NumberTaskData.fromNumber(obj.toString())
       }
-      Task.Type.DATE -> {
-        DataStoreException.checkType(String::class.java, obj)
-        DateTaskData.fromDate(isoStringToDate(obj as String))
-      }
+      Task.Type.DATE,
       Task.Type.TIME -> {
-        DataStoreException.checkType(String::class.java, obj)
-        TimeTaskData.fromDate(isoStringToDate(obj as String))
+        DataStoreException.checkType(Long::class.java, obj)
+        DateTimeTaskData.fromMillis(obj as Long)
       }
       Task.Type.DRAW_AREA -> {
         DataStoreException.checkType(String::class.java, obj)

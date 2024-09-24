@@ -20,21 +20,19 @@ import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.model.submission.DateTaskData
+import com.google.android.ground.model.submission.DateTimeTaskData
 import com.google.android.ground.model.submission.DrawAreaTaskData
 import com.google.android.ground.model.submission.DropPinTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
-import com.google.android.ground.model.submission.TimeTaskData
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
-import java.util.Date
 import kotlinx.collections.immutable.persistentListOf
 import org.json.JSONArray
 import org.junit.Test
@@ -60,11 +58,9 @@ class ValueJsonConverterTest(
   }
 
   companion object {
-    // Date represented in YYYY-MM-DDTHH:mmZ Format from 1632501600000L milliseconds.
-    private const val DATE_STRING = "2021-09-21T07:00+0000"
+    private const val dateTimeResponse = 1725537603066
 
-    // Date represented in milliseconds for date: 2021-09-24T16:40+0000.
-    private val DATE = Date(1632207600000L)
+    private val dateTimeOption = DateTimeTaskData.fromMillis(1725537603066)
 
     private val multipleChoiceOptions =
       persistentListOf(
@@ -139,8 +135,8 @@ class ValueJsonConverterTest(
           NumberTaskData.fromNumber("12345.0"),
           12345.0,
         ),
-        arrayOf(FakeData.newTask(type = Task.Type.DATE), DateTaskData.fromDate(DATE), DATE_STRING),
-        arrayOf(FakeData.newTask(type = Task.Type.TIME), TimeTaskData.fromDate(DATE), DATE_STRING),
+        arrayOf(FakeData.newTask(type = Task.Type.DATE), dateTimeOption, dateTimeResponse),
+        arrayOf(FakeData.newTask(type = Task.Type.TIME), dateTimeOption, dateTimeResponse),
         arrayOf(
           FakeData.newTask(type = Task.Type.DROP_PIN),
           dropPinTaskResponse,

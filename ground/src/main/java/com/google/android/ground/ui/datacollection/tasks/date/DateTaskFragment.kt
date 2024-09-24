@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.datacollection.tasks.date
 
 import android.app.DatePickerDialog
+import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import com.google.android.ground.databinding.DateTaskFragBinding
@@ -54,7 +55,7 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
           c[Calendar.DAY_OF_MONTH] = updatedDayOfMonth
           c[Calendar.MONTH] = updatedMonth
           c[Calendar.YEAR] = updatedYear
-          viewModel.updateResponse(c.time)
+          viewModel.updateResponse(getDateFormatter(), c.time)
         },
         year,
         month,
@@ -65,6 +66,8 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
         datePickerDialog = this
       }
   }
+
+  fun getDateFormatter(): java.text.DateFormat? = DateFormat.getDateFormat(requireContext())
 
   @TestOnly fun getDatePickerDialog(): DatePickerDialog? = datePickerDialog
 }
