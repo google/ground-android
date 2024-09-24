@@ -38,6 +38,8 @@ class DataCollectionViewPagerAdapter
 @AssistedInject
 constructor(
   private val drawAreaTaskFragmentProvider: Provider<DrawAreaTaskFragment>,
+  private val captureLocationTaskFragmentProvider: Provider<CaptureLocationTaskFragment>,
+  private val dropPinTaskFragmentProvider: Provider<DropPinTaskFragment>,
   @Assisted fragment: Fragment,
   @Assisted val tasks: List<Task>,
 ) : FragmentStateAdapter(fragment) {
@@ -51,12 +53,12 @@ constructor(
         Task.Type.TEXT -> TextTaskFragment()
         Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskFragment()
         Task.Type.PHOTO -> PhotoTaskFragment()
-        Task.Type.DROP_PIN -> DropPinTaskFragment()
+        Task.Type.DROP_PIN -> dropPinTaskFragmentProvider.get()
         Task.Type.DRAW_AREA -> drawAreaTaskFragmentProvider.get()
         Task.Type.NUMBER -> NumberTaskFragment()
         Task.Type.DATE -> DateTaskFragment()
         Task.Type.TIME -> TimeTaskFragment()
-        Task.Type.CAPTURE_LOCATION -> CaptureLocationTaskFragment()
+        Task.Type.CAPTURE_LOCATION -> captureLocationTaskFragmentProvider.get()
         Task.Type.UNKNOWN ->
           throw UnsupportedOperationException("Unsupported task type: ${task.type}")
       }

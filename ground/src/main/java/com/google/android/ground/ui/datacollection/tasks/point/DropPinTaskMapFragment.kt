@@ -18,24 +18,30 @@ package com.google.android.ground.ui.datacollection.tasks.point
 import android.os.Bundle
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.datacollection.DataCollectionFragment
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class DropPinTaskMapFragment(private val viewModel: DropPinTaskViewModel) :
-  AbstractMapFragmentWithControls() {
+class DropPinTaskMapFragment @Inject constructor() : AbstractMapFragmentWithControls() {
 
   private lateinit var mapViewModel: BaseMapViewModel
+  private lateinit var viewModel: DropPinTaskViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
+    val taskId = arguments?.getString(TASK_ID_ARG_KEY) ?: error("null taskId arg")
+    val dcf = requireParentFragment() as DataCollectionFragment
+    viewModel = dcf.viewModel.getTaskViewModel(taskId) as DropPinTaskViewModel
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   override fun onMapReady(map: MapFragment) {
+    super.onMapReady(map)
     viewModel.features.observe(this) { map.setFeatures(it) }
   }
 
@@ -45,7 +51,6 @@ class DropPinTaskMapFragment(private val viewModel: DropPinTaskViewModel) :
   }
 
   companion object {
-    fun newInstance(viewModel: DropPinTaskViewModel, map: MapFragment) =
-      DropPinTaskMapFragment(viewModel).apply { this.map = map }
+    const val TASK_ID_ARG_KEY = "taskId"
   }
 }

@@ -22,19 +22,25 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.datacollection.DataCollectionFragment
+import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskMapFragment.Companion.TASK_ID_ARG_KEY
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class CaptureLocationTaskMapFragment(private val viewModel: CaptureLocationTaskViewModel) :
-  AbstractMapFragmentWithControls() {
+class CaptureLocationTaskMapFragment @Inject constructor() : AbstractMapFragmentWithControls() {
 
   private lateinit var mapViewModel: CaptureLocationTaskMapViewModel
+  private lateinit var viewModel: CaptureLocationTaskViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     mapViewModel = getViewModel(CaptureLocationTaskMapViewModel::class.java)
+    val taskId = arguments?.getString(TASK_ID_ARG_KEY) ?: error("null taskId arg")
+    val dcf = requireParentFragment() as DataCollectionFragment
+    viewModel = dcf.viewModel.getTaskViewModel(taskId) as CaptureLocationTaskViewModel
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
@@ -52,12 +58,12 @@ class CaptureLocationTaskMapFragment(private val viewModel: CaptureLocationTaskV
   }
 
   override fun onMapReady(map: MapFragment) {
+    super.onMapReady(map)
     binding.locationLockBtn.isClickable = false
     viewLifecycleOwner.lifecycleScope.launch { viewModel.onMapReady(mapViewModel) }
   }
 
   companion object {
-    fun newInstance(viewModel: CaptureLocationTaskViewModel, map: MapFragment) =
-      CaptureLocationTaskMapFragment(viewModel).apply { this.map = map }
+    const val TASK_ID_ARG_KEY = "taskId"
   }
 }
