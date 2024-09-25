@@ -257,7 +257,6 @@ internal constructor(
 
       data[taskViewModel.task] = taskViewModel.taskTaskData.value
       savedStateHandle[TASK_POSITION_ID] = taskViewModel.task.id
-      clearDraft()
       saveDraft()
     }
   }
