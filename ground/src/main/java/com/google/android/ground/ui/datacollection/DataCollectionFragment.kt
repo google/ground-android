@@ -23,6 +23,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.ComposeView
 import androidx.constraintlayout.widget.Guideline
 import androidx.core.view.WindowInsetsCompat
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
@@ -35,6 +38,8 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.Navigator
+import com.google.android.ground.ui.home.HomeScreenFragmentDirections
+import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterNotNull
@@ -107,6 +112,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     when (uiState) {
       is UiState.TaskListAvailable -> loadTasks(uiState.tasks, uiState.taskPosition)
       is UiState.TaskUpdated -> onTaskChanged(uiState.taskPosition)
+      is UiState.TaskSubmitted -> onTaskSubmitted()
     }
   }
 
@@ -131,6 +137,27 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   private fun onTaskChanged(taskPosition: TaskPosition) {
     viewPager.currentItem = taskPosition.absoluteIndex
     updateProgressBar(taskPosition, true)
+  }
+
+  private fun onTaskSubmitted() {
+    // Display a confirmation dialog and move to home screen after that.
+    (view as ViewGroup).addView(
+      ComposeView(requireContext()).apply {
+        setContent {
+          val openAlertDialog = remember { mutableStateOf(true) }
+          when {
+            openAlertDialog.value -> {
+              AppTheme {
+                DataSubmissionConfirmationDialog {
+                  openAlertDialog.value = false
+                  navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
+                }
+              }
+            }
+          }
+        }
+      }
+    )
   }
 
   private fun updateProgressBar(taskPosition: TaskPosition, shouldAnimate: Boolean) {
