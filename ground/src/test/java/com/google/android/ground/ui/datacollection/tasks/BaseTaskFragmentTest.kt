@@ -30,6 +30,7 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
+import com.google.android.ground.ui.datacollection.DataCollectionFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.TaskFragmentRunner
 import com.google.android.ground.ui.datacollection.components.ButtonAction
@@ -95,6 +96,8 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
       preTransactionAction = {
         fragment = this as F
         fragment.taskId = task.id
+        // TODO: Attach `fragment` to mock DataCollectionFragment
+        // TODO: Mock out `DataCollectionFragment.viewModel` as `dataCollectionViewModel`
       },
     )
   }
