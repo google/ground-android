@@ -18,6 +18,7 @@ package com.google.android.ground
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import androidx.annotation.IdRes
 import androidx.annotation.StyleRes
 import androidx.core.os.bundleOf
 import androidx.core.util.Preconditions
@@ -49,7 +50,7 @@ inline fun <reified T : Fragment> launchFragmentInHiltContainer(
 inline fun <reified T : Fragment> launchFragmentWithNavController(
   fragmentArgs: Bundle? = null,
   @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
-  destId: Int,
+  @IdRes destId: Int,
   crossinline preTransactionAction: Fragment.() -> Unit = {},
   crossinline postTransactionAction: Fragment.() -> Unit = {},
 ): ActivityScenario<HiltTestActivity> =
