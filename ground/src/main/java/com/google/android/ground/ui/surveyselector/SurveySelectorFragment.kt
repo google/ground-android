@@ -55,13 +55,13 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
         showProgressDialog()
       }
       UiState.SurveyActivated -> {
-        if (!viewModel._surveyActivationInProgress) {
+        if (!viewModel.surveyActivationInProgress) {
           dismissProgressDialog()
         }
       }
       is UiState.SurveyListAvailable -> {
         handleSurveyListUpdated(uiState.surveys)
-        if (!viewModel._surveyActivationInProgress) {
+        if (!viewModel.surveyActivationInProgress) {
           dismissProgressDialog()
         }
       }
