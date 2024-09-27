@@ -89,9 +89,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     super.onViewCreated(view, savedInstanceState)
     view.doOnAttach {
       @Suppress("UNCHECKED_CAST", "LabeledExpression")
+      println("========= onViewCreated ${taskId} --- ${dataCollectionViewModel.getTaskViewModel(taskId)}")
       val vm = dataCollectionViewModel.getTaskViewModel(taskId) as? T ?: return@doOnAttach
 
       viewModel = vm
+      println("========= onViewCreated ${viewModel}")
       taskView.bind(this, viewModel)
       taskView.addTaskView(onCreateTaskBody(layoutInflater))
 

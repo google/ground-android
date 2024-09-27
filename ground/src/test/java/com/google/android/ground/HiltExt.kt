@@ -50,12 +50,18 @@ inline fun <reified T : Fragment> launchFragmentWithNavController(
   fragmentArgs: Bundle? = null,
   @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
   destId: Int,
+  fragment: Fragment?=null,
   crossinline preTransactionAction: Fragment.() -> Unit = {},
   crossinline postTransactionAction: Fragment.() -> Unit = {},
 ): ActivityScenario<HiltTestActivity> =
   hiltActivityScenario(themeResId).launchFragment<T>(
     fragmentArgs,
     {
+      println("========= ${parentFragment.toString()} ----- ${parentFragment?.childFragmentManager.toString()} ")
+      parentFragment?.childFragmentManager?.beginTransaction()
+        ?.add(R.id.data_collection_fragment, fragment!!, "childFragmentTag")
+        ?.commitNow()
+
       this.preTransactionAction()
       viewLifecycleOwnerLiveData.observeForever { viewLifecycleOwner ->
         if (viewLifecycleOwner != null) {

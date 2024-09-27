@@ -59,6 +59,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     // Otherwise, the sequentially generated ID might conflict with an ID produced by Google Maps.
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11411 }
     drawAreaTaskMapFragment = drawAreaTaskMapFragmentProvider.get()
+    println("========= drawAreaTaskMapFragmentProvider ${drawAreaTaskMapFragmentProvider} ---- ${drawAreaTaskMapFragment}")
     val args = Bundle()
     args.putString(DrawAreaTaskMapFragment.TASK_ID_ARG_KEY, taskId)
     drawAreaTaskMapFragment.arguments = args
