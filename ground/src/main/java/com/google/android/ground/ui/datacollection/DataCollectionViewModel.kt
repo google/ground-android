@@ -140,6 +140,8 @@ internal constructor(
 
   lateinit var submissionId: String
 
+  var isNavigatingUp = false
+
   init {
     uiState =
       _uiState
@@ -252,6 +254,7 @@ internal constructor(
     if (!data.containsKey(taskViewModel.task)) {
       val validationError = taskViewModel.validate()
       if (validationError != null) {
+        clearDraft()
         return
       }
 

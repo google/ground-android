@@ -112,7 +112,9 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   override fun onPause() {
     super.onPause()
-    saveCurrentState()
+    if (!dataCollectionViewModel.isNavigatingUp) {
+      saveCurrentState()
+    }
   }
 
   /** Creates the view for common task template with/without header. */

@@ -71,6 +71,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     getAbstractActivity().setSupportActionBar(binding.dataCollectionToolbar)
 
     binding.dataCollectionToolbar.setNavigationOnClickListener {
+      viewModel.isNavigatingUp = true
       viewModel.clearDraft()
       navigator.navigateUp()
     }
@@ -106,6 +107,11 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     )
 
     lifecycleScope.launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
+  }
+
+  override fun onResume() {
+    super.onResume()
+    viewModel.isNavigatingUp = false
   }
 
   private fun updateUI(uiState: UiState) {
