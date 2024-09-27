@@ -185,6 +185,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   override fun onBack(): Boolean =
     if (viewPager.currentItem == 0) {
+      viewModel.isNavigatingUp = true
       // If the user is currently looking at the first step, allow the system to handle the
       // Back button. This calls finish() on this activity and pops the back stack.
       viewModel.clearDraft()
