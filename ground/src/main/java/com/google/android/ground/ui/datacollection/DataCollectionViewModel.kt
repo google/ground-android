@@ -250,17 +250,19 @@ internal constructor(
     }
   }
 
-  fun saveCurrentState(taskViewModel: AbstractTaskViewModel) {
-    if (!data.containsKey(taskViewModel.task)) {
-      val validationError = taskViewModel.validate()
-      if (validationError != null) {
-        clearDraft()
-        return
-      }
+  fun saveCurrentState() {
+    getTaskViewModel(currentTaskId.value)?.let {
+      if (!data.containsKey(it.task)) {
+        val validationError = it.validate()
+        if (validationError != null) {
+          clearDraft()
+          return
+        }
 
-      data[taskViewModel.task] = taskViewModel.taskTaskData.value
-      savedStateHandle[TASK_POSITION_ID] = taskViewModel.task.id
-      saveDraft()
+        data[it.task] = it.taskTaskData.value
+        savedStateHandle[TASK_POSITION_ID] = it.task.id
+        saveDraft()
+      }
     }
   }
 

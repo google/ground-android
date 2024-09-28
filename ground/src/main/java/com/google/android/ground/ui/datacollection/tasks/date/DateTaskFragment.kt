@@ -27,12 +27,17 @@ import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.jetbrains.annotations.TestOnly
 
 @AndroidEntryPoint
 class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
 
   private var datePickerDialog: DatePickerDialog? = null
+
+  private var _dateText: MutableStateFlow<String> = MutableStateFlow("")
+  val dateText = _dateText.asStateFlow()
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
@@ -41,10 +46,9 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
     val taskBinding = DateTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
     taskBinding.fragment = this
-    taskBinding.viewModel = viewModel
     if (viewModel.taskTaskData.value.isNotNullOrEmpty()) {
       val timestamp = (viewModel.taskTaskData.value as DateTimeTaskData).timeInMillis
-      viewModel.updateResponse(getDateFormatter(), Date(timestamp))
+      updateDateText(Date(timestamp))
     }
     return taskBinding.root
   }
@@ -61,6 +65,7 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
           c[Calendar.DAY_OF_MONTH] = updatedDayOfMonth
           c[Calendar.MONTH] = updatedMonth
           c[Calendar.YEAR] = updatedYear
+          updateDateText(c.time)
           viewModel.updateResponse(getDateFormatter(), c.time)
         },
         year,
@@ -73,7 +78,11 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
       }
   }
 
-  fun getDateFormatter(): java.text.DateFormat? = DateFormat.getDateFormat(requireContext())
+  private fun updateDateText(timestamp: Date) {
+    getDateFormatter()?.let { _dateText.value = it.format(timestamp) }
+  }
+
+  private fun getDateFormatter(): java.text.DateFormat? = DateFormat.getDateFormat(requireContext())
 
   @TestOnly fun getDatePickerDialog(): DatePickerDialog? = datePickerDialog
 }

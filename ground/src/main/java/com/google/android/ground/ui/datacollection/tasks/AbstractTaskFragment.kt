@@ -110,13 +110,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     onTaskResume()
   }
 
-  override fun onPause() {
-    super.onPause()
-    if (!dataCollectionViewModel.isNavigatingUp) {
-      saveCurrentState()
-    }
-  }
-
   /** Creates the view for common task template with/without header. */
   abstract fun onCreateTaskView(inflater: LayoutInflater): TaskView
 
@@ -184,10 +177,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   private fun moveToNext() {
     lifecycleScope.launch { dataCollectionViewModel.onNextClicked(viewModel) }
-  }
-
-  private fun saveCurrentState() {
-    dataCollectionViewModel.saveCurrentState(viewModel)
   }
 
   fun handleNext() {

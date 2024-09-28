@@ -27,12 +27,17 @@ import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.jetbrains.annotations.TestOnly
 
 @AndroidEntryPoint
 class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
 
   private var timePickerDialog: TimePickerDialog? = null
+
+  private var _timeText: MutableStateFlow<String> = MutableStateFlow("")
+  val timeText = _timeText.asStateFlow()
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
@@ -41,10 +46,9 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
     val taskBinding = TimeTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
     taskBinding.fragment = this
-    taskBinding.viewModel = viewModel
     if (viewModel.taskTaskData.value.isNotNullOrEmpty()) {
       val timestamp = (viewModel.taskTaskData.value as DateTimeTaskData).timeInMillis
-      viewModel.updateResponse(getTimeFormatter(), Date(timestamp))
+      updateDateText(Date(timestamp))
     }
     return taskBinding.root
   }
@@ -59,6 +63,7 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
           val c = Calendar.getInstance()
           c[Calendar.HOUR_OF_DAY] = updatedHourOfDay
           c[Calendar.MINUTE] = updatedMinute
+          updateDateText(c.time)
           viewModel.updateResponse(getTimeFormatter(), c.time)
         },
         hour,
@@ -71,7 +76,11 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
       }
   }
 
-  fun getTimeFormatter(): java.text.DateFormat? = DateFormat.getTimeFormat(requireContext())
+  private fun updateDateText(timestamp: Date) {
+    getTimeFormatter()?.let { _timeText.value = it.format(timestamp) }
+  }
+
+  private fun getTimeFormatter(): java.text.DateFormat? = DateFormat.getTimeFormat(requireContext())
 
   @TestOnly fun getTimePickerDialog(): TimePickerDialog? = timePickerDialog
 }

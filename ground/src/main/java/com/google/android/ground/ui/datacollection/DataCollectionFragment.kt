@@ -114,6 +114,13 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewModel.isNavigatingUp = false
   }
 
+  override fun onPause() {
+    super.onPause()
+    if (!viewModel.isNavigatingUp) {
+      viewModel.saveCurrentState()
+    }
+  }
+
   private fun updateUI(uiState: UiState) {
     when (uiState) {
       is UiState.TaskListAvailable -> loadTasks(uiState.tasks, uiState.taskPosition)
