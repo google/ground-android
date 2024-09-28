@@ -19,6 +19,8 @@ import android.app.DatePickerDialog
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import com.google.android.ground.databinding.DateTaskFragBinding
 import com.google.android.ground.model.submission.DateTimeTaskData
 import com.google.android.ground.model.submission.isNotNullOrEmpty
@@ -28,7 +30,7 @@ import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import org.jetbrains.annotations.TestOnly
 
 @AndroidEntryPoint
@@ -36,8 +38,13 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
 
   private var datePickerDialog: DatePickerDialog? = null
 
-  private var _dateText: MutableStateFlow<String> = MutableStateFlow("")
-  val dateText = _dateText.asStateFlow()
+  private val _timestamp: MutableStateFlow<Date?> = MutableStateFlow(null)
+  val dateText: LiveData<String> =
+    _timestamp
+      .map { timestamp ->
+        timestamp?.let { getDateFormatter()?.format(timestamp) ?: "" } ?: run { "" }
+      }
+      .asLiveData()
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
@@ -48,7 +55,7 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
     taskBinding.fragment = this
     if (viewModel.taskTaskData.value.isNotNullOrEmpty()) {
       val timestamp = (viewModel.taskTaskData.value as DateTimeTaskData).timeInMillis
-      updateDateText(Date(timestamp))
+      _timestamp.value = Date(timestamp)
     }
     return taskBinding.root
   }
@@ -65,7 +72,7 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
           c[Calendar.DAY_OF_MONTH] = updatedDayOfMonth
           c[Calendar.MONTH] = updatedMonth
           c[Calendar.YEAR] = updatedYear
-          updateDateText(c.time)
+          _timestamp.value = c.time
           viewModel.updateResponse(getDateFormatter(), c.time)
         },
         year,
@@ -76,10 +83,6 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
         show()
         datePickerDialog = this
       }
-  }
-
-  private fun updateDateText(timestamp: Date) {
-    getDateFormatter()?.let { _dateText.value = it.format(timestamp) }
   }
 
   private fun getDateFormatter(): java.text.DateFormat? = DateFormat.getDateFormat(requireContext())

@@ -57,6 +57,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   private lateinit var progressBar: ProgressBar
   private lateinit var guideline: Guideline
   private lateinit var viewPager: ViewPager2
+  private var isNavigatingUp = false
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -71,7 +72,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     getAbstractActivity().setSupportActionBar(binding.dataCollectionToolbar)
 
     binding.dataCollectionToolbar.setNavigationOnClickListener {
-      viewModel.isNavigatingUp = true
+      isNavigatingUp = true
       viewModel.clearDraft()
       navigator.navigateUp()
     }
@@ -111,12 +112,12 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   override fun onResume() {
     super.onResume()
-    viewModel.isNavigatingUp = false
+    isNavigatingUp = false
   }
 
   override fun onPause() {
     super.onPause()
-    if (!viewModel.isNavigatingUp) {
+    if (!isNavigatingUp) {
       viewModel.saveCurrentState()
     }
   }
@@ -192,7 +193,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   override fun onBack(): Boolean =
     if (viewPager.currentItem == 0) {
-      viewModel.isNavigatingUp = true
+      isNavigatingUp = true
       // If the user is currently looking at the first step, allow the system to handle the
       // Back button. This calls finish() on this activity and pops the back stack.
       viewModel.clearDraft()

@@ -140,8 +140,6 @@ internal constructor(
 
   lateinit var submissionId: String
 
-  var isNavigatingUp = false
-
   init {
     uiState =
       _uiState
