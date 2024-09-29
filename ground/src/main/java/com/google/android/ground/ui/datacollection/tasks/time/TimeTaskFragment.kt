@@ -19,16 +19,17 @@ import android.app.TimePickerDialog
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import com.google.android.ground.databinding.TimeTaskFragBinding
 import com.google.android.ground.model.submission.DateTimeTaskData
-import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
 import org.jetbrains.annotations.TestOnly
 
 @AndroidEntryPoint
@@ -36,8 +37,24 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
 
   private var timePickerDialog: TimePickerDialog? = null
 
-  private var _timeText: MutableStateFlow<String> = MutableStateFlow("")
-  val timeText = _timeText.asStateFlow()
+  lateinit var dateText: LiveData<String>
+
+  override fun onTaskViewAttached() {
+    super.onTaskViewAttached()
+    dateText =
+      viewModel.taskTaskData
+        .filterIsInstance<DateTimeTaskData?>()
+        .map { taskData ->
+          if (taskData != null) {
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = taskData.timeInMillis
+            getTimeFormatter()?.format(calendar.time) ?: ""
+          } else {
+            ""
+          }
+        }
+        .asLiveData()
+  }
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
@@ -46,10 +63,6 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
     val taskBinding = TimeTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
     taskBinding.fragment = this
-    if (viewModel.taskTaskData.value.isNotNullOrEmpty()) {
-      val timestamp = (viewModel.taskTaskData.value as DateTimeTaskData).timeInMillis
-      updateDateText(Date(timestamp))
-    }
     return taskBinding.root
   }
 
@@ -63,7 +76,6 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
           val c = Calendar.getInstance()
           c[Calendar.HOUR_OF_DAY] = updatedHourOfDay
           c[Calendar.MINUTE] = updatedMinute
-          updateDateText(c.time)
           viewModel.updateResponse(getTimeFormatter(), c.time)
         },
         hour,
@@ -74,10 +86,6 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
         show()
         timePickerDialog = this
       }
-  }
-
-  private fun updateDateText(timestamp: Date) {
-    getTimeFormatter()?.let { _timeText.value = it.format(timestamp) }
   }
 
   private fun getTimeFormatter(): java.text.DateFormat? = DateFormat.getTimeFormat(requireContext())
