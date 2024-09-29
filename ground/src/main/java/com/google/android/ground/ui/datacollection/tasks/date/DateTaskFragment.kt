@@ -23,13 +23,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.databinding.DateTaskFragBinding
 import com.google.android.ground.model.submission.DateTimeTaskData
-import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import org.jetbrains.annotations.TestOnly
 
@@ -38,13 +37,24 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
 
   private var datePickerDialog: DatePickerDialog? = null
 
-  private val _timestamp: MutableStateFlow<Date?> = MutableStateFlow(null)
-  val dateText: LiveData<String> =
-    _timestamp
-      .map { timestamp ->
-        timestamp?.let { getDateFormatter()?.format(timestamp) ?: "" } ?: run { "" }
-      }
-      .asLiveData()
+  lateinit var dateText: LiveData<String>
+
+  override fun onTaskViewAttached() {
+    super.onTaskViewAttached()
+    dateText =
+      viewModel.taskTaskData
+        .filterIsInstance<DateTimeTaskData?>()
+        .map { taskData ->
+          if (taskData != null) {
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = taskData.timeInMillis
+            getDateFormatter()?.format(calendar.time) ?: ""
+          } else {
+            ""
+          }
+        }
+        .asLiveData()
+  }
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
@@ -53,10 +63,6 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
     val taskBinding = DateTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
     taskBinding.fragment = this
-    if (viewModel.taskTaskData.value.isNotNullOrEmpty()) {
-      val timestamp = (viewModel.taskTaskData.value as DateTimeTaskData).timeInMillis
-      _timestamp.value = Date(timestamp)
-    }
     return taskBinding.root
   }
 
@@ -72,7 +78,6 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
           c[Calendar.DAY_OF_MONTH] = updatedDayOfMonth
           c[Calendar.MONTH] = updatedMonth
           c[Calendar.YEAR] = updatedYear
-          _timestamp.value = c.time
           viewModel.updateResponse(getDateFormatter(), c.time)
         },
         year,
