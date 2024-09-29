@@ -37,11 +37,11 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
 
   private var timePickerDialog: TimePickerDialog? = null
 
-  lateinit var dateText: LiveData<String>
+  lateinit var timeText: LiveData<String>
 
   override fun onTaskViewAttached() {
     super.onTaskViewAttached()
-    dateText =
+    timeText =
       viewModel.taskTaskData
         .filterIsInstance<DateTimeTaskData?>()
         .map { taskData ->

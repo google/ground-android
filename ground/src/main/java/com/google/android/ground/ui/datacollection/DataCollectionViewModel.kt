@@ -253,7 +253,6 @@ internal constructor(
       if (!data.containsKey(it.task)) {
         val validationError = it.validate()
         if (validationError != null) {
-          clearDraft()
           return
         }
 
