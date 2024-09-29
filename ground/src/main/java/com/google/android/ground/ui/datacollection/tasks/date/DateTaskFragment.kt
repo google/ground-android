@@ -27,7 +27,7 @@ import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
+import java.util.Calendar
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import org.jetbrains.annotations.TestOnly
@@ -48,7 +48,7 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
           if (taskData != null) {
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = taskData.timeInMillis
-            getDateFormatter()?.format(calendar.time) ?: ""
+            DateFormat.getDateFormat(requireContext()).format(calendar.time)
           } else {
             ""
           }
@@ -78,7 +78,7 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
           c[Calendar.DAY_OF_MONTH] = updatedDayOfMonth
           c[Calendar.MONTH] = updatedMonth
           c[Calendar.YEAR] = updatedYear
-          viewModel.updateResponse(getDateFormatter(), c.time)
+          viewModel.updateResponse(c.time)
         },
         year,
         month,
@@ -89,8 +89,6 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
         datePickerDialog = this
       }
   }
-
-  private fun getDateFormatter(): java.text.DateFormat? = DateFormat.getDateFormat(requireContext())
 
   @TestOnly fun getDatePickerDialog(): DatePickerDialog? = datePickerDialog
 }

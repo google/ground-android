@@ -27,7 +27,7 @@ import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
+import java.util.Calendar
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import org.jetbrains.annotations.TestOnly
@@ -48,7 +48,7 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
           if (taskData != null) {
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = taskData.timeInMillis
-            getTimeFormatter()?.format(calendar.time) ?: ""
+            DateFormat.getTimeFormat(requireContext()).format(calendar.time)
           } else {
             ""
           }
@@ -76,7 +76,7 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
           val c = Calendar.getInstance()
           c[Calendar.HOUR_OF_DAY] = updatedHourOfDay
           c[Calendar.MINUTE] = updatedMinute
-          viewModel.updateResponse(getTimeFormatter(), c.time)
+          viewModel.updateResponse(c.time)
         },
         hour,
         minute,
@@ -87,8 +87,6 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
         timePickerDialog = this
       }
   }
-
-  private fun getTimeFormatter(): java.text.DateFormat? = DateFormat.getTimeFormat(requireContext())
 
   @TestOnly fun getTimePickerDialog(): TimePickerDialog? = timePickerDialog
 }
