@@ -37,7 +37,6 @@ import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.LocationOfInterestHelper
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
@@ -49,7 +48,6 @@ import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskViewMo
 import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
-import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import javax.inject.Provider
@@ -77,7 +75,6 @@ internal constructor(
   private val viewModelFactory: ViewModelFactory,
   private val locationOfInterestHelper: LocationOfInterestHelper,
   private val popups: Provider<EphemeralPopups>,
-  private val navigator: Navigator,
   private val submitDataUseCase: SubmitDataUseCase,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
@@ -247,13 +244,22 @@ internal constructor(
     } else {
       clearDraft()
       saveChanges(getDeltas())
+      _uiState.emit(UiState.TaskSubmitted)
+    }
+  }
 
-      // Move to home screen and display a confirmation dialog after that.
-      navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
-      navigator.navigate(
-        DataSubmissionConfirmationDialogFragmentDirections
-          .showSubmissionConfirmationDialogFragment()
-      )
+  fun saveCurrentState() {
+    getTaskViewModel(currentTaskId.value)?.let {
+      if (!data.containsKey(it.task)) {
+        val validationError = it.validate()
+        if (validationError != null) {
+          return
+        }
+
+        data[it.task] = it.taskTaskData.value
+        savedStateHandle[TASK_POSITION_ID] = it.task.id
+        saveDraft()
+      }
     }
   }
 
@@ -325,7 +331,11 @@ internal constructor(
    * start ID will always generate a sequence with the start ID as the first element, and if
    * reversed is set, will generate the previous tasks from there.
    */
-  private fun getTaskSequence(startId: String? = null, reversed: Boolean = false): Sequence<Task> {
+  private fun getTaskSequence(
+    startId: String? = null,
+    reversed: Boolean = false,
+    taskValueOverride: Pair<String, TaskData?>? = null,
+  ): Sequence<Task> {
     if (tasks.isEmpty()) {
       error("Can't generate sequence for empty task list")
     }
@@ -345,7 +355,9 @@ internal constructor(
         tasks.subList(startIndex, tasks.size)
       }
       .let { tasks ->
-        tasks.asSequence().filter { it.condition == null || evaluateCondition(it.condition) }
+        tasks.asSequence().filter {
+          it.condition == null || evaluateCondition(it.condition, taskValueOverride)
+        }
       }
   }
 
@@ -377,14 +389,40 @@ internal constructor(
   /** Returns true if the given [taskId] is first in the sequence of displayed tasks. */
   fun isFirstPosition(taskId: String): Boolean = taskId == getTaskSequence().first().id
 
+  /**
+   * Returns true if the given [taskId] with task data would be last in sequence. Defaults to the
+   * current active task if not set. Useful for handling conditional tasks, see #2394.
+   */
+  fun checkLastPositionWithTaskData(taskId: String? = null, value: TaskData?): Boolean =
+    (taskId ?: currentTaskId.value) ==
+      getTaskSequence(taskValueOverride = (taskId ?: currentTaskId.value) to value).last().id
+
   /** Returns true if the given [taskId] is last if set, or the current active task. */
   fun isLastPosition(taskId: String? = null): Boolean =
     (taskId ?: currentTaskId.value) == getTaskSequence().last().id
 
   /** Evaluates the task condition against the current inputs. */
-  private fun evaluateCondition(condition: Condition): Boolean =
+  private fun evaluateCondition(
+    condition: Condition,
+    taskValueOverride: Pair<String, TaskData?>? = null,
+  ): Boolean =
     condition.fulfilledBy(
-      data.mapNotNull { (task, value) -> value?.let { task.id to value } }.toMap()
+      data
+        .mapNotNull { (task, value) -> value?.let { task.id to it } }
+        .let { pairs ->
+          if (taskValueOverride != null) {
+            if (taskValueOverride.second == null) {
+              // Remove pairs with the testTaskId if testValue is null.
+              pairs.filterNot { it.first == taskValueOverride.first }
+            } else {
+              // Override any task IDs with the test values.
+              pairs + (taskValueOverride.first to taskValueOverride.second!!)
+            }
+          } else {
+            pairs
+          }
+        }
+        .toMap()
     )
 
   companion object {

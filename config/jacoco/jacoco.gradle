@@ -71,7 +71,6 @@ tasks.register('jacocoLocalDebugUnitTestReport', JacocoReport) {
             '**/datacollection/tasks/AbstractTaskFragment*',
             '**/datacollection/tasks/AbstractTaskViewModel*',
             '**/map/gms/ClippingTileProvider*',
-            '**/datacollection/DataSubmissionConfirmationDialogFragment*',
             '**/common/AbstractMapFragmentWithControls*',
             '**/map/gms/TemplateUrlTileProvider*',
             '**/persistence/sync/WorkRequestBuilder*',

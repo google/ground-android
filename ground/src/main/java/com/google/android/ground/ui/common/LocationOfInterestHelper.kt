@@ -35,21 +35,12 @@ class LocationOfInterestHelper @Inject internal constructor(private val resource
     return when {
       loiName.isNotEmpty() && loiId.isNotEmpty() -> "$loiName ($loiId)"
       loiName.isNotEmpty() -> loiName
-      loiId.isNotEmpty() -> "${loi.geometry.toType()} ($loiId)"
+      loiId.isNotEmpty() -> "${loi.geometry.toDefaultName()} ($loiId)"
       else -> loi.geometry.toDefaultName()
     }
   }
 
   fun getJobName(loi: LocationOfInterest): String? = loi.job.name
-
-  /** Returns a user-visible string representing the type of the geometry. */
-  private fun Geometry.toType(): String =
-    when (this) {
-      is Point -> resources.getString(R.string.point)
-      is Polygon,
-      is MultiPolygon -> resources.getString(R.string.area)
-      else -> throw IllegalArgumentException("Unsupported geometry type $this")
-    }
 
   /** Returns a default user-visible name for the geometry. */
   private fun Geometry.toDefaultName(): String =
