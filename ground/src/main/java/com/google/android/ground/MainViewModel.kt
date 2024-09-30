@@ -28,7 +28,9 @@ import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.system.auth.SignInState
 import com.google.android.ground.ui.common.AbstractViewModel
+import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
+import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.util.isPermissionDeniedException
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -50,6 +52,7 @@ constructor(
   private val termsOfServiceRepository: TermsOfServiceRepository,
   private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+  private val navigator: Navigator,
   authenticationManager: AuthenticationManager,
 ) : AbstractViewModel() {
 
@@ -119,5 +122,31 @@ constructor(
   private suspend fun attemptToReactiveLastActiveSurvey(): Boolean {
     reactivateLastSurvey()
     return surveyRepository.selectedSurveyId != null
+  }
+
+  fun showOfflineAreas() {
+    viewModelScope.launch {
+
+    }
+  }
+
+  fun showSettings() {
+    navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity())
+  }
+
+  fun showSyncStatus() {
+    navigator.navigate(HomeScreenFragmentDirections.showSyncStatus())
+  }
+
+  fun showAbout() {
+    navigator.navigate(HomeScreenFragmentDirections.showAbout())
+  }
+
+  fun showTermsOfService() {
+    navigator.navigate(HomeScreenFragmentDirections.showTermsOfService(true))
+  }
+
+  fun signOut() {
+    viewModelScope.launch { userRepository.signOut() }
   }
 }

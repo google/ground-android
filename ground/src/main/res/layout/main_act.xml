@@ -29,6 +29,18 @@
     app:defaultNavHost="true"
     app:navGraph="@navigation/nav_graph" />
 
+  <Button
+    android:id="@+id/buttondrawere"
+    android:layout_marginTop="100dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="top"/>
+  <androidx.compose.ui.platform.ComposeView
+    android:id="@+id/compose_view"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="top"/>
+
   <!--
     Translucent scrim to make status bar legible when shown overlaid on map or toolbar.
     Workaround for possible bug in Navigation Architecture Components where translucent system

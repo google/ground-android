@@ -18,15 +18,36 @@ package com.google.android.ground
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.databinding.MainActBinding
 import com.google.android.ground.repository.UserRepository
@@ -40,6 +61,7 @@ import com.google.android.ground.ui.common.NavigationRequest
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.common.modalSpinner
+import com.google.android.ground.ui.compose.NavigationHeader
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.signin.SignInFragmentDirections
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
@@ -88,6 +110,57 @@ class MainActivity : AbstractActivity() {
       supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
 
     viewModel = viewModelFactory[this, MainViewModel::class.java]
+
+
+    binding.composeView.apply {
+      setContent {
+        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+        val coroutineScope = rememberCoroutineScope()
+
+        binding.buttondrawere.setOnClickListener {
+          if(drawerState.isOpen) {
+            coroutineScope.launch {
+              drawerState.close()
+            }
+            visibility = View.VISIBLE
+          } else {
+            coroutineScope.launch {
+              drawerState.open()
+            }
+            visibility = View.GONE
+          }
+        }
+        LaunchedEffect(drawerState.isOpen) {
+          if(drawerState.isOpen) {
+            visibility = View.VISIBLE
+          } else {
+            visibility = View.GONE
+          }
+        }
+          ModalNavigationDrawer(
+            drawerContent = {
+              ModalDrawerSheet {
+                NavigationHeader { index ->
+                  when (index) {
+                    R.id.sync_status -> viewModel.showSyncStatus()
+                    R.id.nav_offline_areas -> viewModel.showOfflineAreas()
+                    R.id.nav_settings -> viewModel.showSettings()
+                    1 -> navHostFragment.navController.navigate(R.id.aboutFragment)
+                    R.id.terms_of_service -> viewModel.showTermsOfService()
+                  }
+                  coroutineScope.launch {
+                    drawerState.close()
+                  }
+                }
+              }
+            },
+            drawerState = drawerState
+          ) {
+          }
+        }
+    }
+
+
 
     lifecycleScope.launch {
       viewModel.uiState.filterNotNull().collect { updateUi(binding.root, it) }
