@@ -70,7 +70,6 @@ class HomeScreenFragment :
     super.onCreate(savedInstanceState)
     getViewModel(MainViewModel::class.java).windowInsets.observe(this) { onApplyWindowInsets(it) }
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    lifecycleScope.launch { homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() } }
   }
 
   override fun onCreateView(
@@ -81,6 +80,7 @@ class HomeScreenFragment :
     super.onCreateView(inflater, container, savedInstanceState)
     binding = HomeScreenFragBinding.inflate(inflater, container, false)
     binding.lifecycleOwner = this
+    lifecycleScope.launch { homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() } }
     return binding.root
   }
 
