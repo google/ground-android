@@ -24,8 +24,7 @@ import com.google.android.ground.Config
 import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.isNotNullOrEmpty
-import com.google.android.ground.model.task.Task
+import com.google.android.ground.model.submission.PhotoTaskData
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.repository.MutationRepository
@@ -95,41 +94,38 @@ constructor(
    * Attempts to upload all media associated with a given submission. Updates the submission's sync
    * status depending on whether or the uploads failed or succeeded.
    */
-  private suspend fun uploadMedia(mutation: SubmissionMutation): SubmissionMutation =
-    uploadPhotos(mutation)
+  private suspend fun uploadMedia(mutation: SubmissionMutation): SubmissionMutation {
+    val photoTasks = mutation.deltas.map { it.newTaskData }.filterIsInstance<PhotoTaskData>()
+    return uploadPhotos(photoTasks)
       .fold(
         onSuccess = { mutation.updateSyncStatus(Mutation.SyncStatus.COMPLETED) },
         onFailure = {
-          val cause = it.message ?: "unknown upload error"
-          if (it is FileNotFoundException || !mutation.canRetry()) {
-            return mutation.copy(syncStatus = Mutation.SyncStatus.FAILED, lastError = cause)
-          }
-
           return mutation.copy(
-            syncStatus = Mutation.SyncStatus.MEDIA_UPLOAD_AWAITING_RETRY,
-            lastError = cause,
+            syncStatus =
+              if (it is FileNotFoundException || !mutation.canRetry()) {
+                Mutation.SyncStatus.FAILED
+              } else {
+                Mutation.SyncStatus.MEDIA_UPLOAD_AWAITING_RETRY
+              },
+            lastError = it.message ?: "unknown upload error",
           )
         },
       )
+  }
 
-  private suspend fun uploadPhotos(mutation: SubmissionMutation): kotlin.Result<Unit> =
-    // TODO(##2121): Use media response types instead of discriminating on Task.Type.
-    // For example, we should pass a List<PhotoResponse> to uploadPhotoMedia(), which can take care
-    // of the bulk of the response-specific work.
+  private suspend fun uploadPhotos(photoTaskDataList: List<PhotoTaskData>): kotlin.Result<Unit> =
     // TODO(#2120): Retry uploads on a per-photo basis, instead of per-response.
-    mutation.deltas
-      .filter { (_, taskType, newValue) ->
-        taskType === Task.Type.PHOTO && newValue.isNotNullOrEmpty()
-      }
-      .map { (_, _, newValue) -> newValue.toString() }
+    photoTaskDataList
+      .filter { !it.isEmpty() }
       .map { uploadPhotoMedia(it) }
       .fold(kotlin.Result.success(Unit)) { a, b -> if (a.isSuccess) b else a }
 
   /**
-   * Attempts to upload a single photo to remote storage. Returns an [UploadResult] indicating
-   * whether the upload attempt failed or succeeded.
+   * Attempts to upload a single photo to remote storage. Returns an [Result] indicating whether the
+   * upload attempt failed or succeeded.
    */
-  private suspend fun uploadPhotoMedia(path: String): kotlin.Result<Unit> {
+  private suspend fun uploadPhotoMedia(photoTaskData: PhotoTaskData): kotlin.Result<Unit> {
+    val path = photoTaskData.remoteFilename
     val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
     if (!photoFile.exists()) {
       Timber.e("Photo not found. local path: ${photoFile.path}, remote path: $path")
