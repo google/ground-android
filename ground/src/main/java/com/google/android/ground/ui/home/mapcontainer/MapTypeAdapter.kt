@@ -73,6 +73,9 @@ class MapTypeAdapter(
 
   /** Updates the currently selected item and invokes the attached [callback]. */
   private fun handleItemClicked(position: Int) {
+    if (position == -1) {
+      return
+    }
     callback.invoke(position)
     selectedIndex = position
     notifyDataSetChanged()
