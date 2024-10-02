@@ -51,7 +51,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
-  private val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
+  val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
 
   private lateinit var binding: DataCollectionFragBinding
   private lateinit var progressBar: ProgressBar
@@ -107,7 +107,10 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     )
 
-    lifecycleScope.launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
+    lifecycleScope.launch {
+      viewModel.init()
+      viewModel.uiState.filterNotNull().collect { updateUI(it) }
+    }
   }
 
   override fun onResume() {

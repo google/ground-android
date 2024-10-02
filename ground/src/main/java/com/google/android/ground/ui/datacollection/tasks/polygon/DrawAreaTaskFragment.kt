@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,18 +34,16 @@ import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
-
-  @Inject lateinit var map: MapFragment
-
+class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawAreaTaskViewModel>() {
+  @Inject lateinit var drawAreaTaskMapFragmentProvider: Provider<DrawAreaTaskMapFragment>
   // Action buttons
   private lateinit var completeButton: TaskButton
   private lateinit var addPointButton: TaskButton
@@ -59,7 +58,10 @@ class DrawAreaTaskFragment : AbstractTaskFragment<DrawAreaTaskViewModel>() {
     // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
     // Otherwise, the sequentially generated ID might conflict with an ID produced by Google Maps.
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11411 }
-    drawAreaTaskMapFragment = DrawAreaTaskMapFragment.newInstance(viewModel, map)
+    drawAreaTaskMapFragment = drawAreaTaskMapFragmentProvider.get()
+    val args = Bundle()
+    args.putString(DrawAreaTaskMapFragment.TASK_ID_FRAGMENT_ARG_KEY, taskId)
+    drawAreaTaskMapFragment.arguments = args
     parentFragmentManager
       .beginTransaction()
       .add(rowLayout.id, drawAreaTaskMapFragment, DrawAreaTaskMapFragment::class.java.simpleName)
