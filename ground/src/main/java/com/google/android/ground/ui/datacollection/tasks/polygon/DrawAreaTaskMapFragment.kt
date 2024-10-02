@@ -37,7 +37,7 @@ class DrawAreaTaskMapFragment @Inject constructor() : AbstractMapFragmentWithCon
     super.onCreate(savedInstanceState)
 
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
-    val taskId = arguments?.getString(TASK_ID_ARG_KEY) ?: error("null taskId arg")
+    val taskId = arguments?.getString(TASK_ID_FRAGMENT_ARG_KEY) ?: error("null taskId arg")
     val dcf = requireParentFragment() as DataCollectionFragment
     viewModel = dcf.viewModel.getTaskViewModel(taskId) as DrawAreaTaskViewModel
   }
@@ -64,6 +64,6 @@ class DrawAreaTaskMapFragment @Inject constructor() : AbstractMapFragmentWithCon
   }
 
   companion object {
-    const val TASK_ID_ARG_KEY = "taskId"
+    const val TASK_ID_FRAGMENT_ARG_KEY = "taskId"
   }
 }

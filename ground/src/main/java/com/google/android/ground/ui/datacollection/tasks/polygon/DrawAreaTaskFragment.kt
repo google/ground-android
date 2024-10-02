@@ -60,7 +60,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11411 }
     drawAreaTaskMapFragment = drawAreaTaskMapFragmentProvider.get()
     val args = Bundle()
-    args.putString(DrawAreaTaskMapFragment.TASK_ID_ARG_KEY, taskId)
+    args.putString(DrawAreaTaskMapFragment.TASK_ID_FRAGMENT_ARG_KEY, taskId)
     drawAreaTaskMapFragment.arguments = args
     parentFragmentManager
       .beginTransaction()
