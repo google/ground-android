@@ -23,5 +23,5 @@ class SkippedTaskData : TaskData {
 
   override fun getDetailsText(): String = ""
 
-  override fun isEmpty(): Boolean = false
+  override fun isEmpty(): Boolean = true
 }
