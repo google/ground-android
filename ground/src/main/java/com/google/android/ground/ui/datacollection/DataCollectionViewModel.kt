@@ -241,6 +241,21 @@ internal constructor(
     }
   }
 
+  fun saveCurrentState() {
+    getTaskViewModel(currentTaskId.value)?.let {
+      if (!data.containsKey(it.task)) {
+        val validationError = it.validate()
+        if (validationError != null) {
+          return
+        }
+
+        data[it.task] = it.taskTaskData.value
+        savedStateHandle[TASK_POSITION_ID] = it.task.id
+        saveDraft()
+      }
+    }
+  }
+
   private fun getDeltas(): List<ValueDelta> =
     // Filter deltas to valid tasks.
     data
