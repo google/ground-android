@@ -66,6 +66,7 @@ inline fun <reified T : Fragment> launchFragmentWithNavController(
           navController.setGraph(R.navigation.nav_graph)
           navController.setCurrentDestination(destId, fragmentArgs ?: bundleOf())
 
+          // But we only set the nav controller here.
           // Bind the controller after the view is created but before onViewCreated is called.
           Navigation.setViewNavController(requireView(), navController)
         }
@@ -86,6 +87,8 @@ fun hiltActivityScenario(
         themeResId,
       )
 
+  // Tests fail here with Fragment DrawAreaTaskMapFragment{6a17fdc5}... does not have a
+  // NavController set
   return ActivityScenario.launch(startActivityIntent)
 }
 

@@ -33,16 +33,20 @@ import kotlinx.coroutines.launch
 class DrawAreaTaskMapFragment @Inject constructor() : AbstractMapFragmentWithControls() {
 
   private lateinit var mapViewModel: BaseMapViewModel
-  private lateinit var viewModel: DrawAreaTaskViewModel
   private val dataCollectionViewModel: DataCollectionViewModel by
     hiltNavGraphViewModels(R.id.data_collection)
+  private val viewModel: DrawAreaTaskViewModel by lazy {
+    // Access to this viewModel is lazy for testing. This is because the NavHostController could
+    // not be initialized before the Fragment under test is created, leading to
+    // hiltNavGraphViewModels() to fail when called on launch.
+    val taskId = arguments?.getString(TASK_ID_FRAGMENT_ARG_KEY) ?: error("null taskId fragment arg")
+    dataCollectionViewModel.getTaskViewModel(taskId) as DrawAreaTaskViewModel
+  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
-    val taskId = arguments?.getString(TASK_ID_FRAGMENT_ARG_KEY) ?: error("null taskId fragment arg")
-    viewModel = dataCollectionViewModel.getTaskViewModel(taskId) as DrawAreaTaskViewModel
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
