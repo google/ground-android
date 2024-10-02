@@ -16,10 +16,12 @@
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import android.os.Bundle
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.android.ground.R
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.datacollection.DataCollectionFragment
+import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
@@ -32,14 +34,15 @@ class DrawAreaTaskMapFragment @Inject constructor() : AbstractMapFragmentWithCon
 
   private lateinit var mapViewModel: BaseMapViewModel
   private lateinit var viewModel: DrawAreaTaskViewModel
+  private val dataCollectionViewModel: DataCollectionViewModel by
+    hiltNavGraphViewModels(R.id.data_collection)
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
-    val taskId = arguments?.getString(TASK_ID_FRAGMENT_ARG_KEY) ?: error("null taskId arg")
-    val dcf = requireParentFragment() as DataCollectionFragment
-    viewModel = dcf.viewModel.getTaskViewModel(taskId) as DrawAreaTaskViewModel
+    val taskId = arguments?.getString(TASK_ID_FRAGMENT_ARG_KEY) ?: error("null taskId fragment arg")
+    viewModel = dataCollectionViewModel.getTaskViewModel(taskId) as DrawAreaTaskViewModel
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
