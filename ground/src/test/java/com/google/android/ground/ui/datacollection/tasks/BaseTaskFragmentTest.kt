@@ -96,8 +96,6 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
       preTransactionAction = {
         fragment = this as F
         fragment.taskId = task.id
-        // TODO: Attach `fragment` to mock DataCollectionFragment
-        // TODO: Mock out `DataCollectionFragment.viewModel` as `dataCollectionViewModel`
       },
     )
   }
