@@ -32,7 +32,7 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.TaskFragmentRunner
-import com.google.android.ground.ui.datacollection.components.ButtonAction\
+import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.hamcrest.core.IsNot.not
