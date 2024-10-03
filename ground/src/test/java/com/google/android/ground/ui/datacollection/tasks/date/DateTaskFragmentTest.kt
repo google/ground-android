@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.date
 
+import android.app.DatePickerDialog
 import android.view.View
 import android.view.ViewGroup
 import androidx.test.espresso.Espresso.onView
@@ -89,6 +90,28 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     onView(withId(R.id.user_response_text)).perform(click())
     assertThat(fragment.getDatePickerDialog()).isNotNull()
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
+  }
+
+  @Test
+  fun `selected date is visible on user input`() {
+    setupTaskFragment<DateTaskFragment>(job, task)
+
+    val view: View? = fragment.view?.findViewById(R.id.task_container)
+    view?.layoutParams = ViewGroup.LayoutParams(0, 1)
+    onView(withId(R.id.user_response_text)).perform(click())
+    assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
+
+    val hardcodedYear = 2024
+    val hardcodedMonth = 9
+    val hardcodedDay = 10
+
+    val datePickerDialog = fragment.getDatePickerDialog()
+    datePickerDialog?.datePicker?.updateDate(hardcodedYear, hardcodedMonth, hardcodedDay)
+
+    datePickerDialog?.getButton(DatePickerDialog.BUTTON_POSITIVE)?.performClick()
+
+    onView(withId(R.id.user_response_text)).check(matches(withText("10/10/24")))
+    assertThat(fragment.dateText.value).isEqualTo("10/10/24")
   }
 
   @Test

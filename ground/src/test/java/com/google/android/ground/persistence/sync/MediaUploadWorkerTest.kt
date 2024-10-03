@@ -25,7 +25,7 @@ import androidx.work.testing.TestListenableWorkerBuilder
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.TextTaskData
+import com.google.android.ground.model.submission.PhotoTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
@@ -121,13 +121,13 @@ class MediaUploadWorkerTest : BaseHiltTest() {
   @Test
   fun doWork_propagatesFailures() = runWithTestDispatcher {
     val mutation = createSubmissionMutation() // a valid mutation
-    val delt = buildList {
+    val delta = buildList {
       addAll(mutation.deltas)
-      add(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, TextTaskData("does_not_exist.jpg")))
+      add(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, PhotoTaskData("some/path/does_not_exist.jpg")))
     }
     val updatedMutation =
       mutation.copy(
-        deltas = delt,
+        deltas = delta,
         syncStatus = Mutation.SyncStatus.MEDIA_UPLOAD_PENDING,
       ) // add an additional non-existent photo to the mutation
 
@@ -194,7 +194,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     return SUBMISSION_MUTATION.copy(
       job = TEST_JOB,
       deltas =
-        listOf(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, TextTaskData(photoName ?: photo.name))),
+        listOf(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, PhotoTaskData(photoName ?: photo.name))),
     )
   }
 
@@ -225,7 +225,9 @@ class MediaUploadWorkerTest : BaseHiltTest() {
         surveyId = FakeData.SURVEY.id,
         collectionId = "collectionId",
         deltas =
-          listOf(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, TextTaskData("foo/$PHOTO_TASK_ID.jpg"))),
+          listOf(
+            ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, PhotoTaskData("foo/$PHOTO_TASK_ID.jpg"))
+          ),
       )
   }
 }

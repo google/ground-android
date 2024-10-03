@@ -18,6 +18,7 @@ package com.google.android.ground
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import androidx.annotation.IdRes
 import androidx.annotation.StyleRes
 import androidx.core.os.bundleOf
 import androidx.core.util.Preconditions
@@ -49,19 +50,13 @@ inline fun <reified T : Fragment> launchFragmentInHiltContainer(
 inline fun <reified T : Fragment> launchFragmentWithNavController(
   fragmentArgs: Bundle? = null,
   @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
-  destId: Int,
-  fragment: Fragment?=null,
+  @IdRes destId: Int,
   crossinline preTransactionAction: Fragment.() -> Unit = {},
   crossinline postTransactionAction: Fragment.() -> Unit = {},
 ): ActivityScenario<HiltTestActivity> =
   hiltActivityScenario(themeResId).launchFragment<T>(
     fragmentArgs,
     {
-      println("========= ${parentFragment.toString()} ----- ${parentFragment?.childFragmentManager.toString()} ")
-      parentFragment?.childFragmentManager?.beginTransaction()
-        ?.add(R.id.data_collection_fragment, fragment!!, "childFragmentTag")
-        ?.commitNow()
-
       this.preTransactionAction()
       viewLifecycleOwnerLiveData.observeForever { viewLifecycleOwner ->
         if (viewLifecycleOwner != null) {
@@ -71,6 +66,7 @@ inline fun <reified T : Fragment> launchFragmentWithNavController(
           navController.setGraph(R.navigation.nav_graph)
           navController.setCurrentDestination(destId, fragmentArgs ?: bundleOf())
 
+          // But we only set the nav controller here.
           // Bind the controller after the view is created but before onViewCreated is called.
           Navigation.setViewNavController(requireView(), navController)
         }
@@ -91,6 +87,8 @@ fun hiltActivityScenario(
         themeResId,
       )
 
+  // Tests fail here with Fragment DrawAreaTaskMapFragment{6a17fdc5}... does not have a
+  // NavController set
   return ActivityScenario.launch(startActivityIntent)
 }
 
