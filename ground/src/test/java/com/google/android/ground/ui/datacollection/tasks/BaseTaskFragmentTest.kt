@@ -30,24 +30,18 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.ViewModelFactory
-import com.google.android.ground.ui.datacollection.DataCollectionFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.TaskFragmentRunner
-import com.google.android.ground.ui.datacollection.components.ButtonAction
-import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskMapFragment
+import com.google.android.ground.ui.datacollection.components.ButtonAction\
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.hamcrest.core.IsNot.not
-import org.mockito.Mock
-import org.mockito.Mockito.mock
 import org.mockito.kotlin.whenever
-import javax.inject.Provider
 
 abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractTaskViewModel> :
   BaseHiltTest() {
 
-  abstract var dataCollectionViewModel: DataCollectionViewModel
+  abstract val dataCollectionViewModel: DataCollectionViewModel
   abstract val viewModelFactory: ViewModelFactory
 
   lateinit var fragment: F
@@ -91,39 +85,16 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     }
   }
 
-  @Mock
-  lateinit var drawAreaTaskMapFragmentProvider: Provider<DrawAreaTaskMapFragment>
-  @Mock
-  lateinit var drawAreaTaskMapFragment: DrawAreaTaskMapFragment
-
-
   protected inline fun <reified T : Fragment> setupTaskFragment(job: Job, task: Task) {
     viewModel = viewModelFactory.create(DataCollectionViewModel.getViewModelClass(task.type)) as VM
-    println("========= ${viewModel} ")
-    whenever(dataCollectionViewModel.getTaskViewModel(task.id)).thenReturn(viewModel)
-
     viewModel.initialize(job, task, null)
-
-    val mockDataCollectionFragment = mock(DataCollectionFragment::class.java)
-    whenever(mockDataCollectionFragment.viewModel).thenReturn(dataCollectionViewModel)
-
-    whenever(drawAreaTaskMapFragment.requireParentFragment()).thenReturn(mockDataCollectionFragment)
-
-    println("========= mockDrawAreaTaskMapFragment  ${drawAreaTaskMapFragmentProvider.get()} ")
-    whenever(drawAreaTaskMapFragmentProvider.get()).thenReturn(drawAreaTaskMapFragment)
+    whenever(dataCollectionViewModel.getTaskViewModel(task.id)).thenReturn(viewModel)
 
     launchFragmentWithNavController<T>(
       destId = R.id.data_collection_fragment,
-      fragment = mockDataCollectionFragment,
       preTransactionAction = {
         fragment = this as F
         fragment.taskId = task.id
-
-
-        println("========= preTransactionAction  ${fragment.toString()} ")
-
-        // TODO: Attach `fragment` to mock DataCollectionFragment
-        // TODO: Mock out `DataCollectionFragment.viewModel` as `dataCollectionViewModel`
       },
     )
   }

@@ -31,7 +31,7 @@ import com.google.android.ground.ui.datacollection.components.InstructionsDialog
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskMapFragment.Companion.TASK_ID_ARG_KEY
+import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -50,7 +50,7 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11617 }
     val fragment = dropPinTaskMapFragmentProvider.get()
     val args = Bundle()
-    args.putString(TASK_ID_ARG_KEY, taskId)
+    args.putString(TASK_ID_FRAGMENT_ARG_KEY, taskId)
     fragment.arguments = args
     parentFragmentManager
       .beginTransaction()

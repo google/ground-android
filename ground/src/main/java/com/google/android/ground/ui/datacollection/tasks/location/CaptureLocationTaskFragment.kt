@@ -26,7 +26,7 @@ import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskMapFragment.Companion.TASK_ID_ARG_KEY
+import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
@@ -46,7 +46,7 @@ class CaptureLocationTaskFragment @Inject constructor() :
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11149 }
     val fragment = captureLocationTaskMapFragmentProvider.get()
     val args = Bundle()
-    args.putString(TASK_ID_ARG_KEY, taskId)
+    args.putString(TASK_ID_FRAGMENT_ARG_KEY, taskId)
     fragment.arguments = args
     parentFragmentManager
       .beginTransaction()

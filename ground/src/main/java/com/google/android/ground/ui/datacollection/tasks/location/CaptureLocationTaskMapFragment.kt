@@ -19,11 +19,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.android.ground.R
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.datacollection.DataCollectionFragment
-import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskMapFragment.Companion.TASK_ID_ARG_KEY
+import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -33,14 +34,19 @@ import kotlinx.coroutines.launch
 class CaptureLocationTaskMapFragment @Inject constructor() : AbstractMapFragmentWithControls() {
 
   private lateinit var mapViewModel: CaptureLocationTaskMapViewModel
-  private lateinit var viewModel: CaptureLocationTaskViewModel
+  private val dataCollectionViewModel: DataCollectionViewModel by
+    hiltNavGraphViewModels(R.id.data_collection)
+  private val viewModel: CaptureLocationTaskViewModel by lazy {
+    // Access to this viewModel is lazy for testing. This is because the NavHostController could
+    // not be initialized before the Fragment under test is created, leading to
+    // hiltNavGraphViewModels() to fail when called on launch.
+    val taskId = arguments?.getString(TASK_ID_FRAGMENT_ARG_KEY) ?: error("null taskId fragment arg")
+    dataCollectionViewModel.getTaskViewModel(taskId) as CaptureLocationTaskViewModel
+  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     mapViewModel = getViewModel(CaptureLocationTaskMapViewModel::class.java)
-    val taskId = arguments?.getString(TASK_ID_ARG_KEY) ?: error("null taskId arg")
-    val dcf = requireParentFragment() as DataCollectionFragment
-    viewModel = dcf.viewModel.getTaskViewModel(taskId) as CaptureLocationTaskViewModel
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
@@ -64,6 +70,6 @@ class CaptureLocationTaskMapFragment @Inject constructor() : AbstractMapFragment
   }
 
   companion object {
-    const val TASK_ID_ARG_KEY = "taskId"
+    const val TASK_ID_FRAGMENT_ARG_KEY = "taskId"
   }
 }
