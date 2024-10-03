@@ -21,9 +21,6 @@
 
   <data>
     <variable
-      name="viewModel"
-      type="com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel" />
-    <variable
       name="fragment"
       type="com.google.android.ground.ui.datacollection.tasks.time.TimeTaskFragment" />
   </data>
@@ -44,7 +41,7 @@
       android:inputType="datetime"
       android:maxLines="1"
       android:onClick="@{__ -> fragment.showTimeDialog()}"
-      android:text="@{viewModel.timeText}"
+      android:text="@{fragment.timeText}"
       tools:text="@string/time" />
   </com.google.android.material.textfield.TextInputLayout>
 </layout>

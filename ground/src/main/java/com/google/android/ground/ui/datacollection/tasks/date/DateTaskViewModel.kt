@@ -17,21 +17,12 @@ package com.google.android.ground.ui.datacollection.tasks.date
 
 import com.google.android.ground.model.submission.DateTimeTaskData.Companion.fromMillis
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
-import java.text.DateFormat
 import java.util.Date
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 class DateTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
-  private var _dateText: MutableStateFlow<String> = MutableStateFlow("")
-  val dateText = _dateText.asStateFlow()
-
-  fun updateResponse(dateFormat: DateFormat?, date: Date) {
-    dateFormat?.let {
-      _dateText.value = it.format(date)
-      setValue(fromMillis(date.time))
-    }
+  fun updateResponse(date: Date) {
+    setValue(fromMillis(date.time))
   }
 }

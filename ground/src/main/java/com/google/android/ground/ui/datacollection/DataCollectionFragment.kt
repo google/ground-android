@@ -51,12 +51,13 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
-  private val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
+  val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
 
   private lateinit var binding: DataCollectionFragBinding
   private lateinit var progressBar: ProgressBar
   private lateinit var guideline: Guideline
   private lateinit var viewPager: ViewPager2
+  private var isNavigatingUp = false
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -71,6 +72,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     getAbstractActivity().setSupportActionBar(binding.dataCollectionToolbar)
 
     binding.dataCollectionToolbar.setNavigationOnClickListener {
+      isNavigatingUp = true
       viewModel.clearDraft()
       navigator.navigateUp()
     }
@@ -105,7 +107,22 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     )
 
-    lifecycleScope.launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
+    lifecycleScope.launch {
+      viewModel.init()
+      viewModel.uiState.filterNotNull().collect { updateUI(it) }
+    }
+  }
+
+  override fun onResume() {
+    super.onResume()
+    isNavigatingUp = false
+  }
+
+  override fun onPause() {
+    super.onPause()
+    if (!isNavigatingUp) {
+      viewModel.saveCurrentState()
+    }
   }
 
   private fun updateUI(uiState: UiState) {
@@ -179,6 +196,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   override fun onBack(): Boolean =
     if (viewPager.currentItem == 0) {
+      isNavigatingUp = true
       // If the user is currently looking at the first step, allow the system to handle the
       // Back button. This calls finish() on this activity and pops the back stack.
       viewModel.clearDraft()

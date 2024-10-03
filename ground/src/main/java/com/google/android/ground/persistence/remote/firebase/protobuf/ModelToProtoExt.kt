@@ -36,7 +36,6 @@ import com.google.android.ground.model.submission.PhotoTaskData
 import com.google.android.ground.model.submission.SkippedTaskData
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
-import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.proto.LinearRing as LinearRingProto
 import com.google.android.ground.proto.LocationOfInterest.Property
 import com.google.android.ground.proto.LocationOfInterest.Source
@@ -72,8 +71,8 @@ fun SubmissionMutation.createSubmissionMessage(user: User) = submission {
   ownerId = me.userId
 
   deltas.forEach {
-    if (it.newTaskData.isNotNullOrEmpty()) {
-      taskData.add(toTaskData(it.taskId, it.newTaskData!!))
+    if (it.newTaskData != null) {
+      taskData.add(toTaskData(it.taskId, it.newTaskData))
     }
   }
 

@@ -86,7 +86,7 @@ internal constructor(
 ) : AbstractViewModel() {
 
   private val _uiState: MutableStateFlow<UiState?> = MutableStateFlow(null)
-  var uiState: StateFlow<UiState?>
+  var uiState = _uiState.asStateFlow().stateIn(viewModelScope, SharingStarted.Lazily, null)
 
   private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
@@ -140,15 +140,8 @@ internal constructor(
 
   lateinit var submissionId: String
 
-  init {
-    uiState =
-      _uiState
-        .asStateFlow()
-        .stateIn(
-          viewModelScope,
-          SharingStarted.Lazily,
-          UiState.TaskListAvailable(tasks, getTaskPosition()),
-        )
+  suspend fun init() {
+    _uiState.emit(UiState.TaskListAvailable(tasks, getTaskPosition()))
   }
 
   fun setLoiName(name: String) {
@@ -245,6 +238,21 @@ internal constructor(
       clearDraft()
       saveChanges(getDeltas())
       _uiState.emit(UiState.TaskSubmitted)
+    }
+  }
+
+  fun saveCurrentState() {
+    getTaskViewModel(currentTaskId.value)?.let {
+      if (!data.containsKey(it.task)) {
+        val validationError = it.validate()
+        if (validationError != null) {
+          return
+        }
+
+        data[it.task] = it.taskTaskData.value
+        savedStateHandle[TASK_POSITION_ID] = it.task.id
+        saveDraft()
+      }
     }
   }
 

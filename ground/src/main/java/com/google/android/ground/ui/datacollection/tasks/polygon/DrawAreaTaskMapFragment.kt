@@ -16,29 +16,43 @@
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import android.os.Bundle
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.android.ground.R
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class DrawAreaTaskMapFragment(private val viewModel: DrawAreaTaskViewModel) :
-  AbstractMapFragmentWithControls() {
+class DrawAreaTaskMapFragment @Inject constructor() : AbstractMapFragmentWithControls() {
 
   private lateinit var mapViewModel: BaseMapViewModel
+  private val dataCollectionViewModel: DataCollectionViewModel by
+    hiltNavGraphViewModels(R.id.data_collection)
+  private val viewModel: DrawAreaTaskViewModel by lazy {
+    // Access to this viewModel is lazy for testing. This is because the NavHostController could
+    // not be initialized before the Fragment under test is created, leading to
+    // hiltNavGraphViewModels() to fail when called on launch.
+    val taskId = arguments?.getString(TASK_ID_FRAGMENT_ARG_KEY) ?: error("null taskId fragment arg")
+    dataCollectionViewModel.getTaskViewModel(taskId) as DrawAreaTaskViewModel
+  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   override fun onMapReady(map: MapFragment) {
+    super.onMapReady(map)
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.draftArea.collect { feature: Feature? ->
         map.setFeatures(if (feature == null) setOf() else setOf(feature))
@@ -57,7 +71,6 @@ class DrawAreaTaskMapFragment(private val viewModel: DrawAreaTaskViewModel) :
   }
 
   companion object {
-    fun newInstance(viewModel: DrawAreaTaskViewModel, map: MapFragment) =
-      DrawAreaTaskMapFragment(viewModel).apply { this.map = map }
+    const val TASK_ID_FRAGMENT_ARG_KEY = "taskId"
   }
 }
