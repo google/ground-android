@@ -20,6 +20,7 @@ import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.databinding.TimeTaskFragBinding
 import com.google.android.ground.model.submission.DateTimeTaskData
@@ -27,6 +28,7 @@ import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
@@ -38,6 +40,7 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
   private var timePickerDialog: TimePickerDialog? = null
 
   lateinit var timeText: LiveData<String>
+  lateinit var timeTextHint: LiveData<String>
 
   override fun onTaskViewAttached() {
     super.onTaskViewAttached()
@@ -54,6 +57,25 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
           }
         }
         .asLiveData()
+
+    timeTextHint =
+      MutableLiveData<String>().apply {
+        val timeFormat = DateFormat.getTimeFormat(requireContext())
+        val hint =
+          if (timeFormat is SimpleDateFormat) {
+            timeFormat
+              .toPattern()
+              .replace("hh", "HH") // 12-hour format to 2-digit hour (12-hour clock)
+              .replace("h", "HH") // 12-hour format to 2-digit hour (12-hour clock)
+              .replace("HH", "HH") // 24-hour format
+              .replace("mm", "MM") // Minutes (two-digit)
+              .replace("ss", "SS") // Seconds (two-digit)
+              .replace("a", "AM/PM") // AM/PM indication with a space
+          } else {
+            "HH:MM AM/PM" // Fallback hint if DateFormat is not SimpleDateFormat
+          }
+        value = hint
+      }
   }
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
