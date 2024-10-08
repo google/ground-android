@@ -117,7 +117,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   @Test
   fun `hint text is visible`() {
     setupTaskFragment<DateTaskFragment>(job, task)
-    assertThat(fragment.dateTextHint.value).isEqualTo("MM/DD/YY")
+    assertThat(fragment.dateTextHint.value).isEqualTo("M/D/YY")
   }
 
   @Test

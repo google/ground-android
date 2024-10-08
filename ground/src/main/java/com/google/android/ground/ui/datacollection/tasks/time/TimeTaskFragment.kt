@@ -63,13 +63,7 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
         val timeFormat = DateFormat.getTimeFormat(requireContext())
         val hint =
           if (timeFormat is SimpleDateFormat) {
-            timeFormat
-              .toPattern()
-              .replace("h", "HH") // 12-hour format to 2-digit hour (12-hour clock)
-              .replace("mm", "MM") // Minutes (two-digit)
-              .replace("ss", "SS") // Seconds (two-digit)
-              .replace("a", "AM/PM") // AM/PM indication with a space
-              .uppercase() // Convert everything to uppercase (e.g., HH, MM, SS)
+            timeFormat.toPattern().uppercase()
           } else {
             "HH:MM AM/PM" // Fallback hint if DateFormat is not SimpleDateFormat
           }

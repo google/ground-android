@@ -113,6 +113,6 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   @Test
   fun `hint text is visible`() {
     setupTaskFragment<TimeTaskFragment>(job, task)
-    assertThat(fragment.timeTextHint.value).isEqualTo("HH:MM AM/PM")
+    assertThat(fragment.timeTextHint.value).isEqualTo("H:MM A")
   }
 }

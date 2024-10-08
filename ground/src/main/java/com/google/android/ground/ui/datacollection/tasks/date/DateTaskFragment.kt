@@ -62,11 +62,7 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
       MutableLiveData<String>().apply {
         val dateFormat = DateFormat.getDateFormat(requireContext()) as SimpleDateFormat
         val pattern = dateFormat.toPattern()
-        val hint =
-          pattern
-            .replace("M", "MM") // Single-digit month to two-digit
-            .replace("d", "DD") // Single-digit day to two-digit
-            .uppercase() // Convert everything else to uppercase (e.g., YYYY, MMMM, DD)
+        val hint = pattern.uppercase()
         value = hint
       }
   }
