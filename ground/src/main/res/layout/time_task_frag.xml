@@ -42,6 +42,7 @@
       android:maxLines="1"
       android:onClick="@{__ -> fragment.showTimeDialog()}"
       android:text="@{fragment.timeText}"
+      android:hint="@{fragment.timeTextHint}"
       tools:text="@string/time" />
   </com.google.android.material.textfield.TextInputLayout>
 </layout>
