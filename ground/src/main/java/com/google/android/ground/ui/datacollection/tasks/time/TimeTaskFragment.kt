@@ -65,12 +65,11 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
           if (timeFormat is SimpleDateFormat) {
             timeFormat
               .toPattern()
-              .replace("hh", "HH") // 12-hour format to 2-digit hour (12-hour clock)
               .replace("h", "HH") // 12-hour format to 2-digit hour (12-hour clock)
-              .replace("HH", "HH") // 24-hour format
               .replace("mm", "MM") // Minutes (two-digit)
               .replace("ss", "SS") // Seconds (two-digit)
               .replace("a", "AM/PM") // AM/PM indication with a space
+              .uppercase() // Convert everything to uppercase (e.g., HH, MM, SS)
           } else {
             "HH:MM AM/PM" // Fallback hint if DateFormat is not SimpleDateFormat
           }

@@ -64,14 +64,9 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
         val pattern = dateFormat.toPattern()
         val hint =
           pattern
-            .replace("yyyy", "YYYY") // Full year
-            .replace("yy", "YY") // Short year
-            .replace("MMMM", "MMMM") // Full month name
-            .replace("MMM", "MMM") // Abbreviated month name
-            .replace("MM", "MM") // Month (two-digit numeric)
             .replace("M", "MM") // Single-digit month to two-digit
-            .replace("dd", "DD") // Two-digit day
             .replace("d", "DD") // Single-digit day to two-digit
+            .uppercase() // Convert everything else to uppercase (e.g., YYYY, MMMM, DD)
         value = hint
       }
   }
