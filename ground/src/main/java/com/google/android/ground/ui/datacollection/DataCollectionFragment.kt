@@ -41,6 +41,8 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -93,15 +95,10 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
         override fun onPageScrollStateChanged(state: Int) {
           super.onPageScrollStateChanged(state)
           if (state == ViewPager2.SCROLL_STATE_IDLE) {
-            Handler(Looper.getMainLooper())
-              .postDelayed(
-                {
-                  // Reset the progress bar position after a delay to wait for the keyboard to
-                  // close.
-                  setProgressBarPosition(view)
-                },
-                100,
-              )
+            lifecycleScope.launch(Dispatchers.Main) {
+              delay(100) // Wait for the keyboard to close
+              setProgressBarPosition(view)
+            }
           }
         }
       }
