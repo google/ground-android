@@ -17,8 +17,6 @@ package com.google.android.ground.ui.datacollection
 
 import android.animation.ValueAnimator
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
