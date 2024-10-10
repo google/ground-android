@@ -65,7 +65,7 @@ class CaptureLocationTaskFragmentTest :
     val location = setupLocation()
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
-    viewModel.updateLocation(location)
+    viewModel.updateLocation(location, TIMESTAMP)
 
     runner()
       .clickButton("Capture")
@@ -88,7 +88,7 @@ class CaptureLocationTaskFragmentTest :
     val location = setupLocation()
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
-    viewModel.updateLocation(location)
+    viewModel.updateLocation(location, timestampMillis = 1000L)
 
     runner()
       .clickButton("Capture")
@@ -149,7 +149,8 @@ class CaptureLocationTaskFragmentTest :
     private const val LONGITUDE = 20.0
     private const val ACCURACY = 5.0
     private const val ALTITUDE = 150.0
+    private const val TIMESTAMP = 1000L
     private val GEOMETRY = Point(Coordinates(LATITUDE, LONGITUDE))
-    private val TASK_DATA = CaptureLocationTaskData(GEOMETRY, ALTITUDE, ACCURACY)
+    private val TASK_DATA = CaptureLocationTaskData(GEOMETRY, ALTITUDE, ACCURACY, TIMESTAMP)
   }
 }

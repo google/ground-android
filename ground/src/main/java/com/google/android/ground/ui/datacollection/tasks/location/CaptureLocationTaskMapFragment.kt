@@ -24,6 +24,7 @@ import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.Date
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -46,7 +47,9 @@ class CaptureLocationTaskMapFragment(private val viewModel: CaptureLocationTaskV
   ): View {
     val root = super.onCreateView(inflater, container, savedInstanceState)
     viewLifecycleOwner.lifecycleScope.launch {
-      getMapViewModel().getLocationUpdates().collect { viewModel.updateLocation(it) }
+      getMapViewModel().getLocationUpdates().collect {
+        viewModel.updateLocation(it, timestampMillis = Date().time)
+      }
     }
     return root
   }
