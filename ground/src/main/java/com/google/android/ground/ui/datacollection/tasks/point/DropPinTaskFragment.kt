@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.point
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,20 +26,20 @@ import androidx.compose.ui.platform.ComposeView
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
+import com.google.android.ground.ui.common.AbstractMapFragmentWithControls.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.InstructionsDialog
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import javax.inject.Provider
 
 @AndroidEntryPoint
-class DropPinTaskFragment : AbstractTaskFragment<DropPinTaskViewModel>() {
-
-  @Inject lateinit var map: MapFragment
+class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTaskViewModel>() {
+  @Inject lateinit var dropPinTaskMapFragmentProvider: Provider<DropPinTaskMapFragment>
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop)
@@ -47,9 +48,13 @@ class DropPinTaskFragment : AbstractTaskFragment<DropPinTaskViewModel>() {
     // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
     // Otherwise, the sequentially generated ID might conflict with an ID produced by Google Maps.
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11617 }
+    val fragment = dropPinTaskMapFragmentProvider.get()
+    val args = Bundle()
+    args.putString(TASK_ID_FRAGMENT_ARG_KEY, taskId)
+    fragment.arguments = args
     parentFragmentManager
       .beginTransaction()
-      .add(rowLayout.id, DropPinTaskMapFragment.newInstance(viewModel, map), "Drop a pin fragment")
+      .add(rowLayout.id, fragment, "Drop a pin fragment")
       .commit()
     return rowLayout
   }
