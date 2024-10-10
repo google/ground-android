@@ -91,14 +91,12 @@ constructor(
   /** This only works if the survey and location of interests are already cached to local db. */
   suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest? {
     val survey = localSurveyStore.getSurveyById(surveyId)
+    val locationOfInterest = survey?.let { localLoiStore.getLocationOfInterest(it, loiId) }
+
     if (survey == null) {
       Timber.e("LocationOfInterestRepository", "Survey not found: $surveyId")
-      return null
-    }
-    val locationOfInterest = localLoiStore.getLocationOfInterest(survey, loiId)
-    if (locationOfInterest == null) {
+    } else if (locationOfInterest == null) {
       Timber.e("LocationRepository", "LOI not found for survey $surveyId: LOI ID $loiId")
-      return null
     }
     return locationOfInterest
   }
