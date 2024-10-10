@@ -15,24 +15,27 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.location
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
+import com.google.android.ground.ui.common.AbstractMapFragmentWithControls.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import javax.inject.Provider
 
 @AndroidEntryPoint
-class CaptureLocationTaskFragment : AbstractTaskFragment<CaptureLocationTaskViewModel>() {
-
-  @Inject lateinit var map: MapFragment
+class CaptureLocationTaskFragment @Inject constructor() :
+  AbstractTaskFragment<CaptureLocationTaskViewModel>() {
+  @Inject
+  lateinit var captureLocationTaskMapFragmentProvider: Provider<CaptureLocationTaskMapFragment>
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop)
@@ -41,20 +44,22 @@ class CaptureLocationTaskFragment : AbstractTaskFragment<CaptureLocationTaskView
     // NOTE(#2493): Multiplying by a random prime to allow for some mathematical uniqueness.
     // Otherwise, the sequentially generated ID might conflict with an ID produced by Google Maps.
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11149 }
+    val fragment = captureLocationTaskMapFragmentProvider.get()
+    val args = Bundle()
+    args.putString(TASK_ID_FRAGMENT_ARG_KEY, taskId)
+    fragment.arguments = args
     parentFragmentManager
       .beginTransaction()
-      .add(
-        rowLayout.id,
-        CaptureLocationTaskMapFragment.newInstance(viewModel, map),
-        CaptureLocationTaskMapFragment::class.java.simpleName,
-      )
+      .add(rowLayout.id, fragment, CaptureLocationTaskMapFragment::class.java.simpleName)
       .commit()
     return rowLayout
   }
 
   override fun onTaskResume() {
     // Ensure that the location lock is enabled, if it hasn't been.
-    viewModel.enableLocationLock()
+    if (isVisible) {
+      viewModel.enableLocationLock()
+    }
   }
 
   override fun onCreateActionButtons() {

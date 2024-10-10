@@ -21,12 +21,18 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class DropPinTaskMapFragment(private val viewModel: DropPinTaskViewModel) :
-  AbstractMapFragmentWithControls() {
+class DropPinTaskMapFragment @Inject constructor() : AbstractMapFragmentWithControls() {
 
   private lateinit var mapViewModel: BaseMapViewModel
+  private val viewModel: DropPinTaskViewModel by lazy {
+    // Access to this viewModel is lazy for testing. This is because the NavHostController could
+    // not be initialized before the Fragment under test is created, leading to
+    // hiltNavGraphViewModels() to fail when called on launch.
+    dataCollectionViewModel.getTaskViewModel(taskId) as DropPinTaskViewModel
+  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -36,16 +42,12 @@ class DropPinTaskMapFragment(private val viewModel: DropPinTaskViewModel) :
   override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   override fun onMapReady(map: MapFragment) {
+    super.onMapReady(map)
     viewModel.features.observe(this) { map.setFeatures(it) }
   }
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
     viewModel.updateCameraPosition(position)
-  }
-
-  companion object {
-    fun newInstance(viewModel: DropPinTaskViewModel, map: MapFragment) =
-      DropPinTaskMapFragment(viewModel).apply { this.map = map }
   }
 }

@@ -27,6 +27,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LineString.Companion.lineStringOf
+import com.google.android.ground.ui.common.AbstractMapFragmentWithControls.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.InstructionsDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
@@ -60,7 +61,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11411 }
     drawAreaTaskMapFragment = drawAreaTaskMapFragmentProvider.get()
     val args = Bundle()
-    args.putString(DrawAreaTaskMapFragment.TASK_ID_FRAGMENT_ARG_KEY, taskId)
+    args.putString(TASK_ID_FRAGMENT_ARG_KEY, taskId)
     drawAreaTaskMapFragment.arguments = args
     parentFragmentManager
       .beginTransaction()

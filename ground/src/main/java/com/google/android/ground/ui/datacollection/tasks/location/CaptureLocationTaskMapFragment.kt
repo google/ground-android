@@ -24,13 +24,19 @@ import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class CaptureLocationTaskMapFragment(private val viewModel: CaptureLocationTaskViewModel) :
-  AbstractMapFragmentWithControls() {
+class CaptureLocationTaskMapFragment @Inject constructor() : AbstractMapFragmentWithControls() {
 
   private lateinit var mapViewModel: CaptureLocationTaskMapViewModel
+  private val viewModel: CaptureLocationTaskViewModel by lazy {
+    // Access to this viewModel is lazy for testing. This is because the NavHostController could
+    // not be initialized before the Fragment under test is created, leading to
+    // hiltNavGraphViewModels() to fail when called on launch.
+    dataCollectionViewModel.getTaskViewModel(taskId) as CaptureLocationTaskViewModel
+  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -52,12 +58,8 @@ class CaptureLocationTaskMapFragment(private val viewModel: CaptureLocationTaskV
   }
 
   override fun onMapReady(map: MapFragment) {
+    super.onMapReady(map)
     binding.locationLockBtn.isClickable = false
     viewLifecycleOwner.lifecycleScope.launch { viewModel.onMapReady(mapViewModel) }
-  }
-
-  companion object {
-    fun newInstance(viewModel: CaptureLocationTaskViewModel, map: MapFragment) =
-      CaptureLocationTaskMapFragment(viewModel).apply { this.map = map }
   }
 }
