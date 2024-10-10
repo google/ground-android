@@ -95,7 +95,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
           super.onPageScrollStateChanged(state)
           if (state == ViewPager2.SCROLL_STATE_IDLE) {
             lifecycleScope.launch(Dispatchers.Main) {
-              delay(1000) // Wait for the keyboard to close
+              delay(100) // Wait for the keyboard to close
               setProgressBarPosition(view)
             }
           }
