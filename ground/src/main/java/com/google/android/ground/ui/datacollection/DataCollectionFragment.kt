@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.constraintlayout.widget.Guideline
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnLayout
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
@@ -130,12 +131,20 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   private fun setProgressBarPosition(view: View) {
     val buttonContainer = view.findViewById<View>(R.id.action_buttons) ?: return
-    val anchorLocation = IntArray(2)
-    buttonContainer.getLocationInWindow(anchorLocation)
-    val windowInsets = WindowInsetsCompat.toWindowInsetsCompat(buttonContainer.rootWindowInsets)
-    val guidelineTop =
-      anchorLocation[1] - windowInsets.getInsets(WindowInsetsCompat.Type.systemBars()).top
-    guideline.setGuidelineBegin(guidelineTop)
+
+    buttonContainer.doOnLayout {
+      val anchorLocation = IntArray(2)
+      it.getLocationInWindow(anchorLocation)
+
+      val windowInsets = WindowInsetsCompat.toWindowInsetsCompat(buttonContainer.rootWindowInsets)
+      val systemBarsInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+      val guidelineTop = anchorLocation[1] - systemBarsInsets.top
+
+      if (guidelineTop > 0) {
+        guideline.setGuidelineBegin(guidelineTop)
+      }
+    }
   }
 
   private fun loadTasks(tasks: List<Task>, taskPosition: TaskPosition) {
