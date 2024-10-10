@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 
 /**
  * View model for the offline area manager fragment. Handles the current list of downloaded areas.
@@ -61,11 +62,16 @@ internal constructor(
 
   private suspend fun loadLocationsOfInterestAndPair(
     mutations: List<Mutation>
-  ): List<MutationDetail> = mutations.map { toMutationDetail(it) }
+  ): List<MutationDetail> = mutations.mapNotNull { toMutationDetail(it) }
 
-  private suspend fun toMutationDetail(mutation: Mutation): MutationDetail {
+  private suspend fun toMutationDetail(mutation: Mutation): MutationDetail? {
     val loi =
       locationOfInterestRepository.getOfflineLoi(mutation.surveyId, mutation.locationOfInterestId)
+    if (loi == null) {
+      // If LOI is null, return null to avoid proceeding
+      Timber.e("MutationDetail", "LOI not found for mutation ${mutation.id}")
+      return null
+    }
     val user = userRepository.getAuthenticatedUser()
     return MutationDetail(
       user = user.displayName,
