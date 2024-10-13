@@ -21,8 +21,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.google.android.ground.R
 import com.google.android.ground.model.User
+import com.google.android.ground.ui.theme.AppTheme
 
 @Composable
 fun UserDetailsDialog(user: User, signOutCallback: () -> Unit, dismissCallback: () -> Unit) {
@@ -42,4 +44,16 @@ fun UserDetailsDialog(user: User, signOutCallback: () -> Unit, dismissCallback: 
       }
     },
   )
+}
+
+@Composable
+@Preview
+fun PreviewUserDetailsDialog() {
+  AppTheme {
+    UserDetailsDialog(
+      user = User("id_1", "random@email.com", "Dummy name"),
+      signOutCallback = {},
+      dismissCallback = {},
+    )
+  }
 }
