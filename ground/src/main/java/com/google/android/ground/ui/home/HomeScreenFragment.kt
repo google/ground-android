@@ -185,9 +185,13 @@ class HomeScreenFragment :
             UserDetailsDialog(showUserDetailsDialog, showSignOutDialog, user)
           }
           if (showSignOutDialog.value) {
-            SignOutConfirmationDialog(showUserDetailsDialog, showSignOutDialog) {
-              homeScreenViewModel.signOut()
-            }
+            SignOutConfirmationDialog(
+              { homeScreenViewModel.signOut() },
+              {
+                showUserDetailsDialog.value = false
+                showSignOutDialog.value = false
+              },
+            )
           }
         }
       }
