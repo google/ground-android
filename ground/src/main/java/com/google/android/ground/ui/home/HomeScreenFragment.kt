@@ -182,7 +182,17 @@ class HomeScreenFragment :
 
         AppTheme {
           if (showUserDetailsDialog.value) {
-            UserDetailsDialog(showUserDetailsDialog, showSignOutDialog, user)
+            UserDetailsDialog(
+              user,
+              {
+                showUserDetailsDialog.value = false
+                showSignOutDialog.value = true
+              },
+              {
+                showUserDetailsDialog.value = false
+                showSignOutDialog.value = false
+              },
+            )
           }
           if (showSignOutDialog.value) {
             SignOutConfirmationDialog(
