@@ -129,8 +129,8 @@
   <string name="close">Close</string>
   <string name="data_consent_dialog_title">Data sharing agreement</string>
   <string name="map_location">Map location:</string>
-  <string name="sign_out_dialog_title">Unsynced data</string>
-  <string name="sign_out_dialog_body">If you sign out, any unsynced data will be discarded</string>
+  <string name="sign_out_dialog_title">Signout warning</string>
+  <string name="sign_out_dialog_body">If you sign out:\n \u2022 Any unsynced data will be discarded\n \u2022 You won&#8217;t be able to sign in if you&#8217;re offline\n \u2022 Offline surveys won&#8217;t be available until you sign in again\n\nAre you sure you want to sign out?</string>
   <string name="suggest_data_collection_hint">Zoom in to start collecting data</string>
   <string name="read_only_data_collection_hint">Survey is read-only</string>
   <string name="predefined_data_collection_hint">Zoom in to a data collection site to collect data</string>

@@ -173,21 +173,33 @@ class HomeScreenFragment :
     // compose.
     binding.composeView.apply {
       setContent {
-        val showUserDetailsDialog = remember { mutableStateOf(true) }
+        val showUserDetailsDialog = remember { mutableStateOf(false) }
         val showSignOutDialog = remember { mutableStateOf(false) }
 
-        // reset the state for recomposition
-        showUserDetailsDialog.value = true
-        showSignOutDialog.value = false
+        fun showUserDetailsDialog() {
+          showUserDetailsDialog.value = true
+          showSignOutDialog.value = false
+        }
+
+        fun showSignOutDialog() {
+          showUserDetailsDialog.value = false
+          showSignOutDialog.value = true
+        }
+
+        fun hideAllDialogs() {
+          showUserDetailsDialog.value = false
+          showSignOutDialog.value = false
+        }
+
+        // Init state for composition
+        showUserDetailsDialog()
 
         AppTheme {
           if (showUserDetailsDialog.value) {
-            UserDetailsDialog(showUserDetailsDialog, showSignOutDialog, user)
+            UserDetailsDialog(user, { showSignOutDialog() }, { hideAllDialogs() })
           }
           if (showSignOutDialog.value) {
-            SignOutConfirmationDialog(showUserDetailsDialog, showSignOutDialog) {
-              homeScreenViewModel.signOut()
-            }
+            SignOutConfirmationDialog({ homeScreenViewModel.signOut() }, { hideAllDialogs() })
           }
         }
       }
