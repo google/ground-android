@@ -15,8 +15,11 @@
  */
 package com.google.android.ground.ui.datacollection
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -52,41 +56,66 @@ fun DataSubmissionConfirmationDialog(onDismiss: () -> Unit) {
       shape = RoundedCornerShape(16.dp),
       tonalElevation = 8.dp,
     ) {
-      Column(
-        modifier = Modifier.padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-      ) {
-        Image(
-          painter = painterResource(id = R.drawable.data_submitted),
-          contentDescription = stringResource(R.string.data_submitted_image),
-          contentScale = ContentScale.Fit,
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(
-          text = stringResource(R.string.data_collection_complete),
-          style = MaterialTheme.typography.titleLarge,
-          textAlign = TextAlign.Center,
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-          text = stringResource(R.string.data_collection_complete_details),
-          style = MaterialTheme.typography.bodyMedium,
-          textAlign = TextAlign.Center,
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedButton(onClick = { onDismiss() }) { Text(stringResource(id = R.string.close)) }
+      val configuration = LocalConfiguration.current
+      when (configuration.orientation) {
+        Configuration.ORIENTATION_LANDSCAPE -> {
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            DataCollectionThumbnail(modifier = Modifier.weight(1f))
+            Column(
+              modifier = Modifier.padding(16.dp).weight(1f),
+              horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+              DetailColumn(onDismiss)
+            }
+          }
+        }
+        else -> {
+          Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+          ) {
+            DataCollectionThumbnail()
+            Spacer(modifier = Modifier.height(12.dp))
+            DetailColumn(onDismiss)
+          }
+        }
       }
     }
   }
 }
 
 @Composable
+private fun DataCollectionThumbnail(modifier: Modifier = Modifier) {
+  Image(
+    modifier = modifier,
+    painter = painterResource(id = R.drawable.data_submitted),
+    contentDescription = stringResource(R.string.data_submitted_image),
+    contentScale = ContentScale.Fit,
+  )
+}
+
+@Composable
+private fun ColumnScope.DetailColumn(onDismiss: () -> Unit) {
+  Text(
+    text = stringResource(R.string.data_collection_complete),
+    style = MaterialTheme.typography.titleLarge,
+    textAlign = TextAlign.Center,
+  )
+  Spacer(modifier = Modifier.height(8.dp))
+  Text(
+    text = stringResource(R.string.data_collection_complete_details),
+    style = MaterialTheme.typography.bodyMedium,
+    textAlign = TextAlign.Center,
+  )
+  Spacer(modifier = Modifier.height(12.dp))
+  OutlinedButton(onClick = { onDismiss() }) { Text(stringResource(id = R.string.close)) }
+}
+
+@Composable
+@Preview(
+  showSystemUi = true,
+  device = "spec:width=411dp,height=891dp,dpi=420,isRound=false,chinSize=0dp,orientation=landscape",
+)
 @Preview
 fun DataSubmissionConfirmationDialogPreview() {
   AppTheme { DataSubmissionConfirmationDialog {} }
