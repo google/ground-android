@@ -33,6 +33,7 @@ constructor(
   val multipleChoice: MultipleChoice? = null,
   val isAddLoiTask: Boolean = false,
   val condition: Condition? = null,
+  val isMultipleGeometry: Boolean = false,
 ) {
 
   /**
