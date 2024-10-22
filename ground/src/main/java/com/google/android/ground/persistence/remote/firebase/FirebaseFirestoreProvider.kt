@@ -28,6 +28,10 @@ import timber.log.Timber
 class FirebaseFirestoreProvider @Inject constructor(settings: FirebaseFirestoreSettings) :
   AsyncSingletonProvider<FirebaseFirestore>({
     FirebaseFirestore.getInstance().also {
+      if (it.firestoreSettings == settings) {
+        FirebaseFirestore.setLoggingEnabled(Config.FIRESTORE_LOGGING_ENABLED)
+        return@also
+      }
       try {
         it.firestoreSettings = settings
       } catch (e: IllegalStateException) {
