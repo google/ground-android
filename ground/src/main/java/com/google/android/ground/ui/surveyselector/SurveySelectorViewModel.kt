@@ -53,7 +53,8 @@ internal constructor(
 
   private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.FetchingSurveys)
   val uiState: StateFlow<UiState> = _uiState.asStateFlow()
-  private var surveyActivationInProgress = false
+
+  var surveyActivationInProgress = false
 
   init {
     viewModelScope.launch {
@@ -86,8 +87,8 @@ internal constructor(
         }
         .fold(
           onSuccess = {
-            _uiState.emit(UiState.SurveyActivated)
             surveyActivationInProgress = false
+            _uiState.emit(UiState.SurveyActivated)
             navigateToHomeScreen()
           },
           onFailure = { exception ->

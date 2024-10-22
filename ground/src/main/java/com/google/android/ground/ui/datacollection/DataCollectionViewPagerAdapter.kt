@@ -29,14 +29,20 @@ import com.google.android.ground.ui.datacollection.tasks.text.TextTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskFragment
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import javax.inject.Provider
 
 /**
  * A simple pager adapter that presents the [Task]s associated with a given Submission, in sequence.
  */
 class DataCollectionViewPagerAdapter
 @AssistedInject
-constructor(@Assisted fragment: Fragment, @Assisted val tasks: List<Task>) :
-  FragmentStateAdapter(fragment) {
+constructor(
+  private val drawAreaTaskFragmentProvider: Provider<DrawAreaTaskFragment>,
+  private val captureLocationTaskFragmentProvider: Provider<CaptureLocationTaskFragment>,
+  private val dropPinTaskFragmentProvider: Provider<DropPinTaskFragment>,
+  @Assisted fragment: Fragment,
+  @Assisted val tasks: List<Task>,
+) : FragmentStateAdapter(fragment) {
   override fun getItemCount(): Int = tasks.size
 
   override fun createFragment(position: Int): Fragment {
@@ -47,12 +53,12 @@ constructor(@Assisted fragment: Fragment, @Assisted val tasks: List<Task>) :
         Task.Type.TEXT -> TextTaskFragment()
         Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskFragment()
         Task.Type.PHOTO -> PhotoTaskFragment()
-        Task.Type.DROP_PIN -> DropPinTaskFragment()
-        Task.Type.DRAW_AREA -> DrawAreaTaskFragment()
+        Task.Type.DROP_PIN -> dropPinTaskFragmentProvider.get()
+        Task.Type.DRAW_AREA -> drawAreaTaskFragmentProvider.get()
         Task.Type.NUMBER -> NumberTaskFragment()
         Task.Type.DATE -> DateTaskFragment()
         Task.Type.TIME -> TimeTaskFragment()
-        Task.Type.CAPTURE_LOCATION -> CaptureLocationTaskFragment()
+        Task.Type.CAPTURE_LOCATION -> captureLocationTaskFragmentProvider.get()
         Task.Type.UNKNOWN ->
           throw UnsupportedOperationException("Unsupported task type: ${task.type}")
       }

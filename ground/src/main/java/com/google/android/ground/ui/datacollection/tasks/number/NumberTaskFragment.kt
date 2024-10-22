@@ -32,8 +32,8 @@ class NumberTaskFragment : AbstractTaskFragment<NumberTaskViewModel>() {
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     val taskBinding = NumberTaskFragBinding.inflate(inflater)
-    taskBinding.lifecycleOwner = this
     taskBinding.viewModel = viewModel
+    taskBinding.lifecycleOwner = this
     return taskBinding.root
   }
 }

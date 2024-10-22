@@ -42,6 +42,7 @@
       android:maxLines="1"
       android:onClick="@{__ -> fragment.showDateDialog()}"
       android:text="@{fragment.dateText}"
+      android:hint="@{fragment.dateTextHint}"
       tools:text="@string/date" />
   </com.google.android.material.textfield.TextInputLayout>
 </layout>

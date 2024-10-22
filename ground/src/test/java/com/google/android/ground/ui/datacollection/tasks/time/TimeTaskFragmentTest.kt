@@ -109,4 +109,10 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
 
     runner().assertButtonIsDisabled("Next").assertButtonIsHidden("Skip")
   }
+
+  @Test
+  fun `hint text is visible`() {
+    setupTaskFragment<TimeTaskFragment>(job, task)
+    assertThat(fragment.timeTextHint.value).isEqualTo("H:MM A")
+  }
 }

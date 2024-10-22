@@ -20,12 +20,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTaskFragBinding
 import com.google.android.ground.model.submission.CaptureLocationTaskData.Companion.toCaptureLocationResult
+import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.util.toDmsFormat
@@ -42,11 +44,20 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
 
   protected lateinit var binding: MapTaskFragBinding
 
+  protected val dataCollectionViewModel: DataCollectionViewModel by
+    hiltNavGraphViewModels(R.id.data_collection)
+
+  protected val taskId: String by lazy {
+    arguments?.getString(TASK_ID_FRAGMENT_ARG_KEY) ?: error("null taskId fragment arg")
+  }
+
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?,
   ): View {
+    super.onCreateView(inflater, container, savedInstanceState)
+
     binding = MapTaskFragBinding.inflate(inflater, container, false)
     binding.fragment = this
     binding.viewModel = getMapViewModel()
@@ -67,13 +78,16 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
       }
     }
 
+    return binding.root
+  }
+
+  @MustBeInvokedByOverriders
+  override fun onMapReady(map: MapFragment) {
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
         getMapViewModel().getCurrentCameraPosition().collect { onMapCameraMoved(it) }
       }
     }
-
-    return binding.root
   }
 
   private fun updateLocationInfoCard(
@@ -106,5 +120,9 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
       return
     }
     updateLocationInfoCard(R.string.map_location, position.coordinates.toDmsFormat())
+  }
+
+  companion object {
+    const val TASK_ID_FRAGMENT_ARG_KEY = "taskId"
   }
 }
