@@ -121,9 +121,10 @@ internal constructor(
       } else
       // LOI name pulled from LOI properties, if it exists.
       flow {
-          val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
-          val label = locationOfInterestHelper.getDisplayLoiName(loi)
-          emit(label)
+          locationOfInterestRepository.getOfflineLoi(surveyId, loiId)?.let {
+            val label = locationOfInterestHelper.getDisplayLoiName(it)
+            emit(label)
+          }
         })
       .stateIn(viewModelScope, SharingStarted.Lazily, "")
 
