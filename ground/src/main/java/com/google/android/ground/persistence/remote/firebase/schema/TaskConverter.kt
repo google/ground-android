@@ -77,6 +77,7 @@ internal object TaskConverter {
         multipleChoice,
         task.level == DataCollectionLevel.LOI_METADATA,
         condition = condition,
+        isMultipleGeometry = (drawGeometry?.allowedMethodsList?.size ?: 0) > 1,
       )
     }
 }

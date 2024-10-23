@@ -45,6 +45,7 @@ import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.LoiNameDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
 import com.google.android.ground.ui.datacollection.components.TaskView
+import com.google.android.ground.ui.datacollection.tasks.draw.SelectGeometryTaskDialog
 import com.google.android.ground.ui.theme.AppTheme
 import kotlin.properties.Delegates
 import kotlinx.coroutines.launch
@@ -283,6 +284,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
         onTextFieldChange = { name = it },
       )
     }
+  }
+
+  @Composable
+  fun ShowSelectGeometryTaskDialog() {
+    SelectGeometryTaskDialog()
   }
 
   data class ButtonData(val index: Int, val button: TaskButton)
