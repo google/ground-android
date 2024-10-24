@@ -17,6 +17,7 @@ package com.google.android.ground.ui.datacollection
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -37,7 +38,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -57,27 +57,25 @@ fun DataSubmissionConfirmationDialog(onDismiss: () -> Unit) {
       tonalElevation = 8.dp,
     ) {
       val configuration = LocalConfiguration.current
-      when (configuration.orientation) {
-        Configuration.ORIENTATION_LANDSCAPE -> {
+      if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        Column {
           Row(verticalAlignment = Alignment.CenterVertically) {
             DataCollectionThumbnail(modifier = Modifier.weight(1f))
             Column(
-              modifier = Modifier.padding(16.dp).weight(1f),
-              horizontalAlignment = Alignment.CenterHorizontally,
+              modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp).weight(2f),
+              verticalArrangement = Arrangement.Center,
             ) {
-              DetailColumn(onDismiss)
+              DetailColumn()
             }
           }
+          CloseButton(modifier = Modifier.padding(bottom = 16.dp, end = 16.dp), onDismiss)
         }
-        else -> {
-          Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-          ) {
-            DataCollectionThumbnail()
-            Spacer(modifier = Modifier.height(12.dp))
-            DetailColumn(onDismiss)
-          }
+      } else {
+        Column(modifier = Modifier.padding(16.dp)) {
+          DataCollectionThumbnail()
+          DetailColumn()
+          Spacer(modifier = Modifier.height(12.dp))
+          CloseButton(onDismiss = onDismiss)
         }
       }
     }
@@ -95,27 +93,27 @@ private fun DataCollectionThumbnail(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ColumnScope.DetailColumn(onDismiss: () -> Unit) {
+private fun ColumnScope.DetailColumn() {
   Text(
     text = stringResource(R.string.data_collection_complete),
     style = MaterialTheme.typography.titleLarge,
-    textAlign = TextAlign.Center,
   )
   Spacer(modifier = Modifier.height(8.dp))
   Text(
     text = stringResource(R.string.data_collection_complete_details),
     style = MaterialTheme.typography.bodyMedium,
-    textAlign = TextAlign.Center,
   )
-  Spacer(modifier = Modifier.height(12.dp))
-  OutlinedButton(onClick = { onDismiss() }) { Text(stringResource(id = R.string.close)) }
 }
 
 @Composable
-@Preview(
-  showSystemUi = true,
-  device = "spec:width=411dp,height=891dp,dpi=420,isRound=false,chinSize=0dp,orientation=landscape",
-)
+private fun ColumnScope.CloseButton(modifier: Modifier = Modifier, onDismiss: () -> Unit) {
+  OutlinedButton(modifier = modifier.align(Alignment.End), onClick = { onDismiss() }) {
+    Text(stringResource(id = R.string.close))
+  }
+}
+
+@Composable
+@Preview(showBackground = false, heightDp = 360, widthDp = 800)
 @Preview
 fun DataSubmissionConfirmationDialogPreview() {
   AppTheme { DataSubmissionConfirmationDialog {} }
