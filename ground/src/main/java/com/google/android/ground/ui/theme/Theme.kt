@@ -93,8 +93,6 @@ private val DarkColors =
 
 val manropeFont = FontFamily(Font(R.font.manrope_medium, FontWeight.Normal))
 
-val googleSansFont = FontFamily(Font(R.font.google_sans, FontWeight.Normal))
-
 @Composable
 fun AppTheme(useDarkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
   val colors =
