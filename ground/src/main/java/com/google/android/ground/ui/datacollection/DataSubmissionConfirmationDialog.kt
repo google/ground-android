@@ -62,16 +62,16 @@ fun DataSubmissionConfirmationDialog(onDismiss: () -> Unit) {
           Row(verticalAlignment = Alignment.CenterVertically) {
             DataCollectionThumbnail(modifier = Modifier.weight(1f))
             Column(
-              modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp).weight(2f),
+              modifier = Modifier.padding(start = 16.dp, end = 24.dp, top = 16.dp).weight(2f),
               verticalArrangement = Arrangement.Center,
             ) {
               DetailColumn()
             }
           }
-          CloseButton(modifier = Modifier.padding(bottom = 16.dp, end = 16.dp), onDismiss)
+          CloseButton(modifier = Modifier.padding(bottom = 24.dp, end = 24.dp), onDismiss)
         }
       } else {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
           DataCollectionThumbnail()
           DetailColumn()
           Spacer(modifier = Modifier.height(12.dp))
