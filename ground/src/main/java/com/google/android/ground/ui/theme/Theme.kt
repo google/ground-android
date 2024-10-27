@@ -20,6 +20,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import com.google.android.ground.R
 
 private val LightColors =
   lightColorScheme(
@@ -86,6 +90,10 @@ private val DarkColors =
     outlineVariant = md_theme_dark_outlineVariant,
     scrim = md_theme_dark_scrim,
   )
+
+val manropeFont = FontFamily(Font(R.font.manrope_medium, FontWeight.Normal))
+
+val googleSansFont = FontFamily(Font(R.font.google_sans, FontWeight.Normal))
 
 @Composable
 fun AppTheme(useDarkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
