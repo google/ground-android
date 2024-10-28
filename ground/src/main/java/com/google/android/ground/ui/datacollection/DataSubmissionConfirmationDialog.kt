@@ -48,8 +48,6 @@ import com.google.android.ground.R
 import com.google.android.ground.ui.theme.AppTheme
 import com.google.android.ground.ui.theme.manropeFont
 import com.google.android.ground.ui.theme.md_theme_light_onBackground
-import com.google.android.ground.ui.theme.md_theme_light_onSurfaceVariant
-import com.google.android.ground.ui.theme.md_theme_light_outline
 
 @Composable
 fun DataSubmissionConfirmationDialog(onDismiss: () -> Unit) {
@@ -111,7 +109,7 @@ private fun ColumnScope.DetailColumn() {
     text = stringResource(R.string.data_collection_complete_details),
     fontSize = 16.sp,
     lineHeight = 24.sp,
-    color = md_theme_light_onSurfaceVariant,
+    color = MaterialTheme.colorScheme.onSurfaceVariant,
     fontFamily = manropeFont,
   )
 }
@@ -120,7 +118,7 @@ private fun ColumnScope.DetailColumn() {
 private fun ColumnScope.CloseButton(modifier: Modifier = Modifier, onDismiss: () -> Unit) {
   OutlinedButton(
     modifier = modifier.align(Alignment.End),
-    border = BorderStroke(width = 1.dp, color = md_theme_light_outline),
+    border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline),
     onClick = { onDismiss() },
   ) {
     Text(
