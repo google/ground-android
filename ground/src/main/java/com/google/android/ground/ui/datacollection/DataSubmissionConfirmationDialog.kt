@@ -39,6 +39,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,8 +48,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.google.android.ground.R
 import com.google.android.ground.ui.theme.AppTheme
-import com.google.android.ground.ui.theme.manropeFont
-import com.google.android.ground.ui.theme.md_theme_light_onBackground
 
 @Composable
 fun DataSubmissionConfirmationDialog(onDismiss: () -> Unit) {
@@ -101,7 +101,7 @@ private fun ColumnScope.DetailColumn() {
   Text(
     text = stringResource(R.string.data_collection_complete),
     style = MaterialTheme.typography.titleLarge,
-    color = md_theme_light_onBackground,
+    color = MaterialTheme.colorScheme.onBackground,
     lineHeight = 28.sp,
   )
   Spacer(modifier = Modifier.height(8.dp))
@@ -110,7 +110,7 @@ private fun ColumnScope.DetailColumn() {
     fontSize = 16.sp,
     lineHeight = 24.sp,
     color = MaterialTheme.colorScheme.onSurfaceVariant,
-    fontFamily = manropeFont,
+    fontFamily = FontFamily(Font(R.font.text_500)),
   )
 }
 
@@ -125,7 +125,7 @@ private fun ColumnScope.CloseButton(modifier: Modifier = Modifier, onDismiss: ()
       stringResource(id = R.string.close),
       fontSize = 14.sp,
       lineHeight = 20.sp,
-      fontFamily = manropeFont,
+      fontFamily = FontFamily(Font(R.font.text_500)),
     )
   }
 }
