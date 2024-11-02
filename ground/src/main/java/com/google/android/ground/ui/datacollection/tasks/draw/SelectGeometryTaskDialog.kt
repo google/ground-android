@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,8 +44,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.android.ground.R
 import com.google.android.ground.ui.theme.AppTheme
-import com.google.android.ground.ui.theme.card_background
-import com.google.android.ground.ui.theme.md_theme_dark_outlineVariant
 
 @Composable
 fun SelectGeometryTaskDialog() {
@@ -55,6 +54,7 @@ fun SelectGeometryTaskDialog() {
       OutlinedButton(onClick = {}) { Text(text = stringResource(R.string.close)) }
     },
     confirmButton = {},
+    containerColor = MaterialTheme.colorScheme.surfaceVariant,
     text = {
       Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
         OptionsCard(textRes = R.string.drop_a_pin, imageRes = R.drawable.outline_pin_drop) {}
@@ -75,7 +75,10 @@ private fun RowScope.OptionsCard(
     modifier =
       Modifier.weight(1f)
         .height(100.dp)
-        .background(color = card_background, shape = RoundedCornerShape(16.dp))
+        .background(
+          color = MaterialTheme.colorScheme.secondaryContainer,
+          shape = RoundedCornerShape(16.dp),
+        )
         .padding(16.dp)
         .clickable { onClick() },
     horizontalAlignment = Alignment.CenterHorizontally,
@@ -87,12 +90,12 @@ private fun RowScope.OptionsCard(
       text = stringResource(id = textRes),
       modifier = Modifier,
       textAlign = TextAlign.Center,
-      color = md_theme_dark_outlineVariant,
+      color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
   }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun ChoiceMapDialogPreview() {
   AppTheme { SelectGeometryTaskDialog() }

@@ -286,9 +286,14 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  @Composable
-  fun ShowSelectGeometryTaskDialog() {
-    SelectGeometryTaskDialog()
+  private fun launchSelectGeometryTaskDialog() {
+    lifecycleScope.launch {
+      (view as ViewGroup).addView(
+        ComposeView(requireContext()).apply {
+          setContent { AppTheme { SelectGeometryTaskDialog() } }
+        }
+      )
+    }
   }
 
   data class ButtonData(val index: Int, val button: TaskButton)
