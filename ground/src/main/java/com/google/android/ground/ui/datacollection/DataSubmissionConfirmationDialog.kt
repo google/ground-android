@@ -15,8 +15,13 @@
  */
 package com.google.android.ground.ui.datacollection
 
+import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,11 +36,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.google.android.ground.R
@@ -52,41 +60,78 @@ fun DataSubmissionConfirmationDialog(onDismiss: () -> Unit) {
       shape = RoundedCornerShape(16.dp),
       tonalElevation = 8.dp,
     ) {
-      Column(
-        modifier = Modifier.padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-      ) {
-        Image(
-          painter = painterResource(id = R.drawable.data_submitted),
-          contentDescription = stringResource(R.string.data_submitted_image),
-          contentScale = ContentScale.Fit,
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(
-          text = stringResource(R.string.data_collection_complete),
-          style = MaterialTheme.typography.titleLarge,
-          textAlign = TextAlign.Center,
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-          text = stringResource(R.string.data_collection_complete_details),
-          style = MaterialTheme.typography.bodyMedium,
-          textAlign = TextAlign.Center,
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedButton(onClick = { onDismiss() }) { Text(stringResource(id = R.string.close)) }
+      val configuration = LocalConfiguration.current
+      if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        Column {
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            DataCollectionThumbnail(modifier = Modifier.weight(1f))
+            Column(
+              modifier = Modifier.padding(start = 16.dp, end = 24.dp, top = 16.dp).weight(2f),
+              verticalArrangement = Arrangement.Center,
+            ) {
+              DetailColumn()
+            }
+          }
+          CloseButton(modifier = Modifier.padding(bottom = 24.dp, end = 24.dp), onDismiss)
+        }
+      } else {
+        Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
+          DataCollectionThumbnail()
+          DetailColumn()
+          Spacer(modifier = Modifier.height(12.dp))
+          CloseButton(onDismiss = onDismiss)
+        }
       }
     }
   }
 }
 
 @Composable
+private fun DataCollectionThumbnail(modifier: Modifier = Modifier) {
+  Image(
+    modifier = modifier,
+    painter = painterResource(id = R.drawable.data_submitted),
+    contentDescription = stringResource(R.string.data_submitted_image),
+    contentScale = ContentScale.Fit,
+  )
+}
+
+@Composable
+private fun ColumnScope.DetailColumn() {
+  Text(
+    text = stringResource(R.string.data_collection_complete),
+    style = MaterialTheme.typography.titleLarge,
+    color = MaterialTheme.colorScheme.onBackground,
+    lineHeight = 28.sp,
+  )
+  Spacer(modifier = Modifier.height(8.dp))
+  Text(
+    text = stringResource(R.string.data_collection_complete_details),
+    fontSize = 16.sp,
+    lineHeight = 24.sp,
+    color = MaterialTheme.colorScheme.onSurfaceVariant,
+    fontFamily = FontFamily(Font(R.font.text_500)),
+  )
+}
+
+@Composable
+private fun ColumnScope.CloseButton(modifier: Modifier = Modifier, onDismiss: () -> Unit) {
+  OutlinedButton(
+    modifier = modifier.align(Alignment.End),
+    border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline),
+    onClick = { onDismiss() },
+  ) {
+    Text(
+      stringResource(id = R.string.close),
+      fontSize = 14.sp,
+      lineHeight = 20.sp,
+      fontFamily = FontFamily(Font(R.font.text_500)),
+    )
+  }
+}
+
+@Composable
+@Preview(showBackground = false, heightDp = 360, widthDp = 800)
 @Preview
 fun DataSubmissionConfirmationDialogPreview() {
   AppTheme { DataSubmissionConfirmationDialog {} }
