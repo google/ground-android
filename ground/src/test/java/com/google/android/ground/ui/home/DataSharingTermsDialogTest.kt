@@ -40,10 +40,6 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class DataSharingTermsDialogTest : BaseHiltTest() {
 
-  /**
-   * composeTestRule has to be created in the specific test file in order to access the required
-   * activity. [composeTestRule.activity]
-   */
   @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Test
@@ -58,7 +54,6 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
       )
     }
 
-    // Check if the title text is displayed correctly
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.data_consent_dialog_title))
       .assertIsDisplayed()
@@ -154,12 +149,10 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
       )
     }
 
-    // Click the cancel button
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
       .performClick()
 
-    // Assert that the dialog is no longer shown
     assertFalse(showDialog.value)
   }
 
@@ -179,19 +172,15 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
       )
     }
 
-    // Click the agree button
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.agree_checkbox))
       .performClick()
 
-    // Assert that the callback was called
     assertTrue(callbackCalled)
 
-    // Assert that the dialog was dismissed
     assertFalse(showDialog.value)
   }
 
-  // Function to generate HTML from Markdown
   private fun generateHtmlFromMarkdown(markdown: String): String {
     val flavor = CommonMarkFlavourDescriptor()
     val parsedTree = MarkdownParser(flavor).buildMarkdownTreeFromString(markdown)
