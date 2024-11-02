@@ -31,8 +31,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.android.ground.ui.compose.HyperlinkText
+import com.google.android.ground.ui.theme.AppTheme
 import timber.log.Timber
 
 @Composable
@@ -103,4 +105,18 @@ private fun SignupLink(signupLink: String) {
           }
       ),
   )
+}
+
+@Preview
+@Composable
+fun PermissionDeniedDialogWithSignupLinkPreview() {
+  AppTheme {
+    PermissionDeniedDialog(signupLink = "www.google.com", onSignOut = {}, onCloseApp = {})
+  }
+}
+
+@Preview
+@Composable
+fun PermissionDeniedDialogWithoutSignupLinkPreview() {
+  AppTheme { PermissionDeniedDialog(signupLink = "", onSignOut = {}, onCloseApp = {}) }
 }
