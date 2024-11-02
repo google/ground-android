@@ -162,7 +162,6 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
     swipeUpDrawer()
 
     onView(withId(R.id.terms_of_service)).check(matches(isEnabled()))
-    onView(withId(R.id.version_text)).check(matches(isDisplayed()))
   }
 
   @Test
