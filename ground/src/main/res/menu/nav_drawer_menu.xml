@@ -16,8 +16,7 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
   <group>
     <item
       android:id="@+id/sync_status"
@@ -44,7 +43,6 @@
     android:id="@+id/nav_footer">
     <item
       android:id="@+id/nav_log_version"
-      android:title=""
-      app:actionLayout="@layout/nav_drawer_footer" />
+      android:title="" />
   </group>
 </menu>
