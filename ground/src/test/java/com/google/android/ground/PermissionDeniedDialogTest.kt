@@ -30,10 +30,6 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class PermissionDeniedDialogTest : BaseHiltTest() {
 
-  /**
-   * composeTestRule has to be created in the specific test file in order to access the required
-   * activity. [composeTestRule.activity]
-   */
   @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Test
@@ -42,7 +38,6 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
       PermissionDeniedDialog(signupLink = "http://example.com", onSignOut = {}, onCloseApp = {})
     }
 
-    // Check if the title is displayed correctly
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.permission_denied))
       .assertIsDisplayed()
@@ -54,7 +49,6 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
       PermissionDeniedDialog(signupLink = "http://example.com", onSignOut = {}, onCloseApp = {})
     }
 
-    // Check if the sign-out button is displayed
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out))
       .assertIsDisplayed()
@@ -66,7 +60,6 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
       PermissionDeniedDialog(signupLink = "http://example.com", onSignOut = {}, onCloseApp = {})
     }
 
-    // Check if the close app button is displayed
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.close_app))
       .assertIsDisplayed()
@@ -84,12 +77,10 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
       )
     }
 
-    // Click the sign-out button
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out))
       .performClick()
 
-    // Check if onSignOut was called
     assert(signOutCalled)
   }
 
@@ -105,12 +96,10 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
       )
     }
 
-    // Click the close app button
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.close_app))
       .performClick()
 
-    // Check if onCloseApp was called
     assert(closeAppCalled)
   }
 
@@ -120,7 +109,6 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
       PermissionDeniedDialog(signupLink = "http://example.com", onSignOut = {}, onCloseApp = {})
     }
 
-    // Check if the signup link is displayed
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.signup_request_access))
       .assertIsDisplayed()
@@ -132,7 +120,6 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
       PermissionDeniedDialog(signupLink = "", onSignOut = {}, onCloseApp = {})
     }
 
-    // Check if the signup link is not displayed
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.signup_request_access))
       .assertDoesNotExist()
