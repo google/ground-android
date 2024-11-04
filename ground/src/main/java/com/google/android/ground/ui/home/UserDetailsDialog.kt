@@ -20,40 +20,40 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.google.android.ground.R
 import com.google.android.ground.model.User
+import com.google.android.ground.ui.theme.AppTheme
 
 @Composable
-fun UserDetailsDialog(
-  showUserDetailsDialog: MutableState<Boolean>,
-  showSignOutDialog: MutableState<Boolean>,
-  user: User,
-) {
-
-  fun dismissDialog() {
-    showUserDetailsDialog.value = false
-    showSignOutDialog.value = false
-  }
-  fun showSignOutConfirmationDialog() {
-    showUserDetailsDialog.value = false
-    showSignOutDialog.value = true
-  }
+fun UserDetailsDialog(user: User, signOutCallback: () -> Unit, dismissCallback: () -> Unit) {
   // In this AlertDialog instance, the button roles are reversed to match the provided design:
   // `dismissButton` is used for "Sign Out" and `confirmButton` is used for "Close".
   // This arrangement is due to the AlertDialog's fixed order of dismiss and confirm buttons.
   AlertDialog(
-    onDismissRequest = { dismissDialog() },
+    onDismissRequest = { dismissCallback() },
     title = { Text(user.displayName) },
     text = { Text(user.email) },
     dismissButton = {
-      TextButton(onClick = { showSignOutConfirmationDialog() }) {
-        Text(text = stringResource(R.string.sign_out))
-      }
+      TextButton(onClick = { signOutCallback() }) { Text(text = stringResource(R.string.sign_out)) }
     },
     confirmButton = {
-      OutlinedButton(onClick = { dismissDialog() }) { Text(text = stringResource(R.string.close)) }
+      OutlinedButton(onClick = { dismissCallback() }) {
+        Text(text = stringResource(R.string.close))
+      }
     },
   )
+}
+
+@Composable
+@Preview
+fun PreviewUserDetailsDialog() {
+  AppTheme {
+    UserDetailsDialog(
+      user = User("id_1", "random@email.com", "Dummy name"),
+      signOutCallback = {},
+      dismissCallback = {},
+    )
+  }
 }

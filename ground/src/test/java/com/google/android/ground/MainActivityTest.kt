@@ -17,6 +17,7 @@ package com.google.android.ground
 
 import com.google.android.ground.system.auth.SignInState
 import com.google.common.truth.Truth.assertThat
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -65,6 +66,24 @@ class MainActivityTest : BaseHiltTest() {
       advanceUntilIdle()
 
       assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isFalse()
+    }
+  }
+
+  @Test
+  fun signInErrorDialog_isDisplayed() = runWithTestDispatcher {
+    Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+      controller.setup() // Moves Activity to RESUMED state
+      activity = controller.get()
+
+      fakeAuthenticationManager.setState(
+        SignInState.Error(
+          error =
+            FirebaseFirestoreException("error", FirebaseFirestoreException.Code.PERMISSION_DENIED)
+        )
+      )
+      advanceUntilIdle()
+
+      assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isTrue()
     }
   }
 }

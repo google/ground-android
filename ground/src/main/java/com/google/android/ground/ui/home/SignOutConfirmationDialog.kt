@@ -19,36 +19,35 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.google.android.ground.R
+import com.google.android.ground.ui.theme.AppTheme
 
 @Composable
-fun SignOutConfirmationDialog(
-  showUserDetailsDialog: MutableState<Boolean>,
-  showSignOutDialog: MutableState<Boolean>,
-  signOutCallback: () -> Unit,
-) {
-  fun dismissDialog() {
-    showUserDetailsDialog.value = false
-    showSignOutDialog.value = false
-  }
+fun SignOutConfirmationDialog(signOutCallback: () -> Unit, dismissCallback: () -> Unit) {
   AlertDialog(
-    onDismissRequest = { dismissDialog() },
+    onDismissRequest = { dismissCallback() },
     title = { Text(text = stringResource(R.string.sign_out_dialog_title)) },
     text = { Text(text = stringResource(R.string.sign_out_dialog_body)) },
     dismissButton = {
-      TextButton(onClick = { dismissDialog() }) { Text(text = stringResource(R.string.cancel)) }
+      TextButton(onClick = { dismissCallback() }) { Text(text = stringResource(R.string.cancel)) }
     },
     confirmButton = {
       TextButton(
         onClick = {
           signOutCallback()
-          dismissDialog()
+          dismissCallback()
         }
       ) {
         Text(text = stringResource(R.string.sign_out))
       }
     },
   )
+}
+
+@Composable
+@Preview
+fun PreviewSignOutConfirmationDialog() {
+  AppTheme { SignOutConfirmationDialog(signOutCallback = {}, dismissCallback = {}) }
 }
