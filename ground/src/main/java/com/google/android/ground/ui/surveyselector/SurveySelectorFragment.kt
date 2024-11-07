@@ -95,6 +95,12 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
     super.onViewCreated(view, savedInstanceState)
     binding.recyclerView.adapter = adapter
     getAbstractActivity().setSupportActionBar(binding.toolbar)
+
+    if (parentFragmentManager.backStackEntryCount > 0) {
+      getAbstractActivity().supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    } else {
+      getAbstractActivity().supportActionBar?.setDisplayHomeAsUpEnabled(false)
+    }
   }
 
   fun showPopupMenu(view: View, surveyId: String) {
