@@ -15,15 +15,20 @@
  */
 package com.google.android.ground.ui.datacollection
 
+import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -31,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
@@ -45,21 +51,56 @@ import com.google.android.ground.ui.theme.AppTheme
 
 @Composable
 fun DataSubmissionConfirmationDialog(onDismiss: () -> Unit) {
-  Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-    Spacer(modifier = Modifier.height(150.dp))
-    DataCollectionThumbnail(modifier = Modifier.padding(horizontal = 8.dp))
-    Text(
-      modifier = Modifier.padding(horizontal = 8.dp),
-      text = stringResource(R.string.data_collection_thumbnail_attribution),
-      color = MaterialTheme.colorScheme.secondary,
-      fontSize = 11.sp,
-      fontWeight = FontWeight(400),
-      lineHeight = 16.sp,
-    )
-    Spacer(modifier = Modifier.height(100.dp))
-    DetailColumn()
-    Spacer(modifier = Modifier.height(32.dp))
-    CloseButton(modifier = Modifier.align(Alignment.CenterHorizontally), onDismiss = onDismiss)
+  val configuration = LocalConfiguration.current
+  if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+    Row(
+      modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.Center,
+    ) {
+      Column(
+        modifier = Modifier.weight(1f).wrapContentWidth(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+      ) {
+        DataCollectionThumbnail(modifier = Modifier.weight(0.8f))
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+          modifier = Modifier.weight(0.2f).align(Alignment.Start),
+          text = stringResource(R.string.data_collection_thumbnail_attribution),
+          color = MaterialTheme.colorScheme.secondary,
+          fontSize = 11.sp,
+          fontWeight = FontWeight(400),
+          lineHeight = 16.sp,
+        )
+      }
+      Column(
+        modifier = Modifier.fillMaxSize().weight(1f),
+        verticalArrangement = Arrangement.Center,
+      ) {
+        DetailColumn()
+        Spacer(modifier = Modifier.height(24.dp))
+        CloseButton(modifier = Modifier.align(Alignment.CenterHorizontally), onDismiss = onDismiss)
+      }
+    }
+  } else {
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+      Spacer(modifier = Modifier.height(150.dp))
+      DataCollectionThumbnail(modifier = Modifier.padding(horizontal = 8.dp))
+      Spacer(modifier = Modifier.height(4.dp))
+      Text(
+        modifier = Modifier.padding(horizontal = 8.dp),
+        text = stringResource(R.string.data_collection_thumbnail_attribution),
+        color = MaterialTheme.colorScheme.secondary,
+        fontSize = 11.sp,
+        fontWeight = FontWeight(400),
+        lineHeight = 16.sp,
+      )
+      Spacer(modifier = Modifier.height(100.dp))
+      DetailColumn()
+      Spacer(modifier = Modifier.height(32.dp))
+      CloseButton(modifier = Modifier.align(Alignment.CenterHorizontally), onDismiss = onDismiss)
+    }
   }
 }
 
@@ -116,7 +157,7 @@ private fun CloseButton(modifier: Modifier = Modifier, onDismiss: () -> Unit) {
 }
 
 @Composable
-@Preview(showBackground = false, heightDp = 360, widthDp = 800)
+@Preview(heightDp = 320, widthDp = 800)
 @Preview
 fun DataSubmissionConfirmationDialogPreview() {
   AppTheme { DataSubmissionConfirmationDialog {} }
