@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -64,15 +63,6 @@ fun DataSubmissionConfirmationDialog(onDismiss: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
       ) {
         DataCollectionThumbnail(modifier = Modifier.weight(0.8f))
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-          modifier = Modifier.weight(0.2f).align(Alignment.Start),
-          text = stringResource(R.string.data_collection_thumbnail_attribution),
-          color = MaterialTheme.colorScheme.secondary,
-          fontSize = 11.sp,
-          fontWeight = FontWeight(400),
-          lineHeight = 16.sp,
-        )
       }
       Column(
         modifier = Modifier.fillMaxSize().weight(1f),
@@ -87,15 +77,6 @@ fun DataSubmissionConfirmationDialog(onDismiss: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
       Spacer(modifier = Modifier.height(150.dp))
       DataCollectionThumbnail(modifier = Modifier.padding(horizontal = 8.dp))
-      Spacer(modifier = Modifier.height(4.dp))
-      Text(
-        modifier = Modifier.padding(horizontal = 8.dp),
-        text = stringResource(R.string.data_collection_thumbnail_attribution),
-        color = MaterialTheme.colorScheme.secondary,
-        fontSize = 11.sp,
-        fontWeight = FontWeight(400),
-        lineHeight = 16.sp,
-      )
       Spacer(modifier = Modifier.height(100.dp))
       DetailColumn()
       Spacer(modifier = Modifier.height(32.dp))
