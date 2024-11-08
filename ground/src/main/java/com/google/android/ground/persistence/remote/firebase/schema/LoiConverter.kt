@@ -42,7 +42,11 @@ object LoiConverter {
     val loiProto = LocationOfInterestProto::class.parseFrom(doc, 1)
     val geometry = loiProto.geometry.toGeometry()
     val jobId = loiProto.jobId
-    val job = DataStoreException.checkNotNull(survey.getJob(jobId), "job $jobId")
+    val job =
+      DataStoreException.checkNotNull(
+        survey.getJob(jobId),
+        "job $jobId \n loiId = $loiId \n loiProto = $loiProto",
+      )
     // Degrade gracefully when audit info missing in remote db.
     val created = AuditInfoConverter.toAuditInfo(loiProto.created)
     val lastModified =
