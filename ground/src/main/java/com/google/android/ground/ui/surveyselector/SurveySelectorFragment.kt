@@ -96,6 +96,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
     binding.recyclerView.adapter = adapter
     getAbstractActivity().setSupportActionBar(binding.toolbar)
 
+    // TODO - https://github.com/google/ground-android/issues/2692#issuecomment-2430978043
     if (parentFragmentManager.backStackEntryCount > 0) {
       getAbstractActivity().supportActionBar?.setDisplayHomeAsUpEnabled(true)
     } else {
