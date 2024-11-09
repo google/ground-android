@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.persistence.remote.firebase.schema
 
+import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.persistence.remote.DataStoreException
@@ -43,10 +44,17 @@ object LoiConverter {
     val geometry = loiProto.geometry.toGeometry()
     val jobId = loiProto.jobId
     val job =
-      DataStoreException.checkNotNull(
-        survey.getJob(jobId),
-        "job $jobId \n loiId = $loiId \n loiProto = $loiProto",
-      )
+      try {
+        DataStoreException.checkNotNull(
+          survey.getJob(jobId),
+          "job $jobId \n loiId = $loiId \n loiProto = $loiProto",
+        )
+      } catch (e: Exception) {
+        val logger = FirebaseCrashLogger()
+        logger.setSelectedSurveyId(survey.id)
+        logger.logException(e)
+        throw DataStoreException("Missing Job")
+      }
     // Degrade gracefully when audit info missing in remote db.
     val created = AuditInfoConverter.toAuditInfo(loiProto.created)
     val lastModified =
