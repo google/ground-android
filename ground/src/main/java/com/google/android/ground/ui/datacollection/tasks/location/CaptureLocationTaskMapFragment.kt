@@ -19,10 +19,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -61,5 +65,20 @@ class CaptureLocationTaskMapFragment @Inject constructor() : AbstractMapFragment
     super.onMapReady(map)
     binding.locationLockBtn.isClickable = false
     viewLifecycleOwner.lifecycleScope.launch { viewModel.onMapReady(mapViewModel) }
+  }
+
+  private fun showLocationPermissionDialog() {
+    (view as ViewGroup).addView(
+      ComposeView(requireContext()).apply {
+        setContent {
+          val openAlertDialog = remember { mutableStateOf(true) }
+          when {
+            openAlertDialog.value -> {
+              AppTheme { LocationPermissionDialog { openAlertDialog.value = false } }
+            }
+          }
+        }
+      }
+    )
   }
 }
