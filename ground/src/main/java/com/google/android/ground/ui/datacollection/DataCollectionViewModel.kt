@@ -86,7 +86,7 @@ internal constructor(
 ) : AbstractViewModel() {
 
   private val _uiState: MutableStateFlow<UiState?> = MutableStateFlow(null)
-  var uiState: StateFlow<UiState?>
+  var uiState = _uiState.asStateFlow().stateIn(viewModelScope, SharingStarted.Lazily, null)
 
   private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
@@ -121,9 +121,10 @@ internal constructor(
       } else
       // LOI name pulled from LOI properties, if it exists.
       flow {
-          val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
-          val label = locationOfInterestHelper.getDisplayLoiName(loi)
-          emit(label)
+          locationOfInterestRepository.getOfflineLoi(surveyId, loiId)?.let {
+            val label = locationOfInterestHelper.getDisplayLoiName(it)
+            emit(label)
+          }
         })
       .stateIn(viewModelScope, SharingStarted.Lazily, "")
 
@@ -140,15 +141,8 @@ internal constructor(
 
   lateinit var submissionId: String
 
-  init {
-    uiState =
-      _uiState
-        .asStateFlow()
-        .stateIn(
-          viewModelScope,
-          SharingStarted.Lazily,
-          UiState.TaskListAvailable(tasks, getTaskPosition()),
-        )
+  suspend fun init() {
+    _uiState.emit(UiState.TaskListAvailable(tasks, getTaskPosition()))
   }
 
   fun setLoiName(name: String) {

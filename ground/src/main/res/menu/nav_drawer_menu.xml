@@ -17,24 +17,32 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-  <item
-    android:id="@+id/sync_status"
-    android:icon="@drawable/ic_history"
-    android:title="@string/sync_status" />
-  <item
-    android:id="@+id/nav_offline_areas"
-    android:icon="@drawable/cloud_off"
-    android:title="@string/offline_map_imagery" />
-  <item
-    android:id="@+id/nav_settings"
-    android:icon="@drawable/ic_settings"
-    android:title="@string/settings" />
-  <item
-    android:id="@+id/about"
-    android:icon="@drawable/info_outline"
-    android:title="@string/about" />
-  <item
-    android:id="@+id/terms_of_service"
-    android:icon="@drawable/feed"
-    android:title="@string/terms_of_service" />
+  <group>
+    <item
+      android:id="@+id/sync_status"
+      android:icon="@drawable/ic_history"
+      android:title="@string/sync_status" />
+    <item
+      android:id="@+id/nav_offline_areas"
+      android:icon="@drawable/cloud_off"
+      android:title="@string/offline_map_imagery" />
+    <item
+      android:id="@+id/nav_settings"
+      android:icon="@drawable/ic_settings"
+      android:title="@string/settings" />
+    <item
+      android:id="@+id/about"
+      android:icon="@drawable/info_outline"
+      android:title="@string/about" />
+    <item
+      android:id="@+id/terms_of_service"
+      android:icon="@drawable/feed"
+      android:title="@string/terms_of_service" />
+  </group>
+  <group
+    android:id="@+id/nav_footer">
+    <item
+      android:id="@+id/nav_log_version"
+      android:title="" />
+  </group>
 </menu>

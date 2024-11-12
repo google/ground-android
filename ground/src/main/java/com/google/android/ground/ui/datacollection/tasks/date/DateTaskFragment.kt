@@ -20,6 +20,7 @@ import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.databinding.DateTaskFragBinding
 import com.google.android.ground.model.submission.DateTimeTaskData
@@ -27,6 +28,7 @@ import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
@@ -38,6 +40,7 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
   private var datePickerDialog: DatePickerDialog? = null
 
   lateinit var dateText: LiveData<String>
+  lateinit var dateTextHint: LiveData<String>
 
   override fun onTaskViewAttached() {
     super.onTaskViewAttached()
@@ -54,6 +57,14 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
           }
         }
         .asLiveData()
+
+    dateTextHint =
+      MutableLiveData<String>().apply {
+        val dateFormat = DateFormat.getDateFormat(requireContext()) as SimpleDateFormat
+        val pattern = dateFormat.toPattern()
+        val hint = pattern.uppercase()
+        value = hint
+      }
   }
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
