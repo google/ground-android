@@ -61,6 +61,22 @@ class CaptureLocationTaskMapFragment @Inject constructor() : AbstractMapFragment
     return root
   }
 
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    lifecycleScope.launch {
+      viewModel.enableLocationLockFlow.collect {
+        when (it) {
+          LocationLockEnabledState.NEEDS_ENABLE -> {
+            showLocationPermissionDialog()
+          }
+          else -> {
+            Unit
+          }
+        }
+      }
+    }
+  }
+
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
     binding.locationLockBtn.isClickable = false
