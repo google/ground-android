@@ -65,13 +65,8 @@ class CaptureLocationTaskMapFragment @Inject constructor() : AbstractMapFragment
     super.onViewCreated(view, savedInstanceState)
     lifecycleScope.launch {
       viewModel.enableLocationLockFlow.collect {
-        when (it) {
-          LocationLockEnabledState.NEEDS_ENABLE -> {
-            showLocationPermissionDialog()
-          }
-          else -> {
-            Unit
-          }
+        if (it == LocationLockEnabledState.NEEDS_ENABLE) {
+          showLocationPermissionDialog()
         }
       }
     }
@@ -79,7 +74,6 @@ class CaptureLocationTaskMapFragment @Inject constructor() : AbstractMapFragment
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
-    binding.locationLockBtn.isClickable = false
     viewLifecycleOwner.lifecycleScope.launch { viewModel.onMapReady(mapViewModel) }
   }
 
@@ -90,7 +84,15 @@ class CaptureLocationTaskMapFragment @Inject constructor() : AbstractMapFragment
           val openAlertDialog = remember { mutableStateOf(true) }
           when {
             openAlertDialog.value -> {
-              AppTheme { LocationPermissionDialog { openAlertDialog.value = false } }
+              AppTheme {
+                LocationPermissionDialog(
+                  onCancel = {
+                    binding.locationLockBtn.isClickable = false
+                    openAlertDialog.value = false
+                  },
+                  onDismiss = { openAlertDialog.value = false },
+                )
+              }
             }
           }
         }

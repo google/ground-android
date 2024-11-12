@@ -30,7 +30,7 @@ import com.google.android.ground.R
 import com.google.android.ground.ui.theme.AppTheme
 
 @Composable
-fun LocationPermissionDialog(onDismiss: () -> Unit) {
+fun LocationPermissionDialog(onDismiss: () -> Unit, onCancel: () -> Unit) {
   val context = LocalContext.current
   AlertDialog(
     containerColor = MaterialTheme.colorScheme.surface,
@@ -48,7 +48,7 @@ fun LocationPermissionDialog(onDismiss: () -> Unit) {
       )
     },
     dismissButton = {
-      TextButton(onClick = { onDismiss() }) { Text(text = stringResource(R.string.cancel)) }
+      TextButton(onClick = { onCancel() }) { Text(text = stringResource(R.string.cancel)) }
     },
     confirmButton = {
       TextButton(
@@ -69,5 +69,5 @@ fun LocationPermissionDialog(onDismiss: () -> Unit) {
 @Composable
 @Preview
 fun PreviewUserDetailsDialog() {
-  AppTheme { LocationPermissionDialog({}) }
+  AppTheme { LocationPermissionDialog({}, {}) }
 }
