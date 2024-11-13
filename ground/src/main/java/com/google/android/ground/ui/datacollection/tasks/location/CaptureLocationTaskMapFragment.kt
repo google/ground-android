@@ -19,6 +19,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
@@ -77,8 +78,9 @@ class CaptureLocationTaskMapFragment @Inject constructor() : AbstractMapFragment
     viewLifecycleOwner.lifecycleScope.launch { viewModel.onMapReady(mapViewModel) }
   }
 
+  @Suppress("LabeledExpression")
   private fun showLocationPermissionDialog() {
-    (view as ViewGroup).addView(
+    val dialogComposeView =
       ComposeView(requireContext()).apply {
         setContent {
           val openAlertDialog = remember { mutableStateOf(true) }
@@ -95,8 +97,11 @@ class CaptureLocationTaskMapFragment @Inject constructor() : AbstractMapFragment
               }
             }
           }
+
+          DisposableEffect(Unit) { onDispose { (parent as? ViewGroup)?.removeView(this@apply) } }
         }
       }
-    )
+
+    (view as ViewGroup).addView(dialogComposeView)
   }
 }
