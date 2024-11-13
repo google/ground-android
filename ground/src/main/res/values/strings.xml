@@ -188,4 +188,8 @@
   <string name="data_submitted_image">Data submitted image</string>
   <string name="data_collection_complete">Data collection complete!</string>
   <string name="data_collection_complete_details">Your data has been saved and will be automatically synced when you’re online.</string>
+
+  <string name="allow_location_confirmation">Allow location</string>
+  <string name="allow_location_title">Allow location sharing</string>
+  <string name="allow_location_description">If you don&#8217;t allow Ground to access this device&#8217;s location, you won&#8217;t be able to continue collecting data for this site.</string>
 </resources>

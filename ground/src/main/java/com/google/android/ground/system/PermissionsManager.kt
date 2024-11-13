@@ -60,7 +60,7 @@ constructor(
       false
     }
 
-  /** Returns `true` iff the app has been granted the specified permission. */
+  /** Returns `true` if the app has been granted the specified permission. */
   fun isGranted(permission: String): Boolean =
     checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
 
