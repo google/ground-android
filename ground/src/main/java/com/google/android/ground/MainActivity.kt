@@ -190,7 +190,7 @@ class MainActivity : AbstractActivity() {
 
   private fun navigateUp(): Boolean {
     val navController = navHostFragment.navController
-    return if (navController.currentBackStackEntry != null) {
+    return if (navHostFragment.childFragmentManager.backStackEntryCount > 0) {
       navController.navigateUp()
     } else {
       false
