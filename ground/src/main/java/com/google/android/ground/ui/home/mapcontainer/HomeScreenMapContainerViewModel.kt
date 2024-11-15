@@ -106,8 +106,8 @@ internal constructor(
    */
   private val loisInViewport: StateFlow<List<LocationOfInterest>>
 
-  /** [LocationOfInterest] clicked by the user. */
-  val loiClicks: MutableStateFlow<LocationOfInterest?> = MutableStateFlow(null)
+  /** [Feature] clicked by the user. */
+  val featureClicked: MutableStateFlow<Feature?> = MutableStateFlow(null)
 
   /**
    * List of [Job]s which allow LOIs to be added during field collection, populated only when zoomed
@@ -175,12 +175,20 @@ internal constructor(
    * Returns a flow of [MapCardUiData] associated with the active survey's LOIs and adhoc jobs for
    * displaying the cards.
    */
-  fun getMapCardUiData(): Flow<Pair<List<MapCardUiData>, Int>> =
-    loisInViewport.combine(adHocLoiJobs) { lois, jobs ->
-      val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
-      val jobCards = jobs.map { MapCardUiData.AddLoiCardUiData(it) }
-
-      Pair(loiCards + jobCards, lois.size)
+  fun getMapCardUiData():
+    Flow<Pair<MapCardUiData.LoiCardUiData?, List<MapCardUiData.AddLoiCardUiData>>> =
+    combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
+      val loiCard =
+        loisInView
+          .filter { it.geometry == feature?.geometry }
+          .firstOrNull()
+          ?.let { MapCardUiData.LoiCardUiData(it) }
+      if (loiCard == null && feature != null) {
+        // The feature is not in view anymore.
+        featureClicked.value = null
+      }
+      val jobCard = jobs.map { MapCardUiData.AddLoiCardUiData(it) }
+      Pair(loiCard, jobCard)
     }
 
   private fun updatedLoiSelectedStates(
@@ -198,12 +206,7 @@ internal constructor(
    * list of provided features is empty.
    */
   fun onFeatureClicked(features: Set<Feature>) {
-    val geometry = features.map { it.geometry }.minByOrNull { it.area } ?: return
-    for (loi in loisInViewport.value) {
-      if (loi.geometry == geometry) {
-        loiClicks.value = loi
-      }
-    }
+    featureClicked.value = features.minByOrNull { it.geometry.area }
   }
 
   suspend fun updateDataSharingConsent(dataSharingTerms: Boolean) {

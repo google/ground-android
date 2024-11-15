@@ -24,9 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
@@ -105,8 +103,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       }
 
       // Bind data for cards
-      mapContainerViewModel.getMapCardUiData().launchWhenStartedAndCollect { (mapCards, loiCount) ->
-        adapter.updateData(canUserSubmitData, mapCards, loiCount - 1)
+      mapContainerViewModel.getMapCardUiData().launchWhenStartedAndCollect { (loiCard, jobCards) ->
+        adapter.updateData(canUserSubmitData, loiCard, jobCards)
       }
     }
 
@@ -259,37 +257,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     val recyclerViewBinding = LoiCardsRecyclerViewBinding.inflate(layoutInflater, container, true)
     val recyclerView = recyclerViewBinding.recyclerView
     recyclerView.adapter = adapter
-    recyclerView.addOnScrollListener(
-      object : RecyclerView.OnScrollListener() {
-        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-          super.onScrollStateChanged(recyclerView, newState)
-          val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-          val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
-          val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
-          val firstCompletelyVisiblePosition =
-            layoutManager.findFirstCompletelyVisibleItemPosition()
-          var midPosition = (firstVisiblePosition + lastVisiblePosition) / 2
-
-          // Focus the last card
-          if (firstCompletelyVisiblePosition > midPosition) {
-            midPosition = firstCompletelyVisiblePosition
-          }
-
-          adapter.focusItemAtIndex(midPosition)
-        }
-      }
-    )
 
     val helper: SnapHelper = PagerSnapHelper()
     helper.attachToRecyclerView(recyclerView)
-
-    mapContainerViewModel.loiClicks.launchWhenStartedAndCollect {
-      val index = it?.let { adapter.getIndex(it) } ?: -1
-      if (index != -1) {
-        recyclerView.scrollToPosition(index)
-        adapter.focusItemAtIndex(index)
-      }
-    }
   }
 
   private fun navigateToDataCollectionFragment(cardUiData: MapCardUiData) {

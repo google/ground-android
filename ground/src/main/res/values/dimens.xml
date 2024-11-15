@@ -37,6 +37,6 @@
   <dimen name="loi_card_item_margin">10dp</dimen>
 
   <dimen name="job_card_corner_radius">16dp</dimen>
-  <dimen name="job_card_start_end_margin">8dp</dimen>
+  <dimen name="job_card_start_end_margin">4dp</dimen>
   <dimen name="zoom_on_cluster_click_padding">50dp</dimen>
 </resources>
