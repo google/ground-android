@@ -56,20 +56,22 @@ constructor(
   ) {
     val newId = uuidGenerator.generateUuid()
     val userId = userRepository.getAuthenticatedUser().id
-    val job = locationOfInterestRepository.getOfflineLoi(surveyId, locationOfInterestId).job
-    val mutation =
-      SubmissionMutation(
-        job = job,
-        submissionId = newId,
-        deltas = deltas,
-        type = Mutation.Type.CREATE,
-        syncStatus = SyncStatus.PENDING,
-        surveyId = surveyId,
-        locationOfInterestId = locationOfInterestId,
-        userId = userId,
-        collectionId = collectionId,
-      )
-    applyAndEnqueue(mutation)
+    val job = locationOfInterestRepository.getOfflineLoi(surveyId, locationOfInterestId)?.job
+    job?.let {
+      val mutation =
+        SubmissionMutation(
+          job = job,
+          submissionId = newId,
+          deltas = deltas,
+          type = Mutation.Type.CREATE,
+          syncStatus = SyncStatus.PENDING,
+          surveyId = surveyId,
+          locationOfInterestId = locationOfInterestId,
+          userId = userId,
+          collectionId = collectionId,
+        )
+      applyAndEnqueue(mutation)
+    }
   }
 
   suspend fun getDraftSubmission(draftSubmissionId: String, survey: Survey): DraftSubmission? =

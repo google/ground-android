@@ -17,8 +17,6 @@ package com.google.android.ground.ui.datacollection
 
 import android.animation.ValueAnimator
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.constraintlayout.widget.Guideline
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnLayout
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
@@ -42,6 +41,8 @@ import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
@@ -93,15 +94,10 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
         override fun onPageScrollStateChanged(state: Int) {
           super.onPageScrollStateChanged(state)
           if (state == ViewPager2.SCROLL_STATE_IDLE) {
-            Handler(Looper.getMainLooper())
-              .postDelayed(
-                {
-                  // Reset the progress bar position after a delay to wait for the keyboard to
-                  // close.
-                  setProgressBarPosition(view)
-                },
-                100,
-              )
+            lifecycleScope.launch(Dispatchers.Main) {
+              delay(100) // Wait for the keyboard to close
+              setProgressBarPosition(view)
+            }
           }
         }
       }
@@ -135,12 +131,20 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   private fun setProgressBarPosition(view: View) {
     val buttonContainer = view.findViewById<View>(R.id.action_buttons) ?: return
-    val anchorLocation = IntArray(2)
-    buttonContainer.getLocationInWindow(anchorLocation)
-    val windowInsets = WindowInsetsCompat.toWindowInsetsCompat(buttonContainer.rootWindowInsets)
-    val guidelineTop =
-      anchorLocation[1] - windowInsets.getInsets(WindowInsetsCompat.Type.systemBars()).top
-    guideline.setGuidelineBegin(guidelineTop)
+
+    buttonContainer.doOnLayout {
+      val anchorLocation = IntArray(2)
+      it.getLocationInWindow(anchorLocation)
+
+      val windowInsets = WindowInsetsCompat.toWindowInsetsCompat(buttonContainer.rootWindowInsets)
+      val systemBarsInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+      val guidelineTop = anchorLocation[1] - systemBarsInsets.top
+
+      if (guidelineTop > 0) {
+        guideline.setGuidelineBegin(guidelineTop)
+      }
+    }
   }
 
   private fun loadTasks(tasks: List<Task>, taskPosition: TaskPosition) {

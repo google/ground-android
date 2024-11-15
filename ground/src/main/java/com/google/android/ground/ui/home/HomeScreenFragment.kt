@@ -86,7 +86,6 @@ class HomeScreenFragment :
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    binding.versionText.text = String.format(getString(R.string.build), BuildConfig.VERSION_NAME)
     // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
     homeScreenViewModel.showOfflineAreaMenuItem.observe(viewLifecycleOwner) {
@@ -121,6 +120,10 @@ class HomeScreenFragment :
           .show()
       }
     }
+
+    val navigationView = view.findViewById<NavigationView>(R.id.nav_view)
+    val menuItem = navigationView.menu.findItem(R.id.nav_log_version)
+    menuItem.title = String.format(getString(R.string.build), BuildConfig.VERSION_NAME)
   }
 
   private fun updateNavHeader() =
@@ -173,21 +176,33 @@ class HomeScreenFragment :
     // compose.
     binding.composeView.apply {
       setContent {
-        val showUserDetailsDialog = remember { mutableStateOf(true) }
+        val showUserDetailsDialog = remember { mutableStateOf(false) }
         val showSignOutDialog = remember { mutableStateOf(false) }
 
-        // reset the state for recomposition
-        showUserDetailsDialog.value = true
-        showSignOutDialog.value = false
+        fun showUserDetailsDialog() {
+          showUserDetailsDialog.value = true
+          showSignOutDialog.value = false
+        }
+
+        fun showSignOutDialog() {
+          showUserDetailsDialog.value = false
+          showSignOutDialog.value = true
+        }
+
+        fun hideAllDialogs() {
+          showUserDetailsDialog.value = false
+          showSignOutDialog.value = false
+        }
+
+        // Init state for composition
+        showUserDetailsDialog()
 
         AppTheme {
           if (showUserDetailsDialog.value) {
-            UserDetailsDialog(showUserDetailsDialog, showSignOutDialog, user)
+            UserDetailsDialog(user, { showSignOutDialog() }, { hideAllDialogs() })
           }
           if (showSignOutDialog.value) {
-            SignOutConfirmationDialog(showUserDetailsDialog, showSignOutDialog) {
-              homeScreenViewModel.signOut()
-            }
+            SignOutConfirmationDialog({ homeScreenViewModel.signOut() }, { hideAllDialogs() })
           }
         }
       }

@@ -16,8 +16,7 @@
   ~ limitations under the License.
   -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools">
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <androidx.drawerlayout.widget.DrawerLayout
     android:id="@+id/drawer_layout"
@@ -64,24 +63,7 @@
       app:itemBackground="@android:color/transparent"
       app:itemIconTint="@color/nav_drawer_item"
       app:itemTextColor="@color/nav_drawer_item"
-      app:menu="@menu/nav_drawer_menu">
-
-      <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom">
-        <TextView
-          android:id="@+id/version_text"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_gravity="bottom"
-          android:layout_marginBottom="32dp"
-          android:padding="8dp"
-          app:layout_constraintBottom_toBottomOf="parent"
-          tools:text="Build number" />
-      </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </com.google.android.material.navigation.NavigationView>
+      app:menu="@menu/nav_drawer_menu"/>
 
   </androidx.drawerlayout.widget.DrawerLayout>
 </layout>

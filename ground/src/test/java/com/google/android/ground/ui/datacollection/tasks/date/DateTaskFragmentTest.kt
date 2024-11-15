@@ -115,6 +115,12 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   }
 
   @Test
+  fun `hint text is visible`() {
+    setupTaskFragment<DateTaskFragment>(job, task)
+    assertThat(fragment.dateTextHint.value).isEqualTo("M/D/YY")
+  }
+
+  @Test
   fun testActionButtons() {
     setupTaskFragment<DateTaskFragment>(job, task)
     assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)
