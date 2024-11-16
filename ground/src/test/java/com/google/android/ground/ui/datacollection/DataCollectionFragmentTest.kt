@@ -43,6 +43,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -68,7 +69,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   @Inject lateinit var uuidGenerator: OfflineUuidGenerator
   lateinit var collectionId: String
 
-  override fun setUp() {
+  override fun setUp() = runBlocking {
     super.setUp()
     collectionId = uuidGenerator.generateUuid()
 
