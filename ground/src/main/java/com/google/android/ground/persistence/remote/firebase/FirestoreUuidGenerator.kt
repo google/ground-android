@@ -16,15 +16,15 @@
 package com.google.android.ground.persistence.remote.firebase
 
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.google.firebase.firestore.FirebaseFirestore
 import javax.inject.Inject
 
-class FirestoreUuidGenerator @Inject constructor() : OfflineUuidGenerator {
+class FirestoreUuidGenerator
+@Inject
+constructor(private val firebaseFirestoreProvider: FirebaseFirestoreProvider) :
+  OfflineUuidGenerator {
 
-  // TODO: Check if this be replaced with the underlying implementation directly Util.autoId()
-  //  Also remove Fake implementation if the dependency on firebase init is removed.
-  override fun generateUuid(): String =
-    FirebaseFirestore.getInstance().collection(ID_COLLECTION).document().id
+  override suspend fun generateUuid(): String =
+    firebaseFirestoreProvider.get().collection(ID_COLLECTION).document().id
 
   companion object {
     const val ID_COLLECTION = "/ids"
