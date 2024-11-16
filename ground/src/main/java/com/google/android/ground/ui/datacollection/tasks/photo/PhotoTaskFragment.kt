@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.FileProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
@@ -66,7 +67,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   // Registers a callback to execute after a user captures a photo from the on-device camera.
   private var capturePhotoLauncher: ActivityResultLauncher<Uri> =
     registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-      if (result) viewModel.savePhotoTaskData(capturedPhotoUri)
+      externalScope.launch { if (result) viewModel.savePhotoTaskData(capturedPhotoUri) }
     }
 
   private var hasRequestedPermissionsOnResume = false
@@ -169,10 +170,12 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   }
 
   fun onTakePhoto() {
-    obtainCapturePhotoPermissions { launchPhotoCapture(viewModel.task.id) }
+    obtainCapturePhotoPermissions {
+      lifecycleScope.launch { launchPhotoCapture(viewModel.task.id) }
+    }
   }
 
-  private fun launchPhotoCapture(taskId: String) {
+  private suspend fun launchPhotoCapture(taskId: String) {
     try {
       val photoFile = userMediaRepository.createImageFile(taskId)
       capturedPhotoUri =
