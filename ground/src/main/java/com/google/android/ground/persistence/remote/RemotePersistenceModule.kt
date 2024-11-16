@@ -70,6 +70,6 @@ abstract class RemotePersistenceModule {
       return FirebaseStorage.getInstance().reference
     }
 
-    @Provides @Singleton fun firebaseFuntions(): FirebaseFunctions = Firebase.functions
+    @Provides @Singleton fun firebaseFunctions(): FirebaseFunctions = Firebase.functions
   }
 }
