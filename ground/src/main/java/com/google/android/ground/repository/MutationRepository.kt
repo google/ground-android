@@ -111,7 +111,7 @@ constructor(
     markForMediaUpload(mutations)
   }
 
-  private suspend fun finalizeDeletions(mutations: List<Mutation>) =
+  suspend fun finalizeDeletions(mutations: List<Mutation>) =
     mutations
       .filter { it.type === Mutation.Type.DELETE }
       .map { mutation ->

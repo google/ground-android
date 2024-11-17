@@ -19,6 +19,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
+import androidx.work.ListenableWorker.Result.failure
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
@@ -64,7 +65,7 @@ constructor(
       Timber.d("Syncing ${mutations.size} changes for LOI $locationOfInterestId")
       val result = processMutations(mutations)
       mediaUploadWorkManager.enqueueSyncWorker(locationOfInterestId)
-      if (result) success() else retry()
+      result
     } catch (t: Throwable) {
       Timber.e(t, "Failed to sync changes for LOI $locationOfInterestId")
       retry()
@@ -83,60 +84,52 @@ constructor(
   }
 
   /**
-   * Groups mutations by user id, loads each user, applies mutations, and removes processed
-   * mutations.
-   *
-   * @return `true` if all mutations are applied successfully, else `false`
-   */
-  private suspend fun processMutations(allMutations: List<Mutation>): Boolean {
-    val mutationsByUserId = allMutations.groupBy { it.userId }
-    val userIds = mutationsByUserId.keys
-    var noErrors = true
-    for (userId in userIds) {
-      val mutations = mutationsByUserId[userId]
-      val user = getUser(userId)
-      if (mutations == null || user == null) {
-        continue
-      }
-      val result = processMutations(mutations, user)
-      if (!result) {
-        noErrors = false
-      }
-    }
-    return noErrors
-  }
-
-  /**
    * Applies mutations to remote data store. Once successful, removes them from the local db.
    *
-   * @return `true` if the mutations were successfully synced with [RemoteDataStore].
+   * @return `success` if the mutations were successfully synced with [RemoteDataStore].
    */
-  private suspend fun processMutations(mutations: List<Mutation>, user: User): Boolean {
-    check(mutations.isNotEmpty()) { "List of mutations is empty" }
-
+  private suspend fun processMutations(mutations: List<Mutation>): Result {
+    if (mutations.isEmpty()) return success()
+    val user = getUserFromMutations(mutations) ?: return failure()
     return try {
       mutationRepository.markAsInProgress(mutations)
       remoteDataStore.applyMutations(mutations, user)
       mutationRepository.finalizePendingMutationsForMediaUpload(mutations)
-      true
+      success()
     } catch (t: Throwable) {
-      // Mark all mutations as having failed since the remote datastore only commits when all
-      // mutations have succeeded.
       Timber.d(t, "Local mutation sync failed")
-      val crashlytics = FirebaseCrashLogger()
-      crashlytics.setSelectedSurveyId(mutations.first().surveyId)
-      crashlytics.logException(t)
-      mutationRepository.markAsFailed(mutations, t)
-      false
+      handleMutationSyncFailed(mutations, t)
+      retry()
     }
   }
 
-  private suspend fun getUser(userId: String): User? {
-    val user = localUserStore.getUserOrNull(userId)
+  /**
+   * Returns the user associated with the mutations. If missing, removes the mutations from local
+   * storage as well.
+   */
+  private suspend fun getUserFromMutations(mutations: List<Mutation>): User? {
+    val userIds = mutations.map { it.userId }.toSet()
+
+    check(userIds.size == 1) { "Found mutations for multiple users" }
+    // TODO: Add a check to assert that the user id matches the currently logged in user.
+
+    val user = localUserStore.getUserOrNull(userIds.first())
     if (user == null) {
-      Timber.e("User account removed before mutation processed")
+      Timber.e("User removed before mutation processed. Removing %d mutations", mutations.size)
+      mutationRepository.finalizeDeletions(mutations)
     }
     return user
+  }
+
+  /**
+   * Marks all mutations as failed since the remote datastore only commits when all mutations have
+   * succeeded.
+   */
+  private suspend fun handleMutationSyncFailed(mutations: List<Mutation>, throwable: Throwable) {
+    mutationRepository.markAsFailed(mutations, throwable)
+    val crashlytics = FirebaseCrashLogger()
+    crashlytics.setSelectedSurveyId(mutations.first().surveyId)
+    crashlytics.logException(throwable)
   }
 
   companion object {
