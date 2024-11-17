@@ -18,6 +18,7 @@ package com.google.android.ground.ui.home
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.COMPLETED
 import com.google.android.ground.model.submission.DraftSubmission
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
@@ -68,8 +69,9 @@ internal constructor(
    */
   private suspend fun kickLocalMutationSyncWorkers() {
     val mutations = mutationRepository.getAllMutationsFlow().first()
-    val loiIds = mutations.map { it.locationOfInterestId }.toSet()
-    loiIds.forEach { loiId -> mutationSyncWorkManager.enqueueSyncWorker(loiId) }
+    val incompleteLoiIds =
+      mutations.filter { it.syncStatus != COMPLETED }.map { it.locationOfInterestId }.toSet()
+    incompleteLoiIds.forEach { loiId -> mutationSyncWorkManager.enqueueSyncWorker(loiId) }
   }
 
   /** Attempts to return draft submission for the currently active survey. */
