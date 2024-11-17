@@ -57,6 +57,13 @@ constructor(
     return locationOfInterestMutations.combine(submissionMutations, this::combineAndSortMutations)
   }
 
+  fun getAllMutationsFlow(): Flow<List<Mutation>> {
+    val locationOfInterestMutations = localLocationOfInterestStore.getAllMutationsFlow()
+    val submissionMutations = localSubmissionStore.getAllMutationsFlow()
+
+    return locationOfInterestMutations.combine(submissionMutations, this::combineAndSortMutations)
+  }
+
   /**
    * Returns all local submission mutations associated with the the given LOI ID that have one of
    * the provided sync statues.
