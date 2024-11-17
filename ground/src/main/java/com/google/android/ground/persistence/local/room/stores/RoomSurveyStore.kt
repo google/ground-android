@@ -15,12 +15,14 @@
  */
 package com.google.android.ground.persistence.local.room.stores
 
+import androidx.room.withTransaction
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.persistence.local.room.LocalDatabase
 import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.dao.ConditionDao
@@ -54,6 +56,8 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
 
   @Inject lateinit var expressionDao: ExpressionDao
 
+  @Inject lateinit var localDatabase: LocalDatabase
+
   override val surveys: Flow<List<Survey>>
     get() = surveyDao.getAll().map { surveyEntities -> surveyEntities.map { it.toModelObject() } }
 
@@ -63,11 +67,12 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
    * Attempts to update persisted data associated with a [Survey] in the local database. If the
    * provided survey does not exist, inserts the given survey into the database.
    */
-  override suspend fun insertOrUpdateSurvey(survey: Survey) {
-    surveyDao.insertOrUpdate(survey.toLocalDataStoreObject())
-    jobDao.deleteBySurveyId(survey.id)
-    insertOrUpdateJobs(survey.id, survey.jobs)
-  }
+  override suspend fun insertOrUpdateSurvey(survey: Survey) =
+    localDatabase.withTransaction {
+      surveyDao.insertOrUpdate(survey.toLocalDataStoreObject())
+      jobDao.deleteBySurveyId(survey.id)
+      insertOrUpdateJobs(survey.id, survey.jobs)
+    }
 
   /**
    * Returns the [Survey] with the given ID from the local database. Returns `null` if retrieval
