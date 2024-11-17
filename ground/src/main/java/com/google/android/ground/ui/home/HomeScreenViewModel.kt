@@ -21,6 +21,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.mutation.Mutation.SyncStatus.COMPLETED
 import com.google.android.ground.model.submission.DraftSubmission
 import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.android.ground.persistence.sync.MediaUploadWorkManager
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.OfflineAreaRepository
@@ -48,6 +49,7 @@ internal constructor(
   private val submissionRepository: SubmissionRepository,
   private val mutationRepository: MutationRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
+  private val mediaUploadWorkManager: MediaUploadWorkManager,
   val surveyRepository: SurveyRepository,
   val userRepository: UserRepository,
 ) : AbstractViewModel() {
@@ -63,15 +65,19 @@ internal constructor(
   }
 
   /**
-   * Enqueue sync workers for all pending mutations when home screen is first opened as a workaround
-   * the get stuck mutations (i.e., PENDING or FAILED mutations with no scheduled workers) going
-   * again. Workaround for https://github.com/google/ground-android/issues/2751.
+   * Enqueue data and photo upload workers for all pending mutations when home screen is first
+   * opened as a workaround the get stuck mutations (i.e., PENDING or FAILED mutations with no
+   * scheduled workers) going again. Workaround for
+   * https://github.com/google/ground-android/issues/2751.
    */
   private suspend fun kickLocalMutationSyncWorkers() {
     val mutations = mutationRepository.getAllMutationsFlow().first()
     val incompleteLoiIds =
       mutations.filter { it.syncStatus != COMPLETED }.map { it.locationOfInterestId }.toSet()
-    incompleteLoiIds.forEach { loiId -> mutationSyncWorkManager.enqueueSyncWorker(loiId) }
+    incompleteLoiIds.forEach { loiId ->
+      mutationSyncWorkManager.enqueueSyncWorker(loiId)
+      mediaUploadWorkManager.enqueueSyncWorker(loiId)
+    }
   }
 
   /** Attempts to return draft submission for the currently active survey. */
