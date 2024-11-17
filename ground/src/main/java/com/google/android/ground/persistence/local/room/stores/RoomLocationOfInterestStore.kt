@@ -120,6 +120,11 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       mutations.filter { it.surveyId == survey.id }.map { it.toModelObject() }
     }
 
+  override fun getAllMutationsFlow(): Flow<List<LocationOfInterestMutation>> =
+    locationOfInterestMutationDao.getAllMutationsFlow().map { mutations ->
+      mutations.map { it.toModelObject() }
+    }
+
   override suspend fun findByLocationOfInterestId(
     id: String,
     vararg states: MutationEntitySyncStatus,
