@@ -16,38 +16,46 @@
 
 package com.google.android.ground.ui.offlineareas.selector
 
-import android.app.AlertDialog
-import android.app.Dialog
-import android.os.Bundle
-import androidx.fragment.app.FragmentManager
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.res.stringResource
 import com.google.android.ground.R
-import com.google.android.ground.databinding.DownloadProgressDialogFragBinding
-import com.google.android.ground.ui.common.AbstractDialogFragment
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
-class DownloadProgressDialogFragment : AbstractDialogFragment() {
-  override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-    val inflater = requireActivity().layoutInflater
-    val binding = DownloadProgressDialogFragBinding.inflate(inflater)
-    binding.lifecycleOwner = this
-    binding.viewModel = getViewModel(OfflineAreaSelectorViewModel::class.java)
-    val dialog =
-      AlertDialog.Builder(requireActivity())
-        .setTitle(getString(R.string.offline_map_imagery_download_progress_dialog_title))
-        .setMessage(getString(R.string.offline_map_imagery_download_progress_dialog_message))
-        .setView(binding.root)
-        .setCancelable(false)
-        .create()
-    dialog.setCanceledOnTouchOutside(false)
-    return dialog
-  }
+@Composable
+fun DownloadProgressDialog(viewModel: OfflineAreaSelectorViewModel, onDismiss: () -> Unit) {
+  val progressData = viewModel.downloadProgress.observeAsState()
 
-  fun setVisibility(childFragmentManager: FragmentManager, newVisibility: Boolean) {
-    if (newVisibility && !isVisible) {
-      show(childFragmentManager, this::class.simpleName)
-    } else if (!newVisibility && isVisible) {
-      dismiss()
-    }
-  }
+  AlertDialog(
+    containerColor = MaterialTheme.colorScheme.surface,
+    onDismissRequest = {},
+    title = {
+      Text(
+        stringResource(R.string.offline_map_imagery_download_progress_dialog_title),
+        color = MaterialTheme.colorScheme.onSurface,
+      )
+    },
+    text = {
+      Column {
+        LinearProgressIndicator(
+          progress = { progressData.value?.toFloat() ?: 0f },
+          color = MaterialTheme.colorScheme.primary,
+          trackColor = MaterialTheme.colorScheme.surfaceVariant,
+        )
+        Text(
+          stringResource(R.string.offline_map_imagery_download_progress_dialog_message),
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+      }
+    },
+    dismissButton = {
+      TextButton(onClick = { onDismiss() }) { Text(text = stringResource(R.string.cancel)) }
+    },
+    confirmButton = {},
+  )
 }
