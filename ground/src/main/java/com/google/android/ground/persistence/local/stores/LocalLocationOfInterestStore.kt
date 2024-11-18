@@ -46,6 +46,8 @@ interface LocalLocationOfInterestStore :
    */
   fun getAllSurveyMutations(survey: Survey): Flow<List<LocationOfInterestMutation>>
 
+  fun getAllMutationsFlow(): Flow<List<LocationOfInterestMutation>>
+
   suspend fun findByLocationOfInterestId(
     id: String,
     vararg states: MutationEntitySyncStatus,

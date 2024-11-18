@@ -69,6 +69,7 @@ constructor(
       mutationRepository.getSubmissionMutations(
         loiId,
         MutationEntitySyncStatus.MEDIA_UPLOAD_PENDING,
+        MutationEntitySyncStatus.MEDIA_UPLOAD_IN_PROGRESS,
         MutationEntitySyncStatus.MEDIA_UPLOAD_AWAITING_RETRY,
       )
     val results = uploadMedia(mutations)
