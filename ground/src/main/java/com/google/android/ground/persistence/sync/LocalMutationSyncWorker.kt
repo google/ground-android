@@ -122,8 +122,7 @@ constructor(
       // Mark all mutations as having failed since the remote datastore only commits when all
       // mutations have succeeded.
       mutationRepository.markAsFailed(mutations, t)
-      firebaseCrashLogger.setSelectedSurveyId(mutations.first().surveyId)
-      Timber.e(t, "Sync failed")
+      Timber.e(t, "Failed to sync survey ${mutations.first().surveyId}")
       false
     }
   }
