@@ -28,6 +28,7 @@ import com.google.android.ground.persistence.local.room.fields.MutationEntitySyn
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.UserMediaRepository
+import com.google.firebase.FirebaseException
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.io.FileNotFoundException
@@ -136,7 +137,11 @@ constructor(
       remoteStorageManager.uploadMediaFromFile(photoFile, path)
       kotlin.Result.success(Unit)
     } catch (t: Throwable) {
-      Timber.e(t, "Failed uploading photo ${photoFile.path} to $path")
+      if (t is FirebaseException) {
+        Timber.d(t, "Can't connect to Firebase to upload ${photoFile.path} to $path")
+      } else {
+        Timber.e(t, "Failed uploading photo ${photoFile.path} to $path")
+      }
       kotlin.Result.failure(t)
     }
   }
