@@ -21,7 +21,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
 import com.google.android.ground.Config
-import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.PhotoTaskData
@@ -140,8 +139,7 @@ constructor(
       remoteStorageManager.uploadMediaFromFile(photoFile, path)
       kotlin.Result.success(Unit)
     } catch (t: Throwable) {
-      Timber.e("Photo upload failed. local path: ${photoFile.path}, remote path: $path", t)
-      FirebaseCrashLogger().logException(t)
+      Timber.e(t, "Failed uploading photo ${photoFile.path} to $path")
       kotlin.Result.failure(t)
     }
   }

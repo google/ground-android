@@ -53,6 +53,7 @@ constructor(
   private val localUserStore: LocalUserStore,
   private val remoteDataStore: RemoteDataStore,
   private val mediaUploadWorkManager: MediaUploadWorkManager,
+  private val firebaseCrashLogger: FirebaseCrashLogger,
 ) : CoroutineWorker(context, params) {
 
   private val locationOfInterestId: String =
@@ -120,11 +121,9 @@ constructor(
     } catch (t: Throwable) {
       // Mark all mutations as having failed since the remote datastore only commits when all
       // mutations have succeeded.
-      Timber.d(t, "Local mutation sync failed")
       mutationRepository.markAsFailed(mutations, t)
-      val crashlytics = FirebaseCrashLogger()
-      crashlytics.setSelectedSurveyId(mutations.first().surveyId)
-      crashlytics.logException(t)
+      firebaseCrashLogger.setSelectedSurveyId(mutations.first().surveyId)
+      Timber.e(t, "Sync failed")
       false
     }
   }
