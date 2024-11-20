@@ -37,7 +37,7 @@ class SurveySyncWorker
 @AssistedInject
 constructor(
   @Assisted context: Context,
-  @Assisted params: WorkerParameters
+  @Assisted params: WorkerParameters,
   private val syncSurvey: SyncSurveyUseCase,
 ) : CoroutineWorker(context, params) {
   private val surveyId: String? = params.inputData.getString(SURVEY_ID_PARAM_KEY)
