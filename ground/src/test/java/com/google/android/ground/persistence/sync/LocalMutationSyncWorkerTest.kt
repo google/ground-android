@@ -25,7 +25,6 @@ import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
@@ -71,8 +70,6 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
   @Inject lateinit var mutationRepository: MutationRepository
 
-  @Inject lateinit var firebaseCrashLogger: FirebaseCrashLogger
-
   private val factory =
     object : WorkerFactory() {
       override fun createWorker(
@@ -87,7 +84,6 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
           localUserStore,
           fakeRemoteDataStore,
           mockMediaUploadWorkManager,
-          firebaseCrashLogger
         )
     }
 
