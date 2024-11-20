@@ -49,9 +49,17 @@ constructor(
    * subscribe and a new list on each subsequent change.
    */
   fun getSurveyMutationsFlow(survey: Survey): Flow<List<Mutation>> {
-    // TODO: Show mutations for all surveys, not just current one.
+    // TODO(https://github.com/google/ground-android/issues/2838): Show mutations for all surveys,
+    // not just current one.
     val locationOfInterestMutations = localLocationOfInterestStore.getAllSurveyMutations(survey)
     val submissionMutations = localSubmissionStore.getAllSurveyMutationsFlow(survey)
+
+    return locationOfInterestMutations.combine(submissionMutations, this::combineAndSortMutations)
+  }
+
+  fun getAllMutationsFlow(): Flow<List<Mutation>> {
+    val locationOfInterestMutations = localLocationOfInterestStore.getAllMutationsFlow()
+    val submissionMutations = localSubmissionStore.getAllMutationsFlow()
 
     return locationOfInterestMutations.combine(submissionMutations, this::combineAndSortMutations)
   }

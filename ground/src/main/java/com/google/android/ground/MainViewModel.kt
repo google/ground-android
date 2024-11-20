@@ -32,9 +32,9 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.util.isPermissionDeniedException
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -53,8 +53,8 @@ constructor(
   authenticationManager: AuthenticationManager,
 ) : AbstractViewModel() {
 
-  private val _uiState: MutableStateFlow<MainUiState?> = MutableStateFlow(null)
-  var uiState: StateFlow<MainUiState?> = _uiState.asStateFlow()
+  private val _navigationRequests: MutableSharedFlow<MainUiState?> = MutableSharedFlow()
+  var navigationRequests: SharedFlow<MainUiState?> = _navigationRequests.asSharedFlow()
 
   /** The window insets determined by the activity. */
   val windowInsets: MutableLiveData<WindowInsetsCompat> = MutableLiveData()
@@ -62,7 +62,9 @@ constructor(
   init {
     viewModelScope.launch {
       // TODO: Check auth status whenever fragments resumes
-      authenticationManager.signInState.collect { _uiState.emit(onSignInStateChange(it)) }
+      authenticationManager.signInState.collect {
+        _navigationRequests.emit(onSignInStateChange(it))
+      }
     }
   }
 

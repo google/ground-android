@@ -50,10 +50,10 @@ constructor(
   private val rootDir: File?
     get() = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
-  private fun createImageFilename(fieldId: String): String =
+  private suspend fun createImageFilename(fieldId: String): String =
     fieldId + "-" + uuidGenerator.generateUuid() + Config.PHOTO_EXT
 
-  fun createImageFile(fieldId: String): File = File(rootDir, createImageFilename(fieldId))
+  suspend fun createImageFile(fieldId: String): File = File(rootDir, createImageFilename(fieldId))
 
   /**
    * Creates a new file from bitmap and saves under external app directory.
@@ -61,7 +61,7 @@ constructor(
    * @throws IOException If path is not accessible or error occurs while saving file
    */
   @Throws(IOException::class)
-  fun savePhoto(bitmap: Bitmap, fieldId: String): File =
+  suspend fun savePhoto(bitmap: Bitmap, fieldId: String): File =
     createImageFile(fieldId).apply {
       FileOutputStream(this).use { fos -> bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos) }
       Timber.d("Photo saved %s : %b", path, exists())

@@ -22,9 +22,12 @@ import androidx.work.Data
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
+import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.FAILED
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.IN_PROGRESS
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.PENDING
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.createInputData
@@ -59,7 +62,7 @@ constructor(
 
   private suspend fun doWorkInternal(): Result =
     try {
-      val mutations = getPendingOrEligibleFailedMutations()
+      val mutations = getIncompleteMutations()
       Timber.d("Syncing ${mutations.size} changes for LOI $locationOfInterestId")
       val result = processMutations(mutations)
       mediaUploadWorkManager.enqueueSyncWorker(locationOfInterestId)
@@ -70,16 +73,12 @@ constructor(
     }
 
   /**
-   * Attempts to fetch all mutations from the [MutationRepository] that are in `PENDING` state or in
-   * `FAILED` state but eligible for retry.
+   * Attempts to fetch all mutations from the [MutationRepository] that are `PENDING`, `FAILED`, or
+   * `IN_PROGRESS` state. The latter should never occur since only on worker should be scheduled per
+   * LOI at a given time.
    */
-  private suspend fun getPendingOrEligibleFailedMutations(): List<Mutation> {
-    val pendingMutations =
-      mutationRepository.getMutations(locationOfInterestId, MutationEntitySyncStatus.PENDING)
-    val failedMutationsEligibleForRetry =
-      mutationRepository.getMutations(locationOfInterestId, MutationEntitySyncStatus.FAILED)
-    return pendingMutations + failedMutationsEligibleForRetry
-  }
+  private suspend fun getIncompleteMutations(): List<Mutation> =
+    mutationRepository.getMutations(locationOfInterestId, PENDING, FAILED, IN_PROGRESS)
 
   /**
    * Groups mutations by user id, loads each user, applies mutations, and removes processed
@@ -123,6 +122,9 @@ constructor(
       // mutations have succeeded.
       Timber.d(t, "Local mutation sync failed")
       mutationRepository.markAsFailed(mutations, t)
+      val crashlytics = FirebaseCrashLogger()
+      crashlytics.setSelectedSurveyId(mutations.first().surveyId)
+      crashlytics.logException(t)
       false
     }
   }

@@ -59,6 +59,8 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
    */
   fun getAllSurveyMutationsFlow(survey: Survey): Flow<List<SubmissionMutation>>
 
+  fun getAllMutationsFlow(): Flow<List<SubmissionMutation>>
+
   suspend fun findByLocationOfInterestId(
     loidId: String,
     vararg states: MutationEntitySyncStatus,

@@ -19,18 +19,57 @@ import android.app.TimePickerDialog
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import com.google.android.ground.databinding.TimeTaskFragBinding
+import com.google.android.ground.model.submission.DateTimeTaskData
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
 import org.jetbrains.annotations.TestOnly
 
 @AndroidEntryPoint
 class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
 
   private var timePickerDialog: TimePickerDialog? = null
+
+  lateinit var timeText: LiveData<String>
+  lateinit var timeTextHint: LiveData<String>
+
+  override fun onTaskViewAttached() {
+    super.onTaskViewAttached()
+    timeText =
+      viewModel.taskTaskData
+        .filterIsInstance<DateTimeTaskData?>()
+        .map { taskData ->
+          if (taskData != null) {
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = taskData.timeInMillis
+            DateFormat.getTimeFormat(requireContext()).format(calendar.time)
+          } else {
+            ""
+          }
+        }
+        .asLiveData()
+
+    timeTextHint =
+      MutableLiveData<String>().apply {
+        val timeFormat = DateFormat.getTimeFormat(requireContext())
+        val hint =
+          if (timeFormat is SimpleDateFormat) {
+            timeFormat.toPattern().uppercase()
+          } else {
+            "HH:MM AM/PM" // Fallback hint if DateFormat is not SimpleDateFormat
+          }
+        value = hint
+      }
+  }
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
@@ -39,7 +78,6 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
     val taskBinding = TimeTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
     taskBinding.fragment = this
-    taskBinding.viewModel = viewModel
     return taskBinding.root
   }
 

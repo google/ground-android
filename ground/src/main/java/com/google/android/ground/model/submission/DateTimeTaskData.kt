@@ -15,26 +15,17 @@
  */
 package com.google.android.ground.model.submission
 
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
-/** A user-provided response to a date question task. */
+/** A user-provided response to a date and time question task. */
 @Serializable
-data class DateTaskData(val date: @Contextual Date) : TaskData {
-  // TODO(#752): Use device localization preferences.
-  private val dateFormat: @Contextual DateFormat =
-    SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+data class DateTimeTaskData(val timeInMillis: Long) : TaskData {
 
-  override fun getDetailsText(): String = synchronized(dateFormat) { dateFormat.format(date) }
+  override fun getDetailsText(): String = ""
 
-  override fun isEmpty(): Boolean = date.time == 0L
+  override fun isEmpty(): Boolean = timeInMillis == 0L
 
   companion object {
-    fun fromDate(date: Date?): TaskData? =
-      if (date == null || date.time == 0L) null else DateTaskData(date)
+    fun fromMillis(timeInMillis: Long): TaskData = DateTimeTaskData(timeInMillis)
   }
 }

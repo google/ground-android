@@ -28,10 +28,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import com.google.android.ground.model.submission.TaskData
 
-class TaskButton(val action: ButtonAction) {
+class TaskButton(initialAction: ButtonAction) {
 
   private lateinit var clickCallback: () -> Unit
 
+  private var action: MutableState<ButtonAction> = mutableStateOf(initialAction)
   private var enabled: MutableState<Boolean> = mutableStateOf(true)
   private var hidden: MutableState<Boolean> = mutableStateOf(false)
 
@@ -40,7 +41,7 @@ class TaskButton(val action: ButtonAction) {
   @Composable
   fun CreateButton() {
     if (!hidden.value) {
-      when (action.theme) {
+      when (action.value.theme) {
         ButtonAction.Theme.DARK_GREEN ->
           Button(onClick = { clickCallback() }, enabled = enabled.value) { Content() }
         ButtonAction.Theme.LIGHT_GREEN ->
@@ -58,15 +59,15 @@ class TaskButton(val action: ButtonAction) {
   @Composable
   private fun Content() {
     // Icon
-    action.drawableId?.let {
+    action.value.drawableId?.let {
       Icon(
         imageVector = ImageVector.vectorResource(id = it),
-        contentDescription = action.contentDescription?.let { resId -> stringResource(resId) },
+        contentDescription = action.value.contentDescription?.let { resId -> stringResource(resId) },
       )
     }
 
     // Label
-    action.textId?.let { textId -> Text(text = stringResource(id = textId)) }
+    action.value.textId?.let { textId -> Text(text = stringResource(id = textId)) }
   }
 
   /** Updates the `visibility` property button. */
@@ -74,6 +75,27 @@ class TaskButton(val action: ButtonAction) {
 
   /** Updates the `isEnabled` property of button. */
   fun enableIfTrue(result: Boolean): TaskButton = if (result) enable() else disable()
+
+  fun getAction(): ButtonAction = action.value
+
+  fun done(): TaskButton {
+    action.value = ButtonAction.DONE
+    return this
+  }
+
+  fun next(): TaskButton {
+    action.value = ButtonAction.NEXT
+    return this
+  }
+
+  fun toggleDone(done: Boolean): TaskButton {
+    if (action.value == ButtonAction.NEXT && done) {
+      done()
+    } else if (action.value == ButtonAction.DONE && !done) {
+      next()
+    }
+    return this
+  }
 
   fun show(): TaskButton {
     hidden.value = false

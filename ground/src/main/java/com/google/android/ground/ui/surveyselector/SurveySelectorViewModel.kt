@@ -54,6 +54,8 @@ internal constructor(
   private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.FetchingSurveys)
   val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
+  var surveyActivationInProgress = false
+
   init {
     viewModelScope.launch {
       getSurveyList().distinctUntilChanged().collect {
@@ -69,7 +71,15 @@ internal constructor(
     }
 
   /** Triggers the specified survey to be loaded and activated. */
-  fun activateSurvey(surveyId: String) =
+  fun activateSurvey(surveyId: String) {
+    synchronized(this) {
+      if (surveyActivationInProgress) {
+        // Ignore extra clicks while survey is loading, see #2729.
+        Timber.v("Ignoring extra survey click.")
+        return
+      }
+      surveyActivationInProgress = true
+    }
     viewModelScope.launch {
       runCatching {
           _uiState.emit(UiState.ActivatingSurvey)
@@ -77,15 +87,18 @@ internal constructor(
         }
         .fold(
           onSuccess = {
+            surveyActivationInProgress = false
             _uiState.emit(UiState.SurveyActivated)
             navigateToHomeScreen()
           },
           onFailure = { exception ->
             Timber.e(exception)
+            surveyActivationInProgress = false
             _uiState.emit(UiState.Error)
           },
         )
     }
+  }
 
   private fun navigateToHomeScreen() {
     navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())

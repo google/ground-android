@@ -15,6 +15,10 @@
  */
 package com.google.android.ground.ui.tos
 
+import android.text.Html
+import android.text.SpannableStringBuilder
+import android.view.View
+import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -32,6 +36,9 @@ import com.google.common.truth.Truth.assertThat
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import org.hamcrest.BaseMatcher
+import org.hamcrest.Description
+import org.hamcrest.Matcher
 import org.hamcrest.Matchers.not
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,11 +46,29 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
+@Suppress("StringShouldBeRawString")
 class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var navigator: Navigator
   @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepository
+
+  private fun withHtml(html: String): Matcher<View> =
+    object : BaseMatcher<View>() {
+      override fun describeTo(description: Description?) {
+        description?.apply { this.appendText(html) }
+      }
+
+      override fun matches(actual: Any?): Boolean {
+        val textView = actual as TextView
+        return Html.toHtml(SpannableStringBuilder(textView.text), 0) == html
+      }
+
+      override fun describeMismatch(item: Any?, description: Description?) {
+        description?.appendText(Html.toHtml(SpannableStringBuilder((item as TextView).text), 0))
+        super.describeMismatch(item, description)
+      }
+    }
 
   override fun setUp() {
     super.setUp()
@@ -56,7 +81,15 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
     onView(withId(R.id.termsText))
       .check(matches(isDisplayed()))
-      .check(matches(withText(TEST_TOS_TEXT)))
+      .check(matches(withText("This is a heading\n\nSample terms of service\n\n")))
+      .check(
+        matches(
+          withHtml(
+            "<p dir=\"ltr\"><span style=\"font-size:1.50em;\"><b>This is a heading</b></span></p>\n" +
+              "<p dir=\"ltr\">Sample terms of service</p>\n"
+          )
+        )
+      )
   }
 
   @Test
@@ -101,7 +134,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
   }
 
   companion object {
-    const val TEST_TOS_TEXT = "Sample terms of service"
+    const val TEST_TOS_TEXT = "# This is a heading\n\nSample terms of service"
     val TEST_TOS = TermsOfService("TERMS_OF_SERVICE", TEST_TOS_TEXT)
   }
 }

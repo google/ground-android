@@ -33,9 +33,12 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.HomeScreenFragBinding
 import com.google.android.ground.databinding.NavDrawerHeaderBinding
 import com.google.android.ground.model.User
+import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
+import com.google.android.ground.ui.common.EphemeralPopups
+import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.theme.AppTheme
 import com.google.android.ground.util.systemInsets
 import com.google.android.material.imageview.ShapeableImageView
@@ -56,6 +59,8 @@ class HomeScreenFragment :
   // TODO: It's not obvious which locations of interest are in HomeScreen vs MapContainer;
   //  make this more intuitive.
 
+  @Inject lateinit var ephemeralPopups: EphemeralPopups
+  @Inject lateinit var navigator: Navigator
   @Inject lateinit var userRepository: UserRepository
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -65,7 +70,6 @@ class HomeScreenFragment :
     super.onCreate(savedInstanceState)
     getViewModel(MainViewModel::class.java).windowInsets.observe(this) { onApplyWindowInsets(it) }
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    lifecycleScope.launch { homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() } }
   }
 
   override fun onCreateView(
@@ -76,12 +80,12 @@ class HomeScreenFragment :
     super.onCreateView(inflater, container, savedInstanceState)
     binding = HomeScreenFragBinding.inflate(inflater, container, false)
     binding.lifecycleOwner = this
+    lifecycleScope.launch { homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() } }
     return binding.root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    binding.versionText.text = String.format(getString(R.string.build), BuildConfig.VERSION_NAME)
     // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
     homeScreenViewModel.showOfflineAreaMenuItem.observe(viewLifecycleOwner) {
@@ -100,8 +104,26 @@ class HomeScreenFragment :
     updateNavHeader()
     // Re-open data collection screen if any drafts are present
     viewLifecycleOwner.lifecycleScope.launch {
-      homeScreenViewModel.maybeNavigateToDraftSubmission()
+      homeScreenViewModel.getDraftSubmission()?.let { draft ->
+        navigator.navigate(
+          HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+            draft.loiId,
+            draft.loiName ?: "",
+            draft.jobId,
+            true,
+            SubmissionDeltasConverter.toString(draft.deltas),
+          )
+        )
+
+        ephemeralPopups
+          .InfoPopup(binding.root, R.string.draft_restored, EphemeralPopups.PopupDuration.SHORT)
+          .show()
+      }
     }
+
+    val navigationView = view.findViewById<NavigationView>(R.id.nav_view)
+    val menuItem = navigationView.menu.findItem(R.id.nav_log_version)
+    menuItem.title = String.format(getString(R.string.build), BuildConfig.VERSION_NAME)
   }
 
   private fun updateNavHeader() =
@@ -154,21 +176,33 @@ class HomeScreenFragment :
     // compose.
     binding.composeView.apply {
       setContent {
-        val showUserDetailsDialog = remember { mutableStateOf(true) }
+        val showUserDetailsDialog = remember { mutableStateOf(false) }
         val showSignOutDialog = remember { mutableStateOf(false) }
 
-        // reset the state for recomposition
-        showUserDetailsDialog.value = true
-        showSignOutDialog.value = false
+        fun showUserDetailsDialog() {
+          showUserDetailsDialog.value = true
+          showSignOutDialog.value = false
+        }
+
+        fun showSignOutDialog() {
+          showUserDetailsDialog.value = false
+          showSignOutDialog.value = true
+        }
+
+        fun hideAllDialogs() {
+          showUserDetailsDialog.value = false
+          showSignOutDialog.value = false
+        }
+
+        // Init state for composition
+        showUserDetailsDialog()
 
         AppTheme {
           if (showUserDetailsDialog.value) {
-            UserDetailsDialog(showUserDetailsDialog, showSignOutDialog, user)
+            UserDetailsDialog(user, { showSignOutDialog() }, { hideAllDialogs() })
           }
           if (showSignOutDialog.value) {
-            SignOutConfirmationDialog(showUserDetailsDialog, showSignOutDialog) {
-              homeScreenViewModel.signOut()
-            }
+            SignOutConfirmationDialog({ homeScreenViewModel.signOut() }, { hideAllDialogs() })
           }
         }
       }

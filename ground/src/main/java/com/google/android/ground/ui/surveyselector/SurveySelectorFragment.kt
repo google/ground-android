@@ -55,11 +55,15 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
         showProgressDialog()
       }
       UiState.SurveyActivated -> {
-        dismissProgressDialog()
+        if (!viewModel.surveyActivationInProgress) {
+          dismissProgressDialog()
+        }
       }
       is UiState.SurveyListAvailable -> {
         handleSurveyListUpdated(uiState.surveys)
-        dismissProgressDialog()
+        if (!viewModel.surveyActivationInProgress) {
+          dismissProgressDialog()
+        }
       }
       is UiState.Error -> {
         dismissProgressDialog()
@@ -91,6 +95,13 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
     super.onViewCreated(view, savedInstanceState)
     binding.recyclerView.adapter = adapter
     getAbstractActivity().setSupportActionBar(binding.toolbar)
+
+    // TODO - https://github.com/google/ground-android/issues/2692#issuecomment-2430978043
+    if (parentFragmentManager.backStackEntryCount > 0) {
+      getAbstractActivity().supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    } else {
+      getAbstractActivity().supportActionBar?.setDisplayHomeAsUpEnabled(false)
+    }
   }
 
   fun showPopupMenu(view: View, surveyId: String) {

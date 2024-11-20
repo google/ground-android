@@ -17,13 +17,9 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
   <data>
-    <variable
-      name="viewModel"
-      type="com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel" />
     <variable
       name="fragment"
       type="com.google.android.ground.ui.datacollection.tasks.date.DateTaskFragment" />
@@ -45,8 +41,8 @@
       android:inputType="datetime"
       android:maxLines="1"
       android:onClick="@{__ -> fragment.showDateDialog()}"
-      android:text="@{viewModel.responseText}"
-      app:error="@{viewModel.error}"
+      android:text="@{fragment.dateText}"
+      android:hint="@{fragment.dateTextHint}"
       tools:text="@string/date" />
   </com.google.android.material.textfield.TextInputLayout>
 </layout>

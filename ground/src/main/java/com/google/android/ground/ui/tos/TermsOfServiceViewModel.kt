@@ -15,6 +15,8 @@
  */
 package com.google.android.ground.ui.tos
 
+import android.text.Html
+import android.text.Spanned
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
@@ -28,6 +30,9 @@ import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import javax.inject.Inject
 import kotlinx.coroutines.TimeoutCancellationException
+import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
+import org.intellij.markdown.html.HtmlGenerator
+import org.intellij.markdown.parser.MarkdownParser
 import timber.log.Timber
 
 class TermsOfServiceViewModel
@@ -40,10 +45,16 @@ constructor(
 ) : AbstractViewModel() {
   val agreeCheckboxChecked: MutableLiveData<Boolean> = MutableLiveData()
 
-  val termsOfServiceText: LiveData<String> = liveData {
+  val termsOfServiceText: LiveData<Spanned> = liveData {
     try {
-      val tos = termsOfServiceRepository.getTermsOfService()
-      emit(tos?.text ?: "")
+      val tos = termsOfServiceRepository.getTermsOfService()?.text ?: ""
+      val flavor = CommonMarkFlavourDescriptor()
+      val parser = MarkdownParser(flavor)
+      val html =
+        parser.buildMarkdownTreeFromString(tos).run {
+          HtmlGenerator(tos, this, CommonMarkFlavourDescriptor()).generateHtml()
+        }
+      emit(Html.fromHtml(html, 0))
     } catch (e: Throwable) {
       when (e) {
         is DataStoreException,

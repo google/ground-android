@@ -71,31 +71,31 @@ class MainViewModelTest : BaseHiltTest() {
     assertFailsWith<LocalDataStoreException> { userRepository.getUser(FakeData.USER.id) }
   }
 
-  private fun verifyUiState(uiState: MainUiState) = runWithTestDispatcher {
-    viewModel.uiState.test { assertThat(expectMostRecentItem()).isEqualTo(uiState) }
-  }
-
   @Test
   fun testSignInStateChanged_onSignedOut() = runWithTestDispatcher {
     setupUserPreferences()
 
-    fakeAuthenticationManager.signOut()
-    advanceUntilIdle()
+    viewModel.navigationRequests.test {
+      fakeAuthenticationManager.signOut()
+      advanceUntilIdle()
 
-    verifyUiState(MainUiState.OnUserSignedOut)
-    verifyUserPreferencesCleared()
-    verifyUserNotSaved()
-    assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+      assertThat(awaitItem()).isEqualTo(MainUiState.OnUserSignedOut)
+      verifyUserPreferencesCleared()
+      verifyUserNotSaved()
+      assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+    }
   }
 
   @Test
   fun testSignInStateChanged_onSigningIn() = runWithTestDispatcher {
-    fakeAuthenticationManager.setState(SignInState.SigningIn)
-    advanceUntilIdle()
+    viewModel.navigationRequests.test {
+      fakeAuthenticationManager.setState(SignInState.SigningIn)
+      advanceUntilIdle()
 
-    verifyUiState(MainUiState.OnUserSigningIn)
-    verifyUserNotSaved()
-    assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+      assertThat(awaitItem()).isEqualTo(MainUiState.OnUserSigningIn)
+      verifyUserNotSaved()
+      assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+    }
   }
 
   // TODO(#1612): Add back testSignInStateChanged_onSignedIn_whenTosAcceptedAndActiveSurveyAvailable
@@ -106,12 +106,14 @@ class MainViewModelTest : BaseHiltTest() {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
 
-    fakeAuthenticationManager.signIn()
-    advanceUntilIdle()
+    viewModel.navigationRequests.test {
+      fakeAuthenticationManager.signIn()
+      advanceUntilIdle()
 
-    verifyUiState(MainUiState.TosNotAccepted)
-    verifyUserSaved()
-    assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+      assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
+      verifyUserSaved()
+      assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+    }
   }
 
   @Test
@@ -119,12 +121,14 @@ class MainViewModelTest : BaseHiltTest() {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService = null
 
-    fakeAuthenticationManager.signIn()
-    advanceUntilIdle()
+    viewModel.navigationRequests.test {
+      fakeAuthenticationManager.signIn()
+      advanceUntilIdle()
 
-    verifyUiState(MainUiState.TosNotAccepted)
-    verifyUserSaved()
-    assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+      assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
+      verifyUserSaved()
+      assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+    }
   }
 
   @Test
@@ -138,12 +142,13 @@ class MainViewModelTest : BaseHiltTest() {
         )
       )
 
-    fakeAuthenticationManager.signIn()
-    advanceUntilIdle()
-
-    assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-    // TODO(#2667): Update these implementation to make it clearer why this would be the case.
-    verifyUiState(MainUiState.TosNotAccepted)
+    viewModel.navigationRequests.test {
+      fakeAuthenticationManager.signIn()
+      advanceUntilIdle()
+      // TODO(#2667): Update these implementation to make it clearer why this would be the case.
+      assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+      assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
+    }
   }
 
   @Test
@@ -152,23 +157,27 @@ class MainViewModelTest : BaseHiltTest() {
       tosRepository.isTermsOfServiceAccepted = false
       fakeRemoteDataStore.termsOfService = Result.failure(Error("user error"))
 
-      fakeAuthenticationManager.signIn()
-      advanceUntilIdle()
+      viewModel.navigationRequests.test {
+        fakeAuthenticationManager.signIn()
+        advanceUntilIdle()
 
-      assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-      verifyUiState(MainUiState.TosNotAccepted)
+        assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+        assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
+      }
     }
 
   @Test
   fun testSignInStateChanged_onSignInError() = runWithTestDispatcher {
     setupUserPreferences()
 
-    fakeAuthenticationManager.setState(SignInState.Error(Exception()))
-    advanceUntilIdle()
+    viewModel.navigationRequests.test {
+      fakeAuthenticationManager.setState(SignInState.Error(Exception()))
+      advanceUntilIdle()
 
-    verifyUiState(MainUiState.OnUserSignedOut)
-    verifyUserPreferencesCleared()
-    verifyUserNotSaved()
-    assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+      assertThat(awaitItem()).isEqualTo(MainUiState.OnUserSignedOut)
+      verifyUserPreferencesCleared()
+      verifyUserNotSaved()
+      assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+    }
   }
 }

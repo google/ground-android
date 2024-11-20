@@ -22,18 +22,25 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 @Singleton
 class FirebaseFirestoreProvider @Inject constructor(settings: FirebaseFirestoreSettings) :
   AsyncSingletonProvider<FirebaseFirestore>({
-    FirebaseFirestore.getInstance().also {
-      try {
-        it.firestoreSettings = settings
-      } catch (e: IllegalStateException) {
-        // Logging added for #2377.
-        Timber.e(e, "Singleton provider likely initialized multiple times")
-      }
+    // WARNING: `FirebaseFirestore.getInstance()` should only be called here and nowhere
+    // else since settings can only be set on first call. Inject FirebaseFirestore instead
+    // of calling `getInstance()` directly.
+    FirebaseFirestore.getInstance().apply {
+      setFirestoreSettings(this, settings)
       FirebaseFirestore.setLoggingEnabled(Config.FIRESTORE_LOGGING_ENABLED)
     }
   })
+
+private fun setFirestoreSettings(
+  firestore: FirebaseFirestore,
+  settings: FirebaseFirestoreSettings,
+) {
+  if (firestore.firestoreSettings == settings) {
+    return
+  }
+  firestore.firestoreSettings = settings
+}

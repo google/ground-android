@@ -16,20 +16,56 @@
 package com.google.android.ground.ui.datacollection.tasks.date
 
 import android.app.DatePickerDialog
+import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import com.google.android.ground.databinding.DateTaskFragBinding
+import com.google.android.ground.model.submission.DateTimeTaskData
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
 import org.jetbrains.annotations.TestOnly
 
 @AndroidEntryPoint
 class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
 
   private var datePickerDialog: DatePickerDialog? = null
+
+  lateinit var dateText: LiveData<String>
+  lateinit var dateTextHint: LiveData<String>
+
+  override fun onTaskViewAttached() {
+    super.onTaskViewAttached()
+    dateText =
+      viewModel.taskTaskData
+        .filterIsInstance<DateTimeTaskData?>()
+        .map { taskData ->
+          if (taskData != null) {
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = taskData.timeInMillis
+            DateFormat.getDateFormat(requireContext()).format(calendar.time)
+          } else {
+            ""
+          }
+        }
+        .asLiveData()
+
+    dateTextHint =
+      MutableLiveData<String>().apply {
+        val dateFormat = DateFormat.getDateFormat(requireContext()) as SimpleDateFormat
+        val pattern = dateFormat.toPattern()
+        val hint = pattern.uppercase()
+        value = hint
+      }
+  }
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
@@ -38,7 +74,6 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
     val taskBinding = DateTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
     taskBinding.fragment = this
-    taskBinding.viewModel = viewModel
     return taskBinding.root
   }
 

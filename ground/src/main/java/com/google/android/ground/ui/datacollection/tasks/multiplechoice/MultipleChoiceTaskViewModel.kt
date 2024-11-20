@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
-import android.content.res.Resources
 import android.text.Editable
 import android.text.TextWatcher
 import com.google.android.ground.model.job.Job
@@ -32,8 +31,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 
-class MultipleChoiceTaskViewModel @Inject constructor(resources: Resources) :
-  AbstractTaskViewModel(resources) {
+class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
   private val _items: MutableStateFlow<List<MultipleChoiceItem>> = MutableStateFlow(emptyList())
   val itemsFlow: Flow<List<MultipleChoiceItem>> = _items.asStateFlow().filterNotNull()

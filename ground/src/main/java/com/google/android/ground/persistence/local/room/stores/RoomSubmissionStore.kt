@@ -50,7 +50,9 @@ import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import timber.log.Timber
 
 /** Manages access to [Submission] objects persisted in local storage. */
@@ -60,6 +62,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   @Inject lateinit var submissionDao: SubmissionDao
   @Inject lateinit var submissionMutationDao: SubmissionMutationDao
   @Inject lateinit var userStore: RoomUserStore
+  @Inject lateinit var surveyStore: RoomSurveyStore
 
   /**
    * Attempts to retrieve the [Submission] associated with the given ID and [LocationOfInterest].
@@ -223,7 +226,18 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       .map { mutations ->
         mutations.filter { it.surveyId == survey.id }.map { it.toModelObject(survey) }
       }
-      .catch { Timber.e("ignoring invalid submission mutation:\n\t${it.message}") }
+      .catch { Timber.e("Ignoring invalid submission mutation", it) }
+
+  override fun getAllMutationsFlow(): Flow<List<SubmissionMutation>> =
+    submissionMutationDao
+      .getAllMutationsFlow()
+      .map { it.mapNotNull { mutation -> convertMutation(mutation) } }
+      .catch { Timber.e("ignoring invalid submission mutation", it) }
+
+  private suspend fun convertMutation(mutation: SubmissionMutationEntity): SubmissionMutation? {
+    val survey = surveyStore.getSurveyById(mutation.surveyId)
+    return survey?.let { mutation.toModelObject(survey) }
+  }
 
   override suspend fun findByLocationOfInterestId(
     loidId: String,
