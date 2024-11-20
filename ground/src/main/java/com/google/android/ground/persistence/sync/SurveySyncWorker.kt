@@ -37,6 +37,7 @@ class SurveySyncWorker
 constructor(
   @Assisted context: Context,
   @Assisted params: WorkerParameters,
+  private val firebaseCrashLogger: FirebaseCrashLogger,
   private val syncSurvey: SyncSurveyUseCase,
 ) : CoroutineWorker(context, params) {
   private val surveyId: String? = params.inputData.getString(SURVEY_ID_PARAM_KEY)
@@ -53,9 +54,8 @@ constructor(
       Timber.d("Syncing survey $surveyId")
       syncSurvey(surveyId)
     } catch (t: Throwable) {
-      val logger = FirebaseCrashLogger()
-      logger.setSelectedSurveyId(surveyId)
-      logger.logException(t)
+      firebaseCrashLogger.setSelectedSurveyId(surveyId)
+      Timber.e(t)
       return if (this.runAttemptCount > MAX_SYNC_WORKER_RETRY_ATTEMPTS) {
         Timber.v(t, "Survey sync failed too many times. Giving up.")
         Result.failure()

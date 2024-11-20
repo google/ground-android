@@ -50,6 +50,7 @@ class LocalMutationSyncWorker
 constructor(
   @Assisted context: Context,
   @Assisted params: WorkerParameters,
+  private val firebaseCrashLogger: FirebaseCrashLogger,
   private val mutationRepository: MutationRepository,
   private val localUserStore: LocalUserStore,
   private val remoteDataStore: RemoteDataStore,
@@ -125,9 +126,8 @@ constructor(
    */
   private suspend fun handleMutationSyncFailed(mutations: List<Mutation>, throwable: Throwable) {
     mutationRepository.markAsFailed(mutations, throwable)
-    val crashlytics = FirebaseCrashLogger()
-    crashlytics.setSelectedSurveyId(mutations.first().surveyId)
-    crashlytics.logException(throwable)
+    firebaseCrashLogger.setSelectedSurveyId(mutations.first().surveyId)
+    Timber.e(throwable)
   }
 
   companion object {
