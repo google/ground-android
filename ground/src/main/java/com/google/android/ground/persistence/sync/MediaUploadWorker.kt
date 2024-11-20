@@ -127,14 +127,12 @@ constructor(
   private suspend fun uploadPhotoMedia(photoTaskData: PhotoTaskData): kotlin.Result<Unit> {
     val path = photoTaskData.remoteFilename
     val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
-    if (!photoFile.exists()) {
-      val e = FileNotFoundException("Photo $path not found on device: ${photoFile.path}")
-      Timber.e("Photo not found at ${photoFile.path}")
-      return kotlin.Result.failure(e)
-    }
 
     Timber.d("Starting photo upload. local path: ${photoFile.path}, remote path: $path")
     return try {
+      if (!photoFile.exists()) {
+        throw FileNotFoundException(photoFile.path)
+      }
       remoteStorageManager.uploadMediaFromFile(photoFile, path)
       kotlin.Result.success(Unit)
     } catch (t: Throwable) {
