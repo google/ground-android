@@ -126,7 +126,7 @@ constructor(
    * upload attempt failed or succeeded.
    */
   private suspend fun uploadPhotoMedia(photoTaskData: PhotoTaskData): kotlin.Result<Unit> =
-     try {
+    try {
       val path = photoTaskData.remoteFilename
       val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
       Timber.d("Starting photo upload. local path: ${photoFile.path}, remote path: $path")
@@ -135,15 +135,13 @@ constructor(
       }
       remoteStorageManager.uploadMediaFromFile(photoFile, path)
       kotlin.Result.success(Unit)
+    } catch (t: FirebaseException) {
+      Timber.d(t, "Can't connect to Firebase to upload photo")
+      kotlin.Result.failure(t)
     } catch (t: Throwable) {
-      if (t is FirebaseException) {
-        Timber.d(t, "Can't connect to Firebase to upload photo")
-      } else {
-        Timber.e(t, "Failed to upload photo")
-      }
+      Timber.e(t, "Failed to upload photo")
       kotlin.Result.failure(t)
     }
-  }
 
   companion object {
     private const val LOI_ID = "locationOfInterestId"
