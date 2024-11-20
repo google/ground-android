@@ -94,7 +94,7 @@ constructor(
   private fun Throwable.isSignInCancelledException() =
     this is ApiException && statusCode == SIGN_IN_CANCELLED
 
-  fun onUserSignedOut(): MainUiState {
+  private fun onUserSignedOut(): MainUiState {
     // Scope of subscription is until view model is cleared. Dispose it manually otherwise, firebase
     // attempts to maintain a connection even after user has logged out and throws an error.
     surveyRepository.clearActiveSurvey()
