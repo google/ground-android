@@ -20,6 +20,8 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
+import androidx.work.ListenableWorker.Result.failure
+import androidx.work.ListenableWorker.Result.retry
 import androidx.work.WorkerParameters
 import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
@@ -35,8 +37,7 @@ class SurveySyncWorker
 @AssistedInject
 constructor(
   @Assisted context: Context,
-  @Assisted params: WorkerParameters,
-  @Assisted private val firebaseCrashLogger: FirebaseCrashLogger,
+  @Assisted params: WorkerParameters
   private val syncSurvey: SyncSurveyUseCase,
 ) : CoroutineWorker(context, params) {
   private val surveyId: String? = params.inputData.getString(SURVEY_ID_PARAM_KEY)
@@ -46,16 +47,15 @@ constructor(
   private suspend fun doWorkInternal(): Result {
     if (surveyId == null) {
       Timber.e("Survey sync scheduled with null surveyId")
-      return Result.failure()
+      return failure()
     }
 
     try {
       Timber.d("Syncing survey $surveyId")
       syncSurvey(surveyId)
     } catch (t: Throwable) {
-      firebaseCrashLogger.setSelectedSurveyId(surveyId)
-      Timber.e(t, "Survey sync failed. Retrying...")
-      Result.retry()
+      Timber.e(t, "Failed to sync survey $surveyId, retrying")
+      retry()
     }
 
     return Result.success()
