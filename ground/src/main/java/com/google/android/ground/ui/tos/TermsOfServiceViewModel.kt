@@ -21,13 +21,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import com.google.android.ground.R
-import com.google.android.ground.persistence.remote.DataStoreException
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
+import com.google.android.ground.util.isPermissionDeniedException
 import javax.inject.Inject
 import kotlinx.coroutines.TimeoutCancellationException
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
@@ -56,16 +56,10 @@ constructor(
         }
       emit(Html.fromHtml(html, 0))
     } catch (e: Throwable) {
-      when (e) {
-        is DataStoreException,
-        is TimeoutCancellationException -> {
-          onGetTosFailure()
-        }
-        else -> {
-          Timber.e(e, "Failed to load Terms of Service")
-          onGetTosFailure()
-        }
+      if (e !is TimeoutCancellationException && !e.isPermissionDeniedException()) {
+        Timber.e(e, "Failed to load Terms of Service")
       }
+      onGetTosFailure()
     }
   }
 
