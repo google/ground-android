@@ -60,7 +60,7 @@ class SurveySyncWorkerTest : BaseHiltTest() {
   }
 
   @Test
-  fun doWork_FailsOnNoInput() = runWithTestDispatcher {
+  fun `doWork() fails on no input`() = runWithTestDispatcher {
     val worker =
       TestListenableWorkerBuilder<SurveySyncWorker>(
           context,
@@ -73,7 +73,7 @@ class SurveySyncWorkerTest : BaseHiltTest() {
   }
 
   @Test
-  fun doWork_SucceedsOnValidSurvey() = runWithTestDispatcher {
+  fun `doWork() succeeds on valid survey`() = runWithTestDispatcher {
     `when`(syncSurvey(SURVEY.id)).thenReturn(SURVEY)
 
     val worker =
@@ -88,7 +88,7 @@ class SurveySyncWorkerTest : BaseHiltTest() {
   }
 
   @Test
-  fun doWork_RetriesOnFailure() = runWithTestDispatcher {
+  fun `doWork() retries on failure`() = runWithTestDispatcher {
     `when`(syncSurvey(SURVEY.id)).thenThrow(NotFoundException())
 
     val worker =

@@ -22,8 +22,8 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.ListenableWorker.Result.failure
 import androidx.work.ListenableWorker.Result.retry
+import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
-import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -53,12 +53,11 @@ constructor(
     try {
       Timber.d("Syncing survey $surveyId")
       syncSurvey(surveyId)
+      return success()
     } catch (t: Throwable) {
       Timber.e(t, "Failed to sync survey $surveyId, retrying")
-      retry()
+      return retry()
     }
-
-    return Result.success()
   }
 
   companion object {
