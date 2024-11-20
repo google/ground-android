@@ -21,7 +21,6 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
-import com.google.android.ground.Config.MAX_SYNC_WORKER_RETRY_ATTEMPTS
 import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
 import dagger.assisted.Assisted
@@ -55,13 +54,8 @@ constructor(
       syncSurvey(surveyId)
     } catch (t: Throwable) {
       firebaseCrashLogger.setSelectedSurveyId(surveyId)
-      return if (this.runAttemptCount > MAX_SYNC_WORKER_RETRY_ATTEMPTS) {
-        Timber.e(t, "Survey sync failed too many times. Giving up.")
-        Result.failure()
-      } else {
-        Timber.e(t, "Survey sync failed. Retrying...")
-        Result.retry()
-      }
+      Timber.e(t, "Survey sync failed. Retrying...")
+      Result.retry()
     }
 
     return Result.success()
