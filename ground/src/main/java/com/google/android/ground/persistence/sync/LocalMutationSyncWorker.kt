@@ -131,7 +131,7 @@ constructor(
   private suspend fun getUser(userId: String): User? {
     val user = localUserStore.getUserOrNull(userId)
     if (user == null) {
-      Timber.e("User account removed before mutation processed")
+      Timber.e("User removed before mutation could be processed")
     }
     return user
   }

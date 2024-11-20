@@ -128,10 +128,9 @@ constructor(
     val path = photoTaskData.remoteFilename
     val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
     if (!photoFile.exists()) {
-      Timber.e("Photo not found. local path: ${photoFile.path}, remote path: $path")
-      return kotlin.Result.failure(
-        FileNotFoundException("Photo $path not found on device: ${photoFile.path}")
-      )
+      val e = FileNotFoundException("Photo $path not found on device: ${photoFile.path}")
+      Timber.e("Photo not found at ${photoFile.path}")
+      return kotlin.Result.failure(e)
     }
 
     Timber.d("Starting photo upload. local path: ${photoFile.path}, remote path: $path")

@@ -62,7 +62,7 @@ constructor(
           onGetTosFailure()
         }
         else -> {
-          Timber.e("Unexpected error: ${e.message}")
+          Timber.e(e, "Failed to load Terms of Service")
           onGetTosFailure()
         }
       }

@@ -226,13 +226,13 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       .map { mutations ->
         mutations.filter { it.surveyId == survey.id }.map { it.toModelObject(survey) }
       }
-      .catch { Timber.e("Ignoring invalid submission mutation", it) }
+      .catch { Timber.e("Ignoring invalid submission mutation $it") }
 
   override fun getAllMutationsFlow(): Flow<List<SubmissionMutation>> =
     submissionMutationDao
       .getAllMutationsFlow()
       .map { it.mapNotNull { mutation -> convertMutation(mutation) } }
-      .catch { Timber.e("ignoring invalid submission mutation", it) }
+      .catch { Timber.e("ignoring invalid submission mutation $it") }
 
   private suspend fun convertMutation(mutation: SubmissionMutationEntity): SubmissionMutation? {
     val survey = surveyStore.getSurveyById(mutation.surveyId)

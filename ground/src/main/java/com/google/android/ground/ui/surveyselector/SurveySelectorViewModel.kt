@@ -91,8 +91,8 @@ internal constructor(
             _uiState.emit(UiState.SurveyActivated)
             navigateToHomeScreen()
           },
-          onFailure = { exception ->
-            Timber.e(exception)
+          onFailure = { e ->
+            Timber.e(e, "Failed to activate survey")
             surveyActivationInProgress = false
             _uiState.emit(UiState.Error)
           },
