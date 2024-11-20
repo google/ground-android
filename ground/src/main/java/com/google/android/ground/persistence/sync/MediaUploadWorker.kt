@@ -125,12 +125,11 @@ constructor(
    * Attempts to upload a single photo to remote storage. Returns an [Result] indicating whether the
    * upload attempt failed or succeeded.
    */
-  private suspend fun uploadPhotoMedia(photoTaskData: PhotoTaskData): kotlin.Result<Unit> {
-    val path = photoTaskData.remoteFilename
-    val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
-
-    Timber.d("Starting photo upload. local path: ${photoFile.path}, remote path: $path")
-    return try {
+  private suspend fun uploadPhotoMedia(photoTaskData: PhotoTaskData): kotlin.Result<Unit> =
+     try {
+      val path = photoTaskData.remoteFilename
+      val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
+      Timber.d("Starting photo upload. local path: ${photoFile.path}, remote path: $path")
       if (!photoFile.exists()) {
         throw FileNotFoundException(photoFile.path)
       }
@@ -138,9 +137,9 @@ constructor(
       kotlin.Result.success(Unit)
     } catch (t: Throwable) {
       if (t is FirebaseException) {
-        Timber.d(t, "Can't connect to Firebase to upload ${photoFile.path} to $path")
+        Timber.d(t, "Can't connect to Firebase to upload photo")
       } else {
-        Timber.e(t, "Failed uploading photo ${photoFile.path} to $path")
+        Timber.e(t, "Failed to upload photo")
       }
       kotlin.Result.failure(t)
     }
