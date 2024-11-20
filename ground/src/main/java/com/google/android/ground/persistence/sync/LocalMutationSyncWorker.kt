@@ -22,7 +22,6 @@ import androidx.work.Data
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
-import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.FAILED
@@ -52,7 +51,7 @@ constructor(
   private val mutationRepository: MutationRepository,
   private val localUserStore: LocalUserStore,
   private val remoteDataStore: RemoteDataStore,
-  private val mediaUploadWorkManager: MediaUploadWorkManager
+  private val mediaUploadWorkManager: MediaUploadWorkManager,
 ) : CoroutineWorker(context, params) {
 
   private val locationOfInterestId: String =
