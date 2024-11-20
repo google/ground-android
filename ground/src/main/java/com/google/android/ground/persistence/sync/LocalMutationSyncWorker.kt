@@ -33,6 +33,7 @@ import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.createInputData
 import com.google.android.ground.repository.MutationRepository
+import com.google.android.ground.repository.UserRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +56,7 @@ constructor(
   private val localUserStore: LocalUserStore,
   private val remoteDataStore: RemoteDataStore,
   private val mediaUploadWorkManager: MediaUploadWorkManager,
+  private val userRepository: UserRepository,
 ) : CoroutineWorker(context, params) {
 
   private val locationOfInterestId: String =
@@ -96,7 +98,7 @@ constructor(
       mutationRepository.finalizePendingMutationsForMediaUpload(mutations)
       success()
     } catch (t: Throwable) {
-      Timber.d(t, "Local mutation sync failed")
+      Timber.e(t)
       handleMutationSyncFailed(mutations, t)
       retry()
     }
@@ -110,7 +112,9 @@ constructor(
     val userIds = mutations.map { it.userId }.toSet()
 
     check(userIds.size == 1) { "Found mutations for multiple users" }
-    // TODO: Add a check to assert that the user id matches the currently logged in user.
+    check(userRepository.getAuthenticatedUser().id == userIds.first()) {
+      "User ${userIds.first()} doesn't match logged in user ${userRepository.getAuthenticatedUser().id} "
+    }
 
     val user = localUserStore.getUserOrNull(userIds.first())
     if (user == null) {
@@ -127,7 +131,6 @@ constructor(
   private suspend fun handleMutationSyncFailed(mutations: List<Mutation>, throwable: Throwable) {
     mutationRepository.markAsFailed(mutations, throwable)
     firebaseCrashLogger.setSelectedSurveyId(mutations.first().surveyId)
-    Timber.e(throwable)
   }
 
   companion object {
