@@ -28,7 +28,7 @@ interface LocalLocationOfInterestStore :
    * Returns a main-safe flow that emits the full set of LOIs for a survey on subscribe, and
    * continues to return the full set each time a LOI is added/changed/removed.
    */
-  fun findLocationsOfInterest(survey: Survey): Flow<Set<LocationOfInterest>>
+  fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>>
 
   /** Returns the LOI with the specified UUID from the local data store, if found. */
   suspend fun getLocationOfInterest(

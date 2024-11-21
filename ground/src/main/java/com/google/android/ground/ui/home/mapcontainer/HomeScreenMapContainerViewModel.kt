@@ -92,7 +92,7 @@ internal constructor(
    */
   val surveyUpdateFlow: Flow<SurveyProperties> =
     activeSurvey.filterNotNull().map { survey ->
-      val lois = loiRepository.getLocationsOfInterests(survey).first()
+      val lois = loiRepository.getValidLois(survey).first()
       val addLoiPermitted = survey.jobs.any { job -> job.canDataCollectorsAddLois }
       SurveyProperties(addLoiPermitted = addLoiPermitted, noLois = lois.isEmpty())
     }
@@ -221,9 +221,7 @@ internal constructor(
     localValueStore.setDataSharingConsent(survey.id, dataSharingTerms)
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
-    loiRepository.getLocationsOfInterests(survey).map {
-      it.map { loi -> loi.toFeature() }.toPersistentSet()
-    }
+    loiRepository.getValidLois(survey).map { it.map { loi -> loi.toFeature() }.toPersistentSet() }
 
   private suspend fun LocationOfInterest.toFeature() =
     Feature(
