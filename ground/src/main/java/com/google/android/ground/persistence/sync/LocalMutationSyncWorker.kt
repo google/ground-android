@@ -111,12 +111,20 @@ constructor(
   private suspend fun getUserFromMutations(mutations: List<Mutation>): User? {
     val userIds = mutations.map { it.userId }.toSet()
 
-    check(userIds.size == 1) { "Found mutations for multiple users" }
-    check(userRepository.getAuthenticatedUser().id == userIds.first()) {
-      "User ${userIds.first()} doesn't match logged in user ${userRepository.getAuthenticatedUser().id} "
+    if (userIds.size != 1) {
+      Timber.e("Expected exactly one user_id, but found ${userIds.size}")
+      return null
     }
 
-    val user = localUserStore.getUserOrNull(userIds.first())
+    val userId = userIds.first()
+    val loggedInUserId = userRepository.getAuthenticatedUser().id
+
+    if (loggedInUserId != userId) {
+      Timber.e("Expected mutations for user $loggedInUserId, but found $userId")
+      return null
+    }
+
+    val user = localUserStore.getUserOrNull(userId)
     if (user == null) {
       Timber.e("User removed before mutation processed. Removing %d mutations", mutations.size)
       mutationRepository.finalizeDeletions(mutations)
