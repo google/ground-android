@@ -56,12 +56,15 @@ constructor(
         }
       emit(Html.fromHtml(html, 0))
     } catch (e: Throwable) {
-      if (e !is TimeoutCancellationException && !e.isPermissionDeniedException()) {
+      if (e.isExpectedFailure()) {
         Timber.e(e, "Failed to load Terms of Service")
       }
       onGetTosFailure()
     }
   }
+
+  private fun Throwable.isExpectedFailure() =
+    this is TimeoutCancellationException || isPermissionDeniedException()
 
   private fun onGetTosFailure() {
     popups.ErrorPopup().show(R.string.load_tos_failed)
