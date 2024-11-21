@@ -126,7 +126,7 @@ constructor(
 
     val user = localUserStore.getUserOrNull(userId)
     if (user == null) {
-      Timber.e("User removed before mutation processed. Removing %d mutations", mutations.size)
+      Timber.e("User removed before mutation processed. Removing ${mutations.size} mutations")
       mutationRepository.finalizeDeletions(mutations)
     }
     return user
