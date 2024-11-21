@@ -110,11 +110,9 @@ constructor(
     if (userIds.size != 1) {
       Timber.e("Expected exactly 1 user, but found ${userIds.size}")
     }
-    val filteredMutations = mutations.filter { it.userId == user.id }
-    if (mutations.isNotEmpty() && filteredMutations.isEmpty()) {
-      Timber.e("Could not find mutations for the logged in user")
-    }
-    return filteredMutations
+    val (validMutations, invalidMutations) = mutations.partition { it.userId == user.id }
+    invalidMutations.forEach { Timber.e("Invalid mutation: $it") }
+    return validMutations
   }
 
   companion object {
