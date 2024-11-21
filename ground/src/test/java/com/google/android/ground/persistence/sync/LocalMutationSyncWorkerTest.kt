@@ -36,10 +36,12 @@ import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.LOCATION_OF_INTEREST_ID_PARAM_KEY
 import com.google.android.ground.repository.MutationRepository
+import com.google.android.ground.repository.UserRepository
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
+import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
@@ -60,6 +62,8 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
+  @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
+
   @Inject lateinit var localLocationOfInterestStore: LocalLocationOfInterestStore
 
   @Inject lateinit var localSubmissionStore: LocalSubmissionStore
@@ -69,6 +73,8 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   @Inject lateinit var localUserStore: LocalUserStore
 
   @Inject lateinit var mutationRepository: MutationRepository
+
+  @Inject lateinit var userRepository: UserRepository
 
   private val factory =
     object : WorkerFactory() {
@@ -84,6 +90,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
           localUserStore,
           fakeRemoteDataStore,
           mockMediaUploadWorkManager,
+          userRepository,
         )
     }
 
@@ -92,6 +99,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     super.setUp()
     context = ApplicationProvider.getApplicationContext()
     runBlocking {
+      fakeAuthenticationManager.setUser(FakeData.USER.copy(id = TEST_USER_ID))
       localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = TEST_USER_ID))
       localSurveyStore.insertOrUpdateSurvey(FakeData.SURVEY.copy(id = TEST_SURVEY_ID))
     }
