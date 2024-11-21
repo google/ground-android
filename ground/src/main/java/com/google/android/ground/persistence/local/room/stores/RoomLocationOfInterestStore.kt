@@ -49,8 +49,8 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
    * local database and returns a [Flow] that continually emits the complete set anew any time the
    * underlying table changes (insertions, deletions, updates).
    */
-  override fun findLocationsOfInterest(survey: Survey) =
-    locationOfInterestDao.findByState(survey.id, EntityDeletionState.DEFAULT).map {
+  override fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
+    locationOfInterestDao.getByDeletionState(survey.id, EntityDeletionState.DEFAULT).map {
       toLocationsOfInterest(survey, it)
     }
 

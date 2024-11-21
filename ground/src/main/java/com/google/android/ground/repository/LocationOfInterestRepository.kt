@@ -142,7 +142,7 @@ constructor(
 
   /** Returns a flow of all [LocationOfInterest] associated with the given [Survey]. */
   fun getLocationsOfInterests(survey: Survey): Flow<Set<LocationOfInterest>> =
-    localLoiStore.findLocationsOfInterest(survey)
+    localLoiStore.getValidLois(survey)
 
   /** Returns a list of geometries associated with the given [Survey]. */
   suspend fun getAllGeometries(survey: Survey): List<Geometry> =

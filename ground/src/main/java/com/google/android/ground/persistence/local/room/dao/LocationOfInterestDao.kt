@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.Flow
 interface LocationOfInterestDao : BaseDao<LocationOfInterestEntity> {
 
   @Query("SELECT * FROM location_of_interest WHERE survey_id = :surveyId AND state = :state")
-  fun findByState(
+  fun getByDeletionState(
     surveyId: String,
     state: EntityDeletionState,
   ): Flow<List<LocationOfInterestEntity>>
