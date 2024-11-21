@@ -56,7 +56,7 @@ constructor(
         }
       emit(Html.fromHtml(html, 0))
     } catch (e: Throwable) {
-      if (e.isExpectedFailure()) {
+      if (!e.isExpectedFailure()) {
         Timber.e(e, "Failed to load Terms of Service")
       }
       onGetTosFailure()
