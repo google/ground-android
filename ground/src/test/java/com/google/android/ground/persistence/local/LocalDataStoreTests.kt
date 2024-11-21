@@ -39,7 +39,7 @@ import com.google.android.ground.persistence.local.room.converter.formatVertices
 import com.google.android.ground.persistence.local.room.converter.parseVertices
 import com.google.android.ground.persistence.local.room.dao.LocationOfInterestDao
 import com.google.android.ground.persistence.local.room.dao.SubmissionDao
-import com.google.android.ground.persistence.local.room.fields.EntityState
+import com.google.android.ground.persistence.local.room.fields.EntityDeletionState
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
@@ -287,7 +287,8 @@ class LocalDataStoreTests : BaseHiltTest() {
     localSubmissionStore.applyAndEnqueue(mutation)
 
     // Verify that local entity exists and its state is updated.
-    assertThat(submissionDao.findById("submission id")?.state).isEqualTo(EntityState.DELETED)
+    assertThat(submissionDao.findById("submission id")?.state)
+      .isEqualTo(EntityDeletionState.DELETED)
 
     // Verify that the local submission doesn't end up in getSubmissions().
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, FakeData.LOI_ID)!!
@@ -320,8 +321,8 @@ class LocalDataStoreTests : BaseHiltTest() {
     localLoiStore.applyAndEnqueue(mutation)
 
     // Verify that local entity exists but its state is updated to DELETED.
-    assertThat(locationOfInterestDao.findById(FakeData.LOI_ID)?.state)
-      .isEqualTo(EntityState.DELETED)
+    assertThat(locationOfInterestDao.findById(FakeData.LOI_ID)?.deletionState)
+      .isEqualTo(EntityDeletionState.DELETED)
 
     // Verify that the local LOI is now removed from the latest LOI stream.
     localLoiStore.findLocationsOfInterest(TEST_SURVEY).test {

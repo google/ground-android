@@ -21,7 +21,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.google.android.ground.model.locationofinterest.LoiProperties
-import com.google.android.ground.persistence.local.room.fields.EntityState
+import com.google.android.ground.persistence.local.room.fields.EntityDeletionState
 
 /**
  * Defines how Room persists LOIs in the local db. By default, Room uses the name of object fields
@@ -32,7 +32,7 @@ data class LocationOfInterestEntity(
   @ColumnInfo(name = "id") @PrimaryKey val id: String,
   @ColumnInfo(name = "survey_id") val surveyId: String,
   @ColumnInfo(name = "job_id") val jobId: String,
-  @ColumnInfo(name = "state") val state: EntityState, // TODO: Rename to DeletionState.
+  @ColumnInfo(name = "state") val deletionState: EntityDeletionState,
   @Embedded(prefix = "created_") val created: AuditInfoEntity,
   @Embedded(prefix = "modified_") val lastModified: AuditInfoEntity,
   val geometry: GeometryWrapper?,

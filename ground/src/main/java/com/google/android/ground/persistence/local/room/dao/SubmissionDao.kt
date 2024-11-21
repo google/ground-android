@@ -18,7 +18,7 @@ package com.google.android.ground.persistence.local.room.dao
 import androidx.room.Dao
 import androidx.room.Query
 import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
-import com.google.android.ground.persistence.local.room.fields.EntityState
+import com.google.android.ground.persistence.local.room.fields.EntityDeletionState
 
 @Dao
 interface SubmissionDao : BaseDao<SubmissionEntity> {
@@ -38,6 +38,6 @@ interface SubmissionDao : BaseDao<SubmissionEntity> {
   suspend fun findByLocationOfInterestId(
     locationOfInterestId: String,
     jobId: String,
-    state: EntityState,
+    state: EntityDeletionState,
   ): List<SubmissionEntity>?
 }

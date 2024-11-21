@@ -52,7 +52,7 @@ import com.google.android.ground.persistence.local.room.entity.SubmissionMutatio
 import com.google.android.ground.persistence.local.room.entity.SurveyEntity
 import com.google.android.ground.persistence.local.room.entity.TaskEntity
 import com.google.android.ground.persistence.local.room.entity.UserEntity
-import com.google.android.ground.persistence.local.room.fields.EntityState
+import com.google.android.ground.persistence.local.room.fields.EntityDeletionState
 import com.google.android.ground.persistence.local.room.fields.ExpressionEntityType
 import com.google.android.ground.persistence.local.room.fields.MatchEntityType
 import com.google.android.ground.persistence.local.room.fields.MultipleChoiceEntityType
@@ -96,7 +96,7 @@ import com.google.android.ground.persistence.local.room.fields.TileSetEntityStat
   MatchEntityType::class,
   ExpressionEntityType::class,
   MutationEntityType::class,
-  EntityState::class,
+  EntityDeletionState::class,
   GeometryWrapperTypeConverter::class,
   JsonArrayTypeConverter::class,
   JsonObjectTypeConverter::class,

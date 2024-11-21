@@ -18,7 +18,7 @@ package com.google.android.ground.persistence.local.room.dao
 import androidx.room.Dao
 import androidx.room.Query
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
-import com.google.android.ground.persistence.local.room.fields.EntityState
+import com.google.android.ground.persistence.local.room.fields.EntityDeletionState
 import kotlinx.coroutines.flow.Flow
 
 /** Provides low-level read/write operations of [LocationOfInterestEntity] to/from the local db. */
@@ -26,7 +26,10 @@ import kotlinx.coroutines.flow.Flow
 interface LocationOfInterestDao : BaseDao<LocationOfInterestEntity> {
 
   @Query("SELECT * FROM location_of_interest WHERE survey_id = :surveyId AND state = :state")
-  fun findByState(surveyId: String, state: EntityState): Flow<List<LocationOfInterestEntity>>
+  fun findByState(
+    surveyId: String,
+    state: EntityDeletionState,
+  ): Flow<List<LocationOfInterestEntity>>
 
   @Query("SELECT * FROM location_of_interest WHERE id = :id")
   suspend fun findById(id: String): LocationOfInterestEntity?
