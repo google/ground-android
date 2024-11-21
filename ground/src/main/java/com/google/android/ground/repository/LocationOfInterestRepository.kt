@@ -140,17 +140,17 @@ constructor(
     mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
   }
 
-  /** Returns a flow of all [LocationOfInterest] associated with the given [Survey]. */
-  fun getLocationsOfInterests(survey: Survey): Flow<Set<LocationOfInterest>> =
+  /** Returns a flow of all valid (not deleted) [LocationOfInterest] in the given [Survey]. */
+  fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
     localLoiStore.getValidLois(survey)
 
   /** Returns a list of geometries associated with the given [Survey]. */
   suspend fun getAllGeometries(survey: Survey): List<Geometry> =
-    getLocationsOfInterests(survey).first().map { it.geometry }
+    getValidLois(survey).first().map { it.geometry }
 
   /** Returns a flow of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBounds(survey: Survey, bounds: Bounds): Flow<List<LocationOfInterest>> =
-    getLocationsOfInterests(survey)
+    getValidLois(survey)
       .map { lois -> lois.filter { bounds.contains(it.geometry) } }
       .distinctUntilChanged()
 }
