@@ -221,9 +221,7 @@ internal constructor(
     localValueStore.setDataSharingConsent(survey.id, dataSharingTerms)
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
-    loiRepository.getValidLois(survey).map {
-      it.map { loi -> loi.toFeature() }.toPersistentSet()
-    }
+    loiRepository.getValidLois(survey).map { it.map { loi -> loi.toFeature() }.toPersistentSet() }
 
   private suspend fun LocationOfInterest.toFeature() =
     Feature(
