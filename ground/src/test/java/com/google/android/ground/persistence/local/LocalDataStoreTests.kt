@@ -287,7 +287,7 @@ class LocalDataStoreTests : BaseHiltTest() {
     localSubmissionStore.applyAndEnqueue(mutation)
 
     // Verify that local entity exists and its state is updated.
-    assertThat(submissionDao.findById("submission id")?.state)
+    assertThat(submissionDao.findById("submission id")?.deletionState)
       .isEqualTo(EntityDeletionState.DELETED)
 
     // Verify that the local submission doesn't end up in getSubmissions().
@@ -325,9 +325,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       .isEqualTo(EntityDeletionState.DELETED)
 
     // Verify that the local LOI is now removed from the latest LOI stream.
-    localLoiStore.getValidLois(TEST_SURVEY).test {
-      assertThat(expectMostRecentItem()).isEmpty()
-    }
+    localLoiStore.getValidLois(TEST_SURVEY).test { assertThat(expectMostRecentItem()).isEmpty() }
 
     // After successful remote sync, delete LOI is called by LocalMutationSyncWorker.
     localLoiStore.deleteLocationOfInterest(FakeData.LOI_ID)

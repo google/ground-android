@@ -306,7 +306,7 @@ fun Submission.toLocalDataStoreObject() =
     id = this.id,
     jobId = this.job.id,
     locationOfInterestId = this.locationOfInterest.id,
-    state = EntityDeletionState.DEFAULT,
+    deletionState = EntityDeletionState.DEFAULT,
     data = SubmissionDataConverter.toString(this.data),
     created = this.created.toLocalDataStoreObject(),
     lastModified = this.lastModified.toLocalDataStoreObject(),
@@ -319,7 +319,7 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
     id = this.submissionId,
     jobId = this.job.id,
     locationOfInterestId = this.locationOfInterestId,
-    state = EntityDeletionState.DEFAULT,
+    deletionState = EntityDeletionState.DEFAULT,
     data = SubmissionDataConverter.toString(SubmissionData().copyWithDeltas(this.deltas)),
     // TODO(#1562): Preserve creation audit info for UPDATE mutations.
     created = auditInfo,
