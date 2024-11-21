@@ -67,7 +67,7 @@ constructor(
       Timber.d("Syncing ${mutations.size} changes for LOI $locationOfInterestId")
       val result = processMutations(mutations)
       mediaUploadWorkManager.enqueueSyncWorker(locationOfInterestId)
-      result
+      if (result) success() else retry()
     } catch (t: Throwable) {
       Timber.e(t, "Failed to sync changes for LOI $locationOfInterestId")
       retry()
@@ -84,22 +84,22 @@ constructor(
   /**
    * Applies mutations to remote data store. Once successful, removes them from the local db.
    *
-   * @return `success` if the mutations were successfully synced with [RemoteDataStore].
+   * @return `true` if the mutations were successfully synced with [RemoteDataStore].
    */
-  private suspend fun processMutations(mutations: List<Mutation>): Result {
-    if (mutations.isEmpty()) return success()
+  private suspend fun processMutations(mutations: List<Mutation>): Boolean {
+    if (mutations.isEmpty()) return true
     return try {
       val user = getUserFromMutations(mutations)
       mutationRepository.markAsInProgress(mutations)
       remoteDataStore.applyMutations(mutations, user)
       mutationRepository.finalizePendingMutationsForMediaUpload(mutations)
-      success()
+      true
     } catch (t: Throwable) {
       // Mark all mutations as having failed since the remote datastore only commits when all
       // mutations have succeeded.
       mutationRepository.markAsFailed(mutations, t)
       Timber.e(t, "Failed to sync survey ${mutations.first().surveyId}")
-      retry()
+      false
     }
   }
 
