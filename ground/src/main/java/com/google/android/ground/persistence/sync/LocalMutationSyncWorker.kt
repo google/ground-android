@@ -106,20 +106,17 @@ constructor(
   /** Returns a valid user associated with the mutations. */
   private suspend fun getUserFromMutations(mutations: List<Mutation>): User {
     val userIds = mutations.map { it.userId }.toSet()
-
-    if (userIds.size != 1) {
-      throw Error("Expected exactly 1 user, but found ${userIds.size}")
-    }
+    check(userIds.size == 1) { "Expected exactly 1 user, but found ${userIds.size}" }
 
     val userId = userIds.first()
     val loggedInUserId = userRepository.getAuthenticatedUser().id
-
-    if (loggedInUserId != userId) {
-      throw Error("Expected mutations for user '$loggedInUserId', but found '$userId'")
+    check(loggedInUserId == userId) {
+      "Expected mutations for user '$loggedInUserId', but found '$userId'"
     }
 
-    return localUserStore.getUserOrNull(userId)
-      ?: throw Error("User removed before mutation processed")
+    return checkNotNull(localUserStore.getUserOrNull(userId)) {
+      "User removed before mutation processed"
+    }
   }
 
   companion object {
