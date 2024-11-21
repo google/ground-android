@@ -20,9 +20,10 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
+import androidx.work.ListenableWorker.Result.failure
+import androidx.work.ListenableWorker.Result.retry
+import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
-import com.google.android.ground.Config.MAX_SYNC_WORKER_RETRY_ATTEMPTS
-import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -46,26 +47,17 @@ constructor(
   private suspend fun doWorkInternal(): Result {
     if (surveyId == null) {
       Timber.e("Survey sync scheduled with null surveyId")
-      return Result.failure()
+      return failure()
     }
 
     try {
       Timber.d("Syncing survey $surveyId")
       syncSurvey(surveyId)
+      return success()
     } catch (t: Throwable) {
-      val logger = FirebaseCrashLogger()
-      logger.setSelectedSurveyId(surveyId)
-      logger.logException(t)
-      return if (this.runAttemptCount > MAX_SYNC_WORKER_RETRY_ATTEMPTS) {
-        Timber.v(t, "Survey sync failed too many times. Giving up.")
-        Result.failure()
-      } else {
-        Timber.v(t, "Survey sync. Retrying...")
-        Result.retry()
-      }
+      Timber.e(t, "Failed to sync survey $surveyId, retrying")
+      return retry()
     }
-
-    return Result.success()
   }
 
   companion object {

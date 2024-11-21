@@ -115,7 +115,7 @@ constructor(
     }
 
     return checkNotNull(localUserStore.getUserOrNull(userId)) {
-      "User removed before mutation processed"
+      "User removed before mutation could be processed"
     }
   }
 
