@@ -19,7 +19,6 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
-import androidx.work.ListenableWorker.Result.failure
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
@@ -89,8 +88,8 @@ constructor(
    */
   private suspend fun processMutations(mutations: List<Mutation>): Result {
     if (mutations.isEmpty()) return success()
-    val user = getUserFromMutations(mutations) ?: return failure()
     return try {
+      val user = getUserFromMutations(mutations)
       mutationRepository.markAsInProgress(mutations)
       remoteDataStore.applyMutations(mutations, user)
       mutationRepository.finalizePendingMutationsForMediaUpload(mutations)
@@ -104,32 +103,23 @@ constructor(
     }
   }
 
-  /**
-   * Returns the user associated with the mutations. If missing, removes the mutations from local
-   * storage as well.
-   */
-  private suspend fun getUserFromMutations(mutations: List<Mutation>): User? {
+  /** Returns a valid user associated with the mutations. */
+  private suspend fun getUserFromMutations(mutations: List<Mutation>): User {
     val userIds = mutations.map { it.userId }.toSet()
 
     if (userIds.size != 1) {
-      Timber.e("Expected exactly one user_id, but found ${userIds.size}")
-      return null
+      throw Error("Expected exactly 1 user, but found ${userIds.size}")
     }
 
     val userId = userIds.first()
     val loggedInUserId = userRepository.getAuthenticatedUser().id
 
     if (loggedInUserId != userId) {
-      Timber.e("Expected mutations for user $loggedInUserId, but found $userId")
-      return null
+      throw Error("Expected mutations for user '$loggedInUserId', but found '$userId'")
     }
 
-    val user = localUserStore.getUserOrNull(userId)
-    if (user == null) {
-      Timber.e("User removed before mutation processed. Removing ${mutations.size} mutations")
-      mutationRepository.finalizeDeletions(mutations)
-    }
-    return user
+    return localUserStore.getUserOrNull(userId)
+      ?: throw Error("User removed before mutation processed")
   }
 
   companion object {

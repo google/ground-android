@@ -113,6 +113,45 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Retries if the logged in user is mismatching`() = runWithTestDispatcher {
+    fakeAuthenticationManager.setUser(FakeData.USER.copy(id = "random user id"))
+
+    addPendingMutations()
+
+    val result = createAndDoWork(context, TEST_LOI_ID)
+
+    assertThat(result).isEqualTo(retry())
+    assertMutationsState(
+      failed = 2,
+      retryCount = listOf(1, 1),
+      lastErrors =
+        listOf(
+          "Expected mutations for user 'random user id', but found 'userId'",
+          "Expected mutations for user 'random user id', but found 'userId'",
+        ),
+    )
+  }
+
+  @Test
+  fun `Retries if mutations have multiple users`() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = "user1"))
+    localLocationOfInterestStore.applyAndEnqueue(createLoiMutation("user1"))
+
+    localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = "user2"))
+    localSubmissionStore.applyAndEnqueue(createSubmissionMutation("user2"))
+
+    val result = createAndDoWork(context, TEST_LOI_ID)
+
+    assertThat(result).isEqualTo(retry())
+    assertMutationsState(
+      failed = 2,
+      retryCount = listOf(1, 1),
+      lastErrors =
+        listOf("Expected exactly 1 user, but found 2", "Expected exactly 1 user, but found 2"),
+    )
+  }
+
+  @Test
   fun `Succeeds if there are 0 pending mutations`() = runWithTestDispatcher {
     val result = createAndDoWork(context, TEST_LOI_ID)
 
@@ -199,27 +238,27 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   }
 
   private suspend fun addPendingMutations() {
-    localLocationOfInterestStore.applyAndEnqueue(createLoiMutation())
-    localSubmissionStore.applyAndEnqueue(createSubmissionMutation())
+    localLocationOfInterestStore.applyAndEnqueue(createLoiMutation(TEST_USER_ID))
+    localSubmissionStore.applyAndEnqueue(createSubmissionMutation(TEST_USER_ID))
   }
 
-  private fun createLoiMutation() =
+  private fun createLoiMutation(userId: String) =
     LocationOfInterestMutation(
       type = Mutation.Type.CREATE,
       syncStatus = Mutation.SyncStatus.PENDING,
       locationOfInterestId = TEST_LOI_ID,
-      userId = TEST_USER_ID,
+      userId = userId,
       surveyId = TEST_SURVEY_ID,
       geometry = TEST_GEOMETRY,
       collectionId = "collectionId",
     )
 
-  private fun createSubmissionMutation() =
+  private fun createSubmissionMutation(userId: String) =
     SubmissionMutation(
       type = Mutation.Type.CREATE,
       syncStatus = Mutation.SyncStatus.PENDING,
       locationOfInterestId = TEST_LOI_ID,
-      userId = TEST_USER_ID,
+      userId = userId,
       job = TEST_JOB,
       surveyId = TEST_SURVEY_ID,
       collectionId = "collectionId",
