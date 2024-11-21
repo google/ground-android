@@ -25,10 +25,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface LocationOfInterestDao : BaseDao<LocationOfInterestEntity> {
 
-  @Query("SELECT * FROM location_of_interest WHERE survey_id = :surveyId AND state = :state")
+  @Query("SELECT * FROM location_of_interest WHERE survey_id = :surveyId AND state = :deletionState")
   fun getByDeletionState(
     surveyId: String,
-    state: EntityDeletionState,
+    deletionState: EntityDeletionState,
   ): Flow<List<LocationOfInterestEntity>>
 
   @Query("SELECT * FROM location_of_interest WHERE id = :id")

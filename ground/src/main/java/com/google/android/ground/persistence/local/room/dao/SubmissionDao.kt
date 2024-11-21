@@ -33,11 +33,11 @@ interface SubmissionDao : BaseDao<SubmissionEntity> {
   @Query(
     "SELECT * FROM submission " +
       "WHERE location_of_interest_id = :locationOfInterestId " +
-      "AND job_id = :jobId AND state = :state"
+      "AND job_id = :jobId AND state = :deletionState"
   )
   suspend fun findByLocationOfInterestId(
     locationOfInterestId: String,
     jobId: String,
-    state: EntityDeletionState,
+    deletionState: EntityDeletionState,
   ): List<SubmissionEntity>?
 }
