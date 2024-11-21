@@ -29,7 +29,11 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.*
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.FAILED
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.IN_PROGRESS
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.MEDIA_UPLOAD_PENDING
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.PENDING
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.UNKNOWN
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
@@ -87,7 +91,6 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
           appContext,
           workerParameters,
           mutationRepository,
-          localUserStore,
           fakeRemoteDataStore,
           mockMediaUploadWorkManager,
           userRepository,
@@ -113,42 +116,29 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Retries if the logged in user is mismatching`() = runWithTestDispatcher {
+  fun `Ignores all mutations if the logged-in user is mismatching`() = runWithTestDispatcher {
     fakeAuthenticationManager.setUser(FakeData.USER.copy(id = "random user id"))
 
     addPendingMutations()
 
     val result = createAndDoWork(context, TEST_LOI_ID)
 
-    assertThat(result).isEqualTo(retry())
-    assertMutationsState(
-      failed = 2,
-      retryCount = listOf(1, 1),
-      lastErrors =
-        listOf(
-          "Expected mutations for user 'random user id', but found 'userId'",
-          "Expected mutations for user 'random user id', but found 'userId'",
-        ),
-    )
+    assertThat(result).isEqualTo(success())
+    assertMutationsState(pending = 2)
   }
 
   @Test
-  fun `Retries if mutations have multiple users`() = runWithTestDispatcher {
+  fun `Ignores mutations partially if there are multiple users`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = "user1"))
     localLocationOfInterestStore.applyAndEnqueue(createLoiMutation("user1"))
 
-    localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = "user2"))
-    localSubmissionStore.applyAndEnqueue(createSubmissionMutation("user2"))
+    localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = TEST_USER_ID))
+    localSubmissionStore.applyAndEnqueue(createSubmissionMutation(TEST_USER_ID))
 
     val result = createAndDoWork(context, TEST_LOI_ID)
 
-    assertThat(result).isEqualTo(retry())
-    assertMutationsState(
-      failed = 2,
-      retryCount = listOf(1, 1),
-      lastErrors =
-        listOf("Expected exactly 1 user, but found 2", "Expected exactly 1 user, but found 2"),
-    )
+    assertThat(result).isEqualTo(success())
+    assertMutationsState(pending = 1, complete = 1)
   }
 
   @Test

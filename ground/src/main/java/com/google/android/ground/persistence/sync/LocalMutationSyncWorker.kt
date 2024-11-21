@@ -27,7 +27,6 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.FAILED
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.IN_PROGRESS
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.PENDING
-import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.createInputData
 import com.google.android.ground.repository.MutationRepository
@@ -50,7 +49,6 @@ constructor(
   @Assisted context: Context,
   @Assisted params: WorkerParameters,
   private val mutationRepository: MutationRepository,
-  private val localUserStore: LocalUserStore,
   private val remoteDataStore: RemoteDataStore,
   private val mediaUploadWorkManager: MediaUploadWorkManager,
   private val userRepository: UserRepository,
@@ -89,10 +87,14 @@ constructor(
   private suspend fun processMutations(mutations: List<Mutation>): Boolean {
     if (mutations.isEmpty()) return true
     return try {
-      val user = getUserFromMutations(mutations)
-      mutationRepository.markAsInProgress(mutations)
-      remoteDataStore.applyMutations(mutations, user)
-      mutationRepository.finalizePendingMutationsForMediaUpload(mutations)
+      val user = userRepository.getAuthenticatedUser()
+      filterMutationsByUser(mutations, user)
+        .takeIf { it.isNotEmpty() }
+        ?.let {
+          mutationRepository.markAsInProgress(it)
+          remoteDataStore.applyMutations(it, user)
+          mutationRepository.finalizePendingMutationsForMediaUpload(it)
+        }
       true
     } catch (t: Throwable) {
       // Mark all mutations as having failed since the remote datastore only commits when all
@@ -103,20 +105,16 @@ constructor(
     }
   }
 
-  /** Returns a valid user associated with the mutations. */
-  private suspend fun getUserFromMutations(mutations: List<Mutation>): User {
+  private fun filterMutationsByUser(mutations: List<Mutation>, user: User): List<Mutation> {
     val userIds = mutations.map { it.userId }.toSet()
-    check(userIds.size == 1) { "Expected exactly 1 user, but found ${userIds.size}" }
-
-    val userId = userIds.first()
-    val loggedInUserId = userRepository.getAuthenticatedUser().id
-    check(loggedInUserId == userId) {
-      "Expected mutations for user '$loggedInUserId', but found '$userId'"
+    if (userIds.size != 1) {
+      Timber.e("Expected exactly 1 user, but found ${userIds.size}")
     }
-
-    return checkNotNull(localUserStore.getUserOrNull(userId)) {
-      "User removed before mutation could be processed"
+    val filteredMutations = mutations.filter { it.userId == user.id }
+    if (mutations.isNotEmpty() && filteredMutations.isEmpty()) {
+      Timber.e("Could not find mutations for the logged in user")
     }
+    return filteredMutations
   }
 
   companion object {
