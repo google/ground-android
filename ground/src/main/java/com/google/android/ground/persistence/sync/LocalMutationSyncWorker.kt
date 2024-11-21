@@ -23,7 +23,6 @@ import androidx.work.ListenableWorker.Result.failure
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
-import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.FAILED
@@ -51,7 +50,6 @@ class LocalMutationSyncWorker
 constructor(
   @Assisted context: Context,
   @Assisted params: WorkerParameters,
-  private val firebaseCrashLogger: FirebaseCrashLogger,
   private val mutationRepository: MutationRepository,
   private val localUserStore: LocalUserStore,
   private val remoteDataStore: RemoteDataStore,
@@ -98,8 +96,10 @@ constructor(
       mutationRepository.finalizePendingMutationsForMediaUpload(mutations)
       success()
     } catch (t: Throwable) {
-      Timber.e(t)
-      handleMutationSyncFailed(mutations, t)
+      // Mark all mutations as having failed since the remote datastore only commits when all
+      // mutations have succeeded.
+      mutationRepository.markAsFailed(mutations, t)
+      Timber.e(t, "Failed to sync survey ${mutations.first().surveyId}")
       retry()
     }
   }
@@ -130,15 +130,6 @@ constructor(
       mutationRepository.finalizeDeletions(mutations)
     }
     return user
-  }
-
-  /**
-   * Marks all mutations as failed since the remote datastore only commits when all mutations have
-   * succeeded.
-   */
-  private suspend fun handleMutationSyncFailed(mutations: List<Mutation>, throwable: Throwable) {
-    mutationRepository.markAsFailed(mutations, throwable)
-    firebaseCrashLogger.setSelectedSurveyId(mutations.first().surveyId)
   }
 
   companion object {
