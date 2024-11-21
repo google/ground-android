@@ -16,7 +16,6 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
-import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.persistence.remote.firebase.base.FluentCollectionReference
@@ -65,12 +64,7 @@ class LoiCollectionReference internal constructor(ref: CollectionReference) :
     withContext(defaultDispatcher) {
       snapshot.documents.mapNotNull {
         toLoi(survey, it)
-          .onFailure { t ->
-            val logger = FirebaseCrashLogger()
-            logger.setSelectedSurveyId(survey.id)
-            logger.logException(t)
-            Timber.w(t, "LOI ${it.id} in remote survey ${survey.id} is invalid")
-          }
+          .onFailure { t -> Timber.e(t, "Invalid LOI ${it.id} in remote survey ${survey.id}") }
           .getOrNull()
       }
     }

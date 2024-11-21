@@ -44,9 +44,6 @@ object Config {
    */
   const val CLUSTERING_ZOOM_THRESHOLD = 14f
 
-  /** Maximum number of attempts for retrying unsuccessful syncs. */
-  const val MAX_SYNC_WORKER_RETRY_ATTEMPTS = 10
-
   /** Maximum number of attempts for retrying unsuccessful media uploads. */
   const val MAX_MEDIA_UPLOAD_RETRY_COUNT = 5
 

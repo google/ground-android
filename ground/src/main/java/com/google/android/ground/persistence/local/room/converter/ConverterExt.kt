@@ -103,7 +103,7 @@ fun JobEntityAndRelations.toModelObject(): Job {
         try {
           DataCollectionStrategy.valueOf(it)
         } catch (e: IllegalArgumentException) {
-          Timber.e("unknown data collection strategy $it")
+          Timber.e(e, "Unknown data collection strategy $it")
           DataCollectionStrategy.UNKNOWN
         }
       },

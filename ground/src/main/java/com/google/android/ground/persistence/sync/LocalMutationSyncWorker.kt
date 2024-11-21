@@ -22,7 +22,6 @@ import androidx.work.Data
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
-import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.FAILED
@@ -120,11 +119,8 @@ constructor(
     } catch (t: Throwable) {
       // Mark all mutations as having failed since the remote datastore only commits when all
       // mutations have succeeded.
-      Timber.d(t, "Local mutation sync failed")
       mutationRepository.markAsFailed(mutations, t)
-      val crashlytics = FirebaseCrashLogger()
-      crashlytics.setSelectedSurveyId(mutations.first().surveyId)
-      crashlytics.logException(t)
+      Timber.e(t, "Failed to sync survey ${mutations.first().surveyId}")
       false
     }
   }
@@ -132,7 +128,7 @@ constructor(
   private suspend fun getUser(userId: String): User? {
     val user = localUserStore.getUserOrNull(userId)
     if (user == null) {
-      Timber.e("User account removed before mutation processed")
+      Timber.e("User removed before mutation could be processed")
     }
     return user
   }

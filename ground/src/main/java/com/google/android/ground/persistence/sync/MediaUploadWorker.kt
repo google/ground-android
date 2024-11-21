@@ -21,7 +21,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
 import com.google.android.ground.Config
-import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.PhotoTaskData
@@ -29,6 +28,7 @@ import com.google.android.ground.persistence.local.room.fields.MutationEntitySyn
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.UserMediaRepository
+import com.google.firebase.FirebaseNetworkException
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.io.FileNotFoundException
@@ -125,26 +125,23 @@ constructor(
    * Attempts to upload a single photo to remote storage. Returns an [Result] indicating whether the
    * upload attempt failed or succeeded.
    */
-  private suspend fun uploadPhotoMedia(photoTaskData: PhotoTaskData): kotlin.Result<Unit> {
-    val path = photoTaskData.remoteFilename
-    val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
-    if (!photoFile.exists()) {
-      Timber.e("Photo not found. local path: ${photoFile.path}, remote path: $path")
-      return kotlin.Result.failure(
-        FileNotFoundException("Photo $path not found on device: ${photoFile.path}")
-      )
-    }
-
-    Timber.d("Starting photo upload. local path: ${photoFile.path}, remote path: $path")
-    return try {
+  private suspend fun uploadPhotoMedia(photoTaskData: PhotoTaskData): kotlin.Result<Unit> =
+    try {
+      val path = photoTaskData.remoteFilename
+      val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
+      Timber.d("Starting photo upload. local path: ${photoFile.path}, remote path: $path")
+      if (!photoFile.exists()) {
+        throw FileNotFoundException(photoFile.path)
+      }
       remoteStorageManager.uploadMediaFromFile(photoFile, path)
       kotlin.Result.success(Unit)
+    } catch (t: FirebaseNetworkException) {
+      Timber.d(t, "Can't connect to Firebase to upload photo")
+      kotlin.Result.failure(t)
     } catch (t: Throwable) {
-      Timber.e("Photo upload failed. local path: ${photoFile.path}, remote path: $path", t)
-      FirebaseCrashLogger().logException(t)
+      Timber.e(t, "Failed to upload photo")
       kotlin.Result.failure(t)
     }
-  }
 
   companion object {
     private const val LOI_ID = "locationOfInterestId"
