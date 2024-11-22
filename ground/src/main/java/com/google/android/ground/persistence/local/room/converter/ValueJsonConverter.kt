@@ -123,7 +123,7 @@ internal object ValueJsonConverter {
       try {
         list.add(jsonArray.getString(i))
       } catch (e: JSONException) {
-        Timber.e("Error parsing JSONArray in db: %s", jsonArray)
+        Timber.e(e, "Error parsing JSONArray in db: $jsonArray")
       }
     }
     return list.toPersistentList()

@@ -27,7 +27,7 @@ import com.google.android.ground.persistence.local.room.dao.LocationOfInterestMu
 import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
-import com.google.android.ground.persistence.local.room.fields.EntityState
+import com.google.android.ground.persistence.local.room.fields.EntityDeletionState
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.util.Debug.logOnFailure
@@ -49,8 +49,8 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
    * local database and returns a [Flow] that continually emits the complete set anew any time the
    * underlying table changes (insertions, deletions, updates).
    */
-  override fun findLocationsOfInterest(survey: Survey) =
-    locationOfInterestDao.findByState(survey.id, EntityState.DEFAULT).map {
+  override fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
+    locationOfInterestDao.getByDeletionState(survey.id, EntityDeletionState.DEFAULT).map {
       toLocationsOfInterest(survey, it)
     }
 
@@ -83,7 +83,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       Mutation.Type.DELETE -> {
         val loiId = mutation.locationOfInterestId
         val entity = checkNotNull(locationOfInterestDao.findById(loiId))
-        locationOfInterestDao.update(entity.copy(state = EntityState.DELETED))
+        locationOfInterestDao.update(entity.copy(deletionState = EntityDeletionState.DELETED))
       }
       Mutation.Type.UNKNOWN -> {
         throw LocalDataStoreException("Unknown Mutation.Type")
@@ -118,6 +118,11 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   override fun getAllSurveyMutations(survey: Survey): Flow<List<LocationOfInterestMutation>> =
     locationOfInterestMutationDao.getAllMutationsFlow().map { mutations ->
       mutations.filter { it.surveyId == survey.id }.map { it.toModelObject() }
+    }
+
+  override fun getAllMutationsFlow(): Flow<List<LocationOfInterestMutation>> =
+    locationOfInterestMutationDao.getAllMutationsFlow().map { mutations ->
+      mutations.map { it.toModelObject() }
     }
 
   override suspend fun findByLocationOfInterestId(

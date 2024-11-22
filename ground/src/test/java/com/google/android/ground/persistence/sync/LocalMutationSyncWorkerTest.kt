@@ -29,17 +29,23 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.*
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.FAILED
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.IN_PROGRESS
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.MEDIA_UPLOAD_PENDING
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.PENDING
+import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.UNKNOWN
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.LOCATION_OF_INTEREST_ID_PARAM_KEY
 import com.google.android.ground.repository.MutationRepository
+import com.google.android.ground.repository.UserRepository
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
+import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
@@ -60,6 +66,8 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
+  @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
+
   @Inject lateinit var localLocationOfInterestStore: LocalLocationOfInterestStore
 
   @Inject lateinit var localSubmissionStore: LocalSubmissionStore
@@ -69,6 +77,8 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   @Inject lateinit var localUserStore: LocalUserStore
 
   @Inject lateinit var mutationRepository: MutationRepository
+
+  @Inject lateinit var userRepository: UserRepository
 
   private val factory =
     object : WorkerFactory() {
@@ -81,9 +91,9 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
           appContext,
           workerParameters,
           mutationRepository,
-          localUserStore,
           fakeRemoteDataStore,
           mockMediaUploadWorkManager,
+          userRepository,
         )
     }
 
@@ -92,6 +102,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     super.setUp()
     context = ApplicationProvider.getApplicationContext()
     runBlocking {
+      fakeAuthenticationManager.setUser(FakeData.USER.copy(id = TEST_USER_ID))
       localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = TEST_USER_ID))
       localSurveyStore.insertOrUpdateSurvey(FakeData.SURVEY.copy(id = TEST_SURVEY_ID))
     }
@@ -102,6 +113,32 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     assertThrows(NullPointerException::class.java) {
       runWithTestDispatcher { createAndDoWork(context, null) }
     }
+  }
+
+  @Test
+  fun `Ignores all mutations if the logged-in user is mismatching`() = runWithTestDispatcher {
+    fakeAuthenticationManager.setUser(FakeData.USER.copy(id = "random user id"))
+
+    addPendingMutations()
+
+    val result = createAndDoWork(context, TEST_LOI_ID)
+
+    assertThat(result).isEqualTo(success())
+    assertMutationsState(pending = 2)
+  }
+
+  @Test
+  fun `Ignores mutations partially if there are multiple users`() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = "user1"))
+    localLocationOfInterestStore.applyAndEnqueue(createLoiMutation("user1"))
+
+    localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = TEST_USER_ID))
+    localSubmissionStore.applyAndEnqueue(createSubmissionMutation(TEST_USER_ID))
+
+    val result = createAndDoWork(context, TEST_LOI_ID)
+
+    assertThat(result).isEqualTo(success())
+    assertMutationsState(pending = 1, complete = 1)
   }
 
   @Test
@@ -191,27 +228,27 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   }
 
   private suspend fun addPendingMutations() {
-    localLocationOfInterestStore.applyAndEnqueue(createLoiMutation())
-    localSubmissionStore.applyAndEnqueue(createSubmissionMutation())
+    localLocationOfInterestStore.applyAndEnqueue(createLoiMutation(TEST_USER_ID))
+    localSubmissionStore.applyAndEnqueue(createSubmissionMutation(TEST_USER_ID))
   }
 
-  private fun createLoiMutation() =
+  private fun createLoiMutation(userId: String) =
     LocationOfInterestMutation(
       type = Mutation.Type.CREATE,
       syncStatus = Mutation.SyncStatus.PENDING,
       locationOfInterestId = TEST_LOI_ID,
-      userId = TEST_USER_ID,
+      userId = userId,
       surveyId = TEST_SURVEY_ID,
       geometry = TEST_GEOMETRY,
       collectionId = "collectionId",
     )
 
-  private fun createSubmissionMutation() =
+  private fun createSubmissionMutation(userId: String) =
     SubmissionMutation(
       type = Mutation.Type.CREATE,
       syncStatus = Mutation.SyncStatus.PENDING,
       locationOfInterestId = TEST_LOI_ID,
-      userId = TEST_USER_ID,
+      userId = userId,
       job = TEST_JOB,
       surveyId = TEST_SURVEY_ID,
       collectionId = "collectionId",
