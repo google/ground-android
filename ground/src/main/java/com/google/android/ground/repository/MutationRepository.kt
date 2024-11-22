@@ -75,6 +75,7 @@ constructor(
     vararg entitySyncStatus: MutationEntitySyncStatus,
   ) = getMutations(loiId, *entitySyncStatus).filterIsInstance<SubmissionMutation>()
 
+  /** Returns a [Flow] which emits the upload queue once and on each change. */
   fun getUploadQueueFlow(includeCompleted: Boolean): Flow<List<UploadQueueEntry>> =
     localLocationOfInterestStore.getAllMutationsFlow().combine(
       localSubmissionStore.getAllMutationsFlow()
