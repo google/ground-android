@@ -33,6 +33,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 
 /**
  * Coordinates persistence of mutations across [LocationOfInterestMutation] and [SubmissionMutation]
@@ -75,8 +76,19 @@ constructor(
     vararg entitySyncStatus: MutationEntitySyncStatus,
   ) = getMutations(loiId, *entitySyncStatus).filterIsInstance<SubmissionMutation>()
 
+  /** Returns a [List] of incomplete operations still in the upload queue. */
+  suspend fun getUploadQueue(): List<UploadQueueEntry> =
+    getUploadQueueFlow(includeCompleted = false).first()
+
+  /**
+   * Returns a [Flow] which emits the status of all entries in the upload queue (completed, pending,
+   * etc.) once and on each change.
+   */
+  fun getUploadStatusFlow(): Flow<List<UploadQueueEntry>> =
+    getUploadQueueFlow(includeCompleted = true)
+
   /** Returns a [Flow] which emits the upload queue once and on each change. */
-  fun getUploadQueueFlow(includeCompleted: Boolean): Flow<List<UploadQueueEntry>> =
+  private fun getUploadQueueFlow(includeCompleted: Boolean): Flow<List<UploadQueueEntry>> =
     localLocationOfInterestStore.getAllMutationsFlow().combine(
       localSubmissionStore.getAllMutationsFlow()
     ) { loiMutations, submissionMutations ->
