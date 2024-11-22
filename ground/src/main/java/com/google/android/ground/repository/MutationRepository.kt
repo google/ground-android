@@ -19,7 +19,9 @@ package com.google.android.ground.repository
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.COMPLETED
 import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.model.submission.UploadQueueEntry
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
@@ -72,6 +74,38 @@ constructor(
     loiId: String,
     vararg entitySyncStatus: MutationEntitySyncStatus,
   ) = getMutations(loiId, *entitySyncStatus).filterIsInstance<SubmissionMutation>()
+
+  fun getUploadQueueFlow(includeCompleted: Boolean): Flow<List<UploadQueueEntry>> =
+    localLocationOfInterestStore.getAllMutationsFlow().combine(
+      localSubmissionStore.getAllMutationsFlow()
+    ) { loiMutations, submissionMutations ->
+      buildUploadQueue(loiMutations, submissionMutations, includeCompleted)
+    }
+
+  private fun buildUploadQueue(
+    loiMutations: List<LocationOfInterestMutation>,
+    submissionMutations: List<SubmissionMutation>,
+    includeCompleted: Boolean,
+  ): List<UploadQueueEntry> {
+    val loiMutationMap =
+      loiMutations
+        .filter { includeCompleted || it.syncStatus != COMPLETED }
+        .associateBy { it.collectionId }
+    val submissionMutationMap =
+      submissionMutations
+        .filter { includeCompleted || it.syncStatus != COMPLETED }
+        .associateBy { it.collectionId }
+    val collectionIds = loiMutationMap.keys + submissionMutationMap.keys
+    return collectionIds
+      .map {
+        val loiMutation = loiMutationMap[it]
+        val submissionMutation = submissionMutationMap[it]
+        val clientTimestamp = submissionMutation?.clientTimestamp ?: loiMutation!!.clientTimestamp
+        val syncStatus = submissionMutation?.syncStatus ?: loiMutation!!.syncStatus
+        UploadQueueEntry(clientTimestamp, syncStatus, loiMutation, submissionMutation)
+      }
+      .sortedBy { it.clientTimestamp }
+  }
 
   /**
    * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
