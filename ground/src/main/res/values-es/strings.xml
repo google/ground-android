@@ -124,7 +124,7 @@
   <string name="camera_permissions_needed">Debe conceder permisos de cámara a esta aplicación para enviar fotos.</string>
   <string name="incomplete_area">Área incompleta</string>
   <string name="initializing">Inicializando…</string>
-  <string name="draw_area_task_instruction">Mueva el mapa y toque “Añadir punto” para añadir puntos alrededor del área deseada.</string>
+  <string name="draw_area_task_instruction">Mueva el mapa y toque &#8217;Añadir punto&#8217; para añadir puntos alrededor del área deseada.</string>
   <string name="close">Cerrar</string>
   <string name="data_consent_dialog_title">Acuerdo de intercambio de datos</string>
   <string name="map_location">Ubicación del mapa:</string>
