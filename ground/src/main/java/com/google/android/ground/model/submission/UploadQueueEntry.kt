@@ -22,8 +22,8 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import java.util.Date
 
 /**
- * Represents a change to the remote datastore in the form of one or more mutations initiated by the
- * user by completing the data collection flow and clicking "Submit".
+ * A set of changes to be applied as an atomic unit to the remote datastore, initiated by the user
+ * by completing the data collection flow and clicking "Submit".
  */
 data class UploadQueueEntry(
   val clientTimestamp: Date,
