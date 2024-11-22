@@ -304,6 +304,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override fun clear() {
     map.clear()
+    featureManager.setFeatures(emptySet())
   }
 
   companion object {
