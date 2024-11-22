@@ -76,18 +76,24 @@ constructor(
     vararg entitySyncStatus: MutationEntitySyncStatus,
   ) = getMutations(loiId, *entitySyncStatus).filterIsInstance<SubmissionMutation>()
 
-  /** Returns a [List] of incomplete operations still in the upload queue. */
+  /**
+   * Returns a [List] of incomplete operations still in the upload queue, sorted in chronological
+   * order (FIFO).
+   */
   suspend fun getUploadQueue(): List<UploadQueueEntry> =
     getUploadQueueFlow(includeCompleted = false).first()
 
   /**
    * Returns a [Flow] which emits the status of all entries in the upload queue (completed, pending,
-   * etc.) once and on each change.
+   * etc.) once and on each change, sorted in chronological order (FIFO).
    */
   fun getUploadStatusFlow(): Flow<List<UploadQueueEntry>> =
     getUploadQueueFlow(includeCompleted = true)
 
-  /** Returns a [Flow] which emits the upload queue once and on each change. */
+  /**
+   * Returns a [Flow] which emits the upload queue once and on each change, sorted in chronological
+   * order (FIFO).
+   */
   private fun getUploadQueueFlow(includeCompleted: Boolean): Flow<List<UploadQueueEntry>> =
     localLocationOfInterestStore.getAllMutationsFlow().combine(
       localSubmissionStore.getAllMutationsFlow()
