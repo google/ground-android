@@ -150,10 +150,10 @@
   <string name="about">Acerca de</string>
   <string name="terms_of_service">Términos de servicio</string>
   <string name="about_ground">Ground es un proyecto de código abierto desarrollado por Google y la FAO bajo la Alianza de Datos Forestales (Forest Data Partnership), con la ayuda de SIG, Ecam y otros contribuyentes de la comunidad de código abierto. \n\nEstá licenciado bajo la <annotation type="apache_license">Apache License, Version 2.0</annotation>. \n\nVer otras  <annotation type="all_licenses">licencias</annotation></string>
-  <string name="Error">Failed</string>
-  <string name="Sincronizado">Synced</string>
-  <string name="Sincronizando">Syncing</string>
-  <string name="Carga pendiente">Upload pending</string>
+  <string name="failed">Error</string>
+  <string name="synced">Sincronizado</string>
+  <string name="syncing">Sincronizando</string>
+  <string name="upload_pending">Carga pendiente</string>
   <string name="data_synced_media_pending">Datos sincronizados\n(multimedia pendiente)</string>
   <string name="data_synced_media_pending_retry">Datos sincronizados\n(reintentar multimedia pendiente)</string>
   <string name="media_syncing">Sincronizando multimedia</string>
