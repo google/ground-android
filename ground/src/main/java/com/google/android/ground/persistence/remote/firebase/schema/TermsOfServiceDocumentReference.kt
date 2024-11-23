@@ -19,7 +19,9 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.persistence.remote.firebase.base.FluentDocumentReference
 import com.google.firebase.firestore.DocumentReference
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
+import timber.log.Timber
 
 class TermsOfServiceDocumentReference internal constructor(ref: DocumentReference) :
   FluentDocumentReference(ref) {
@@ -27,7 +29,12 @@ class TermsOfServiceDocumentReference internal constructor(ref: DocumentReferenc
   fun terms() = TermsOfServiceDocumentReference(reference())
 
   suspend fun get(): TermsOfService? {
-    val documentSnapshot = reference().get().await()
-    return TermsOfServiceConverter.toTerms(documentSnapshot)
+    try {
+      val documentSnapshot = reference().get().await()
+      return TermsOfServiceConverter.toTerms(documentSnapshot)
+    } catch (e: CancellationException) {
+      Timber.i(e, "Fetching TermsOfService was cancelled")
+      return null
+    }
   }
 }

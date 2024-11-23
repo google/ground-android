@@ -32,6 +32,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -54,7 +55,7 @@ internal constructor(
 
   private suspend fun db() = GroundFirestore(firestoreProvider.get())
 
-  override suspend fun loadSurvey(surveyId: String): Survey =
+  override suspend fun loadSurvey(surveyId: String): Survey? =
     withContext(ioDispatcher) { db().surveys().survey(surveyId).get() }
 
   override suspend fun loadTermsOfService(): TermsOfService? =
@@ -70,14 +71,20 @@ internal constructor(
   }
 
   override suspend fun loadPredefinedLois(survey: Survey) =
-    db().surveys().survey(survey.id).lois().fetchPredefined(survey)
+    withContext(ioDispatcher) { db().surveys().survey(survey.id).lois().fetchPredefined(survey) }
 
   override suspend fun loadUserLois(survey: Survey, ownerUserId: String) =
-    db().surveys().survey(survey.id).lois().fetchUserDefined(survey, ownerUserId)
+    withContext(ioDispatcher) {
+      db().surveys().survey(survey.id).lois().fetchUserDefined(survey, ownerUserId)
+    }
 
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {
     Timber.d("Subscribing to FCM topic $surveyId")
-    Firebase.messaging.subscribeToTopic(surveyId).await()
+    try {
+      Firebase.messaging.subscribeToTopic(surveyId).await()
+    } catch (e: CancellationException) {
+      Timber.i(e, "Subscribing to FCM topic was cancelled")
+    }
   }
 
   /**
@@ -85,7 +92,11 @@ internal constructor(
    * network is available.
    */
   override suspend fun refreshUserProfile() {
-    firebaseFunctions.getHttpsCallable(PROFILE_REFRESH_CLOUD_FUNCTION_NAME).call().await()
+    try {
+      firebaseFunctions.getHttpsCallable(PROFILE_REFRESH_CLOUD_FUNCTION_NAME).call().await()
+    } catch (e: CancellationException) {
+      Timber.i(e, "Calling profile refresh function was cancelled")
+    }
   }
 
   override suspend fun applyMutations(mutations: List<Mutation>, user: User) {
