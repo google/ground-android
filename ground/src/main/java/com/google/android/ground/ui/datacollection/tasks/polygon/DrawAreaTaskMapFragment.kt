@@ -22,6 +22,7 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -53,6 +54,9 @@ class DrawAreaTaskMapFragment @Inject constructor() : AbstractMapFragmentWithCon
         map.setFeatures(if (feature == null) setOf() else setOf(feature))
       }
     }
+
+    // If the task has any previously drawn area, restore map viewport to the feature.
+    moveViewportToFeature(viewModel.draftArea.value)
   }
 
   override fun onMapCameraMoved(position: CameraPosition) {
@@ -63,5 +67,11 @@ class DrawAreaTaskMapFragment @Inject constructor() : AbstractMapFragmentWithCon
         map.getDistanceInPixels(c1, c2)
       }
     }
+  }
+
+  private fun moveViewportToFeature(feature: Feature?) {
+    val geometry = feature?.geometry ?: return
+    val bounds = listOf(geometry).toBounds() ?: return
+    moveToBounds(bounds, padding = 200, shouldAnimate = false)
   }
 }
