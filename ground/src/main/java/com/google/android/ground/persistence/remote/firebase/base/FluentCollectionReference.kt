@@ -24,7 +24,6 @@ open class FluentCollectionReference
 protected constructor(
   private val reference: CollectionReference,
   protected val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-  protected val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) {
 
   protected fun reference(): CollectionReference = reference
