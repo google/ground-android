@@ -83,9 +83,10 @@ constructor(
     surveyId: String,
     deltas: List<ValueDelta>,
     loiName: String?,
+    currentTaskId: String,
   ) {
     val newId = uuidGenerator.generateUuid()
-    val draft = DraftSubmission(newId, jobId, loiId, loiName, surveyId, deltas)
+    val draft = DraftSubmission(newId, jobId, loiId, loiName, surveyId, deltas, currentTaskId)
     localSubmissionStore.saveDraftSubmission(draftSubmission = draft)
     localValueStore.draftSubmissionId = newId
   }
