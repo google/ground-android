@@ -134,6 +134,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         eq(SURVEY.id),
         capture(deltaCaptor),
         eq(LOCATION_OF_INTEREST_NAME),
+        eq(TASK_ID_2),
       )
 
     listOf(TASK_1_VALUE_DELTA).forEach { value -> assertThat(deltaCaptor.value).contains(value) }
@@ -149,13 +150,23 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     // Both deletion and creating happens twice as we do it on every previous/next step
     verify(submissionRepository, times(2)).deleteDraftSubmission()
-    verify(submissionRepository, times(2))
+    verify(submissionRepository, times(1))
       .saveDraftSubmission(
         eq(JOB.id),
         eq(LOCATION_OF_INTEREST.id),
         eq(SURVEY.id),
         capture(deltaCaptor),
         eq(LOCATION_OF_INTEREST_NAME),
+        eq(TASK_ID_2),
+      )
+    verify(submissionRepository, times(1))
+      .saveDraftSubmission(
+        eq(JOB.id),
+        eq(LOCATION_OF_INTEREST.id),
+        eq(SURVEY.id),
+        capture(deltaCaptor),
+        eq(LOCATION_OF_INTEREST_NAME),
+        eq(TASK_ID_1),
       )
 
     listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA).forEach { value ->
@@ -189,6 +200,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
           JOB.id,
           true,
           SubmissionDeltasConverter.toString(expectedDeltas),
+          "",
         )
         .build()
         .toBundle()
@@ -309,6 +321,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
             JOB.id,
             false,
             null,
+            "",
           )
           .build()
           .toBundle()

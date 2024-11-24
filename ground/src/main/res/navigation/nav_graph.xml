@@ -134,6 +134,10 @@
         android:name="draftValues"
         type="string"
         app:nullable="true" />
+      <argument
+        android:name="currentTaskId"
+        type="string"
+        app:nullable="true" />
     </fragment>
 
     <fragment
