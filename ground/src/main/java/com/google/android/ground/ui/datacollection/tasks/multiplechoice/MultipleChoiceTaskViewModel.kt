@@ -49,7 +49,7 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
           ?.let {
             val selected =
               if (task.isRequired) {
-                otherText != ""
+                otherText.trim() != ""
               } else {
                 true
               }
@@ -92,6 +92,12 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
   }
 
   fun updateResponse() {
+    // Check if "other" text is missing or not.
+    if (task.isRequired && selectedIds.contains(OTHER_ID) && otherText.trim().isEmpty()) {
+      clearResponse()
+      return
+    }
+
     setValue(
       fromList(
         task.multipleChoice,
