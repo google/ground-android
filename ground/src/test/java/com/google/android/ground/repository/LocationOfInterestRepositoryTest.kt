@@ -38,7 +38,6 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.times
@@ -103,12 +102,12 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   fun testApplyAndEnqueue_enqueuesWorker() = runWithTestDispatcher {
     locationOfInterestRepository.applyAndEnqueue(mutation)
 
-    verify(mockWorkManager).enqueueSyncWorker(LOCATION_OF_INTEREST.id)
+    verify(mockWorkManager).enqueueSyncWorker()
   }
 
   @Test
   fun testApplyAndEnqueue_returnsErrorOnWorkerSyncFailure() = runWithTestDispatcher {
-    `when`(mockWorkManager.enqueueSyncWorker(anyString())).thenThrow(Error())
+    `when`(mockWorkManager.enqueueSyncWorker()).thenThrow(Error())
 
     assertFailsWith<Error> {
       locationOfInterestRepository.applyAndEnqueue(
@@ -116,7 +115,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       )
     }
 
-    verify(mockWorkManager, times(1)).enqueueSyncWorker(LOCATION_OF_INTEREST.id)
+    verify(mockWorkManager, times(1)).enqueueSyncWorker()
   }
 
   // TODO(#1373): Add tests for new LOI sync once implemented (create, update, delete, error).

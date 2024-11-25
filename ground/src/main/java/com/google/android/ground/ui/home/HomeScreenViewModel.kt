@@ -75,7 +75,7 @@ internal constructor(
     val incompleteLoiIds =
       mutations.filter { it.syncStatus != COMPLETED }.map { it.locationOfInterestId }.toSet()
     incompleteLoiIds.forEach { loiId ->
-      mutationSyncWorkManager.enqueueSyncWorker(loiId)
+      mutationSyncWorkManager.enqueueSyncWorker()
       mediaUploadWorkManager.enqueueSyncWorker(loiId)
     }
   }

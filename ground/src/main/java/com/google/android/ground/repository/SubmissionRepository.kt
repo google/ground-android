@@ -97,7 +97,7 @@ constructor(
 
   private suspend fun applyAndEnqueue(mutation: SubmissionMutation) {
     localSubmissionStore.applyAndEnqueue(mutation)
-    mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
+    mutationSyncWorkManager.enqueueSyncWorker()
   }
 
   suspend fun getTotalSubmissionCount(loi: LocationOfInterest) =

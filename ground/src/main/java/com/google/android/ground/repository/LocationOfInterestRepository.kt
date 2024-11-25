@@ -136,7 +136,7 @@ constructor(
    */
   suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
     localLoiStore.applyAndEnqueue(mutation)
-    mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
+    mutationSyncWorkManager.enqueueSyncWorker()
   }
 
   /** Returns a flow of all valid (not deleted) [LocationOfInterest] in the given [Survey]. */

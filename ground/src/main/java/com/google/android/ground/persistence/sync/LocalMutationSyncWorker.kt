@@ -26,7 +26,6 @@ import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.submission.UploadQueueEntry
 import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.createInputData
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.UserRepository
 import dagger.assisted.Assisted
@@ -36,9 +35,7 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /**
- * A worker that syncs local changes to the remote data store. Each instance handles mutations for a
- * specific map location of interest, whose id is provided in the [Data] object built by
- * [createInputData] and provided to the worker request while being enqueued.
+ * A worker that uploads all pending local changes to the remote data store.
  */
 @HiltWorker
 class LocalMutationSyncWorker
@@ -108,14 +105,5 @@ constructor(
     val (validMutations, invalidMutations) = mutations.partition { it.userId == user.id }
     invalidMutations.forEach { Timber.e("Invalid mutation: $it") }
     return validMutations
-  }
-
-  companion object {
-    internal const val LOCATION_OF_INTEREST_ID_PARAM_KEY = "locationOfInterestId"
-
-    /** Returns a new work [Data] object containing the specified location of interest id. */
-    @JvmStatic
-    fun createInputData(locationOfInterestId: String): Data =
-      Data.Builder().putString(LOCATION_OF_INTEREST_ID_PARAM_KEY, locationOfInterestId).build()
   }
 }
