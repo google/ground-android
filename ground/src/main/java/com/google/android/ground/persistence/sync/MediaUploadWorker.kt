@@ -112,6 +112,9 @@ constructor(
           mutation.copy(
             syncStatus = MEDIA_UPLOAD_AWAITING_RETRY,
             lastError = t.message ?: "Unknown error",
+            // TODO: Clean up handling of "retryCount" - "retry" doesn't mean retry now, it's means
+            // "attempt". Also, the counter is unused now, and is set by both media and normal sync
+            // worker.
             retryCount = mutation.retryCount + 1,
           )
         )
