@@ -34,7 +34,6 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.io.FileNotFoundException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -57,27 +56,10 @@ constructor(
   private val mutationRepository: MutationRepository,
   private val userMediaRepository: UserMediaRepository,
 ) : CoroutineWorker(context, workerParams) {
-  /**
-   * The set of upload states handled by this worker. Since only one instance of this worker should
-   * be running at a time, include "in progress" and "failed", which might indicate a previous run
-   * crashed unexpectedly.
-   */
-  private val handledUploadStates =
-    setOf(
-      Mutation.SyncStatus.MEDIA_UPLOAD_PENDING,
-      MEDIA_UPLOAD_IN_PROGRESS,
-      MEDIA_UPLOAD_AWAITING_RETRY,
-    )
 
   override suspend fun doWork(): Result =
     withContext(Dispatchers.IO) {
-      // TODO: Move into repository? getUnfinishedMediaUploads()?
-      val mutations =
-        mutationRepository
-          .getUploadQueueFlow()
-          .first()
-          .filter { handledUploadStates.contains(it.uploadStatus) }
-          .mapNotNull { it.submissionMutation }
+      val mutations = mutationRepository.getIncompleteMediaUploads()
       Timber.d("Uploading photos for ${mutations.size} submission mutations")
       val results = mutations.map { uploadMedia(it) }
       if (results.all { it }) success() else retry()

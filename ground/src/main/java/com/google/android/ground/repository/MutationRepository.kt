@@ -20,6 +20,7 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.*
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.UploadQueueEntry
 import com.google.android.ground.persistence.local.room.converter.toModelObject
@@ -33,6 +34,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 
 /**
  * Coordinates persistence of mutations across [LocationOfInterestMutation] and [SubmissionMutation]
@@ -74,6 +76,29 @@ constructor(
     loiId: String,
     vararg entitySyncStatus: MutationEntitySyncStatus,
   ) = getMutations(loiId, *entitySyncStatus).filterIsInstance<SubmissionMutation>()
+
+  /**
+   * Return the set of data upload queue entries not yet marked as completed sorted in chronological
+   * order (FIFO). Media/photo uploads are not included.
+   */
+  suspend fun getIncompleteUploads(): List<UploadQueueEntry> =
+    getUploadQueueFlow().first().filter {
+      setOf(PENDING, IN_PROGRESS, FAILED, UNKNOWN).contains(it.uploadStatus)
+    }
+
+  /**
+   * Return the set of photo/media upload queue entries not yet marked as completed, sorted in
+   * chronological order (FIFO).
+   */
+  suspend fun getIncompleteMediaUploads(): List<SubmissionMutation> =
+    localSubmissionStore
+      .getAllMutationsFlow()
+      .first()
+      .filter {
+        setOf(MEDIA_UPLOAD_PENDING, MEDIA_UPLOAD_IN_PROGRESS, FAILED, UNKNOWN)
+          .contains(it.syncStatus)
+      }
+      .sortedBy { it.clientTimestamp }
 
   /**
    * Returns a [Flow] which emits the upload queue once and on each change, sorted in chronological
@@ -167,15 +192,15 @@ constructor(
       }
 
   suspend fun markAsInProgress(mutations: List<Mutation>) {
-    saveMutationsLocally(mutations.updateMutationStatus(SyncStatus.IN_PROGRESS))
+    saveMutationsLocally(mutations.updateMutationStatus(IN_PROGRESS))
   }
 
   suspend fun markAsFailed(mutations: List<Mutation>, error: Throwable) {
-    saveMutationsLocally(mutations.updateMutationStatus(SyncStatus.FAILED, error))
+    saveMutationsLocally(mutations.updateMutationStatus(FAILED, error))
   }
 
   private suspend fun markForMediaUpload(mutations: List<Mutation>) {
-    saveMutationsLocally(mutations.updateMutationStatus(SyncStatus.MEDIA_UPLOAD_PENDING))
+    saveMutationsLocally(mutations.updateMutationStatus(MEDIA_UPLOAD_PENDING))
   }
 
   private fun combineAndSortMutations(

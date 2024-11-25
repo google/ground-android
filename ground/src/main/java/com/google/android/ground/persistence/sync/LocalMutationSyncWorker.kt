@@ -23,7 +23,6 @@ import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.mutation.Mutation.SyncStatus.*
 import com.google.android.ground.model.submission.UploadQueueEntry
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.repository.MutationRepository
@@ -50,20 +49,10 @@ constructor(
   private val mediaUploadWorkManager: MediaUploadWorkManager,
   private val userRepository: UserRepository,
 ) : CoroutineWorker(context, params) {
-  /**
-   * The set of upload states handled by this worker. Since only one instance of this worker should
-   * be running at a time, include "in progress" and "failed", which might indicate a previous run
-   * crashed unexpectedly.
-   */
-  private val handledUploadStates = setOf(PENDING, IN_PROGRESS, FAILED, UNKNOWN)
 
   override suspend fun doWork(): Result =
     withContext(Dispatchers.IO) {
-      // TODO: Move into repository? getUnfinishedUploads()?
-      val queue =
-        mutationRepository.getUploadQueueFlow().first().filter {
-          handledUploadStates.contains(it.uploadStatus)
-        }
+      val queue = mutationRepository.getIncompleteUploads()
       Timber.d("Uploading ${queue.size} additions / changes")
       val results = queue.map { processQueueEntry(it) }
       // TODO: Update MediaUploader to work on entire queue.
