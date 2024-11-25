@@ -106,6 +106,7 @@ constructor(
       } else {
         Timber.e(t, "Failed to upload photo")
       }
+      // TODO: Clean up mutation update API in MutationRepository.
       mutationRepository.saveMutationsLocally(
         listOf(
           mutation.copy(
