@@ -31,7 +31,7 @@ data class UploadQueueEntry(
   val uploadStatus: Mutation.SyncStatus,
   val loiMutation: LocationOfInterestMutation?,
   val submissionMutation: SubmissionMutation?,
-  // TODO(https://github.com/google/ground-android/issues/2120): Add mediaMutations.
+  val mediaMutations: List<MediaMutation>,
 ) {
   fun mutations(): List<Mutation> = listOfNotNull(loiMutation, submissionMutation)
 }
