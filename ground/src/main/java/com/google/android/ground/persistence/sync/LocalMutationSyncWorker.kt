@@ -59,6 +59,7 @@ constructor(
 
   override suspend fun doWork(): Result =
     withContext(Dispatchers.IO) {
+      // TODO: Move into repository? getUnfinishedUploads()?
       val queue =
         mutationRepository.getUploadQueueFlow().first().filter {
           handledUploadStates.contains(it.uploadStatus)
