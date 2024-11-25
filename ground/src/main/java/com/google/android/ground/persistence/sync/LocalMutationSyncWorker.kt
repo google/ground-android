@@ -64,9 +64,10 @@ constructor(
           handledUploadStates.contains(it.uploadStatus)
         }
       Timber.d("Uploading ${queue.size} additions / changes")
-      if (queue.map { processQueueEntry(it) }.all { it }) success() else retry()
-      // TODO: Update MediaUploader to work on entire queue, trigger when complete.
-      //      mediaUploadWorkManager.enqueueSyncWorker(locationOfInterestId)
+      val results = queue.map { processQueueEntry(it) }
+      // TODO: Update MediaUploader to work on entire queue.
+      if (results.any { it }) mediaUploadWorkManager.enqueueSyncWorker("")
+      if (results.all { it }) success() else retry()
     }
 
   /**
