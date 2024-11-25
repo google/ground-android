@@ -174,6 +174,8 @@ constructor(
    */
   suspend fun finalizePendingMutationsForMediaUpload(mutations: List<Mutation>) {
     finalizeDeletions(mutations)
+    // TODO(https://github.com/google/ground-android/issues/2873): Only do this is there are
+    // actually photos to upload.
     markForMediaUpload(mutations)
   }
 
