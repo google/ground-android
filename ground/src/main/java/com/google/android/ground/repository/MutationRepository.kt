@@ -133,7 +133,7 @@ constructor(
 
   /**
    * Saves the provided list of mutations to local storage. Updates any locally stored, existing
-   * mutations to reflect the mutations in the list, and writes any new mutations.
+   * mutations to reflect the mutations in the list, creating new mutations as needed.
    */
   suspend fun saveMutationsLocally(mutations: List<Mutation>) {
     val loiMutations = mutations.filterIsInstance<LocationOfInterestMutation>()
