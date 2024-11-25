@@ -23,7 +23,6 @@ import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.submission.UploadQueueEntry
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.UserRepository
@@ -51,22 +50,12 @@ constructor(
 
   override suspend fun doWork(): Result =
     withContext(Dispatchers.IO) {
-      val queue = mutationRepository.getIncompleteUploads()
-      Timber.d("Uploading ${queue.size} additions / changes")
-      val results = queue.map { processQueueEntry(it) }
+      val uploadQueue = mutationRepository.getIncompleteUploads()
+      Timber.d("Uploading ${uploadQueue.size} additions / changes")
+      val results = uploadQueue.map { processMutations(it.mutations()) }
       if (results.any { it }) mediaUploadWorkManager.enqueueSyncWorker()
       if (results.all { it }) success() else retry()
     }
-
-  /**
-   * Uploads a chunk of data to the remote data store, updating the upload status in the queue
-   * accordingly.
-   *
-   * @return `true` if all data was uploaded, `false` if at least one failed.
-   */
-  private suspend fun processQueueEntry(entry: UploadQueueEntry): Boolean {
-    return processMutations(listOfNotNull(entry.loiMutation, entry.submissionMutation))
-  }
 
   /**
    * Applies mutations to remote data store, updating their status in the queue accordingly. Catches
