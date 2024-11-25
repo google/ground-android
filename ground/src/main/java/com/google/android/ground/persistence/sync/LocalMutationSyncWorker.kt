@@ -24,9 +24,7 @@ import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.FAILED
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.IN_PROGRESS
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.PENDING
+import com.google.android.ground.model.submission.UploadQueueEntry
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.createInputData
 import com.google.android.ground.repository.MutationRepository
@@ -54,35 +52,32 @@ constructor(
   private val userRepository: UserRepository,
 ) : CoroutineWorker(context, params) {
 
-  private val locationOfInterestId: String =
-    params.inputData.getString(LOCATION_OF_INTEREST_ID_PARAM_KEY)!!
-
-  override suspend fun doWork(): Result = withContext(Dispatchers.IO) { doWorkInternal() }
-
-  private suspend fun doWorkInternal(): Result =
-    try {
-      val mutations = getIncompleteMutations()
-      Timber.d("Syncing ${mutations.size} changes for LOI $locationOfInterestId")
-      val result = processMutations(mutations)
-      mediaUploadWorkManager.enqueueSyncWorker(locationOfInterestId)
-      if (result) success() else retry()
-    } catch (t: Throwable) {
-      Timber.e(t, "Failed to sync changes for LOI $locationOfInterestId")
-      retry()
+  override suspend fun doWork(): Result =
+    withContext(Dispatchers.IO) {
+      val queue = mutationRepository.getPendingUploads()
+      Timber.d("Uploading ${queue.size} additions / changes")
+      if (queue.map { processQueueEntry(it) }.all { it }) success() else retry()
+      // TODO: Update MediaUploader to work on entire queue, trigger when complete.
+      //      mediaUploadWorkManager.enqueueSyncWorker(locationOfInterestId)
     }
 
   /**
-   * Attempts to fetch all mutations from the [MutationRepository] that are `PENDING`, `FAILED`, or
-   * `IN_PROGRESS` state. The latter should never occur since only on worker should be scheduled per
-   * LOI at a given time.
+   * Uploads a chunk of data to the remote data store, updating the upload status in the queue
+   * accordingly.
+   *
+   * @return `true` if all data was uploaded, `false` if at least one failed.
    */
-  private suspend fun getIncompleteMutations(): List<Mutation> =
-    mutationRepository.getMutations(locationOfInterestId, PENDING, FAILED, IN_PROGRESS)
+  private suspend fun processQueueEntry(entry: UploadQueueEntry): Boolean {
+    val mutations = listOfNotNull(entry.loiMutation, entry.submissionMutation)
+    return processMutations(mutations)
+  }
 
   /**
-   * Applies mutations to remote data store. Once successful, removes them from the local db.
+   * Applies mutations to remote data store, updating their status in the queue accordingly. Catches
+   * and handles all exceptions.
    *
-   * @return `true` if the mutations were successfully synced with [RemoteDataStore].
+   * @return `true` if all mutations were successfully synced with [RemoteDataStore], `false` if at
+   *   least one failed.
    */
   private suspend fun processMutations(mutations: List<Mutation>): Boolean {
     if (mutations.isEmpty()) return true

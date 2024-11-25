@@ -45,11 +45,11 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   @Inject lateinit var userStore: RoomUserStore
 
   /**
-   * Retrieves the complete set of [LocationOfInterest] associated with the given [Survey] from the
-   * local database and returns a [Flow] that continually emits the complete set anew any time the
-   * underlying table changes (insertions, deletions, updates).
+   * Retrieves the [LocationOfInterest]s associated with the given [Survey] from the local database
+   * and returns a [Flow] that continually emits the complete set anew any time the underlying table
+   * changes (insertions, deletions, updates). LOIs marked as "deleted" are not included.
    */
-  override fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
+  override fun getLoisInSurvey(survey: Survey): Flow<Set<LocationOfInterest>> =
     locationOfInterestDao.getByDeletionState(survey.id, EntityDeletionState.DEFAULT).map {
       toLocationsOfInterest(survey, it)
     }

@@ -80,7 +80,7 @@ constructor(
    * Returns a [List] of incomplete operations still in the upload queue, sorted in chronological
    * order (FIFO).
    */
-  suspend fun getUploadQueue(): List<UploadQueueEntry> =
+  suspend fun getPendingUploads(): List<UploadQueueEntry> =
     getUploadQueueFlow(includeCompleted = false).first()
 
   /**
@@ -119,9 +119,10 @@ constructor(
       .map {
         val loiMutation = loiMutationMap[it]
         val submissionMutation = submissionMutationMap[it]
+        val userId = submissionMutation?.userId ?: loiMutation!!.userId
         val clientTimestamp = submissionMutation?.clientTimestamp ?: loiMutation!!.clientTimestamp
         val syncStatus = submissionMutation?.syncStatus ?: loiMutation!!.syncStatus
-        UploadQueueEntry(clientTimestamp, syncStatus, loiMutation, submissionMutation)
+        UploadQueueEntry(userId, clientTimestamp, syncStatus, loiMutation, submissionMutation)
       }
       .sortedBy { it.clientTimestamp }
   }

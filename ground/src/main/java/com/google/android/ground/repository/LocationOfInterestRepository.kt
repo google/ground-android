@@ -141,7 +141,7 @@ constructor(
 
   /** Returns a flow of all valid (not deleted) [LocationOfInterest] in the given [Survey]. */
   fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
-    localLoiStore.getValidLois(survey)
+    localLoiStore.getLoisInSurvey(survey)
 
   /** Returns a flow of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBounds(survey: Survey, bounds: Bounds): Flow<List<LocationOfInterest>> =

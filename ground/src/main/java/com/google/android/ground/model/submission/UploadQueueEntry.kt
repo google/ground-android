@@ -26,6 +26,7 @@ import java.util.Date
  * by completing the data collection flow and clicking "Submit".
  */
 data class UploadQueueEntry(
+  val userId: String,
   val clientTimestamp: Date,
   val uploadStatus: Mutation.SyncStatus,
   val loiMutation: LocationOfInterestMutation?,
