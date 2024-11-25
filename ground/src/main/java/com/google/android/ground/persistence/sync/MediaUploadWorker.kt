@@ -18,13 +18,14 @@ package com.google.android.ground.persistence.sync
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
-import androidx.work.Data
+import androidx.work.ListenableWorker.Result.retry
+import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
-import com.google.android.ground.Config
 import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_AWAITING_RETRY
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.PhotoTaskData
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.UserMediaRepository
@@ -33,6 +34,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.io.FileNotFoundException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -55,102 +57,85 @@ constructor(
   private val mutationRepository: MutationRepository,
   private val userMediaRepository: UserMediaRepository,
 ) : CoroutineWorker(context, workerParams) {
-
-  private val loiId: String = workerParams.inputData.getString(LOI_ID) ?: ""
+  /**
+   * The set of upload states handled by this worker. Since only one instance of this worker should
+   * be running at a time, include "in progress" and "failed", which might indicate a previous run
+   * crashed unexpectedly.
+   */
+  private val handledUploadStates =
+    setOf(
+      Mutation.SyncStatus.MEDIA_UPLOAD_PENDING,
+      MEDIA_UPLOAD_IN_PROGRESS,
+      MEDIA_UPLOAD_AWAITING_RETRY,
+    )
 
   override suspend fun doWork(): Result = withContext(Dispatchers.IO) { doWorkInternal() }
 
   /** Performs media uploads for all eligible submission mutations associated with a given LOI. */
   private suspend fun doWorkInternal(): Result {
-    check(loiId.isNotEmpty()) { "work was queued for an empty location of interest ID" }
-    Timber.d("Starting media upload for LOI: $loiId")
-
+    // TODO: Move into repository?
     val mutations =
-      mutationRepository.getSubmissionMutations(
-        loiId,
-        MutationEntitySyncStatus.MEDIA_UPLOAD_PENDING,
-        MutationEntitySyncStatus.MEDIA_UPLOAD_IN_PROGRESS,
-        MutationEntitySyncStatus.MEDIA_UPLOAD_AWAITING_RETRY,
-      )
-    val results = uploadMedia(mutations)
-    return if (results.any { it.mediaUploadPending() }) Result.retry() else Result.success()
+      mutationRepository
+        .getUploadQueueFlow()
+        .first()
+        .filter { handledUploadStates.contains(it.uploadStatus) }
+        .mapNotNull { it.submissionMutation }
+    Timber.d("Uploading photos for ${mutations.size} submission mutations")
+    val results = mutations.map { uploadMedia(it) }
+    return if (results.all { it }) success() else retry()
   }
 
   /**
-   * Attempts to upload associated media for a given list of [SubmissionMutation] and updates the
-   * status of each mutation based on whether uploads succeeded or failed.
+   * Upload all media associated with a given submission. Returns `true` if all uploads succeed,
+   * `false` otherwise.
    */
-  private suspend fun uploadMedia(mutations: List<SubmissionMutation>): List<SubmissionMutation> =
-    mutations
-      .map { mutation ->
-        mutation
-          .updateSyncStatus(Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS)
-          .incrementRetryCount()
-      }
-      .also { mutationRepository.saveMutationsLocally(it) }
-      .map { mutation -> uploadMedia(mutation) }
-      .also { mutationRepository.saveMutationsLocally(it) }
-
-  /**
-   * Attempts to upload all media associated with a given submission. Updates the submission's sync
-   * status depending on whether or the uploads failed or succeeded.
-   */
-  private suspend fun uploadMedia(mutation: SubmissionMutation): SubmissionMutation {
+  private suspend fun uploadMedia(mutation: SubmissionMutation): Boolean {
+    mutationRepository.saveMutationsLocally(
+      listOf(mutation.updateSyncStatus(MEDIA_UPLOAD_IN_PROGRESS))
+    )
     val photoTasks = mutation.deltas.map { it.newTaskData }.filterIsInstance<PhotoTaskData>()
-    return uploadPhotos(photoTasks)
-      .fold(
-        onSuccess = { mutation.updateSyncStatus(Mutation.SyncStatus.COMPLETED) },
-        onFailure = {
-          return mutation.copy(
-            syncStatus =
-              if (it is FileNotFoundException || !mutation.canRetry()) {
-                Mutation.SyncStatus.FAILED
-              } else {
-                Mutation.SyncStatus.MEDIA_UPLOAD_AWAITING_RETRY
-              },
-            lastError = it.message ?: "unknown upload error",
-          )
-        },
-      )
-  }
-
-  private suspend fun uploadPhotos(photoTaskDataList: List<PhotoTaskData>): kotlin.Result<Unit> =
-    // TODO(#2120): Retry uploads on a per-photo basis, instead of per-response.
-    photoTaskDataList
-      .filter { !it.isEmpty() }
-      .map { uploadPhotoMedia(it) }
-      .fold(kotlin.Result.success(Unit)) { a, b -> if (a.isSuccess) b else a }
-
-  /**
-   * Attempts to upload a single photo to remote storage. Returns an [Result] indicating whether the
-   * upload attempt failed or succeeded.
-   */
-  private suspend fun uploadPhotoMedia(photoTaskData: PhotoTaskData): kotlin.Result<Unit> =
     try {
-      val path = photoTaskData.remoteFilename
-      val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
-      Timber.d("Starting photo upload. local path: ${photoFile.path}, remote path: $path")
-      if (!photoFile.exists()) {
-        throw FileNotFoundException(photoFile.path)
-      }
-      remoteStorageManager.uploadMediaFromFile(photoFile, path)
-      kotlin.Result.success(Unit)
-    } catch (t: FirebaseNetworkException) {
-      Timber.d(t, "Can't connect to Firebase to upload photo")
-      kotlin.Result.failure(t)
+      photoTasks.filter { !it.isEmpty() }.map { uploadPhotoMedia(it) }
+      mutationRepository.saveMutationsLocally(
+        listOf(mutation.updateSyncStatus(Mutation.SyncStatus.COMPLETED))
+      )
+      return true
     } catch (t: Throwable) {
-      Timber.e(t, "Failed to upload photo")
-      kotlin.Result.failure(t)
+      if (t is FirebaseNetworkException) {
+        Timber.d(t, "Can't connect to Firebase to upload photo")
+      } else {
+        Timber.e(t, "Failed to upload photo")
+      }
+      mutationRepository.saveMutationsLocally(
+        listOf(
+          mutation.copy(
+            syncStatus = MEDIA_UPLOAD_AWAITING_RETRY,
+            lastError = t.message ?: "Unknown error",
+            retryCount = mutation.retryCount + 1,
+          )
+        )
+      )
+      return false
     }
-
-  companion object {
-    private const val LOI_ID = "locationOfInterestId"
-
-    @JvmStatic
-    fun createInputData(locationOfInterestId: String): Data =
-      Data.Builder().putString(LOI_ID, locationOfInterestId).build()
-
-    private fun SubmissionMutation.canRetry() =
-      this.retryCount < Config.MAX_MEDIA_UPLOAD_RETRY_COUNT
   }
+
+  /** Attempts to upload a single photo to remote storage. */
+  private suspend fun uploadPhotoMedia(photoTaskData: PhotoTaskData) {
+    //    try {
+    val path = photoTaskData.remoteFilename
+    val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
+    Timber.d("Starting photo upload. local path: ${photoFile.path}, remote path: $path")
+    if (!photoFile.exists()) {
+      throw FileNotFoundException(photoFile.path)
+    }
+    remoteStorageManager.uploadMediaFromFile(photoFile, path)
+  }
+  //      kotlin.Result.success(Unit)
+  //    } catch (t: FirebaseNetworkException) {
+  //      Timber.d(t, "Can't connect to Firebase to upload photo")
+  //      kotlin.Result.failure(t)
+  //    } catch (t: Throwable) {
+  //      Timber.e(t, "Failed to upload photo")
+  //      kotlin.Result.failure(t)
+  //    }
 }

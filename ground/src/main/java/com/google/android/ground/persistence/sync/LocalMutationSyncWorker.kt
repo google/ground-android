@@ -91,6 +91,7 @@ constructor(
     if (mutations.isEmpty()) return true
     return try {
       val user = userRepository.getAuthenticatedUser()
+      // TODO: Move into repo for reuse by MediaUploadWorker
       filterMutationsByUser(mutations, user)
         .takeIf { it.isNotEmpty() }
         ?.let {
