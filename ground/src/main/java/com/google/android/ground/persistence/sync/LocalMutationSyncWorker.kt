@@ -54,8 +54,7 @@ constructor(
       val queue = mutationRepository.getIncompleteUploads()
       Timber.d("Uploading ${queue.size} additions / changes")
       val results = queue.map { processQueueEntry(it) }
-      // TODO: Update MediaUploader to work on entire queue.
-      if (results.any { it }) mediaUploadWorkManager.enqueueSyncWorker("")
+      if (results.any { it }) mediaUploadWorkManager.enqueueSyncWorker()
       if (results.all { it }) success() else retry()
     }
 
