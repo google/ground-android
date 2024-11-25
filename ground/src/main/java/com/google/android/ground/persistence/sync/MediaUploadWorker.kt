@@ -69,21 +69,19 @@ constructor(
       MEDIA_UPLOAD_AWAITING_RETRY,
     )
 
-  override suspend fun doWork(): Result = withContext(Dispatchers.IO) { doWorkInternal() }
-
-  /** Performs media uploads for all eligible submission mutations associated with a given LOI. */
-  private suspend fun doWorkInternal(): Result {
-    // TODO: Move into repository?
-    val mutations =
-      mutationRepository
-        .getUploadQueueFlow()
-        .first()
-        .filter { handledUploadStates.contains(it.uploadStatus) }
-        .mapNotNull { it.submissionMutation }
-    Timber.d("Uploading photos for ${mutations.size} submission mutations")
-    val results = mutations.map { uploadMedia(it) }
-    return if (results.all { it }) success() else retry()
-  }
+  override suspend fun doWork(): Result =
+    withContext(Dispatchers.IO) {
+      // TODO: Move into repository?
+      val mutations =
+        mutationRepository
+          .getUploadQueueFlow()
+          .first()
+          .filter { handledUploadStates.contains(it.uploadStatus) }
+          .mapNotNull { it.submissionMutation }
+      Timber.d("Uploading photos for ${mutations.size} submission mutations")
+      val results = mutations.map { uploadMedia(it) }
+      if (results.all { it }) success() else retry()
+    }
 
   /**
    * Upload all media associated with a given submission. Returns `true` if all uploads succeed,
