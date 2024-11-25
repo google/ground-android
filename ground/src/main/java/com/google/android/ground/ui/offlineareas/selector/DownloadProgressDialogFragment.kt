@@ -44,9 +44,9 @@ class DownloadProgressDialogFragment : AbstractDialogFragment() {
   }
 
   fun setVisibility(childFragmentManager: FragmentManager, newVisibility: Boolean) {
-    if (newVisibility && !isVisible) {
+    if (newVisibility && !isAdded && !isVisible) {
       show(childFragmentManager, this::class.simpleName)
-    } else if (!newVisibility && isVisible) {
+    } else if (!newVisibility && isAdded && isVisible) {
       dismiss()
     }
   }
