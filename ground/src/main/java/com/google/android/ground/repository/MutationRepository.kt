@@ -19,7 +19,7 @@ package com.google.android.ground.repository
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.mutation.Mutation.SyncStatus.COMPLETED
+import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.UploadQueueEntry
 import com.google.android.ground.persistence.local.room.converter.toModelObject
@@ -33,7 +33,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 
 /**
  * Coordinates persistence of mutations across [LocationOfInterestMutation] and [SubmissionMutation]
@@ -77,43 +76,23 @@ constructor(
   ) = getMutations(loiId, *entitySyncStatus).filterIsInstance<SubmissionMutation>()
 
   /**
-   * Returns a [List] of incomplete operations still in the upload queue, sorted in chronological
-   * order (FIFO).
-   */
-  suspend fun getPendingUploads(): List<UploadQueueEntry> =
-    getUploadQueueFlow(includeCompleted = false).first()
-
-  /**
-   * Returns a [Flow] which emits the status of all entries in the upload queue (completed, pending,
-   * etc.) once and on each change, sorted in chronological order (FIFO).
-   */
-  fun getUploadStatusFlow(): Flow<List<UploadQueueEntry>> =
-    getUploadQueueFlow(includeCompleted = true)
-
-  /**
    * Returns a [Flow] which emits the upload queue once and on each change, sorted in chronological
    * order (FIFO).
    */
-  private fun getUploadQueueFlow(includeCompleted: Boolean): Flow<List<UploadQueueEntry>> =
-    localLocationOfInterestStore.getAllMutationsFlow().combine(
+  fun getUploadQueueFlow(): Flow<List<UploadQueueEntry>> {
+    return localLocationOfInterestStore.getAllMutationsFlow().combine(
       localSubmissionStore.getAllMutationsFlow()
     ) { loiMutations, submissionMutations ->
-      buildUploadQueue(loiMutations, submissionMutations, includeCompleted)
+      buildUploadQueue(loiMutations, submissionMutations)
     }
+  }
 
   private fun buildUploadQueue(
     loiMutations: List<LocationOfInterestMutation>,
     submissionMutations: List<SubmissionMutation>,
-    includeCompleted: Boolean,
   ): List<UploadQueueEntry> {
-    val loiMutationMap =
-      loiMutations
-        .filter { includeCompleted || it.syncStatus != COMPLETED }
-        .associateBy { it.collectionId }
-    val submissionMutationMap =
-      submissionMutations
-        .filter { includeCompleted || it.syncStatus != COMPLETED }
-        .associateBy { it.collectionId }
+    val loiMutationMap = loiMutations.associateBy { it.collectionId }
+    val submissionMutationMap = submissionMutations.associateBy { it.collectionId }
     val collectionIds = loiMutationMap.keys + submissionMutationMap.keys
     return collectionIds
       .map {
@@ -188,15 +167,15 @@ constructor(
       }
 
   suspend fun markAsInProgress(mutations: List<Mutation>) {
-    saveMutationsLocally(mutations.updateMutationStatus(Mutation.SyncStatus.IN_PROGRESS))
+    saveMutationsLocally(mutations.updateMutationStatus(SyncStatus.IN_PROGRESS))
   }
 
   suspend fun markAsFailed(mutations: List<Mutation>, error: Throwable) {
-    saveMutationsLocally(mutations.updateMutationStatus(Mutation.SyncStatus.FAILED, error))
+    saveMutationsLocally(mutations.updateMutationStatus(SyncStatus.FAILED, error))
   }
 
   private suspend fun markForMediaUpload(mutations: List<Mutation>) {
-    saveMutationsLocally(mutations.updateMutationStatus(Mutation.SyncStatus.MEDIA_UPLOAD_PENDING))
+    saveMutationsLocally(mutations.updateMutationStatus(SyncStatus.MEDIA_UPLOAD_PENDING))
   }
 
   private fun combineAndSortMutations(
@@ -226,10 +205,10 @@ constructor(
 //       .also { repo.saveMutationsLocally(it) } // write updated mutations to local storage to
 // exclude/include them in further processing runs.
 private fun List<Mutation>.updateMutationStatus(
-  syncStatus: Mutation.SyncStatus,
+  syncStatus: SyncStatus,
   error: Throwable? = null,
 ): List<Mutation> = map {
-  val hasSyncFailed = syncStatus == Mutation.SyncStatus.FAILED
+  val hasSyncFailed = syncStatus == SyncStatus.FAILED
   val retryCount = if (hasSyncFailed) it.retryCount + 1 else it.retryCount
   val errorMessage = if (hasSyncFailed) error?.message ?: error.toString() else it.lastError
 

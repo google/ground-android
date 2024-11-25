@@ -18,12 +18,12 @@ package com.google.android.ground.persistence.sync
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
-import androidx.work.Data
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
 import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.*
 import com.google.android.ground.model.submission.UploadQueueEntry
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.repository.MutationRepository
@@ -31,11 +31,13 @@ import com.google.android.ground.repository.UserRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 /**
- * A worker that uploads all pending local changes to the remote data store.
+ * A worker that uploads all pending local changes to the remote data store. Larger uploads (photos)
+ * are then delegated to [MediaUploadWorkManager], which is enqueued and run in parallel.
  */
 @HiltWorker
 class LocalMutationSyncWorker
@@ -48,10 +50,19 @@ constructor(
   private val mediaUploadWorkManager: MediaUploadWorkManager,
   private val userRepository: UserRepository,
 ) : CoroutineWorker(context, params) {
+  /**
+   * The set of upload states handled by this worker. Since only one instance of this worker should
+   * be running at a time, include "in progress" and "failed", which might indicate a previous run
+   * crashed unexpectedly.
+   */
+  private val handledUploadStates = setOf(PENDING, IN_PROGRESS, FAILED, UNKNOWN)
 
   override suspend fun doWork(): Result =
     withContext(Dispatchers.IO) {
-      val queue = mutationRepository.getPendingUploads()
+      val queue =
+        mutationRepository.getUploadQueueFlow().first().filter {
+          handledUploadStates.contains(it.uploadStatus)
+        }
       Timber.d("Uploading ${queue.size} additions / changes")
       if (queue.map { processQueueEntry(it) }.all { it }) success() else retry()
       // TODO: Update MediaUploader to work on entire queue, trigger when complete.
@@ -65,8 +76,7 @@ constructor(
    * @return `true` if all data was uploaded, `false` if at least one failed.
    */
   private suspend fun processQueueEntry(entry: UploadQueueEntry): Boolean {
-    val mutations = listOfNotNull(entry.loiMutation, entry.submissionMutation)
-    return processMutations(mutations)
+    return processMutations(listOfNotNull(entry.loiMutation, entry.submissionMutation))
   }
 
   /**
