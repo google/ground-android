@@ -213,7 +213,7 @@ private fun List<Mutation>.updateMutationStatus(
   syncStatus: SyncStatus,
   error: Throwable? = null,
 ): List<Mutation> = map {
-  val hasSyncFailed = syncStatus == FAILED
+  val hasSyncFailed = syncStatus == FAILED || syncStatus == MEDIA_UPLOAD_AWAITING_RETRY
   val retryCount = if (hasSyncFailed) it.retryCount + 1 else it.retryCount
   val errorMessage = if (hasSyncFailed) error?.message ?: error.toString() else it.lastError
 
