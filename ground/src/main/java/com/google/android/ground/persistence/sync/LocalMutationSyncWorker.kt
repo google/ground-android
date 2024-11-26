@@ -68,7 +68,8 @@ constructor(
     if (mutations.isEmpty()) return true
     return try {
       val user = userRepository.getAuthenticatedUser()
-      // TODO: Move into repo for reuse by MediaUploadWorker
+      // TODO(https://github.com/google/ground-android/issues/2840):
+      //   Move into repo for reuse by MediaUploadWorker.
       filterMutationsByUser(mutations, user)
         .takeIf { it.isNotEmpty() }
         ?.let {
