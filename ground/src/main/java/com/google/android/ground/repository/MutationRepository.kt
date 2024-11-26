@@ -19,6 +19,7 @@ package com.google.android.ground.repository
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.Mutation.SyncStatus.FAILED
 import com.google.android.ground.model.mutation.Mutation.SyncStatus.IN_PROGRESS
 import com.google.android.ground.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_PENDING
@@ -159,7 +160,7 @@ constructor(
 }
 
 private fun List<Mutation>.updateMutationStatus(
-  syncStatus: Mutation.SyncStatus,
+  syncStatus: SyncStatus,
   error: Throwable? = null,
 ): List<Mutation> = map {
   val hasSyncFailed = syncStatus == FAILED
