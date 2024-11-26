@@ -67,8 +67,8 @@ internal constructor(
   /**
    * Enqueue data and photo upload workers for all pending mutations when home screen is first
    * opened as a workaround the get stuck mutations (i.e., PENDING or FAILED mutations with no
-   * scheduled workers) going again. Workaround for
-   * https://github.com/google/ground-android/issues/2751.
+   * scheduled workers) going again. If there are no mutations in the upload queue this will be a
+   * no-op. Workaround for https://github.com/google/ground-android/issues/2751.
    */
   private suspend fun kickLocalMutationSyncWorkers() {
     val mutations = mutationRepository.getAllMutationsFlow().first()
