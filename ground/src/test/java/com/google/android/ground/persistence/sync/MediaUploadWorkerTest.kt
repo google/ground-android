@@ -28,6 +28,7 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.PhotoTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.model.task.Task.Type.PHOTO
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
@@ -115,7 +116,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     val mutation = createSubmissionMutation() // a valid mutation
     val delta = buildList {
       addAll(mutation.deltas)
-      add(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, PhotoTaskData("some/path/does_not_exist.jpg")))
+      add(ValueDelta(PHOTO_TASK_ID, PHOTO, PhotoTaskData("some/path/does_not_exist.jpg")))
     }
     val updatedMutation =
       mutation.copy(
@@ -182,8 +183,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
 
     return SUBMISSION_MUTATION.copy(
       job = TEST_JOB,
-      deltas =
-        listOf(ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, PhotoTaskData(photoName ?: photo.name))),
+      deltas = listOf(ValueDelta(PHOTO_TASK_ID, PHOTO, PhotoTaskData(photoName ?: photo.name))),
     )
   }
 
@@ -191,13 +191,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
   companion object {
     private const val PHOTO_TASK_ID = "photo_task_id"
     private val TEST_PHOTO_TASK: Task =
-      Task(
-        id = "photo_task_id",
-        index = 1,
-        isRequired = true,
-        type = Task.Type.PHOTO,
-        label = "photo_task",
-      )
+      Task(id = "photo_task_id", index = 1, isRequired = true, type = PHOTO, label = "photo_task")
 
     private val TEST_JOB = FakeData.JOB.copy(tasks = mapOf(PHOTO_TASK_ID to TEST_PHOTO_TASK))
 
@@ -213,10 +207,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
         job = FakeData.JOB,
         surveyId = FakeData.SURVEY.id,
         collectionId = "collectionId",
-        deltas =
-          listOf(
-            ValueDelta(PHOTO_TASK_ID, Task.Type.PHOTO, PhotoTaskData("foo/$PHOTO_TASK_ID.jpg"))
-          ),
+        deltas = listOf(ValueDelta(PHOTO_TASK_ID, PHOTO, PhotoTaskData("foo/$PHOTO_TASK_ID.jpg"))),
       )
   }
 }
