@@ -23,7 +23,6 @@ import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
-import androidx.work.workDataOf
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
@@ -38,7 +37,6 @@ import com.google.android.ground.persistence.local.stores.LocalLocationOfInteres
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
-import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.LOCATION_OF_INTEREST_ID_PARAM_KEY
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.common.truth.Truth.assertThat
@@ -111,7 +109,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   @Test
   fun `Throws an NPE if LOI ID is null`() {
     assertThrows(NullPointerException::class.java) {
-      runWithTestDispatcher { createAndDoWork(context, null) }
+      runWithTestDispatcher { createAndDoWork(context) }
     }
   }
 
@@ -121,7 +119,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
     addPendingMutations()
 
-    val result = createAndDoWork(context, TEST_LOI_ID)
+    val result = createAndDoWork(context)
 
     assertThat(result).isEqualTo(success())
     assertMutationsState(pending = 2)
@@ -135,7 +133,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = TEST_USER_ID))
     localSubmissionStore.applyAndEnqueue(createSubmissionMutation(TEST_USER_ID))
 
-    val result = createAndDoWork(context, TEST_LOI_ID)
+    val result = createAndDoWork(context)
 
     assertThat(result).isEqualTo(success())
     assertMutationsState(pending = 1, complete = 1)
@@ -143,7 +141,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
   @Test
   fun `Succeeds if there are 0 pending mutations`() = runWithTestDispatcher {
-    val result = createAndDoWork(context, TEST_LOI_ID)
+    val result = createAndDoWork(context)
 
     assertThat(result).isEqualTo(success())
   }
@@ -152,7 +150,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   fun `Succeeds if there are non-zero pending mutations`() = runWithTestDispatcher {
     addPendingMutations()
 
-    val result = createAndDoWork(context, TEST_LOI_ID)
+    val result = createAndDoWork(context)
 
     assertThat(result).isEqualTo(success())
     assertMutationsState(complete = 2)
@@ -164,7 +162,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
       fakeRemoteDataStore.applyMutationError = Error(ERROR_MESSAGE)
       addPendingMutations()
 
-      val result = createAndDoWork(context, TEST_LOI_ID)
+      val result = createAndDoWork(context)
 
       assertThat(result).isEqualTo(retry())
       assertMutationsState(
@@ -179,7 +177,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     fakeRemoteDataStore.applyMutationError = Error(ERROR_MESSAGE)
     addPendingMutations()
 
-    var result = createAndDoWork(context, TEST_LOI_ID)
+    var result = createAndDoWork(context)
     assertThat(result).isEqualTo(retry())
     assertMutationsState(
       failed = 2,
@@ -189,7 +187,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
     for (i in 1..10) {
       // Worker should retry N times.
-      result = createAndDoWork(context, TEST_LOI_ID)
+      result = createAndDoWork(context)
       assertThat(result).isEqualTo(retry())
       // Verify that the retryCount has incremented.
       assertMutationsState(
@@ -254,11 +252,8 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
       collectionId = "collectionId",
     )
 
-  private suspend fun createAndDoWork(context: Context, loiId: String?): ListenableWorker.Result =
-    TestListenableWorkerBuilder<LocalMutationSyncWorker>(
-        context,
-        inputData = workDataOf(Pair(LOCATION_OF_INTEREST_ID_PARAM_KEY, loiId)),
-      )
+  private suspend fun createAndDoWork(context: Context): ListenableWorker.Result =
+    TestListenableWorkerBuilder<LocalMutationSyncWorker>(context)
       .setWorkerFactory(factory)
       .build()
       .doWork()
