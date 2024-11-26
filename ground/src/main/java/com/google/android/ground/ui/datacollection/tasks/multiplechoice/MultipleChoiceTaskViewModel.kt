@@ -47,13 +47,11 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
         _items.value
           .firstOrNull { it.isOtherOption }
           ?.let {
-            val selected =
-              if (task.isRequired) {
-                otherText.trim() != ""
-              } else {
-                true
-              }
-            setItem(it, selected, it.cardinality == SELECT_MULTIPLE)
+            setItem(
+              item = it,
+              selection = isOtherTextValid(),
+              canSelectMultiple = it.cardinality == SELECT_MULTIPLE,
+            )
           }
         updateResponse()
       }
@@ -93,7 +91,7 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
 
   fun updateResponse() {
     // Check if "other" text is missing or not.
-    if (task.isRequired && selectedIds.contains(OTHER_ID) && otherText.trim().isEmpty()) {
+    if (selectedIds.contains(OTHER_ID) && !isOtherTextValid()) {
       clearResponse()
       return
     }
@@ -107,6 +105,16 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
         },
       )
     )
+  }
+
+  /** Returns true if the value for "other" text is valid, otherwise false. */
+  private fun isOtherTextValid(): Boolean {
+    if (!task.isRequired) {
+      // If task is not required, then the text value can be empty. Hence, it is always valid.
+      return true
+    }
+
+    return otherText.isNotBlank()
   }
 
   /**
