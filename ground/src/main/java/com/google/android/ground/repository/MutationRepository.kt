@@ -19,6 +19,9 @@ package com.google.android.ground.repository
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.FAILED
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.IN_PROGRESS
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_PENDING
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
@@ -134,15 +137,15 @@ constructor(
       }
 
   suspend fun markAsInProgress(mutations: List<Mutation>) {
-    saveMutationsLocally(mutations.updateMutationStatus(Mutation.SyncStatus.IN_PROGRESS))
+    saveMutationsLocally(mutations.updateMutationStatus(IN_PROGRESS))
   }
 
   suspend fun markAsFailed(mutations: List<Mutation>, error: Throwable) {
-    saveMutationsLocally(mutations.updateMutationStatus(Mutation.SyncStatus.FAILED, error))
+    saveMutationsLocally(mutations.updateMutationStatus(FAILED, error))
   }
 
   private suspend fun markForMediaUpload(mutations: List<Mutation>) {
-    saveMutationsLocally(mutations.updateMutationStatus(Mutation.SyncStatus.MEDIA_UPLOAD_PENDING))
+    saveMutationsLocally(mutations.updateMutationStatus(MEDIA_UPLOAD_PENDING))
   }
 
   private fun combineAndSortMutations(
@@ -175,7 +178,7 @@ private fun List<Mutation>.updateMutationStatus(
   syncStatus: Mutation.SyncStatus,
   error: Throwable? = null,
 ): List<Mutation> = map {
-  val hasSyncFailed = syncStatus == Mutation.SyncStatus.FAILED
+  val hasSyncFailed = syncStatus == FAILED
   val retryCount = if (hasSyncFailed) it.retryCount + 1 else it.retryCount
   val errorMessage = if (hasSyncFailed) error?.message ?: error.toString() else it.lastError
 
