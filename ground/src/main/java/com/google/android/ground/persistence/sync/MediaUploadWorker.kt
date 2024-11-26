@@ -96,7 +96,7 @@ constructor(
    * status depending on whether or the uploads failed or succeeded.
    */
   private suspend fun uploadMedia(mutation: SubmissionMutation): SubmissionMutation {
-    val photoTasks = mutation.deltas.map { it.newTaskData }.filterIsInstance<PhotoTaskData>()
+    val photoTasks = mutation.getPhotoData()
     return uploadPhotos(photoTasks)
       .fold(
         onSuccess = { mutation.updateSyncStatus(Mutation.SyncStatus.COMPLETED) },
@@ -117,7 +117,6 @@ constructor(
   private suspend fun uploadPhotos(photoTaskDataList: List<PhotoTaskData>): kotlin.Result<Unit> =
     // TODO(#2120): Retry uploads on a per-photo basis, instead of per-response.
     photoTaskDataList
-      .filter { !it.isEmpty() }
       .map { uploadPhotoMedia(it) }
       .fold(kotlin.Result.success(Unit)) { a, b -> if (a.isSuccess) b else a }
 
