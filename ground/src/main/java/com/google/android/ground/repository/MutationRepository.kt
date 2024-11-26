@@ -90,15 +90,11 @@ constructor(
    * Return the set of photo/media upload queue entries not yet marked as completed, sorted in
    * chronological order (FIFO).
    */
-  suspend fun getIncompleteMediaUploads(): List<SubmissionMutation> =
-    localSubmissionStore
-      .getAllMutationsFlow()
-      .first()
-      .filter {
-        setOf(MEDIA_UPLOAD_PENDING, MEDIA_UPLOAD_IN_PROGRESS, FAILED, UNKNOWN)
-          .contains(it.syncStatus)
-      }
-      .sortedBy { it.clientTimestamp }
+  suspend fun getIncompleteMediaUploads(): List<UploadQueueEntry> =
+    getUploadQueueFlow().first().filter {
+      setOf(MEDIA_UPLOAD_PENDING, MEDIA_UPLOAD_IN_PROGRESS, MEDIA_UPLOAD_AWAITING_RETRY)
+        .contains(it.uploadStatus)
+    }
 
   /**
    * Returns a [Flow] which emits the upload queue once and on each change, sorted in chronological

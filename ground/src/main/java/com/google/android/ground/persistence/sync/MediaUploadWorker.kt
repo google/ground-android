@@ -59,17 +59,17 @@ constructor(
 
   override suspend fun doWork(): Result =
     withContext(Dispatchers.IO) {
-      val mutations = mutationRepository.getIncompleteMediaUploads()
-      Timber.d("Uploading photos for ${mutations.size} submission mutations")
-      val results = mutations.map { uploadMedia(it) }
+      val uploadQueue = mutationRepository.getIncompleteMediaUploads()
+      Timber.d("Uploading photos for ${uploadQueue.size} submission mutations")
+      val results = uploadQueue.mapNotNull { it.submissionMutation }.map { uploadAllMedia(it) }
       if (results.all { it }) success() else retry()
     }
 
   /**
-   * Upload all media associated with a given submission. Returns `true` if all uploads succeed,
-   * `false` otherwise.
+   * Upload all media associated with a given submission. Returns `true` if all uploads succeeds or
+   * if there is nothing to upload, `false` otherwise.
    */
-  private suspend fun uploadMedia(mutation: SubmissionMutation): Boolean {
+  private suspend fun uploadAllMedia(mutation: SubmissionMutation): Boolean {
     mutationRepository.saveMutationsLocally(
       listOf(mutation.updateSyncStatus(MEDIA_UPLOAD_IN_PROGRESS))
     )
