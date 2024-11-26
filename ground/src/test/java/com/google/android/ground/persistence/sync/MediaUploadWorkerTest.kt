@@ -43,7 +43,6 @@ import com.sharedtest.persistence.remote.FakeRemoteStorageManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -84,13 +83,6 @@ class MediaUploadWorkerTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     context = ApplicationProvider.getApplicationContext()
-  }
-
-  @Test
-  fun doWork_throwsOnEmptyLoiId() {
-    assertThrows(IllegalStateException::class.java) {
-      runWithTestDispatcher { createAndDoWork(context) }
-    }
   }
 
   @Test

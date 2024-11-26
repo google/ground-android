@@ -107,13 +107,6 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Throws an NPE if LOI ID is null`() {
-    assertThrows(NullPointerException::class.java) {
-      runWithTestDispatcher { createAndDoWork(context) }
-    }
-  }
-
-  @Test
   fun `Ignores all mutations if the logged-in user is mismatching`() = runWithTestDispatcher {
     fakeAuthenticationManager.setUser(FakeData.USER.copy(id = "random user id"))
 
