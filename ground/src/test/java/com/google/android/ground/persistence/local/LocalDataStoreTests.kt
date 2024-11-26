@@ -178,7 +178,7 @@ class LocalDataStoreTests : BaseHiltTest() {
 
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, FakeData.LOI_ID)
 
-    localLoiStore.getLoisInSurvey(TEST_SURVEY).test {
+    localLoiStore.getValidLois(TEST_SURVEY).test {
       assertThat(expectMostRecentItem()).isEqualTo(setOf(loi))
     }
   }
@@ -312,7 +312,7 @@ class LocalDataStoreTests : BaseHiltTest() {
 
     // Assert that one LOI is streamed.
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, FakeData.LOI_ID)!!
-    localLoiStore.getLoisInSurvey(TEST_SURVEY).test {
+    localLoiStore.getValidLois(TEST_SURVEY).test {
       assertThat(expectMostRecentItem()).isEqualTo(setOf(loi))
     }
     val mutation = TEST_LOI_MUTATION.copy(id = null, type = Mutation.Type.DELETE)
@@ -325,7 +325,7 @@ class LocalDataStoreTests : BaseHiltTest() {
       .isEqualTo(EntityDeletionState.DELETED)
 
     // Verify that the local LOI is now removed from the latest LOI stream.
-    localLoiStore.getLoisInSurvey(TEST_SURVEY).test { assertThat(expectMostRecentItem()).isEmpty() }
+    localLoiStore.getValidLois(TEST_SURVEY).test { assertThat(expectMostRecentItem()).isEmpty() }
 
     // After successful remote sync, delete LOI is called by LocalMutationSyncWorker.
     localLoiStore.deleteLocationOfInterest(FakeData.LOI_ID)
