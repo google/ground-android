@@ -36,15 +36,12 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
   private lateinit var viewModel: OfflineAreaSelectorViewModel
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
 
-  private var downloadProgressDialogFragment = DownloadProgressDialogFragment()
+  private var downloadProgressDialogFragment: DownloadProgressDialogFragment? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     viewModel = getViewModel(OfflineAreaSelectorViewModel::class.java)
-    viewModel.isDownloadProgressVisible.observe(this) {
-      downloadProgressDialogFragment.setVisibility(childFragmentManager, it)
-    }
   }
 
   override fun onCreateView(
@@ -57,6 +54,16 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
     return binding.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    viewModel.isDownloadProgressVisible.observe(viewLifecycleOwner) {
+      if (downloadProgressDialogFragment == null) {
+        downloadProgressDialogFragment = DownloadProgressDialogFragment()
+      }
+      downloadProgressDialogFragment?.setVisibility(childFragmentManager, it)
+    }
   }
 
   override fun onMapReady(map: MapFragment) {
