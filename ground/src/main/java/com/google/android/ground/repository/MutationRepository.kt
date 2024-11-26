@@ -139,7 +139,7 @@ constructor(
    * Saves the provided list of mutations to local storage. Updates any locally stored, existing
    * mutations to reflect the mutations in the list, creating new mutations as needed.
    */
-  suspend fun saveMutationsLocally(mutations: List<Mutation>) {
+  private suspend fun saveMutationsLocally(mutations: List<Mutation>) {
     val loiMutations = mutations.filterIsInstance<LocationOfInterestMutation>()
     localLocationOfInterestStore.updateAll(loiMutations)
 
@@ -226,7 +226,7 @@ private fun List<Mutation>.updateMutationStatus(
   syncStatus: SyncStatus,
   error: Throwable? = null,
 ): List<Mutation> = map {
-  val hasSyncFailed = syncStatus == SyncStatus.FAILED
+  val hasSyncFailed = syncStatus == FAILED
   val retryCount = if (hasSyncFailed) it.retryCount + 1 else it.retryCount
   val errorMessage = if (hasSyncFailed) error?.message ?: error.toString() else it.lastError
 
