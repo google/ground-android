@@ -27,12 +27,8 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.*
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.FAILED
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.IN_PROGRESS
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.MEDIA_UPLOAD_PENDING
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.PENDING
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.UNKNOWN
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
@@ -46,8 +42,8 @@ import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -95,6 +91,8 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
         )
     }
 
+  private val TEST_SURVEY = FakeData.SURVEY.copy(id = TEST_SURVEY_ID)
+
   @Before
   override fun setUp() {
     super.setUp()
@@ -102,7 +100,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     runBlocking {
       fakeAuthenticationManager.setUser(FakeData.USER.copy(id = TEST_USER_ID))
       localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = TEST_USER_ID))
-      localSurveyStore.insertOrUpdateSurvey(FakeData.SURVEY.copy(id = TEST_SURVEY_ID))
+      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     }
   }
 
@@ -191,6 +189,11 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     }
   }
 
+  private suspend fun getMutations(syncStatus: Mutation.SyncStatus): List<Mutation> =
+    mutationRepository.getSurveyMutationsFlow(TEST_SURVEY).first().filter {
+      it.syncStatus == syncStatus
+    }
+
   private suspend fun assertMutationsState(
     pending: Int = 0,
     inProgress: Int = 0,
@@ -199,20 +202,18 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     retryCount: List<Int> = listOf(),
     lastErrors: List<String> = listOf(),
   ) {
-    assertWithMessage("Unknown mutations count incorrect")
-      .that(mutationRepository.getMutations(TEST_LOI_ID, UNKNOWN))
-      .hasSize(0)
+    assertWithMessage("Unknown mutations count incorrect").that(getMutations(UNKNOWN)).hasSize(0)
     assertWithMessage("Pending mutations count incorrect")
-      .that(mutationRepository.getMutations(TEST_LOI_ID, PENDING))
+      .that(getMutations(PENDING))
       .hasSize(pending)
     assertWithMessage("In Progress mutations count incorrect")
-      .that(mutationRepository.getMutations(TEST_LOI_ID, IN_PROGRESS))
+      .that(getMutations(IN_PROGRESS))
       .hasSize(inProgress)
     assertWithMessage("Completed mutations count incorrect")
-      .that(mutationRepository.getMutations(TEST_LOI_ID, MEDIA_UPLOAD_PENDING))
+      .that(getMutations(MEDIA_UPLOAD_PENDING))
       .hasSize(complete)
 
-    val failedMutations = mutationRepository.getMutations(TEST_LOI_ID, FAILED)
+    val failedMutations = getMutations(FAILED)
     assertWithMessage("Failed mutations count incorrect").that(failedMutations).hasSize(failed)
     assertThat(failedMutations.map { it.retryCount.toInt() }).containsExactlyElementsIn(retryCount)
     assertThat(failedMutations.map { it.lastError }).containsExactlyElementsIn(lastErrors)

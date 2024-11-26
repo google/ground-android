@@ -24,12 +24,12 @@ import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.*
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.PhotoTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.model.task.Task.Type.PHOTO
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
@@ -44,6 +44,7 @@ import com.sharedtest.persistence.remote.FakeRemoteStorageManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.flow.first
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -92,10 +93,10 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLocationOfInterestStore.insertOrUpdate(TEST_LOI)
     localSubmissionStore.applyAndEnqueue(
-      createSubmissionMutation().copy(syncStatus = Mutation.SyncStatus.MEDIA_UPLOAD_PENDING)
+      createSubmissionMutation().copy(syncStatus = MEDIA_UPLOAD_PENDING)
     )
     createAndDoWork(context)
-    assertThatMutationCountEquals(MutationEntitySyncStatus.COMPLETED, 1)
+    assertThatMutationCountEquals(COMPLETED, 1)
   }
 
   @Test
@@ -104,11 +105,10 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLocationOfInterestStore.insertOrUpdate(TEST_LOI)
     localSubmissionStore.applyAndEnqueue(
-      createSubmissionMutation("does_not_exist.jpg")
-        .copy(syncStatus = Mutation.SyncStatus.MEDIA_UPLOAD_PENDING)
+      createSubmissionMutation("does_not_exist.jpg").copy(syncStatus = MEDIA_UPLOAD_PENDING)
     )
     createAndDoWork(context)
-    assertThatMutationCountEquals(MutationEntitySyncStatus.FAILED, 1)
+    assertThatMutationCountEquals(FAILED, 1)
   }
 
   @Test
@@ -121,7 +121,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     val updatedMutation =
       mutation.copy(
         deltas = delta,
-        syncStatus = Mutation.SyncStatus.MEDIA_UPLOAD_PENDING,
+        syncStatus = MEDIA_UPLOAD_PENDING,
       ) // add an additional non-existent photo to the mutation
 
     localUserStore.insertOrUpdateUser(FakeData.USER)
@@ -130,10 +130,11 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     localSubmissionStore.applyAndEnqueue(updatedMutation)
 
     createAndDoWork(context)
-    assertThatMutationCountEquals(MutationEntitySyncStatus.FAILED, 1)
-    assertThatMutationCountEquals(MutationEntitySyncStatus.MEDIA_UPLOAD_PENDING, 0)
-    assertThatMutationCountEquals(MutationEntitySyncStatus.MEDIA_UPLOAD_IN_PROGRESS, 0)
-    assertThatMutationCountEquals(MutationEntitySyncStatus.COMPLETED, 0)
+
+    assertThatMutationCountEquals(FAILED, 1)
+    assertThatMutationCountEquals(MEDIA_UPLOAD_PENDING, 0)
+    assertThatMutationCountEquals(MEDIA_UPLOAD_IN_PROGRESS, 0)
+    assertThatMutationCountEquals(COMPLETED, 0)
   }
 
   @Test
@@ -141,20 +142,20 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     localUserStore.insertOrUpdateUser(FakeData.USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLocationOfInterestStore.insertOrUpdate(TEST_LOI)
-    addSubmissionMutationToLocalStorage(Mutation.SyncStatus.PENDING)
-    addSubmissionMutationToLocalStorage(Mutation.SyncStatus.FAILED)
-    addSubmissionMutationToLocalStorage(Mutation.SyncStatus.IN_PROGRESS)
-    addSubmissionMutationToLocalStorage(Mutation.SyncStatus.COMPLETED)
-    addSubmissionMutationToLocalStorage(Mutation.SyncStatus.UNKNOWN)
+    addSubmissionMutationToLocalStorage(PENDING)
+    addSubmissionMutationToLocalStorage(FAILED)
+    addSubmissionMutationToLocalStorage(IN_PROGRESS)
+    addSubmissionMutationToLocalStorage(COMPLETED)
+    addSubmissionMutationToLocalStorage(UNKNOWN)
 
     createAndDoWork(context)
-    assertThatMutationCountEquals(MutationEntitySyncStatus.FAILED, 1)
-    assertThatMutationCountEquals(MutationEntitySyncStatus.PENDING, 1)
-    assertThatMutationCountEquals(MutationEntitySyncStatus.COMPLETED, 1)
-    assertThatMutationCountEquals(MutationEntitySyncStatus.IN_PROGRESS, 1)
-    assertThatMutationCountEquals(MutationEntitySyncStatus.UNKNOWN, 1)
-    assertThatMutationCountEquals(MutationEntitySyncStatus.MEDIA_UPLOAD_PENDING, 0)
-    assertThatMutationCountEquals(MutationEntitySyncStatus.MEDIA_UPLOAD_IN_PROGRESS, 0)
+    assertThatMutationCountEquals(FAILED, 1)
+    assertThatMutationCountEquals(PENDING, 1)
+    assertThatMutationCountEquals(COMPLETED, 1)
+    assertThatMutationCountEquals(IN_PROGRESS, 1)
+    assertThatMutationCountEquals(UNKNOWN, 1)
+    assertThatMutationCountEquals(MEDIA_UPLOAD_PENDING, 0)
+    assertThatMutationCountEquals(MEDIA_UPLOAD_IN_PROGRESS, 0)
   }
 
   // Initiates and runs the MediaUploadWorker
@@ -166,8 +167,12 @@ class MediaUploadWorkerTest : BaseHiltTest() {
   }
 
   // Assert a given number of mutations of the specified status exist.
-  private suspend fun assertThatMutationCountEquals(status: MutationEntitySyncStatus, count: Int) {
-    assertThat(mutationRepository.getMutations(FakeData.LOCATION_OF_INTEREST.id, status))
+  private suspend fun assertThatMutationCountEquals(status: Mutation.SyncStatus, count: Int) {
+    assertThat(
+        mutationRepository.getSurveyMutationsFlow(TEST_SURVEY).first().filter {
+          it.syncStatus == status
+        }
+      )
       .hasSize(count)
   }
 
@@ -201,7 +206,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     val SUBMISSION_MUTATION =
       SubmissionMutation(
         type = Mutation.Type.CREATE,
-        syncStatus = Mutation.SyncStatus.PENDING,
+        syncStatus = PENDING,
         locationOfInterestId = FakeData.LOCATION_OF_INTEREST.id,
         userId = FakeData.USER.id,
         job = FakeData.JOB,

@@ -113,25 +113,6 @@ constructor(
       .sortedBy { it.clientTimestamp }
   }
 
-  /**
-   * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
-   * specified id, sorted by creation timestamp (oldest first).
-   */
-  suspend fun getMutations(
-    loiId: String,
-    vararg entitySyncStatus: MutationEntitySyncStatus,
-  ): List<Mutation> {
-    val loiMutations =
-      localLocationOfInterestStore
-        .findByLocationOfInterestId(loiId, *entitySyncStatus)
-        .map(LocationOfInterestMutationEntity::toModelObject)
-    val submissionMutations =
-      localSubmissionStore.findByLocationOfInterestId(loiId, *entitySyncStatus).map {
-        it.toSubmissionMutation()
-      }
-    return (loiMutations + submissionMutations).sortedBy { it.clientTimestamp }
-  }
-
   private suspend fun SubmissionMutationEntity.toSubmissionMutation(): SubmissionMutation =
     toModelObject(
       localSurveyStore.getSurveyById(surveyId)
