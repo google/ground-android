@@ -206,22 +206,6 @@ constructor(
       .sortedWith(Mutation.byDescendingClientTimestamp())
 }
 
-// TODO(#2119): Refactor this and the related markAs* methods out of this repository. Workers will
-// generally
-// want to have control over when work should be retried. This means they may need finer grained
-// control over when a mutation is marked as failed and when it is considered eligible for retry
-// based on various conditions. Batch marking sequences of mutations prevents this. Instead, let's
-// have
-// workers operate directly on values List<Mutation> updating them appropriately, then batch write
-// these via the repository using saveMutationsLocally.
-//
-// For example, a worker would do:
-//   repo.getMutations(....)
-//       .map { doRemoteOrBackgroundWork(it) }
-//       .map { if (condition...) it.updateStatus(RETRY) else it.updateStatus(FAILED) } // for
-// illustration; we'd likely just do this in "doRemoteOr..."
-//       .also { repo.saveMutationsLocally(it) } // write updated mutations to local storage to
-// exclude/include them in further processing runs.
 private fun List<Mutation>.updateMutationStatus(
   syncStatus: SyncStatus,
   error: Throwable? = null,
