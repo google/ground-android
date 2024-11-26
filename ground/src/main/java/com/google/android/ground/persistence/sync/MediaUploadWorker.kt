@@ -21,9 +21,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
-import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_AWAITING_RETRY
-import com.google.android.ground.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.PhotoTaskData
 import com.google.android.ground.persistence.remote.RemoteStorageManager
@@ -59,9 +56,10 @@ constructor(
 
   override suspend fun doWork(): Result =
     withContext(Dispatchers.IO) {
-      val uploadQueue = mutationRepository.getIncompleteMediaUploads()
-      Timber.d("Uploading photos for ${uploadQueue.size} submission mutations")
-      val results = uploadQueue.mapNotNull { it.submissionMutation }.map { uploadAllMedia(it) }
+      val mutations =
+        mutationRepository.getIncompleteMediaUploads().mapNotNull { it.submissionMutation }
+      Timber.d("Uploading photos for ${mutations.size} submission mutations")
+      val results = mutations.map { uploadAllMedia(it) }
       if (results.all { it }) success() else retry()
     }
 
@@ -70,56 +68,43 @@ constructor(
    * if there is nothing to upload, `false` otherwise.
    */
   private suspend fun uploadAllMedia(mutation: SubmissionMutation): Boolean {
-    mutationRepository.saveMutationsLocally(
-      listOf(mutation.updateSyncStatus(MEDIA_UPLOAD_IN_PROGRESS))
-    )
-    val photoTasks = mutation.deltas.map { it.newTaskData }.filterIsInstance<PhotoTaskData>()
-    try {
-      photoTasks.filter { !it.isEmpty() }.map { uploadPhotoMedia(it) }
-      mutationRepository.saveMutationsLocally(
-        listOf(mutation.updateSyncStatus(Mutation.SyncStatus.COMPLETED))
-      )
+    mutationRepository.markAsMediaUploadInProgress(listOf(mutation))
+    val photoTasks = mutation.getPhotoData()
+    val results = photoTasks.map { uploadPhotoMedia(it) }
+    if (results.all { it.isSuccess }) {
+      mutationRepository.markAsComplete(listOf(mutation))
       return true
-    } catch (t: Throwable) {
-      if (t is FirebaseNetworkException) {
-        Timber.d(t, "Can't connect to Firebase to upload photo")
-      } else {
-        Timber.e(t, "Failed to upload photo")
-      }
-      // TODO: Clean up mutation update API in MutationRepository.
-      mutationRepository.saveMutationsLocally(
-        listOf(
-          mutation.copy(
-            syncStatus = MEDIA_UPLOAD_AWAITING_RETRY,
-            lastError = t.message ?: "Unknown error",
-            // TODO: Clean up handling of "retryCount" - "retry" doesn't mean retry now, it's means
-            // "attempt". Also, the counter is unused now, and is set by both media and normal sync
-            // worker.
-            retryCount = mutation.retryCount + 1,
-          )
-        )
+    } else {
+      mutationRepository.markAsFailedMediaUpload(
+        listOf(mutation),
+        results.last().exceptionOrNull() ?: UnknownError(),
       )
       return false
     }
   }
 
   /** Attempts to upload a single photo to remote storage. */
-  private suspend fun uploadPhotoMedia(photoTaskData: PhotoTaskData) {
-    //    try {
-    val path = photoTaskData.remoteFilename
-    val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
-    Timber.d("Starting photo upload. local path: ${photoFile.path}, remote path: $path")
-    if (!photoFile.exists()) {
-      throw FileNotFoundException(photoFile.path)
+  private suspend fun uploadPhotoMedia(photoTaskData: PhotoTaskData): kotlin.Result<Unit> {
+    try {
+      val path = photoTaskData.remoteFilename
+      val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
+      Timber.d("Starting photo upload. local path: ${photoFile.path}, remote path: $path")
+      if (!photoFile.exists()) {
+        throw FileNotFoundException(photoFile.path)
+      }
+      remoteStorageManager.uploadMediaFromFile(photoFile, path)
+      return kotlin.Result.success(Unit)
+    } catch (t: Throwable) {
+      logPhotoUploadError(t)
+      return kotlin.Result.failure(t)
     }
-    remoteStorageManager.uploadMediaFromFile(photoFile, path)
   }
-  //      kotlin.Result.success(Unit)
-  //    } catch (t: FirebaseNetworkException) {
-  //      Timber.d(t, "Can't connect to Firebase to upload photo")
-  //      kotlin.Result.failure(t)
-  //    } catch (t: Throwable) {
-  //      Timber.e(t, "Failed to upload photo")
-  //      kotlin.Result.failure(t)
-  //    }
+
+  private fun logPhotoUploadError(t: Throwable) {
+    if (t is FirebaseNetworkException) {
+      Timber.d(t, "Can't connect to Firebase to upload photo")
+    } else {
+      Timber.e(t, "Photo upload failed")
+    }
+  }
 }

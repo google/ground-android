@@ -100,13 +100,12 @@ constructor(
    * Returns a [Flow] which emits the upload queue once and on each change, sorted in chronological
    * order (FIFO).
    */
-  fun getUploadQueueFlow(): Flow<List<UploadQueueEntry>> {
-    return localLocationOfInterestStore.getAllMutationsFlow().combine(
+  fun getUploadQueueFlow(): Flow<List<UploadQueueEntry>> =
+    localLocationOfInterestStore.getAllMutationsFlow().combine(
       localSubmissionStore.getAllMutationsFlow()
     ) { loiMutations, submissionMutations ->
       buildUploadQueue(loiMutations, submissionMutations)
     }
-  }
 
   private fun buildUploadQueue(
     loiMutations: List<LocationOfInterestMutation>,
@@ -193,12 +192,24 @@ constructor(
     saveMutationsLocally(mutations.updateMutationStatus(IN_PROGRESS))
   }
 
+  suspend fun markAsMediaUploadInProgress(mutations: List<SubmissionMutation>) {
+    saveMutationsLocally(mutations.updateMutationStatus(MEDIA_UPLOAD_IN_PROGRESS))
+  }
+
+  suspend fun markAsComplete(mutations: List<Mutation>) {
+    saveMutationsLocally(mutations.updateMutationStatus(COMPLETED))
+  }
+
   suspend fun markAsFailed(mutations: List<Mutation>, error: Throwable) {
     saveMutationsLocally(mutations.updateMutationStatus(FAILED, error))
   }
 
   private suspend fun markForMediaUpload(mutations: List<Mutation>) {
     saveMutationsLocally(mutations.updateMutationStatus(MEDIA_UPLOAD_PENDING))
+  }
+
+  suspend fun markAsFailedMediaUpload(mutations: List<SubmissionMutation>, error: Throwable) {
+    saveMutationsLocally(mutations.updateMutationStatus(MEDIA_UPLOAD_AWAITING_RETRY, error))
   }
 
   private fun combineAndSortMutations(

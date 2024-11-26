@@ -50,9 +50,9 @@ constructor(
 
   override suspend fun doWork(): Result =
     withContext(Dispatchers.IO) {
-      val uploadQueue = mutationRepository.getIncompleteUploads()
-      Timber.d("Uploading ${uploadQueue.size} additions / changes")
-      val results = uploadQueue.map { processMutations(it.mutations()) }
+      val queue = mutationRepository.getIncompleteUploads()
+      Timber.d("Uploading ${queue.size} additions / changes")
+      val results = queue.map { processMutations(it.mutations()) }
       if (results.any { it }) mediaUploadWorkManager.enqueueSyncWorker()
       if (results.all { it }) success() else retry()
     }
