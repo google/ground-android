@@ -46,13 +46,7 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
         // Set the other option.
         _items.value
           .firstOrNull { it.isOtherOption }
-          ?.let {
-            setItem(
-              item = it,
-              selection = isOtherTextValid(),
-              canSelectMultiple = it.cardinality == SELECT_MULTIPLE,
-            )
-          }
+          ?.let { setItem(item = it, selection = isOtherTextValid()) }
         updateResponse()
       }
 
@@ -71,8 +65,8 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
     updateMultipleChoiceItems()
   }
 
-  fun setItem(item: MultipleChoiceItem, selection: Boolean, canSelectMultiple: Boolean) {
-    if (!canSelectMultiple && selection) {
+  fun setItem(item: MultipleChoiceItem, selection: Boolean) {
+    if (item.cardinality != SELECT_MULTIPLE && selection) {
       selectedIds.clear()
     }
     if (selection) {
@@ -84,9 +78,9 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
     updateMultipleChoiceItems()
   }
 
-  fun toggleItem(item: MultipleChoiceItem, canSelectMultiple: Boolean) {
+  fun toggleItem(item: MultipleChoiceItem) {
     val wasSelected = selectedIds.contains(item.option.id)
-    setItem(item, !wasSelected, canSelectMultiple)
+    setItem(item, !wasSelected)
   }
 
   fun updateResponse() {
