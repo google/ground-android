@@ -89,7 +89,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
   @Test
   fun doWork_throwsOnEmptyLoiId() {
     assertThrows(IllegalStateException::class.java) {
-      runWithTestDispatcher { createAndDoWork(context, "") }
+      runWithTestDispatcher { createAndDoWork(context) }
     }
   }
 
@@ -101,7 +101,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     localSubmissionStore.applyAndEnqueue(
       createSubmissionMutation().copy(syncStatus = Mutation.SyncStatus.MEDIA_UPLOAD_PENDING)
     )
-    createAndDoWork(context, FakeData.LOCATION_OF_INTEREST.id)
+    createAndDoWork(context)
     assertThatMutationCountEquals(MutationEntitySyncStatus.COMPLETED, 1)
   }
 
@@ -114,7 +114,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
       createSubmissionMutation("does_not_exist.jpg")
         .copy(syncStatus = Mutation.SyncStatus.MEDIA_UPLOAD_PENDING)
     )
-    createAndDoWork(context, FakeData.LOCATION_OF_INTEREST.id)
+    createAndDoWork(context)
     assertThatMutationCountEquals(MutationEntitySyncStatus.FAILED, 1)
   }
 
@@ -136,7 +136,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     localLocationOfInterestStore.insertOrUpdate(TEST_LOI)
     localSubmissionStore.applyAndEnqueue(updatedMutation)
 
-    createAndDoWork(context, FakeData.LOCATION_OF_INTEREST.id)
+    createAndDoWork(context)
     assertThatMutationCountEquals(MutationEntitySyncStatus.FAILED, 1)
     assertThatMutationCountEquals(MutationEntitySyncStatus.MEDIA_UPLOAD_PENDING, 0)
     assertThatMutationCountEquals(MutationEntitySyncStatus.MEDIA_UPLOAD_IN_PROGRESS, 0)
@@ -154,7 +154,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     addSubmissionMutationToLocalStorage(Mutation.SyncStatus.COMPLETED)
     addSubmissionMutationToLocalStorage(Mutation.SyncStatus.UNKNOWN)
 
-    createAndDoWork(context, FakeData.LOCATION_OF_INTEREST.id)
+    createAndDoWork(context)
     assertThatMutationCountEquals(MutationEntitySyncStatus.FAILED, 1)
     assertThatMutationCountEquals(MutationEntitySyncStatus.PENDING, 1)
     assertThatMutationCountEquals(MutationEntitySyncStatus.COMPLETED, 1)
@@ -165,11 +165,8 @@ class MediaUploadWorkerTest : BaseHiltTest() {
   }
 
   // Initiates and runs the MediaUploadWorker
-  private suspend fun createAndDoWork(context: Context, loiId: String) {
-    TestListenableWorkerBuilder<MediaUploadWorker>(
-        context,
-        MediaUploadWorker.createInputData(loiId),
-      )
+  private suspend fun createAndDoWork(context: Context) {
+    TestListenableWorkerBuilder<MediaUploadWorker>(context)
       .setWorkerFactory(factory)
       .build()
       .doWork()
