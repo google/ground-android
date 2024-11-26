@@ -22,7 +22,9 @@ import java.io.File
 import java.util.StringJoiner
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
+import timber.log.Timber
 
 // TODO: Add column to Submission table for storing uploaded media urls
 // TODO: Synced to remote db as well
@@ -42,7 +44,11 @@ class FirebaseStorageManager @Inject constructor() : RemoteStorageManager {
   // Do not delete the file after successful upload. It is used as a cache
   // while viewing submissions when network is unavailable.
   override suspend fun uploadMediaFromFile(file: File, remoteDestinationPath: String) {
-    createReference(remoteDestinationPath).putFile(Uri.fromFile(file)).await()
+    try {
+      createReference(remoteDestinationPath).putFile(Uri.fromFile(file)).await()
+    } catch (e: CancellationException) {
+      Timber.i(e, "Uploading media to remote storage cancelled")
+    }
   }
 
   companion object {
