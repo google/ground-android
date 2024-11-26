@@ -21,6 +21,9 @@ import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
 import com.google.android.ground.model.mutation.Mutation.SyncStatus.*
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.FAILED
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.IN_PROGRESS
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_PENDING
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.UploadQueueEntry
 import com.google.android.ground.persistence.local.room.converter.toModelObject
