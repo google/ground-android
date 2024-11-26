@@ -61,22 +61,6 @@ constructor(
     return locationOfInterestMutations.combine(submissionMutations, this::combineAndSortMutations)
   }
 
-  fun getAllMutationsFlow(): Flow<List<Mutation>> {
-    val locationOfInterestMutations = localLocationOfInterestStore.getAllMutationsFlow()
-    val submissionMutations = localSubmissionStore.getAllMutationsFlow()
-
-    return locationOfInterestMutations.combine(submissionMutations, this::combineAndSortMutations)
-  }
-
-  /**
-   * Returns all local submission mutations associated with the the given LOI ID that have one of
-   * the provided sync statues.
-   */
-  suspend fun getSubmissionMutations(
-    loiId: String,
-    vararg entitySyncStatus: MutationEntitySyncStatus,
-  ) = getMutations(loiId, *entitySyncStatus).filterIsInstance<SubmissionMutation>()
-
   /**
    * Return the set of data upload queue entries not yet marked as completed sorted in chronological
    * order (FIFO). Media/photo uploads are not included.
