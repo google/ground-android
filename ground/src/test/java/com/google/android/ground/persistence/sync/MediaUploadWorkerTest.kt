@@ -36,7 +36,7 @@ import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.UserMediaRepository
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.sharedtest.FakeData
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
@@ -149,11 +149,13 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     addSubmissionMutationToLocalStorage(UNKNOWN)
 
     createAndDoWork(context)
-    assertThatMutationCountEquals(MEDIA_UPLOAD_AWAITING_RETRY, 1)
+
     assertThatMutationCountEquals(PENDING, 1)
-    assertThatMutationCountEquals(COMPLETED, 1)
+    assertThatMutationCountEquals(FAILED, 1)
     assertThatMutationCountEquals(IN_PROGRESS, 1)
+    assertThatMutationCountEquals(COMPLETED, 1)
     assertThatMutationCountEquals(UNKNOWN, 1)
+    assertThatMutationCountEquals(MEDIA_UPLOAD_AWAITING_RETRY, 0)
     assertThatMutationCountEquals(MEDIA_UPLOAD_PENDING, 0)
     assertThatMutationCountEquals(MEDIA_UPLOAD_IN_PROGRESS, 0)
   }
@@ -166,13 +168,17 @@ class MediaUploadWorkerTest : BaseHiltTest() {
       .doWork()
   }
 
-  // Assert a given number of mutations of the specified status exist.
+  private suspend fun getMutations(syncStatus: Mutation.SyncStatus): List<Mutation> =
+    (localLocationOfInterestStore.getAllMutationsFlow().first() +
+        localSubmissionStore.getAllMutationsFlow().first())
+      .filter { it.syncStatus == syncStatus }
+
+  /**
+   * Asserts that the specified number of mutations with the specified status exist in the local db.
+   */
   private suspend fun assertThatMutationCountEquals(status: Mutation.SyncStatus, count: Int) {
-    assertThat(
-        mutationRepository.getSurveyMutationsFlow(TEST_SURVEY).first().filter {
-          it.syncStatus == status
-        }
-      )
+    assertWithMessage("Expect $count mutations with status $status")
+      .that(getMutations(status))
       .hasSize(count)
   }
 
