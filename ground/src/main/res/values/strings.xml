@@ -152,7 +152,7 @@
   <string name="terms_of_service">Terms of service</string>
   <string name="about_ground">Ground is an open-source community project built by Google and FAO under the Forest Data Partnership with help from SIG, Ecam, and open-source community contributors. \n\nIt is licensed under the <annotation type="apache_license">Apache License, Version 2.0</annotation>. \n\nView other <annotation type="all_licenses">Licenses</annotation></string>
   <string name="retry_pending">Retry pending</string>
-  <string name="synced">Synced</string>
+  <string name="upload_complete">Complete</string>
   <string name="uploading">Uploading</string>
   <string name="upload_pending">Pending</string>
   <string name="photos_pending">Photos pending</string>

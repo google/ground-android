@@ -76,5 +76,6 @@
   <string name="retry_pending">Nova tentativa pendente</string>
   <string name="uploading">Carregando</string>
   <string name="photos_pending">Fotos pendentes</string>
+  <string name="upload_complete">Concluído</string>
 
 </resources>

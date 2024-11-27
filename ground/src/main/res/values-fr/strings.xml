@@ -151,7 +151,7 @@
   <string name="terms_of_service">Conditions générales d&#8217;utilisation</string>
   <string name="about_ground">Ground est un projet communautaire open-source développé par Google et la FAO dans le cadre du « Forest Data Partnership » avec l&#8217;aide de SIG, Ecam et des contributeurs de la communauté open-source. \n\nIl est sous licence <annotation type="apache_license">Apache License, Version 2.0</annotation>. \n\nVoir autres <annotation type="all_licenses">Licenses</annotation></string>
   <string name="retry_pending">Nouvelle tentative en attente</string>
-  <string name="synced">Synchronisé</string>
+  <string name="upload_complete">Effectué</string>
   <string name="uploading">Téléchargement en cours</string>
   <string name="upload_pending">En attente</string>
   <string name="photos_pending">Photos en attente</string>
