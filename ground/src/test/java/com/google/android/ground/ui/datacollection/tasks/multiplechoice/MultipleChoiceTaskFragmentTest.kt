@@ -147,29 +147,21 @@ class MultipleChoiceTaskFragmentTest :
   }
 
   @Test
-  fun `saves other text when selected`() = runWithTestDispatcher {
+  fun `saves other text`() = runWithTestDispatcher {
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_MULTIPLE, true)
-    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
+    setupTaskFragment<MultipleChoiceTaskFragment>(
+      job,
+      task.copy(multipleChoice = multipleChoice, isRequired = true),
+    )
     val userInput = "User inputted text"
 
     onView(withText("Other")).perform(click())
     onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
       .perform(CustomViewActions.forceTypeText(userInput))
 
-    hasValue(MultipleChoiceTaskData(multipleChoice, listOf("[ $userInput ]")))
-    runner().assertButtonIsEnabled("Next")
-  }
-
-  @Test
-  fun `selects other option on text input`() = runWithTestDispatcher {
-    val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_MULTIPLE, true)
-    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
-    val userInput = "A"
-    onView(withText("Other")).perform(click())
-    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-      .perform(CustomViewActions.forceTypeText(userInput))
     onView(withText("Other")).check(matches(isChecked()))
     hasValue(MultipleChoiceTaskData(multipleChoice, listOf("[ $userInput ]")))
+    runner().assertButtonIsEnabled("Next")
   }
 
   @Test
@@ -315,4 +307,40 @@ class MultipleChoiceTaskFragmentTest :
       .assertButtonIsDisabled("Next")
       .assertButtonIsEnabled("Skip")
   }
+
+  @Test
+  fun `doesn't save response when other text is missing and task is required`() =
+    runWithTestDispatcher {
+      val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE, true)
+      setupTaskFragment<MultipleChoiceTaskFragment>(
+        job,
+        task.copy(multipleChoice = multipleChoice, isRequired = true),
+      )
+
+      onView(withText("Other")).perform(click())
+      onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
+        .perform(CustomViewActions.forceTypeText(""))
+
+      hasValue(null)
+      runner().assertButtonIsDisabled("Next")
+    }
+
+  @Test
+  fun `doesn't save response when multiple options selected but other text is missing and task is required`() =
+    runWithTestDispatcher {
+      val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_MULTIPLE, true)
+      setupTaskFragment<MultipleChoiceTaskFragment>(
+        job,
+        task.copy(multipleChoice = multipleChoice, isRequired = true),
+      )
+
+      onView(withText("Option 1")).perform(click())
+      onView(withText("Option 2")).perform(click())
+      onView(withText("Other")).perform(click())
+      onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
+        .perform(CustomViewActions.forceTypeText(""))
+
+      hasValue(null)
+      runner().assertButtonIsDisabled("Next")
+    }
 }
