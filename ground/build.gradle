@@ -91,6 +91,13 @@ android {
         buildConfigField "int", "AUTH_EMULATOR_PORT", "9099"
         buildConfigField "String", "SIGNUP_FORM_LINK", "\"\""
         manifestPlaceholders.usesCleartextTraffic = true
+
+        // Room DB schema export directory
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["room.schemaLocation"] = "$projectDir/schemas"
+            }
+        }
     }
 
     // Use flag -PtestBuildType with desired variant to change default behavior.
