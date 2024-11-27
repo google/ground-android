@@ -26,7 +26,7 @@ import com.google.android.ground.model.submission.PhotoTaskData
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.UserMediaRepository
-import com.google.firebase.FirebaseNetworkException
+import com.google.android.ground.util.priority
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.io.FileNotFoundException
@@ -95,16 +95,8 @@ constructor(
       remoteStorageManager.uploadMediaFromFile(photoFile, path)
       return kotlin.Result.success(Unit)
     } catch (t: Throwable) {
-      logPhotoUploadError(t)
+      Timber.log(t.priority(), t, "Photo upload failed")
       return kotlin.Result.failure(t)
-    }
-  }
-
-  private fun logPhotoUploadError(t: Throwable) {
-    if (t is FirebaseNetworkException) {
-      Timber.d(t, "Can't connect to Firebase to upload photo")
-    } else {
-      Timber.e(t, "Photo upload failed")
     }
   }
 }

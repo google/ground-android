@@ -25,6 +25,7 @@ import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.UserRepository
+import com.google.android.ground.util.priority
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -77,8 +78,7 @@ constructor(
       // Mark all mutations as having failed since the remote datastore only commits when all
       // mutations have succeeded.
       mutationRepository.markAsFailed(mutations, t)
-      // TODO: Check exception type, only log error if not network exception.
-      Timber.e(t, "Failed to sync survey ${mutations.first().surveyId}")
+      Timber.log(t.priority(), t, "Failed to sync local data")
       return false
     }
   }
