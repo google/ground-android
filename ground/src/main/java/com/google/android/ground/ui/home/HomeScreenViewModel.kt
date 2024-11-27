@@ -22,6 +22,7 @@ import com.google.android.ground.model.submission.DraftSubmission
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.sync.MediaUploadWorkManager
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
+import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -45,6 +46,7 @@ internal constructor(
   private val navigator: Navigator,
   private val offlineAreaRepository: OfflineAreaRepository,
   private val submissionRepository: SubmissionRepository,
+  private val mutationRepository: MutationRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val mediaUploadWorkManager: MediaUploadWorkManager,
   val surveyRepository: SurveyRepository,
@@ -67,9 +69,13 @@ internal constructor(
    * scheduled workers) going again. If there are no mutations in the upload queue this will be a
    * no-op. Workaround for https://github.com/google/ground-android/issues/2751.
    */
-  private fun kickLocalMutationSyncWorkers() {
-    mutationSyncWorkManager.enqueueSyncWorker()
-    mediaUploadWorkManager.enqueueSyncWorker()
+  private suspend fun kickLocalMutationSyncWorkers() {
+    if (mutationRepository.getIncompleteUploads().isNotEmpty()) {
+      mutationSyncWorkManager.enqueueSyncWorker()
+    }
+    if (mutationRepository.getIncompleteMediaUploads().isNotEmpty()) {
+      mediaUploadWorkManager.enqueueSyncWorker()
+    }
   }
 
   /** Attempts to return draft submission for the currently active survey. */
