@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
+import com.google.android.ground.databinding.FragmentDrawAreaTaskBinding
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LineString.Companion.lineStringOf
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls.Companion.TASK_ID_FRAGMENT_ARG_KEY
@@ -57,7 +58,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
     // Otherwise, the sequentially generated ID might conflict with an ID produced by Google Maps.
-    val rootView = inflater.inflate(R.layout.fragment_draw_area_task, null)
+    val rootView = FragmentDrawAreaTaskBinding.inflate(inflater)
 
     drawAreaTaskMapFragment = drawAreaTaskMapFragmentProvider.get()
     val args = Bundle()
@@ -71,7 +72,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
         DrawAreaTaskMapFragment::class.java.simpleName,
       )
       .commit()
-    return rootView
+    return rootView.root
   }
 
   override fun onCreateActionButtons() {
