@@ -66,7 +66,7 @@ constructor(
    */
   private suspend fun processMutations(mutations: List<Mutation>): Boolean {
     if (mutations.isEmpty()) return true
-    return try {
+    try {
       val user = userRepository.getAuthenticatedUser()
       // TODO(https://github.com/google/ground-android/issues/2840):
       //   Move into repo for reuse by MediaUploadWorker.
@@ -77,13 +77,14 @@ constructor(
           remoteDataStore.applyMutations(it, user)
           mutationRepository.finalizePendingMutationsForMediaUpload(it)
         }
-      true
+      return true
     } catch (t: Throwable) {
       // Mark all mutations as having failed since the remote datastore only commits when all
       // mutations have succeeded.
       mutationRepository.markAsFailed(mutations, t)
+      // TODO: Check exception type, only log error if not network exception.
       Timber.e(t, "Failed to sync survey ${mutations.first().surveyId}")
-      false
+      return false
     }
   }
 
