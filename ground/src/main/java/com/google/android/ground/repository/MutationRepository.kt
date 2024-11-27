@@ -19,6 +19,10 @@ package com.google.android.ground.repository
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.Mutation.SyncStatus
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.FAILED
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.IN_PROGRESS
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_PENDING
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.persistence.local.room.converter.toModelObject
 import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
@@ -134,15 +138,15 @@ constructor(
       }
 
   suspend fun markAsInProgress(mutations: List<Mutation>) {
-    saveMutationsLocally(mutations.updateMutationStatus(Mutation.SyncStatus.IN_PROGRESS))
+    saveMutationsLocally(mutations.updateMutationStatus(IN_PROGRESS))
   }
 
   suspend fun markAsFailed(mutations: List<Mutation>, error: Throwable) {
-    saveMutationsLocally(mutations.updateMutationStatus(Mutation.SyncStatus.FAILED, error))
+    saveMutationsLocally(mutations.updateMutationStatus(FAILED, error))
   }
 
   private suspend fun markForMediaUpload(mutations: List<Mutation>) {
-    saveMutationsLocally(mutations.updateMutationStatus(Mutation.SyncStatus.MEDIA_UPLOAD_PENDING))
+    saveMutationsLocally(mutations.updateMutationStatus(MEDIA_UPLOAD_PENDING))
   }
 
   private fun combineAndSortMutations(
@@ -155,27 +159,11 @@ constructor(
       .sortedWith(Mutation.byDescendingClientTimestamp())
 }
 
-// TODO(#2119): Refactor this and the related markAs* methods out of this repository. Workers will
-// generally
-// want to have control over when work should be retried. This means they may need finer grained
-// control over when a mutation is marked as failed and when it is considered eligible for retry
-// based on various conditions. Batch marking sequences of mutations prevents this. Instead, let's
-// have
-// workers operate directly on values List<Mutation> updating them appropriately, then batch write
-// these via the repository using saveMutationsLocally.
-//
-// For example, a worker would do:
-//   repo.getMutations(....)
-//       .map { doRemoteOrBackgroundWork(it) }
-//       .map { if (condition...) it.updateStatus(RETRY) else it.updateStatus(FAILED) } // for
-// illustration; we'd likely just do this in "doRemoteOr..."
-//       .also { repo.saveMutationsLocally(it) } // write updated mutations to local storage to
-// exclude/include them in further processing runs.
 private fun List<Mutation>.updateMutationStatus(
-  syncStatus: Mutation.SyncStatus,
+  syncStatus: SyncStatus,
   error: Throwable? = null,
 ): List<Mutation> = map {
-  val hasSyncFailed = syncStatus == Mutation.SyncStatus.FAILED
+  val hasSyncFailed = syncStatus == FAILED
   val retryCount = if (hasSyncFailed) it.retryCount + 1 else it.retryCount
   val errorMessage = if (hasSyncFailed) error?.message ?: error.toString() else it.lastError
 

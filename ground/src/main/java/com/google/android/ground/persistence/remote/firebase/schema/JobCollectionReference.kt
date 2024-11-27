@@ -19,14 +19,19 @@ package com.google.android.ground.persistence.remote.firebase.schema
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.persistence.remote.firebase.base.FluentCollectionReference
 import com.google.firebase.firestore.CollectionReference
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 class JobCollectionReference internal constructor(ref: CollectionReference) :
   FluentCollectionReference(ref) {
+
   suspend fun get(): List<Job> =
-    withContext(ioDispatcher) {
+    try {
       val docs = reference().get().await()
       docs.map { doc -> JobConverter.toJob(doc) }
+    } catch (e: CancellationException) {
+      Timber.i(e, "Fetching Jobs was cancelled")
+      listOf()
     }
 }

@@ -17,15 +17,9 @@
 package com.google.android.ground.persistence.remote.firebase.base
 
 import com.google.firebase.firestore.CollectionReference
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 
 open class FluentCollectionReference
-protected constructor(
-  private val reference: CollectionReference,
-  protected val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-  protected val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default,
-) {
+protected constructor(private val reference: CollectionReference) {
 
   protected fun reference(): CollectionReference = reference
 
