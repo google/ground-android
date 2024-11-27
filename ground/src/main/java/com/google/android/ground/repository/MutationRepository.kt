@@ -114,12 +114,6 @@ constructor(
       .sortedBy { it.clientTimestamp }
   }
 
-  private suspend fun SubmissionMutationEntity.toSubmissionMutation(): SubmissionMutation =
-    toModelObject(
-      localSurveyStore.getSurveyById(surveyId)
-        ?: error("Survey missing $surveyId. Unable to fetch pending submission mutations.")
-    )
-
   /**
    * Saves the provided list of mutations to local storage. Updates any locally stored, existing
    * mutations to reflect the mutations in the list, creating new mutations as needed.
