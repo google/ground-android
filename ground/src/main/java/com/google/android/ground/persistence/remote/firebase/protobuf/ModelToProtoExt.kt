@@ -139,6 +139,7 @@ private fun toTaskData(id: String, newTaskData: TaskData) = taskData {
     is MultipleChoiceTaskData -> multipleChoiceResponses = multipleChoiceResponses {
         newTaskData.getSelectedOptionsIdsExceptOther().forEach { selectedOptionIds.add(it) }
         if (newTaskData.hasOtherText()) {
+          otherSelected = true
           otherText = newTaskData.getOtherText()
         }
       }
