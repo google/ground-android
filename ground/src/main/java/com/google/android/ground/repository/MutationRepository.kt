@@ -26,11 +26,8 @@ import com.google.android.ground.model.mutation.Mutation.SyncStatus.IN_PROGRESS
 import com.google.android.ground.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_PENDING
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.UploadQueueEntry
-import com.google.android.ground.persistence.local.room.converter.toModelObject
-import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
-import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
@@ -45,7 +42,6 @@ import kotlinx.coroutines.flow.first
 class MutationRepository
 @Inject
 constructor(
-  private val localSurveyStore: LocalSurveyStore,
   private val localLocationOfInterestStore: LocalLocationOfInterestStore,
   private val localSubmissionStore: LocalSubmissionStore,
 ) {
