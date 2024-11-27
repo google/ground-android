@@ -82,6 +82,7 @@ constructor(
       // Mark all mutations as having failed since the remote datastore only commits when all
       // mutations have succeeded.
       mutationRepository.markAsFailed(mutations, t)
+      // TODO: Check exception type, only log error if not network exception.
       Timber.e(t, "Failed to sync survey ${mutations.first().surveyId}")
       return false
     }
