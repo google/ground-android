@@ -26,6 +26,9 @@ import javax.inject.Singleton
 @Singleton
 class FirebaseFirestoreProvider @Inject constructor(settings: FirebaseFirestoreSettings) :
   AsyncSingletonProvider<FirebaseFirestore>({
+    // WARNING: `FirebaseFirestore.getInstance()` should only be called here and nowhere
+    // else since settings can only be set on first call. Inject FirebaseFirestore instead
+    // of calling `getInstance()` directly.
     FirebaseFirestore.getInstance().apply {
       setFirestoreSettings(this, settings)
       FirebaseFirestore.setLoggingEnabled(Config.FIRESTORE_LOGGING_ENABLED)

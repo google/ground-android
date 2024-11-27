@@ -21,7 +21,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
 import com.google.android.ground.Config
-import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.PhotoTaskData
@@ -29,6 +28,7 @@ import com.google.android.ground.persistence.local.room.fields.MutationEntitySyn
 import com.google.android.ground.persistence.remote.RemoteStorageManager
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.UserMediaRepository
+import com.google.firebase.FirebaseNetworkException
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.io.FileNotFoundException
@@ -69,6 +69,7 @@ constructor(
       mutationRepository.getSubmissionMutations(
         loiId,
         MutationEntitySyncStatus.MEDIA_UPLOAD_PENDING,
+        MutationEntitySyncStatus.MEDIA_UPLOAD_IN_PROGRESS,
         MutationEntitySyncStatus.MEDIA_UPLOAD_AWAITING_RETRY,
       )
     val results = uploadMedia(mutations)
@@ -95,7 +96,7 @@ constructor(
    * status depending on whether or the uploads failed or succeeded.
    */
   private suspend fun uploadMedia(mutation: SubmissionMutation): SubmissionMutation {
-    val photoTasks = mutation.deltas.map { it.newTaskData }.filterIsInstance<PhotoTaskData>()
+    val photoTasks = mutation.getPhotoData()
     return uploadPhotos(photoTasks)
       .fold(
         onSuccess = { mutation.updateSyncStatus(Mutation.SyncStatus.COMPLETED) },
@@ -116,7 +117,6 @@ constructor(
   private suspend fun uploadPhotos(photoTaskDataList: List<PhotoTaskData>): kotlin.Result<Unit> =
     // TODO(#2120): Retry uploads on a per-photo basis, instead of per-response.
     photoTaskDataList
-      .filter { !it.isEmpty() }
       .map { uploadPhotoMedia(it) }
       .fold(kotlin.Result.success(Unit)) { a, b -> if (a.isSuccess) b else a }
 
@@ -124,26 +124,23 @@ constructor(
    * Attempts to upload a single photo to remote storage. Returns an [Result] indicating whether the
    * upload attempt failed or succeeded.
    */
-  private suspend fun uploadPhotoMedia(photoTaskData: PhotoTaskData): kotlin.Result<Unit> {
-    val path = photoTaskData.remoteFilename
-    val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
-    if (!photoFile.exists()) {
-      Timber.e("Photo not found. local path: ${photoFile.path}, remote path: $path")
-      return kotlin.Result.failure(
-        FileNotFoundException("Photo $path not found on device: ${photoFile.path}")
-      )
-    }
-
-    Timber.d("Starting photo upload. local path: ${photoFile.path}, remote path: $path")
-    return try {
+  private suspend fun uploadPhotoMedia(photoTaskData: PhotoTaskData): kotlin.Result<Unit> =
+    try {
+      val path = photoTaskData.remoteFilename
+      val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
+      Timber.d("Starting photo upload. local path: ${photoFile.path}, remote path: $path")
+      if (!photoFile.exists()) {
+        throw FileNotFoundException(photoFile.path)
+      }
       remoteStorageManager.uploadMediaFromFile(photoFile, path)
       kotlin.Result.success(Unit)
+    } catch (t: FirebaseNetworkException) {
+      Timber.d(t, "Can't connect to Firebase to upload photo")
+      kotlin.Result.failure(t)
     } catch (t: Throwable) {
-      Timber.e("Photo upload failed. local path: ${photoFile.path}, remote path: $path", t)
-      FirebaseCrashLogger().logException(t)
+      Timber.e(t, "Failed to upload photo")
       kotlin.Result.failure(t)
     }
-  }
 
   companion object {
     private const val LOI_ID = "locationOfInterestId"

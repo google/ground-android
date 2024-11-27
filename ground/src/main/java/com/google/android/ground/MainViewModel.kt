@@ -18,6 +18,8 @@ package com.google.android.ground
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_CANCELLED
+import com.google.android.gms.common.api.ApiException
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.survey.ReactivateLastSurveyUseCase
 import com.google.android.ground.model.User
@@ -80,11 +82,17 @@ constructor(
     Timber.e(error, "Sign in failed")
     return if (error.isPermissionDeniedException()) {
       MainUiState.OnPermissionDenied
+    } else if (error.isSignInCancelledException()) {
+      Timber.d("User cancelled sign in")
+      MainUiState.OnUserSignedOut
     } else {
       // TODO(#1808): Display some error dialog to the user with a helpful user-readable message.
       onUserSignedOut()
     }
   }
+
+  private fun Throwable.isSignInCancelledException() =
+    this is ApiException && statusCode == SIGN_IN_CANCELLED
 
   private fun onUserSignedOut(): MainUiState {
     // Scope of subscription is until view model is cleared. Dispose it manually otherwise, firebase

@@ -184,7 +184,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
   private suspend fun addSubmissionMutationToLocalStorage(status: Mutation.SyncStatus) =
     localSubmissionStore.applyAndEnqueue(createSubmissionMutation().copy(syncStatus = status))
 
-  private fun createSubmissionMutation(photoName: String? = null): SubmissionMutation {
+  private suspend fun createSubmissionMutation(photoName: String? = null): SubmissionMutation {
     val photo =
       userMediaRepository.savePhoto(
         Bitmap.createBitmap(1, 1, Bitmap.Config.HARDWARE),

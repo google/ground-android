@@ -38,7 +38,7 @@ import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
 import com.google.android.ground.persistence.local.room.entity.AuditInfoEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
-import com.google.android.ground.persistence.local.room.fields.EntityState
+import com.google.android.ground.persistence.local.room.fields.EntityDeletionState
 import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.room.fields.MutationEntityType
 import com.google.android.ground.persistence.local.room.fields.UserDetails
@@ -60,6 +60,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   @Inject lateinit var submissionDao: SubmissionDao
   @Inject lateinit var submissionMutationDao: SubmissionMutationDao
   @Inject lateinit var userStore: RoomUserStore
+  @Inject lateinit var surveyStore: RoomSurveyStore
 
   /**
    * Attempts to retrieve the [Submission] associated with the given ID and [LocationOfInterest].
@@ -83,7 +84,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
     jobId: String,
   ): List<Submission> =
     submissionDao
-      .findByLocationOfInterestId(locationOfInterest.id, jobId, EntityState.DEFAULT)
+      .findByLocationOfInterestId(locationOfInterest.id, jobId, EntityDeletionState.DEFAULT)
       ?.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } } ?: listOf()
 
   override suspend fun merge(model: Submission) {
@@ -118,7 +119,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       }
       Mutation.Type.DELETE -> {
         val entity = checkNotNull(submissionDao.findById(mutation.submissionId))
-        submissionDao.update(entity.copy(state = EntityState.DELETED))
+        submissionDao.update(entity.copy(deletionState = EntityDeletionState.DELETED))
       }
       Mutation.Type.UNKNOWN -> {
         throw LocalDataStoreException("Unknown Mutation.Type")
@@ -223,7 +224,18 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       .map { mutations ->
         mutations.filter { it.surveyId == survey.id }.map { it.toModelObject(survey) }
       }
-      .catch { Timber.e("ignoring invalid submission mutation:\n\t${it.message}") }
+      .catch { Timber.e(it, "Ignoring invalid submission mutation") }
+
+  override fun getAllMutationsFlow(): Flow<List<SubmissionMutation>> =
+    submissionMutationDao
+      .getAllMutationsFlow()
+      .map { it.mapNotNull { mutation -> convertMutation(mutation) } }
+      .catch { Timber.e(it, "Ignoring invalid submission mutation") }
+
+  private suspend fun convertMutation(mutation: SubmissionMutationEntity): SubmissionMutation? {
+    val survey = surveyStore.getSurveyById(mutation.surveyId)
+    return survey?.let { mutation.toModelObject(survey) }
+  }
 
   override suspend fun findByLocationOfInterestId(
     loidId: String,

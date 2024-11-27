@@ -16,6 +16,7 @@
 package com.google.android.ground.ui.datacollection.tasks.point
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
@@ -29,6 +30,7 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 class DropPinTaskViewModel
 @Inject
@@ -66,13 +68,14 @@ constructor(
     dropMarker(point)
   }
 
-  private fun dropMarker(point: Point) {
-    val feature = createFeature(point)
-    features.postValue(setOf(feature))
-  }
+  private fun dropMarker(point: Point) =
+    viewModelScope.launch {
+      val feature = createFeature(point)
+      features.postValue(setOf(feature))
+    }
 
   /** Creates a new map [Feature] representing the point placed by the user. */
-  private fun createFeature(point: Point): Feature =
+  private suspend fun createFeature(point: Point): Feature =
     Feature(
       id = uuidGenerator.generateUuid(),
       type = FeatureType.USER_POINT.ordinal,

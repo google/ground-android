@@ -16,6 +16,7 @@
 package com.google.android.ground.model.mutation
 
 import com.google.android.ground.model.job.Job
+import com.google.android.ground.model.submission.PhotoTaskData
 import com.google.android.ground.model.submission.ValueDelta
 import java.util.Date
 
@@ -45,4 +46,7 @@ data class SubmissionMutation(
   fun mediaUploadPending() =
     this.syncStatus == SyncStatus.MEDIA_UPLOAD_PENDING ||
       this.syncStatus == SyncStatus.MEDIA_UPLOAD_AWAITING_RETRY
+
+  fun getPhotoData(): List<PhotoTaskData> =
+    deltas.map { it.newTaskData }.filterIsInstance<PhotoTaskData>().filter { !it.isEmpty() }
 }

@@ -69,7 +69,7 @@ internal constructor(
       locationOfInterestRepository.getOfflineLoi(mutation.surveyId, mutation.locationOfInterestId)
     if (loi == null) {
       // If LOI is null, return null to avoid proceeding
-      Timber.e("MutationDetail", "LOI not found for mutation ${mutation.id}")
+      Timber.e("LOI not found for mutation $mutation")
       return null
     }
     val user = userRepository.getAuthenticatedUser()
