@@ -88,12 +88,10 @@ constructor(
   }
 
   private fun filterMutationsByUser(mutations: List<Mutation>, user: User): List<Mutation> {
-    val userIds = mutations.map { it.userId }.toSet()
-    if (userIds.size != 1) {
-      Timber.e("Expected exactly 1 user, but found ${userIds.size}")
-    }
     val (validMutations, invalidMutations) = mutations.partition { it.userId == user.id }
-    invalidMutations.forEach { Timber.e("Invalid mutation: $it") }
+    if (invalidMutations.isNotEmpty()) {
+      Timber.e("Mutation(s) not deleted on sign-out: $invalidMutations")
+    }
     return validMutations
   }
 }
