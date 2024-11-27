@@ -17,6 +17,7 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
@@ -28,11 +29,13 @@ import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.UploadQueueEntry
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
+import com.google.android.ground.system.auth.AuthenticationManager
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import timber.log.Timber
 
 /**
  * Coordinates persistence of mutations across [LocationOfInterestMutation] and [SubmissionMutation]
@@ -44,6 +47,7 @@ class MutationRepository
 constructor(
   private val localLocationOfInterestStore: LocalLocationOfInterestStore,
   private val localSubmissionStore: LocalSubmissionStore,
+  private val authenticationManager: AuthenticationManager,
 ) {
   /**
    * Returns a long-lived stream that emits the full list of mutations for specified survey on
@@ -91,12 +95,14 @@ constructor(
       buildUploadQueue(loiMutations, submissionMutations)
     }
 
-  private fun buildUploadQueue(
+  private suspend fun buildUploadQueue(
     loiMutations: List<LocationOfInterestMutation>,
     submissionMutations: List<SubmissionMutation>,
   ): List<UploadQueueEntry> {
-    val loiMutationMap = loiMutations.associateBy { it.collectionId }
-    val submissionMutationMap = submissionMutations.associateBy { it.collectionId }
+    val user = authenticationManager.getAuthenticatedUser()
+    val loiMutationMap = loiMutations.filterByUser(user).associateBy { it.collectionId }
+    val submissionMutationMap =
+      submissionMutations.filterByUser(user).associateBy { it.collectionId }
     val collectionIds = loiMutationMap.keys + submissionMutationMap.keys
     return collectionIds
       .map {
@@ -108,6 +114,14 @@ constructor(
         UploadQueueEntry(userId, clientTimestamp, syncStatus, loiMutation, submissionMutation)
       }
       .sortedBy { it.clientTimestamp }
+  }
+
+  private fun <T : Mutation> List<T>.filterByUser(user: User): List<T> {
+    val (validMutations, invalidMutations) = partition { it.userId == user.id }
+    if (invalidMutations.isNotEmpty()) {
+      Timber.e("Mutation(s) not deleted on sign-out")
+    }
+    return validMutations
   }
 
   /**

@@ -21,7 +21,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
-import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.repository.MutationRepository
@@ -68,15 +67,11 @@ constructor(
     if (mutations.isEmpty()) return true
     try {
       val user = userRepository.getAuthenticatedUser()
-      // TODO(https://github.com/google/ground-android/issues/2840):
-      //   Move into repo for reuse by MediaUploadWorker.
-      filterMutationsByUser(mutations, user)
-        .takeIf { it.isNotEmpty() }
-        ?.let {
-          mutationRepository.markAsInProgress(it)
-          remoteDataStore.applyMutations(it, user)
-          mutationRepository.finalizePendingMutationsForMediaUpload(it)
-        }
+      mutationRepository.markAsInProgress(mutations)
+      // TODO(https://github.com/google/ground-android/issues/2883): Access via repository layer.
+      remoteDataStore.applyMutations(mutations, user)
+      mutationRepository.finalizePendingMutationsForMediaUpload(mutations)
+
       return true
     } catch (t: Throwable) {
       // Mark all mutations as having failed since the remote datastore only commits when all
@@ -86,13 +81,5 @@ constructor(
       Timber.e(t, "Failed to sync survey ${mutations.first().surveyId}")
       return false
     }
-  }
-
-  private fun filterMutationsByUser(mutations: List<Mutation>, user: User): List<Mutation> {
-    val (validMutations, invalidMutations) = mutations.partition { it.userId == user.id }
-    if (invalidMutations.isNotEmpty()) {
-      Timber.e("Mutation(s) not deleted on sign-out: $invalidMutations")
-    }
-    return validMutations
   }
 }
