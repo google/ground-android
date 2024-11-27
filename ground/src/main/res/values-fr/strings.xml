@@ -153,7 +153,7 @@
   <string name="failed">Echec</string>
   <string name="synced">Synchronisé</string>
   <string name="syncing">Synchronisation</string>
-  <string name="upload_pending">Téléchargement en attente</string>
+  <string name="upload_pending">En attente</string>
   <string name="data_synced_media_pending">Données synchronisées\n(media pending)</string>
   <string name="data_synced_media_pending_retry">Données synchronisées\n(media pending retry)</string>
   <string name="media_syncing">Synchronisation des médias</string>
