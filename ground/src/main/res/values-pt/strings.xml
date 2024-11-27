@@ -73,4 +73,5 @@
 
   <string name="upload_status">Estado de carregamento</string>
   <string name="upload_pending">Pendente</string>
+  <string name="retry_pending">Nova tentativa pendente</string>
 </resources>

@@ -117,7 +117,7 @@ private fun Mutation.SyncStatus.toLabel(): Int =
     Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS -> R.string.media_syncing
     Mutation.SyncStatus.IN_PROGRESS -> R.string.syncing
     Mutation.SyncStatus.COMPLETED -> R.string.synced
-    Mutation.SyncStatus.FAILED -> R.string.failed
+    Mutation.SyncStatus.FAILED -> R.string.retry_pending
     Mutation.SyncStatus.MEDIA_UPLOAD_PENDING -> R.string.data_synced_media_pending
     Mutation.SyncStatus.MEDIA_UPLOAD_AWAITING_RETRY -> R.string.data_synced_media_pending_retry
     Mutation.SyncStatus.UNKNOWN -> error("Unexpected status")
