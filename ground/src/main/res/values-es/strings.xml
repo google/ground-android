@@ -154,7 +154,7 @@
   <string name="synced">Sincronizado</string>
   <string name="uploading">Cargando</string>
   <string name="upload_pending">Pendiente</string>
-  <string name="data_synced_media_pending">Datos sincronizados\n(multimedia pendiente)</string>
+  <string name="photos_pending">Fotos pendientes</string>
   <string name="data_synced_media_pending_retry">Datos sincronizados\n(reintentar multimedia pendiente)</string>
   <string name="media_syncing">Sincronizando multimedia</string>
   <string name="signout_warning">Si cierra sesión, se perderán todos los datos no guardados.</string>

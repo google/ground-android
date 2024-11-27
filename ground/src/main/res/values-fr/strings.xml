@@ -154,7 +154,7 @@
   <string name="synced">Synchronisé</string>
   <string name="uploading">Téléchargement en cours</string>
   <string name="upload_pending">En attente</string>
-  <string name="data_synced_media_pending">Données synchronisées\n(media pending)</string>
+  <string name="photos_pending">Photos en attente</string>
   <string name="data_synced_media_pending_retry">Données synchronisées\n(media pending retry)</string>
   <string name="media_syncing">Synchronisation des médias</string>
   <string name="signout_warning">Si vous vous déconnectez, toutes les données non sauvegardées seront perdues.</string>
