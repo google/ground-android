@@ -114,7 +114,7 @@ private fun Date.toFormattedTime(): String =
 private fun Mutation.SyncStatus.toLabel(): Int =
   when (this) {
     Mutation.SyncStatus.PENDING -> R.string.upload_pending
-    Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS -> R.string.media_syncing
+    Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS -> R.string.uploading_photos
     Mutation.SyncStatus.IN_PROGRESS -> R.string.uploading
     Mutation.SyncStatus.COMPLETED -> R.string.upload_complete
     Mutation.SyncStatus.FAILED -> R.string.retry_pending

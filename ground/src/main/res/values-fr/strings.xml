@@ -156,7 +156,7 @@
   <string name="upload_pending">En attente</string>
   <string name="photos_pending">Photos en attente</string>
   <string name="data_synced_media_pending_retry">Données synchronisées\n(media pending retry)</string>
-  <string name="media_syncing">Synchronisation des médias</string>
+  <string name="uploading_photos">Téléchargement des photos</string>
   <string name="signout_warning">Si vous vous déconnectez, toutes les données non sauvegardées seront perdues.</string>
   <string name="admin_request_access">Pour continuer, contactez votre administrateur système pour demander l&#8217;accès.</string>
   <string name="signup_request_access">Pour continuer, <annotation type="sign_up_link">inscrivez-vous pour demander l&#8217;accès</annotation>.</string>
