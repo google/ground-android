@@ -91,7 +91,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
         )
     }
 
-  private val TEST_SURVEY = FakeData.SURVEY.copy(id = TEST_SURVEY_ID)
+  private val testSurvey = FakeData.SURVEY.copy(id = TEST_SURVEY_ID)
 
   @Before
   override fun setUp() {
@@ -100,7 +100,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     runBlocking {
       fakeAuthenticationManager.setUser(FakeData.USER.copy(id = TEST_USER_ID))
       localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = TEST_USER_ID))
-      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+      localSurveyStore.insertOrUpdateSurvey(testSurvey)
     }
   }
 
@@ -190,7 +190,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   }
 
   private suspend fun getMutations(syncStatus: Mutation.SyncStatus): List<Mutation> =
-    mutationRepository.getSurveyMutationsFlow(TEST_SURVEY).first().filter {
+    mutationRepository.getSurveyMutationsFlow(testSurvey).first().filter {
       it.syncStatus == syncStatus
     }
 
