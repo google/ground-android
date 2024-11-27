@@ -115,7 +115,7 @@ private fun Mutation.SyncStatus.toLabel(): Int =
   when (this) {
     Mutation.SyncStatus.PENDING -> R.string.upload_pending
     Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS -> R.string.media_syncing
-    Mutation.SyncStatus.IN_PROGRESS -> R.string.syncing
+    Mutation.SyncStatus.IN_PROGRESS -> R.string.uploading
     Mutation.SyncStatus.COMPLETED -> R.string.synced
     Mutation.SyncStatus.FAILED -> R.string.retry_pending
     Mutation.SyncStatus.MEDIA_UPLOAD_PENDING -> R.string.data_synced_media_pending
