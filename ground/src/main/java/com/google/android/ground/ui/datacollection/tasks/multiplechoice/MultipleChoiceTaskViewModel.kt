@@ -95,13 +95,7 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
         task.multipleChoice,
         selectedIds.map {
           // if the other option is selected grab the associated text save instead of otherId
-          if (it == OTHER_ID) {
-            OTHER_PREFIX +
-              (if (otherText.isNotBlank()) otherText.trim() else "Other") +
-              OTHER_SUFFIX
-          } else {
-            it
-          }
+          if (it == OTHER_ID) OTHER_PREFIX + otherText.trim() + OTHER_SUFFIX else it
         },
       )
     )
