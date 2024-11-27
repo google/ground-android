@@ -19,7 +19,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
@@ -58,16 +57,21 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
     // Otherwise, the sequentially generated ID might conflict with an ID produced by Google Maps.
-    val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11411 }
+    val rootView = inflater.inflate(R.layout.fragment_draw_area_task, null)
+
     drawAreaTaskMapFragment = drawAreaTaskMapFragmentProvider.get()
     val args = Bundle()
     args.putString(TASK_ID_FRAGMENT_ARG_KEY, taskId)
     drawAreaTaskMapFragment.arguments = args
     parentFragmentManager
       .beginTransaction()
-      .add(rowLayout.id, drawAreaTaskMapFragment, DrawAreaTaskMapFragment::class.java.simpleName)
+      .add(
+        R.id.container_draw_area_task_map,
+        drawAreaTaskMapFragment,
+        DrawAreaTaskMapFragment::class.java.simpleName,
+      )
       .commit()
-    return rowLayout
+    return rootView
   }
 
   override fun onCreateActionButtons() {
