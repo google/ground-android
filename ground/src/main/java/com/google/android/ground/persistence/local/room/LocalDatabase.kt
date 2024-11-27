@@ -88,7 +88,7 @@ import com.google.android.ground.persistence.local.room.fields.TileSetEntityStat
       ExpressionEntity::class,
     ],
   version = Config.DB_VERSION,
-  exportSchema = false,
+  exportSchema = true,
 )
 @TypeConverters(
   TaskEntityType::class,
