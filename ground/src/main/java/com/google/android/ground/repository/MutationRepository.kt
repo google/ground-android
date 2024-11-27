@@ -27,9 +27,7 @@ import com.google.android.ground.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.UploadQueueEntry
 import com.google.android.ground.persistence.local.room.converter.toModelObject
-import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
 import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
@@ -57,7 +55,10 @@ constructor(
    */
   fun getSurveyMutationsFlow(survey: Survey): Flow<List<Mutation>> {
     // TODO(https://github.com/google/ground-android/issues/2838): Show mutations for all surveys,
-    // not just current one.
+    //   not just current one.
+    // TODO(https://github.com/google/ground-android/issues/2838): This method is also named
+    //   incorrectly - it only returns one of LOI or submission mutations. We should delete this
+    //   method in favor of [getUploadQueueFlow()].
     val locationOfInterestMutations = localLocationOfInterestStore.getAllSurveyMutations(survey)
     val submissionMutations = localSubmissionStore.getAllSurveyMutationsFlow(survey)
 

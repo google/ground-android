@@ -108,7 +108,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
       createSubmissionMutation("does_not_exist.jpg").copy(syncStatus = MEDIA_UPLOAD_PENDING)
     )
     createAndDoWork(context)
-    assertThatMutationCountEquals(FAILED, 1)
+    assertThatMutationCountEquals(MEDIA_UPLOAD_AWAITING_RETRY, 1)
   }
 
   @Test
@@ -131,7 +131,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
 
     createAndDoWork(context)
 
-    assertThatMutationCountEquals(FAILED, 1)
+    assertThatMutationCountEquals(MEDIA_UPLOAD_AWAITING_RETRY, 1)
     assertThatMutationCountEquals(MEDIA_UPLOAD_PENDING, 0)
     assertThatMutationCountEquals(MEDIA_UPLOAD_IN_PROGRESS, 0)
     assertThatMutationCountEquals(COMPLETED, 0)
@@ -149,7 +149,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     addSubmissionMutationToLocalStorage(UNKNOWN)
 
     createAndDoWork(context)
-    assertThatMutationCountEquals(FAILED, 1)
+    assertThatMutationCountEquals(MEDIA_UPLOAD_AWAITING_RETRY, 1)
     assertThatMutationCountEquals(PENDING, 1)
     assertThatMutationCountEquals(COMPLETED, 1)
     assertThatMutationCountEquals(IN_PROGRESS, 1)

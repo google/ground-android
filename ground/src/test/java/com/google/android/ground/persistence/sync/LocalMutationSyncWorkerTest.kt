@@ -105,7 +105,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Ignores all mutations if the logged-in user is mismatching`() = runWithTestDispatcher {
+  fun `Ignores mutations not belonging to current user`() = runWithTestDispatcher {
     fakeAuthenticationManager.setUser(FakeData.USER.copy(id = "random user id"))
 
     addPendingMutations()
@@ -190,9 +190,9 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   }
 
   private suspend fun getMutations(syncStatus: Mutation.SyncStatus): List<Mutation> =
-    mutationRepository.getSurveyMutationsFlow(testSurvey).first().filter {
-      it.syncStatus == syncStatus
-    }
+    (localLocationOfInterestStore.getAllMutationsFlow().first() +
+        localSubmissionStore.getAllMutationsFlow().first())
+      .filter { it.syncStatus == syncStatus }
 
   private suspend fun assertMutationsState(
     pending: Int = 0,
