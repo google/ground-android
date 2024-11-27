@@ -155,7 +155,7 @@
   <string name="uploading">Cargando</string>
   <string name="upload_pending">Pendiente</string>
   <string name="photos_pending">Fotos pendientes</string>
-  <string name="data_synced_media_pending_retry">Datos sincronizados\n(reintentar multimedia pendiente)</string>
+  <string name="photos_pending_retry">Fotos pendientes de reintento</string>
   <string name="uploading_photos">Carregando fotos</string>
   <string name="signout_warning">Si cierra sesión, se perderán todos los datos no guardados.</string>
   <string name="admin_request_access">Para continuar, contacte con su administrador del sistema para solicitar acceso.</string>

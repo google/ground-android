@@ -155,7 +155,7 @@
   <string name="uploading">Téléchargement en cours</string>
   <string name="upload_pending">En attente</string>
   <string name="photos_pending">Photos en attente</string>
-  <string name="data_synced_media_pending_retry">Données synchronisées\n(media pending retry)</string>
+  <string name="photos_pending_retry">Photos en attente de nouvelle tentative</string>
   <string name="uploading_photos">Téléchargement des photos</string>
   <string name="signout_warning">Si vous vous déconnectez, toutes les données non sauvegardées seront perdues.</string>
   <string name="admin_request_access">Pour continuer, contactez votre administrateur système pour demander l&#8217;accès.</string>
