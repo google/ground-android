@@ -73,7 +73,7 @@ internal constructor(
     if (mutationRepository.getIncompleteUploads().isNotEmpty()) {
       mutationSyncWorkManager.enqueueSyncWorker()
     }
-    if (mutationRepository.getIncompleteMediaUploads().isNotEmpty()) {
+    if (mutationRepository.getIncompleteMediaMutations().isNotEmpty()) {
       mediaUploadWorkManager.enqueueSyncWorker()
     }
   }

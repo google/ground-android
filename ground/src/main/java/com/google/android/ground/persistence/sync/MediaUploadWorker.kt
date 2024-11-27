@@ -56,7 +56,7 @@ constructor(
 
   override suspend fun doWork(): Result =
     withContext(Dispatchers.IO) {
-      val mutations = mutationRepository.getIncompleteMediaUploads()
+      val mutations = mutationRepository.getIncompleteMediaMutations()
       Timber.d("Uploading photos for ${mutations.size} submission mutations")
       val results = mutations.map { uploadAllMedia(it) }
       if (results.all { it }) success() else retry()

@@ -78,7 +78,7 @@ constructor(
    * Return the set of photo/media upload queue entries not yet marked as completed, sorted in
    * chronological order (FIFO).
    */
-  suspend fun getIncompleteMediaUploads(): List<SubmissionMutation> =
+  suspend fun getIncompleteMediaMutations(): List<SubmissionMutation> =
     getUploadQueueFlow()
       .first()
       .filter {
