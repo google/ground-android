@@ -65,7 +65,7 @@
   <string name="date">Fecha</string>
   <string name="time">Hora</string>
   <!-- Other strings (to be organized) -->
-  <string name="sync_status">Estado de sincronización de datos</string>
+  <string name="upload_status">Estado de carga</string>
 
   <string name="add_point">Añadir punto</string>
   <string name="complete_polygon">Completar</string>
@@ -157,7 +157,6 @@
   <string name="data_synced_media_pending">Datos sincronizados\n(multimedia pendiente)</string>
   <string name="data_synced_media_pending_retry">Datos sincronizados\n(reintentar multimedia pendiente)</string>
   <string name="media_syncing">Sincronizando multimedia</string>
-  <string name="data_sync_status">Estado de sincronización de datos</string>
   <string name="signout_warning">Si cierra sesión, se perderán todos los datos no guardados.</string>
   <string name="admin_request_access">Para continuar, contacte con su administrador del sistema para solicitar acceso.</string>
   <string name="signup_request_access">Para continuar, <annotation type="sign_up_link">regístrese para solicitar acceso</annotation>.</string>

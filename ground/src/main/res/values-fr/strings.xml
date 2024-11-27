@@ -66,7 +66,7 @@
   <string name="date">Date</string>
   <string name="time">l&#8217;heure</string>
   <!-- Other strings (to be organized) -->
-  <string name="sync_status">État de synchronisation des données</string>
+  <string name="upload_status">État de téléchargement</string>
 
   <string name="add_point">Ajouter un point</string>
   <string name="complete_polygon">Finir</string>
@@ -157,7 +157,6 @@
   <string name="data_synced_media_pending">Données synchronisées\n(media pending)</string>
   <string name="data_synced_media_pending_retry">Données synchronisées\n(media pending retry)</string>
   <string name="media_syncing">Synchronisation des médias</string>
-  <string name="data_sync_status">État de synchronisation</string>
   <string name="signout_warning">Si vous vous déconnectez, toutes les données non sauvegardées seront perdues.</string>
   <string name="admin_request_access">Pour continuer, contactez votre administrateur système pour demander l&#8217;accès.</string>
   <string name="signup_request_access">Pour continuer, <annotation type="sign_up_link">inscrivez-vous pour demander l&#8217;accès</annotation>.</string>

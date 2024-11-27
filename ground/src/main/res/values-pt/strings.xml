@@ -70,4 +70,6 @@
 
   <string name="add_point">Adicionar ponto</string>
   <string name="complete_polygon">Completa</string>
+
+  <string name="upload_status">Estado de carregamento</string>
 </resources>
