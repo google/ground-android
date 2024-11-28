@@ -41,7 +41,7 @@ class DownloadProgressDialogTest : BaseHiltTest() {
 
   @Test
   fun downloadProgressDialog_DisplaysTitleCorrectly() {
-    composeTestRule.setContent { DownloadProgressDialog(viewModel) {} }
+    composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }
 
     composeTestRule
       .onNodeWithText(
@@ -55,7 +55,7 @@ class DownloadProgressDialogTest : BaseHiltTest() {
 
   @Test
   fun downloadProgressDialog_DisplaysCorrectMessage() {
-    composeTestRule.setContent { DownloadProgressDialog(viewModel) {} }
+    composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }
 
     composeTestRule
       .onNodeWithText(
@@ -70,7 +70,9 @@ class DownloadProgressDialogTest : BaseHiltTest() {
   fun downloadProgressDialog_CallsOnDismissOnDismissButtonClick() {
     var isDismissed = false
 
-    composeTestRule.setContent { DownloadProgressDialog(viewModel) { isDismissed = true } }
+    composeTestRule.setContent {
+      DownloadProgressDialog(viewModel.downloadProgress.value!!, { isDismissed = true })
+    }
 
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
@@ -83,24 +85,13 @@ class DownloadProgressDialogTest : BaseHiltTest() {
   fun downloadProgressDialog_DisplaysCorrectTitleForProgress() {
     viewModel.downloadProgress.value = 0.5f
 
-    composeTestRule.setContent { DownloadProgressDialog(viewModel) {} }
+    composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }
 
     composeTestRule
       .onNodeWithText(
         composeTestRule.activity.getString(
           R.string.offline_map_imagery_download_progress_dialog_title,
           50,
-        )
-      )
-      .assertIsDisplayed()
-
-    viewModel.downloadProgress.value = 1f
-
-    composeTestRule
-      .onNodeWithText(
-        composeTestRule.activity.getString(
-          R.string.offline_map_imagery_download_progress_dialog_title,
-          100,
         )
       )
       .assertIsDisplayed()

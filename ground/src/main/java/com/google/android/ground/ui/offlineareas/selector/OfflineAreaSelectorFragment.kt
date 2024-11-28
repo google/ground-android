@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
@@ -80,11 +81,12 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
       ComposeView(requireContext()).apply {
         setContent {
           val openAlertDialog = remember { mutableStateOf(isVisible) }
+          val progress = viewModel.downloadProgress.observeAsState(0f)
           when {
             openAlertDialog.value -> {
               AppTheme {
                 DownloadProgressDialog(
-                  downloadProgress = viewModel.downloadProgress,
+                  progress = progress.value,
                   onDismiss = { openAlertDialog.value = false },
                 )
               }

@@ -30,7 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
@@ -38,13 +37,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.R
 
 @Composable
-fun DownloadProgressDialog(downloadProgress: MutableLiveData<Float>, onDismiss: () -> Unit) {
-  val progress by downloadProgress.observeAsState(0f)
-
+fun DownloadProgressDialog(progress: Float, onDismiss: () -> Unit) {
   AlertDialog(
     containerColor = MaterialTheme.colorScheme.surfaceContainer,
     onDismissRequest = {},
