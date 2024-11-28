@@ -18,9 +18,9 @@ package com.google.android.ground.ui.offlineareas.selector
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -32,38 +32,35 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.android.ground.R
 
 @Composable
 fun DownloadProgressDialog(viewModel: OfflineAreaSelectorViewModel, onDismiss: () -> Unit) {
-  val progress by viewModel.downloadProgress.observeAsState(0)
-  val maxProgress by viewModel.downloadProgressMax.observeAsState(100)
+  val progress by viewModel.downloadProgress.observeAsState(0f)
 
   AlertDialog(
     containerColor = MaterialTheme.colorScheme.surface,
     onDismissRequest = {},
     title = {
       Text(
-        stringResource(R.string.offline_map_imagery_download_progress_dialog_title, progress),
+        stringResource(
+          R.string.offline_map_imagery_download_progress_dialog_title,
+          (progress * 100).toInt(),
+        ),
         color = MaterialTheme.colorScheme.onSurface,
       )
     },
     text = {
       Column {
         val animatedProgress by
-          animateFloatAsState(
-            targetValue = progress.toFloat() / maxProgress,
-            animationSpec = tween(durationMillis = 300),
-          )
+          animateFloatAsState(targetValue = progress, animationSpec = tween(durationMillis = 300))
 
         LinearProgressIndicator(
-          modifier =
-            Modifier.background(
-              shape = RoundedCornerShape(4.dp),
-              color = MaterialTheme.colorScheme.primary,
-            ),
+          modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).testTag("progressBar"),
           progress = { animatedProgress },
           color = MaterialTheme.colorScheme.primary,
           trackColor = MaterialTheme.colorScheme.surfaceVariant,
