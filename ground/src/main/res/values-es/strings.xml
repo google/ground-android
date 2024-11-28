@@ -94,7 +94,7 @@
   <string name="offline_map_imagery_pref_description">Mostrar u ocultar las imágenes descargadas</string>
   <string name="layers">Capas</string>
   <string name="base_map">Mapa base</string>
-  <string name="offline_map_imagery_download_progress_dialog_title">Progreso de descarga</string>
+  <string name="offline_map_imagery_download_progress_dialog_title">Progreso de descarga - %d%%</string>
   <string name="offline_map_imagery_download_progress_dialog_message">Descargando imágenes del mapa sin conexión…</string>
   <string name="multiple_regions">Múltiples regiones</string>
   <string name="permission_denied">Permiso denegado</string>
