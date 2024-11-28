@@ -60,6 +60,7 @@ import com.google.android.ground.proto.TaskData.DRAW_GEOMETRY_RESULT_FIELD_NUMBE
 import com.google.android.ground.proto.TaskData.DateTimeResponse.DATE_TIME_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.DrawGeometryResult.GEOMETRY_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.MULTIPLE_CHOICE_RESPONSES_FIELD_NUMBER
+import com.google.android.ground.proto.TaskData.MultipleChoiceResponses.OTHER_SELECTED_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.MultipleChoiceResponses.OTHER_TEXT_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.MultipleChoiceResponses.SELECTED_OPTION_IDS_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.NUMBER_RESPONSE_FIELD_NUMBER
@@ -136,6 +137,18 @@ class SubmissionMutationConverterTest {
       ids = listOf("option id 1", "option id 2", "[ other value ]"),
     )
 
+  private val multipleChoiceTaskDataOtherEmpty =
+    MultipleChoiceTaskData.fromList(
+      MultipleChoice(
+        persistentListOf(
+          Option("option id 1", "code1", "Option 1"),
+          Option("option id 2", "code2", "Option 2"),
+        ),
+        MultipleChoice.Cardinality.SELECT_MULTIPLE,
+      ),
+      ids = listOf("[  ]"),
+    )
+
   private val numberTaskData = NumberTaskData.fromNumber("123")
 
   private val dropPinTaskResult = DropPinTaskData(Point(Coordinates(10.0, 20.0)))
@@ -197,6 +210,11 @@ class SubmissionMutationConverterTest {
             newTaskData = multipleChoiceTaskDataOther,
           ),
           ValueDelta(
+            taskId = "multiple_choice_task_other_empty_value",
+            taskType = Task.Type.MULTIPLE_CHOICE,
+            newTaskData = multipleChoiceTaskDataOtherEmpty,
+          ),
+          ValueDelta(
             taskId = "number_task",
             taskType = Task.Type.NUMBER,
             newTaskData = numberTaskData,
@@ -234,7 +252,10 @@ class SubmissionMutationConverterTest {
       ),
       mapOf(
         MULTIPLE_CHOICE_RESPONSES_FIELD_NUMBER.toString() to
-          mapOf(OTHER_TEXT_FIELD_NUMBER.toString() to "other value"),
+          mapOf(
+            OTHER_TEXT_FIELD_NUMBER.toString() to "other value",
+            OTHER_SELECTED_FIELD_NUMBER.toString() to true,
+          ),
         TASK_ID_FIELD_NUMBER.toString() to "single_choice_task_other",
       ),
       mapOf(
@@ -249,8 +270,14 @@ class SubmissionMutationConverterTest {
           mapOf(
             SELECTED_OPTION_IDS_FIELD_NUMBER.toString() to listOf("option id 1", "option id 2"),
             OTHER_TEXT_FIELD_NUMBER.toString() to "other value",
+            OTHER_SELECTED_FIELD_NUMBER.toString() to true,
           ),
         TASK_ID_FIELD_NUMBER.toString() to "multiple_choice_task_other",
+      ),
+      mapOf(
+        MULTIPLE_CHOICE_RESPONSES_FIELD_NUMBER.toString() to
+          mapOf(OTHER_SELECTED_FIELD_NUMBER.toString() to true),
+        TASK_ID_FIELD_NUMBER.toString() to "multiple_choice_task_other_empty_value",
       ),
       mapOf(
         NUMBER_RESPONSE_FIELD_NUMBER.toString() to mapOf(NUMBER_FIELD_NUMBER.toString() to 123.0),
