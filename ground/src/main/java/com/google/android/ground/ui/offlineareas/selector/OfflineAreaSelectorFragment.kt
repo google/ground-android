@@ -87,6 +87,8 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
               AppTheme {
                 DownloadProgressDialog(
                   progress = progress.value,
+                  // TODO - Add Download Cancel Feature
+                  // https://github.com/google/ground-android/issues/2884
                   onDismiss = { openAlertDialog.value = false },
                 )
               }
