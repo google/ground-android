@@ -235,8 +235,10 @@ class SubmissionMutationConverterTest {
       ),
       mapOf(
         MULTIPLE_CHOICE_RESPONSES_FIELD_NUMBER.toString() to
-          mapOf(OTHER_TEXT_FIELD_NUMBER.toString() to "other value",
-            OTHER_SELECTED_FIELD_NUMBER.toString() to true),
+          mapOf(
+            OTHER_TEXT_FIELD_NUMBER.toString() to "other value",
+            OTHER_SELECTED_FIELD_NUMBER.toString() to true,
+          ),
         TASK_ID_FIELD_NUMBER.toString() to "single_choice_task_other",
       ),
       mapOf(
@@ -251,7 +253,7 @@ class SubmissionMutationConverterTest {
           mapOf(
             SELECTED_OPTION_IDS_FIELD_NUMBER.toString() to listOf("option id 1", "option id 2"),
             OTHER_TEXT_FIELD_NUMBER.toString() to "other value",
-            OTHER_SELECTED_FIELD_NUMBER.toString() to true
+            OTHER_SELECTED_FIELD_NUMBER.toString() to true,
           ),
         TASK_ID_FIELD_NUMBER.toString() to "multiple_choice_task_other",
       ),
