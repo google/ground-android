@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,15 +35,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.MutableLiveData
 import com.google.android.ground.R
 
 @Composable
-fun DownloadProgressDialog(viewModel: OfflineAreaSelectorViewModel, onDismiss: () -> Unit) {
-  val progress by viewModel.downloadProgress.observeAsState(0f)
+fun DownloadProgressDialog(downloadProgress: MutableLiveData<Float>, onDismiss: () -> Unit) {
+  val progress by downloadProgress.observeAsState(0f)
 
   AlertDialog(
-    containerColor = MaterialTheme.colorScheme.surface,
+    containerColor = MaterialTheme.colorScheme.surfaceContainer,
     onDismissRequest = {},
     title = {
       Text(
@@ -52,6 +55,7 @@ fun DownloadProgressDialog(viewModel: OfflineAreaSelectorViewModel, onDismiss: (
           (progress * 100).toInt(),
         ),
         color = MaterialTheme.colorScheme.onSurface,
+        fontFamily = FontFamily(Font(R.font.text_500)),
       )
     },
     text = {
@@ -65,15 +69,18 @@ fun DownloadProgressDialog(viewModel: OfflineAreaSelectorViewModel, onDismiss: (
           color = MaterialTheme.colorScheme.primary,
           trackColor = MaterialTheme.colorScheme.surfaceVariant,
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(16.dp))
         Text(
           stringResource(R.string.offline_map_imagery_download_progress_dialog_message),
           color = MaterialTheme.colorScheme.onSurfaceVariant,
+          fontFamily = FontFamily(Font(R.font.text_500)),
         )
       }
     },
     dismissButton = {
-      TextButton(onClick = { onDismiss() }) { Text(text = stringResource(R.string.cancel)) }
+      TextButton(onClick = { onDismiss() }) {
+        Text(text = stringResource(R.string.cancel), fontFamily = FontFamily(Font(R.font.text_500)))
+      }
     },
     confirmButton = {},
   )

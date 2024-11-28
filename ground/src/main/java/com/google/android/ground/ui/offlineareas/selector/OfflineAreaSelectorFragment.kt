@@ -84,7 +84,7 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
             openAlertDialog.value -> {
               AppTheme {
                 DownloadProgressDialog(
-                  viewModel = viewModel,
+                  downloadProgress = viewModel.downloadProgress,
                   onDismiss = { openAlertDialog.value = false },
                 )
               }
