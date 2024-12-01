@@ -20,7 +20,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.mutation.Mutation.SyncStatus.COMPLETED
 import com.google.android.ground.model.submission.DraftSubmission
-import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.sync.MediaUploadWorkManager
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.repository.MutationRepository
@@ -43,7 +42,6 @@ import timber.log.Timber
 class HomeScreenViewModel
 @Inject
 internal constructor(
-  private val localValueStore: LocalValueStore,
   private val navigator: Navigator,
   private val offlineAreaRepository: OfflineAreaRepository,
   private val submissionRepository: SubmissionRepository,
