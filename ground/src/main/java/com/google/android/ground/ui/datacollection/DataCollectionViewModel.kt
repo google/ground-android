@@ -61,6 +61,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
@@ -82,7 +83,7 @@ internal constructor(
   private val submissionRepository: SubmissionRepository,
   private val offlineUuidGenerator: OfflineUuidGenerator,
   locationOfInterestRepository: LocationOfInterestRepository,
-  surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
   private val _uiState: MutableStateFlow<UiState?> = MutableStateFlow(null)
@@ -97,8 +98,15 @@ internal constructor(
   private var shouldLoadFromDraft: Boolean = savedStateHandle[TASK_SHOULD_LOAD_FROM_DRAFT] ?: false
   private var draftDeltas: List<ValueDelta>? = null
 
-  private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
-  private val job: Job = activeSurvey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
+  private val _activeSurvey = MutableStateFlow<Survey?>(null)
+  val activeSurvey = _activeSurvey.asStateFlow()
+
+  init {
+    viewModelScope.launch { surveyRepository.activeSurveyFlow.collect { _activeSurvey.value = it } }
+  }
+
+  private val job: Job =
+    activeSurvey.value?.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
   private var customLoiName: String?
     get() = savedStateHandle[TASK_LOI_NAME_KEY]
     set(value) {
