@@ -19,15 +19,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.map.MapFragment
-import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -62,46 +57,8 @@ class CaptureLocationTaskMapFragment @Inject constructor() : AbstractMapFragment
     return root
   }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    lifecycleScope.launch {
-      viewModel.enableLocationLockFlow.collect {
-        if (it == LocationLockEnabledState.NEEDS_ENABLE) {
-          showLocationPermissionDialog()
-        }
-      }
-    }
-  }
-
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
     viewLifecycleOwner.lifecycleScope.launch { viewModel.onMapReady(mapViewModel) }
-  }
-
-  @Suppress("LabeledExpression")
-  private fun showLocationPermissionDialog() {
-    val dialogComposeView =
-      ComposeView(requireContext()).apply {
-        setContent {
-          val openAlertDialog = remember { mutableStateOf(true) }
-          when {
-            openAlertDialog.value -> {
-              AppTheme {
-                LocationPermissionDialog(
-                  onCancel = {
-                    binding.locationLockBtn.isClickable = false
-                    openAlertDialog.value = false
-                  },
-                  onDismiss = { openAlertDialog.value = false },
-                )
-              }
-            }
-          }
-
-          DisposableEffect(Unit) { onDispose { (parent as? ViewGroup)?.removeView(this@apply) } }
-        }
-      }
-
-    (view as ViewGroup).addView(dialogComposeView)
   }
 }
