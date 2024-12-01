@@ -27,6 +27,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
+import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.databinding.MainActBinding
 import com.google.android.ground.repository.UserRepository
@@ -154,9 +156,21 @@ class MainActivity : AbstractActivity() {
 
   private fun onNavigate(navRequest: NavigationRequest) {
     when (navRequest) {
-      is NavigateTo -> navHostFragment.navController.navigate(navRequest.directions)
+      is NavigateTo ->
+        navigateIfDestinationExists(navHostFragment.navController, navRequest.directions)
       is NavigateUp -> navigateUp()
       is FinishApp -> finish()
+    }
+  }
+
+  private fun navigateIfDestinationExists(navController: NavController, directions: NavDirections) {
+    val currentDestination = navController.currentDestination
+    val action = currentDestination?.getAction(directions.actionId)
+
+    if (action != null) {
+      navController.navigate(directions)
+    } else {
+      Timber.w("NavigationCheck", "Destination or action does not exist: ${directions.actionId}")
     }
   }
 
