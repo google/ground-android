@@ -82,10 +82,10 @@ internal constructor(
 
   /** Attempts to return draft submission for the currently active survey. */
   suspend fun getDraftSubmission(): DraftSubmission? {
-    val draftId = localValueStore.draftSubmissionId
+    val draftId = submissionRepository.getDraftSubmissionsId()
     val survey = surveyRepository.activeSurvey
 
-    if (draftId.isNullOrEmpty() || survey == null) {
+    if (draftId.isEmpty() || survey == null) {
       // Missing draft submission
       return null
     }

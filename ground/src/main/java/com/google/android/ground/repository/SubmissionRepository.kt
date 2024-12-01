@@ -79,6 +79,8 @@ constructor(
 
   suspend fun countDraftSubmissions() = localSubmissionStore.countDraftSubmissions()
 
+  fun getDraftSubmissionsId() = localValueStore.draftSubmissionId ?: ""
+
   suspend fun saveDraftSubmission(
     jobId: String,
     loiId: String?,
