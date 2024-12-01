@@ -44,7 +44,6 @@ import com.google.android.ground.persistence.local.room.fields.MutationEntityTyp
 import com.google.android.ground.persistence.local.room.fields.UserDetails
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.util.Debug.logOnFailure
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toPersistentList
@@ -211,9 +210,10 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       apply(mutation)
       enqueue(mutation)
     } catch (e: LocalDataStoreException) {
-      FirebaseCrashlytics.getInstance()
-        .log("Error enqueueing ${mutation.type} mutation for submission ${mutation.submissionId}")
-      FirebaseCrashlytics.getInstance().recordException(e)
+      Timber.e(
+        e,
+        "Error enqueueing ${mutation.type} mutation for submission ${mutation.submissionId}",
+      )
       throw e
     }
   }
@@ -269,4 +269,6 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   override suspend fun deleteDraftSubmissions() {
     draftSubmissionDao.delete()
   }
+
+  override suspend fun countDraftSubmissions(): Int = draftSubmissionDao.countAll()
 }

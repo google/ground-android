@@ -77,6 +77,8 @@ constructor(
   suspend fun getDraftSubmission(draftSubmissionId: String, survey: Survey): DraftSubmission? =
     localSubmissionStore.getDraftSubmission(draftSubmissionId = draftSubmissionId, survey = survey)
 
+  suspend fun countDraftSubmissions() = localSubmissionStore.countDraftSubmissions()
+
   suspend fun saveDraftSubmission(
     jobId: String,
     loiId: String?,
