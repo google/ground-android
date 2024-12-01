@@ -107,7 +107,7 @@ constructor(
   suspend fun getTotalSubmissionCount(loi: LocationOfInterest) =
     loi.submissionCount + getPendingCreateCount(loi.id) - getPendingDeleteCount(loi.id)
 
-  private suspend fun getPendingCreateCount(loiId: String) =
+  suspend fun getPendingCreateCount(loiId: String) =
     localSubmissionStore.getPendingCreateCount(loiId)
 
   private suspend fun getPendingDeleteCount(loiId: String) =
