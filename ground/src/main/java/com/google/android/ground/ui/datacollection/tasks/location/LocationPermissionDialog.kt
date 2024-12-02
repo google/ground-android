@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.google.android.ground.ExcludeFromJacocoGeneratedReport
 import com.google.android.ground.R
 import com.google.android.ground.ui.theme.AppTheme
 
@@ -68,6 +69,7 @@ fun LocationPermissionDialog(onDismiss: () -> Unit, onCancel: () -> Unit) {
 
 @Composable
 @Preview
+@ExcludeFromJacocoGeneratedReport
 fun PreviewUserDetailsDialog() {
   AppTheme { LocationPermissionDialog({}, {}) }
 }

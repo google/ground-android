@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.ground.ExcludeFromJacocoGeneratedReport
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.mutation.Mutation
@@ -137,6 +138,7 @@ private fun Mutation.SyncStatus.toIcon(): Int =
 
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
+@ExcludeFromJacocoGeneratedReport
 fun PreviewSyncListItem(
   detail: MutationDetail =
     MutationDetail(

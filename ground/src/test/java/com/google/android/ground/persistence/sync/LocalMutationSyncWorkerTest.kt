@@ -23,22 +23,16 @@ import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
-import androidx.work.workDataOf
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.*
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.FAILED
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.IN_PROGRESS
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.MEDIA_UPLOAD_PENDING
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.PENDING
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus.UNKNOWN
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
-import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.LOCATION_OF_INTEREST_ID_PARAM_KEY
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.common.truth.Truth.assertThat
@@ -48,8 +42,8 @@ import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -97,6 +91,8 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
         )
     }
 
+  private val testSurvey = FakeData.SURVEY.copy(id = TEST_SURVEY_ID)
+
   @Before
   override fun setUp() {
     super.setUp()
@@ -104,24 +100,17 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     runBlocking {
       fakeAuthenticationManager.setUser(FakeData.USER.copy(id = TEST_USER_ID))
       localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = TEST_USER_ID))
-      localSurveyStore.insertOrUpdateSurvey(FakeData.SURVEY.copy(id = TEST_SURVEY_ID))
+      localSurveyStore.insertOrUpdateSurvey(testSurvey)
     }
   }
 
   @Test
-  fun `Throws an NPE if LOI ID is null`() {
-    assertThrows(NullPointerException::class.java) {
-      runWithTestDispatcher { createAndDoWork(context, null) }
-    }
-  }
-
-  @Test
-  fun `Ignores all mutations if the logged-in user is mismatching`() = runWithTestDispatcher {
+  fun `Ignores mutations not belonging to current user`() = runWithTestDispatcher {
     fakeAuthenticationManager.setUser(FakeData.USER.copy(id = "random user id"))
 
     addPendingMutations()
 
-    val result = createAndDoWork(context, TEST_LOI_ID)
+    val result = createAndDoWork(context)
 
     assertThat(result).isEqualTo(success())
     assertMutationsState(pending = 2)
@@ -135,7 +124,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = TEST_USER_ID))
     localSubmissionStore.applyAndEnqueue(createSubmissionMutation(TEST_USER_ID))
 
-    val result = createAndDoWork(context, TEST_LOI_ID)
+    val result = createAndDoWork(context)
 
     assertThat(result).isEqualTo(success())
     assertMutationsState(pending = 1, complete = 1)
@@ -143,7 +132,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
   @Test
   fun `Succeeds if there are 0 pending mutations`() = runWithTestDispatcher {
-    val result = createAndDoWork(context, TEST_LOI_ID)
+    val result = createAndDoWork(context)
 
     assertThat(result).isEqualTo(success())
   }
@@ -152,7 +141,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   fun `Succeeds if there are non-zero pending mutations`() = runWithTestDispatcher {
     addPendingMutations()
 
-    val result = createAndDoWork(context, TEST_LOI_ID)
+    val result = createAndDoWork(context)
 
     assertThat(result).isEqualTo(success())
     assertMutationsState(complete = 2)
@@ -164,7 +153,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
       fakeRemoteDataStore.applyMutationError = Error(ERROR_MESSAGE)
       addPendingMutations()
 
-      val result = createAndDoWork(context, TEST_LOI_ID)
+      val result = createAndDoWork(context)
 
       assertThat(result).isEqualTo(retry())
       assertMutationsState(
@@ -179,7 +168,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     fakeRemoteDataStore.applyMutationError = Error(ERROR_MESSAGE)
     addPendingMutations()
 
-    var result = createAndDoWork(context, TEST_LOI_ID)
+    var result = createAndDoWork(context)
     assertThat(result).isEqualTo(retry())
     assertMutationsState(
       failed = 2,
@@ -189,7 +178,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
     for (i in 1..10) {
       // Worker should retry N times.
-      result = createAndDoWork(context, TEST_LOI_ID)
+      result = createAndDoWork(context)
       assertThat(result).isEqualTo(retry())
       // Verify that the retryCount has incremented.
       assertMutationsState(
@@ -200,6 +189,11 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     }
   }
 
+  private suspend fun getMutations(syncStatus: Mutation.SyncStatus): List<Mutation> =
+    (localLocationOfInterestStore.getAllMutationsFlow().first() +
+        localSubmissionStore.getAllMutationsFlow().first())
+      .filter { it.syncStatus == syncStatus }
+
   private suspend fun assertMutationsState(
     pending: Int = 0,
     inProgress: Int = 0,
@@ -208,20 +202,18 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     retryCount: List<Int> = listOf(),
     lastErrors: List<String> = listOf(),
   ) {
-    assertWithMessage("Unknown mutations count incorrect")
-      .that(mutationRepository.getMutations(TEST_LOI_ID, UNKNOWN))
-      .hasSize(0)
+    assertWithMessage("Unknown mutations count incorrect").that(getMutations(UNKNOWN)).hasSize(0)
     assertWithMessage("Pending mutations count incorrect")
-      .that(mutationRepository.getMutations(TEST_LOI_ID, PENDING))
+      .that(getMutations(PENDING))
       .hasSize(pending)
     assertWithMessage("In Progress mutations count incorrect")
-      .that(mutationRepository.getMutations(TEST_LOI_ID, IN_PROGRESS))
+      .that(getMutations(IN_PROGRESS))
       .hasSize(inProgress)
     assertWithMessage("Completed mutations count incorrect")
-      .that(mutationRepository.getMutations(TEST_LOI_ID, MEDIA_UPLOAD_PENDING))
+      .that(getMutations(MEDIA_UPLOAD_PENDING))
       .hasSize(complete)
 
-    val failedMutations = mutationRepository.getMutations(TEST_LOI_ID, FAILED)
+    val failedMutations = getMutations(FAILED)
     assertWithMessage("Failed mutations count incorrect").that(failedMutations).hasSize(failed)
     assertThat(failedMutations.map { it.retryCount.toInt() }).containsExactlyElementsIn(retryCount)
     assertThat(failedMutations.map { it.lastError }).containsExactlyElementsIn(lastErrors)
@@ -254,11 +246,8 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
       collectionId = "collectionId",
     )
 
-  private suspend fun createAndDoWork(context: Context, loiId: String?): ListenableWorker.Result =
-    TestListenableWorkerBuilder<LocalMutationSyncWorker>(
-        context,
-        inputData = workDataOf(Pair(LOCATION_OF_INTEREST_ID_PARAM_KEY, loiId)),
-      )
+  private suspend fun createAndDoWork(context: Context): ListenableWorker.Result =
+    TestListenableWorkerBuilder<LocalMutationSyncWorker>(context)
       .setWorkerFactory(factory)
       .build()
       .doWork()

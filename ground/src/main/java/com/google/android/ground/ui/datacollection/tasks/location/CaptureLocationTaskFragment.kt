@@ -18,7 +18,13 @@ package com.google.android.ground.ui.datacollection.tasks.location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
@@ -27,9 +33,11 @@ import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
+import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CaptureLocationTaskFragment @Inject constructor() :
@@ -59,6 +67,13 @@ class CaptureLocationTaskFragment @Inject constructor() :
     // Ensure that the location lock is enabled, if it hasn't been.
     if (isVisible) {
       viewModel.enableLocationLock()
+      lifecycleScope.launch {
+        viewModel.enableLocationLockFlow.collect {
+          if (it == LocationLockEnabledState.NEEDS_ENABLE) {
+            showLocationPermissionDialog()
+          }
+        }
+      }
     }
   }
 
@@ -75,5 +90,29 @@ class CaptureLocationTaskFragment @Inject constructor() :
         button.toggleDone(checkLastPositionWithTaskData(value))
       }
       .hide()
+  }
+
+  @Suppress("LabeledExpression")
+  private fun showLocationPermissionDialog() {
+    val dialogComposeView =
+      ComposeView(requireContext()).apply {
+        setContent {
+          val openAlertDialog = remember { mutableStateOf(true) }
+          when {
+            openAlertDialog.value -> {
+              AppTheme {
+                LocationPermissionDialog(
+                  onCancel = { openAlertDialog.value = false },
+                  onDismiss = { openAlertDialog.value = false },
+                )
+              }
+            }
+          }
+
+          DisposableEffect(Unit) { onDispose { (parent as? ViewGroup)?.removeView(this@apply) } }
+        }
+      }
+
+    (view as ViewGroup).addView(dialogComposeView)
   }
 }
