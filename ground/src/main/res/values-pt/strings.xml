@@ -70,4 +70,13 @@
 
   <string name="add_point">Adicionar ponto</string>
   <string name="complete_polygon">Completa</string>
-</resources>
+
+  <string name="upload_status">Estado de carregamento</string>
+  <string name="upload_pending">Pendente</string>
+  <string name="retry_pending">Nova tentativa pendente</string>
+  <string name="uploading">Carregando</string>
+  <string name="photos_pending">Fotos pendentes</string>
+  <string name="photos_pending_retry">Fotos pendentes de nova tentativa</string>
+  <string name="uploading_photos">Carrengando fotos</string>
+  <string name="upload_complete">Concluído</string>
+ </resources>

@@ -65,7 +65,7 @@
   <string name="date">Fecha</string>
   <string name="time">Hora</string>
   <!-- Other strings (to be organized) -->
-  <string name="sync_status">Estado de sincronización de datos</string>
+  <string name="upload_status">Estado de carga</string>
 
   <string name="add_point">Añadir punto</string>
   <string name="complete_polygon">Completar</string>
@@ -150,14 +150,13 @@
   <string name="about">Acerca de</string>
   <string name="terms_of_service">Términos de servicio</string>
   <string name="about_ground">Ground es un proyecto de código abierto desarrollado por Google y la FAO bajo la Alianza de Datos Forestales (Forest Data Partnership), con la ayuda de SIG, Ecam y otros contribuyentes de la comunidad de código abierto. \n\nEstá licenciado bajo la <annotation type="apache_license">Apache License, Version 2.0</annotation>. \n\nVer otras  <annotation type="all_licenses">licencias</annotation></string>
-  <string name="failed">Error</string>
-  <string name="synced">Sincronizado</string>
-  <string name="syncing">Sincronizando</string>
-  <string name="upload_pending">Carga pendiente</string>
-  <string name="data_synced_media_pending">Datos sincronizados\n(multimedia pendiente)</string>
-  <string name="data_synced_media_pending_retry">Datos sincronizados\n(reintentar multimedia pendiente)</string>
-  <string name="media_syncing">Sincronizando multimedia</string>
-  <string name="data_sync_status">Estado de sincronización de datos</string>
+  <string name="retry_pending">Reintento pendiente</string>
+  <string name="upload_complete">Realizada</string>
+  <string name="uploading">Cargando</string>
+  <string name="upload_pending">Pendiente</string>
+  <string name="photos_pending">Fotos pendientes</string>
+  <string name="photos_pending_retry">Fotos pendientes de reintento</string>
+  <string name="uploading_photos">Carregando fotos</string>
   <string name="signout_warning">Si cierra sesión, se perderán todos los datos no guardados.</string>
   <string name="admin_request_access">Para continuar, contacte con su administrador del sistema para solicitar acceso.</string>
   <string name="signup_request_access">Para continuar, <annotation type="sign_up_link">regístrese para solicitar acceso</annotation>.</string>
