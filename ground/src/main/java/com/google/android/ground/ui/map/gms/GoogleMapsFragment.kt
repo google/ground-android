@@ -225,6 +225,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     val clickedPolygons = featureManager.getIntersectingPolygons(latLng)
     if (clickedPolygons.isNotEmpty()) {
       viewLifecycleOwner.lifecycleScope.launch { featureClicks.emit(clickedPolygons) }
+    } else {
+      viewLifecycleOwner.lifecycleScope.launch { featureClicks.emit(emptySet()) }
     }
   }
 
