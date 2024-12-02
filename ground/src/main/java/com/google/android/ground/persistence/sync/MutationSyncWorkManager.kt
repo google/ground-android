@@ -17,7 +17,6 @@ package com.google.android.ground.persistence.sync
 
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
-import com.google.android.ground.persistence.sync.LocalMutationSyncWorker.Companion.createInputData
 import javax.inject.Inject
 
 /** Enqueues data sync work to be done in the background. */
@@ -27,18 +26,14 @@ class MutationSyncWorkManager @Inject constructor(private val workManager: WorkM
    * Enqueues a worker that sends changes made locally to the remote data store once a network
    * connection is available. The returned `Completable` completes immediately as soon as the worker
    * is added to the work queue (not once the sync job completes).
+   *
+   * Rather than having the running worker monitor the queue for new mutations, we instead queue the
+   * worker again on each new mutation. This simplifies the worker implementation and avoids race
+   * conditions in the rare event the worker finishes just when new mutations are added to the db.
    */
-  fun enqueueSyncWorker(locationOfInterestId: String) {
-    // Rather than having running workers monitor the queue for new mutations for their respective
-    // locationOfInterestId, we instead queue a new worker on each new mutation. This simplifies the
-    // worker
-    // implementation and avoids race conditions in the rare event the worker finishes just when new
-    // mutations are added to the db.
-    val inputData = createInputData(locationOfInterestId)
+  fun enqueueSyncWorker() {
     val request =
-      WorkRequestBuilder()
-        .setWorkerClass(LocalMutationSyncWorker::class.java)
-        .buildWorkerRequest(inputData)
+      WorkRequestBuilder().setWorkerClass(LocalMutationSyncWorker::class.java).buildWorkerRequest()
     workManager.enqueueUniqueWork(
       LocalMutationSyncWorker::class.java.name,
       ExistingWorkPolicy.APPEND,

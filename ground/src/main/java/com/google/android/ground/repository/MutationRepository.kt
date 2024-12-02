@@ -17,24 +17,25 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.model.Survey
+import com.google.android.ground.model.User
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.Mutation.SyncStatus
+import com.google.android.ground.model.mutation.Mutation.SyncStatus.*
 import com.google.android.ground.model.mutation.Mutation.SyncStatus.FAILED
 import com.google.android.ground.model.mutation.Mutation.SyncStatus.IN_PROGRESS
 import com.google.android.ground.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_PENDING
 import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.persistence.local.room.converter.toModelObject
-import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
-import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
+import com.google.android.ground.model.submission.UploadQueueEntry
 import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
 import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
-import com.google.android.ground.persistence.local.stores.LocalSurveyStore
+import com.google.android.ground.system.auth.AuthenticationManager
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import timber.log.Timber
 
 /**
  * Coordinates persistence of mutations across [LocationOfInterestMutation] and [SubmissionMutation]
@@ -44,7 +45,7 @@ import kotlinx.coroutines.flow.combine
 class MutationRepository
 @Inject
 constructor(
-  private val localSurveyStore: LocalSurveyStore,
+  private val authenticationManager: AuthenticationManager,
   private val localLocationOfInterestStore: LocalLocationOfInterestStore,
   private val localSubmissionStore: LocalSubmissionStore,
 ) {
@@ -54,59 +55,85 @@ constructor(
    */
   fun getSurveyMutationsFlow(survey: Survey): Flow<List<Mutation>> {
     // TODO(https://github.com/google/ground-android/issues/2838): Show mutations for all surveys,
-    // not just current one.
+    //   not just current one.
+    // TODO(https://github.com/google/ground-android/issues/2838): This method is also named
+    //   incorrectly - it only returns one of LOI or submission mutations. We should delete this
+    //   method in favor of [getUploadQueueFlow()].
     val locationOfInterestMutations = localLocationOfInterestStore.getAllSurveyMutations(survey)
     val submissionMutations = localSubmissionStore.getAllSurveyMutationsFlow(survey)
 
     return locationOfInterestMutations.combine(submissionMutations, this::combineAndSortMutations)
   }
 
-  fun getAllMutationsFlow(): Flow<List<Mutation>> {
-    val locationOfInterestMutations = localLocationOfInterestStore.getAllMutationsFlow()
-    val submissionMutations = localSubmissionStore.getAllMutationsFlow()
-
-    return locationOfInterestMutations.combine(submissionMutations, this::combineAndSortMutations)
-  }
+  /**
+   * Return the set of data upload queue entries not yet marked as completed sorted in chronological
+   * order (FIFO). Media/photo uploads are not included.
+   */
+  suspend fun getIncompleteUploads(): List<UploadQueueEntry> =
+    getUploadQueueFlow().first().filter {
+      setOf(PENDING, IN_PROGRESS, FAILED, UNKNOWN).contains(it.uploadStatus)
+    }
 
   /**
-   * Returns all local submission mutations associated with the the given LOI ID that have one of
-   * the provided sync statues.
+   * Return the set of photo/media upload queue entries not yet marked as completed, sorted in
+   * chronological order (FIFO).
    */
-  suspend fun getSubmissionMutations(
-    loiId: String,
-    vararg entitySyncStatus: MutationEntitySyncStatus,
-  ) = getMutations(loiId, *entitySyncStatus).filterIsInstance<SubmissionMutation>()
-
-  /**
-   * Returns all LOI and submission mutations in the local mutation queue relating to LOI with the
-   * specified id, sorted by creation timestamp (oldest first).
-   */
-  suspend fun getMutations(
-    loiId: String,
-    vararg entitySyncStatus: MutationEntitySyncStatus,
-  ): List<Mutation> {
-    val loiMutations =
-      localLocationOfInterestStore
-        .findByLocationOfInterestId(loiId, *entitySyncStatus)
-        .map(LocationOfInterestMutationEntity::toModelObject)
-    val submissionMutations =
-      localSubmissionStore.findByLocationOfInterestId(loiId, *entitySyncStatus).map {
-        it.toSubmissionMutation()
+  suspend fun getIncompleteMediaMutations(): List<SubmissionMutation> =
+    getUploadQueueFlow()
+      .first()
+      .filter {
+        setOf(MEDIA_UPLOAD_PENDING, MEDIA_UPLOAD_IN_PROGRESS, MEDIA_UPLOAD_AWAITING_RETRY)
+          .contains(it.uploadStatus)
       }
-    return (loiMutations + submissionMutations).sortedBy { it.clientTimestamp }
+      // TODO(https://github.com/google/ground-android/issues/2120):
+      //  Return [MediaMutations] instead once introduced.
+      .mapNotNull { it.submissionMutation }
+
+  /**
+   * Returns a [Flow] which emits the upload queue once and on each change, sorted in chronological
+   * order (FIFO).
+   */
+  private fun getUploadQueueFlow(): Flow<List<UploadQueueEntry>> =
+    localLocationOfInterestStore.getAllMutationsFlow().combine(
+      localSubmissionStore.getAllMutationsFlow()
+    ) { loiMutations, submissionMutations ->
+      buildUploadQueue(loiMutations, submissionMutations)
+    }
+
+  private suspend fun buildUploadQueue(
+    loiMutations: List<LocationOfInterestMutation>,
+    submissionMutations: List<SubmissionMutation>,
+  ): List<UploadQueueEntry> {
+    val user = authenticationManager.getAuthenticatedUser()
+    val loiMutationMap = loiMutations.filterByUser(user).associateBy { it.collectionId }
+    val submissionMutationMap =
+      submissionMutations.filterByUser(user).associateBy { it.collectionId }
+    val collectionIds: Set<String> = loiMutationMap.keys + submissionMutationMap.keys
+    return collectionIds
+      .map {
+        val loiMutation = loiMutationMap[it]
+        val submissionMutation = submissionMutationMap[it]
+        val userId = submissionMutation?.userId ?: loiMutation!!.userId
+        val clientTimestamp = submissionMutation?.clientTimestamp ?: loiMutation!!.clientTimestamp
+        val syncStatus = submissionMutation?.syncStatus ?: loiMutation!!.syncStatus
+        UploadQueueEntry(userId, clientTimestamp, syncStatus, loiMutation, submissionMutation)
+      }
+      .sortedBy { it.clientTimestamp }
   }
 
-  private suspend fun SubmissionMutationEntity.toSubmissionMutation(): SubmissionMutation =
-    toModelObject(
-      localSurveyStore.getSurveyById(surveyId)
-        ?: error("Survey missing $surveyId. Unable to fetch pending submission mutations.")
-    )
+  private fun <T : Mutation> List<T>.filterByUser(user: User): List<T> {
+    val (validMutations, invalidMutations) = partition { it.userId == user.id }
+    if (invalidMutations.isNotEmpty()) {
+      Timber.e("Mutation(s) not deleted on sign-out")
+    }
+    return validMutations
+  }
 
   /**
    * Saves the provided list of mutations to local storage. Updates any locally stored, existing
-   * mutations to reflect the mutations in the list, and writes any new mutations.
+   * mutations to reflect the mutations in the list, creating new mutations as needed.
    */
-  suspend fun saveMutationsLocally(mutations: List<Mutation>) {
+  private suspend fun saveMutationsLocally(mutations: List<Mutation>) {
     val loiMutations = mutations.filterIsInstance<LocationOfInterestMutation>()
     localLocationOfInterestStore.updateAll(loiMutations)
 
@@ -120,6 +147,8 @@ constructor(
    */
   suspend fun finalizePendingMutationsForMediaUpload(mutations: List<Mutation>) {
     finalizeDeletions(mutations)
+    // TODO(https://github.com/google/ground-android/issues/2873): Only do this is there are
+    // actually photos to upload.
     markForMediaUpload(mutations)
   }
 
@@ -141,12 +170,24 @@ constructor(
     saveMutationsLocally(mutations.updateMutationStatus(IN_PROGRESS))
   }
 
+  suspend fun markAsMediaUploadInProgress(mutations: List<SubmissionMutation>) {
+    saveMutationsLocally(mutations.updateMutationStatus(MEDIA_UPLOAD_IN_PROGRESS))
+  }
+
+  suspend fun markAsComplete(mutations: List<Mutation>) {
+    saveMutationsLocally(mutations.updateMutationStatus(COMPLETED))
+  }
+
   suspend fun markAsFailed(mutations: List<Mutation>, error: Throwable) {
     saveMutationsLocally(mutations.updateMutationStatus(FAILED, error))
   }
 
   private suspend fun markForMediaUpload(mutations: List<Mutation>) {
     saveMutationsLocally(mutations.updateMutationStatus(MEDIA_UPLOAD_PENDING))
+  }
+
+  suspend fun markAsFailedMediaUpload(mutations: List<SubmissionMutation>, error: Throwable) {
+    saveMutationsLocally(mutations.updateMutationStatus(MEDIA_UPLOAD_AWAITING_RETRY, error))
   }
 
   private fun combineAndSortMutations(
@@ -163,7 +204,7 @@ private fun List<Mutation>.updateMutationStatus(
   syncStatus: SyncStatus,
   error: Throwable? = null,
 ): List<Mutation> = map {
-  val hasSyncFailed = syncStatus == FAILED
+  val hasSyncFailed = syncStatus == FAILED || syncStatus == MEDIA_UPLOAD_AWAITING_RETRY
   val retryCount = if (hasSyncFailed) it.retryCount + 1 else it.retryCount
   val errorMessage = if (hasSyncFailed) error?.message ?: error.toString() else it.lastError
 
