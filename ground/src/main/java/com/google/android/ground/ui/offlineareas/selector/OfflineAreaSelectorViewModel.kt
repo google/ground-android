@@ -74,8 +74,7 @@ internal constructor(
   private val offlineAreaSizeLoadingSymbol =
     resources.getString(R.string.offline_area_size_loading_symbol)
   val isDownloadProgressVisible = MutableLiveData(false)
-  val downloadProgressMax = MutableLiveData(0)
-  val downloadProgress = MutableLiveData(0)
+  val downloadProgress = MutableLiveData(0f)
   val bottomText = MutableLiveData<String?>(null)
   val downloadButtonEnabled = MutableLiveData(false)
 
@@ -94,13 +93,16 @@ internal constructor(
     }
 
     isDownloadProgressVisible.value = true
-    downloadProgress.value = 0
+    downloadProgress.value = 0f
     viewModelScope.launch(ioDispatcher) {
       offlineAreaRepository.downloadTiles(viewport!!).collect { (bytesDownloaded, totalBytes) ->
-        // Set total bytes / max value on first iteration.
-        if (downloadProgressMax.value != totalBytes) downloadProgressMax.postValue(totalBytes)
-        // Add number of bytes downloaded to progress.
-        downloadProgress.postValue(bytesDownloaded)
+        val progressValue =
+          if (totalBytes > 0) {
+            (bytesDownloaded.toFloat() / totalBytes.toFloat()).coerceIn(0f, 1f)
+          } else {
+            0f
+          }
+        downloadProgress.postValue(progressValue)
       }
       isDownloadProgressVisible.postValue(false)
       navigator.navigate(OfflineAreaSelectorFragmentDirections.offlineAreaBackToHomescreen())
