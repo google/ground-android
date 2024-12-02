@@ -45,6 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.ground.ExcludeFromJacocoGeneratedReport
 import com.google.android.ground.R
 import com.google.android.ground.ui.theme.AppTheme
 
@@ -140,6 +141,7 @@ private fun CloseButton(modifier: Modifier = Modifier, onDismiss: () -> Unit) {
 @Composable
 @Preview(heightDp = 320, widthDp = 800)
 @Preview
+@ExcludeFromJacocoGeneratedReport
 fun DataSubmissionConfirmationDialogPreview() {
   AppTheme { DataSubmissionConfirmationDialog {} }
 }

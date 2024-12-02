@@ -108,6 +108,7 @@ private fun SignupLink(signupLink: String) {
 }
 
 @Preview
+@ExcludeFromJacocoGeneratedReport
 @Composable
 fun PermissionDeniedDialogWithSignupLinkPreview() {
   AppTheme {
@@ -116,6 +117,7 @@ fun PermissionDeniedDialogWithSignupLinkPreview() {
 }
 
 @Preview
+@ExcludeFromJacocoGeneratedReport
 @Composable
 fun PermissionDeniedDialogWithoutSignupLinkPreview() {
   AppTheme { PermissionDeniedDialog(signupLink = "", onSignOut = {}, onCloseApp = {}) }
