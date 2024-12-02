@@ -108,7 +108,7 @@ constructor(
     val loiMutationMap = loiMutations.filterByUser(user).associateBy { it.collectionId }
     val submissionMutationMap =
       submissionMutations.filterByUser(user).associateBy { it.collectionId }
-    val collectionIds = loiMutationMap.keys + submissionMutationMap.keys
+    val collectionIds: Set<String> = loiMutationMap.keys + submissionMutationMap.keys
     return collectionIds
       .map {
         val loiMutation = loiMutationMap[it]
