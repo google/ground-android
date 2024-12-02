@@ -45,9 +45,9 @@ import timber.log.Timber
 class MutationRepository
 @Inject
 constructor(
+  private val authenticationManager: AuthenticationManager,
   private val localLocationOfInterestStore: LocalLocationOfInterestStore,
   private val localSubmissionStore: LocalSubmissionStore,
-  private val authenticationManager: AuthenticationManager,
 ) {
   /**
    * Returns a long-lived stream that emits the full list of mutations for specified survey on
