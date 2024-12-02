@@ -35,9 +35,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
@@ -88,9 +88,16 @@ constructor(
   }
 
   /** This only works if the survey and location of interests are already cached to local db. */
-  suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest {
-    val survey = localSurveyStore.getSurveyById(surveyId) ?: error("Survey not found: $surveyId")
-    return localLoiStore.getLocationOfInterest(survey, loiId) ?: error("LOI not found: $loiId")
+  suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest? {
+    val survey = localSurveyStore.getSurveyById(surveyId)
+    val locationOfInterest = survey?.let { localLoiStore.getLocationOfInterest(it, loiId) }
+
+    if (survey == null) {
+      Timber.e("LocationOfInterestRepository", "Survey not found: $surveyId")
+    } else if (locationOfInterest == null) {
+      Timber.e("LocationRepository", "LOI not found for survey $surveyId: LOI ID $loiId")
+    }
+    return locationOfInterest
   }
 
   /** Saves a new LOI in the local db and enqueues a sync worker. */
@@ -129,20 +136,16 @@ constructor(
    */
   suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
     localLoiStore.applyAndEnqueue(mutation)
-    mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
+    mutationSyncWorkManager.enqueueSyncWorker()
   }
 
-  /** Returns a flow of all [LocationOfInterest] associated with the given [Survey]. */
-  fun getLocationsOfInterests(survey: Survey): Flow<Set<LocationOfInterest>> =
-    localLoiStore.findLocationsOfInterest(survey)
-
-  /** Returns a list of geometries associated with the given [Survey]. */
-  suspend fun getAllGeometries(survey: Survey): List<Geometry> =
-    getLocationsOfInterests(survey).first().map { it.geometry }
+  /** Returns a flow of all valid (not deleted) [LocationOfInterest] in the given [Survey]. */
+  fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
+    localLoiStore.getValidLois(survey)
 
   /** Returns a flow of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBounds(survey: Survey, bounds: Bounds): Flow<List<LocationOfInterest>> =
-    getLocationsOfInterests(survey)
+    getValidLois(survey)
       .map { lois -> lois.filter { bounds.contains(it.geometry) } }
       .distinctUntilChanged()
 }

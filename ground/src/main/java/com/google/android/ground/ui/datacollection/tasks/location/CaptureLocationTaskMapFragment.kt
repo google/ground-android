@@ -59,7 +59,6 @@ class CaptureLocationTaskMapFragment @Inject constructor() : AbstractMapFragment
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
-    binding.locationLockBtn.isClickable = false
     viewLifecycleOwner.lifecycleScope.launch { viewModel.onMapReady(mapViewModel) }
   }
 }

@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreferenceCompat
 import com.google.android.ground.Config
 import com.google.android.ground.R
 
@@ -34,14 +35,10 @@ import com.google.android.ground.R
  */
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClickListener {
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    val preferenceManager = preferenceManager
+  override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
     preferenceManager.sharedPreferencesName = Config.SHARED_PREFS_NAME
     preferenceManager.sharedPreferencesMode = Config.SHARED_PREFS_MODE
-  }
 
-  override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
     setPreferencesFromResource(R.xml.preferences, rootKey)
     for (key in Keys.ALL_KEYS) {
       val preference =
@@ -50,7 +47,13 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
 
       preference.onPreferenceClickListener = this
     }
+
+    val switchPreference = findPreference<SwitchPreferenceCompat>(Keys.UPLOAD_MEDIA)
+    switchPreference?.isChecked = loadSwitchPreferenceState()
   }
+
+  private fun loadSwitchPreferenceState() =
+    preferenceManager.sharedPreferences?.getBoolean(Keys.UPLOAD_MEDIA, false) ?: false
 
   override fun onPreferenceClick(preference: Preference): Boolean {
     when (preference.key) {

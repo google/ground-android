@@ -121,9 +121,10 @@ internal constructor(
       } else
       // LOI name pulled from LOI properties, if it exists.
       flow {
-          val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
-          val label = locationOfInterestHelper.getDisplayLoiName(loi)
-          emit(label)
+          locationOfInterestRepository.getOfflineLoi(surveyId, loiId)?.let {
+            val label = locationOfInterestHelper.getDisplayLoiName(it)
+            emit(label)
+          }
         })
       .stateIn(viewModelScope, SharingStarted.Lazily, "")
 
@@ -264,8 +265,8 @@ internal constructor(
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(deltas: List<ValueDelta>) {
-    val collectionId = offlineUuidGenerator.generateUuid()
     externalScope.launch(ioDispatcher) {
+      val collectionId = offlineUuidGenerator.generateUuid()
       submitDataUseCase.invoke(loiId, job, surveyId, deltas, customLoiName, collectionId)
     }
   }

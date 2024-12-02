@@ -94,8 +94,8 @@
   <string name="offline_map_imagery_pref_description">Hide or show downloaded imagery</string>
   <string name="layers">Layers</string>
   <string name="base_map">Base map</string>
-  <string name="offline_map_imagery_download_progress_dialog_title">Download progress</string>
-  <string name="offline_map_imagery_download_progress_dialog_message">Downloading offline map imagery…</string>
+  <string name="offline_map_imagery_download_progress_dialog_title">Downloading - %d%%</string>
+  <string name="offline_map_imagery_download_progress_dialog_message">Download times may vary depending on the size of the selected area and your internet connection.</string>
   <string name="multiple_regions">Multiple regions</string>
   <string name="permission_denied">Permission denied</string>
   <string name="close_app">Close app</string>
@@ -166,7 +166,7 @@
 
   <!-- Settings -->
   <string name="general_title">General</string>
-  <string name="upload_media_title">Upload Media</string>
+  <string name="upload_media_title">Upload photos</string>
   <string name="over_wifi_summary">Over Wi-Fi only</string>
   <string name="help_title">Help</string>
   <string name="visit_website_title">Visit website</string>
@@ -189,4 +189,8 @@
   <string name="data_submitted_image">Data submitted image</string>
   <string name="data_collection_complete">Data collection complete!</string>
   <string name="data_collection_complete_details">Your data has been saved and will be automatically synced when you’re online.</string>
+
+  <string name="allow_location_confirmation">Allow location</string>
+  <string name="allow_location_title">Allow location sharing</string>
+  <string name="allow_location_description">If you don&#8217;t allow Ground to access this device&#8217;s location, you won&#8217;t be able to continue collecting data for this site.</string>
 </resources>

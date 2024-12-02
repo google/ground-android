@@ -20,6 +20,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.submission.DraftSubmission
 import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.android.ground.persistence.sync.MediaUploadWorkManager
+import com.google.android.ground.persistence.sync.MutationSyncWorkManager
+import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -43,6 +46,9 @@ internal constructor(
   private val navigator: Navigator,
   private val offlineAreaRepository: OfflineAreaRepository,
   private val submissionRepository: SubmissionRepository,
+  private val mutationRepository: MutationRepository,
+  private val mutationSyncWorkManager: MutationSyncWorkManager,
+  private val mediaUploadWorkManager: MediaUploadWorkManager,
   val surveyRepository: SurveyRepository,
   val userRepository: UserRepository,
 ) : AbstractViewModel() {
@@ -52,6 +58,25 @@ internal constructor(
 
   // TODO(#1730): Allow tile source configuration from a non-survey accessible source.
   val showOfflineAreaMenuItem: LiveData<Boolean> = MutableLiveData(true)
+
+  init {
+    viewModelScope.launch { kickLocalMutationSyncWorkers() }
+  }
+
+  /**
+   * Enqueue data and photo upload workers for all pending mutations when home screen is first
+   * opened as a workaround the get stuck mutations (i.e., PENDING or FAILED mutations with no
+   * scheduled workers) going again. If there are no mutations in the upload queue this will be a
+   * no-op. Workaround for https://github.com/google/ground-android/issues/2751.
+   */
+  private suspend fun kickLocalMutationSyncWorkers() {
+    if (mutationRepository.getIncompleteUploads().isNotEmpty()) {
+      mutationSyncWorkManager.enqueueSyncWorker()
+    }
+    if (mutationRepository.getIncompleteMediaMutations().isNotEmpty()) {
+      mediaUploadWorkManager.enqueueSyncWorker()
+    }
+  }
 
   /** Attempts to return draft submission for the currently active survey. */
   suspend fun getDraftSubmission(): DraftSubmission? {

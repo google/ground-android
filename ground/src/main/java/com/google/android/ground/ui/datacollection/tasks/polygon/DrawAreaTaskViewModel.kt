@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @SharedViewModel
@@ -178,21 +179,22 @@ internal constructor(
   }
 
   /** Updates the [Feature] drawn on map based on the value of [vertices]. */
-  private fun refreshMap() {
-    _draftArea.value =
-      if (vertices.isEmpty()) {
-        null
-      } else {
-        Feature(
-          id = uuidGenerator.generateUuid(),
-          type = FeatureType.USER_POLYGON.ordinal,
-          geometry = LineString(vertices),
-          style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
-          clusterable = false,
-          selected = true,
-        )
-      }
-  }
+  private fun refreshMap() =
+    viewModelScope.launch {
+      _draftArea.value =
+        if (vertices.isEmpty()) {
+          null
+        } else {
+          Feature(
+            id = uuidGenerator.generateUuid(),
+            type = FeatureType.USER_POLYGON.ordinal,
+            geometry = LineString(vertices),
+            style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
+            clusterable = false,
+            selected = true,
+          )
+        }
+    }
 
   override fun validate(task: Task, taskData: TaskData?): Int? {
     // Invalid response for draw area task.

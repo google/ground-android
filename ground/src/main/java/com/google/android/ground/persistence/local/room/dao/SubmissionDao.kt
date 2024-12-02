@@ -18,7 +18,7 @@ package com.google.android.ground.persistence.local.room.dao
 import androidx.room.Dao
 import androidx.room.Query
 import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
-import com.google.android.ground.persistence.local.room.fields.EntityState
+import com.google.android.ground.persistence.local.room.fields.EntityDeletionState
 
 @Dao
 interface SubmissionDao : BaseDao<SubmissionEntity> {
@@ -33,11 +33,11 @@ interface SubmissionDao : BaseDao<SubmissionEntity> {
   @Query(
     "SELECT * FROM submission " +
       "WHERE location_of_interest_id = :locationOfInterestId " +
-      "AND job_id = :jobId AND state = :state"
+      "AND job_id = :jobId AND state = :deletionState"
   )
   suspend fun findByLocationOfInterestId(
     locationOfInterestId: String,
     jobId: String,
-    state: EntityState,
+    deletionState: EntityDeletionState,
   ): List<SubmissionEntity>?
 }

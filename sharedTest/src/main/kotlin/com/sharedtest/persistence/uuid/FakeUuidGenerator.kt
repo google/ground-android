@@ -19,5 +19,5 @@ import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import javax.inject.Inject
 
 class FakeUuidGenerator @Inject internal constructor() : OfflineUuidGenerator {
-  override fun generateUuid(): String = "TEST UUID"
+  override suspend fun generateUuid(): String = "TEST UUID"
 }

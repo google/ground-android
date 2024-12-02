@@ -103,7 +103,7 @@ fun JobEntityAndRelations.toModelObject(): Job {
         try {
           DataCollectionStrategy.valueOf(it)
         } catch (e: IllegalArgumentException) {
-          Timber.e("unknown data collection strategy $it")
+          Timber.e(e, "Unknown data collection strategy $it")
           DataCollectionStrategy.UNKNOWN
         }
       },
@@ -124,7 +124,7 @@ fun LocationOfInterest.toLocalDataStoreObject() =
     id = id,
     surveyId = surveyId,
     jobId = job.id,
-    state = EntityState.DEFAULT,
+    deletionState = EntityDeletionState.DEFAULT,
     created = created.toLocalDataStoreObject(),
     lastModified = lastModified.toLocalDataStoreObject(),
     geometry = geometry.toLocalDataStoreObject(),
@@ -170,7 +170,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(user: User): LocationOfInt
     id = locationOfInterestId,
     surveyId = surveyId,
     jobId = jobId,
-    state = EntityState.DEFAULT,
+    deletionState = EntityDeletionState.DEFAULT,
     // TODO(#1562): Preserve creation audit info for UPDATE mutations.
     created = auditInfo,
     lastModified = auditInfo,
@@ -306,7 +306,7 @@ fun Submission.toLocalDataStoreObject() =
     id = this.id,
     jobId = this.job.id,
     locationOfInterestId = this.locationOfInterest.id,
-    state = EntityState.DEFAULT,
+    deletionState = EntityDeletionState.DEFAULT,
     data = SubmissionDataConverter.toString(this.data),
     created = this.created.toLocalDataStoreObject(),
     lastModified = this.lastModified.toLocalDataStoreObject(),
@@ -319,7 +319,7 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
     id = this.submissionId,
     jobId = this.job.id,
     locationOfInterestId = this.locationOfInterestId,
-    state = EntityState.DEFAULT,
+    deletionState = EntityDeletionState.DEFAULT,
     data = SubmissionDataConverter.toString(SubmissionData().copyWithDeltas(this.deltas)),
     // TODO(#1562): Preserve creation audit info for UPDATE mutations.
     created = auditInfo,

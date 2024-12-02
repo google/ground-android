@@ -25,5 +25,5 @@ interface OfflineUuidGenerator {
    * Implementations should ensure that the probability of collision is so small to be considered
    * insignificant.
    */
-  fun generateUuid(): String
+  suspend fun generateUuid(): String
 }
