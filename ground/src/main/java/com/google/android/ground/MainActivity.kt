@@ -26,7 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
@@ -81,7 +83,11 @@ class MainActivity : AbstractActivity() {
       }
     }
 
-    lifecycleScope.launch { navigator.getNavigateRequests().collect { onNavigate(it) } }
+    lifecycleScope.launch {
+      lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        navigator.getNavigateRequests().collect { onNavigate(it) }
+      }
+    }
 
     val binding = MainActBinding.inflate(layoutInflater)
     setContentView(binding.root)
