@@ -30,7 +30,7 @@ class MultipleChoiceTaskData(
   fun getSelectedOptionsIdsExceptOther(): List<String> =
     selectedOptionIds.filterNot { it.isOtherText() }
 
-  fun hasOtherText(): Boolean = selectedOptionIds.any { it.isOtherText() }
+  fun isOtherTextSelected(): Boolean = selectedOptionIds.any { it.isOtherText() }
 
   fun getOtherText(): String =
     selectedOptionIds
