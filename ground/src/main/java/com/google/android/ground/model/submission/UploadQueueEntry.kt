@@ -23,8 +23,7 @@ import java.util.Date
 
 /**
  * A set of changes to be applied to the remote datastore, initiated by the user by completing the
- * data collection flow and clicking "Submit". Each instance of [UploadQueueEntry] shows up as a
- * separate item in the "Upload status" screen.
+ * data collection flow and clicking "Submit".
  */
 data class UploadQueueEntry(
   val userId: String,
