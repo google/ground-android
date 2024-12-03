@@ -20,12 +20,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.databinding.OfflineAreaSelectorFragBinding
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -36,15 +41,10 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
   private lateinit var viewModel: OfflineAreaSelectorViewModel
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
 
-  private var downloadProgressDialogFragment = DownloadProgressDialogFragment()
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     viewModel = getViewModel(OfflineAreaSelectorViewModel::class.java)
-    viewModel.isDownloadProgressVisible.observe(this) {
-      downloadProgressDialogFragment.setVisibility(childFragmentManager, it)
-    }
   }
 
   override fun onCreateView(
@@ -59,6 +59,13 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
     return binding.root
   }
 
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    viewModel.isDownloadProgressVisible.observe(viewLifecycleOwner) {
+      showDownloadProgressDialog(it)
+    }
+  }
+
   override fun onMapReady(map: MapFragment) {
     // Observe events emitted by the ViewModel.
     viewLifecycleOwner.lifecycleScope.launch {
@@ -68,4 +75,28 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
+
+  private fun showDownloadProgressDialog(isVisible: Boolean) {
+    val dialogComposeView =
+      ComposeView(requireContext()).apply {
+        setContent {
+          val openAlertDialog = remember { mutableStateOf(isVisible) }
+          val progress = viewModel.downloadProgress.observeAsState(0f)
+          when {
+            openAlertDialog.value -> {
+              AppTheme {
+                DownloadProgressDialog(
+                  progress = progress.value,
+                  // TODO - Add Download Cancel Feature
+                  // https://github.com/google/ground-android/issues/2884
+                  onDismiss = { openAlertDialog.value = false },
+                )
+              }
+            }
+          }
+        }
+      }
+
+    (view as ViewGroup).addView(dialogComposeView)
+  }
 }

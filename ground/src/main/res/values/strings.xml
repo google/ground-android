@@ -95,8 +95,8 @@
   <string name="offline_map_imagery_pref_description">Hide or show downloaded imagery</string>
   <string name="layers">Layers</string>
   <string name="base_map">Base map</string>
-  <string name="offline_map_imagery_download_progress_dialog_title">Download progress</string>
-  <string name="offline_map_imagery_download_progress_dialog_message">Downloading offline map imagery…</string>
+  <string name="offline_map_imagery_download_progress_dialog_title">Downloading - %d%%</string>
+  <string name="offline_map_imagery_download_progress_dialog_message">Download times may vary depending on the size of the selected area and your internet connection.</string>
   <string name="multiple_regions">Multiple regions</string>
   <string name="permission_denied">Permission denied</string>
   <string name="close_app">Close app</string>

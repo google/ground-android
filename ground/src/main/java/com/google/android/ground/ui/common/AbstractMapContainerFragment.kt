@@ -25,6 +25,7 @@ import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
+import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraUpdateRequest
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.NewCameraPositionViaBounds
@@ -129,6 +130,11 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
         else -> R.string.location_updates_unknown_error
       }
     Toast.makeText(context, messageId, Toast.LENGTH_LONG).show()
+  }
+
+  /** Moves the camera to the given bounds. */
+  fun moveToBounds(bounds: Bounds, padding: Int, shouldAnimate: Boolean) {
+    onCameraUpdateRequest(NewCameraPositionViaBounds(bounds, padding, shouldAnimate), map)
   }
 
   /** Moves the camera to a given position. */

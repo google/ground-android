@@ -17,7 +17,7 @@ package com.google.android.ground.persistence.local.room.entity
 
 import androidx.room.*
 import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.persistence.local.room.fields.EntityState
+import com.google.android.ground.persistence.local.room.fields.EntityDeletionState
 
 /** Representation of a [Submission] in local db. */
 @Entity(
@@ -37,7 +37,7 @@ data class SubmissionEntity(
   @ColumnInfo(name = "id") @PrimaryKey val id: String,
   @ColumnInfo(name = "location_of_interest_id") val locationOfInterestId: String,
   @ColumnInfo(name = "job_id") val jobId: String,
-  @ColumnInfo(name = "state") val state: EntityState,
+  @ColumnInfo(name = "state") val deletionState: EntityDeletionState,
   @ColumnInfo(name = "data") val data: String?,
   @Embedded(prefix = "created_") val created: AuditInfoEntity,
   @Embedded(prefix = "modified_") val lastModified: AuditInfoEntity,

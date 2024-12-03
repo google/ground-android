@@ -46,15 +46,7 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
         // Set the other option.
         _items.value
           .firstOrNull { it.isOtherOption }
-          ?.let {
-            val selected =
-              if (task.isRequired) {
-                otherText != ""
-              } else {
-                true
-              }
-            setItem(it, selected, it.cardinality == SELECT_MULTIPLE)
-          }
+          ?.let { setItem(item = it, selection = isOtherTextValid()) }
         updateResponse()
       }
 
@@ -73,8 +65,8 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
     updateMultipleChoiceItems()
   }
 
-  fun setItem(item: MultipleChoiceItem, selection: Boolean, canSelectMultiple: Boolean) {
-    if (!canSelectMultiple && selection) {
+  fun setItem(item: MultipleChoiceItem, selection: Boolean) {
+    if (item.cardinality != SELECT_MULTIPLE && selection) {
       selectedIds.clear()
     }
     if (selection) {
@@ -86,12 +78,18 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
     updateMultipleChoiceItems()
   }
 
-  fun toggleItem(item: MultipleChoiceItem, canSelectMultiple: Boolean) {
+  fun toggleItem(item: MultipleChoiceItem) {
     val wasSelected = selectedIds.contains(item.option.id)
-    setItem(item, !wasSelected, canSelectMultiple)
+    setItem(item, !wasSelected)
   }
 
   fun updateResponse() {
+    // Check if "other" text is missing or not.
+    if (selectedIds.contains(OTHER_ID) && !isOtherTextValid()) {
+      clearResponse()
+      return
+    }
+
     setValue(
       fromList(
         task.multipleChoice,
@@ -103,7 +101,19 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
     )
   }
 
-  /* Reads the list of options in a multiple choice object and converts them to MultipleChoiceItems*/
+  /** Returns true if the value for "other" text is valid, otherwise false. */
+  private fun isOtherTextValid(): Boolean {
+    if (!task.isRequired) {
+      // If task is not required, then the text value can be empty. Hence, it is always valid.
+      return true
+    }
+
+    return otherText.isNotBlank()
+  }
+
+  /**
+   * Reads the list of options in a multiple choice object and converts them to MultipleChoiceItems.
+   */
   private fun updateMultipleChoiceItems() {
     val multipleChoice = checkNotNull(task.multipleChoice)
     val itemsFromOptions: MutableList<MultipleChoiceItem> = mutableListOf()
@@ -130,7 +140,7 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
     this._items.value = itemsFromOptions
   }
 
-  /* Reads the saved task value and adds selected items to the selected list*/
+  /** Reads the saved task value and adds selected items to the selected list. */
   private fun loadPendingSelections() {
     val selectedOptionIds = (taskTaskData.value as? MultipleChoiceTaskData)?.selectedOptionIds
     val multipleChoice = checkNotNull(task.multipleChoice)

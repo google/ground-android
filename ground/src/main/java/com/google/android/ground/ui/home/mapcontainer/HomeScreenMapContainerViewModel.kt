@@ -38,14 +38,18 @@ import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.isLocationOfInterest
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -92,7 +96,7 @@ internal constructor(
    */
   val surveyUpdateFlow: Flow<SurveyProperties> =
     activeSurvey.filterNotNull().map { survey ->
-      val lois = loiRepository.getLocationsOfInterests(survey).first()
+      val lois = loiRepository.getValidLois(survey).first()
       val addLoiPermitted = survey.jobs.any { job -> job.canDataCollectorsAddLois }
       SurveyProperties(addLoiPermitted = addLoiPermitted, noLois = lois.isEmpty())
     }
@@ -127,12 +131,17 @@ internal constructor(
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     //  into the repository.
 
+    @OptIn(FlowPreview::class)
     mapLoiFeatures =
       activeSurvey.flatMapLatest {
         if (it == null) flowOf(setOf())
         else
           getLocationOfInterestFeatures(it)
-            .combine(selectedLoiIdFlow, this::updatedLoiSelectedStates)
+            .debounce(1000.milliseconds)
+            .distinctUntilChanged()
+            .combine(selectedLoiIdFlow) { loiFeatures, selectedLoiId ->
+              updatedLoiSelectedStates(loiFeatures, selectedLoiId)
+            }
       }
 
     isZoomedInFlow =
@@ -221,9 +230,7 @@ internal constructor(
     localValueStore.setDataSharingConsent(survey.id, dataSharingTerms)
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
-    loiRepository.getLocationsOfInterests(survey).map {
-      it.map { loi -> loi.toFeature() }.toPersistentSet()
-    }
+    loiRepository.getValidLois(survey).map { it.map { loi -> loi.toFeature() }.toPersistentSet() }
 
   private suspend fun LocationOfInterest.toFeature() =
     Feature(

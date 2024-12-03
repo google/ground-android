@@ -44,12 +44,6 @@ object Config {
    */
   const val CLUSTERING_ZOOM_THRESHOLD = 14f
 
-  /** Maximum number of attempts for retrying unsuccessful syncs. */
-  const val MAX_SYNC_WORKER_RETRY_ATTEMPTS = 10
-
-  /** Maximum number of attempts for retrying unsuccessful media uploads. */
-  const val MAX_MEDIA_UPLOAD_RETRY_COUNT = 5
-
   // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
   const val DEFAULT_MOG_TILE_LOCATION = "/offline-imagery/default"
   private const val DEFAULT_MOG_MIN_ZOOM = 8

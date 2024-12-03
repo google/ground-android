@@ -25,12 +25,13 @@ import kotlinx.coroutines.flow.Flow
 interface LocalLocationOfInterestStore :
   LocalMutationStore<LocationOfInterestMutation, LocationOfInterest> {
   /**
-   * Returns a main-safe flow that emits the full set of LOIs for a survey on subscribe, and
-   * continues to return the full set each time a LOI is added/changed/removed.
+   * Retrieves the complete set of [LocationOfInterest] associated with the given [Survey] from the
+   * local database and returns a [Flow] that continually emits the complete set anew any time the
+   * underlying table changes (insertions, deletions, updates).
    */
-  fun findLocationsOfInterest(survey: Survey): Flow<Set<LocationOfInterest>>
+  fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>>
 
-  /** Returns the LOI with the specified UUID from the local data store, if found. */
+  /** Returns the [LocationOfInterest] with the specified UUID from the local data store. */
   suspend fun getLocationOfInterest(
     survey: Survey,
     locationOfInterestId: String,

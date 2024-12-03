@@ -273,6 +273,7 @@ exceptions:
     SwallowedException:
         active: true
         ignoredExceptionTypes:
+            - 'CancellationException'
             - 'InterruptedException'
             - 'MalformedURLException'
             - 'NumberFormatException'

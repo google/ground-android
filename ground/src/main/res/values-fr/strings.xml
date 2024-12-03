@@ -94,7 +94,7 @@
   <string name="offline_map_imagery_pref_description">Cacher ou afficher l&#8217;imagerie cartographique téléchargée</string>
   <string name="layers">Couches</string>
   <string name="base_map">Carte de base</string>
-  <string name="offline_map_imagery_download_progress_dialog_title">Progrès du téléchargement</string>
+  <string name="offline_map_imagery_download_progress_dialog_title">Progrès du téléchargement - %d%%</string>
   <string name="offline_map_imagery_download_progress_dialog_message">Téléchargement d&#8217;imagerie cartographique hors ligne…</string>
   <string name="multiple_regions">Plusieurs régions</string>
   <string name="permission_denied">Autorisation refusée</string>
@@ -182,5 +182,13 @@
     ## Partage des données publiques
     \nLes organisateurs de l&#8217;enquête peuvent partager et utiliser les données publiquement sous la licence *Creative Commons CC0 1.0 License* :
   </string>
-  <string name="load_tos_failed">Impossible de se connecter, réessayer plus tardss</string>
+  <string name="load_tos_failed">Impossible de se connecter, réessayer plus tard</string>
+  <string name="draft_restored">Données non sauvegardées ont été restaurées</string>
+  <string name="data_submitted_image">Données d&#8217;image soumises</string>
+  <string name="data_collection_complete">Collecte des données terminée !</string>
+  <string name="data_collection_complete_details">Vos données ont été sauvegardées et seront automatiquement synchronisées lorsque vous serez en ligne.</string>
+
+  <string name="allow_location_confirmation">Autoriser la localisation</string>
+  <string name="allow_location_title">Autoriser le partage de la localisation</string>
+  <string name="allow_location_description">Si vous n&#8217;autorisez pas Ground à accéder à la localisation de cet appareil, vous ne pourrez pas continuer à collecter des données pour ce site.</string>
 </resources>

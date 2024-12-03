@@ -35,7 +35,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
@@ -137,20 +136,16 @@ constructor(
    */
   suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
     localLoiStore.applyAndEnqueue(mutation)
-    mutationSyncWorkManager.enqueueSyncWorker(mutation.locationOfInterestId)
+    mutationSyncWorkManager.enqueueSyncWorker()
   }
 
-  /** Returns a flow of all [LocationOfInterest] associated with the given [Survey]. */
-  fun getLocationsOfInterests(survey: Survey): Flow<Set<LocationOfInterest>> =
-    localLoiStore.findLocationsOfInterest(survey)
-
-  /** Returns a list of geometries associated with the given [Survey]. */
-  suspend fun getAllGeometries(survey: Survey): List<Geometry> =
-    getLocationsOfInterests(survey).first().map { it.geometry }
+  /** Returns a flow of all valid (not deleted) [LocationOfInterest] in the given [Survey]. */
+  fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
+    localLoiStore.getValidLois(survey)
 
   /** Returns a flow of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBounds(survey: Survey, bounds: Bounds): Flow<List<LocationOfInterest>> =
-    getLocationsOfInterests(survey)
+    getValidLois(survey)
       .map { lois -> lois.filter { bounds.contains(it.geometry) } }
       .distinctUntilChanged()
 }
