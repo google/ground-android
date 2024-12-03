@@ -15,9 +15,11 @@
  */
 package com.google.android.ground.util
 
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.google.android.ground.FirebaseCrashLogger
+import com.google.firebase.FirebaseNetworkException
 import timber.log.Timber
 
 object Debug {
@@ -40,3 +42,5 @@ object Debug {
       null
     }
 }
+
+fun Throwable.priority() = if (this is FirebaseNetworkException) Log.DEBUG else Log.ERROR

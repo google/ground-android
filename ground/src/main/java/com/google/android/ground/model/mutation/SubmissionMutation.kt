@@ -38,14 +38,7 @@ data class SubmissionMutation(
 
   override fun toString(): String = super.toString() + "deltas= $deltas"
 
-  fun incrementRetryCount() = this.copy(retryCount = this.retryCount + 1)
-
   fun updateSyncStatus(status: SyncStatus) = this.copy(syncStatus = status)
-
-  /** Returns true if this mutation is in a state in which it is ready for media upload. */
-  fun mediaUploadPending() =
-    this.syncStatus == SyncStatus.MEDIA_UPLOAD_PENDING ||
-      this.syncStatus == SyncStatus.MEDIA_UPLOAD_AWAITING_RETRY
 
   fun getPhotoData(): List<PhotoTaskData> =
     deltas.map { it.newTaskData }.filterIsInstance<PhotoTaskData>().filter { !it.isEmpty() }

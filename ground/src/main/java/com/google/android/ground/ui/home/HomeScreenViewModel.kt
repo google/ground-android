@@ -18,7 +18,6 @@ package com.google.android.ground.ui.home
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.google.android.ground.model.mutation.Mutation.SyncStatus.COMPLETED
 import com.google.android.ground.model.submission.DraftSubmission
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.sync.MediaUploadWorkManager
@@ -71,12 +70,11 @@ internal constructor(
    * no-op. Workaround for https://github.com/google/ground-android/issues/2751.
    */
   private suspend fun kickLocalMutationSyncWorkers() {
-    val mutations = mutationRepository.getAllMutationsFlow().first()
-    val incompleteLoiIds =
-      mutations.filter { it.syncStatus != COMPLETED }.map { it.locationOfInterestId }.toSet()
-    incompleteLoiIds.forEach { loiId ->
-      mutationSyncWorkManager.enqueueSyncWorker(loiId)
-      mediaUploadWorkManager.enqueueSyncWorker(loiId)
+    if (mutationRepository.getIncompleteUploads().isNotEmpty()) {
+      mutationSyncWorkManager.enqueueSyncWorker()
+    }
+    if (mutationRepository.getIncompleteMediaMutations().isNotEmpty()) {
+      mediaUploadWorkManager.enqueueSyncWorker()
     }
   }
 
