@@ -25,8 +25,6 @@ import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
-import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.android.ground.util.isPermissionDeniedException
 import javax.inject.Inject
 import kotlinx.coroutines.TimeoutCancellationException
@@ -38,7 +36,6 @@ import timber.log.Timber
 class TermsOfServiceViewModel
 @Inject
 constructor(
-  private val navigator: Navigator,
   private val termsOfServiceRepository: TermsOfServiceRepository,
   private val popups: EphemeralPopups,
   private val authManager: AuthenticationManager,
@@ -69,10 +66,5 @@ constructor(
   private fun onGetTosFailure() {
     popups.ErrorPopup().show(R.string.load_tos_failed)
     authManager.signOut()
-  }
-
-  fun onButtonClicked() {
-    termsOfServiceRepository.isTermsOfServiceAccepted = true
-    navigator.navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
   }
 }

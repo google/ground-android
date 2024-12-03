@@ -61,6 +61,6 @@ constructor(
   }
 
   private fun requestNavigation(request: NavigationRequest) {
-    coroutineScope.launch(dispatcher) { _navigateRequests.emit(request) }
+    CoroutineScope(dispatcher).launch { _navigateRequests.emit(request) }
   }
 }
