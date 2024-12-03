@@ -21,6 +21,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.PopupMenu
 import androidx.core.os.bundleOf
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -69,6 +70,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
 
   private lateinit var fragment: SurveySelectorFragment
+  private lateinit var navController: NavController
 
   @Before
   override fun setUp() {
@@ -128,7 +130,14 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   fun click_activatesSurvey() = runWithTestDispatcher {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setLocalSurveys(listOf())
-    setUpFragment()
+
+    launchFragmentWithNavController<SurveySelectorFragment>(
+      fragmentArgs = bundleOf(Pair("shouldExitApp", false)),
+      destId = R.id.surveySelectorFragment,
+    ) {
+      navController = it
+    }
+    advanceUntilIdle()
 
     // Click second item
     onView(withId(R.id.recycler_view))
@@ -138,7 +147,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     // Assert survey is activated.
     verify(activateSurvey).invoke(TEST_SURVEY_2.id)
     // Assert that navigation to home screen was requested
-    verify(navigator).navigate(HomeScreenFragmentDirections.showHomeScreen())
+    assertThat(navController.currentDestination?.id).isEqualTo(R.id.home_screen_fragment)
     // No error toast should be displayed
     assertThat(ShadowToast.shownToastCount()).isEqualTo(0)
   }

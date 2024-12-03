@@ -24,6 +24,7 @@ import androidx.core.os.bundleOf
 import androidx.core.util.Preconditions
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelStore
+import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ActivityScenario
@@ -53,6 +54,7 @@ inline fun <reified T : Fragment> launchFragmentWithNavController(
   @IdRes destId: Int,
   crossinline preTransactionAction: Fragment.() -> Unit = {},
   crossinline postTransactionAction: Fragment.() -> Unit = {},
+  noinline navControllerCallback: ((NavController) -> Unit)? = null,
 ): ActivityScenario<HiltTestActivity> =
   hiltActivityScenario(themeResId).launchFragment<T>(
     fragmentArgs,
@@ -69,6 +71,7 @@ inline fun <reified T : Fragment> launchFragmentWithNavController(
           // But we only set the nav controller here.
           // Bind the controller after the view is created but before onViewCreated is called.
           Navigation.setViewNavController(requireView(), navController)
+          navControllerCallback?.invoke(navController)
         }
       }
     },

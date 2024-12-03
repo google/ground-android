@@ -25,6 +25,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.ground.databinding.FragmentTermsServiceBinding
 import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -55,7 +56,10 @@ class TermsOfServiceFragment : AbstractFragment() {
     super.onViewCreated(view, savedInstanceState)
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-        viewModel.navigateToSurveySelector.collect { findNavController().navigateUp() }
+        viewModel.navigateToSurveySelector.collect {
+          findNavController()
+            .navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
+        }
       }
     }
   }

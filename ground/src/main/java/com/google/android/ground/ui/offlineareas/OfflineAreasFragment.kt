@@ -33,10 +33,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.ground.databinding.OfflineAreasFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 /**
@@ -47,7 +45,6 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class OfflineAreasFragment : AbstractFragment() {
 
-  @Inject lateinit var navigator: Navigator
   private lateinit var viewModel: OfflineAreasViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,7 +86,7 @@ class OfflineAreasFragment : AbstractFragment() {
       LazyColumn(Modifier.fillMaxSize().testTag("offline area list")) {
         items(it) {
           OfflineAreaListItem(offlineAreaDetails = it) { areaId ->
-            navigator.navigate(OfflineAreasFragmentDirections.viewOfflineArea(areaId))
+            findNavController().navigate(OfflineAreasFragmentDirections.viewOfflineArea(areaId))
           }
         }
       }
