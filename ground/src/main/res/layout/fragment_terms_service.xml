@@ -69,6 +69,7 @@
       android:layout_height="wrap_content"
       android:layout_marginBottom="32dp"
       android:enabled="@{viewModel.agreeCheckboxChecked}"
+      android:onClick="@{() -> viewModel.onButtonClicked()}"
       android:text="@string/agree_terms"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"

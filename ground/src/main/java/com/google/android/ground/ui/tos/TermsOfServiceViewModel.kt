@@ -20,6 +20,7 @@ import android.text.Spanned
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.system.auth.AuthenticationManager
@@ -28,6 +29,9 @@ import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.util.isPermissionDeniedException
 import javax.inject.Inject
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
@@ -60,11 +64,21 @@ constructor(
     }
   }
 
+  private val _navigateToSurveySelector = MutableSharedFlow<Unit>(replay = 0)
+  val navigateToSurveySelector = _navigateToSurveySelector.asSharedFlow()
+
   private fun Throwable.isExpectedFailure() =
     this is TimeoutCancellationException || isPermissionDeniedException()
 
   private fun onGetTosFailure() {
     popups.ErrorPopup().show(R.string.load_tos_failed)
     authManager.signOut()
+  }
+
+  fun onButtonClicked() {
+    viewModelScope.launch {
+      termsOfServiceRepository.isTermsOfServiceAccepted = true
+      _navigateToSurveySelector.emit(Unit)
+    }
   }
 }

@@ -24,7 +24,10 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.google.android.ground.databinding.OfflineAreaSelectorFragBinding
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
@@ -63,6 +66,22 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
     super.onViewCreated(view, savedInstanceState)
     viewModel.isDownloadProgressVisible.observe(viewLifecycleOwner) {
       showDownloadProgressDialog(it)
+    }
+
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+        viewModel.navigate.collect {
+          when (it) {
+            is UiState.OfflineAreaBackToHomeScreen -> {
+              findNavController()
+                .navigate(OfflineAreaSelectorFragmentDirections.offlineAreaBackToHomescreen())
+            }
+            is UiState.Up -> {
+              findNavController().navigateUp()
+            }
+          }
+        }
+      }
     }
   }
 

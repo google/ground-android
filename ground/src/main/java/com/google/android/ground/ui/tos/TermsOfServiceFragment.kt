@@ -19,17 +19,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.ground.databinding.FragmentTermsServiceBinding
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TermsOfServiceFragment : AbstractFragment() {
 
   private lateinit var viewModel: TermsOfServiceViewModel
-  private lateinit var binding: FragmentTermsServiceBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -42,7 +44,7 @@ class TermsOfServiceFragment : AbstractFragment() {
     savedInstanceState: Bundle?,
   ): View {
     val args = TermsOfServiceFragmentArgs.fromBundle(requireArguments())
-    binding = FragmentTermsServiceBinding.inflate(inflater, container, false)
+    val binding = FragmentTermsServiceBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     binding.isViewOnly = args.isViewOnly
     binding.lifecycleOwner = this
@@ -51,9 +53,10 @@ class TermsOfServiceFragment : AbstractFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    binding.agreeButton.setOnClickListener {
-      val navController = findNavController()
-      navController.navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+        viewModel.navigateToSurveySelector.collect { findNavController().navigateUp() }
+      }
     }
   }
 }

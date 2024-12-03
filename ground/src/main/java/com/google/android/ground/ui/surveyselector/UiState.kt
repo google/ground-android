@@ -39,4 +39,6 @@ sealed class UiState {
 
   /** Represents that there was an error while activating surveys. */
   data object Error : UiState()
+
+  data object NavigateToHome : UiState()
 }
