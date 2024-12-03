@@ -52,9 +52,9 @@ inline fun <reified T : Fragment> launchFragmentWithNavController(
   fragmentArgs: Bundle? = null,
   @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
   @IdRes destId: Int,
+  noinline navControllerCallback: ((NavController) -> Unit)? = null,
   crossinline preTransactionAction: Fragment.() -> Unit = {},
   crossinline postTransactionAction: Fragment.() -> Unit = {},
-  noinline navControllerCallback: ((NavController) -> Unit)? = null,
 ): ActivityScenario<HiltTestActivity> =
   hiltActivityScenario(themeResId).launchFragment<T>(
     fragmentArgs,

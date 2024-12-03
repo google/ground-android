@@ -77,9 +77,10 @@ class OfflineAreasFragmentTest : BaseHiltTest() {
     localOfflineAreaStore.insertOrUpdate(OFFLINE_AREA)
     advanceUntilIdle()
 
-    launchFragmentWithNavController<OfflineAreasFragment>(destId = R.id.offline_areas_fragment) {
-      navController = it
-    }
+    launchFragmentWithNavController<OfflineAreasFragment>(
+      destId = R.id.offline_areas_fragment,
+      navControllerCallback = { navController = it },
+    )
 
     onView(withId(R.id.floatingActionButton)).perform(click())
     assertThat(navController.currentDestination?.id).isEqualTo(R.id.offline_area_selector_fragment)

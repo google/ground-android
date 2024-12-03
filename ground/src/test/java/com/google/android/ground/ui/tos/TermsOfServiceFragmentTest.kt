@@ -115,9 +115,8 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
     launchFragmentWithNavController<TermsOfServiceFragment>(
       fragmentArgs = bundleOf(Pair("isViewOnly", false)),
       destId = R.id.terms_of_service_fragment,
-    ) {
-      navController = it
-    }
+      navControllerCallback = { navController = it },
+    )
 
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isFalse()
 

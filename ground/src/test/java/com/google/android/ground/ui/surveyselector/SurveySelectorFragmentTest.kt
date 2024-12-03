@@ -134,9 +134,8 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     launchFragmentWithNavController<SurveySelectorFragment>(
       fragmentArgs = bundleOf(Pair("shouldExitApp", false)),
       destId = R.id.surveySelectorFragment,
-    ) {
-      navController = it
-    }
+      navControllerCallback = { navController = it },
+    )
     advanceUntilIdle()
 
     // Click second item
