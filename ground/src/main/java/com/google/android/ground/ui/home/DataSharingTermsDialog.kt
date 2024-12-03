@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.android.ground.ExcludeFromJacocoGeneratedReport
 import com.google.android.ground.R
 import com.google.android.ground.proto.Survey
 import com.google.android.ground.ui.compose.HtmlText
@@ -92,6 +93,7 @@ fun DataSharingTermsDialog(
 
 @Composable
 @Preview
+@ExcludeFromJacocoGeneratedReport
 fun DataSharingTermsDialogPreviewWithPrivateType() {
   AppTheme {
     DataSharingTermsDialog(
@@ -104,6 +106,7 @@ fun DataSharingTermsDialogPreviewWithPrivateType() {
 
 @Composable
 @Preview
+@ExcludeFromJacocoGeneratedReport
 fun DataSharingTermsDialogPreviewWithPublicType() {
   AppTheme {
     DataSharingTermsDialog(
@@ -118,6 +121,7 @@ fun DataSharingTermsDialogPreviewWithPublicType() {
 
 @Composable
 @Preview
+@ExcludeFromJacocoGeneratedReport
 fun DataSharingTermsDialogPreviewWithCustomType() {
   AppTheme {
     DataSharingTermsDialog(
@@ -133,6 +137,7 @@ fun DataSharingTermsDialogPreviewWithCustomType() {
 
 @Composable
 @Preview
+@ExcludeFromJacocoGeneratedReport
 fun DataSharingTermsDialogPreviewWithNoType() {
   AppTheme {
     DataSharingTermsDialog(
