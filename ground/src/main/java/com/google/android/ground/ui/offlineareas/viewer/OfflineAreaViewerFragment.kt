@@ -70,11 +70,7 @@ class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFrag
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    viewLifecycleOwner.lifecycleScope.launch {
-      viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-        viewModel.navigateUp.collect { findNavController().navigateUp() }
-      }
-    }
+    lifecycleScope.launch { viewModel.navigateUp.collect { findNavController().navigateUp() } }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel

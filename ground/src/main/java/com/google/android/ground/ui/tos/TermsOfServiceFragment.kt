@@ -19,9 +19,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.ground.databinding.FragmentTermsServiceBinding
 import com.google.android.ground.ui.common.AbstractFragment
@@ -54,12 +52,10 @@ class TermsOfServiceFragment : AbstractFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    viewLifecycleOwner.lifecycleScope.launch {
-      viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-        viewModel.navigateToSurveySelector.collect {
-          findNavController()
-            .navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
-        }
+    lifecycleScope.launch {
+      viewModel.navigateToSurveySelector.collect {
+        findNavController()
+          .navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
       }
     }
   }

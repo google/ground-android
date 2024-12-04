@@ -27,9 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.ground.databinding.OfflineAreasFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
@@ -70,11 +68,9 @@ class OfflineAreasFragment : AbstractFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    viewLifecycleOwner.lifecycleScope.launch {
-      viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-        viewModel.navigateToOfflineAreaSelector.collect {
-          findNavController().navigate(OfflineAreasFragmentDirections.showOfflineAreaSelector())
-        }
+    lifecycleScope.launch {
+      viewModel.navigateToOfflineAreaSelector.collect {
+        findNavController().navigate(OfflineAreasFragmentDirections.showOfflineAreaSelector())
       }
     }
   }
