@@ -33,7 +33,6 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.UserRepository
@@ -251,8 +250,9 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     val testDate = Date()
     val mutation =
-      (mutationRepository.getMutations(loiId, MutationEntitySyncStatus.PENDING)[0]
-          as SubmissionMutation)
+      mutationRepository
+        .getIncompleteUploads()[0]
+        .submissionMutation!!
         .copy(clientTimestamp = testDate) // seed dummy test date
 
     assertThat(mutation)
