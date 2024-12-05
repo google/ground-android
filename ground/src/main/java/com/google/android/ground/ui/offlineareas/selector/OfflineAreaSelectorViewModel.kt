@@ -29,7 +29,6 @@ import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.MapConfig
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
@@ -38,6 +37,8 @@ import com.google.android.ground.util.toMb
 import com.google.android.ground.util.toMbString
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 private const val MIN_DOWNLOAD_ZOOM_LEVEL = 9
@@ -49,7 +50,6 @@ class OfflineAreaSelectorViewModel
 @Inject
 internal constructor(
   private val offlineAreaRepository: OfflineAreaRepository,
-  private val navigator: Navigator,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   private val resources: Resources,
   locationManager: LocationManager,
@@ -78,6 +78,9 @@ internal constructor(
   val bottomText = MutableLiveData<String?>(null)
   val downloadButtonEnabled = MutableLiveData(false)
 
+  private val _navigate = MutableSharedFlow<UiState>(replay = 0)
+  val navigate = _navigate.asSharedFlow()
+
   override val mapConfig: MapConfig
     get() =
       super.mapConfig.copy(
@@ -105,12 +108,12 @@ internal constructor(
         downloadProgress.postValue(progressValue)
       }
       isDownloadProgressVisible.postValue(false)
-      navigator.navigate(OfflineAreaSelectorFragmentDirections.offlineAreaBackToHomescreen())
+      _navigate.emit(UiState.OfflineAreaBackToHomeScreen)
     }
   }
 
   fun onCancelClick() {
-    navigator.navigateUp()
+    viewModelScope.launch { _navigate.emit(UiState.Up) }
   }
 
   override fun onMapDragged() {

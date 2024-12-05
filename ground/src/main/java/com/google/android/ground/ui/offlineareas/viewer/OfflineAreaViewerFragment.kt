@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.google.android.ground.databinding.OfflineAreaViewerFragBinding
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
@@ -65,6 +66,11 @@ class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFrag
     binding.lifecycleOwner = this
     getAbstractActivity().setSupportActionBar(binding.offlineAreaViewerToolbar)
     return binding.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    lifecycleScope.launch { viewModel.navigateUp.collect { findNavController().navigateUp() } }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
