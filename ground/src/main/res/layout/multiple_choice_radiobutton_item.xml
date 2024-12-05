@@ -59,9 +59,7 @@
         android:id="@+id/user_response_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/other"
         android:inputType="text"
-        android:text="@{item.otherText}"
         android:visibility="@{item.isOtherOption ? View.VISIBLE: View.GONE}"
         app:textChangedListener="@{viewModel.otherTextWatcher}" />
     </com.google.android.material.textfield.TextInputLayout>
