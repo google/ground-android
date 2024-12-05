@@ -19,7 +19,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.submission.DraftSubmission
-import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.sync.MediaUploadWorkManager
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.repository.MutationRepository
@@ -41,7 +40,6 @@ import timber.log.Timber
 class HomeScreenViewModel
 @Inject
 internal constructor(
-  private val localValueStore: LocalValueStore,
   private val offlineAreaRepository: OfflineAreaRepository,
   private val submissionRepository: SubmissionRepository,
   private val mutationRepository: MutationRepository,
@@ -78,10 +76,10 @@ internal constructor(
 
   /** Attempts to return draft submission for the currently active survey. */
   suspend fun getDraftSubmission(): DraftSubmission? {
-    val draftId = localValueStore.draftSubmissionId
+    val draftId = submissionRepository.getDraftSubmissionsId()
     val survey = surveyRepository.activeSurvey
 
-    if (draftId.isNullOrEmpty() || survey == null) {
+    if (draftId.isEmpty() || survey == null) {
       // Missing draft submission
       return null
     }
