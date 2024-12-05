@@ -27,7 +27,6 @@ import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractViewModel
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.SharedViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -41,7 +40,6 @@ import timber.log.Timber
 class HomeScreenViewModel
 @Inject
 internal constructor(
-  private val navigator: Navigator,
   private val offlineAreaRepository: OfflineAreaRepository,
   private val submissionRepository: SubmissionRepository,
   private val mutationRepository: MutationRepository,
@@ -101,38 +99,7 @@ internal constructor(
     viewModelScope.launch { _openDrawerRequests.emit(Unit) }
   }
 
-  fun showSurveySelector() {
-    navigator.navigate(
-      HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
-    )
-  }
-
-  private suspend fun getOfflineAreas() = offlineAreaRepository.offlineAreas().first()
-
-  fun showOfflineAreas() {
-    viewModelScope.launch {
-      navigator.navigate(
-        if (getOfflineAreas().isEmpty()) HomeScreenFragmentDirections.showOfflineAreaSelector()
-        else HomeScreenFragmentDirections.showOfflineAreas()
-      )
-    }
-  }
-
-  fun showSettings() {
-    navigator.navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity())
-  }
-
-  fun showSyncStatus() {
-    navigator.navigate(HomeScreenFragmentDirections.showSyncStatus())
-  }
-
-  fun showAbout() {
-    navigator.navigate(HomeScreenFragmentDirections.showAbout())
-  }
-
-  fun showTermsOfService() {
-    navigator.navigate(HomeScreenFragmentDirections.showTermsOfService(true))
-  }
+  suspend fun getOfflineAreas() = offlineAreaRepository.offlineAreas().first()
 
   fun signOut() {
     viewModelScope.launch { userRepository.signOut() }

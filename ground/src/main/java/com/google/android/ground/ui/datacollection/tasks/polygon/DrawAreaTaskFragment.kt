@@ -19,12 +19,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
+import com.google.android.ground.databinding.FragmentDrawAreaTaskBinding
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LineString.Companion.lineStringOf
 import com.google.android.ground.ui.common.AbstractMapFragmentWithControls.Companion.TASK_ID_FRAGMENT_ARG_KEY
@@ -56,18 +56,27 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_draw)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
-    // Otherwise, the sequentially generated ID might conflict with an ID produced by Google Maps.
-    val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11411 }
+    // XML layout is used to provide a static view ID which does not collide with Google Maps view
+    // ID (https://github.com/google/ground-android/issues/2493).
+    // The ID is needed when restoring the view on config change since the view is dynamically
+    // created.
+    // TODO(https://github.com/google/ground-android/issues/1795):
+    //   Remove this workaround once this UI is migrated to Compose.
+    val rootView = FragmentDrawAreaTaskBinding.inflate(inflater)
+
     drawAreaTaskMapFragment = drawAreaTaskMapFragmentProvider.get()
     val args = Bundle()
     args.putString(TASK_ID_FRAGMENT_ARG_KEY, taskId)
     drawAreaTaskMapFragment.arguments = args
     parentFragmentManager
       .beginTransaction()
-      .add(rowLayout.id, drawAreaTaskMapFragment, DrawAreaTaskMapFragment::class.java.simpleName)
+      .add(
+        R.id.container_draw_area_task_map,
+        drawAreaTaskMapFragment,
+        DrawAreaTaskMapFragment::class.java.simpleName,
+      )
       .commit()
-    return rowLayout
+    return rootView.root
   }
 
   override fun onCreateActionButtons() {
