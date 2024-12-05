@@ -304,6 +304,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
               cardUiData.loi.job.id,
               false,
               null,
+              "",
             )
           )
       is MapCardUiData.AddLoiCardUiData ->
@@ -315,6 +316,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
               cardUiData.job.id,
               false,
               null,
+              "",
             )
           )
     }
