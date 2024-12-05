@@ -18,6 +18,7 @@ package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
@@ -25,6 +26,7 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
+import com.google.android.material.divider.MaterialDividerItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -56,6 +58,11 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
       adapter = multipleChoiceAdapter
       itemAnimator = null
       setHasFixedSize(true)
+      addItemDecoration(
+        MaterialDividerItemDecoration(context, LinearLayoutManager.VERTICAL).apply {
+          isLastItemDecorated = false
+        }
+      )
     }
     lifecycleScope.launch {
       viewModel.itemsFlow.collect { items -> multipleChoiceAdapter.submitList(items) }
