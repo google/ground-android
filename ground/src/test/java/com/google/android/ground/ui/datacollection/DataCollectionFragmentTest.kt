@@ -119,7 +119,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   fun `Next click saves draft`() = runWithTestDispatcher {
     runner().inputText(TASK_1_RESPONSE).clickNextButton()
 
-    assertDraftSaved(listOf(TASK_1_VALUE_DELTA))
+    assertDraftSaved(listOf(TASK_1_VALUE_DELTA), currentTaskId = TASK_ID_2)
   }
 
   @Test
@@ -130,7 +130,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .selectMultipleChoiceOption(TASK_2_OPTION_LABEL)
       .clickPreviousButton()
 
-    assertDraftSaved(listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA))
+    assertDraftSaved(listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA), currentTaskId = TASK_ID_1)
   }
 
   @Test
@@ -274,7 +274,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       )
   }
 
-  private suspend fun assertDraftSaved(valueDeltas: List<ValueDelta>) {
+  private suspend fun assertDraftSaved(valueDeltas: List<ValueDelta>, currentTaskId: String) {
     val draftId = submissionRepository.getDraftSubmissionsId()
     assertThat(draftId).isNotEmpty()
 
@@ -289,6 +289,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
           loiName = LOCATION_OF_INTEREST_NAME,
           surveyId = SURVEY.id,
           deltas = valueDeltas,
+          currentTaskId = currentTaskId,
         )
       )
   }
