@@ -24,13 +24,10 @@
     <variable
       name="item"
       type="com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceItem" />
-
-
     <variable
       name="viewModel"
       type="com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel" />
   </data>
-
 
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
@@ -51,7 +48,6 @@
 
     <com.google.android.material.textfield.TextInputLayout
       android:id="@+id/text_input"
-      style="@style/EditSubmission.Task.Text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_marginHorizontal="24dp"
