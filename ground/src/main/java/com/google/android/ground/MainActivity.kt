@@ -33,11 +33,6 @@ import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.ActivityCallback
 import com.google.android.ground.system.ActivityStreams
 import com.google.android.ground.ui.common.BackPressListener
-import com.google.android.ground.ui.common.FinishApp
-import com.google.android.ground.ui.common.NavigateTo
-import com.google.android.ground.ui.common.NavigateUp
-import com.google.android.ground.ui.common.NavigationRequest
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.common.modalSpinner
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
@@ -57,7 +52,6 @@ import timber.log.Timber
 class MainActivity : AbstractActivity() {
   @Inject lateinit var activityStreams: ActivityStreams
   @Inject lateinit var viewModelFactory: ViewModelFactory
-  @Inject lateinit var navigator: Navigator
   @Inject lateinit var userRepository: UserRepository
 
   private lateinit var viewModel: MainViewModel
@@ -79,8 +73,6 @@ class MainActivity : AbstractActivity() {
       }
     }
 
-    lifecycleScope.launch { navigator.getNavigateRequests().collect { onNavigate(it) } }
-
     val binding = MainActBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
@@ -100,16 +92,18 @@ class MainActivity : AbstractActivity() {
         showPermissionDeniedDialog(viewGroup)
       }
       MainUiState.OnUserSignedOut -> {
-        navigator.navigate(SignInFragmentDirections.showSignInScreen())
+        navHostFragment.navController.navigate(SignInFragmentDirections.showSignInScreen())
       }
       MainUiState.TosNotAccepted -> {
-        navigator.navigate(SignInFragmentDirections.showTermsOfService(false))
+        navHostFragment.navController.navigate(SignInFragmentDirections.showTermsOfService(false))
       }
       MainUiState.NoActiveSurvey -> {
-        navigator.navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
+        navHostFragment.navController.navigate(
+          SurveySelectorFragmentDirections.showSurveySelectorScreen(true)
+        )
       }
       MainUiState.ShowHomeScreen -> {
-        navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
+        navHostFragment.navController.navigate(HomeScreenFragmentDirections.showHomeScreen())
       }
       MainUiState.OnUserSigningIn -> {
         onSignInProgress(true)
@@ -137,7 +131,7 @@ class MainActivity : AbstractActivity() {
                 },
                 onCloseApp = {
                   showDialog = false
-                  navigator.finishApp()
+                  finish()
                 },
               )
             }
@@ -150,14 +144,6 @@ class MainActivity : AbstractActivity() {
   override fun onWindowInsetChanged(insets: WindowInsetsCompat) {
     super.onWindowInsetChanged(insets)
     viewModel.windowInsets.postValue(insets)
-  }
-
-  private fun onNavigate(navRequest: NavigationRequest) {
-    when (navRequest) {
-      is NavigateTo -> navHostFragment.navController.navigate(navRequest.directions)
-      is NavigateUp -> navigateUp()
-      is FinishApp -> finish()
-    }
   }
 
   /**

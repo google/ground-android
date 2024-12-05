@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.ground.R
 import com.google.android.ground.databinding.OfflineAreasFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.theme.AppTheme
@@ -70,7 +71,7 @@ class OfflineAreasFragment : AbstractFragment() {
     super.onViewCreated(view, savedInstanceState)
     lifecycleScope.launch {
       viewModel.navigateToOfflineAreaSelector.collect {
-        findNavController().navigate(OfflineAreasFragmentDirections.showOfflineAreaSelector())
+        findNavController().navigate(R.id.offline_area_selector_fragment)
       }
     }
   }

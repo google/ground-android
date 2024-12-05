@@ -31,7 +31,6 @@ import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.repository.TermsOfServiceRepository
-import com.google.android.ground.ui.common.Navigator
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -50,7 +49,6 @@ import org.robolectric.RobolectricTestRunner
 class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-  @Inject lateinit var navigator: Navigator
   @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepository
   @Inject lateinit var viewModel: TermsOfServiceViewModel
   private lateinit var navController: NavController
