@@ -15,18 +15,15 @@
  */
 package com.google.android.ground.ui.home.mapcontainer
 
+import androidx.navigation.NavController
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.google.android.ground.*
-import com.google.android.ground.NavGraphDirections.ShowMapTypeDialogFragment
-import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.ui.map.MapType
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,23 +33,20 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class HomeScreenMapContainerFragmentTest : BaseHiltTest() {
 
-  @Inject lateinit var navigator: Navigator
+  private lateinit var navController: NavController
 
   @Before
   override fun setUp() {
     super.setUp()
-    launchFragmentInHiltContainer<HomeScreenMapContainerFragment>()
+    launchFragmentWithNavController<HomeScreenMapContainerFragment>(
+      destId = R.id.home_screen_fragment,
+      navControllerCallback = { navController = it },
+    )
   }
 
   @Test
   fun clickMapType_launchesMapTypeDialogFragment() = runWithTestDispatcher {
-    testNavigateTo(
-      navigator.getNavigateRequests(),
-      {
-        val actualRequest = it as ShowMapTypeDialogFragment
-        assertThat(actualRequest.mapTypes).isEqualTo(MapType.entries.toTypedArray())
-      },
-      { onView(withId(R.id.map_type_btn)).perform(click()).check(matches(isEnabled())) },
-    )
+    onView(withId(R.id.map_type_btn)).perform(click()).check(matches(isEnabled()))
+    assertThat(navController.currentDestination?.id).isEqualTo(R.id.mapTypeDialogFragment)
   }
 }
