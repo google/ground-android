@@ -19,7 +19,6 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
 import com.google.android.ground.model.task.MultipleChoice
@@ -36,36 +35,32 @@ import kotlinx.coroutines.launch
  */
 @AndroidEntryPoint
 class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewModel>() {
-  private lateinit var binding: MultipleChoiceTaskFragBinding
-  private lateinit var multipleChoiceAdapter:
-    ListAdapter<MultipleChoiceItem, RecyclerView.ViewHolder>
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    binding = MultipleChoiceTaskFragBinding.inflate(inflater)
-    setupMultipleChoice(binding.selectOptionList)
-    return binding.root
+  override fun onCreateTaskBody(inflater: LayoutInflater): View =
+    MultipleChoiceTaskFragBinding.inflate(inflater)
+      .also { it.selectOptionList.setupRecyclerView() }
+      .root
+
+  private fun RecyclerView.setupRecyclerView() {
+    adapter = createMultipleChoiceAdapter()
+    itemAnimator = null
+    setHasFixedSize(true)
+
+    val itemDecoration = MaterialDividerItemDecoration(context, LinearLayoutManager.VERTICAL)
+    itemDecoration.isLastItemDecorated = false
+    addItemDecoration(itemDecoration)
   }
 
-  // TODO: Test comment for adding links to repo.
-  private fun setupMultipleChoice(recyclerView: RecyclerView) {
-    val multipleChoice = checkNotNull(getTask().multipleChoice)
-    val canSelectMultiple = multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE
-    multipleChoiceAdapter = MultipleChoiceAdapter(viewModel, canSelectMultiple)
-    recyclerView.apply {
-      adapter = multipleChoiceAdapter
-      itemAnimator = null
-      setHasFixedSize(true)
-      addItemDecoration(
-        MaterialDividerItemDecoration(context, LinearLayoutManager.VERTICAL).apply {
-          isLastItemDecorated = false
-        }
-      )
-    }
+  private fun createMultipleChoiceAdapter(): MultipleChoiceAdapter {
+    val cardinality = checkNotNull(getTask().multipleChoice).cardinality
+    val canSelectMultiple = cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE
+    val multipleChoiceAdapter = MultipleChoiceAdapter(viewModel, canSelectMultiple)
     lifecycleScope.launch {
       viewModel.itemsFlow.collect { items -> multipleChoiceAdapter.submitList(items) }
     }
+    return multipleChoiceAdapter
   }
 }
