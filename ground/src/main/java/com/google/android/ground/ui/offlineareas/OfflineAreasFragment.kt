@@ -27,12 +27,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.google.android.ground.databinding.OfflineAreasFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 /**
  * Fragment containing a list of downloaded areas on the device. An area is a set of offline raster
@@ -42,7 +43,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class OfflineAreasFragment : AbstractFragment() {
 
-  @Inject lateinit var navigator: Navigator
   private lateinit var viewModel: OfflineAreasViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,6 +66,15 @@ class OfflineAreasFragment : AbstractFragment() {
     return binding.root
   }
 
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    lifecycleScope.launch {
+      viewModel.navigateToOfflineAreaSelector.collect {
+        findNavController().navigate(OfflineAreasFragmentDirections.showOfflineAreaSelector())
+      }
+    }
+  }
+
   @Composable
   private fun ShowOfflineAreas() {
     val list by viewModel.offlineAreas.observeAsState()
@@ -73,7 +82,7 @@ class OfflineAreasFragment : AbstractFragment() {
       LazyColumn(Modifier.fillMaxSize().testTag("offline area list")) {
         items(it) {
           OfflineAreaListItem(offlineAreaDetails = it) { areaId ->
-            navigator.navigate(OfflineAreasFragmentDirections.viewOfflineArea(areaId))
+            findNavController().navigate(OfflineAreasFragmentDirections.viewOfflineArea(areaId))
           }
         }
       }

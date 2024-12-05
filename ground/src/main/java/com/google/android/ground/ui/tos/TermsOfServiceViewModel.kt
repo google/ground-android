@@ -20,16 +20,18 @@ import android.text.Spanned
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.EphemeralPopups
-import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.android.ground.util.isPermissionDeniedException
 import javax.inject.Inject
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
@@ -38,7 +40,6 @@ import timber.log.Timber
 class TermsOfServiceViewModel
 @Inject
 constructor(
-  private val navigator: Navigator,
   private val termsOfServiceRepository: TermsOfServiceRepository,
   private val popups: EphemeralPopups,
   private val authManager: AuthenticationManager,
@@ -63,6 +64,9 @@ constructor(
     }
   }
 
+  private val _navigateToSurveySelector = MutableSharedFlow<Unit>(replay = 0)
+  val navigateToSurveySelector = _navigateToSurveySelector.asSharedFlow()
+
   private fun Throwable.isExpectedFailure() =
     this is TimeoutCancellationException || isPermissionDeniedException()
 
@@ -72,7 +76,9 @@ constructor(
   }
 
   fun onButtonClicked() {
-    termsOfServiceRepository.isTermsOfServiceAccepted = true
-    navigator.navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
+    viewModelScope.launch {
+      termsOfServiceRepository.isTermsOfServiceAccepted = true
+      _navigateToSurveySelector.emit(Unit)
+    }
   }
 }

@@ -23,7 +23,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.navigation.NavDirections
+import androidx.navigation.NavController
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.swipeUp
@@ -37,12 +37,11 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
-import com.google.android.ground.launchFragmentInHiltContainer
+import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.model.Survey
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.testMaybeNavigateTo
-import com.google.android.ground.ui.common.Navigator
+import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -62,11 +61,15 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   lateinit var fragment: HomeScreenFragment
   private var initializedPicasso = false
+  protected lateinit var navController: NavController
 
   @Before
   override fun setUp() {
     super.setUp()
-    launchFragmentInHiltContainer<HomeScreenFragment> {
+    launchFragmentWithNavController<HomeScreenFragment>(
+      destId = R.id.home_screen_fragment,
+      navControllerCallback = { navController = it },
+    ) {
       fragment = this as HomeScreenFragment
       initPicasso(fragment.requireContext())
     }
@@ -239,13 +242,10 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class NavigationDrawerItemClickTest(
   private val menuItemLabel: String,
+  private val expectedNavDirection: Int?,
   private val survey: Survey,
-  private val expectedNavDirection: NavDirections?,
   private val shouldDrawerCloseAfterClick: Boolean,
-  private val testLabel: String,
 ) : AbstractHomeScreenFragmentTest() {
-
-  @Inject lateinit var navigator: Navigator
 
   @Inject lateinit var surveyRepository: SurveyRepository
 
@@ -257,8 +257,12 @@ class NavigationDrawerItemClickTest(
 
     openDrawer()
 
-    testMaybeNavigateTo(navigator.getNavigateRequests(), expectedNavDirection) {
-      onView(withText(menuItemLabel)).check(matches(isEnabled())).perform(click())
+    onView(withId(R.id.drawer_layout)).perform(swipeUp())
+
+    onView(withText(menuItemLabel)).check(matches(isEnabled())).perform(click())
+
+    if (expectedNavDirection != null) {
+      assertThat(navController.currentDestination?.id).isEqualTo(expectedNavDirection)
     }
 
     if (shouldDrawerCloseAfterClick) {
@@ -272,17 +276,15 @@ class NavigationDrawerItemClickTest(
     private val TEST_SURVEY = FakeData.SURVEY.copy()
 
     @JvmStatic
-    @ParameterizedRobolectricTestRunner.Parameters(name = "{4}")
+    @ParameterizedRobolectricTestRunner.Parameters(name = "{3}")
     fun data() =
       listOf(
         // TODO(#2385): Restore tests deleted in #2382.
-        arrayOf(
-          "Data sync status",
-          TEST_SURVEY,
-          HomeScreenFragmentDirections.showSyncStatus(),
-          true,
-          "Clicking 'Data sync status' should navigate to fragment",
-        )
+        arrayOf("Data sync status", R.id.sync_status_fragment, TEST_SURVEY, true),
+        arrayOf("Terms of service", R.id.terms_of_service_fragment, TEST_SURVEY, true),
+        arrayOf("About", R.id.aboutFragment, TEST_SURVEY, true),
+        arrayOf("Offline map imagery", R.id.offline_area_selector_fragment, TEST_SURVEY, true),
+        arrayOf("Settings", R.id.settings_activity, TEST_SURVEY, true),
       )
   }
 }

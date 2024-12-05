@@ -78,4 +78,7 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
 
   /** Removes all locally stored draft submissions. */
   suspend fun deleteDraftSubmissions()
+
+  /** Counts the number of draft submissions in the local database. */
+  suspend fun countDraftSubmissions(): Int
 }
