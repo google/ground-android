@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.databinding.MainActBinding
 import com.google.android.ground.repository.UserRepository
@@ -92,18 +93,16 @@ class MainActivity : AbstractActivity() {
         showPermissionDeniedDialog(viewGroup)
       }
       MainUiState.OnUserSignedOut -> {
-        navHostFragment.navController.navigate(SignInFragmentDirections.showSignInScreen())
+        navigateTo(SignInFragmentDirections.showSignInScreen())
       }
       MainUiState.TosNotAccepted -> {
-        navHostFragment.navController.navigate(SignInFragmentDirections.showTermsOfService(false))
+        navigateTo(SignInFragmentDirections.showTermsOfService(false))
       }
       MainUiState.NoActiveSurvey -> {
-        navHostFragment.navController.navigate(
-          SurveySelectorFragmentDirections.showSurveySelectorScreen(true)
-        )
+        navigateTo(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
       }
       MainUiState.ShowHomeScreen -> {
-        navHostFragment.navController.navigate(HomeScreenFragmentDirections.showHomeScreen())
+        navigateTo(HomeScreenFragmentDirections.showHomeScreen())
       }
       MainUiState.OnUserSigningIn -> {
         onSignInProgress(true)
@@ -210,5 +209,9 @@ class MainActivity : AbstractActivity() {
       signInProgressDialog?.dismiss()
       signInProgressDialog = null
     }
+  }
+
+  private fun navigateTo(directions: NavDirections) {
+    navHostFragment.navController.navigate(directions)
   }
 }
