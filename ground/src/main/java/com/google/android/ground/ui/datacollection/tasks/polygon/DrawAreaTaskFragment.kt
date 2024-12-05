@@ -61,7 +61,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     // The ID is needed when restoring the view on config change since the view is dynamically
     // created.
     // TODO(https://github.com/google/ground-android/issues/1795):
-    // Remove this workaround once this UI is migrated to Compose.
+    //   Remove this workaround once this UI is migrated to Compose.
     val rootView = FragmentDrawAreaTaskBinding.inflate(inflater)
 
     drawAreaTaskMapFragment = drawAreaTaskMapFragmentProvider.get()
