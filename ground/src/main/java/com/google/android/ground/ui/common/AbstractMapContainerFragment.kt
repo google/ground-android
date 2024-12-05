@@ -18,6 +18,7 @@ package com.google.android.ground.ui.common
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.navigation.fragment.findNavController
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.model.geometry.Coordinates
@@ -39,7 +40,6 @@ import timber.log.Timber
 abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   @Inject lateinit var map: MapFragment
-  @Inject lateinit var navigator: Navigator
   @Inject lateinit var geocodingManager: GeocodingManager
   @Inject @DefaultDispatcher lateinit var defaultDispatcher: CoroutineDispatcher
 
@@ -101,7 +101,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   /** Opens a dialog for selecting a [MapType] for the basemap layer. */
   fun showMapTypeSelectorDialog() {
     val types = map.supportedMapTypes.toTypedArray()
-    navigator.navigate(MapTypeDialogFragmentDirections.showMapTypeDialogFragment(types))
+    findNavController().navigate(MapTypeDialogFragmentDirections.showMapTypeDialogFragment(types))
   }
 
   private fun onLocationLockStateChange(result: Result<Boolean>, map: MapFragment) {
