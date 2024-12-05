@@ -28,12 +28,13 @@ import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.MapConfig
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.util.toMb
 import com.google.android.ground.util.toMbString
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -45,7 +46,6 @@ class OfflineAreaViewerViewModel
 @Inject
 constructor(
   private val offlineAreaRepository: OfflineAreaRepository,
-  private val navigator: Navigator,
   locationManager: LocationManager,
   mapStateRepository: MapStateRepository,
   settingsManager: SettingsManager,
@@ -70,6 +70,9 @@ constructor(
   val areaSize = MutableLiveData<String>()
   val progressOverlayVisible = MutableLiveData<Boolean>()
 
+  private val _navigateUp = MutableSharedFlow<Unit>(replay = 0)
+  val navigateUp = _navigateUp.asSharedFlow()
+
   override val mapConfig: MapConfig
     get() =
       super.mapConfig.copy(
@@ -86,7 +89,7 @@ constructor(
         area.postValue(it)
         areaSize.postValue(offlineAreaRepository.sizeOnDevice(it).toMb().toMbString())
         areaName.postValue(it.name)
-      } ?: run { navigator.navigateUp() }
+      } ?: run { _navigateUp.emit(Unit) }
     }
   }
 
@@ -100,6 +103,6 @@ constructor(
     if (deletedArea == null) return
     Timber.d("Removing offline area ${deletedArea.name}")
     offlineAreaRepository.removeFromDevice(deletedArea)
-    navigator.navigateUp()
+    _navigateUp.emit(Unit)
   }
 }

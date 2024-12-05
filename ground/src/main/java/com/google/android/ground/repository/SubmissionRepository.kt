@@ -77,6 +77,10 @@ constructor(
   suspend fun getDraftSubmission(draftSubmissionId: String, survey: Survey): DraftSubmission? =
     localSubmissionStore.getDraftSubmission(draftSubmissionId = draftSubmissionId, survey = survey)
 
+  suspend fun countDraftSubmissions() = localSubmissionStore.countDraftSubmissions()
+
+  fun getDraftSubmissionsId() = localValueStore.draftSubmissionId ?: ""
+
   suspend fun saveDraftSubmission(
     jobId: String,
     loiId: String?,
@@ -103,7 +107,7 @@ constructor(
   suspend fun getTotalSubmissionCount(loi: LocationOfInterest) =
     loi.submissionCount + getPendingCreateCount(loi.id) - getPendingDeleteCount(loi.id)
 
-  private suspend fun getPendingCreateCount(loiId: String) =
+  suspend fun getPendingCreateCount(loiId: String) =
     localSubmissionStore.getPendingCreateCount(loiId)
 
   private suspend fun getPendingDeleteCount(loiId: String) =

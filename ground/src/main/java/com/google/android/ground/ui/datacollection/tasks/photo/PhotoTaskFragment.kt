@@ -43,7 +43,6 @@ import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.ui.common.EphemeralPopups
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
@@ -62,7 +61,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject @MainScope lateinit var mainScope: CoroutineScope
   @Inject lateinit var permissionsManager: PermissionsManager
   @Inject lateinit var popups: EphemeralPopups
-  @Inject lateinit var navigator: Navigator
 
   // Registers a callback to execute after a user captures a photo from the on-device camera.
   private var capturePhotoLauncher: ActivityResultLauncher<Uri> =

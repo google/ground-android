@@ -27,4 +27,6 @@ interface DraftSubmissionDao : BaseDao<DraftSubmissionEntity> {
   suspend fun findById(draftSubmissionId: String): DraftSubmissionEntity?
 
   @Query("DELETE FROM draft_submission") fun delete()
+
+  @Query("SELECT COUNT(*) FROM draft_submission") suspend fun countAll(): Int
 }

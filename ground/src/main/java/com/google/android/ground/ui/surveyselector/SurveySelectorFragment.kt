@@ -22,12 +22,14 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.navigation.fragment.findNavController
 import com.google.android.ground.R
 import com.google.android.ground.databinding.SurveySelectorFragBinding
 import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
+import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.util.visibleIf
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -68,6 +70,9 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
       is UiState.Error -> {
         dismissProgressDialog()
         ephemeralPopups.ErrorPopup().unknownError()
+      }
+      is UiState.NavigateToHome -> {
+        findNavController().navigate(HomeScreenFragmentDirections.showHomeScreen())
       }
     }
   }
