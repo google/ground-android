@@ -56,8 +56,12 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_draw)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
-    // Otherwise, the sequentially generated ID might conflict with an ID produced by Google Maps.
+    // XML layout is used to provide a static view ID which does not collide with Google Maps view
+    // ID (https://github.com/google/ground-android/issues/2493).
+    // The ID is needed when restoring the view on config change since the view is dynamically
+    // created.
+    // TODO(https://github.com/google/ground-android/issues/1795):
+    // Remove this workaround once this UI is migrated to Compose.
     val rootView = FragmentDrawAreaTaskBinding.inflate(inflater)
 
     drawAreaTaskMapFragment = drawAreaTaskMapFragmentProvider.get()
