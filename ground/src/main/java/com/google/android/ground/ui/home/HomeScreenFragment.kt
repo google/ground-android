@@ -28,7 +28,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.findNavController
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.MainViewModel
 import com.google.android.ground.R

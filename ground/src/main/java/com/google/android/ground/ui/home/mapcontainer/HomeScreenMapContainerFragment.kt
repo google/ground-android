@@ -296,27 +296,29 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private fun navigateToDataCollectionFragment(cardUiData: MapCardUiData) {
     when (cardUiData) {
       is MapCardUiData.LoiCardUiData ->
-        findNavController().navigate(
-          HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-            cardUiData.loi.id,
-            cardUiData.loi.properties[LOI_NAME_PROPERTY] as? String?,
-            cardUiData.loi.job.id,
-            false,
-            null,
-            "",
+        findNavController()
+          .navigate(
+            HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+              cardUiData.loi.id,
+              cardUiData.loi.properties[LOI_NAME_PROPERTY] as? String?,
+              cardUiData.loi.job.id,
+              false,
+              null,
+              "",
+            )
           )
-        )
       is MapCardUiData.AddLoiCardUiData ->
-        findNavController().navigate(
-          HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-            null,
-            null,
-            cardUiData.job.id,
-            false,
-            null,
-            "",
+        findNavController()
+          .navigate(
+            HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+              null,
+              null,
+              cardUiData.job.id,
+              false,
+              null,
+              "",
+            )
           )
-        )
     }
   }
 
