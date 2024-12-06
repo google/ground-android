@@ -19,9 +19,9 @@ import android.content.Context
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import dagger.hilt.android.qualifiers.ApplicationContext
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 private val INSTALL_API_REQUEST_CODE = GoogleApiAvailability::class.java.hashCode() and 0xffff
 
@@ -46,7 +46,6 @@ constructor(
     return startResolution(status, requestCode)
   }
 
-  @Suppress("SwallowedException")
   private suspend fun startResolution(status: Int, requestCode: Int): Boolean {
     if (!googleApiAvailability.isUserResolvableError(status)) return false
 
