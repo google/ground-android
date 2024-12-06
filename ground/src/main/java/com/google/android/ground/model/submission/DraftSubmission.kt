@@ -23,4 +23,5 @@ data class DraftSubmission(
   val loiName: String?,
   val surveyId: String,
   val deltas: List<ValueDelta>,
+  val currentTaskId: String?,
 )

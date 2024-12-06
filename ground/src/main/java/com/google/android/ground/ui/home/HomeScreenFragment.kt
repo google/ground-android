@@ -115,6 +115,7 @@ class HomeScreenFragment :
               draft.jobId,
               true,
               SubmissionDeltasConverter.toString(draft.deltas),
+              draft.currentTaskId ?: "",
             )
           )
 
