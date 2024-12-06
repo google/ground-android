@@ -34,6 +34,7 @@ import com.google.android.ground.databinding.OfflineAreasFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
@@ -70,8 +71,11 @@ class OfflineAreasFragment : AbstractFragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     lifecycleScope.launch {
-      viewModel.navigateToOfflineAreaSelector.collect {
-        findNavController().navigate(R.id.offline_area_selector_fragment)
+      viewModel.navigateToOfflineAreaSelector.collectLatest {
+        val navController = findNavController()
+        if (navController.currentDestination?.id == R.id.offline_areas_fragment) {
+          navController.navigate(OfflineAreasFragmentDirections.showOfflineAreaSelector())
+        }
       }
     }
   }
