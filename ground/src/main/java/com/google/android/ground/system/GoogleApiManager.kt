@@ -37,20 +37,27 @@ constructor(
    * Displays a dialog to install Google Play Services, if missing. Throws an error if install not
    * possible or cancelled.
    */
-  suspend fun installGooglePlayServices() {
+  suspend fun installGooglePlayServices(): Boolean {
     val status = googleApiAvailability.isGooglePlayServicesAvailable(context)
-    if (status == ConnectionResult.SUCCESS) return
+    if (status == ConnectionResult.SUCCESS) return true
 
     val requestCode = INSTALL_API_REQUEST_CODE
-    startResolution(status, requestCode, GooglePlayServicesMissingException())
-    getNextResult(requestCode)
+    return startResolution(status, requestCode)
   }
 
-  private fun startResolution(status: Int, requestCode: Int, throwable: Throwable) {
-    if (!googleApiAvailability.isUserResolvableError(status)) throw throwable
-
-    activityStreams.withActivity {
-      googleApiAvailability.showErrorDialogFragment(it, status, requestCode) { throw throwable }
+  private suspend fun startResolution(status: Int, requestCode: Int): Boolean {
+    return if (googleApiAvailability.isUserResolvableError(status)) {
+      try {
+        activityStreams.withActivity {
+          googleApiAvailability.showErrorDialogFragment(it, status, requestCode, null)
+        }
+        getNextResult(requestCode)
+        true
+      } catch (e: Exception) {
+        false
+      }
+    } else {
+      false
     }
   }
 
@@ -60,6 +67,4 @@ constructor(
       error("Activity result failed: requestCode = $requestCode, result = $result")
     }
   }
-
-  class GooglePlayServicesMissingException : Error("Google play services not available")
 }

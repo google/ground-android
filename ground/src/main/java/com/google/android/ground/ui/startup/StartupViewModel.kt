@@ -28,8 +28,12 @@ internal constructor(
 ) : AbstractViewModel() {
 
   /** Checks & installs Google Play Services and initializes the login flow. */
-  suspend fun initializeLogin() {
-    googleApiManager.installGooglePlayServices()
+  suspend fun initializeLogin(): Boolean {
+    val isGooglePlayServicesAvailable = googleApiManager.installGooglePlayServices()
+    if (!isGooglePlayServicesAvailable) {
+      return false
+    }
     userRepository.init()
+    return true
   }
 }

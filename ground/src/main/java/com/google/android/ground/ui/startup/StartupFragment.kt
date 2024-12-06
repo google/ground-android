@@ -21,7 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
-import com.google.android.ground.system.GoogleApiManager
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.EphemeralPopups
 import dagger.hilt.android.AndroidEntryPoint
@@ -51,11 +50,14 @@ class StartupFragment : AbstractFragment() {
     super.onResume()
     showProgressDialog(R.string.initializing)
     viewLifecycleOwner.lifecycleScope.launch {
-      try {
-        viewModel.initializeLogin()
-      } catch (t: Throwable) {
-        onInitFailed(t)
-      }
+      val success =
+        try {
+          viewModel.initializeLogin()
+        } catch (t: Throwable) {
+          Timber.e(t, "Failed to initialize login")
+          false
+        }
+      handleLoginResult(success)
     }
   }
 
@@ -64,11 +66,10 @@ class StartupFragment : AbstractFragment() {
     super.onPause()
   }
 
-  private fun onInitFailed(t: Throwable) {
-    Timber.e(t, "Failed to launch app")
-    if (t is GoogleApiManager.GooglePlayServicesMissingException) {
+  private fun handleLoginResult(success: Boolean) {
+    if (!success) {
       popups.ErrorPopup().show(R.string.google_api_install_failed)
+      requireActivity().finish()
     }
-    requireActivity().finish()
   }
 }
