@@ -19,6 +19,7 @@ import android.content.Context
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import dagger.hilt.android.qualifiers.ApplicationContext
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -55,6 +56,7 @@ constructor(
       }
       getNextResult(requestCode)
     } catch (e: Exception) {
+      Timber.e("Activity result was not successful for requestCode: $requestCode")
       false
     }
   }
