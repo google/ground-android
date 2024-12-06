@@ -26,7 +26,6 @@ import com.google.android.ground.ui.common.EphemeralPopups
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @AndroidEntryPoint
 class StartupFragment : AbstractFragment() {
@@ -46,6 +45,7 @@ class StartupFragment : AbstractFragment() {
     savedInstanceState: Bundle?,
   ): View? = inflater.inflate(R.layout.startup_frag, container, false)
 
+  @Suppress("SwallowedException")
   override fun onResume() {
     super.onResume()
     showProgressDialog(R.string.initializing)
@@ -54,7 +54,6 @@ class StartupFragment : AbstractFragment() {
         try {
           viewModel.initializeLogin()
         } catch (t: Throwable) {
-          Timber.e(t, "Failed to initialize login")
           false
         }
       handleLoginResult(success)

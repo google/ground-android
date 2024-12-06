@@ -21,7 +21,6 @@ import com.google.android.gms.common.GoogleApiAvailability
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 private val INSTALL_API_REQUEST_CODE = GoogleApiAvailability::class.java.hashCode() and 0xffff
 
@@ -46,6 +45,7 @@ constructor(
     return startResolution(status, requestCode)
   }
 
+  @Suppress("SwallowedException")
   private suspend fun startResolution(status: Int, requestCode: Int): Boolean {
     if (!googleApiAvailability.isUserResolvableError(status)) return false
 
@@ -53,28 +53,14 @@ constructor(
       activityStreams.withActivity { activity ->
         googleApiAvailability.showErrorDialogFragment(activity, status, requestCode, null)
       }
-      if (getNextResult(requestCode)) {
-        true
-      } else {
-        Timber.e("Activity result was not successful for requestCode: $requestCode")
-        false
-      }
+      getNextResult(requestCode)
     } catch (e: Exception) {
-      Timber.e(
-        e,
-        "Failed to launch app resolution for status: $status and requestCode: $requestCode",
-      )
       false
     }
   }
 
   private suspend fun getNextResult(requestCode: Int): Boolean {
     val result = activityStreams.getNextActivityResult(requestCode)
-    return if (result.isOk()) {
-      true
-    } else {
-      Timber.e("Activity result failed: requestCode = $requestCode, result = $result")
-      false
-    }
+    return result.isOk()
   }
 }
