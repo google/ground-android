@@ -19,9 +19,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.google.android.ground.databinding.FragmentTermsServiceBinding
 import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TermsOfServiceFragment : AbstractFragment() {
@@ -44,5 +48,15 @@ class TermsOfServiceFragment : AbstractFragment() {
     binding.isViewOnly = args.isViewOnly
     binding.lifecycleOwner = this
     return binding.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    lifecycleScope.launch {
+      viewModel.navigateToSurveySelector.collect {
+        findNavController()
+          .navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
+      }
+    }
   }
 }

@@ -24,6 +24,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.SnapHelper
 import com.google.android.ground.R
@@ -265,25 +267,29 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private fun navigateToDataCollectionFragment(cardUiData: MapUiData) {
     when (cardUiData) {
       is MapUiData.LoiUiData ->
-        navigator.navigate(
-          HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-            cardUiData.loi.id,
-            cardUiData.loi.properties[LOI_NAME_PROPERTY] as? String?,
-            cardUiData.loi.job.id,
-            false,
-            null,
+        findNavController()
+          .navigate(
+            HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+              cardUiData.loi.id,
+              cardUiData.loi.properties[LOI_NAME_PROPERTY] as? String?,
+              cardUiData.loi.job.id,
+              false,
+              null,
+              "",
+            )
           )
-        )
       is MapUiData.AddLoiUiData ->
-        navigator.navigate(
-          HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-            null,
-            null,
-            cardUiData.job.id,
-            false,
-            null,
+        findNavController()
+          .navigate(
+            HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+              null,
+              null,
+              cardUiData.job.id,
+              false,
+              null,
+              "",
+            )
           )
-        )
     }
   }
 

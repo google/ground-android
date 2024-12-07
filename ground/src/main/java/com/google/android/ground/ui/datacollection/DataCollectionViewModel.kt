@@ -198,8 +198,6 @@ internal constructor(
 
   /** Moves back to the previous task in the sequence if the current value is valid or empty. */
   suspend fun onPreviousClicked(taskViewModel: AbstractTaskViewModel) {
-    check(getPositionInTaskSequence().first != 0)
-
     val task = taskViewModel.task
     val taskValue = taskViewModel.taskTaskData.firstOrNull()
 
@@ -287,6 +285,7 @@ internal constructor(
         surveyId = surveyId,
         deltas = getDeltas(),
         loiName = customLoiName,
+        currentTaskId = currentTaskId.value,
       )
     }
   }
