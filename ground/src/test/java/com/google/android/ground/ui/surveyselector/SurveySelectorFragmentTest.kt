@@ -34,8 +34,6 @@ import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
-import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.system.auth.FakeAuthenticationManager
@@ -63,7 +61,6 @@ import org.robolectric.shadows.ShadowToast
 @RunWith(RobolectricTestRunner::class)
 class SurveySelectorFragmentTest : BaseHiltTest() {
 
-  @BindValue @Mock lateinit var navigator: Navigator
   @BindValue @Mock lateinit var surveyRepository: SurveyRepository
   @BindValue @Mock lateinit var userRepository: UserRepository
   @BindValue @Mock lateinit var activateSurvey: ActivateSurveyUseCase
@@ -157,7 +154,13 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setLocalSurveys(listOf())
-    setUpFragment()
+
+    launchFragmentWithNavController<SurveySelectorFragment>(
+      fragmentArgs = bundleOf(Pair("shouldExitApp", false)),
+      destId = R.id.surveySelectorFragment,
+      navControllerCallback = { navController = it },
+    )
+    advanceUntilIdle()
 
     // Click second item
     onView(withId(R.id.recycler_view))
@@ -167,7 +170,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     // Assert survey is activated.
     verify(activateSurvey).invoke(TEST_SURVEY_2.id)
     // Assert that navigation to home screen was not requested
-    verify(navigator, times(0)).navigate(HomeScreenFragmentDirections.showHomeScreen())
+    assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
     // Error toast message
     assertThat(ShadowToast.shownToastCount()).isEqualTo(1)
   }
