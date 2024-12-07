@@ -27,17 +27,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.ground.databinding.MainActBinding
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.ActivityCallback
 import com.google.android.ground.system.ActivityStreams
 import com.google.android.ground.ui.common.BackPressListener
-import com.google.android.ground.ui.common.FinishApp
-import com.google.android.ground.ui.common.NavigateTo
-import com.google.android.ground.ui.common.NavigateUp
-import com.google.android.ground.ui.common.NavigationRequest
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.common.modalSpinner
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
@@ -57,7 +53,6 @@ import timber.log.Timber
 class MainActivity : AbstractActivity() {
   @Inject lateinit var activityStreams: ActivityStreams
   @Inject lateinit var viewModelFactory: ViewModelFactory
-  @Inject lateinit var navigator: Navigator
   @Inject lateinit var userRepository: UserRepository
 
   private lateinit var viewModel: MainViewModel
@@ -79,8 +74,6 @@ class MainActivity : AbstractActivity() {
       }
     }
 
-    lifecycleScope.launch { navigator.getNavigateRequests().collect { onNavigate(it) } }
-
     val binding = MainActBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
@@ -100,16 +93,16 @@ class MainActivity : AbstractActivity() {
         showPermissionDeniedDialog(viewGroup)
       }
       MainUiState.OnUserSignedOut -> {
-        navigator.navigate(SignInFragmentDirections.showSignInScreen())
+        navigateTo(SignInFragmentDirections.showSignInScreen())
       }
       MainUiState.TosNotAccepted -> {
-        navigator.navigate(SignInFragmentDirections.showTermsOfService(false))
+        navigateTo(SignInFragmentDirections.showTermsOfService(false))
       }
       MainUiState.NoActiveSurvey -> {
-        navigator.navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
+        navigateTo(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
       }
       MainUiState.ShowHomeScreen -> {
-        navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
+        navigateTo(HomeScreenFragmentDirections.showHomeScreen())
       }
       MainUiState.OnUserSigningIn -> {
         onSignInProgress(true)
@@ -137,7 +130,7 @@ class MainActivity : AbstractActivity() {
                 },
                 onCloseApp = {
                   showDialog = false
-                  navigator.finishApp()
+                  finish()
                 },
               )
             }
@@ -150,14 +143,6 @@ class MainActivity : AbstractActivity() {
   override fun onWindowInsetChanged(insets: WindowInsetsCompat) {
     super.onWindowInsetChanged(insets)
     viewModel.windowInsets.postValue(insets)
-  }
-
-  private fun onNavigate(navRequest: NavigationRequest) {
-    when (navRequest) {
-      is NavigateTo -> navHostFragment.navController.navigate(navRequest.directions)
-      is NavigateUp -> navigateUp()
-      is FinishApp -> finish()
-    }
   }
 
   /**
@@ -224,5 +209,9 @@ class MainActivity : AbstractActivity() {
       signInProgressDialog?.dismiss()
       signInProgressDialog = null
     }
+  }
+
+  private fun navigateTo(directions: NavDirections) {
+    navHostFragment.navController.navigate(directions)
   }
 }
