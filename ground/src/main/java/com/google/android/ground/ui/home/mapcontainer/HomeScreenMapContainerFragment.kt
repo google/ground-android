@@ -45,7 +45,7 @@ import com.google.android.ground.ui.home.DataSharingTermsDialog
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
-import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
+import com.google.android.ground.ui.home.mapcontainer.cards.MapUiData
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -86,16 +86,16 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       val canUserSubmitData = userRepository.canUserSubmitData()
 
       // Handle collect button clicks
-      adapter.setCollectDataListener { mapCardUiData ->
+      adapter.setCollectDataListener { mapUiData ->
         val job =
           lifecycleScope.launch {
             mapContainerViewModel.activeSurveyDataSharingTermsFlow.cancellable().collectLatest {
               hasDataSharingTerms ->
               onCollectData(
                 canUserSubmitData,
-                hasValidTasks(mapCardUiData),
+                hasValidTasks(mapUiData),
                 hasDataSharingTerms,
-                mapCardUiData,
+                mapUiData,
               )
             }
           }
@@ -111,16 +111,16 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     map.featureClicks.launchWhenStartedAndCollect { mapContainerViewModel.onFeatureClicked(it) }
   }
 
-  private fun hasValidTasks(cardUiData: MapCardUiData) =
+  private fun hasValidTasks(cardUiData: MapUiData) =
     when (cardUiData) {
       // LOI tasks are filtered out of the tasks list for pre-defined tasks.
-      is MapCardUiData.LoiCardUiData ->
+      is MapUiData.LoiUiData ->
         cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
-      is MapCardUiData.AddLoiCardUiData -> cardUiData.job.tasks.values.isNotEmpty()
+      is MapUiData.AddLoiUiData -> cardUiData.job.tasks.values.isNotEmpty()
     }
 
   private fun renderDataSharingTermsDialog(
-    cardUiData: MapCardUiData,
+    cardUiData: MapUiData,
     dataSharingTerms: DataSharingTerms,
   ) =
     ComposeView(requireContext()).apply {
@@ -146,7 +146,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     canUserSubmitData: Boolean,
     hasTasks: Boolean,
     hasDataSharingTerms: DataSharingTerms?,
-    cardUiData: MapCardUiData,
+    cardUiData: MapUiData,
   ) {
     if (!canUserSubmitData) {
       // Skip data collection screen if the user can't submit any data
@@ -262,9 +262,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     helper.attachToRecyclerView(recyclerView)
   }
 
-  private fun navigateToDataCollectionFragment(cardUiData: MapCardUiData) {
+  private fun navigateToDataCollectionFragment(cardUiData: MapUiData) {
     when (cardUiData) {
-      is MapCardUiData.LoiCardUiData ->
+      is MapUiData.LoiUiData ->
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
             cardUiData.loi.id,
@@ -274,7 +274,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
             null,
           )
         )
-      is MapCardUiData.AddLoiCardUiData ->
+      is MapUiData.AddLoiUiData ->
         navigator.navigate(
           HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
             null,
@@ -292,8 +292,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
     adapter.setLoiCardFocusedListener {
       when (it) {
-        is MapCardUiData.LoiCardUiData -> mapContainerViewModel.selectLocationOfInterest(it.loi.id)
-        is MapCardUiData.AddLoiCardUiData,
+        is MapUiData.LoiUiData -> mapContainerViewModel.selectLocationOfInterest(it.loi.id)
+        is MapUiData.AddLoiUiData,
         null -> mapContainerViewModel.selectLocationOfInterest(null)
       }
     }

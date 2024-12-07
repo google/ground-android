@@ -27,9 +27,9 @@ import com.google.android.ground.R
 @Composable
 fun JobSelectionDialog(
   selectedJobId: String,
-  jobs: List<MapCardUiData.AddLoiCardUiData>,
-  onJobSelection: (MapCardUiData.AddLoiCardUiData) -> Unit,
-  onConfirmRequest: (MapCardUiData.AddLoiCardUiData) -> Unit,
+  jobs: List<MapUiData.AddLoiUiData>,
+  onJobSelection: (MapUiData.AddLoiUiData) -> Unit,
+  onConfirmRequest: (MapUiData.AddLoiUiData) -> Unit,
   onDismissRequest: () -> Unit,
 ) {
   AlertDialog(
@@ -67,8 +67,8 @@ fun JobSelectionDialog(
 
 @Composable
 fun JobSelectionRow(
-  job: MapCardUiData.AddLoiCardUiData,
-  onJobSelection: (MapCardUiData.AddLoiCardUiData) -> Unit,
+  job: MapUiData.AddLoiUiData,
+  onJobSelection: (MapUiData.AddLoiUiData) -> Unit,
   selected: Boolean,
 ) {
   Row(modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { onJobSelection(job) }) {

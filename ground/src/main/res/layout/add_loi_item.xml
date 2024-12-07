@@ -20,8 +20,8 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools">
 
-  <com.google.android.material.card.MaterialCardView
-    android:id="@+id/loi_card"
+  <com.google.android.material.button.MaterialButton
+    android:id="@+id/loi_ui"
     android:clickable="true"
     android:focusable="true"
     android:layout_gravity="center_horizontal"
@@ -66,5 +66,5 @@
         android:textColor="?attr/colorOnSurface"
         tools:text="Add a site" />
     </LinearLayout>
-  </com.google.android.material.card.MaterialCardView>
+  </com.google.android.material.button.MaterialButton>
 </layout>

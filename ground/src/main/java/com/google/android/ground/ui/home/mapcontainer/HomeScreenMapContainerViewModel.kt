@@ -33,7 +33,7 @@ import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
-import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
+import com.google.android.ground.ui.home.mapcontainer.cards.MapUiData
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.isLocationOfInterest
@@ -181,22 +181,22 @@ internal constructor(
   }
 
   /**
-   * Returns a flow of [MapCardUiData] associated with the active survey's LOIs and adhoc jobs for
+   * Returns a flow of [MapUiData] associated with the active survey's LOIs and adhoc jobs for
    * displaying the cards.
    */
   fun getMapCardUiData():
-    Flow<Pair<MapCardUiData.LoiCardUiData?, List<MapCardUiData.AddLoiCardUiData>>> =
+    Flow<Pair<MapUiData.LoiUiData?, List<MapUiData.AddLoiUiData>>> =
     combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
       val loiCard =
         loisInView
           .filter { it.geometry == feature?.geometry }
           .firstOrNull()
-          ?.let { MapCardUiData.LoiCardUiData(it) }
+          ?.let { MapUiData.LoiUiData(it) }
       if (loiCard == null && feature != null) {
         // The feature is not in view anymore.
         featureClicked.value = null
       }
-      val jobCard = jobs.map { MapCardUiData.AddLoiCardUiData(it) }
+      val jobCard = jobs.map { MapUiData.AddLoiUiData(it) }
       Pair(loiCard, jobCard)
     }
 

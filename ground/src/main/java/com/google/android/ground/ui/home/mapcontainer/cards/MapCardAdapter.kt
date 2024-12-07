@@ -29,7 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.ground.R
-import com.google.android.ground.databinding.AddLoiCardItemBinding
+import com.google.android.ground.databinding.AddLoiItemBinding
 import com.google.android.ground.databinding.LoiCardItemBinding
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.common.LocationOfInterestHelper
@@ -44,10 +44,10 @@ class MapCardAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
   private var canUserSubmitData: Boolean = false
-  private var activeLoi: MapCardUiData.LoiCardUiData? = null
-  private val newLoiJobs: MutableList<MapCardUiData.AddLoiCardUiData> = mutableListOf()
-  private var cardFocusedListener: ((MapCardUiData?) -> Unit)? = null
-  private lateinit var collectDataListener: (MapCardUiData) -> Unit
+  private var activeLoi: MapUiData.LoiUiData? = null
+  private val newLoiJobs: MutableList<MapUiData.AddLoiUiData> = mutableListOf()
+  private var cardFocusedListener: ((MapUiData?) -> Unit)? = null
+  private lateinit var collectDataListener: (MapUiData) -> Unit
 
   /** Creates a new [RecyclerView.ViewHolder] item without any data. */
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -59,7 +59,7 @@ class MapCardAdapter(
         updateSubmissionCount,
       )
     } else {
-      AddLoiCardViewHolder(AddLoiCardItemBinding.inflate(layoutInflater, parent, false))
+      AddLoiCardViewHolder(AddLoiItemBinding.inflate(layoutInflater, parent, false))
     }
   }
 
@@ -68,7 +68,7 @@ class MapCardAdapter(
       R.layout.loi_card_item
     } else {
       // Assume we don't render add LOI option unless we know the job allows it.
-      R.layout.add_loi_card_item
+      R.layout.add_loi_item
     }
 
   /** Binds [LocationOfInterest] data to [LoiViewHolder] or [AddLoiCardViewHolder]. */
@@ -88,33 +88,33 @@ class MapCardAdapter(
   /** Overwrites existing cards. */
   fun updateData(
     canUserSubmitData: Boolean,
-    loiCard: MapCardUiData.LoiCardUiData?,
-    jobCards: List<MapCardUiData.AddLoiCardUiData>,
+    loiUi: MapUiData.LoiUiData?,
+    jobUi: List<MapUiData.AddLoiUiData>,
   ) {
     this.canUserSubmitData = canUserSubmitData
-    activeLoi = loiCard
+    activeLoi = loiUi
     newLoiJobs.clear()
-    newLoiJobs.addAll(jobCards)
+    newLoiJobs.addAll(jobUi)
     notifyDataSetChanged()
   }
 
-  fun setLoiCardFocusedListener(listener: (MapCardUiData?) -> Unit) {
+  fun setLoiCardFocusedListener(listener: (MapUiData?) -> Unit) {
     this.cardFocusedListener = listener
   }
 
-  fun setCollectDataListener(listener: (MapCardUiData) -> Unit) {
+  fun setCollectDataListener(listener: (MapUiData) -> Unit) {
     this.collectDataListener = listener
   }
 
   private fun bindLoiCardViewHolder(
-    loiData: MapCardUiData.LoiCardUiData,
+    loiData: MapUiData.LoiUiData,
     holder: RecyclerView.ViewHolder,
   ): LoiViewHolder = (holder as LoiViewHolder).apply { bind(canUserSubmitData, loiData.loi) }
 
   private fun bindAddLoiCardViewHolder(
-    addLoiJobData: List<MapCardUiData.AddLoiCardUiData>,
+    addLoiJobData: List<MapUiData.AddLoiUiData>,
     holder: RecyclerView.ViewHolder,
-    callback: (MapCardUiData.AddLoiCardUiData) -> Unit,
+    callback: (MapUiData.AddLoiUiData) -> Unit,
   ): AddLoiCardViewHolder = (holder as AddLoiCardViewHolder).apply { bind(addLoiJobData, callback) }
 
   abstract class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {}
@@ -143,16 +143,16 @@ class MapCardAdapter(
   }
 
   /** View item representing the Add Loi Job data in the list. */
-  class AddLoiCardViewHolder(internal val binding: AddLoiCardItemBinding) :
+  class AddLoiCardViewHolder(internal val binding: AddLoiItemBinding) :
     CardViewHolder(binding.root) {
     private val jobDialogOpened = mutableStateOf(false)
 
     fun bind(
-      jobs: List<MapCardUiData.AddLoiCardUiData>,
-      callback: (MapCardUiData.AddLoiCardUiData) -> Unit,
+      jobs: List<MapUiData.AddLoiUiData>,
+      callback: (MapUiData.AddLoiUiData) -> Unit,
     ) {
       with(binding) {
-        loiCard.setOnClickListener {
+        loiUi.setOnClickListener {
           jobDialogOpened.value = true
           (root as ViewGroup).addView(
             ComposeView(root.context).apply {
@@ -165,8 +165,8 @@ class MapCardAdapter(
 
     @Composable
     fun ShowJobSelectionDialog(
-      jobs: List<MapCardUiData.AddLoiCardUiData>,
-      callback: (MapCardUiData.AddLoiCardUiData) -> Unit,
+      jobs: List<MapUiData.AddLoiUiData>,
+      callback: (MapUiData.AddLoiUiData) -> Unit,
       jobDialogOpened: MutableState<Boolean>,
     ) {
       var selectedJobId by rememberSaveable { mutableStateOf(jobs[0].job.id) }

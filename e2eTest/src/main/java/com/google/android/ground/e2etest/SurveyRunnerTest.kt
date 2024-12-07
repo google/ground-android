@@ -131,7 +131,7 @@ class SurveyRunnerTest : AutomatorRunner {
     cards.forEach { it.swipe(Direction.LEFT, 1F) }
     val loiCollectDataButtonSelector =
       byText(R.string.collect_data)
-        .hasAncestor(loiCardSelector.hasDescendant(byText(R.string.new_site)))
+        .hasAncestor(loiCardSelector.hasDescendant(byText(R.string.add_site)))
     if (!waitClickGone(loiCollectDataButtonSelector)) {
       captureScreenshot()
       fail("Failed to start ad-hoc loi data collection.")
