@@ -24,13 +24,10 @@
     <variable
       name="item"
       type="com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceItem" />
-
-
     <variable
       name="viewModel"
       type="com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel" />
   </data>
-
 
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
@@ -42,16 +39,18 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:checked="@{item.isSelected}"
+      android:fontFamily="@font/google_sans"
       android:onClickListener="@{() -> viewModel.toggleItem(item)}"
       android:padding="16dp"
       android:text="@{ item.isOtherOption ? @string/other : item.option.label }"
+      android:textColor="@color/md_theme_onSurface"
+      android:textSize="16sp"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
       tools:text="Option 1" />
 
     <com.google.android.material.textfield.TextInputLayout
       android:id="@+id/text_input"
-      style="@style/EditSubmission.Task.Text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_marginHorizontal="24dp"
@@ -62,9 +61,10 @@
         android:id="@+id/user_response_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/other"
+        android:fontFamily="@font/text_500"
         android:inputType="text"
-        android:text="@{item.otherText}"
+        android:textColor="@color/md_theme_onSurface"
+        android:textSize="16sp"
         android:visibility="@{item.isOtherOption ? View.VISIBLE: View.GONE}"
         app:textChangedListener="@{viewModel.otherTextWatcher}" />
     </com.google.android.material.textfield.TextInputLayout>
