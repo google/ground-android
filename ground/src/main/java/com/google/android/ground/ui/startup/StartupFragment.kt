@@ -26,6 +26,7 @@ import com.google.android.ground.ui.common.EphemeralPopups
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class StartupFragment : AbstractFragment() {
@@ -45,30 +46,22 @@ class StartupFragment : AbstractFragment() {
     savedInstanceState: Bundle?,
   ): View? = inflater.inflate(R.layout.startup_frag, container, false)
 
-  @Suppress("SwallowedException")
   override fun onResume() {
     super.onResume()
     showProgressDialog(R.string.initializing)
     viewLifecycleOwner.lifecycleScope.launch {
-      val success =
-        try {
-          viewModel.initializeLogin()
-        } catch (t: Throwable) {
-          false
-        }
-      handleLoginResult(success)
+      try {
+        viewModel.initializeLogin()
+      } catch (t: Throwable) {
+        Timber.e(t, "Failed to launch app")
+        popups.ErrorPopup().show(R.string.google_api_install_failed)
+        requireActivity().finish()
+      }
     }
   }
 
   override fun onPause() {
     dismissProgressDialog()
     super.onPause()
-  }
-
-  private fun handleLoginResult(success: Boolean) {
-    if (!success) {
-      popups.ErrorPopup().show(R.string.google_api_install_failed)
-      requireActivity().finish()
-    }
   }
 }

@@ -31,7 +31,7 @@ internal constructor(
   suspend fun initializeLogin(): Boolean {
     val isGooglePlayServicesAvailable = googleApiManager.installGooglePlayServices()
     if (!isGooglePlayServicesAvailable) {
-      return false
+      error("Google Play Services installation failed")
     }
     userRepository.init()
     return true

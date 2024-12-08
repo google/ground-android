@@ -54,8 +54,8 @@ constructor(
         googleApiAvailability.showErrorDialogFragment(activity, status, requestCode, null)
       }
       getNextResult(requestCode)
-    } catch (e: Exception) {
-      Timber.e("Activity result was not successful for requestCode: $requestCode")
+    } catch (t: Throwable) {
+      Timber.e("Activity result was not successful for requestCode: $requestCode and throws $t")
       false
     }
   }
