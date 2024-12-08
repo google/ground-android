@@ -49,7 +49,7 @@ internal constructor(private val offlineAreaRepository: OfflineAreaRepository) :
   val showNoAreasMessage: LiveData<Boolean>
   val showProgressSpinner: LiveData<Boolean>
 
-  private val _navigateToOfflineAreaSelector = MutableSharedFlow<Unit>(replay = 0)
+  private val _navigateToOfflineAreaSelector = MutableSharedFlow<Unit>(replay = 1)
   val navigateToOfflineAreaSelector = _navigateToOfflineAreaSelector.asSharedFlow()
 
   init {
