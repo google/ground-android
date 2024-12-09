@@ -155,7 +155,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun onTaskChanged(taskPosition: TaskPosition) {
-    viewPager.currentItem = taskPosition.absoluteIndex
+    viewPager.setCurrentItem(taskPosition.absoluteIndex, false)
     updateProgressBar(taskPosition, true)
   }
 
