@@ -22,7 +22,8 @@ import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
-const val READ_TIMEOUT_MS = 5 * 1000
+private const val READ_TIMEOUT_MS = 5 * 1000
+private const val CONNECT_TIMEOUT_MS = 30_000
 
 /**
  * @constructor Creates a [UrlInputStream] by opening a connection to an actual URL, requesting the
@@ -38,19 +39,25 @@ class UrlInputStream(private val url: String, private val byteRange: LongRange? 
 
   private fun openStream(): InputStream {
     val urlConnection = URL(url).openConnection() as HttpURLConnection
-    urlConnection.requestMethod = "GET"
-    urlConnection.readTimeout = READ_TIMEOUT_MS
-    if (byteRange != null) {
-      urlConnection.setRequestProperty("Range", "bytes=${byteRange.first}-${byteRange.last}")
+    try {
+      urlConnection.requestMethod = "GET"
+      urlConnection.connectTimeout = CONNECT_TIMEOUT_MS
+      urlConnection.readTimeout = READ_TIMEOUT_MS
+      if (byteRange != null) {
+        urlConnection.setRequestProperty("Range", "bytes=${byteRange.first}-${byteRange.last}")
+      }
+      urlConnection.connect()
+      val responseCode = urlConnection.responseCode
+      if (responseCode == 404) throw FileNotFoundException("$url not found")
+      val expectedResponseCode = if (byteRange == null) 200 else 206
+      if (responseCode != expectedResponseCode) {
+        throw IOException("HTTP $responseCode accessing $url")
+      }
+      return urlConnection.inputStream
+    } catch (e: Exception) {
+      urlConnection.disconnect()
+      error("Attempt Failed with $e")
     }
-    urlConnection.connect()
-    val responseCode = urlConnection.responseCode
-    if (responseCode == 404) throw FileNotFoundException("$url not found")
-    val expectedResponseCode = if (byteRange == null) 200 else 206
-    if (responseCode != expectedResponseCode) {
-      throw IOException("HTTP $responseCode accessing $url")
-    }
-    return urlConnection.inputStream
   }
 
   override fun read(): Int = inputStream.read()
