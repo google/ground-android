@@ -69,7 +69,7 @@ constructor(
     try {
       val user = userRepository.getAuthenticatedUser()
       mutationRepository.markAsInProgress(mutations)
-      // TODO(https://github.com/google/ground-android/issues/2883):
+      // TODO(#2883):
       //   Apply mutations via repository layer rather than accessing data store directly.
       remoteDataStore.applyMutations(mutations, user)
       mutationRepository.finalizePendingMutationsForMediaUpload(mutations)

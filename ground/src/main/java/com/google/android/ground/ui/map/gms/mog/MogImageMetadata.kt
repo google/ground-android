@@ -31,7 +31,7 @@ data class MogImageMetadata(
   private val tileCountX = imageWidth / tileWidth
   private val tileCountY = imageLength / tileLength
 
-  // TODO: Verify X and Y scales are the same.
+  // TODO(#2903): Verify X and Y scales are the same.
   val zoom = originTile.zoom
 
   fun hasTile(x: Int, y: Int) =
@@ -80,7 +80,7 @@ data class MogImageMetadata(
         originTile,
         tiffTagToValue[TiffTag.TileWidth] as Int,
         tiffTagToValue[TiffTag.TileLength] as Int,
-        // TODO: Refactor casts into typed accessors.
+        // TODO(#2903): Refactor casts into typed accessors.
         tiffTagToValue[TiffTag.TileOffsets] as List<Long>,
         tiffTagToValue[TiffTag.TileByteCounts] as List<Long>,
         tiffTagToValue[TiffTag.ImageWidth] as Int,

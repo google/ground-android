@@ -177,7 +177,7 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
     path: MogPathOrUrl,
     mogBounds: TileCoordinates,
   ): Deferred<MogMetadata?> = runBlocking {
-    // TODO: Exceptions get propagated as cancellation of the coroutine. Handle them!
+    // TODO(#2903): Exceptions get propagated as cancellation of the coroutine. Handle them!
     async { path.toUrl()?.readMetadata(mogBounds) }.also { cache.put(path, it) }
   }
 

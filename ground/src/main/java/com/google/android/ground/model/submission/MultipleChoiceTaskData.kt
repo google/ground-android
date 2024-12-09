@@ -40,7 +40,7 @@ class MultipleChoiceTaskData(
         suffix = MultipleChoiceTaskViewModel.OTHER_SUFFIX,
       ) ?: ""
 
-  // TODO: Make these inner classes non-static and access Task directly.
+  // TODO(#2903): Make these inner classes non-static and access Task directly.
   override fun getDetailsText(): String =
     selectedOptionIds
       .mapNotNull { multipleChoice?.getOptionById(it) }

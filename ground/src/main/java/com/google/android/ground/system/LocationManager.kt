@@ -49,13 +49,13 @@ constructor(
 
   private val locationCallback = LocationSharedFlowCallback(_locationUpdates, externalScope)
 
-  // TODO: Request updates on resume.
+  // TODO(#2903): Request updates on resume.
   /** Immediately emits the last known location (if any) and then subscribes to location updates. */
   suspend fun requestLocationUpdates() {
     locationClient.getLastLocation()?.let { _locationUpdates.emit(it) }
     locationClient.requestLocationUpdates(FINE_LOCATION_UPDATES_REQUEST, locationCallback)
   }
 
-  // TODO: Remove updates on pause.
+  // TODO(#2903): Remove updates on pause.
   suspend fun disableLocationUpdates() = locationClient.removeLocationUpdates(locationCallback)
 }

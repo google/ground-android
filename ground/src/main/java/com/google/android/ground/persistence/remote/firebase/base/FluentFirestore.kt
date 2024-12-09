@@ -24,6 +24,6 @@ open class FluentFirestore protected constructor(private val db: FirebaseFiresto
 
   protected fun db(): FirebaseFirestore = db
 
-  // TODO: Wrap in fluent version of WriteBatch.
+  // TODO(#2903): Wrap in fluent version of WriteBatch.
   fun batch(): WriteBatch = db.batch()
 }

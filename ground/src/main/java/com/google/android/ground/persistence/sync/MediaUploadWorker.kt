@@ -76,7 +76,7 @@ constructor(
     } else {
       mutationRepository.markAsFailedMediaUpload(
         listOf(mutation),
-        // TODO(https://github.com/google/ground-android/issues/2120): Replace this workaround with
+        // TODO(#2120): Replace this workaround with
         //   update of specific [MediaMutation], aggregate to [UploadQueueEntry] for display in UI.
         results.firstNotNullOfOrNull { it.exceptionOrNull() } ?: UnknownError(),
       )

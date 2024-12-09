@@ -197,7 +197,7 @@ class DrawAreaTaskFragmentTest :
   private fun updateLastVertexAndAddPoint(coordinate: Coordinates) {
     updateLastVertex(coordinate, false)
 
-    // TODO: Refactor and move one level up with the rest of the runner logic.
+    // TODO(#2903): Refactor and move one level up with the rest of the runner logic.
     runner().clickButton("Add point")
   }
 

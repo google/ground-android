@@ -16,7 +16,7 @@
   ~ limitations under the License.
   -->
 
-<!-- TODO: Use camelCase for all ids here for consistency -->
+<!-- TODO(#2903): Use camelCase for all ids here for consistency -->
 
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"

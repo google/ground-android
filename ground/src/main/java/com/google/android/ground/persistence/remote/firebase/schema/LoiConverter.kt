@@ -24,7 +24,7 @@ import com.google.android.ground.proto.LocationOfInterest as LocationOfInterestP
 import com.google.android.ground.proto.LocationOfInterest.Source
 import com.google.firebase.firestore.DocumentSnapshot
 
-// TODO: Add tests.
+// TODO(#2903): Add tests.
 /** Converts between Firestore documents and [LocationOfInterest] instances. */
 object LoiConverter {
   // TODO(#2392): Define field names on DocumentReference objects, not converters.
