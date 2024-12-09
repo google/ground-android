@@ -19,7 +19,6 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.WorkManager
 import com.google.android.ground.persistence.local.LocalValueStore
-import com.google.android.ground.persistence.sync.MediaUploadWorker.Companion.createInputData
 import javax.inject.Inject
 
 /** Enqueues media upload work to be performed in the background. */
@@ -38,13 +37,12 @@ constructor(private val workManager: WorkManager, private val localValueStore: L
    * This method returns as soon as the worker is added to the work queue, not when the work
    * completes.
    */
-  fun enqueueSyncWorker(locationOfInterestId: String) {
-    val workInputData = createInputData(locationOfInterestId)
+  fun enqueueSyncWorker() {
     val request =
       WorkRequestBuilder()
         .setWorkerClass(MediaUploadWorker::class.java)
         .setNetworkType(preferredNetworkType())
-        .buildWorkerRequest(workInputData)
+        .buildWorkerRequest()
     workManager.enqueueUniqueWork(
       MediaUploadWorker::class.java.name,
       ExistingWorkPolicy.APPEND_OR_REPLACE,

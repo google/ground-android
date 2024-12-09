@@ -17,25 +17,26 @@ package com.google.android.ground.ui.offlineareas
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.google.android.ground.model.imagery.OfflineArea
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.ui.common.AbstractViewModel
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.util.toMb
 import com.google.android.ground.util.toMbString
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 
 /**
  * View model for the offline area manager fragment. Handles the current list of downloaded areas.
  */
 class OfflineAreasViewModel
 @Inject
-internal constructor(
-  private val navigator: Navigator,
-  private val offlineAreaRepository: OfflineAreaRepository,
-) : AbstractViewModel() {
+internal constructor(private val offlineAreaRepository: OfflineAreaRepository) :
+  AbstractViewModel() {
 
   /**
    * Returns the current list of downloaded offline map imagery areas available for viewing. If an
@@ -47,6 +48,9 @@ internal constructor(
   val showList: LiveData<Boolean>
   val showNoAreasMessage: LiveData<Boolean>
   val showProgressSpinner: LiveData<Boolean>
+
+  private val _navigateToOfflineAreaSelector = MutableSharedFlow<Unit>(replay = 1)
+  val navigateToOfflineAreaSelector = _navigateToOfflineAreaSelector.asSharedFlow()
 
   init {
     val offlineAreas =
@@ -65,6 +69,6 @@ internal constructor(
 
   /** Navigate to the area selector for offline map imagery. */
   fun showOfflineAreaSelector() {
-    navigator.navigate(OfflineAreasFragmentDirections.showOfflineAreaSelector())
+    viewModelScope.launch { _navigateToOfflineAreaSelector.emit(Unit) }
   }
 }

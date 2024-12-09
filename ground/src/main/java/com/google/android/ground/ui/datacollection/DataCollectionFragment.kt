@@ -30,13 +30,13 @@ import androidx.core.view.doOnLayout
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.ground.R
 import com.google.android.ground.databinding.DataCollectionFragBinding
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,7 +49,6 @@ import kotlinx.coroutines.launch
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
 class DataCollectionFragment : AbstractFragment(), BackPressListener {
-  @Inject lateinit var navigator: Navigator
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
   val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
@@ -75,7 +74,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     binding.dataCollectionToolbar.setNavigationOnClickListener {
       isNavigatingUp = true
       viewModel.clearDraft()
-      navigator.navigateUp()
+      findNavController().navigateUp()
     }
 
     return binding.root
@@ -152,7 +151,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     if (currentAdapter == null || currentAdapter.tasks != tasks) {
       viewPager.adapter = viewPagerAdapterFactory.create(this, tasks)
     }
-    updateProgressBar(taskPosition, false)
+    viewPager.doOnLayout { onTaskChanged(taskPosition) }
   }
 
   private fun onTaskChanged(taskPosition: TaskPosition) {
@@ -171,7 +170,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
               AppTheme {
                 DataSubmissionConfirmationDialog {
                   openAlertDialog.value = false
-                  navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
+                  findNavController().navigate(HomeScreenFragmentDirections.showHomeScreen())
                 }
               }
             }

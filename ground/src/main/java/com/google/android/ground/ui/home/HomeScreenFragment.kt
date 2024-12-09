@@ -27,6 +27,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.google.android.ground.BuildConfig
 import com.google.android.ground.MainViewModel
 import com.google.android.ground.R
@@ -38,7 +39,6 @@ import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
-import com.google.android.ground.ui.common.Navigator
 import com.google.android.ground.ui.theme.AppTheme
 import com.google.android.ground.util.systemInsets
 import com.google.android.material.imageview.ShapeableImageView
@@ -60,7 +60,6 @@ class HomeScreenFragment :
   //  make this more intuitive.
 
   @Inject lateinit var ephemeralPopups: EphemeralPopups
-  @Inject lateinit var navigator: Navigator
   @Inject lateinit var userRepository: UserRepository
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -95,7 +94,10 @@ class HomeScreenFragment :
     binding.navView.setNavigationItemSelectedListener(this)
     val navHeader = binding.navView.getHeaderView(0)
     navHeader.findViewById<TextView>(R.id.switch_survey_button).setOnClickListener {
-      homeScreenViewModel.showSurveySelector()
+      findNavController()
+        .navigate(
+          HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
+        )
     }
     viewLifecycleOwner.lifecycleScope.launch { user = userRepository.getAuthenticatedUser() }
     navHeader.findViewById<ShapeableImageView>(R.id.user_image).setOnClickListener {
@@ -105,15 +107,17 @@ class HomeScreenFragment :
     // Re-open data collection screen if any drafts are present
     viewLifecycleOwner.lifecycleScope.launch {
       homeScreenViewModel.getDraftSubmission()?.let { draft ->
-        navigator.navigate(
-          HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-            draft.loiId,
-            draft.loiName ?: "",
-            draft.jobId,
-            true,
-            SubmissionDeltasConverter.toString(draft.deltas),
+        findNavController()
+          .navigate(
+            HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+              draft.loiId,
+              draft.loiName ?: "",
+              draft.jobId,
+              true,
+              SubmissionDeltasConverter.toString(draft.deltas),
+              draft.currentTaskId ?: "",
+            )
           )
-        )
 
         ephemeralPopups
           .InfoPopup(binding.root, R.string.draft_restored, EphemeralPopups.PopupDuration.SHORT)
@@ -160,11 +164,26 @@ class HomeScreenFragment :
 
   override fun onNavigationItemSelected(item: MenuItem): Boolean {
     when (item.itemId) {
-      R.id.sync_status -> homeScreenViewModel.showSyncStatus()
-      R.id.nav_offline_areas -> homeScreenViewModel.showOfflineAreas()
-      R.id.nav_settings -> homeScreenViewModel.showSettings()
-      R.id.about -> homeScreenViewModel.showAbout()
-      R.id.terms_of_service -> homeScreenViewModel.showTermsOfService()
+      R.id.sync_status -> {
+        findNavController().navigate(HomeScreenFragmentDirections.showSyncStatus())
+      }
+      R.id.nav_offline_areas -> {
+        lifecycleScope.launch {
+          if (homeScreenViewModel.getOfflineAreas().isEmpty())
+            findNavController().navigate(HomeScreenFragmentDirections.showOfflineAreaSelector())
+          else findNavController().navigate(HomeScreenFragmentDirections.showOfflineAreas())
+        }
+      }
+      R.id.nav_settings -> {
+        findNavController()
+          .navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity())
+      }
+      R.id.about -> {
+        findNavController().navigate(HomeScreenFragmentDirections.showAbout())
+      }
+      R.id.terms_of_service -> {
+        findNavController().navigate(HomeScreenFragmentDirections.showTermsOfService(true))
+      }
     }
     closeDrawer()
     return true

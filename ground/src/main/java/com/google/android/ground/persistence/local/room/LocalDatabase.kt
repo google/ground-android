@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.persistence.local.room
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -88,7 +89,8 @@ import com.google.android.ground.persistence.local.room.fields.TileSetEntityStat
       ExpressionEntity::class,
     ],
   version = Config.DB_VERSION,
-  exportSchema = false,
+  exportSchema = true,
+  autoMigrations = [AutoMigration(from = 120, to = 121)],
 )
 @TypeConverters(
   TaskEntityType::class,

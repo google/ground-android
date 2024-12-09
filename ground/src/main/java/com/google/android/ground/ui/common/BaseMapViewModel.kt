@@ -55,6 +55,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -258,7 +259,7 @@ constructor(
     }
 
     // Compute the default viewport which includes all LOIs in the given survey.
-    val geometries = locationOfInterestRepository.getAllGeometries(survey)
+    val geometries = locationOfInterestRepository.getValidLois(survey).first().map { it.geometry }
     return geometries.toBounds()?.let { NewCameraPositionViaBounds(bounds = it, padding = 100) }
   }
 

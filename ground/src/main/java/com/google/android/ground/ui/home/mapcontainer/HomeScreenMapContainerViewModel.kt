@@ -38,14 +38,18 @@ import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.isLocationOfInterest
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -127,12 +131,17 @@ internal constructor(
     // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
     //  into the repository.
 
+    @OptIn(FlowPreview::class)
     mapLoiFeatures =
       activeSurvey.flatMapLatest {
         if (it == null) flowOf(setOf())
         else
           getLocationOfInterestFeatures(it)
-            .combine(selectedLoiIdFlow, this::updatedLoiSelectedStates)
+            .debounce(1000.milliseconds)
+            .distinctUntilChanged()
+            .combine(selectedLoiIdFlow) { loiFeatures, selectedLoiId ->
+              updatedLoiSelectedStates(loiFeatures, selectedLoiId)
+            }
       }
 
     isZoomedInFlow =

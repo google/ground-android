@@ -19,9 +19,11 @@ package com.google.android.ground.ui.datacollection
 import android.os.Bundle
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
-import com.google.android.ground.capture
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.launchFragmentWithNavController
+import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.SubmissionMutation
+import com.google.android.ground.model.submission.DraftSubmission
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.ValueDelta
@@ -31,15 +33,17 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
+import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.SubmissionRepository
+import com.google.android.ground.repository.UserRepository
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.FakeData.LOCATION_OF_INTEREST
 import com.sharedtest.FakeData.LOCATION_OF_INTEREST_NAME
+import com.sharedtest.FakeData.USER
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
-import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import java.util.Date
 import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -47,12 +51,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
-import org.mockito.Captor
-import org.mockito.Mock
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowToast
 
@@ -63,16 +61,14 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-  @BindValue @Mock lateinit var submissionRepository: SubmissionRepository
-  @Captor lateinit var deltaCaptor: ArgumentCaptor<List<ValueDelta>>
+  @Inject lateinit var mutationRepository: MutationRepository
+  @Inject lateinit var submissionRepository: SubmissionRepository
+  @Inject lateinit var userRepository: UserRepository
+
   lateinit var fragment: DataCollectionFragment
-  @Inject lateinit var uuidGenerator: OfflineUuidGenerator
-  lateinit var collectionId: String
 
   override fun setUp() = runBlocking {
     super.setUp()
-    collectionId = uuidGenerator.generateUuid()
-
     setupSubmission()
     setupFragment()
   }
@@ -123,20 +119,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   fun `Next click saves draft`() = runWithTestDispatcher {
     runner().inputText(TASK_1_RESPONSE).clickNextButton()
 
-    // Validate that previous drafts were cleared
-    verify(submissionRepository, times(1)).deleteDraftSubmission()
-
-    // Validate that new draft was created
-    verify(submissionRepository, times(1))
-      .saveDraftSubmission(
-        eq(JOB.id),
-        eq(LOCATION_OF_INTEREST.id),
-        eq(SURVEY.id),
-        capture(deltaCaptor),
-        eq(LOCATION_OF_INTEREST_NAME),
-      )
-
-    listOf(TASK_1_VALUE_DELTA).forEach { value -> assertThat(deltaCaptor.value).contains(value) }
+    assertDraftSaved(listOf(TASK_1_VALUE_DELTA), currentTaskId = TASK_ID_2)
   }
 
   @Test
@@ -147,20 +130,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .selectMultipleChoiceOption(TASK_2_OPTION_LABEL)
       .clickPreviousButton()
 
-    // Both deletion and creating happens twice as we do it on every previous/next step
-    verify(submissionRepository, times(2)).deleteDraftSubmission()
-    verify(submissionRepository, times(2))
-      .saveDraftSubmission(
-        eq(JOB.id),
-        eq(LOCATION_OF_INTEREST.id),
-        eq(SURVEY.id),
-        capture(deltaCaptor),
-        eq(LOCATION_OF_INTEREST_NAME),
-      )
-
-    listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA).forEach { value ->
-      assertThat(deltaCaptor.value).contains(value)
-    }
+    assertDraftSaved(listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA), currentTaskId = TASK_ID_1)
   }
 
   @Test
@@ -189,6 +159,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
           JOB.id,
           true,
           SubmissionDeltasConverter.toString(expectedDeltas),
+          "",
         )
         .build()
         .toBundle()
@@ -210,25 +181,19 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .selectMultipleChoiceOption(TASK_2_OPTION_LABEL)
       .clickDoneButton() // Click "done" on final task
 
-    verify(submissionRepository)
-      .saveSubmission(
-        eq(SURVEY.id),
-        eq(LOCATION_OF_INTEREST.id),
-        capture(deltaCaptor),
-        eq(collectionId),
-      )
-
-    listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA).forEach { value ->
-      assertThat(deltaCaptor.value).contains(value)
-    }
+    assertSubmissionSaved(listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA))
   }
 
   @Test
   fun `Clicking back button on first task clears the draft and returns false`() =
     runWithTestDispatcher {
-      runner().pressBackButton(false)
+      runner()
+        .inputText(TASK_1_RESPONSE)
+        .clickNextButton()
+        .pressBackButton(true)
+        .pressBackButton(false)
 
-      verify(submissionRepository, times(1)).deleteDraftSubmission()
+      assertNoDraftSaved()
     }
 
   @Test
@@ -245,17 +210,10 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .inputText(TASK_CONDITIONAL_RESPONSE)
       .clickDoneButton()
 
-    verify(submissionRepository)
-      .saveSubmission(
-        eq(SURVEY.id),
-        eq(LOCATION_OF_INTEREST.id),
-        capture(deltaCaptor),
-        eq(collectionId),
-      )
-
     // Conditional task data is submitted.
-    listOf(TASK_1_VALUE_DELTA, TASK_2_CONDITIONAL_VALUE_DELTA, TASK_CONDITIONAL_VALUE_DELTA)
-      .forEach { value -> assertThat(deltaCaptor.value).contains(value) }
+    assertSubmissionSaved(
+      listOf(TASK_1_VALUE_DELTA, TASK_2_CONDITIONAL_VALUE_DELTA, TASK_CONDITIONAL_VALUE_DELTA)
+    )
   }
 
   @Test
@@ -279,21 +237,70 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         .clickDoneButton()
         .validateTextIsNotDisplayed(TASK_CONDITIONAL_NAME)
 
-      verify(submissionRepository)
-        .saveSubmission(
-          eq(SURVEY.id),
-          eq(LOCATION_OF_INTEREST.id),
-          capture(deltaCaptor),
-          eq(collectionId),
-        )
-
       // Conditional task data is not submitted.
-      listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA).forEach { value ->
-        assertThat(deltaCaptor.value).contains(value)
-      }
+      assertSubmissionSaved(listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA))
     }
 
+  private suspend fun assertSubmissionSaved(valueDeltas: List<ValueDelta>) {
+    assertNoDraftSaved()
+
+    val loiId = LOCATION_OF_INTEREST.id
+
+    // Exactly 1 submission should be saved.
+    assertThat(submissionRepository.getPendingCreateCount(loiId)).isEqualTo(1)
+
+    val testDate = Date()
+    val mutation =
+      mutationRepository
+        .getIncompleteUploads()[0]
+        .submissionMutation!!
+        .copy(clientTimestamp = testDate) // seed dummy test date
+
+    assertThat(mutation)
+      .isEqualTo(
+        SubmissionMutation(
+          id = 1,
+          type = Mutation.Type.CREATE,
+          syncStatus = Mutation.SyncStatus.PENDING,
+          surveyId = SURVEY.id,
+          locationOfInterestId = loiId,
+          userId = USER.id,
+          clientTimestamp = testDate,
+          collectionId = "TEST UUID",
+          job = JOB,
+          submissionId = "TEST UUID",
+          deltas = valueDeltas,
+        )
+      )
+  }
+
+  private suspend fun assertDraftSaved(valueDeltas: List<ValueDelta>, currentTaskId: String) {
+    val draftId = submissionRepository.getDraftSubmissionsId()
+    assertThat(draftId).isNotEmpty()
+
+    // Exactly 1 draft should be present always.
+    assertThat(submissionRepository.countDraftSubmissions()).isEqualTo(1)
+    assertThat(submissionRepository.getDraftSubmission(draftId, SURVEY))
+      .isEqualTo(
+        DraftSubmission(
+          id = draftId,
+          jobId = JOB.id,
+          loiId = LOCATION_OF_INTEREST.id,
+          loiName = LOCATION_OF_INTEREST_NAME,
+          surveyId = SURVEY.id,
+          deltas = valueDeltas,
+          currentTaskId = currentTaskId,
+        )
+      )
+  }
+
+  private suspend fun assertNoDraftSaved() {
+    assertThat(submissionRepository.getDraftSubmissionsId()).isEmpty()
+    assertThat(submissionRepository.countDraftSubmissions()).isEqualTo(0)
+  }
+
   private fun setupSubmission() = runWithTestDispatcher {
+    userRepository.saveUserDetails(USER)
     fakeRemoteDataStore.surveys = listOf(SURVEY)
     fakeRemoteDataStore.predefinedLois = listOf(LOCATION_OF_INTEREST)
     activateSurvey(SURVEY.id)
@@ -309,6 +316,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
             JOB.id,
             false,
             null,
+            "",
           )
           .build()
           .toBundle()

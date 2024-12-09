@@ -25,7 +25,7 @@ object Config {
   const val SHARED_PREFS_MODE = Context.MODE_PRIVATE
 
   // Local db settings.
-  const val DB_VERSION = 120
+  const val DB_VERSION = 121
   const val DB_NAME = "ground.db"
 
   // Firebase Cloud Firestore settings.
@@ -43,9 +43,6 @@ object Config {
    * lower, renders markers as clusters, otherwise, we render them as individual markers.
    */
   const val CLUSTERING_ZOOM_THRESHOLD = 14f
-
-  /** Maximum number of attempts for retrying unsuccessful media uploads. */
-  const val MAX_MEDIA_UPLOAD_RETRY_COUNT = 5
 
   // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
   const val DEFAULT_MOG_TILE_LOCATION = "/offline-imagery/default"

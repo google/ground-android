@@ -24,8 +24,6 @@ import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
-import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -44,7 +42,6 @@ class SurveySelectorViewModel
 internal constructor(
   private val surveyRepository: SurveyRepository,
   private val authManager: AuthenticationManager,
-  private val navigator: Navigator,
   private val activateSurveyUseCase: ActivateSurveyUseCase,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
@@ -89,7 +86,7 @@ internal constructor(
           onSuccess = {
             surveyActivationInProgress = false
             _uiState.emit(UiState.SurveyActivated)
-            navigateToHomeScreen()
+            _uiState.emit(UiState.NavigateToHome)
           },
           onFailure = { e ->
             Timber.e(e, "Failed to activate survey")
@@ -98,10 +95,6 @@ internal constructor(
           },
         )
     }
-  }
-
-  private fun navigateToHomeScreen() {
-    navigator.navigate(HomeScreenFragmentDirections.showHomeScreen())
   }
 
   fun deleteSurvey(surveyId: String) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.ground
 
-package com.google.android.ground.persistence.remote.firebase.base
-
-import com.google.firebase.firestore.CollectionReference
-
-open class FluentCollectionReference
-protected constructor(private val reference: CollectionReference) {
-
-  protected fun reference(): CollectionReference = reference
-
-  override fun toString(): String = reference.path
-}
+// https://stackoverflow.com/questions/47824761/how-would-i-add-an-annotation-to-exclude-a-method-from-a-jacoco-code-coverage-re
+@Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.FUNCTION)
+annotation class ExcludeFromJacocoGeneratedReport

@@ -18,6 +18,7 @@ package com.google.android.ground.ui.common
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.navigation.fragment.findNavController
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.DefaultDispatcher
 import com.google.android.ground.model.geometry.Coordinates
@@ -25,6 +26,7 @@ import com.google.android.ground.system.GeocodingManager
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.SettingsChangeRequestCanceled
 import com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragmentDirections
+import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraUpdateRequest
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.NewCameraPositionViaBounds
@@ -38,7 +40,6 @@ import timber.log.Timber
 abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   @Inject lateinit var map: MapFragment
-  @Inject lateinit var navigator: Navigator
   @Inject lateinit var geocodingManager: GeocodingManager
   @Inject @DefaultDispatcher lateinit var defaultDispatcher: CoroutineDispatcher
 
@@ -100,7 +101,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   /** Opens a dialog for selecting a [MapType] for the basemap layer. */
   fun showMapTypeSelectorDialog() {
     val types = map.supportedMapTypes.toTypedArray()
-    navigator.navigate(MapTypeDialogFragmentDirections.showMapTypeDialogFragment(types))
+    findNavController().navigate(MapTypeDialogFragmentDirections.showMapTypeDialogFragment(types))
   }
 
   private fun onLocationLockStateChange(result: Result<Boolean>, map: MapFragment) {
@@ -129,6 +130,11 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
         else -> R.string.location_updates_unknown_error
       }
     Toast.makeText(context, messageId, Toast.LENGTH_LONG).show()
+  }
+
+  /** Moves the camera to the given bounds. */
+  fun moveToBounds(bounds: Bounds, padding: Int, shouldAnimate: Boolean) {
+    onCameraUpdateRequest(NewCameraPositionViaBounds(bounds, padding, shouldAnimate), map)
   }
 
   /** Moves the camera to a given position. */

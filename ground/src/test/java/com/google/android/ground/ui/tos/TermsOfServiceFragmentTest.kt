@@ -20,6 +20,7 @@ import android.text.SpannableStringBuilder
 import android.view.View
 import android.widget.TextView
 import androidx.core.os.bundleOf
+import androidx.navigation.NavController
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -27,11 +28,9 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
+import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.repository.TermsOfServiceRepository
-import com.google.android.ground.testNavigateTo
-import com.google.android.ground.ui.common.Navigator
-import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -50,8 +49,9 @@ import org.robolectric.RobolectricTestRunner
 class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-  @Inject lateinit var navigator: Navigator
   @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepository
+  @Inject lateinit var viewModel: TermsOfServiceViewModel
+  private lateinit var navController: NavController
 
   private fun withHtml(html: String): Matcher<View> =
     object : BaseMatcher<View>() {
@@ -110,17 +110,18 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun agreeButton_whenPressed_shouldUpdatePrefAndNavigate() = runWithTestDispatcher {
-    launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
+    launchFragmentWithNavController<TermsOfServiceFragment>(
+      fragmentArgs = bundleOf(Pair("isViewOnly", false)),
+      destId = R.id.terms_of_service_fragment,
+      navControllerCallback = { navController = it },
+    )
 
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isFalse()
 
-    testNavigateTo(
-      navigator.getNavigateRequests(),
-      SurveySelectorFragmentDirections.showSurveySelectorScreen(true),
-    ) {
-      onView(withId(R.id.agreeCheckBox)).perform(click())
-      onView(withId(R.id.agreeButton)).perform(click())
-    }
+    onView(withId(R.id.agreeCheckBox)).perform(click())
+    onView(withId(R.id.agreeButton)).perform(click())
+
+    assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
 
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
   }

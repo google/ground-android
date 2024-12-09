@@ -30,4 +30,5 @@ data class DraftSubmissionEntity(
   @ColumnInfo(name = "survey_id") val surveyId: String,
   @ColumnInfo(name = "deltas") val deltas: String?,
   @ColumnInfo(name = "loi_name") val loiName: String?,
+  @ColumnInfo(name = "current_task_id") val currentTaskId: String?,
 )

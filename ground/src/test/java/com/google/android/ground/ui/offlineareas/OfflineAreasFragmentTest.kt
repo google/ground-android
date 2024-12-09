@@ -22,7 +22,9 @@ import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.navigation.NavController
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -30,13 +32,14 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
+import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
+import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.OFFLINE_AREA
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -49,21 +52,18 @@ class OfflineAreasFragmentTest : BaseHiltTest() {
   private lateinit var fragment: OfflineAreasFragment
 
   @Inject lateinit var localOfflineAreaStore: LocalOfflineAreaStore
-
-  @Before
-  override fun setUp() {
-    super.setUp()
-    launchFragmentInHiltContainer<OfflineAreasFragment> { fragment = this as OfflineAreasFragment }
-  }
+  private lateinit var navController: NavController
 
   @Test
   fun `Toolbar text is displayed`() {
+    setupFragment()
     onView(withId(R.id.offline_areas_toolbar))
       .check(matches(hasDescendant(withText(fragment.getString(R.string.offline_map_imagery)))))
   }
 
   @Test
   fun `Heading text is displayed`() {
+    setupFragment()
     onView(withId(R.id.offline_areas_list_title))
       .check(matches(withText(fragment.getString(R.string.offline_downloaded_areas))))
     onView(withId(R.id.offline_areas_list_tip))
@@ -73,7 +73,23 @@ class OfflineAreasFragmentTest : BaseHiltTest() {
   }
 
   @Test
+  fun `showOfflineAreaSelector should navigate correctly`() = runWithTestDispatcher {
+    localOfflineAreaStore.insertOrUpdate(OFFLINE_AREA)
+    advanceUntilIdle()
+
+    launchFragmentWithNavController<OfflineAreasFragment>(
+      destId = R.id.offline_areas_fragment,
+      navControllerCallback = { navController = it },
+    )
+
+    onView(withId(R.id.floatingActionButton)).perform(click())
+    assertThat(navController.currentDestination?.id).isEqualTo(R.id.offline_area_selector_fragment)
+  }
+
+  @Test
   fun `List is Displayed`() = runWithTestDispatcher {
+    setupFragment()
+
     localOfflineAreaStore.insertOrUpdate(OFFLINE_AREA)
     advanceUntilIdle()
 
@@ -87,5 +103,9 @@ class OfflineAreasFragmentTest : BaseHiltTest() {
     // Matches item's text
     composeTestRule.onNodeWithText("Test Area").isDisplayed()
     composeTestRule.onNodeWithText("<1\u00A0MB").isDisplayed()
+  }
+
+  private fun setupFragment() {
+    launchFragmentInHiltContainer<OfflineAreasFragment> { fragment = this as OfflineAreasFragment }
   }
 }

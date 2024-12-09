@@ -41,7 +41,7 @@
       android:layout_height="wrap_content"
       android:buttonTint="?attr/colorPrimary"
       android:checked="@{item.isSelected}"
-      android:onClickListener="@{() -> viewModel.toggleItem(item, false)}"
+      android:onClickListener="@{() -> viewModel.toggleItem(item)}"
       android:padding="16dp"
       android:text="@{ item.isOtherOption ? @string/other : item.option.label }"
       app:layout_constraintStart_toStartOf="parent"
