@@ -36,8 +36,9 @@ constructor(
 ) {
 
   /**
-   * Task type names as they appear in the remote db, but in uppercase. DO NOT RENAME! TODO: Define
-   * these in data layer!
+   * Task type names as they appear in the remote db, but in uppercase. DO NOT RENAME!
+   *
+   * TODO(#2903): Define these in data layer!
    */
   enum class Type {
     UNKNOWN,
