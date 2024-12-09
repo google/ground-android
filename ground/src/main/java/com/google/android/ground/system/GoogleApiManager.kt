@@ -21,6 +21,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import timber.log.Timber
 
 private val INSTALL_API_REQUEST_CODE = GoogleApiAvailability::class.java.hashCode() and 0xffff
 
@@ -37,29 +38,30 @@ constructor(
    * Displays a dialog to install Google Play Services, if missing. Throws an error if install not
    * possible or cancelled.
    */
-  suspend fun installGooglePlayServices() {
+  suspend fun installGooglePlayServices(): Boolean {
     val status = googleApiAvailability.isGooglePlayServicesAvailable(context)
-    if (status == ConnectionResult.SUCCESS) return
+    if (status == ConnectionResult.SUCCESS) return true
 
     val requestCode = INSTALL_API_REQUEST_CODE
-    startResolution(status, requestCode, GooglePlayServicesMissingException())
-    getNextResult(requestCode)
+    return startResolution(status, requestCode)
   }
 
-  private fun startResolution(status: Int, requestCode: Int, throwable: Throwable) {
-    if (!googleApiAvailability.isUserResolvableError(status)) throw throwable
+  private suspend fun startResolution(status: Int, requestCode: Int): Boolean {
+    if (!googleApiAvailability.isUserResolvableError(status)) return false
 
-    activityStreams.withActivity {
-      googleApiAvailability.showErrorDialogFragment(it, status, requestCode) { throw throwable }
+    return try {
+      activityStreams.withActivity { activity ->
+        googleApiAvailability.showErrorDialogFragment(activity, status, requestCode, null)
+      }
+      getNextResult(requestCode)
+    } catch (e: Exception) {
+      Timber.e(e, "Activity result was not successful for requestCode: $requestCode")
+      false
     }
   }
 
-  private suspend fun getNextResult(requestCode: Int) {
+  private suspend fun getNextResult(requestCode: Int): Boolean {
     val result = activityStreams.getNextActivityResult(requestCode)
-    if (!result.isOk()) {
-      error("Activity result failed: requestCode = $requestCode, result = $result")
-    }
+    return result.isOk()
   }
-
-  class GooglePlayServicesMissingException : Error("Google play services not available")
 }
