@@ -63,7 +63,7 @@ constructor(
 
   init {
     viewModelScope.launch {
-      // TODO: Check auth status whenever fragments resumes
+      // TODO(#2903): Check auth status whenever fragments resumes
       authenticationManager.signInState.collect {
         _navigationRequests.emit(onSignInStateChange(it))
       }

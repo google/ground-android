@@ -60,7 +60,7 @@ import com.google.protobuf.timestamp
 import java.util.Date
 import kotlinx.collections.immutable.toImmutableMap
 
-// TODO: Add test coverage
+// TODO(#2903): Add test coverage
 fun SubmissionMutation.createSubmissionMessage(user: User) = submission {
   assert(userId == user.id) { "UserId doesn't match: expected $userId, found ${user.id}" }
 
@@ -127,7 +127,7 @@ fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest
 }
 
 private fun toTaskData(id: String, newTaskData: TaskData) = taskData {
-  // TODO: What should be the ID?
+  // TODO(#2903): What should be the ID?
   taskId = id
 
   when (newTaskData) {
@@ -147,7 +147,7 @@ private fun toTaskData(id: String, newTaskData: TaskData) = taskData {
         newTaskData.altitude?.let { altitude = it }
         newTaskData.accuracy?.let { accuracy = it }
         coordinates = newTaskData.location.coordinates.toMessage()
-        // TODO: Add timestamp
+        // TODO(#2903): Add timestamp
       }
     is GeometryTaskData -> drawGeometryResult = drawGeometryResult {
         geometry = newTaskData.geometry.toMessage()

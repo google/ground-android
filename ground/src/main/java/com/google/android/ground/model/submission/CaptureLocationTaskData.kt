@@ -29,7 +29,7 @@ data class CaptureLocationTaskData(
   val accuracy: Double?, // in metres
 ) : GeometryTaskData(location) {
   override fun getDetailsText(): String {
-    // TODO: Move to strings.xml for i18n
+    // TODO(#2903): Move to strings.xml for i18n
     val df = DecimalFormat("#.##")
     df.roundingMode = RoundingMode.DOWN
     val coordinatesString = location.coordinates.toDmsFormat()

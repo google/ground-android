@@ -107,7 +107,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     get() = map.cameraPosition.zoom
 
   private fun onApplyWindowInsets(view: View, insets: WindowInsetsCompat): WindowInsetsCompat {
-    // TODO: Move extra padding to dimens.xml.
+    // TODO(#2903): Move extra padding to dimens.xml.
     // HACK: Fix padding when keyboard is shown; we limit the padding here to prevent the
     // watermark from flying up too high due to the combination of translateY and big inset
     // size due to keyboard.
