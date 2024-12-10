@@ -55,7 +55,10 @@ constructor(
       }
       getNextResult(requestCode)
     } catch (e: Exception) {
-      Timber.e(e, "Activity result was not successful for requestCode: $requestCode")
+      Timber.e(
+        e,
+        "Failed to handle activity result for requestCode: $requestCode. Exception details: ${e.message}",
+      )
       false
     }
   }
