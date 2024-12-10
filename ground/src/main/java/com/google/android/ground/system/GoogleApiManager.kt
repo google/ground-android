@@ -60,8 +60,6 @@ constructor(
     }
   }
 
-  private suspend fun getNextResult(requestCode: Int): Boolean {
-    val result = activityStreams.getNextActivityResult(requestCode)
-    return result.isOk()
-  }
+  private suspend fun getNextResult(requestCode: Int) =
+    activityStreams.getNextActivityResult(requestCode).isOk()
 }
