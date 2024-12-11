@@ -78,7 +78,16 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
     updateMultipleChoiceItems()
   }
 
-  fun toggleItem(item: MultipleChoiceItem) {
+  fun onOtherTextChanged(text: String) {
+    otherText = text
+    // Set the other option.
+    _items.value
+      .firstOrNull { it.isOtherOption }
+      ?.let { setItem(item = it, selection = isOtherTextValid()) }
+    updateResponse()
+  }
+
+  fun onItemToggled(item: MultipleChoiceItem) {
     val wasSelected = selectedIds.contains(item.option.id)
     setItem(item, !wasSelected)
   }
