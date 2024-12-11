@@ -40,25 +40,23 @@ constructor(
    */
   suspend fun installGooglePlayServices() {
     val status = googleApiAvailability.isGooglePlayServicesAvailable(context)
-    if (status == ConnectionResult.SUCCESS) return
-
-    val requestCode = INSTALL_API_REQUEST_CODE
-    startResolution(status, requestCode, GooglePlayServicesNotAvailableException(status))
-    getNextResult(requestCode)
+    if (status != ConnectionResult.SUCCESS) {
+      resolveError(
+        status,
+        INSTALL_API_REQUEST_CODE,
+        GooglePlayServicesNotAvailableException(status),
+      )
+    }
   }
 
-  private fun startResolution(status: Int, requestCode: Int, throwable: Throwable) {
+  private suspend fun resolveError(status: Int, requestCode: Int, throwable: Throwable) {
     if (!googleApiAvailability.isUserResolvableError(status)) throw throwable
 
     activityStreams.withActivity {
       googleApiAvailability.showErrorDialogFragment(it, status, requestCode) { throw throwable }
     }
-  }
-
-  private suspend fun getNextResult(requestCode: Int) {
-    val result = activityStreams.getNextActivityResult(requestCode)
-    if (!result.isOk()) {
-      error("Activity result failed: requestCode = $requestCode, result = $result")
+    if (!activityStreams.getNextActivityResult(requestCode).isOk()) {
+      throw throwable
     }
   }
 }
