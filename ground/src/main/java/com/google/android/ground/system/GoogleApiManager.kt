@@ -64,7 +64,8 @@ constructor(
 
   /**
    * Attempts to resolve the error indicated by the given `status` code, using the provided
-   * `requestCode` to differentiate Activity callbacks from others.
+   * `requestCode` to differentiate Activity callbacks from others. Suspends until the dialog is
+   * dismissed.
    */
   private suspend fun showErrorDialog(status: Int, requestCode: Int) =
     suspendCoroutine { continuation ->
