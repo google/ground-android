@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
-import android.text.Editable
-import android.text.TextWatcher
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData.Companion.fromList
@@ -39,33 +37,13 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
   private val selectedIds: MutableSet<String> = mutableSetOf()
   private var otherText: String = ""
 
-  val otherTextWatcher =
-    object : TextWatcher {
-      override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-        otherText = s.toString()
-        // Set the other option.
-        _items.value
-          .firstOrNull { it.isOtherOption }
-          ?.let { setItem(item = it, selection = isOtherTextValid()) }
-        updateResponse()
-      }
-
-      override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-        // Not implemented.
-      }
-
-      override fun afterTextChanged(s: Editable) {
-        // Not implemented.
-      }
-    }
-
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
     super.initialize(job, task, taskData)
     loadPendingSelections()
     updateMultipleChoiceItems()
   }
 
-  fun setItem(item: MultipleChoiceItem, selection: Boolean) {
+  private fun setItem(item: MultipleChoiceItem, selection: Boolean) {
     if (item.cardinality != SELECT_MULTIPLE && selection) {
       selectedIds.clear()
     }
@@ -92,7 +70,7 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
     setItem(item, !wasSelected)
   }
 
-  fun updateResponse() {
+  private fun updateResponse() {
     // Check if "other" text is missing or not.
     if (selectedIds.contains(OTHER_ID) && !isOtherTextValid()) {
       clearResponse()
