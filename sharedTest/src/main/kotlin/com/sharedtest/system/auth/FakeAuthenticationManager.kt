@@ -38,7 +38,6 @@ constructor(@ApplicationScope private val externalScope: CoroutineScope) :
   private val _signInStateFlow = MutableStateFlow<SignInState?>(null)
   override val signInState: Flow<SignInState> = _signInStateFlow.asStateFlow().filterNotNull()
 
-  // Currently, the activity gets launched before the user can be set in setUp()
   private var currentUser: User = FakeData.USER
 
   fun setUser(user: User) {
