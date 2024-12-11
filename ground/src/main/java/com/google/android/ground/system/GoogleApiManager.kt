@@ -18,6 +18,7 @@ package com.google.android.ground.system
 import android.content.Context
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -42,7 +43,7 @@ constructor(
     if (status == ConnectionResult.SUCCESS) return
 
     val requestCode = INSTALL_API_REQUEST_CODE
-    startResolution(status, requestCode, GooglePlayServicesNotAvailableException())
+    startResolution(status, requestCode, GooglePlayServicesNotAvailableException(status))
     getNextResult(requestCode)
   }
 
@@ -60,6 +61,4 @@ constructor(
       error("Activity result failed: requestCode = $requestCode, result = $result")
     }
   }
-
-  class GooglePlayServicesNotAvailableException : Error("Google Play Services not available")
 }
