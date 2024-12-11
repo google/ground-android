@@ -47,7 +47,8 @@ import java.util.Date
  * the specific value is relevant to the test.
  */
 object FakeData {
-  // TODO(#2903): Replace constants with calls to newFoo() methods.
+  // TODO(https://github.com/google/ground-android/issues/2917): Replace constants with calls to
+  // newFoo() methods.
   val TERMS_OF_SERVICE: TermsOfService =
     TermsOfService("TERMS_OF_SERVICE", "Fake Terms of Service text")
   const val JOB_ID = "job id"

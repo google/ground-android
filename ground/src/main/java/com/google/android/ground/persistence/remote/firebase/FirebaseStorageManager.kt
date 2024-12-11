@@ -26,8 +26,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 
-// TODO(#2903): Add column to Submission table for storing uploaded media urls
-// TODO(#2903): Synced to remote db as well
 @Singleton
 class FirebaseStorageManager @Inject constructor() : RemoteStorageManager {
 

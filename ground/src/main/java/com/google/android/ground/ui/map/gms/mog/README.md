@@ -36,5 +36,3 @@ To simplify discovery and retrieval, MOGs are organized in collections structure
 See [Map and Tile Coordinates](https://developers.google.com/maps/documentation/android-sdk/coordinates)
 in the Google Maps Platform docs for info.
 
-<!-- TODO(#2903): Provide example usage. -->
-<!-- TODO(#2903): Provide illustration. -->

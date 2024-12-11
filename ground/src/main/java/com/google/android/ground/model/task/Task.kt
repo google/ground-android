@@ -36,9 +36,9 @@ constructor(
 ) {
 
   /**
-   * Task type names as they appear in the remote db, but in uppercase. DO NOT RENAME!
+   * Task type names as they appear in the local db, but in uppercase. DO NOT RENAME!
    *
-   * TODO(#2903): Define these in data layer!
+   * TODO(https://github.com/google/ground-android/issues/2910): Define these in data layer!
    */
   enum class Type {
     UNKNOWN,

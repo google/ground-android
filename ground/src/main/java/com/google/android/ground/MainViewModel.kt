@@ -63,7 +63,8 @@ constructor(
 
   init {
     viewModelScope.launch {
-      // TODO(#2903): Check auth status whenever fragments resumes
+      // TODO(https://github.com/google/ground-android/issues/2624): Check auth status whenever
+      // fragments resumes
       authenticationManager.signInState.collect {
         _navigationRequests.emit(onSignInStateChange(it))
       }

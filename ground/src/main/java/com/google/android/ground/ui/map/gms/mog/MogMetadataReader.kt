@@ -30,12 +30,12 @@ private const val NULL_CHAR = 0.toChar()
 class MogMetadataReader(private val seekable: SeekableInputStream) {
   private lateinit var dataInput: DataInput
 
-  // TODO(#2903): Refactor Map into its own class.
+  // TODO(https://github.com/google/ground-android/issues/2915): Refactor Map into its own class.
   fun readImageFileDirectories(): List<Map<TiffTag, Any?>> {
     val byteOrderCode = readByteOrderString()
     dataInput = createDataInput(byteOrderCode)
 
-    // TODO(#2903):\\\ Add support for BigTIFF.
+    // TODO(https://github.com/google/ground-android/issues/2914): Add support for BigTIFF.
     val fileIdentifier = dataInput.readUnsignedShort()
     validateFileIdentifier(fileIdentifier)
 

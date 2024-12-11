@@ -38,9 +38,7 @@ constructor(@ApplicationScope private val externalScope: CoroutineScope) :
   private val _signInStateFlow = MutableStateFlow<SignInState?>(null)
   override val signInState: Flow<SignInState> = _signInStateFlow.asStateFlow().filterNotNull()
 
-  // TODO(#2903): Remove default user once instrumentation tests can set it during the test.
-  // Currently, the
-  // activity gets launched before the user can be set in setUp()
+  // Currently, the activity gets launched before the user can be set in setUp()
   private var currentUser: User = FakeData.USER
 
   fun setUser(user: User) {

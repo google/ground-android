@@ -76,7 +76,8 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
 
   /** Asserts that the task fragment has the given list of buttons in the exact same order. */
   protected fun assertFragmentHasButtons(vararg buttonActions: ButtonAction) {
-    // TODO(#2903): Also verify the visibility/state of the button
+    // TODO(https://github.com/google/ground-android/issues/2134): Also verify the visibility/state
+    // of the button
     assertThat(fragment.buttonDataList.map { it.button.getAction() })
       .containsExactlyElementsIn(buttonActions)
     buttonActions.withIndex().forEach { (index, expected) ->
