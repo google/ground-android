@@ -23,51 +23,174 @@
   -->
 
   <!-- Shown below fields that are required but left empty (TBD). -->
-  <string name="required_task">Obrigatório</string>
-
-  <!--
-    IN BOTH ADD/EDIT AND VIEW LOI SCREENS
-  -->
+  <string name="required_task">Este campo é obrigatório</string>
 
   <!--
     LOCATION (GPS/CELL/WIFI) UPDATE ERROR MESSAGES
   -->
 
   <!-- Shown when user has refused to grant app fine grained location permission. -->
-  <string name="no_fine_location_permissions">Impossível obter a localização atual sem permissão</string>
+  <string name="no_fine_location_permissions">Não é possível mostrar a localização atual sem permissão</string>
   <!-- Shown when an unknown error occurs obtaining fine grained location permission. -->
-  <string name="location_updates_unknown_error">Falha ao habilitar a atualização de local</string>
+  <string name="location_updates_unknown_error">Não foi possível ativar as atualizações de localização</string>
   <!-- Shown when user has refused to enable location services in settings.-->
-  <string name="location_disabled_in_settings">Favor habilitar localização nas configurações do sistema</string>
+  <string name="location_disabled_in_settings">Por favor, ative a localização nas configurações do sistema</string>
 
-  <!-- NEW STRINGS FOR TRANSLATION -->
-
-  <string name="map_view">Visão do mapa</string>
+  <string name="map_view">Visualização do mapa</string>
   <string name="unexpected_error">Ocorreu um erro inesperado</string>
-  <string name="google_api_install_failed">Google Play Services instalação falhada</string>
-  <string name="sign_out">Sair</string>
+  <string name="google_api_install_failed">A instalação do Google Play Services falhou</string>
+  <string name="sign_out">Terminar sessão</string>
+  <string name="ok">OK</string>
+  <string name="collect_data">Coletar dados</string>
+
+  <!-- Untranslated strings -->
+  <string name="offline_area_selector">Selecione a área para fazer download</string>
+  <string name="offline_area_selector_prompt">Selecione um mapa base para uso offline</string>
+  <string name="offline_area_selector_download">Descarregar</string>
+  <string name="camera">Câmera</string>
+  <string name="photo_preview">Pré-visualização</string>
+  <string name="settings">Configurações</string>
+  <string name="offline_area_viewer_title">Área descarregada</string>
+  <string name="offline_area_viewer_remove_button">Remover do dispositivo</string>
+  <!-- Label of button used enter the offline area selector. -->
+  <string name="offline_area_selector_select">Selecionar área</string>
+  <string name="no_basemaps_downloaded">Nenhuma imagem de mapa descarregada para uso offline</string>
+  <string name="signing_in">Iniciando sessão</string>
+  <!-- Precedes the build number shown in the side menu of debug builds. -->
+  <string name="build">Build %s</string>
 
   <string name="tos_title">Termos de serviço</string>
   <string name="agree_terms">Concordar</string>
-  <string name="agree_checkbox">Eu aceito os Termos de Serviço</string>
-
+  <string name="agree_checkbox">Concordo</string>
   <string name="date">Data</string>
   <string name="time">Hora</string>
-  <string name="offline_area_selector">Selecionar área de download</string>
-  <string name="offline_area_selector_prompt">Selecionar o mapa de base para uso offline</string>
-  <string name="offline_area_selector_download">Download</string>
-  <string name="photo_preview">Prévia</string>
-  <string name="settings">Ajustes</string>
-  <string name="offline_area_viewer_title">Visualizador offline de Títulos de Base de Mapas</string>
-  <string name="offline_area_viewer_remove_button">Remover</string>
-  <string name="unnamed_area">Area sem nome</string>
-  <!-- Label of button used enter the offline area selector. -->
-  <string name="offline_area_selector_select">Selecionar área</string>
-  <string name="no_basemaps_downloaded">Nenhum mapa carregado.</string>
-  <string name="signing_in">Entrar</string>
-  <!-- Precedes the build number shown in the side menu of debug builds. -->
-  <string name="build">Construir %s</string>
+  <!-- Other strings (to be organized) -->
+  <string name="sync_status">Estado da sincronização de dados</string>
 
   <string name="add_point">Adicionar ponto</string>
-  <string name="complete_polygon">Completa</string>
+  <string name="complete_polygon">Completar</string>
+
+  <string name="road_map">Mapa rodoviário</string>
+  <string name="satellite">Satélite</string>
+  <string name="terrain">Terreno</string>
+  <string name="next">Próximo</string>
+  <string name="select_survey_title">Selecione um inquérito</string>
+  <string name="survey_sync_hint">Uma vez abertos, os inquéritos ficam disponíveis offline e são sincronizados automaticamente quando online.</string>
+  <string name="done">Concluído</string>
+  <string name="skip">Pular</string>
+
+  <string name="drop_pin">Marcar ponto</string>
+
+  <string name="new_site">Novo local de coleta de dados</string>
+  <string name="new_site_hint_text">Adicionar novo local e enviar dados relacionados</string>
+  <string name="drop_a_pin_tooltip_text">Arraste o mapa até que o ponto central esteja na localização desejada</string>
+  <string name="current_location">Localização atual:</string>
+  <string name="loading">Carregando…</string>
+  <string name="no_tasks_error">Este trabalho não tem mais tarefas para concluir</string>
+  <string name="invalid_data_sharing_terms">Este inquérito está mal configurado (não existem termos de partilha de dados disponíveis). Por favor, entre em contato com o organizador do inquérito.</string>
+  <string name="collect_data_viewer_error">Não é possível coletar dados porque o usuário é apenas VISUALIZADOR</string>
+  <string name="offline_map_imagery">Mapas offline</string>
+  <string name="offline_map_imagery_no_areas_downloaded_image">Não foi feito o download de nenhuma imagem</string>
+  <string name="offline_map_imagery_pref_description">Ocultar ou mostrar imagens baixadas</string>
+  <string name="layers">Camadas</string>
+  <string name="base_map">Mapa base</string>
+  <string name="offline_map_imagery_download_progress_dialog_title">Progresso do download - %d%%</string>
+  <string name="offline_map_imagery_download_progress_dialog_message">Baixando imagens de mapas offline</string>
+  <string name="multiple_regions">Múltiplas regiões</string>
+  <string name="permission_denied">Permissão negada</string>
+  <string name="close_app">Fechar aplicativo</string>
+  <string name="cancel">Cancelar</string>
+  <string name="save">Salvar</string>
+  <string name="no_imagery_available_for_area">Sem imagens para esta área. Selecione uma área com imagens para fazer download para o seu dispositivo.</string>
+  <string name="selected_offline_area_size">A área selecionada pode ocupar até %s\u00A0MB de espaço no seu dispositivo</string>
+  <string name="selected_offline_area_too_large">Aumente o zoom e selecione uma área menor para fazer download para o seu dispositivo</string>
+  <string name="offline_area_size_loading_symbol">…</string>
+  <string name="offline_area_select_cancel_button">Cancelar</string>
+  <string name="offline_area_selector_title">Fazer download desta área?</string>
+  <string name="capture">Capturar</string>
+  <string name="surveys">Inquéritos</string>
+  <string name="offline_icon_description">Ícone exibido quando o inquérito está disponível offline</string>
+  <string name="remove_offline_access">Remover acesso offline</string>
+  <string name="unnamed_point">Ponto sem nome</string>
+  <string name="unnamed_area">Área sem nome</string>
+  <string name="offline_area_size_on_disk_mb">%s\u00A0MB no disco</string>
+  <string name="offline_area_list_item_size_on_disk_mb">%s\u00A0MB</string>
+  <string name="offline_downloaded_areas">Áreas descarregadas</string>
+  <string name="offline_area_list_tip">Disponível para visualização offline</string>
+  <string name="offline_area_list_item_icon">Ícone do item na lista de áreas offline</string>
+  <string name="no_surveys_available">Nenhum inquérito disponível. Entre em contato com o organizador para obter acesso.</string>
+  <string name="previous">Anterior</string>
+  <string name="network_error_when_signing_in">Conecte-se à internet para entrar</string>
+  <string name="camera_permissions_needed">Você precisa permitir o acesso à câmera para enviar fotos.</string>
+  <string name="incomplete_area">Área incompleta</string>
+  <string name="initializing">Inicializando…</string>
+  <string name="draw_area_task_instruction">. Mova o mapa e toque em “Adicionar ponto” para adicionar pontos ao redor da área desejada.</string>
+  <string name="close">Fechar</string>
+  <string name="data_consent_dialog_title">Acordo de compartilhamento de dados</string>
+  <string name="map_location">Localização do mapa:</string>
+  <string name="sign_out_dialog_title">Aviso de fim de sessão</string>
+  <string name="sign_out_dialog_body">Se você terminar sua sessão:\n \u2022 Quaisquer dados não sincronizados serão descartados.\n \u2022 Você não poderá iniciar sessão se estiver offline\n \u2022 Inquéritos offline não estarão disponíveis até você iniciar sessão novamente\n\nTem certeza de que deseja sair?</string>
+   
+  <string name="suggest_data_collection_hint">Amplie para começar a coletar dados</string>
+  <string name="read_only_data_collection_hint">Inquérito apenas para leitura</string>
+  <string name="predefined_data_collection_hint">Amplie até um local de coleta de dados para coletar informações</string>
+  <string name="no_submissions">Nenhuma submissão</string>
+  <string name="dismiss_info_popup">Ignorar</string>
+  <string name="other">Outro</string>
+  <plurals name="submission_count">
+    <item quantity="one">%d submissão</item>
+    <item quantity="other">%d submissões</item>
+  </plurals>
+  <string name="loi_name_dialog_title">Nomear esta localização</string>
+  <string name="loi_name_dialog_body">Um novo local de coleta de dados será criado.</string>
+  <string name="current_survey">Inquérito atual</string>
+  <string name="switch_survey">Alternar inquérito</string>
+  <string name="no_survey_selected">Nenhum inquérito selecionado</string>
+  <string name="undo">Desfazer</string>
+  <string name="view_licenses_title">Licenças</string>
+  <string name="about">Sobre</string>
+  <string name="terms_of_service">Termos de serviço</string>
+  <string name="about_ground">Ground é um projeto comunitário de código aberto desenvolvido pelo Google e pela FAO no âmbito da “Forest Data Partnership”, com a ajuda do SIG, Ecam e dos contribuintes da comunidade de código aberto. \n\nEle é licenciado sob a <annotation type="apache_license">Apache License, Version 2.0</annotation>. \n\nVeja outras <annotation type="all_licenses">licenças</annotation></string>
+ 
+  <string name="failed">Falhou</string>
+  <string name="synced">Sincronizado</string>
+  <string name="syncing">Sincronizando</string>
+  <string name="upload_pending">Envio pendente</string>
+  <string name="data_synced_media_pending">Dados sincronizados\n(mídia pendente)</string>
+  <string name="data_synced_media_pending_retry">Dados sincronizados\n(mídia pendente de nova tentativa)</string>
+  <string name="media_syncing">Sincronizando mídia</string>
+  <string name="data_sync_status">Estado da sincronização</string>
+  <string name="signout_warning">Se você sair, todos os dados não salvos serão perdidos.</string>
+  <string name="admin_request_access">Para continuar, entre em contato com o administrador do sistema para solicitar acesso.</string>
+  <string name="signup_request_access">Para continuar, <annotation type="sign_up_link">inscreva-se para solicitar acesso</annotation>.</string>
+
+  <!-- Settings -->
+  <string name="general_title">Geral</string>
+  <string name="upload_media_title">Enviar fotos</string>
+  <string name="over_wifi_summary">Somente via Wi-Fi</string>
+  <string name="help_title">Ajuda</string>
+  <string name="visit_website_title">Visitar site</string>
+  <string name="send_feedback_title">Enviar feedback</string>
+  <string name="report_summary">Relatar problemas técnicos ou sugerir novos locais de interesse</string>
+  <string name="not_yet_impl_title">Ainda não implementado</string>
+  <string name="accuracy">Precisão:</string>
+  <!-- Data Sharing Consent Text -->
+  <string name="data_sharing_no_terms">*Não há termos para exibir.*</string>
+  <string name="data_sharing_private_message">
+    ## Compartilhamento de dados privados
+    \nOs dados serão compartilhados apenas com os organizadores do inquérito.
+  </string>
+  <string name="data_sharing_public_message">
+    ## Compartilhamento de dados públicos
+    \nOs organizadores do inquérito podem compartilhar e usar os dados publicamente sob a licença *Creative Commons CC0 1.0*:
+  </string>
+  <string name="draft_restored">Os dados não salvos foram restaurados</string>
+  <string name="load_tos_failed">Não foi possível conectar, tente novamente mais tarde</string>
+  <string name="data_submitted_image">Dados da imagem enviada</string>
+  <string name="data_collection_complete">Coleta de dados concluída!</string>
+  <string name="data_collection_complete_details">Seus dados foram salvos e serão sincronizados automaticamente quando você estiver online.</string>
+
+  <string name="allow_location_confirmation">Permitir localizaçã</string>
+  <string name="allow_location_title">Permitir compartilhamento de localização</string>
+  <string name="allow_location_description">Se você não permitir que o Ground acesse a localização deste dispositivo, não poderá continuar coletando dados para este local.</string>
 </resources>
