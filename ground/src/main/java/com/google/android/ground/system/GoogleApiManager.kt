@@ -16,14 +16,19 @@
 package com.google.android.ground.system
 
 import android.content.Context
-import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.ConnectionResult.SUCCESS
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.delay
+import timber.log.Timber
 
 private val INSTALL_API_REQUEST_CODE = GoogleApiAvailability::class.java.hashCode() and 0xffff
+private const val PLAY_SERVICES_RETRY_DELAY_MS = 2500L
 
 @Singleton
 class GoogleApiManager
@@ -39,24 +44,35 @@ constructor(
    * possible or cancelled.
    */
   suspend fun installGooglePlayServices() {
-    val status = googleApiAvailability.isGooglePlayServicesAvailable(context)
-    if (status != ConnectionResult.SUCCESS) {
-      if (!resolveError(status, INSTALL_API_REQUEST_CODE))
-        throw GooglePlayServicesNotAvailableException(status)
+    val status = isGooglePlayServicesAvailable()
+    if (status == SUCCESS) return
+    if (googleApiAvailability.isUserResolvableError(status)) {
+      showErrorDialog(status, INSTALL_API_REQUEST_CODE)
+    } else {
+      throw GooglePlayServicesNotAvailableException(status)
+    }
+    // onActivityResult() is sometimes called with a failure prematurely or not at all. Instead, we
+    // poll for Play services.
+    while (isGooglePlayServicesAvailable() != SUCCESS) {
+      Timber.d("Waiting for Play services")
+      delay(PLAY_SERVICES_RETRY_DELAY_MS)
     }
   }
+
+  private fun isGooglePlayServicesAvailable(): Int =
+    googleApiAvailability.isGooglePlayServicesAvailable(context)
 
   /**
    * Attempts to resolve the error indicated by the given `status` code, using the provided
    * `requestCode` to uniquely identify Activity callbacks.
    */
-  private suspend fun resolveError(status: Int, requestCode: Int): Boolean {
-    if (!googleApiAvailability.isUserResolvableError(status)) return false
-
-    activityStreams.withActivity { activity ->
-      googleApiAvailability.showErrorDialogFragment(activity, status, requestCode)
+  private suspend fun showErrorDialog(status: Int, requestCode: Int) =
+    suspendCoroutine { continuation ->
+      activityStreams.withActivity { activity ->
+        val dialog = googleApiAvailability.getErrorDialog(activity, status, requestCode)
+        dialog?.setCanceledOnTouchOutside(false)
+        dialog?.setOnDismissListener { continuation.resume(Unit) }
+        dialog?.show()
+      }
     }
-    // `isOk()` returns `false` if install failed or was cancelled.
-    return activityStreams.getNextActivityResult(requestCode).isOk()
-  }
 }
