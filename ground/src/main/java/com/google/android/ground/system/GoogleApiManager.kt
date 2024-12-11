@@ -41,22 +41,22 @@ constructor(
   suspend fun installGooglePlayServices() {
     val status = googleApiAvailability.isGooglePlayServicesAvailable(context)
     if (status != ConnectionResult.SUCCESS) {
-      resolveError(
-        status,
-        INSTALL_API_REQUEST_CODE,
-        GooglePlayServicesNotAvailableException(status),
-      )
+      if (!resolveError(status, INSTALL_API_REQUEST_CODE))
+        throw GooglePlayServicesNotAvailableException(status)
     }
   }
 
-  private suspend fun resolveError(status: Int, requestCode: Int, throwable: Throwable) {
-    if (!googleApiAvailability.isUserResolvableError(status)) throw throwable
+  /**
+   * Attempts to resolve the error indicated by the given `status` code, using the provided
+   * `requestCode` to uniquely identify Activity callbacks.
+   */
+  private suspend fun resolveError(status: Int, requestCode: Int): Boolean {
+    if (!googleApiAvailability.isUserResolvableError(status)) return false
 
-    activityStreams.withActivity {
-      googleApiAvailability.showErrorDialogFragment(it, status, requestCode) { throw throwable }
+    activityStreams.withActivity { activity ->
+      googleApiAvailability.showErrorDialogFragment(activity, status, requestCode)
     }
-    if (!activityStreams.getNextActivityResult(requestCode).isOk()) {
-      throw throwable
-    }
+    // `isOk()` returns `false` if install failed or was cancelled.
+    return activityStreams.getNextActivityResult(requestCode).isOk()
   }
 }
