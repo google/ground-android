@@ -42,7 +42,7 @@ constructor(
     if (status == ConnectionResult.SUCCESS) return
 
     val requestCode = INSTALL_API_REQUEST_CODE
-    startResolution(status, requestCode, GooglePlayServicesMissingException())
+    startResolution(status, requestCode, GooglePlayServicesNotAvailableException())
     getNextResult(requestCode)
   }
 
@@ -61,5 +61,5 @@ constructor(
     }
   }
 
-  class GooglePlayServicesMissingException : Error("Google play services not available")
+  class GooglePlayServicesNotAvailableException : Error("Google Play Services not available")
 }
