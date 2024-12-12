@@ -93,7 +93,8 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
    */
   @OptIn(ExperimentalCoroutinesApi::class)
   fun getTiles(requests: List<MogTilesRequest>): Flow<MogTile> = flow {
-    // TODO(#1704): Use thread pool to request multiple ranges in parallel.
+    // TODO(https://github.com/google/ground-android/issues/1704): Use thread pool to request
+    // multiple ranges in parallel.
     val results = mutableListOf<Deferred<Flow<MogTile>>>()
     withContext(Dispatchers.IO.limitedParallelism(200)) {
       for (request in requests) {
@@ -177,7 +178,8 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
     path: MogPathOrUrl,
     mogBounds: TileCoordinates,
   ): Deferred<MogMetadata?> = runBlocking {
-    // TODO(#2903): Exceptions get propagated as cancellation of the coroutine. Handle them!
+    // TODO(https://github.com/google/ground-android/issues/2903): Exceptions get propagated as
+    // cancellation of the coroutine. Handle them!
     async { path.toUrl()?.readMetadata(mogBounds) }.also { cache.put(path, it) }
   }
 

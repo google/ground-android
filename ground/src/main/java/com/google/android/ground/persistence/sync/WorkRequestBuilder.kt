@@ -76,7 +76,8 @@ class WorkRequestBuilder {
 
   companion object {
     /** Backoff time should increase linearly. */
-    // TODO(#710): Check if it is possible to wake the worker as soon as the connection becomes
+    // TODO(https://github.com/google/ground-android/issues/710): Check if it is possible to wake
+    // the worker as soon as the connection becomes
     //   available, and if so switch to EXPONENTIAL backoff policy.
     private val BACKOFF_POLICY = BackoffPolicy.LINEAR
 

@@ -67,7 +67,7 @@ private fun Message.hasValue(property: KProperty<*>): Boolean {
 }
 
 private fun MessageValue.toFirestoreValue(): FirestoreValue =
-  // TODO(#1748): Convert enums and other types.
+  // TODO(https://github.com/google/ground-android/issues/1748): Convert enums and other types.
   when (this) {
     is List<*> -> map { it?.toFirestoreValue() }
     is Message -> toFirestoreMap()

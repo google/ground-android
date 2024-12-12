@@ -123,7 +123,7 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
   override fun isEmpty() = coordinates.isEmpty()
 
   override fun validate() {
-    // TODO(#1647): Check for vertices count > 3
+    // TODO(https://github.com/google/ground-android/issues/1647): Check for vertices count > 3
     if (coordinates.isEmpty()) {
       return
     }

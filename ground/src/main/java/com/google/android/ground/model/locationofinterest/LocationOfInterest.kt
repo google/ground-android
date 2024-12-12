@@ -58,7 +58,7 @@ data class LocationOfInterest(
    * Converts this LOI to a mutation that can be used to update this LOI in the remote and local
    * database.
    */
-  // TODO(#2903): Remove this test-only method
+  // TODO(https://github.com/google/ground-android/issues/2903): Remove this test-only method
   fun toMutation(type: Mutation.Type, userId: String): LocationOfInterestMutation =
     LocationOfInterestMutation(
       jobId = job.id,

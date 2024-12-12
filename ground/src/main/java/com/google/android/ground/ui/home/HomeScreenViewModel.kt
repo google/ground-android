@@ -52,7 +52,8 @@ internal constructor(
   private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
   val openDrawerRequestsFlow: SharedFlow<Unit> = _openDrawerRequests.asSharedFlow()
 
-  // TODO(#1730): Allow tile source configuration from a non-survey accessible source.
+  // TODO(https://github.com/google/ground-android/issues/1730): Allow tile source configuration
+  // from a non-survey accessible source.
   val showOfflineAreaMenuItem: LiveData<Boolean> = MutableLiveData(true)
 
   init {
@@ -91,7 +92,8 @@ internal constructor(
       return null
     }
 
-    // TODO(#2903): Check whether the previous user id matches with current user or not.
+    // TODO(https://github.com/google/ground-android/issues/2903): Check whether the previous user
+    // id matches with current user or not.
     return draft
   }
 

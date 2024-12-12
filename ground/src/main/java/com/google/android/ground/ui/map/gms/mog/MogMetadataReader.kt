@@ -25,7 +25,7 @@ import java.util.*
 
 private const val NULL_CHAR = 0.toChar()
 
-// TODO(#1596): Add unit tests.
+// TODO(https://github.com/google/ground-android/issues/1596): Add unit tests.
 /** Instances of this class are not thread-safe. */
 class MogMetadataReader(private val seekable: SeekableInputStream) {
   private lateinit var dataInput: DataInput

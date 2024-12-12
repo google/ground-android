@@ -22,7 +22,7 @@ import com.google.android.ground.persistence.remote.RemoteStorageManager
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
-// TODO(#1596): Add unit tests.
+// TODO(https://github.com/google/ground-android/issues/1596): Add unit tests.
 /** Fetches and returns MOG tiles to Maps SDK for display as a tile overlay. */
 class MogTileProvider(collection: MogCollection, remoteStorageManager: RemoteStorageManager) :
   TileProvider {

@@ -24,7 +24,8 @@ import com.google.android.ground.persistence.local.room.IntEnum.Companion.toInt
 /** Mutually exclusive mutations states. */
 enum class MutationEntitySyncStatus(private val intValue: Int, private val enumValue: SyncStatus) :
   IntEnum {
-  // TODO(#950): Set IN_PROGRESS and FAILED statuses when necessary. On failure, set retry count and
+  // TODO(https://github.com/google/ground-android/issues/950): Set IN_PROGRESS and FAILED statuses
+  // when necessary. On failure, set retry count and
   // error and update to PENDING.
   UNKNOWN(0, SyncStatus.UNKNOWN),
 

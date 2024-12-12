@@ -87,7 +87,8 @@ constructor(
       Timber.d("User cancelled sign in")
       MainUiState.OnUserSignedOut
     } else {
-      // TODO(#1808): Display some error dialog to the user with a helpful user-readable message.
+      // TODO(https://github.com/google/ground-android/issues/1808): Display some error dialog to
+      // the user with a helpful user-readable message.
       onUserSignedOut()
     }
   }
@@ -101,7 +102,8 @@ constructor(
     surveyRepository.clearActiveSurvey()
     userRepository.clearUserPreferences()
 
-    // TODO(#1691): Once multi-user login is supported, avoid clearing local db data. This is
+    // TODO(https://github.com/google/ground-android/issues/1691): Once multi-user login is
+    // supported, avoid clearing local db data. This is
     //  currently being done to prevent one user's data to be submitted as another user after
     //  re-login.
     viewModelScope.launch { withContext(ioDispatcher) { localDatabase.clearAllTables() } }

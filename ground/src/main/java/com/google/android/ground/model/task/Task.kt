@@ -35,11 +35,8 @@ constructor(
   val condition: Condition? = null,
 ) {
 
-  /**
-   * Task type names as they appear in the local db, but in uppercase. DO NOT RENAME!
-   *
-   * TODO(https://github.com/google/ground-android/issues/2910): Define these in data layer!
-   */
+  // TODO(https://github.com/google/ground-android/issues/2910): Define these in data layer!
+  /** Task type names as they appear in the local db, but in uppercase. DO NOT RENAME! */
   enum class Type {
     UNKNOWN,
     TEXT,
