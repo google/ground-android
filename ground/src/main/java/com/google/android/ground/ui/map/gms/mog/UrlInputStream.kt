@@ -16,11 +16,13 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
+import java.io.ByteArrayInputStream
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import timber.log.Timber
 
 private const val READ_TIMEOUT_MS = 5 * 1000
 private const val CONNECT_TIMEOUT_MS = 30_000
@@ -34,12 +36,18 @@ class UrlInputStream(private val url: String, private val byteRange: LongRange? 
   private val inputStream: InputStream
 
   init {
-    inputStream = openStream()
+    inputStream =
+      try {
+        openStream()
+      } catch (e: Exception) {
+        Timber.e(e, "Failed to open stream for URL: $url. Using an empty stream.")
+        ByteArrayInputStream(ByteArray(0))
+      }
   }
 
   private fun openStream(): InputStream {
     val urlConnection = URL(url).openConnection() as HttpURLConnection
-    try {
+    return try {
       urlConnection.requestMethod = "GET"
       urlConnection.connectTimeout = CONNECT_TIMEOUT_MS
       urlConnection.readTimeout = READ_TIMEOUT_MS
@@ -53,16 +61,26 @@ class UrlInputStream(private val url: String, private val byteRange: LongRange? 
       if (responseCode != expectedResponseCode) {
         throw IOException("HTTP $responseCode accessing $url")
       }
-      return urlConnection.inputStream
+      urlConnection.inputStream
+    } catch (e: FileNotFoundException) {
+      Timber.e(e, "File not found at $url. Returning an empty stream.")
+      ByteArrayInputStream(ByteArray(0))
+    } catch (e: IOException) {
+      Timber.e(e, "I/O error while accessing $url: ${e.message}. Returning an empty stream.")
+      ByteArrayInputStream(ByteArray(0))
     } catch (e: Exception) {
-      urlConnection.disconnect()
-      error("Attempt Failed with $e")
+      Timber.e(e, "Unexpected error while accessing $url: ${e.message}. Returning an empty stream.")
+      ByteArrayInputStream(ByteArray(0))
     }
   }
 
   override fun read(): Int = inputStream.read()
 
   override fun close() {
-    inputStream.close()
+    try {
+      inputStream.close()
+    } catch (e: IOException) {
+      Timber.e(e, "Error while closing input stream for $url")
+    }
   }
 }
