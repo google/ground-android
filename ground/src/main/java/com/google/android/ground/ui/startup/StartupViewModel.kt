@@ -29,10 +29,7 @@ internal constructor(
 
   /** Initializes the login flow, installing Google Play Services if necessary. */
   suspend fun initializeLogin() {
-    val isGooglePlayServicesAvailable = googleApiManager.installGooglePlayServices()
-    if (!isGooglePlayServicesAvailable) {
-      error("Google Play Services installation failed")
-    }
+    googleApiManager.installGooglePlayServices()
     userRepository.init()
   }
 }
