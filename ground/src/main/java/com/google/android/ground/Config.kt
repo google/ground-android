@@ -44,7 +44,8 @@ object Config {
    */
   const val CLUSTERING_ZOOM_THRESHOLD = 14f
 
-  // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
+  // TODO(https://github.com/google/ground-android/issues/1730): Make sub-paths configurable and
+  // stop hardcoding here.
   const val DEFAULT_MOG_TILE_LOCATION = "/offline-imagery/default"
   private const val DEFAULT_MOG_MIN_ZOOM = 8
   private const val DEFAULT_MOG_MAX_ZOOM = 14

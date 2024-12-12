@@ -224,7 +224,8 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth().padding(8.dp),
           ) {
-            // TODO(#2417): Previous button should always be positioned to the left of the screen.
+            // TODO(https://github.com/google/ground-android/issues/2417): Previous button should
+            // always be positioned to the left of the screen.
             //  Rest buttons should be aligned to the right side of the screen.
             buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
           }

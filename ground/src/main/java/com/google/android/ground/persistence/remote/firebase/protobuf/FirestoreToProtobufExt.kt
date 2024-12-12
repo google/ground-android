@@ -144,5 +144,6 @@ private fun FirestoreValue.toMessageValue(targetType: KClass<*>): MessageValue =
       ?: throw IllegalArgumentException("Unrecognized enum number $this")
   } else {
     throw UnsupportedOperationException("Unsupported message field type $targetType")
-    // TODO(#1748): Handle arrays, GeoPoint, int, and other types.
+    // TODO(https://github.com/google/ground-android/issues/1748): Handle arrays, GeoPoint, int, and
+    // other types.
   }

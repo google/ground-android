@@ -85,8 +85,8 @@ constructor(
         setOf(MEDIA_UPLOAD_PENDING, MEDIA_UPLOAD_IN_PROGRESS, MEDIA_UPLOAD_AWAITING_RETRY)
           .contains(it.uploadStatus)
       }
-      // TODO(https://github.com/google/ground-android/issues/2120):
-      //  Return [MediaMutations] instead once introduced.
+      // TODO(https://github.com/google/ground-android/issues/2120): Return [MediaMutations]
+      //  instead once introduced.
       .mapNotNull { it.submissionMutation }
 
   /**

@@ -107,7 +107,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     get() = map.cameraPosition.zoom
 
   private fun onApplyWindowInsets(view: View, insets: WindowInsetsCompat): WindowInsetsCompat {
-    // TODO: Move extra padding to dimens.xml.
+    // TODO(https://github.com/google/ground-android/issues/2913): Move extra padding to dimens.xml.
     // HACK: Fix padding when keyboard is shown; we limit the padding here to prevent the
     // watermark from flying up too high due to the combination of translateY and big inset
     // size due to keyboard.
@@ -279,7 +279,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   }
 
   private fun addRemoteMogTileOverlay(url: String) {
-    // TODO(#1730): Make sub-paths configurable and stop hardcoding here.
+    // TODO(https://github.com/google/ground-android/issues/1730): Make sub-paths configurable and
+    // stop hardcoding here.
     val mogCollection = MogCollection(Config.getMogSources(url))
     addTileOverlay(MogTileProvider(mogCollection, remoteStorageManager))
   }

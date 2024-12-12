@@ -77,11 +77,13 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
   @Test
   fun testApplyAndEnqueue_createsLocalLoi() = runWithTestDispatcher {
-    // TODO(#1559): Remove once customId and caption are handled consistently.
+    // TODO(https://github.com/google/ground-android/issues/1559): Remove once customId and caption
+    // are handled consistently.
     val loi =
       LOCATION_OF_INTEREST.copy(
         customId = "",
-        // TODO(#1562): Remove once creation time is preserved in local db.
+        // TODO(https://github.com/google/ground-android/issues/1562): Remove once creation time is
+        // preserved in local db.
         lastModified = LOCATION_OF_INTEREST.created,
       )
     locationOfInterestRepository.applyAndEnqueue(loi.toMutation(CREATE, TEST_USER.id))
@@ -118,9 +120,11 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     verify(mockWorkManager, times(1)).enqueueSyncWorker()
   }
 
-  // TODO(#1373): Add tests for new LOI sync once implemented (create, update, delete, error).
+  // TODO(https://github.com/google/ground-android/issues/1373): Add tests for new LOI sync once
+  // implemented (create, update, delete, error).
 
-  // TODO(#1373): Add tests for getLocationsOfInterest once new LOI sync implemented.
+  // TODO(https://github.com/google/ground-android/issues/1373): Add tests for
+  // getLocationsOfInterest once new LOI sync implemented.
 
   @Test
   fun testLoiWithinBounds_whenOutOfBounds_returnsEmptyList() = runWithTestDispatcher {

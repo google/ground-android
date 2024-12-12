@@ -89,7 +89,8 @@ constructor(
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, R.color.md_theme_onSurfaceVariant)
 
-  // TODO(#1789): Consider adding another icon for representing "GPS disabled" state.
+  // TODO(https://github.com/google/ground-android/issues/1789): Consider adding another icon for
+  // representing "GPS disabled" state.
   val locationLockIcon =
     locationLock
       .map { lockState ->
@@ -233,7 +234,8 @@ constructor(
         delay(3000)
       }
 
-      // TODO(#1889): Track the zoom level in a VM associated with the MapFragment and use here
+      // TODO(https://github.com/google/ground-android/issues/1889): Track the zoom level in a VM
+      // associated with the MapFragment and use here
       NewCameraPositionViaCoordinates(coordinates, shouldAnimate = true)
     }
 

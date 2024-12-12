@@ -148,7 +148,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `Load tasks from draft`() = runWithTestDispatcher {
-    // TODO(#708): add coverage for loading from draft for all types of tasks
+    // TODO(https://github.com/google/ground-android/issues/708): add coverage for loading from
+    // draft for all types of tasks
     val expectedDeltas = listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA)
 
     // Start the fragment with draft values

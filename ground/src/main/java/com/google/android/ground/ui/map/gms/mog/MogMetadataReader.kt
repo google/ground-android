@@ -25,17 +25,17 @@ import java.util.*
 
 private const val NULL_CHAR = 0.toChar()
 
-// TODO(#1596): Add unit tests.
+// TODO(https://github.com/google/ground-android/issues/1596): Add unit tests.
 /** Instances of this class are not thread-safe. */
 class MogMetadataReader(private val seekable: SeekableInputStream) {
   private lateinit var dataInput: DataInput
 
-  // TODO: Refactor Map into its own class.
+  // TODO(https://github.com/google/ground-android/issues/2915): Refactor Map into its own class.
   fun readImageFileDirectories(): List<Map<TiffTag, Any?>> {
     val byteOrderCode = readByteOrderString()
     dataInput = createDataInput(byteOrderCode)
 
-    // TODO: Add support for BigTIFF.
+    // TODO(https://github.com/google/ground-android/issues/2914): Add support for BigTIFF.
     val fileIdentifier = dataInput.readUnsignedShort()
     validateFileIdentifier(fileIdentifier)
 

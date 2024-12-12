@@ -153,7 +153,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   ) {
     if (!canUserSubmitData) {
       // Skip data collection screen if the user can't submit any data
-      // TODO(#1667): Revisit UX for displaying view only mode
+      // TODO(https://github.com/google/ground-android/issues/1667): Revisit UX for displaying view
+      // only mode
       ephemeralPopups.ErrorPopup().show(getString(R.string.collect_data_viewer_error))
       return
     }

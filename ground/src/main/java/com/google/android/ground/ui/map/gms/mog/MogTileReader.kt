@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
 
-// TODO(#1596): Add unit tests.
+// TODO(https://github.com/google/ground-android/issues/1596): Add unit tests.
 /** Reads tiles from an [InputStream]. */
 class MogTileReader(private val inputStream: InputStream, initialOffset: Long) {
   private var offset: Long = initialOffset

@@ -55,7 +55,8 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   ): LocationOfInterest? =
     locationOfInterestDao.findById(locationOfInterestId)?.toModelObject(survey)
 
-  // TODO(#706): Apply pending local mutations before saving.
+  // TODO(https://github.com/google/ground-android/issues/706): Apply pending local mutations before
+  // saving.
   override suspend fun merge(model: LocationOfInterest) {
     locationOfInterestDao.insertOrUpdate(model.toLocalDataStoreObject())
   }
