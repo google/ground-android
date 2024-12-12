@@ -16,14 +16,19 @@
 package com.google.android.ground.system
 
 import android.content.Context
-import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.ConnectionResult.SUCCESS
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.delay
 import timber.log.Timber
 
 private val INSTALL_API_REQUEST_CODE = GoogleApiAvailability::class.java.hashCode() and 0xffff
+private const val PLAY_SERVICES_RETRY_DELAY_MS = 2500L
 
 @Singleton
 class GoogleApiManager
@@ -38,31 +43,37 @@ constructor(
    * Displays a dialog to install Google Play Services, if missing. Throws an error if install not
    * possible or cancelled.
    */
-  suspend fun installGooglePlayServices(): Boolean {
-    val status = googleApiAvailability.isGooglePlayServicesAvailable(context)
-    if (status == ConnectionResult.SUCCESS) return true
-
-    val requestCode = INSTALL_API_REQUEST_CODE
-    return startResolution(status, requestCode)
-  }
-
-  private suspend fun startResolution(status: Int, requestCode: Int): Boolean {
-    if (!googleApiAvailability.isUserResolvableError(status)) return false
-
-    return try {
-      activityStreams.withActivity { activity ->
-        googleApiAvailability.showErrorDialogFragment(activity, status, requestCode, null)
-      }
-      getNextResult(requestCode)
-    } catch (e: Exception) {
-      Timber.e(
-        e,
-        "Failed to handle activity result for requestCode: $requestCode. Exception details: ${e.message}",
-      )
-      false
+  suspend fun installGooglePlayServices() {
+    val status = isGooglePlayServicesAvailable()
+    if (status == SUCCESS) return
+    if (googleApiAvailability.isUserResolvableError(status)) {
+      showErrorDialog(status, INSTALL_API_REQUEST_CODE)
+    } else {
+      throw GooglePlayServicesNotAvailableException(status)
+    }
+    // onActivityResult() is sometimes called with a failure prematurely or not at all. Instead, we
+    // poll for Play services.
+    while (isGooglePlayServicesAvailable() != SUCCESS) {
+      Timber.d("Waiting for Play services")
+      delay(PLAY_SERVICES_RETRY_DELAY_MS)
     }
   }
 
-  private suspend fun getNextResult(requestCode: Int) =
-    activityStreams.getNextActivityResult(requestCode).isOk()
+  private fun isGooglePlayServicesAvailable(): Int =
+    googleApiAvailability.isGooglePlayServicesAvailable(context)
+
+  /**
+   * Attempts to resolve the error indicated by the given `status` code, using the provided
+   * `requestCode` to differentiate Activity callbacks from others. Suspends until the dialog is
+   * dismissed.
+   */
+  private suspend fun showErrorDialog(status: Int, requestCode: Int) =
+    suspendCoroutine { continuation ->
+      activityStreams.withActivity { activity ->
+        val dialog = googleApiAvailability.getErrorDialog(activity, status, requestCode)
+        dialog?.setCanceledOnTouchOutside(false)
+        dialog?.setOnDismissListener { continuation.resume(Unit) }
+        dialog?.show()
+      }
+    }
 }

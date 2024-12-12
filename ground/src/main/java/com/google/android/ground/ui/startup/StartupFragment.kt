@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.google.android.ground.R
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.EphemeralPopups
@@ -53,9 +54,7 @@ class StartupFragment : AbstractFragment() {
       try {
         viewModel.initializeLogin()
       } catch (t: Throwable) {
-        Timber.e(t, "Failed to launch app")
-        popups.ErrorPopup().show(R.string.google_api_install_failed)
-        requireActivity().finish()
+        onInitFailed(t)
       }
     }
   }
@@ -63,5 +62,13 @@ class StartupFragment : AbstractFragment() {
   override fun onPause() {
     dismissProgressDialog()
     super.onPause()
+  }
+
+  private fun onInitFailed(t: Throwable) {
+    Timber.e(t, "Failed to launch app")
+    if (t is GooglePlayServicesNotAvailableException) {
+      popups.ErrorPopup().show(R.string.google_api_install_failed)
+    }
+    requireActivity().finish()
   }
 }
