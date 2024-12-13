@@ -18,8 +18,8 @@ package com.google.android.ground.ui.startup
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.GoogleApiManager
 import com.google.android.ground.ui.common.AbstractViewModel
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 class StartupViewModel
 @Inject
