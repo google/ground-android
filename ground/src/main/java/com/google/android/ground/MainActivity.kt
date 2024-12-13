@@ -91,7 +91,9 @@ class MainActivity : AbstractActivity() {
     viewModel = viewModelFactory[this, MainViewModel::class.java]
 
     lifecycleScope.launch {
-      viewModel.navigationRequests.filterNotNull().collect { updateUi(binding.root, it) }
+      repeatOnLifecycle(Lifecycle.State.RESUMED) {
+        viewModel.mainUiState.filterNotNull().collect { updateUi(binding.root, it) }
+      }
     }
   }
 
