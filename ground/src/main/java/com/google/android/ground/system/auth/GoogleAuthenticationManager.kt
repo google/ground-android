@@ -27,6 +27,8 @@ import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.User
 import com.google.android.ground.system.ActivityResult
 import com.google.android.ground.system.ActivityStreams
+import com.google.android.ground.system.auth.SignInState.SignedIn
+import com.google.android.ground.system.auth.SignInState.SignedOut
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
@@ -69,9 +71,11 @@ constructor(
   override val signInState: Flow<SignInState> = _signInStateFlow.asStateFlow().filterNotNull()
 
   override fun initInternal() {
+    Timber.d("Listening to Firebase auth state")
     firebaseAuth.addAuthStateListener { auth ->
+      Timber.d("Firebase auth state changed")
       val user = auth.currentUser?.toUser()
-      setState(if (user == null) SignInState.SignedOut else SignInState.SignedIn(user))
+      setState(if (user == null) SignedOut else SignedIn(user))
     }
   }
 
@@ -92,7 +96,7 @@ constructor(
 
   override fun signOut() {
     firebaseAuth.signOut()
-    setState(SignInState.SignedOut)
+    setState(SignedOut)
     activityStreams.withActivity { getGoogleSignInClient(it).signOut() }
   }
 
@@ -119,7 +123,7 @@ constructor(
       .addOnFailureListener { setState(SignInState.Error(it)) }
 
   private fun onFirebaseAuthSuccess(authResult: AuthResult) {
-    setState(SignInState.SignedIn(authResult.user!!.toUser()))
+    setState(SignedIn(authResult.user!!.toUser()))
   }
 
   private fun getFirebaseAuthCredential(googleAccount: GoogleSignInAccount): AuthCredential =
