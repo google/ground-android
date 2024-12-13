@@ -26,9 +26,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
+import com.google.android.ground.MainUiState.HomeScreen
+import com.google.android.ground.MainUiState.PermissionDeniedDialog
+import com.google.android.ground.MainUiState.SignInProgressDialog
+import com.google.android.ground.MainUiState.SignInScreen
+import com.google.android.ground.MainUiState.SurveySelector
+import com.google.android.ground.MainUiState.TermsOfService
 import com.google.android.ground.databinding.MainActBinding
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.ActivityCallback
@@ -88,29 +96,18 @@ class MainActivity : AbstractActivity() {
   }
 
   private fun updateUi(viewGroup: ViewGroup, uiState: MainUiState) {
-    when (uiState) {
-      MainUiState.OnPermissionDenied -> {
-        showPermissionDeniedDialog(viewGroup)
-      }
-      MainUiState.OnUserSignedOut -> {
-        navigateTo(SignInFragmentDirections.showSignInScreen())
-      }
-      MainUiState.TosNotAccepted -> {
-        navigateTo(SignInFragmentDirections.showTermsOfService(false))
-      }
-      MainUiState.NoActiveSurvey -> {
-        navigateTo(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
-      }
-      MainUiState.ShowHomeScreen -> {
-        navigateTo(HomeScreenFragmentDirections.showHomeScreen())
-      }
-      MainUiState.OnUserSigningIn -> {
-        onSignInProgress(true)
-      }
+    Timber.d("UI state changed: $uiState")
+    if (uiState != SignInProgressDialog) {
+      dismissSignInDialog()
     }
 
-    if (uiState != MainUiState.OnUserSigningIn) {
-      onSignInProgress(false)
+    when (uiState) {
+      PermissionDeniedDialog -> showPermissionDeniedDialog(viewGroup)
+      SignInScreen -> navigateTo(SignInFragmentDirections.showSignInScreen())
+      TermsOfService -> navigateTo(SignInFragmentDirections.showTermsOfService(false))
+      SurveySelector -> navigateTo(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
+      HomeScreen -> navigateTo(HomeScreenFragmentDirections.showHomeScreen())
+      SignInProgressDialog -> showSignInDialog()
     }
   }
 
@@ -191,10 +188,6 @@ class MainActivity : AbstractActivity() {
     val fragmentManager = navHostFragment.childFragmentManager
     val currentFragment = fragmentManager.findFragmentById(R.id.nav_host_fragment)
     return currentFragment is BackPressListener && currentFragment.onBack()
-  }
-
-  private fun onSignInProgress(visible: Boolean) {
-    if (visible) showSignInDialog() else dismissSignInDialog()
   }
 
   private fun showSignInDialog() {
