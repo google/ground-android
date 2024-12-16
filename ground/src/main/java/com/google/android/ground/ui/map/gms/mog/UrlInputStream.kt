@@ -50,7 +50,6 @@ class UrlInputStream(private val url: String, private val byteRange: LongRange? 
     if (responseCode != expectedResponseCode) {
       throw IOException("HTTP $responseCode accessing $url")
     }
-    urlConnection.inputStream
     return urlConnection.inputStream
   }
 
