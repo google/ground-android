@@ -16,34 +16,33 @@
 
 name: "Run TODO to Issue"
 on:
-  pull_request:
-    branches: [ "master" ]
-# TODO: Replace with push to master
+    pull_request:
+        branches: [ "master" ]
 #  push:
 #    branches:
 #      - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: "TODO to Issue"
-        uses: alstr/todo-to-issue-action@v5.1.7
-        with:
-          AUTO_ASSIGN: "true"
-          INSERT_ISSUE_URLS: "true"
-          CLOSE_ISSUES: "true"
-      - name: Set Git user
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      - name: Commit and Push Changes
-        run: |
-          git add -A
-          if [[ `git status --porcelain` ]]; then
-            git commit -m "Automatically added GitHub issue links to TODOs"
-            git push origin main
-          else
-            echo "No changes to commit"
-          fi
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v4
+            -   name: "TODO to Issue"
+                uses: alstr/todo-to-issue-action@v5.1.7
+                with:
+                    AUTO_ASSIGN: "true"
+                    INSERT_ISSUE_URLS: "true"
+                    CLOSE_ISSUES: "true"
+            -   name: Set Git user
+                run: |
+                    git config --global user.name "github-actions[bot]"
+                    git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            -   name: Commit and Push Changes
+                run: |
+                    git add -A
+                    if [[ `git status --porcelain` ]]; then
+                      git commit -m "Automatically added GitHub issue links to TODOs"
+                      git push origin main
+                    else
+                      echo "No changes to commit"
+                    fi
