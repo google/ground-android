@@ -42,11 +42,13 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
     TaskViewFactory.createWithHeader(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
+    // TODO: Replace with compose ux
     binding = MultipleChoiceTaskFragBinding.inflate(inflater)
     setupMultipleChoice(binding.selectOptionList)
     return binding.root
   }
 
+  // TODO: Replace recycler view with compose ux
   private fun setupMultipleChoice(recyclerView: RecyclerView) {
     val multipleChoice = checkNotNull(getTask().multipleChoice)
     val canSelectMultiple = multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE
