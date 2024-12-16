@@ -590,9 +590,9 @@ style:
                 value: 'FIXME:'
             -   reason: 'Forbidden STOPSHIP todo marker in comment, please address the problem before shipping the code.'
                 value: 'STOPSHIP:'
-            -   reason: 'TODO comments must reference a GitHub issue for tracking. Format: TODO(https://github.com/google/ground-android/issues/IssueNumber).'
-                value: '(TODO|TODO\(|TODO\(#)'
-        allowedPatterns: '^TODO\(https://github\.com/google/ground-android/issues/\d+\): .+'
+            -   reason: 'TODO comments must reference a GitHub issue for tracking. Format: TODO: and Issue URL: in next line.'
+                value: 'TODO:'
+        allowedPatterns: '^//\s*TODO:\s+.+'
     ForbiddenImport:
         active: false
         imports: [ ]

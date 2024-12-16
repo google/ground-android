@@ -63,7 +63,8 @@ class MainActivity : AbstractActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     // Make sure this is before calling super.onCreate()
     setTheme(R.style.AppTheme)
-    // TODO(https://github.com/google/ground-android/issues/620): Remove this to enable dark theme.
+    // TODO: Remove this to enable dark theme.
+    // Issue URL: https://github.com/google/ground-android/issues/620
     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
     super.onCreate(savedInstanceState)
 
@@ -122,8 +123,9 @@ class MainActivity : AbstractActivity() {
             var showDialog by remember { mutableStateOf(true) }
             if (showDialog) {
               PermissionDeniedDialog(
-                // TODO(https://github.com/google/ground-android/issues/2402): Read url from
-                // Firestore config/properties/signUpUrl
+                // TODO: Read url from
+                //  Firestore config/properties/signUpUrl
+                // Issue URL: https://github.com/google/ground-android/issues/2402
                 BuildConfig.SIGNUP_FORM_LINK,
                 onSignOut = {
                   showDialog = false
