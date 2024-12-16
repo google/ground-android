@@ -85,7 +85,7 @@ constructor(
    * Downloads tiles in the specified bounds and stores them in the local filesystem. Emits the
    * number of bytes processed and total expected bytes as the download progresses.
    */
-  suspend fun downloadTiles(bounds: Bounds): Flow<Pair<Int, Int>> = flow {
+  fun downloadTiles(bounds: Bounds): Flow<Pair<Int, Int>> = flow {
     val requests = mogClient.buildTilesRequests(bounds)
     val totalBytes = requests.sumOf { it.totalBytes }
     var bytesDownloaded = 0
