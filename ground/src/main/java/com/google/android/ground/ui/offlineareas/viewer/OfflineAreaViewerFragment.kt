@@ -40,12 +40,7 @@ class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFrag
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    val args =
-      arguments?.let { OfflineAreaViewerFragmentArgs.fromBundle(it) }
-        ?: run {
-          findNavController().navigateUp()
-          return
-        }
+    val args = OfflineAreaViewerFragmentArgs.fromBundle(requireArguments())
     viewModel = getViewModel(OfflineAreaViewerViewModel::class.java)
     viewModel.initialize(args.offlineAreaId)
   }
