@@ -25,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       - name: "TODO to Issue"
         uses: alstr/todo-to-issue-action@v5.1.7
         with:
@@ -40,7 +42,7 @@ jobs:
           git add -A
           if [[ `git status --porcelain` ]]; then
             git commit -m "Automatically added GitHub issue links to TODOs"
-            git push origin main
+            git push origin master
           else
             echo "No changes to commit"
           fi
