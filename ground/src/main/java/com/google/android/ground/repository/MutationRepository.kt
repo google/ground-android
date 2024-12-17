@@ -93,7 +93,7 @@ constructor(
    * Returns a [Flow] which emits the upload queue once and on each change, sorted in chronological
    * order (FIFO).
    */
-  private fun getUploadQueueFlow(): Flow<List<UploadQueueEntry>> =
+  fun getUploadQueueFlow(): Flow<List<UploadQueueEntry>> =
     localLocationOfInterestStore.getAllMutationsFlow().combine(
       localSubmissionStore.getAllMutationsFlow()
     ) { loiMutations, submissionMutations ->
