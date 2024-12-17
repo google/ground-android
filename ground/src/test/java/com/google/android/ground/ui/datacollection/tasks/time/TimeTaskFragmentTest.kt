@@ -40,8 +40,8 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 
-// TODO(https://github.com/google/ground-android/issues/2134): Add a test for selecting a time and
-// verifying response.
+// TODO: Add a test for selecting a time and verifying response.
+// Issue URL: https://github.com/google/ground-android/issues/2134
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)

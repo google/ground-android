@@ -16,8 +16,8 @@
   ~ limitations under the License.
   -->
 
-<!-- TODO(https://github.com/google/ground-android/issues/2916): Use snake_case for all ids here for consistency -->
-
+<!-- TODO: Use snake_case for all ids here for consistency -->
+<!-- Issue URL: https://github.com/google/ground-android/issues/2916 -->
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"

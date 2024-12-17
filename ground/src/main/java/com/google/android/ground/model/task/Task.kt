@@ -35,7 +35,8 @@ constructor(
   val condition: Condition? = null,
 ) {
 
-  // TODO(https://github.com/google/ground-android/issues/2910): Define these in data layer!
+  // TODO: Define these in data layer!
+  // Issue URL: https://github.com/google/ground-android/issues/2910
   /** Task type names as they appear in the local db, but in uppercase. DO NOT RENAME! */
   enum class Type {
     UNKNOWN,

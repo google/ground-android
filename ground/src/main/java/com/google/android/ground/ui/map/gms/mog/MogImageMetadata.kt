@@ -31,7 +31,8 @@ data class MogImageMetadata(
   private val tileCountX = imageWidth / tileWidth
   private val tileCountY = imageLength / tileLength
 
-  // TODO(https://github.com/google/ground-android/issues/2915): Verify X and Y scales are the same.
+  // TODO: Verify X and Y scales are the same.
+  // Issue URL: https://github.com/google/ground-android/issues/2915
   val zoom = originTile.zoom
 
   fun hasTile(x: Int, y: Int) =
@@ -80,8 +81,8 @@ data class MogImageMetadata(
         originTile,
         tiffTagToValue[TiffTag.TileWidth] as Int,
         tiffTagToValue[TiffTag.TileLength] as Int,
-        // TODO(https://github.com/google/ground-android/issues/2915): Refactor casts into typed
-        // accessors.
+        // TODO: Refactor casts into typed accessors.
+        // Issue URL: https://github.com/google/ground-android/issues/2915
         tiffTagToValue[TiffTag.TileOffsets] as List<Long>,
         tiffTagToValue[TiffTag.TileByteCounts] as List<Long>,
         tiffTagToValue[TiffTag.ImageWidth] as Int,

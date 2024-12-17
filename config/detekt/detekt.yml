@@ -592,7 +592,7 @@ style:
                 value: 'STOPSHIP:'
             -   reason: 'TODO comments must reference a GitHub issue for tracking. Format: TODO: and Issue URL: in next line.'
                 value: 'TODO:'
-        allowedPatterns: '^//\s*TODO:\s+.+'
+        allowedPatterns: '^// TODO: .+'
     ForbiddenImport:
         active: false
         imports: [ ]

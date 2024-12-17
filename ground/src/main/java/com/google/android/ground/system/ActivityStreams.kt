@@ -76,7 +76,8 @@ class ActivityStreams @Inject constructor(@ApplicationScope private val scope: C
   fun getActivityResults(requestCode: Int): Flow<ActivityResult> =
     _activityResults.filter { it.requestCode == requestCode }
 
-  // TODO(https://github.com/google/ground-android/issues/723): Define and handle timeouts.
+  // TODO: Define and handle timeouts.
+  // Issue URL: https://github.com/google/ground-android/issues/723
   /**
    * Emits the next [Activity.onActivityResult] event where `requestCode` matches the specified
    * value.
@@ -84,7 +85,8 @@ class ActivityStreams @Inject constructor(@ApplicationScope private val scope: C
   suspend fun getNextActivityResult(requestCode: Int): ActivityResult =
     getActivityResults(requestCode).first()
 
-  // TODO(https://github.com/google/ground-android/issues/723): Define and handle timeouts.
+  // TODO: Define and handle timeouts.
+  // Issue URL: https://github.com/google/ground-android/issues/723
   /**
    * Emits the next [Activity.onRequestPermissionsResult] event where `requestCode` matches the
    * specified value.

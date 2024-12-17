@@ -97,8 +97,8 @@ constructor(
   }
 
   private fun getGoogleSignInClient(activity: Activity): GoogleSignInClient =
-    // TODO(https://github.com/google/ground-android/issues/2912): Use app context instead of
-    // activity?
+    // TODO: Use app context instead of activity?
+    // Issue URL: https://github.com/google/ground-android/issues/2912
     GoogleSignIn.getClient(activity, googleSignInOptions)
 
   private fun onActivityResult(activityResult: ActivityResult) {
