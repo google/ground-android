@@ -32,20 +32,45 @@ internal object SurveyConverter {
   fun toSurvey(doc: DocumentSnapshot, jobs: List<Job> = listOf()): SurveyModel {
     if (!doc.exists()) throw DataStoreException("Missing survey")
 
-    val surveyFromProto = SurveyProto::class.parseFrom(doc, 1)
-    val jobMap = jobs.associateBy { it.id }
-    val dataSharingTerms =
-      if (surveyFromProto.dataSharingTerms.type == Survey.DataSharingTerms.Type.TYPE_UNSPECIFIED) {
-        null
-      } else {
-        surveyFromProto.dataSharingTerms
-      }
+    val surveyFromProto = parseSurveyFromDocument(doc)
+    val jobMap = convertJobsToMap(jobs)
+    val dataSharingTerms = getDataSharingTerms(surveyFromProto)
+
+    return createSurveyModel(doc, surveyFromProto, jobMap, dataSharingTerms)
+  }
+
+  /** Parse survey data from the DocumentSnapshot */
+  private fun parseSurveyFromDocument(doc: DocumentSnapshot): SurveyProto {
+    return SurveyProto::class.parseFrom(doc, 1)
+  }
+
+  /** Convert a list of jobs into a map for easy lookup */
+  private fun convertJobsToMap(jobs: List<Job>): Map<String, Job> {
+    return jobs.associateBy { it.id }
+  }
+
+  /** Extract dataSharingTerms from survey */
+  private fun getDataSharingTerms(surveyProto: SurveyProto): Survey.DataSharingTerms? {
+    return if (surveyProto.dataSharingTerms.type == Survey.DataSharingTerms.Type.TYPE_UNSPECIFIED) {
+      null
+    } else {
+      surveyProto.dataSharingTerms
+    }
+  }
+
+  /** Build SurveyModel from parsed data */
+  private fun createSurveyModel(
+    doc: DocumentSnapshot,
+    surveyProto: SurveyProto,
+    jobMap: Map<String, Job>,
+    dataSharingTerms: Survey.DataSharingTerms?,
+  ): SurveyModel {
     return SurveyModel(
-      surveyFromProto.id.ifEmpty { doc.id },
-      surveyFromProto.name,
-      surveyFromProto.description,
-      jobMap.toPersistentMap(),
-      surveyFromProto.aclMap.entries.associate { it.key to it.value.toString() },
+      id = surveyProto.id.ifEmpty { doc.id },
+      title = surveyProto.name,
+      description = surveyProto.description,
+      jobMap = jobMap.toPersistentMap(),
+      acl = surveyProto.aclMap.entries.associate { it.key to it.value.toString() },
       dataSharingTerms = dataSharingTerms,
     )
   }
