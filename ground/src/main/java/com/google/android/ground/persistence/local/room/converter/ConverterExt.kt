@@ -171,8 +171,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject(user: User): LocationOfInt
     surveyId = surveyId,
     jobId = jobId,
     deletionState = EntityDeletionState.DEFAULT,
-    // TODO: Preserve creation audit info for
-    //  UPDATE mutations.
+    // TODO: Preserve creation audit info for UPDATE mutations.
     // Issue URL: https://github.com/google/ground-android/issues/1562
     created = auditInfo,
     lastModified = auditInfo,
@@ -323,8 +322,7 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
     locationOfInterestId = this.locationOfInterestId,
     deletionState = EntityDeletionState.DEFAULT,
     data = SubmissionDataConverter.toString(SubmissionData().copyWithDeltas(this.deltas)),
-    // TODO: Preserve creation audit info for
-    //  UPDATE mutations.
+    // TODO: Preserve creation audit info for UPDATE mutations.
     // Issue URL: https://github.com/google/ground-android/issues/1562
     created = auditInfo,
     lastModified = auditInfo,

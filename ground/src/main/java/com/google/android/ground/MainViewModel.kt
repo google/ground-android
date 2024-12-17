@@ -63,8 +63,7 @@ constructor(
 
   init {
     viewModelScope.launch {
-      // TODO: Check auth status whenever
-      //  fragments resumes
+      // TODO: Check auth status whenever fragments resumes
       // Issue URL: https://github.com/google/ground-android/issues/2624
       authenticationManager.signInState.collect {
         _navigationRequests.emit(onSignInStateChange(it))
@@ -88,8 +87,7 @@ constructor(
       Timber.d("User cancelled sign in")
       MainUiState.OnUserSignedOut
     } else {
-      // TODO: Display some error dialog to
-      //  the user with a helpful user-readable message.
+      // TODO: Display some error dialog to the user with a helpful user-readable message.
       // Issue URL: https://github.com/google/ground-android/issues/1808
       onUserSignedOut()
     }
@@ -104,8 +102,7 @@ constructor(
     surveyRepository.clearActiveSurvey()
     userRepository.clearUserPreferences()
 
-    // TODO: Once multi-user login is
-    //  supported, avoid clearing local db data. This is
+    // TODO: Once multi-user login is supported, avoid clearing local db data. This is
     //  currently being done to prevent one user's data to be submitted as another user after
     //  re-login.
     // Issue URL: https://github.com/google/ground-android/issues/1691
