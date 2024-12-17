@@ -61,11 +61,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 /** View model for the Data Collection fragment. */
@@ -83,7 +85,7 @@ internal constructor(
   private val submissionRepository: SubmissionRepository,
   private val offlineUuidGenerator: OfflineUuidGenerator,
   locationOfInterestRepository: LocationOfInterestRepository,
-  private val surveyRepository: SurveyRepository,
+  surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
   private val _uiState: MutableStateFlow<UiState?> = MutableStateFlow(null)
@@ -98,15 +100,11 @@ internal constructor(
   private var shouldLoadFromDraft: Boolean = savedStateHandle[TASK_SHOULD_LOAD_FROM_DRAFT] ?: false
   private var draftDeltas: List<ValueDelta>? = null
 
-  private val _activeSurvey = MutableStateFlow<Survey?>(null)
-  val activeSurvey = _activeSurvey.asStateFlow()
-
-  init {
-    viewModelScope.launch { surveyRepository.activeSurveyFlow.collect { _activeSurvey.value = it } }
+  private val activeSurvey: Survey = runBlocking {
+    surveyRepository.activeSurveyFlow.filterNotNull().first()
   }
 
-  private val job: Job =
-    activeSurvey.value?.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
+  private val job: Job = activeSurvey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
   private var customLoiName: String?
     get() = savedStateHandle[TASK_LOI_NAME_KEY]
     set(value) {
