@@ -19,6 +19,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -85,6 +86,18 @@ class MainActivity : AbstractActivity() {
     lifecycleScope.launch {
       viewModel.navigationRequests.filterNotNull().collect { updateUi(binding.root, it) }
     }
+
+    onBackPressedDispatcher.addCallback(
+      this,
+      object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+          if (!dispatchBackPressed()) {
+            isEnabled = false
+            onBackPressedDispatcher.onBackPressed()
+          }
+        }
+      },
+    )
   }
 
   private fun updateUi(viewGroup: ViewGroup, uiState: MainUiState) {
@@ -180,11 +193,6 @@ class MainActivity : AbstractActivity() {
     } else {
       false
     }
-  }
-
-  @Deprecated("Deprecated in Java")
-  override fun onBackPressed() {
-    if (!dispatchBackPressed()) super.onBackPressed()
   }
 
   private fun dispatchBackPressed(): Boolean {
