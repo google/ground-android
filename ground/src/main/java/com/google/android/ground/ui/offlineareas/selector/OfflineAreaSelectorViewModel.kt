@@ -107,17 +107,21 @@ internal constructor(
           isDownloadProgressVisible.postValue(false)
         }
         .collect { (bytesDownloaded, totalBytes) ->
-          val progressValue =
-            if (totalBytes > 0) {
-              (bytesDownloaded.toFloat() / totalBytes.toFloat()).coerceIn(0f, 1f)
-            } else {
-              0f
-            }
-          downloadProgress.postValue(progressValue)
+          updateDownloadProgress(bytesDownloaded, totalBytes)
         }
       isDownloadProgressVisible.postValue(false)
       _navigate.emit(UiState.OfflineAreaBackToHomeScreen)
     }
+  }
+
+  private fun updateDownloadProgress(bytesDownloaded: Int, totalBytes: Int) {
+    val progressValue =
+      if (totalBytes > 0) {
+        (bytesDownloaded.toFloat() / totalBytes.toFloat()).coerceIn(0f, 1f)
+      } else {
+        0f
+      }
+    downloadProgress.postValue(progressValue)
   }
 
   fun onCancelClick() {
