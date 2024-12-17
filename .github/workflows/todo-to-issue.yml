@@ -25,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       - name: "TODO to Issue"
         uses: alstr/todo-to-issue-action@v5.1.7
         with:
