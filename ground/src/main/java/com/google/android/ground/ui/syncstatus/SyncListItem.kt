@@ -50,7 +50,7 @@ import com.google.android.ground.ui.theme.AppTheme
 import java.util.Date
 
 @Composable
-fun SyncListItem(modifier: Modifier, detail: MutationDetail) {
+fun SyncListItem(modifier: Modifier, detail: SyncStatusDetail) {
   Column {
     Row(modifier.fillMaxWidth().padding(top = 8.dp, end = 24.dp, bottom = 8.dp, start = 16.dp)) {
       Column(modifier.weight(1f)) {
@@ -80,8 +80,8 @@ fun SyncListItem(modifier: Modifier, detail: MutationDetail) {
             fontWeight = FontWeight(400),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
-        Text(text = detail.loiLabel, style = textStyle)
-        Text(text = detail.loiSubtitle, style = textStyle)
+        Text(text = detail.label, style = textStyle)
+        Text(text = detail.subtitle, style = textStyle)
       }
       Column(modifier = modifier.padding(start = 16.dp).align(alignment = CenterVertically)) {
         Row(verticalAlignment = CenterVertically) {
@@ -140,11 +140,11 @@ private fun Mutation.SyncStatus.toIcon(): Int =
 @Preview(showBackground = true, showSystemUi = true)
 @ExcludeFromJacocoGeneratedReport
 fun PreviewSyncListItem(
-  detail: MutationDetail =
-    MutationDetail(
+  detail: SyncStatusDetail =
+    SyncStatusDetail(
       user = "Jane Doe",
-      loiLabel = "Map the farms",
-      loiSubtitle = "IDX21311",
+      label = "Map the farms",
+      subtitle = "IDX21311",
       mutation =
         SubmissionMutation(
           job = Job(id = "123"),
