@@ -23,8 +23,8 @@ import androidx.multidex.MultiDexApplication
 import androidx.work.Configuration
 import com.google.android.ground.Config.isReleaseBuild
 import dagger.hilt.android.HiltAndroidApp
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 @HiltAndroidApp
 class GroundApplication : MultiDexApplication(), Configuration.Provider {
