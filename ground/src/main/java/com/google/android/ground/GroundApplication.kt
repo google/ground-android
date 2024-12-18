@@ -23,8 +23,8 @@ import androidx.multidex.MultiDexApplication
 import androidx.work.Configuration
 import com.google.android.ground.Config.isReleaseBuild
 import dagger.hilt.android.HiltAndroidApp
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltAndroidApp
 class GroundApplication : MultiDexApplication(), Configuration.Provider {
@@ -42,8 +42,6 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
       Timber.d("DEBUG build config active; enabling debug tooling")
 
       // Log failures when trying to do work in the UI thread.
-      // TODO: Testing todo-to-issue
-      // Issue URL: https://github.com/google/ground-android/issues/2948
       setStrictMode()
     }
   }
