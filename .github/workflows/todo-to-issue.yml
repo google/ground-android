@@ -16,9 +16,8 @@
 
 name: "Run TODO to Issue"
 on:
-  push:
-    branches:
-      - replace-with-master-when-fixed
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
   build:
@@ -26,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          ref: ${{ github.head_ref }}
       - name: "TODO to Issue"
         uses: alstr/todo-to-issue-action@v5.1.7
         with:
@@ -35,14 +34,14 @@ jobs:
           CLOSE_ISSUES: "true"
       - name: Set Git user
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name ${{ github.actor }}
+          git config --global user.email `git log -n 1 --pretty=format:%ae remotes/origin/${{ github.head_ref }}`
       - name: Commit and Push Changes
         run: |
           git add -A
           if [[ `git status --porcelain` ]]; then
             git commit -m "Automatically added GitHub issue links to TODOs"
-            git push origin master
+            git push origin ${{ github.head_ref }}
           else
             echo "No changes to commit"
           fi
