@@ -18,15 +18,15 @@ package com.google.android.ground
 
 sealed class MainUiState {
 
-  data object OnPermissionDenied : MainUiState()
+  data object PermissionDeniedDialog : MainUiState()
 
-  data object OnUserSignedOut : MainUiState()
+  data object SignInScreen : MainUiState()
 
-  data object OnUserSigningIn : MainUiState()
+  data object SignInProgressDialog : MainUiState()
 
-  data object TosNotAccepted : MainUiState()
+  data object TermsOfService : MainUiState()
 
-  data object NoActiveSurvey : MainUiState()
+  data object SurveySelector : MainUiState()
 
-  data object ShowHomeScreen : MainUiState()
+  data object HomeScreen : MainUiState()
 }

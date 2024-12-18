@@ -19,6 +19,7 @@ import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.GoogleApiManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import javax.inject.Inject
+import timber.log.Timber
 
 class StartupViewModel
 @Inject
@@ -29,7 +30,9 @@ internal constructor(
 
   /** Initializes the login flow, installing Google Play Services if necessary. */
   suspend fun initializeLogin() {
+    Timber.d("Checking for Play services")
     googleApiManager.installGooglePlayServices()
+    Timber.d("Initializing user repository")
     userRepository.init()
   }
 }

@@ -20,6 +20,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_CANCELLED
 import com.google.android.gms.common.api.ApiException
+import com.google.android.ground.MainUiState.*
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.survey.ReactivateLastSurveyUseCase
 import com.google.android.ground.model.User
@@ -29,14 +30,15 @@ import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.system.auth.SignInState
+import com.google.android.ground.system.auth.SignInState.*
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.util.isPermissionDeniedException
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -55,37 +57,36 @@ constructor(
   authenticationManager: AuthenticationManager,
 ) : AbstractViewModel() {
 
-  private val _navigationRequests: MutableSharedFlow<MainUiState?> = MutableSharedFlow()
-  var navigationRequests: SharedFlow<MainUiState?> = _navigationRequests.asSharedFlow()
+  private val _mainUiState = MutableStateFlow<MainUiState?>(null)
+  var mainUiState: StateFlow<MainUiState?> = _mainUiState.asStateFlow()
 
   /** The window insets determined by the activity. */
   val windowInsets: MutableLiveData<WindowInsetsCompat> = MutableLiveData()
 
   init {
-    viewModelScope.launch {
-      // TODO: Check auth status whenever fragments resumes
-      authenticationManager.signInState.collect {
-        _navigationRequests.emit(onSignInStateChange(it))
-      }
+    viewModelScope.launch { authenticationManager.signInState.collect { onSignInStateChange(it) } }
+  }
+
+  /** Reacts to changes to the authentication state, updating the main UI state accordingly. */
+  private suspend fun onSignInStateChange(signInState: SignInState) {
+    Timber.d("Sign in state changed. New state: $signInState")
+    when (signInState) {
+      is SigningIn -> _mainUiState.value = SignInProgressDialog
+      is SignedIn -> onUserSignedIn(signInState.user)
+      is SignedOut -> onUserSignedOut()
+      is Error -> onUserSignInError(signInState.error)
     }
   }
 
-  private suspend fun onSignInStateChange(signInState: SignInState): MainUiState =
-    when (signInState) {
-      is SignInState.Error -> onUserSignInError(signInState.error)
-      is SignInState.SignedIn -> onUserSignedIn(signInState.user)
-      is SignInState.SignedOut -> onUserSignedOut()
-      is SignInState.SigningIn -> MainUiState.OnUserSigningIn
-    }
-
-  private fun onUserSignInError(error: Throwable): MainUiState {
-    Timber.e(error, "Sign in failed")
-    return if (error.isPermissionDeniedException()) {
-      MainUiState.OnPermissionDenied
+  private fun onUserSignInError(error: Throwable) {
+    if (error.isPermissionDeniedException()) {
+      Timber.d(error, "User does not have permission to sign in")
+      _mainUiState.value = PermissionDeniedDialog
     } else if (error.isSignInCancelledException()) {
       Timber.d("User cancelled sign in")
-      MainUiState.OnUserSignedOut
+      _mainUiState.value = SignInScreen
     } else {
+      Timber.d(error, "Unknown sign in error")
       // TODO(#1808): Display some error dialog to the user with a helpful user-readable message.
       onUserSignedOut()
     }
@@ -94,7 +95,7 @@ constructor(
   private fun Throwable.isSignInCancelledException() =
     this is ApiException && statusCode == SIGN_IN_CANCELLED
 
-  private fun onUserSignedOut(): MainUiState {
+  private fun onUserSignedOut() {
     // Scope of subscription is until view model is cleared. Dispose it manually otherwise, firebase
     // attempts to maintain a connection even after user has logged out and throws an error.
     surveyRepository.clearActiveSurvey()
@@ -104,19 +105,19 @@ constructor(
     //  currently being done to prevent one user's data to be submitted as another user after
     //  re-login.
     viewModelScope.launch { withContext(ioDispatcher) { localDatabase.clearAllTables() } }
-    return MainUiState.OnUserSignedOut
+    _mainUiState.value = SignInScreen
   }
 
-  private suspend fun onUserSignedIn(user: User): MainUiState =
+  private suspend fun onUserSignedIn(user: User) =
     try {
       userRepository.saveUserDetails(user)
       if (!isTosAccepted()) {
-        MainUiState.TosNotAccepted
+        _mainUiState.value = TermsOfService
       } else if (!attemptToReactiveLastActiveSurvey()) {
-        MainUiState.NoActiveSurvey
+        _mainUiState.value = SurveySelector
       } else {
         // Everything is fine, show the home screen
-        MainUiState.ShowHomeScreen
+        _mainUiState.value = HomeScreen
       }
     } catch (e: Throwable) {
       onUserSignInError(e)

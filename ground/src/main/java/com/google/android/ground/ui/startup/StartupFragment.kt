@@ -26,6 +26,7 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.EphemeralPopups
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -53,6 +54,8 @@ class StartupFragment : AbstractFragment() {
     viewLifecycleOwner.lifecycleScope.launch {
       try {
         viewModel.initializeLogin()
+      } catch (e: CancellationException) {
+        Timber.d(e, "Startup job cancelled")
       } catch (t: Throwable) {
         onInitFailed(t)
       }
