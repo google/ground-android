@@ -42,6 +42,7 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
       Timber.d("DEBUG build config active; enabling debug tooling")
 
       // Log failures when trying to do work in the UI thread.
+      // TODO: Testing todo-to-issue
       setStrictMode()
     }
   }
