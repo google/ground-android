@@ -43,6 +43,7 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
 
       // Log failures when trying to do work in the UI thread.
       // TODO: Testing todo-to-issue
+      // Issue URL: https://github.com/google/ground-android/issues/2948
       setStrictMode()
     }
   }
