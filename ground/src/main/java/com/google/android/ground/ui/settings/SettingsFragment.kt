@@ -30,8 +30,6 @@ import com.google.android.ground.R
  *
  * NOTE: It uses [PreferenceFragmentCompat] instead of [ ], so dagger can't inject into it like it
  * does in other fragments.
- *
- * TODO: Create dagger module and support injection into this fragment.
  */
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClickListener {
 

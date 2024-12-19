@@ -127,9 +127,6 @@ internal constructor(
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
-    // TODO: Clear location of interest markers when survey is deactivated.
-    // TODO: Since we depend on survey stream from repo anyway, this transformation can be moved
-    //  into the repository.
 
     @OptIn(FlowPreview::class)
     mapLoiFeatures =

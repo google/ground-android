@@ -76,21 +76,23 @@ class ActivityStreams @Inject constructor(@ApplicationScope private val scope: C
   fun getActivityResults(requestCode: Int): Flow<ActivityResult> =
     _activityResults.filter { it.requestCode == requestCode }
 
+  // TODO: Define and handle timeouts.
+  // Issue URL: https://github.com/google/ground-android/issues/723
   /**
    * Emits the next [Activity.onActivityResult] event where `requestCode` matches the specified
    * value.
    */
   suspend fun getNextActivityResult(requestCode: Int): ActivityResult =
-    getActivityResults(requestCode).first() // TODO(#723): Define and handle timeouts.
+    getActivityResults(requestCode).first()
 
+  // TODO: Define and handle timeouts.
+  // Issue URL: https://github.com/google/ground-android/issues/723
   /**
    * Emits the next [Activity.onRequestPermissionsResult] event where `requestCode` matches the
    * specified value.
    */
   suspend fun getNextRequestPermissionsResult(requestCode: Int): RequestPermissionsResult =
-    _requestPermissionsResults
-      .filter { it.requestCode == requestCode }
-      .first() // TODO(#723): Define and handle timeouts.
+    _requestPermissionsResults.filter { it.requestCode == requestCode }.first()
 }
 
 typealias ActivityCallback = (activity: Activity) -> Unit

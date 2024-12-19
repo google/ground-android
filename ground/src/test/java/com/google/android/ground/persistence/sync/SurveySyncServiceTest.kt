@@ -84,7 +84,8 @@ class SurveySyncServiceTest : BaseHiltTest() {
     testDriver.setAllConstraintsMet(requestId)
     advanceUntilIdle()
 
-    // TODO(#1787): Re-enable once GCB-specific flake is resolved.
+    // TODO: Re-enable once GCB-specific flake is resolved.
+    // Issue URL: https://github.com/google/ground-android/issues/1787
     //    verify(syncSurvey).invoke(surveyId)
     //    assertEquals(WorkInfo.State.SUCCEEDED,
     // workManager.getWorkInfoById(requestId).await().state)

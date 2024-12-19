@@ -24,10 +24,10 @@ import com.google.android.ground.proto.LocationOfInterest as LocationOfInterestP
 import com.google.android.ground.proto.LocationOfInterest.Source
 import com.google.firebase.firestore.DocumentSnapshot
 
-// TODO: Add tests.
 /** Converts between Firestore documents and [LocationOfInterest] instances. */
 object LoiConverter {
-  // TODO(#2392): Define field names on DocumentReference objects, not converters.
+  // TODO: Define field names on DocumentReference objects, not converters.
+  // Issue URL: https://github.com/google/ground-android/issues/2375
   const val GEOMETRY_TYPE = "type"
   const val POLYGON_TYPE = "Polygon"
 
@@ -71,7 +71,8 @@ object LoiConverter {
       job = job,
       created = created,
       lastModified = lastModified,
-      // TODO(#929): Set geometry once LOI has been updated to use our own model.
+      // TODO: Set geometry once LOI has been updated to use our own model.
+      // Issue URL: https://github.com/google/ground-android/issues/929
       geometry = geometry,
       submissionCount = submissionCount,
       properties = properties,

@@ -48,6 +48,7 @@ import java.util.Date
  */
 object FakeData {
   // TODO: Replace constants with calls to newFoo() methods.
+  // Issue URL: https://github.com/google/ground-android/issues/2917
   val TERMS_OF_SERVICE: TermsOfService =
     TermsOfService("TERMS_OF_SERVICE", "Fake Terms of Service text")
   const val JOB_ID = "job id"
