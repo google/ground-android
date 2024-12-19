@@ -56,9 +56,6 @@ import kotlinx.coroutines.launch
 class HomeScreenFragment :
   AbstractFragment(), BackPressListener, NavigationView.OnNavigationItemSelectedListener {
 
-  // TODO: It's not obvious which locations of interest are in HomeScreen vs MapContainer;
-  //  make this more intuitive.
-
   @Inject lateinit var ephemeralPopups: EphemeralPopups
   @Inject lateinit var userRepository: UserRepository
   private lateinit var binding: HomeScreenFragBinding
