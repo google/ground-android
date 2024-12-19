@@ -206,6 +206,7 @@ class JobMapAdapter(private val getSubmissionCount: suspend (loi: LocationOfInte
     }
   }
 
+  @Suppress("CognitiveComplexMethod", "LongMethod")
   @OptIn(ExperimentalMaterial3Api::class)
   @Composable
   private fun InitializeJobCard() {

@@ -101,7 +101,6 @@
   <string name="close_app">Close app</string>
   <string name="cancel">Cancel</string>
   <string name="save">Save</string>
-  <string name="begin">Begin</string>
   <string name="no_imagery_available_for_area">No imagery for this area. Select an area with imagery to download to your device.</string>
   <string name="selected_offline_area_size">The selected area may take up to %s\u00A0MB of space on your device</string>
   <string name="selected_offline_area_too_large">Zoom in and select a smaller area to download to your device</string>

@@ -80,9 +80,6 @@
   <string name="skip">Omitir</string>
 
   <string name="drop_pin">Colocar marcador</string>
-
-  <string name="new_site">Nuevo sitio de recolección de datos</string>
-  <string name="new_site_hint_text">Añadir nuevo sitio y enviar datos relacionados</string>
   <string name="drop_a_pin_tooltip_text">Arrastre el mapa hasta que el marcador central esté en la ubicación deseada</string>
   <string name="current_location">Ubicación actual:</string>
   <string name="loading">Cargando…</string>

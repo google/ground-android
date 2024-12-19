@@ -41,7 +41,7 @@
   <string name="google_api_install_failed">A instalação do Google Play Services falhou</string>
   <string name="sign_out">Terminar sessão</string>
   <string name="ok">OK</string>
-  <string name="collect_data">Coletar dados</string>
+  <string name="add_data">Coletar dados</string>
 
   <!-- Untranslated strings -->
   <string name="offline_area_selector">Selecione a área para fazer download</string>
@@ -80,9 +80,6 @@
   <string name="skip">Pular</string>
 
   <string name="drop_pin">Marcar ponto</string>
-
-  <string name="new_site">Novo local de coleta de dados</string>
-  <string name="new_site_hint_text">Adicionar novo local e enviar dados relacionados</string>
   <string name="drop_a_pin_tooltip_text">Arraste o mapa até que o ponto central esteja na localização desejada</string>
   <string name="current_location">Localização atual:</string>
   <string name="loading">Carregando…</string>

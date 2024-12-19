@@ -81,9 +81,6 @@
   <string name="skip">Ignore</string>
 
   <string name="drop_pin">Placer une épingle</string>
-
-  <string name="new_site">Nouveau site de collecte</string>
-  <string name="new_site_hint_text">Ajouter un nouveau site et soumettre les données correspondantes</string>
   <string name="drop_a_pin_tooltip_text">Faites glisser votre carte jusqu&#8217;à ce que l&#8217;épingle au centre se trouve à l&#8217;endroit souhaité.</string>
   <string name="current_location">Localisation actuelle :</string>
   <string name="loading">Chargement…</string>
