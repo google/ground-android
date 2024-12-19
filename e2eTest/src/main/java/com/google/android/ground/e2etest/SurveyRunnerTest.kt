@@ -114,7 +114,7 @@ class SurveyRunnerTest : AutomatorRunner {
   private fun zoomIntoLocation() {
     clickLocationLock()
     allowPermissions()
-    val loiCardSelector = byClass(CardView::class).hasDescendant(byText(R.string.collect_data))
+    val loiCardSelector = byClass(CardView::class).hasDescendant(byText(R.string.add_data))
     if (device.wait(Until.hasObject(loiCardSelector), LONG_TIMEOUT) == null) {
       captureScreenshot()
       fail("Failed to zoom in to location.")
@@ -130,8 +130,8 @@ class SurveyRunnerTest : AutomatorRunner {
     val cards = device.findObjects(loiCardSelector)
     cards.forEach { it.swipe(Direction.LEFT, 1F) }
     val loiCollectDataButtonSelector =
-      byText(R.string.collect_data)
-        .hasAncestor(loiCardSelector.hasDescendant(byText(R.string.new_site)))
+      byText(R.string.add_data)
+        .hasAncestor(loiCardSelector.hasDescendant(byText(R.string.add_site)))
     if (!waitClickGone(loiCollectDataButtonSelector)) {
       captureScreenshot()
       fail("Failed to start ad-hoc loi data collection.")
@@ -145,7 +145,7 @@ class SurveyRunnerTest : AutomatorRunner {
       fail("Failed to find predefined loi card")
     }
     // Assume that the first card is the predefined LOI.
-    val loiCollectDataButtonSelector = byText(R.string.collect_data)
+    val loiCollectDataButtonSelector = byText(R.string.add_data)
     if (!waitClickGone(loiCollectDataButtonSelector)) {
       captureScreenshot()
       fail("Failed to start predefined loi data collection.")
