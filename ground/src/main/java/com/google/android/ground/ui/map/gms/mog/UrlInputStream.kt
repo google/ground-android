@@ -22,7 +22,7 @@ import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
-const val READ_TIMEOUT_MS = 5 * 1000
+private const val READ_TIMEOUT_MS = 5 * 1000
 
 /**
  * @constructor Creates a [UrlInputStream] by opening a connection to an actual URL, requesting the
