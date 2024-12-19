@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.home.mapcontainer.cards
+package com.google.android.ground.ui.home.mapcontainer.jobs
 
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 
 /** Data classes used to populate the Map cards (either an Loi card, or a Suggest Loi card). */
-sealed interface MapCardUiData {
+sealed interface DataCollectionEntryPointData {
 
-  data class LoiCardUiData(val loi: LocationOfInterest) : MapCardUiData
+  data class SelectedLoiSheetData(val loi: LocationOfInterest) : DataCollectionEntryPointData
 
-  data class AddLoiCardUiData(val job: Job) : MapCardUiData
+  data class AdHocDataCollectionButtonData(val job: Job) : DataCollectionEntryPointData
 }
