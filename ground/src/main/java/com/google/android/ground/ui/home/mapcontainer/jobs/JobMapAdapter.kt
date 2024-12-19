@@ -147,7 +147,9 @@ class JobMapAdapter(private val getSubmissionCount: suspend (loi: LocationOfInte
   private fun initializeJobCard() {
     with(basemapLayoutBinding) {
       (bottomContainer as ViewGroup).addView(
-        ComposeView(bottomContainer.context).apply { setContent { AppTheme { InitializeJobCard() } } }
+        ComposeView(bottomContainer.context).apply {
+          setContent { AppTheme { InitializeJobCard() } }
+        }
       )
     }
   }
@@ -189,7 +191,7 @@ class JobMapAdapter(private val getSubmissionCount: suspend (loi: LocationOfInte
       basemapLayoutBinding.locationLockBtn.hide()
       menuBinding.hamburgerBtn.hide()
       Modal(onDismiss = { openJobsModal = false }) {
-        jobs.forEach {job->
+        jobs.forEach { job ->
           JobSelectionRow(job) {
             collectDataCallback(job)
             openJobsModal = false
@@ -219,7 +221,7 @@ class JobMapAdapter(private val getSubmissionCount: suspend (loi: LocationOfInte
     if (!showJobCard) {
       return
     }
-    loi?.let {loiData ->
+    loi?.let { loiData ->
       ModalBottomSheet(
         onDismissRequest = { closeJobCard() },
         sheetState = sheetState,
