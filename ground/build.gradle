@@ -18,11 +18,11 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlinx-serialization'
-apply plugin: 'com.google.dagger.hilt.android'
-apply plugin: 'com.google.firebase.firebase-perf'
-apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'com.google.android.gms.oss-licenses-plugin'
-apply plugin: 'com.google.protobuf'
+apply plugin: 'com.groundplatform.dagger.hilt.android'
+apply plugin: 'com.groundplatform.firebase.firebase-perf'
+apply plugin: 'com.groundplatform.firebase.crashlytics'
+apply plugin: 'com.groundplatform.android.gms.oss-licenses-plugin'
+apply plugin: 'com.groundplatform.protobuf'
 
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
@@ -41,10 +41,10 @@ project.ext {
 // Directory where downloaded Protocol Buffer definitions are extracted to.
 def extractedGroundProtoPath = layout.buildDirectory.dir('extracted-ground-protos')
 
-// Extract API key from google-services.json for use with Google Maps SDK.
+// Extract API key from groundplatform-services.json for use with Google Maps SDK.
 import groovy.json.JsonSlurper
 
-def inputFile = new File("ground/src/debug/google-services.json")
+def inputFile = new File("ground/src/debug/groundplatform-services.json")
 def json = inputFile.exists() ? new JsonSlurper().parseText(inputFile.text) : null
 def googleMapsApiKey = json ? json.client[0].api_key[0].current_key : ''
 
@@ -75,14 +75,14 @@ android {
         }
     }
     defaultConfig {
-        applicationId "com.google.android.ground"
+        applicationId "com.groundplatform.android.ground"
         minSdkVersion rootProject.androidMinSdk
         targetSdkVersion rootProject.androidTargetSdk
 
         // TODO(https://github.com/google/ground-android/pull/985): Calculate version code manually
         versionCode gitVersioner.versionCode
         versionName gitVersioner.versionName + " " + getCommitSha1()
-        testInstrumentationRunner "com.google.android.ground.CustomTestRunner"
+        testInstrumentationRunner "com.groundplatform.android.ground.CustomTestRunner"
         multiDexEnabled true
         // For rendering vector map markers.
         vectorDrawables.useSupportLibrary = true
@@ -182,7 +182,7 @@ android {
         }
         animationsDisabled = true
     }
-    namespace 'com.google.android.ground'
+    namespace 'com.groundplatform.android.ground'
 }
 
 configurations {
@@ -217,7 +217,7 @@ dependencies {
 
     // UI widgets.
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'com.groundplatform.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     // Jetpack Compose
@@ -234,48 +234,48 @@ dependencies {
     implementation 'androidx.compose.runtime:runtime-livedata:1.6.8'
 
     // Google Play Services.
-    implementation 'com.google.android.gms:play-services-auth:21.2.0'
-    implementation 'com.google.android.gms:play-services-maps:19.0.0'
-    implementation 'com.google.android.gms:play-services-location:21.3.0'
+    implementation 'com.groundplatform.android.gms:play-services-auth:21.2.0'
+    implementation 'com.groundplatform.android.gms:play-services-maps:19.0.0'
+    implementation 'com.groundplatform.android.gms:play-services-location:21.3.0'
 
-    implementation "com.google.maps.android:android-maps-utils:3.8.2"
+    implementation "com.groundplatform.maps.android:android-maps-utils:3.8.2"
 
     // GeoJSON support
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.groundplatform.code.gson:gson:2.10.1'
 
     // Test Json
     testImplementation 'org.json:json:20180813'
 
     // Firebase and related libraries.
-    implementation platform('com.google.firebase:firebase-bom:33.1.2')
-    implementation 'com.google.firebase:firebase-analytics'
-    implementation 'com.google.firebase:firebase-firestore'
-    implementation 'com.google.firebase:firebase-functions-ktx'
-    implementation 'com.google.firebase:firebase-auth'
-    implementation 'com.google.firebase:firebase-perf'
-    implementation 'com.google.firebase:firebase-storage'
-    implementation 'com.google.firebase:firebase-crashlytics'
-    implementation 'com.google.firebase:firebase-messaging'
-    implementation 'com.google.firebase:firebase-messaging-directboot'
-    implementation 'com.google.firebase:firebase-messaging-ktx'
+    implementation platform('com.groundplatform.firebase:firebase-bom:33.1.2')
+    implementation 'com.groundplatform.firebase:firebase-analytics'
+    implementation 'com.groundplatform.firebase:firebase-firestore'
+    implementation 'com.groundplatform.firebase:firebase-functions-ktx'
+    implementation 'com.groundplatform.firebase:firebase-auth'
+    implementation 'com.groundplatform.firebase:firebase-perf'
+    implementation 'com.groundplatform.firebase:firebase-storage'
+    implementation 'com.groundplatform.firebase:firebase-crashlytics'
+    implementation 'com.groundplatform.firebase:firebase-messaging'
+    implementation 'com.groundplatform.firebase:firebase-messaging-directboot'
+    implementation 'com.groundplatform.firebase:firebase-messaging-ktx'
 
     // Hilt
-    implementation "com.google.dagger:hilt-android:$project.hiltVersion"
-    kapt "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
-    kapt "com.google.dagger:hilt-compiler:$project.hiltVersion"
+    implementation "com.groundplatform.dagger:hilt-android:$project.hiltVersion"
+    kapt "com.groundplatform.dagger:hilt-android-compiler:$project.hiltVersion"
+    kapt "com.groundplatform.dagger:hilt-compiler:$project.hiltVersion"
     implementation "androidx.hilt:hilt-navigation-fragment:$project.hiltJetpackVersion"
     // For Robolectric tests.
-    testImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
+    testImplementation "com.groundplatform.dagger:hilt-android-testing:$project.hiltVersion"
     // ...with Kotlin.
-    kaptTest "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+    kaptTest "com.groundplatform.dagger:hilt-android-compiler:$project.hiltVersion"
     // ...with Java.
-    testAnnotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+    testAnnotationProcessor "com.groundplatform.dagger:hilt-android-compiler:$project.hiltVersion"
     // For instrumented tests.
-    androidTestImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
+    androidTestImplementation "com.groundplatform.dagger:hilt-android-testing:$project.hiltVersion"
     // ...with Kotlin.
-    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+    kaptAndroidTest "com.groundplatform.dagger:hilt-android-compiler:$project.hiltVersion"
     // ...with Java.
-    androidTestAnnotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+    androidTestAnnotationProcessor "com.groundplatform.dagger:hilt-android-compiler:$project.hiltVersion"
     // Hilt Android Worker API support.
     implementation "androidx.hilt:hilt-work:$project.hiltJetpackVersion"
     kapt "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
@@ -291,8 +291,8 @@ dependencies {
     implementation "androidx.navigation:navigation-ui-ktx:$project.navigationVersion"
 
     // Auto-value
-    compileOnly "com.google.auto.value:auto-value-annotations:$project.autoValueVersion"
-    kapt "com.google.auto.value:auto-value:$project.autoValueVersion"
+    compileOnly "com.groundplatform.auto.value:auto-value-annotations:$project.autoValueVersion"
+    kapt "com.groundplatform.auto.value:auto-value:$project.autoValueVersion"
 
     // Picasso: Image downloading and caching library
     implementation 'com.squareup.picasso:picasso:2.71828'
@@ -311,7 +311,7 @@ dependencies {
     testImplementation "androidx.work:work-testing:$workVersion"
 
     // OSS Licenses Plugin
-    implementation 'com.google.android.gms:play-services-oss-licenses:17.1.0'
+    implementation 'com.groundplatform.android.gms:play-services-oss-licenses:17.1.0'
 
     // Markdown Parser
     implementation 'org.jetbrains:markdown:0.7.3'
@@ -320,8 +320,8 @@ dependencies {
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "junit:junit:$junitVersion"
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    testImplementation 'com.google.truth:truth:1.4.2'
-    androidTestImplementation 'com.google.truth:truth:1.4.2'
+    testImplementation 'com.groundplatform.truth:truth:1.4.2'
+    androidTestImplementation 'com.groundplatform.truth:truth:1.4.2'
     testImplementation 'androidx.test:core:1.6.1'
     testImplementation 'org.robolectric:robolectric:4.11.1'
     testImplementation 'android.arch.core:core-testing:1.1.1'
@@ -356,18 +356,18 @@ dependencies {
     //noinspection AndroidLintFragmentGradleConfiguration
     stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
 
-    implementation "com.google.guava:guava:33.0.0-android"
+    implementation "com.groundplatform.guava:guava:33.0.0-android"
 
     // TODO(#1748): Move protos into shared module and set correct path here.
-    api("com.google.protobuf:protobuf-kotlin-lite:4.26.1")
+    api("com.groundplatform.protobuf:protobuf-kotlin-lite:4.26.1")
 
     // Pulls protodefs from the specified commit in the ground-platform repo.
-    groundProtoJar "com.github.google:ground-platform:125cf86@jar"
+    groundProtoJar "com.github.groundplatform:ground-platform:125cf86@jar"
 }
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:4.26.1"
+        artifact = "com.groundplatform.protobuf:protoc:4.26.1"
     }
     generateProtoTasks {
         all().each {
@@ -409,7 +409,7 @@ apply plugin: 'androidx.navigation.safeargs'
 
 // This must be last to avoid dependency collisions.
 // https://developers.google.com/android/guides/google-services-plugin#introduction
-apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.groundplatform.gms.groundplatform-services'
 
 kotlin {
     jvmToolchain rootProject.jvmToolchainVersion

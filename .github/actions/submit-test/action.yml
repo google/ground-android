@@ -16,11 +16,11 @@ name: Submit to survey
 inputs:
     android-repository:
         description: 'ground-android repository under test'
-        default: google/ground-android
+        default: groundplatform/ground-android
 
     platform-repository:
         description: 'ground-platform repository under test (if applicable)'
-        default: google/ground-platform
+        default: groundplatform/ground-platform
 
     use-repo-data:
         description: 'Whether to use the local repository emulator data or not'
@@ -130,11 +130,11 @@ runs:
         -   name: Replace Google Maps API key
             shell: bash
             env:
-                GOOGLE_MAPS_KEY: ${{ inputs.google-maps-key }}
+                GOOGLE_MAPS_KEY: ${{ inputs.groundplatform-maps-key }}
             run: |
                 sed -E -i 's/("current_key": ")[[:alnum:]_-]+(")/\1'"$GOOGLE_MAPS_KEY"'\2/' ground/src/debug/local/google-services.json
 
-        -   name: Move the local google-services.json
+        -   name: Move the local groundplatform-services.json
             shell: bash
             run: |
                 cp -r ground/src/debug/local/google-services.json ground/src/debug/

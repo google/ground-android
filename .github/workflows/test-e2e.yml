@@ -35,7 +35,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Run create-test
-        uses: google/ground-platform/.github/actions/create-test@master
+        uses: groundplatform/ground-platform/.github/actions/create-test@master
         with:
             upload-artifacts: true
 
@@ -61,6 +61,6 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Run verify-test
-        uses: google/ground-platform/.github/actions/verify-test@master
+        uses: groundplatform/ground-platform/.github/actions/verify-test@master
         with:
             use-repo-data: false

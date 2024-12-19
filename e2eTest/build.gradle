@@ -20,7 +20,7 @@ plugins {
 
 android {
     targetProjectPath ':ground'
-    namespace 'com.google.android.ground.e2etest'
+    namespace 'com.groundplatform.android.ground.e2etest'
     compileSdk rootProject.androidCompileSdk
 
     defaultConfig {
@@ -73,7 +73,7 @@ dependencies {
     implementation "androidx.test:runner:1.6.1"
     implementation "androidx.test:rules:1.6.1"
     implementation "androidx.test.uiautomator:uiautomator:2.3.0"
-    implementation 'com.google.truth:truth:1.4.2'
+    implementation 'com.groundplatform.truth:truth:1.4.2'
     implementation "junit:junit:$junitVersion"
     implementation project(':ground')
 }

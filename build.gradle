@@ -37,21 +37,21 @@ buildscript {
     dependencies {
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
         classpath 'com.android.tools.build:gradle:8.3.2'
-        classpath 'com.google.gms:google-services:4.4.2'
+        classpath 'com.groundplatform.gms:groundplatform-services:4.4.2'
         classpath "de.sharpmind:gitversioner:0.6.3"
 
         // Performance Monitoring plugin: https://firebase.google.com/docs/perf-mon
-        classpath 'com.google.firebase:perf-plugin:1.4.2'
+        classpath 'com.groundplatform.firebase:perf-plugin:1.4.2'
 
         // Crashlytics plugin
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.2'
+        classpath 'com.groundplatform.firebase:firebase-crashlytics-gradle:3.0.2'
 
         // Kotlin
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion"
 
         // OSS Licenses Plugin
-        classpath 'com.google.android.gms:oss-licenses-plugin:0.10.6'
+        classpath 'com.groundplatform.android.gms:oss-licenses-plugin:0.10.6'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -62,9 +62,9 @@ plugins {
     id "org.jetbrains.kotlin.android" version "$kotlinVersion" apply false
     id "org.jetbrains.kotlin.plugin.serialization" version "$kotlinVersion"
     id "com.ncorti.ktfmt.gradle" version "0.20.0"
-    id "com.google.dagger.hilt.android" version "$hiltVersion" apply false
+    id "com.groundplatform.dagger.hilt.android" version "$hiltVersion" apply false
     id "io.gitlab.arturbosch.detekt" version "1.23.5"
-    id "com.google.protobuf" version '0.9.4' apply false
+    id "com.groundplatform.protobuf" version '0.9.4' apply false
 }
 
 allprojects {

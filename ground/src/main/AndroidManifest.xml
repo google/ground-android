@@ -29,7 +29,7 @@
   <uses-feature android:name="android.hardware.camera.any" android:required="false" />
 
   <application
-    android:name=".GroundApplication"
+    android:name="org.groundplatform.android.GroundApplication"
     android:allowBackup="true"
     android:icon="@mipmap/ic_launcher"
     android:label="@string/app_name"
@@ -39,7 +39,7 @@
     android:usesCleartextTraffic="${usesCleartextTraffic}">
 
     <service
-      android:name="com.google.android.ground.persistence.remote.firebase.FirebaseMessagingService"
+      android:name="org.groundplatform.android.persistence.remote.firebase.FirebaseMessagingService"
       android:exported="false">
       <intent-filter>
         <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -58,7 +58,7 @@
       android:value="@string/GOOGLE_MAPS_API_KEY" />
 
     <activity
-      android:name=".MainActivity"
+      android:name="org.groundplatform.android.MainActivity"
       android:exported="true"
       android:screenOrientation="portrait"
       android:windowSoftInputMode="stateHidden|adjustResize">
@@ -69,7 +69,7 @@
       </intent-filter>
     </activity>
     <activity
-      android:name=".SettingsActivity"
+      android:name="org.groundplatform.android.SettingsActivity"
       android:theme="@style/AppTheme" />
 
     <!--
@@ -88,7 +88,7 @@
     </provider>
     <provider
       android:name="androidx.core.content.FileProvider"
-      android:authorities="com.google.android.ground"
+      android:authorities="org.groundplatform.android"
       android:exported="false"
       android:grantUriPermissions="true">
       <meta-data

@@ -58,14 +58,14 @@ dependencies {
     implementation "androidx.room:room-runtime:$roomVersion"
 
     // Guava
-    implementation 'com.google.guava:guava:33.0.0-jre'
+    implementation 'com.groundplatform.guava:guava:33.0.0-jre'
 
     // Hilt
     implementation 'androidx.hilt:hilt-work:1.2.0'
 
     // Firebase
-    implementation platform('com.google.firebase:firebase-bom:33.1.2')
-    implementation 'com.google.firebase:firebase-firestore'
+    implementation platform('com.groundplatform.firebase:firebase-bom:33.1.2')
+    implementation 'com.groundplatform.firebase:firebase-firestore'
 
     implementation "junit:junit:$junitVersion"
     implementation "com.jakewharton.timber:timber:$timberVersion"
