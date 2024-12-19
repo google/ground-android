@@ -19,9 +19,9 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 
 /** Data classes used to populate the Map cards (either an Loi card, or a Suggest Loi card). */
-sealed interface MapUiData {
+sealed interface DataCollectionEntryPointData {
 
-  data class LoiUiData(val loi: LocationOfInterest) : MapUiData
+  data class SelectedLoiSheetData(val loi: LocationOfInterest) : DataCollectionEntryPointData
 
-  data class AddLoiUiData(val job: Job) : MapUiData
+  data class AdHocDataCollectionButtonData(val job: Job) : DataCollectionEntryPointData
 }

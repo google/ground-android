@@ -41,7 +41,7 @@ import com.google.android.ground.ui.home.DataSharingTermsDialog
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.jobs.JobMapAdapter
-import com.google.android.ground.ui.home.mapcontainer.jobs.MapUiData
+import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -107,15 +107,15 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     map.featureClicks.launchWhenStartedAndCollect { mapContainerViewModel.onFeatureClicked(it) }
   }
 
-  private fun hasValidTasks(cardUiData: MapUiData) =
+  private fun hasValidTasks(cardUiData: DataCollectionEntryPointData) =
     when (cardUiData) {
       // LOI tasks are filtered out of the tasks list for pre-defined tasks.
-      is MapUiData.LoiUiData -> cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
-      is MapUiData.AddLoiUiData -> cardUiData.job.tasks.values.isNotEmpty()
+      is DataCollectionEntryPointData.SelectedLoiSheetData -> cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
+      is DataCollectionEntryPointData.AdHocDataCollectionButtonData -> cardUiData.job.tasks.values.isNotEmpty()
     }
 
   private fun renderDataSharingTermsDialog(
-    cardUiData: MapUiData,
+    cardUiData: DataCollectionEntryPointData,
     dataSharingTerms: DataSharingTerms,
   ) =
     ComposeView(requireContext()).apply {
@@ -141,7 +141,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     canUserSubmitData: Boolean,
     hasTasks: Boolean,
     hasDataSharingTerms: DataSharingTerms?,
-    cardUiData: MapUiData,
+    cardUiData: DataCollectionEntryPointData,
   ) {
     if (!canUserSubmitData) {
       // Skip data collection screen if the user can't submit any data
@@ -243,9 +243,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     adapter.render()
   }
 
-  private fun navigateToDataCollectionFragment(cardUiData: MapUiData) {
+  private fun navigateToDataCollectionFragment(cardUiData: DataCollectionEntryPointData) {
     when (cardUiData) {
-      is MapUiData.LoiUiData ->
+      is DataCollectionEntryPointData.SelectedLoiSheetData ->
         findNavController()
           .navigate(
             HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
@@ -257,7 +257,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
               "",
             )
           )
-      is MapUiData.AddLoiUiData ->
+      is DataCollectionEntryPointData.AdHocDataCollectionButtonData ->
         findNavController()
           .navigate(
             HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(

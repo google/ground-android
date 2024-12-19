@@ -74,16 +74,15 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.theme.AppTheme
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 /** Manages a set of [Composable] components that renders [LocationOfInterest] cards and dialogs. */
 class JobMapAdapter(private val getSubmissionCount: suspend (loi: LocationOfInterest) -> Int) {
   lateinit var basemapLayoutBinding: BasemapLayoutBinding
   lateinit var menuBinding: MenuButtonBinding
-  private var collectDataListener: MutableState<(MapUiData) -> Unit> = mutableStateOf({})
+  private var collectDataListener: MutableState<(DataCollectionEntryPointData) -> Unit> = mutableStateOf({})
   private var canUserSubmitData = mutableStateOf(false)
-  private var activeLoi: MutableState<MapUiData.LoiUiData?> = mutableStateOf(null)
-  private val newLoiJobs: MutableList<MapUiData.AddLoiUiData> = mutableStateListOf()
+  private var activeLoi: MutableState<DataCollectionEntryPointData.SelectedLoiSheetData?> = mutableStateOf(null)
+  private val newLoiJobs: MutableList<DataCollectionEntryPointData.AdHocDataCollectionButtonData> = mutableStateListOf()
   private var selectedFeatureListener: ((String?) -> Unit) = {}
   private val jobModalOpened = mutableStateOf(false)
   private val jobCardOpened = mutableStateOf(false)
@@ -98,8 +97,8 @@ class JobMapAdapter(private val getSubmissionCount: suspend (loi: LocationOfInte
   /** Overwrites existing cards. */
   suspend fun updateData(
     canUserSubmitData: Boolean,
-    selectedLoi: MapUiData.LoiUiData?,
-    addLoiJobs: List<MapUiData.AddLoiUiData>,
+    selectedLoi: DataCollectionEntryPointData.SelectedLoiSheetData?,
+    addLoiJobs: List<DataCollectionEntryPointData.AdHocDataCollectionButtonData>,
   ) {
     this.canUserSubmitData.value = canUserSubmitData
     activeLoi.value = selectedLoi
@@ -116,7 +115,7 @@ class JobMapAdapter(private val getSubmissionCount: suspend (loi: LocationOfInte
     selectedFeatureListener = listener
   }
 
-  fun setCollectDataListener(listener: (MapUiData) -> Unit) {
+  fun setCollectDataListener(listener: (DataCollectionEntryPointData) -> Unit) {
     collectDataListener.value = listener
   }
 
@@ -353,7 +352,7 @@ fun Modal(onDismiss: () -> Unit, content: @Composable () -> Unit) {
 }
 
 @Composable
-fun JobSelectionRow(job: MapUiData.AddLoiUiData, onJobSelected: () -> Unit) {
+fun JobSelectionRow(job: DataCollectionEntryPointData.AdHocDataCollectionButtonData, onJobSelected: () -> Unit) {
   Button(
     onClick = { onJobSelected() },
     modifier = Modifier.fillMaxWidth(0.65F).clickable { onJobSelected() },
