@@ -79,12 +79,10 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     adapter = JobMapAdapter { loi -> submissionRepository.getTotalSubmissionCount(loi) }
 
     launchWhenStarted {
-      Timber.v("GOT HERE: launchWhenStarted")
       val canUserSubmitData = userRepository.canUserSubmitData()
 
       // Handle collect button clicks
       adapter.setCollectDataListener { mapUiData ->
-        Timber.v("GOT HERE: setCollectDataListener")
         val job =
           lifecycleScope.launch {
             mapContainerViewModel.activeSurveyDataSharingTermsFlow.cancellable().collectLatest {

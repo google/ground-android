@@ -273,7 +273,6 @@ class JobMapAdapter(private val getSubmissionCount: suspend (loi: LocationOfInte
                   scope
                     .launch { sheetState.hide() }
                     .invokeOnCompletion {
-                      Timber.v("GOT HERE: sheetState HIDE")
                       if (!sheetState.isVisible) {
                         closeJobCard()
                       }
