@@ -592,7 +592,7 @@ style:
                 value: 'STOPSHIP:'
             -   reason: 'TODO comment format should be: // TODO: $description'
                 value: '// TODO:'
-        allowedPatterns: '^//\s*TODO:\s+.+$'
+        allowedPatterns: '^// TODO: .+$'
     ForbiddenImport:
         active: false
         imports: [ ]
