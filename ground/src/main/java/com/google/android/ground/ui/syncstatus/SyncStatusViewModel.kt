@@ -17,8 +17,9 @@ package com.google.android.ground.ui.syncstatus
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.Mutation
+import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.SurveyRepository
@@ -26,58 +27,72 @@ import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.LocationOfInterestHelper
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 /**
- * View model for the offline area manager fragment. Handles the current list of downloaded areas.
+ * Provides data for the [SyncStatusFragment] UI.
+ *
+ * This model retrieves the current upload queue from the mutations repository and converts them to
+ * [SyncStatusDetail] to prepare the data for display. It assumes that any filtering or
+ * transformation of the underlying mutation queue is done before fetching at the repository level.
  */
 class SyncStatusViewModel
 @Inject
 internal constructor(
-  private val mutationRepository: MutationRepository,
-  surveyRepository: SurveyRepository,
+  mutationRepository: MutationRepository,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val userRepository: UserRepository,
   private val locationOfInterestHelper: LocationOfInterestHelper,
+  private val surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
-  /** [Flow] of latest mutations for the active [Survey]. */
-  @OptIn(ExperimentalCoroutinesApi::class)
-  private val mutationsFlow: Flow<List<Mutation>> =
-    surveyRepository.activeSurveyFlow.filterNotNull().flatMapLatest {
-      mutationRepository.getSurveyMutationsFlow(it)
-    }
-
   /**
-   * List of current local [Mutation]s executed by the user, with their corresponding
-   * [LocationOfInterest].
+   * A complete list of [SyncStatusDetail] indicating the current status of local changes being
+   * synced to remote servers.
    */
-  internal val mutations: LiveData<List<MutationDetail>> =
-    mutationsFlow.map { loadLocationsOfInterestAndPair(it) }.asLiveData()
+  internal val uploadStatus: LiveData<List<SyncStatusDetail>> =
+    mutationRepository
+      .getUploadQueueFlow()
+      .map { uploads ->
+        val result: MutableList<SyncStatusDetail> = mutableListOf()
+        for (upload in uploads) {
+          val details = upload.mutations().mapNotNull { toSyncStatusDetail(it) }
+          result.addAll(details)
+        }
+        result
+      }
+      .asLiveData()
 
-  private suspend fun loadLocationsOfInterestAndPair(
-    mutations: List<Mutation>
-  ): List<MutationDetail> = mutations.mapNotNull { toMutationDetail(it) }
-
-  private suspend fun toMutationDetail(mutation: Mutation): MutationDetail? {
-    val loi =
-      locationOfInterestRepository.getOfflineLoi(mutation.surveyId, mutation.locationOfInterestId)
-    if (loi == null) {
-      // If LOI is null, return null to avoid proceeding
-      Timber.e("LOI not found for mutation $mutation")
-      return null
+  private suspend fun toSyncStatusDetail(mutation: Mutation): SyncStatusDetail? =
+    when (mutation) {
+      is LocationOfInterestMutation -> {
+        val loi =
+          locationOfInterestRepository.getOfflineLoi(
+            mutation.surveyId,
+            mutation.locationOfInterestId,
+          )
+        if (loi == null) {
+          Timber.e("LOI not found for mutation $mutation")
+          null
+        } else {
+          val user = userRepository.getUser(mutation.userId)
+          SyncStatusDetail(
+            user = user.displayName,
+            mutation = mutation,
+            label = locationOfInterestHelper.getJobName(loi) ?: "",
+            subtitle = locationOfInterestHelper.getDisplayLoiName(loi),
+          )
+        }
+      }
+      is SubmissionMutation -> {
+        val user = userRepository.getUser(mutation.userId)
+        SyncStatusDetail(
+          user = user.displayName,
+          mutation = mutation,
+          label = mutation.job.name ?: "",
+          subtitle = surveyRepository.getOfflineSurvey(mutation.surveyId)?.title ?: "",
+        )
+      }
     }
-    val user = userRepository.getAuthenticatedUser()
-    return MutationDetail(
-      user = user.displayName,
-      mutation = mutation,
-      loiLabel = locationOfInterestHelper.getJobName(loi) ?: "",
-      loiSubtitle = locationOfInterestHelper.getDisplayLoiName(loi),
-    )
-  }
 }
