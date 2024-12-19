@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
@@ -49,7 +50,7 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
   private fun ShowMultipleChoiceItems() {
     val list by viewModel.itemsFlow.asLiveData().observeAsState()
     list?.let { items ->
-      LazyColumn(Modifier.fillMaxSize()) {
+      LazyColumn(Modifier.fillMaxSize().testTag(MultipleChoiceTestTags.MULTIPLE_CHOICE_LIST)) {
         items(items) { item ->
           MultipleChoiceItemView(
             item = item,
