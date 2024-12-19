@@ -27,7 +27,7 @@ data class DropPinTaskData(val location: Point) : GeometryTaskData(location) {
     // Issue URL: https://github.com/google/ground-android/issues/752
     val df = DecimalFormat("#.##")
     df.roundingMode = RoundingMode.DOWN
-    return location.coordinates.toDmsFormat() ?: ""
+    return location.coordinates.toDmsFormat()
   }
 
   override fun isEmpty(): Boolean = false

@@ -40,9 +40,7 @@ class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFrag
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    // TODO: requireNotNull will throw error, it should be handle smoothly
-    // Issue URL: https://github.com/google/ground-android/issues/2649
-    val args = OfflineAreaViewerFragmentArgs.fromBundle(requireNotNull(arguments))
+    val args = OfflineAreaViewerFragmentArgs.fromBundle(requireArguments())
     viewModel = getViewModel(OfflineAreaViewerViewModel::class.java)
     viewModel.initialize(args.offlineAreaId)
   }
