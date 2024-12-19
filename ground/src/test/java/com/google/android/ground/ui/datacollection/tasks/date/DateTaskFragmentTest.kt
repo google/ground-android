@@ -42,6 +42,7 @@ import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 
 // TODO: Add a test for selecting a date and verifying response.
+// Issue URL: https://github.com/google/ground-android/issues/2134
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)

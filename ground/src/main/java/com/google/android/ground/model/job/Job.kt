@@ -41,8 +41,8 @@ data class Job(
   val tasksSorted: List<Task>
     get() = tasks.values.sortedBy { it.index }
 
-  // TODO(#2216): Consider using nulls to indicate absence of value here instead of throwing
-  // an exception.
+  // TODO: Consider using nulls to indicate absence of value here instead of throwing an exception.
+  // Issue URL: https://github.com/google/ground-android/issues/2216
   fun getTask(id: String): Task = tasks[id] ?: throw TaskNotFoundException(id)
 
   /** Job must contain at-most 1 `AddLoiTask`. */

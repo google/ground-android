@@ -279,7 +279,8 @@ class NavigationDrawerItemClickTest(
     @ParameterizedRobolectricTestRunner.Parameters(name = "{3}")
     fun data() =
       listOf(
-        // TODO(#2385): Restore tests deleted in #2382.
+        // TODO: Restore tests deleted in #2382.
+        // Issue URL: https://github.com/google/ground-android/issues/2385
         arrayOf("Data sync status", R.id.sync_status_fragment, TEST_SURVEY, true),
         arrayOf("Terms of service", R.id.terms_of_service_fragment, TEST_SURVEY, true),
         arrayOf("About", R.id.aboutFragment, TEST_SURVEY, true),

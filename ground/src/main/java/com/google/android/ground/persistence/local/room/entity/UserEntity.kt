@@ -24,6 +24,7 @@ data class UserEntity(
   @ColumnInfo(name = "id") @PrimaryKey val id: String,
   @ColumnInfo(name = "email") val email: String,
   @ColumnInfo(name = "display_name") val displayName: String,
-  // TODO(https://github.com/google/ground-android/issues/964): Save to remote db
+  // TODO: Save to remote db
+  // Issue URL: https://github.com/google/ground-android/issues/964
   @ColumnInfo(name = "photo_url") val photoUrl: String?,
 )

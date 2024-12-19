@@ -64,7 +64,8 @@ internal constructor(
   override fun getSurveyList(user: User): Flow<List<SurveyListItem>> = flow {
     emitAll(
       db().surveys().getReadable(user).map { list ->
-        // TODO(#2031): Return SurveyListItem from getReadable(), only fetch required fields.
+        // TODO: Return SurveyListItem from getReadable(), only fetch required fields.
+        // Issue URL: https://github.com/google/ground-android/issues/2031
         list.map { it.toListItem(false) }
       }
     )

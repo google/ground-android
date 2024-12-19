@@ -66,14 +66,16 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class LocalDataStoreTests : BaseHiltTest() {
-  // TODO(#1491): Split into multiple test suites, one for each SoT.
+  // TODO: Split into multiple test suites, one for each SoT.
+  // Issue URL: https://github.com/google/ground-android/issues/1491
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   @Inject lateinit var localUserStore: LocalUserStore
   @Inject lateinit var localSubmissionStore: LocalSubmissionStore
   @Inject lateinit var localLoiStore: LocalLocationOfInterestStore
   @Inject lateinit var localOfflineAreaStore: LocalOfflineAreaStore
   @Inject lateinit var localValueStore: LocalValueStore
-  // TODO(#1470): Use public interface of data stores instead of inspecting state of impl (DAOs).
+  // TODO: Use public interface of data stores instead of inspecting state of impl (DAOs).
+  // Issue URL: https://github.com/google/ground-android/issues/1470
   @Inject lateinit var submissionDao: SubmissionDao
   @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
 

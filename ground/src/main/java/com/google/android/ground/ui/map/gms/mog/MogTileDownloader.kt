@@ -27,7 +27,8 @@ import timber.log.Timber
  * @param outputBasePath the base path on the local file system where tiles should be written.
  */
 class MogTileDownloader(private val client: MogClient, private val outputBasePath: String) {
-  // TODO(#1755): Add test coverage to this class and entire package.
+  // TODO: Add test coverage to this class and entire package.
+  // Issue URL: https://github.com/google/ground-android/issues/1755
   /**
    * Executes the provided [requests], writing resulting tiles to [outputBasePath] in sub-paths of
    * the form `{z}/{x}/{y}.jpg`.

@@ -58,7 +58,8 @@ constructor(
 ) {
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
   suspend fun syncLocationsOfInterest(survey: Survey) {
-    // TODO(#2384): Allow survey organizers to make ad hoc LOIs visible to all data collectors.
+    // TODO: Allow survey organizers to make ad hoc LOIs visible to all data collectors.
+    // Issue URL: https://github.com/google/ground-android/issues/2384
     val ownerUserId = authenticationManager.getAuthenticatedUser().id
     val lois =
       with(remoteDataStore) { loadPredefinedLois(survey) + loadUserLois(survey, ownerUserId) }

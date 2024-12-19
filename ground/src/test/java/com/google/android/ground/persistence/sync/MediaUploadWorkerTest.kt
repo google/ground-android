@@ -199,6 +199,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
   }
 
   // TODO: Replace all this w/ FakeData functions that return good base model objects.
+  // Issue URL: https://github.com/google/ground-android/issues/2917
   companion object {
     private const val PHOTO_TASK_ID = "photo_task_id"
     private val TEST_PHOTO_TASK: Task =

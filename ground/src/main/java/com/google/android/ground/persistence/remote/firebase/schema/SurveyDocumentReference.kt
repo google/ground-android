@@ -39,8 +39,8 @@ class SurveyDocumentReference internal constructor(ref: DocumentReference) :
   suspend fun get(): Survey? {
     try {
       val surveyDoc = reference().get().await()
-      // TODO(https://github.com/google/ground-android/issues/2864): Move jobs fetch to outside this
-      // DocumentReference class.
+      // TODO: Move jobs fetch to outside this DocumentReference class.
+      // Issue URL: https://github.com/google/ground-android/issues/2864
       val jobs = jobs().get()
       return SurveyConverter.toSurvey(surveyDoc, jobs)
     } catch (e: CancellationException) {

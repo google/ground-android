@@ -59,6 +59,7 @@ data class LocationOfInterest(
    * database.
    */
   // TODO: Remove this test-only method
+  // Issue URL: https://github.com/google/ground-android/issues/2903
   fun toMutation(type: Mutation.Type, userId: String): LocationOfInterestMutation =
     LocationOfInterestMutation(
       jobId = job.id,

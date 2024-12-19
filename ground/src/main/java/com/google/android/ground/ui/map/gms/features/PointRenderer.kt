@@ -61,10 +61,12 @@ constructor(resources: Resources, private val markerIconFactory: IconFactory) :
   }
 
   private fun getMarkerIcon(style: Feature.Style, selected: Boolean): BitmapDescriptor {
-    // TODO(#2167): Allow icon to be updated so we can update scale based on zoom level.
+    // TODO: Allow icon to be updated so we can update scale based on zoom level.
+    // Issue URL: https://github.com/google/ground-android/issues/2167
     var scale = defaultMarkerScale
     if (selected) {
-      // TODO(#2168): Improve selected marker styling.
+      // TODO: Improve selected marker styling.
+      // Issue URL: https://github.com/google/ground-android/issues/2168
       scale *= selectedMarkerScaleFactor
     }
     return markerIconFactory.getMarkerIcon(style.color, scale)

@@ -76,8 +76,9 @@ class WorkRequestBuilder {
 
   companion object {
     /** Backoff time should increase linearly. */
-    // TODO(#710): Check if it is possible to wake the worker as soon as the connection becomes
+    // TODO: Check if it is possible to wake the worker as soon as the connection becomes
     //   available, and if so switch to EXPONENTIAL backoff policy.
+    // Issue URL: https://github.com/google/ground-android/issues/710
     private val BACKOFF_POLICY = BackoffPolicy.LINEAR
 
     /** Number of milliseconds to wait before retrying failed sync tasks. */

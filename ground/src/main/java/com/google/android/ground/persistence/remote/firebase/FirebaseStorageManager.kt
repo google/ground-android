@@ -26,8 +26,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 
-// TODO: Add column to Submission table for storing uploaded media urls
-// TODO: Synced to remote db as well
 @Singleton
 class FirebaseStorageManager @Inject constructor() : RemoteStorageManager {
 
@@ -61,7 +59,6 @@ class FirebaseStorageManager @Inject constructor() : RemoteStorageManager {
      *
      * user-media/surveys/{survey_id}/submissions/{field_id-uuid.jpg}
      */
-    // TODO: Refactor this into MediaStorageRepository.
     fun getRemoteMediaPath(surveyId: String, filename: String): String =
       StringJoiner(File.separator)
         .add(MEDIA_ROOT_DIR)

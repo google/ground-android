@@ -25,7 +25,8 @@ import com.google.android.ground.model.geometry.Polygon
 /** A user-provided response to a geometry-based task ("drop a pin" or "draw an area"). */
 abstract class GeometryTaskData(val geometry: Geometry) : TaskData {
 
-  // TODO(#1733): Move strings to view layer.
+  // TODO: Move strings to view layer.
+  // Issue URL: https://github.com/google/ground-android/issues/1733
   override fun getDetailsText(): String =
     when (geometry) {
       is Point -> "Point data"

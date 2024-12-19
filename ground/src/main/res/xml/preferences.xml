@@ -41,7 +41,8 @@
       app:summary="@string/ground_website"
       app:title="@string/visit_website_title" />
 
-    <!-- TODO(https://github.com/google/ground-android/pull/742): Re-enable once the locationOfInterest is implemented -->
+    <!-- TODO: Re-enable once the locationOfInterest is implemented -->
+    <!-- Issue URL: https://github.com/google/ground-android/issues/742 -->
     <Preference
       app:iconSpaceReserved="false"
       app:isPreferenceVisible="false"
