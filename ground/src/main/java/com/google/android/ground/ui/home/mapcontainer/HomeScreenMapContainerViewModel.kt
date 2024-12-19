@@ -33,7 +33,7 @@ import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
-import com.google.android.ground.ui.home.mapcontainer.cards.MapUiData
+import com.google.android.ground.ui.home.mapcontainer.jobs.MapUiData
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.isLocationOfInterest
@@ -184,8 +184,7 @@ internal constructor(
    * Returns a flow of [MapUiData] associated with the active survey's LOIs and adhoc jobs for
    * displaying the cards.
    */
-  fun getMapCardUiData():
-    Flow<Pair<MapUiData.LoiUiData?, List<MapUiData.AddLoiUiData>>> =
+  fun getMapCardUiData(): Flow<Pair<MapUiData.LoiUiData?, List<MapUiData.AddLoiUiData>>> =
     combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
       val loiCard =
         loisInView
@@ -248,5 +247,8 @@ internal constructor(
 
   fun selectLocationOfInterest(id: String?) {
     selectedLoiIdFlow.value = id
+    if (id == null) {
+      featureClicked.value = null
+    }
   }
 }

@@ -42,7 +42,7 @@
   <string name="google_api_install_failed">Échec de l&#8217;installation de Google Play Services</string>
   <string name="sign_out">Déconnexion</string>
   <string name="ok">OK</string>
-  <string name="collect_data">Enregistrer</string>
+  <string name="add_data">Enregistrer</string>
 
   <!-- Untranslated strings -->
   <string name="offline_area_selector">Sélectionnez une zone à télécharger</string>

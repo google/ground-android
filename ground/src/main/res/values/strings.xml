@@ -42,7 +42,7 @@
   <string name="google_api_install_failed">Google Play Services installation failed</string>
   <string name="sign_out">Sign out</string>
   <string name="ok">OK</string>
-  <string name="collect_data">Collect data</string>
+  <string name="add_data">Add data</string>
 
   <!-- Untranslated strings -->
   <string name="offline_area_selector">Select area to download</string>
@@ -82,7 +82,7 @@
 
   <string name="drop_pin">Drop pin</string>
   <string name="add_site">Add a site</string>
-  <string name="plus_sign">+</string>
+  <string name="job_site_icon">Job site icon</string>
   <string name="drop_a_pin_tooltip_text">Drag your map until the center pin is on the desired location</string>
   <string name="current_location">Current location:</string>
   <string name="loading">Loading…</string>

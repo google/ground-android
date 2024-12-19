@@ -41,7 +41,7 @@
   <string name="google_api_install_failed">La instalación de los Servicios de Google Play ha fallado</string>
   <string name="sign_out">Cerrar sesión</string>
   <string name="ok">Aceptar</string>
-  <string name="collect_data">Recopilar datos</string>
+  <string name="add_data">Recopilar datos</string>
 
   <!-- Untranslated strings -->
   <string name="offline_area_selector">Seleccione el área que quiera descargar</string>
