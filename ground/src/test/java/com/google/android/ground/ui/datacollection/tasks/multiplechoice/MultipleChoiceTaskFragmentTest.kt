@@ -16,18 +16,18 @@
 package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
 import android.content.Context
-import android.widget.RadioButton
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.hasChildCount
-import androidx.test.espresso.matcher.ViewMatchers.isChecked
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isNotChecked
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.google.android.ground.CustomViewActions
-import com.google.android.ground.R
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasAnySibling
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.task.MultipleChoice
@@ -37,15 +37,12 @@ import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
-import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
-import org.hamcrest.Matchers.allOf
-import org.hamcrest.Matchers.instanceOf
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -103,9 +100,11 @@ class MultipleChoiceTaskFragmentTest :
       task.copy(multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)),
     )
 
-    onView(withId(R.id.select_option_list)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
-    onView(withText("Option 1"))
-      .check(matches(allOf(isDisplayed(), instanceOf(RadioButton::class.java))))
+    composeTestRule
+      .onNodeWithTag(MultipleChoiceTestTags.MULTIPLE_CHOICE_LIST)
+      .performScrollToNode(hasText("Option 1"))
+      .performScrollToNode(hasText("Option 2"))
+      .assertIsDisplayed()
   }
 
   @Test
@@ -113,8 +112,8 @@ class MultipleChoiceTaskFragmentTest :
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
-    onView(withText("Option 1")).perform(click())
-    onView(withText("Option 2")).perform(click())
+    composeTestRule.onNodeWithText("Option 1").performClick()
+    composeTestRule.onNodeWithText("Option 2").performClick()
 
     hasValue(MultipleChoiceTaskData(multipleChoice, listOf("option id 2")))
     runner().assertButtonIsEnabled("Next")
@@ -129,9 +128,11 @@ class MultipleChoiceTaskFragmentTest :
       ),
     )
 
-    onView(withId(R.id.select_option_list)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
-    onView(withText("Option 1"))
-      .check(matches(allOf(isDisplayed(), instanceOf(MaterialCheckBox::class.java))))
+    composeTestRule
+      .onNodeWithTag(MultipleChoiceTestTags.MULTIPLE_CHOICE_LIST)
+      .performScrollToNode(hasText("Option 1"))
+      .performScrollToNode(hasText("Option 2"))
+      .assertIsDisplayed()
   }
 
   @Test
@@ -139,8 +140,8 @@ class MultipleChoiceTaskFragmentTest :
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_MULTIPLE)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
-    onView(withText("Option 1")).perform(click())
-    onView(withText("Option 2")).perform(click())
+    composeTestRule.onNodeWithText("Option 1").performClick()
+    composeTestRule.onNodeWithText("Option 2").performClick()
 
     hasValue(MultipleChoiceTaskData(multipleChoice, listOf("option id 1", "option id 2")))
     runner().assertButtonIsEnabled("Next")
@@ -155,11 +156,10 @@ class MultipleChoiceTaskFragmentTest :
     )
     val userInput = "User inputted text"
 
-    onView(withText("Other")).perform(click())
-    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-      .perform(CustomViewActions.forceTypeText(userInput))
+    composeTestRule.onNodeWithText("Other").performClick()
+    getOtherInputNode().assertIsDisplayed().performTextInput(userInput)
 
-    onView(withText("Other")).check(matches(isChecked()))
+    composeTestRule.onNode(hasText("Other")).assertIsDisplayed()
     hasValue(MultipleChoiceTaskData(multipleChoice, listOf("[ $userInput ]")))
     runner().assertButtonIsEnabled("Next")
   }
@@ -169,13 +169,15 @@ class MultipleChoiceTaskFragmentTest :
     runWithTestDispatcher {
       val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE, true)
       setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
-      onView(withText("Option 1")).perform(click())
-      onView(withText("Other")).check(matches(isNotChecked()))
+
+      composeTestRule.onNodeWithText("Option 1").performClick()
+      getRadioButtonNode("Other").assertIsNotSelected()
+
       val userInput = "A"
-      onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-        .perform(CustomViewActions.forceTypeText(userInput))
-      onView(withText("Option 1")).check(matches(isNotChecked()))
-      onView(withText("Other")).check(matches(isChecked()))
+      getOtherInputNode().assertIsDisplayed().performTextInput(userInput)
+
+      getRadioButtonNode("Option 1").assertIsNotSelected()
+      getRadioButtonNode("Other").assertIsSelected()
       hasValue(MultipleChoiceTaskData(multipleChoice, listOf("[ $userInput ]")))
     }
 
@@ -187,16 +189,13 @@ class MultipleChoiceTaskFragmentTest :
       task.copy(multipleChoice = multipleChoice, isRequired = true),
     )
 
-    onView(withText("Other")).check(matches(isNotChecked()))
-    val userInput = "A"
-    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-      .perform(CustomViewActions.forceTypeText(userInput))
-    onView(withText("Other")).check(matches(isChecked()))
+    getRadioButtonNode("Other").assertIsNotSelected()
+    getOtherInputNode().performTextInput("A")
+    getRadioButtonNode("Other").assertIsSelected()
 
-    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-      .perform(CustomViewActions.clearText())
+    getOtherInputNode().performTextClearance()
 
-    onView(withText("Other")).check(matches(isNotChecked()))
+    getRadioButtonNode("Other").assertIsNotSelected()
   }
 
   @Test
@@ -204,16 +203,13 @@ class MultipleChoiceTaskFragmentTest :
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE, true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
-    onView(withText("Other")).check(matches(isNotChecked()))
-    val userInput = "A"
-    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-      .perform(CustomViewActions.forceTypeText(userInput))
-    onView(withText("Other")).check(matches(isChecked()))
+    getRadioButtonNode("Other").assertIsNotSelected()
+    getOtherInputNode().performTextInput("A")
+    getRadioButtonNode("Other").assertIsSelected()
 
-    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-      .perform(CustomViewActions.clearText())
+    getOtherInputNode().performTextClearance()
 
-    onView(withText("Other")).check(matches(isChecked()))
+    getRadioButtonNode("Other").assertIsSelected()
   }
 
   @Test
@@ -224,18 +220,16 @@ class MultipleChoiceTaskFragmentTest :
       task.copy(multipleChoice = multipleChoice, isRequired = true),
     )
 
-    val userInput = "A"
-    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-      .perform(CustomViewActions.forceTypeText(userInput))
-    onView(withText("Option 1")).perform(click())
-    onView(withText("Other")).check(matches(isNotChecked()))
-    onView(withText("Option 1")).check(matches(isChecked()))
+    getOtherInputNode().performTextInput("A")
+    composeTestRule.onNodeWithText("Option 1").performClick()
 
-    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-      .perform(CustomViewActions.clearText())
+    getRadioButtonNode("Other").assertIsNotSelected()
+    getRadioButtonNode("Option 1").assertIsSelected()
 
-    onView(withText("Option 1")).check(matches(isChecked()))
-    onView(withText("Other")).check(matches(isNotChecked()))
+    getOtherInputNode().performTextClearance()
+
+    getRadioButtonNode("Option 1").assertIsSelected()
+    getRadioButtonNode("Other").assertIsNotSelected()
   }
 
   @Test
@@ -271,7 +265,7 @@ class MultipleChoiceTaskFragmentTest :
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
-    onView(withText("Option 1")).perform(click())
+    composeTestRule.onNodeWithText("Option 1").performClick()
 
     runner().assertButtonIsHidden("Skip")
   }
@@ -317,9 +311,12 @@ class MultipleChoiceTaskFragmentTest :
         task.copy(multipleChoice = multipleChoice, isRequired = true),
       )
 
-      onView(withText("Other")).perform(click())
-      onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-        .perform(CustomViewActions.forceTypeText(""))
+      composeTestRule.onNodeWithText("Other").performClick()
+
+      composeTestRule
+        .onNodeWithTag(MultipleChoiceTestTags.OTHER_INPUT_TEXT)
+        .assertIsDisplayed()
+        .performTextInput("")
 
       hasValue(null)
       runner().assertButtonIsDisabled("Next")
@@ -334,13 +331,20 @@ class MultipleChoiceTaskFragmentTest :
         task.copy(multipleChoice = multipleChoice, isRequired = true),
       )
 
-      onView(withText("Option 1")).perform(click())
-      onView(withText("Option 2")).perform(click())
-      onView(withText("Other")).perform(click())
-      onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-        .perform(CustomViewActions.forceTypeText(""))
+      composeTestRule.onNodeWithText("Option 1").performClick()
+      composeTestRule.onNodeWithText("Option 2").performClick()
+      composeTestRule.onNodeWithText("Other").performClick()
+      getOtherInputNode().performTextClearance()
 
       hasValue(null)
       runner().assertButtonIsDisabled("Next")
     }
+
+  private fun getRadioButtonNode(text: String) =
+    composeTestRule.onNode(
+      hasTestTag(MultipleChoiceTestTags.SELECT_MULTIPLE_RADIO) and hasAnySibling(hasText(text))
+    )
+
+  private fun getOtherInputNode() =
+    composeTestRule.onNodeWithTag(MultipleChoiceTestTags.OTHER_INPUT_TEXT)
 }
