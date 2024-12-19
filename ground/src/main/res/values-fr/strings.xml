@@ -48,7 +48,7 @@
   <string name="offline_area_selector">Sélectionnez une zone à télécharger</string>
   <string name="offline_area_selector_prompt">Sélectionnez une carte de base pour l&#8217;utilisation hors ligne</string>
   <string name="offline_area_selector_download">Télécharger</string>
-  <string name="camera">Télécharger</string>
+  <string name="camera">Caméra</string>
   <string name="photo_preview">Prévisualisation</string>
   <string name="settings">Paramètres</string>
   <string name="offline_area_viewer_title">Zone téléchargée</string>
@@ -66,10 +66,11 @@
   <string name="date">Date</string>
   <string name="time">l&#8217;heure</string>
   <!-- Other strings (to be organized) -->
-  <string name="sync_status">État de synchronisation des données</string>
+  <string name="sync_status">État de synchronisation</string>
 
-  <string name="add_point">Ajouter un point</string>
+  <string name="add_point">Ajouter point</string>
   <string name="complete_polygon">Finir</string>
+  
   <string name="road_map">Carte routière</string>
   <string name="satellite">Satellite</string>
   <string name="terrain">Relief</string>
@@ -89,7 +90,7 @@
   <string name="no_tasks_error">Ce boulot n&#8217;a plus de tâches à effectuer</string>
   <string name="invalid_data_sharing_terms">Cette enquête est mal configurée (aucune condition de partage des données n&#8217;est disponible). Veuillez contacter l&#8217;organisateur de l&#8217;enquête.</string>
   <string name="collect_data_viewer_error">Impossible de collecter des données car l&#8217;utilisateur n&#8217;a que des droits de visualisation.</string>
-  <string name="offline_map_imagery">Imagerie cartographique hors ligne</string>
+  <string name="offline_map_imagery">Cartes hors ligne</string>
   <string name="offline_map_imagery_no_areas_downloaded_image">Aucune imagerie téléchargée</string>
   <string name="offline_map_imagery_pref_description">Cacher ou afficher l&#8217;imagerie cartographique téléchargée</string>
   <string name="layers">Couches</string>
@@ -124,7 +125,7 @@
   <string name="camera_permissions_needed">Veuillez autoriser l&#8217;appareil photo de cette application à soumettre des photos.</string>
   <string name="incomplete_area">Zone incomplète</string>
   <string name="initializing">Initialisation…</string>
-  <string name="draw_area_task_instruction">Déplacez la carte et touchez « Ajouter un point » pour ajouter des points autour de la zone souhaitée.</string>
+  <string name="draw_area_task_instruction">Déplacez la carte et touchez « Ajouter point » pour ajouter des points autour de la zone souhaitée.</string>
   <string name="close">Fermer</string>
   <string name="data_consent_dialog_title">Accord de partage de données</string>
   <string name="map_location">Localisation sur la carte :</string>
@@ -150,7 +151,7 @@
   <string name="about">À propos</string>
   <string name="terms_of_service">Conditions générales d&#8217;utilisation</string>
   <string name="about_ground">Ground est un projet communautaire open-source développé par Google et la FAO dans le cadre du « Forest Data Partnership » avec l&#8217;aide de SIG, Ecam et des contributeurs de la communauté open-source. \n\nIl est sous licence <annotation type="apache_license">Apache License, Version 2.0</annotation>. \n\nVoir autres <annotation type="all_licenses">Licenses</annotation></string>
-  <string name="failed">Echec</string>
+  <string name="failed">Échec</string>
   <string name="synced">Synchronisé</string>
   <string name="syncing">Synchronisation</string>
   <string name="upload_pending">Téléchargement en attente</string>
