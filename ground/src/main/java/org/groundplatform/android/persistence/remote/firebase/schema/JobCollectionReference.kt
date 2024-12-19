@@ -16,8 +16,8 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.job.Job
-import com.google.android.ground.persistence.remote.firebase.base.FluentCollectionReference
+import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.persistence.remote.firebase.base.FluentCollectionReference
 import com.google.firebase.firestore.CollectionReference
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await

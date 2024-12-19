@@ -19,7 +19,7 @@ import android.app.Application
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.StringRes
-import com.google.android.ground.R
+import org.groundplatform.android.R
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 import javax.inject.Singleton

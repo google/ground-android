@@ -15,8 +15,8 @@
  */
 package org.groundplatform.android
 
-import com.google.android.ground.system.auth.AuthenticationManager
-import com.google.android.ground.system.auth.AuthenticationModule
+import org.groundplatform.android.system.auth.AuthenticationManager
+import org.groundplatform.android.system.auth.AuthenticationModule
 import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.Binds
 import dagger.Module

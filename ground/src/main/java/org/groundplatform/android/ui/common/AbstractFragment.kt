@@ -28,10 +28,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.android.ground.AbstractActivity
-import com.google.android.ground.R
-import com.google.android.ground.ui.util.ViewUtil
-import com.google.android.ground.util.Debug
+import org.groundplatform.android.AbstractActivity
+import org.groundplatform.android.R
+import org.groundplatform.android.ui.util.ViewUtil
+import org.groundplatform.android.util.Debug
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first

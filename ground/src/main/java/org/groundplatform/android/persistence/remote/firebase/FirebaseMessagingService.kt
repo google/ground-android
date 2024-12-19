@@ -16,7 +16,7 @@
 
 package org.groundplatform.android.persistence.remote.firebase
 
-import com.google.android.ground.persistence.sync.SurveySyncService
+import org.groundplatform.android.persistence.sync.SurveySyncService
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint

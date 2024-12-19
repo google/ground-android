@@ -17,8 +17,8 @@ package org.groundplatform.android.persistence.local.room.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.google.android.ground.persistence.local.room.entity.LocationOfInterestEntity
-import com.google.android.ground.persistence.local.room.fields.EntityDeletionState
+import org.groundplatform.android.persistence.local.room.entity.LocationOfInterestEntity
+import org.groundplatform.android.persistence.local.room.fields.EntityDeletionState
 import kotlinx.coroutines.flow.Flow
 
 /** Provides low-level read/write operations of [LocationOfInterestEntity] to/from the local db. */

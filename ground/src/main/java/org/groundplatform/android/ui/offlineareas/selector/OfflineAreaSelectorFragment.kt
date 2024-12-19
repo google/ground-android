@@ -26,12 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.ground.databinding.OfflineAreaSelectorFragBinding
-import com.google.android.ground.ui.common.AbstractMapContainerFragment
-import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
-import com.google.android.ground.ui.map.MapFragment
-import com.google.android.ground.ui.theme.AppTheme
+import org.groundplatform.android.databinding.OfflineAreaSelectorFragBinding
+import org.groundplatform.android.ui.common.AbstractMapContainerFragment
+import org.groundplatform.android.ui.common.BaseMapViewModel
+import org.groundplatform.android.ui.home.mapcontainer.HomeScreenMapContainerViewModel
+import org.groundplatform.android.ui.map.MapFragment
+import org.groundplatform.android.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 

@@ -16,7 +16,7 @@
 package org.groundplatform.android
 
 import android.os.Bundle
-import com.google.android.ground.databinding.SettingsActivityBinding
+import org.groundplatform.android.databinding.SettingsActivityBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

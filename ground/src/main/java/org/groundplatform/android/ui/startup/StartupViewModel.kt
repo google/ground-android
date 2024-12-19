@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.ui.startup
 
-import com.google.android.ground.repository.UserRepository
-import com.google.android.ground.system.GoogleApiManager
-import com.google.android.ground.ui.common.AbstractViewModel
+import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.android.system.GoogleApiManager
+import org.groundplatform.android.ui.common.AbstractViewModel
 import javax.inject.Inject
 
 class StartupViewModel

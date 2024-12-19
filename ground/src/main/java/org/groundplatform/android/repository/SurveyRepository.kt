@@ -15,17 +15,17 @@
  */
 package org.groundplatform.android.repository
 
-import com.google.android.ground.FirebaseCrashLogger
-import com.google.android.ground.coroutines.ApplicationScope
-import com.google.android.ground.model.Survey
-import com.google.android.ground.model.SurveyListItem
-import com.google.android.ground.model.User
-import com.google.android.ground.model.toListItem
-import com.google.android.ground.persistence.local.LocalValueStore
-import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.system.NetworkManager
-import com.google.android.ground.system.NetworkStatus
+import org.groundplatform.android.FirebaseCrashLogger
+import org.groundplatform.android.coroutines.ApplicationScope
+import org.groundplatform.android.model.Survey
+import org.groundplatform.android.model.SurveyListItem
+import org.groundplatform.android.model.User
+import org.groundplatform.android.model.toListItem
+import org.groundplatform.android.persistence.local.LocalValueStore
+import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
+import org.groundplatform.android.persistence.remote.RemoteDataStore
+import org.groundplatform.android.system.NetworkManager
+import org.groundplatform.android.system.NetworkStatus
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope

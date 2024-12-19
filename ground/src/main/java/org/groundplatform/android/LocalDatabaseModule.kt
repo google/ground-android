@@ -17,8 +17,8 @@ package org.groundplatform.android
 
 import android.content.Context
 import androidx.room.Room
-import com.google.android.ground.coroutines.IoDispatcher
-import com.google.android.ground.persistence.local.room.LocalDatabase
+import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.persistence.local.room.LocalDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

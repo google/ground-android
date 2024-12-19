@@ -15,47 +15,47 @@
  */
 package org.groundplatform.android.persistence.remote.firebase.protobuf
 
-import com.google.android.ground.model.User
-import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.model.geometry.Geometry
-import com.google.android.ground.model.geometry.LineString
-import com.google.android.ground.model.geometry.LinearRing
-import com.google.android.ground.model.geometry.MultiPolygon
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.model.locationofinterest.LoiProperties
-import com.google.android.ground.model.mutation.LocationOfInterestMutation
-import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.CaptureLocationTaskData
-import com.google.android.ground.model.submission.DateTimeTaskData
-import com.google.android.ground.model.submission.GeometryTaskData
-import com.google.android.ground.model.submission.MultipleChoiceTaskData
-import com.google.android.ground.model.submission.NumberTaskData
-import com.google.android.ground.model.submission.PhotoTaskData
-import com.google.android.ground.model.submission.SkippedTaskData
-import com.google.android.ground.model.submission.TaskData
-import com.google.android.ground.model.submission.TextTaskData
-import com.google.android.ground.proto.LinearRing as LinearRingProto
-import com.google.android.ground.proto.LocationOfInterest.Property
-import com.google.android.ground.proto.LocationOfInterest.Source
-import com.google.android.ground.proto.LocationOfInterestKt.property
-import com.google.android.ground.proto.MultiPolygon as MultiPolygonProto
-import com.google.android.ground.proto.Polygon as PolygonProto
-import com.google.android.ground.proto.TaskDataKt.captureLocationResult
-import com.google.android.ground.proto.TaskDataKt.dateTimeResponse
-import com.google.android.ground.proto.TaskDataKt.drawGeometryResult
-import com.google.android.ground.proto.TaskDataKt.multipleChoiceResponses
-import com.google.android.ground.proto.TaskDataKt.numberResponse
-import com.google.android.ground.proto.TaskDataKt.takePhotoResult
-import com.google.android.ground.proto.TaskDataKt.textResponse
-import com.google.android.ground.proto.auditInfo
-import com.google.android.ground.proto.coordinates
-import com.google.android.ground.proto.geometry
-import com.google.android.ground.proto.locationOfInterest
-import com.google.android.ground.proto.point
-import com.google.android.ground.proto.submission
-import com.google.android.ground.proto.taskData
+import org.groundplatform.android.model.User
+import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.geometry.Geometry
+import org.groundplatform.android.model.geometry.LineString
+import org.groundplatform.android.model.geometry.LinearRing
+import org.groundplatform.android.model.geometry.MultiPolygon
+import org.groundplatform.android.model.geometry.Point
+import org.groundplatform.android.model.geometry.Polygon
+import org.groundplatform.android.model.locationofinterest.LoiProperties
+import org.groundplatform.android.model.mutation.LocationOfInterestMutation
+import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.android.model.mutation.SubmissionMutation
+import org.groundplatform.android.model.submission.CaptureLocationTaskData
+import org.groundplatform.android.model.submission.DateTimeTaskData
+import org.groundplatform.android.model.submission.GeometryTaskData
+import org.groundplatform.android.model.submission.MultipleChoiceTaskData
+import org.groundplatform.android.model.submission.NumberTaskData
+import org.groundplatform.android.model.submission.PhotoTaskData
+import org.groundplatform.android.model.submission.SkippedTaskData
+import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.model.submission.TextTaskData
+import org.groundplatform.android.proto.LinearRing as LinearRingProto
+import org.groundplatform.android.proto.LocationOfInterest.Property
+import org.groundplatform.android.proto.LocationOfInterest.Source
+import org.groundplatform.android.proto.LocationOfInterestKt.property
+import org.groundplatform.android.proto.MultiPolygon as MultiPolygonProto
+import org.groundplatform.android.proto.Polygon as PolygonProto
+import org.groundplatform.android.proto.TaskDataKt.captureLocationResult
+import org.groundplatform.android.proto.TaskDataKt.dateTimeResponse
+import org.groundplatform.android.proto.TaskDataKt.drawGeometryResult
+import org.groundplatform.android.proto.TaskDataKt.multipleChoiceResponses
+import org.groundplatform.android.proto.TaskDataKt.numberResponse
+import org.groundplatform.android.proto.TaskDataKt.takePhotoResult
+import org.groundplatform.android.proto.TaskDataKt.textResponse
+import org.groundplatform.android.proto.auditInfo
+import org.groundplatform.android.proto.coordinates
+import org.groundplatform.android.proto.geometry
+import org.groundplatform.android.proto.locationOfInterest
+import org.groundplatform.android.proto.point
+import org.groundplatform.android.proto.submission
+import org.groundplatform.android.proto.taskData
 import com.google.protobuf.timestamp
 import java.util.Date
 import kotlinx.collections.immutable.toImmutableMap

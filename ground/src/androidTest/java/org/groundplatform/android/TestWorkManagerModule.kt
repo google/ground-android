@@ -16,7 +16,7 @@
 package org.groundplatform.android
 
 import androidx.work.WorkManager
-import com.google.android.ground.persistence.sync.WorkManagerModule
+import org.groundplatform.android.persistence.sync.WorkManagerModule
 import com.sharedtest.persistence.sync.FakeWorkManager
 import dagger.Module
 import dagger.Provides

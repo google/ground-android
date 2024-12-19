@@ -15,12 +15,12 @@
  */
 package org.groundplatform.android.model.locationofinterest
 
-import com.google.android.ground.model.AuditInfo
-import com.google.android.ground.model.geometry.Geometry
-import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.mutation.LocationOfInterestMutation
-import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.mutation.Mutation.SyncStatus
+import org.groundplatform.android.model.AuditInfo
+import org.groundplatform.android.model.geometry.Geometry
+import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.model.mutation.LocationOfInterestMutation
+import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.android.model.mutation.Mutation.SyncStatus
 
 /** Alias for a map of properties with string names. */
 typealias LoiProperties = Map<String, Any>

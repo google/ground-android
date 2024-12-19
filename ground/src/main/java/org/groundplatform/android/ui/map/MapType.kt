@@ -18,7 +18,7 @@ package org.groundplatform.android.ui.map
 import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import com.google.android.ground.R
+import org.groundplatform.android.R
 import kotlinx.parcelize.Parcelize
 
 /**

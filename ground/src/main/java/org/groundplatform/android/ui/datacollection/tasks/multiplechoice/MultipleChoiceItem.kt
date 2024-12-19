@@ -15,8 +15,8 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.multiplechoice
 
-import com.google.android.ground.model.task.MultipleChoice.Cardinality
-import com.google.android.ground.model.task.Option
+import org.groundplatform.android.model.task.MultipleChoice.Cardinality
+import org.groundplatform.android.model.task.Option
 
 data class MultipleChoiceItem(
   val option: Option,

@@ -15,8 +15,8 @@
  */
 package org.groundplatform.android.model.task
 
-import com.google.android.ground.model.submission.MultipleChoiceTaskData
-import com.google.android.ground.model.submission.TaskData
+import org.groundplatform.android.model.submission.MultipleChoiceTaskData
+import org.groundplatform.android.model.submission.TaskData
 
 /** The task ID. */
 typealias TaskId = String

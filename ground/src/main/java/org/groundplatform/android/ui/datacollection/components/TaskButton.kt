@@ -26,7 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import com.google.android.ground.model.submission.TaskData
+import org.groundplatform.android.model.submission.TaskData
 
 class TaskButton(initialAction: ButtonAction) {
 

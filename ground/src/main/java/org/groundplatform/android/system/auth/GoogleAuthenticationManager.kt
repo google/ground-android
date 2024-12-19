@@ -22,11 +22,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.android.ground.R
-import com.google.android.ground.coroutines.ApplicationScope
-import com.google.android.ground.model.User
-import com.google.android.ground.system.ActivityResult
-import com.google.android.ground.system.ActivityStreams
+import org.groundplatform.android.R
+import org.groundplatform.android.coroutines.ApplicationScope
+import org.groundplatform.android.model.User
+import org.groundplatform.android.system.ActivityResult
+import org.groundplatform.android.system.ActivityStreams
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth

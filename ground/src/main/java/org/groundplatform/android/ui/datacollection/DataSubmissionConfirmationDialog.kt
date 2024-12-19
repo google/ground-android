@@ -45,9 +45,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.android.ground.ExcludeFromJacocoGeneratedReport
-import com.google.android.ground.R
-import com.google.android.ground.ui.theme.AppTheme
+import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.R
+import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
 fun DataSubmissionConfirmationDialog(onDismiss: () -> Unit) {

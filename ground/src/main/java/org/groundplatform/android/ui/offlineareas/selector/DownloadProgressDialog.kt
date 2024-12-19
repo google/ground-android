@@ -37,7 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import com.google.android.ground.R
+import org.groundplatform.android.R
 
 @Composable
 fun DownloadProgressDialog(progress: Float, onDismiss: () -> Unit) {

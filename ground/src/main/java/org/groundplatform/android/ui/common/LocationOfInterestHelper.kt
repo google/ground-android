@@ -16,13 +16,13 @@
 package org.groundplatform.android.ui.common
 
 import android.content.res.Resources
-import com.google.android.ground.R
-import com.google.android.ground.model.geometry.Geometry
-import com.google.android.ground.model.geometry.MultiPolygon
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import org.groundplatform.android.R
+import org.groundplatform.android.model.geometry.Geometry
+import org.groundplatform.android.model.geometry.MultiPolygon
+import org.groundplatform.android.model.geometry.Point
+import org.groundplatform.android.model.geometry.Polygon
+import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
+import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import javax.inject.Inject
 
 /** Helper class for creating user-visible text. */

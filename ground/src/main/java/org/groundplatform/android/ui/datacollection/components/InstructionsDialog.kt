@@ -28,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.android.ground.R
+import org.groundplatform.android.R
 
 @Composable
 fun InstructionsDialog(iconId: Int, stringId: Int, onDismissRequest: () -> Unit) {

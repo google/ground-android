@@ -22,7 +22,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.tos.TermsOfServiceViewModel" />
+      type="org.groundplatform.android.ui.tos.TermsOfServiceViewModel" />
     <variable
       name="isViewOnly"
       type="Boolean" />

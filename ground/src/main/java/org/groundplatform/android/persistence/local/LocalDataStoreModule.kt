@@ -15,10 +15,10 @@
  */
 package org.groundplatform.android.persistence.local
 
-import com.google.android.ground.persistence.local.room.LocalDatabase
-import com.google.android.ground.persistence.local.room.dao.*
-import com.google.android.ground.persistence.local.room.stores.*
-import com.google.android.ground.persistence.local.stores.*
+import org.groundplatform.android.persistence.local.room.LocalDatabase
+import org.groundplatform.android.persistence.local.room.dao.*
+import org.groundplatform.android.persistence.local.room.stores.*
+import org.groundplatform.android.persistence.local.stores.*
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

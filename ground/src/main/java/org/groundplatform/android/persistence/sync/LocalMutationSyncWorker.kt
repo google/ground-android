@@ -21,11 +21,11 @@ import androidx.work.CoroutineWorker
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
-import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.repository.MutationRepository
-import com.google.android.ground.repository.UserRepository
-import com.google.android.ground.util.priority
+import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.android.persistence.remote.RemoteDataStore
+import org.groundplatform.android.repository.MutationRepository
+import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.android.util.priority
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers

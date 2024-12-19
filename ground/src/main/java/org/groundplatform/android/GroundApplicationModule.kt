@@ -18,7 +18,7 @@ package org.groundplatform.android
 import android.content.Context
 import android.content.res.Resources
 import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.ground.ui.common.ViewModelModule
+import org.groundplatform.android.ui.common.ViewModelModule
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

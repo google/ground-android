@@ -16,11 +16,11 @@
 package org.groundplatform.android.ui.signin
 
 import androidx.lifecycle.viewModelScope
-import com.google.android.ground.repository.UserRepository
-import com.google.android.ground.system.NetworkManager
-import com.google.android.ground.system.NetworkStatus
-import com.google.android.ground.system.auth.SignInState
-import com.google.android.ground.ui.common.AbstractViewModel
+import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.android.system.NetworkManager
+import org.groundplatform.android.system.NetworkStatus
+import org.groundplatform.android.system.auth.SignInState
+import org.groundplatform.android.ui.common.AbstractViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow

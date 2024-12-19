@@ -16,14 +16,14 @@
 package org.groundplatform.android.ui.surveyselector
 
 import androidx.lifecycle.viewModelScope
-import com.google.android.ground.coroutines.ApplicationScope
-import com.google.android.ground.coroutines.IoDispatcher
-import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
-import com.google.android.ground.model.SurveyListItem
-import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.repository.UserRepository
-import com.google.android.ground.system.auth.AuthenticationManager
-import com.google.android.ground.ui.common.AbstractViewModel
+import org.groundplatform.android.coroutines.ApplicationScope
+import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.domain.usecases.survey.ActivateSurveyUseCase
+import org.groundplatform.android.model.SurveyListItem
+import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.android.system.auth.AuthenticationManager
+import org.groundplatform.android.ui.common.AbstractViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope

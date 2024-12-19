@@ -17,7 +17,7 @@ package org.groundplatform.android
 
 import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
-import com.google.android.ground.persistence.local.LocalValueStore
+import org.groundplatform.android.persistence.local.LocalValueStore
 import com.sharedtest.FakeData
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn

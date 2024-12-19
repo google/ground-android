@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.ui.syncstatus
 
-import com.google.android.ground.model.mutation.Mutation
+import org.groundplatform.android.model.mutation.Mutation
 
 /** A tiny helper class for bundling mutation history display data. */
 data class MutationDetail(

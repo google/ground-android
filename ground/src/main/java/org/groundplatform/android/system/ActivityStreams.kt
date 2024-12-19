@@ -17,7 +17,7 @@ package org.groundplatform.android.system
 
 import android.app.Activity
 import android.content.Intent
-import com.google.android.ground.coroutines.ApplicationScope
+import org.groundplatform.android.coroutines.ApplicationScope
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope

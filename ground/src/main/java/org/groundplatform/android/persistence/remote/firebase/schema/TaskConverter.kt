@@ -16,14 +16,14 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.task.Condition
-import com.google.android.ground.model.task.Task
-import com.google.android.ground.persistence.remote.firebase.schema.ConditionConverter.toCondition
-import com.google.android.ground.persistence.remote.firebase.schema.MultipleChoiceConverter.toMultipleChoice
-import com.google.android.ground.proto.Task as TaskProto
-import com.google.android.ground.proto.Task.DataCollectionLevel
-import com.google.android.ground.proto.Task.DrawGeometry.Method
-import com.google.android.ground.proto.Task.TaskTypeCase
+import org.groundplatform.android.model.task.Condition
+import org.groundplatform.android.model.task.Task
+import org.groundplatform.android.persistence.remote.firebase.schema.ConditionConverter.toCondition
+import org.groundplatform.android.persistence.remote.firebase.schema.MultipleChoiceConverter.toMultipleChoice
+import org.groundplatform.android.proto.Task as TaskProto
+import org.groundplatform.android.proto.Task.DataCollectionLevel
+import org.groundplatform.android.proto.Task.DrawGeometry.Method
+import org.groundplatform.android.proto.Task.TaskTypeCase
 
 /** Converts between Firestore nested objects and [Task] instances. */
 internal object TaskConverter {

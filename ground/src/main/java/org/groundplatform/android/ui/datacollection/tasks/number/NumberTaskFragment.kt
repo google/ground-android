@@ -17,10 +17,10 @@ package org.groundplatform.android.ui.datacollection.tasks.number
 
 import android.view.LayoutInflater
 import android.view.View
-import com.google.android.ground.databinding.NumberTaskFragBinding
-import com.google.android.ground.ui.datacollection.components.TaskView
-import com.google.android.ground.ui.datacollection.components.TaskViewFactory
-import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.android.databinding.NumberTaskFragBinding
+import org.groundplatform.android.ui.datacollection.components.TaskView
+import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 /** Fragment allowing the user to answer questions to complete a task. */

@@ -15,8 +15,8 @@
  */
 package org.groundplatform.android.model.mutation
 
-import com.google.android.ground.model.geometry.Geometry
-import com.google.android.ground.model.locationofinterest.LoiProperties
+import org.groundplatform.android.model.geometry.Geometry
+import org.groundplatform.android.model.locationofinterest.LoiProperties
 import java.util.Date
 
 data class LocationOfInterestMutation(

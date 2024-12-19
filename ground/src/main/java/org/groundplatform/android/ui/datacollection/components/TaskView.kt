@@ -17,10 +17,10 @@ package org.groundplatform.android.ui.datacollection.components
 
 import android.view.View
 import androidx.fragment.app.Fragment
-import com.google.android.ground.databinding.TaskFragActionButtonsBinding
-import com.google.android.ground.databinding.TaskFragWithCombinedHeaderBinding
-import com.google.android.ground.databinding.TaskFragWithHeaderBinding
-import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.databinding.TaskFragActionButtonsBinding
+import org.groundplatform.android.databinding.TaskFragWithCombinedHeaderBinding
+import org.groundplatform.android.databinding.TaskFragWithHeaderBinding
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 
 /** Wrapper class for holding entire task's view (except toolbar). */
 sealed interface TaskView {

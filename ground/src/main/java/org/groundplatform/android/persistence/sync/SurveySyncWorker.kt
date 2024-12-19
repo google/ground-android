@@ -24,7 +24,7 @@ import androidx.work.ListenableWorker.Result.failure
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
-import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
+import org.groundplatform.android.domain.usecases.survey.SyncSurveyUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers

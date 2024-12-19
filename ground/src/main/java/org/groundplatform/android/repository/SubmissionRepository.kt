@@ -15,18 +15,18 @@
  */
 package org.groundplatform.android.repository
 
-import com.google.android.ground.model.Survey
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.mutation.Mutation.SyncStatus
-import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.DraftSubmission
-import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.model.submission.ValueDelta
-import com.google.android.ground.persistence.local.LocalValueStore
-import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
-import com.google.android.ground.persistence.sync.MutationSyncWorkManager
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
+import org.groundplatform.android.model.Survey
+import org.groundplatform.android.model.locationofinterest.LocationOfInterest
+import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.android.model.mutation.Mutation.SyncStatus
+import org.groundplatform.android.model.mutation.SubmissionMutation
+import org.groundplatform.android.model.submission.DraftSubmission
+import org.groundplatform.android.model.submission.Submission
+import org.groundplatform.android.model.submission.ValueDelta
+import org.groundplatform.android.persistence.local.LocalValueStore
+import org.groundplatform.android.persistence.local.stores.LocalSubmissionStore
+import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
+import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import javax.inject.Inject
 import javax.inject.Singleton
 

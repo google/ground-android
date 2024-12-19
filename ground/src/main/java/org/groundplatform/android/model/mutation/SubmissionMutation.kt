@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.model.mutation
 
-import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.PhotoTaskData
-import com.google.android.ground.model.submission.ValueDelta
+import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.model.submission.PhotoTaskData
+import org.groundplatform.android.model.submission.ValueDelta
 import java.util.Date
 
 data class SubmissionMutation(

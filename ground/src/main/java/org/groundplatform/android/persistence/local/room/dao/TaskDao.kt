@@ -16,6 +16,6 @@
 package org.groundplatform.android.persistence.local.room.dao
 
 import androidx.room.Dao
-import com.google.android.ground.persistence.local.room.entity.TaskEntity
+import org.groundplatform.android.persistence.local.room.entity.TaskEntity
 
 @Dao interface TaskDao : BaseDao<TaskEntity>

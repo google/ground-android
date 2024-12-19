@@ -16,10 +16,10 @@
 
 package org.groundplatform.android.persistence.local.room.converter
 
-import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.SubmissionData
-import com.google.android.ground.model.submission.TaskData
-import com.google.android.ground.persistence.local.LocalDataConsistencyException
+import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.model.submission.SubmissionData
+import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.persistence.local.LocalDataConsistencyException
 import kotlinx.collections.immutable.toPersistentMap
 import org.json.JSONException
 import org.json.JSONObject

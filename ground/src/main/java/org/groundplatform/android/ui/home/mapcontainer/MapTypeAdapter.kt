@@ -20,10 +20,10 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.ground.R
-import com.google.android.ground.databinding.MapTypeDialogItemBinding
-import com.google.android.ground.ui.home.mapcontainer.MapTypeAdapter.ViewHolder
-import com.google.android.ground.ui.map.MapType
+import org.groundplatform.android.R
+import org.groundplatform.android.databinding.MapTypeDialogItemBinding
+import org.groundplatform.android.ui.home.mapcontainer.MapTypeAdapter.ViewHolder
+import org.groundplatform.android.ui.map.MapType
 import com.google.android.material.color.MaterialColors
 
 /**

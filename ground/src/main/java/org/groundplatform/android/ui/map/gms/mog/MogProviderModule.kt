@@ -15,8 +15,8 @@
  */
 package org.groundplatform.android.ui.map.gms.mog
 
-import com.google.android.ground.Config
-import com.google.android.ground.persistence.remote.RemoteStorageManager
+import org.groundplatform.android.Config
+import org.groundplatform.android.persistence.remote.RemoteStorageManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

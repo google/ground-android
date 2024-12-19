@@ -16,10 +16,10 @@
 package org.groundplatform.android.persistence.local.room.fields
 
 import androidx.room.TypeConverter
-import com.google.android.ground.model.mutation.Mutation.SyncStatus
-import com.google.android.ground.persistence.local.room.IntEnum
-import com.google.android.ground.persistence.local.room.IntEnum.Companion.fromInt
-import com.google.android.ground.persistence.local.room.IntEnum.Companion.toInt
+import org.groundplatform.android.model.mutation.Mutation.SyncStatus
+import org.groundplatform.android.persistence.local.room.IntEnum
+import org.groundplatform.android.persistence.local.room.IntEnum.Companion.fromInt
+import org.groundplatform.android.persistence.local.room.IntEnum.Companion.toInt
 
 /** Mutually exclusive mutations states. */
 enum class MutationEntitySyncStatus(private val intValue: Int, private val enumValue: SyncStatus) :

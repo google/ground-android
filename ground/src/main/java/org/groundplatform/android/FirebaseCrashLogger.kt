@@ -16,7 +16,7 @@
 package org.groundplatform.android
 
 import android.util.Log
-import com.google.android.ground.Config.isReleaseBuild
+import org.groundplatform.android.Config.isReleaseBuild
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.crashlytics.KeyValueBuilder
 import javax.inject.Inject

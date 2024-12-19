@@ -20,11 +20,11 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
-import com.google.android.ground.model.task.MultipleChoice
-import com.google.android.ground.ui.datacollection.components.TaskView
-import com.google.android.ground.ui.datacollection.components.TaskViewFactory
-import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.android.databinding.MultipleChoiceTaskFragBinding
+import org.groundplatform.android.model.task.MultipleChoice
+import org.groundplatform.android.ui.datacollection.components.TaskView
+import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 

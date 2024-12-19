@@ -16,8 +16,8 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.TermsOfService
-import com.google.android.ground.persistence.remote.firebase.base.FluentDocumentReference
+import org.groundplatform.android.model.TermsOfService
+import org.groundplatform.android.persistence.remote.firebase.base.FluentDocumentReference
 import com.google.firebase.firestore.DocumentReference
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await

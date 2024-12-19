@@ -22,7 +22,7 @@ import android.os.Looper
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-import com.google.android.ground.system.channel.LocationSharedFlowCallback
+import org.groundplatform.android.system.channel.LocationSharedFlowCallback
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.tasks.await

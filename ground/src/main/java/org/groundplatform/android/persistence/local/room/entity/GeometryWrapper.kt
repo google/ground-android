@@ -15,10 +15,10 @@
  */
 package org.groundplatform.android.persistence.local.room.entity
 
-import com.google.android.ground.model.geometry.Geometry
-import com.google.android.ground.model.geometry.MultiPolygon
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
+import org.groundplatform.android.model.geometry.Geometry
+import org.groundplatform.android.model.geometry.MultiPolygon
+import org.groundplatform.android.model.geometry.Point
+import org.groundplatform.android.model.geometry.Polygon
 
 data class GeometryWrapper(
   /** Non-null iff this geometry is a point. */

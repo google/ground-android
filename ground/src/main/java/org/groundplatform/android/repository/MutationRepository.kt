@@ -16,20 +16,20 @@
 
 package org.groundplatform.android.repository
 
-import com.google.android.ground.model.Survey
-import com.google.android.ground.model.User
-import com.google.android.ground.model.mutation.LocationOfInterestMutation
-import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.mutation.Mutation.SyncStatus
-import com.google.android.ground.model.mutation.Mutation.SyncStatus.*
-import com.google.android.ground.model.mutation.Mutation.SyncStatus.FAILED
-import com.google.android.ground.model.mutation.Mutation.SyncStatus.IN_PROGRESS
-import com.google.android.ground.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_PENDING
-import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.model.submission.UploadQueueEntry
-import com.google.android.ground.persistence.local.stores.LocalLocationOfInterestStore
-import com.google.android.ground.persistence.local.stores.LocalSubmissionStore
-import com.google.android.ground.system.auth.AuthenticationManager
+import org.groundplatform.android.model.Survey
+import org.groundplatform.android.model.User
+import org.groundplatform.android.model.mutation.LocationOfInterestMutation
+import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.android.model.mutation.Mutation.SyncStatus
+import org.groundplatform.android.model.mutation.Mutation.SyncStatus.*
+import org.groundplatform.android.model.mutation.Mutation.SyncStatus.FAILED
+import org.groundplatform.android.model.mutation.Mutation.SyncStatus.IN_PROGRESS
+import org.groundplatform.android.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_PENDING
+import org.groundplatform.android.model.mutation.SubmissionMutation
+import org.groundplatform.android.model.submission.UploadQueueEntry
+import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
+import org.groundplatform.android.persistence.local.stores.LocalSubmissionStore
+import org.groundplatform.android.system.auth.AuthenticationManager
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow

@@ -16,8 +16,8 @@
 
 package org.groundplatform.android.persistence.remote.firebase
 
-import com.google.android.ground.Config
-import com.google.android.ground.util.AsyncSingletonProvider
+import org.groundplatform.android.Config
+import org.groundplatform.android.util.AsyncSingletonProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import javax.inject.Inject

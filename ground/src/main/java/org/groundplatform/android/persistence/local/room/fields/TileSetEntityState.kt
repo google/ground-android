@@ -16,7 +16,7 @@
 package org.groundplatform.android.persistence.local.room.fields
 
 import androidx.room.TypeConverter
-import com.google.android.ground.persistence.local.room.IntEnum
+import org.groundplatform.android.persistence.local.room.IntEnum
 
 enum class TileSetEntityState(private val intValue: Int) : IntEnum {
   UNKNOWN(0),

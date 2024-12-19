@@ -17,8 +17,8 @@ package org.groundplatform.android.persistence.local.room.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
+import org.groundplatform.android.persistence.local.room.entity.LocationOfInterestMutationEntity
+import org.groundplatform.android.persistence.local.room.fields.MutationEntitySyncStatus
 import kotlinx.coroutines.flow.Flow
 
 /**

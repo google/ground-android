@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.model.geometry
 
-import com.google.android.ground.ui.map.gms.GmsExt.center
-import com.google.android.ground.ui.map.gms.GmsExt.toBounds
-import com.google.android.ground.ui.map.gms.toLatLngList
+import org.groundplatform.android.ui.map.gms.GmsExt.center
+import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
+import org.groundplatform.android.ui.map.gms.toLatLngList
 import com.google.maps.android.SphericalUtil.computeArea
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

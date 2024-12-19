@@ -16,9 +16,9 @@
 package org.groundplatform.android.model.submission
 
 import android.location.Location
-import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.util.toDmsFormat
+import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.geometry.Point
+import org.groundplatform.android.util.toDmsFormat
 import java.math.RoundingMode
 import java.text.DecimalFormat
 

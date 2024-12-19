@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.ui.map
 
-import com.google.android.ground.model.geometry.Coordinates
+import org.groundplatform.android.model.geometry.Coordinates
 
 /**
  * Represents a rectangular bound on a map. A bounds may be constructed using only southwest and

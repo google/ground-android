@@ -18,11 +18,11 @@ package org.groundplatform.android.ui.map.gms.features
 import android.content.Context
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.ground.R
-import com.google.android.ground.ui.map.Bounds
-import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.gms.GmsExt.toBounds
-import com.google.android.ground.ui.map.gms.toGoogleMapsObject
+import org.groundplatform.android.R
+import org.groundplatform.android.ui.map.Bounds
+import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
+import org.groundplatform.android.ui.map.gms.toGoogleMapsObject
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.collections.MarkerManager

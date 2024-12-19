@@ -15,12 +15,12 @@
  */
 package org.groundplatform.android.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.User
-import com.google.android.ground.model.mutation.LocationOfInterestMutation
-import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.persistence.remote.firebase.base.FluentDocumentReference
-import com.google.android.ground.persistence.remote.firebase.protobuf.createLoiMessage
-import com.google.android.ground.persistence.remote.firebase.protobuf.toFirestoreMap
+import org.groundplatform.android.model.User
+import org.groundplatform.android.model.mutation.LocationOfInterestMutation
+import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.android.persistence.remote.firebase.base.FluentDocumentReference
+import org.groundplatform.android.persistence.remote.firebase.protobuf.createLoiMessage
+import org.groundplatform.android.persistence.remote.firebase.protobuf.toFirestoreMap
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.WriteBatch
 

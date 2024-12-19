@@ -17,8 +17,8 @@ package org.groundplatform.android.system
 
 import android.location.Location
 import com.google.android.gms.location.LocationRequest
-import com.google.android.ground.coroutines.ApplicationScope
-import com.google.android.ground.system.channel.LocationSharedFlowCallback
+import org.groundplatform.android.coroutines.ApplicationScope
+import org.groundplatform.android.system.channel.LocationSharedFlowCallback
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope

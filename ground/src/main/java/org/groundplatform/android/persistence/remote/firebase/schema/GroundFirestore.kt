@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.persistence.remote.firebase.schema
 
-import com.google.android.ground.persistence.remote.firebase.base.FluentFirestore
+import org.groundplatform.android.persistence.remote.firebase.base.FluentFirestore
 import com.google.firebase.firestore.FirebaseFirestore
 
 /** Object representation of Ground Firestore database. */

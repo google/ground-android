@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.e2etest
 
-import com.google.android.ground.model.task.Task
+import org.groundplatform.android.model.task.Task
 
 object TestConfig {
   const val LONG_TIMEOUT = 30000L

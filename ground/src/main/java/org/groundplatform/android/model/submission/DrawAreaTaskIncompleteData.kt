@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.model.submission
 
-import com.google.android.ground.model.geometry.LineString
+import org.groundplatform.android.model.geometry.LineString
 
 /** User-provided "ongoing" response to a "draw an area" data collection [Task]. */
 data class DrawAreaTaskIncompleteData(val lineString: LineString) : GeometryTaskData(lineString) {

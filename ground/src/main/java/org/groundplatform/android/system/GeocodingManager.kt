@@ -18,11 +18,11 @@ package org.groundplatform.android.system
 import android.content.res.Resources
 import android.location.Address
 import android.location.Geocoder
-import com.google.android.ground.R
-import com.google.android.ground.coroutines.IoDispatcher
-import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.ui.map.Bounds
-import com.google.android.ground.ui.map.gms.GmsExt.center
+import org.groundplatform.android.R
+import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.ui.map.Bounds
+import org.groundplatform.android.ui.map.gms.GmsExt.center
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton

@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.ui.map
 
-import com.google.android.ground.ui.map.gms.GoogleMapsFragment
+import org.groundplatform.android.ui.map.gms.GoogleMapsFragment
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

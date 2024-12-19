@@ -15,8 +15,8 @@
  */
 package org.groundplatform.android.persistence.local.stores
 
-import com.google.android.ground.model.User
-import com.google.android.ground.persistence.local.room.LocalDataStoreException
+import org.groundplatform.android.model.User
+import org.groundplatform.android.persistence.local.room.LocalDataStoreException
 
 /** Provides access to [User] data in local storage. */
 interface LocalUserStore {

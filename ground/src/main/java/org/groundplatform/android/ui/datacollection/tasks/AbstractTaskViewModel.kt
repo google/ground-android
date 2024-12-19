@@ -17,13 +17,13 @@ package org.groundplatform.android.ui.datacollection.tasks
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import com.google.android.ground.R
-import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.SkippedTaskData
-import com.google.android.ground.model.submission.TaskData
-import com.google.android.ground.model.submission.isNullOrEmpty
-import com.google.android.ground.model.task.Task
-import com.google.android.ground.ui.common.AbstractViewModel
+import org.groundplatform.android.R
+import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.model.submission.SkippedTaskData
+import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.model.submission.isNullOrEmpty
+import org.groundplatform.android.model.task.Task
+import org.groundplatform.android.ui.common.AbstractViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

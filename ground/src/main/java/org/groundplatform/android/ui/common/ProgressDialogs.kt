@@ -20,7 +20,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
-import com.google.android.ground.databinding.ProgressDialogBinding
+import org.groundplatform.android.databinding.ProgressDialogBinding
 
 fun Fragment.modalSpinner(@StringRes messageId: Int): AlertDialog =
   modalSpinner(requireContext(), layoutInflater, messageId)

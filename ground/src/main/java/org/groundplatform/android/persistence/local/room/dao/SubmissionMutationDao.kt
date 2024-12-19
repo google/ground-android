@@ -17,9 +17,9 @@ package org.groundplatform.android.persistence.local.room.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.google.android.ground.persistence.local.room.entity.SubmissionMutationEntity
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.persistence.local.room.fields.MutationEntityType
+import org.groundplatform.android.persistence.local.room.entity.SubmissionMutationEntity
+import org.groundplatform.android.persistence.local.room.fields.MutationEntitySyncStatus
+import org.groundplatform.android.persistence.local.room.fields.MutationEntityType
 import kotlinx.coroutines.flow.Flow
 
 /** Data access object for database operations related to [SubmissionMutationEntity]. */

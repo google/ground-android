@@ -20,9 +20,9 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.google.android.ground.model.locationofinterest.LoiProperties
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
-import com.google.android.ground.persistence.local.room.fields.MutationEntityType
+import org.groundplatform.android.model.locationofinterest.LoiProperties
+import org.groundplatform.android.persistence.local.room.fields.MutationEntitySyncStatus
+import org.groundplatform.android.persistence.local.room.fields.MutationEntityType
 
 /**
  * Defines how Room persists LOI mutations for remote sync in the local db. By default, Room uses

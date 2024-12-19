@@ -16,11 +16,11 @@
 package org.groundplatform.android.persistence.local
 
 import android.content.SharedPreferences
-import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.MapType
-import com.google.android.ground.ui.settings.Keys
-import com.google.android.ground.util.allowThreadDiskReads
-import com.google.android.ground.util.allowThreadDiskWrites
+import org.groundplatform.android.ui.map.CameraPosition
+import org.groundplatform.android.ui.map.MapType
+import org.groundplatform.android.ui.settings.Keys
+import org.groundplatform.android.util.allowThreadDiskReads
+import org.groundplatform.android.util.allowThreadDiskWrites
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow

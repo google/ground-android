@@ -15,11 +15,11 @@
  */
 package org.groundplatform.android.persistence.local.stores
 
-import com.google.android.ground.model.Survey
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.mutation.LocationOfInterestMutation
-import com.google.android.ground.persistence.local.room.entity.LocationOfInterestMutationEntity
-import com.google.android.ground.persistence.local.room.fields.MutationEntitySyncStatus
+import org.groundplatform.android.model.Survey
+import org.groundplatform.android.model.locationofinterest.LocationOfInterest
+import org.groundplatform.android.model.mutation.LocationOfInterestMutation
+import org.groundplatform.android.persistence.local.room.entity.LocationOfInterestMutationEntity
+import org.groundplatform.android.persistence.local.room.fields.MutationEntitySyncStatus
 import kotlinx.coroutines.flow.Flow
 
 interface LocalLocationOfInterestStore :

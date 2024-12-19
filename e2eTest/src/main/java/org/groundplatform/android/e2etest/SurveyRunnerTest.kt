@@ -30,14 +30,14 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
-import com.google.android.ground.R
+import org.groundplatform.android.R
 import org.groundplatform.android.e2etest.TestConfig.GROUND_PACKAGE
 import org.groundplatform.android.e2etest.TestConfig.LONG_TIMEOUT
 import org.groundplatform.android.e2etest.TestConfig.SHORT_TIMEOUT
 import org.groundplatform.android.e2etest.TestConfig.TEST_SURVEY_IDENTIFIER
 import org.groundplatform.android.e2etest.TestConfig.TEST_SURVEY_LOI_TASK_INDEX
 import org.groundplatform.android.e2etest.TestConfig.TEST_SURVEY_TASKS_ADHOC
-import com.google.android.ground.model.task.Task
+import org.groundplatform.android.model.task.Task
 import java.io.IOException
 import junit.framework.TestCase.fail
 import org.junit.Rule

@@ -16,11 +16,11 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.Survey
-import com.google.android.ground.model.User
-import com.google.android.ground.persistence.remote.firebase.base.FluentCollectionReference
-import com.google.android.ground.proto.Role
-import com.google.android.ground.proto.Survey as SurveyProto
+import org.groundplatform.android.model.Survey
+import org.groundplatform.android.model.User
+import org.groundplatform.android.persistence.remote.firebase.base.FluentCollectionReference
+import org.groundplatform.android.proto.Role
+import org.groundplatform.android.proto.Survey as SurveyProto
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.snapshots

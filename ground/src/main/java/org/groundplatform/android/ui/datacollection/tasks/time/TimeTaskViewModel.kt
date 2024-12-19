@@ -15,8 +15,8 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.time
 
-import com.google.android.ground.model.submission.DateTimeTaskData.Companion.fromMillis
-import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.model.submission.DateTimeTaskData.Companion.fromMillis
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import java.util.Date
 import javax.inject.Inject
 

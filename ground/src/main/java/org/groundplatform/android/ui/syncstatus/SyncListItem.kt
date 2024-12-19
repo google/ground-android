@@ -41,12 +41,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.android.ground.ExcludeFromJacocoGeneratedReport
-import com.google.android.ground.R
-import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.mutation.SubmissionMutation
-import com.google.android.ground.ui.theme.AppTheme
+import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.R
+import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.android.model.mutation.SubmissionMutation
+import org.groundplatform.android.ui.theme.AppTheme
 import java.util.Date
 
 @Composable

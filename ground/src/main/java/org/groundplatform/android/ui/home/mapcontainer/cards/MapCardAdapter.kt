@@ -21,12 +21,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.ground.R
-import com.google.android.ground.databinding.AddLoiCardItemBinding
-import com.google.android.ground.databinding.LoiCardItemBinding
-import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.ui.common.LocationOfInterestHelper
+import org.groundplatform.android.R
+import org.groundplatform.android.databinding.AddLoiCardItemBinding
+import org.groundplatform.android.databinding.LoiCardItemBinding
+import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.model.locationofinterest.LocationOfInterest
+import org.groundplatform.android.ui.common.LocationOfInterestHelper
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [LocationOfInterest] data with the

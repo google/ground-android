@@ -16,12 +16,12 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.Survey as SurveyModel
-import com.google.android.ground.model.job.Job
-import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.android.ground.persistence.remote.firebase.protobuf.parseFrom
-import com.google.android.ground.proto.Survey as SurveyProto
-import com.google.android.ground.proto.Survey
+import org.groundplatform.android.model.Survey as SurveyModel
+import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.persistence.remote.DataStoreException
+import org.groundplatform.android.persistence.remote.firebase.protobuf.parseFrom
+import org.groundplatform.android.proto.Survey as SurveyProto
+import org.groundplatform.android.proto.Survey
 import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.collections.immutable.toPersistentMap
 

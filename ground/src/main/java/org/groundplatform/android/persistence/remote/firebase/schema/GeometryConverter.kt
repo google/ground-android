@@ -16,17 +16,17 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.model.geometry.Geometry
-import com.google.android.ground.model.geometry.LinearRing
-import com.google.android.ground.model.geometry.MultiPolygon
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.proto.Geometry as GeometryProto
-import com.google.android.ground.proto.LinearRing as LinearRingProto
-import com.google.android.ground.proto.MultiPolygon as MultiPolygonProto
-import com.google.android.ground.proto.Point as PointProto
-import com.google.android.ground.proto.Polygon as PolygonProto
+import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.geometry.Geometry
+import org.groundplatform.android.model.geometry.LinearRing
+import org.groundplatform.android.model.geometry.MultiPolygon
+import org.groundplatform.android.model.geometry.Point
+import org.groundplatform.android.model.geometry.Polygon
+import org.groundplatform.android.proto.Geometry as GeometryProto
+import org.groundplatform.android.proto.LinearRing as LinearRingProto
+import org.groundplatform.android.proto.MultiPolygon as MultiPolygonProto
+import org.groundplatform.android.proto.Point as PointProto
+import org.groundplatform.android.proto.Polygon as PolygonProto
 
 /**
  * Converts between Geometry model objects and their equivalent remote representation using protos.

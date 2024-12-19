@@ -15,13 +15,13 @@
  */
 package org.groundplatform.android.persistence.remote
 
-import com.google.android.ground.BuildConfig.EMULATOR_HOST
-import com.google.android.ground.BuildConfig.FIRESTORE_EMULATOR_PORT
-import com.google.android.ground.BuildConfig.USE_EMULATORS
-import com.google.android.ground.persistence.remote.firebase.FirebaseStorageManager
-import com.google.android.ground.persistence.remote.firebase.FirestoreDataStore
-import com.google.android.ground.persistence.remote.firebase.FirestoreUuidGenerator
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
+import org.groundplatform.android.BuildConfig.EMULATOR_HOST
+import org.groundplatform.android.BuildConfig.FIRESTORE_EMULATOR_PORT
+import org.groundplatform.android.BuildConfig.USE_EMULATORS
+import org.groundplatform.android.persistence.remote.firebase.FirebaseStorageManager
+import org.groundplatform.android.persistence.remote.firebase.FirestoreDataStore
+import org.groundplatform.android.persistence.remote.firebase.FirestoreUuidGenerator
+import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.ktx.functions

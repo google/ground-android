@@ -17,8 +17,8 @@ package org.groundplatform.android.persistence.local
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.google.android.ground.Config
-import com.google.android.ground.util.allowThreadDiskReads
+import org.groundplatform.android.Config
+import org.groundplatform.android.util.allowThreadDiskReads
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

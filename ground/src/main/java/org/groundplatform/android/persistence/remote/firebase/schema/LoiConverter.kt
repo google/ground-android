@@ -15,13 +15,13 @@
  */
 package org.groundplatform.android.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.Survey
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.android.ground.persistence.remote.firebase.protobuf.parseFrom
-import com.google.android.ground.persistence.remote.firebase.schema.GeometryConverter.toGeometry
-import com.google.android.ground.proto.LocationOfInterest as LocationOfInterestProto
-import com.google.android.ground.proto.LocationOfInterest.Source
+import org.groundplatform.android.model.Survey
+import org.groundplatform.android.model.locationofinterest.LocationOfInterest
+import org.groundplatform.android.persistence.remote.DataStoreException
+import org.groundplatform.android.persistence.remote.firebase.protobuf.parseFrom
+import org.groundplatform.android.persistence.remote.firebase.schema.GeometryConverter.toGeometry
+import org.groundplatform.android.proto.LocationOfInterest as LocationOfInterestProto
+import org.groundplatform.android.proto.LocationOfInterest.Source
 import com.google.firebase.firestore.DocumentSnapshot
 
 // TODO: Add tests.

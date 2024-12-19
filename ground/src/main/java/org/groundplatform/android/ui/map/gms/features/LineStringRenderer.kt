@@ -23,12 +23,12 @@ import com.google.android.gms.maps.model.CustomCap
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
-import com.google.android.ground.R
-import com.google.android.ground.model.geometry.LineString
-import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.gms.POLYLINE_Z
-import com.google.android.ground.ui.map.gms.toLatLngList
-import com.google.android.ground.ui.util.BitmapUtil
+import org.groundplatform.android.R
+import org.groundplatform.android.model.geometry.LineString
+import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.map.gms.POLYLINE_Z
+import org.groundplatform.android.ui.map.gms.toLatLngList
+import org.groundplatform.android.ui.util.BitmapUtil
 import javax.inject.Inject
 
 class LineStringRenderer

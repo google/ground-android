@@ -41,12 +41,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
-import com.google.android.ground.ExcludeFromJacocoGeneratedReport
-import com.google.android.ground.R
-import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.compose.HyperlinkText
-import com.google.android.ground.ui.compose.Toolbar
-import com.google.android.ground.ui.theme.AppTheme
+import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.R
+import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.android.ui.compose.HyperlinkText
+import org.groundplatform.android.ui.compose.Toolbar
+import org.groundplatform.android.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

@@ -23,14 +23,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.navigation.fragment.findNavController
-import com.google.android.ground.R
-import com.google.android.ground.databinding.SurveySelectorFragBinding
-import com.google.android.ground.model.SurveyListItem
-import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.common.BackPressListener
-import com.google.android.ground.ui.common.EphemeralPopups
-import com.google.android.ground.ui.home.HomeScreenFragmentDirections
-import com.google.android.ground.util.visibleIf
+import org.groundplatform.android.R
+import org.groundplatform.android.databinding.SurveySelectorFragBinding
+import org.groundplatform.android.model.SurveyListItem
+import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.android.ui.common.BackPressListener
+import org.groundplatform.android.ui.common.EphemeralPopups
+import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
+import org.groundplatform.android.util.visibleIf
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

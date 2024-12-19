@@ -17,10 +17,10 @@ package org.groundplatform.android.ui.datacollection.tasks.location
 
 import android.location.Location
 import androidx.lifecycle.viewModelScope
-import com.google.android.ground.model.submission.CaptureLocationTaskData
-import com.google.android.ground.model.submission.CaptureLocationTaskData.Companion.toCaptureLocationResult
-import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.model.submission.CaptureLocationTaskData
+import org.groundplatform.android.model.submission.CaptureLocationTaskData.Companion.toCaptureLocationResult
+import org.groundplatform.android.ui.common.BaseMapViewModel
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

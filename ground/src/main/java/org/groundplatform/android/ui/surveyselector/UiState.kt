@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.ui.surveyselector
 
-import com.google.android.ground.model.SurveyListItem
+import org.groundplatform.android.model.SurveyListItem
 
 sealed class UiState {
 

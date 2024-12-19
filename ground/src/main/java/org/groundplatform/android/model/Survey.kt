@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.model
 
-import com.google.android.ground.model.job.Job
+import org.groundplatform.android.model.job.Job
 
 /** Configuration, schema, and ACLs for a single survey. */
 data class Survey(

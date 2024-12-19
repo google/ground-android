@@ -15,13 +15,13 @@
  */
 package org.groundplatform.android.persistence.local.room.stores
 
-import com.google.android.ground.model.User
-import com.google.android.ground.persistence.local.room.LocalDataStoreException
-import com.google.android.ground.persistence.local.room.converter.toLocalDataStoreObject
-import com.google.android.ground.persistence.local.room.converter.toModelObject
-import com.google.android.ground.persistence.local.room.dao.UserDao
-import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
-import com.google.android.ground.persistence.local.stores.LocalUserStore
+import org.groundplatform.android.model.User
+import org.groundplatform.android.persistence.local.room.LocalDataStoreException
+import org.groundplatform.android.persistence.local.room.converter.toLocalDataStoreObject
+import org.groundplatform.android.persistence.local.room.converter.toModelObject
+import org.groundplatform.android.persistence.local.room.dao.UserDao
+import org.groundplatform.android.persistence.local.room.dao.insertOrUpdate
+import org.groundplatform.android.persistence.local.stores.LocalUserStore
 import javax.inject.Inject
 import javax.inject.Singleton
 

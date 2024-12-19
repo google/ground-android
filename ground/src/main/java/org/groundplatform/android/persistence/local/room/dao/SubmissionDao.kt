@@ -17,8 +17,8 @@ package org.groundplatform.android.persistence.local.room.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.google.android.ground.persistence.local.room.entity.SubmissionEntity
-import com.google.android.ground.persistence.local.room.fields.EntityDeletionState
+import org.groundplatform.android.persistence.local.room.entity.SubmissionEntity
+import org.groundplatform.android.persistence.local.room.fields.EntityDeletionState
 
 @Dao
 interface SubmissionDao : BaseDao<SubmissionEntity> {

@@ -15,13 +15,13 @@
  */
 package org.groundplatform.android.persistence.local.room.stores
 
-import com.google.android.ground.model.imagery.OfflineArea
-import com.google.android.ground.persistence.local.room.converter.toModelObject
-import com.google.android.ground.persistence.local.room.converter.toOfflineAreaEntity
-import com.google.android.ground.persistence.local.room.dao.OfflineAreaDao
-import com.google.android.ground.persistence.local.room.dao.insertOrUpdate
-import com.google.android.ground.persistence.local.room.entity.OfflineAreaEntity
-import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
+import org.groundplatform.android.model.imagery.OfflineArea
+import org.groundplatform.android.persistence.local.room.converter.toModelObject
+import org.groundplatform.android.persistence.local.room.converter.toOfflineAreaEntity
+import org.groundplatform.android.persistence.local.room.dao.OfflineAreaDao
+import org.groundplatform.android.persistence.local.room.dao.insertOrUpdate
+import org.groundplatform.android.persistence.local.room.entity.OfflineAreaEntity
+import org.groundplatform.android.persistence.local.stores.LocalOfflineAreaStore
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow

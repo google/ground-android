@@ -16,7 +16,7 @@
 
 package org.groundplatform.android.ui.map.gms.mog
 
-import com.google.android.ground.ui.map.gms.mog.TiffTagDataType.*
+import org.groundplatform.android.ui.map.gms.mog.TiffTagDataType.*
 import com.google.common.io.LittleEndianDataInputStream
 import java.io.DataInput
 import java.io.DataInputStream

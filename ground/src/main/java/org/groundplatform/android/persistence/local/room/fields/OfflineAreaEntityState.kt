@@ -16,7 +16,7 @@
 package org.groundplatform.android.persistence.local.room.fields
 
 import androidx.room.TypeConverter
-import com.google.android.ground.persistence.local.room.IntEnum
+import org.groundplatform.android.persistence.local.room.IntEnum
 
 /**
  * A database representation of OfflineArea download states. Mirrors the states specified by the

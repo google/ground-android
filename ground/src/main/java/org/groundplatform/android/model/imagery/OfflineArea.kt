@@ -15,8 +15,8 @@
  */
 package org.groundplatform.android.model.imagery
 
-import com.google.android.ground.ui.map.Bounds
-import com.google.android.ground.ui.map.gms.mog.TileCoordinates
+import org.groundplatform.android.ui.map.Bounds
+import org.groundplatform.android.ui.map.gms.mog.TileCoordinates
 
 /** An area is a contiguous set of tiles that task a geodesic rectangle. */
 data class OfflineArea(

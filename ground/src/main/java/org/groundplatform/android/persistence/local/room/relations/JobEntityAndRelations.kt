@@ -17,8 +17,8 @@ package org.groundplatform.android.persistence.local.room.relations
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.google.android.ground.persistence.local.room.entity.JobEntity
-import com.google.android.ground.persistence.local.room.entity.TaskEntity
+import org.groundplatform.android.persistence.local.room.entity.JobEntity
+import org.groundplatform.android.persistence.local.room.entity.TaskEntity
 
 /**
  * Represents relationship between JobEntity and TaskEntity.

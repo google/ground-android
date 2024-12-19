@@ -15,8 +15,8 @@
  */
 package org.groundplatform.android.ui.home.mapcontainer.cards
 
-import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 
 /** Data classes used to populate the Map cards (either an Loi card, or a Suggest Loi card). */
 sealed interface MapCardUiData {

@@ -20,9 +20,9 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
-import com.google.android.ground.Config
-import com.google.android.ground.persistence.remote.RemoteStorageManager
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
+import org.groundplatform.android.Config
+import org.groundplatform.android.persistence.remote.RemoteStorageManager
+import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.io.FileNotFoundException

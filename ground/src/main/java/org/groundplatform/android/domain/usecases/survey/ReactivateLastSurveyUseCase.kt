@@ -16,7 +16,7 @@
 
 package org.groundplatform.android.domain.usecases.survey
 
-import com.google.android.ground.repository.SurveyRepository
+import org.groundplatform.android.repository.SurveyRepository
 import javax.inject.Inject
 
 class ReactivateLastSurveyUseCase

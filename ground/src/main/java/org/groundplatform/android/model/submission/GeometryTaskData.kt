@@ -15,12 +15,12 @@
  */
 package org.groundplatform.android.model.submission
 
-import com.google.android.ground.model.geometry.Geometry
-import com.google.android.ground.model.geometry.LineString
-import com.google.android.ground.model.geometry.LinearRing
-import com.google.android.ground.model.geometry.MultiPolygon
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
+import org.groundplatform.android.model.geometry.Geometry
+import org.groundplatform.android.model.geometry.LineString
+import org.groundplatform.android.model.geometry.LinearRing
+import org.groundplatform.android.model.geometry.MultiPolygon
+import org.groundplatform.android.model.geometry.Point
+import org.groundplatform.android.model.geometry.Polygon
 
 /** A user-provided response to a geometry-based task ("drop a pin" or "draw an area"). */
 abstract class GeometryTaskData(val geometry: Geometry) : TaskData {

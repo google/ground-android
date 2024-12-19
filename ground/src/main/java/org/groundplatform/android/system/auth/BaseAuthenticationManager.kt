@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.system.auth
 
-import com.google.android.ground.model.User
+import org.groundplatform.android.model.User
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 

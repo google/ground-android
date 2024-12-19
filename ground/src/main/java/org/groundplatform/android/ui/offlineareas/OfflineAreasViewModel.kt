@@ -18,11 +18,11 @@ package org.groundplatform.android.ui.offlineareas
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.google.android.ground.model.imagery.OfflineArea
-import com.google.android.ground.repository.OfflineAreaRepository
-import com.google.android.ground.ui.common.AbstractViewModel
-import com.google.android.ground.util.toMb
-import com.google.android.ground.util.toMbString
+import org.groundplatform.android.model.imagery.OfflineArea
+import org.groundplatform.android.repository.OfflineAreaRepository
+import org.groundplatform.android.ui.common.AbstractViewModel
+import org.groundplatform.android.util.toMb
+import org.groundplatform.android.util.toMbString
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow

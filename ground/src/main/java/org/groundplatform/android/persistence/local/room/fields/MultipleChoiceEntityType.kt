@@ -16,10 +16,10 @@
 package org.groundplatform.android.persistence.local.room.fields
 
 import androidx.room.TypeConverter
-import com.google.android.ground.model.task.MultipleChoice
-import com.google.android.ground.persistence.local.room.IntEnum
-import com.google.android.ground.persistence.local.room.IntEnum.Companion.fromInt
-import com.google.android.ground.persistence.local.room.IntEnum.Companion.toInt
+import org.groundplatform.android.model.task.MultipleChoice
+import org.groundplatform.android.persistence.local.room.IntEnum
+import org.groundplatform.android.persistence.local.room.IntEnum.Companion.fromInt
+import org.groundplatform.android.persistence.local.room.IntEnum.Companion.toInt
 
 /** Defines how Room represents cardinality types in the local db. */
 enum class MultipleChoiceEntityType(private val intValue: Int) : IntEnum {

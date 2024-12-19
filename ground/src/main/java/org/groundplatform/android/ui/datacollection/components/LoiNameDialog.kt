@@ -30,7 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import com.google.android.ground.R
+import org.groundplatform.android.R
 
 @Composable
 fun LoiNameDialog(

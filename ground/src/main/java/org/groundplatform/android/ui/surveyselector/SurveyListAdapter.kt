@@ -20,9 +20,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.ground.databinding.SurveyCardItemBinding
-import com.google.android.ground.model.SurveyListItem
-import com.google.android.ground.ui.surveyselector.SurveyListAdapter.ViewHolder
+import org.groundplatform.android.databinding.SurveyCardItemBinding
+import org.groundplatform.android.model.SurveyListItem
+import org.groundplatform.android.ui.surveyselector.SurveyListAdapter.ViewHolder
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [SurveyListItem] data with the

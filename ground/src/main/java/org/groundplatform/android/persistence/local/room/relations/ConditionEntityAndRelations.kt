@@ -17,8 +17,8 @@ package org.groundplatform.android.persistence.local.room.relations
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.google.android.ground.persistence.local.room.entity.ConditionEntity
-import com.google.android.ground.persistence.local.room.entity.ExpressionEntity
+import org.groundplatform.android.persistence.local.room.entity.ConditionEntity
+import org.groundplatform.android.persistence.local.room.entity.ExpressionEntity
 
 /**
  * Represents relationship between TaskEntity, MultipleChoiceEntity, OptionEntity, and

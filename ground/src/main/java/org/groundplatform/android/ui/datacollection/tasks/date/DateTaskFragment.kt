@@ -22,11 +22,11 @@ import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
-import com.google.android.ground.databinding.DateTaskFragBinding
-import com.google.android.ground.model.submission.DateTimeTaskData
-import com.google.android.ground.ui.datacollection.components.TaskView
-import com.google.android.ground.ui.datacollection.components.TaskViewFactory
-import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.android.databinding.DateTaskFragBinding
+import org.groundplatform.android.model.submission.DateTimeTaskData
+import org.groundplatform.android.ui.datacollection.components.TaskView
+import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Calendar

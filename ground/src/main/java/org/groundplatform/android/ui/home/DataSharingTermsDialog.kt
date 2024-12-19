@@ -29,11 +29,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.android.ground.ExcludeFromJacocoGeneratedReport
-import com.google.android.ground.R
-import com.google.android.ground.proto.Survey
-import com.google.android.ground.ui.compose.HtmlText
-import com.google.android.ground.ui.theme.AppTheme
+import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.R
+import org.groundplatform.android.proto.Survey
+import org.groundplatform.android.ui.compose.HtmlText
+import org.groundplatform.android.ui.theme.AppTheme
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser

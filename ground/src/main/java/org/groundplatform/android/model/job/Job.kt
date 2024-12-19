@@ -16,7 +16,7 @@
 package org.groundplatform.android.model.job
 
 import android.graphics.Color
-import com.google.android.ground.model.task.Task
+import org.groundplatform.android.model.task.Task
 import timber.log.Timber
 
 data class Job(

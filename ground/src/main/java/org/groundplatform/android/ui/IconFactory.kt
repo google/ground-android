@@ -24,7 +24,7 @@ import android.graphics.drawable.Drawable
 import androidx.appcompat.content.res.AppCompatResources
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.ground.R
+import org.groundplatform.android.R
 import org.groundplatform.android.ui.util.obtainTextPaintFromStyle
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject

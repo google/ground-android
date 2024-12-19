@@ -16,8 +16,8 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.task.Option
-import com.google.android.ground.proto.Task
+import org.groundplatform.android.model.task.Option
+import org.groundplatform.android.proto.Task
 
 /** Converts between Firestore nested objects and [Option] instances. */
 internal object OptionConverter {

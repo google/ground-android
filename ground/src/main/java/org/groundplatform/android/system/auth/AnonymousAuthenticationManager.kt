@@ -15,8 +15,8 @@
  */
 package org.groundplatform.android.system.auth
 
-import com.google.android.ground.coroutines.ApplicationScope
-import com.google.android.ground.model.User
+import org.groundplatform.android.coroutines.ApplicationScope
+import org.groundplatform.android.model.User
 import com.google.firebase.auth.FirebaseAuth
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope

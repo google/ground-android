@@ -18,7 +18,7 @@ package org.groundplatform.android.ui.map.gms.mog
 
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
-import com.google.android.ground.persistence.remote.RemoteStorageManager
+import org.groundplatform.android.persistence.remote.RemoteStorageManager
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 

@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.repository
 
-import com.google.android.ground.persistence.local.LocalValueStore
-import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.MapType
+import org.groundplatform.android.persistence.local.LocalValueStore
+import org.groundplatform.android.ui.map.CameraPosition
+import org.groundplatform.android.ui.map.MapType
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow

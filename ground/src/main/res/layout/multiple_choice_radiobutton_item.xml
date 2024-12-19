@@ -23,11 +23,11 @@
     <import type="android.view.View" />
     <variable
       name="item"
-      type="com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceItem" />
+      type="org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MultipleChoiceItem" />
 
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel" />
+      type="org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout

@@ -20,10 +20,10 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
 import com.google.android.gms.maps.model.TileProvider.NO_TILE
-import com.google.android.ground.ui.map.gms.mog.ImageEditor
-import com.google.android.ground.ui.map.gms.mog.TileCoordinates
-import com.google.android.ground.ui.map.gms.mog.toPixelBounds
-import com.google.android.ground.ui.map.gms.mog.toPixelCoordinate
+import org.groundplatform.android.ui.map.gms.mog.ImageEditor
+import org.groundplatform.android.ui.map.gms.mog.TileCoordinates
+import org.groundplatform.android.ui.map.gms.mog.toPixelBounds
+import org.groundplatform.android.ui.map.gms.mog.toPixelCoordinate
 
 private const val MAX_ZOOM = 19
 

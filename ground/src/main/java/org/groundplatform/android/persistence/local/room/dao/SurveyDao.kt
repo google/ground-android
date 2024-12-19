@@ -18,8 +18,8 @@ package org.groundplatform.android.persistence.local.room.dao
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
-import com.google.android.ground.persistence.local.room.entity.SurveyEntity
-import com.google.android.ground.persistence.local.room.relations.SurveyEntityAndRelations
+import org.groundplatform.android.persistence.local.room.entity.SurveyEntity
+import org.groundplatform.android.persistence.local.room.relations.SurveyEntityAndRelations
 import kotlinx.coroutines.flow.Flow
 
 @Dao

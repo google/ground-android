@@ -17,7 +17,7 @@ package org.groundplatform.android.persistence.local.room.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.google.android.ground.persistence.local.room.entity.DraftSubmissionEntity
+import org.groundplatform.android.persistence.local.room.entity.DraftSubmissionEntity
 
 /** Data access object for database operations related to [DraftSubmissionDao]. */
 @Dao

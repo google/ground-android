@@ -17,9 +17,9 @@ package org.groundplatform.android.ui.map
 
 import android.annotation.SuppressLint
 import androidx.annotation.IdRes
-import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.model.imagery.TileSource
-import com.google.android.ground.ui.common.AbstractFragment
+import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.imagery.TileSource
+import org.groundplatform.android.ui.common.AbstractFragment
 import kotlinx.coroutines.flow.SharedFlow
 
 /** Implementation of Fragment which supports displaying a map. */

@@ -19,7 +19,7 @@ package org.groundplatform.android.model.task
  * Describes a user-defined task.
  *
  * This contains the task definition only. Data collected for tasks in job are stored in
- * [com.google.android.ground.model.submission.Submission].
+ * [org.groundplatform.android.model.submission.Submission].
  */
 data class Task
 @JvmOverloads

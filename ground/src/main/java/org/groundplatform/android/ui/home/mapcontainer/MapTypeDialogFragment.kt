@@ -20,9 +20,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.ground.databinding.MapTypeDialogFragmentBinding
-import com.google.android.ground.ui.common.ViewModelFactory
-import com.google.android.ground.ui.map.MapType
+import org.groundplatform.android.databinding.MapTypeDialogFragmentBinding
+import org.groundplatform.android.ui.common.ViewModelFactory
+import org.groundplatform.android.ui.map.MapType
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject

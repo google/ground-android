@@ -16,9 +16,9 @@
 
 package org.groundplatform.android.domain.usecases.survey
 
-import com.google.android.ground.model.Survey
-import com.google.android.ground.repository.LocationOfInterestRepository
-import com.google.android.ground.repository.SurveyRepository
+import org.groundplatform.android.model.Survey
+import org.groundplatform.android.repository.LocationOfInterestRepository
+import org.groundplatform.android.repository.SurveyRepository
 import javax.inject.Inject
 
 class SyncSurveyUseCase

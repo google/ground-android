@@ -16,8 +16,8 @@
 package org.groundplatform.android.ui.map.gms.features
 
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.gms.toGoogleMapsObject
+import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.map.gms.toGoogleMapsObject
 import com.google.maps.android.clustering.ClusterItem
 
 /** A [ClusterItem] implementation for clustering map [Feature]s. */

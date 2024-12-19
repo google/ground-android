@@ -22,8 +22,8 @@ import android.widget.Toast
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
-import com.google.android.ground.Config
-import com.google.android.ground.R
+import org.groundplatform.android.Config
+import org.groundplatform.android.R
 
 /**
  * Fragment containing app preferences saved as shared preferences.

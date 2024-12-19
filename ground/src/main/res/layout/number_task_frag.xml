@@ -22,7 +22,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.datacollection.tasks.number.NumberTaskViewModel" />
+      type="org.groundplatform.android.ui.datacollection.tasks.number.NumberTaskViewModel" />
   </data>
 
   <com.google.android.material.textfield.TextInputLayout

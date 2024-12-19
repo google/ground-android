@@ -22,12 +22,12 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.ground.R
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.ui.IconFactory
-import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.gms.MARKER_Z
-import com.google.android.ground.ui.map.gms.toLatLng
+import org.groundplatform.android.R
+import org.groundplatform.android.model.geometry.Point
+import org.groundplatform.android.ui.IconFactory
+import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.map.gms.MARKER_Z
+import org.groundplatform.android.ui.map.gms.toLatLng
 import javax.inject.Inject
 
 class PointRenderer

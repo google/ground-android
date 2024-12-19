@@ -15,12 +15,12 @@
  */
 package org.groundplatform.android.persistence.remote
 
-import com.google.android.ground.model.Survey
-import com.google.android.ground.model.SurveyListItem
-import com.google.android.ground.model.TermsOfService
-import com.google.android.ground.model.User
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.mutation.Mutation
+import org.groundplatform.android.model.Survey
+import org.groundplatform.android.model.SurveyListItem
+import org.groundplatform.android.model.TermsOfService
+import org.groundplatform.android.model.User
+import org.groundplatform.android.model.locationofinterest.LocationOfInterest
+import org.groundplatform.android.model.mutation.Mutation
 import kotlinx.coroutines.flow.Flow
 
 /**

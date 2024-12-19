@@ -17,8 +17,8 @@
 package org.groundplatform.android.ui.map.gms.mog
 
 import android.util.LruCache
-import com.google.android.ground.persistence.remote.RemoteStorageManager
-import com.google.android.ground.ui.map.Bounds
+import org.groundplatform.android.persistence.remote.RemoteStorageManager
+import org.groundplatform.android.ui.map.Bounds
 import java.io.InputStream
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers

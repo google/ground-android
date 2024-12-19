@@ -16,8 +16,8 @@
 
 package org.groundplatform.android.ui.map.gms.mog
 
-import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.ui.map.Bounds
+import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.ui.map.Bounds
 import kotlin.math.ln
 import kotlin.math.tan
 

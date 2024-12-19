@@ -19,7 +19,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.google.android.ground.model.submission.DraftSubmission
+import org.groundplatform.android.model.submission.DraftSubmission
 
 /** Representation of a [DraftSubmission] in local db. */
 @Entity(tableName = "draft_submission", indices = [Index("loi_id", "job_id", "survey_id")])

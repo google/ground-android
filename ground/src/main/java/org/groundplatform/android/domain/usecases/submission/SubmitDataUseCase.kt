@@ -16,11 +16,11 @@
 package org.groundplatform.android.domain.usecases.submission
 
 import androidx.room.Transaction
-import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.submission.GeometryTaskData
-import com.google.android.ground.model.submission.ValueDelta
-import com.google.android.ground.repository.LocationOfInterestRepository
-import com.google.android.ground.repository.SubmissionRepository
+import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.model.submission.GeometryTaskData
+import org.groundplatform.android.model.submission.ValueDelta
+import org.groundplatform.android.repository.LocationOfInterestRepository
+import org.groundplatform.android.repository.SubmissionRepository
 import javax.inject.Inject
 import timber.log.Timber
 

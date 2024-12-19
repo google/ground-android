@@ -29,10 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.ground.R
-import com.google.android.ground.databinding.OfflineAreasFragBinding
-import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.theme.AppTheme
+import org.groundplatform.android.R
+import org.groundplatform.android.databinding.OfflineAreasFragBinding
+import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.android.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

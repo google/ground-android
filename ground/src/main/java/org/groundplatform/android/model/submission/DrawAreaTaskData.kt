@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.model.submission
 
-import com.google.android.ground.model.geometry.Polygon
+import org.groundplatform.android.model.geometry.Polygon
 
 /** User-provided response to a "draw an area" data collection [Task]. */
 data class DrawAreaTaskData(val area: Polygon) : GeometryTaskData(area) {

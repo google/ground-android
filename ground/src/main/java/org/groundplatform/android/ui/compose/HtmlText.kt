@@ -23,9 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
-import com.google.android.ground.ExcludeFromJacocoGeneratedReport
-import com.google.android.ground.R
-import com.google.android.ground.ui.theme.AppTheme
+import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.R
+import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
 fun HtmlText(html: String, modifier: Modifier = Modifier) {

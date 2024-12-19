@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.ui.common
 
-import com.google.android.ground.ui.map.MapType
+import org.groundplatform.android.ui.map.MapType
 
 /** Configuration to apply on the rendered base map. */
 data class MapConfig(

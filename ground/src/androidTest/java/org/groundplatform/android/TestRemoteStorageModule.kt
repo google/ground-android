@@ -15,10 +15,10 @@
  */
 package org.groundplatform.android
 
-import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.persistence.remote.RemotePersistenceModule
-import com.google.android.ground.persistence.remote.RemoteStorageManager
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
+import org.groundplatform.android.persistence.remote.RemoteDataStore
+import org.groundplatform.android.persistence.remote.RemotePersistenceModule
+import org.groundplatform.android.persistence.remote.RemoteStorageManager
+import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import com.sharedtest.persistence.remote.FakeRemoteStorageManager
 import com.sharedtest.persistence.uuid.FakeUuidGenerator

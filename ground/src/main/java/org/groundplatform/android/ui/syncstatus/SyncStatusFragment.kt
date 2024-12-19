@@ -29,9 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
-import com.google.android.ground.databinding.SyncStatusFragBinding
-import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.theme.AppTheme
+import org.groundplatform.android.databinding.SyncStatusFragBinding
+import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.android.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 /** Fragment containing a list of mutations and their respective upload statuses. */

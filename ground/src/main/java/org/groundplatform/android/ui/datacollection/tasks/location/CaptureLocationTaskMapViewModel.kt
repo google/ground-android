@@ -15,15 +15,15 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.location
 
-import com.google.android.ground.repository.LocationOfInterestRepository
-import com.google.android.ground.repository.MapStateRepository
-import com.google.android.ground.repository.OfflineAreaRepository
-import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.system.LocationManager
-import com.google.android.ground.system.PermissionsManager
-import com.google.android.ground.system.SettingsManager
-import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.common.MapConfig
+import org.groundplatform.android.repository.LocationOfInterestRepository
+import org.groundplatform.android.repository.MapStateRepository
+import org.groundplatform.android.repository.OfflineAreaRepository
+import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.android.system.LocationManager
+import org.groundplatform.android.system.PermissionsManager
+import org.groundplatform.android.system.SettingsManager
+import org.groundplatform.android.ui.common.BaseMapViewModel
+import org.groundplatform.android.ui.common.MapConfig
 import javax.inject.Inject
 
 class CaptureLocationTaskMapViewModel

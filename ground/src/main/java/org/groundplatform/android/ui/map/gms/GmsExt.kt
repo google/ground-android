@@ -16,14 +16,14 @@
 package org.groundplatform.android.ui.map.gms
 
 import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.model.geometry.Geometry
-import com.google.android.ground.model.geometry.LineString
-import com.google.android.ground.model.geometry.LinearRing
-import com.google.android.ground.model.geometry.MultiPolygon
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
-import com.google.android.ground.ui.map.Bounds
+import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.geometry.Geometry
+import org.groundplatform.android.model.geometry.LineString
+import org.groundplatform.android.model.geometry.LinearRing
+import org.groundplatform.android.model.geometry.MultiPolygon
+import org.groundplatform.android.model.geometry.Point
+import org.groundplatform.android.model.geometry.Polygon
+import org.groundplatform.android.ui.map.Bounds
 
 /** Extensions for indirectly using GMS functions in map-provider agnostic codebase. */
 object GmsExt {

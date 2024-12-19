@@ -16,10 +16,10 @@
 package org.groundplatform.android.ui.datacollection.tasks.point
 
 import android.os.Bundle
-import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
-import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.MapFragment
+import org.groundplatform.android.ui.common.AbstractMapFragmentWithControls
+import org.groundplatform.android.ui.common.BaseMapViewModel
+import org.groundplatform.android.ui.map.CameraPosition
+import org.groundplatform.android.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

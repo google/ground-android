@@ -23,7 +23,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel" />
+      type="org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout

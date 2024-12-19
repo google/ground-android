@@ -16,11 +16,11 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.job.Job
-import com.google.android.ground.model.job.Style as StyleModel
-import com.google.android.ground.persistence.remote.DataStoreException
-import com.google.android.ground.persistence.remote.firebase.protobuf.parseFrom
-import com.google.android.ground.proto.Job as JobProto
+import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.model.job.Style as StyleModel
+import org.groundplatform.android.persistence.remote.DataStoreException
+import org.groundplatform.android.persistence.remote.firebase.protobuf.parseFrom
+import org.groundplatform.android.proto.Job as JobProto
 import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.collections.immutable.toPersistentMap
 

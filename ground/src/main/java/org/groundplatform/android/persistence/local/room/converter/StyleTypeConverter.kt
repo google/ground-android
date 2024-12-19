@@ -17,7 +17,7 @@
 package org.groundplatform.android.persistence.local.room.converter
 
 import androidx.room.TypeConverter
-import com.google.android.ground.model.job.Style
+import org.groundplatform.android.model.job.Style
 
 object StyleTypeConverter {
 

@@ -15,13 +15,13 @@
  */
 package org.groundplatform.android.repository
 
-import com.google.android.ground.model.Role
-import com.google.android.ground.model.User
-import com.google.android.ground.persistence.local.LocalValueStore
-import com.google.android.ground.persistence.local.stores.LocalUserStore
-import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.system.NetworkManager
-import com.google.android.ground.system.auth.AuthenticationManager
+import org.groundplatform.android.model.Role
+import org.groundplatform.android.model.User
+import org.groundplatform.android.persistence.local.LocalValueStore
+import org.groundplatform.android.persistence.local.stores.LocalUserStore
+import org.groundplatform.android.persistence.remote.RemoteDataStore
+import org.groundplatform.android.system.NetworkManager
+import org.groundplatform.android.system.auth.AuthenticationManager
 import javax.inject.Inject
 import javax.inject.Singleton
 import timber.log.Timber

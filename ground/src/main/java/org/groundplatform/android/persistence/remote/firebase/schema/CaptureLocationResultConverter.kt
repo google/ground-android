@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.persistence.remote.firebase.schema
 
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.submission.CaptureLocationTaskData
-import com.google.android.ground.persistence.local.room.converter.GeometryWrapperTypeConverter
+import org.groundplatform.android.model.geometry.Point
+import org.groundplatform.android.model.submission.CaptureLocationTaskData
+import org.groundplatform.android.persistence.local.room.converter.GeometryWrapperTypeConverter
 import org.json.JSONObject
 
 /** Converts between [CaptureLocationTaskData] and its equivalent [JSONObject] representation. */

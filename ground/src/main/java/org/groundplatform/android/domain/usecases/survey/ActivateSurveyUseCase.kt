@@ -16,7 +16,7 @@
 
 package org.groundplatform.android.domain.usecases.survey
 
-import com.google.android.ground.repository.SurveyRepository
+import org.groundplatform.android.repository.SurveyRepository
 import javax.inject.Inject
 
 class ActivateSurveyUseCase
@@ -30,7 +30,7 @@ constructor(
    * survey from the local db, and if not present, fetches from remote and activates offline sync.
    * Throws an error if the survey isn't found or cannot be made available offlien. Activating a
    * survey which is already available offline doesn't force a resync, since this is handled by
-   * [com.google.android.ground.persistence.sync.SurveySyncWorker].
+   * [org.groundplatform.android.persistence.sync.SurveySyncWorker].
    */
   suspend operator fun invoke(surveyId: String) {
     // Do nothing if specified survey is already active.

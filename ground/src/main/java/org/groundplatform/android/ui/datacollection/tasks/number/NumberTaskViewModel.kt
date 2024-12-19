@@ -17,8 +17,8 @@ package org.groundplatform.android.ui.datacollection.tasks.number
 
 import android.text.Editable
 import android.text.TextWatcher
-import com.google.android.ground.model.submission.NumberTaskData.Companion.fromNumber
-import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.model.submission.NumberTaskData.Companion.fromNumber
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import javax.inject.Inject
 
 class NumberTaskViewModel @Inject constructor() : AbstractTaskViewModel() {

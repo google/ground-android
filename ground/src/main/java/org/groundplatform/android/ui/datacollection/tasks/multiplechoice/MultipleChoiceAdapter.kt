@@ -20,8 +20,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.ground.databinding.MultipleChoiceCheckboxItemBinding
-import com.google.android.ground.databinding.MultipleChoiceRadiobuttonItemBinding
+import org.groundplatform.android.databinding.MultipleChoiceCheckboxItemBinding
+import org.groundplatform.android.databinding.MultipleChoiceRadiobuttonItemBinding
 
 /**
  * An implementation of [ListAdapter] that associates [MultipleChoiceItem]s with their [ViewHolder].

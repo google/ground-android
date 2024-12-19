@@ -16,9 +16,9 @@
 
 package org.groundplatform.android.model.submission
 
-import com.google.android.ground.model.mutation.LocationOfInterestMutation
-import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.mutation.SubmissionMutation
+import org.groundplatform.android.model.mutation.LocationOfInterestMutation
+import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.android.model.mutation.SubmissionMutation
 import java.util.Date
 
 /**

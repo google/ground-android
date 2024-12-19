@@ -16,8 +16,8 @@
 package org.groundplatform.android.persistence.local.room.entity
 
 import androidx.room.*
-import com.google.android.ground.model.submission.Submission
-import com.google.android.ground.persistence.local.room.fields.EntityDeletionState
+import org.groundplatform.android.model.submission.Submission
+import org.groundplatform.android.persistence.local.room.fields.EntityDeletionState
 
 /** Representation of a [Submission] in local db. */
 @Entity(

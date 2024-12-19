@@ -20,7 +20,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.google.android.ground.persistence.local.room.fields.TaskEntityType
+import org.groundplatform.android.persistence.local.room.fields.TaskEntityType
 
 @Entity(
   tableName = "task",

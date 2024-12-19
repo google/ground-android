@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.persistence.local.stores
 
-import com.google.android.ground.model.mutation.Mutation
+import org.groundplatform.android.model.mutation.Mutation
 
 /**
  * A data store capable of applying changes in the form of [Mutation]s to existing data and managing

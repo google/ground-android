@@ -21,9 +21,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.ground.databinding.FragmentTermsServiceBinding
-import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
+import org.groundplatform.android.databinding.FragmentTermsServiceBinding
+import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.android.ui.surveyselector.SurveySelectorFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 

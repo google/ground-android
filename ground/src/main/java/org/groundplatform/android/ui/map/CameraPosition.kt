@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.ui.map
 
-import com.google.android.ground.model.geometry.Coordinates
+import org.groundplatform.android.model.geometry.Coordinates
 import timber.log.Timber
 
 /** Represents current camera position of the map. */

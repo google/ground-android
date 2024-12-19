@@ -17,16 +17,16 @@ package org.groundplatform.android.ui.datacollection
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.google.android.ground.model.task.Task
-import com.google.android.ground.ui.datacollection.tasks.date.DateTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.text.TextTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskFragment
+import org.groundplatform.android.model.task.Task
+import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskFragment
+import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskFragment
+import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskFragment
+import org.groundplatform.android.ui.datacollection.tasks.number.NumberTaskFragment
+import org.groundplatform.android.ui.datacollection.tasks.photo.PhotoTaskFragment
+import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskFragment
+import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskFragment
+import org.groundplatform.android.ui.datacollection.tasks.text.TextTaskFragment
+import org.groundplatform.android.ui.datacollection.tasks.time.TimeTaskFragment
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import javax.inject.Provider

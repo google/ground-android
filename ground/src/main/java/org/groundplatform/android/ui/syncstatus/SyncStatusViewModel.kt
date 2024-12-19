@@ -17,14 +17,14 @@ package org.groundplatform.android.ui.syncstatus
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.repository.LocationOfInterestRepository
-import com.google.android.ground.repository.MutationRepository
-import com.google.android.ground.repository.SurveyRepository
-import com.google.android.ground.repository.UserRepository
-import com.google.android.ground.ui.common.AbstractViewModel
-import com.google.android.ground.ui.common.LocationOfInterestHelper
+import org.groundplatform.android.model.locationofinterest.LocationOfInterest
+import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.android.repository.LocationOfInterestRepository
+import org.groundplatform.android.repository.MutationRepository
+import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.android.ui.common.AbstractViewModel
+import org.groundplatform.android.ui.common.LocationOfInterestHelper
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow

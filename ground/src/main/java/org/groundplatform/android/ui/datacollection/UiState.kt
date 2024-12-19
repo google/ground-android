@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection
 
-import com.google.android.ground.model.task.Task
+import org.groundplatform.android.model.task.Task
 
 sealed class UiState {
 

@@ -17,10 +17,10 @@ package org.groundplatform.android.persistence.local.room.relations
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.google.android.ground.persistence.local.room.entity.ConditionEntity
-import com.google.android.ground.persistence.local.room.entity.MultipleChoiceEntity
-import com.google.android.ground.persistence.local.room.entity.OptionEntity
-import com.google.android.ground.persistence.local.room.entity.TaskEntity
+import org.groundplatform.android.persistence.local.room.entity.ConditionEntity
+import org.groundplatform.android.persistence.local.room.entity.MultipleChoiceEntity
+import org.groundplatform.android.persistence.local.room.entity.OptionEntity
+import org.groundplatform.android.persistence.local.room.entity.TaskEntity
 
 /**
  * Represents relationship between TaskEntity, MultipleChoiceEntity, OptionEntity, and

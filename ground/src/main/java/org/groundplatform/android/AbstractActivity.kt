@@ -22,8 +22,8 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.android.ground.util.Debug
-import com.google.android.ground.util.systemInsets
+import org.groundplatform.android.util.Debug
+import org.groundplatform.android.util.systemInsets
 import javax.annotation.OverridingMethodsMustInvokeSuper
 
 /** Base activity class containing common helper methods. */

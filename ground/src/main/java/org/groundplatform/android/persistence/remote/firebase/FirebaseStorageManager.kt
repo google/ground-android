@@ -16,7 +16,7 @@
 package org.groundplatform.android.persistence.remote.firebase
 
 import android.net.Uri
-import com.google.android.ground.persistence.remote.RemoteStorageManager
+import org.groundplatform.android.persistence.remote.RemoteStorageManager
 import com.google.firebase.storage.StorageReference
 import java.io.File
 import java.util.StringJoiner

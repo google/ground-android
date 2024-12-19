@@ -23,10 +23,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.google.android.ground.databinding.OfflineAreaViewerFragBinding
-import com.google.android.ground.ui.common.AbstractMapContainerFragment
-import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.map.MapFragment
+import org.groundplatform.android.databinding.OfflineAreaViewerFragBinding
+import org.groundplatform.android.ui.common.AbstractMapContainerFragment
+import org.groundplatform.android.ui.common.BaseMapViewModel
+import org.groundplatform.android.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch

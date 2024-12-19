@@ -19,8 +19,8 @@ import android.view.LayoutInflater
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
-import com.google.android.ground.databinding.TaskFragWithCombinedHeaderBinding
-import com.google.android.ground.databinding.TaskFragWithHeaderBinding
+import org.groundplatform.android.databinding.TaskFragWithCombinedHeaderBinding
+import org.groundplatform.android.databinding.TaskFragWithHeaderBinding
 
 /** Factory for creating a [TaskView]. */
 object TaskViewFactory {

@@ -18,7 +18,7 @@ package org.groundplatform.android.persistence.local.room.dao
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
-import com.google.android.ground.persistence.local.room.entity.UserEntity
+import org.groundplatform.android.persistence.local.room.entity.UserEntity
 
 @Dao
 interface UserDao : BaseDao<UserEntity> {
