@@ -70,7 +70,7 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
       .check(matches(isDisplayed()))
       .check(matches(isEnabled()))
 
-    assertThat(viewModel.responseText.value).isEqualTo(null)
+    assertThat(fragment.timeText.value).isEmpty()
 
     runner().assertButtonIsDisabled("Next")
   }
