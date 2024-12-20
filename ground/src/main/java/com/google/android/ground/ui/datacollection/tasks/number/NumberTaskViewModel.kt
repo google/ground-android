@@ -17,11 +17,21 @@ package com.google.android.ground.ui.datacollection.tasks.number
 
 import android.text.Editable
 import android.text.TextWatcher
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
+import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.submission.NumberTaskData.Companion.fromNumber
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class NumberTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
+
+  /** Transcoded text to be displayed for the current [TaskData]. */
+  val numberResponseText: LiveData<String> =
+    taskTaskData.filterIsInstance<NumberTaskData>().map { it.number }.asLiveData()
 
   val textWatcher =
     object : TextWatcher {
