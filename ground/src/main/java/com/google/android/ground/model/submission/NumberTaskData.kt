@@ -23,8 +23,6 @@ data class NumberTaskData(val number: String) : TaskData {
   val value: Double
     get() = number.toDouble()
 
-  override fun getDetailsText(): String = number
-
   override fun isEmpty(): Boolean = number.isEmpty()
 
   companion object {

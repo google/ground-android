@@ -20,8 +20,6 @@ import kotlinx.serialization.Serializable
 /** A user-provided value to a text question task. */
 @Serializable
 data class TextTaskData(val text: String) : TaskData {
-  override fun getDetailsText(): String = text
-
   override fun isEmpty(): Boolean = text.trim { it <= ' ' }.isEmpty()
 
   override fun toString(): String = text

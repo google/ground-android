@@ -16,25 +16,9 @@
 package com.google.android.ground.model.submission
 
 import com.google.android.ground.model.geometry.Geometry
-import com.google.android.ground.model.geometry.LineString
-import com.google.android.ground.model.geometry.LinearRing
-import com.google.android.ground.model.geometry.MultiPolygon
-import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.model.geometry.Polygon
 
 /** A user-provided response to a geometry-based task ("drop a pin" or "draw an area"). */
 abstract class GeometryTaskData(val geometry: Geometry) : TaskData {
-
-  // TODO: Move strings to view layer.
-  // Issue URL: https://github.com/google/ground-android/issues/1733
-  override fun getDetailsText(): String =
-    when (geometry) {
-      is Point -> "Point data"
-      is Polygon -> "Polygon data"
-      is LinearRing -> "LinearRing data"
-      is LineString -> "LineString data"
-      is MultiPolygon -> "MultiPolygon data"
-    }
 
   override fun isEmpty(): Boolean = false
 }

@@ -23,9 +23,9 @@ import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.TextTaskData.Companion.fromString
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
 class TextTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 

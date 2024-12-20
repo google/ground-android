@@ -18,9 +18,6 @@ package com.google.android.ground.model.submission
 import android.location.Location
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
-import com.google.android.ground.util.toDmsFormat
-import java.math.RoundingMode
-import java.text.DecimalFormat
 
 /** User-provided response to a "capture location" data collection [Task]. */
 data class CaptureLocationTaskData(
@@ -28,16 +25,6 @@ data class CaptureLocationTaskData(
   val altitude: Double?, // in metres
   val accuracy: Double?, // in metres
 ) : GeometryTaskData(location) {
-  override fun getDetailsText(): String {
-    // TODO: Move to strings.xml for i18n
-    // Issue URL: https://github.com/google/ground-android/issues/1733
-    val df = DecimalFormat("#.##")
-    df.roundingMode = RoundingMode.DOWN
-    val coordinatesString = location.coordinates.toDmsFormat()
-    val altitudeString = altitude?.let { df.format(it) } ?: "?"
-    val accuracyString = accuracy?.let { df.format(it) } ?: "?"
-    return "$coordinatesString\nAltitude: $altitudeString m\nAccuracy: $accuracyString m"
-  }
 
   override fun isEmpty(): Boolean = false
 
