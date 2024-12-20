@@ -127,7 +127,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
-      .selectMultipleChoiceOption(TASK_2_OPTION_LABEL)
+      .validateMultipleChoiceOptionIsDisplayed(TASK_2_OPTION_LABEL)
       .clickPreviousButton()
 
     assertDraftSaved(listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA), currentTaskId = TASK_ID_1)
@@ -169,7 +169,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     runner()
       .validateTextIsDisplayed(TASK_1_RESPONSE)
       .clickNextButton()
-      .validateTextIsDisplayed(TASK_2_OPTION_LABEL)
+      .validateMultipleChoiceOptionIsDisplayed(TASK_2_OPTION_LABEL)
   }
 
   @Test
