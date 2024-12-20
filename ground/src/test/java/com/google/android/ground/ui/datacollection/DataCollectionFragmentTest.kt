@@ -127,7 +127,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
-      .validateMultipleChoiceOptionIsDisplayed(TASK_2_OPTION_LABEL)
+      .assertOptionSelected(TASK_2_OPTION_LABEL)
       .clickPreviousButton()
 
     assertDraftSaved(listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA), currentTaskId = TASK_ID_1)
@@ -169,7 +169,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     runner()
       .validateTextIsDisplayed(TASK_1_RESPONSE)
       .clickNextButton()
-      .validateMultipleChoiceOptionIsDisplayed(TASK_2_OPTION_LABEL)
+      .assertOptionsDisplayed(TASK_2_OPTION_LABEL)
   }
 
   @Test
@@ -179,7 +179,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .clickNextButton()
       .validateTextIsNotDisplayed(TASK_1_NAME)
       .validateTextIsDisplayed(TASK_2_NAME)
-      .selectMultipleChoiceOption(TASK_2_OPTION_LABEL)
+      .selectOption(TASK_2_OPTION_LABEL)
       .clickDoneButton() // Click "done" on final task
 
     assertSubmissionSaved(listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA))
@@ -204,7 +204,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .clickNextButton()
       .validateTextIsDisplayed(TASK_2_NAME)
       // Select the option to unhide the conditional task.
-      .selectMultipleChoiceOption(TASK_2_OPTION_CONDITIONAL_LABEL)
+      .selectOption(TASK_2_OPTION_CONDITIONAL_LABEL)
       .clickNextButton()
       // Conditional task is rendered.
       .validateTextIsDisplayed(TASK_CONDITIONAL_NAME)
@@ -225,7 +225,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         .clickNextButton()
         .validateTextIsDisplayed(TASK_2_NAME)
         // Select the option to unhide the conditional task.
-        .selectMultipleChoiceOption(TASK_2_OPTION_CONDITIONAL_LABEL)
+        .selectOption(TASK_2_OPTION_CONDITIONAL_LABEL)
         .clickNextButton()
         .validateTextIsDisplayed(TASK_CONDITIONAL_NAME)
         // Input a value, then go back to hide the task again.
@@ -233,8 +233,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         .clickPreviousButton()
         .validateTextIsDisplayed(TASK_2_NAME)
         // Unselect the option to hide the conditional task.
-        .selectMultipleChoiceOption(TASK_2_OPTION_CONDITIONAL_LABEL)
-        .selectMultipleChoiceOption(TASK_2_OPTION_LABEL)
+        .selectOption(TASK_2_OPTION_CONDITIONAL_LABEL)
+        .selectOption(TASK_2_OPTION_LABEL)
         .clickDoneButton()
         .validateTextIsNotDisplayed(TASK_CONDITIONAL_NAME)
 

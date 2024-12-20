@@ -16,18 +16,6 @@
 package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
 import android.content.Context
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsNotSelected
-import androidx.compose.ui.test.assertIsSelected
-import androidx.compose.ui.test.hasAnySibling
-import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollToNode
-import androidx.compose.ui.test.performTextClearance
-import androidx.compose.ui.test.performTextInput
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.task.MultipleChoice
@@ -100,23 +88,7 @@ class MultipleChoiceTaskFragmentTest :
       task.copy(multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)),
     )
 
-    composeTestRule
-      .onNodeWithTag(MultipleChoiceTestTags.MULTIPLE_CHOICE_LIST)
-      .performScrollToNode(hasText("Option 1"))
-      .performScrollToNode(hasText("Option 2"))
-      .assertIsDisplayed()
-  }
-
-  @Test
-  fun `allows only one selection for SELECT_ONE cardinality`() = runWithTestDispatcher {
-    val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
-    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
-
-    composeTestRule.onNodeWithText("Option 1").performClick()
-    composeTestRule.onNodeWithText("Option 2").performClick()
-
-    hasValue(MultipleChoiceTaskData(multipleChoice, listOf("option id 2")))
-    runner().assertButtonIsEnabled("Next")
+    runner().assertOptionsDisplayed("Option 1", "Option 2")
   }
 
   @Test
@@ -128,11 +100,17 @@ class MultipleChoiceTaskFragmentTest :
       ),
     )
 
-    composeTestRule
-      .onNodeWithTag(MultipleChoiceTestTags.MULTIPLE_CHOICE_LIST)
-      .performScrollToNode(hasText("Option 1"))
-      .performScrollToNode(hasText("Option 2"))
-      .assertIsDisplayed()
+    runner().assertOptionsDisplayed("Option 1", "Option 2")
+  }
+
+  @Test
+  fun `allows only one selection for SELECT_ONE cardinality`() = runWithTestDispatcher {
+    val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
+
+    runner().selectOption("Option 1").selectOption("Option 2").assertButtonIsEnabled("Next")
+
+    hasValue(MultipleChoiceTaskData(multipleChoice, listOf("option id 2")))
   }
 
   @Test
@@ -140,11 +118,9 @@ class MultipleChoiceTaskFragmentTest :
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_MULTIPLE)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
-    composeTestRule.onNodeWithText("Option 1").performClick()
-    composeTestRule.onNodeWithText("Option 2").performClick()
+    runner().selectOption("Option 1").selectOption("Option 2").assertButtonIsEnabled("Next")
 
     hasValue(MultipleChoiceTaskData(multipleChoice, listOf("option id 1", "option id 2")))
-    runner().assertButtonIsEnabled("Next")
   }
 
   @Test
@@ -156,12 +132,9 @@ class MultipleChoiceTaskFragmentTest :
     )
     val userInput = "User inputted text"
 
-    composeTestRule.onNodeWithText("Other").performClick()
-    getOtherInputNode().assertIsDisplayed().performTextInput(userInput)
+    runner().selectOption("Other").inputOtherText(userInput).assertButtonIsEnabled("Next")
 
-    composeTestRule.onNode(hasText("Other")).assertIsDisplayed()
     hasValue(MultipleChoiceTaskData(multipleChoice, listOf("[ $userInput ]")))
-    runner().assertButtonIsEnabled("Next")
   }
 
   @Test
@@ -170,14 +143,15 @@ class MultipleChoiceTaskFragmentTest :
       val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE, true)
       setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
-      composeTestRule.onNodeWithText("Option 1").performClick()
-      getRadioButtonNode("Other").assertIsNotSelected()
-
       val userInput = "A"
-      getOtherInputNode().assertIsDisplayed().performTextInput(userInput)
 
-      getRadioButtonNode("Option 1").assertIsNotSelected()
-      getRadioButtonNode("Other").assertIsSelected()
+      runner()
+        .selectOption("Option 1")
+        .assertOptionNotSelected("Other")
+        .inputOtherText(userInput)
+        .assertOptionNotSelected("Option 1")
+        .assertOptionSelected("Other")
+
       hasValue(MultipleChoiceTaskData(multipleChoice, listOf("[ $userInput ]")))
     }
 
@@ -189,13 +163,12 @@ class MultipleChoiceTaskFragmentTest :
       task.copy(multipleChoice = multipleChoice, isRequired = true),
     )
 
-    getRadioButtonNode("Other").assertIsNotSelected()
-    getOtherInputNode().performTextInput("A")
-    getRadioButtonNode("Other").assertIsSelected()
-
-    getOtherInputNode().performTextClearance()
-
-    getRadioButtonNode("Other").assertIsNotSelected()
+    runner()
+      .assertOptionNotSelected("Other")
+      .inputOtherText("A")
+      .assertOptionSelected("Other")
+      .clearOtherText()
+      .assertOptionNotSelected("Other")
   }
 
   @Test
@@ -203,13 +176,12 @@ class MultipleChoiceTaskFragmentTest :
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE, true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
-    getRadioButtonNode("Other").assertIsNotSelected()
-    getOtherInputNode().performTextInput("A")
-    getRadioButtonNode("Other").assertIsSelected()
-
-    getOtherInputNode().performTextClearance()
-
-    getRadioButtonNode("Other").assertIsSelected()
+    runner()
+      .assertOptionNotSelected("Other")
+      .inputOtherText("A")
+      .assertOptionSelected("Other")
+      .clearOtherText()
+      .assertOptionSelected("Other")
   }
 
   @Test
@@ -220,16 +192,14 @@ class MultipleChoiceTaskFragmentTest :
       task.copy(multipleChoice = multipleChoice, isRequired = true),
     )
 
-    getOtherInputNode().performTextInput("A")
-    composeTestRule.onNodeWithText("Option 1").performClick()
-
-    getRadioButtonNode("Other").assertIsNotSelected()
-    getRadioButtonNode("Option 1").assertIsSelected()
-
-    getOtherInputNode().performTextClearance()
-
-    getRadioButtonNode("Option 1").assertIsSelected()
-    getRadioButtonNode("Other").assertIsNotSelected()
+    runner()
+      .inputOtherText("A")
+      .selectOption("Option 1")
+      .assertOptionNotSelected("Other")
+      .assertOptionSelected("Option 1")
+      .clearOtherText()
+      .assertOptionSelected("Option 1")
+      .assertOptionNotSelected("Other")
   }
 
   @Test
@@ -265,9 +235,7 @@ class MultipleChoiceTaskFragmentTest :
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
-    composeTestRule.onNodeWithText("Option 1").performClick()
-
-    runner().assertButtonIsHidden("Skip")
+    runner().selectOption("Option 1").assertButtonIsHidden("Skip")
   }
 
   @Test
@@ -311,15 +279,9 @@ class MultipleChoiceTaskFragmentTest :
         task.copy(multipleChoice = multipleChoice, isRequired = true),
       )
 
-      composeTestRule.onNodeWithText("Other").performClick()
-
-      composeTestRule
-        .onNodeWithTag(MultipleChoiceTestTags.OTHER_INPUT_TEXT)
-        .assertIsDisplayed()
-        .performTextInput("")
+      runner().selectOption("Other").inputOtherText("").assertButtonIsDisabled("Next")
 
       hasValue(null)
-      runner().assertButtonIsDisabled("Next")
     }
 
   @Test
@@ -331,20 +293,12 @@ class MultipleChoiceTaskFragmentTest :
         task.copy(multipleChoice = multipleChoice, isRequired = true),
       )
 
-      composeTestRule.onNodeWithText("Option 1").performClick()
-      composeTestRule.onNodeWithText("Option 2").performClick()
-      composeTestRule.onNodeWithText("Other").performClick()
-      getOtherInputNode().performTextClearance()
+      runner()
+        .selectOption("Option 1")
+        .selectOption("Option 2")
+        .selectOption("Other")
+        .assertButtonIsDisabled("Next")
 
       hasValue(null)
-      runner().assertButtonIsDisabled("Next")
     }
-
-  private fun getRadioButtonNode(text: String) =
-    composeTestRule.onNode(
-      hasTestTag(MultipleChoiceTestTags.SELECT_MULTIPLE_RADIO) and hasAnySibling(hasText(text))
-    )
-
-  private fun getOtherInputNode() =
-    composeTestRule.onNodeWithTag(MultipleChoiceTestTags.OTHER_INPUT_TEXT)
 }

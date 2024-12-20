@@ -20,12 +20,20 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasAnySibling
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -36,6 +44,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.CustomViewActions.forceTypeText
 import com.google.android.ground.R
+import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTestTags
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -75,15 +84,48 @@ class TaskFragmentRunner(
     return this
   }
 
-  internal fun selectMultipleChoiceOption(optionText: String): TaskFragmentRunner {
+  internal fun selectOption(optionText: String): TaskFragmentRunner {
     baseHiltTest.composeTestRule.onNodeWithText(optionText).performClick()
     return this
   }
 
-  internal fun validateMultipleChoiceOptionIsDisplayed(text: String): TaskFragmentRunner {
-    baseHiltTest.composeTestRule.onNodeWithText(text).performClick()
+  internal fun assertOptionsDisplayed(vararg text: String): TaskFragmentRunner {
+    text.forEach {
+      baseHiltTest.composeTestRule
+        .onNodeWithTag(MultipleChoiceTestTags.MULTIPLE_CHOICE_LIST)
+        .performScrollToNode(hasText(it))
+        .assertIsDisplayed()
+    }
     return this
   }
+
+  internal fun assertOptionSelected(optionText: String): TaskFragmentRunner {
+    getRadioButtonNode(optionText).assertIsSelected()
+    return this
+  }
+
+  internal fun assertOptionNotSelected(optionText: String): TaskFragmentRunner {
+    getRadioButtonNode(optionText).assertIsNotSelected()
+    return this
+  }
+
+  internal fun inputOtherText(text: String): TaskFragmentRunner {
+    getOtherInputNode().assertIsDisplayed().performTextInput(text)
+    return this
+  }
+
+  internal fun clearOtherText(): TaskFragmentRunner {
+    getOtherInputNode().assertIsDisplayed().performTextClearance()
+    return this
+  }
+
+  private fun getOtherInputNode() =
+    baseHiltTest.composeTestRule.onNodeWithTag(MultipleChoiceTestTags.OTHER_INPUT_TEXT)
+
+  private fun getRadioButtonNode(text: String) =
+    baseHiltTest.composeTestRule.onNode(
+      hasTestTag(MultipleChoiceTestTags.SELECT_MULTIPLE_RADIO) and hasAnySibling(hasText(text))
+    )
 
   internal fun validateTextIsDisplayed(text: String): TaskFragmentRunner {
     onView(withText(text)).check(matches(isDisplayed()))
