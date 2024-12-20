@@ -61,7 +61,6 @@ internal object ValueJsonConverter {
   private fun toJsonArray(response: MultipleChoiceTaskData): JSONArray =
     JSONArray().apply { response.selectedOptionIds.forEach { this.put(it) } }
 
-  // TODO: Replace with proto conversion logic if this is still necessary
   fun toResponse(task: Task, obj: Any): TaskData? {
     if (JSONObject.NULL === obj) {
       return null

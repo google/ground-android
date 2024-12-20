@@ -43,7 +43,8 @@ class LoiCollectionReference internal constructor(ref: CollectionReference) :
   /** Retrieves all "predefined" LOIs in the specified survey. Main-safe. */
   suspend fun fetchPredefined(survey: Survey): List<LocationOfInterest> =
     // Use !=false rather than ==true to not break legacy dev surveys.
-    // TODO(#2375): Switch to whereEqualTo(true) once legacy dev surveys deleted or migrated.
+    // TODO: Switch to whereEqualTo(true) once legacy dev surveys deleted or migrated.
+    // Issue URL: https://github.com/google/ground-android/issues/2375
     fetchLois(
       survey,
       reference().whereEqualTo(SOURCE_FIELD, LocationOfInterestProto.Source.IMPORTED.number),

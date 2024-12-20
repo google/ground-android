@@ -34,7 +34,10 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
-/** Fragment containing a list of mutations and their respective upload statuses. */
+/**
+ * This fragment summarizes the synchronization statuses of local changes that are being uploaded to
+ * a remote server.
+ */
 @AndroidEntryPoint
 class SyncStatusFragment : AbstractFragment() {
 
@@ -61,7 +64,7 @@ class SyncStatusFragment : AbstractFragment() {
 
   @Composable
   private fun ShowSyncItems() {
-    val list by viewModel.mutations.observeAsState()
+    val list by viewModel.uploadStatus.observeAsState()
     list?.let {
       LazyColumn(Modifier.fillMaxSize().testTag("sync list")) {
         items(it) {

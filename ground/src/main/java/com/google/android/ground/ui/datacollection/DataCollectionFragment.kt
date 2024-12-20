@@ -155,7 +155,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun onTaskChanged(taskPosition: TaskPosition) {
-    viewPager.currentItem = taskPosition.absoluteIndex
+    // Pass false to parameter smoothScroll to avoid smooth scrolling animation.
+    viewPager.setCurrentItem(taskPosition.absoluteIndex, false)
     updateProgressBar(taskPosition, true)
   }
 
