@@ -44,7 +44,9 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.CustomViewActions.forceTypeText
 import com.google.android.ground.R
-import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTestTags
+import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MULTIPLE_CHOICE_LIST_TEST_TAG
+import com.google.android.ground.ui.datacollection.tasks.multiplechoice.OTHER_INPUT_TEXT_TEST_TAG
+import com.google.android.ground.ui.datacollection.tasks.multiplechoice.SELECT_MULTIPLE_RADIO_TEST_TAG
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -92,7 +94,7 @@ class TaskFragmentRunner(
   internal fun assertOptionsDisplayed(vararg text: String): TaskFragmentRunner {
     text.forEach {
       baseHiltTest.composeTestRule
-        .onNodeWithTag(MultipleChoiceTestTags.MULTIPLE_CHOICE_LIST)
+        .onNodeWithTag(MULTIPLE_CHOICE_LIST_TEST_TAG)
         .performScrollToNode(hasText(it))
         .assertIsDisplayed()
     }
@@ -120,11 +122,11 @@ class TaskFragmentRunner(
   }
 
   private fun getOtherInputNode() =
-    baseHiltTest.composeTestRule.onNodeWithTag(MultipleChoiceTestTags.OTHER_INPUT_TEXT)
+    baseHiltTest.composeTestRule.onNodeWithTag(OTHER_INPUT_TEXT_TEST_TAG)
 
   private fun getRadioButtonNode(text: String) =
     baseHiltTest.composeTestRule.onNode(
-      hasTestTag(MultipleChoiceTestTags.SELECT_MULTIPLE_RADIO) and hasAnySibling(hasText(text))
+      hasTestTag(SELECT_MULTIPLE_RADIO_TEST_TAG) and hasAnySibling(hasText(text))
     )
 
   internal fun validateTextIsDisplayed(text: String): TaskFragmentRunner {

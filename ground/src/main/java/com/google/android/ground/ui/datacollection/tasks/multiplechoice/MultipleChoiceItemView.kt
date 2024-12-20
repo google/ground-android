@@ -39,6 +39,10 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.ui.theme.AppTheme
 
+const val MULTIPLE_CHOICE_ITEM_TEST_TAG = "multiple choice item test tag"
+const val OTHER_INPUT_TEXT_TEST_TAG = "other input test tag"
+const val SELECT_MULTIPLE_RADIO_TEST_TAG = "select multiple radio test tag"
+
 @Composable
 fun MultipleChoiceItemView(
   item: MultipleChoiceItem,
@@ -47,12 +51,12 @@ fun MultipleChoiceItemView(
   toggleItem: (item: MultipleChoiceItem) -> Unit = {},
   otherValueChanged: (text: String) -> Unit = {},
 ) {
-  Column(modifier = Modifier.testTag(MultipleChoiceTestTags.MULTIPLE_CHOICE_ITEM)) {
+  Column(modifier = Modifier.testTag(MULTIPLE_CHOICE_ITEM_TEST_TAG)) {
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
       when (item.cardinality) {
         MultipleChoice.Cardinality.SELECT_ONE -> {
           RadioButton(
-            modifier = Modifier.testTag(MultipleChoiceTestTags.SELECT_MULTIPLE_RADIO),
+            modifier = Modifier.testTag(SELECT_MULTIPLE_RADIO_TEST_TAG),
             selected = item.isSelected,
             onClick = { toggleItem(item) },
           )
@@ -77,7 +81,7 @@ fun MultipleChoiceItemView(
           value = item.otherText,
           textStyle = MaterialTheme.typography.bodyLarge,
           onValueChange = { otherValueChanged(it) },
-          modifier = Modifier.testTag(MultipleChoiceTestTags.OTHER_INPUT_TEXT),
+          modifier = Modifier.testTag(OTHER_INPUT_TEXT_TEST_TAG),
         )
       }
     }

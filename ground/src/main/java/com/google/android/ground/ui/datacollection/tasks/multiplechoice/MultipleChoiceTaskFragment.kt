@@ -33,6 +33,8 @@ import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+const val MULTIPLE_CHOICE_LIST_TEST_TAG = "multiple choice items test tag"
+
 /**
  * Fragment allowing the user to answer single selection multiple choice questions to complete a
  * task.
@@ -50,7 +52,7 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
   private fun ShowMultipleChoiceItems() {
     val list by viewModel.itemsFlow.asLiveData().observeAsState()
     list?.let { items ->
-      LazyColumn(Modifier.fillMaxSize().testTag(MultipleChoiceTestTags.MULTIPLE_CHOICE_LIST)) {
+      LazyColumn(Modifier.fillMaxSize().testTag(MULTIPLE_CHOICE_LIST_TEST_TAG)) {
         items(items) { item ->
           MultipleChoiceItemView(
             item = item,
