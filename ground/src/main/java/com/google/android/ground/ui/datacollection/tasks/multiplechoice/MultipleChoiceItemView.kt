@@ -47,7 +47,7 @@ fun MultipleChoiceItemView(
   toggleItem: (item: MultipleChoiceItem) -> Unit = {},
   otherValueChanged: (text: String) -> Unit = {},
 ) {
-  Column {
+  Column(modifier = Modifier.testTag(MultipleChoiceTestTags.MULTIPLE_CHOICE_ITEM)) {
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
       when (item.cardinality) {
         MultipleChoice.Cardinality.SELECT_ONE -> {

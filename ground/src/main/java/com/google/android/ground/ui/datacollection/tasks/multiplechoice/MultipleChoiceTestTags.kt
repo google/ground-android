@@ -18,6 +18,7 @@ package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 object MultipleChoiceTestTags {
 
   const val MULTIPLE_CHOICE_LIST = "multiple choice items test tag"
+  const val MULTIPLE_CHOICE_ITEM = "multiple choice item test tag"
   const val OTHER_INPUT_TEXT = "other input test tag"
   const val SELECT_MULTIPLE_RADIO = "select multiple radio test tag"
 }
