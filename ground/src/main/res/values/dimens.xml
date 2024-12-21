@@ -27,7 +27,6 @@
 
   <!-- Task selection tabs -->
   <dimen name="map_btn_margin_bottom">48dp</dimen>
-  <!-- TODO: Make dimensions relative using Android data binding. -->
   <dimen name="toolbar_elevation">4dp</dimen>
 
   <!-- Navigation drawer -->

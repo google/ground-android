@@ -98,8 +98,9 @@ class MainViewModelTest : BaseHiltTest() {
     }
   }
 
-  // TODO(#1612): Add back testSignInStateChanged_onSignedIn_whenTosAcceptedAndActiveSurveyAvailable
+  // TODO: Add back testSignInStateChanged_onSignedIn_whenTosAcceptedAndActiveSurveyAvailable
   //   once reactivate last survey is implemented.
+  // Issue URL: https://github.com/google/ground-android/issues/1612
 
   @Test
   fun testSignInStateChanged_onSignedIn_whenTosNotAccepted() = runWithTestDispatcher {
@@ -145,7 +146,8 @@ class MainViewModelTest : BaseHiltTest() {
     viewModel.navigationRequests.test {
       fakeAuthenticationManager.signIn()
       advanceUntilIdle()
-      // TODO(#2667): Update these implementation to make it clearer why this would be the case.
+      // TODO: Update these implementation to make it clearer why this would be the case.
+      // Issue URL: https://github.com/google/ground-android/issues/2667
       assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
       assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
     }

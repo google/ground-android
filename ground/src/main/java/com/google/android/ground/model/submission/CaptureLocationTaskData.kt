@@ -30,6 +30,7 @@ data class CaptureLocationTaskData(
 ) : GeometryTaskData(location) {
   override fun getDetailsText(): String {
     // TODO: Move to strings.xml for i18n
+    // Issue URL: https://github.com/google/ground-android/issues/1733
     val df = DecimalFormat("#.##")
     df.roundingMode = RoundingMode.DOWN
     val coordinatesString = location.coordinates.toDmsFormat()

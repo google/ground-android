@@ -36,7 +36,8 @@ object GmsExt {
   fun Bounds.center(): Coordinates = toGoogleMapsObject().center.toModelObject()
 
   fun List<Geometry>.toBounds(): Bounds? {
-    // TODO(#1825): Don't use shell coordinates for polygon and multi-polygons.
+    // TODO: Don't use shell coordinates for polygon and multi-polygons.
+    // Issue URL: https://github.com/google/ground-android/issues/1825
     val coordinates = this.flatMap { it.getShellCoordinates() }
     if (coordinates.isNotEmpty()) {
       val bounds = LatLngBounds.builder()
