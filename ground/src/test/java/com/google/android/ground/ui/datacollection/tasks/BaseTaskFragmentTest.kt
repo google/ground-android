@@ -60,10 +60,6 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     onView(withId(R.id.header_icon)).check(matches(isDisplayed()))
   }
 
-  protected fun infoCardHidden() {
-    onView(withId(R.id.infoCard)).check(matches(not(isDisplayed())))
-  }
-
   protected suspend fun hasValue(taskData: TaskData?) {
     viewModel.taskTaskData.test { assertThat(expectMostRecentItem()).isEqualTo(taskData) }
   }
