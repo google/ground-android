@@ -22,8 +22,6 @@ import kotlinx.serialization.Serializable
 data class TextTaskData(val text: String) : TaskData {
   override fun isEmpty(): Boolean = text.trim { it <= ' ' }.isEmpty()
 
-  override fun toString(): String = text
-
   companion object {
     fun fromString(text: String): TaskData? = if (text.isEmpty()) null else TextTaskData(text)
   }
