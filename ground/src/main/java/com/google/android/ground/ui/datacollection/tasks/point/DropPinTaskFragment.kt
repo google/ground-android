@@ -52,7 +52,7 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
     val args = Bundle()
     args.putString(TASK_ID_FRAGMENT_ARG_KEY, taskId)
     fragment.arguments = args
-    parentFragmentManager
+    childFragmentManager
       .beginTransaction()
       .add(rowLayout.id, fragment, "Drop a pin fragment")
       .commit()
