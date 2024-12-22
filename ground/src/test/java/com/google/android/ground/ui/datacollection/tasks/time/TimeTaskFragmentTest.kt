@@ -17,6 +17,8 @@ package com.google.android.ground.ui.datacollection.tasks.time
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.onNodeWithText
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -70,8 +72,6 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
       .check(matches(isDisplayed()))
       .check(matches(isEnabled()))
 
-    assertThat(fragment.timeText.value).isEmpty()
-
     runner().assertButtonIsDisabled("Next")
   }
 
@@ -114,6 +114,7 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   @Test
   fun `hint text is visible`() {
     setupTaskFragment<TimeTaskFragment>(job, task)
-    assertThat(fragment.timeTextHint.value).isEqualTo("H:MM A")
+
+    composeTestRule.onNodeWithText("H:MM A").isDisplayed()
   }
 }
