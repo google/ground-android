@@ -16,11 +16,14 @@
 package com.google.android.ground.ui.datacollection.tasks.location
 
 import android.location.Location
+import com.google.android.ground.R
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.CaptureLocationTaskData
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.repository.MapStateRepository
+import com.google.android.ground.system.LocationManager
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
@@ -28,6 +31,7 @@ import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -40,7 +44,9 @@ import org.robolectric.RobolectricTestRunner
 class CaptureLocationTaskFragmentTest :
   BaseTaskFragmentTest<CaptureLocationTaskFragment, CaptureLocationTaskViewModel>() {
 
+  @BindValue @Mock lateinit var locationManager: LocationManager
   @BindValue @Mock override lateinit var dataCollectionViewModel: DataCollectionViewModel
+  @Inject lateinit var mapStateRepository: MapStateRepository
   @Inject override lateinit var viewModelFactory: ViewModelFactory
 
   private val task =
@@ -52,6 +58,14 @@ class CaptureLocationTaskFragmentTest :
       isRequired = false,
     )
   private val job = Job(id = "job1")
+  private val lastLocationFlow = MutableSharedFlow<Location>(replay = 1)
+
+  override fun setUp() {
+    super.setUp()
+    // TODO: Add unit tests when card is hidden due to current button click
+    mapStateRepository.isLocationLockEnabled = true
+    whenever(locationManager.locationUpdates).thenReturn(lastLocationFlow)
+  }
 
   @Test
   fun testHeader() {
@@ -62,16 +76,19 @@ class CaptureLocationTaskFragmentTest :
 
   @Test
   fun testDropPin() = runWithTestDispatcher {
-    val location = setupLocation()
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
-
-    viewModel.updateLocation(location)
+    setupLocation()
 
     runner()
       .clickButton("Capture")
       .assertButtonIsEnabled("Next")
       .assertButtonIsEnabled("Undo", true)
       .assertButtonIsHidden("Capture")
+      .assertInfoCardShown(
+        fragment.getString(R.string.current_location),
+        "10°0'0\" N 20°0'0\" E",
+        "5m",
+      )
 
     hasValue(TASK_DATA)
   }
@@ -80,21 +97,25 @@ class CaptureLocationTaskFragmentTest :
   fun testInfoCard_noValue() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
-    infoCardHidden()
+    runner().assertInfoCardHidden()
   }
 
   @Test
   fun testUndo() = runWithTestDispatcher {
-    val location = setupLocation()
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
-
-    viewModel.updateLocation(location)
+    setupLocation()
 
     runner()
       .clickButton("Capture")
       .clickButton("Undo", true)
       .assertButtonIsHidden("Next")
       .assertButtonIsEnabled("Capture")
+      // Info card is still shown as it is bound to current location and not response.
+      .assertInfoCardShown(
+        fragment.getString(R.string.current_location),
+        "10°0'0\" N 20°0'0\" E",
+        "5m",
+      )
 
     hasValue(null)
   }
@@ -134,15 +155,19 @@ class CaptureLocationTaskFragmentTest :
       .assertButtonIsEnabled("Capture")
   }
 
-  private fun setupLocation(): Location =
-    mock<Location>().apply {
-      whenever(hasAltitude()).thenReturn(true)
-      whenever(hasAccuracy()).thenReturn(true)
-      whenever(longitude).thenReturn(LONGITUDE)
-      whenever(latitude).thenReturn(LATITUDE)
-      whenever(altitude).thenReturn(ALTITUDE)
-      whenever(accuracy).thenReturn(ACCURACY.toFloat())
-    }
+  private suspend fun setupLocation() {
+    val location =
+      mock<Location>().apply {
+        whenever(hasAltitude()).thenReturn(true)
+        whenever(hasAccuracy()).thenReturn(true)
+        whenever(longitude).thenReturn(LONGITUDE)
+        whenever(latitude).thenReturn(LATITUDE)
+        whenever(altitude).thenReturn(ALTITUDE)
+        whenever(accuracy).thenReturn(ACCURACY.toFloat())
+      }
+
+    lastLocationFlow.emit(location)
+  }
 
   companion object {
     private const val LATITUDE = 10.0
