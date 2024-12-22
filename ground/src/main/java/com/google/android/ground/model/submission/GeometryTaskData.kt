@@ -16,9 +16,25 @@
 package com.google.android.ground.model.submission
 
 import com.google.android.ground.model.geometry.Geometry
+import com.google.android.ground.model.geometry.LineString
+import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.model.geometry.Polygon
+import com.google.android.ground.model.task.Task
 
 /** A user-provided response to a geometry-based task ("drop a pin" or "draw an area"). */
-abstract class GeometryTaskData(val geometry: Geometry) : TaskData {
+sealed class GeometryTaskData(val geometry: Geometry) : TaskData
 
+/** User-provided response to a "drop a pin" data collection [Task]. */
+data class DropPinTaskData(val location: Point) : GeometryTaskData(location) {
   override fun isEmpty(): Boolean = false
+}
+
+/** User-provided response to a "draw an area" data collection [Task]. */
+data class DrawAreaTaskData(val area: Polygon) : GeometryTaskData(area) {
+  override fun isEmpty(): Boolean = area.isEmpty()
+}
+
+/** User-provided "ongoing" response to a "draw an area" data collection [Task]. */
+data class DrawAreaTaskIncompleteData(val lineString: LineString) : GeometryTaskData(lineString) {
+  override fun isEmpty(): Boolean = lineString.isEmpty()
 }

@@ -15,28 +15,15 @@
  */
 package com.google.android.ground.model.submission
 
-import android.location.Location
-import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.Point
+import com.google.android.ground.proto.Task
 
 /** User-provided response to a "capture location" data collection [Task]. */
 data class CaptureLocationTaskData(
   val location: Point,
   val altitude: Double?, // in metres
   val accuracy: Double?, // in metres
-) : GeometryTaskData(location) {
+) : TaskData {
 
   override fun isEmpty(): Boolean = false
-
-  companion object {
-    fun Location.toCaptureLocationResult(): CaptureLocationTaskData {
-      val altitude = if (hasAltitude()) altitude else null
-      val accuracy = if (hasAccuracy()) accuracy else null
-      return CaptureLocationTaskData(
-        Point(Coordinates(latitude, longitude)),
-        altitude,
-        accuracy?.toDouble(),
-      )
-    }
-  }
 }

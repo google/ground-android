@@ -38,3 +38,7 @@ fun Coordinates.toLatLng(): LatLng = LatLng(lat, lng)
 fun List<Coordinates>.toLatLngList(): List<LatLng> = map { it.toLatLng() }
 
 fun Location.toCoordinates(): Coordinates = Coordinates(latitude, longitude)
+
+fun Location.toAltitude(): Double? = if (hasAltitude()) altitude else null
+
+fun Location.toAccuracy(): Double? = if (hasAccuracy()) accuracy.toDouble() else null

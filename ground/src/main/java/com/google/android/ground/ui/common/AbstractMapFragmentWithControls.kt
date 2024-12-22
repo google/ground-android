@@ -26,10 +26,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTaskFragBinding
-import com.google.android.ground.model.submission.CaptureLocationTaskData.Companion.toCaptureLocationResult
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.gms.toAccuracy
+import com.google.android.ground.ui.map.gms.toCoordinates
 import com.google.android.ground.util.toDmsFormat
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -66,12 +67,11 @@ abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() 
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
         getMapViewModel().location.collect {
-          val taskData = it?.toCaptureLocationResult()
-          val locationText = taskData?.location?.coordinates?.toDmsFormat()
+          val locationText = it?.toCoordinates()?.toDmsFormat()
 
           val df = DecimalFormat("#.##")
           df.roundingMode = RoundingMode.DOWN
-          val accuracyText = taskData?.accuracy?.let { value -> df.format(value) + "m" } ?: "?"
+          val accuracyText = it?.toAccuracy()?.let { value -> df.format(value) + "m" } ?: "?"
 
           updateLocationInfoCard(R.string.current_location, locationText, accuracyText)
         }
