@@ -48,7 +48,6 @@
       Translucent scrim to make status bar legible when shown overlaid on map or toolbar.
       Workaround for possible bug in Navigation Architecture Components where translucent system
       bars get replaced with solid white background in fragment after navigation.
-      TODO: Is this a bug? If so, what's the bug ID? Has it been fixed?
      -->
 
     <View

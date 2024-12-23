@@ -19,6 +19,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,7 +64,8 @@ class MainActivity : AbstractActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     // Make sure this is before calling super.onCreate()
     setTheme(R.style.AppTheme)
-    // TODO(#620): Remove this to enable dark theme.
+    // TODO: Remove this to enable dark theme.
+    // Issue URL: https://github.com/google/ground-android/issues/620
     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
     super.onCreate(savedInstanceState)
 
@@ -85,6 +87,18 @@ class MainActivity : AbstractActivity() {
     lifecycleScope.launch {
       viewModel.navigationRequests.filterNotNull().collect { updateUi(binding.root, it) }
     }
+
+    onBackPressedDispatcher.addCallback(
+      this,
+      object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+          if (!dispatchBackPressed()) {
+            isEnabled = false
+            onBackPressedDispatcher.onBackPressed()
+          }
+        }
+      },
+    )
   }
 
   private fun updateUi(viewGroup: ViewGroup, uiState: MainUiState) {
@@ -122,7 +136,9 @@ class MainActivity : AbstractActivity() {
             var showDialog by remember { mutableStateOf(true) }
             if (showDialog) {
               PermissionDeniedDialog(
-                // TODO(#2402): Read url from Firestore config/properties/signUpUrl
+                // TODO: Read url from
+                //  Firestore config/properties/signUpUrl
+                // Issue URL: https://github.com/google/ground-android/issues/2402
                 BuildConfig.SIGNUP_FORM_LINK,
                 onSignOut = {
                   showDialog = false
@@ -180,11 +196,6 @@ class MainActivity : AbstractActivity() {
     } else {
       false
     }
-  }
-
-  @Deprecated("Deprecated in Java")
-  override fun onBackPressed() {
-    if (!dispatchBackPressed()) super.onBackPressed()
   }
 
   private fun dispatchBackPressed(): Boolean {

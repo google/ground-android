@@ -29,7 +29,8 @@ open class DataStoreException(message: String?) : RuntimeException(message) {
     @JvmStatic
     @Throws(DataStoreException::class)
     fun <T : Any> checkType(expectedType: Class<*>, obj: T): T {
-      // TODO(#2743) - Handle Kotlin Long (java.lang.Long) vs Java primitive long (long)
+      // TODO: Handle Kotlin Long (java.lang.Long) vs Java primitive long (long)
+      // Issue URL: https://github.com/google/ground-android/issues/2743
       if (obj.javaClass == java.lang.Long::class.java && expectedType == Long::class.java) {
         return obj
       }
