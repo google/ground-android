@@ -54,11 +54,10 @@ constructor(
    * subscribe and a new list on each subsequent change.
    */
   fun getSurveyMutationsFlow(survey: Survey): Flow<List<Mutation>> {
-    // TODO(https://github.com/google/ground-android/issues/2838): Show mutations for all surveys,
-    //   not just current one.
-    // TODO(https://github.com/google/ground-android/issues/2838): This method is also named
-    //   incorrectly - it only returns one of LOI or submission mutations. We should delete this
-    //   method in favor of [getUploadQueueFlow()].
+    // TODO: Show mutations for all surveys, not just current one.
+    // TODO: This method is also named incorrectly - it only returns one of LOI or submission
+    //  mutations. We should delete this method in favor of [getUploadQueueFlow()].
+    // Issue URL: https://github.com/google/ground-android/issues/2838
     val locationOfInterestMutations = localLocationOfInterestStore.getAllSurveyMutations(survey)
     val submissionMutations = localSubmissionStore.getAllSurveyMutationsFlow(survey)
 
@@ -85,15 +84,15 @@ constructor(
         setOf(MEDIA_UPLOAD_PENDING, MEDIA_UPLOAD_IN_PROGRESS, MEDIA_UPLOAD_AWAITING_RETRY)
           .contains(it.uploadStatus)
       }
-      // TODO(https://github.com/google/ground-android/issues/2120):
-      //  Return [MediaMutations] instead once introduced.
+      // TODO: Return [MediaMutations] instead once introduced.
+      // Issue URL: https://github.com/google/ground-android/issues/2120
       .mapNotNull { it.submissionMutation }
 
   /**
    * Returns a [Flow] which emits the upload queue once and on each change, sorted in chronological
    * order (FIFO).
    */
-  private fun getUploadQueueFlow(): Flow<List<UploadQueueEntry>> =
+  fun getUploadQueueFlow(): Flow<List<UploadQueueEntry>> =
     localLocationOfInterestStore.getAllMutationsFlow().combine(
       localSubmissionStore.getAllMutationsFlow()
     ) { loiMutations, submissionMutations ->
@@ -147,8 +146,8 @@ constructor(
    */
   suspend fun finalizePendingMutationsForMediaUpload(mutations: List<Mutation>) {
     finalizeDeletions(mutations)
-    // TODO(https://github.com/google/ground-android/issues/2873): Only do this is there are
-    // actually photos to upload.
+    // TODO: Only do this is there are actually photos to upload.
+    // Issue URL: https://github.com/google/ground-android/issues/2873
     markForMediaUpload(mutations)
   }
 

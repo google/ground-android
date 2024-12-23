@@ -47,6 +47,7 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
     return binding.root
   }
 
+  // TODO: Test comment for adding links to repo.
   private fun setupMultipleChoice(recyclerView: RecyclerView) {
     val multipleChoice = checkNotNull(getTask().multipleChoice)
     val canSelectMultiple = multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE

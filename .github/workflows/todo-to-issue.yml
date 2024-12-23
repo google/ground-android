@@ -1,0 +1,48 @@
+# Copyright 2024 The Ground Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# For more details, see: https://github.com/marketplace/actions/todo-to-issue
+
+name: "Run TODO to Issue"
+on:
+  push:
+    branches:
+      - replace-with-master-when-fixed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      - name: "TODO to Issue"
+        uses: alstr/todo-to-issue-action@v5.1.7
+        with:
+          AUTO_ASSIGN: "true"
+          INSERT_ISSUE_URLS: "true"
+          CLOSE_ISSUES: "true"
+      - name: Set Git user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Commit and Push Changes
+        run: |
+          git add -A
+          if [[ `git status --porcelain` ]]; then
+            git commit -m "Automatically added GitHub issue links to TODOs"
+            git push origin master
+          else
+            echo "No changes to commit"
+          fi
