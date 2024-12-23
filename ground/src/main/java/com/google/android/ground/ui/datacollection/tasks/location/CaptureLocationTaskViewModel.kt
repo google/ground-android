@@ -21,8 +21,8 @@ import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.submission.CaptureLocationTaskData
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
-import com.google.android.ground.ui.map.gms.toAccuracy
-import com.google.android.ground.ui.map.gms.toAltitude
+import com.google.android.ground.ui.map.gms.getAccuracyOrNull
+import com.google.android.ground.ui.map.gms.getAltitudeOrNull
 import com.google.android.ground.ui.map.gms.toCoordinates
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,8 +63,8 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractTaskViewModel
       setValue(
         CaptureLocationTaskData(
           Point(location.toCoordinates()),
-          location.toAltitude(),
-          location.toAccuracy(),
+          location.getAltitudeOrNull(),
+          location.getAccuracyOrNull(),
         )
       )
     }
