@@ -63,6 +63,7 @@ class CaptureLocationTaskFragmentTest :
   override fun setUp() {
     super.setUp()
     // TODO: Add unit tests when card is hidden due to current button click
+    // Issue URL: https://github.com/google/ground-android/issues/2952
     mapStateRepository.isLocationLockEnabled = true
     whenever(locationManager.locationUpdates).thenReturn(lastLocationFlow)
   }
