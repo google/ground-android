@@ -16,15 +16,12 @@
 
 name: "Run TODO to Issue"
 on:
-  pull_request_review:
-    types:
-      - submitted
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
-  run-on-approval:
-    if: ${{ github.event.review.state == 'approved' }}
+  build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
         with:
