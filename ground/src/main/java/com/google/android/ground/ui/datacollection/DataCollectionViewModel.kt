@@ -68,6 +68,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 
 /** View model for the Data Collection fragment. */
@@ -101,7 +102,7 @@ internal constructor(
   private var draftDeltas: List<ValueDelta>? = null
 
   private val activeSurvey: Survey = runBlocking {
-    surveyRepository.activeSurveyFlow.filterNotNull().first()
+    withTimeout(3000L) { surveyRepository.activeSurveyFlow.filterNotNull().first() }
   }
 
   private val job: Job = activeSurvey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
