@@ -43,6 +43,13 @@ const val MULTIPLE_CHOICE_ITEM_TEST_TAG = "multiple choice item test tag"
 const val OTHER_INPUT_TEXT_TEST_TAG = "other input test tag"
 const val SELECT_MULTIPLE_RADIO_TEST_TAG = "select multiple radio test tag"
 
+/**
+ * A composable function that displays a single item in a multiple-choice list.
+ *
+ * This composable provides a visually consistent and interactive way to present an option within a
+ * list of choices where the user can select one or more items. It typically includes a text label
+ * and a selectable indicator (e.g., a checkbox).
+ */
 @Composable
 fun MultipleChoiceItemView(
   item: MultipleChoiceItem,

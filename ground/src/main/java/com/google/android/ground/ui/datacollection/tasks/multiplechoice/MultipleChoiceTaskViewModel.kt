@@ -56,6 +56,12 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
     updateMultipleChoiceItems()
   }
 
+  /**
+   * Invoked when "other" text input field is modified. It updates the internal state with the new
+   * text, if valid.
+   *
+   * @param text new text entered in the "other" input field.
+   */
   fun onOtherTextChanged(text: String) {
     otherText = text
     // Set the other option.
@@ -65,6 +71,11 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
     updateResponse()
   }
 
+  /**
+   * Invoked when a multiple choice item is selected/unselected.
+   *
+   * @param item multiple choice item which was modified.
+   */
   fun onItemToggled(item: MultipleChoiceItem) {
     val wasSelected = selectedIds.contains(item.option.id)
     setItem(item, !wasSelected)
