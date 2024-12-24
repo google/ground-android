@@ -31,7 +31,6 @@ jobs:
         with:
           AUTO_ASSIGN: "true"
           INSERT_ISSUE_URLS: "true"
-          CLOSE_ISSUES: "true"
       - name: Set Git user
         run: |
           git config --global user.name ${{ github.actor }}
