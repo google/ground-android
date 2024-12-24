@@ -31,6 +31,7 @@ import com.google.android.ground.ui.util.BitmapUtil
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.IOException
 import javax.inject.Inject
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
@@ -51,7 +52,12 @@ constructor(
   lateinit var surveyId: String
 
   val uri: LiveData<Uri> =
-    taskTaskData.map { userMediaRepository.getDownloadUrl(it?.getDetailsText()) }.asLiveData()
+    taskTaskData
+      .filterIsInstance<PhotoTaskData>()
+      .map { it.remoteFilename }
+      .map { userMediaRepository.getDownloadUrl(it) }
+      .asLiveData()
+
   val isPhotoPresent: LiveData<Boolean> = taskTaskData.map { it.isNotNullOrEmpty() }.asLiveData()
 
   private fun rotateBitmap(bitmap: Bitmap, rotateDegrees: Float): Bitmap {

@@ -139,6 +139,23 @@ class TaskFragmentRunner(
     return this
   }
 
+  internal fun assertInfoCardHidden(): TaskFragmentRunner {
+    onView(withId(R.id.infoCard)).check(matches(not(isDisplayed())))
+    return this
+  }
+
+  internal fun assertInfoCardShown(
+    title: String,
+    location: String,
+    accuracy: String,
+  ): TaskFragmentRunner {
+    onView(withId(R.id.infoCard)).check(matches(isDisplayed()))
+    onView(withId(R.id.current_location_title)).check(matches(withText(title)))
+    onView(withId(R.id.current_location_value)).check(matches(withText(location)))
+    onView(withId(R.id.accuracy_value)).check(matches(withText(accuracy)))
+    return this
+  }
+
   internal fun pressBackButton(result: Boolean): TaskFragmentRunner {
     waitUntilDone { assertThat(fragment?.onBack()).isEqualTo(result) }
     return this

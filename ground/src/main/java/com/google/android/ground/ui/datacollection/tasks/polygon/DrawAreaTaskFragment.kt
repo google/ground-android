@@ -68,7 +68,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     val args = Bundle()
     args.putString(TASK_ID_FRAGMENT_ARG_KEY, taskId)
     drawAreaTaskMapFragment.arguments = args
-    parentFragmentManager
+    childFragmentManager
       .beginTransaction()
       .add(
         R.id.container_draw_area_task_map,

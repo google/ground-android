@@ -21,8 +21,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class DateTimeTaskData(val timeInMillis: Long) : TaskData {
 
-  override fun getDetailsText(): String = ""
-
   override fun isEmpty(): Boolean = timeInMillis == 0L
 
   companion object {

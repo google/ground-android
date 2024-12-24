@@ -70,11 +70,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   override fun setUp() = runBlocking {
     super.setUp()
     setupSubmission()
-    setupFragment()
   }
 
   @Test
   fun `Job and LOI names are displayed correctly`() {
+    setupFragment()
+
     runner()
       .validateTextIsDisplayed("Unnamed point")
       .validateTextIsDisplayed(requireNotNull(JOB.name))
@@ -82,16 +83,22 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `First task is loaded and is visible`() {
+    setupFragment()
+
     runner().validateTextIsDisplayed(TASK_1_NAME).validateTextIsNotDisplayed(TASK_2_NAME)
   }
 
   @Test
   fun `Next button is disabled when task doesn't have any value`() {
+    setupFragment()
+
     runner().assertButtonIsDisabled("Next")
   }
 
   @Test
   fun `Next button proceeds to the second task when task has value`() {
+    setupFragment()
+
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
@@ -104,6 +111,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `Previous button navigates back to first task`() {
+    setupFragment()
+
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
@@ -117,6 +126,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `Next click saves draft`() = runWithTestDispatcher {
+    setupFragment()
+
     runner().inputText(TASK_1_RESPONSE).clickNextButton()
 
     assertDraftSaved(listOf(TASK_1_VALUE_DELTA), currentTaskId = TASK_ID_2)
@@ -124,6 +135,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `Clicking previous button saves draft`() = runWithTestDispatcher {
+    setupFragment()
+
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
@@ -135,6 +148,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `Click previous button moves to previous task if task is empty`() {
+    setupFragment()
+
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
@@ -174,6 +189,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `Clicking done on final task saves the submission`() = runWithTestDispatcher {
+    setupFragment()
+
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
@@ -188,6 +205,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   @Test
   fun `Clicking back button on first task clears the draft and returns false`() =
     runWithTestDispatcher {
+      setupFragment()
+
       runner()
         .inputText(TASK_1_RESPONSE)
         .clickNextButton()
@@ -199,6 +218,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `Clicking done after triggering conditional task saves task data`() = runWithTestDispatcher {
+    setupFragment()
+
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
@@ -220,6 +241,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   @Test
   fun `Clicking done after editing conditional task state doesn't save inputted conditional task`() =
     runWithTestDispatcher {
+      setupFragment()
+
       runner()
         .inputText(TASK_1_RESPONSE)
         .clickNextButton()

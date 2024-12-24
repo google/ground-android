@@ -67,7 +67,7 @@ class DrawAreaTaskFragmentTest :
   fun testInfoCard_noValue() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
-    infoCardHidden()
+    runner().assertInfoCardHidden()
   }
 
   @Test

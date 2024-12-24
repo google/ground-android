@@ -22,7 +22,6 @@ import kotlinx.serialization.Serializable
 /** Represents a single photo associated with a given [LocationOfInterest] and [Job]. */
 @Serializable
 class PhotoTaskData(val remoteFilename: String) : TaskData {
-  override fun getDetailsText(): String = remoteFilename
 
   override fun isEmpty(): Boolean = remoteFilename.isEmpty()
 

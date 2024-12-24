@@ -38,8 +38,6 @@ data class SubmissionMutation(
 
   override fun toString(): String = super.toString() + "deltas= $deltas"
 
-  fun updateSyncStatus(status: SyncStatus) = this.copy(syncStatus = status)
-
   fun getPhotoData(): List<PhotoTaskData> =
     deltas.map { it.newTaskData }.filterIsInstance<PhotoTaskData>().filter { !it.isEmpty() }
 }

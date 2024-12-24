@@ -19,11 +19,9 @@ import kotlinx.serialization.Serializable
 
 /** A user provided response to a number question task. */
 @Serializable
-data class NumberTaskData(private val number: String) : TaskData {
+data class NumberTaskData(val number: String) : TaskData {
   val value: Double
     get() = number.toDouble()
-
-  override fun getDetailsText(): String = number
 
   override fun isEmpty(): Boolean = number.isEmpty()
 

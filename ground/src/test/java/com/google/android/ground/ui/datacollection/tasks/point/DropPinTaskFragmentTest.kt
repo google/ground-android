@@ -88,7 +88,7 @@ class DropPinTaskFragmentTest : BaseTaskFragmentTest<DropPinTaskFragment, DropPi
   fun `info card is hidden`() {
     setupTaskFragment<DropPinTaskFragment>(job, task)
 
-    infoCardHidden()
+    runner().assertInfoCardHidden()
   }
 
   @Test
