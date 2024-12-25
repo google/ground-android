@@ -17,16 +17,23 @@ package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
 import android.view.LayoutInflater
 import android.view.View
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.ground.databinding.MultipleChoiceTaskFragBinding
-import com.google.android.ground.model.task.MultipleChoice
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.testTag
+import androidx.lifecycle.asLiveData
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
+import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
+
+const val MULTIPLE_CHOICE_LIST_TEST_TAG = "multiple choice items test tag"
 
 /**
  * Fragment allowing the user to answer single selection multiple choice questions to complete a
@@ -34,31 +41,27 @@ import kotlinx.coroutines.launch
  */
 @AndroidEntryPoint
 class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewModel>() {
-  private lateinit var binding: MultipleChoiceTaskFragBinding
-  private lateinit var multipleChoiceAdapter:
-    ListAdapter<MultipleChoiceItem, RecyclerView.ViewHolder>
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    binding = MultipleChoiceTaskFragBinding.inflate(inflater)
-    setupMultipleChoice(binding.selectOptionList)
-    return binding.root
-  }
+  override fun onCreateTaskBody(inflater: LayoutInflater): View =
+    ComposeView(requireContext()).apply { setContent { AppTheme { ShowMultipleChoiceItems() } } }
 
-  // TODO: Test comment for adding links to repo.
-  private fun setupMultipleChoice(recyclerView: RecyclerView) {
-    val multipleChoice = checkNotNull(getTask().multipleChoice)
-    val canSelectMultiple = multipleChoice.cardinality == MultipleChoice.Cardinality.SELECT_MULTIPLE
-    multipleChoiceAdapter = MultipleChoiceAdapter(viewModel, canSelectMultiple)
-    recyclerView.apply {
-      adapter = multipleChoiceAdapter
-      itemAnimator = null
-      setHasFixedSize(true)
-    }
-    lifecycleScope.launch {
-      viewModel.itemsFlow.collect { items -> multipleChoiceAdapter.submitList(items) }
+  @Composable
+  private fun ShowMultipleChoiceItems() {
+    val list by viewModel.itemsFlow.asLiveData().observeAsState()
+    list?.let { items ->
+      LazyColumn(Modifier.fillMaxSize().testTag(MULTIPLE_CHOICE_LIST_TEST_TAG)) {
+        items(items) { item ->
+          MultipleChoiceItemView(
+            item = item,
+            isLastIndex = items.indexOf(item) == items.lastIndex,
+            toggleItem = { viewModel.onItemToggled(it) },
+            otherValueChanged = { viewModel.onOtherTextChanged(it) },
+          )
+        }
+      }
     }
   }
 }
