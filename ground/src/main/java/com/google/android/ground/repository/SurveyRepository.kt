@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 
@@ -68,7 +69,7 @@ constructor(
   var selectedSurveyId: String?
     get() = _selectedSurveyIdFlow.value
     set(value) {
-      _selectedSurveyIdFlow.value = value
+      _selectedSurveyIdFlow.update { value }
       firebaseCrashLogger.setSelectedSurveyId(value)
     }
 

@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.update
 
 class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
@@ -135,7 +136,7 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
         )
       }
     }
-    this._items.value = itemsFromOptions
+    this._items.update { itemsFromOptions }
   }
 
   /** Reads the saved task value and adds selected items to the selected list. */

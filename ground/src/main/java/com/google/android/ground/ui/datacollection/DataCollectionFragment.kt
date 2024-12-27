@@ -102,10 +102,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     )
 
-    lifecycleScope.launch {
-      viewModel.init()
-      viewModel.uiState.filterNotNull().collect { updateUI(it) }
-    }
+    viewModel.init()
+    lifecycleScope.launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
   }
 
   override fun onResume() {
@@ -207,7 +205,9 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       false
     } else {
       // Otherwise, select the previous step.
-      lifecycleScope.launch { viewModel.step(-1) }
+      // TODO: Don't expose step function publicly which allows arbitrary number of pages.
+      // Issue URL: https://github.com/google/ground-android/issues/2956
+      viewModel.step(-1)
       true
     }
 
