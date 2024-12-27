@@ -21,13 +21,13 @@ import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.ui.settings.Keys
 import com.google.android.ground.util.allowThreadDiskReads
 import com.google.android.ground.util.allowThreadDiskWrites
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Simple value store persisted locally on device. Unlike [LocalDataStoreModule], this class

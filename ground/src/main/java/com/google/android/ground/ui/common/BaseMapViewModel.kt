@@ -43,6 +43,7 @@ import com.google.android.ground.ui.map.NewCameraPositionViaCoordinates
 import com.google.android.ground.ui.map.NewCameraPositionViaCoordinatesAndZoomLevel
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import com.google.android.ground.ui.map.gms.toCoordinates
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -65,7 +66,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 open class BaseMapViewModel
 @Inject
