@@ -17,10 +17,13 @@ package com.google.android.ground.ui.datacollection.tasks.location
 
 import android.location.Location
 import androidx.lifecycle.viewModelScope
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.submission.CaptureLocationTaskData
-import com.google.android.ground.model.submission.CaptureLocationTaskData.Companion.toCaptureLocationResult
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
+import com.google.android.ground.ui.map.gms.getAccuracyOrNull
+import com.google.android.ground.ui.map.gms.getAltitudeOrNull
+import com.google.android.ground.ui.map.gms.toCoordinates
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,20 +46,27 @@ enum class LocationLockEnabledState {
 
 class CaptureLocationTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
-  private val lastLocation = MutableStateFlow<CaptureLocationTaskData?>(null)
+  private val lastLocation = MutableStateFlow<Location?>(null)
   /** Allows control for triggering the location lock programmatically. */
   private val _enableLocationLockFlow = MutableStateFlow(LocationLockEnabledState.UNKNOWN)
   val enableLocationLockFlow = _enableLocationLockFlow.asStateFlow()
 
   suspend fun updateLocation(location: Location) {
-    lastLocation.emit(location.toCaptureLocationResult())
+    lastLocation.emit(location)
   }
 
   fun updateResponse() {
-    if (lastLocation.value == null) {
+    val location = lastLocation.value
+    if (location == null) {
       viewModelScope.launch { _enableLocationLockFlow.emit(LocationLockEnabledState.ENABLE) }
     } else {
-      setValue(lastLocation.value)
+      setValue(
+        CaptureLocationTaskData(
+          Point(location.toCoordinates()),
+          location.getAltitudeOrNull(),
+          location.getAccuracyOrNull(),
+        )
+      )
     }
   }
 
