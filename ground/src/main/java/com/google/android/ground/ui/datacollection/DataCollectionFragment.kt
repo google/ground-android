@@ -102,10 +102,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     )
 
-    lifecycleScope.launch {
-      viewModel.init()
-      viewModel.uiState.filterNotNull().collect { updateUI(it) }
-    }
+    viewModel.init()
+    lifecycleScope.launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
   }
 
   override fun onResume() {
@@ -207,7 +205,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       false
     } else {
       // Otherwise, select the previous step.
-      lifecycleScope.launch { viewModel.step(-1) }
+      viewModel.step(-1)
       true
     }
 
