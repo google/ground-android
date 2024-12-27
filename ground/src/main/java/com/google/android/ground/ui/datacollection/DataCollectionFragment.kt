@@ -206,6 +206,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     } else {
       // Otherwise, select the previous step.
       // TODO: Don't expose step function publicly which allows arbitrary number of pages.
+      // Issue URL: https://github.com/google/ground-android/issues/2956
       viewModel.step(-1)
       true
     }
