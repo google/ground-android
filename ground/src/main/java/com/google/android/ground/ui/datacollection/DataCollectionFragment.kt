@@ -205,6 +205,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       false
     } else {
       // Otherwise, select the previous step.
+      // TODO: Don't expose step function publicly which allows arbitrary number of pages.
       viewModel.step(-1)
       true
     }
