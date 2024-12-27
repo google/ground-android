@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 
 /** Defines the state of an inflated [Task] and controls its UI. */
 open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
@@ -69,7 +70,7 @@ open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
   }
 
   fun setValue(taskData: TaskData?) {
-    _taskDataFlow.value = taskData
+    _taskDataFlow.update { taskData }
   }
 
   open fun clearResponse() {
