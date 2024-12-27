@@ -23,11 +23,12 @@ import com.google.android.ground.model.task.MultipleChoice.Cardinality.SELECT_MU
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.update
+import javax.inject.Inject
 
 class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
@@ -135,7 +136,7 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
         )
       }
     }
-    this._items.value = itemsFromOptions
+    this._items.update { itemsFromOptions }
   }
 
   /** Reads the saved task value and adds selected items to the selected list. */
