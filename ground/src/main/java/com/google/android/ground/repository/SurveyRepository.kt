@@ -26,8 +26,6 @@ import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.system.NetworkManager
 import com.google.android.ground.system.NetworkStatus
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -42,8 +40,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Singleton
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000
 
@@ -68,7 +69,7 @@ constructor(
   var selectedSurveyId: String?
     get() = _selectedSurveyIdFlow.value
     set(value) {
-      _selectedSurveyIdFlow.value = value
+      _selectedSurveyIdFlow.update { value }
       firebaseCrashLogger.setSelectedSurveyId(value)
     }
 
