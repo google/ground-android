@@ -16,10 +16,13 @@
 package com.google.android.ground.ui.datacollection.tasks.location
 
 import android.location.Location
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.submission.CaptureLocationTaskData
-import com.google.android.ground.model.submission.CaptureLocationTaskData.Companion.toCaptureLocationResult
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
+import com.google.android.ground.ui.map.gms.getAccuracyOrNull
+import com.google.android.ground.ui.map.gms.getAltitudeOrNull
+import com.google.android.ground.ui.map.gms.toCoordinates
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,24 +45,30 @@ enum class LocationLockEnabledState {
 
 class CaptureLocationTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
-  private val _lastLocation = MutableStateFlow<CaptureLocationTaskData?>(null)
-
+  private val _lastLocation = MutableStateFlow<Location?>(null)
   /** Allows control for triggering the location lock programmatically. */
   private val _enableLocationLockFlow = MutableStateFlow(LocationLockEnabledState.UNKNOWN)
   val enableLocationLockFlow = _enableLocationLockFlow.asStateFlow()
 
-  fun updateLocation(location: Location) {
-    _lastLocation.update { location.toCaptureLocationResult() }
+  suspend fun updateLocation(location: Location) {
+    _lastLocation.update { location }
   }
 
   private fun updateLocationLock(newState: LocationLockEnabledState) =
     _enableLocationLockFlow.update { newState }
 
   fun updateResponse() {
-    if (_lastLocation.value == null) {
+    val location = _lastLocation.value
+    if (location == null) {
       updateLocationLock(LocationLockEnabledState.ENABLE)
     } else {
-      setValue(_lastLocation.value)
+      setValue(
+        CaptureLocationTaskData(
+          Point(location.toCoordinates()),
+          location.getAltitudeOrNull(),
+          location.getAccuracyOrNull(),
+        )
+      )
     }
   }
 
