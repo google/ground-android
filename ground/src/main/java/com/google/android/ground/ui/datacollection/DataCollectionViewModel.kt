@@ -65,7 +65,6 @@ import javax.inject.Provider
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
-import kotlin.math.abs
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -355,20 +354,16 @@ internal constructor(
   }
 
   private fun moveToNextTask() {
-    step(1)
+    step(false)
   }
 
   fun moveToPreviousTask() {
-    step(-1)
+    step(true)
   }
 
-  /** Displays the task at the relative position to the current one. Supports negative steps. */
-  private fun step(stepCount: Int) {
-    val reverse = stepCount < 0
-    val task =
-      getTaskSequence(startId = currentTaskId.value, reversed = reverse)
-        .take(abs(stepCount) + 1)
-        .last()
+  /** Displays the task at the relative position to the current one. */
+  private fun step(reversed: Boolean) {
+    val task = getTaskSequence(startId = currentTaskId.value, reversed).take(2).last()
     savedStateHandle[TASK_POSITION_ID] = task.id
 
     // Save collected data as draft
