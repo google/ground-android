@@ -49,12 +49,6 @@ import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskVie
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import javax.inject.Provider
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
-import kotlin.math.abs
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -66,6 +60,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
+import kotlin.math.abs
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -204,7 +204,7 @@ internal constructor(
     // Skip validation if the task is empty
     if (taskValue.isNullOrEmpty()) {
       data[task] = taskValue
-      step(-1)
+      moveToPreviousTask()
       return
     }
 
@@ -215,7 +215,7 @@ internal constructor(
     }
 
     data[task] = taskValue
-    step(-1)
+    moveToPreviousTask()
   }
 
   /**
@@ -232,7 +232,7 @@ internal constructor(
     data[taskViewModel.task] = taskViewModel.taskTaskData.value
 
     if (!isLastPosition()) {
-      step(1)
+      moveToNextTask()
     } else {
       clearDraft()
       saveChanges(getDeltas())
@@ -354,8 +354,16 @@ internal constructor(
       }
   }
 
+  private fun moveToNextTask() {
+    step(1)
+  }
+
+  fun moveToPreviousTask() {
+    step(-1)
+  }
+
   /** Displays the task at the relative position to the current one. Supports negative steps. */
-  fun step(stepCount: Int) {
+  private fun step(stepCount: Int) {
     val reverse = stepCount < 0
     val task =
       getTaskSequence(startId = currentTaskId.value, reversed = reverse)
