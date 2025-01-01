@@ -49,6 +49,11 @@ import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskVie
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -60,11 +65,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Provider
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -260,7 +260,7 @@ internal constructor(
   private fun getDeltas(): List<ValueDelta> =
     // Filter deltas to valid tasks.
     data
-      .filter { (task) -> task in getTaskSequence() }
+      .filter { (task) -> task in taskSequenceHandler.getTaskSequence() }
       .map { (task, value) -> ValueDelta(task.id, task.type, value) }
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
@@ -288,49 +288,6 @@ internal constructor(
   /** Clears all persisted drafts from local storage. */
   fun clearDraft() {
     externalScope.launch(ioDispatcher) { submissionRepository.deleteDraftSubmission() }
-  }
-
-  /** Returns the index of the task ID, or -1 if null or not found. */
-  private fun getIndexOfTask(taskId: String?) =
-    if (taskId == null) {
-      -1
-    } else {
-      tasks.indexOfFirst { it.id == taskId }
-    }
-
-  /**
-   * Retrieves the current task sequence given the inputs and conditions set on the tasks. Setting a
-   * start ID will always generate a sequence with the start ID as the first element, and if
-   * reversed is set, will generate the previous tasks from there.
-   */
-  private fun getTaskSequence(
-    startId: String? = null,
-    reversed: Boolean = false,
-    taskValueOverride: Pair<String, TaskData?>? = null,
-  ): Sequence<Task> {
-    if (tasks.isEmpty()) {
-      error("Can't generate sequence for empty task list")
-    }
-    val startIndex =
-      getIndexOfTask(startId).let {
-        if (it < 0) {
-          // Default to 0 if startId is not found or is null.
-          if (startId != null) Timber.w("startId, $startId, was not found. Defaulting to 0")
-          0
-        } else {
-          it
-        }
-      }
-    return if (reversed) {
-        tasks.subList(0, startIndex + 1).reversed()
-      } else {
-        tasks.subList(startIndex, tasks.size)
-      }
-      .let { tasks ->
-        tasks.asSequence().filter {
-          it.condition == null || evaluateCondition(it.condition, taskValueOverride)
-        }
-      }
   }
 
   private fun moveToNextTask() {
