@@ -256,7 +256,7 @@ internal constructor(
 
         data[it.task] = it.taskTaskData.value
         savedStateHandle[TASK_POSITION_ID] = it.task.id
-        saveDraft()
+        saveDraft(it.task.id)
       }
     }
   }
@@ -276,7 +276,7 @@ internal constructor(
   }
 
   /** Persists the collected data as draft to local storage. */
-  private fun saveDraft() {
+  private fun saveDraft(taskId: String) {
     externalScope.launch(ioDispatcher) {
       submissionRepository.saveDraftSubmission(
         jobId = jobId,
@@ -284,7 +284,7 @@ internal constructor(
         surveyId = surveyId,
         deltas = getDeltas(),
         loiName = customLoiName,
-        currentTaskId = currentTaskId.value,
+        currentTaskId = taskId,
       )
     }
   }
@@ -310,7 +310,7 @@ internal constructor(
 
     // Save collected data as draft
     clearDraft()
-    saveDraft()
+    saveDraft(currentTaskId.value)
 
     _uiState.update { UiState.TaskUpdated(getTaskPosition(taskId)) }
   }
