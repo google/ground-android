@@ -19,25 +19,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.PagerSnapHelper
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SnapHelper
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.coroutines.MainDispatcher
 import com.google.android.ground.databinding.BasemapLayoutBinding
-import com.google.android.ground.databinding.LoiCardsRecyclerViewBinding
 import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.proto.Survey.DataSharingTerms
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.UserRepository
@@ -47,8 +40,8 @@ import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.home.DataSharingTermsDialog
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
-import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
-import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
+import com.google.android.ground.ui.home.mapcontainer.jobs.JobMapAdapter
+import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -59,7 +52,7 @@ import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -76,29 +69,29 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var binding: BasemapLayoutBinding
-  private lateinit var adapter: MapCardAdapter
+  private lateinit var adapter: JobMapAdapter
   private lateinit var infoPopup: EphemeralPopups.InfoPopup
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    adapter = MapCardAdapter { loi, view -> updateSubmissionCount(loi, view) }
+    adapter = JobMapAdapter { loi -> submissionRepository.getTotalSubmissionCount(loi) }
 
     launchWhenStarted {
       val canUserSubmitData = userRepository.canUserSubmitData()
 
       // Handle collect button clicks
-      adapter.setCollectDataListener { mapCardUiData ->
+      adapter.setCollectDataListener { mapUiData ->
         val job =
           lifecycleScope.launch {
             mapContainerViewModel.activeSurveyDataSharingTermsFlow.cancellable().collectLatest {
               hasDataSharingTerms ->
               onCollectData(
                 canUserSubmitData,
-                hasValidTasks(mapCardUiData),
+                hasValidTasks(mapUiData),
                 hasDataSharingTerms,
-                mapCardUiData,
+                mapUiData,
               )
             }
           }
@@ -106,24 +99,23 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       }
 
       // Bind data for cards
-      mapContainerViewModel.getMapCardUiData().launchWhenStartedAndCollect { (mapCards, loiCount) ->
-        adapter.updateData(canUserSubmitData, mapCards, loiCount - 1)
+      mapContainerViewModel.getMapCardUiData().launchWhenStartedAndCollect { (loiCard, jobCards) ->
+        runBlocking { adapter.updateData(canUserSubmitData, loiCard, jobCards) }
       }
     }
 
     map.featureClicks.launchWhenStartedAndCollect { mapContainerViewModel.onFeatureClicked(it) }
   }
 
-  private fun hasValidTasks(cardUiData: MapCardUiData) =
+  private fun hasValidTasks(cardUiData: DataCollectionEntryPointData) =
     when (cardUiData) {
       // LOI tasks are filtered out of the tasks list for pre-defined tasks.
-      is MapCardUiData.LoiCardUiData ->
-        cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
-      is MapCardUiData.AddLoiCardUiData -> cardUiData.job.tasks.values.isNotEmpty()
+      is DataCollectionEntryPointData.SelectedLoiSheetData -> cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
+      is DataCollectionEntryPointData.AdHocDataCollectionButtonData -> cardUiData.job.tasks.values.isNotEmpty()
     }
 
   private fun renderDataSharingTermsDialog(
-    cardUiData: MapCardUiData,
+    cardUiData: DataCollectionEntryPointData,
     dataSharingTerms: DataSharingTerms,
   ) =
     ComposeView(requireContext()).apply {
@@ -149,7 +141,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     canUserSubmitData: Boolean,
     hasTasks: Boolean,
     hasDataSharingTerms: DataSharingTerms?,
-    cardUiData: MapCardUiData,
+    cardUiData: DataCollectionEntryPointData,
   ) {
     if (!canUserSubmitData) {
       // Skip data collection screen if the user can't submit any data
@@ -177,17 +169,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     navigateToDataCollectionFragment(cardUiData)
   }
 
-  /** Updates the given [TextView] with the submission count for the given [LocationOfInterest]. */
-  private fun updateSubmissionCount(loi: LocationOfInterest, view: TextView) {
-    externalScope.launch {
-      val count = submissionRepository.getTotalSubmissionCount(loi)
-      val submissionText =
-        if (count == 0) resources.getString(R.string.no_submissions)
-        else resources.getQuantityString(R.plurals.submission_count, count, count)
-      withContext(mainDispatcher) { view.text = submissionText }
-    }
-  }
-
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
@@ -203,8 +184,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    setupMenuFab()
-    setupBottomLoiCards()
+    val menuBinding = setupMenuFab()
+    setupBottomLoiCards(menuBinding)
     showDataCollectionHint()
   }
 
@@ -249,54 +230,23 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       }
   }
 
-  private fun setupMenuFab() {
+  private fun setupMenuFab(): MenuButtonBinding {
     val mapOverlay = binding.overlay
     val menuBinding = MenuButtonBinding.inflate(layoutInflater, mapOverlay, true)
     menuBinding.homeScreenViewModel = homeScreenViewModel
     menuBinding.lifecycleOwner = this
+    return menuBinding
   }
 
-  private fun setupBottomLoiCards() {
-    val container = binding.bottomContainer
-    val recyclerViewBinding = LoiCardsRecyclerViewBinding.inflate(layoutInflater, container, true)
-    val recyclerView = recyclerViewBinding.recyclerView
-    recyclerView.adapter = adapter
-    recyclerView.addOnScrollListener(
-      object : RecyclerView.OnScrollListener() {
-        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-          super.onScrollStateChanged(recyclerView, newState)
-          val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-          val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
-          val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
-          val firstCompletelyVisiblePosition =
-            layoutManager.findFirstCompletelyVisibleItemPosition()
-          var midPosition = (firstVisiblePosition + lastVisiblePosition) / 2
-
-          // Focus the last card
-          if (firstCompletelyVisiblePosition > midPosition) {
-            midPosition = firstCompletelyVisiblePosition
-          }
-
-          adapter.focusItemAtIndex(midPosition)
-        }
-      }
-    )
-
-    val helper: SnapHelper = PagerSnapHelper()
-    helper.attachToRecyclerView(recyclerView)
-
-    mapContainerViewModel.loiClicks.launchWhenStartedAndCollect {
-      val index = it?.let { adapter.getIndex(it) } ?: -1
-      if (index != -1) {
-        recyclerView.scrollToPosition(index)
-        adapter.focusItemAtIndex(index)
-      }
-    }
+  private fun setupBottomLoiCards(menuBinding: MenuButtonBinding) {
+    adapter.basemapLayoutBinding = binding
+    adapter.menuBinding = menuBinding
+    adapter.render()
   }
 
-  private fun navigateToDataCollectionFragment(cardUiData: MapCardUiData) {
+  private fun navigateToDataCollectionFragment(cardUiData: DataCollectionEntryPointData) {
     when (cardUiData) {
-      is MapCardUiData.LoiCardUiData ->
+      is DataCollectionEntryPointData.SelectedLoiSheetData ->
         findNavController()
           .navigate(
             HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
@@ -308,7 +258,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
               "",
             )
           )
-      is MapCardUiData.AddLoiCardUiData ->
+      is DataCollectionEntryPointData.AdHocDataCollectionButtonData ->
         findNavController()
           .navigate(
             HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
@@ -326,13 +276,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   override fun onMapReady(map: MapFragment) {
     mapContainerViewModel.mapLoiFeatures.launchWhenStartedAndCollect { map.setFeatures(it) }
 
-    adapter.setLoiCardFocusedListener {
-      when (it) {
-        is MapCardUiData.LoiCardUiData -> mapContainerViewModel.selectLocationOfInterest(it.loi.id)
-        is MapCardUiData.AddLoiCardUiData,
-        null -> mapContainerViewModel.selectLocationOfInterest(null)
-      }
-    }
+    adapter.setSelectedFeature { mapContainerViewModel.selectLocationOfInterest(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel
