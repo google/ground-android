@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -76,7 +77,7 @@ constructor(
   }
 
   private fun setState(nextState: SignInState) {
-    externalScope.launch { _signInStateFlow.emit(nextState) }
+    _signInStateFlow.update { nextState }
   }
 
   override fun signIn() {
@@ -98,6 +99,7 @@ constructor(
 
   private fun getGoogleSignInClient(activity: Activity): GoogleSignInClient =
     // TODO: Use app context instead of activity?
+    // Issue URL: https://github.com/google/ground-android/issues/2912
     GoogleSignIn.getClient(activity, googleSignInOptions)
 
   private fun onActivityResult(activityResult: ActivityResult) {

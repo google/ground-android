@@ -36,9 +36,8 @@ import com.google.android.ground.ui.map.FeatureType
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -52,8 +51,7 @@ internal constructor(
 
   /** Polygon [Feature] being drawn by the user. */
   private val _draftArea: MutableStateFlow<Feature?> = MutableStateFlow(null)
-  val draftArea: StateFlow<Feature?> =
-    _draftArea.stateIn(viewModelScope, started = SharingStarted.Lazily, null)
+  val draftArea: StateFlow<Feature?> = _draftArea.asStateFlow()
 
   /** Whether the instructions dialog has been shown or not. */
   var instructionsDialogShown: Boolean by localValueStore::drawAreaInstructionsShown
@@ -181,7 +179,7 @@ internal constructor(
   /** Updates the [Feature] drawn on map based on the value of [vertices]. */
   private fun refreshMap() =
     viewModelScope.launch {
-      _draftArea.value =
+      _draftArea.emit(
         if (vertices.isEmpty()) {
           null
         } else {
@@ -194,6 +192,7 @@ internal constructor(
             selected = true,
           )
         }
+      )
     }
 
   override fun validate(task: Task, taskData: TaskData?): Int? {

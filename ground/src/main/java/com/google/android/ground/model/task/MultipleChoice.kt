@@ -32,6 +32,4 @@ constructor(
     SELECT_ONE,
     SELECT_MULTIPLE,
   }
-
-  fun getOptionById(id: String): Option? = options.firstOrNull { it.id == id }
 }

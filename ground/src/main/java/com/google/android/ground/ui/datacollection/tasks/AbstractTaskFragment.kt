@@ -172,11 +172,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   private fun moveToPrevious() {
-    lifecycleScope.launch { dataCollectionViewModel.onPreviousClicked(viewModel) }
+    dataCollectionViewModel.onPreviousClicked(viewModel)
   }
 
   private fun moveToNext() {
-    lifecycleScope.launch { dataCollectionViewModel.onNextClicked(viewModel) }
+    dataCollectionViewModel.onNextClicked(viewModel)
   }
 
   fun handleNext() {
@@ -189,10 +189,8 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   private fun handleLoiNameSet(loiName: String) {
     if (loiName != "") {
-      lifecycleScope.launch {
-        dataCollectionViewModel.setLoiName(loiName)
-        moveToNext()
-      }
+      dataCollectionViewModel.setLoiName(loiName)
+      moveToNext()
     }
   }
 
@@ -224,8 +222,9 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth().padding(8.dp),
           ) {
-            // TODO(#2417): Previous button should always be positioned to the left of the screen.
+            // TODO: Previous button should always be positioned to the left of the screen.
             //  Rest buttons should be aligned to the right side of the screen.
+            // Issue URL: https://github.com/google/ground-android/issues/2417
             buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
           }
         }
@@ -243,26 +242,24 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   protected fun checkLastPositionWithTaskData(value: TaskData?) =
     dataCollectionViewModel.checkLastPositionWithTaskData(taskId, value)
 
-  fun getTask(): Task = viewModel.task
+  private fun getTask(): Task = viewModel.task
 
   fun getCurrentValue(): TaskData? = viewModel.taskTaskData.value
 
   private fun launchLoiNameDialog() {
     dataCollectionViewModel.loiNameDialogOpen.value = true
-    lifecycleScope.launch {
-      (view as ViewGroup).addView(
-        ComposeView(requireContext()).apply {
-          setContent {
-            AppTheme {
-              // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
-              ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
-                handleLoiNameSet(loiName = it)
-              }
+    (view as ViewGroup).addView(
+      ComposeView(requireContext()).apply {
+        setContent {
+          AppTheme {
+            // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
+            ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
+              handleLoiNameSet(loiName = it)
             }
           }
         }
-      )
-    }
+      }
+    )
   }
 
   @Composable

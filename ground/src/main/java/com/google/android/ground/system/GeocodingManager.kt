@@ -111,7 +111,8 @@ constructor(
    * call on main thread.
    */
   private fun fetchAddressesBlocking(coordinates: Coordinates): List<Address> =
-    // TODO(#1762): Replace with non-blocking call with listener.
+    // TODO: Replace with non-blocking call with listener.
+    // Issue URL: https://github.com/google/ground-android/issues/1762
     try {
       geocoder.getFromLocation(coordinates.lat, coordinates.lng, 5) ?: listOf()
     } catch (e: Exception) {

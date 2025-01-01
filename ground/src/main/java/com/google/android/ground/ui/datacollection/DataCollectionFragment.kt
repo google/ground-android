@@ -102,10 +102,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     )
 
-    lifecycleScope.launch {
-      viewModel.init()
-      viewModel.uiState.filterNotNull().collect { updateUI(it) }
-    }
+    viewModel.init()
+    lifecycleScope.launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
   }
 
   override fun onResume() {
@@ -155,7 +153,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun onTaskChanged(taskPosition: TaskPosition) {
-    viewPager.currentItem = taskPosition.absoluteIndex
+    // Pass false to parameter smoothScroll to avoid smooth scrolling animation.
+    viewPager.setCurrentItem(taskPosition.absoluteIndex, false)
     updateProgressBar(taskPosition, true)
   }
 
@@ -205,8 +204,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       viewModel.clearDraft()
       false
     } else {
-      // Otherwise, select the previous step.
-      lifecycleScope.launch { viewModel.step(-1) }
+      // Otherwise, select the previous task.
+      viewModel.moveToPreviousTask()
       true
     }
 

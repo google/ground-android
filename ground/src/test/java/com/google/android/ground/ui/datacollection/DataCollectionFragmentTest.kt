@@ -70,11 +70,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   override fun setUp() = runBlocking {
     super.setUp()
     setupSubmission()
-    setupFragment()
   }
 
   @Test
   fun `Job and LOI names are displayed correctly`() {
+    setupFragment()
+
     runner()
       .validateTextIsDisplayed("Unnamed point")
       .validateTextIsDisplayed(requireNotNull(JOB.name))
@@ -82,16 +83,22 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `First task is loaded and is visible`() {
+    setupFragment()
+
     runner().validateTextIsDisplayed(TASK_1_NAME).validateTextIsNotDisplayed(TASK_2_NAME)
   }
 
   @Test
   fun `Next button is disabled when task doesn't have any value`() {
+    setupFragment()
+
     runner().assertButtonIsDisabled("Next")
   }
 
   @Test
   fun `Next button proceeds to the second task when task has value`() {
+    setupFragment()
+
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
@@ -104,6 +111,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `Previous button navigates back to first task`() {
+    setupFragment()
+
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
@@ -117,6 +126,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `Next click saves draft`() = runWithTestDispatcher {
+    setupFragment()
+
     runner().inputText(TASK_1_RESPONSE).clickNextButton()
 
     assertDraftSaved(listOf(TASK_1_VALUE_DELTA), currentTaskId = TASK_ID_2)
@@ -124,10 +135,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `Clicking previous button saves draft`() = runWithTestDispatcher {
+    setupFragment()
+
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
-      .selectMultipleChoiceOption(TASK_2_OPTION_LABEL)
+      .selectOption(TASK_2_OPTION_LABEL)
       .clickPreviousButton()
 
     assertDraftSaved(listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA), currentTaskId = TASK_ID_1)
@@ -135,6 +148,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `Click previous button moves to previous task if task is empty`() {
+    setupFragment()
+
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
@@ -148,7 +163,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `Load tasks from draft`() = runWithTestDispatcher {
-    // TODO(#708): add coverage for loading from draft for all types of tasks
+    // TODO: add coverage for loading from draft for all types of tasks
+    // Issue URL: https://github.com/google/ground-android/issues/708
     val expectedDeltas = listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA)
 
     // Start the fragment with draft values
@@ -168,17 +184,19 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     runner()
       .validateTextIsDisplayed(TASK_1_RESPONSE)
       .clickNextButton()
-      .validateTextIsDisplayed(TASK_2_OPTION_LABEL)
+      .assertOptionsDisplayed(TASK_2_OPTION_LABEL)
   }
 
   @Test
   fun `Clicking done on final task saves the submission`() = runWithTestDispatcher {
+    setupFragment()
+
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
       .validateTextIsNotDisplayed(TASK_1_NAME)
       .validateTextIsDisplayed(TASK_2_NAME)
-      .selectMultipleChoiceOption(TASK_2_OPTION_LABEL)
+      .selectOption(TASK_2_OPTION_LABEL)
       .clickDoneButton() // Click "done" on final task
 
     assertSubmissionSaved(listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA))
@@ -187,6 +205,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   @Test
   fun `Clicking back button on first task clears the draft and returns false`() =
     runWithTestDispatcher {
+      setupFragment()
+
       runner()
         .inputText(TASK_1_RESPONSE)
         .clickNextButton()
@@ -198,12 +218,14 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Test
   fun `Clicking done after triggering conditional task saves task data`() = runWithTestDispatcher {
+    setupFragment()
+
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
       .validateTextIsDisplayed(TASK_2_NAME)
       // Select the option to unhide the conditional task.
-      .selectMultipleChoiceOption(TASK_2_OPTION_CONDITIONAL_LABEL)
+      .selectOption(TASK_2_OPTION_CONDITIONAL_LABEL)
       .clickNextButton()
       // Conditional task is rendered.
       .validateTextIsDisplayed(TASK_CONDITIONAL_NAME)
@@ -219,12 +241,14 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   @Test
   fun `Clicking done after editing conditional task state doesn't save inputted conditional task`() =
     runWithTestDispatcher {
+      setupFragment()
+
       runner()
         .inputText(TASK_1_RESPONSE)
         .clickNextButton()
         .validateTextIsDisplayed(TASK_2_NAME)
         // Select the option to unhide the conditional task.
-        .selectMultipleChoiceOption(TASK_2_OPTION_CONDITIONAL_LABEL)
+        .selectOption(TASK_2_OPTION_CONDITIONAL_LABEL)
         .clickNextButton()
         .validateTextIsDisplayed(TASK_CONDITIONAL_NAME)
         // Input a value, then go back to hide the task again.
@@ -232,8 +256,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         .clickPreviousButton()
         .validateTextIsDisplayed(TASK_2_NAME)
         // Unselect the option to hide the conditional task.
-        .selectMultipleChoiceOption(TASK_2_OPTION_CONDITIONAL_LABEL)
-        .selectMultipleChoiceOption(TASK_2_OPTION_LABEL)
+        .selectOption(TASK_2_OPTION_CONDITIONAL_LABEL)
+        .selectOption(TASK_2_OPTION_LABEL)
         .clickDoneButton()
         .validateTextIsNotDisplayed(TASK_CONDITIONAL_NAME)
 

@@ -50,7 +50,6 @@ constructor(
     pinColor = job.getDefaultColor()
 
     // Drop a marker for current value
-    // TODO: The restored marker appears to be slightly shifted. Check for accuracy of lat/lng.
     (taskData as? DropPinTaskData)?.let { dropMarker(it.location) }
   }
 
@@ -80,7 +79,6 @@ constructor(
       id = uuidGenerator.generateUuid(),
       type = FeatureType.USER_POINT.ordinal,
       geometry = point,
-      // TODO: Set correct pin color.
       style = Feature.Style(pinColor),
       clusterable = false,
       selected = true,

@@ -22,7 +22,7 @@ import kotlinx.serialization.Serializable
 
 /** User responses to a select-one (radio) or select-multiple (checkbox) field. */
 @Serializable
-class MultipleChoiceTaskData(
+data class MultipleChoiceTaskData(
   private val multipleChoice: MultipleChoice?,
   val selectedOptionIds: List<String>,
 ) : TaskData {
@@ -39,14 +39,6 @@ class MultipleChoiceTaskData(
         prefix = MultipleChoiceTaskViewModel.OTHER_PREFIX,
         suffix = MultipleChoiceTaskViewModel.OTHER_SUFFIX,
       ) ?: ""
-
-  // TODO: Make these inner classes non-static and access Task directly.
-  override fun getDetailsText(): String =
-    selectedOptionIds
-      .mapNotNull { multipleChoice?.getOptionById(it) }
-      .map { it.label }
-      .sorted()
-      .joinToString()
 
   override fun isEmpty(): Boolean = selectedOptionIds.isEmpty()
 

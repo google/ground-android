@@ -100,7 +100,8 @@ constructor(
     }
   }
 
-  // TODO(#1730): Generate local tiles path based on source base path.
+  // TODO: Generate local tiles path based on source base path.
+  // Issue URL: https://github.com/google/ground-android/issues/1730
   private fun getLocalTileSourcePath(): String = File(fileUtil.getFilesDir(), "tiles").path
 
   fun getOfflineTileSourcesFlow(): Flow<TileSource> =

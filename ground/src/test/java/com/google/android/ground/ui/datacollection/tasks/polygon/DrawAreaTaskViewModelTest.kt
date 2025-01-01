@@ -41,8 +41,6 @@ import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 
-// TODO: Convert to fragment test for better coverage
-
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class DrawAreaTaskViewModelTest : BaseHiltTest() {

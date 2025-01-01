@@ -16,7 +16,8 @@
 
 package com.google.android.ground.ui.map.gms.mog
 
-// TODO(#1596): Add unit tests.
+// TODO: Add unit tests.
+// Issue URL: https://github.com/google/ground-android/issues/1596
 /** A set of [tiles] to be fetched from [sourceUrl] in a single request. */
 open class MogTilesRequest(val sourceUrl: String, val tiles: List<MogTileMetadata>) {
   val totalBytes: Int

@@ -60,16 +60,6 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     onView(withId(R.id.header_icon)).check(matches(isDisplayed()))
   }
 
-  protected fun infoCardHidden() {
-    onView(withId(R.id.infoCard)).check(matches(not(isDisplayed())))
-  }
-
-  protected fun infoCardShown(title: String, value: String) {
-    onView(withId(R.id.infoCard)).check(matches(isDisplayed()))
-    onView(withId(R.id.current_location_title)).check(matches(withText(title)))
-    onView(withId(R.id.current_location_value)).check(matches(withText(value)))
-  }
-
   protected suspend fun hasValue(taskData: TaskData?) {
     viewModel.taskTaskData.test { assertThat(expectMostRecentItem()).isEqualTo(taskData) }
   }
@@ -77,6 +67,7 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
   /** Asserts that the task fragment has the given list of buttons in the exact same order. */
   protected fun assertFragmentHasButtons(vararg buttonActions: ButtonAction) {
     // TODO: Also verify the visibility/state of the button
+    // Issue URL: https://github.com/google/ground-android/issues/2134
     assertThat(fragment.buttonDataList.map { it.button.getAction() })
       .containsExactlyElementsIn(buttonActions)
     buttonActions.withIndex().forEach { (index, expected) ->

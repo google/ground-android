@@ -26,6 +26,7 @@ import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import timber.log.Timber
 
 /**
@@ -59,7 +60,7 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     }
     set(value) = allowThreadDiskWrites {
       preferences.edit().putInt(MAP_TYPE, value.ordinal).apply()
-      _mapType.value = value
+      _mapType.update { value }
     }
 
   /** Whether location lock is enabled or not. */
@@ -81,7 +82,7 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     get() = allowThreadDiskReads { preferences.getBoolean(OFFLINE_MAP_IMAGERY, true) }
     set(value) = allowThreadDiskReads {
       preferences.edit().putBoolean(OFFLINE_MAP_IMAGERY, value).apply()
-      _offlineImageryEnabled.value = value
+      _offlineImageryEnabled.update { value }
     }
 
   /** Whether to display instructions when loading a draw area task. */

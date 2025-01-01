@@ -51,6 +51,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -61,6 +62,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -77,8 +79,10 @@ constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
 ) : AbstractViewModel() {
 
-  val locationLock: MutableStateFlow<Result<Boolean>> =
+  private val _locationLock: MutableStateFlow<Result<Boolean>> =
     MutableStateFlow(Result.success(mapStateRepository.isLocationLockEnabled))
+  val locationLock: StateFlow<Result<Boolean>> = _locationLock.asStateFlow()
+
   val mapType: Flow<MapType> = mapStateRepository.mapTypeFlow
 
   val locationLockIconTint =
@@ -89,7 +93,8 @@ constructor(
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, R.color.md_theme_onSurfaceVariant)
 
-  // TODO(#1789): Consider adding another icon for representing "GPS disabled" state.
+  // TODO: Consider adding another icon for representing "GPS disabled" state.
+  // Issue URL: https://github.com/google/ground-android/issues/1789
   val locationLockIcon =
     locationLock
       .map { lockState ->
@@ -161,7 +166,7 @@ constructor(
 
   private suspend fun handleRequestLocationUpdateFailed(e: Throwable) {
     Timber.e(e)
-    locationLock.value = Result.failure(e)
+    _locationLock.update { Result.failure(e) }
     locationManager.disableLocationUpdates()
   }
 
@@ -174,7 +179,7 @@ constructor(
   }
 
   private fun onLockStateChanged(isLocked: Boolean) {
-    locationLock.value = Result.success(isLocked)
+    _locationLock.update { Result.success(isLocked) }
   }
 
   /** Called when location lock button is clicked by the user. */
@@ -233,7 +238,8 @@ constructor(
         delay(3000)
       }
 
-      // TODO(#1889): Track the zoom level in a VM associated with the MapFragment and use here
+      // TODO: Track the zoom level in a VM associated with the MapFragment and use here
+      // Issue URL: https://github.com/google/ground-android/issues/1889
       NewCameraPositionViaCoordinates(coordinates, shouldAnimate = true)
     }
 

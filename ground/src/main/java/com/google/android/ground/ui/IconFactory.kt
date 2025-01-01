@@ -63,7 +63,6 @@ class IconFactory @Inject constructor(@ApplicationContext private val context: C
   /** Returns a [BitmapDescriptor] for representing an individual marker on the map. */
   fun getMarkerIcon(color: Int, scale: Float): BitmapDescriptor {
     val bitmap = getMarkerBitmap(color, scale)
-    // TODO: Cache rendered bitmaps.
     return BitmapDescriptorFactory.fromBitmap(bitmap)
   }
 

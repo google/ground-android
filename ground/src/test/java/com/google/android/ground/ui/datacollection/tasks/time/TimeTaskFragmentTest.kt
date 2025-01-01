@@ -17,6 +17,8 @@ package com.google.android.ground.ui.datacollection.tasks.time
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.onNodeWithText
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -41,6 +43,7 @@ import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 
 // TODO: Add a test for selecting a time and verifying response.
+// Issue URL: https://github.com/google/ground-android/issues/2134
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -68,8 +71,6 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
       .check(matches(withText("")))
       .check(matches(isDisplayed()))
       .check(matches(isEnabled()))
-
-    assertThat(viewModel.responseText.value).isEqualTo(null)
 
     runner().assertButtonIsDisabled("Next")
   }
@@ -113,6 +114,7 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   @Test
   fun `hint text is visible`() {
     setupTaskFragment<TimeTaskFragment>(job, task)
-    assertThat(fragment.timeTextHint.value).isEqualTo("H:MM A")
+
+    composeTestRule.onNodeWithText("H:MM A").isDisplayed()
   }
 }

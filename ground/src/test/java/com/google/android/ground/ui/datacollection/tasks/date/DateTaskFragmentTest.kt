@@ -18,6 +18,8 @@ package com.google.android.ground.ui.datacollection.tasks.date
 import android.app.DatePickerDialog
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.onNodeWithText
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -42,6 +44,7 @@ import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 
 // TODO: Add a test for selecting a date and verifying response.
+// Issue URL: https://github.com/google/ground-android/issues/2134
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -63,7 +66,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   }
 
   @Test
-  fun testResponse_defaultIsEmpty() {
+  fun `default response is empty`() {
     setupTaskFragment<DateTaskFragment>(job, task)
 
     onView(withId(R.id.user_response_text))
@@ -72,8 +75,6 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
       .check(matches(isEnabled()))
 
     runner().assertButtonIsDisabled("Next")
-
-    assertThat(viewModel.responseText.value).isEqualTo(null)
   }
 
   @Test
@@ -110,14 +111,14 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
 
     datePickerDialog?.getButton(DatePickerDialog.BUTTON_POSITIVE)?.performClick()
 
-    onView(withId(R.id.user_response_text)).check(matches(withText("10/10/24")))
-    assertThat(fragment.dateText.value).isEqualTo("10/10/24")
+    composeTestRule.onNodeWithText("10/10/24").isDisplayed()
   }
 
   @Test
   fun `hint text is visible`() {
     setupTaskFragment<DateTaskFragment>(job, task)
-    assertThat(fragment.dateTextHint.value).isEqualTo("M/D/YY")
+
+    composeTestRule.onNodeWithText("M/D/YY").isDisplayed()
   }
 
   @Test

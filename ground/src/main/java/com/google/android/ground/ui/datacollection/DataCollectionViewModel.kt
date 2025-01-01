@@ -54,16 +54,15 @@ import javax.inject.Provider
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.set
-import kotlin.math.abs
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -86,7 +85,7 @@ internal constructor(
 ) : AbstractViewModel() {
 
   private val _uiState: MutableStateFlow<UiState?> = MutableStateFlow(null)
-  var uiState = _uiState.asStateFlow().stateIn(viewModelScope, SharingStarted.Lazily, null)
+  val uiState = _uiState.asStateFlow()
 
   private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
@@ -141,8 +140,8 @@ internal constructor(
 
   lateinit var submissionId: String
 
-  suspend fun init() {
-    _uiState.emit(UiState.TaskListAvailable(tasks, getTaskPosition()))
+  fun init() {
+    _uiState.update { UiState.TaskListAvailable(tasks, getTaskPosition()) }
   }
 
   fun setLoiName(name: String) {
@@ -197,14 +196,14 @@ internal constructor(
   }
 
   /** Moves back to the previous task in the sequence if the current value is valid or empty. */
-  suspend fun onPreviousClicked(taskViewModel: AbstractTaskViewModel) {
+  fun onPreviousClicked(taskViewModel: AbstractTaskViewModel) {
     val task = taskViewModel.task
-    val taskValue = taskViewModel.taskTaskData.firstOrNull()
+    val taskValue = taskViewModel.taskTaskData.value
 
     // Skip validation if the task is empty
     if (taskValue.isNullOrEmpty()) {
       data[task] = taskValue
-      step(-1)
+      moveToPreviousTask()
       return
     }
 
@@ -215,14 +214,14 @@ internal constructor(
     }
 
     data[task] = taskValue
-    step(-1)
+    moveToPreviousTask()
   }
 
   /**
    * Validates the user's input and displays an error if the user input was invalid. Progresses to
    * the next Data Collection screen if the user input was valid.
    */
-  suspend fun onNextClicked(taskViewModel: AbstractTaskViewModel) {
+  fun onNextClicked(taskViewModel: AbstractTaskViewModel) {
     val validationError = taskViewModel.validate()
     if (validationError != null) {
       popups.get().ErrorPopup().show(validationError)
@@ -232,11 +231,11 @@ internal constructor(
     data[taskViewModel.task] = taskViewModel.taskTaskData.value
 
     if (!isLastPosition()) {
-      step(1)
+      moveToNextTask()
     } else {
       clearDraft()
       saveChanges(getDeltas())
-      _uiState.emit(UiState.TaskSubmitted)
+      _uiState.update { UiState.TaskSubmitted }
     }
   }
 
@@ -354,20 +353,24 @@ internal constructor(
       }
   }
 
-  /** Displays the task at the relative position to the current one. Supports negative steps. */
-  suspend fun step(stepCount: Int) {
-    val reverse = stepCount < 0
-    val task =
-      getTaskSequence(startId = currentTaskId.value, reversed = reverse)
-        .take(abs(stepCount) + 1)
-        .last()
+  private fun moveToNextTask() {
+    step(false)
+  }
+
+  fun moveToPreviousTask() {
+    step(true)
+  }
+
+  /** Displays the task at the relative position to the current one. */
+  private fun step(reversed: Boolean) {
+    val task = getTaskSequence(startId = currentTaskId.value, reversed).take(2).last()
     savedStateHandle[TASK_POSITION_ID] = task.id
 
     // Save collected data as draft
     clearDraft()
     saveDraft()
 
-    _uiState.emit(UiState.TaskUpdated(getTaskPosition()))
+    _uiState.update { UiState.TaskUpdated(getTaskPosition()) }
   }
 
   private fun getTaskPosition(): TaskPosition {
