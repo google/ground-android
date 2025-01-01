@@ -49,11 +49,6 @@ import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskVie
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import javax.inject.Provider
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -65,6 +60,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -233,7 +233,7 @@ internal constructor(
 
     data[taskViewModel.task] = taskViewModel.taskTaskData.value
 
-    if (!isLastPosition()) {
+    if (!isLastPosition(currentTaskId.value)) {
       moveToNextTask()
     } else {
       clearDraft()
@@ -368,9 +368,7 @@ internal constructor(
     (taskId ?: currentTaskId.value) ==
       getTaskSequence(taskValueOverride = (taskId ?: currentTaskId.value) to value).last().id
 
-  /** Returns true if the given [taskId] is last if set, or the current active task. */
-  fun isLastPosition(taskId: String? = null): Boolean =
-    (taskId ?: currentTaskId.value) == getTaskSequence().last().id
+  fun isLastPosition(taskId: String): Boolean = taskSequenceHandler.isLastPosition(taskId)
 
   /** Evaluates the task condition against the current inputs. */
   private fun evaluateCondition(
