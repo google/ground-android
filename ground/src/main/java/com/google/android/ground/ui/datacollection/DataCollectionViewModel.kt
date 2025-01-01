@@ -27,7 +27,6 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.submission.isNullOrEmpty
-import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -323,11 +322,12 @@ internal constructor(
   fun isLastPosition(taskId: String): Boolean = taskSequenceHandler.isLastPosition(taskId)
 
   /** Evaluates the task condition against the current inputs. */
-  private fun evaluateCondition(
-    condition: Condition,
+  private fun shouldIncludeTask(
+    task: Task,
     taskValueOverride: Pair<String, TaskData?>? = null,
-  ): Boolean =
-    condition.fulfilledBy(
+  ): Boolean {
+    val condition = task.condition ?: return true
+    return condition.fulfilledBy(
       data
         .mapNotNull { (task, value) -> value?.let { task.id to it } }
         .let { pairs ->
@@ -345,9 +345,6 @@ internal constructor(
         }
         .toMap()
     )
-
-  private fun shouldIncludeTask(task: Task, pair: Pair<String, TaskData?>?): Boolean {
-    TODO("Not yet implemented")
   }
 
   companion object {
