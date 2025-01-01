@@ -134,15 +134,20 @@ internal constructor(
   private val data: MutableMap<Task, TaskData?> = LinkedHashMap()
 
   // Tracks the current task ID to compute the position in the list of tasks for the current job.
-  private val currentTaskId: StateFlow<String> =
-    savedStateHandle.getStateFlow(TASK_POSITION_ID, tasks.firstOrNull()?.id ?: "")
+  private val currentTaskId: StateFlow<String> = savedStateHandle.getStateFlow(TASK_POSITION_ID, "")
 
   lateinit var submissionId: String
 
   private val taskSequenceHandler: TaskSequenceHandler =
     TaskSequenceHandlerImpl(tasks, ::shouldIncludeTask)
 
-  fun init() {
+  init {
+    if (currentTaskId.value == "") {
+      // Set current task's ID for new task submissions.
+      savedStateHandle[TASK_POSITION_ID] = taskSequenceHandler.getTaskSequence().first().id
+    }
+
+    check(currentTaskId.value.isNotBlank()) { "Task ID can't be blank" }
     _uiState.update { UiState.TaskListAvailable(tasks, getTaskPosition(currentTaskId.value)) }
   }
 
