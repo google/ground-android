@@ -48,11 +48,6 @@ import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskVie
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import javax.inject.Provider
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -64,6 +59,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -246,19 +246,20 @@ internal constructor(
     }
   }
 
+  /** Persists the current UI state locally which can be resumed whenever the app re-opens. */
   fun saveCurrentState() {
-    getTaskViewModel(currentTaskId.value)?.let {
-      if (!data.containsKey(it.task)) {
-        val validationError = it.validate()
-        if (validationError != null) {
-          return
-        }
+    val taskId = currentTaskId.value
+    val viewModel = getTaskViewModel(taskId) ?: error("ViewModel not found for task $taskId")
 
-        data[it.task] = it.taskTaskData.value
-        savedStateHandle[TASK_POSITION_ID] = it.task.id
-        saveDraft(it.task.id)
-      }
+    val validationError = viewModel.validate()
+    if (validationError != null) {
+      Timber.d("Ignoring task $taskId with invalid data: $validationError")
+      return
     }
+
+    data[viewModel.task] = viewModel.taskTaskData.value
+    savedStateHandle[TASK_POSITION_ID] = taskId
+    saveDraft(taskId)
   }
 
   private fun getDeltas(): List<ValueDelta> =
