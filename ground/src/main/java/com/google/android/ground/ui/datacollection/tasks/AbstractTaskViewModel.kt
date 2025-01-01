@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection.tasks
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.SkippedTaskData
@@ -24,11 +22,10 @@ import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 
 /** Defines the state of an inflated [Task] and controls its UI. */
 open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
@@ -37,21 +34,12 @@ open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
   private val _taskDataFlow: MutableStateFlow<TaskData?> = MutableStateFlow(null)
   val taskTaskData: StateFlow<TaskData?> = _taskDataFlow.asStateFlow()
 
-  /** Transcoded text to be displayed for the current [TaskData]. */
-  val responseText: LiveData<String>
-
   lateinit var task: Task
-
-  init {
-    responseText = detailsTextFlow().asLiveData()
-  }
 
   open fun initialize(job: Job, task: Task, taskData: TaskData?) {
     this.task = task
     setValue(taskData)
   }
-
-  private fun detailsTextFlow(): Flow<String> = taskTaskData.map { it?.getDetailsText() ?: "" }
 
   /** Checks if the current value is valid and updates error value. */
   fun validate(): Int? = validate(task, taskTaskData.value)
@@ -69,7 +57,7 @@ open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
   }
 
   fun setValue(taskData: TaskData?) {
-    _taskDataFlow.value = taskData
+    _taskDataFlow.update { taskData }
   }
 
   open fun clearResponse() {

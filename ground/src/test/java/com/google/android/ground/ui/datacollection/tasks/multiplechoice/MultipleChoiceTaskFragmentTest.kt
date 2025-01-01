@@ -16,18 +16,6 @@
 package com.google.android.ground.ui.datacollection.tasks.multiplechoice
 
 import android.content.Context
-import android.widget.RadioButton
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.hasChildCount
-import androidx.test.espresso.matcher.ViewMatchers.isChecked
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isNotChecked
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.google.android.ground.CustomViewActions
-import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.task.MultipleChoice
@@ -37,15 +25,12 @@ import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
-import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
-import org.hamcrest.Matchers.allOf
-import org.hamcrest.Matchers.instanceOf
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -103,21 +88,7 @@ class MultipleChoiceTaskFragmentTest :
       task.copy(multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)),
     )
 
-    onView(withId(R.id.select_option_list)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
-    onView(withText("Option 1"))
-      .check(matches(allOf(isDisplayed(), instanceOf(RadioButton::class.java))))
-  }
-
-  @Test
-  fun `allows only one selection for SELECT_ONE cardinality`() = runWithTestDispatcher {
-    val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
-    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
-
-    onView(withText("Option 1")).perform(click())
-    onView(withText("Option 2")).perform(click())
-
-    hasValue(MultipleChoiceTaskData(multipleChoice, listOf("option id 2")))
-    runner().assertButtonIsEnabled("Next")
+    runner().assertOptionsDisplayed("Option 1", "Option 2")
   }
 
   @Test
@@ -129,9 +100,17 @@ class MultipleChoiceTaskFragmentTest :
       ),
     )
 
-    onView(withId(R.id.select_option_list)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
-    onView(withText("Option 1"))
-      .check(matches(allOf(isDisplayed(), instanceOf(MaterialCheckBox::class.java))))
+    runner().assertOptionsDisplayed("Option 1", "Option 2")
+  }
+
+  @Test
+  fun `allows only one selection for SELECT_ONE cardinality`() = runWithTestDispatcher {
+    val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
+
+    runner().selectOption("Option 1").selectOption("Option 2").assertButtonIsEnabled("Next")
+
+    hasValue(MultipleChoiceTaskData(multipleChoice, listOf("option id 2")))
   }
 
   @Test
@@ -139,11 +118,9 @@ class MultipleChoiceTaskFragmentTest :
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_MULTIPLE)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
-    onView(withText("Option 1")).perform(click())
-    onView(withText("Option 2")).perform(click())
+    runner().selectOption("Option 1").selectOption("Option 2").assertButtonIsEnabled("Next")
 
     hasValue(MultipleChoiceTaskData(multipleChoice, listOf("option id 1", "option id 2")))
-    runner().assertButtonIsEnabled("Next")
   }
 
   @Test
@@ -155,13 +132,9 @@ class MultipleChoiceTaskFragmentTest :
     )
     val userInput = "User inputted text"
 
-    onView(withText("Other")).perform(click())
-    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-      .perform(CustomViewActions.forceTypeText(userInput))
+    runner().selectOption("Other").inputOtherText(userInput).assertButtonIsEnabled("Next")
 
-    onView(withText("Other")).check(matches(isChecked()))
     hasValue(MultipleChoiceTaskData(multipleChoice, listOf("[ $userInput ]")))
-    runner().assertButtonIsEnabled("Next")
   }
 
   @Test
@@ -169,13 +142,16 @@ class MultipleChoiceTaskFragmentTest :
     runWithTestDispatcher {
       val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE, true)
       setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
-      onView(withText("Option 1")).perform(click())
-      onView(withText("Other")).check(matches(isNotChecked()))
+
       val userInput = "A"
-      onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-        .perform(CustomViewActions.forceTypeText(userInput))
-      onView(withText("Option 1")).check(matches(isNotChecked()))
-      onView(withText("Other")).check(matches(isChecked()))
+
+      runner()
+        .selectOption("Option 1")
+        .assertOptionNotSelected("Other")
+        .inputOtherText(userInput)
+        .assertOptionNotSelected("Option 1")
+        .assertOptionSelected("Other")
+
       hasValue(MultipleChoiceTaskData(multipleChoice, listOf("[ $userInput ]")))
     }
 
@@ -187,16 +163,12 @@ class MultipleChoiceTaskFragmentTest :
       task.copy(multipleChoice = multipleChoice, isRequired = true),
     )
 
-    onView(withText("Other")).check(matches(isNotChecked()))
-    val userInput = "A"
-    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-      .perform(CustomViewActions.forceTypeText(userInput))
-    onView(withText("Other")).check(matches(isChecked()))
-
-    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-      .perform(CustomViewActions.clearText())
-
-    onView(withText("Other")).check(matches(isNotChecked()))
+    runner()
+      .assertOptionNotSelected("Other")
+      .inputOtherText("A")
+      .assertOptionSelected("Other")
+      .clearOtherText()
+      .assertOptionNotSelected("Other")
   }
 
   @Test
@@ -204,16 +176,12 @@ class MultipleChoiceTaskFragmentTest :
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE, true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
-    onView(withText("Other")).check(matches(isNotChecked()))
-    val userInput = "A"
-    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-      .perform(CustomViewActions.forceTypeText(userInput))
-    onView(withText("Other")).check(matches(isChecked()))
-
-    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-      .perform(CustomViewActions.clearText())
-
-    onView(withText("Other")).check(matches(isChecked()))
+    runner()
+      .assertOptionNotSelected("Other")
+      .inputOtherText("A")
+      .assertOptionSelected("Other")
+      .clearOtherText()
+      .assertOptionSelected("Other")
   }
 
   @Test
@@ -224,18 +192,14 @@ class MultipleChoiceTaskFragmentTest :
       task.copy(multipleChoice = multipleChoice, isRequired = true),
     )
 
-    val userInput = "A"
-    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-      .perform(CustomViewActions.forceTypeText(userInput))
-    onView(withText("Option 1")).perform(click())
-    onView(withText("Other")).check(matches(isNotChecked()))
-    onView(withText("Option 1")).check(matches(isChecked()))
-
-    onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-      .perform(CustomViewActions.clearText())
-
-    onView(withText("Option 1")).check(matches(isChecked()))
-    onView(withText("Other")).check(matches(isNotChecked()))
+    runner()
+      .inputOtherText("A")
+      .selectOption("Option 1")
+      .assertOptionNotSelected("Other")
+      .assertOptionSelected("Option 1")
+      .clearOtherText()
+      .assertOptionSelected("Option 1")
+      .assertOptionNotSelected("Other")
   }
 
   @Test
@@ -271,9 +235,7 @@ class MultipleChoiceTaskFragmentTest :
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
-    onView(withText("Option 1")).perform(click())
-
-    runner().assertButtonIsHidden("Skip")
+    runner().selectOption("Option 1").assertButtonIsHidden("Skip")
   }
 
   @Test
@@ -317,12 +279,9 @@ class MultipleChoiceTaskFragmentTest :
         task.copy(multipleChoice = multipleChoice, isRequired = true),
       )
 
-      onView(withText("Other")).perform(click())
-      onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-        .perform(CustomViewActions.forceTypeText(""))
+      runner().selectOption("Other").inputOtherText("").assertButtonIsDisabled("Next")
 
       hasValue(null)
-      runner().assertButtonIsDisabled("Next")
     }
 
   @Test
@@ -334,13 +293,12 @@ class MultipleChoiceTaskFragmentTest :
         task.copy(multipleChoice = multipleChoice, isRequired = true),
       )
 
-      onView(withText("Option 1")).perform(click())
-      onView(withText("Option 2")).perform(click())
-      onView(withText("Other")).perform(click())
-      onView(allOf(isDisplayed(), withId(R.id.user_response_text)))
-        .perform(CustomViewActions.forceTypeText(""))
+      runner()
+        .selectOption("Option 1")
+        .selectOption("Option 2")
+        .selectOption("Other")
+        .assertButtonIsDisabled("Next")
 
       hasValue(null)
-      runner().assertButtonIsDisabled("Next")
     }
 }
