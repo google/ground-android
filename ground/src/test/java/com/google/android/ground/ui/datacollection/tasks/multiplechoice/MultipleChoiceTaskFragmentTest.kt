@@ -212,8 +212,7 @@ class MultipleChoiceTaskFragmentTest :
   @Test
   fun `renders action buttons on last task`() {
     whenever(dataCollectionViewModel.isLastPosition(any())).thenReturn(true)
-    whenever(dataCollectionViewModel.checkLastPositionWithTaskData(any(), eq(null)))
-      .thenReturn(true)
+    whenever(dataCollectionViewModel.isLastPosition(any(), eq(null))).thenReturn(true)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
     assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.DONE)
