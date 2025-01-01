@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
@@ -70,14 +71,16 @@ fun DataSubmissionConfirmationDialog(onDismiss: () -> Unit) {
         verticalArrangement = Arrangement.Center,
       ) {
         DetailColumn()
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xlarge)))
         CloseButton(modifier = Modifier.align(Alignment.CenterHorizontally), onDismiss = onDismiss)
       }
     }
   } else {
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
       Spacer(modifier = Modifier.height(150.dp))
-      DataCollectionThumbnail(modifier = Modifier.padding(horizontal = 8.dp))
+      DataCollectionThumbnail(
+        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.spacing_medium))
+      )
       Spacer(modifier = Modifier.height(100.dp))
       DetailColumn()
       Spacer(modifier = Modifier.height(32.dp))
@@ -107,9 +110,9 @@ private fun DetailColumn() {
       fontSize = 22.sp,
       fontWeight = FontWeight(400),
     )
-    Spacer(modifier = Modifier.height(8.dp))
+    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_medium)))
     Text(
-      modifier = Modifier.padding(horizontal = 28.dp),
+      modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.spacing_xxlarge)),
       text = stringResource(R.string.data_collection_complete_details),
       fontSize = 14.sp,
       lineHeight = 20.sp,
@@ -129,7 +132,11 @@ private fun CloseButton(modifier: Modifier = Modifier, onDismiss: () -> Unit) {
     onClick = { onDismiss() },
   ) {
     Text(
-      modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+      modifier =
+        Modifier.padding(
+          horizontal = dimensionResource(R.dimen.spacing_large),
+          vertical = dimensionResource(R.dimen.spacing_small),
+        ),
       text = stringResource(id = R.string.close),
       fontSize = 14.sp,
       lineHeight = 20.sp,

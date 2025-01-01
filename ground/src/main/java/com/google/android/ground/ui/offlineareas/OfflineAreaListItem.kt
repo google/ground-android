@@ -29,13 +29,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.ground.ExcludeFromJacocoGeneratedReport
 import com.google.android.ground.R
@@ -52,21 +52,28 @@ fun OfflineAreaListItem(
       modifier =
         modifier
           .fillMaxWidth()
-          .padding(start = 16.dp, top = 4.dp, end = 24.dp, bottom = 4.dp)
+          .padding(
+            start = dimensionResource(R.dimen.spacing_large),
+            top = dimensionResource(R.dimen.spacing_small),
+            end = dimensionResource(R.dimen.spacing_xlarge),
+            bottom = dimensionResource(R.dimen.spacing_small),
+          )
           .clickable { itemClicked(offlineAreaDetails.id) },
-      horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+      horizontalArrangement =
+        Arrangement.spacedBy(
+          dimensionResource(R.dimen.spacing_large),
+          Alignment.CenterHorizontally,
+        ),
       verticalAlignment = Alignment.CenterVertically,
     ) {
-      Icon(
-        imageVector = ImageVector.vectorResource(id = R.drawable.ic_offline_pin),
-        contentDescription = stringResource(id = R.string.offline_area_list_item_icon),
-        tint = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.size(24.dp),
-      )
-
+      OfflinePinImage()
       Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
+        verticalArrangement =
+          Arrangement.spacedBy(
+            dimensionResource(R.dimen.spacing_empty),
+            Alignment.CenterVertically,
+          ),
         horizontalAlignment = Alignment.Start,
       ) {
         Text(
@@ -79,7 +86,6 @@ fun OfflineAreaListItem(
               color = MaterialTheme.colorScheme.onSurface,
             ),
         )
-
         Text(
           text =
             stringResource(
@@ -97,6 +103,16 @@ fun OfflineAreaListItem(
       }
     }
   }
+}
+
+@Composable
+private fun OfflinePinImage() {
+  Icon(
+    imageVector = ImageVector.vectorResource(id = R.drawable.ic_offline_pin),
+    contentDescription = stringResource(id = R.string.offline_area_list_item_icon),
+    tint = MaterialTheme.colorScheme.primary,
+    modifier = Modifier.size(dimensionResource(R.dimen.spacing_xlarge)),
+  )
 }
 
 @Composable
