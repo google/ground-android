@@ -143,7 +143,7 @@ internal constructor(
     TaskSequenceHandlerImpl(tasks, ::shouldIncludeTask)
 
   fun init() {
-    _uiState.update { UiState.TaskListAvailable(tasks, getTaskPosition()) }
+    _uiState.update { UiState.TaskListAvailable(tasks, getTaskPosition(currentTaskId.value)) }
   }
 
   fun setLoiName(name: String) {
@@ -307,12 +307,11 @@ internal constructor(
     clearDraft()
     saveDraft()
 
-    _uiState.update { UiState.TaskUpdated(getTaskPosition()) }
+    _uiState.update { UiState.TaskUpdated(getTaskPosition(taskId)) }
   }
 
-  private fun getTaskPosition(): TaskPosition {
-    return taskSequenceHandler.getTaskPosition(currentTaskId.value)
-  }
+  private fun getTaskPosition(taskId: String): TaskPosition =
+    taskSequenceHandler.getTaskPosition(taskId)
 
   fun isFirstPosition(taskId: String): Boolean = taskSequenceHandler.isFirstPosition(taskId)
 
