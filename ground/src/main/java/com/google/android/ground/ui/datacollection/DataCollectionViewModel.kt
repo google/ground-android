@@ -26,7 +26,7 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.ValueDelta
-import com.google.android.ground.model.submission.isNullOrEmpty
+import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -208,16 +208,12 @@ internal constructor(
     val taskValue = taskViewModel.taskTaskData.value
 
     // Skip validation if the task is empty
-    if (taskValue.isNullOrEmpty()) {
-      data[task] = taskValue
-      moveToPreviousTask()
-      return
-    }
-
-    val validationError = taskViewModel.validate()
-    if (validationError != null) {
-      popups.get().ErrorPopup().show(validationError)
-      return
+    if (taskValue.isNotNullOrEmpty()) {
+      val error = taskViewModel.validate()
+      if (error != null) {
+        popups.get().ErrorPopup().show(error)
+        return
+      }
     }
 
     data[task] = taskValue
