@@ -49,6 +49,11 @@ import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskVie
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -60,11 +65,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Provider
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -357,8 +357,7 @@ internal constructor(
     return taskSequenceHandler.getTaskPosition(currentTaskId.value)
   }
 
-  /** Returns true if the given [taskId] is first in the sequence of displayed tasks. */
-  fun isFirstPosition(taskId: String): Boolean = taskId == getTaskSequence().first().id
+  fun isFirstPosition(taskId: String): Boolean = taskSequenceHandler.isFirstPosition(taskId)
 
   /**
    * Returns true if the given [taskId] with task data would be last in sequence. Defaults to the
