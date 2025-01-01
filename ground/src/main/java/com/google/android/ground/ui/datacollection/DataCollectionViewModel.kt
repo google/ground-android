@@ -140,6 +140,9 @@ internal constructor(
 
   lateinit var submissionId: String
 
+  private val taskSequenceHandler: TaskSequenceHandler =
+    TaskSequenceHandlerImpl(tasks, ::shouldIncludeTask)
+
   fun init() {
     _uiState.update { UiState.TaskListAvailable(tasks, getTaskPosition()) }
   }
@@ -268,13 +271,6 @@ internal constructor(
     }
   }
 
-  private fun getAbsolutePosition(): Int {
-    if (currentTaskId.value == "") {
-      return 0
-    }
-    return tasks.indexOf(tasks.first { it.id == currentTaskId.value })
-  }
-
   /** Persists the collected data as draft to local storage. */
   private fun saveDraft() {
     externalScope.launch(ioDispatcher) {
@@ -292,22 +288,6 @@ internal constructor(
   /** Clears all persisted drafts from local storage. */
   fun clearDraft() {
     externalScope.launch(ioDispatcher) { submissionRepository.deleteDraftSubmission() }
-  }
-
-  /**
-   * Get the current index within the computed task sequence, and the number of tasks in the
-   * sequence, e.g (0, 2) means the first task of 2.
-   */
-  private fun getPositionInTaskSequence(): Pair<Int, Int> {
-    var currentIndex = 0
-    var size = 0
-    getTaskSequence().forEachIndexed { index, task ->
-      if (task.id == currentTaskId.value) {
-        currentIndex = index
-      }
-      size++
-    }
-    return currentIndex to size
   }
 
   /** Returns the index of the task ID, or -1 if null or not found. */
@@ -374,12 +354,7 @@ internal constructor(
   }
 
   private fun getTaskPosition(): TaskPosition {
-    val (index, size) = getPositionInTaskSequence()
-    return TaskPosition(
-      absoluteIndex = getAbsolutePosition(),
-      relativeIndex = index,
-      sequenceSize = size,
-    )
+    return taskSequenceHandler.getTaskPosition(currentTaskId.value)
   }
 
   /** Returns true if the given [taskId] is first in the sequence of displayed tasks. */
@@ -420,6 +395,10 @@ internal constructor(
         }
         .toMap()
     )
+
+  private fun shouldIncludeTask(task: Task, pair: Pair<String, TaskData?>?): Boolean {
+    TODO("Not yet implemented")
+  }
 
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"
