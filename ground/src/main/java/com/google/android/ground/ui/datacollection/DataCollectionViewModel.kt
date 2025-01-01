@@ -311,7 +311,7 @@ internal constructor(
 
     // Save collected data as draft
     clearDraft()
-    saveDraft(currentTaskId.value)
+    saveDraft(taskId)
 
     _uiState.update { UiState.TaskUpdated(getTaskPosition(taskId)) }
   }
