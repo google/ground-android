@@ -18,11 +18,13 @@ package com.google.android.ground.ui.datacollection.tasks.text
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.android.ground.ExcludeFromJacocoGeneratedReport
@@ -45,6 +47,7 @@ fun TextTaskInput(
         .padding(vertical = 8.dp),
     textStyle = MaterialTheme.typography.bodyLarge,
     singleLine = true,
+    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
   )
 }
 
