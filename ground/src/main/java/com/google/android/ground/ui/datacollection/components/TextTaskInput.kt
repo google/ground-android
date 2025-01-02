@@ -34,6 +34,7 @@ import com.google.android.ground.ui.theme.AppTheme
 fun TextTaskInput(
   value: String,
   modifier: Modifier = Modifier,
+  keyboardType: KeyboardType = KeyboardType.Text,
   valueChanged: (text: String) -> Unit = {},
 ) {
   TextField(
@@ -48,7 +49,7 @@ fun TextTaskInput(
         .padding(vertical = 8.dp),
     textStyle = MaterialTheme.typography.bodyLarge,
     singleLine = true,
-    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+    keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
   )
 }
 
