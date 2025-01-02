@@ -62,7 +62,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -102,7 +101,9 @@ internal constructor(
   private var draftDeltas: List<ValueDelta>? = null
 
   private val activeSurvey: Survey = runBlocking {
-    withTimeout(SURVEY_LOAD_TIMEOUT_MILLIS) { surveyRepository.activeSurveyFlow.filterNotNull().first() }
+    withTimeout(SURVEY_LOAD_TIMEOUT_MILLIS) {
+      surveyRepository.activeSurveyFlow.filterNotNull().first()
+    }
   }
 
   private val job: Job = activeSurvey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
