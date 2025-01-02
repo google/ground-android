@@ -61,7 +61,7 @@ class NetworkManager @Inject constructor(@ApplicationContext private val context
     }
   }
 
-  /** Returns true iff the device has internet connectivity, false otherwise. */
+  /** Returns true if the device has internet connectivity, false otherwise. */
   @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
   fun isNetworkConnected(): Boolean {
     val connectivityManager =
