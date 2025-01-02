@@ -16,13 +16,6 @@
 
 package com.google.android.ground.ui.datacollection.tasks.text
 
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.Task
@@ -60,14 +53,31 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   fun testResponse_defaultIsEmpty() = runWithTestDispatcher {
     setupTaskFragment<TextTaskFragment>(job, task)
 
-    onView(withId(R.id.user_response_text))
-      .check(matches(withText("")))
-      .check(matches(isDisplayed()))
-      .check(matches(isEnabled()))
+    runner().assertInputTextDisplayed("").assertButtonIsDisabled("Next")
 
     hasValue(null)
+  }
 
-    runner().assertButtonIsDisabled("Next")
+  @Test
+  fun `inserted text is displayed`() = runWithTestDispatcher {
+    setupTaskFragment<TextTaskFragment>(job, task)
+
+    runner().inputText("some text").assertInputTextDisplayed("some text")
+
+    hasValue(TextTaskData("some text"))
+  }
+
+  @Test
+  fun `deleting text resets the displayed text and next button`() = runWithTestDispatcher {
+    setupTaskFragment<TextTaskFragment>(job, task)
+
+    runner()
+      .inputText("some text")
+      .clearInputText()
+      .assertInputTextDisplayed("")
+      .assertButtonIsDisabled("Next")
+
+    hasValue(null)
   }
 
   @Test
