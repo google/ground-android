@@ -60,10 +60,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 
 /** View model for the Data Collection fragment. */
@@ -96,7 +100,12 @@ internal constructor(
   private var shouldLoadFromDraft: Boolean = savedStateHandle[TASK_SHOULD_LOAD_FROM_DRAFT] ?: false
   private var draftDeltas: List<ValueDelta>? = null
 
-  private val activeSurvey: Survey = requireNotNull(surveyRepository.activeSurvey)
+  private val activeSurvey: Survey = runBlocking {
+    withTimeout(SURVEY_LOAD_TIMEOUT_MILLIS) {
+      surveyRepository.activeSurveyFlow.filterNotNull().first()
+    }
+  }
+
   private val job: Job = activeSurvey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
   private var customLoiName: String?
     get() = savedStateHandle[TASK_LOI_NAME_KEY]
@@ -428,6 +437,7 @@ internal constructor(
     private const val TASK_POSITION_ID = "currentTaskId"
     private const val TASK_SHOULD_LOAD_FROM_DRAFT = "shouldLoadFromDraft"
     private const val TASK_DRAFT_VALUES = "draftValues"
+    private const val SURVEY_LOAD_TIMEOUT_MILLIS = 3000L
 
     fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
       when (taskType) {

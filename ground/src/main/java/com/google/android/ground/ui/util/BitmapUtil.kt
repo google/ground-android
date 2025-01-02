@@ -17,19 +17,30 @@ package com.google.android.ground.ui.util
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.ImageDecoder
 import android.net.Uri
-import android.provider.MediaStore
+import android.os.Build
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.io.IOException
 import javax.inject.Inject
 
 class BitmapUtil @Inject internal constructor(@ApplicationContext private val context: Context) {
 
   /** Retrieves an image for the given url as a [Bitmap]. */
-  @Throws(IOException::class)
-  fun fromUri(url: Uri?): Bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, url)
+  fun fromUri(url: Uri?): Bitmap {
+    require(url != null) { "Uri cannot be null" }
+
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, url))
+    } else {
+      // Use InputStream and BitmapFactory for older APIs
+      context.contentResolver.openInputStream(url)?.use { inputStream ->
+        BitmapFactory.decodeStream(inputStream)
+      } ?: throw IllegalArgumentException("Unable to open URI: $url")
+    }
+  }
 
   fun fromVector(resId: Int): Bitmap {
     val vectorDrawable = ContextCompat.getDrawable(context, resId)!!
