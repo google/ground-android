@@ -59,6 +59,28 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   }
 
   @Test
+  fun `inserted text is displayed`() = runWithTestDispatcher {
+    setupTaskFragment<TextTaskFragment>(job, task)
+
+    runner().inputText("some text").assertInputTextDisplayed("some text")
+
+    hasValue(TextTaskData("some text"))
+  }
+
+  @Test
+  fun `deleting text resets the displayed text and next button`() = runWithTestDispatcher {
+    setupTaskFragment<TextTaskFragment>(job, task)
+
+    runner()
+      .inputText("some text")
+      .clearInputText()
+      .assertInputTextDisplayed("")
+      .assertButtonIsDisabled("Next")
+
+    hasValue(null)
+  }
+
+  @Test
   fun testResponse_onUserInput_nextButtonIsEnabled() = runWithTestDispatcher {
     setupTaskFragment<TextTaskFragment>(job, task)
 

@@ -80,6 +80,11 @@ class TaskFragmentRunner(
     return this
   }
 
+  internal fun clearInputText(): TaskFragmentRunner {
+    getInputNode().performTextClearance()
+    return this
+  }
+
   internal fun assertInputTextDisplayed(text: String): TaskFragmentRunner {
     getInputNode().assertIsDisplayed().assertTextContains(text)
     return this
