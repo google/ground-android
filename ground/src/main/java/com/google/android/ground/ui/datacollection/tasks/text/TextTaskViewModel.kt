@@ -15,36 +15,18 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.text
 
-import android.text.Editable
-import android.text.TextWatcher
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
-import com.google.android.ground.model.submission.TextTaskData.Companion.fromString
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
 class TextTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
   /** Transcoded text to be displayed for the current [TaskData]. */
   val responseText: LiveData<String> =
     taskTaskData.filterIsInstance<TextTaskData>().map { it.text }.asLiveData()
-
-  val textWatcher =
-    object : TextWatcher {
-      override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-        // Do nothing.
-      }
-
-      override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-        setValue(fromString(s.toString()))
-      }
-
-      override fun afterTextChanged(s: Editable) {
-        // Do nothing.
-      }
-    }
 }
