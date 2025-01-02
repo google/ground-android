@@ -47,6 +47,7 @@ fun TextTaskInput(
         .wrapContentWidth(align = Alignment.Start)
         .wrapContentHeight(align = Alignment.Top)
         // TODO: Add horizontal padding as 16.dp when global padding is removed.
+        // Issue URL: https://github.com/google/ground-android/issues/2976
         .padding(vertical = 8.dp)
         .testTag(INPUT_TEXT_TEST_TAG),
     textStyle = MaterialTheme.typography.bodyLarge,
