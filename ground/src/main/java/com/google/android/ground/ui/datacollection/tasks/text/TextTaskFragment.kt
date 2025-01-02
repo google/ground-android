@@ -20,13 +20,18 @@ import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.testTag
 import com.google.android.ground.model.submission.TextTaskData.Companion.fromString
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
+import com.google.android.ground.ui.datacollection.components.TextTaskInput
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
+
+const val INPUT_TEXT_TEST_TAG: String = "text task input test tag"
 
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
@@ -41,6 +46,8 @@ class TextTaskFragment : AbstractTaskFragment<TextTaskViewModel>() {
   @Composable
   private fun ShowTextInputField() {
     val userResponse by viewModel.responseText.observeAsState("")
-    TextTaskInput(userResponse) { newText -> viewModel.setValue(fromString(newText)) }
+    TextTaskInput(userResponse, modifier = Modifier.testTag(INPUT_TEXT_TEST_TAG)) { newText ->
+      viewModel.setValue(fromString(newText))
+    }
   }
 }
