@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection
 
-import android.text.InputType
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -39,14 +38,13 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withInputType
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.CustomViewActions.forceTypeText
 import com.google.android.ground.R
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MULTIPLE_CHOICE_LIST_TEST_TAG
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.OTHER_INPUT_TEXT_TEST_TAG
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.SELECT_MULTIPLE_RADIO_TEST_TAG
+import com.google.android.ground.ui.datacollection.tasks.number.INPUT_NUMBER_TEST_TAG
 import com.google.android.ground.ui.datacollection.tasks.text.INPUT_TEXT_TEST_TAG
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -73,28 +71,38 @@ class TaskFragmentRunner(
     return this
   }
 
-  private fun getInputNode() = baseHiltTest.composeTestRule.onNodeWithTag(INPUT_TEXT_TEST_TAG)
+  private fun getTextInputNode() = baseHiltTest.composeTestRule.onNodeWithTag(INPUT_TEXT_TEST_TAG)
 
   internal fun inputText(text: String): TaskFragmentRunner {
-    getInputNode().assertIsDisplayed().performTextInput(text)
+    getTextInputNode().assertIsDisplayed().performTextInput(text)
     return this
   }
 
   internal fun clearInputText(): TaskFragmentRunner {
-    getInputNode().performTextClearance()
+    getTextInputNode().performTextClearance()
     return this
   }
 
   internal fun assertInputTextDisplayed(text: String): TaskFragmentRunner {
-    getInputNode().assertIsDisplayed().assertTextContains(text)
+    getTextInputNode().assertIsDisplayed().assertTextContains(text)
     return this
   }
 
+  private fun getNumberInputNode() =
+    baseHiltTest.composeTestRule.onNodeWithTag(INPUT_NUMBER_TEST_TAG)
+
   internal fun inputNumber(number: Double): TaskFragmentRunner {
-    val decimalNumberFlag = InputType.TYPE_CLASS_NUMBER + InputType.TYPE_NUMBER_FLAG_DECIMAL
-    onView(withId(R.id.user_response_text))
-      .check(matches(withInputType(decimalNumberFlag)))
-      .perform(forceTypeText(number.toString()))
+    getNumberInputNode().performTextInput(number.toString())
+    return this
+  }
+
+  internal fun clearInputNumber(): TaskFragmentRunner {
+    getNumberInputNode().performTextClearance()
+    return this
+  }
+
+  internal fun assertInputNumberDisplayed(text: String): TaskFragmentRunner {
+    getNumberInputNode().assertIsDisplayed().assertTextContains(text)
     return this
   }
 
