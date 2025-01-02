@@ -102,7 +102,7 @@ internal constructor(
   private var draftDeltas: List<ValueDelta>? = null
 
   private val activeSurvey: Survey = runBlocking {
-    withTimeout(3000L) { surveyRepository.activeSurveyFlow.filterNotNull().first() }
+    withTimeout(SURVEY_LOAD_TIMEOUT_MILLIS) { surveyRepository.activeSurveyFlow.filterNotNull().first() }
   }
 
   private val job: Job = activeSurvey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
@@ -432,6 +432,7 @@ internal constructor(
     private const val TASK_POSITION_ID = "currentTaskId"
     private const val TASK_SHOULD_LOAD_FROM_DRAFT = "shouldLoadFromDraft"
     private const val TASK_DRAFT_VALUES = "draftValues"
+    private const val SURVEY_LOAD_TIMEOUT_MILLIS = 3000L
 
     fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
       when (taskType) {
