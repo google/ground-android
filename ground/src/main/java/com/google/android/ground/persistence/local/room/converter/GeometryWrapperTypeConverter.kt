@@ -27,10 +27,12 @@ import timber.log.Timber
 
 object GeometryWrapperTypeConverter {
 
+  @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
   @TypeConverter
   fun toByteArray(geometryWrapper: GeometryWrapper?): ByteArray =
     geometryWrapper?.getGeometry().let { ProtoBuf.encodeToByteArray(it) }
 
+  @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
   @TypeConverter
   fun fromByteArray(jsonString: ByteArray?): GeometryWrapper? =
     try {
