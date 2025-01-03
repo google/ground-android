@@ -15,13 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.number
 
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.google.android.ground.R
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.task.Task
@@ -65,12 +58,7 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   fun testResponse_defaultIsEmpty() = runWithTestDispatcher {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
-    onView(withId(R.id.user_response_text))
-      .check(matches(withText("")))
-      .check(matches(isDisplayed()))
-      .check(matches(isEnabled()))
-
-    runner().assertButtonIsDisabled("Next")
+    runner().assertInputNumberDisplayed("").assertButtonIsDisabled("Next")
 
     hasValue(null)
   }
@@ -79,9 +67,22 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   fun testResponse_onUserInput_nextButtonIsEnabled() = runWithTestDispatcher {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
-    runner().inputNumber(123.1).assertButtonIsEnabled("Next")
+    runner().inputNumber(123.1).assertInputNumberDisplayed("123.1").assertButtonIsEnabled("Next")
 
     hasValue(NumberTaskData("123.1"))
+  }
+
+  @Test
+  fun `deleting number resets the displayed text and next button`() = runWithTestDispatcher {
+    setupTaskFragment<NumberTaskFragment>(job, task)
+
+    runner()
+      .inputNumber(129.2)
+      .clearInputNumber()
+      .assertInputNumberDisplayed("")
+      .assertButtonIsDisabled("Next")
+
+    hasValue(null)
   }
 
   @Test
