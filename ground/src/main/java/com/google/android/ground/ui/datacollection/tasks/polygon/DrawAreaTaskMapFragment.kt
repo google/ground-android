@@ -43,20 +43,20 @@ class DrawAreaTaskMapFragment @Inject constructor() :
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
     viewLifecycleOwner.lifecycleScope.launch {
-      viewModel.draftArea.collect { feature: Feature? ->
+      parentViewModel.draftArea.collect { feature: Feature? ->
         map.setFeatures(if (feature == null) setOf() else setOf(feature))
       }
     }
 
     // If the task has any previously drawn area, restore map viewport to the feature.
-    moveViewportToFeature(viewModel.draftArea.value)
+    moveViewportToFeature(parentViewModel.draftArea.value)
   }
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
-    if (!viewModel.isMarkedComplete()) {
+    if (!parentViewModel.isMarkedComplete()) {
       val mapCenter = position.coordinates
-      viewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->
+      parentViewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->
         map.getDistanceInPixels(c1, c2)
       }
     }

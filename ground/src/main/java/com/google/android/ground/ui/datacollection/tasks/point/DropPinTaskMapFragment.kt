@@ -38,11 +38,11 @@ class DropPinTaskMapFragment @Inject constructor() :
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
-    viewModel.features.observe(this) { map.setFeatures(it) }
+    parentViewModel.features.observe(this) { map.setFeatures(it) }
   }
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
-    viewModel.updateCameraPosition(position)
+    parentViewModel.updateCameraPosition(position)
   }
 }

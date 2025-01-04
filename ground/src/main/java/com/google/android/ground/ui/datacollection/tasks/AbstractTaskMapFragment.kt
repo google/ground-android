@@ -45,7 +45,7 @@ abstract class AbstractTaskMapFragment<T : AbstractTaskViewModel> : AbstractMapC
   protected val dataCollectionViewModel: DataCollectionViewModel by
     hiltNavGraphViewModels(R.id.data_collection)
 
-  protected val viewModel: T by lazy {
+  protected val parentViewModel: T by lazy {
     // Access to this viewModel is lazy for testing. This is because the NavHostController could
     // not be initialized before the Fragment under test is created, leading to
     // hiltNavGraphViewModels() to fail when called on launch.

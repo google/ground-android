@@ -24,8 +24,8 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class CaptureLocationTaskMapFragment @Inject constructor() :
@@ -47,13 +47,13 @@ class CaptureLocationTaskMapFragment @Inject constructor() :
   ): View {
     val root = super.onCreateView(inflater, container, savedInstanceState)
     viewLifecycleOwner.lifecycleScope.launch {
-      getMapViewModel().getLocationUpdates().collect { viewModel.updateLocation(it) }
+      getMapViewModel().getLocationUpdates().collect { parentViewModel.updateLocation(it) }
     }
     return root
   }
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
-    viewLifecycleOwner.lifecycleScope.launch { viewModel.onMapReady(mapViewModel) }
+    viewLifecycleOwner.lifecycleScope.launch { parentViewModel.onMapReady(mapViewModel) }
   }
 }
