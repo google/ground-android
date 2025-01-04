@@ -28,20 +28,13 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class DrawAreaTaskMapFragment @Inject constructor() : AbstractTaskMapFragment() {
+class DrawAreaTaskMapFragment @Inject constructor() :
+  AbstractTaskMapFragment<DrawAreaTaskViewModel>() {
 
   private lateinit var mapViewModel: BaseMapViewModel
 
-  private val viewModel: DrawAreaTaskViewModel by lazy {
-    // Access to this viewModel is lazy for testing. This is because the NavHostController could
-    // not be initialized before the Fragment under test is created, leading to
-    // hiltNavGraphViewModels() to fail when called on launch.
-    dataCollectionViewModel.getTaskViewModel(taskId) as DrawAreaTaskViewModel
-  }
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-
     mapViewModel = getViewModel(BaseMapViewModel::class.java)
   }
 

@@ -33,17 +33,24 @@ import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.getAccuracyOrNull
 import com.google.android.ground.ui.map.gms.toCoordinates
 import com.google.android.ground.util.toDmsFormat
-import java.math.RoundingMode
-import java.text.DecimalFormat
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.MustBeInvokedByOverriders
+import java.math.RoundingMode
+import java.text.DecimalFormat
 
-abstract class AbstractTaskMapFragment : AbstractMapContainerFragment() {
+abstract class AbstractTaskMapFragment<T : AbstractTaskViewModel> : AbstractMapContainerFragment() {
 
   protected lateinit var binding: MapTaskFragBinding
 
   protected val dataCollectionViewModel: DataCollectionViewModel by
     hiltNavGraphViewModels(R.id.data_collection)
+
+  protected val viewModel: T by lazy {
+    // Access to this viewModel is lazy for testing. This is because the NavHostController could
+    // not be initialized before the Fragment under test is created, leading to
+    // hiltNavGraphViewModels() to fail when called on launch.
+    dataCollectionViewModel.getTaskViewModel(taskId) as T
+  }
 
   protected val taskId: String by lazy {
     arguments?.getString(TASK_ID_FRAGMENT_ARG_KEY) ?: error("null taskId fragment arg")

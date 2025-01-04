@@ -28,15 +28,10 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class CaptureLocationTaskMapFragment @Inject constructor() : AbstractTaskMapFragment() {
+class CaptureLocationTaskMapFragment @Inject constructor() :
+  AbstractTaskMapFragment<CaptureLocationTaskViewModel>() {
 
   private lateinit var mapViewModel: CaptureLocationTaskMapViewModel
-  private val viewModel: CaptureLocationTaskViewModel by lazy {
-    // Access to this viewModel is lazy for testing. This is because the NavHostController could
-    // not be initialized before the Fragment under test is created, leading to
-    // hiltNavGraphViewModels() to fail when called on launch.
-    dataCollectionViewModel.getTaskViewModel(taskId) as CaptureLocationTaskViewModel
-  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
