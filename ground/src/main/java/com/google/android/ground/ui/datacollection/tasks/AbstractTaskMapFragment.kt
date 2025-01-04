@@ -39,7 +39,7 @@ import java.text.DecimalFormat
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.MustBeInvokedByOverriders
 
-abstract class AbstractTaskMapFragment<PVM : AbstractTaskViewModel, VM : BaseMapViewModel> :
+abstract class AbstractTaskMapFragment<PVM : AbstractTaskViewModel> :
   AbstractMapContainerFragment() {
 
   protected lateinit var binding: MapTaskFragBinding
@@ -54,10 +54,15 @@ abstract class AbstractTaskMapFragment<PVM : AbstractTaskViewModel, VM : BaseMap
     dataCollectionViewModel.getTaskViewModel(taskId) as PVM
   }
 
-  protected lateinit var viewModel: VM
+  protected lateinit var viewModel: BaseMapViewModel
 
   protected val taskId: String by lazy {
     arguments?.getString(TASK_ID_FRAGMENT_ARG_KEY) ?: error("null taskId fragment arg")
+  }
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    viewModel = getViewModel(BaseMapViewModel::class.java)
   }
 
   override fun onCreateView(
@@ -89,7 +94,7 @@ abstract class AbstractTaskMapFragment<PVM : AbstractTaskViewModel, VM : BaseMap
     return binding.root
   }
 
-  override fun getMapViewModel(): VM = viewModel
+  override fun getMapViewModel(): BaseMapViewModel = viewModel
 
   @MustBeInvokedByOverriders
   override fun onMapReady(map: MapFragment) {

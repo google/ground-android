@@ -29,12 +29,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CaptureLocationTaskMapFragment @Inject constructor() :
-  AbstractTaskMapFragment<CaptureLocationTaskViewModel, CaptureLocationTaskMapViewModel>() {
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    viewModel = getViewModel(CaptureLocationTaskMapViewModel::class.java)
-  }
+  AbstractTaskMapFragment<CaptureLocationTaskViewModel>() {
 
   override fun onCreateView(
     inflater: LayoutInflater,

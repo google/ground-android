@@ -15,9 +15,7 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
-import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
-import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
@@ -29,12 +27,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class DrawAreaTaskMapFragment @Inject constructor() :
-  AbstractTaskMapFragment<DrawAreaTaskViewModel, BaseMapViewModel>() {
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    viewModel = getViewModel(BaseMapViewModel::class.java)
-  }
+  AbstractTaskMapFragment<DrawAreaTaskViewModel>() {
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)

@@ -15,8 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.point
 
-import android.os.Bundle
-import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
@@ -25,12 +23,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class DropPinTaskMapFragment @Inject constructor() :
-  AbstractTaskMapFragment<DropPinTaskViewModel, BaseMapViewModel>() {
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    viewModel = getViewModel(BaseMapViewModel::class.java)
-  }
+  AbstractTaskMapFragment<DropPinTaskViewModel>() {
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
