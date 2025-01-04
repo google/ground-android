@@ -20,25 +20,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CaptureLocationTaskMapFragment @Inject constructor() :
-  AbstractTaskMapFragment<CaptureLocationTaskViewModel>() {
-
-  private lateinit var mapViewModel: CaptureLocationTaskMapViewModel
+  AbstractTaskMapFragment<CaptureLocationTaskViewModel, CaptureLocationTaskMapViewModel>() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    mapViewModel = getViewModel(CaptureLocationTaskMapViewModel::class.java)
+    viewModel = getViewModel(CaptureLocationTaskMapViewModel::class.java)
   }
-
-  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -54,6 +49,6 @@ class CaptureLocationTaskMapFragment @Inject constructor() :
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
-    viewLifecycleOwner.lifecycleScope.launch { parentViewModel.onMapReady(mapViewModel) }
+    viewLifecycleOwner.lifecycleScope.launch { parentViewModel.onMapReady(viewModel) }
   }
 }

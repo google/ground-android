@@ -27,30 +27,34 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTaskFragBinding
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
+import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.getAccuracyOrNull
 import com.google.android.ground.ui.map.gms.toCoordinates
 import com.google.android.ground.util.toDmsFormat
-import kotlinx.coroutines.launch
-import org.jetbrains.annotations.MustBeInvokedByOverriders
 import java.math.RoundingMode
 import java.text.DecimalFormat
+import kotlinx.coroutines.launch
+import org.jetbrains.annotations.MustBeInvokedByOverriders
 
-abstract class AbstractTaskMapFragment<T : AbstractTaskViewModel> : AbstractMapContainerFragment() {
+abstract class AbstractTaskMapFragment<PVM : AbstractTaskViewModel, VM : BaseMapViewModel> :
+  AbstractMapContainerFragment() {
 
   protected lateinit var binding: MapTaskFragBinding
 
   protected val dataCollectionViewModel: DataCollectionViewModel by
     hiltNavGraphViewModels(R.id.data_collection)
 
-  protected val parentViewModel: T by lazy {
+  protected val parentViewModel: PVM by lazy {
     // Access to this viewModel is lazy for testing. This is because the NavHostController could
     // not be initialized before the Fragment under test is created, leading to
     // hiltNavGraphViewModels() to fail when called on launch.
-    dataCollectionViewModel.getTaskViewModel(taskId) as T
+    dataCollectionViewModel.getTaskViewModel(taskId) as PVM
   }
+
+  protected lateinit var viewModel: VM
 
   protected val taskId: String by lazy {
     arguments?.getString(TASK_ID_FRAGMENT_ARG_KEY) ?: error("null taskId fragment arg")
@@ -84,6 +88,8 @@ abstract class AbstractTaskMapFragment<T : AbstractTaskViewModel> : AbstractMapC
 
     return binding.root
   }
+
+  override fun getMapViewModel(): VM = viewModel
 
   @MustBeInvokedByOverriders
   override fun onMapReady(map: MapFragment) {

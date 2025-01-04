@@ -25,16 +25,12 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class DropPinTaskMapFragment @Inject constructor() :
-  AbstractTaskMapFragment<DropPinTaskViewModel>() {
-
-  private lateinit var mapViewModel: BaseMapViewModel
+  AbstractTaskMapFragment<DropPinTaskViewModel, BaseMapViewModel>() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    mapViewModel = getViewModel(BaseMapViewModel::class.java)
+    viewModel = getViewModel(BaseMapViewModel::class.java)
   }
-
-  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)

@@ -29,16 +29,12 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class DrawAreaTaskMapFragment @Inject constructor() :
-  AbstractTaskMapFragment<DrawAreaTaskViewModel>() {
-
-  private lateinit var mapViewModel: BaseMapViewModel
+  AbstractTaskMapFragment<DrawAreaTaskViewModel, BaseMapViewModel>() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    mapViewModel = getViewModel(BaseMapViewModel::class.java)
+    viewModel = getViewModel(BaseMapViewModel::class.java)
   }
-
-  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
