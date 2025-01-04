@@ -27,8 +27,6 @@ import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.common.MapConfig
-import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.util.toMb
 import com.google.android.ground.util.toMbString
 import javax.inject.Inject
@@ -72,14 +70,6 @@ constructor(
 
   private val _navigateUp = MutableSharedFlow<Unit>(replay = 0)
   val navigateUp = _navigateUp.asSharedFlow()
-
-  override val mapConfig: MapConfig
-    get() =
-      super.mapConfig.copy(
-        showOfflineImagery = true,
-        overrideMapType = MapType.TERRAIN,
-        allowGestures = false,
-      )
 
   /** Initialize the view model with the given arguments. */
   fun initialize(offlineAreaId: String) {

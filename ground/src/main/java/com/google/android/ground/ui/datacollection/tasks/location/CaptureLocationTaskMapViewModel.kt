@@ -23,7 +23,6 @@ import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.common.MapConfig
 import javax.inject.Inject
 
 class CaptureLocationTaskMapViewModel
@@ -45,8 +44,4 @@ internal constructor(
     permissionsManager,
     surveyRepository,
     locationOfInterestRepository,
-  ) {
-
-  override val mapConfig: MapConfig
-    get() = super.mapConfig.copy(allowGestures = false)
-}
+  )

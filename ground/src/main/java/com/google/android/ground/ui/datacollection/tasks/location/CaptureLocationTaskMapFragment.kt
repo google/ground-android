@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
+import com.google.android.ground.ui.common.MapConfig
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,6 +47,8 @@ class CaptureLocationTaskMapFragment @Inject constructor() :
     }
     return root
   }
+
+  override fun getMapConfig(): MapConfig = super.getMapConfig().copy(allowGestures = false)
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
