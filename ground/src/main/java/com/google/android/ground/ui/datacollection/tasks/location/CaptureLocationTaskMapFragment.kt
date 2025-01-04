@@ -19,9 +19,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.ui.common.MapConfig
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
+import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -49,4 +52,6 @@ class CaptureLocationTaskMapFragment @Inject constructor() :
     super.onMapReady(map)
     viewLifecycleOwner.lifecycleScope.launch { parentViewModel.onMapReady(viewModel) }
   }
+
+  override fun renderFeatures(): LiveData<Set<Feature>> = MutableLiveData(setOf())
 }

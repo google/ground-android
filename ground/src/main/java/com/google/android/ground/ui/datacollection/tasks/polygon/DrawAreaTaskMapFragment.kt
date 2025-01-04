@@ -15,7 +15,8 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
@@ -23,7 +24,7 @@ import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
 
 @AndroidEntryPoint
 class DrawAreaTaskMapFragment @Inject constructor() :
@@ -31,12 +32,6 @@ class DrawAreaTaskMapFragment @Inject constructor() :
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
-    viewLifecycleOwner.lifecycleScope.launch {
-      parentViewModel.draftArea.collect { feature: Feature? ->
-        map.setFeatures(if (feature == null) setOf() else setOf(feature))
-      }
-    }
-
     // If the task has any previously drawn area, restore map viewport to the feature.
     moveViewportToFeature(parentViewModel.draftArea.value)
   }
@@ -56,4 +51,9 @@ class DrawAreaTaskMapFragment @Inject constructor() :
     val bounds = listOf(geometry).toBounds() ?: return
     moveToBounds(bounds, padding = 200, shouldAnimate = false)
   }
+
+  override fun renderFeatures(): LiveData<Set<Feature>> =
+    parentViewModel.draftArea
+      .map { feature: Feature? -> if (feature == null) setOf() else setOf(feature) }
+      .asLiveData()
 }

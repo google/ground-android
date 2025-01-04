@@ -15,9 +15,10 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.point
 
+import androidx.lifecycle.LiveData
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.Feature
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -25,13 +26,10 @@ import javax.inject.Inject
 class DropPinTaskMapFragment @Inject constructor() :
   AbstractTaskMapFragment<DropPinTaskViewModel>() {
 
-  override fun onMapReady(map: MapFragment) {
-    super.onMapReady(map)
-    parentViewModel.features.observe(this) { map.setFeatures(it) }
-  }
-
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
     parentViewModel.updateCameraPosition(position)
   }
+
+  override fun renderFeatures(): LiveData<Set<Feature>> = parentViewModel.features
 }

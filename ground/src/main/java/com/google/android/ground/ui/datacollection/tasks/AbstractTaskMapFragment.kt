@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
@@ -30,6 +31,7 @@ import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.map.CameraPosition
+import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.getAccuracyOrNull
 import com.google.android.ground.ui.map.gms.toCoordinates
@@ -103,7 +105,12 @@ abstract class AbstractTaskMapFragment<PVM : AbstractTaskViewModel> :
         getMapViewModel().getCurrentCameraPosition().collect { onMapCameraMoved(it) }
       }
     }
+
+    renderFeatures().observe(this) { map.setFeatures(it) }
   }
+
+  /** Must be overridden by subclasses. */
+  abstract fun renderFeatures(): LiveData<Set<Feature>>
 
   private fun updateLocationInfoCard(
     @StringRes title: Int,

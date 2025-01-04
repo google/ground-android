@@ -50,7 +50,7 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractTaskViewModel
   private val _enableLocationLockFlow = MutableStateFlow(LocationLockEnabledState.UNKNOWN)
   val enableLocationLockFlow = _enableLocationLockFlow.asStateFlow()
 
-  suspend fun updateLocation(location: Location) {
+  fun updateLocation(location: Location) {
     _lastLocation.update { location }
   }
 
