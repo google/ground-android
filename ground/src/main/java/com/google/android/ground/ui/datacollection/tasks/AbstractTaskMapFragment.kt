@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.common
+package com.google.android.ground.ui.datacollection.tasks
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -26,6 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
 import com.google.android.ground.databinding.MapTaskFragBinding
+import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
@@ -37,11 +38,7 @@ import java.text.DecimalFormat
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.MustBeInvokedByOverriders
 
-/**
- * Injects a [MapFragment] in the container with id "map" and provides shared map functionality
- * including map controls like "MapType" button, "CurrentLocation" button and info card.
- */
-abstract class AbstractMapFragmentWithControls : AbstractMapContainerFragment() {
+abstract class AbstractTaskMapFragment : AbstractMapContainerFragment() {
 
   protected lateinit var binding: MapTaskFragBinding
 

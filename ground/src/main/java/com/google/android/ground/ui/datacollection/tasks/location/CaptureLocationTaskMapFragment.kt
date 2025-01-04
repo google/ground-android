@@ -20,15 +20,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class CaptureLocationTaskMapFragment @Inject constructor() : AbstractMapFragmentWithControls() {
+class CaptureLocationTaskMapFragment @Inject constructor() : AbstractTaskMapFragment() {
 
   private lateinit var mapViewModel: CaptureLocationTaskMapViewModel
   private val viewModel: CaptureLocationTaskViewModel by lazy {

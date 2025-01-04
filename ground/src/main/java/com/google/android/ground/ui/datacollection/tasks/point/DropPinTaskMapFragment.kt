@@ -16,15 +16,15 @@
 package com.google.android.ground.ui.datacollection.tasks.point
 
 import android.os.Bundle
-import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DropPinTaskMapFragment @Inject constructor() : AbstractMapFragmentWithControls() {
+class DropPinTaskMapFragment @Inject constructor() : AbstractTaskMapFragment() {
 
   private lateinit var mapViewModel: BaseMapViewModel
   private val viewModel: DropPinTaskViewModel by lazy {

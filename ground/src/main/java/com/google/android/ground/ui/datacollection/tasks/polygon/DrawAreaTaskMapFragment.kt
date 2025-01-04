@@ -17,8 +17,8 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
-import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.MapFragment
@@ -28,7 +28,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class DrawAreaTaskMapFragment @Inject constructor() : AbstractMapFragmentWithControls() {
+class DrawAreaTaskMapFragment @Inject constructor() : AbstractTaskMapFragment() {
 
   private lateinit var mapViewModel: BaseMapViewModel
 
