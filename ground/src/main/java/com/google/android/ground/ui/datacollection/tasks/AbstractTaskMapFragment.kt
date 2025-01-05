@@ -56,7 +56,7 @@ abstract class AbstractTaskMapFragment<PVM : AbstractTaskViewModel> :
     dataCollectionViewModel.getTaskViewModel(taskId) as PVM
   }
 
-  protected lateinit var viewModel: BaseMapViewModel
+  private lateinit var viewModel: BaseMapViewModel
 
   protected val taskId: String by lazy {
     arguments?.getString(TASK_ID_FRAGMENT_ARG_KEY) ?: error("null taskId fragment arg")

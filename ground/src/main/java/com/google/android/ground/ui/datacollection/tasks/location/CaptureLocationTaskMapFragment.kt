@@ -50,7 +50,7 @@ class CaptureLocationTaskMapFragment @Inject constructor() :
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
-    viewLifecycleOwner.lifecycleScope.launch { parentViewModel.onMapReady(viewModel) }
+    viewLifecycleOwner.lifecycleScope.launch { parentViewModel.onMapReady(getMapViewModel()) }
   }
 
   override fun renderFeatures(): LiveData<Set<Feature>> = MutableLiveData(setOf())
