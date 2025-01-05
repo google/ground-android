@@ -27,10 +27,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import com.google.android.ground.R
+
+const val LOI_NAME_TEXT_FIELD_TEST_TAG: String = "loi name text field test tag"
 
 @Composable
 fun LoiNameDialog(
@@ -50,7 +53,12 @@ fun LoiNameDialog(
       Column {
         Text(text = stringResource(R.string.loi_name_dialog_body))
         Spacer(Modifier.height(16.dp))
-        TextField(value = textFieldValue, onValueChange = onTextFieldChange, singleLine = true)
+        TextField(
+          value = textFieldValue,
+          onValueChange = onTextFieldChange,
+          singleLine = true,
+          modifier = Modifier.testTag(LOI_NAME_TEXT_FIELD_TEST_TAG),
+        )
       }
     },
     confirmButton = {

@@ -26,7 +26,9 @@ import androidx.compose.ui.test.hasAnySibling
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.isEnabled
+import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -42,6 +44,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
+import com.google.android.ground.ui.datacollection.components.LOI_NAME_TEXT_FIELD_TEST_TAG
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MULTIPLE_CHOICE_LIST_TEST_TAG
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.OTHER_INPUT_TEXT_TEST_TAG
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.SELECT_MULTIPLE_RADIO_TEST_TAG
@@ -231,6 +234,31 @@ class TaskFragmentRunner(
     } else {
       baseHiltTest.composeTestRule.onNodeWithText(text).assertIsNotDisplayed()
     }
+    return this
+  }
+
+  internal fun assertLoiNameDialogIsDisplayed(): TaskFragmentRunner {
+    with(baseHiltTest.composeTestRule) {
+      val resources = fragment?.resources ?: error("Fragment not found")
+      onNodeWithText(resources.getString(R.string.loi_name_dialog_title)).isDisplayed()
+      onNodeWithText(resources.getString(R.string.loi_name_dialog_body)).isDisplayed()
+    }
+    return this
+  }
+
+  internal fun assertLoiNameDialogIsNotDisplayed(): TaskFragmentRunner {
+    with(baseHiltTest.composeTestRule) {
+      val resources = fragment?.resources ?: error("Fragment not found")
+      onNodeWithText(resources.getString(R.string.loi_name_dialog_title)).isNotDisplayed()
+      onNodeWithText(resources.getString(R.string.loi_name_dialog_body)).isNotDisplayed()
+    }
+    return this
+  }
+
+  internal fun inputLoiName(loiName: String): TaskFragmentRunner {
+    baseHiltTest.composeTestRule
+      .onNodeWithTag(LOI_NAME_TEXT_FIELD_TEST_TAG)
+      .performTextInput(loiName)
     return this
   }
 

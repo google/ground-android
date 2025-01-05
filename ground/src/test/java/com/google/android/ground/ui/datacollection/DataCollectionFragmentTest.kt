@@ -125,6 +125,51 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Next button displays the LoiNameDialog when task has value when LOI is missing`() {
+    setupFragmentWithNoLoi()
+
+    runner().inputText(TASK_0_RESPONSE).clickNextButton().assertLoiNameDialogIsDisplayed()
+  }
+
+  @Test
+  fun `Entering loi name enables the save button in LoiNameDialog`() {
+    setupFragmentWithNoLoi()
+
+    runner()
+      .inputText(TASK_0_RESPONSE)
+      .clickNextButton()
+      .assertButtonIsDisabled("Save")
+      .inputLoiName("Custom Loi Name")
+      .assertButtonIsEnabled("Save")
+  }
+
+  @Test
+  fun `Clicking cancel hides the LoiNameDialog`() {
+    setupFragmentWithNoLoi()
+
+    runner()
+      .inputText(TASK_0_RESPONSE)
+      .clickNextButton()
+      .clickButton("Cancel")
+      .assertLoiNameDialogIsNotDisplayed()
+  }
+
+  @Test
+  fun `Clicking save in LoiNameDialog proceeds to next task`() {
+    setupFragmentWithNoLoi()
+
+    runner()
+      .inputText(TASK_0_RESPONSE)
+      .clickNextButton()
+      .inputLoiName("Custom Loi Name")
+      .clickButton("Save")
+      .validateTextIsDisplayed("Custom Loi Name")
+      .validateTextIsDisplayed(TASK_1_NAME)
+      .validateTextIsNotDisplayed(TASK_0_NAME)
+      .validateTextIsNotDisplayed(TASK_2_NAME)
+  }
+
+  @Test
   fun `Previous button navigates back to first task`() {
     setupFragment()
 
