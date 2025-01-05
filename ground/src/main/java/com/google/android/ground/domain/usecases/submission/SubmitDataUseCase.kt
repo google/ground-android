@@ -68,6 +68,7 @@ constructor(
     val addLoiTaskId = deltas.indexOfFirst { it.taskId == addLoiTask.id }
     if (addLoiTaskId < 0) error("Add LOI task response missing")
     val addLoiValue = deltas.removeAt(addLoiTaskId).newTaskData
+    // TODO: Replace check for valid addLoiTask using task type instead of TaskValue's type.
     if (addLoiValue !is GeometryTaskData) error("Invalid add LOI task response")
     return locationOfInterestRepository.saveLoi(
       addLoiValue.geometry,

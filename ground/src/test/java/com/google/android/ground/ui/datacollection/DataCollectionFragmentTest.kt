@@ -20,9 +20,12 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.launchFragmentWithNavController
+import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.mutation.Mutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.DraftSubmission
+import com.google.android.ground.model.submission.DropPinTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.submission.ValueDelta
@@ -32,26 +35,32 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
+import com.google.android.ground.persistence.sync.MutationSyncWorkManager
+import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MutationRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.UserRepository
+import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskViewModel
+import com.google.android.ground.ui.map.CameraPosition
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
 import com.sharedtest.FakeData.LOCATION_OF_INTEREST
 import com.sharedtest.FakeData.LOCATION_OF_INTEREST_NAME
 import com.sharedtest.FakeData.USER
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import java.util.Date
-import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowToast
+import java.util.Date
+import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -60,9 +69,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+  @Inject lateinit var loiRepository: LocationOfInterestRepository
   @Inject lateinit var mutationRepository: MutationRepository
   @Inject lateinit var submissionRepository: SubmissionRepository
   @Inject lateinit var userRepository: UserRepository
+
+  @BindValue @Mock lateinit var mutationSyncWorkManager: MutationSyncWorkManager
 
   lateinit var fragment: DataCollectionFragment
 
@@ -128,7 +140,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   fun `Next button displays the LoiNameDialog when task has value when LOI is missing`() {
     setupFragmentWithNoLoi()
 
-    runner().inputText(TASK_0_RESPONSE).clickNextButton().assertLoiNameDialogIsDisplayed()
+    runner().clickButton("Drop pin").clickNextButton().assertLoiNameDialogIsDisplayed()
   }
 
   @Test
@@ -136,7 +148,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupFragmentWithNoLoi()
 
     runner()
-      .inputText(TASK_0_RESPONSE)
+      .clickButton("Drop pin")
       .clickNextButton()
       .assertButtonIsDisabled("Save")
       .inputLoiName("Custom Loi Name")
@@ -148,7 +160,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupFragmentWithNoLoi()
 
     runner()
-      .inputText(TASK_0_RESPONSE)
+      .clickButton("Drop pin")
       .clickNextButton()
       .clickButton("Cancel")
       .assertLoiNameDialogIsNotDisplayed()
@@ -159,7 +171,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     setupFragmentWithNoLoi()
 
     runner()
-      .inputText(TASK_0_RESPONSE)
+      .clickButton("Drop pin")
       .clickNextButton()
       .inputLoiName("Custom Loi Name")
       .clickButton("Save")
@@ -251,6 +263,30 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Clicking done on final task saves the submission when LOI is not provided`() =
+    runWithTestDispatcher {
+      setupFragmentWithNoLoi()
+
+      runner()
+        .clickButton("Drop pin")
+        .clickNextButton()
+        .inputLoiName("Custom Loi Name")
+        .clickButton("Save")
+        .inputText(TASK_1_RESPONSE)
+        .clickNextButton()
+        .validateTextIsNotDisplayed(TASK_1_NAME)
+        .validateTextIsDisplayed(TASK_2_NAME)
+        .selectOption(TASK_2_OPTION_LABEL)
+        .clickDoneButton() // Click "done" on final task
+
+      assetLoiSaved(loiId = "TEST UUID", customId = "Custom Loi Name")
+      assertSubmissionSaved(
+        loiId = "TEST UUID",
+        valueDeltas = listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA),
+      )
+    }
+
+  @Test
   fun `Clicking back button on first task clears the draft and returns false`() =
     runWithTestDispatcher {
       setupFragment()
@@ -313,10 +349,24 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       assertSubmissionSaved(listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA))
     }
 
-  private suspend fun assertSubmissionSaved(valueDeltas: List<ValueDelta>) {
-    assertNoDraftSaved()
+  private suspend fun assetLoiSaved(loiId: String, customId: String) {
+    val actualLoi = checkNotNull(loiRepository.getOfflineLoi(surveyId = SURVEY.id, loiId = loiId))
 
-    val loiId = LOCATION_OF_INTEREST.id
+    assertThat(actualLoi.id).isEqualTo(loiId)
+    assertThat(actualLoi.surveyId).isEqualTo(SURVEY.id)
+    assertThat(actualLoi.job).isEqualTo(JOB)
+    assertThat(actualLoi.customId).isEmpty()
+    assertThat(actualLoi.geometry).isEqualTo(TASK_0_VALUE.geometry)
+    assertThat(actualLoi.submissionCount).isEqualTo(0)
+    assertThat(actualLoi.properties).isEqualTo(mapOf("name" to customId))
+    assertThat(actualLoi.isPredefined).isFalse()
+  }
+
+  private suspend fun assertSubmissionSaved(
+    valueDeltas: List<ValueDelta>,
+    loiId: String = LOCATION_OF_INTEREST.id,
+  ) {
+    assertNoDraftSaved()
 
     // Exactly 1 submission should be saved.
     assertThat(submissionRepository.getPendingCreateCount(loiId)).isEqualTo(1)
@@ -388,6 +438,10 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   private fun setupFragmentWithNoLoi() {
     setupFragment(loiId = null, loiName = null)
+
+    // Configured "isAddLoiTask" is of type DROP_PIN. Provide current location for it.
+    val viewModel = fragment.viewModel.getTaskViewModel(taskId = TASK_ID_0) as DropPinTaskViewModel
+    viewModel.updateCameraPosition(CameraPosition(TASK_0_RESPONSE))
   }
 
   private fun setupFragment(
@@ -421,9 +475,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   companion object {
     private const val TASK_ID_0 = "0"
     const val TASK_0_NAME = "task 0"
-    private const val TASK_0_RESPONSE = "response 0"
-    private val TASK_0_VALUE = TextTaskData.fromString(TASK_0_RESPONSE)
-    private val TASK_0_VALUE_DELTA = ValueDelta(TASK_ID_0, Task.Type.TEXT, TASK_0_VALUE)
+    private val TASK_0_RESPONSE = Coordinates(10.0, 20.0)
+    private val TASK_0_VALUE = DropPinTaskData(Point(TASK_0_RESPONSE))
 
     private const val TASK_ID_1 = "1"
     const val TASK_1_NAME = "task 1"
@@ -462,7 +515,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     private val TASKS =
       listOf(
-        Task(TASK_ID_0, 0, Task.Type.TEXT, TASK_0_NAME, true, isAddLoiTask = true),
+        Task(TASK_ID_0, 0, Task.Type.DROP_PIN, TASK_0_NAME, true, isAddLoiTask = true),
         Task(TASK_ID_1, 1, Task.Type.TEXT, TASK_1_NAME, true),
         Task(
           TASK_ID_2,
