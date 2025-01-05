@@ -23,6 +23,7 @@ import androidx.annotation.StringRes
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.R
@@ -107,10 +108,19 @@ abstract class AbstractTaskMapFragment<PVM : AbstractTaskViewModel> :
     }
 
     renderFeatures().observe(this) { map.setFeatures(it) }
+
+    // Allow the fragment to restore map viewport to previously drawn feature.
+    setDefaultViewPort()
   }
 
   /** Must be overridden by subclasses. */
-  abstract fun renderFeatures(): LiveData<Set<Feature>>
+  open fun renderFeatures(): LiveData<Set<Feature>> = MutableLiveData(setOf())
+
+  /**
+   * This should be overridden if the fragment wants to set a custom map camera position. Default
+   * behavior is to move the camera to the last known position.
+   */
+  open fun setDefaultViewPort() {}
 
   private fun updateLocationInfoCard(
     @StringRes title: Int,

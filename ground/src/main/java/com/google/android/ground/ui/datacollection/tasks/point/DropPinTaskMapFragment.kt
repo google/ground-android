@@ -32,4 +32,10 @@ class DropPinTaskMapFragment @Inject constructor() :
   }
 
   override fun renderFeatures(): LiveData<Set<Feature>> = parentViewModel.features
+
+  override fun setDefaultViewPort() {
+    val feature = parentViewModel.features.value?.firstOrNull() ?: return
+    val coordinates = feature.geometry.center()
+    moveToPosition(coordinates)
+  }
 }

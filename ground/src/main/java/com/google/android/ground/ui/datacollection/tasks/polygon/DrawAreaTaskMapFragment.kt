@@ -20,7 +20,6 @@ import androidx.lifecycle.asLiveData
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -29,12 +28,6 @@ import kotlinx.coroutines.flow.map
 @AndroidEntryPoint
 class DrawAreaTaskMapFragment @Inject constructor() :
   AbstractTaskMapFragment<DrawAreaTaskViewModel>() {
-
-  override fun onMapReady(map: MapFragment) {
-    super.onMapReady(map)
-    // If the task has any previously drawn area, restore map viewport to the feature.
-    moveViewportToFeature(parentViewModel.draftArea.value)
-  }
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
@@ -46,7 +39,8 @@ class DrawAreaTaskMapFragment @Inject constructor() :
     }
   }
 
-  private fun moveViewportToFeature(feature: Feature?) {
+  override fun setDefaultViewPort() {
+    val feature = parentViewModel.draftArea.value
     val geometry = feature?.geometry ?: return
     val bounds = listOf(geometry).toBounds() ?: return
     moveToBounds(bounds, padding = 200, shouldAnimate = false)
