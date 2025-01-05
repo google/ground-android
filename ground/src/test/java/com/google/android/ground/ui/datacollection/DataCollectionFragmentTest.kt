@@ -81,10 +81,26 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Only job name is displayed when LOI is not provided`() {
+    setupFragmentWithNoLoi()
+
+    runner()
+      .validateTextDoesNotExist("Unnamed point")
+      .validateTextIsDisplayed(requireNotNull(JOB.name))
+  }
+
+  @Test
   fun `First task is loaded and is visible`() {
     setupFragment()
 
     runner().validateTextIsDisplayed(TASK_1_NAME).validateTextIsNotDisplayed(TASK_2_NAME)
+  }
+
+  @Test
+  fun `Add LOI task is loaded and is visible when LOI is not provided`() {
+    setupFragmentWithNoLoi()
+
+    runner().validateTextIsDisplayed(TASK_0_NAME).validateTextIsNotDisplayed(TASK_1_NAME)
   }
 
   @Test
@@ -319,14 +335,26 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   private fun setupFragmentWithDraft(expectedValues: List<ValueDelta>) {
-    setupFragment(true, SubmissionDeltasConverter.toString(expectedValues))
+    setupFragment(
+      shouldLoadFromDraft = true,
+      draftValues = SubmissionDeltasConverter.toString(expectedValues),
+    )
   }
 
-  private fun setupFragment(shouldLoadFromDraft: Boolean = false, draftValues: String? = null) {
+  private fun setupFragmentWithNoLoi() {
+    setupFragment(loiId = null, loiName = null)
+  }
+
+  private fun setupFragment(
+    loiId: String? = LOCATION_OF_INTEREST.id,
+    loiName: String? = LOCATION_OF_INTEREST_NAME,
+    shouldLoadFromDraft: Boolean = false,
+    draftValues: String? = null,
+  ) {
     val argsBundle =
       DataCollectionFragmentArgs.Builder(
-          LOCATION_OF_INTEREST.id,
-          LOCATION_OF_INTEREST_NAME,
+          loiId,
+          loiName,
           JOB.id,
           shouldLoadFromDraft,
           draftValues,
@@ -346,6 +374,12 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   private fun runner() = TaskFragmentRunner(this, fragment)
 
   companion object {
+    private const val TASK_ID_0 = "0"
+    const val TASK_0_NAME = "task 0"
+    private const val TASK_0_RESPONSE = "response 0"
+    private val TASK_0_VALUE = TextTaskData.fromString(TASK_0_RESPONSE)
+    private val TASK_0_VALUE_DELTA = ValueDelta(TASK_ID_0, Task.Type.TEXT, TASK_0_VALUE)
+
     private const val TASK_ID_1 = "1"
     const val TASK_1_NAME = "task 1"
     private const val TASK_1_RESPONSE = "response 1"
@@ -383,10 +417,11 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     private val TASKS =
       listOf(
-        Task(TASK_ID_1, 0, Task.Type.TEXT, TASK_1_NAME, true),
+        Task(TASK_ID_0, 0, Task.Type.TEXT, TASK_0_NAME, true, isAddLoiTask = true),
+        Task(TASK_ID_1, 1, Task.Type.TEXT, TASK_1_NAME, true),
         Task(
           TASK_ID_2,
-          1,
+          2,
           Task.Type.MULTIPLE_CHOICE,
           TASK_2_NAME,
           true,
@@ -394,7 +429,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         ),
         Task(
           TASK_ID_CONDITIONAL,
-          2,
+          3,
           Task.Type.TEXT,
           TASK_CONDITIONAL_NAME,
           true,

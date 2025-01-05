@@ -35,6 +35,7 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -156,6 +157,11 @@ class TaskFragmentRunner(
 
   internal fun validateTextIsNotDisplayed(text: String): TaskFragmentRunner {
     onView(withText(text)).check(matches(not(isDisplayed())))
+    return this
+  }
+
+  internal fun validateTextDoesNotExist(text: String): TaskFragmentRunner {
+    onView(withText(text)).check(doesNotExist())
     return this
   }
 
