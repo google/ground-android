@@ -63,6 +63,7 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
     addSkipButton()
     addUndoButton()
     // TODO: Disable the button is location is not available.
+    // Issue URL: https://github.com/google/ground-android/issues/2982
     addButton(ButtonAction.DROP_PIN)
       .setOnClickListener { viewModel.dropPin() }
       .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
