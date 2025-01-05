@@ -16,7 +16,6 @@
 
 package com.google.android.ground.ui.datacollection
 
-import android.os.Bundle
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
@@ -167,19 +166,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     // Issue URL: https://github.com/google/ground-android/issues/708
     val expectedDeltas = listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA)
 
-    // Start the fragment with draft values
-    setupFragment(
-      DataCollectionFragmentArgs.Builder(
-          LOCATION_OF_INTEREST.id,
-          LOCATION_OF_INTEREST_NAME,
-          JOB.id,
-          true,
-          SubmissionDeltasConverter.toString(expectedDeltas),
-          "",
-        )
-        .build()
-        .toBundle()
-    )
+    setupFragmentWithDraft(expectedDeltas)
 
     runner()
       .assertInputTextDisplayed(TASK_1_RESPONSE)
@@ -331,19 +318,22 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     advanceUntilIdle()
   }
 
-  private fun setupFragment(fragmentArgs: Bundle? = null) {
+  private fun setupFragmentWithDraft(expectedValues: List<ValueDelta>) {
+    setupFragment(true, SubmissionDeltasConverter.toString(expectedValues))
+  }
+
+  private fun setupFragment(shouldLoadFromDraft: Boolean = false, draftValues: String? = null) {
     val argsBundle =
-      fragmentArgs
-        ?: DataCollectionFragmentArgs.Builder(
-            LOCATION_OF_INTEREST.id,
-            LOCATION_OF_INTEREST_NAME,
-            JOB.id,
-            false,
-            null,
-            "",
-          )
-          .build()
-          .toBundle()
+      DataCollectionFragmentArgs.Builder(
+          LOCATION_OF_INTEREST.id,
+          LOCATION_OF_INTEREST_NAME,
+          JOB.id,
+          shouldLoadFromDraft,
+          draftValues,
+          /* currentTaskId */ "",
+        )
+        .build()
+        .toBundle()
 
     launchFragmentWithNavController<DataCollectionFragment>(
       argsBundle,
