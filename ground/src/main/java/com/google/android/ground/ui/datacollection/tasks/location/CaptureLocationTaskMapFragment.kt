@@ -47,6 +47,8 @@ class CaptureLocationTaskMapFragment @Inject constructor() :
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
-    viewLifecycleOwner.lifecycleScope.launch { taskViewModel.onMapReady(getMapViewModel()) }
+    viewLifecycleOwner.lifecycleScope.launch {
+      taskViewModel.initLocationUpdates(getMapViewModel())
+    }
   }
 }

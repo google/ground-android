@@ -23,10 +23,10 @@ import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.gms.getAccuracyOrNull
 import com.google.android.ground.ui.map.gms.getAltitudeOrNull
 import com.google.android.ground.ui.map.gms.toCoordinates
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
 
 /** Location lock states relevant for attempting to enable it or not. */
 enum class LocationLockEnabledState {
@@ -78,7 +78,9 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractTaskViewModel
     }
   }
 
-  suspend fun onMapReady(mapViewModel: BaseMapViewModel) {
+  // TODO: Investigate if this method be pulled to BasemapViewModel since location lock is available
+  //  for all map tasks.
+  suspend fun initLocationUpdates(mapViewModel: BaseMapViewModel) {
     val locationLockEnabledState =
       if (mapViewModel.hasLocationPermission()) {
         // User has permission to enable location updates, enable it now.
