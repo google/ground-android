@@ -79,6 +79,7 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractTaskViewModel
   }
 
   // TODO: Investigate if this method be pulled to BasemapViewModel since location lock is available
+  // Issue URL: https://github.com/google/ground-android/issues/2985
   //  for all map tasks.
   suspend fun initLocationUpdates(mapViewModel: BaseMapViewModel) {
     val locationLockEnabledState =
