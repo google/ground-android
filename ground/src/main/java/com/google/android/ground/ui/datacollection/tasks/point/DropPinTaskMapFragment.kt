@@ -28,13 +28,13 @@ class DropPinTaskMapFragment @Inject constructor() :
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
-    parentViewModel.updateCameraPosition(position)
+    taskViewModel.updateCameraPosition(position)
   }
 
-  override fun renderFeatures(): LiveData<Set<Feature>> = parentViewModel.features
+  override fun renderFeatures(): LiveData<Set<Feature>> = taskViewModel.features
 
   override fun setDefaultViewPort() {
-    val feature = parentViewModel.features.value?.firstOrNull() ?: return
+    val feature = taskViewModel.features.value?.firstOrNull() ?: return
     val coordinates = feature.geometry.center()
     moveToPosition(coordinates)
   }

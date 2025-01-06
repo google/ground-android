@@ -38,7 +38,7 @@ class CaptureLocationTaskMapFragment @Inject constructor() :
   ): View {
     val root = super.onCreateView(inflater, container, savedInstanceState)
     viewLifecycleOwner.lifecycleScope.launch {
-      getMapViewModel().getLocationUpdates().collect { parentViewModel.updateLocation(it) }
+      getMapViewModel().getLocationUpdates().collect { taskViewModel.updateLocation(it) }
     }
     return root
   }
@@ -47,6 +47,6 @@ class CaptureLocationTaskMapFragment @Inject constructor() :
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
-    viewLifecycleOwner.lifecycleScope.launch { parentViewModel.onMapReady(getMapViewModel()) }
+    viewLifecycleOwner.lifecycleScope.launch { taskViewModel.onMapReady(getMapViewModel()) }
   }
 }

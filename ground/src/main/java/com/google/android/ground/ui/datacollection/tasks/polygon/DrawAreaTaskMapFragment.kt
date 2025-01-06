@@ -31,23 +31,23 @@ class DrawAreaTaskMapFragment @Inject constructor() :
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
-    if (!parentViewModel.isMarkedComplete()) {
+    if (!taskViewModel.isMarkedComplete()) {
       val mapCenter = position.coordinates
-      parentViewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->
+      taskViewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->
         map.getDistanceInPixels(c1, c2)
       }
     }
   }
 
   override fun setDefaultViewPort() {
-    val feature = parentViewModel.draftArea.value
+    val feature = taskViewModel.draftArea.value
     val geometry = feature?.geometry ?: return
     val bounds = listOf(geometry).toBounds() ?: return
     moveToBounds(bounds, padding = 200, shouldAnimate = false)
   }
 
   override fun renderFeatures(): LiveData<Set<Feature>> =
-    parentViewModel.draftArea
+    taskViewModel.draftArea
       .map { feature: Feature? -> if (feature == null) setOf() else setOf(feature) }
       .asLiveData()
 }

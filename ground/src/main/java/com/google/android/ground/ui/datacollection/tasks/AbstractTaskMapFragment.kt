@@ -42,7 +42,7 @@ import java.text.DecimalFormat
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.MustBeInvokedByOverriders
 
-abstract class AbstractTaskMapFragment<PVM : AbstractTaskViewModel> :
+abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
   AbstractMapContainerFragment() {
 
   protected lateinit var binding: MapTaskFragBinding
@@ -50,11 +50,11 @@ abstract class AbstractTaskMapFragment<PVM : AbstractTaskViewModel> :
   protected val dataCollectionViewModel: DataCollectionViewModel by
     hiltNavGraphViewModels(R.id.data_collection)
 
-  protected val parentViewModel: PVM by lazy {
+  protected val taskViewModel: TVM by lazy {
     // Access to this viewModel is lazy for testing. This is because the NavHostController could
     // not be initialized before the Fragment under test is created, leading to
     // hiltNavGraphViewModels() to fail when called on launch.
-    dataCollectionViewModel.getTaskViewModel(taskId) as PVM
+    dataCollectionViewModel.getTaskViewModel(taskId) as TVM
   }
 
   private lateinit var viewModel: BaseMapViewModel
