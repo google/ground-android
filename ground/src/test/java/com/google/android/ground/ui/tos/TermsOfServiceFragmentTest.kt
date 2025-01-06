@@ -31,8 +31,10 @@ import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.model.TermsOfService
 import com.google.android.ground.repository.TermsOfServiceRepository
+import com.google.android.ground.system.NetworkManager
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import org.hamcrest.BaseMatcher
@@ -41,6 +43,8 @@ import org.hamcrest.Matcher
 import org.hamcrest.Matchers.not
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
@@ -52,6 +56,8 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
   @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepository
   @Inject lateinit var viewModel: TermsOfServiceViewModel
   private lateinit var navController: NavController
+
+  @BindValue @Mock lateinit var networkManager: NetworkManager
 
   private fun withHtml(html: String): Matcher<View> =
     object : BaseMatcher<View>() {
@@ -77,6 +83,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun termsOfServiceText_shouldBeDisplayed() {
+    whenever(networkManager.isNetworkConnected()).thenReturn(true)
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
 
     onView(withId(R.id.termsText))
