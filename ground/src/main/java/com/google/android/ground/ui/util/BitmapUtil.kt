@@ -32,9 +32,6 @@ class BitmapUtil @Inject internal constructor(@ApplicationContext private val co
   /**
    * Retrieves an image for the given URI as a [Bitmap].
    *
-   * For Android P (API 28) and above, it uses [ImageDecoder] for better performance and support for
-   * various image formats. For older APIs, it falls back to [BitmapFactory.decodeStream].
-   *
    * @param url The URI of the image.
    * @return The decoded [Bitmap].
    * @throws IllegalArgumentException If the URI cannot be opened or decoded.
