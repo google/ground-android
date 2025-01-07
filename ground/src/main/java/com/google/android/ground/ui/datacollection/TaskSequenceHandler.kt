@@ -83,6 +83,7 @@ class TaskSequenceHandler(
    * @return `true` if the task with the given data is the last in the sequence, `false` otherwise.
    */
   // TODO: Check if this method can be eliminated as it is confusing to pass value to this method.
+  // Issue URL: https://github.com/google/ground-android/issues/2987
   fun isLastPosition(taskId: String, value: TaskData?): Boolean {
     checkInvalidTaskId(taskId)
     return taskId == getTaskSequence(taskValueOverride = taskId to value).last().id
