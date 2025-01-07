@@ -26,7 +26,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class TaskSequenceHandlerImplTest {
+class TaskSequenceHandlerTest {
 
   private val task1 = Task("task1", 1, Type.TEXT, "Task 1", true)
   private val task2 = Task("task2", 2, Type.TEXT, "Task 2", true)
@@ -42,12 +42,12 @@ class TaskSequenceHandlerImplTest {
       { _, _ ->
         true
       },
-  ): TaskSequenceHandlerImpl = TaskSequenceHandlerImpl(tasks, shouldIncludeTask)
+  ): TaskSequenceHandler = TaskSequenceHandler(tasks, shouldIncludeTask)
 
   @Test
   fun `constructor should throw error when tasks are empty`() {
     assertThrows(IllegalStateException::class.java) {
-      TaskSequenceHandlerImpl(tasks = emptyList(), shouldIncludeTask = { _, _ -> true })
+      TaskSequenceHandler(tasks = emptyList(), shouldIncludeTask = { _, _ -> true })
     }
   }
 
