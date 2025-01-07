@@ -46,7 +46,7 @@ class TaskSequenceHandlerTest {
 
   @Test
   fun `constructor should throw error when tasks are empty`() {
-    assertThrows(IllegalStateException::class.java) {
+    assertThrows(IllegalArgumentException::class.java) {
       TaskSequenceHandler(tasks = emptyList(), shouldIncludeTask = { _, _ -> true })
     }
   }
@@ -101,7 +101,7 @@ class TaskSequenceHandlerTest {
   @Test
   fun `isFirstPosition throws error for invalid task id`() {
     val handler = createHandler()
-    assertThrows(IllegalStateException::class.java) { handler.isFirstPosition("") }
+    assertThrows(IllegalArgumentException::class.java) { handler.isFirstPosition("") }
   }
 
   @Test
@@ -125,7 +125,7 @@ class TaskSequenceHandlerTest {
   @Test
   fun `isLastPosition throws error for invalid task id`() {
     val handler = createHandler()
-    assertThrows(IllegalStateException::class.java) { handler.isLastPosition("") }
+    assertThrows(IllegalArgumentException::class.java) { handler.isLastPosition("") }
   }
 
   @Test
@@ -157,7 +157,7 @@ class TaskSequenceHandlerTest {
   @Test
   fun `isLastPosition with value throws error for invalid task id`() {
     val handler = createHandler()
-    assertThrows(IllegalStateException::class.java) { handler.isLastPosition("", null) }
+    assertThrows(IllegalArgumentException::class.java) { handler.isLastPosition("", null) }
   }
 
   @Test
@@ -169,7 +169,7 @@ class TaskSequenceHandlerTest {
   @Test
   fun `getPreviousTask throws error for invalid task id`() {
     val handler = createHandler()
-    assertThrows(IllegalStateException::class.java) { handler.getPreviousTask("") }
+    assertThrows(IllegalArgumentException::class.java) { handler.getPreviousTask("") }
   }
 
   @Test
@@ -187,7 +187,7 @@ class TaskSequenceHandlerTest {
   @Test
   fun `getNextTask throws error for invalid task id`() {
     val handler = createHandler()
-    assertThrows(IllegalStateException::class.java) { handler.getNextTask("") }
+    assertThrows(IllegalArgumentException::class.java) { handler.getNextTask("") }
   }
 
   @Test
@@ -205,13 +205,13 @@ class TaskSequenceHandlerTest {
   @Test
   fun `getAbsolutePosition throws error for invalid task id`() {
     val handler = createHandler()
-    assertThrows(IllegalStateException::class.java) { handler.getAbsolutePosition("") }
+    assertThrows(IllegalArgumentException::class.java) { handler.getAbsolutePosition("") }
   }
 
   @Test
   fun `getAbsolutePosition throws error when task is not found`() {
     val handler = createHandler()
-    assertThrows(IllegalStateException::class.java) { handler.getAbsolutePosition("invalid") }
+    assertThrows(IllegalArgumentException::class.java) { handler.getAbsolutePosition("invalid") }
   }
 
   @Test
@@ -224,13 +224,13 @@ class TaskSequenceHandlerTest {
   @Test
   fun `getRelativePosition throws error for invalid task id`() {
     val handler = createHandler()
-    assertThrows(IllegalStateException::class.java) { handler.getRelativePosition("") }
+    assertThrows(IllegalArgumentException::class.java) { handler.getRelativePosition("") }
   }
 
   @Test
   fun `getRelativePosition throws error when task is not found`() {
     val handler = createHandler()
-    assertThrows(IllegalStateException::class.java) { handler.getRelativePosition("invalid") }
+    assertThrows(IllegalArgumentException::class.java) { handler.getRelativePosition("invalid") }
   }
 
   @Test

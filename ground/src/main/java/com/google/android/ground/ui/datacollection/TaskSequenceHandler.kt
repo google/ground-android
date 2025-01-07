@@ -26,22 +26,16 @@ class TaskSequenceHandler(
 ) {
 
   init {
-    if (tasks.isEmpty()) {
-      error("Can't generate sequence for empty task list")
-    }
+    require(tasks.isNotEmpty()) { "Can't generate sequence for empty task list" }
   }
 
   private fun checkInvalidTaskId(taskId: String) {
-    if (taskId.isBlank()) {
-      error("Task ID can't be blank")
-    }
+    require(taskId.isNotBlank()) { "Task ID can't be blank" }
   }
 
   private fun checkInvalidIndex(taskId: String, index: Int) {
     checkInvalidTaskId(taskId)
-    if (index < 0) {
-      error("Task $taskId not found in task list")
-    }
+    require(index >= 0) { "Task $taskId not found in task list" }
   }
 
   /**
