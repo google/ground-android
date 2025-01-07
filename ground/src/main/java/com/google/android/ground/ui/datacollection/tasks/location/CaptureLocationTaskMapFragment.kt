@@ -20,30 +20,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
-import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.common.MapConfig
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
 import com.google.android.ground.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class CaptureLocationTaskMapFragment @Inject constructor() : AbstractMapFragmentWithControls() {
-
-  private lateinit var mapViewModel: CaptureLocationTaskMapViewModel
-  private val viewModel: CaptureLocationTaskViewModel by lazy {
-    // Access to this viewModel is lazy for testing. This is because the NavHostController could
-    // not be initialized before the Fragment under test is created, leading to
-    // hiltNavGraphViewModels() to fail when called on launch.
-    dataCollectionViewModel.getTaskViewModel(taskId) as CaptureLocationTaskViewModel
-  }
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    mapViewModel = getViewModel(CaptureLocationTaskMapViewModel::class.java)
-  }
-
-  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
+class CaptureLocationTaskMapFragment @Inject constructor() :
+  AbstractTaskMapFragment<CaptureLocationTaskViewModel>() {
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -52,13 +38,17 @@ class CaptureLocationTaskMapFragment @Inject constructor() : AbstractMapFragment
   ): View {
     val root = super.onCreateView(inflater, container, savedInstanceState)
     viewLifecycleOwner.lifecycleScope.launch {
-      getMapViewModel().getLocationUpdates().collect { viewModel.updateLocation(it) }
+      getMapViewModel().getLocationUpdates().collect { taskViewModel.updateLocation(it) }
     }
     return root
   }
 
+  override fun getMapConfig(): MapConfig = super.getMapConfig().copy(allowGestures = false)
+
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
-    viewLifecycleOwner.lifecycleScope.launch { viewModel.onMapReady(mapViewModel) }
+    viewLifecycleOwner.lifecycleScope.launch {
+      taskViewModel.initLocationUpdates(getMapViewModel())
+    }
   }
 }

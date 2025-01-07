@@ -182,7 +182,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     )
 
     runner()
-      .validateTextIsDisplayed(TASK_1_RESPONSE)
+      .assertInputTextDisplayed(TASK_1_RESPONSE)
       .clickNextButton()
       .assertOptionsDisplayed(TASK_2_OPTION_LABEL)
   }

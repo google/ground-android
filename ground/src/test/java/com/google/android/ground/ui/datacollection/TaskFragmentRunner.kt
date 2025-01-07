@@ -15,13 +15,13 @@
  */
 package com.google.android.ground.ui.datacollection
 
-import android.text.InputType
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasAnySibling
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
@@ -35,23 +35,21 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withInputType
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.CustomViewActions.forceTypeText
 import com.google.android.ground.R
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MULTIPLE_CHOICE_LIST_TEST_TAG
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.OTHER_INPUT_TEXT_TEST_TAG
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.SELECT_MULTIPLE_RADIO_TEST_TAG
+import com.google.android.ground.ui.datacollection.tasks.number.INPUT_NUMBER_TEST_TAG
+import com.google.android.ground.ui.datacollection.tasks.text.INPUT_TEXT_TEST_TAG
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.CoreMatchers.not
-import org.hamcrest.Matchers.allOf
 
 /** Helper class for interacting with the data collection tasks and verifying the ui state. */
 class TaskFragmentRunner(
@@ -73,16 +71,38 @@ class TaskFragmentRunner(
     return this
   }
 
+  private fun getTextInputNode() = baseHiltTest.composeTestRule.onNodeWithTag(INPUT_TEXT_TEST_TAG)
+
   internal fun inputText(text: String): TaskFragmentRunner {
-    onView(allOf(withId(R.id.user_response_text), isDisplayed())).perform(typeText(text))
+    getTextInputNode().assertIsDisplayed().performTextInput(text)
     return this
   }
 
+  internal fun clearInputText(): TaskFragmentRunner {
+    getTextInputNode().performTextClearance()
+    return this
+  }
+
+  internal fun assertInputTextDisplayed(text: String): TaskFragmentRunner {
+    getTextInputNode().assertIsDisplayed().assertTextContains(text)
+    return this
+  }
+
+  private fun getNumberInputNode() =
+    baseHiltTest.composeTestRule.onNodeWithTag(INPUT_NUMBER_TEST_TAG)
+
   internal fun inputNumber(number: Double): TaskFragmentRunner {
-    val decimalNumberFlag = InputType.TYPE_CLASS_NUMBER + InputType.TYPE_NUMBER_FLAG_DECIMAL
-    onView(withId(R.id.user_response_text))
-      .check(matches(withInputType(decimalNumberFlag)))
-      .perform(forceTypeText(number.toString()))
+    getNumberInputNode().performTextInput(number.toString())
+    return this
+  }
+
+  internal fun clearInputNumber(): TaskFragmentRunner {
+    getNumberInputNode().performTextClearance()
+    return this
+  }
+
+  internal fun assertInputNumberDisplayed(text: String): TaskFragmentRunner {
+    getNumberInputNode().assertIsDisplayed().assertTextContains(text)
     return this
   }
 
