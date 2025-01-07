@@ -82,6 +82,7 @@ class TaskSequenceHandler(
    * @param value The [TaskData] associated with the task.
    * @return `true` if the task with the given data is the last in the sequence, `false` otherwise.
    */
+  // TODO: Check if this method can be eliminated as it is confusing to pass value to this method.
   fun isLastPosition(taskId: String, value: TaskData?): Boolean {
     checkInvalidTaskId(taskId)
     return taskId == getTaskSequence(taskValueOverride = taskId to value).last().id
