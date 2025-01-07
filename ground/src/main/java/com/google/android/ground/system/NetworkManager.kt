@@ -27,6 +27,7 @@ import javax.inject.Singleton
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import timber.log.Timber
 
 enum class NetworkStatus {
   AVAILABLE,
@@ -68,6 +69,9 @@ class NetworkManager @Inject constructor(@ApplicationContext private val context
       context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val activeNetwork = connectivityManager.activeNetwork
     val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
-    return networkCapabilities?.hasCapability(NET_CAPABILITY_INTERNET) == true
+
+    val isConnected = networkCapabilities?.hasCapability(NET_CAPABILITY_INTERNET) ?: false
+    Timber.d("Network connected: $isConnected")
+    return isConnected
   }
 }
