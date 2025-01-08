@@ -27,7 +27,6 @@ import javax.inject.Singleton
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import timber.log.Timber
 
 enum class NetworkStatus {
   AVAILABLE,
@@ -62,16 +61,11 @@ class NetworkManager @Inject constructor(@ApplicationContext private val context
     }
   }
 
-  /** Returns true if the device has internet connectivity, false otherwise. */
+  /** Returns true iff the device has internet connectivity, false otherwise. */
   @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
   fun isNetworkConnected(): Boolean {
-    val connectivityManager =
-      context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    val activeNetwork = connectivityManager.activeNetwork
-    val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
-
-    val isConnected = networkCapabilities?.hasCapability(NET_CAPABILITY_INTERNET) ?: false
-    Timber.d("Network connected: $isConnected")
-    return isConnected
+    val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val networkInfo = cm.activeNetworkInfo
+    return networkInfo?.isConnected ?: false
   }
 }
