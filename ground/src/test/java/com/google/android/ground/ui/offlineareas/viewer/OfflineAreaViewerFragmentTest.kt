@@ -28,7 +28,10 @@ import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
+import com.google.android.ground.ui.common.MapConfig
+import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.util.view.isGone
+import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.OFFLINE_AREA
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -77,6 +80,20 @@ class OfflineAreaViewerFragmentTest : BaseHiltTest() {
     onView(withId(R.id.remove_button)).check(matches(isNotEnabled()))
     onView(withId(R.id.remove_button))
       .check(matches(withText(fragment.getString(R.string.offline_area_viewer_remove_button))))
+  }
+
+  @Test
+  fun `default mapConfig value should be correct`() {
+    setupFragment()
+
+    assertThat(fragment.getMapConfig())
+      .isEqualTo(
+        MapConfig(
+          allowGestures = false,
+          overrideMapType = MapType.TERRAIN,
+          showOfflineImagery = true,
+        )
+      )
   }
 
   private fun setupFragment() = runWithTestDispatcher {

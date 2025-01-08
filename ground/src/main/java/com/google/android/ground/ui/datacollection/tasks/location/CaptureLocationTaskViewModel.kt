@@ -50,7 +50,7 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractTaskViewModel
   private val _enableLocationLockFlow = MutableStateFlow(LocationLockEnabledState.UNKNOWN)
   val enableLocationLockFlow = _enableLocationLockFlow.asStateFlow()
 
-  suspend fun updateLocation(location: Location) {
+  fun updateLocation(location: Location) {
     _lastLocation.update { location }
   }
 
@@ -78,7 +78,10 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractTaskViewModel
     }
   }
 
-  suspend fun onMapReady(mapViewModel: BaseMapViewModel) {
+  // TODO: Investigate if this method be pulled to BasemapViewModel since location lock is available
+  // Issue URL: https://github.com/google/ground-android/issues/2985
+  //  for all map tasks.
+  suspend fun initLocationUpdates(mapViewModel: BaseMapViewModel) {
     val locationLockEnabledState =
       if (mapViewModel.hasLocationPermission()) {
         // User has permission to enable location updates, enable it now.

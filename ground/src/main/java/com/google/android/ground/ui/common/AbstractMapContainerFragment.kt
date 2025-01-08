@@ -67,7 +67,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   private fun applyMapConfig(map: MapFragment) {
     val viewModel = getMapViewModel()
-    val config = viewModel.mapConfig
+    val config = getMapConfig()
 
     // Map type
     if (config.overrideMapType != null) {
@@ -166,4 +166,11 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   /** Provides an implementation of [BaseMapViewModel]. */
   protected abstract fun getMapViewModel(): BaseMapViewModel
+
+  /** Configuration to enable/disable base map features. */
+  open fun getMapConfig() = DEFAULT_MAP_CONFIG
+
+  companion object {
+    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showOfflineImagery = true)
+  }
 }

@@ -17,10 +17,13 @@ package com.google.android.ground.ui
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BlendMode
+import android.graphics.BlendModeColorFilter
 import android.graphics.Canvas
 import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.os.Build
 import androidx.appcompat.content.res.AppCompatResources
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -52,7 +55,11 @@ class IconFactory @Inject constructor(@ApplicationContext private val context: C
 
     outline.setBounds(0, 0, bitmap.width, bitmap.height)
     outline.draw(canvas)
-    fill!!.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      fill!!.colorFilter = BlendModeColorFilter(color, BlendMode.SRC_ATOP)
+    } else {
+      fill!!.setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+    }
     fill.setBounds(0, 0, bitmap.width, bitmap.height)
     fill.draw(canvas)
     overlay!!.setBounds(0, 0, bitmap.width, bitmap.height)

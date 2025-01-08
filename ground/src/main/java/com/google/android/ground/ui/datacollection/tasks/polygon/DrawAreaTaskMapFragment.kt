@@ -15,63 +15,39 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
-import android.os.Bundle
-import androidx.lifecycle.lifecycleScope
-import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
-import com.google.android.ground.ui.common.BaseMapViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.gms.GmsExt.toBounds
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
 
 @AndroidEntryPoint
-class DrawAreaTaskMapFragment @Inject constructor() : AbstractMapFragmentWithControls() {
-
-  private lateinit var mapViewModel: BaseMapViewModel
-
-  private val viewModel: DrawAreaTaskViewModel by lazy {
-    // Access to this viewModel is lazy for testing. This is because the NavHostController could
-    // not be initialized before the Fragment under test is created, leading to
-    // hiltNavGraphViewModels() to fail when called on launch.
-    dataCollectionViewModel.getTaskViewModel(taskId) as DrawAreaTaskViewModel
-  }
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-
-    mapViewModel = getViewModel(BaseMapViewModel::class.java)
-  }
-
-  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
-
-  override fun onMapReady(map: MapFragment) {
-    super.onMapReady(map)
-    viewLifecycleOwner.lifecycleScope.launch {
-      viewModel.draftArea.collect { feature: Feature? ->
-        map.setFeatures(if (feature == null) setOf() else setOf(feature))
-      }
-    }
-
-    // If the task has any previously drawn area, restore map viewport to the feature.
-    moveViewportToFeature(viewModel.draftArea.value)
-  }
+class DrawAreaTaskMapFragment @Inject constructor() :
+  AbstractTaskMapFragment<DrawAreaTaskViewModel>() {
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
-    if (!viewModel.isMarkedComplete()) {
+    if (!taskViewModel.isMarkedComplete()) {
       val mapCenter = position.coordinates
-      viewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->
+      taskViewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->
         map.getDistanceInPixels(c1, c2)
       }
     }
   }
 
-  private fun moveViewportToFeature(feature: Feature?) {
+  override fun setDefaultViewPort() {
+    val feature = taskViewModel.draftArea.value
     val geometry = feature?.geometry ?: return
     val bounds = listOf(geometry).toBounds() ?: return
     moveToBounds(bounds, padding = 200, shouldAnimate = false)
   }
+
+  override fun renderFeatures(): LiveData<Set<Feature>> =
+    taskViewModel.draftArea
+      .map { feature: Feature? -> if (feature == null) setOf() else setOf(feature) }
+      .asLiveData()
 }

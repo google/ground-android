@@ -17,7 +17,6 @@ package com.google.android.ground.ui.common
 
 import android.content.res.ColorStateList
 import android.net.Uri
-import android.text.TextWatcher
 import android.view.View
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
@@ -25,7 +24,6 @@ import androidx.core.widget.ImageViewCompat
 import androidx.databinding.BindingAdapter
 import com.google.android.gms.common.SignInButton
 import com.google.android.ground.R
-import com.google.android.material.textfield.TextInputEditText
 import com.squareup.picasso.Picasso
 import timber.log.Timber
 
@@ -39,12 +37,6 @@ object BindingAdapters {
   @BindingAdapter("onClick")
   fun bindGoogleSignOnButtonClick(button: SignInButton, onClickCallback: View.OnClickListener?) {
     button.setOnClickListener(onClickCallback)
-  }
-
-  @JvmStatic
-  @BindingAdapter("textChangedListener")
-  fun bindTextWatcher(editText: TextInputEditText, textWatcher: TextWatcher) {
-    editText.addTextChangedListener(textWatcher)
   }
 
   @JvmStatic

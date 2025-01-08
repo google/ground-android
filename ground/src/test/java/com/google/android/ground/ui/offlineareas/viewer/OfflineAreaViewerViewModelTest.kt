@@ -17,7 +17,6 @@ package com.google.android.ground.ui.offlineareas.viewer
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
-import com.google.android.ground.ui.map.MapType
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.OFFLINE_AREA
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -56,13 +55,6 @@ class OfflineAreaViewerViewModelTest : BaseHiltTest() {
     advanceUntilIdle()
 
     assertThat(localOfflineAreaStore.getOfflineAreaById("id_1")).isNull()
-  }
-
-  @Test
-  fun `default mapConfig value should be correct`() {
-    assertThat(offlineAreaViewerViewModel.mapConfig.showOfflineImagery).isTrue()
-    assertThat(offlineAreaViewerViewModel.mapConfig.overrideMapType).isEqualTo(MapType.TERRAIN)
-    assertThat(offlineAreaViewerViewModel.mapConfig.allowGestures).isFalse()
   }
 
   @Test
