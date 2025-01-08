@@ -26,7 +26,7 @@
   </data>
 
   <com.google.android.material.textfield.TextInputLayout
-    android:id="@+id/number_input_layout"
+    android:id="@+id/date_input_layout"
     style="@style/EditSubmission.Task.Text"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
@@ -38,11 +38,11 @@
       android:enabled="true"
       android:focusable="false"
       android:focusableInTouchMode="false"
+      android:hint="@{fragment.dateTextHint}"
       android:inputType="datetime"
       android:maxLines="1"
       android:onClick="@{__ -> fragment.showDateDialog()}"
       android:text="@{fragment.dateText}"
-      android:hint="@{fragment.dateTextHint}"
       tools:text="@string/date" />
   </com.google.android.material.textfield.TextInputLayout>
 </layout>

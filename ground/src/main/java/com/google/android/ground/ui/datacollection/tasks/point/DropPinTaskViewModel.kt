@@ -62,7 +62,7 @@ constructor(
     features.postValue(setOf())
   }
 
-  fun updateResponse(point: Point) {
+  private fun updateResponse(point: Point) {
     setValue(DropPinTaskData(point))
     dropMarker(point)
   }

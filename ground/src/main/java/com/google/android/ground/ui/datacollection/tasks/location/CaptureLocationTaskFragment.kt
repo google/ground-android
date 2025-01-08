@@ -28,11 +28,11 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
-import com.google.android.ground.ui.common.AbstractMapFragmentWithControls.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -56,7 +56,7 @@ class CaptureLocationTaskFragment @Inject constructor() :
     val args = Bundle()
     args.putString(TASK_ID_FRAGMENT_ARG_KEY, taskId)
     fragment.arguments = args
-    parentFragmentManager
+    childFragmentManager
       .beginTransaction()
       .add(rowLayout.id, fragment, CaptureLocationTaskMapFragment::class.java.simpleName)
       .commit()

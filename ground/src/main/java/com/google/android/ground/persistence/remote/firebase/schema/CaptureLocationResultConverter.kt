@@ -30,7 +30,7 @@ object CaptureLocationResultConverter {
     JSONObject().apply {
       put(ACCURACY_KEY, accuracy)
       put(ALTITUDE_KEY, altitude)
-      put(GEOMETRY_KEY, GeometryWrapperTypeConverter.toString(geometry))
+      put(GEOMETRY_KEY, GeometryWrapperTypeConverter.toString(location))
     }
 
   fun JSONObject.toCaptureLocationTaskData(): CaptureLocationTaskData {

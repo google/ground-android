@@ -21,7 +21,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 class SkippedTaskData : TaskData {
 
-  override fun getDetailsText(): String = ""
-
   override fun isEmpty(): Boolean = true
 }

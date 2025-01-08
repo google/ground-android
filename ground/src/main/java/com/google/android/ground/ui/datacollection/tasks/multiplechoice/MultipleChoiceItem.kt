@@ -24,9 +24,4 @@ data class MultipleChoiceItem(
   val isSelected: Boolean = false,
   val isOtherOption: Boolean = false,
   val otherText: String = "",
-) {
-  fun isTheSameItem(otherItem: MultipleChoiceItem): Boolean = this.option.id == otherItem.option.id
-
-  fun areContentsTheSame(otherItem: MultipleChoiceItem): Boolean =
-    otherItem.isSelected == this.isSelected
-}
+)

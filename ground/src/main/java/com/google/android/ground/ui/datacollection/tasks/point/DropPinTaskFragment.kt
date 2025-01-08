@@ -26,12 +26,12 @@ import androidx.compose.ui.platform.ComposeView
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
-import com.google.android.ground.ui.common.AbstractMapFragmentWithControls.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.InstructionsDialog
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -52,7 +52,7 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
     val args = Bundle()
     args.putString(TASK_ID_FRAGMENT_ARG_KEY, taskId)
     fragment.arguments = args
-    parentFragmentManager
+    childFragmentManager
       .beginTransaction()
       .add(rowLayout.id, fragment, "Drop a pin fragment")
       .commit()
@@ -62,6 +62,8 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
   override fun onCreateActionButtons() {
     addSkipButton()
     addUndoButton()
+    // TODO: Disable the button is location is not available.
+    // Issue URL: https://github.com/google/ground-android/issues/2982
     addButton(ButtonAction.DROP_PIN)
       .setOnClickListener { viewModel.dropPin() }
       .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
