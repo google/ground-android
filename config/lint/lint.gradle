@@ -22,7 +22,7 @@
  * To run manually:
  *   $ ./gradlew lintLocalDebug
  *
- * Reports (both html and xml formats) are stored under: ground/build/reports/lint/
+ * Reports (both html and xml formats) are stored under: app/build/reports/lint/
  */
 
 def configDir = "${project.rootDir}/config/lint"

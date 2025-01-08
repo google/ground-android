@@ -132,12 +132,12 @@ runs:
             env:
                 GOOGLE_MAPS_KEY: ${{ inputs.google-maps-key }}
             run: |
-                sed -E -i 's/("current_key": ")[[:alnum:]_-]+(")/\1'"$GOOGLE_MAPS_KEY"'\2/' ground/src/debug/local/google-services.json
+                sed -E -i 's/("current_key": ")[[:alnum:]_-]+(")/\1'"$GOOGLE_MAPS_KEY"'\2/' app/src/debug/local/google-services.json
 
         -   name: Move the local google-services.json
             shell: bash
             run: |
-                cp -r ground/src/debug/local/google-services.json ground/src/debug/
+                cp -r app/src/debug/local/google-services.json app/src/debug/
 
         -   name: Build projects and run instrumentation tests
             uses: reactivecircus/android-emulator-runner@v2

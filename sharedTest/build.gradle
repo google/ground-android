@@ -52,8 +52,7 @@ android {
 }
 
 dependencies {
-    implementation project(':ground')
-
+    implementation project(':app')
     // Room
     implementation "androidx.room:room-runtime:$roomVersion"
 
