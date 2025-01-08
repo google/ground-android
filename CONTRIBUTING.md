@@ -154,7 +154,7 @@ either the commit message for your changes or in your pull request.
     $ keytool -list -v -keystore "$HOME/.android/debug.keystore" -alias androiddebugkey -storepass android -keypass android
     ```
 
-4. Download the config file for the Android app to `ground/src/debug/google-services.json`
+4. Download the config file for the Android app to `app/src/debug/google-services.json`
 
 ### Set up Google Cloud Build (optional)
 
@@ -193,7 +193,7 @@ $ gcloud builds submit --config=cloudbuild.yaml --substitutions=_ANDROID_VERSION
    java.lang.RuntimeException: Unable to get provider com.google.firebase.provider.FirebaseInitProvider: java.lang.IllegalArgumentException: Given String is empty or null
    ```
     
-  Solution: Ensure `ground/src/debug/google-services.json` exists and is valid, as per instructions in [Set up Firebase](#set-up-firebase). You may need to perform a clean build in Android Studio by going to Build -> Clean Project.
+  Solution: Ensure `app/src/debug/google-services.json` exists and is valid, as per instructions in [Set up Firebase](#set-up-firebase). You may need to perform a clean build in Android Studio by going to Build -> Clean Project.
 
 * Gradle Build fails with "License for package Android SDK Platform ... not accepted":
 
