@@ -148,7 +148,7 @@ internal constructor(
   lateinit var submissionId: String
 
   private val taskSequenceHandler: TaskSequenceHandler =
-    TaskSequenceHandlerImpl(tasks, ::shouldIncludeTask)
+    TaskSequenceHandler(tasks, ::shouldIncludeTask)
 
   init {
     if (currentTaskId.value == "") {
