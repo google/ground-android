@@ -18,7 +18,18 @@ package com.google.android.ground.ui.datacollection
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 
-/** Handles the operations related to task sequences. */
+/**
+ * Manages operations related to a sequence of tasks.
+ *
+ * This class provides methods to retrieve, navigate, and query the position of tasks within a
+ * sequence. The sequence is derived from a list of [Task] objects, filtered based on a provided
+ * condition.
+ *
+ * @param tasks The complete list of [Task] objects from which the sequence is derived.
+ * @param shouldIncludeTask A callback function that determines whether a given [Task] should be
+ *   included in the sequence. It takes a [Task] and an optional override pair as input and returns
+ *   `true` if the task should be included, `false` otherwise.
+ */
 class TaskSequenceHandler(
   private val tasks: List<Task>,
   private val shouldIncludeTask:
@@ -26,16 +37,16 @@ class TaskSequenceHandler(
 ) {
 
   init {
-    require(tasks.isNotEmpty()) { "Can't generate sequence for empty task list" }
+    require(tasks.isNotEmpty()) { "Can't generate a sequence from an empty task list." }
   }
 
   private fun checkInvalidTaskId(taskId: String) {
-    require(taskId.isNotBlank()) { "Task ID can't be blank" }
+    require(taskId.isNotBlank()) { "Task ID can't be blank." }
   }
 
   private fun checkInvalidIndex(taskId: String, index: Int) {
     checkInvalidTaskId(taskId)
-    require(index >= 0) { "Task $taskId not found in task list" }
+    require(index >= 0) { "Task '$taskId' not found in the task list." }
   }
 
   /**
@@ -56,6 +67,7 @@ class TaskSequenceHandler(
    *
    * @param taskId The ID of the task to check.
    * @return `true` if the task is the first in the sequence, `false` otherwise.
+   * @throws IllegalArgumentException if the provided [taskId] is blank.
    */
   fun isFirstPosition(taskId: String): Boolean {
     checkInvalidTaskId(taskId)
@@ -67,6 +79,7 @@ class TaskSequenceHandler(
    *
    * @param taskId The ID of the task to check.
    * @return `true` if the task is the last in the sequence, `false` otherwise.
+   * @throws IllegalArgumentException if the provided [taskId] is blank.
    */
   fun isLastPosition(taskId: String): Boolean {
     checkInvalidTaskId(taskId)
@@ -81,6 +94,7 @@ class TaskSequenceHandler(
    * @param taskId The ID of the task to check.
    * @param value The [TaskData] associated with the task.
    * @return `true` if the task with the given data is the last in the sequence, `false` otherwise.
+   * @throws IllegalArgumentException if the provided [taskId] is blank.
    */
   // TODO: Check if this method can be eliminated as it is confusing to pass value to this method.
   // Issue URL: https://github.com/google/ground-android/issues/2987
@@ -94,6 +108,8 @@ class TaskSequenceHandler(
    *
    * @param taskId The ID of the task for which to find the previous task.
    * @return The ID of the previous task in the sequence.
+   * @throws IllegalArgumentException if the provided [taskId] is blank.
+   * @throws NoSuchElementException if the provided [taskId] is the first element in the sequence.
    */
   fun getPreviousTask(taskId: String): String {
     checkInvalidTaskId(taskId)
@@ -105,6 +121,8 @@ class TaskSequenceHandler(
    *
    * @param taskId The ID of the task for which to find the next task.
    * @return The ID of the next task in the sequence.
+   * @throws IllegalArgumentException if the provided [taskId] is blank.
+   * @throws NoSuchElementException if the provided [taskId] is the last element in the sequence.
    */
   fun getNextTask(taskId: String): String {
     checkInvalidTaskId(taskId)
@@ -118,7 +136,8 @@ class TaskSequenceHandler(
    * modifications that may have occurred.
    *
    * @param taskId The ID of the task for which to find the absolute position.
-   * @throws error if the task is not found in the original task sequence.
+   * @throws IllegalArgumentException if the provided [taskId] is blank.
+   * @throws NoSuchElementException if the task is not found in the original task sequence.
    */
   fun getAbsolutePosition(taskId: String): Int {
     val index = tasks.indexOfFirst { it.id == taskId }
@@ -132,7 +151,8 @@ class TaskSequenceHandler(
    * The relative index represents the task's position within the currently displayed sequence.
    *
    * @param taskId The ID of the task for which to find the relative position.
-   * @throws error if the task is not found in the computed task sequence.
+   * @throws IllegalArgumentException if the provided [taskId] is blank.
+   * @throws NoSuchElementException if the task is not found in the computed task sequence.
    */
   fun getRelativePosition(taskId: String): Int {
     val index = getTaskSequence().indexOfFirst { it.id == taskId }
@@ -143,7 +163,9 @@ class TaskSequenceHandler(
   /**
    * Retrieves the position information for the specified task.
    *
-   * @param taskId THE ID of the task for which to find the position information.
+   * @param taskId The ID of the task for which to find the position information.
+   * @throws IllegalArgumentException if the provided [taskId] is blank.
+   * @throws NoSuchElementException if the task is not found in the computed task sequence.
    */
   fun getTaskPosition(taskId: String): TaskPosition {
     checkInvalidTaskId(taskId)
