@@ -15,39 +15,27 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.point
 
-import android.os.Bundle
-import com.google.android.ground.ui.common.AbstractMapFragmentWithControls
-import com.google.android.ground.ui.common.BaseMapViewModel
+import androidx.lifecycle.LiveData
+import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.Feature
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DropPinTaskMapFragment @Inject constructor() : AbstractMapFragmentWithControls() {
-
-  private lateinit var mapViewModel: BaseMapViewModel
-  private val viewModel: DropPinTaskViewModel by lazy {
-    // Access to this viewModel is lazy for testing. This is because the NavHostController could
-    // not be initialized before the Fragment under test is created, leading to
-    // hiltNavGraphViewModels() to fail when called on launch.
-    dataCollectionViewModel.getTaskViewModel(taskId) as DropPinTaskViewModel
-  }
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    mapViewModel = getViewModel(BaseMapViewModel::class.java)
-  }
-
-  override fun getMapViewModel(): BaseMapViewModel = mapViewModel
-
-  override fun onMapReady(map: MapFragment) {
-    super.onMapReady(map)
-    viewModel.features.observe(this) { map.setFeatures(it) }
-  }
+class DropPinTaskMapFragment @Inject constructor() :
+  AbstractTaskMapFragment<DropPinTaskViewModel>() {
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
-    viewModel.updateCameraPosition(position)
+    taskViewModel.updateCameraPosition(position)
+  }
+
+  override fun renderFeatures(): LiveData<Set<Feature>> = taskViewModel.features
+
+  override fun setDefaultViewPort() {
+    val feature = taskViewModel.features.value?.firstOrNull() ?: return
+    val coordinates = feature.geometry.center()
+    moveToPosition(coordinates)
   }
 }
