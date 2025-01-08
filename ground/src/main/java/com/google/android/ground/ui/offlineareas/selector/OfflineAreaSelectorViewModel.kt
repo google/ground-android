@@ -25,6 +25,7 @@ import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.system.LocationManager
+import com.google.android.ground.system.NetworkManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
@@ -56,6 +57,7 @@ internal constructor(
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
   locationOfInterestRepository: LocationOfInterestRepository,
+  private val networkManager: NetworkManager,
 ) :
   BaseMapViewModel(
     locationManager,
@@ -79,7 +81,16 @@ internal constructor(
   private val _navigate = MutableSharedFlow<UiState>(replay = 0)
   val navigate = _navigate.asSharedFlow()
 
+  private val _showPopupEvent = MutableSharedFlow<Boolean>()
+  val showPopupEvent = _showPopupEvent.asSharedFlow()
+
   fun onDownloadClick() {
+    val isConnected = networkManager.isNetworkConnected()
+    if (!isConnected) {
+      viewModelScope.launch { _showPopupEvent.emit(true) }
+      return
+    }
+
     if (viewport == null) {
       // Download was likely clicked before map was ready.
       return
