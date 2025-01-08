@@ -207,4 +207,4 @@ $ gcloud builds submit --config=cloudbuild.yaml --substitutions=_ANDROID_VERSION
     com.google.android.gms.common.api.ApiException: 10:
     ```
 
-  Solution: Run `./gradlew :ground:signingReport` in the terminal, and check if the 'SHA1' value of the current 'Build variants' type matches with your Firebase Project.
+  Solution: Run `./gradlew :app:signingReport` in the terminal, and check if the 'SHA1' value of the current 'Build variants' type matches with your Firebase Project.
