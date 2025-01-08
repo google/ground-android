@@ -17,33 +17,42 @@ package com.google.android.ground.ui.util
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Canvas
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
-import android.provider.MediaStore
+import android.os.Build
+import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.io.IOException
 import javax.inject.Inject
 
 class BitmapUtil @Inject internal constructor(@ApplicationContext private val context: Context) {
 
-  /** Retrieves an image for the given url as a [Bitmap]. */
-  @Throws(IOException::class)
-  fun fromUri(url: Uri?): Bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, url)
+  /**
+   * Retrieves an image for the given URI as a [Bitmap].
+   *
+   * @param url The URI of the image.
+   * @return The decoded [Bitmap].
+   * @throws IllegalArgumentException If the URI cannot be opened or decoded.
+   */
+  fun fromUri(url: Uri): Bitmap =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, url))
+    } else {
+      // Use InputStream and BitmapFactory for older APIs
+      context.contentResolver.openInputStream(url)?.use { BitmapFactory.decodeStream(it) }
+        ?: throw IllegalArgumentException("Unable to open URI: $url")
+    }
 
-  fun fromVector(resId: Int): Bitmap {
-    val vectorDrawable = ContextCompat.getDrawable(context, resId)!!
-
-    // Specify a bounding rectangle for the Drawable.
-    vectorDrawable.setBounds(0, 0, vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight)
-    val bitmap =
-      Bitmap.createBitmap(
-        vectorDrawable.intrinsicWidth,
-        vectorDrawable.intrinsicHeight,
-        Bitmap.Config.ARGB_8888,
-      )
-    val canvas = Canvas(bitmap)
-    vectorDrawable.draw(canvas)
-    return bitmap
-  }
+  /**
+   * Retrieves an image for the given vector resource as a [Bitmap].
+   *
+   * @param resId The resource ID of the vector drawable.
+   * @return The decoded [Bitmap], or null if the resource is not found.
+   * @throws IllegalArgumentException If the resource is not a vector drawable.
+   */
+  fun fromVector(@DrawableRes resId: Int): Bitmap =
+    ContextCompat.getDrawable(context, resId)?.toBitmap()
+      ?: throw IllegalArgumentException("Resource not found: $resId")
 }

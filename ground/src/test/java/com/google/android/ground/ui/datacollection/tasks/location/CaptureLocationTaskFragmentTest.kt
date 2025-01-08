@@ -24,10 +24,12 @@ import com.google.android.ground.model.submission.CaptureLocationTaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.system.LocationManager
+import com.google.android.ground.ui.common.MapConfig
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.DataCollectionViewModel
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.tasks.BaseTaskFragmentTest
+import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -154,6 +156,14 @@ class CaptureLocationTaskFragmentTest :
       .assertButtonIsHidden("Skip")
       .assertButtonIsHidden("Undo", true)
       .assertButtonIsEnabled("Capture")
+  }
+
+  @Test
+  fun testGetMapConfig() {
+    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
+
+    assertThat(fragment.captureLocationTaskMapFragmentProvider.get().getMapConfig())
+      .isEqualTo(MapConfig(showOfflineImagery = true, allowGestures = false))
   }
 
   private suspend fun setupLocation() {

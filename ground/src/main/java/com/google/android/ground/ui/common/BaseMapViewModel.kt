@@ -114,9 +114,6 @@ constructor(
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-  /** Configuration to enable/disable base map features. */
-  open val mapConfig: MapConfig = DEFAULT_MAP_CONFIG
-
   /** Flow of current position of camera. */
   var currentCameraPosition = MutableStateFlow<CameraPosition?>(null)
     private set
@@ -274,9 +271,5 @@ constructor(
     Timber.v("Camera moved : ${newCameraPosition.coordinates}")
     currentCameraPosition.value = newCameraPosition
     mapStateRepository.setCameraPosition(newCameraPosition)
-  }
-
-  companion object {
-    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showOfflineImagery = true)
   }
 }

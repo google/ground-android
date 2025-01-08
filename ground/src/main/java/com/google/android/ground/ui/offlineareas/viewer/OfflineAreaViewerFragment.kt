@@ -26,7 +26,9 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.ground.databinding.OfflineAreaViewerFragBinding
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.common.MapConfig
 import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.ui.map.MapType
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -44,6 +46,10 @@ class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFrag
     viewModel = getViewModel(OfflineAreaViewerViewModel::class.java)
     viewModel.initialize(args.offlineAreaId)
   }
+
+  override fun getMapConfig(): MapConfig =
+    super.getMapConfig()
+      .copy(allowGestures = false, overrideMapType = MapType.TERRAIN, showOfflineImagery = true)
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
