@@ -19,6 +19,7 @@ package com.google.android.ground.ui.map.gms.mog
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.os.Build
 import java.io.ByteArrayOutputStream
 
 /** Utility for modifying images. */
@@ -47,7 +48,11 @@ object ImageEditor {
     // compressing WEBP each tile adds on the order of 1ms to each tile which we can consider
     // negligible.
     val stream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.WEBP, 100, stream)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 100, stream)
+    } else {
+      bitmap.compress(Bitmap.CompressFormat.WEBP, 100, stream)
+    }
     return stream.toByteArray()
   }
 }

@@ -28,11 +28,9 @@ import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
-import com.google.android.ground.ui.common.MapConfig
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
-import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.util.toMb
 import com.google.android.ground.util.toMbString
 import javax.inject.Inject
@@ -80,14 +78,6 @@ internal constructor(
 
   private val _navigate = MutableSharedFlow<UiState>(replay = 0)
   val navigate = _navigate.asSharedFlow()
-
-  override val mapConfig: MapConfig
-    get() =
-      super.mapConfig.copy(
-        showOfflineImagery = false,
-        overrideMapType = MapType.TERRAIN,
-        allowRotateGestures = false,
-      )
 
   fun onDownloadClick() {
     if (viewport == null) {
