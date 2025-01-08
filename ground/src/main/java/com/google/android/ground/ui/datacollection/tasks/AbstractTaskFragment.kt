@@ -46,9 +46,9 @@ import com.google.android.ground.ui.datacollection.components.LoiNameDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.theme.AppTheme
-import kotlin.properties.Delegates
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
+import kotlin.properties.Delegates
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
@@ -155,7 +155,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
           button.showIfTrue(value.isNotNullOrEmpty())
         }
         button.enableIfTrue(value.isNotNullOrEmpty())
-        button.toggleDone(checkLastPositionWithTaskData(value))
+        button.toggleDone(isLastPositionWithTaskData(value))
       }
       .disable()
 
@@ -182,7 +182,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     dataCollectionViewModel.onNextClicked(viewModel)
   }
 
-  fun handleNext() {
+  private fun handleNext() {
     if (getTask().isAddLoiTask) {
       launchLoiNameDialog()
     } else {
@@ -242,8 +242,8 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
    * Returns true if the current task with the given task data would be last in sequence. Useful for
    * handling conditional tasks, see #2394.
    */
-  protected fun checkLastPositionWithTaskData(value: TaskData?) =
-    dataCollectionViewModel.isLastPosition(taskId, value)
+  private fun isLastPositionWithTaskData(value: TaskData?) =
+    dataCollectionViewModel.isLastPositionWithTaskData(taskId, value)
 
   private fun getTask(): Task = viewModel.task
 

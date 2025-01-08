@@ -326,10 +326,13 @@ internal constructor(
 
   fun isFirstPosition(taskId: String): Boolean = taskSequenceHandler.isFirstPosition(taskId)
 
-  fun isLastPosition(taskId: String, value: TaskData?): Boolean =
-    taskSequenceHandler.isLastPosition(taskId, value)
-
   fun isLastPosition(taskId: String): Boolean = taskSequenceHandler.isLastPosition(taskId)
+
+  fun isLastPositionWithTaskData(taskId: String, value: TaskData?): Boolean {
+    require(taskId.isNotBlank())
+    val sequence = taskSequenceHandler.getTaskSequence(taskValueOverride = taskId to value)
+    return taskId == sequence.last().id
+  }
 
   /** Evaluates the task condition against the current inputs. */
   private fun shouldIncludeTask(
