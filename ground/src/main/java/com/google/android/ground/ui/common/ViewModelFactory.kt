@@ -39,18 +39,12 @@ constructor(
       creators[modelClass]
         ?: creators.entries.firstOrNull { modelClass.isAssignableFrom(it.key) }?.value
         ?: error("Unknown model class $modelClass")
-    try {
-      val viewModel = creator.get()
-      if (modelClass.isInstance(viewModel)) {
-        @Suppress("UNCHECKED_CAST")
-        return viewModel as T
-      } else {
-        error(
-          "Expected instance of ${modelClass.simpleName}, but got ${viewModel::class.simpleName}"
-        )
-      }
-    } catch (e: Exception) {
-      throw ViewModelCreationException("Failed to create ViewModel for class $modelClass", e)
+    val viewModel = creator.get()
+    if (modelClass.isInstance(viewModel)) {
+      @Suppress("UNCHECKED_CAST")
+      return viewModel as T
+    } else {
+      error("Expected instance of ${modelClass.simpleName}, but got ${viewModel::class.simpleName}")
     }
   }
 
@@ -69,6 +63,3 @@ constructor(
   operator fun <T : ViewModel> get(activity: FragmentActivity, modelClass: Class<T>): T =
     ViewModelProvider(activity, this)[modelClass]
 }
-
-class ViewModelCreationException(message: String, cause: Throwable? = null) :
-  Exception(message, cause)
