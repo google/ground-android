@@ -42,28 +42,18 @@ class TaskDataHandler {
    *
    * @param taskValueOverride An optional override for a specific task's value.
    */
-  fun getTaskSelections(taskValueOverride: Pair<String, TaskData?>? = null): TaskSelections {
-    val selections = buildMap {
-      _dataState.value.forEach { (task, value) -> value?.let { put(task.id, it) } }
+  fun getTaskSelections(taskValueOverride: Pair<String, TaskData?>? = null): TaskSelections =
+    buildMap {
+      _dataState.value.forEach { (task, value) ->
+        val taskId = task.id
+        if (taskValueOverride == null) {
+          value?.let { put(taskId, value) }
+        } else {
+          val (overrideTaskId, overrideValue) = taskValueOverride
+          if (overrideTaskId == taskId && overrideValue != null) {
+            put(taskId, overrideValue)
+          }
+        }
+      }
     }
-    return taskValueOverride?.let { updateTaskSelections(selections, it) } ?: selections
-  }
-
-  /**
-   * Updates given task selections with overrides.
-   *
-   * @param taskSelections The current task selections.
-   * @param override The override to apply (task ID and new value).
-   */
-  private fun updateTaskSelections(
-    taskSelections: TaskSelections,
-    override: Pair<String, TaskData?>,
-  ): TaskSelections {
-    val (taskId, taskValue) = override
-    return if (taskValue == null) {
-      taskSelections.filterNot { it.key == taskId }
-    } else {
-      taskSelections + (taskId to taskValue)
-    }
-  }
 }
