@@ -41,32 +41,30 @@ class TaskSequenceHandlerTest {
       { _, _ ->
         true
       },
-  ): TaskSequenceHandler = TaskSequenceHandler(tasks, shouldIncludeTask)
+  ): TaskSequenceHandler = TaskSequenceHandler(tasks)
 
   @Test
   fun `constructor should throw error when tasks are empty`() {
-    assertThrows(IllegalArgumentException::class.java) {
-      TaskSequenceHandler(tasks = emptyList(), shouldIncludeTask = { _, _ -> true })
-    }
+    assertThrows(IllegalArgumentException::class.java) { TaskSequenceHandler(tasks = emptyList()) }
   }
 
   @Test
-  fun `getTaskSequence returns all tasks when shouldIncludeTask always returns true`() {
+  fun `createTaskSequence returns all tasks when shouldIncludeTask always returns true`() {
     val handler = createHandler()
-    val sequence = handler.getTaskSequence()
+    val sequence = handler.createTaskSequence("")
     assertThat(sequence.toList()).isEqualTo(allTasks)
   }
 
   @Test
-  fun `getTaskSequence filters tasks based on shouldIncludeTask`() {
+  fun `createTaskSequence filters tasks based on shouldIncludeTask`() {
     val handler =
       createHandler(shouldIncludeTask = { task, _ -> task.id != "task2" && task.id != "task4" })
-    val sequence = handler.getTaskSequence()
+    val sequence = handler.createTaskSequence("")
     assertThat(sequence.toList()).isEqualTo(listOf(task1, task3, task5))
   }
 
   @Test
-  fun `getTaskSequence filters tasks based on shouldIncludeTask and taskValueOverride`() {
+  fun `createTaskSequence filters tasks based on shouldIncludeTask and taskValueOverride`() {
     val handler =
       createHandler(
         shouldIncludeTask = { task, taskValueOverride ->
@@ -75,7 +73,7 @@ class TaskSequenceHandlerTest {
             !(task.id == "task3" && taskValueOverride?.first == "task3")
         }
       )
-    val sequence = handler.getTaskSequence(taskValueOverride = "task3" to null)
+    val sequence = handler.createTaskSequence("", taskValueOverride = "task3" to null)
     assertThat(sequence.toList()).isEqualTo(listOf(task1, task5))
   }
 

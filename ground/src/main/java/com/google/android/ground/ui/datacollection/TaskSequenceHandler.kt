@@ -17,6 +17,8 @@ package com.google.android.ground.ui.datacollection
 
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.ui.TaskDataHandler
+import timber.log.Timber
 
 /**
  * Manages operations related to a sequence of tasks.
@@ -26,15 +28,14 @@ import com.google.android.ground.model.task.Task
  * condition.
  *
  * @param tasks The complete list of [Task] objects from which the sequence is derived.
- * @param shouldIncludeTask A callback function that determines whether a given [Task] should be
- *   included in the sequence. It takes a [Task] and an optional override pair as input and returns
- *   `true` if the task should be included, `false` otherwise.
  */
-class TaskSequenceHandler(
-  private val tasks: List<Task>,
-  private val shouldIncludeTask:
-    (task: Task, taskValueOverride: Pair<String, TaskData?>?) -> Boolean,
-) {
+class TaskSequenceHandler(private val tasks: List<Task>) {
+
+  val taskDataHandler = TaskDataHandler(this)
+
+  private var sequence: Sequence<Task> = sequenceOf()
+
+  private var isInitialized = false
 
   init {
     require(tasks.isNotEmpty()) { "Can't generate a sequence from an empty task list." }
@@ -49,8 +50,12 @@ class TaskSequenceHandler(
     require(index >= 0) { "Task '$taskId' not found in the task list." }
   }
 
+  fun refreshSequence() {
+    sequence = createTaskSequence("refresh sequence")
+  }
+
   /**
-   * Retrieves the task sequence based on the provided inputs and conditions.
+   * Generates the task sequence based on the provided inputs and conditions.
    *
    * This function determines the order of tasks to be presented, taking into account any overrides
    * specified by [taskValueOverride].
@@ -59,8 +64,26 @@ class TaskSequenceHandler(
    *   element is the [TaskData] to override the default task data. If null, no override is applied.
    * @return A [Sequence] of [Task] objects representing the ordered tasks.
    */
-  fun getTaskSequence(taskValueOverride: Pair<String, TaskData?>? = null): Sequence<Task> =
-    tasks.filter { task -> shouldIncludeTask(task, taskValueOverride) }.asSequence()
+  fun createTaskSequence(
+    tag: String,
+    taskValueOverride: Pair<String, TaskData?>? = null,
+  ): Sequence<Task> {
+    Timber.d("Task Sequence Generated: $tag")
+    return tasks
+      .filter { task ->
+        task.condition == null ||
+          taskDataHandler.isConditionFulfilled(task.condition, taskValueOverride)
+      }
+      .asSequence()
+  }
+
+  fun getTaskSequence(): Sequence<Task> {
+    if (!isInitialized) {
+      sequence = createTaskSequence("getTaskSequence")
+      isInitialized = true
+    }
+    return sequence
+  }
 
   /**
    * Checks if the specified task is the first task in the displayed sequence.

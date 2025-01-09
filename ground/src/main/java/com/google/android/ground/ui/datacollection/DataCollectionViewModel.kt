@@ -50,8 +50,6 @@ import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import javax.inject.Provider
-import kotlin.collections.component1
-import kotlin.collections.component2
 import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -140,15 +138,13 @@ internal constructor(
   private val taskViewModels: MutableStateFlow<MutableMap<String, AbstractTaskViewModel>> =
     MutableStateFlow(mutableMapOf())
 
-  private val data: MutableMap<Task, TaskData?> = LinkedHashMap()
-
   // Tracks the current task ID to compute the position in the list of tasks for the current job.
   private val currentTaskId: StateFlow<String> = savedStateHandle.getStateFlow(TASK_POSITION_ID, "")
 
   lateinit var submissionId: String
 
-  private val taskSequenceHandler: TaskSequenceHandler =
-    TaskSequenceHandler(tasks, ::shouldIncludeTask)
+  private val taskSequenceHandler: TaskSequenceHandler = TaskSequenceHandler(tasks)
+  private val taskDataHandler = taskSequenceHandler.taskDataHandler
 
   init {
     if (currentTaskId.value == "") {
@@ -225,7 +221,7 @@ internal constructor(
       }
     }
 
-    data[task] = taskValue
+    taskDataHandler.setData(task, taskValue)
     moveToPreviousTask()
   }
 
@@ -240,7 +236,7 @@ internal constructor(
       return
     }
 
-    data[taskViewModel.task] = taskViewModel.taskTaskData.value
+    taskDataHandler.setData(taskViewModel.task, taskViewModel.taskTaskData.value)
 
     if (!isLastPosition(currentTaskId.value)) {
       moveToNextTask()
@@ -262,16 +258,12 @@ internal constructor(
       return
     }
 
-    data[viewModel.task] = viewModel.taskTaskData.value
+    taskDataHandler.setData(viewModel.task, viewModel.taskTaskData.value)
     savedStateHandle[TASK_POSITION_ID] = taskId
     saveDraft(taskId)
   }
 
-  private fun getDeltas(): List<ValueDelta> =
-    // Filter deltas to valid tasks.
-    data
-      .filter { (task) -> task in taskSequenceHandler.getTaskSequence() }
-      .map { (task, value) -> ValueDelta(task.id, task.type, value) }
+  private fun getDeltas(): List<ValueDelta> = taskDataHandler.getDeltas()
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(deltas: List<ValueDelta>) {
@@ -328,36 +320,17 @@ internal constructor(
 
   fun isLastPosition(taskId: String): Boolean = taskSequenceHandler.isLastPosition(taskId)
 
-  fun isLastPositionWithTaskData(taskId: String, value: TaskData?): Boolean {
-    require(taskId.isNotBlank())
-    val sequence = taskSequenceHandler.getTaskSequence(taskValueOverride = taskId to value)
-    return taskId == sequence.last().id
-  }
+  fun isLastPositionWithTaskData(task: Task, value: TaskData?): Boolean {
+    if (taskDataHandler.getData(task) == value) {
+      return taskSequenceHandler.isLastPosition(task.id)
+    }
 
-  /** Evaluates the task condition against the current inputs. */
-  private fun shouldIncludeTask(
-    task: Task,
-    taskValueOverride: Pair<String, TaskData?>? = null,
-  ): Boolean {
-    val condition = task.condition ?: return true
-    return condition.fulfilledBy(
-      data
-        .mapNotNull { (task, value) -> value?.let { task.id to it } }
-        .let { pairs ->
-          if (taskValueOverride != null) {
-            if (taskValueOverride.second == null) {
-              // Remove pairs with the testTaskId if testValue is null.
-              pairs.filterNot { it.first == taskValueOverride.first }
-            } else {
-              // Override any task IDs with the test values.
-              pairs + (taskValueOverride.first to taskValueOverride.second!!)
-            }
-          } else {
-            pairs
-          }
-        }
-        .toMap()
-    )
+    val sequence =
+      taskSequenceHandler.createTaskSequence(
+        "isLastPositionWithTaskData",
+        taskValueOverride = task.id to value,
+      )
+    return task.id == sequence.last().id
   }
 
   companion object {
