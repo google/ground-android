@@ -1,10 +1,15 @@
 package com.google.android.ground.ui.datacollection
 
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.Task
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,19 +31,45 @@ class TaskDataHandlerTest {
     assertThat(dataState[task1]).isEqualTo(taskData1)
   }
 
+  @OptIn(ExperimentalCoroutinesApi::class)
   @Test
-  fun `setData with same value does not update dataState`() = runTest {
+  fun `dataState emits when value is updated`() = runTest {
+    val handler = TaskDataHandler()
+    val task1 = createTask("task1")
+    val taskData1 = createTaskData("data1")
+    val taskData2 = createTaskData("data2")
+
+    val emittedStates = mutableListOf<Map<Task, TaskData?>>()
+    val collectJob = launch(UnconfinedTestDispatcher()) { handler.dataState.toList(emittedStates) }
+
+    handler.setData(task1, taskData1)
+    handler.setData(task1, taskData2)
+
+    assertThat(emittedStates).hasSize(3)
+    assertThat(emittedStates[0]).isEqualTo(emptyMap<Task, TaskData>())
+    assertThat(emittedStates[1]).isEqualTo(mapOf(task1 to taskData1))
+    assertThat(emittedStates[2]).isEqualTo(mapOf(task1 to taskData2))
+
+    collectJob.cancel()
+  }
+
+  @OptIn(ExperimentalCoroutinesApi::class)
+  @Test
+  fun `dataState does not emit when same value is set`() = runTest {
     val handler = TaskDataHandler()
     val task1 = createTask("task1")
     val taskData1 = createTaskData("data1")
 
-    handler.setData(task1, taskData1)
-    val initialDataState = handler.dataState.first()
+    val emittedStates = mutableListOf<Map<Task, TaskData?>>()
+    val collectJob = launch(UnconfinedTestDispatcher()) { handler.dataState.toList(emittedStates) }
 
     handler.setData(task1, taskData1)
-    val newDataState = handler.dataState.first()
+    handler.setData(task1, taskData1)
 
-    assertThat(newDataState).isEqualTo(initialDataState)
+    assertThat(emittedStates).hasSize(2)
+    assertThat(emittedStates[0]).isEqualTo(emptyMap<Task, TaskData>())
+    assertThat(emittedStates[1]).isEqualTo(mapOf(task1 to taskData1))
+    collectJob.cancel()
   }
 
   @Test
