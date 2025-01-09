@@ -53,27 +53,21 @@ fun OfflineAreaListItem(
         modifier
           .fillMaxWidth()
           .padding(
-            start = dimensionResource(R.dimen.spacing_large),
-            top = dimensionResource(R.dimen.spacing_small),
-            end = dimensionResource(R.dimen.spacing_xlarge),
-            bottom = dimensionResource(R.dimen.spacing_small),
+            start = dimensionResource(R.dimen.dimen_16dp),
+            top = dimensionResource(R.dimen.dimen_4dp),
+            end = dimensionResource(R.dimen.dimen_24dp),
+            bottom = dimensionResource(R.dimen.dimen_4dp),
           )
           .clickable { itemClicked(offlineAreaDetails.id) },
       horizontalArrangement =
-        Arrangement.spacedBy(
-          dimensionResource(R.dimen.spacing_large),
-          Alignment.CenterHorizontally,
-        ),
+        Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16dp), Alignment.CenterHorizontally),
       verticalAlignment = Alignment.CenterVertically,
     ) {
       OfflinePinImage()
       Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement =
-          Arrangement.spacedBy(
-            dimensionResource(R.dimen.spacing_empty),
-            Alignment.CenterVertically,
-          ),
+          Arrangement.spacedBy(dimensionResource(R.dimen.dimen_empty), Alignment.CenterVertically),
         horizontalAlignment = Alignment.Start,
       ) {
         Text(
@@ -111,7 +105,7 @@ private fun OfflinePinImage() {
     imageVector = ImageVector.vectorResource(id = R.drawable.ic_offline_pin),
     contentDescription = stringResource(id = R.string.offline_area_list_item_icon),
     tint = MaterialTheme.colorScheme.primary,
-    modifier = Modifier.size(dimensionResource(R.dimen.spacing_xlarge)),
+    modifier = Modifier.size(dimensionResource(R.dimen.dimen_24dp)),
   )
 }
 

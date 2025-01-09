@@ -71,7 +71,7 @@ fun DataSubmissionConfirmationDialog(onDismiss: () -> Unit) {
         verticalArrangement = Arrangement.Center,
       ) {
         DetailColumn()
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_xlarge)))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_24dp)))
         CloseButton(modifier = Modifier.align(Alignment.CenterHorizontally), onDismiss = onDismiss)
       }
     }
@@ -79,7 +79,7 @@ fun DataSubmissionConfirmationDialog(onDismiss: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
       Spacer(modifier = Modifier.height(150.dp))
       DataCollectionThumbnail(
-        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.spacing_medium))
+        modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.dimen_8dp))
       )
       Spacer(modifier = Modifier.height(100.dp))
       DetailColumn()
@@ -110,9 +110,9 @@ private fun DetailColumn() {
       fontSize = 22.sp,
       fontWeight = FontWeight(400),
     )
-    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_medium)))
+    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_8dp)))
     Text(
-      modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.spacing_xxlarge)),
+      modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.dimen_28dp)),
       text = stringResource(R.string.data_collection_complete_details),
       fontSize = 14.sp,
       lineHeight = 20.sp,
@@ -134,8 +134,8 @@ private fun CloseButton(modifier: Modifier = Modifier, onDismiss: () -> Unit) {
     Text(
       modifier =
         Modifier.padding(
-          horizontal = dimensionResource(R.dimen.spacing_large),
-          vertical = dimensionResource(R.dimen.spacing_small),
+          horizontal = dimensionResource(R.dimen.dimen_16dp),
+          vertical = dimensionResource(R.dimen.dimen_4dp),
         ),
       text = stringResource(id = R.string.close),
       fontSize = 14.sp,
