@@ -16,9 +16,7 @@
 package com.google.android.ground.ui.datacollection
 
 import com.google.android.ground.model.submission.TaskData
-import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.model.task.TaskSelections
 import timber.log.Timber
 
 /**
@@ -57,12 +55,7 @@ class TaskSequenceHandler(private val tasks: List<Task>) {
     taskValueOverride: Pair<String, TaskData?>? = null,
   ): Sequence<Task> {
     Timber.d("Task Sequence Generated: $tag")
-    return tasks
-      .filter { task ->
-        task.condition == null ||
-          isConditionMet(task.condition, taskDataHandler.getTaskSelections(taskValueOverride))
-      }
-      .asSequence()
+    return tasks.filter { shouldIncludeTaskInSequence(it, taskValueOverride) }.asSequence()
   }
 
   /** Lazily retrieves the task sequence. */
@@ -74,9 +67,14 @@ class TaskSequenceHandler(private val tasks: List<Task>) {
     return sequence
   }
 
-  /** Determines if a condition is met with the given task selections and overrides. */
-  private fun isConditionMet(condition: Condition, taskSelections: TaskSelections): Boolean {
-    return condition.fulfilledBy(taskSelections.toMap())
+  /** Determines if a task should be included with the given overrides. */
+  private fun shouldIncludeTaskInSequence(
+    task: Task,
+    taskValueOverride: Pair<String, TaskData?>?,
+  ): Boolean {
+    if (task.condition == null) return true
+    val taskSelections = taskDataHandler.getTaskSelections(taskValueOverride)
+    return task.condition.fulfilledBy(taskSelections)
   }
 
   /**
