@@ -36,25 +36,23 @@ class TaskDataHandler(private val taskSequenceHandler: TaskSequenceHandler) {
   fun isConditionFulfilled(
     condition: Condition,
     taskValueOverride: Pair<String, TaskData?>? = null,
-  ): Boolean =
-    condition.fulfilledBy(
-      data
-        .mapNotNull { (task, value) -> value?.let { task.id to it } }
-        .let { pairs ->
-          if (taskValueOverride != null) {
-            if (taskValueOverride.second == null) {
-              // Remove pairs with the testTaskId if testValue is null.
-              pairs.filterNot { it.first == taskValueOverride.first }
-            } else {
-              // Override any task IDs with the test values.
-              pairs + (taskValueOverride.first to taskValueOverride.second!!)
-            }
-          } else {
-            pairs
-          }
+  ): Boolean {
+    val pairs = data.mapNotNull { (task, value) -> value?.let { task.id to it } }
+    val updatedPairs =
+      if (taskValueOverride != null) {
+        val (taskId, taskValue) = taskValueOverride
+        if (taskValue == null) {
+          // Remove pairs with the taskId if value is null
+          pairs.filterNot { it.first == taskId }
+        } else {
+          // Override any task IDs with the value
+          pairs + (taskId to taskValue)
         }
-        .toMap()
-    )
+      } else {
+        pairs
+      }
+    return condition.fulfilledBy(updatedPairs.toMap())
+  }
 
   fun getData(task: Task): TaskData? {
     return data[task]
