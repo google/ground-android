@@ -52,7 +52,7 @@ class TaskSequenceHandler(private val tasks: List<Task>) {
   }
 
   /** Generates the task sequence based on conditions and overrides. */
-  private fun generateTaskSequence(
+  fun generateTaskSequence(
     tag: String,
     taskValueOverride: Pair<String, TaskData?>? = null,
   ): Sequence<Task> {
@@ -167,16 +167,8 @@ class TaskSequenceHandler(private val tasks: List<Task>) {
     return index
   }
 
-  /** Retrieves the relative position of a task in the sequence. */
-  fun getTaskIndex(taskId: String): Int {
-    validateTaskId(taskId)
-    val index = getTaskSequence().indexOfFirst { it.id == taskId }
-    require(index >= 0) { "Task '$taskId' not found in the sequence." }
-    return index
-  }
-
   /**
-   * Retrieves the relative index in the computed task sequence.
+   * Retrieves the relative index of task in the computed task sequence.
    *
    * The relative index represents the task's position within the currently displayed sequence.
    *
@@ -184,8 +176,11 @@ class TaskSequenceHandler(private val tasks: List<Task>) {
    * @throws IllegalArgumentException if the provided [taskId] is blank.
    * @throws NoSuchElementException if the task is not found in the computed task sequence.
    */
-  fun getRelativePosition(taskId: String): Int {
-    return getTaskIndex(taskId)
+  fun getTaskIndex(taskId: String): Int {
+    validateTaskId(taskId)
+    val index = getTaskSequence().indexOfFirst { it.id == taskId }
+    require(index >= 0) { "Task '$taskId' not found in the sequence." }
+    return index
   }
 
   /**

@@ -51,7 +51,7 @@ class TaskSequenceHandlerTest {
   @Test
   fun `createTaskSequence returns all tasks when shouldIncludeTask always returns true`() {
     val handler = createHandler()
-    val sequence = handler.createTaskSequence("")
+    val sequence = handler.generateTaskSequence("")
     assertThat(sequence.toList()).isEqualTo(allTasks)
   }
 
@@ -59,7 +59,7 @@ class TaskSequenceHandlerTest {
   fun `createTaskSequence filters tasks based on shouldIncludeTask`() {
     val handler =
       createHandler(shouldIncludeTask = { task, _ -> task.id != "task2" && task.id != "task4" })
-    val sequence = handler.createTaskSequence("")
+    val sequence = handler.generateTaskSequence("")
     assertThat(sequence.toList()).isEqualTo(listOf(task1, task3, task5))
   }
 
@@ -73,7 +73,7 @@ class TaskSequenceHandlerTest {
             !(task.id == "task3" && taskValueOverride?.first == "task3")
         }
       )
-    val sequence = handler.createTaskSequence("", taskValueOverride = "task3" to null)
+    val sequence = handler.generateTaskSequence("", taskValueOverride = "task3" to null)
     assertThat(sequence.toList()).isEqualTo(listOf(task1, task5))
   }
 
@@ -180,22 +180,22 @@ class TaskSequenceHandlerTest {
   }
 
   @Test
-  fun `getRelativePosition returns the correct position`() {
+  fun `getTaskIndex returns the correct position`() {
     val handler =
       createHandler(shouldIncludeTask = { task, _ -> task.id != "task2" && task.id != "task4" })
-    assertThat(handler.getRelativePosition("task3")).isEqualTo(1)
+    assertThat(handler.getTaskIndex("task3")).isEqualTo(1)
   }
 
   @Test
-  fun `getRelativePosition throws error for invalid task id`() {
+  fun `getTaskIndex throws error for invalid task id`() {
     val handler = createHandler()
-    assertThrows(IllegalArgumentException::class.java) { handler.getRelativePosition("") }
+    assertThrows(IllegalArgumentException::class.java) { handler.getTaskIndex("") }
   }
 
   @Test
-  fun `getRelativePosition throws error when task is not found`() {
+  fun `getTaskIndex throws error when task is not found`() {
     val handler = createHandler()
-    assertThrows(IllegalArgumentException::class.java) { handler.getRelativePosition("invalid") }
+    assertThrows(IllegalArgumentException::class.java) { handler.getTaskIndex("invalid") }
   }
 
   @Test
