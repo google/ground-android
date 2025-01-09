@@ -131,8 +131,7 @@ class TaskSequenceHandler(private val tasks: List<Task>) {
    * @throws NoSuchElementException if the provided [taskId] is the first element in the sequence.
    */
   fun getPreviousTask(taskId: String): String {
-    validateTaskId(taskId)
-    val index = getTaskIndex(taskId, getTaskSequence())
+    val index = getTaskIndex(taskId)
     require(index > 0) { "Can't generate previous task for Task '$taskId'" }
     return getTaskSequence().elementAt(index - 1).id
   }
@@ -146,8 +145,7 @@ class TaskSequenceHandler(private val tasks: List<Task>) {
    * @throws NoSuchElementException if the provided [taskId] is the last element in the sequence.
    */
   fun getNextTask(taskId: String): String {
-    validateTaskId(taskId)
-    val index = getTaskIndex(taskId, getTaskSequence())
+    val index = getTaskIndex(taskId)
     require(index < getTaskSequence().count()) { "Can't generate next task for Task '$taskId'" }
     return getTaskSequence().elementAt(index + 1).id
   }
@@ -170,8 +168,9 @@ class TaskSequenceHandler(private val tasks: List<Task>) {
   }
 
   /** Retrieves the relative position of a task in the sequence. */
-  fun getTaskIndex(taskId: String, sequence: Sequence<Task>): Int {
-    val index = sequence.indexOfFirst { it.id == taskId }
+  fun getTaskIndex(taskId: String): Int {
+    validateTaskId(taskId)
+    val index = getTaskSequence().indexOfFirst { it.id == taskId }
     require(index >= 0) { "Task '$taskId' not found in the sequence." }
     return index
   }
@@ -186,8 +185,7 @@ class TaskSequenceHandler(private val tasks: List<Task>) {
    * @throws NoSuchElementException if the task is not found in the computed task sequence.
    */
   fun getRelativePosition(taskId: String): Int {
-    validateTaskId(taskId)
-    return getTaskIndex(taskId, getTaskSequence())
+    return getTaskIndex(taskId)
   }
 
   /**
@@ -198,10 +196,9 @@ class TaskSequenceHandler(private val tasks: List<Task>) {
    * @throws NoSuchElementException if the task is not found in the computed task sequence.
    */
   fun getTaskPosition(taskId: String): TaskPosition {
-    validateTaskId(taskId)
     return TaskPosition(
       absoluteIndex = getAbsolutePosition(taskId),
-      relativeIndex = getRelativePosition(taskId),
+      relativeIndex = getTaskIndex(taskId),
       sequenceSize = getTaskSequence().count(),
     )
   }
