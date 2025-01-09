@@ -61,15 +61,17 @@ class TaskDataHandlerTest {
   }
 
   @Test
-  fun `getTaskSelections returns correct selections`() = runTest {
+  fun `getTaskSelections returns correct values`() = runTest {
     val handler = TaskDataHandler()
     val task1 = createTask("task1")
     val task2 = createTask("task2")
+    val task3 = createTask("task3")
     val taskData1 = createTaskData("data1")
     val taskData2 = createTaskData("data2")
 
     handler.setData(task1, taskData1)
     handler.setData(task2, taskData2)
+    handler.setData(task3, null)
 
     val selections = handler.getTaskSelections()
     assertThat(selections).hasSize(2)
@@ -78,7 +80,7 @@ class TaskDataHandlerTest {
   }
 
   @Test
-  fun `getTaskSelections with override returns correct selections`() = runTest {
+  fun `getTaskSelections with override returns correct values`() = runTest {
     val handler = TaskDataHandler()
     val task1 = createTask("task1")
     val task2 = createTask("task2")
