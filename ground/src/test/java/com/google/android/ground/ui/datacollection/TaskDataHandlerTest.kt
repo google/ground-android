@@ -21,35 +21,35 @@ class TaskDataHandlerTest {
   @Test
   fun `setData updates dataState correctly`() = runTest {
     val handler = TaskDataHandler()
-    val task1 = createTask("task1")
-    val taskData1 = createTaskData("data1")
+    val task = createTask("task1")
+    val taskData = createTaskData("data1")
 
-    handler.setData(task1, taskData1)
+    handler.setData(task, taskData)
 
     val dataState = handler.dataState.first()
     assertThat(dataState).hasSize(1)
-    assertThat(dataState[task1]).isEqualTo(taskData1)
+    assertThat(dataState[task]).isEqualTo(taskData)
   }
 
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun `dataState emits when value is updated`() = runTest {
     val handler = TaskDataHandler()
-    val task1 = createTask("task1")
+    val task = createTask("task1")
     val taskData1 = createTaskData("data1")
     val taskData2 = createTaskData("data2")
 
     val emissions = mutableListOf<Map<Task, TaskData?>>()
     val job = launch(UnconfinedTestDispatcher()) { handler.dataState.toList(emissions) }
 
-    handler.setData(task1, taskData1)
-    handler.setData(task1, taskData2)
+    handler.setData(task, taskData1)
+    handler.setData(task, taskData2)
 
     // Verify that both updates were emitted
     assertThat(emissions).hasSize(3)
     assertThat(emissions[0]).isEqualTo(emptyMap<Task, TaskData>())
-    assertThat(emissions[1]).isEqualTo(mapOf(task1 to taskData1))
-    assertThat(emissions[2]).isEqualTo(mapOf(task1 to taskData2))
+    assertThat(emissions[1]).isEqualTo(mapOf(task to taskData1))
+    assertThat(emissions[2]).isEqualTo(mapOf(task to taskData2))
 
     job.cancel()
   }
@@ -58,18 +58,18 @@ class TaskDataHandlerTest {
   @Test
   fun `dataState does not emit when same value is set`() = runTest {
     val handler = TaskDataHandler()
-    val task1 = createTask("task1")
-    val taskData1 = createTaskData("data1")
+    val task = createTask("task1")
+    val taskData = createTaskData("data1")
 
     val emissions = mutableListOf<Map<Task, TaskData?>>()
     val job = launch(UnconfinedTestDispatcher()) { handler.dataState.toList(emissions) }
 
-    handler.setData(task1, taskData1)
-    handler.setData(task1, taskData1) // Same value set again
+    handler.setData(task, taskData)
+    handler.setData(task, taskData) // Same value set again
 
     assertThat(emissions).hasSize(2)
     assertThat(emissions[0]).isEqualTo(emptyMap<Task, TaskData>())
-    assertThat(emissions[1]).isEqualTo(mapOf(task1 to taskData1))
+    assertThat(emissions[1]).isEqualTo(mapOf(task to taskData))
 
     job.cancel()
   }
@@ -77,20 +77,20 @@ class TaskDataHandlerTest {
   @Test
   fun `getData returns correct data`() = runTest {
     val handler = TaskDataHandler()
-    val task1 = createTask("task1")
-    val taskData1 = createTaskData("data1")
+    val task = createTask("task1")
+    val taskData = createTaskData("data1")
 
-    handler.setData(task1, taskData1)
+    handler.setData(task, taskData)
 
-    assertThat(handler.getData(task1)).isEqualTo(taskData1)
+    assertThat(handler.getData(task)).isEqualTo(taskData)
   }
 
   @Test
   fun `getData returns null for unknown task`() = runTest {
     val handler = TaskDataHandler()
-    val task1 = createTask("task1")
+    val task = createTask("task1")
 
-    assertThat(handler.getData(task1)).isNull()
+    assertThat(handler.getData(task)).isNull()
   }
 
   @Test
@@ -150,15 +150,15 @@ class TaskDataHandlerTest {
   @Test
   fun `setData with null value`() = runTest {
     val handler = TaskDataHandler()
-    val task1 = createTask("task1")
-    val taskData1 = createTaskData("data1")
+    val task = createTask("task1")
+    val taskData = createTaskData("data1")
 
-    handler.setData(task1, taskData1)
-    handler.setData(task1, null)
+    handler.setData(task, taskData)
+    handler.setData(task, null)
 
     val dataState = handler.dataState.first()
     assertThat(dataState).hasSize(1)
-    assertThat(dataState[task1]).isNull()
+    assertThat(dataState[task]).isNull()
   }
 
   private fun createTask(taskId: String): Task =
