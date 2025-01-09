@@ -62,12 +62,12 @@ class TaskSequenceHandler(
    *   element is the [TaskData] to override the default task data. If null, no override is applied.
    * @return A [Sequence] of [Task] objects representing the ordered tasks.
    */
-  fun createTaskSequence(taskValueOverride: Pair<String, TaskData?>? = null): Sequence<Task> =
+  fun generateTaskSequence(taskValueOverride: Pair<String, TaskData?>? = null): Sequence<Task> =
     tasks.filter { task -> shouldIncludeTask(task, taskValueOverride) }.asSequence()
 
   fun getTaskSequence(): Sequence<Task> {
     if (!isSequenceInitialized) {
-      taskSequence = createTaskSequence()
+      taskSequence = generateTaskSequence()
       isSequenceInitialized = true
     }
     return taskSequence
