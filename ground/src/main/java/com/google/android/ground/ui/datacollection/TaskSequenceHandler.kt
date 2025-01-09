@@ -60,7 +60,7 @@ class TaskSequenceHandler(private val tasks: List<Task>) {
     return tasks
       .filter { task ->
         task.condition == null ||
-          isConditionMet(task.condition, taskDataHandler.getTaskSelections(), taskValueOverride)
+          isConditionMet(task.condition, taskDataHandler.getTaskSelections(taskValueOverride))
       }
       .asSequence()
   }
@@ -74,28 +74,9 @@ class TaskSequenceHandler(private val tasks: List<Task>) {
     return sequence
   }
 
-  /** Updates task selections with overrides. */
-  private fun updateTaskSelections(
-    taskSelections: TaskSelections,
-    override: Pair<String, TaskData?>,
-  ): TaskSelections {
-    val (taskId, taskValue) = override
-    return if (taskValue == null) {
-      taskSelections.filterNot { it.key == taskId }
-    } else {
-      taskSelections + (taskId to taskValue)
-    }
-  }
-
   /** Determines if a condition is met with the given task selections and overrides. */
-  private fun isConditionMet(
-    condition: Condition,
-    taskSelections: TaskSelections,
-    taskValueOverride: Pair<String, TaskData?>? = null,
-  ): Boolean {
-    val updatedSelections =
-      taskValueOverride?.let { updateTaskSelections(taskSelections, it) } ?: taskSelections
-    return condition.fulfilledBy(updatedSelections.toMap())
+  private fun isConditionMet(condition: Condition, taskSelections: TaskSelections): Boolean {
+    return condition.fulfilledBy(taskSelections.toMap())
   }
 
   /**

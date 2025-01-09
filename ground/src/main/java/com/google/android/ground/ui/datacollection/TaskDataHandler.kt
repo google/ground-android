@@ -25,8 +25,22 @@ class TaskDataHandler(private val taskSequenceHandler: TaskSequenceHandler) {
   }
 
   /** Returns the map of currently selected values. */
-  fun getTaskSelections(): TaskSelections {
-    return data.mapNotNull { (task, value) -> value?.let { task.id to it } }.toMap()
+  fun getTaskSelections(taskValueOverride: Pair<String, TaskData?>? = null): TaskSelections {
+    val selections = data.mapNotNull { (task, value) -> value?.let { task.id to it } }.toMap()
+    return taskValueOverride?.let { updateTaskSelections(selections, it) } ?: selections
+  }
+
+  /** Updates task selections with overrides. */
+  private fun updateTaskSelections(
+    taskSelections: TaskSelections,
+    override: Pair<String, TaskData?>,
+  ): TaskSelections {
+    val (taskId, taskValue) = override
+    return if (taskValue == null) {
+      taskSelections.filterNot { it.key == taskId }
+    } else {
+      taskSelections + (taskId to taskValue)
+    }
   }
 
   fun getData(task: Task): TaskData? {
