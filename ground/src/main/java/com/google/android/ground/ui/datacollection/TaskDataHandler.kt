@@ -33,12 +33,10 @@ class TaskDataHandler(private val taskSequenceHandler: TaskSequenceHandler) {
   }
 
   /** Retrieves a list of [ValueDelta] for tasks that are part of the current sequence. */
-  fun getDeltas(): List<ValueDelta> {
-    val sequence = taskSequenceHandler.getTaskSequence()
-    return data
-      .filter { (task) -> task in sequence }
+  fun getDeltas(taskSequence: Sequence<Task>): List<ValueDelta> =
+    data
+      .filter { (task) -> task in taskSequence }
       .map { (task, value) -> ValueDelta(task.id, task.type, value) }
-  }
 
   /**
    * Returns the map of task IDs to their current [TaskData] value.

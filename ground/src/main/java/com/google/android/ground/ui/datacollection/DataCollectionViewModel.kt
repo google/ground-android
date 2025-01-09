@@ -263,7 +263,8 @@ internal constructor(
     saveDraft(taskId)
   }
 
-  private fun getDeltas(): List<ValueDelta> = taskDataHandler.getDeltas()
+  private fun getDeltas(): List<ValueDelta> =
+    taskDataHandler.getDeltas(taskSequenceHandler.getTaskSequence())
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(deltas: List<ValueDelta>) {
