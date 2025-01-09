@@ -48,15 +48,13 @@ import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskVie
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import javax.inject.Provider
-import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -66,6 +64,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.collections.set
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -143,8 +144,8 @@ internal constructor(
 
   lateinit var submissionId: String
 
-  private val taskSequenceHandler: TaskSequenceHandler = TaskSequenceHandler(tasks)
-  private val taskDataHandler = taskSequenceHandler.taskDataHandler
+  private val taskDataHandler = TaskDataHandler()
+  private val taskSequenceHandler = TaskSequenceHandler(tasks, taskDataHandler)
 
   init {
     if (currentTaskId.value == "") {
@@ -154,6 +155,11 @@ internal constructor(
 
     check(currentTaskId.value.isNotBlank()) { "Task ID can't be blank" }
     _uiState.update { UiState.TaskListAvailable(tasks, getTaskPosition(currentTaskId.value)) }
+
+    // Refresh the computed sequence whenever the collected task's data is updated.
+    viewModelScope.launch {
+      taskDataHandler.dataState.collectLatest { taskSequenceHandler.refreshSequence() }
+    }
   }
 
   fun setLoiName(name: String) {
@@ -326,11 +332,9 @@ internal constructor(
       return taskSequenceHandler.isLastPosition(task.id)
     }
 
+    val taskSelections = taskDataHandler.getTaskSelections(taskValueOverride = task.id to value)
     val sequence =
-      taskSequenceHandler.generateTaskSequence(
-        "isLastPositionWithTaskData",
-        taskValueOverride = task.id to value,
-      )
+      taskSequenceHandler.generateTaskSequence("isLastPositionWithTaskData", taskSelections)
     return task.id == sequence.last().id
   }
 

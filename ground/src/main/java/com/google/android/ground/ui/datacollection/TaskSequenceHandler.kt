@@ -15,8 +15,8 @@
  */
 package com.google.android.ground.ui.datacollection
 
-import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.model.task.TaskSelections
 import timber.log.Timber
 
 /**
@@ -28,9 +28,10 @@ import timber.log.Timber
  *
  * @param tasks The complete list of [Task] objects from which the sequence is derived.
  */
-class TaskSequenceHandler(private val tasks: List<Task>) {
-
-  val taskDataHandler = TaskDataHandler(this)
+class TaskSequenceHandler(
+  private val tasks: List<Task>,
+  private val taskDataHandler: TaskDataHandler,
+) {
 
   private var sequence: Sequence<Task> = emptySequence()
   private var isInitialized = false
@@ -50,12 +51,10 @@ class TaskSequenceHandler(private val tasks: List<Task>) {
   }
 
   /** Generates the task sequence based on conditions and overrides. */
-  fun generateTaskSequence(
-    tag: String,
-    taskValueOverride: Pair<String, TaskData?>? = null,
-  ): Sequence<Task> {
+  fun generateTaskSequence(tag: String, taskSelections: TaskSelections? = null): Sequence<Task> {
     Timber.d("Task Sequence Generated: $tag")
-    return tasks.filter { shouldIncludeTaskInSequence(it, taskValueOverride) }.asSequence()
+    val selections = taskSelections ?: taskDataHandler.getTaskSelections()
+    return tasks.filter { shouldIncludeTaskInSequence(it, selections) }.asSequence()
   }
 
   /** Lazily retrieves the task sequence. */
@@ -68,12 +67,8 @@ class TaskSequenceHandler(private val tasks: List<Task>) {
   }
 
   /** Determines if a task should be included with the given overrides. */
-  private fun shouldIncludeTaskInSequence(
-    task: Task,
-    taskValueOverride: Pair<String, TaskData?>?,
-  ): Boolean {
+  private fun shouldIncludeTaskInSequence(task: Task, taskSelections: TaskSelections): Boolean {
     if (task.condition == null) return true
-    val taskSelections = taskDataHandler.getTaskSelections(taskValueOverride)
     return task.condition.fulfilledBy(taskSelections)
   }
 

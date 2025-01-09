@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class TaskDataHandler(private val taskSequenceHandler: TaskSequenceHandler) {
+class TaskDataHandler {
 
   private val _dataState = MutableStateFlow(LinkedHashMap<Task, TaskData?>())
 
@@ -25,7 +25,6 @@ class TaskDataHandler(private val taskSequenceHandler: TaskSequenceHandler) {
   fun setData(key: Task, newValue: TaskData?) {
     if (getData(key) == newValue) return
     _dataState.update { it.apply { set(key, newValue) } }
-    taskSequenceHandler.refreshSequence()
   }
 
   /**
