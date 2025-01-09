@@ -39,18 +39,19 @@ class TaskDataHandlerTest {
     val taskData1 = createTaskData("data1")
     val taskData2 = createTaskData("data2")
 
-    val emittedStates = mutableListOf<Map<Task, TaskData?>>()
-    val collectJob = launch(UnconfinedTestDispatcher()) { handler.dataState.toList(emittedStates) }
+    val emissions = mutableListOf<Map<Task, TaskData?>>()
+    val job = launch(UnconfinedTestDispatcher()) { handler.dataState.toList(emissions) }
 
     handler.setData(task1, taskData1)
     handler.setData(task1, taskData2)
 
-    assertThat(emittedStates).hasSize(3)
-    assertThat(emittedStates[0]).isEqualTo(emptyMap<Task, TaskData>())
-    assertThat(emittedStates[1]).isEqualTo(mapOf(task1 to taskData1))
-    assertThat(emittedStates[2]).isEqualTo(mapOf(task1 to taskData2))
+    // Verify that both updates were emitted
+    assertThat(emissions).hasSize(3)
+    assertThat(emissions[0]).isEqualTo(emptyMap<Task, TaskData>())
+    assertThat(emissions[1]).isEqualTo(mapOf(task1 to taskData1))
+    assertThat(emissions[2]).isEqualTo(mapOf(task1 to taskData2))
 
-    collectJob.cancel()
+    job.cancel()
   }
 
   @OptIn(ExperimentalCoroutinesApi::class)
@@ -60,16 +61,17 @@ class TaskDataHandlerTest {
     val task1 = createTask("task1")
     val taskData1 = createTaskData("data1")
 
-    val emittedStates = mutableListOf<Map<Task, TaskData?>>()
-    val collectJob = launch(UnconfinedTestDispatcher()) { handler.dataState.toList(emittedStates) }
+    val emissions = mutableListOf<Map<Task, TaskData?>>()
+    val job = launch(UnconfinedTestDispatcher()) { handler.dataState.toList(emissions) }
 
     handler.setData(task1, taskData1)
-    handler.setData(task1, taskData1)
+    handler.setData(task1, taskData1) // Same value set again
 
-    assertThat(emittedStates).hasSize(2)
-    assertThat(emittedStates[0]).isEqualTo(emptyMap<Task, TaskData>())
-    assertThat(emittedStates[1]).isEqualTo(mapOf(task1 to taskData1))
-    collectJob.cancel()
+    assertThat(emissions).hasSize(2)
+    assertThat(emissions[0]).isEqualTo(emptyMap<Task, TaskData>())
+    assertThat(emissions[1]).isEqualTo(mapOf(task1 to taskData1))
+
+    job.cancel()
   }
 
   @Test
