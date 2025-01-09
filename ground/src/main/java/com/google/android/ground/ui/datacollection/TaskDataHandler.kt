@@ -37,23 +37,24 @@ class TaskDataHandler {
     return _dataState.value[task]
   }
 
+  /** Returns the map of task IDs to their current [TaskData] value. */
+  fun getTaskSelections(): TaskSelections = buildMap {
+    _dataState.value.forEach { (task, value) -> value?.let { put(task.id, value) } }
+  }
+
   /**
    * Returns the map of task IDs to their current [TaskData] value.
    *
    * @param taskValueOverride An optional override for a specific task's value.
    */
-  fun getTaskSelections(taskValueOverride: Pair<String, TaskData?>? = null): TaskSelections =
-    buildMap {
-      _dataState.value.forEach { (task, value) ->
-        val taskId = task.id
-        if (taskValueOverride == null) {
-          value?.let { put(taskId, value) }
-        } else {
-          val (overrideTaskId, overrideValue) = taskValueOverride
-          if (overrideTaskId == taskId && overrideValue != null) {
-            put(taskId, overrideValue)
-          }
-        }
+  fun getTaskSelections(taskValueOverride: Pair<String, TaskData?>): TaskSelections = buildMap {
+    _dataState.value.forEach { (task, value) ->
+      val (overrideTaskId, overrideValue) = taskValueOverride
+      if (overrideTaskId == task.id && overrideValue != null) {
+        put(overrideTaskId, overrideValue)
+      } else {
+        value?.let { put(task.id, value) }
       }
     }
+  }
 }
