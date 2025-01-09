@@ -4,10 +4,17 @@ import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.model.task.TaskSelections
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class TaskDataHandler(private val taskSequenceHandler: TaskSequenceHandler) {
 
-  private val data: MutableMap<Task, TaskData?> = LinkedHashMap()
+  private val _dataState = MutableStateFlow(LinkedHashMap<Task, TaskData?>())
+
+  val dataState: StateFlow<Map<Task, TaskData?>>
+    get() = _dataState.asStateFlow()
 
   /**
    * Sets the data for a specific task.
@@ -16,9 +23,8 @@ class TaskDataHandler(private val taskSequenceHandler: TaskSequenceHandler) {
    * @param newValue The new data value for the task.
    */
   fun setData(key: Task, newValue: TaskData?) {
-    val currentValue = data[key]
-    if (currentValue == newValue) return
-    data[key] = newValue
+    if (getData(key) == newValue) return
+    _dataState.update { it.apply { set(key, newValue) } }
     taskSequenceHandler.refreshSequence()
   }
 
@@ -29,12 +35,12 @@ class TaskDataHandler(private val taskSequenceHandler: TaskSequenceHandler) {
    * @return The data associated with the task, or null if no data is found.
    */
   fun getData(task: Task): TaskData? {
-    return data[task]
+    return _dataState.value[task]
   }
 
   /** Retrieves a list of [ValueDelta] for tasks that are part of the current sequence. */
   fun getDeltas(taskSequence: Sequence<Task>): List<ValueDelta> =
-    data
+    _dataState.value
       .filter { (task) -> task in taskSequence }
       .map { (task, value) -> ValueDelta(task.id, task.type, value) }
 
@@ -44,7 +50,9 @@ class TaskDataHandler(private val taskSequenceHandler: TaskSequenceHandler) {
    * @param taskValueOverride An optional override for a specific task's value.
    */
   fun getTaskSelections(taskValueOverride: Pair<String, TaskData?>? = null): TaskSelections {
-    val selections = buildMap { data.forEach { (task, value) -> value?.let { put(task.id, it) } } }
+    val selections = buildMap {
+      _dataState.value.forEach { (task, value) -> value?.let { put(task.id, it) } }
+    }
     return taskValueOverride?.let { updateTaskSelections(selections, it) } ?: selections
   }
 
