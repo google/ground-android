@@ -36,6 +36,9 @@ class TaskSequenceHandler(
     (task: Task, taskValueOverride: Pair<String, TaskData?>?) -> Boolean,
 ) {
 
+  private var taskSequence: Sequence<Task> = sequenceOf()
+  private var isSequenceInitialized = false
+
   init {
     require(tasks.isNotEmpty()) { "Can't generate a sequence from an empty task list." }
   }
@@ -50,17 +53,28 @@ class TaskSequenceHandler(
   }
 
   /**
-   * Retrieves the task sequence based on the provided inputs and conditions.
+   * Generates the task sequence based on whether a task should be included or not.
    *
-   * This function determines the order of tasks to be presented, taking into account any overrides
-   * specified by [taskValueOverride].
+   * This determines the order of tasks to be presented to the user, taking into account any
+   * overrides specified by [taskValueOverride].
    *
    * @param taskValueOverride An optional pair where the first element is the task ID and the second
    *   element is the [TaskData] to override the default task data. If null, no override is applied.
    * @return A [Sequence] of [Task] objects representing the ordered tasks.
    */
-  fun getTaskSequence(taskValueOverride: Pair<String, TaskData?>? = null): Sequence<Task> =
+  fun createTaskSequence(taskValueOverride: Pair<String, TaskData?>? = null): Sequence<Task> =
     tasks.filter { task -> shouldIncludeTask(task, taskValueOverride) }.asSequence()
+
+  fun getTaskSequence(): Sequence<Task> {
+    if (!isSequenceInitialized) {
+      taskSequence = createTaskSequence()
+      isSequenceInitialized = true
+    }
+    return taskSequence
+  }
+
+  // TODO: Add a method to update the cached sequence whenever necessary.
+  // Issue URL: https://github.com/google/ground-android/issues/2993
 
   /**
    * Checks if the specified task is the first task in the displayed sequence.

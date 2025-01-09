@@ -66,7 +66,7 @@ class TaskSequenceHandlerTest {
   }
 
   @Test
-  fun `getTaskSequence filters tasks based on shouldIncludeTask and taskValueOverride`() {
+  fun `createTaskSequence filters tasks based on shouldIncludeTask and taskValueOverride`() {
     val handler =
       createHandler(
         shouldIncludeTask = { task, taskValueOverride ->
@@ -75,7 +75,7 @@ class TaskSequenceHandlerTest {
             !(task.id == "task3" && taskValueOverride?.first == "task3")
         }
       )
-    val sequence = handler.getTaskSequence(taskValueOverride = "task3" to null)
+    val sequence = handler.createTaskSequence(taskValueOverride = "task3" to null)
     assertThat(sequence.toList()).isEqualTo(listOf(task1, task5))
   }
 
