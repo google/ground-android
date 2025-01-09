@@ -87,23 +87,6 @@ class TaskSequenceHandler(
   }
 
   /**
-   * Checks if the specified task with the given data is the last task in the sequence.
-   *
-   * This method allows checking if a specific task with a particular [TaskData] is the last one.
-   *
-   * @param taskId The ID of the task to check.
-   * @param value The [TaskData] associated with the task.
-   * @return `true` if the task with the given data is the last in the sequence, `false` otherwise.
-   * @throws IllegalArgumentException if the provided [taskId] is blank.
-   */
-  // TODO: Check if this method can be eliminated as it is confusing to pass value to this method.
-  // Issue URL: https://github.com/google/ground-android/issues/2987
-  fun isLastPosition(taskId: String, value: TaskData?): Boolean {
-    checkInvalidTaskId(taskId)
-    return taskId == getTaskSequence(taskValueOverride = taskId to value).last().id
-  }
-
-  /**
    * Retrieves the ID of the task that precedes the specified task in the sequence.
    *
    * @param taskId The ID of the task for which to find the previous task.
