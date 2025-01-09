@@ -6,7 +6,6 @@ import com.google.android.ground.model.task.TaskSelections
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 
 class TaskDataHandler {
 
@@ -23,7 +22,9 @@ class TaskDataHandler {
    */
   fun setData(key: Task, newValue: TaskData?) {
     if (getData(key) == newValue) return
-    _dataState.update { it.apply { set(key, newValue) } }
+    // Ensure that the map is recreated to ensure that the state flow is emitted.
+    val data = LinkedHashMap(_dataState.value).apply { set(key, newValue) }
+    _dataState.value = data
   }
 
   /**
