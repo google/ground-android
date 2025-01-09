@@ -1,10 +1,9 @@
-package com.google.android.ground.ui
+package com.google.android.ground.ui.datacollection
 
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.ui.datacollection.TaskSequenceHandler
 
 class TaskDataHandler(private val taskSequenceHandler: TaskSequenceHandler) {
 

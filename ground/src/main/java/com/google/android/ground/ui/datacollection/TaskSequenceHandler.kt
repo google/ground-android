@@ -17,7 +17,6 @@ package com.google.android.ground.ui.datacollection
 
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
-import com.google.android.ground.ui.TaskDataHandler
 import timber.log.Timber
 
 /**
