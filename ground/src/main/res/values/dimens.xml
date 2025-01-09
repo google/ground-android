@@ -38,4 +38,12 @@
   <dimen name="job_card_corner_radius">16dp</dimen>
   <dimen name="job_card_start_end_margin">8dp</dimen>
   <dimen name="zoom_on_cluster_click_padding">50dp</dimen>
+
+  <!-- Standard Spacing -->
+  <dimen name="dimen_empty">0dp</dimen>
+  <dimen name="dimen_4dp">4dp</dimen>
+  <dimen name="dimen_8dp">8dp</dimen>
+  <dimen name="dimen_16dp">16dp</dimen>
+  <dimen name="dimen_24dp">24dp</dimen>
+  <dimen name="dimen_28dp">28dp</dimen>
 </resources>
