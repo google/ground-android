@@ -16,7 +16,10 @@
 package com.google.android.ground.ui.datacollection
 
 import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.model.task.TaskSelections
+import com.google.android.ground.proto.task
 import timber.log.Timber
 
 /**
@@ -71,7 +74,11 @@ class TaskSequenceHandler(private val tasks: List<Task>) {
     return tasks
       .filter { task ->
         task.condition == null ||
-          taskDataHandler.isConditionFulfilled(task.condition, taskValueOverride)
+          isConditionFulfilled(
+            task.condition,
+            taskDataHandler.getTaskSelections(),
+            taskValueOverride,
+          )
       }
       .asSequence()
   }
@@ -82,6 +89,34 @@ class TaskSequenceHandler(private val tasks: List<Task>) {
       isInitialized = true
     }
     return sequence
+  }
+
+  private fun getUpdatedTaskSelections(
+    taskSelections: TaskSelections,
+    taskValueOverride: Pair<String, TaskData?>,
+  ): TaskSelections {
+    val (taskId, taskValue) = taskValueOverride
+    return if (taskValue == null) {
+      // Remove pairs with the taskId if value is null
+      taskSelections.filterNot { (key, _) -> key == taskId }
+    } else {
+      // Override any task IDs with the value
+      taskSelections + (taskId to taskValue)
+    }
+  }
+
+  /**
+   * Determines whether a given [Condition] is fulfilled by the currently set values for the tasks.
+   */
+  private fun isConditionFulfilled(
+    condition: Condition,
+    taskSelections: TaskSelections,
+    taskValueOverride: Pair<String, TaskData?>? = null,
+  ): Boolean {
+    val updatedPairs =
+      if (taskValueOverride != null) getUpdatedTaskSelections(taskSelections, taskValueOverride)
+      else taskSelections
+    return condition.fulfilledBy(updatedPairs.toMap())
   }
 
   /**

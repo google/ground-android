@@ -2,8 +2,8 @@ package com.google.android.ground.ui.datacollection
 
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.ValueDelta
-import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.model.task.TaskSelections
 
 class TaskDataHandler(private val taskSequenceHandler: TaskSequenceHandler) {
 
@@ -24,33 +24,9 @@ class TaskDataHandler(private val taskSequenceHandler: TaskSequenceHandler) {
       .map { (task, value) -> ValueDelta(task.id, task.type, value) }
   }
 
-  /**
-   * Function that determines whether a given [Condition] is fulfilled by the currently set values
-   * for the tasks. current set of [TaskData].
-   *
-   * A callback function that determines whether a given [Task] should be included in the sequence.
-   * It takes a [Task] and an optional override pair as input and returns `true` if the task should
-   * be included, `false` otherwise.
-   */
-  fun isConditionFulfilled(
-    condition: Condition,
-    taskValueOverride: Pair<String, TaskData?>? = null,
-  ): Boolean {
-    val pairs = data.mapNotNull { (task, value) -> value?.let { task.id to it } }
-    val updatedPairs =
-      if (taskValueOverride != null) {
-        val (taskId, taskValue) = taskValueOverride
-        if (taskValue == null) {
-          // Remove pairs with the taskId if value is null
-          pairs.filterNot { it.first == taskId }
-        } else {
-          // Override any task IDs with the value
-          pairs + (taskId to taskValue)
-        }
-      } else {
-        pairs
-      }
-    return condition.fulfilledBy(updatedPairs.toMap())
+  /** Returns the map of currently selected values. */
+  fun getTaskSelections(): TaskSelections {
+    return data.mapNotNull { (task, value) -> value?.let { task.id to it } }.toMap()
   }
 
   fun getData(task: Task): TaskData? {
