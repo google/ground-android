@@ -48,6 +48,9 @@ import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskVie
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -64,9 +67,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Provider
-import kotlin.collections.set
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -269,8 +269,12 @@ internal constructor(
     saveDraft(taskId)
   }
 
+  /** Retrieves a list of [ValueDelta] for tasks that are part of the current sequence. */
   private fun getDeltas(): List<ValueDelta> =
-    taskDataHandler.getDeltas(taskSequenceHandler.getTaskSequence())
+    taskSequenceHandler
+      .getTaskSequence()
+      .map { task -> ValueDelta(task.id, task.type, taskDataHandler.getData(task)) }
+      .toList()
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(deltas: List<ValueDelta>) {
