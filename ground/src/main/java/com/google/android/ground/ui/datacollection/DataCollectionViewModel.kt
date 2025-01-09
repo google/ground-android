@@ -326,7 +326,7 @@ internal constructor(
     }
 
     val sequence =
-      taskSequenceHandler.createTaskSequence(
+      taskSequenceHandler.generateTaskSequence(
         "isLastPositionWithTaskData",
         taskValueOverride = task.id to value,
       )
