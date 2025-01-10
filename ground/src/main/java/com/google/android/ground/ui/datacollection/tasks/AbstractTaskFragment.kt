@@ -147,12 +147,15 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .setOnClickListener { moveToPrevious() }
       .enableIfTrue(!dataCollectionViewModel.isFirstPosition(taskId))
 
-  protected fun addNextButton() =
+  protected fun addNextButton(hideIfEmpty: Boolean = false) =
     addButton(ButtonAction.NEXT)
       .setOnClickListener { handleNext() }
       .setOnValueChanged { button, value ->
+        if (hideIfEmpty) {
+          button.showIfTrue(value.isNotNullOrEmpty())
+        }
         button.enableIfTrue(value.isNotNullOrEmpty())
-        button.toggleDone(checkLastPositionWithTaskData(value))
+        button.toggleDone(isLastPositionWithTaskData(value))
       }
       .disable()
 
@@ -179,7 +182,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     dataCollectionViewModel.onNextClicked(viewModel)
   }
 
-  fun handleNext() {
+  private fun handleNext() {
     if (getTask().isAddLoiTask) {
       launchLoiNameDialog()
     } else {
@@ -239,8 +242,8 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
    * Returns true if the current task with the given task data would be last in sequence. Useful for
    * handling conditional tasks, see #2394.
    */
-  protected fun checkLastPositionWithTaskData(value: TaskData?) =
-    dataCollectionViewModel.checkLastPositionWithTaskData(taskId, value)
+  private fun isLastPositionWithTaskData(value: TaskData?) =
+    dataCollectionViewModel.isLastPositionWithTaskData(viewModel.task, value)
 
   private fun getTask(): Task = viewModel.task
 

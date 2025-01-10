@@ -41,32 +41,30 @@ class TaskSequenceHandlerTest {
       { _, _ ->
         true
       },
-  ): TaskSequenceHandler = TaskSequenceHandler(tasks, shouldIncludeTask)
+  ): TaskSequenceHandler = TaskSequenceHandler(tasks)
 
   @Test
   fun `constructor should throw error when tasks are empty`() {
-    assertThrows(IllegalArgumentException::class.java) {
-      TaskSequenceHandler(tasks = emptyList(), shouldIncludeTask = { _, _ -> true })
-    }
+    assertThrows(IllegalArgumentException::class.java) { TaskSequenceHandler(tasks = emptyList()) }
   }
 
   @Test
-  fun `getTaskSequence returns all tasks when shouldIncludeTask always returns true`() {
+  fun `createTaskSequence returns all tasks when shouldIncludeTask always returns true`() {
     val handler = createHandler()
-    val sequence = handler.getTaskSequence()
+    val sequence = handler.generateTaskSequence("")
     assertThat(sequence.toList()).isEqualTo(allTasks)
   }
 
   @Test
-  fun `getTaskSequence filters tasks based on shouldIncludeTask`() {
+  fun `createTaskSequence filters tasks based on shouldIncludeTask`() {
     val handler =
       createHandler(shouldIncludeTask = { task, _ -> task.id != "task2" && task.id != "task4" })
-    val sequence = handler.getTaskSequence()
+    val sequence = handler.generateTaskSequence("")
     assertThat(sequence.toList()).isEqualTo(listOf(task1, task3, task5))
   }
 
   @Test
-  fun `getTaskSequence filters tasks based on shouldIncludeTask and taskValueOverride`() {
+  fun `createTaskSequence filters tasks based on shouldIncludeTask and taskValueOverride`() {
     val handler =
       createHandler(
         shouldIncludeTask = { task, taskValueOverride ->
@@ -75,7 +73,7 @@ class TaskSequenceHandlerTest {
             !(task.id == "task3" && taskValueOverride?.first == "task3")
         }
       )
-    val sequence = handler.getTaskSequence(taskValueOverride = "task3" to null)
+    val sequence = handler.generateTaskSequence("", taskValueOverride = "task3" to null)
     assertThat(sequence.toList()).isEqualTo(listOf(task1, task5))
   }
 
@@ -182,22 +180,22 @@ class TaskSequenceHandlerTest {
   }
 
   @Test
-  fun `getRelativePosition returns the correct position`() {
+  fun `getTaskIndex returns the correct position`() {
     val handler =
       createHandler(shouldIncludeTask = { task, _ -> task.id != "task2" && task.id != "task4" })
-    assertThat(handler.getRelativePosition("task3")).isEqualTo(1)
+    assertThat(handler.getTaskIndex("task3")).isEqualTo(1)
   }
 
   @Test
-  fun `getRelativePosition throws error for invalid task id`() {
+  fun `getTaskIndex throws error for invalid task id`() {
     val handler = createHandler()
-    assertThrows(IllegalArgumentException::class.java) { handler.getRelativePosition("") }
+    assertThrows(IllegalArgumentException::class.java) { handler.getTaskIndex("") }
   }
 
   @Test
-  fun `getRelativePosition throws error when task is not found`() {
+  fun `getTaskIndex throws error when task is not found`() {
     val handler = createHandler()
-    assertThrows(IllegalArgumentException::class.java) { handler.getRelativePosition("invalid") }
+    assertThrows(IllegalArgumentException::class.java) { handler.getTaskIndex("invalid") }
   }
 
   @Test

@@ -24,7 +24,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import com.google.android.ground.R
-import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.InstructionsDialog
@@ -67,13 +66,7 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
     addButton(ButtonAction.DROP_PIN)
       .setOnClickListener { viewModel.dropPin() }
       .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
-    addButton(ButtonAction.NEXT)
-      .setOnClickListener { handleNext() }
-      .setOnValueChanged { button, value ->
-        button.showIfTrue(value.isNotNullOrEmpty())
-        button.toggleDone(checkLastPositionWithTaskData(value))
-      }
-      .hide()
+    addNextButton(hideIfEmpty = true)
   }
 
   override fun onTaskResume() {
