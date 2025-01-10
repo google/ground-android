@@ -43,9 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.ground.ExcludeFromJacocoGeneratedReport
 import com.google.android.ground.R
-import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.mutation.Mutation
-import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.ui.theme.AppTheme
 import java.util.Date
 
@@ -54,7 +52,7 @@ fun SyncListItem(modifier: Modifier, detail: SyncStatusDetail) {
   Column {
     Row(modifier.fillMaxWidth().padding(top = 8.dp, end = 24.dp, bottom = 8.dp, start = 16.dp)) {
       Column(modifier.weight(1f)) {
-        val date = detail.mutation.clientTimestamp
+        val date = detail.timestamp
         Text(
           text = "${date.toFormattedDate()} • ${date.toFormattedTime()}",
           color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -85,10 +83,10 @@ fun SyncListItem(modifier: Modifier, detail: SyncStatusDetail) {
       }
       Column(modifier = modifier.padding(start = 16.dp).align(alignment = CenterVertically)) {
         Row(verticalAlignment = CenterVertically) {
-          Text(text = stringResource(id = detail.mutation.syncStatus.toLabel()), fontSize = 11.sp)
+          Text(text = stringResource(id = detail.status.toLabel()), fontSize = 11.sp)
           Spacer(modifier = Modifier.width(10.dp))
           Icon(
-            imageVector = ImageVector.vectorResource(id = detail.mutation.syncStatus.toIcon()),
+            imageVector = ImageVector.vectorResource(id = detail.status.toIcon()),
             contentDescription = "",
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(1.dp).width(24.dp).height(24.dp),
@@ -143,14 +141,10 @@ fun PreviewSyncListItem(
   detail: SyncStatusDetail =
     SyncStatusDetail(
       user = "Jane Doe",
+      timestamp = Date(),
       label = "Map the farms",
       subtitle = "IDX21311",
-      mutation =
-        SubmissionMutation(
-          job = Job(id = "123"),
-          syncStatus = Mutation.SyncStatus.PENDING,
-          collectionId = "example",
-        ),
+      status = Mutation.SyncStatus.PENDING,
     )
 ) {
   AppTheme { SyncListItem(Modifier, detail) }
