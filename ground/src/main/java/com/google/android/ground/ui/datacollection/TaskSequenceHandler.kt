@@ -36,7 +36,7 @@ class TaskSequenceHandler(
     (task: Task, taskValueOverride: Pair<String, TaskData?>?) -> Boolean,
 ) {
 
-  private var taskSequence: Sequence<Task> = sequenceOf()
+  private var taskSequence: Sequence<Task> = emptySequence()
   private var isSequenceInitialized = false
 
   init {
