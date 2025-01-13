@@ -26,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
-import com.google.android.ground.model.submission.isNotNullOrEmpty
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
@@ -83,13 +82,7 @@ class CaptureLocationTaskFragment @Inject constructor() :
     addButton(ButtonAction.CAPTURE_LOCATION)
       .setOnClickListener { viewModel.updateResponse() }
       .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
-    addButton(ButtonAction.NEXT)
-      .setOnClickListener { handleNext() }
-      .setOnValueChanged { button, value ->
-        button.showIfTrue(value.isNotNullOrEmpty())
-        button.toggleDone(checkLastPositionWithTaskData(value))
-      }
-      .hide()
+    addNextButton(hideIfEmpty = true)
   }
 
   @Suppress("LabeledExpression")
