@@ -81,12 +81,12 @@ internal constructor(
   private val _navigate = MutableSharedFlow<UiState>(replay = 0)
   val navigate = _navigate.asSharedFlow()
 
-  private val _networkUnavailableEvent = MutableSharedFlow<Boolean>()
+  private val _networkUnavailableEvent = MutableSharedFlow<Unit>()
   val networkUnavailableEvent = _networkUnavailableEvent.asSharedFlow()
 
   fun onDownloadClick() {
     if (!networkManager.isNetworkConnected()) {
-      viewModelScope.launch { _networkUnavailableEvent.emit(true) }
+      viewModelScope.launch { _networkUnavailableEvent.emit(Unit) }
       return
     }
 
