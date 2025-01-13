@@ -88,7 +88,7 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
     }
 
     lifecycleScope.launch {
-      viewModel.showPopupEvent.collect { show ->
+      viewModel.networkUnavailableEvent.collect { show ->
         if (show) {
           popups.ErrorPopup().show(R.string.connect_to_download_message)
         }
