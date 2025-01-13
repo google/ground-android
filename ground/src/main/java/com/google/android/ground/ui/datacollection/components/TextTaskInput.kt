@@ -15,9 +15,9 @@
  */
 package com.google.android.ground.ui.datacollection.components
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextField
@@ -42,7 +42,7 @@ fun TextTaskInput(
     onValueChange = { valueChanged(it) },
     modifier =
       modifier
-        .wrapContentWidth(align = Alignment.Start)
+        .fillMaxWidth()
         .wrapContentHeight(align = Alignment.Top)
         // TODO: Add horizontal padding as 16.dp when global padding is removed.
         // Issue URL: https://github.com/google/ground-android/issues/2976
