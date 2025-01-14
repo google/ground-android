@@ -17,7 +17,6 @@ package com.google.android.ground.ui.datacollection
 
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.model.task.TaskSelections
-import timber.log.Timber
 
 /**
  * Manages operations related to a sequence of tasks.
@@ -33,8 +32,8 @@ class TaskSequenceHandler(
   private val taskDataHandler: TaskDataHandler,
 ) {
 
-  private var sequence: Sequence<Task> = emptySequence()
-  private var isInitialized = false
+  private var taskSequence: Sequence<Task> = emptySequence()
+  private var isSequenceInitialized = false
 
   init {
     require(tasks.isNotEmpty()) { "Can't generate a sequence from an empty task list." }
@@ -47,23 +46,22 @@ class TaskSequenceHandler(
 
   /** Refreshes the task sequence. */
   fun refreshSequence() {
-    sequence = generateTaskSequence("refreshSequence")
+    taskSequence = generateTaskSequence()
   }
 
   /** Generates the task sequence based on conditions and overrides. */
-  fun generateTaskSequence(tag: String, taskSelections: TaskSelections? = null): Sequence<Task> {
-    Timber.d("Task Sequence Generated: $tag")
+  fun generateTaskSequence(taskSelections: TaskSelections? = null): Sequence<Task> {
     val selections = taskSelections ?: taskDataHandler.getTaskSelections()
     return tasks.filter { shouldIncludeTaskInSequence(it, selections) }.asSequence()
   }
 
   /** Lazily retrieves the task sequence. */
   fun getTaskSequence(): Sequence<Task> {
-    if (!isInitialized) {
-      sequence = generateTaskSequence("getTaskSequence")
-      isInitialized = true
+    if (!isSequenceInitialized) {
+      taskSequence = generateTaskSequence()
+      isSequenceInitialized = true
     }
-    return sequence
+    return taskSequence
   }
 
   /** Determines if a task should be included with the given overrides. */

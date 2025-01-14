@@ -218,14 +218,14 @@ internal constructor(
     val task = taskViewModel.task
     val taskValue = taskViewModel.taskTaskData.value
 
-    // Skip validation if the task is empty
-    if (taskValue.isNotNullOrEmpty()) {
-      val error = taskViewModel.validate()
-      if (error != null) {
-        popups.get().ErrorPopup().show(error)
-        return
+    taskValue
+      ?.takeIf { it.isNotNullOrEmpty() } // Skip validation if the task is empty
+      ?.let {
+        taskViewModel.validate()?.let {
+          popups.get().ErrorPopup().show(it)
+          return
+        }
       }
-    }
 
     taskDataHandler.setData(task, taskValue)
     moveToPreviousTask()
@@ -236,15 +236,15 @@ internal constructor(
    * the next Data Collection screen if the user input was valid.
    */
   fun onNextClicked(taskViewModel: AbstractTaskViewModel) {
-    val validationError = taskViewModel.validate()
-    if (validationError != null) {
-      popups.get().ErrorPopup().show(validationError)
+    taskViewModel.validate()?.let {
+      popups.get().ErrorPopup().show(it)
       return
     }
 
-    taskDataHandler.setData(taskViewModel.task, taskViewModel.taskTaskData.value)
+    val task = taskViewModel.task
+    taskDataHandler.setData(task, taskViewModel.taskTaskData.value)
 
-    if (!isLastPosition(currentTaskId.value)) {
+    if (!isLastPosition(task.id)) {
       moveToNextTask()
     } else {
       clearDraft()
@@ -258,9 +258,8 @@ internal constructor(
     val taskId = currentTaskId.value
     val viewModel = getTaskViewModel(taskId) ?: error("ViewModel not found for task $taskId")
 
-    val validationError = viewModel.validate()
-    if (validationError != null) {
-      Timber.d("Ignoring task $taskId with invalid data: $validationError")
+    viewModel.validate()?.let {
+      Timber.d("Ignoring task $taskId with invalid data")
       return
     }
 
