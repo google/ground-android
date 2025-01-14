@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection
 
-import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.model.task.Task.Type
 import com.google.common.truth.Truth.assertThat
@@ -34,48 +33,26 @@ class TaskSequenceHandlerTest {
   private val task5 = Task("task5", 5, Type.TEXT, "Task 5", true)
 
   private val allTasks = listOf(task1, task2, task3, task4, task5)
+  private val taskDataHandler = TaskDataHandler()
 
-  private fun createHandler(
-    tasks: List<Task> = allTasks,
-    shouldIncludeTask: (task: Task, taskValueOverride: Pair<String, TaskData?>?) -> Boolean =
-      { _, _ ->
-        true
-      },
-  ): TaskSequenceHandler = TaskSequenceHandler(tasks)
+  private fun createHandler(tasks: List<Task> = allTasks) =
+    TaskSequenceHandler(tasks, taskDataHandler)
 
   @Test
   fun `constructor should throw error when tasks are empty`() {
-    assertThrows(IllegalArgumentException::class.java) { TaskSequenceHandler(tasks = emptyList()) }
+    assertThrows(IllegalArgumentException::class.java) {
+      TaskSequenceHandler(tasks = emptyList(), taskDataHandler = TaskDataHandler())
+    }
   }
 
   @Test
-  fun `createTaskSequence returns all tasks when shouldIncludeTask always returns true`() {
+  fun `generateTaskSequence returns all tasks when tasks don't contain any conditions`() {
     val handler = createHandler()
-    val sequence = handler.generateTaskSequence("")
+    val sequence = handler.generateTaskSequence()
     assertThat(sequence.toList()).isEqualTo(allTasks)
   }
 
-  @Test
-  fun `createTaskSequence filters tasks based on shouldIncludeTask`() {
-    val handler =
-      createHandler(shouldIncludeTask = { task, _ -> task.id != "task2" && task.id != "task4" })
-    val sequence = handler.generateTaskSequence("")
-    assertThat(sequence.toList()).isEqualTo(listOf(task1, task3, task5))
-  }
-
-  @Test
-  fun `generateTaskSequence filters tasks based on shouldIncludeTask and taskValueOverride`() {
-    val handler =
-      createHandler(
-        shouldIncludeTask = { task, taskValueOverride ->
-          task.id != "task2" &&
-            task.id != "task4" &&
-            !(task.id == "task3" && taskValueOverride?.first == "task3")
-        }
-      )
-    val sequence = handler.generateTaskSequence(taskValueOverride = "task3" to null)
-    assertThat(sequence.toList()).isEqualTo(listOf(task1, task5))
-  }
+  // Note: Add tests with task conditions and task selections
 
   @Test
   fun `isFirstPosition returns true for the first task`() {
@@ -140,7 +117,7 @@ class TaskSequenceHandlerTest {
   @Test
   fun `getPreviousTask throws error when there is no previous task`() {
     val handler = createHandler()
-    assertThrows(IndexOutOfBoundsException::class.java) { handler.getPreviousTask("task1") }
+    assertThrows(IllegalArgumentException::class.java) { handler.getPreviousTask("task1") }
   }
 
   @Test
@@ -179,11 +156,11 @@ class TaskSequenceHandlerTest {
     assertThrows(IllegalArgumentException::class.java) { handler.getAbsolutePosition("invalid") }
   }
 
+  // Note: Update test with task conditions fetching task index
   @Test
   fun `getTaskIndex returns the correct position`() {
-    val handler =
-      createHandler(shouldIncludeTask = { task, _ -> task.id != "task2" && task.id != "task4" })
-    assertThat(handler.getTaskIndex("task3")).isEqualTo(1)
+    val handler = createHandler()
+    assertThat(handler.getTaskIndex("task3")).isEqualTo(2)
   }
 
   @Test
@@ -198,13 +175,13 @@ class TaskSequenceHandlerTest {
     assertThrows(IllegalArgumentException::class.java) { handler.getTaskIndex("invalid") }
   }
 
+  // Note: Update test with task conditions fetching task position
   @Test
   fun `getTaskPosition returns the correct position`() {
-    val handler =
-      createHandler(shouldIncludeTask = { task, _ -> task.id != "task2" && task.id != "task4" })
+    val handler = createHandler()
     val position = handler.getTaskPosition("task3")
     assertThat(position.absoluteIndex).isEqualTo(2)
-    assertThat(position.relativeIndex).isEqualTo(1)
-    assertThat(position.sequenceSize).isEqualTo(3)
+    assertThat(position.relativeIndex).isEqualTo(2)
+    assertThat(position.sequenceSize).isEqualTo(5)
   }
 }

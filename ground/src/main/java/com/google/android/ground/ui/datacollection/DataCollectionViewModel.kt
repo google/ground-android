@@ -272,7 +272,9 @@ internal constructor(
   private fun getDeltas(): List<ValueDelta> =
     taskSequenceHandler
       .getTaskSequence()
-      .map { task -> ValueDelta(task.id, task.type, taskDataHandler.getData(task)) }
+      .mapNotNull { task ->
+        taskDataHandler.getData(task)?.let { ValueDelta(task.id, task.type, it) }
+      }
       .toList()
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */

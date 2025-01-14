@@ -162,11 +162,10 @@ class TaskSequenceHandler(
    * @throws IllegalArgumentException if the provided [taskId] is blank.
    * @throws NoSuchElementException if the task is not found in the computed task sequence.
    */
-  fun getTaskPosition(taskId: String): TaskPosition {
-    return TaskPosition(
+  fun getTaskPosition(taskId: String): TaskPosition =
+    TaskPosition(
       absoluteIndex = getAbsolutePosition(taskId),
       relativeIndex = getTaskIndex(taskId),
       sequenceSize = getTaskSequence().count(),
     )
-  }
 }
