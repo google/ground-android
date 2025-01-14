@@ -209,14 +209,14 @@ internal constructor(
     val task = taskViewModel.task
     val taskValue = taskViewModel.taskTaskData.value
 
-    // Skip validation if the task is empty
-    if (taskValue.isNotNullOrEmpty()) {
-      val validationError = taskViewModel.validate()
-      if (validationError != null) {
-        popups.get().ErrorPopup().show(validationError)
-        return
+    taskValue
+      ?.takeIf { it.isNotNullOrEmpty() } // Skip validation if the task is empty
+      ?.let {
+        taskViewModel.validate()?.let {
+          popups.get().ErrorPopup().show(it)
+          return
+        }
       }
-    }
 
     data[task] = taskValue
     moveToPreviousTask()
@@ -227,9 +227,8 @@ internal constructor(
    * the next Data Collection screen if the user input was valid.
    */
   fun onNextClicked(taskViewModel: AbstractTaskViewModel) {
-    val validationError = taskViewModel.validate()
-    if (validationError != null) {
-      popups.get().ErrorPopup().show(validationError)
+    taskViewModel.validate()?.let {
+      popups.get().ErrorPopup().show(it)
       return
     }
 
@@ -251,9 +250,8 @@ internal constructor(
     val taskId = currentTaskId.value
     val viewModel = getTaskViewModel(taskId) ?: error("ViewModel not found for task $taskId")
 
-    val validationError = viewModel.validate()
-    if (validationError != null) {
-      Timber.d("Ignoring task $taskId with invalid data: $validationError")
+    viewModel.validate()?.let {
+      Timber.d("Ignoring task $taskId with invalid data")
       return
     }
 
@@ -277,12 +275,8 @@ internal constructor(
     }
   }
 
-  private fun getAbsolutePosition(taskId: String): Int {
-    if (taskId == "") {
-      return 0
-    }
-    return tasks.indexOf(tasks.first { it.id == taskId })
-  }
+  private fun getAbsolutePosition(taskId: String): Int =
+    if (taskId == "") 0 else tasks.indexOf(tasks.first { it.id == taskId })
 
   /** Persists the collected data as draft to local storage. */
   private fun saveDraft(taskId: String) {
