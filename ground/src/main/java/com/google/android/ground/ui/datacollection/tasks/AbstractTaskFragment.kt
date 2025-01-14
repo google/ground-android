@@ -147,10 +147,13 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .setOnClickListener { moveToPrevious() }
       .enableIfTrue(!dataCollectionViewModel.isFirstPosition(taskId))
 
-  protected fun addNextButton() =
+  protected fun addNextButton(hideIfEmpty: Boolean = false) =
     addButton(ButtonAction.NEXT)
       .setOnClickListener { handleNext() }
       .setOnValueChanged { button, value ->
+        if (hideIfEmpty) {
+          button.showIfTrue(value.isNotNullOrEmpty())
+        }
         button.enableIfTrue(value.isNotNullOrEmpty())
         button.toggleDone(checkLastPositionWithTaskData(value))
       }
@@ -179,7 +182,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     dataCollectionViewModel.onNextClicked(viewModel)
   }
 
-  fun handleNext() {
+  private fun handleNext() {
     if (getTask().isAddLoiTask) {
       launchLoiNameDialog()
     } else {
