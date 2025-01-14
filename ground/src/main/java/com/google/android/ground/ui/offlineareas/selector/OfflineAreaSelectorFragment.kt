@@ -26,15 +26,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.ground.R
 import com.google.android.ground.databinding.OfflineAreaSelectorFragBinding
 import com.google.android.ground.ui.common.AbstractMapContainerFragment
 import com.google.android.ground.ui.common.BaseMapViewModel
+import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.common.MapConfig
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.launch
 
 /** Map UI used to select areas for download and viewing offline. */
@@ -43,6 +46,8 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
 
   private lateinit var viewModel: OfflineAreaSelectorViewModel
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
+
+  @Inject lateinit var popups: EphemeralPopups
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -79,6 +84,12 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
             findNavController().navigateUp()
           }
         }
+      }
+    }
+
+    lifecycleScope.launch {
+      viewModel.networkUnavailableEvent.collect {
+        popups.ErrorPopup().show(R.string.connect_to_download_message)
       }
     }
   }
