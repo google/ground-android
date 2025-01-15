@@ -155,7 +155,8 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
           button.showIfTrue(value.isNotNullOrEmpty())
         }
         button.enableIfTrue(value.isNotNullOrEmpty())
-        button.toggleDone(checkLastPositionWithTaskData(value))
+        val isLastPosition = checkLastPositionWithTaskData(value)
+        button.toggleDone(done = isLastPosition)
       }
       .disable()
 
@@ -242,7 +243,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
    * Returns true if the current task with the given task data would be last in sequence. Useful for
    * handling conditional tasks, see #2394.
    */
-  protected fun checkLastPositionWithTaskData(value: TaskData?) =
+  private fun checkLastPositionWithTaskData(value: TaskData?) =
     dataCollectionViewModel.checkLastPositionWithTaskData(taskId, value)
 
   private fun getTask(): Task = viewModel.task

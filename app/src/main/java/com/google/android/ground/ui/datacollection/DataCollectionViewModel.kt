@@ -51,8 +51,6 @@ import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import javax.inject.Provider
-import kotlin.collections.component1
-import kotlin.collections.component2
 import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -141,7 +139,7 @@ internal constructor(
   private val taskViewModels: MutableStateFlow<MutableMap<String, AbstractTaskViewModel>> =
     MutableStateFlow(mutableMapOf())
 
-  private val data: MutableMap<Task, TaskData?> = LinkedHashMap()
+  private val taskDataHandler = TaskDataHandler()
 
   // Tracks the current task ID to compute the position in the list of tasks for the current job.
   private val currentTaskId: StateFlow<String> =
@@ -218,7 +216,7 @@ internal constructor(
         }
       }
 
-    data[task] = taskValue
+    taskDataHandler.setData(task, taskValue)
     moveToPreviousTask()
   }
 
@@ -234,7 +232,7 @@ internal constructor(
 
     val task = taskViewModel.task
     val taskValue = taskViewModel.taskTaskData
-    data[task] = taskValue.value
+    taskDataHandler.setData(task, taskValue.value)
 
     if (!isLastPosition(task.id)) {
       moveToNextTask()
@@ -255,7 +253,7 @@ internal constructor(
       return
     }
 
-    data[viewModel.task] = viewModel.taskTaskData.value
+    taskDataHandler.setData(viewModel.task, viewModel.taskTaskData.value)
     savedStateHandle[TASK_POSITION_ID] = taskId
     saveDraft(taskId)
   }
@@ -264,7 +262,9 @@ internal constructor(
   private fun getDeltas(): List<ValueDelta> =
     // Filter deltas to valid tasks.
     getTaskSequence()
-      .mapNotNull { task -> data[task]?.let { ValueDelta(task.id, task.type, it) } }
+      .mapNotNull { task ->
+        taskDataHandler.getData(task)?.let { ValueDelta(task.id, task.type, it) }
+      }
       .toList()
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
@@ -402,25 +402,7 @@ internal constructor(
   private fun evaluateCondition(
     condition: Condition,
     taskValueOverride: Pair<String, TaskData?>? = null,
-  ): Boolean =
-    condition.fulfilledBy(
-      data
-        .mapNotNull { (task, value) -> value?.let { task.id to it } }
-        .let { pairs ->
-          if (taskValueOverride != null) {
-            if (taskValueOverride.second == null) {
-              // Remove pairs with the testTaskId if testValue is null.
-              pairs.filterNot { it.first == taskValueOverride.first }
-            } else {
-              // Override any task IDs with the test values.
-              pairs + (taskValueOverride.first to taskValueOverride.second!!)
-            }
-          } else {
-            pairs
-          }
-        }
-        .toMap()
-    )
+  ): Boolean = condition.fulfilledBy(taskDataHandler.getTaskSelections(taskValueOverride))
 
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"
