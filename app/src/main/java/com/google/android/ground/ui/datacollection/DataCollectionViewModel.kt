@@ -343,12 +343,6 @@ internal constructor(
     return task.id == sequence.last().id
   }
 
-  /** Evaluates the task condition against the current inputs. */
-  private fun evaluateCondition(
-    condition: Condition,
-    taskValueOverride: Pair<String, TaskData?>? = null,
-  ): Boolean = condition.fulfilledBy(taskDataHandler.getTaskSelections(taskValueOverride))
-
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"
     private const val TASK_LOI_ID_KEY = "locationOfInterestId"
