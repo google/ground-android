@@ -51,7 +51,7 @@ class TaskSequenceHandler(
 
   /** Determines if a task should be included with the given overrides. */
   private fun shouldIncludeTaskInSequence(task: Task, taskSelections: TaskSelections): Boolean =
-    (task.condition == null) || task.condition.fulfilledBy(taskSelections)
+    task.condition == null || task.condition.fulfilledBy(taskSelections)
 
   /** Lazily retrieves the task sequence. */
   fun getTaskSequence(): Sequence<Task> {
