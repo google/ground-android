@@ -37,6 +37,6 @@ object CaptureLocationResultConverter {
     val accuracy = getDouble(ACCURACY_KEY)
     val altitude = getDouble(ALTITUDE_KEY)
     val geometry = GeometryWrapperTypeConverter.fromString(getString(GEOMETRY_KEY))?.getGeometry()
-    return CaptureLocationTaskData(geometry as Point, accuracy, altitude)
+    return CaptureLocationTaskData(geometry as Point, accuracy = accuracy, altitude = altitude)
   }
 }
