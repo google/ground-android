@@ -257,7 +257,6 @@ class TaskSequenceHandlerTest {
 
   @Test
   fun `getTaskPosition throws error if task not found`() {
-
     assertThrows(IllegalArgumentException::class.java) {
       taskSequenceHandler.getTaskPosition(conditionalTask.id)
     }
