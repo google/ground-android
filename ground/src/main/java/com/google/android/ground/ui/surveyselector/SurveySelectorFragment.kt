@@ -134,6 +134,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
     }
   }
 
+  @Suppress("UnrememberedMutableState")
   private fun showRemoveConfirmationDialogs(onConfirm: () -> Unit) {
     binding.composeView.apply {
       setContent {
