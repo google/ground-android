@@ -44,7 +44,7 @@ def extractedGroundProtoPath = layout.buildDirectory.dir('extracted-ground-proto
 // Extract API key from google-services.json for use with Google Maps SDK.
 import groovy.json.JsonSlurper
 
-def inputFile = new File("ground/src/debug/google-services.json")
+def inputFile = new File("app/src/debug/google-services.json")
 def json = inputFile.exists() ? new JsonSlurper().parseText(inputFile.text) : null
 def googleMapsApiKey = json ? json.client[0].api_key[0].current_key : ''
 
