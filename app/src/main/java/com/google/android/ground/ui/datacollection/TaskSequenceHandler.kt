@@ -15,8 +15,8 @@
  */
 package com.google.android.ground.ui.datacollection
 
-import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
+import com.google.android.ground.model.task.TaskSelections
 
 /**
  * Manages operations related to a sequence of tasks.
@@ -26,14 +26,10 @@ import com.google.android.ground.model.task.Task
  * condition.
  *
  * @param tasks The complete list of [Task] objects from which the sequence is derived.
- * @param shouldIncludeTask A callback function that determines whether a given [Task] should be
- *   included in the sequence. It takes a [Task] and an optional override pair as input and returns
- *   `true` if the task should be included, `false` otherwise.
  */
 class TaskSequenceHandler(
   private val tasks: List<Task>,
-  private val shouldIncludeTask:
-    (task: Task, taskValueOverride: Pair<String, TaskData?>?) -> Boolean,
+  private val taskDataHandler: TaskDataHandler,
 ) {
 
   private var taskSequence: Sequence<Task> = emptySequence()
@@ -43,28 +39,21 @@ class TaskSequenceHandler(
     require(tasks.isNotEmpty()) { "Can't generate a sequence from an empty task list." }
   }
 
-  private fun checkInvalidTaskId(taskId: String) {
+  private fun validateTaskId(taskId: String) {
     require(taskId.isNotBlank()) { "Task ID can't be blank." }
   }
 
-  private fun checkInvalidIndex(taskId: String, index: Int) {
-    checkInvalidTaskId(taskId)
-    require(index >= 0) { "Task '$taskId' not found in the task list." }
+  /** Generates the task sequence based on conditions and overrides. */
+  fun generateTaskSequence(taskSelections: TaskSelections? = null): Sequence<Task> {
+    val selections = taskSelections ?: taskDataHandler.getTaskSelections()
+    return tasks.filter { shouldIncludeTaskInSequence(it, selections) }.asSequence()
   }
 
-  /**
-   * Generates the task sequence based on whether a task should be included or not.
-   *
-   * This determines the order of tasks to be presented to the user, taking into account any
-   * overrides specified by [taskValueOverride].
-   *
-   * @param taskValueOverride An optional pair where the first element is the task ID and the second
-   *   element is the [TaskData] to override the default task data. If null, no override is applied.
-   * @return A [Sequence] of [Task] objects representing the ordered tasks.
-   */
-  fun generateTaskSequence(taskValueOverride: Pair<String, TaskData?>? = null): Sequence<Task> =
-    tasks.filter { task -> shouldIncludeTask(task, taskValueOverride) }.asSequence()
+  /** Determines if a task should be included with the given overrides. */
+  private fun shouldIncludeTaskInSequence(task: Task, taskSelections: TaskSelections): Boolean =
+    (task.condition == null) || task.condition.fulfilledBy(taskSelections)
 
+  /** Lazily retrieves the task sequence. */
   fun getTaskSequence(): Sequence<Task> {
     if (!isSequenceInitialized) {
       taskSequence = generateTaskSequence()
@@ -84,7 +73,7 @@ class TaskSequenceHandler(
    * @throws IllegalArgumentException if the provided [taskId] is blank.
    */
   fun isFirstPosition(taskId: String): Boolean {
-    checkInvalidTaskId(taskId)
+    validateTaskId(taskId)
     return taskId == getTaskSequence().first().id
   }
 
@@ -96,7 +85,7 @@ class TaskSequenceHandler(
    * @throws IllegalArgumentException if the provided [taskId] is blank.
    */
   fun isLastPosition(taskId: String): Boolean {
-    checkInvalidTaskId(taskId)
+    validateTaskId(taskId)
     return taskId == getTaskSequence().last().id
   }
 
@@ -109,8 +98,9 @@ class TaskSequenceHandler(
    * @throws NoSuchElementException if the provided [taskId] is the first element in the sequence.
    */
   fun getPreviousTask(taskId: String): String {
-    checkInvalidTaskId(taskId)
-    return getTaskSequence().elementAt(getRelativePosition(taskId) - 1).id
+    val index = getTaskIndex(taskId)
+    require(index > 0) { "Can't generate previous task for Task '$taskId'" }
+    return getTaskSequence().elementAt(index - 1).id
   }
 
   /**
@@ -122,8 +112,9 @@ class TaskSequenceHandler(
    * @throws NoSuchElementException if the provided [taskId] is the last element in the sequence.
    */
   fun getNextTask(taskId: String): String {
-    checkInvalidTaskId(taskId)
-    return getTaskSequence().elementAt(getRelativePosition(taskId) + 1).id
+    val index = getTaskIndex(taskId)
+    require(index + 1 < getTaskSequence().count()) { "Can't generate next task for Task '$taskId'" }
+    return getTaskSequence().elementAt(index + 1).id
   }
 
   /**
@@ -137,13 +128,14 @@ class TaskSequenceHandler(
    * @throws NoSuchElementException if the task is not found in the original task sequence.
    */
   fun getAbsolutePosition(taskId: String): Int {
+    validateTaskId(taskId)
     val index = tasks.indexOfFirst { it.id == taskId }
-    checkInvalidIndex(taskId, index)
+    require(index >= 0) { "Task '$taskId' not found in the task list." }
     return index
   }
 
   /**
-   * Retrieves the relative index in the computed task sequence.
+   * Retrieves the relative index of task in the computed task sequence.
    *
    * The relative index represents the task's position within the currently displayed sequence.
    *
@@ -151,9 +143,10 @@ class TaskSequenceHandler(
    * @throws IllegalArgumentException if the provided [taskId] is blank.
    * @throws NoSuchElementException if the task is not found in the computed task sequence.
    */
-  fun getRelativePosition(taskId: String): Int {
+  fun getTaskIndex(taskId: String): Int {
+    validateTaskId(taskId)
     val index = getTaskSequence().indexOfFirst { it.id == taskId }
-    checkInvalidIndex(taskId, index)
+    require(index >= 0) { "Task '$taskId' not found in the sequence." }
     return index
   }
 
@@ -164,12 +157,10 @@ class TaskSequenceHandler(
    * @throws IllegalArgumentException if the provided [taskId] is blank.
    * @throws NoSuchElementException if the task is not found in the computed task sequence.
    */
-  fun getTaskPosition(taskId: String): TaskPosition {
-    checkInvalidTaskId(taskId)
-    return TaskPosition(
+  fun getTaskPosition(taskId: String): TaskPosition =
+    TaskPosition(
       absoluteIndex = getAbsolutePosition(taskId),
-      relativeIndex = getRelativePosition(taskId),
-      sequenceSize = getTaskSequence().toList().size,
+      relativeIndex = getTaskIndex(taskId),
+      sequenceSize = getTaskSequence().count(),
     )
-  }
 }
