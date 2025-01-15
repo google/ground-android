@@ -25,6 +25,7 @@ import android.widget.PopupMenu
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import androidx.navigation.fragment.findNavController
 import com.google.android.ground.R
 import com.google.android.ground.databinding.SurveySelectorFragBinding
@@ -136,26 +137,28 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
 
   @Suppress("UnrememberedMutableState")
   private fun showRemoveConfirmationDialogs(onConfirm: () -> Unit) {
-    binding.composeView.apply {
-      setContent {
-        var showRemoveWarningDialog by mutableStateOf(true)
+    val dialogComposeView =
+      ComposeView(requireContext()).apply {
+        setContent {
+          var showRemoveWarningDialog by mutableStateOf(true)
 
-        AppTheme {
-          if (showRemoveWarningDialog) {
-            ConfirmationDialog(
-              title = R.string.remove_offline_access_warning_title,
-              description = R.string.remove_offline_access_warning_dialog_body,
-              confirmButtonText = R.string.remove_offline_access_warning_confirm_button,
-              signOutCallback = {
-                onConfirm()
-                showRemoveWarningDialog = false
-              },
-              dismissCallback = { showRemoveWarningDialog = false },
-            )
+          AppTheme {
+            if (showRemoveWarningDialog) {
+              ConfirmationDialog(
+                title = R.string.remove_offline_access_warning_title,
+                description = R.string.remove_offline_access_warning_dialog_body,
+                confirmButtonText = R.string.remove_offline_access_warning_confirm_button,
+                signOutCallback = {
+                  onConfirm()
+                  showRemoveWarningDialog = false
+                },
+                dismissCallback = { showRemoveWarningDialog = false },
+              )
+            }
           }
         }
       }
-    }
+    (view as ViewGroup).addView(dialogComposeView)
   }
 
   private fun shouldExitApp(): Boolean =
