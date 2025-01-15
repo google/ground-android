@@ -64,9 +64,9 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractTaskViewModel
     } else {
       setValue(
         CaptureLocationTaskData(
-          Point(location.toCoordinates()),
-          location.getAltitudeOrNull(),
-          location.getAccuracyOrNull(),
+          location = Point(location.toCoordinates()),
+          altitude = location.getAltitudeOrNull(),
+          accuracy = location.getAccuracyOrNull(),
         )
       )
     }
