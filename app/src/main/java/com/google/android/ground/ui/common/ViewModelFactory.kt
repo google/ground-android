@@ -19,7 +19,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -37,8 +36,16 @@ constructor(
   /** Instantiates a new instance of the specified view model, injecting required dependencies. */
   override fun <T : ViewModel> create(modelClass: Class<T>): T {
     val creator =
-      creators[modelClass] ?: throw IllegalArgumentException("Unknown model class $modelClass")
-    return creator.get() as T
+      creators[modelClass]
+        ?: creators.entries.firstOrNull { modelClass.isAssignableFrom(it.key) }?.value
+        ?: error("Unknown model class $modelClass")
+    val viewModel = creator.get()
+    if (modelClass.isInstance(viewModel)) {
+      @Suppress("UNCHECKED_CAST")
+      return viewModel as T
+    } else {
+      error("Expected instance of ${modelClass.simpleName}, but got ${viewModel::class.simpleName}")
+    }
   }
 
   /**
@@ -47,12 +54,12 @@ constructor(
    */
   operator fun <T : ViewModel> get(fragment: Fragment, modelClass: Class<T>): T =
     if (modelClass.getAnnotation(SharedViewModel::class.java) == null) {
-      ViewModelProviders.of(fragment, this)[modelClass]
+      ViewModelProvider(fragment, this)[modelClass]
     } else {
       get(fragment.requireActivity(), modelClass)
     }
 
   /** Returns an instance of the specified view model scoped to the provided activity. */
   operator fun <T : ViewModel> get(activity: FragmentActivity, modelClass: Class<T>): T =
-    ViewModelProviders.of(activity, this)[modelClass]
+    ViewModelProvider(activity, this)[modelClass]
 }

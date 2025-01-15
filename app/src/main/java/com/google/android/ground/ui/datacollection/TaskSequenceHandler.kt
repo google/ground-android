@@ -36,6 +36,9 @@ class TaskSequenceHandler(
     (task: Task, taskValueOverride: Pair<String, TaskData?>?) -> Boolean,
 ) {
 
+  private var taskSequence: Sequence<Task> = emptySequence()
+  private var isSequenceInitialized = false
+
   init {
     require(tasks.isNotEmpty()) { "Can't generate a sequence from an empty task list." }
   }
@@ -50,17 +53,28 @@ class TaskSequenceHandler(
   }
 
   /**
-   * Retrieves the task sequence based on the provided inputs and conditions.
+   * Generates the task sequence based on whether a task should be included or not.
    *
-   * This function determines the order of tasks to be presented, taking into account any overrides
-   * specified by [taskValueOverride].
+   * This determines the order of tasks to be presented to the user, taking into account any
+   * overrides specified by [taskValueOverride].
    *
    * @param taskValueOverride An optional pair where the first element is the task ID and the second
    *   element is the [TaskData] to override the default task data. If null, no override is applied.
    * @return A [Sequence] of [Task] objects representing the ordered tasks.
    */
-  fun getTaskSequence(taskValueOverride: Pair<String, TaskData?>? = null): Sequence<Task> =
+  fun generateTaskSequence(taskValueOverride: Pair<String, TaskData?>? = null): Sequence<Task> =
     tasks.filter { task -> shouldIncludeTask(task, taskValueOverride) }.asSequence()
+
+  fun getTaskSequence(): Sequence<Task> {
+    if (!isSequenceInitialized) {
+      taskSequence = generateTaskSequence()
+      isSequenceInitialized = true
+    }
+    return taskSequence
+  }
+
+  // TODO: Add a method to update the cached sequence whenever necessary.
+  // Issue URL: https://github.com/google/ground-android/issues/2993
 
   /**
    * Checks if the specified task is the first task in the displayed sequence.
@@ -84,23 +98,6 @@ class TaskSequenceHandler(
   fun isLastPosition(taskId: String): Boolean {
     checkInvalidTaskId(taskId)
     return taskId == getTaskSequence().last().id
-  }
-
-  /**
-   * Checks if the specified task with the given data is the last task in the sequence.
-   *
-   * This method allows checking if a specific task with a particular [TaskData] is the last one.
-   *
-   * @param taskId The ID of the task to check.
-   * @param value The [TaskData] associated with the task.
-   * @return `true` if the task with the given data is the last in the sequence, `false` otherwise.
-   * @throws IllegalArgumentException if the provided [taskId] is blank.
-   */
-  // TODO: Check if this method can be eliminated as it is confusing to pass value to this method.
-  // Issue URL: https://github.com/google/ground-android/issues/2987
-  fun isLastPosition(taskId: String, value: TaskData?): Boolean {
-    checkInvalidTaskId(taskId)
-    return taskId == getTaskSequence(taskValueOverride = taskId to value).last().id
   }
 
   /**

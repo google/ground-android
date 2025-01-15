@@ -15,7 +15,6 @@
  */
 package com.google.android.ground.ui.datacollection
 
-import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.model.task.Task.Type
@@ -67,7 +66,7 @@ class TaskSequenceHandlerTest {
   }
 
   @Test
-  fun `getTaskSequence filters tasks based on shouldIncludeTask and taskValueOverride`() {
+  fun `generateTaskSequence filters tasks based on shouldIncludeTask and taskValueOverride`() {
     val handler =
       createHandler(
         shouldIncludeTask = { task, taskValueOverride ->
@@ -76,7 +75,7 @@ class TaskSequenceHandlerTest {
             !(task.id == "task3" && taskValueOverride?.first == "task3")
         }
       )
-    val sequence = handler.getTaskSequence(taskValueOverride = "task3" to null)
+    val sequence = handler.generateTaskSequence(taskValueOverride = "task3" to null)
     assertThat(sequence.toList()).isEqualTo(listOf(task1, task5))
   }
 
@@ -126,38 +125,6 @@ class TaskSequenceHandlerTest {
   fun `isLastPosition throws error for invalid task id`() {
     val handler = createHandler()
     assertThrows(IllegalArgumentException::class.java) { handler.isLastPosition("") }
-  }
-
-  @Test
-  fun `isLastPosition with value returns true for the last task`() {
-    val handler =
-      createHandler(
-        shouldIncludeTask = { task, taskValueOverride ->
-          task.id in listOf("task1", "task2") ||
-            (task.id == "task3" &&
-              taskValueOverride?.first == "task3" &&
-              taskValueOverride.second == NumberTaskData("10"))
-        }
-      )
-
-    assertThat(handler.isLastPosition("task3", NumberTaskData("10"))).isTrue()
-  }
-
-  @Test
-  fun `isLastPosition with value returns false for non-last tasks`() {
-    val handler =
-      createHandler(
-        shouldIncludeTask = { task, taskValueOverride ->
-          task.id != "task2" && task.id != "task4" && taskValueOverride?.first != "task3"
-        }
-      )
-    assertThat(handler.isLastPosition("task1", null)).isFalse()
-  }
-
-  @Test
-  fun `isLastPosition with value throws error for invalid task id`() {
-    val handler = createHandler()
-    assertThrows(IllegalArgumentException::class.java) { handler.isLastPosition("", null) }
   }
 
   @Test
