@@ -47,7 +47,7 @@
     </service>
 
     <!--
-         The API key for Google Maps-based APIs defined in ground/secrets.properties.
+         The API key for Google Maps-based APIs defined in app/secrets.properties.
 
          Note that the API key is linked to the encryption key used to sign the APK.
          You need a different API key for each encryption key, including the release key that is used to

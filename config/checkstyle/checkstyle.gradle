@@ -25,7 +25,7 @@
  *
  * Reports are written to:
  *
- *   ground/build/reports/checkstyle/
+ *   app/build/reports/checkstyle/
  */
 
 apply plugin: 'checkstyle'
