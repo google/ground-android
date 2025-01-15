@@ -146,6 +146,26 @@ class TaskDataHandlerTest {
   }
 
   @Test
+  fun `getTaskSelections with override having new value returns correct values`() = runTest {
+    val handler = TaskDataHandler()
+    val task1 = createTask("task1")
+    val task2 = createTask("task2")
+    val taskData1 = createTaskData("data1")
+    val taskData2 = createTaskData("data2")
+    val taskOverride = createTask("overrideTask")
+    val taskDataOverride = createTaskData("overrideValue")
+
+    handler.setData(task1, taskData1)
+    handler.setData(task2, taskData2)
+
+    val selections = handler.getTaskSelections(Pair(taskOverride.id, taskDataOverride))
+    assertThat(selections).hasSize(3)
+    assertThat(selections["task1"]).isEqualTo(taskData1)
+    assertThat(selections["task2"]).isEqualTo(taskData2)
+    assertThat(selections["overrideTask"]).isEqualTo(taskDataOverride)
+  }
+
+  @Test
   fun `getTaskSelections with null override returns correct selections`() = runTest {
     val handler = TaskDataHandler()
     val task1 = createTask("task1")

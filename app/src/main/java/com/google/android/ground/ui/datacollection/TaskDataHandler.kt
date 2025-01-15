@@ -68,12 +68,12 @@ class TaskDataHandler {
   fun getTaskSelections(taskValueOverride: Pair<String, TaskData?>? = null): TaskSelections =
     buildMap {
       _dataState.value.forEach { (task, value) ->
-        if (taskValueOverride?.first == task.id) {
-            taskValueOverride.second
-          } else {
-            value
-          }
-          ?.apply { put(task.id, this) }
+        if (task.id != taskValueOverride?.first) {
+          value?.let { put(task.id, it) }
+        }
       }
+
+      // Override task value
+      taskValueOverride?.let { (taskId, taskValue) -> taskValue?.let { put(taskId, it) } }
     }
 }
