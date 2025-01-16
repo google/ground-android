@@ -48,12 +48,16 @@ import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskVie
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -63,9 +67,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Provider
-import kotlin.collections.set
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -142,13 +143,29 @@ internal constructor(
   private val taskSequenceHandler = TaskSequenceHandler(tasks, taskDataHandler)
 
   // Tracks the current task ID to compute the position in the list of tasks for the current job.
-  private val currentTaskId: StateFlow<String> =
-    savedStateHandle.getStateFlow(TASK_POSITION_ID, tasks.firstOrNull()?.id ?: "")
+  private val currentTaskId: StateFlow<String> = savedStateHandle.getStateFlow(TASK_POSITION_ID, "")
 
   lateinit var submissionId: String
 
   init {
-    _uiState.update { UiState.TaskListAvailable(tasks, getTaskPosition(currentTaskId.value)) }
+    // Set current task's ID for new task submissions.
+    if (currentTaskId.value == "") {
+      savedStateHandle[TASK_POSITION_ID] = taskSequenceHandler.getTaskSequence().first().id
+    }
+
+    _uiState.update { UiState.TaskListAvailable(tasks, getTaskPosition(getCurrentTaskId())) }
+
+    // Update the computed task sequence cache if the task's data is updated.
+    viewModelScope.launch {
+      taskDataHandler.dataState.collectLatest { taskSequenceHandler.refreshTaskSequence() }
+    }
+  }
+
+  /** Returns the ID of the user visible task. */
+  private fun getCurrentTaskId(): String {
+    val taskId = currentTaskId.value
+    check(taskId.isNotBlank()) { "Task ID can't be blank" }
+    return taskId
   }
 
   fun setLoiName(name: String) {
@@ -245,7 +262,7 @@ internal constructor(
 
   /** Persists the current UI state locally which can be resumed whenever the app re-opens. */
   fun saveCurrentState() {
-    val taskId = currentTaskId.value
+    val taskId = getCurrentTaskId()
     val viewModel = getTaskViewModel(taskId) ?: error("ViewModel not found for task $taskId")
 
     viewModel.validate()?.let {
@@ -302,12 +319,12 @@ internal constructor(
   }
 
   private fun moveToNextTask() {
-    val taskId = taskSequenceHandler.getNextTask(currentTaskId.value)
+    val taskId = taskSequenceHandler.getNextTask(getCurrentTaskId())
     moveToTask(taskId)
   }
 
   fun moveToPreviousTask() {
-    val taskId = taskSequenceHandler.getPreviousTask(currentTaskId.value)
+    val taskId = taskSequenceHandler.getPreviousTask(getCurrentTaskId())
     moveToTask(taskId)
   }
 
