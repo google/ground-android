@@ -53,7 +53,7 @@ class TaskSequenceHandler(
   private fun shouldIncludeTaskInSequence(task: Task, taskSelections: TaskSelections): Boolean =
     task.condition == null || task.condition.fulfilledBy(taskSelections)
 
-  /** Lazily retrieves the task sequence. */
+  /** Returns the pre-computed task sequence or generates and caches it first, if missing. */
   fun getTaskSequence(): Sequence<Task> {
     if (!isSequenceInitialized) {
       taskSequence = generateTaskSequence()

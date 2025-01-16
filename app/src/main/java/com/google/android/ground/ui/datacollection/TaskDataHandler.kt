@@ -54,7 +54,12 @@ class TaskDataHandler {
    * @param task The [Task] to retrieve data for.
    * @return The [TaskData] associated with the task, or `null` if no data is found.
    */
+  @Deprecated("Use getData(taskId: String) instead")
   fun getData(task: Task): TaskData? = _dataState.value[task]
+
+  // TODO: Refactor task data handler to use TaskId as key instead of Task.
+  fun getData(taskId: String): TaskData? =
+    _dataState.value.filterKeys { it.id == taskId }.values.firstOrNull()
 
   /**
    * Returns a [TaskSelections] map representing the current state of task data.

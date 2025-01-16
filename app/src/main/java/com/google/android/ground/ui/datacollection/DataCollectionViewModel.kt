@@ -27,7 +27,6 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.ValueDelta
 import com.google.android.ground.model.submission.isNotNullOrEmpty
-import com.google.android.ground.model.task.Condition
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
@@ -140,6 +139,7 @@ internal constructor(
     MutableStateFlow(mutableMapOf())
 
   private val taskDataHandler = TaskDataHandler()
+  private val taskSequenceHandler = TaskSequenceHandler(tasks, taskDataHandler)
 
   // Tracks the current task ID to compute the position in the list of tasks for the current job.
   private val currentTaskId: StateFlow<String> =
@@ -260,8 +260,8 @@ internal constructor(
 
   /** Retrieves a list of [ValueDelta] for tasks that are part of the current sequence. */
   private fun getDeltas(): List<ValueDelta> =
-    // Filter deltas to valid tasks.
-    getTaskSequence()
+    taskSequenceHandler
+      .getTaskSequence()
       .mapNotNull { task ->
         taskDataHandler.getData(task)?.let { ValueDelta(task.id, task.type, it) }
       }
@@ -274,9 +274,6 @@ internal constructor(
       submitDataUseCase.invoke(loiId, job, surveyId, deltas, customLoiName, collectionId)
     }
   }
-
-  private fun getAbsolutePosition(taskId: String): Int =
-    if (taskId == "") 0 else tasks.indexOf(tasks.first { it.id == taskId })
 
   /** Persists the collected data as draft to local storage. */
   private fun saveDraft(taskId: String) {
@@ -304,112 +301,49 @@ internal constructor(
     externalScope.launch(ioDispatcher) { submissionRepository.deleteDraftSubmission() }
   }
 
-  /**
-   * Get the current index within the computed task sequence, and the number of tasks in the
-   * sequence, e.g (0, 2) means the first task of 2.
-   */
-  private fun getPositionInTaskSequence(taskId: String): Pair<Int, Int> {
-    var currentIndex = 0
-    var size = 0
-    getTaskSequence().forEachIndexed { index, task ->
-      if (task.id == taskId) {
-        currentIndex = index
-      }
-      size++
-    }
-    return currentIndex to size
-  }
-
-  /** Returns the index of the task ID, or -1 if null or not found. */
-  private fun getIndexOfTask(taskId: String?) =
-    if (taskId == null) {
-      -1
-    } else {
-      tasks.indexOfFirst { it.id == taskId }
-    }
-
-  /**
-   * Retrieves the current task sequence given the inputs and conditions set on the tasks. Setting a
-   * start ID will always generate a sequence with the start ID as the first element, and if
-   * reversed is set, will generate the previous tasks from there.
-   */
-  private fun getTaskSequence(
-    startId: String? = null,
-    reversed: Boolean = false,
-    taskValueOverride: Pair<String, TaskData?>? = null,
-  ): Sequence<Task> {
-    if (tasks.isEmpty()) {
-      error("Can't generate sequence for empty task list")
-    }
-    val startIndex =
-      getIndexOfTask(startId).let {
-        if (it < 0) {
-          // Default to 0 if startId is not found or is null.
-          if (startId != null) Timber.w("startId, $startId, was not found. Defaulting to 0")
-          0
-        } else {
-          it
-        }
-      }
-    return if (reversed) {
-        tasks.subList(0, startIndex + 1).reversed()
-      } else {
-        tasks.subList(startIndex, tasks.size)
-      }
-      .let { tasks ->
-        tasks.asSequence().filter {
-          it.condition == null || evaluateCondition(it.condition, taskValueOverride)
-        }
-      }
-  }
-
   private fun moveToNextTask() {
-    step(false)
+    val taskId = taskSequenceHandler.getNextTask(currentTaskId.value)
+    moveToTask(taskId)
   }
 
   fun moveToPreviousTask() {
-    step(true)
+    val taskId = taskSequenceHandler.getPreviousTask(currentTaskId.value)
+    moveToTask(taskId)
   }
 
-  /** Displays the task at the relative position to the current one. */
-  private fun step(reversed: Boolean) {
-    val task = getTaskSequence(startId = currentTaskId.value, reversed).take(2).last()
-    savedStateHandle[TASK_POSITION_ID] = task.id
+  private fun moveToTask(taskId: String) {
+    savedStateHandle[TASK_POSITION_ID] = taskId
 
     // Save collected data as draft
     clearDraft()
-    saveDraft(task.id)
+    saveDraft(taskId)
 
-    _uiState.update { UiState.TaskUpdated(getTaskPosition(task.id)) }
+    _uiState.update { UiState.TaskUpdated(getTaskPosition(taskId)) }
   }
 
-  private fun getTaskPosition(taskId: String): TaskPosition {
-    val (index, size) = getPositionInTaskSequence(taskId)
-    return TaskPosition(
-      absoluteIndex = getAbsolutePosition(taskId),
-      relativeIndex = index,
-      sequenceSize = size,
-    )
-  }
+  private fun getTaskPosition(taskId: String) = taskSequenceHandler.getTaskPosition(taskId)
 
-  /** Returns true if the given [taskId] is first in the sequence of displayed tasks. */
-  fun isFirstPosition(taskId: String): Boolean = taskId == getTaskSequence().first().id
+  /** Returns true if the given [taskId] is first task in the sequence of displayed tasks. */
+  fun isFirstPosition(taskId: String): Boolean = taskSequenceHandler.isFirstPosition(taskId)
+
+  /** Returns true if the given [taskId] is last task in the sequence of displayed tasks. */
+  fun isLastPosition(taskId: String): Boolean = taskSequenceHandler.isLastPosition(taskId)
 
   /**
-   * Returns true if the given [taskId] with task data would be last in sequence. Useful for
-   * handling conditional tasks, see #2394.
+   * Returns true if the given [taskId] with [newValue] would be last in the sequence of displayed
+   * tasks. Required for handling conditional tasks, see #2394.
    */
-  fun checkLastPositionWithTaskData(taskId: String, value: TaskData?): Boolean =
-    taskId == getTaskSequence(taskValueOverride = taskId to value).last().id
+  fun isLastPositionWithValue(taskId: String, newValue: TaskData?): Boolean {
+    if (taskDataHandler.getData(taskId) == newValue) {
+      // Don't recompute the sequence if the value hasn't changed.
+      return isLastPosition(taskId)
+    }
 
-  /** Returns true if the given [taskId] is last task in sequence. */
-  fun isLastPosition(taskId: String): Boolean = taskId == getTaskSequence().last().id
-
-  /** Evaluates the task condition against the current inputs. */
-  private fun evaluateCondition(
-    condition: Condition,
-    taskValueOverride: Pair<String, TaskData?>? = null,
-  ): Boolean = condition.fulfilledBy(taskDataHandler.getTaskSelections(taskValueOverride))
+    // Don't call `refreshTaskSequence` as the new value hasn't been set yet.
+    val taskSelections = taskDataHandler.getTaskSelections(taskValueOverride = taskId to newValue)
+    val newSequence = taskSequenceHandler.generateTaskSequence(taskSelections)
+    return taskId == newSequence.last().id
+  }
 
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"

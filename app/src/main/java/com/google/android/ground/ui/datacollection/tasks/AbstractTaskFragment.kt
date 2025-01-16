@@ -244,7 +244,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
    * handling conditional tasks, see #2394.
    */
   private fun checkLastPositionWithTaskData(value: TaskData?) =
-    dataCollectionViewModel.checkLastPositionWithTaskData(taskId, value)
+    dataCollectionViewModel.isLastPositionWithValue(taskId, value)
 
   private fun getTask(): Task = viewModel.task
 
