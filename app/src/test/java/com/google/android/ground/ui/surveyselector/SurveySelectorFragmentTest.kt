@@ -20,6 +20,13 @@ import android.view.Menu
 import android.view.View
 import android.widget.Button
 import android.widget.PopupMenu
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
@@ -45,6 +52,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.Matchers.*
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -68,6 +76,8 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   private lateinit var fragment: SurveySelectorFragment
   private lateinit var navController: NavController
+
+  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Before
   override fun setUp() {
@@ -221,13 +231,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     setUpFragment()
 
     // Click second item's overflow menu
-    onView(withId(R.id.recycler_view))
-      .perform(
-        actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(
-          1,
-          recyclerChildAction<Button>(R.id.overflowMenu) { performClick() },
-        )
-      )
+    openOverflowMenu()
     advanceUntilIdle()
 
     // Verify that popup menu is visible and it contains items
@@ -236,11 +240,99 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     assertThat(menu.hasVisibleItems()).isTrue()
 
     // Click "remove" menu item.
-    onView(withText("Remove offline access")).inRoot(isPlatformPopup()).perform(click())
+    onView(withText(composeTestRule.activity.getString(R.string.remove_offline_access)))
+      .inRoot(isPlatformPopup())
+      .perform(click())
+    advanceUntilIdle()
+
+    composeTestRule
+      .onNodeWithText(
+        composeTestRule.activity.getString(R.string.remove_offline_access_warning_confirm_button)
+      )
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(
+        composeTestRule.activity.getString(R.string.remove_offline_access_warning_confirm_button)
+      )
+      .performClick()
     advanceUntilIdle()
 
     // Assert survey is deleted
     verify(surveyRepository).removeOfflineSurvey(TEST_SURVEY_2.id)
+  }
+
+  @Test
+  fun `remove offline warning dialog is visible when menu item is clicked`() =
+    runWithTestDispatcher {
+      setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+      setLocalSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+      setUpFragment()
+
+      openOverflowMenu()
+      advanceUntilIdle()
+
+      onView(withText(composeTestRule.activity.getString(R.string.remove_offline_access)))
+        .inRoot(isPlatformPopup())
+        .perform(click())
+      advanceUntilIdle()
+
+      composeTestRule
+        .onNodeWithText(
+          composeTestRule.activity.getString(R.string.remove_offline_access_warning_title)
+        )
+        .assertIsDisplayed()
+      composeTestRule
+        .onNodeWithText(
+          composeTestRule.activity.getString(R.string.remove_offline_access_warning_dialog_body)
+        )
+        .assertIsDisplayed()
+      composeTestRule
+        .onNodeWithText(
+          composeTestRule.activity.getString(R.string.remove_offline_access_warning_confirm_button)
+        )
+        .assertIsDisplayed()
+      composeTestRule
+        .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
+        .assertIsDisplayed()
+    }
+
+  @Test
+  fun `remove offline warning dialog is dismissed on cancel click`() = runWithTestDispatcher {
+    setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setLocalSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setUpFragment()
+
+    openOverflowMenu()
+    advanceUntilIdle()
+
+    onView(withText(composeTestRule.activity.getString(R.string.remove_offline_access)))
+      .inRoot(isPlatformPopup())
+      .perform(click())
+    advanceUntilIdle()
+
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
+      .performClick()
+
+    advanceUntilIdle()
+    composeTestRule
+      .onNodeWithText(
+        composeTestRule.activity.getString(R.string.remove_offline_access_warning_title)
+      )
+      .assertIsNotDisplayed()
+  }
+
+  private fun openOverflowMenu() {
+    onView(withId(R.id.recycler_view))
+      .perform(
+        actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(
+          1,
+          recyclerChildAction<Button>(R.id.overflowMenu) { performClick() },
+        )
+      )
   }
 
   private fun setUpFragment(optBundle: Bundle = bundleOf(Pair("shouldExitApp", false))) =

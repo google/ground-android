@@ -112,6 +112,9 @@
   <string name="surveys">Enquêtes</string>
   <string name="offline_icon_description">Icône affichée lorsque l&#8217;enquête est disponible hors ligne</string>
   <string name="remove_offline_access">Supprimer l&#8217;accès hors ligne</string>
+  <string name="remove_offline_access_warning_title">Avertissement</string>
+  <string name="remove_offline_access_warning_confirm_button">Retirer</string>
+  <string name="remove_offline_access_warning_dialog_body">Si vous supprimez l&#8217;accès hors ligne:\n \u2022 Toutes les données non synchronisées seront supprimées\n\nÊtes-vous sûr de vouloir supprimer l&#8217;accès hors ligne ?</string>
   <string name="unnamed_point">Point non nommé</string>
   <string name="unnamed_area">Zone non nommée</string>
   <string name="offline_area_size_on_disk_mb">%s\u00A0MB sur disque</string>
