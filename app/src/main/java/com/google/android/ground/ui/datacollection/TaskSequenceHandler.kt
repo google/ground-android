@@ -44,16 +44,15 @@ class TaskSequenceHandler(
     require(taskId.isNotBlank()) { "Task ID can't be blank." }
   }
 
-  /** Refreshes the task sequence. */
-  fun refreshSequence() {
-    taskSequence = generateTaskSequence()
-  }
-
   /** Generates the task sequence based on conditions and overrides. */
   fun generateTaskSequence(taskSelections: TaskSelections? = null): Sequence<Task> {
     val selections = taskSelections ?: taskDataHandler.getTaskSelections()
     return tasks.filter { shouldIncludeTaskInSequence(it, selections) }.asSequence()
   }
+
+  /** Determines if a task should be included with the given overrides. */
+  private fun shouldIncludeTaskInSequence(task: Task, taskSelections: TaskSelections): Boolean =
+    task.condition == null || task.condition.fulfilledBy(taskSelections)
 
   /** Lazily retrieves the task sequence. */
   fun getTaskSequence(): Sequence<Task> {
@@ -64,10 +63,9 @@ class TaskSequenceHandler(
     return taskSequence
   }
 
-  /** Determines if a task should be included with the given overrides. */
-  private fun shouldIncludeTaskInSequence(task: Task, taskSelections: TaskSelections): Boolean {
-    if (task.condition == null) return true
-    return task.condition.fulfilledBy(taskSelections)
+  /** Refreshes the task sequence. */
+  fun refreshSequence() {
+    taskSequence = generateTaskSequence()
   }
 
   /**
@@ -118,7 +116,7 @@ class TaskSequenceHandler(
    */
   fun getNextTask(taskId: String): String {
     val index = getTaskIndex(taskId)
-    require(index < getTaskSequence().count()) { "Can't generate next task for Task '$taskId'" }
+    require(index + 1 < getTaskSequence().count()) { "Can't generate next task for Task '$taskId'" }
     return getTaskSequence().elementAt(index + 1).id
   }
 
