@@ -63,12 +63,12 @@ class TaskSequenceHandler(
   }
 
   /**
-   * Re-computes the task sequence.
+   * Re-computes the task sequence and updates the local cache.
    *
    * Note: This is a heavy computing operation. So, it should only be triggered if the task's value
    * has been updated.
    */
-  fun refreshSequence() {
+  fun refreshTaskSequence() {
     taskSequence = generateTaskSequence()
   }
 
