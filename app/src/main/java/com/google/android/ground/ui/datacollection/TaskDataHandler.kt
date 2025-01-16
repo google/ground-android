@@ -58,6 +58,7 @@ class TaskDataHandler {
   fun getData(task: Task): TaskData? = _dataState.value[task]
 
   // TODO: Refactor task data handler to use TaskId as key instead of Task.
+  // Issue URL: https://github.com/google/ground-android/issues/3009
   fun getData(taskId: String): TaskData? =
     _dataState.value.filterKeys { it.id == taskId }.values.firstOrNull()
 
