@@ -19,7 +19,7 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.model.task.TaskSelections
 
 /**
- * Manages operations related to a sequence of tasks.
+ * Manages state and operations related to a sequence of tasks.
  *
  * This class provides methods to retrieve, navigate, and query the position of tasks within a
  * sequence. The sequence is derived from a list of [Task] objects, filtered based on a provided
