@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2018 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- TODO: Use snake_case for all ids here for consistency -->
+<!-- Issue URL: https://github.com/google/ground-android/issues/2916 -->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/navGraph"
+  app:startDestination="@id/startup_fragment">
+  <fragment
+    android:id="@+id/startup_fragment"
+    android:name="com.google.android.ground.ui.startup.StartupFragment"
+    android:label="startup_frag"
+    tools:layout="@layout/startup_frag">
+    <action
+      android:id="@+id/proceedToSignInScreen"
+      app:destination="@id/sign_in_fragment"
+      app:popUpTo="@id/navGraph"
+      app:popUpToInclusive="true" />
+    <action
+      android:id="@+id/proceedToHomeScreen"
+      app:destination="@id/home_screen_fragment"
+      app:popUpTo="@id/navGraph"
+      app:popUpToInclusive="true" />
+    <action
+      android:id="@+id/showTermsOfService"
+      app:destination="@id/terms_of_service_fragment"
+      app:popUpTo="@id/navGraph"
+      app:popUpToInclusive="true" />
+  </fragment>
+
+  <fragment
+    android:id="@+id/home_screen_fragment"
+    android:name="com.google.android.ground.ui.home.HomeScreenFragment"
+    android:label="@string/map_view"
+    tools:layout="@layout/home_screen_frag">
+    <action
+      android:id="@+id/fromHomeScreenToSignInScreen"
+      app:destination="@id/sign_in_fragment"
+      app:popUpTo="@id/navGraph"
+      app:popUpToInclusive="true" />
+    <action
+      android:id="@+id/show_sync_status"
+      app:destination="@id/sync_status_fragment" />
+    <action
+      android:id="@+id/showOfflineAreas"
+      app:destination="@id/offline_areas_fragment" />
+    <action
+      android:id="@+id/showOfflineAreaSelector"
+      app:destination="@+id/offline_area_selector_fragment" />
+    <action
+      android:id="@+id/action_home_screen_fragment_to_settings_activity"
+      app:destination="@id/settings_activity" />
+    <action
+      android:id="@+id/action_home_screen_fragment_to_surveySelectorFragment"
+      app:destination="@id/surveySelectorFragment" />
+    <action
+      android:id="@+id/action_home_screen_fragment_to_dataCollectionFragment"
+      app:destination="@id/data_collection" />
+    <action
+      android:id="@+id/showTermsOfService"
+      app:destination="@id/terms_of_service_fragment" />
+    <action
+      android:id="@+id/showAbout"
+      app:destination="@id/aboutFragment" />
+  </fragment>
+  <fragment
+    android:id="@+id/sync_status_fragment"
+    android:name="com.google.android.ground.ui.syncstatus.SyncStatusFragment"
+    android:label="@string/sync_status"
+    tools:layout="@layout/sync_status_frag" />
+  <navigation
+    android:id="@+id/data_collection"
+    app:startDestination="@id/data_collection_fragment">
+    <argument
+      android:name="locationOfInterestId"
+      type="string"
+      app:nullable="true" />
+    <argument
+      android:name="locationOfInterestName"
+      type="string"
+      app:nullable="true" />
+    <argument
+      android:name="jobId"
+      type="string" />
+    <argument
+      android:name="shouldLoadFromDraft"
+      app:argType="boolean" />
+    <argument
+      android:name="draftValues"
+      type="string"
+      app:nullable="true" />
+    <argument
+      android:name="currentTaskId"
+      type="string"
+      app:nullable="true" />
+
+    <fragment
+      android:id="@+id/data_collection_fragment"
+      android:name="com.google.android.ground.ui.datacollection.DataCollectionFragment"
+      android:label="@string/add_data"
+      tools:layout="@layout/data_collection_frag">
+      <argument
+        android:name="locationOfInterestId"
+        type="string"
+        app:nullable="true" />
+      <argument
+        android:name="locationOfInterestName"
+        type="string"
+        app:nullable="true" />
+      <argument
+        android:name="jobId"
+        type="string" />
+      <argument
+        android:name="shouldLoadFromDraft"
+        app:argType="boolean" />
+      <argument
+        android:name="draftValues"
+        type="string"
+        app:nullable="true" />
+      <argument
+        android:name="currentTaskId"
+        type="string"
+        app:nullable="true" />
+    </fragment>
+
+    <fragment
+      android:id="@+id/drop_pin_task_fragment"
+      android:name="com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskFragment"
+      android:label="@string/add_data" />
+    <fragment
+      android:id="@+id/multiple_choice_task_fragment"
+      android:name="com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskFragment"
+      android:label="@string/add_data" />
+
+    <fragment
+      android:id="@+id/number_task_fragment"
+      android:name="com.google.android.ground.ui.datacollection.tasks.number.NumberTaskFragment"
+      android:label="@string/add_data" />
+
+    <fragment
+      android:id="@+id/photo_task_fragment"
+      android:name="com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskFragment"
+      android:label="@string/add_data" />
+
+    <fragment
+      android:id="@+id/polygon_task_fragment"
+      android:name="com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskFragment"
+      android:label="@string/add_data" />
+
+    <fragment
+      android:id="@+id/question_task_fragment"
+      android:name="com.google.android.ground.ui.datacollection.tasks.text.TextTaskFragment"
+      android:label="@string/add_data" />
+  </navigation>
+  <fragment
+    android:id="@+id/offline_areas_fragment"
+    android:name="com.google.android.ground.ui.offlineareas.OfflineAreasFragment"
+    android:label="@string/offline_map_imagery"
+    tools:layout="@layout/offline_areas_frag">
+    <action
+      android:id="@+id/showOfflineAreaSelector"
+      app:destination="@id/offline_area_selector_fragment" />
+    <action
+      android:id="@+id/backToHomeScreen"
+      app:destination="@id/home_screen_fragment" />
+    <action
+      android:id="@+id/viewOfflineArea"
+      app:destination="@+id/offline_area_viewer_fragment" />
+  </fragment>
+  <fragment
+    android:id="@+id/offline_area_selector_fragment"
+    android:name="com.google.android.ground.ui.offlineareas.selector.OfflineAreaSelectorFragment"
+    android:label="@string/offline_area_selector"
+    tools:layout="@layout/offline_area_selector_frag">
+    <action
+      android:id="@+id/offline_area_back_to_homescreen"
+      app:destination="@id/home_screen_fragment" />
+  </fragment>
+  <fragment
+    android:id="@+id/offline_area_viewer_fragment"
+    android:name="com.google.android.ground.ui.offlineareas.viewer.OfflineAreaViewerFragment"
+    android:label="@string/offline_area_viewer_title"
+    tools:layout="@layout/offline_area_viewer_frag">
+    <argument
+      android:name="offlineAreaId"
+      app:argType="string" />
+  </fragment>
+  <fragment
+    android:id="@+id/sign_in_fragment"
+    android:name="com.google.android.ground.ui.signin.SignInFragment"
+    android:label="sign_in_frag"
+    tools:layout="@layout/sign_in_frag">
+    <action
+      android:id="@+id/showTermsOfService"
+      app:destination="@id/terms_of_service_fragment"
+      app:popUpTo="@id/navGraph"
+      app:popUpToInclusive="true" />
+  </fragment>
+  <activity
+    android:id="@+id/settings_activity"
+    android:name="com.google.android.ground.SettingsActivity"
+    android:label="settings_activity"
+    tools:layout="@layout/settings_activity" />
+  <action
+    android:id="@+id/showSignInScreen"
+    app:destination="@id/sign_in_fragment"
+    app:popUpTo="@id/navGraph" />
+  <action
+    android:id="@+id/showHomeScreen"
+    app:destination="@id/home_screen_fragment"
+    app:popUpTo="@id/navGraph" />
+  <action
+    android:id="@+id/showSurveySelectorScreen"
+    app:destination="@id/surveySelectorFragment"
+    app:popUpTo="@id/navGraph" />
+  <action
+    android:id="@+id/showMapTypeDialogFragment"
+    app:destination="@id/mapTypeDialogFragment" />
+  <fragment
+    android:id="@+id/terms_of_service_fragment"
+    android:name="com.google.android.ground.ui.tos.TermsOfServiceFragment"
+    android:label="@string/tos_title"
+    tools:layout="@layout/fragment_terms_service">
+    <argument
+      android:name="isViewOnly"
+      app:argType="boolean" />
+    <action
+      android:id="@+id/proceedToHomeScreen"
+      app:destination="@id/home_screen_fragment"
+      app:popUpTo="@id/navGraph"
+      app:popUpToInclusive="true" />
+  </fragment>
+  <fragment
+    android:id="@+id/surveySelectorFragment"
+    android:name="com.google.android.ground.ui.surveyselector.SurveySelectorFragment"
+    android:label="SurveySelectorFragment">
+    <argument
+      android:name="shouldExitApp"
+      app:argType="boolean" />
+  </fragment>
+  <dialog
+    android:id="@+id/mapTypeDialogFragment"
+    android:name="com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragment"
+    android:label="MapTypeDialogFragment">
+    <argument
+      android:name="mapTypes"
+      app:argType="com.google.android.ground.ui.map.MapType[]" />
+  </dialog>
+  <fragment
+    android:id="@+id/aboutFragment"
+    android:name="com.google.android.ground.ui.home.AboutFragment"
+    android:label="AboutFragment" />
+</navigation>
