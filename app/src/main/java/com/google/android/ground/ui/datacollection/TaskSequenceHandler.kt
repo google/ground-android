@@ -62,8 +62,15 @@ class TaskSequenceHandler(
     return taskSequence
   }
 
-  // TODO: Add a method to update the cached sequence whenever necessary.
-  // Issue URL: https://github.com/google/ground-android/issues/2993
+  /**
+   * Re-computes the task sequence.
+   *
+   * Note: This is a heavy computing operation. So, it should only be triggered if the task's value
+   * has been updated.
+   */
+  fun refreshSequence() {
+    taskSequence = generateTaskSequence()
+  }
 
   /**
    * Checks if the specified task is the first task in the displayed sequence.
