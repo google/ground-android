@@ -145,8 +145,6 @@ internal constructor(
   // Tracks the current task ID to compute the position in the list of tasks for the current job.
   private val currentTaskId: StateFlow<String> = savedStateHandle.getStateFlow(TASK_POSITION_ID, "")
 
-  lateinit var submissionId: String
-
   init {
     // Set current task's ID for new task submissions.
     if (currentTaskId.value == "") {
