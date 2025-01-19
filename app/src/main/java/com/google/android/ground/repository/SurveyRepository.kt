@@ -18,8 +18,6 @@ package com.google.android.ground.repository
 import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.SurveyListItem
-import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
@@ -35,7 +33,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -76,9 +73,6 @@ constructor(
   /** The currently active survey, or `null` if no survey is active. */
   val activeSurvey: Survey?
     get() = activeSurveyFlow.value
-
-  val localSurveyListFlow: Flow<List<SurveyListItem>>
-    get() = localSurveyStore.surveys.map { list -> list.map { it.toListItem(true) } }
 
   /** The id of the last activated survey. */
   var lastActiveSurveyId: String by localValueStore::lastActiveSurveyId

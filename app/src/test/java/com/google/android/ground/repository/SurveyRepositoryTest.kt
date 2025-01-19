@@ -18,7 +18,6 @@ package com.google.android.ground.repository
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
-import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.JOB
@@ -78,7 +77,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
     surveyRepository.removeOfflineSurvey(SURVEY.id)
     advanceUntilIdle()
 
-    surveyRepository.localSurveyListFlow.test { assertThat(expectMostRecentItem()).isEmpty() }
+    localSurveyStore.surveys.test { assertThat(expectMostRecentItem()).isEmpty() }
     assertThat(surveyRepository.activeSurvey).isNull()
   }
 
@@ -112,9 +111,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
 
     // Verify active survey isn't cleared
     assertThat(surveyRepository.activeSurvey).isEqualTo(survey1)
-    surveyRepository.localSurveyListFlow.test {
-      assertThat(expectMostRecentItem()).isEqualTo(listOf(survey1.toListItem(true)))
-    }
+    localSurveyStore.surveys.test { assertThat(expectMostRecentItem()).isEqualTo(listOf(survey1)) }
   }
 
   @Test

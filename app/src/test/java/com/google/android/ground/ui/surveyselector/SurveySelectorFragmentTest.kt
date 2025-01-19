@@ -23,7 +23,6 @@ import android.widget.PopupMenu
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -35,11 +34,20 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
 import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
-import androidx.test.espresso.matcher.ViewMatchers.*
-import com.google.android.ground.*
+import androidx.test.espresso.matcher.ViewMatchers.hasChildCount
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
+import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.R
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.domain.usecases.survey.ListAvailableSurveysUseCase
+import com.google.android.ground.launchFragmentInHiltContainer
+import com.google.android.ground.launchFragmentWithNavController
+import com.google.android.ground.model.Survey
 import com.google.android.ground.model.SurveyListItem
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
+import com.google.android.ground.recyclerChildAction
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.common.truth.Truth.assertThat
@@ -51,7 +59,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.test.advanceUntilIdle
-import org.hamcrest.Matchers.*
+import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.not
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -75,6 +84,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @BindValue @Mock lateinit var activateSurvey: ActivateSurveyUseCase
   @BindValue @Mock lateinit var listAvailableSurveysUseCase: ListAvailableSurveysUseCase
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
+  @Inject lateinit var localSurveyStore: LocalSurveyStore
 
   private lateinit var fragment: SurveySelectorFragment
   private lateinit var navController: NavController
@@ -351,9 +361,14 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     whenever(listAvailableSurveysUseCase()).thenReturn(listOf(surveys).asFlow())
   }
 
-  private fun setLocalSurveys(surveys: List<SurveyListItem>) {
-    whenever(surveyRepository.localSurveyListFlow).thenReturn(listOf(surveys).asFlow())
+  private fun setLocalSurveys(surveyLists: List<SurveyListItem>) = runWithTestDispatcher {
+    surveyLists.onEach { surveyListItem ->
+      localSurveyStore.insertOrUpdateSurvey(surveyListItem.toSurvey())
+    }
   }
+
+  private fun SurveyListItem.toSurvey() =
+    Survey(id = id, title = title, description = description, jobMap = emptyMap())
 
   private fun getViewHolder(index: Int): SurveyListAdapter.ViewHolder {
     val recyclerView = fragment.view?.findViewById<RecyclerView>(R.id.recycler_view)

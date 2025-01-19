@@ -16,8 +16,9 @@
 package com.google.android.ground.domain.usecases.survey
 
 import com.google.android.ground.model.SurveyListItem
+import com.google.android.ground.model.toListItem
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.NetworkManager
 import com.google.android.ground.system.NetworkStatus
@@ -26,14 +27,16 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 
+/** Returns a flow of [SurveyListItem] to be displayed to the user. */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ListAvailableSurveysUseCase
 @Inject
 constructor(
+  private val localSurveyStore: LocalSurveyStore,
   private val networkManager: NetworkManager,
   private val remoteDataStore: RemoteDataStore,
-  private val surveyRepository: SurveyRepository,
   private val userRepository: UserRepository,
 ) {
 
@@ -47,7 +50,9 @@ constructor(
     }
 
   private fun getLocalSurveyList(): Flow<List<SurveyListItem>> =
-    surveyRepository.localSurveyListFlow
+    localSurveyStore.surveys.map { localSurveys ->
+      localSurveys.map { localSurvey -> localSurvey.toListItem(true) }
+    }
 
   private suspend fun getRemoteSurveyList(): Flow<List<SurveyListItem>> {
     val user = userRepository.getAuthenticatedUser()
