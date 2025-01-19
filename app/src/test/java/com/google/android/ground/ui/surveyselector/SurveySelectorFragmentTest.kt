@@ -44,7 +44,6 @@ import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.domain.usecases.survey.ListAvailableSurveysUseCase
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.launchFragmentWithNavController
-import com.google.android.ground.model.Survey
 import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.recyclerChildAction
@@ -100,7 +99,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun created_surveysAvailable_whenNoSurveySynced() {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setLocalSurveys(listOf())
     setUpFragment()
 
     // Assert that 2 surveys are displayed
@@ -124,7 +122,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     val syncedSurvey = TEST_SURVEY_2.copy(availableOffline = true)
     val unsyncedSurvey = TEST_SURVEY_1
     setSurveyList(listOf(syncedSurvey, unsyncedSurvey))
-    setLocalSurveys(listOf(syncedSurvey))
     setUpFragment()
 
     // Assert that 2 surveys are displayed.
@@ -148,7 +145,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun click_activatesSurvey() = runWithTestDispatcher {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setLocalSurveys(listOf())
 
     launchFragmentWithNavController<SurveySelectorFragment>(
       fragmentArgs = bundleOf(Pair("shouldExitApp", false)),
@@ -175,7 +171,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     whenever(activateSurvey(any())).thenThrow(Error("Some exception"))
 
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setLocalSurveys(listOf())
 
     launchFragmentWithNavController<SurveySelectorFragment>(
       fragmentArgs = bundleOf(Pair("shouldExitApp", false)),
@@ -200,7 +195,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun shouldExitAppOnBackPress_defaultFalse() {
     setSurveyList(listOf())
-    setLocalSurveys(listOf())
     setUpFragment()
 
     assertThat(fragment.onBack()).isFalse()
@@ -210,7 +204,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun shouldExitAppOnBackPress_whenArgIsPresent() {
     setSurveyList(listOf())
-    setLocalSurveys(listOf())
     setUpFragment(bundleOf(Pair("shouldExitApp", true)))
 
     assertThat(fragment.onBack()).isTrue()
@@ -220,7 +213,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun `hide sign out button when survey list is not empty`() {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setLocalSurveys(listOf())
     setUpFragment()
 
     onView(withText("Sign out")).check(matches(not(isDisplayed())))
@@ -229,7 +221,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun `show sign out button when survey list is empty`() {
     setSurveyList(listOf())
-    setLocalSurveys(listOf())
     setUpFragment()
 
     onView(withText("Sign out")).check(matches(isDisplayed())).perform(click())
@@ -239,7 +230,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun `remove offline survey on menu item click`() = runWithTestDispatcher {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setLocalSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setUpFragment()
 
     // Click second item's overflow menu
@@ -277,7 +267,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   fun `remove offline warning dialog is visible when menu item is clicked`() =
     runWithTestDispatcher {
       setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-      setLocalSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
       setUpFragment()
 
       openOverflowMenu()
@@ -311,7 +300,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun `remove offline warning dialog is dismissed on cancel click`() = runWithTestDispatcher {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setLocalSurveys(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setUpFragment()
 
     openOverflowMenu()
@@ -360,15 +348,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   private fun setSurveyList(surveys: List<SurveyListItem>) = runWithTestDispatcher {
     whenever(listAvailableSurveysUseCase()).thenReturn(listOf(surveys).asFlow())
   }
-
-  private fun setLocalSurveys(surveyLists: List<SurveyListItem>) = runWithTestDispatcher {
-    surveyLists.onEach { surveyListItem ->
-      localSurveyStore.insertOrUpdateSurvey(surveyListItem.toSurvey())
-    }
-  }
-
-  private fun SurveyListItem.toSurvey() =
-    Survey(id = id, title = title, description = description, jobMap = emptyMap())
 
   private fun getViewHolder(index: Int): SurveyListAdapter.ViewHolder {
     val recyclerView = fragment.view?.findViewById<RecyclerView>(R.id.recycler_view)
