@@ -20,9 +20,9 @@ import com.google.android.ground.model.Survey
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.repository.LocationOfInterestRepository
+import javax.inject.Inject
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
-import javax.inject.Inject
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000
 
@@ -42,9 +42,8 @@ constructor(
   private val remoteDataStore: RemoteDataStore,
 ) {
 
-  suspend operator fun invoke(surveyId: String): Survey? {
-    return fetchSurvey(surveyId)?.also { syncSurvey(it) }
-  }
+  suspend operator fun invoke(surveyId: String): Survey? =
+    fetchSurvey(surveyId)?.also { syncSurvey(it) }
 
   private suspend fun fetchSurvey(surveyId: String): Survey? =
     withTimeoutOrNull(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) {

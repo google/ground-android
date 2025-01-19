@@ -26,6 +26,7 @@ import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -33,7 +34,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.robolectric.RobolectricTestRunner
-import javax.inject.Inject
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
