@@ -18,7 +18,6 @@ package com.google.android.ground.domain.usecase
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.ListAvailableSurveysUseCase
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.User
 import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.repository.UserRepository
@@ -94,7 +93,6 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
   }
 
   companion object {
-    private val USER = User(id = "user1", email = "user@example.com", displayName = "user")
     private val SURVEY_1 =
       Survey(id = "1", title = "Survey 1", description = "", jobMap = emptyMap())
     private val SURVEY_2 =
