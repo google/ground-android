@@ -26,8 +26,6 @@ import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.system.NetworkManager
 import com.google.android.ground.system.NetworkStatus
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -43,6 +41,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
+import javax.inject.Singleton
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000
 
@@ -90,10 +90,6 @@ constructor(
   init {
     activeSurveyFlow.filterNotNull().onEach { lastActiveSurveyId = it.id }.launchIn(externalScope)
   }
-
-  /** Listens for remote changes to the survey with the specified id. */
-  suspend fun subscribeToSurveyUpdates(surveyId: String) =
-    remoteDataStore.subscribeToSurveyUpdates(surveyId)
 
   /**
    * Returns the survey with the specified id from the local db, or `null` if not available offline.

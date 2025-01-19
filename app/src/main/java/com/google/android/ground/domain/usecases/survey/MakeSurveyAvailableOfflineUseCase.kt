@@ -17,7 +17,7 @@
 package com.google.android.ground.domain.usecases.survey
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.persistence.remote.RemoteDataStore
 import javax.inject.Inject
 
 /**
@@ -28,9 +28,9 @@ import javax.inject.Inject
 class MakeSurveyAvailableOfflineUseCase
 @Inject
 constructor(
-  private val surveyRepository: SurveyRepository,
+  private val remoteDataStore: RemoteDataStore,
   private val syncSurvey: SyncSurveyUseCase,
 ) {
   suspend operator fun invoke(surveyId: String): Survey? =
-    syncSurvey(surveyId)?.also { surveyRepository.subscribeToSurveyUpdates(surveyId) }
+    syncSurvey(surveyId)?.also { remoteDataStore.subscribeToSurveyUpdates(surveyId) }
 }
