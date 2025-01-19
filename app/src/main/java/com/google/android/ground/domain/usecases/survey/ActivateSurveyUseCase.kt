@@ -16,29 +16,33 @@
 
 package com.google.android.ground.domain.usecases.survey
 
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
+import com.google.android.ground.persistence.sync.SurveySyncWorker
 import com.google.android.ground.repository.SurveyRepository
 import javax.inject.Inject
 
+/**
+ * Sets the survey with the specified ID as the currently active.
+ *
+ * First attempts to load the survey from the local db. If not present, fetches from remote and
+ * activates offline sync. Throws an error if the survey isn't found or cannot be made available
+ * offline. Activating a survey which is already available offline doesn't force a re-sync, since
+ * this is handled by [SurveySyncWorker].
+ */
 class ActivateSurveyUseCase
 @Inject
 constructor(
-  private val surveyRepository: SurveyRepository,
+  private val localSurveyStore: LocalSurveyStore,
   private val makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase,
+  private val surveyRepository: SurveyRepository,
 ) {
-  /**
-   * Sets the survey with the specified ID as the currently active. First attempts to load the
-   * survey from the local db, and if not present, fetches from remote and activates offline sync.
-   * Throws an error if the survey isn't found or cannot be made available offlien. Activating a
-   * survey which is already available offline doesn't force a resync, since this is handled by
-   * [com.google.android.ground.persistence.sync.SurveySyncWorker].
-   */
   suspend operator fun invoke(surveyId: String) {
-    // Do nothing if specified survey is already active.
     if (surveyId == surveyRepository.activeSurvey?.id) {
+      // Do nothing if survey is already active.
       return
     }
 
-    surveyRepository.getOfflineSurvey(surveyId)
+    localSurveyStore.getSurveyById(surveyId)
       ?: makeSurveyAvailableOffline(surveyId)
       ?: error("Survey $surveyId not found in remote db")
 
