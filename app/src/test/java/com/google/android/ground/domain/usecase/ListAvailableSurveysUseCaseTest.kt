@@ -20,7 +20,6 @@ import com.google.android.ground.domain.usecases.survey.ListAvailableSurveysUseC
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
-import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.NetworkManager
 import com.google.android.ground.system.NetworkStatus
 import com.google.common.truth.Truth.assertThat
@@ -29,7 +28,6 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.Test
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -38,7 +36,6 @@ import org.mockito.Mock
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
@@ -46,14 +43,16 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
   @BindValue @Mock lateinit var networkManager: NetworkManager
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-  @Inject lateinit var localSurveyStore: LocalSurveyStore
-  @Inject lateinit var userRepository: UserRepository
-
   @Inject lateinit var listAvailableSurveysUseCase: ListAvailableSurveysUseCase
+  @Inject lateinit var localSurveyStore: LocalSurveyStore
+
+  private fun setupLocalSurvey(survey: Survey) = runWithTestDispatcher {
+    localSurveyStore.insertOrUpdateSurvey(survey)
+  }
 
   private fun setupSurveys(localSurveys: List<Survey>, remoteSurveys: List<Survey>) =
     runWithTestDispatcher {
-      localSurveys.forEach { localSurveyStore.insertOrUpdateSurvey(it) }
+      localSurveys.forEach { setupLocalSurvey(it) }
       fakeRemoteDataStore.surveys = remoteSurveys
     }
 
@@ -127,6 +126,39 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
         )
       )
   }
+
+  @Test
+  fun `when remote survey is saved, should update offline status of that survey`() =
+    runWithTestDispatcher {
+      whenever(networkManager.networkStatusFlow).thenReturn(flowOf(NetworkStatus.AVAILABLE))
+
+      val remoteSurveys = listOf(SURVEY_1, SURVEY_2)
+      val localSurveys = emptyList<Survey>()
+      setupSurveys(localSurveys, remoteSurveys)
+
+      val resultFlow = listAvailableSurveysUseCase()
+
+      // Verify that remote surveys are loaded
+      assertThat(resultFlow.first())
+        .isEqualTo(
+          listOf(
+            SURVEY_1.toListItem(availableOffline = false),
+            SURVEY_2.toListItem(availableOffline = false),
+          )
+        )
+
+      // Save survey locally
+      setupLocalSurvey(SURVEY_1)
+
+      // Verify that survey list is now updated
+      assertThat(resultFlow.first())
+        .isEqualTo(
+          listOf(
+            SURVEY_1.toListItem(availableOffline = true),
+            SURVEY_2.toListItem(availableOffline = false),
+          )
+        )
+    }
 
   companion object {
     private val SURVEY_1 =
