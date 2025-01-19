@@ -19,13 +19,10 @@ import com.google.android.ground.FirebaseCrashLogger
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.SurveyListItem
-import com.google.android.ground.model.User
 import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
-import com.google.android.ground.system.NetworkManager
-import com.google.android.ground.system.NetworkStatus
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -34,7 +31,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -62,7 +58,6 @@ constructor(
   private val localSurveyStore: LocalSurveyStore,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
-  private val networkManager: NetworkManager,
   @ApplicationScope private val externalScope: CoroutineScope,
 ) {
   private val _selectedSurveyIdFlow = MutableStateFlow<String?>(null)
@@ -121,24 +116,6 @@ constructor(
   fun clearActiveSurvey() {
     selectedSurveyId = null
   }
-
-  fun getSurveyList(user: User): Flow<List<SurveyListItem>> =
-    @OptIn(ExperimentalCoroutinesApi::class)
-    networkManager.networkStatusFlow.flatMapLatest { networkStatus ->
-      if (networkStatus == NetworkStatus.AVAILABLE) {
-        getRemoteSurveyList(user)
-      } else {
-        localSurveyListFlow
-      }
-    }
-
-  private fun getRemoteSurveyList(user: User): Flow<List<SurveyListItem>> =
-    remoteDataStore.getSurveyList(user).combine(localSurveyListFlow) { remoteSurveys, localSurveys
-      ->
-      remoteSurveys.map { remoteSurvey ->
-        remoteSurvey.copy(availableOffline = localSurveys.any { it.id == remoteSurvey.id })
-      }
-    }
 
   /** Attempts to remove the locally synced survey. Doesn't throw an error if it doesn't exist. */
   suspend fun removeOfflineSurvey(surveyId: String) {
