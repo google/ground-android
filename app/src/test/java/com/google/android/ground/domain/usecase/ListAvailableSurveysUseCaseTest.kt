@@ -29,6 +29,8 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.Test
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import org.junit.runner.RunWith
@@ -36,6 +38,7 @@ import org.mockito.Mock
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
@@ -81,13 +84,46 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
     val localSurveys = listOf(SURVEY_1, SURVEY_3)
     setupSurveys(localSurveys, remoteSurveys)
 
-    val result = listAvailableSurveysUseCase.invoke().first()
+    val result = listAvailableSurveysUseCase().first()
 
     assertThat(result)
       .isEqualTo(
         listOf(
           SURVEY_1.toListItem(availableOffline = true),
           SURVEY_3.toListItem(availableOffline = true),
+        )
+      )
+  }
+
+  @Test
+  fun `when network is toggled, should return local survey list`() = runWithTestDispatcher {
+    val mutableNetworkStatusFlow = MutableStateFlow(NetworkStatus.UNAVAILABLE)
+    whenever(networkManager.networkStatusFlow).thenReturn(mutableNetworkStatusFlow)
+
+    val remoteSurveys = listOf(SURVEY_1, SURVEY_2)
+    val localSurveys = listOf(SURVEY_1, SURVEY_3)
+    setupSurveys(localSurveys, remoteSurveys)
+
+    val resultFlow = listAvailableSurveysUseCase()
+
+    // Verify that survey list is loaded from local storage
+    assertThat(resultFlow.first())
+      .isEqualTo(
+        listOf(
+          SURVEY_1.toListItem(availableOffline = true),
+          SURVEY_3.toListItem(availableOffline = true),
+        )
+      )
+
+    // Change network status
+    mutableNetworkStatusFlow.emit(NetworkStatus.AVAILABLE)
+
+    // Verify that survey list is now updated
+    assertThat(resultFlow.first())
+      .isEqualTo(
+        listOf(
+          SURVEY_1.toListItem(availableOffline = true),
+          SURVEY_2.toListItem(availableOffline = false),
         )
       )
   }
