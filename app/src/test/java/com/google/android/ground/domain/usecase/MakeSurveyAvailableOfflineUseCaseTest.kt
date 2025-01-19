@@ -18,7 +18,7 @@ package com.google.android.ground.domain.usecase
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.MakeSurveyAvailableOfflineUseCase
-import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.repository.RemoteSurveyRepository
 import com.sharedtest.FakeData.SURVEY
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -38,11 +38,11 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class MakeSurveyAvailableOfflineUseCaseTest : BaseHiltTest() {
   @Inject lateinit var makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase
-  @BindValue @Mock lateinit var surveyRepository: SurveyRepository
+  @BindValue @Mock lateinit var remoteSurveyRepository: RemoteSurveyRepository
 
   @Test
   fun `Returns null when survey doesn't exist`() = runWithTestDispatcher {
-    `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(null)
+    `when`(remoteSurveyRepository.fetchSurvey(SURVEY.id)).thenReturn(null)
 
     assertNull(makeSurveyAvailableOffline(SURVEY.id))
   }
@@ -50,7 +50,7 @@ class MakeSurveyAvailableOfflineUseCaseTest : BaseHiltTest() {
   @Test
   fun `Throws error when survey can't be loaded`() {
     runBlocking {
-      `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenThrow(Error::class.java)
+      `when`(remoteSurveyRepository.fetchSurvey(SURVEY.id)).thenThrow(Error::class.java)
 
       assertFails { makeSurveyAvailableOffline(SURVEY.id) }
     }
@@ -58,16 +58,16 @@ class MakeSurveyAvailableOfflineUseCaseTest : BaseHiltTest() {
 
   @Test
   fun `Returns survey on success`() = runWithTestDispatcher {
-    `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(SURVEY)
+    `when`(remoteSurveyRepository.fetchSurvey(SURVEY.id)).thenReturn(SURVEY)
 
     assertEquals(SURVEY, makeSurveyAvailableOffline(SURVEY.id))
   }
 
   @Test
   fun `Subscribes to updates on success`() = runWithTestDispatcher {
-    `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(SURVEY)
+    `when`(remoteSurveyRepository.fetchSurvey(SURVEY.id)).thenReturn(SURVEY)
 
     makeSurveyAvailableOffline(SURVEY.id)
-    verify(surveyRepository).subscribeToSurveyUpdates(SURVEY.id)
+    verify(remoteSurveyRepository).subscribeToSurveyUpdates(SURVEY.id)
   }
 }

@@ -19,7 +19,7 @@ package com.google.android.ground.domain.usecase
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.domain.usecases.survey.ReactivateLastSurveyUseCase
-import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.persistence.local.LocalValueStore
 import com.sharedtest.FakeData.SURVEY
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -38,14 +38,14 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class ReactivateLastSurveyUseCaseTest : BaseHiltTest() {
+  @Inject lateinit var localValueStore: LocalValueStore
   @Inject lateinit var reactivateLastSurvey: ReactivateLastSurveyUseCase
-  @Inject lateinit var surveyRepository: SurveyRepository
 
   @BindValue @Mock lateinit var activateSurvey: ActivateSurveyUseCase
 
   @Test
   fun `Reactivate last survey`() = runWithTestDispatcher {
-    surveyRepository.lastActiveSurveyId = SURVEY.id
+    localValueStore.lastActiveSurveyId = SURVEY.id
     reactivateLastSurvey()
     advanceUntilIdle()
 
@@ -64,7 +64,7 @@ class ReactivateLastSurveyUseCaseTest : BaseHiltTest() {
 
   @Test
   fun `Does nothing when survey never activated`() = runWithTestDispatcher {
-    surveyRepository.lastActiveSurveyId = ""
+    localValueStore.lastActiveSurveyId = ""
     reactivateLastSurvey()
     advanceUntilIdle()
 

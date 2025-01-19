@@ -18,8 +18,9 @@ package com.google.android.ground.domain.usecase
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
+import com.google.android.ground.repository.LocalSurveyRepository
 import com.google.android.ground.repository.LocationOfInterestRepository
-import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.repository.RemoteSurveyRepository
 import com.sharedtest.FakeData.SURVEY
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -38,22 +39,23 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class SyncSurveyUseCaseTest : BaseHiltTest() {
   @Inject lateinit var syncSurvey: SyncSurveyUseCase
-  @BindValue @Mock lateinit var surveyRepository: SurveyRepository
+  @BindValue @Mock lateinit var localSurveyRepository: LocalSurveyRepository
   @BindValue @Mock lateinit var loiRepository: LocationOfInterestRepository
+  @BindValue @Mock lateinit var remoteSurveyRepository: RemoteSurveyRepository
 
   @Test
   fun `Syncs survey and LOIs with remote`() = runBlocking {
-    `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(SURVEY)
+    `when`(remoteSurveyRepository.fetchSurvey(SURVEY.id)).thenReturn(SURVEY)
 
     syncSurvey(SURVEY.id)
 
-    verify(surveyRepository).loadAndSyncSurveyWithRemote(SURVEY.id)
+    verify(localSurveyRepository).saveSurvey(SURVEY)
     verify(loiRepository).syncLocationsOfInterest(SURVEY)
   }
 
   @Test
   fun `Returns null when survey not found`() = runBlocking {
-    `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(null)
+    `when`(remoteSurveyRepository.fetchSurvey(SURVEY.id)).thenReturn(null)
 
     assertNull(syncSurvey(SURVEY.id))
   }
@@ -61,7 +63,7 @@ class SyncSurveyUseCaseTest : BaseHiltTest() {
   @Test
   fun `Throws error when load fails`() {
     runBlocking {
-      `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenThrow(Error::class.java)
+      `when`(remoteSurveyRepository.fetchSurvey(SURVEY.id)).thenThrow(Error::class.java)
 
       assertFails { syncSurvey(SURVEY.id) }
     }

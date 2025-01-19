@@ -20,9 +20,9 @@ import androidx.lifecycle.asLiveData
 import com.google.android.ground.model.mutation.LocationOfInterestMutation
 import com.google.android.ground.model.mutation.SubmissionMutation
 import com.google.android.ground.model.submission.UploadQueueEntry
+import com.google.android.ground.repository.LocalSurveyRepository
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MutationRepository
-import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import com.google.android.ground.ui.common.LocationOfInterestHelper
@@ -44,7 +44,7 @@ internal constructor(
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val userRepository: UserRepository,
   private val locationOfInterestHelper: LocationOfInterestHelper,
-  private val surveyRepository: SurveyRepository,
+  private val surveyRepository: LocalSurveyRepository,
 ) : AbstractViewModel() {
 
   /**
@@ -91,7 +91,7 @@ internal constructor(
           timestamp = timestamp,
           status = status,
           label = mutation.job.name ?: "",
-          subtitle = surveyRepository.getOfflineSurvey(mutation.surveyId)?.title ?: "",
+          subtitle = surveyRepository.loadSurvey(mutation.surveyId)?.title ?: "",
         )
       }
     }

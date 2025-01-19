@@ -38,7 +38,9 @@ import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.google.android.ground.*
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
+import com.google.android.ground.domain.usecases.survey.ListAvailableSurveysUseCase
 import com.google.android.ground.model.SurveyListItem
+import com.google.android.ground.repository.LocalSurveyRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.common.truth.Truth.assertThat
@@ -69,9 +71,11 @@ import org.robolectric.shadows.ShadowToast
 @RunWith(RobolectricTestRunner::class)
 class SurveySelectorFragmentTest : BaseHiltTest() {
 
+  @BindValue @Mock lateinit var localSurveyRepository: LocalSurveyRepository
   @BindValue @Mock lateinit var surveyRepository: SurveyRepository
   @BindValue @Mock lateinit var userRepository: UserRepository
   @BindValue @Mock lateinit var activateSurvey: ActivateSurveyUseCase
+  @BindValue @Mock lateinit var listAvailableSurveysUseCase: ListAvailableSurveysUseCase
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
 
   private lateinit var fragment: SurveySelectorFragment
@@ -258,7 +262,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     advanceUntilIdle()
 
     // Assert survey is deleted
-    verify(surveyRepository).removeOfflineSurvey(TEST_SURVEY_2.id)
+    verify(localSurveyRepository).removeSurvey(TEST_SURVEY_2.id)
   }
 
   @Test
@@ -346,11 +350,11 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     }
 
   private fun setSurveyList(surveys: List<SurveyListItem>) = runWithTestDispatcher {
-    whenever(surveyRepository.getSurveyList(TEST_USER)).thenReturn(listOf(surveys).asFlow())
+    whenever(listAvailableSurveysUseCase()).thenReturn(listOf(surveys).asFlow())
   }
 
   private fun setLocalSurveys(surveys: List<SurveyListItem>) {
-    whenever(surveyRepository.localSurveyListFlow).thenReturn(listOf(surveys).asFlow())
+    whenever(localSurveyRepository.loadAllSurveysFlow()).thenReturn(listOf(surveys).asFlow())
   }
 
   private fun getViewHolder(index: Int): SurveyListAdapter.ViewHolder {
