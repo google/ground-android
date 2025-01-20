@@ -101,7 +101,7 @@ class UserRepositoryTest : BaseHiltTest() {
     val user = FakeData.USER
     val survey = FakeData.SURVEY.copy(acl = mapOf(Pair(user.email, Role.OWNER.toString())))
     fakeAuthenticationManager.setUser(user)
-    surveyRepository.selectedSurveyId = survey.id
+    surveyRepository.activateSurvey(survey.id)
 
     assertThat(userRepository.canUserSubmitData()).isTrue()
   }
@@ -113,7 +113,7 @@ class UserRepositoryTest : BaseHiltTest() {
       val survey = FakeData.SURVEY.copy(acl = mapOf())
       fakeAuthenticationManager.setUser(user)
       localSurveyStore.insertOrUpdateSurvey(survey)
-      surveyRepository.selectedSurveyId = survey.id
+      surveyRepository.activateSurvey(survey.id)
       advanceUntilIdle()
 
       assertThat(userRepository.canUserSubmitData()).isFalse()
@@ -136,7 +136,7 @@ class UserRepositoryTest : BaseHiltTest() {
     val survey = FakeData.SURVEY.copy(acl = mapOf(Pair("user@gmail.com", Role.OWNER.toString())))
     fakeAuthenticationManager.setUser(user)
     localSurveyStore.insertOrUpdateSurvey(survey)
-    surveyRepository.selectedSurveyId = survey.id
+    surveyRepository.activateSurvey(survey.id)
     advanceUntilIdle()
 
     assertThat(userRepository.canUserSubmitData()).isFalse()

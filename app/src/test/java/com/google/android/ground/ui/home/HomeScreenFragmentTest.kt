@@ -153,7 +153,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
   @Test
   fun `all menu item is always enabled`() = runWithTestDispatcher {
-    surveyRepository.selectedSurveyId = surveyWithoutBasemap.id
+    surveyRepository.activateSurvey(surveyWithoutBasemap.id)
     advanceUntilIdle()
 
     openDrawer()
@@ -252,7 +252,7 @@ class NavigationDrawerItemClickTest(
   @Test
   fun clickDrawerMenuItem() = runWithTestDispatcher {
     localSurveyStore.insertOrUpdateSurvey(survey)
-    surveyRepository.selectedSurveyId = survey.id
+    surveyRepository.activateSurvey(survey.id)
     advanceUntilIdle()
 
     openDrawer()

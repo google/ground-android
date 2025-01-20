@@ -49,7 +49,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun `setting selectedSurveyId updates the active survey`() = runWithTestDispatcher {
     localSurveyStore.insertOrUpdateSurvey(SURVEY)
-    surveyRepository.selectedSurveyId = SURVEY.id
+    surveyRepository.activateSurvey(SURVEY.id)
     advanceUntilIdle()
 
     surveyRepository.activeSurveyFlow.test { assertThat(expectMostRecentItem()).isEqualTo(SURVEY) }

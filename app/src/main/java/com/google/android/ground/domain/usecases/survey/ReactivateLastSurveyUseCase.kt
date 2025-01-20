@@ -32,14 +32,12 @@ constructor(
   suspend operator fun invoke(): Boolean =
     if (getLastActiveSurveyId().isEmpty()) {
       false
-    } else if (isSurveyActive()) {
+    } else if (surveyRepository.hasActiveSurvey()) {
       true
     } else {
       activateSurvey(getLastActiveSurveyId())
-      isSurveyActive()
+      surveyRepository.hasActiveSurvey()
     }
 
   private fun getLastActiveSurveyId(): String = localValueStore.lastActiveSurveyId
-
-  private fun isSurveyActive(): Boolean = surveyRepository.selectedSurveyId?.isNotBlank() ?: false
 }

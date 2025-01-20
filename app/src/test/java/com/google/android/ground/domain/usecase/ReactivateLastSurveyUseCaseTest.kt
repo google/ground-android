@@ -26,10 +26,13 @@ import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFails
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class ReactivateLastSurveyUseCaseTest : BaseHiltTest() {
@@ -44,7 +47,10 @@ class ReactivateLastSurveyUseCaseTest : BaseHiltTest() {
     localValueStore.lastActiveSurveyId = SURVEY_ID
     localSurveyStore.insertOrUpdateSurvey(SURVEY)
 
-    assertThat(reactivateLastSurvey()).isTrue()
+    val result = reactivateLastSurvey()
+    advanceUntilIdle()
+
+    assertThat(result).isTrue()
   }
 
   @Test
@@ -53,7 +59,10 @@ class ReactivateLastSurveyUseCaseTest : BaseHiltTest() {
     localSurveyStore.insertOrUpdateSurvey(SURVEY)
     activateSurvey(SURVEY_ID)
 
-    assertThat(reactivateLastSurvey()).isTrue()
+    val result = reactivateLastSurvey()
+    advanceUntilIdle()
+
+    assertThat(result).isTrue()
   }
 
   @Test
