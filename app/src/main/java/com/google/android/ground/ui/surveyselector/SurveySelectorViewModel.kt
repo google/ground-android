@@ -19,10 +19,10 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
+import com.google.android.ground.domain.usecases.survey.ListAvailableSurveysUseCase
 import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
-import com.google.android.ground.system.auth.AuthenticationManager
 import com.google.android.ground.ui.common.AbstractViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -41,10 +41,10 @@ class SurveySelectorViewModel
 @Inject
 internal constructor(
   private val surveyRepository: SurveyRepository,
-  private val authManager: AuthenticationManager,
   private val activateSurveyUseCase: ActivateSurveyUseCase,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+  private val listAvailableSurveysUseCase: ListAvailableSurveysUseCase,
   private val userRepository: UserRepository,
 ) : AbstractViewModel() {
 
@@ -62,8 +62,8 @@ internal constructor(
   }
 
   /** Returns a flow of [SurveyListItem] to be displayed to the user. */
-  private suspend fun getSurveyList(): Flow<List<SurveyListItem>> =
-    surveyRepository.getSurveyList(authManager.getAuthenticatedUser()).map { surveys ->
+  private fun getSurveyList(): Flow<List<SurveyListItem>> =
+    listAvailableSurveysUseCase().map { surveys ->
       surveys.sortedWith(compareBy({ !it.availableOffline }, { it.title }))
     }
 
