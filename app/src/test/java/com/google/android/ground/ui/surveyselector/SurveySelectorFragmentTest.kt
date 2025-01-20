@@ -45,7 +45,6 @@ import com.google.android.ground.domain.usecases.survey.ListAvailableSurveysUseC
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.model.SurveyListItem
-import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.recyclerChildAction
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
@@ -83,7 +82,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @BindValue @Mock lateinit var activateSurvey: ActivateSurveyUseCase
   @BindValue @Mock lateinit var listAvailableSurveysUseCase: ListAvailableSurveysUseCase
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
-  @Inject lateinit var localSurveyStore: LocalSurveyStore
 
   private lateinit var fragment: SurveySelectorFragment
   private lateinit var navController: NavController

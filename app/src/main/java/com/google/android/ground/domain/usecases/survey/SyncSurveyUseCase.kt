@@ -17,26 +17,43 @@
 package com.google.android.ground.domain.usecases.survey
 
 import com.google.android.ground.model.Survey
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
+import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.repository.LocationOfInterestRepository
-import com.google.android.ground.repository.SurveyRepository
 import javax.inject.Inject
+import kotlinx.coroutines.withTimeoutOrNull
+import timber.log.Timber
 
+private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000
+
+/**
+ * Loads the survey with the specified id and related LOIs from remote and writes to local db.
+ *
+ * If the survey isn't found or operation times out, then we return null. Otherwise returns the
+ * updated [Survey].
+ *
+ * @throws error if the remote query fails.
+ */
 class SyncSurveyUseCase
 @Inject
 constructor(
-  private val surveyRepository: SurveyRepository,
+  private val localSurveyStore: LocalSurveyStore,
   private val loiRepository: LocationOfInterestRepository,
+  private val remoteDataStore: RemoteDataStore,
 ) {
-  /**
-   * Downloads the survey with the specified ID and related LOIs from remote and inserts and/or
-   * updates them on the local device. Returns the updated [Survey], or `null` if the survey could
-   * not be found.
-   */
-  suspend operator fun invoke(surveyId: String): Survey? {
-    val survey = surveyRepository.loadAndSyncSurveyWithRemote(surveyId) ?: return null
 
+  suspend operator fun invoke(surveyId: String): Survey? =
+    fetchSurvey(surveyId)?.also { syncSurvey(it) }
+
+  private suspend fun fetchSurvey(surveyId: String): Survey? =
+    withTimeoutOrNull(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) {
+      Timber.d("Loading survey $surveyId")
+      remoteDataStore.loadSurvey(surveyId)
+    }
+
+  private suspend fun syncSurvey(survey: Survey) {
+    localSurveyStore.insertOrUpdateSurvey(survey)
     loiRepository.syncLocationsOfInterest(survey)
-
-    return survey
+    Timber.d("Synced survey ${survey.id}")
   }
 }

@@ -115,7 +115,7 @@ constructor(
       userRepository.saveUserDetails(user)
       if (!isTosAccepted()) {
         MainUiState.TosNotAccepted
-      } else if (!attemptToReactiveLastActiveSurvey()) {
+      } else if (!reactivateLastSurvey()) {
         MainUiState.NoActiveSurvey
       } else {
         // Everything is fine, show the home screen
@@ -127,10 +127,4 @@ constructor(
 
   /** Returns true if the user has already accepted the Terms of Service. */
   private fun isTosAccepted(): Boolean = termsOfServiceRepository.isTermsOfServiceAccepted
-
-  /** Returns true if the last survey was successfully reactivated, if any. */
-  private suspend fun attemptToReactiveLastActiveSurvey(): Boolean {
-    reactivateLastSurvey()
-    return surveyRepository.selectedSurveyId != null
-  }
 }

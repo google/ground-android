@@ -16,24 +16,28 @@
 
 package com.google.android.ground.domain.usecases.survey
 
+import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.repository.SurveyRepository
 import javax.inject.Inject
 
+/** Attempts to reactivate the last survey. If survey is already active, does nothing. */
 class ReactivateLastSurveyUseCase
 @Inject
 constructor(
-  private val surveyRepository: SurveyRepository,
   private val activateSurvey: ActivateSurveyUseCase,
+  private val localValueStore: LocalValueStore,
+  private val surveyRepository: SurveyRepository,
 ) {
-  suspend operator fun invoke() {
-    // Do nothing if never activated.
-    if (surveyRepository.lastActiveSurveyId.isEmpty()) {
-      return
+
+  suspend operator fun invoke(): Boolean =
+    if (getLastActiveSurveyId().isEmpty()) {
+      false
+    } else if (surveyRepository.hasActiveSurvey()) {
+      true
+    } else {
+      activateSurvey(getLastActiveSurveyId())
+      surveyRepository.hasActiveSurvey()
     }
-    // Do nothing if survey is already active.
-    if (surveyRepository.activeSurvey != null) {
-      return
-    }
-    activateSurvey(surveyRepository.lastActiveSurveyId)
-  }
+
+  private fun getLastActiveSurveyId(): String = localValueStore.lastActiveSurveyId
 }

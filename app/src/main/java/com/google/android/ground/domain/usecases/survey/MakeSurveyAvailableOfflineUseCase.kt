@@ -17,23 +17,20 @@
 package com.google.android.ground.domain.usecases.survey
 
 import com.google.android.ground.model.Survey
-import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.persistence.remote.RemoteDataStore
 import javax.inject.Inject
 
+/**
+ * Makes the survey with the specified ID and related LOIs available offline. Subscribes to updates
+ * from the remote server so that they may be re-fetched on change. Throws an error if the survey
+ * cannot be retrieved, or `null` if not found in the remote db.
+ */
 class MakeSurveyAvailableOfflineUseCase
 @Inject
 constructor(
-  private val surveyRepository: SurveyRepository,
+  private val remoteDataStore: RemoteDataStore,
   private val syncSurvey: SyncSurveyUseCase,
 ) {
-  /**
-   * Makes the survey with the specified ID and related LOIs available offline. Subscribes to
-   * updates from the remote server so that they may be refetched on change. Throws an error if the
-   * survey cannot be retrieved, or `null` if not found in the remote db.
-   */
-  suspend operator fun invoke(surveyId: String): Survey? {
-    val survey = syncSurvey(surveyId) ?: return null
-    surveyRepository.subscribeToSurveyUpdates(surveyId)
-    return survey
-  }
+  suspend operator fun invoke(surveyId: String): Survey? =
+    syncSurvey(surveyId)?.also { remoteDataStore.subscribeToSurveyUpdates(surveyId) }
 }
