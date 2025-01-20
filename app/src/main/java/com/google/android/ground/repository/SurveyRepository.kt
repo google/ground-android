@@ -87,6 +87,7 @@ constructor(
   }
 
   // TODO: Use activeSurvey instead of selectedSurveyId as it is possible to have no active survey.
+  // Issue URL: https://github.com/google/ground-android/issues/3020
   fun hasActiveSurvey(): Boolean = _selectedSurveyId.value?.isNotBlank() ?: false
 
   fun isSurveyActive(surveyId: String): Boolean =
