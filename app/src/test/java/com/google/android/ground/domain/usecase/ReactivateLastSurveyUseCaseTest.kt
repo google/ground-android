@@ -19,56 +19,76 @@ package com.google.android.ground.domain.usecase
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.domain.usecases.survey.ReactivateLastSurveyUseCase
-import com.google.android.ground.repository.SurveyRepository
-import com.sharedtest.FakeData.SURVEY
-import dagger.hilt.android.testing.BindValue
+import com.google.android.ground.model.Survey
+import com.google.android.ground.persistence.local.LocalValueStore
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
+import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlin.test.assertFails
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.kotlin.never
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class ReactivateLastSurveyUseCaseTest : BaseHiltTest() {
+
+  @Inject lateinit var activateSurvey: ActivateSurveyUseCase
+  @Inject lateinit var localSurveyStore: LocalSurveyStore
+  @Inject lateinit var localValueStore: LocalValueStore
   @Inject lateinit var reactivateLastSurvey: ReactivateLastSurveyUseCase
-  @Inject lateinit var surveyRepository: SurveyRepository
-
-  @BindValue @Mock lateinit var activateSurvey: ActivateSurveyUseCase
 
   @Test
-  fun `Reactivate last survey`() = runWithTestDispatcher {
-    surveyRepository.lastActiveSurveyId = SURVEY.id
-    reactivateLastSurvey()
+  fun `when last survey id is present, should activate it`() = runWithTestDispatcher {
+    localValueStore.lastActiveSurveyId = SURVEY_ID
+    localSurveyStore.insertOrUpdateSurvey(SURVEY)
+
+    val result = reactivateLastSurvey()
     advanceUntilIdle()
 
-    verify(activateSurvey).invoke(SURVEY.id)
+    assertThat(result).isTrue()
   }
 
   @Test
-  fun `Does nothing when a survey is already active`() = runWithTestDispatcher {
-    activateSurvey(SURVEY.id)
-    reactivateLastSurvey()
+  fun `when survey is already active, should do nothing`() = runWithTestDispatcher {
+    localValueStore.lastActiveSurveyId = SURVEY_ID
+    localSurveyStore.insertOrUpdateSurvey(SURVEY)
+    activateSurvey(SURVEY_ID)
+
+    val result = reactivateLastSurvey()
     advanceUntilIdle()
 
-    // Tries to activate survey.
-    verify(activateSurvey, times(1)).invoke(SURVEY.id)
+    assertThat(result).isTrue()
   }
 
   @Test
-  fun `Does nothing when survey never activated`() = runWithTestDispatcher {
-    surveyRepository.lastActiveSurveyId = ""
-    reactivateLastSurvey()
-    advanceUntilIdle()
+  fun `when last survey id is not present, should do nothing`() = runWithTestDispatcher {
+    localValueStore.lastActiveSurveyId = ""
+    localSurveyStore.insertOrUpdateSurvey(SURVEY)
 
-    // Should never try to activate survey.
-    verify(activateSurvey, never()).invoke(SURVEY.id)
+    assertThat(reactivateLastSurvey()).isFalse()
+  }
+
+  @Test
+  fun `when last survey id is present but survey is not present, should do nothing`() {
+    localValueStore.lastActiveSurveyId = SURVEY_ID
+
+    assertFails { runWithTestDispatcher { reactivateLastSurvey() } }
+  }
+
+  companion object {
+    private const val SURVEY_ID = "survey_id"
+
+    private val SURVEY =
+      Survey(
+        id = SURVEY_ID,
+        title = "survey title",
+        description = "survey description",
+        jobMap = emptyMap(),
+      )
   }
 }

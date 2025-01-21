@@ -18,16 +18,12 @@ package com.google.android.ground.repository
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
-import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData.JOB
 import com.sharedtest.FakeData.SURVEY
 import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlin.test.assertFails
-import kotlin.test.assertNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Before
@@ -39,10 +35,10 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SurveyRepositoryTest : BaseHiltTest() {
-  @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-  @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
+  @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var localSurveyStore: LocalSurveyStore
+  @Inject lateinit var surveyRepository: SurveyRepository
 
   @Before
   override fun setUp() {
@@ -53,7 +49,7 @@ class SurveyRepositoryTest : BaseHiltTest() {
   @Test
   fun `setting selectedSurveyId updates the active survey`() = runWithTestDispatcher {
     localSurveyStore.insertOrUpdateSurvey(SURVEY)
-    surveyRepository.selectedSurveyId = SURVEY.id
+    surveyRepository.activateSurvey(SURVEY.id)
     advanceUntilIdle()
 
     surveyRepository.activeSurveyFlow.test { assertThat(expectMostRecentItem()).isEqualTo(SURVEY) }
@@ -70,62 +66,42 @@ class SurveyRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun `removeOfflineSurvey() deletes local copy`() = runWithTestDispatcher {
-    fakeRemoteDataStore.surveys = listOf(SURVEY)
-    surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)
-    activateSurvey(SURVEY.id)
+  fun `removeOfflineSurvey - should delete local copy`() = runWithTestDispatcher {
+    localSurveyStore.insertOrUpdateSurvey(SURVEY)
 
     surveyRepository.removeOfflineSurvey(SURVEY.id)
-    advanceUntilIdle()
 
-    surveyRepository.localSurveyListFlow.test { assertThat(expectMostRecentItem()).isEmpty() }
-    assertThat(surveyRepository.activeSurvey).isNull()
+    localSurveyStore.surveys.test { assertThat(expectMostRecentItem()).isEmpty() }
   }
 
   @Test
-  fun `removeOfflineSurvey() deactivates active survey`() = runWithTestDispatcher {
-    fakeRemoteDataStore.surveys = listOf(SURVEY)
-    surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)
-    activateSurvey(SURVEY.id)
-
-    surveyRepository.removeOfflineSurvey(SURVEY.id)
-    advanceUntilIdle()
-
-    assertThat(surveyRepository.activeSurvey).isNull()
-  }
-
-  @Test
-  fun `removeOfflineSurvey() removes inactive survey`() = runWithTestDispatcher {
-    // Job ID must be globally unique.
-    val job1 = JOB.copy(id = "job1")
-    val job2 = JOB.copy(id = "job2")
-    val survey1 = SURVEY.copy(id = "active survey id", jobMap = mapOf(job1.id to job1))
-    val survey2 = SURVEY.copy(id = "inactive survey id", jobMap = mapOf(job2.id to job2))
-    fakeRemoteDataStore.surveys = listOf(survey1, survey2)
-    surveyRepository.loadAndSyncSurveyWithRemote(survey1.id)
-    surveyRepository.loadAndSyncSurveyWithRemote(survey2.id)
-    activateSurvey(survey1.id)
-    advanceUntilIdle()
-
-    surveyRepository.removeOfflineSurvey(survey2.id)
-    advanceUntilIdle()
-
-    // Verify active survey isn't cleared
-    assertThat(surveyRepository.activeSurvey).isEqualTo(survey1)
-    surveyRepository.localSurveyListFlow.test {
-      assertThat(expectMostRecentItem()).isEqualTo(listOf(survey1.toListItem(true)))
-    }
-  }
-
-  @Test
-  fun `loadAndSyncSurveyWithRemote() returns null when survey not found`() = runWithTestDispatcher {
-    assertNull(surveyRepository.loadAndSyncSurveyWithRemote("someUnknownSurveyId"))
-  }
-
-  @Test
-  fun `loadAndSyncSurveyWithRemote() throws error when remote fetch fails`() =
+  fun `removeOfflineSurvey - when active survey is same, should deactivate as well`() =
     runWithTestDispatcher {
-      fakeRemoteDataStore.onLoadSurvey = { error("Something went wrong") }
-      assertFails { surveyRepository.loadAndSyncSurveyWithRemote("anySurveyId") }
+      localSurveyStore.insertOrUpdateSurvey(SURVEY)
+      activateSurvey(SURVEY.id)
+
+      surveyRepository.removeOfflineSurvey(SURVEY.id)
+
+      assertThat(surveyRepository.activeSurvey).isNull()
+    }
+
+  @Test
+  fun `removeOfflineSurvey - when active survey is different, should not deactivate`() =
+    runWithTestDispatcher {
+      val survey1 = SURVEY.copy(id = "active survey id", jobMap = emptyMap())
+      val survey2 = SURVEY.copy(id = "inactive survey id", jobMap = emptyMap())
+      localSurveyStore.insertOrUpdateSurvey(survey1)
+      localSurveyStore.insertOrUpdateSurvey(survey2)
+      activateSurvey(survey1.id)
+      advanceUntilIdle()
+
+      surveyRepository.removeOfflineSurvey(survey2.id)
+      advanceUntilIdle()
+
+      // Verify that active survey isn't cleared or de-activated
+      assertThat(surveyRepository.activeSurvey).isEqualTo(survey1)
+      localSurveyStore.surveys.test {
+        assertThat(expectMostRecentItem()).isEqualTo(listOf(survey1))
+      }
     }
 }
