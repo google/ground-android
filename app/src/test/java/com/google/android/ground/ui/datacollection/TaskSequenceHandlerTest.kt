@@ -137,6 +137,18 @@ class TaskSequenceHandlerTest {
   }
 
   @Test
+  fun `refreshTaskSequence updates the cached task sequence`() {
+    val initialSequence = taskSequenceHandler.getTaskSequence()
+    assertThat(initialSequence.toList()).isEqualTo(listOf(task1, task2))
+
+    satisfyAllConditions()
+    taskSequenceHandler.refreshTaskSequence()
+
+    val finalSequence = taskSequenceHandler.getTaskSequence()
+    assertThat(finalSequence.toList()).isEqualTo(listOf(task1, conditionalTask, task2))
+  }
+
+  @Test
   fun `isFirstPosition returns true for the first task`() {
     assertThat(taskSequenceHandler.isFirstPosition(task1.id)).isTrue()
   }

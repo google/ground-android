@@ -19,7 +19,7 @@ import com.google.android.ground.model.task.Task
 import com.google.android.ground.model.task.TaskSelections
 
 /**
- * Manages operations related to a sequence of tasks.
+ * Manages state and operations related to a sequence of tasks.
  *
  * This class provides methods to retrieve, navigate, and query the position of tasks within a
  * sequence. The sequence is derived from a list of [Task] objects, filtered based on a provided
@@ -53,7 +53,7 @@ class TaskSequenceHandler(
   private fun shouldIncludeTaskInSequence(task: Task, taskSelections: TaskSelections): Boolean =
     task.condition == null || task.condition.fulfilledBy(taskSelections)
 
-  /** Lazily retrieves the task sequence. */
+  /** Returns the pre-computed task sequence or generates and caches it first, if missing. */
   fun getTaskSequence(): Sequence<Task> {
     if (!isSequenceInitialized) {
       taskSequence = generateTaskSequence()
@@ -62,8 +62,15 @@ class TaskSequenceHandler(
     return taskSequence
   }
 
-  // TODO: Add a method to update the cached sequence whenever necessary.
-  // Issue URL: https://github.com/google/ground-android/issues/2993
+  /**
+   * Re-computes the task sequence and updates the local cache.
+   *
+   * Note: This is a heavy computing operation. So, it should only be triggered if the task's value
+   * has been updated.
+   */
+  fun refreshTaskSequence() {
+    taskSequence = generateTaskSequence()
+  }
 
   /**
    * Checks if the specified task is the first task in the displayed sequence.

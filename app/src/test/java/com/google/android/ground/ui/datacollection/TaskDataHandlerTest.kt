@@ -109,6 +109,24 @@ class TaskDataHandlerTest {
   }
 
   @Test
+  fun `getData with taskId returns correct data`() = runTest {
+    val handler = TaskDataHandler()
+    val task = createTask("task1")
+    val taskData = createTaskData("data1")
+
+    handler.setData(task, taskData)
+
+    assertThat(handler.getData(task.id)).isEqualTo(taskData)
+  }
+
+  @Test
+  fun `getData with taskId returns null for unknown task`() = runTest {
+    val handler = TaskDataHandler()
+
+    assertThat(handler.getData("task1")).isNull()
+  }
+
+  @Test
   fun `getTaskSelections returns correct values`() = runTest {
     val handler = TaskDataHandler()
     val task1 = createTask("task1")
