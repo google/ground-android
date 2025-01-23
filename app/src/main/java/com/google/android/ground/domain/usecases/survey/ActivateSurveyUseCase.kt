@@ -36,10 +36,14 @@ constructor(
   private val makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase,
   private val surveyRepository: SurveyRepository,
 ) {
-  suspend operator fun invoke(surveyId: String) {
+
+  /**
+   * @return `true` if the survey was successfully activated or was already active, otherwise false.
+   */
+  suspend operator fun invoke(surveyId: String): Boolean {
     if (surveyRepository.isSurveyActive(surveyId)) {
       // Do nothing if survey is already active.
-      return
+      return true
     }
 
     localSurveyStore.getSurveyById(surveyId)
@@ -47,5 +51,7 @@ constructor(
       ?: error("Survey $surveyId not found in remote db")
 
     surveyRepository.activateSurvey(surveyId)
+
+    return surveyRepository.isSurveyActive(surveyId)
   }
 }

@@ -36,7 +36,6 @@ constructor(
       true
     } else {
       activateSurvey(getLastActiveSurveyId())
-      surveyRepository.hasActiveSurvey()
     }
 
   private fun getLastActiveSurveyId(): String = localValueStore.lastActiveSurveyId
