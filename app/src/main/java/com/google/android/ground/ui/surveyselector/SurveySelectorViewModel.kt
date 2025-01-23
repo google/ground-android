@@ -87,7 +87,7 @@ internal constructor(
             if (result) {
               onSurveyActivated()
             } else {
-              onSurveyActivationFailed(null)
+              onSurveyActivationFailed()
             }
           },
           onFailure = { onSurveyActivationFailed(it) },
@@ -101,7 +101,7 @@ internal constructor(
     _uiState.emit(UiState.NavigateToHome)
   }
 
-  private suspend fun onSurveyActivationFailed(error: Throwable?) {
+  private suspend fun onSurveyActivationFailed(error: Throwable? = null) {
     Timber.e(error, "Failed to activate survey")
     surveyActivationInProgress = false
     _uiState.emit(UiState.Error)
