@@ -18,56 +18,52 @@ package com.google.android.ground.domain.usecase
 
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.domain.usecases.survey.MakeSurveyAvailableOfflineUseCase
-import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
+import com.google.common.truth.Truth.assertThat
 import com.sharedtest.FakeData.SURVEY
+import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlin.test.assertEquals
-import kotlin.test.assertFails
-import kotlin.test.assertNull
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MakeSurveyAvailableOfflineUseCaseTest : BaseHiltTest() {
+  @BindValue @Mock lateinit var syncSurveyUseCase: SyncSurveyUseCase
+
   @Inject lateinit var makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase
-  @BindValue @Mock lateinit var surveyRepository: SurveyRepository
+  @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
   @Test
-  fun `Returns null when survey doesn't exist`() = runWithTestDispatcher {
-    `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(null)
+  fun `when survey sync returns null, should return null`() = runWithTestDispatcher {
+    whenever(syncSurveyUseCase(SURVEY.id)).thenReturn(null)
 
-    assertNull(makeSurveyAvailableOffline(SURVEY.id))
+    val result = makeSurveyAvailableOffline(SURVEY.id)
+
+    assertThat(result).isNull()
   }
 
   @Test
-  fun `Throws error when survey can't be loaded`() {
-    runBlocking {
-      `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenThrow(Error::class.java)
+  fun `when survey sync throws error, should throw error`() = runWithTestDispatcher {
+    whenever(syncSurveyUseCase(SURVEY.id)).thenThrow(Error::class.java)
 
-      assertFails { makeSurveyAvailableOffline(SURVEY.id) }
-    }
+    assertThrows(Error::class.java) { runBlocking { makeSurveyAvailableOffline(SURVEY.id) } }
   }
 
   @Test
-  fun `Returns survey on success`() = runWithTestDispatcher {
-    `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(SURVEY)
+  fun `when survey sync succeeds, should subscribe to updates`() = runWithTestDispatcher {
+    whenever(syncSurveyUseCase(SURVEY.id)).thenReturn(SURVEY)
 
-    assertEquals(SURVEY, makeSurveyAvailableOffline(SURVEY.id))
-  }
+    val result = makeSurveyAvailableOffline(SURVEY.id)
 
-  @Test
-  fun `Subscribes to updates on success`() = runWithTestDispatcher {
-    `when`(surveyRepository.loadAndSyncSurveyWithRemote(SURVEY.id)).thenReturn(SURVEY)
-
-    makeSurveyAvailableOffline(SURVEY.id)
-    verify(surveyRepository).subscribeToSurveyUpdates(SURVEY.id)
+    assertThat(result).isEqualTo(SURVEY)
+    assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isTrue()
   }
 }

@@ -22,6 +22,10 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import androidx.navigation.fragment.findNavController
 import com.google.android.ground.R
 import com.google.android.ground.databinding.SurveySelectorFragBinding
@@ -29,7 +33,9 @@ import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
+import com.google.android.ground.ui.compose.ConfirmationDialog
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
+import com.google.android.ground.ui.theme.AppTheme
 import com.google.android.ground.util.visibleIf
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -118,7 +124,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
         object : PopupMenu.OnMenuItemClickListener {
           override fun onMenuItemClick(item: MenuItem): Boolean {
             if (item.itemId == R.id.remove_offline_access_menu_item) {
-              viewModel.deleteSurvey(surveyId)
+              showRemoveConfirmationDialogs { viewModel.deleteSurvey(surveyId) }
               return true
             }
             return false
@@ -127,6 +133,32 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
       )
       show()
     }
+  }
+
+  @Suppress("UnrememberedMutableState")
+  private fun showRemoveConfirmationDialogs(onConfirm: () -> Unit) {
+    val dialogComposeView =
+      ComposeView(requireContext()).apply {
+        setContent {
+          var showRemoveWarningDialog by mutableStateOf(true)
+
+          AppTheme {
+            if (showRemoveWarningDialog) {
+              ConfirmationDialog(
+                title = R.string.remove_offline_access_warning_title,
+                description = R.string.remove_offline_access_warning_dialog_body,
+                confirmButtonText = R.string.remove_offline_access_warning_confirm_button,
+                signOutCallback = {
+                  onConfirm()
+                  showRemoveWarningDialog = false
+                },
+                dismissCallback = { showRemoveWarningDialog = false },
+              )
+            }
+          }
+        }
+      }
+    (view as ViewGroup).addView(dialogComposeView)
   }
 
   private fun shouldExitApp(): Boolean =

@@ -280,12 +280,19 @@ internal constructor(
 
   /** Persists the collected data as draft to local storage. */
   private fun saveDraft(taskId: String) {
+    val deltas = getDeltas()
+
+    // Prevent saving draft if the task is submitted or there are no deltas.
+    if (_uiState.value == UiState.TaskSubmitted || deltas.isEmpty()) {
+      return
+    }
+
     externalScope.launch(ioDispatcher) {
       submissionRepository.saveDraftSubmission(
         jobId = jobId,
         loiId = loiId,
         surveyId = surveyId,
-        deltas = getDeltas(),
+        deltas = deltas,
         loiName = customLoiName,
         currentTaskId = taskId,
       )

@@ -15,10 +15,15 @@
  */
 package com.google.android.ground.ui.datacollection
 
-import com.google.android.ground.model.submission.TaskData
+import com.google.android.ground.model.submission.MultipleChoiceTaskData
+import com.google.android.ground.model.task.Condition
+import com.google.android.ground.model.task.Expression
+import com.google.android.ground.model.task.MultipleChoice
+import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.model.task.Task.Type
 import com.google.common.truth.Truth.assertThat
+import kotlinx.collections.immutable.persistentListOf
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,186 +32,233 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class TaskSequenceHandlerTest {
 
-  private val task1 = Task("task1", 1, Type.TEXT, "Task 1", true)
-  private val task2 = Task("task2", 2, Type.TEXT, "Task 2", true)
-  private val task3 = Task("task3", 3, Type.TEXT, "Task 3", true)
-  private val task4 = Task("task4", 4, Type.TEXT, "Task 4", true)
-  private val task5 = Task("task5", 5, Type.TEXT, "Task 5", true)
+  private val option1 = Option("option 1", "code 1", "label 1")
+  private val conditionalOption = Option("option 2", "code 2", "label 2")
+  private val multipleChoice =
+    MultipleChoice(
+      options = persistentListOf(option1, conditionalOption),
+      cardinality = MultipleChoice.Cardinality.SELECT_ONE,
+    )
 
-  private val allTasks = listOf(task1, task2, task3, task4, task5)
+  private val task1 = createTask("task1", 1)
+  private val conditionalTask =
+    createTask(
+      "conditionalTask",
+      2,
+      Condition(
+        matchType = Condition.MatchType.MATCH_ANY,
+        expressions =
+          listOf(
+            Expression(
+              expressionType = Expression.ExpressionType.ANY_OF_SELECTED,
+              taskId = task1.id,
+              optionIds = setOf(conditionalOption.id),
+            )
+          ),
+      ),
+    )
+  private val task2 = createTask("task2", 3)
 
-  private fun createHandler(
-    tasks: List<Task> = allTasks,
-    shouldIncludeTask: (task: Task, taskValueOverride: Pair<String, TaskData?>?) -> Boolean =
-      { _, _ ->
-        true
-      },
-  ): TaskSequenceHandler = TaskSequenceHandler(tasks, shouldIncludeTask)
+  private val allTasks = listOf(task1, conditionalTask, task2)
+
+  private val taskDataHandler = TaskDataHandler()
+  private val taskSequenceHandler = TaskSequenceHandler(allTasks, taskDataHandler)
+
+  private fun createTask(taskId: String, index: Int, condition: Condition? = null) =
+    Task(
+      taskId,
+      index,
+      Type.MULTIPLE_CHOICE,
+      label = "",
+      true,
+      multipleChoice = multipleChoice,
+      condition = condition,
+    )
+
+  /** Iterates through each task and auto-fills all required values. */
+  private fun satisfyAllConditions() {
+    allTasks
+      .mapNotNull { it.condition?.expressions?.firstOrNull() }
+      .forEach { expression ->
+        val taskId = expression.taskId
+        val task = allTasks.first { it.id == taskId }
+        val optionId = expression.optionIds.first()
+        val newValue = MultipleChoiceTaskData(multipleChoice, listOf(optionId))
+        taskDataHandler.setData(task, newValue)
+      }
+  }
 
   @Test
   fun `constructor should throw error when tasks are empty`() {
     assertThrows(IllegalArgumentException::class.java) {
-      TaskSequenceHandler(tasks = emptyList(), shouldIncludeTask = { _, _ -> true })
+      TaskSequenceHandler(tasks = emptyList(), taskDataHandler)
     }
   }
 
   @Test
-  fun `getTaskSequence returns all tasks when shouldIncludeTask always returns true`() {
-    val handler = createHandler()
-    val sequence = handler.getTaskSequence()
+  fun `getTaskSequence returns all tasks when condition is met`() {
+    satisfyAllConditions()
+
+    val sequence = taskSequenceHandler.getTaskSequence()
+
     assertThat(sequence.toList()).isEqualTo(allTasks)
   }
 
   @Test
-  fun `getTaskSequence filters tasks based on shouldIncludeTask`() {
-    val handler =
-      createHandler(shouldIncludeTask = { task, _ -> task.id != "task2" && task.id != "task4" })
-    val sequence = handler.getTaskSequence()
-    assertThat(sequence.toList()).isEqualTo(listOf(task1, task3, task5))
+  fun `getTaskSequence returns partial tasks when condition is not met`() {
+    val sequence = taskSequenceHandler.getTaskSequence()
+
+    assertThat(sequence.toList()).isEqualTo(listOf(task1, task2))
   }
 
   @Test
-  fun `generateTaskSequence filters tasks based on shouldIncludeTask and taskValueOverride`() {
-    val handler =
-      createHandler(
-        shouldIncludeTask = { task, taskValueOverride ->
-          task.id != "task2" &&
-            task.id != "task4" &&
-            !(task.id == "task3" && taskValueOverride?.first == "task3")
-        }
+  fun `generateTaskSequence returns all tasks if conditions are satisfied`() {
+    satisfyAllConditions()
+
+    val sequence = taskSequenceHandler.generateTaskSequence()
+
+    assertThat(sequence.toList()).isEqualTo(allTasks)
+  }
+
+  @Test
+  fun `generateTaskSequence overrides conditions even if conditions are satisfied`() {
+    satisfyAllConditions()
+
+    val sequence =
+      taskSequenceHandler.generateTaskSequence(
+        taskSelections =
+          mapOf(
+            task1.id to
+              MultipleChoiceTaskData(multipleChoice, selectedOptionIds = listOf(option1.id))
+          )
       )
-    val sequence = handler.generateTaskSequence(taskValueOverride = "task3" to null)
-    assertThat(sequence.toList()).isEqualTo(listOf(task1, task5))
+
+    assertThat(sequence.toList()).isEqualTo(listOf(task1, task2))
   }
 
   @Test
   fun `isFirstPosition returns true for the first task`() {
-    val handler = createHandler()
-    assertThat(handler.isFirstPosition("task1")).isTrue()
+    assertThat(taskSequenceHandler.isFirstPosition(task1.id)).isTrue()
   }
 
   @Test
   fun `isFirstPosition returns false for non-first tasks`() {
-    val handler = createHandler()
-    assertThat(handler.isFirstPosition("task2")).isFalse()
+    assertThat(taskSequenceHandler.isFirstPosition(task2.id)).isFalse()
   }
 
   @Test
   fun `isFirstPosition returns false for task id missing from task sequence`() {
-    val handler = createHandler()
-    assertThat(handler.isFirstPosition("random")).isFalse()
+    assertThat(taskSequenceHandler.isFirstPosition("random")).isFalse()
   }
 
   @Test
   fun `isFirstPosition throws error for invalid task id`() {
-    val handler = createHandler()
-    assertThrows(IllegalArgumentException::class.java) { handler.isFirstPosition("") }
+    assertThrows(IllegalArgumentException::class.java) { taskSequenceHandler.isFirstPosition("") }
   }
 
   @Test
   fun `isLastPosition returns true for the last task`() {
-    val handler = createHandler()
-    assertThat(handler.isLastPosition("task5")).isTrue()
+    assertThat(taskSequenceHandler.isLastPosition(task2.id)).isTrue()
   }
 
   @Test
   fun `isLastPosition returns false for non-last tasks`() {
-    val handler = createHandler()
-    assertThat(handler.isLastPosition("task4")).isFalse()
+    assertThat(taskSequenceHandler.isLastPosition(task1.id)).isFalse()
   }
 
   @Test
   fun `isLastPosition returns false for task id missing from task sequence`() {
-    val handler = createHandler()
-    assertThat(handler.isLastPosition("random")).isFalse()
+    assertThat(taskSequenceHandler.isLastPosition("random")).isFalse()
   }
 
   @Test
   fun `isLastPosition throws error for invalid task id`() {
-    val handler = createHandler()
-    assertThrows(IllegalArgumentException::class.java) { handler.isLastPosition("") }
+    assertThrows(IllegalArgumentException::class.java) { taskSequenceHandler.isLastPosition("") }
   }
 
   @Test
   fun `getPreviousTask returns the previous task id`() {
-    val handler = createHandler()
-    assertThat(handler.getPreviousTask("task2")).isEqualTo("task1")
+    assertThat(taskSequenceHandler.getPreviousTask(task2.id)).isEqualTo(task1.id)
   }
 
   @Test
   fun `getPreviousTask throws error for invalid task id`() {
-    val handler = createHandler()
-    assertThrows(IllegalArgumentException::class.java) { handler.getPreviousTask("") }
+    assertThrows(IllegalArgumentException::class.java) { taskSequenceHandler.getPreviousTask("") }
   }
 
   @Test
   fun `getPreviousTask throws error when there is no previous task`() {
-    val handler = createHandler()
-    assertThrows(IndexOutOfBoundsException::class.java) { handler.getPreviousTask("task1") }
+    assertThrows(IllegalArgumentException::class.java) {
+      taskSequenceHandler.getPreviousTask(task1.id)
+    }
   }
 
   @Test
   fun `getNextTask returns the next task id`() {
-    val handler = createHandler()
-    assertThat(handler.getNextTask("task2")).isEqualTo("task3")
+    assertThat(taskSequenceHandler.getNextTask(task1.id)).isEqualTo(task2.id)
   }
 
   @Test
   fun `getNextTask throws error for invalid task id`() {
-    val handler = createHandler()
-    assertThrows(IllegalArgumentException::class.java) { handler.getNextTask("") }
+    assertThrows(IllegalArgumentException::class.java) { taskSequenceHandler.getNextTask("") }
   }
 
   @Test
   fun `getNextTask throws error when there is no next task`() {
-    val handler = createHandler()
-    assertThrows(IndexOutOfBoundsException::class.java) { handler.getNextTask("task5") }
+    assertThrows(IllegalArgumentException::class.java) { taskSequenceHandler.getNextTask(task2.id) }
   }
 
   @Test
   fun `getAbsolutePosition returns the correct position`() {
-    val handler = createHandler()
-    assertThat(handler.getAbsolutePosition("task3")).isEqualTo(2)
+
+    assertThat(taskSequenceHandler.getAbsolutePosition(task2.id)).isEqualTo(2)
   }
 
   @Test
   fun `getAbsolutePosition throws error for invalid task id`() {
-    val handler = createHandler()
-    assertThrows(IllegalArgumentException::class.java) { handler.getAbsolutePosition("") }
+    assertThrows(IllegalArgumentException::class.java) {
+      taskSequenceHandler.getAbsolutePosition("")
+    }
   }
 
   @Test
   fun `getAbsolutePosition throws error when task is not found`() {
-    val handler = createHandler()
-    assertThrows(IllegalArgumentException::class.java) { handler.getAbsolutePosition("invalid") }
+    assertThrows(IllegalArgumentException::class.java) {
+      taskSequenceHandler.getAbsolutePosition("invalid")
+    }
   }
 
   @Test
-  fun `getRelativePosition returns the correct position`() {
-    val handler =
-      createHandler(shouldIncludeTask = { task, _ -> task.id != "task2" && task.id != "task4" })
-    assertThat(handler.getRelativePosition("task3")).isEqualTo(1)
+  fun `getTaskIndex returns the correct position`() {
+    satisfyAllConditions()
+    assertThat(taskSequenceHandler.getTaskIndex(task2.id)).isEqualTo(2)
   }
 
   @Test
-  fun `getRelativePosition throws error for invalid task id`() {
-    val handler = createHandler()
-    assertThrows(IllegalArgumentException::class.java) { handler.getRelativePosition("") }
+  fun `getTaskIndex throws error for invalid task id`() {
+    assertThrows(IllegalArgumentException::class.java) { taskSequenceHandler.getTaskIndex("") }
   }
 
   @Test
-  fun `getRelativePosition throws error when task is not found`() {
-    val handler = createHandler()
-    assertThrows(IllegalArgumentException::class.java) { handler.getRelativePosition("invalid") }
+  fun `getTaskIndex throws error when task is not found`() {
+    assertThrows(IllegalArgumentException::class.java) {
+      taskSequenceHandler.getTaskIndex("invalid")
+    }
   }
 
   @Test
   fun `getTaskPosition returns the correct position`() {
-    val handler =
-      createHandler(shouldIncludeTask = { task, _ -> task.id != "task2" && task.id != "task4" })
-    val position = handler.getTaskPosition("task3")
+    val position = taskSequenceHandler.getTaskPosition(task2.id)
+
     assertThat(position.absoluteIndex).isEqualTo(2)
     assertThat(position.relativeIndex).isEqualTo(1)
-    assertThat(position.sequenceSize).isEqualTo(3)
+    assertThat(position.sequenceSize).isEqualTo(2)
+  }
+
+  @Test
+  fun `getTaskPosition throws error if task not found`() {
+    assertThrows(IllegalArgumentException::class.java) {
+      taskSequenceHandler.getTaskPosition(conditionalTask.id)
+    }
   }
 }
