@@ -30,8 +30,7 @@
   -->
 
   <!-- Shown when user has refused to grant app fine grained location permission. -->
-  <string name="no_fine_location_permissions">Cannot show current location without
-    permission</string>
+  <string name="no_fine_location_permissions">Cannot show current location without permission</string>
   <!-- Shown when an unknown error occurs obtaining fine grained location permission. -->
   <string name="location_updates_unknown_error">Failed to enable location updates</string>
   <!-- Shown when user has refused to enable location services in settings.-->

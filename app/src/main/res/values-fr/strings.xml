@@ -30,8 +30,7 @@
   -->
 
   <!-- Shown when user has refused to grant app fine grained location permission. -->
-  <string name="no_fine_location_permissions">Impossible d&#8217;afficher la position actuelle sans
-  autorisation</string>
+  <string name="no_fine_location_permissions">Impossible d&#8217;afficher la position actuelle sans autorisation</string>
   <!-- Shown when an unknown error occurs obtaining fine grained location permission. -->
   <string name="location_updates_unknown_error">Échec de l&#8217;activation des mises à jour de localisation</string>
   <!-- Shown when user has refused to enable location services in settings.-->
@@ -81,6 +80,8 @@
   <string name="skip">Ignore</string>
 
   <string name="drop_pin">Placer une épingle</string>
+  <string name="add_site">Ajouter un site</string>
+  <string name="job_site_icon">Icône du site de la tâche</string>
   <string name="drop_a_pin_tooltip_text">Faites glisser votre carte jusqu&#8217;à ce que l&#8217;épingle au centre se trouve à l&#8217;endroit souhaité.</string>
   <string name="current_location">Localisation actuelle :</string>
   <string name="loading">Chargement…</string>
@@ -111,6 +112,7 @@
   <string name="remove_offline_access">Supprimer l&#8217;accès hors ligne</string>
   <string name="unnamed_point">Point non nommé</string>
   <string name="unnamed_area">Zone non nommée</string>
+  <string name="unnamed_job">Tâche non nommée</string>
   <string name="offline_area_size_on_disk_mb">%s\u00A0MB sur disque</string>
   <string name="offline_area_list_item_size_on_disk_mb">%s\u00A0MB</string>
   <string name="offline_downloaded_areas">Zones téléchargées</string>
