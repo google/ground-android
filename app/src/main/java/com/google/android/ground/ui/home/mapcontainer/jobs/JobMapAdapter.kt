@@ -79,10 +79,13 @@ import kotlinx.coroutines.launch
 class JobMapAdapter(private val getSubmissionCount: suspend (loi: LocationOfInterest) -> Int) {
   lateinit var basemapLayoutBinding: BasemapLayoutBinding
   lateinit var menuBinding: MenuButtonBinding
-  private var collectDataListener: MutableState<(DataCollectionEntryPointData) -> Unit> = mutableStateOf({})
+  private var collectDataListener: MutableState<(DataCollectionEntryPointData) -> Unit> =
+    mutableStateOf({})
   private var canUserSubmitData = mutableStateOf(false)
-  private var activeLoi: MutableState<DataCollectionEntryPointData.SelectedLoiSheetData?> = mutableStateOf(null)
-  private val newLoiJobs: MutableList<DataCollectionEntryPointData.AdHocDataCollectionButtonData> = mutableStateListOf()
+  private var activeLoi: MutableState<DataCollectionEntryPointData.SelectedLoiSheetData?> =
+    mutableStateOf(null)
+  private val newLoiJobs: MutableList<DataCollectionEntryPointData.AdHocDataCollectionButtonData> =
+    mutableStateListOf()
   private var selectedFeatureListener: ((String?) -> Unit) = {}
   private val jobModalOpened = mutableStateOf(false)
   private val jobCardOpened = mutableStateOf(false)
@@ -352,7 +355,10 @@ fun Modal(onDismiss: () -> Unit, content: @Composable () -> Unit) {
 }
 
 @Composable
-fun JobSelectionRow(job: DataCollectionEntryPointData.AdHocDataCollectionButtonData, onJobSelected: () -> Unit) {
+fun JobSelectionRow(
+  job: DataCollectionEntryPointData.AdHocDataCollectionButtonData,
+  onJobSelected: () -> Unit,
+) {
   Button(
     onClick = { onJobSelected() },
     modifier = Modifier.fillMaxWidth(0.65F).clickable { onJobSelected() },

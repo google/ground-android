@@ -40,8 +40,8 @@ import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.home.DataSharingTermsDialog
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
-import com.google.android.ground.ui.home.mapcontainer.jobs.JobMapAdapter
 import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
+import com.google.android.ground.ui.home.mapcontainer.jobs.JobMapAdapter
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -110,8 +110,10 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private fun hasValidTasks(cardUiData: DataCollectionEntryPointData) =
     when (cardUiData) {
       // LOI tasks are filtered out of the tasks list for pre-defined tasks.
-      is DataCollectionEntryPointData.SelectedLoiSheetData -> cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
-      is DataCollectionEntryPointData.AdHocDataCollectionButtonData -> cardUiData.job.tasks.values.isNotEmpty()
+      is DataCollectionEntryPointData.SelectedLoiSheetData ->
+        cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
+      is DataCollectionEntryPointData.AdHocDataCollectionButtonData ->
+        cardUiData.job.tasks.values.isNotEmpty()
     }
 
   private fun renderDataSharingTermsDialog(

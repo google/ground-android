@@ -178,10 +178,16 @@ internal constructor(
   }
 
   /**
-   * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and adhoc jobs for
-   * displaying the cards.
+   * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and
+   * adhoc jobs for displaying the cards.
    */
-  fun getMapCardUiData(): Flow<Pair<DataCollectionEntryPointData.SelectedLoiSheetData?, List<DataCollectionEntryPointData.AdHocDataCollectionButtonData>>> =
+  fun getMapCardUiData():
+    Flow<
+      Pair<
+        DataCollectionEntryPointData.SelectedLoiSheetData?,
+        List<DataCollectionEntryPointData.AdHocDataCollectionButtonData>,
+      >
+    > =
     combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
       val loiCard =
         loisInView
