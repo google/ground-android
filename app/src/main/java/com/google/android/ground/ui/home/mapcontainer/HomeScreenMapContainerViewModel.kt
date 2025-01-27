@@ -181,7 +181,7 @@ internal constructor(
    * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and
    * adhoc jobs for displaying the cards.
    */
-  fun getMapCardUiData():
+  fun getDataCollectionEntryPoints():
     Flow<
       Pair<
         DataCollectionEntryPointData.SelectedLoiSheetData?,

@@ -64,6 +64,18 @@ object FakeData {
       strategy = Job.DataCollectionStrategy.PREDEFINED,
     )
 
+  private val ADHOC_TASK =
+    newTask("adhoc_task", Task.Type.CAPTURE_LOCATION).copy(isAddLoiTask = true)
+
+  val ADHOC_JOB =
+    Job(
+      name = "Adhoc Job",
+      id = "ADHOC_JOB",
+      style = Style("#000"),
+      strategy = Job.DataCollectionStrategy.AD_HOC,
+      tasks = mapOf(ADHOC_TASK.id to ADHOC_TASK),
+    )
+
   val USER = User("user_id", "", "User")
 
   val DATA_SHARING_TERMS = dataSharingTerms {
@@ -76,7 +88,7 @@ object FakeData {
       "SURVEY",
       "Survey title",
       "Test survey description",
-      mapOf(JOB.id to JOB),
+      mapOf(JOB.id to JOB, ADHOC_JOB.id to ADHOC_JOB),
       mapOf(USER.email to "DATA_COLLECTOR"),
       DATA_SHARING_TERMS.copy {},
     )

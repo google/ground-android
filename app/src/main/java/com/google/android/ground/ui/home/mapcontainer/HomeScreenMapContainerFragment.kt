@@ -99,7 +99,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       }
 
       // Bind data for cards
-      mapContainerViewModel.getMapCardUiData().launchWhenStartedAndCollect { (loiCard, jobCards) ->
+      mapContainerViewModel.getDataCollectionEntryPoints().launchWhenStartedAndCollect {
+        (loiCard, jobCards) ->
         runBlocking { adapter.updateData(canUserSubmitData, loiCard, jobCards) }
       }
     }
