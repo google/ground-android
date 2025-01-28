@@ -83,7 +83,6 @@ android {
         // Issue URL: https://github.com/google/ground-android/pull/985
         versionCode gitVersioner.versionCode
         versionName gitVersioner.versionName + " " + getCommitSha1()
-        testInstrumentationRunner "com.google.android.ground.CustomTestRunner"
         multiDexEnabled true
         // For rendering vector map markers.
         vectorDrawables.useSupportLibrary = true
