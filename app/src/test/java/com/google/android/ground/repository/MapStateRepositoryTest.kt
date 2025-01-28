@@ -17,11 +17,11 @@ package com.google.android.ground.repository
 
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.android.ground.ui.map.MapType
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import org.junit.Test

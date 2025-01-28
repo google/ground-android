@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sharedtest.persistence.sync
+package com.google.android.ground.persistence.sync
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent

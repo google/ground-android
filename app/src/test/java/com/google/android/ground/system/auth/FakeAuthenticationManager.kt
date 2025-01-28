@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sharedtest.system.auth
+package com.google.android.ground.system.auth
 
+import com.google.android.ground.FakeData
 import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.model.User
-import com.google.android.ground.system.auth.BaseAuthenticationManager
-import com.google.android.ground.system.auth.SignInState
-import com.sharedtest.FakeData
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope

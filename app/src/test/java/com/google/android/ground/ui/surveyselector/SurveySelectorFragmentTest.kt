@@ -39,6 +39,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData
 import com.google.android.ground.R
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.domain.usecases.survey.ListAvailableSurveysUseCase
@@ -48,9 +49,8 @@ import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.recyclerChildAction
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
+import com.google.android.ground.system.auth.FakeAuthenticationManager
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData
-import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject

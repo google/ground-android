@@ -17,11 +17,11 @@
 package com.google.android.ground.domain.usecase
 
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData.SURVEY
 import com.google.android.ground.domain.usecases.survey.MakeSurveyAvailableOfflineUseCase
 import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
+import com.google.android.ground.persistence.remote.FakeRemoteDataStore
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData.SURVEY
-import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject

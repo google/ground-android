@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sharedtest.persistence.uuid
+package com.google.android.ground.persistence.uuid
 
-import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
 import javax.inject.Inject
 
 class FakeUuidGenerator @Inject internal constructor() : OfflineUuidGenerator {

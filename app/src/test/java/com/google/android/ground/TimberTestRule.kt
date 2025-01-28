@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.sharedtest
+package com.google.android.ground
 
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description

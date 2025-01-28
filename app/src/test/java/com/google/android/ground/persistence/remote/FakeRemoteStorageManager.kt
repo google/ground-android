@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sharedtest.persistence.remote
+package com.google.android.ground.persistence.remote
 
 import android.net.Uri
-import com.google.android.ground.persistence.remote.RemoteStorageManager
 import java.io.File
 import javax.inject.Inject
 

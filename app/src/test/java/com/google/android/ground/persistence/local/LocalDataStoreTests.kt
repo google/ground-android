@@ -17,6 +17,7 @@ package com.google.android.ground.persistence.local
 
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.model.geometry.Coordinates
@@ -49,7 +50,6 @@ import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.gms.GmsExt.getShellCoordinates
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFailsWith

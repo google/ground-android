@@ -16,15 +16,14 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
+import com.google.android.ground.FakeData
 import com.google.android.ground.persistence.remote.firebase.protobuf.toFirestoreMap
 import com.google.android.ground.proto.Role
 import com.google.android.ground.proto.Survey
-import com.google.android.ground.proto.SurveyKt.dataSharingTerms
 import com.google.android.ground.proto.copy
 import com.google.android.ground.proto.survey
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
-import com.sharedtest.FakeData
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.whenever

@@ -19,10 +19,10 @@ import android.os.Looper.getMainLooper
 import androidx.test.core.app.ApplicationProvider
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData
 import com.google.android.ground.ui.map.gms.features.FeatureClusterManager
 import com.google.common.truth.Truth.assertThat
 import com.google.maps.android.collections.MarkerManager
-import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
 import org.junit.Test

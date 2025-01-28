@@ -16,16 +16,16 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData
 import com.google.android.ground.model.Role
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
+import com.google.android.ground.persistence.remote.FakeRemoteDataStore
 import com.google.android.ground.system.NetworkManager
+import com.google.android.ground.system.auth.FakeAuthenticationManager
 import com.google.android.ground.system.auth.SignInState
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData
-import com.sharedtest.persistence.remote.FakeRemoteDataStore
-import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject

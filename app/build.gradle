@@ -193,9 +193,6 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
     implementation 'androidx.test.ext:junit-ktx:1.2.1'
-    testImplementation project(':sharedTest')
-    androidTestImplementation project(':sharedTest')
-
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.preference:preference-ktx:1.2.1'
 

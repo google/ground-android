@@ -20,10 +20,10 @@ import com.google.android.ground.domain.usecases.survey.ListAvailableSurveysUseC
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.toListItem
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
+import com.google.android.ground.persistence.remote.FakeRemoteDataStore
 import com.google.android.ground.system.NetworkManager
 import com.google.android.ground.system.NetworkStatus
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject

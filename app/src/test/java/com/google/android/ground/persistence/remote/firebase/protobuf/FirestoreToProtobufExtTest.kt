@@ -16,6 +16,7 @@
 
 package com.google.android.ground.persistence.remote.firebase.protobuf
 
+import com.google.android.ground.TimberTestRule
 import com.google.android.ground.persistence.remote.firebase.newDocumentSnapshot
 import com.google.android.ground.proto.Survey
 import com.google.android.ground.proto.Task.DateTimeQuestion.Type.BOTH_DATE_AND_TIME
@@ -30,7 +31,6 @@ import com.google.android.ground.test.testDocument
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.GeneratedMessageLite
-import com.sharedtest.TimberTestRule
 import org.junit.ClassRule
 import org.junit.Test
 import org.junit.runner.RunWith
