@@ -48,9 +48,6 @@ import com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskVie
 import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.time.TimeTaskViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import javax.inject.Provider
-import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -67,6 +64,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlin.collections.set
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -350,7 +350,8 @@ internal constructor(
    */
   fun isLastPositionWithValue(taskId: String, newValue: TaskData?): Boolean {
     if (taskDataHandler.getData(taskId) == newValue) {
-      // Don't recompute the sequence if the value hasn't changed.
+      // Reuse the existing task sequence if the value has already been saved (i.e. after pressing
+      // "Next" and going back).
       return isLastPosition(taskId)
     }
 
