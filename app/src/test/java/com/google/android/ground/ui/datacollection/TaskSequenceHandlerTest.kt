@@ -40,24 +40,14 @@ class TaskSequenceHandlerTest {
       cardinality = MultipleChoice.Cardinality.SELECT_ONE,
     )
 
-  private val task1 = createTask("task1", 1)
+  private val task1 = createTask(taskId = "task1", index = 1)
   private val conditionalTask =
     createTask(
-      "conditionalTask",
-      2,
-      Condition(
-        matchType = Condition.MatchType.MATCH_ANY,
-        expressions =
-          listOf(
-            Expression(
-              expressionType = Expression.ExpressionType.ANY_OF_SELECTED,
-              taskId = task1.id,
-              optionIds = setOf(conditionalOption.id),
-            )
-          ),
-      ),
+      taskId = "conditionalTask",
+      index = 2,
+      condition = createCondition(taskId = task1.id, optionId = conditionalOption.id),
     )
-  private val task2 = createTask("task2", 3)
+  private val task2 = createTask(taskId = "task2", index = 3)
 
   private val allTasks = listOf(task1, conditionalTask, task2)
 
@@ -73,6 +63,19 @@ class TaskSequenceHandlerTest {
       true,
       multipleChoice = multipleChoice,
       condition = condition,
+    )
+
+  private fun createCondition(taskId: String, optionId: String) =
+    Condition(
+      matchType = Condition.MatchType.MATCH_ANY,
+      expressions =
+        listOf(
+          Expression(
+            expressionType = Expression.ExpressionType.ANY_OF_SELECTED,
+            taskId = taskId,
+            optionIds = setOf(optionId),
+          )
+        ),
     )
 
   /** Iterates through each task and auto-fills all required values. */
@@ -121,19 +124,31 @@ class TaskSequenceHandlerTest {
   }
 
   @Test
-  fun `generateTaskSequence overrides conditions even if conditions are satisfied`() {
-    satisfyAllConditions()
+  fun `testSequence overrides conditions even if conditions are satisfied`() {
+    val taskDataHandler = TaskDataHandler()
 
-    val sequence =
-      taskSequenceHandler.generateTaskSequence(
-        taskSelections =
-          mapOf(
-            task1.id to
-              MultipleChoiceTaskData(multipleChoice, selectedOptionIds = listOf(option1.id))
-          )
+    val task1 = createTask(taskId = "task1", index = 1)
+    val task2 =
+      createTask(
+        taskId = "task2",
+        index = 2,
+        condition = createCondition(taskId = task1.id, optionId = conditionalOption.id),
       )
 
-    assertThat(sequence.toList()).isEqualTo(listOf(task1, task2))
+    // Satisfy conditional value
+    val newValue = MultipleChoiceTaskData(multipleChoice, listOf(conditionalOption.id))
+    taskDataHandler.setData(task2, newValue)
+
+    val taskSequenceHandler = TaskSequenceHandler(listOf(task1, task2), taskDataHandler)
+
+    val result =
+      taskSequenceHandler.checkIfTaskIsLastWithValue(
+        taskValueOverride =
+          task1.id to MultipleChoiceTaskData(multipleChoice, selectedOptionIds = listOf(option1.id))
+      )
+
+    // Check that the task 1 is the last task as the condition is not met
+    assertThat(result).isTrue()
   }
 
   @Test

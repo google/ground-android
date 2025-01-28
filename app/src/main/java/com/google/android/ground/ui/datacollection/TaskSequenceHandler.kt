@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.datacollection
 
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.model.task.TaskSelections
 
@@ -43,10 +44,20 @@ class TaskSequenceHandler(
     require(taskId.isNotBlank()) { "Task ID can't be blank." }
   }
 
-  /** Generates the task sequence based on conditions and overrides. */
-  fun generateTaskSequence(taskSelections: TaskSelections? = null): Sequence<Task> {
-    val selections = taskSelections ?: taskDataHandler.getTaskSelections()
+  /** Generates the task sequence based on task's conditions. */
+  fun generateTaskSequence(): Sequence<Task> {
+    val selections = taskDataHandler.getTaskSelections()
     return tasks.filter { shouldIncludeTaskInSequence(it, selections) }.asSequence()
+  }
+
+  /** Returns true if the specified task would be last in the sequence with the given value. */
+  fun checkIfTaskIsLastWithValue(taskValueOverride: Pair<String, TaskData?>): Boolean {
+    val overriddenTaskId = taskValueOverride.first
+    validateTaskId(overriddenTaskId)
+
+    val selections = taskDataHandler.getTaskSelections(taskValueOverride)
+    val lastTask = tasks.last { shouldIncludeTaskInSequence(it, selections) }
+    return lastTask.id == overriddenTaskId
   }
 
   /** Determines if a task should be included with the given overrides. */

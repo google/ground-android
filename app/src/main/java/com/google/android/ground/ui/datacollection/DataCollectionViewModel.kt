@@ -354,10 +354,7 @@ internal constructor(
       return isLastPosition(taskId)
     }
 
-    // Don't call `refreshTaskSequence` as the new value hasn't been set yet.
-    val taskSelections = taskDataHandler.getTaskSelections(taskValueOverride = taskId to newValue)
-    val newSequence = taskSequenceHandler.generateTaskSequence(taskSelections)
-    return taskId == newSequence.last().id
+    return taskSequenceHandler.checkIfTaskIsLastWithValue(taskValueOverride = taskId to newValue)
   }
 
   companion object {
