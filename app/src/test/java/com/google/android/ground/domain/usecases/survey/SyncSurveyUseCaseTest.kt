@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.domain.usecase
+package com.google.android.ground.domain.usecases.survey
 
+import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.FakeData.SURVEY
-import com.google.android.ground.domain.usecases.survey.MakeSurveyAvailableOfflineUseCase
-import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
+import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.persistence.remote.FakeRemoteDataStore
+import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -30,40 +31,38 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.kotlin.whenever
+import org.mockito.Mockito.verify
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class MakeSurveyAvailableOfflineUseCaseTest : BaseHiltTest() {
-  @BindValue @Mock lateinit var syncSurveyUseCase: SyncSurveyUseCase
+class SyncSurveyUseCaseTest : BaseHiltTest() {
+  @BindValue @Mock lateinit var loiRepository: LocationOfInterestRepository
 
-  @Inject lateinit var makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+  @Inject lateinit var localSurveyStore: LocalSurveyStore
+  @Inject lateinit var syncSurvey: SyncSurveyUseCase
 
   @Test
-  fun `when survey sync returns null, should return null`() = runWithTestDispatcher {
-    whenever(syncSurveyUseCase(SURVEY.id)).thenReturn(null)
+  fun `Syncs survey and LOIs with remote`() = runBlocking {
+    fakeRemoteDataStore.surveys = listOf(SURVEY)
 
-    val result = makeSurveyAvailableOffline(SURVEY.id)
+    syncSurvey(SURVEY.id)
 
-    assertThat(result).isNull()
+    assertThat(localSurveyStore.getSurveyById(SURVEY.id)).isEqualTo(SURVEY)
+    verify(loiRepository).syncLocationsOfInterest(SURVEY)
   }
 
   @Test
-  fun `when survey sync throws error, should throw error`() = runWithTestDispatcher {
-    whenever(syncSurveyUseCase(SURVEY.id)).thenThrow(Error::class.java)
-
-    assertThrows(Error::class.java) { runBlocking { makeSurveyAvailableOffline(SURVEY.id) } }
+  fun `when survey is not found in remote storage, should return null`() = runWithTestDispatcher {
+    assertThat(syncSurvey("someUnknownSurveyId")).isNull()
+    localSurveyStore.surveys.test { assertThat(expectMostRecentItem()).isEmpty() }
   }
 
   @Test
-  fun `when survey sync succeeds, should subscribe to updates`() = runWithTestDispatcher {
-    whenever(syncSurveyUseCase(SURVEY.id)).thenReturn(SURVEY)
+  fun `when remote survey load fails, should throw error`() {
+    fakeRemoteDataStore.onLoadSurvey = { error("Something went wrong") }
 
-    val result = makeSurveyAvailableOffline(SURVEY.id)
-
-    assertThat(result).isEqualTo(SURVEY)
-    assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isTrue()
+    assertThrows(IllegalStateException::class.java) { runBlocking { syncSurvey(SURVEY.id) } }
   }
 }
