@@ -16,17 +16,14 @@
 
 package com.google.android.ground.util
 
-import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class CoordinatesExtTest : BaseHiltTest() {
+class CoordinatesExtTest {
 
   @Test
   fun testProcessCoordinates_ne() {
