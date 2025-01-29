@@ -17,6 +17,10 @@
 package com.google.android.ground.ui.datacollection
 
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData
+import com.google.android.ground.FakeData.LOCATION_OF_INTEREST
+import com.google.android.ground.FakeData.LOCATION_OF_INTEREST_NAME
+import com.google.android.ground.FakeData.USER
 import com.google.android.ground.R
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.launchFragmentWithNavController
@@ -35,6 +39,7 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
+import com.google.android.ground.persistence.remote.FakeRemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MutationRepository
@@ -43,11 +48,6 @@ import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData
-import com.sharedtest.FakeData.LOCATION_OF_INTEREST
-import com.sharedtest.FakeData.LOCATION_OF_INTEREST_NAME
-import com.sharedtest.FakeData.USER
-import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.Date

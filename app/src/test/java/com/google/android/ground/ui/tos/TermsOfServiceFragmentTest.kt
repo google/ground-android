@@ -24,16 +24,21 @@ import androidx.navigation.NavController
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.isChecked
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.isEnabled
+import androidx.test.espresso.matcher.ViewMatchers.isNotChecked
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.model.TermsOfService
+import com.google.android.ground.persistence.remote.FakeRemoteDataStore
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.system.NetworkManager
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -54,7 +59,6 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepository
-  @Inject lateinit var viewModel: TermsOfServiceViewModel
   private lateinit var navController: NavController
 
   @BindValue @Mock lateinit var networkManager: NetworkManager

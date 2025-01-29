@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.android.ground.domain.usecase
+package com.google.android.ground.domain.usecases.survey
 
 import com.google.android.ground.BaseHiltTest
-import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
+import com.google.android.ground.FakeData.SURVEY
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
+import com.google.android.ground.persistence.remote.FakeRemoteDataStore
 import com.google.android.ground.repository.SurveyRepository
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData.SURVEY
-import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFails

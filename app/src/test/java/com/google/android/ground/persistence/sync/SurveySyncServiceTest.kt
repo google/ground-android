@@ -18,13 +18,16 @@ package com.google.android.ground.persistence.sync
 
 import android.content.Context
 import android.util.Log
-import androidx.work.*
+import androidx.work.Configuration
+import androidx.work.WorkManager
+import androidx.work.WorkerFactory
+import androidx.work.WorkerParameters
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.TestDriver
 import androidx.work.testing.WorkManagerTestInitHelper
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData.SURVEY
 import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
-import com.sharedtest.FakeData.SURVEY
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -35,7 +38,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)

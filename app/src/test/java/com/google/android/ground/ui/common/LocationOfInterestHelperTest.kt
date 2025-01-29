@@ -16,9 +16,9 @@
 package com.google.android.ground.ui.common
 
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData
 import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import org.junit.Test

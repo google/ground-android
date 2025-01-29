@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.persistence.remote.firebase.schema
 
+import com.google.android.ground.FakeData
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
@@ -70,7 +71,6 @@ import com.google.android.ground.proto.TaskData.TASK_ID_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.TEXT_RESPONSE_FIELD_NUMBER
 import com.google.android.ground.proto.TaskData.TextResponse.TEXT_FIELD_NUMBER
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData
 import java.time.Instant
 import java.util.Date
 import kotlinx.collections.immutable.persistentListOf

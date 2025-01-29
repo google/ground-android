@@ -17,18 +17,18 @@ package com.google.android.ground.repository
 
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
 import com.google.android.ground.model.geometry.Polygon
 import com.google.android.ground.model.mutation.Mutation.Type.CREATE
+import com.google.android.ground.persistence.remote.FakeRemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
+import com.google.android.ground.system.auth.FakeAuthenticationManager
 import com.google.android.ground.ui.map.Bounds
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData
-import com.sharedtest.persistence.remote.FakeRemoteDataStore
-import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject

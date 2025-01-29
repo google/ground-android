@@ -15,11 +15,11 @@
  */
 package com.google.android.ground.ui.datacollection
 
+import com.google.android.ground.FakeData
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.Task
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
