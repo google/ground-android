@@ -29,14 +29,16 @@ constructor(
   private val surveyRepository: SurveyRepository,
 ) {
 
-  suspend operator fun invoke(): Boolean =
-    if (getLastActiveSurveyId().isEmpty()) {
-      false
-    } else if (surveyRepository.hasActiveSurvey()) {
-      true
-    } else {
-      activateSurvey(getLastActiveSurveyId())
+  suspend operator fun invoke(): Boolean {
+    if (surveyRepository.hasActiveSurvey()) {
+      // Skip if there is an active survey.
+      return true
     }
-
-  private fun getLastActiveSurveyId(): String = localValueStore.lastActiveSurveyId
+    val lastActiveSurveyId = localValueStore.lastActiveSurveyId
+    if (lastActiveSurveyId.isEmpty()) {
+      // Nothing to be re-activated.
+      return false
+    }
+    return activateSurvey(lastActiveSurveyId)
+  }
 }
