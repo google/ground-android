@@ -22,12 +22,12 @@ import com.google.android.ground.persistence.local.stores.LocalSurveyStore
 import com.google.android.ground.repository.SurveyRepository
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -42,6 +42,13 @@ class RemoveOfflineSurveyUseCaseTest : BaseHiltTest() {
   fun `should delete local copy`() = runWithTestDispatcher {
     localSurveyStore.insertOrUpdateSurvey(SURVEY)
 
+    removeOfflineSurveyUseCase(SURVEY.id)
+
+    localSurveyStore.surveys.test { assertThat(expectMostRecentItem()).isEmpty() }
+  }
+
+  @Test
+  fun `should not throw if local copy missing`() = runWithTestDispatcher {
     removeOfflineSurveyUseCase(SURVEY.id)
 
     localSurveyStore.surveys.test { assertThat(expectMostRecentItem()).isEmpty() }
