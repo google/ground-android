@@ -85,8 +85,10 @@ constructor(
       }
     }
 
-    localValueStore.lastActiveSurveyId = surveyId
-    firebaseCrashLogger.setSelectedSurveyId(surveyId)
+    if (isSurveyActive(surveyId) || surveyId.isBlank()) {
+      firebaseCrashLogger.setSelectedSurveyId(surveyId)
+      localValueStore.lastActiveSurveyId = surveyId
+    }
   }
 
   suspend fun clearActiveSurvey() {
