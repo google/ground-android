@@ -43,6 +43,7 @@ import com.google.android.ground.FakeData
 import com.google.android.ground.R
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.domain.usecases.survey.ListAvailableSurveysUseCase
+import com.google.android.ground.domain.usecases.survey.RemoveOfflineSurveyUseCase
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.model.SurveyListItem
@@ -81,6 +82,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @BindValue @Mock lateinit var userRepository: UserRepository
   @BindValue @Mock lateinit var activateSurvey: ActivateSurveyUseCase
   @BindValue @Mock lateinit var listAvailableSurveysUseCase: ListAvailableSurveysUseCase
+  @BindValue @Mock lateinit var removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
 
   private lateinit var fragment: SurveySelectorFragment
@@ -257,7 +259,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     advanceUntilIdle()
 
     // Assert survey is deleted
-    verify(surveyRepository).removeOfflineSurvey(TEST_SURVEY_2.id)
+    verify(removeOfflineSurveyUseCase).invoke(TEST_SURVEY_2.id)
   }
 
   @Test

@@ -37,11 +37,7 @@ import kotlinx.coroutines.withTimeout
 
 private const val ACTIVATE_SURVEY_TIMEOUT_MILLS: Long = 3 * 1000
 
-/**
- * Coordinates persistence and retrieval of [Survey] instances from remote, local, and in memory
- * data stores. For more details on this pattern and overall architecture, see
- * https://developer.android.com/jetpack/docs/guide.
- */
+/** Maintains the state of currently active survey. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class SurveyRepository
@@ -101,13 +97,4 @@ constructor(
 
   fun isSurveyActive(surveyId: String): Boolean =
     surveyId.isNotBlank() && activeSurvey?.id == surveyId
-
-  /** Attempts to remove the locally synced survey. Doesn't throw an error if it doesn't exist. */
-  suspend fun removeOfflineSurvey(surveyId: String) {
-    val survey = localSurveyStore.getSurveyById(surveyId) ?: return
-    localSurveyStore.deleteSurvey(survey)
-    if (isSurveyActive(surveyId)) {
-      clearActiveSurvey()
-    }
-  }
 }
