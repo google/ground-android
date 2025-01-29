@@ -28,12 +28,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withTimeout
@@ -66,13 +63,6 @@ constructor(
   val activeSurvey: Survey?
     get() = activeSurveyFlow.value
 
-  /** The id of the last activated survey. */
-  private var lastActiveSurveyId: String by localValueStore::lastActiveSurveyId
-
-  init {
-    activeSurveyFlow.filterNotNull().onEach { lastActiveSurveyId = it.id }.launchIn(externalScope)
-  }
-
   /**
    * Returns the survey with the specified id from the local db, or `null` if not available offline.
    */
@@ -99,6 +89,7 @@ constructor(
       }
     }
 
+    localValueStore.lastActiveSurveyId = surveyId
     firebaseCrashLogger.setSelectedSurveyId(surveyId)
   }
 

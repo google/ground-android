@@ -99,7 +99,6 @@ constructor(
   private fun onUserSignedOut(): MainUiState {
     // Scope of subscription is until view model is cleared. Dispose it manually otherwise, firebase
     // attempts to maintain a connection even after user has logged out and throws an error.
-    userRepository.clearUserPreferences()
 
     // TODO: Once multi-user login is supported, avoid clearing local db data. This is
     //  currently being done to prevent one user's data to be submitted as another user after
@@ -108,6 +107,7 @@ constructor(
     viewModelScope.launch {
       withContext(ioDispatcher) {
         surveyRepository.clearActiveSurvey()
+        userRepository.clearUserPreferences()
         localDatabase.clearAllTables()
       }
     }
