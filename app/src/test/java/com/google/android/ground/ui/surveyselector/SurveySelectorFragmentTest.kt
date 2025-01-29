@@ -143,6 +143,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun click_activatesSurvey() = runWithTestDispatcher {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    whenever(activateSurvey(TEST_SURVEY_2.id)).thenReturn(true)
 
     launchFragmentWithNavController<SurveySelectorFragment>(
       fragmentArgs = bundleOf(Pair("shouldExitApp", false)),
@@ -156,8 +157,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
       .perform(actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(1, click()))
     advanceUntilIdle()
 
-    // Assert survey is activated.
-    verify(activateSurvey).invoke(TEST_SURVEY_2.id)
     // Assert that navigation to home screen was requested
     assertThat(navController.currentDestination?.id).isEqualTo(R.id.home_screen_fragment)
     // No error toast should be displayed

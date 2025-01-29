@@ -101,6 +101,7 @@ class UserRepositoryTest : BaseHiltTest() {
     val user = FakeData.USER
     val survey = FakeData.SURVEY.copy(acl = mapOf(Pair(user.email, Role.OWNER.toString())))
     fakeAuthenticationManager.setUser(user)
+    localSurveyStore.insertOrUpdateSurvey(survey)
     surveyRepository.activateSurvey(survey.id)
 
     assertThat(userRepository.canUserSubmitData()).isTrue()

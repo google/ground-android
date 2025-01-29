@@ -142,20 +142,8 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
    */
   @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
-  private val surveyWithoutBasemap: Survey =
-    Survey(
-      "SURVEY",
-      "Survey title",
-      "Test survey description",
-      mapOf(FakeData.JOB.id to FakeData.JOB),
-      mapOf(Pair(FakeData.USER.email, "data-collector")),
-    )
-
   @Test
   fun `all menu item is always enabled`() = runWithTestDispatcher {
-    surveyRepository.activateSurvey(surveyWithoutBasemap.id)
-    advanceUntilIdle()
-
     openDrawer()
     onView(withId(R.id.nav_offline_areas)).check(matches(isEnabled()))
     onView(withId(R.id.sync_status)).check(matches(isEnabled()))
