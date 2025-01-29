@@ -23,12 +23,12 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData.SURVEY
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.persistence.local.stores.LocalSurveyStore
+import com.google.android.ground.persistence.remote.FakeRemoteDataStore
 import com.google.android.ground.repository.SurveyRepository
-import com.sharedtest.FakeData.SURVEY
-import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi

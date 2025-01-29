@@ -15,13 +15,13 @@
  */
 package com.google.android.ground
 
+import com.google.android.ground.persistence.remote.FakeRemoteDataStore
+import com.google.android.ground.persistence.remote.FakeRemoteStorageManager
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.persistence.remote.RemotePersistenceModule
 import com.google.android.ground.persistence.remote.RemoteStorageManager
+import com.google.android.ground.persistence.uuid.FakeUuidGenerator
 import com.google.android.ground.persistence.uuid.OfflineUuidGenerator
-import com.sharedtest.persistence.remote.FakeRemoteDataStore
-import com.sharedtest.persistence.remote.FakeRemoteStorageManager
-import com.sharedtest.persistence.uuid.FakeUuidGenerator
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.components.SingletonComponent

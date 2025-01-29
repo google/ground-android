@@ -16,9 +16,9 @@
 package com.google.android.ground.ui.offlineareas.viewer
 
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData.OFFLINE_AREA
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData.OFFLINE_AREA
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.test.advanceUntilIdle

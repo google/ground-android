@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sharedtest
+package com.google.android.ground
 
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey

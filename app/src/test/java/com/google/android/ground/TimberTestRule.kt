@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.android.ground
 
-import androidx.work.WorkManager
-import com.google.android.ground.persistence.sync.WorkManagerModule
-import com.sharedtest.persistence.sync.FakeWorkManager
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.components.SingletonComponent
-import dagger.hilt.testing.TestInstallIn
-import javax.inject.Singleton
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
+import timber.log.Timber
+import timber.log.Timber.DebugTree
 
-@Module
-@TestInstallIn(components = [SingletonComponent::class], replaces = [WorkManagerModule::class])
-object TestWorkManagerModule {
-  @Provides
-  @Singleton
-  fun provideWorkManager(): WorkManager {
-    return FakeWorkManager()
+class TimberTestRule : TestWatcher() {
+  private val tree =
+    object : DebugTree() {
+      override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+        println("$tag: $message")
+      }
+    }
+
+  override fun starting(description: Description?) {
+    super.starting(description)
+    Timber.plant(tree)
+  }
+
+  override fun finished(description: Description?) {
+    super.finished(description)
+    Timber.uproot(tree)
   }
 }

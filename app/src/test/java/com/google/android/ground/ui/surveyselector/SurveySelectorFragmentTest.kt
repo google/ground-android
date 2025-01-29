@@ -39,6 +39,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData
 import com.google.android.ground.R
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.domain.usecases.survey.ListAvailableSurveysUseCase
@@ -48,9 +49,8 @@ import com.google.android.ground.model.SurveyListItem
 import com.google.android.ground.recyclerChildAction
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
+import com.google.android.ground.system.auth.FakeAuthenticationManager
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData
-import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -143,6 +143,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun click_activatesSurvey() = runWithTestDispatcher {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    whenever(activateSurvey(TEST_SURVEY_2.id)).thenReturn(true)
 
     launchFragmentWithNavController<SurveySelectorFragment>(
       fragmentArgs = bundleOf(Pair("shouldExitApp", false)),
@@ -156,8 +157,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
       .perform(actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(1, click()))
     advanceUntilIdle()
 
-    // Assert survey is activated.
-    verify(activateSurvey).invoke(TEST_SURVEY_2.id)
     // Assert that navigation to home screen was requested
     assertThat(navController.currentDestination?.id).isEqualTo(R.id.home_screen_fragment)
     // No error toast should be displayed

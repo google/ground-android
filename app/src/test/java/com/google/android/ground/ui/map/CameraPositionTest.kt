@@ -15,8 +15,8 @@
  */
 package com.google.android.ground.ui.map
 
+import com.google.android.ground.FakeData
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData
 import org.junit.Test
 
 class CameraPositionTest {

@@ -18,14 +18,13 @@ package com.google.android.ground
 import android.content.SharedPreferences
 import app.cash.turbine.test
 import com.google.android.ground.persistence.local.room.LocalDataStoreException
+import com.google.android.ground.persistence.remote.FakeRemoteDataStore
 import com.google.android.ground.repository.TermsOfServiceRepository
 import com.google.android.ground.repository.UserRepository
+import com.google.android.ground.system.auth.FakeAuthenticationManager
 import com.google.android.ground.system.auth.SignInState
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestoreException
-import com.sharedtest.FakeData
-import com.sharedtest.persistence.remote.FakeRemoteDataStore
-import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFailsWith

@@ -2,8 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:ModelToProtoExt.kt$private fun toTaskData(id: String, newTaskData: TaskData)</ID>
     <ID>ReturnCount:HomeScreenViewModel.kt$HomeScreenViewModel$suspend fun getDraftSubmission(): DraftSubmission?</ID>
-    <ID>UnusedPrivateProperty:HomeScreenFragmentTest.kt$NavigationDrawerItemClickTest$private val testLabel: String</ID>
   </CurrentIssues>
 </SmellBaseline>

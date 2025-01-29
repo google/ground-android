@@ -15,6 +15,9 @@
  */
 package com.google.android.ground.persistence.remote.firebase.schema
 
+import com.google.android.ground.FakeData.USER
+import com.google.android.ground.FakeData.USER_ID
+import com.google.android.ground.FakeData.newTask
 import com.google.android.ground.assertIsSuccessWith
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.Survey
@@ -38,10 +41,7 @@ import com.google.android.ground.proto.point
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.timestamp
-import com.sharedtest.FakeData.USER
-import com.sharedtest.FakeData.USER_ID
-import com.sharedtest.FakeData.newTask
-import java.util.*
+import java.util.Date
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
 import org.junit.runner.RunWith

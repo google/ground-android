@@ -25,10 +25,10 @@ import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData.SURVEY
 import com.google.android.ground.domain.usecases.survey.SyncSurveyUseCase
 import com.google.android.ground.persistence.sync.SurveySyncWorker.Companion.SURVEY_ID_PARAM_KEY
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData.SURVEY
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before

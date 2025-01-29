@@ -29,12 +29,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.withTimeout
+
+private const val ACTIVATE_SURVEY_TIMEOUT_MILLS: Long = 3 * 1000
 
 /**
  * Coordinates persistence and retrieval of [Survey] instances from remote, local, and in memory
@@ -77,26 +81,40 @@ constructor(
   private fun getOfflineSurveyFlow(id: String?): Flow<Survey?> =
     if (id.isNullOrBlank()) flowOf(null) else localSurveyStore.survey(id)
 
-  fun activateSurvey(surveyId: String) {
+  /**
+   * Activates the survey with the specified id. Waits for [ACTIVATE_SURVEY_TIMEOUT_MILLS] before
+   * throwing an error if the survey couldn't be activated.
+   */
+  suspend fun activateSurvey(surveyId: String) {
     _selectedSurveyId.update { surveyId }
+
+    // Wait for survey to be updated. Else throw an error after timeout.
+    withTimeout(ACTIVATE_SURVEY_TIMEOUT_MILLS) {
+      activeSurveyFlow.first { survey ->
+        if (surveyId.isBlank()) {
+          survey == null
+        } else {
+          survey?.id == surveyId
+        }
+      }
+    }
+
     firebaseCrashLogger.setSelectedSurveyId(surveyId)
   }
 
-  fun clearActiveSurvey() {
+  suspend fun clearActiveSurvey() {
     activateSurvey("")
   }
 
-  // TODO: Use activeSurvey instead of selectedSurveyId as it is possible to have no active survey.
-  // Issue URL: https://github.com/google/ground-android/issues/3020
-  fun hasActiveSurvey(): Boolean = _selectedSurveyId.value?.isNotBlank() ?: false
+  fun hasActiveSurvey(): Boolean = activeSurvey != null
 
   fun isSurveyActive(surveyId: String): Boolean =
     surveyId.isNotBlank() && activeSurvey?.id == surveyId
 
   /** Attempts to remove the locally synced survey. Doesn't throw an error if it doesn't exist. */
   suspend fun removeOfflineSurvey(surveyId: String) {
-    val survey = localSurveyStore.getSurveyById(surveyId)
-    survey?.let { localSurveyStore.deleteSurvey(survey) }
+    val survey = localSurveyStore.getSurveyById(surveyId) ?: return
+    localSurveyStore.deleteSurvey(survey)
     if (isSurveyActive(surveyId)) {
       clearActiveSurvey()
     }

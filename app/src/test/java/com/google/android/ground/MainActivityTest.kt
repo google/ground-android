@@ -15,10 +15,10 @@
  */
 package com.google.android.ground
 
+import com.google.android.ground.system.auth.FakeAuthenticationManager
 import com.google.android.ground.system.auth.SignInState
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestoreException
-import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi

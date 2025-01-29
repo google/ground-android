@@ -25,6 +25,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isNotEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData.OFFLINE_AREA
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentWithNavController
 import com.google.android.ground.persistence.local.stores.LocalOfflineAreaStore
@@ -32,14 +33,15 @@ import com.google.android.ground.ui.common.MapConfig
 import com.google.android.ground.ui.map.MapType
 import com.google.android.ground.util.view.isGone
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData.OFFLINE_AREA
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class OfflineAreaViewerFragmentTest : BaseHiltTest() {

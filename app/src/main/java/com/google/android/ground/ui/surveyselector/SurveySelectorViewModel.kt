@@ -83,18 +83,28 @@ internal constructor(
           activateSurveyUseCase(surveyId)
         }
         .fold(
-          onSuccess = {
-            surveyActivationInProgress = false
-            _uiState.emit(UiState.SurveyActivated)
-            _uiState.emit(UiState.NavigateToHome)
+          onSuccess = { result ->
+            if (result) {
+              onSurveyActivated()
+            } else {
+              onSurveyActivationFailed()
+            }
           },
-          onFailure = { e ->
-            Timber.e(e, "Failed to activate survey")
-            surveyActivationInProgress = false
-            _uiState.emit(UiState.Error)
-          },
+          onFailure = { onSurveyActivationFailed(it) },
         )
     }
+  }
+
+  private suspend fun onSurveyActivated() {
+    surveyActivationInProgress = false
+    _uiState.emit(UiState.SurveyActivated)
+    _uiState.emit(UiState.NavigateToHome)
+  }
+
+  private suspend fun onSurveyActivationFailed(error: Throwable? = null) {
+    Timber.e(error, "Failed to activate survey")
+    surveyActivationInProgress = false
+    _uiState.emit(UiState.Error)
   }
 
   fun deleteSurvey(surveyId: String) {

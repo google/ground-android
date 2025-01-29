@@ -16,11 +16,11 @@
 
 package com.google.android.ground.persistence.remote.firebase.schema
 
+import com.google.android.ground.FakeData.USER
 import com.google.android.ground.model.AuditInfo as AuditInfoModel
 import com.google.android.ground.proto.auditInfo
 import com.google.common.truth.Truth.assertThat
 import com.google.protobuf.timestamp
-import com.sharedtest.FakeData.USER
 import java.util.Date
 import org.junit.Test
 
