@@ -30,7 +30,7 @@ constructor(
 ) {
 
   suspend operator fun invoke(): Boolean {
-    if (surveyRepository.hasActiveSurvey()) {
+    if (surveyRepository.activeSurvey != null) {
       // Skip if there is an active survey.
       return true
     }

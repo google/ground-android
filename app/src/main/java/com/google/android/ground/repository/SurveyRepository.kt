@@ -93,8 +93,6 @@ constructor(
     activateSurvey("")
   }
 
-  fun hasActiveSurvey(): Boolean = activeSurvey != null
-
   fun isSurveyActive(surveyId: String): Boolean =
     surveyId.isNotBlank() && activeSurvey?.id == surveyId
 }
