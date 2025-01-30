@@ -133,7 +133,7 @@
   <string name="map_location">Localização do mapa:</string>
   <string name="sign_out_dialog_title">Aviso de fim de sessão</string>
   <string name="sign_out_dialog_body">Se você terminar sua sessão:\n \u2022 Quaisquer dados não sincronizados serão descartados.\n \u2022 Você não poderá iniciar sessão se estiver offline\n \u2022 Inquéritos offline não estarão disponíveis até você iniciar sessão novamente\n\nTem certeza de que deseja sair?</string>
-   
+
   <string name="suggest_data_collection_hint">Amplie para começar a coletar dados</string>
   <string name="read_only_data_collection_hint">Inquérito apenas para leitura</string>
   <string name="predefined_data_collection_hint">Amplie até um local de coleta de dados para coletar informações</string>
@@ -154,7 +154,7 @@
   <string name="about">Sobre</string>
   <string name="terms_of_service">Termos de serviço</string>
   <string name="about_ground">Ground é um projeto comunitário de código aberto desenvolvido pelo Google e pela FAO no âmbito da “Forest Data Partnership”, com a ajuda do SIG, Ecam e dos contribuintes da comunidade de código aberto. \n\nEle é licenciado sob a <annotation type="apache_license">Apache License, Version 2.0</annotation>. \n\nVeja outras <annotation type="all_licenses">licenças</annotation></string>
- 
+
   <string name="failed">Falhou</string>
   <string name="synced">Sincronizado</string>
   <string name="syncing">Sincronizando</string>
@@ -196,4 +196,8 @@
   <string name="allow_location_confirmation">Permitir localizaçã</string>
   <string name="allow_location_title">Permitir compartilhamento de localização</string>
   <string name="allow_location_description">Se você não permitir que o Ground acesse a localização deste dispositivo, não poderá continuar coletando dados para este local.</string>
+
+  <string name="data_collection_cancellation_title">Parar de coletar dados?</string>
+  <string name="data_collection_cancellation_description">Se você sair, os dados que ainda não enviou serão descartados.</string>
+  <string name="data_collection_cancellation_confirm_button">Confirmar</string>
 </resources>

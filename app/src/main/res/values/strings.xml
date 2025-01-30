@@ -196,4 +196,8 @@
   <string name="allow_location_confirmation">Allow location</string>
   <string name="allow_location_title">Allow location sharing</string>
   <string name="allow_location_description">If you don&#8217;t allow Ground to access this device&#8217;s location, you won&#8217;t be able to continue collecting data for this site.</string>
+
+  <string name="data_collection_cancellation_title">Stop collecting data?</string>
+  <string name="data_collection_cancellation_description">If you exit, data you haven&#8217;t submitted yet will be discarded.</string>
+  <string name="data_collection_cancellation_confirm_button">Confirm</string>
 </resources>

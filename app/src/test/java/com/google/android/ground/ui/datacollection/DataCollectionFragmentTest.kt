@@ -16,6 +16,9 @@
 
 package com.google.android.ground.ui.datacollection
 
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.FakeData
 import com.google.android.ground.FakeData.LOCATION_OF_INTEREST
@@ -188,7 +191,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
-      .pressBackButton(true)
+      .pressBackButton()
       .validateTextIsDisplayed(TASK_1_NAME)
       .validateTextIsNotDisplayed(TASK_2_NAME)
 
@@ -287,16 +290,28 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     }
 
   @Test
-  fun `Clicking back button on first task clears the draft and returns false`() =
+  fun `Clicking back button on first task displays a confirmation dialog and clears the draft`() =
     runWithTestDispatcher {
       setupFragment()
 
-      runner()
-        .inputText(TASK_1_RESPONSE)
-        .clickNextButton()
-        .pressBackButton(true)
-        .pressBackButton(false)
+      // Save the draft and move back to first task.
+      runner().inputText(TASK_1_RESPONSE).clickNextButton().pressBackButton()
 
+      // Click back on first draft
+      runner().pressBackButton()
+
+      // Assert that confirmation dialog is shown
+      composeTestRule
+        .onNodeWithText(fragment.getString(R.string.data_collection_cancellation_title))
+        .assertIsDisplayed()
+
+      // Click confirm button
+      composeTestRule
+        .onNodeWithText(fragment.getString(R.string.data_collection_cancellation_confirm_button))
+        .performClick()
+      advanceUntilIdle()
+
+      // Assert that draft is cleared on confirmation
       assertNoDraftSaved()
     }
 

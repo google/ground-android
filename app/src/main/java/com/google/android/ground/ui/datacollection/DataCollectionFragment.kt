@@ -37,6 +37,7 @@ import com.google.android.ground.databinding.DataCollectionFragBinding
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
+import com.google.android.ground.ui.compose.ConfirmationDialog
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -71,11 +72,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     guideline = binding.progressBarGuideline
     getAbstractActivity().setSupportActionBar(binding.dataCollectionToolbar)
 
-    binding.dataCollectionToolbar.setNavigationOnClickListener {
-      isNavigatingUp = true
-      viewModel.clearDraft()
-      findNavController().navigateUp()
-    }
+    binding.dataCollectionToolbar.setNavigationOnClickListener { showExitWarningDialog() }
 
     return binding.root
   }
@@ -196,18 +193,39 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     }
   }
 
-  override fun onBack(): Boolean =
+  override fun onBack(): Boolean {
     if (viewPager.currentItem == 0) {
-      isNavigatingUp = true
-      // If the user is currently looking at the first step, allow the system to handle the
-      // Back button. This calls finish() on this activity and pops the back stack.
-      viewModel.clearDraft()
-      false
+      showExitWarningDialog()
     } else {
-      // Otherwise, select the previous task.
       viewModel.moveToPreviousTask()
-      true
     }
+    return true
+  }
+
+  private fun showExitWarningDialog() {
+    showConfirmationDialog {
+      isNavigatingUp = true
+      viewModel.clearDraft()
+      findNavController().navigateUp()
+    }
+  }
+
+  private fun showConfirmationDialog(onConfirm: () -> Unit) {
+    (view as ViewGroup).addView(
+      ComposeView(requireContext()).apply {
+        setContent {
+          AppTheme {
+            ConfirmationDialog(
+              title = R.string.data_collection_cancellation_title,
+              description = R.string.data_collection_cancellation_description,
+              confirmButtonText = R.string.data_collection_cancellation_confirm_button,
+              onConfirmClicked = { onConfirm() },
+            )
+          }
+        }
+      }
+    )
+  }
 
   private companion object {
     private const val PROGRESS_SCALE = 100
