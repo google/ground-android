@@ -70,7 +70,7 @@
 
   <string name="add_point">Ajouter point</string>
   <string name="complete_polygon">Finir</string>
-  
+
   <string name="road_map">Carte routière</string>
   <string name="satellite">Satellite</string>
   <string name="terrain">Relief</string>
@@ -195,4 +195,8 @@
   <string name="allow_location_confirmation">Autoriser la localisation</string>
   <string name="allow_location_title">Autoriser le partage de la localisation</string>
   <string name="allow_location_description">Si vous n&#8217;autorisez pas Ground à accéder à la localisation de cet appareil, vous ne pourrez pas continuer à collecter des données pour ce site.</string>
+
+  <string name="data_collection_cancellation_title">Arrêter de collecter des données ?</string>
+  <string name="data_collection_cancellation_description">Si vous quittez, les données que vous n&#8217;avez pas encore soumises seront supprimées.</string>
+  <string name="data_collection_cancellation_confirm_button">Confirmer</string>
 </resources>
