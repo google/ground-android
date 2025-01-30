@@ -20,8 +20,8 @@ import com.google.android.ground.coroutines.ApplicationScope
 import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.domain.usecases.survey.ListAvailableSurveysUseCase
+import com.google.android.ground.domain.usecases.survey.RemoveOfflineSurveyUseCase
 import com.google.android.ground.model.SurveyListItem
-import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractViewModel
 import javax.inject.Inject
@@ -40,11 +40,11 @@ import timber.log.Timber
 class SurveySelectorViewModel
 @Inject
 internal constructor(
-  private val surveyRepository: SurveyRepository,
   private val activateSurveyUseCase: ActivateSurveyUseCase,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   private val listAvailableSurveysUseCase: ListAvailableSurveysUseCase,
+  private val remoteOfflineSurveyUseCase: RemoveOfflineSurveyUseCase,
   private val userRepository: UserRepository,
 ) : AbstractViewModel() {
 
@@ -108,7 +108,7 @@ internal constructor(
   }
 
   fun deleteSurvey(surveyId: String) {
-    externalScope.launch(ioDispatcher) { surveyRepository.removeOfflineSurvey(surveyId) }
+    externalScope.launch(ioDispatcher) { remoteOfflineSurveyUseCase(surveyId) }
   }
 
   fun signOut() {

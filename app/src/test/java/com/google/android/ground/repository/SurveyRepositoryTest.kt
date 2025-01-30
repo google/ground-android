@@ -64,44 +64,4 @@ class SurveyRepositoryTest : BaseHiltTest() {
     surveyRepository.activeSurveyFlow.test { assertThat(expectMostRecentItem()).isNull() }
     assertThat(surveyRepository.activeSurvey).isNull()
   }
-
-  @Test
-  fun `removeOfflineSurvey - should delete local copy`() = runWithTestDispatcher {
-    localSurveyStore.insertOrUpdateSurvey(SURVEY)
-
-    surveyRepository.removeOfflineSurvey(SURVEY.id)
-
-    localSurveyStore.surveys.test { assertThat(expectMostRecentItem()).isEmpty() }
-  }
-
-  @Test
-  fun `removeOfflineSurvey - when active survey is same, should deactivate as well`() =
-    runWithTestDispatcher {
-      localSurveyStore.insertOrUpdateSurvey(SURVEY)
-      activateSurvey(SURVEY.id)
-
-      surveyRepository.removeOfflineSurvey(SURVEY.id)
-
-      assertThat(surveyRepository.activeSurvey).isNull()
-    }
-
-  @Test
-  fun `removeOfflineSurvey - when active survey is different, should not deactivate`() =
-    runWithTestDispatcher {
-      val survey1 = SURVEY.copy(id = "active survey id", jobMap = emptyMap())
-      val survey2 = SURVEY.copy(id = "inactive survey id", jobMap = emptyMap())
-      localSurveyStore.insertOrUpdateSurvey(survey1)
-      localSurveyStore.insertOrUpdateSurvey(survey2)
-      activateSurvey(survey1.id)
-      advanceUntilIdle()
-
-      surveyRepository.removeOfflineSurvey(survey2.id)
-      advanceUntilIdle()
-
-      // Verify that active survey isn't cleared or de-activated
-      assertThat(surveyRepository.activeSurvey).isEqualTo(survey1)
-      localSurveyStore.surveys.test {
-        assertThat(expectMostRecentItem()).isEqualTo(listOf(survey1))
-      }
-    }
 }
