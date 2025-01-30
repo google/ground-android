@@ -196,7 +196,7 @@
   <string name="allow_location_title">Permitir el uso compartido de la ubicación</string>
   <string name="allow_location_description">Si no permite que Ground acceda a la ubicación de este dispositivo, no podrá continuar recopilando datos para este sitio.</string>
 
-  <string name="data_collection_cancellation_title">¿Dejar de recopilar datos?</string>
-  <string name="data_collection_cancellation_description">Si sale, los datos que aún no haya enviado se descartarán.</string>
+  <string name="data_collection_cancellation_title">¿Quiere parar de recopilar datos?</string>
+  <string name="data_collection_cancellation_description">Si sale, los datos que aún no hayan enviado se descartarán.</string>
   <string name="data_collection_cancellation_confirm_button">Confirmar</string>
 </resources>
