@@ -185,8 +185,8 @@ class TaskFragmentRunner(
     return this
   }
 
-  internal fun pressBackButton(result: Boolean): TaskFragmentRunner {
-    waitUntilDone { assertThat(fragment?.onBack()).isEqualTo(result) }
+  internal fun pressBackButton(): TaskFragmentRunner {
+    waitUntilDone { assertThat(fragment?.onBack()).isTrue() }
     return this
   }
 
