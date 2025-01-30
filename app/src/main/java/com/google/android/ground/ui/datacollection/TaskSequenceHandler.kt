@@ -15,11 +15,12 @@
  */
 package com.google.android.ground.ui.datacollection
 
+import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.model.task.TaskSelections
 
 /**
- * Manages operations related to a sequence of tasks.
+ * Manages state and operations related to a sequence of tasks.
  *
  * This class provides methods to retrieve, navigate, and query the position of tasks within a
  * sequence. The sequence is derived from a list of [Task] objects, filtered based on a provided
@@ -43,17 +44,27 @@ class TaskSequenceHandler(
     require(taskId.isNotBlank()) { "Task ID can't be blank." }
   }
 
-  /** Generates the task sequence based on conditions and overrides. */
-  fun generateTaskSequence(taskSelections: TaskSelections? = null): Sequence<Task> {
-    val selections = taskSelections ?: taskDataHandler.getTaskSelections()
+  /** Generates the task sequence based on task's conditions. */
+  fun generateTaskSequence(): Sequence<Task> {
+    val selections = taskDataHandler.getTaskSelections()
     return tasks.filter { shouldIncludeTaskInSequence(it, selections) }.asSequence()
+  }
+
+  /** Returns true if the specified task would be last in the sequence with the given value. */
+  fun checkIfTaskIsLastWithValue(taskValueOverride: Pair<String, TaskData?>): Boolean {
+    val overriddenTaskId = taskValueOverride.first
+    validateTaskId(overriddenTaskId)
+
+    val selections = taskDataHandler.getTaskSelections(taskValueOverride)
+    val lastTask = tasks.last { shouldIncludeTaskInSequence(it, selections) }
+    return lastTask.id == overriddenTaskId
   }
 
   /** Determines if a task should be included with the given overrides. */
   private fun shouldIncludeTaskInSequence(task: Task, taskSelections: TaskSelections): Boolean =
     task.condition == null || task.condition.fulfilledBy(taskSelections)
 
-  /** Lazily retrieves the task sequence. */
+  /** Returns the pre-computed task sequence or generates and caches it first, if missing. */
   fun getTaskSequence(): Sequence<Task> {
     if (!isSequenceInitialized) {
       taskSequence = generateTaskSequence()
@@ -62,8 +73,15 @@ class TaskSequenceHandler(
     return taskSequence
   }
 
-  // TODO: Add a method to update the cached sequence whenever necessary.
-  // Issue URL: https://github.com/google/ground-android/issues/2993
+  /**
+   * Re-computes the task sequence and updates the local cache.
+   *
+   * Note: This is a heavy computing operation. So, it should only be triggered if the task's value
+   * has been updated.
+   */
+  fun refreshTaskSequence() {
+    taskSequence = generateTaskSequence()
+  }
 
   /**
    * Checks if the specified task is the first task in the displayed sequence.

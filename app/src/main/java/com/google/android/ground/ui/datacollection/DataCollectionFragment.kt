@@ -99,7 +99,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     )
 
-    viewModel.init()
     lifecycleScope.launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
   }
 
