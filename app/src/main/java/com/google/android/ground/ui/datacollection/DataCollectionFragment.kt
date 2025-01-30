@@ -218,7 +218,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
             ConfirmationDialog(
               title = R.string.data_collection_cancellation_title,
               description = R.string.data_collection_cancellation_description,
-              confirmButton = R.string.data_collection_cancellation_confirm_button,
+              confirmButtonText = R.string.data_collection_cancellation_confirm_button,
               onConfirmClicked = { onConfirm() },
             )
           }

@@ -140,7 +140,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
             ConfirmationDialog(
               title = R.string.remove_offline_access_warning_title,
               description = R.string.remove_offline_access_warning_dialog_body,
-              confirmButton = R.string.remove_offline_access_warning_confirm_button,
+              confirmButtonText = R.string.remove_offline_access_warning_confirm_button,
               onConfirmClicked = { onConfirm() },
             )
           }

@@ -32,8 +32,8 @@ import com.google.android.ground.ui.theme.AppTheme
 fun ConfirmationDialog(
   @StringRes title: Int,
   @StringRes description: Int,
-  @StringRes dismissButton: Int = R.string.cancel,
-  @StringRes confirmButton: Int,
+  @StringRes dismissButtonText: Int = R.string.cancel,
+  @StringRes confirmButtonText: Int,
   onConfirmClicked: () -> Unit,
 ) {
   val showRemoveWarningDialog = remember { mutableStateOf(true) }
@@ -53,10 +53,10 @@ fun ConfirmationDialog(
       title = { Text(text = stringResource(title)) },
       text = { Text(text = stringResource(description)) },
       dismissButton = {
-        TextButton(onClick = { onDismiss() }) { Text(text = stringResource(dismissButton)) }
+        TextButton(onClick = { onDismiss() }) { Text(text = stringResource(dismissButtonText)) }
       },
       confirmButton = {
-        TextButton(onClick = { onConfirm() }) { Text(text = stringResource(confirmButton)) }
+        TextButton(onClick = { onConfirm() }) { Text(text = stringResource(confirmButtonText)) }
       },
     )
   }
@@ -70,7 +70,7 @@ fun PreviewConfirmationDialog() {
     ConfirmationDialog(
       title = R.string.data_collection_cancellation_title,
       description = R.string.data_collection_cancellation_description,
-      confirmButton = R.string.data_collection_cancellation_confirm_button,
+      confirmButtonText = R.string.data_collection_cancellation_confirm_button,
       onConfirmClicked = {},
     )
   }
