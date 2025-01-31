@@ -94,7 +94,7 @@ class TaskSequenceHandlerTest {
   @Test
   fun `constructor should throw error when tasks are empty`() {
     assertThrows(IllegalArgumentException::class.java) {
-      TaskSequenceHandler(tasks = emptyList(), taskDataHandler)
+      TaskSequenceHandler(allTasks = emptyList(), taskDataHandler)
     }
   }
 
@@ -102,14 +102,14 @@ class TaskSequenceHandlerTest {
   fun `getTaskSequence returns all tasks when condition is met`() {
     satisfyAllConditions()
 
-    val sequence = taskSequenceHandler.getTaskSequence()
+    val sequence = taskSequenceHandler.getValidTasks()
 
     assertThat(sequence.toList()).isEqualTo(allTasks)
   }
 
   @Test
   fun `getTaskSequence returns partial tasks when condition is not met`() {
-    val sequence = taskSequenceHandler.getTaskSequence()
+    val sequence = taskSequenceHandler.getValidTasks()
 
     assertThat(sequence.toList()).isEqualTo(listOf(task1, task2))
   }
@@ -118,7 +118,7 @@ class TaskSequenceHandlerTest {
   fun `generateTaskSequence returns all tasks if conditions are satisfied`() {
     satisfyAllConditions()
 
-    val sequence = taskSequenceHandler.generateTaskSequence()
+    val sequence = taskSequenceHandler.generateValidTasksList()
 
     assertThat(sequence.toList()).isEqualTo(allTasks)
   }
@@ -152,14 +152,14 @@ class TaskSequenceHandlerTest {
   }
 
   @Test
-  fun `refreshTaskSequence updates the cached task sequence`() {
-    val initialSequence = taskSequenceHandler.getTaskSequence()
+  fun `invalidateCache forces the list to be re-calculated`() {
+    val initialSequence = taskSequenceHandler.getValidTasks()
     assertThat(initialSequence.toList()).isEqualTo(listOf(task1, task2))
 
     satisfyAllConditions()
-    taskSequenceHandler.refreshTaskSequence()
+    taskSequenceHandler.invalidateCache()
 
-    val finalSequence = taskSequenceHandler.getTaskSequence()
+    val finalSequence = taskSequenceHandler.getValidTasks()
     assertThat(finalSequence.toList()).isEqualTo(listOf(task1, conditionalTask, task2))
   }
 
