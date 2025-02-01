@@ -89,7 +89,7 @@ comments:
         allowParamOnConstructorProperties: false
     UndocumentedPublicClass:
         active: false
-        excludes: [ '**/sharedTest/**', '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
+        excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
         searchInNestedClass: true
         searchInInnerClass: true
         searchInInnerObject: true
@@ -97,7 +97,7 @@ comments:
         searchInProtectedClass: false
     UndocumentedPublicFunction:
         active: false
-        excludes: [ '**/sharedTest/**', '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**', '**/*Module.kt' ]
+        excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**', '**/*Module.kt' ]
         searchProtectedFunction: false
     UndocumentedPublicProperty:
         active: false
@@ -260,7 +260,7 @@ exceptions:
         excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
     NotImplementedDeclaration:
         active: true
-        excludes: [ '**/sharedTest/**', '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
+        excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
     ObjectExtendsThrowable:
         active: true
     PrintStackTrace:

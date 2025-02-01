@@ -24,14 +24,14 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import app.cash.turbine.test
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
 import com.google.android.ground.system.NetworkManager
 import com.google.android.ground.system.NetworkStatus
+import com.google.android.ground.system.auth.FakeAuthenticationManager
 import com.google.android.ground.system.auth.SignInState
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData
-import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject

@@ -19,9 +19,6 @@ package com.google.android.ground
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 
-fun assertIsFailure(result: Result<*>) =
-  assertTrue("Expected failure, got success with ${result.getOrNull()}", result.isFailure)
-
 fun assertIsSuccessWith(expected: Any?, result: Result<*>) {
   assertTrue("Expected success, got failure with ${result.exceptionOrNull()}", result.isSuccess)
   assertEquals(expected, result.getOrNull())

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sharedtest.persistence.remote
+package com.google.android.ground.persistence.uuid
 
-import android.net.Uri
-import com.google.android.ground.persistence.remote.RemoteStorageManager
-import java.io.File
 import javax.inject.Inject
 
-class FakeRemoteStorageManager @Inject internal constructor() : RemoteStorageManager {
-  override suspend fun getDownloadUrl(remoteDestinationPath: String): Uri = Uri.EMPTY
-
-  override suspend fun uploadMediaFromFile(file: File, remoteDestinationPath: String) = Unit
+class FakeUuidGenerator @Inject internal constructor() : OfflineUuidGenerator {
+  override suspend fun generateUuid(): String = "TEST UUID"
 }

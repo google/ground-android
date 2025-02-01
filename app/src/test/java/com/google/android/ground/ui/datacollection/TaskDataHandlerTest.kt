@@ -15,11 +15,11 @@
  */
 package com.google.android.ground.ui.datacollection
 
+import com.google.android.ground.FakeData
 import com.google.android.ground.model.submission.TaskData
 import com.google.android.ground.model.submission.TextTaskData
 import com.google.android.ground.model.task.Task
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
@@ -106,6 +106,24 @@ class TaskDataHandlerTest {
     val task = createTask("task1")
 
     assertThat(handler.getData(task)).isNull()
+  }
+
+  @Test
+  fun `getData with taskId returns correct data`() = runTest {
+    val handler = TaskDataHandler()
+    val task = createTask("task1")
+    val taskData = createTaskData("data1")
+
+    handler.setData(task, taskData)
+
+    assertThat(handler.getData(task.id)).isEqualTo(taskData)
+  }
+
+  @Test
+  fun `getData with taskId returns null for unknown task`() = runTest {
+    val handler = TaskDataHandler()
+
+    assertThat(handler.getData("task1")).isNull()
   }
 
   @Test

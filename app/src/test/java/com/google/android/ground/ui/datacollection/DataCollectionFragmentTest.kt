@@ -16,7 +16,14 @@
 
 package com.google.android.ground.ui.datacollection
 
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData
+import com.google.android.ground.FakeData.LOCATION_OF_INTEREST
+import com.google.android.ground.FakeData.LOCATION_OF_INTEREST_NAME
+import com.google.android.ground.FakeData.USER
 import com.google.android.ground.R
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.launchFragmentWithNavController
@@ -35,6 +42,7 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.persistence.local.room.converter.SubmissionDeltasConverter
+import com.google.android.ground.persistence.remote.FakeRemoteDataStore
 import com.google.android.ground.persistence.sync.MutationSyncWorkManager
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.MutationRepository
@@ -43,11 +51,6 @@ import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskViewModel
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData
-import com.sharedtest.FakeData.LOCATION_OF_INTEREST
-import com.sharedtest.FakeData.LOCATION_OF_INTEREST_NAME
-import com.sharedtest.FakeData.USER
-import com.sharedtest.persistence.remote.FakeRemoteDataStore
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.Date
@@ -188,7 +191,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     runner()
       .inputText(TASK_1_RESPONSE)
       .clickNextButton()
-      .pressBackButton(true)
+      .pressBackButton()
       .validateTextIsDisplayed(TASK_1_NAME)
       .validateTextIsNotDisplayed(TASK_2_NAME)
 
@@ -287,16 +290,28 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     }
 
   @Test
-  fun `Clicking back button on first task clears the draft and returns false`() =
+  fun `Clicking back button on first task displays a confirmation dialog and clears the draft`() =
     runWithTestDispatcher {
       setupFragment()
 
-      runner()
-        .inputText(TASK_1_RESPONSE)
-        .clickNextButton()
-        .pressBackButton(true)
-        .pressBackButton(false)
+      // Save the draft and move back to first task.
+      runner().inputText(TASK_1_RESPONSE).clickNextButton().pressBackButton()
 
+      // Click back on first draft
+      runner().pressBackButton()
+
+      // Assert that confirmation dialog is shown
+      composeTestRule
+        .onNodeWithText(fragment.getString(R.string.data_collection_cancellation_title))
+        .assertIsDisplayed()
+
+      // Click confirm button
+      composeTestRule
+        .onNodeWithText(fragment.getString(R.string.data_collection_cancellation_confirm_button))
+        .performClick()
+      advanceUntilIdle()
+
+      // Assert that draft is cleared on confirmation
       assertNoDraftSaved()
     }
 

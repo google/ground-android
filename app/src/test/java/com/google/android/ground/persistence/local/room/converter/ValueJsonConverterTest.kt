@@ -16,6 +16,7 @@
 package com.google.android.ground.persistence.local.room.converter
 
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData
 import com.google.android.ground.model.geometry.Coordinates
 import com.google.android.ground.model.geometry.LinearRing
 import com.google.android.ground.model.geometry.Point
@@ -31,7 +32,6 @@ import com.google.android.ground.model.task.MultipleChoice
 import com.google.android.ground.model.task.Option
 import com.google.android.ground.model.task.Task
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.collections.immutable.persistentListOf
 import org.json.JSONArray

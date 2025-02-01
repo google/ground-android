@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.persistence.local
+package com.google.android.ground.persistence.remote
 
-import com.google.android.ground.model.submission.DateTimeTaskData
-import com.google.common.truth.Truth.assertThat
-import org.junit.Test
+import android.net.Uri
+import java.io.File
+import javax.inject.Inject
 
-class DateTimeTaskDataTest {
+class FakeRemoteStorageManager @Inject internal constructor() : RemoteStorageManager {
+  override suspend fun getDownloadUrl(remoteDestinationPath: String): Uri = Uri.EMPTY
 
-  @Test
-  fun testTimeResponse_textDetails() {
-    val calendarTime = DateTimeTaskData.fromMillis(1672549215471)
-    assertThat(calendarTime).isEqualTo(DateTimeTaskData(timeInMillis = 1672549215471))
-  }
+  override suspend fun uploadMediaFromFile(file: File, remoteDestinationPath: String) = Unit
 }
