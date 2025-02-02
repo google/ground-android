@@ -23,6 +23,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.IdRes
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
@@ -30,6 +32,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.AbstractActivity
 import com.google.android.ground.R
+import com.google.android.ground.ui.theme.AppTheme
 import com.google.android.ground.ui.util.ViewUtil
 import com.google.android.ground.util.Debug
 import javax.inject.Inject
@@ -135,6 +138,13 @@ abstract class AbstractFragment : Fragment() {
       progressDialog = null
     }
   }
+
+  protected fun addComposableToRoot(composable: @Composable () -> Unit) {
+    (view as ViewGroup).addView(createComposeView { composable() })
+  }
+
+  protected fun createComposeView(composable: @Composable () -> Unit): View =
+    ComposeView(requireContext()).apply { setContent { AppTheme { composable() } } }
 
   protected fun launchWhenStarted(fn: suspend () -> Unit) {
     lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.STARTED) { fn() } }
