@@ -15,24 +15,22 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.location
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.isNullOrEmpty
+import com.google.android.ground.ui.compose.ConfirmationDialog
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
-import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
@@ -85,27 +83,18 @@ class CaptureLocationTaskFragment @Inject constructor() :
     addNextButton(hideIfEmpty = true)
   }
 
-  @Suppress("LabeledExpression")
   private fun showLocationPermissionDialog() {
-    val dialogComposeView =
-      ComposeView(requireContext()).apply {
-        setContent {
-          val openAlertDialog = remember { mutableStateOf(true) }
-          when {
-            openAlertDialog.value -> {
-              AppTheme {
-                LocationPermissionDialog(
-                  onCancel = { openAlertDialog.value = false },
-                  onDismiss = { openAlertDialog.value = false },
-                )
-              }
-            }
-          }
-
-          DisposableEffect(Unit) { onDispose { (parent as? ViewGroup)?.removeView(this@apply) } }
-        }
+    addComposableToRoot {
+      ConfirmationDialog(
+        title = R.string.allow_location_title,
+        description = R.string.allow_location_description,
+        confirmButtonText = R.string.allow_location_confirmation,
+      ) {
+        // Open the app settings
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        intent.data = Uri.fromParts("package", context?.packageName, null)
+        context?.startActivity(intent)
       }
-
-    (view as ViewGroup).addView(dialogComposeView)
+    }
   }
 }

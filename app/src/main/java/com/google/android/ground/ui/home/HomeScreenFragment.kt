@@ -39,7 +39,7 @@ import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
-import com.google.android.ground.ui.theme.AppTheme
+import com.google.android.ground.ui.compose.ConfirmationDialog
 import com.google.android.ground.util.systemInsets
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.navigation.NavigationView
@@ -190,36 +190,38 @@ class HomeScreenFragment :
     // Note: Adding a compose view to the fragment's view dynamically causes the navigation click to
     // stop working after 1st time. Revisit this once the navigation drawer is also generated using
     // compose.
-    binding.composeView.apply {
-      setContent {
-        val showUserDetailsDialog = remember { mutableStateOf(false) }
-        val showSignOutDialog = remember { mutableStateOf(false) }
+    binding.composeView.setComposableContent {
+      val showUserDetailsDialog = remember { mutableStateOf(false) }
+      val showSignOutDialog = remember { mutableStateOf(false) }
 
-        fun showUserDetailsDialog() {
-          showUserDetailsDialog.value = true
-          showSignOutDialog.value = false
-        }
+      fun showUserDetailsDialog() {
+        showUserDetailsDialog.value = true
+        showSignOutDialog.value = false
+      }
 
-        fun showSignOutDialog() {
-          showUserDetailsDialog.value = false
-          showSignOutDialog.value = true
-        }
+      fun showSignOutDialog() {
+        showUserDetailsDialog.value = false
+        showSignOutDialog.value = true
+      }
 
-        fun hideAllDialogs() {
-          showUserDetailsDialog.value = false
-          showSignOutDialog.value = false
-        }
+      fun hideAllDialogs() {
+        showUserDetailsDialog.value = false
+        showSignOutDialog.value = false
+      }
 
-        // Init state for composition
-        showUserDetailsDialog()
+      // Init state for composition
+      showUserDetailsDialog()
 
-        AppTheme {
-          if (showUserDetailsDialog.value) {
-            UserDetailsDialog(user, { showSignOutDialog() }, { hideAllDialogs() })
-          }
-          if (showSignOutDialog.value) {
-            SignOutConfirmationDialog({ homeScreenViewModel.signOut() }, { hideAllDialogs() })
-          }
+      if (showUserDetailsDialog.value) {
+        UserDetailsDialog(user, { showSignOutDialog() }, { hideAllDialogs() })
+      }
+      if (showSignOutDialog.value) {
+        ConfirmationDialog(
+          title = R.string.sign_out_dialog_title,
+          description = R.string.sign_out_dialog_body,
+          confirmButtonText = R.string.sign_out,
+        ) {
+          homeScreenViewModel.signOut()
         }
       }
     }
