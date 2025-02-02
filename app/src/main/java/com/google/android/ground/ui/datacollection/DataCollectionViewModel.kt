@@ -345,17 +345,17 @@ internal constructor(
   fun isLastPosition(taskId: String): Boolean = taskSequenceHandler.isLastPosition(taskId)
 
   /**
-   * Returns true if the given [taskId] with [newValue] would be last in the sequence of displayed
+   * Returns true if the given [task] with [newValue] would be last in the sequence of displayed
    * tasks. Required for handling conditional tasks, see #2394.
    */
-  fun isLastPositionWithValue(taskId: String, newValue: TaskData?): Boolean {
-    if (taskDataHandler.getData(taskId) == newValue) {
+  fun isLastPositionWithValue(task: Task, newValue: TaskData?): Boolean {
+    if (taskDataHandler.getData(task) == newValue) {
       // Reuse the existing task sequence if the value has already been saved (i.e. after pressing
       // "Next" and going back).
-      return isLastPosition(taskId)
+      return isLastPosition(task.id)
     }
 
-    return taskSequenceHandler.checkIfTaskIsLastWithValue(taskValueOverride = taskId to newValue)
+    return taskSequenceHandler.checkIfTaskIsLastWithValue(taskValueOverride = task.id to newValue)
   }
 
   companion object {
