@@ -50,6 +50,7 @@ import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher

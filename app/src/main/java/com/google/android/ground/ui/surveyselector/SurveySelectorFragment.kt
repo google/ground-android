@@ -31,6 +31,7 @@ import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.compose.ConfirmationDialog
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
+import com.google.android.ground.util.renderComposableDialog
 import com.google.android.ground.util.visibleIf
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject

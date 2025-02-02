@@ -34,6 +34,7 @@ import com.google.android.ground.ui.common.MapConfig
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.MapType
+import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch

@@ -29,6 +29,7 @@ import androidx.lifecycle.asLiveData
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
+import com.google.android.ground.util.createComposeView
 import dagger.hilt.android.AndroidEntryPoint
 
 const val MULTIPLE_CHOICE_LIST_TEST_TAG = "multiple choice items test tag"

@@ -40,6 +40,7 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.compose.ConfirmationDialog
+import com.google.android.ground.util.setComposableContent
 import com.google.android.ground.util.systemInsets
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.navigation.NavigationView

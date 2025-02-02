@@ -31,6 +31,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import com.google.android.ground.databinding.SyncStatusFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.util.setComposableContent
 import dagger.hilt.android.AndroidEntryPoint
 
 /**

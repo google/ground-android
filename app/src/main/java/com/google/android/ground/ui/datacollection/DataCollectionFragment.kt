@@ -38,7 +38,7 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.compose.ConfirmationDialog
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
-import com.google.android.ground.ui.theme.AppTheme
+import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
@@ -159,11 +159,9 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       val openAlertDialog = remember { mutableStateOf(true) }
       when {
         openAlertDialog.value -> {
-          AppTheme {
-            DataSubmissionConfirmationDialog {
-              openAlertDialog.value = false
-              findNavController().navigate(HomeScreenFragmentDirections.showHomeScreen())
-            }
+          DataSubmissionConfirmationDialog {
+            openAlertDialog.value = false
+            findNavController().navigate(HomeScreenFragmentDirections.showHomeScreen())
           }
         }
       }

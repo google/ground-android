@@ -45,6 +45,7 @@ import com.google.android.ground.R
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.compose.HyperlinkText
 import com.google.android.ground.ui.compose.Toolbar
+import com.google.android.ground.util.createComposeView
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

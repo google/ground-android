@@ -23,8 +23,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.IdRes
 import androidx.annotation.StringRes
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
@@ -32,7 +30,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.ground.AbstractActivity
 import com.google.android.ground.R
-import com.google.android.ground.ui.theme.AppTheme
 import com.google.android.ground.ui.util.ViewUtil
 import com.google.android.ground.util.Debug
 import javax.inject.Inject
@@ -137,22 +134,6 @@ abstract class AbstractFragment : Fragment() {
       progressDialog?.dismiss()
       progressDialog = null
     }
-  }
-
-  /** Adds a composable function to the root view of the fragment. */
-  protected fun renderComposableDialog(composable: @Composable () -> Unit) {
-    (view as ViewGroup).addView(createComposeView { composable() })
-  }
-
-  /** Creates a [ComposeView] that hosts the provided composable function. */
-  protected fun createComposeView(composable: @Composable () -> Unit): View =
-    ComposeView(requireContext()).apply { setComposableContent { composable() } }
-
-  /**
-   * Sets the content of a [ComposeView] to the provided composable function wrapped in [AppTheme].
-   */
-  protected fun ComposeView.setComposableContent(composable: @Composable () -> Unit) = setContent {
-    AppTheme { composable() }
   }
 
   protected fun launchWhenStarted(fn: suspend () -> Unit) {
