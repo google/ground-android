@@ -18,8 +18,6 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.databinding.FragmentDrawAreaTaskBinding
@@ -120,14 +118,10 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   private fun showInstructionsDialog() {
     viewModel.instructionsDialogShown = true
     renderComposableDialog {
-      val openAlertDialog = remember { mutableStateOf(true) }
-      when {
-        openAlertDialog.value -> {
-          InstructionsDialog(R.drawable.touch_app_24, R.string.draw_area_task_instruction) {
-            openAlertDialog.value = false
-          }
-        }
-      }
+      InstructionsDialog(
+        iconId = R.drawable.touch_app_24,
+        stringId = R.string.draw_area_task_instruction,
+      )
     }
   }
 }

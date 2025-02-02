@@ -19,8 +19,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import com.google.android.ground.R
 import com.google.android.ground.model.submission.isNullOrEmpty
 import com.google.android.ground.ui.datacollection.components.ButtonAction
@@ -76,14 +74,7 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
   private fun showInstructionsDialog() {
     viewModel.instructionsDialogShown = true
     renderComposableDialog {
-      val openAlertDialog = remember { mutableStateOf(true) }
-      when {
-        openAlertDialog.value -> {
-          InstructionsDialog(R.drawable.swipe_24, R.string.drop_a_pin_tooltip_text) {
-            openAlertDialog.value = false
-          }
-        }
-      }
+      InstructionsDialog(iconId = R.drawable.swipe_24, stringId = R.string.drop_a_pin_tooltip_text)
     }
   }
 }
