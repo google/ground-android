@@ -22,7 +22,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
-import androidx.compose.ui.platform.ComposeView
 import androidx.navigation.fragment.findNavController
 import com.google.android.ground.R
 import com.google.android.ground.databinding.SurveySelectorFragBinding
@@ -32,7 +31,6 @@ import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.compose.ConfirmationDialog
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
-import com.google.android.ground.ui.theme.AppTheme
 import com.google.android.ground.util.visibleIf
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -121,7 +119,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
         object : PopupMenu.OnMenuItemClickListener {
           override fun onMenuItemClick(item: MenuItem): Boolean {
             if (item.itemId == R.id.remove_offline_access_menu_item) {
-              showConfirmationDialog { viewModel.deleteSurvey(surveyId) }
+              showDeleteConfirmationDialog { viewModel.deleteSurvey(surveyId) }
               return true
             }
             return false
@@ -132,21 +130,15 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
     }
   }
 
-  private fun showConfirmationDialog(onConfirm: () -> Unit) {
-    (view as ViewGroup).addView(
-      ComposeView(requireContext()).apply {
-        setContent {
-          AppTheme {
-            ConfirmationDialog(
-              title = R.string.remove_offline_access_warning_title,
-              description = R.string.remove_offline_access_warning_dialog_body,
-              confirmButtonText = R.string.remove_offline_access_warning_confirm_button,
-              onConfirmClicked = { onConfirm() },
-            )
-          }
-        }
-      }
-    )
+  private fun showDeleteConfirmationDialog(onConfirm: () -> Unit) {
+    addComposableToRoot {
+      ConfirmationDialog(
+        title = R.string.remove_offline_access_warning_title,
+        description = R.string.remove_offline_access_warning_dialog_body,
+        confirmButtonText = R.string.remove_offline_access_warning_confirm_button,
+        onConfirmClicked = { onConfirm() },
+      )
+    }
   }
 
   private fun shouldExitApp(): Boolean =

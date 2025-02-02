@@ -29,7 +29,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
@@ -245,18 +244,12 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   private fun launchLoiNameDialog() {
     dataCollectionViewModel.loiNameDialogOpen.value = true
-    (view as ViewGroup).addView(
-      ComposeView(requireContext()).apply {
-        setContent {
-          AppTheme {
-            // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
-            ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
-              handleLoiNameSet(loiName = it)
-            }
-          }
-        }
+    addComposableToRoot {
+      // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
+      ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
+        handleLoiNameSet(loiName = it)
       }
-    )
+    }
   }
 
   @Composable

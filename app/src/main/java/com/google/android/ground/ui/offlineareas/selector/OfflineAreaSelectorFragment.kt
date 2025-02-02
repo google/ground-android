@@ -23,7 +23,6 @@ import android.view.ViewGroup
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.ground.R
@@ -35,10 +34,9 @@ import com.google.android.ground.ui.common.MapConfig
 import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.MapType
-import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /** Map UI used to select areas for download and viewing offline. */
 @AndroidEntryPoint
@@ -113,26 +111,19 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
   override fun getMapViewModel(): BaseMapViewModel = viewModel
 
   private fun showDownloadProgressDialog(isVisible: Boolean) {
-    val dialogComposeView =
-      ComposeView(requireContext()).apply {
-        setContent {
-          val openAlertDialog = remember { mutableStateOf(isVisible) }
-          val progress = viewModel.downloadProgress.observeAsState(0f)
-          when {
-            openAlertDialog.value -> {
-              AppTheme {
-                DownloadProgressDialog(
-                  progress = progress.value,
-                  // TODO: - Add Download Cancel Feature
-                  // Issue URL: https://github.com/google/ground-android/issues/1596
-                  onDismiss = { openAlertDialog.value = false },
-                )
-              }
-            }
-          }
+    addComposableToRoot {
+      val openAlertDialog = remember { mutableStateOf(isVisible) }
+      val progress = viewModel.downloadProgress.observeAsState(0f)
+      when {
+        openAlertDialog.value -> {
+          DownloadProgressDialog(
+            progress = progress.value,
+            // TODO: - Add Download Cancel Feature
+            // Issue URL: https://github.com/google/ground-android/issues/1596
+            onDismiss = { openAlertDialog.value = false },
+          )
         }
       }
-
-    (view as ViewGroup).addView(dialogComposeView)
+    }
   }
 }

@@ -24,13 +24,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.asLiveData
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 const val MULTIPLE_CHOICE_LIST_TEST_TAG = "multiple choice items test tag"
@@ -45,8 +43,9 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View =
-    ComposeView(requireContext()).apply { setContent { AppTheme { ShowMultipleChoiceItems() } } }
+  override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
+    ShowMultipleChoiceItems()
+  }
 
   @Composable
   private fun ShowMultipleChoiceItems() {
