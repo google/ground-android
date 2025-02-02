@@ -27,10 +27,10 @@ import com.google.android.ground.R
 import com.google.android.ground.proto.Survey
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlin.test.Test
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.test.Test
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
