@@ -35,8 +35,8 @@ import com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerView
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.map.MapType
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 /** Map UI used to select areas for download and viewing offline. */
 @AndroidEntryPoint
@@ -111,7 +111,7 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
   override fun getMapViewModel(): BaseMapViewModel = viewModel
 
   private fun showDownloadProgressDialog(isVisible: Boolean) {
-    addComposableToRoot {
+    renderComposableDialog {
       val openAlertDialog = remember { mutableStateOf(isVisible) }
       val progress = viewModel.downloadProgress.observeAsState(0f)
       when {

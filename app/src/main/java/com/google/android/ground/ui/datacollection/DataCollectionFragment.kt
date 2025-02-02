@@ -155,7 +155,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   private fun onTaskSubmitted() {
     // Display a confirmation dialog and move to home screen after that.
-    addComposableToRoot {
+    renderComposableDialog {
       val openAlertDialog = remember { mutableStateOf(true) }
       when {
         openAlertDialog.value -> {
@@ -197,7 +197,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun showExitWarningDialog() {
-    addComposableToRoot {
+    renderComposableDialog {
       ConfirmationDialog(
         title = R.string.data_collection_cancellation_title,
         description = R.string.data_collection_cancellation_description,

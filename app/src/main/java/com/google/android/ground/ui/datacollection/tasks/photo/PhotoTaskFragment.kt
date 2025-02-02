@@ -133,7 +133,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   }
 
   private fun showPermissionDeniedDialog() {
-    addComposableToRoot {
+    renderComposableDialog {
       ConfirmationDialog(
         title = R.string.permission_denied,
         description = R.string.camera_permissions_needed,

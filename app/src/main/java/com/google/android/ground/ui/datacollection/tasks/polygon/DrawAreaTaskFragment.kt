@@ -34,10 +34,10 @@ import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import com.google.android.ground.ui.map.Feature
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import javax.inject.Provider
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Provider
 
 @AndroidEntryPoint
 class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawAreaTaskViewModel>() {
@@ -118,7 +118,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
   private fun showInstructionsDialog() {
     viewModel.instructionsDialogShown = true
-    addComposableToRoot {
+    renderComposableDialog {
       val openAlertDialog = remember { mutableStateOf(true) }
       when {
         openAlertDialog.value -> {

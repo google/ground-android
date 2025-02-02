@@ -74,7 +74,7 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
 
   private fun showInstructionsDialog() {
     viewModel.instructionsDialogShown = true
-    addComposableToRoot {
+    renderComposableDialog {
       val openAlertDialog = remember { mutableStateOf(true) }
       when {
         openAlertDialog.value -> {

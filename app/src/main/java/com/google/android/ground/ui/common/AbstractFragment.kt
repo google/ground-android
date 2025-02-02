@@ -139,13 +139,18 @@ abstract class AbstractFragment : Fragment() {
     }
   }
 
-  protected fun addComposableToRoot(composable: @Composable () -> Unit) {
+  /** Adds a composable function to the root view of the fragment. */
+  protected fun renderComposableDialog(composable: @Composable () -> Unit) {
     (view as ViewGroup).addView(createComposeView { composable() })
   }
 
+  /** Creates a [ComposeView] that hosts the provided composable function. */
   protected fun createComposeView(composable: @Composable () -> Unit): View =
     ComposeView(requireContext()).apply { setComposableContent { composable() } }
 
+  /**
+   * Sets the content of a [ComposeView] to the provided composable function wrapped in [AppTheme].
+   */
   protected fun ComposeView.setComposableContent(composable: @Composable () -> Unit) = setContent {
     AppTheme { composable() }
   }

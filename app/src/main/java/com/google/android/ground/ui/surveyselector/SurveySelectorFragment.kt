@@ -131,7 +131,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun showDeleteConfirmationDialog(onConfirm: () -> Unit) {
-    addComposableToRoot {
+    renderComposableDialog {
       ConfirmationDialog(
         title = R.string.remove_offline_access_warning_title,
         description = R.string.remove_offline_access_warning_dialog_body,

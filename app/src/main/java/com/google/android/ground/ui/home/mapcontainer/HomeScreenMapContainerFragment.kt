@@ -165,7 +165,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         ephemeralPopups.ErrorPopup().show(getString(R.string.invalid_data_sharing_terms))
         return
       }
-      addComposableToRoot { ShowDataSharingTermsDialog(cardUiData, hasDataSharingTerms) }
+      renderComposableDialog { ShowDataSharingTermsDialog(cardUiData, hasDataSharingTerms) }
       return
     }
     navigateToDataCollectionFragment(cardUiData)

@@ -84,7 +84,7 @@ class CaptureLocationTaskFragment @Inject constructor() :
   }
 
   private fun showLocationPermissionDialog() {
-    addComposableToRoot {
+    renderComposableDialog {
       ConfirmationDialog(
         title = R.string.allow_location_title,
         description = R.string.allow_location_description,

@@ -44,9 +44,9 @@ import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.LoiNameDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
 import com.google.android.ground.ui.datacollection.components.TaskView
-import kotlin.properties.Delegates
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
+import kotlin.properties.Delegates
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
@@ -239,7 +239,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   private fun launchLoiNameDialog() {
     dataCollectionViewModel.loiNameDialogOpen.value = true
-    addComposableToRoot {
+    renderComposableDialog {
       // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
       ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
         handleLoiNameSet(loiName = it)
