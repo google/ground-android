@@ -21,8 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -127,15 +125,10 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     cardUiData: MapCardUiData,
     dataSharingTerms: DataSharingTerms,
   ) {
-    val showDataSharingTermsDialog = remember { mutableStateOf(true) }
-    when {
-      showDataSharingTermsDialog.value -> {
-        DataSharingTermsDialog(showDataSharingTermsDialog, dataSharingTerms) {
-          val job = lifecycleScope.launch { mapContainerViewModel.updateDataSharingConsent(true) }
-          job.cancel()
-          navigateToDataCollectionFragment(cardUiData)
-        }
-      }
+    DataSharingTermsDialog(dataSharingTerms) {
+      val job = lifecycleScope.launch { mapContainerViewModel.updateDataSharingConsent(true) }
+      job.cancel()
+      navigateToDataCollectionFragment(cardUiData)
     }
   }
 

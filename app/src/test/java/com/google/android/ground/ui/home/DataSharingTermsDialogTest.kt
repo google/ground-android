@@ -48,9 +48,8 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
 
     composeTestRule.setContent {
       DataSharingTermsDialog(
-        showDataSharingTermsDialog = showDialog,
         dataSharingTerms =
-          Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build(),
+          Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build()
       )
     }
 
@@ -65,9 +64,8 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
 
     composeTestRule.setContent {
       DataSharingTermsDialog(
-        showDataSharingTermsDialog = showDialog,
         dataSharingTerms =
-          Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build(),
+          Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build()
       )
     }
     val markdown = composeTestRule.activity.getString(R.string.data_sharing_private_message)
@@ -84,11 +82,10 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
 
     composeTestRule.setContent {
       DataSharingTermsDialog(
-        showDataSharingTermsDialog = showDialog,
         dataSharingTerms =
           Survey.DataSharingTerms.newBuilder()
             .setType(Survey.DataSharingTerms.Type.PUBLIC_CC0)
-            .build(),
+            .build()
       )
     }
 
@@ -106,12 +103,11 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
 
     composeTestRule.setContent {
       DataSharingTermsDialog(
-        showDataSharingTermsDialog = showDialog,
         dataSharingTerms =
           Survey.DataSharingTerms.newBuilder()
             .setType(Survey.DataSharingTerms.Type.CUSTOM)
             .setCustomText("Custom text")
-            .build(),
+            .build()
       )
     }
 
@@ -125,10 +121,7 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
     val showDialog = mutableStateOf(true)
 
     composeTestRule.setContent {
-      DataSharingTermsDialog(
-        showDataSharingTermsDialog = showDialog,
-        dataSharingTerms = Survey.DataSharingTerms.getDefaultInstance(),
-      )
+      DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.getDefaultInstance())
     }
 
     val markdown = composeTestRule.activity.getString(R.string.data_sharing_no_terms)
@@ -143,9 +136,8 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
 
     composeTestRule.setContent {
       DataSharingTermsDialog(
-        showDataSharingTermsDialog = showDialog,
         dataSharingTerms =
-          Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build(),
+          Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build()
       )
     }
 
@@ -163,7 +155,6 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
 
     composeTestRule.setContent {
       DataSharingTermsDialog(
-        showDataSharingTermsDialog = showDialog,
         dataSharingTerms =
           Survey.DataSharingTerms.newBuilder()
             .setType(Survey.DataSharingTerms.Type.PRIVATE)

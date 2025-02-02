@@ -22,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -43,13 +42,19 @@ private fun getResourceAsText(path: String): String =
 
 @Composable
 fun DataSharingTermsDialog(
-  showDataSharingTermsDialog: MutableState<Boolean>,
   dataSharingTerms: Survey.DataSharingTerms,
   consentGivenCallback: () -> Unit = {},
 ) {
+  val showDialog = remember { mutableStateOf(true) }
+
   fun dismissDialog() {
-    showDataSharingTermsDialog.value = false
+    showDialog.value = false
   }
+
+  if (!showDialog.value) {
+    return
+  }
+
   AlertDialog(
     onDismissRequest = { dismissDialog() },
     title = {
@@ -97,9 +102,8 @@ fun DataSharingTermsDialog(
 fun DataSharingTermsDialogPreviewWithPrivateType() {
   AppTheme {
     DataSharingTermsDialog(
-      showDataSharingTermsDialog = remember { mutableStateOf(false) },
       dataSharingTerms =
-        Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build(),
+        Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build()
     )
   }
 }
@@ -110,11 +114,10 @@ fun DataSharingTermsDialogPreviewWithPrivateType() {
 fun DataSharingTermsDialogPreviewWithPublicType() {
   AppTheme {
     DataSharingTermsDialog(
-      showDataSharingTermsDialog = remember { mutableStateOf(false) },
       dataSharingTerms =
         Survey.DataSharingTerms.newBuilder()
           .setType(Survey.DataSharingTerms.Type.PUBLIC_CC0)
-          .build(),
+          .build()
     )
   }
 }
@@ -125,12 +128,11 @@ fun DataSharingTermsDialogPreviewWithPublicType() {
 fun DataSharingTermsDialogPreviewWithCustomType() {
   AppTheme {
     DataSharingTermsDialog(
-      showDataSharingTermsDialog = remember { mutableStateOf(false) },
       dataSharingTerms =
         Survey.DataSharingTerms.newBuilder()
           .setType(Survey.DataSharingTerms.Type.CUSTOM)
           .setCustomText("Custom text")
-          .build(),
+          .build()
     )
   }
 }
@@ -140,9 +142,6 @@ fun DataSharingTermsDialogPreviewWithCustomType() {
 @ExcludeFromJacocoGeneratedReport
 fun DataSharingTermsDialogPreviewWithNoType() {
   AppTheme {
-    DataSharingTermsDialog(
-      showDataSharingTermsDialog = remember { mutableStateOf(false) },
-      dataSharingTerms = Survey.DataSharingTerms.getDefaultInstance(),
-    )
+    DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.getDefaultInstance())
   }
 }
