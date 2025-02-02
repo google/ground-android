@@ -144,7 +144,11 @@ abstract class AbstractFragment : Fragment() {
   }
 
   protected fun createComposeView(composable: @Composable () -> Unit): View =
-    ComposeView(requireContext()).apply { setContent { AppTheme { composable() } } }
+    ComposeView(requireContext()).apply { setComposableContent { composable() } }
+
+  protected fun ComposeView.setComposableContent(composable: @Composable () -> Unit) = setContent {
+    AppTheme { composable() }
+  }
 
   protected fun launchWhenStarted(fn: suspend () -> Unit) {
     lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.STARTED) { fn() } }

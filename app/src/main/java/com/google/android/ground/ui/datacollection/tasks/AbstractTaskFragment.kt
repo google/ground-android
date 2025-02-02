@@ -44,7 +44,6 @@ import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.LoiNameDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
 import com.google.android.ground.ui.datacollection.components.TaskView
-import com.google.android.ground.ui.theme.AppTheme
 import kotlin.properties.Delegates
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
@@ -218,19 +217,15 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** Adds the action buttons to the UI. */
   private fun renderButtons() {
-    taskView.actionButtonsContainer.composeView.apply {
-      setContent {
-        AppTheme {
-          Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
-          ) {
-            // TODO: Previous button should always be positioned to the left of the screen.
-            //  Rest buttons should be aligned to the right side of the screen.
-            // Issue URL: https://github.com/google/ground-android/issues/2417
-            buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
-          }
-        }
+    taskView.actionButtonsContainer.composeView.setComposableContent {
+      Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxWidth().padding(8.dp),
+      ) {
+        // TODO: Previous button should always be positioned to the left of the screen.
+        //  Rest buttons should be aligned to the right side of the screen.
+        // Issue URL: https://github.com/google/ground-android/issues/2417
+        buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
       }
     }
   }

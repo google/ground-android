@@ -31,7 +31,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import com.google.android.ground.databinding.SyncStatusFragBinding
 import com.google.android.ground.ui.common.AbstractFragment
-import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -57,7 +56,7 @@ class SyncStatusFragment : AbstractFragment() {
     val binding = SyncStatusFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
-    binding.composeView.setContent { AppTheme { ShowSyncItems() } }
+    binding.composeView.setComposableContent { ShowSyncItems() }
     getAbstractActivity().setSupportActionBar(binding.syncStatusToolbar)
     return binding.root
   }
