@@ -22,7 +22,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -188,31 +187,31 @@ class HomeScreenFragment :
   }
 
   private fun showSignOutConfirmationDialogs() {
+    val showUserDetailsDialog = mutableStateOf(false)
+    val showSignOutDialog = mutableStateOf(false)
+
+    fun showUserDetailsDialog() {
+      showUserDetailsDialog.value = true
+      showSignOutDialog.value = false
+    }
+
+    fun showSignOutDialog() {
+      showUserDetailsDialog.value = false
+      showSignOutDialog.value = true
+    }
+
+    fun hideAllDialogs() {
+      showUserDetailsDialog.value = false
+      showSignOutDialog.value = false
+    }
+
+    // Init state for composition
+    showUserDetailsDialog()
+
     // Note: Adding a compose view to the fragment's view dynamically causes the navigation click to
     // stop working after 1st time. Revisit this once the navigation drawer is also generated using
     // compose.
     binding.composeView.setComposableContent {
-      val showUserDetailsDialog = remember { mutableStateOf(false) }
-      val showSignOutDialog = remember { mutableStateOf(false) }
-
-      fun showUserDetailsDialog() {
-        showUserDetailsDialog.value = true
-        showSignOutDialog.value = false
-      }
-
-      fun showSignOutDialog() {
-        showUserDetailsDialog.value = false
-        showSignOutDialog.value = true
-      }
-
-      fun hideAllDialogs() {
-        showUserDetailsDialog.value = false
-        showSignOutDialog.value = false
-      }
-
-      // Init state for composition
-      showUserDetailsDialog()
-
       if (showUserDetailsDialog.value) {
         UserDetailsDialog(user, { showSignOutDialog() }, { hideAllDialogs() })
       }
