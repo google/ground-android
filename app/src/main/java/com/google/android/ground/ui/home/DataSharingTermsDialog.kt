@@ -41,6 +41,28 @@ private fun getResourceAsText(path: String): String =
   object {}.javaClass.getResource(path)?.readText().orEmpty()
 
 @Composable
+private fun getDataSharingTermsText(dataSharingTerms: Survey.DataSharingTerms): String =
+  when (dataSharingTerms.type) {
+    Survey.DataSharingTerms.Type.PRIVATE -> stringResource(R.string.data_sharing_private_message)
+    Survey.DataSharingTerms.Type.PUBLIC_CC0 ->
+      buildString {
+        append(stringResource(R.string.data_sharing_public_message))
+        append("\n")
+        append(getResourceAsText("/assets/licenses/cc0_license.txt"))
+      }
+    Survey.DataSharingTerms.Type.CUSTOM -> dataSharingTerms.customText
+    else -> stringResource(R.string.data_sharing_no_terms)
+  }
+
+@Composable
+private fun generateDataSharingTermsHtml(dataSharingTerms: Survey.DataSharingTerms): String {
+  val markdownSrc = getDataSharingTermsText(dataSharingTerms)
+  val flavor = CommonMarkFlavourDescriptor()
+  val parsedTree = MarkdownParser(flavor).buildMarkdownTreeFromString(markdownSrc)
+  return HtmlGenerator(markdownSrc, parsedTree, flavor).generateHtml()
+}
+
+@Composable
 fun DataSharingTermsDialog(
   dataSharingTerms: Survey.DataSharingTerms,
   consentGivenCallback: () -> Unit = {},
@@ -64,20 +86,7 @@ fun DataSharingTermsDialog(
       )
     },
     text = {
-      val markdownSrc =
-        when (dataSharingTerms.type) {
-          Survey.DataSharingTerms.Type.PRIVATE ->
-            stringResource(R.string.data_sharing_private_message)
-          Survey.DataSharingTerms.Type.PUBLIC_CC0 ->
-            stringResource(R.string.data_sharing_public_message) +
-              "\n" +
-              getResourceAsText("/assets/licenses/cc0_license.txt")
-          Survey.DataSharingTerms.Type.CUSTOM -> dataSharingTerms.customText
-          else -> stringResource(R.string.data_sharing_no_terms)
-        }
-      val flavor = CommonMarkFlavourDescriptor()
-      val parsedTree = MarkdownParser(flavor).buildMarkdownTreeFromString(markdownSrc)
-      val html = HtmlGenerator(markdownSrc, parsedTree, flavor).generateHtml()
+      val html = generateDataSharingTermsHtml(dataSharingTerms)
       HtmlText(html, Modifier.height(450.dp).fillMaxWidth())
     },
     dismissButton = {
