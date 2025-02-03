@@ -106,7 +106,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
     lifecycleScope.launch {
       viewModel.uiState.filterNotNull().collect {
-        println("========= viewModel.uiState  ${it}")
         updateUI(it)
       }
     }
@@ -151,7 +150,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun loadTasks(tasks: List<Task>, taskPosition: TaskPosition) {
-    println("========= loadTasks  ${taskPosition}")
     val currentAdapter = viewPager.adapter as? DataCollectionViewPagerAdapter
     if (currentAdapter == null || currentAdapter.tasks != tasks) {
       viewPager.adapter = viewPagerAdapterFactory.create(this, tasks)
@@ -160,7 +158,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun onTaskChanged(taskPosition: TaskPosition) {
-    println("========= onTaskChanged  ${taskPosition}")
     // Pass false to parameter smoothScroll to avoid smooth scrolling animation.
     viewPager.setCurrentItem(taskPosition.absoluteIndex, false)
     updateProgressBar(taskPosition, true)
