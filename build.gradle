@@ -91,7 +91,7 @@ subprojects {
 detekt {
     toolVersion = "1.23.5"
 
-    source = files("ground/src", "sharedTest/src")
+    source = files("app/src")
     allRules = true
     config = files("${project.rootDir}/config/detekt/detekt.yml")
     baseline = file("${project.rootDir}/config/detekt/baseline.xml")
