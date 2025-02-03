@@ -96,7 +96,6 @@ constructor(
         val tilePath = getLocalTileSourcePath()
         MogTileDownloader(mogClient, tilePath).downloadTiles(requests).collect {
           currentCoroutineContext().ensureActive()
-          println("====== downloadTiles $it ")
           bytesDownloaded += it
           emit(Pair(bytesDownloaded, totalBytes))
         }

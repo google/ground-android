@@ -103,7 +103,6 @@ internal constructor(
     downloadJob =
       viewModelScope.launch(ioDispatcher) {
         offlineAreaRepository.downloadTiles(viewport!!).collect { (bytesDownloaded, totalBytes) ->
-          println("====== onDownloadClick $bytesDownloaded $totalBytes")
           val progressValue =
             if (totalBytes > 0) {
               (bytesDownloaded.toFloat() / totalBytes.toFloat()).coerceIn(0f, 1f)
