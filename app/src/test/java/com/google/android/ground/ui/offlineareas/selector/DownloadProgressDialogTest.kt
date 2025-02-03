@@ -23,14 +23,24 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
+import com.google.android.ground.repository.OfflineAreaRepository
+import com.google.android.ground.ui.map.Bounds
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import junit.framework.Assert.assertFalse
 import kotlin.test.Test
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.advanceUntilIdle
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.runner.RunWith
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class DownloadProgressDialogTest : BaseHiltTest() {
@@ -38,6 +48,7 @@ class DownloadProgressDialogTest : BaseHiltTest() {
   @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Inject lateinit var viewModel: OfflineAreaSelectorViewModel
+  @Inject lateinit var offlineAreaRepository: OfflineAreaRepository
 
   @Test
   fun downloadProgressDialog_DisplaysTitleCorrectly() {
@@ -79,6 +90,26 @@ class DownloadProgressDialogTest : BaseHiltTest() {
       .performClick()
 
     assertTrue(isDismissed)
+  }
+
+  @Test
+  fun `stopDownloading cancels active download and updates UI state`() = runWithTestDispatcher {
+    val progressFlow = MutableStateFlow<Pair<Int, Int>>(Pair(0, 0))
+    whenever(offlineAreaRepository.downloadTiles(Bounds(-10.0, -20.0, 10.0, 20.0)))
+      .thenReturn(progressFlow)
+
+    viewModel.onDownloadClick()
+    advanceUntilIdle()
+
+    progressFlow.emit(Pair(50, 100))
+    assertEquals(0.5f, viewModel.downloadProgress.value)
+
+    viewModel.stopDownloading()
+
+    progressFlow.emit(Pair(75, 100))
+
+    assertNotEquals(0.75f, viewModel.downloadProgress.value)
+    assertFalse(viewModel.isDownloadProgressVisible.value!!)
   }
 
   @Test
