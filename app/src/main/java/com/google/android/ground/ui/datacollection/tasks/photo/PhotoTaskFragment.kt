@@ -21,17 +21,8 @@ import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.stringResource
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.BuildConfig
@@ -43,10 +34,11 @@ import com.google.android.ground.repository.UserMediaRepository
 import com.google.android.ground.system.PermissionDeniedException
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.ui.common.EphemeralPopups
+import com.google.android.ground.ui.compose.ConfirmationDialog
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.ground.ui.theme.AppTheme
+import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -136,33 +128,18 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
         onPermissionsGranted()
       } catch (_: PermissionDeniedException) {
-        mainScope.launch {
-          (view as ViewGroup).addView(
-            ComposeView(requireContext()).apply {
-              setContent { AppTheme { PermissionDeniedDialog() } }
-            }
-          )
-        }
+        mainScope.launch { showPermissionDeniedDialog() }
       }
     }
   }
 
-  @Composable
-  fun PermissionDeniedDialog() {
-    val openDialog = remember { mutableStateOf(true) }
-
-    fun dismissDialog() {
-      openDialog.value = false
-    }
-
-    if (openDialog.value) {
-      AlertDialog(
-        onDismissRequest = { dismissDialog() },
-        title = { Text(text = stringResource(R.string.permission_denied)) },
-        text = { Text(text = stringResource(R.string.camera_permissions_needed)) },
-        confirmButton = {
-          TextButton(onClick = { dismissDialog() }) { Text(text = stringResource(R.string.ok)) }
-        },
+  private fun showPermissionDeniedDialog() {
+    renderComposableDialog {
+      ConfirmationDialog(
+        title = R.string.permission_denied,
+        description = R.string.camera_permissions_needed,
+        confirmButtonText = R.string.ok,
+        onConfirmClicked = {},
       )
     }
   }

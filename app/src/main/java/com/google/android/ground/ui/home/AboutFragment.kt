@@ -33,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,7 +45,7 @@ import com.google.android.ground.R
 import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.compose.HyperlinkText
 import com.google.android.ground.ui.compose.Toolbar
-import com.google.android.ground.ui.theme.AppTheme
+import com.google.android.ground.util.createComposeView
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -56,7 +55,7 @@ class AboutFragment : AbstractFragment() {
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?,
-  ): View = ComposeView(requireContext()).apply { setContent { AppTheme { CreateView() } } }
+  ): View = createComposeView { CreateView() }
 
   @Preview
   @ExcludeFromJacocoGeneratedReport

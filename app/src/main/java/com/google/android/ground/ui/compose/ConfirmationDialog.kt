@@ -36,18 +36,18 @@ fun ConfirmationDialog(
   @StringRes confirmButtonText: Int,
   onConfirmClicked: () -> Unit,
 ) {
-  val showRemoveWarningDialog = remember { mutableStateOf(true) }
+  val showDialog = remember { mutableStateOf(true) }
 
   fun onConfirm() {
-    showRemoveWarningDialog.value = false
+    showDialog.value = false
     onConfirmClicked()
   }
 
   fun onDismiss() {
-    showRemoveWarningDialog.value = false
+    showDialog.value = false
   }
 
-  if (showRemoveWarningDialog.value) {
+  if (showDialog.value) {
     AlertDialog(
       onDismissRequest = { onDismiss() },
       title = { Text(text = stringResource(title)) },

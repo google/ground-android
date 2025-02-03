@@ -22,31 +22,51 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.ground.ExcludeFromJacocoGeneratedReport
 import com.google.android.ground.R
+import com.google.android.ground.ui.theme.AppTheme
 
 @Composable
-fun InstructionsDialog(iconId: Int, stringId: Int, onDismissRequest: () -> Unit) {
-  AlertDialog(
-    icon = {
-      Icon(
-        imageVector = ImageVector.vectorResource(id = iconId),
-        contentDescription = "",
-        modifier = Modifier.width(48.dp).height(48.dp),
-      )
-    },
-    title = { Text(text = stringResource(stringId), fontSize = 18.sp) },
-    onDismissRequest = {}, // Prevent dismissing the dialog by clicking outside
-    confirmButton = {}, // Hide confirm button
-    dismissButton = {
-      OutlinedButton(onClick = { onDismissRequest() }) {
-        Text(text = stringResource(R.string.close))
-      }
-    },
-  )
+fun InstructionsDialog(iconId: Int, stringId: Int) {
+  val showDialog = remember { mutableStateOf(true) }
+  if (showDialog.value) {
+    AlertDialog(
+      icon = {
+        Icon(
+          imageVector = ImageVector.vectorResource(id = iconId),
+          contentDescription = "",
+          modifier = Modifier.width(48.dp).height(48.dp),
+        )
+      },
+      title = { Text(text = stringResource(stringId), fontSize = 18.sp) },
+      onDismissRequest = {}, // Prevent dismissing the dialog by clicking outside
+      confirmButton = {}, // Hide confirm button
+      dismissButton = {
+        OutlinedButton(onClick = { showDialog.value = false }) {
+          Text(text = stringResource(R.string.close))
+        }
+      },
+    )
+  }
+}
+
+@Composable
+@Preview
+@ExcludeFromJacocoGeneratedReport
+fun PreviewInstructionsDialog() {
+  AppTheme {
+    InstructionsDialog(
+      iconId = R.drawable.touch_app_24,
+      stringId = R.string.draw_area_task_instruction,
+    )
+  }
 }

@@ -18,10 +18,6 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.databinding.FragmentDrawAreaTaskBinding
@@ -35,7 +31,7 @@ import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import com.google.android.ground.ui.map.Feature
-import com.google.android.ground.ui.theme.AppTheme
+import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
@@ -121,21 +117,11 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
   private fun showInstructionsDialog() {
     viewModel.instructionsDialogShown = true
-    (view as ViewGroup).addView(
-      ComposeView(requireContext()).apply {
-        setContent {
-          val openAlertDialog = remember { mutableStateOf(true) }
-          when {
-            openAlertDialog.value -> {
-              AppTheme {
-                InstructionsDialog(R.drawable.touch_app_24, R.string.draw_area_task_instruction) {
-                  openAlertDialog.value = false
-                }
-              }
-            }
-          }
-        }
-      }
-    )
+    renderComposableDialog {
+      InstructionsDialog(
+        iconId = R.drawable.touch_app_24,
+        stringId = R.string.draw_area_task_instruction,
+      )
+    }
   }
 }

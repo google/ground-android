@@ -23,7 +23,6 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.ComposeView
 import androidx.constraintlayout.widget.Guideline
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
@@ -39,7 +38,7 @@ import com.google.android.ground.ui.common.AbstractFragment
 import com.google.android.ground.ui.common.BackPressListener
 import com.google.android.ground.ui.compose.ConfirmationDialog
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
-import com.google.android.ground.ui.theme.AppTheme
+import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
@@ -156,23 +155,17 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   private fun onTaskSubmitted() {
     // Display a confirmation dialog and move to home screen after that.
-    (view as ViewGroup).addView(
-      ComposeView(requireContext()).apply {
-        setContent {
-          val openAlertDialog = remember { mutableStateOf(true) }
-          when {
-            openAlertDialog.value -> {
-              AppTheme {
-                DataSubmissionConfirmationDialog {
-                  openAlertDialog.value = false
-                  findNavController().navigate(HomeScreenFragmentDirections.showHomeScreen())
-                }
-              }
-            }
+    renderComposableDialog {
+      val openAlertDialog = remember { mutableStateOf(true) }
+      when {
+        openAlertDialog.value -> {
+          DataSubmissionConfirmationDialog {
+            openAlertDialog.value = false
+            findNavController().navigate(HomeScreenFragmentDirections.showHomeScreen())
           }
         }
       }
-    )
+    }
   }
 
   private fun updateProgressBar(taskPosition: TaskPosition, shouldAnimate: Boolean) {
@@ -202,28 +195,18 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun showExitWarningDialog() {
-    showConfirmationDialog {
-      isNavigatingUp = true
-      viewModel.clearDraft()
-      findNavController().navigateUp()
+    renderComposableDialog {
+      ConfirmationDialog(
+        title = R.string.data_collection_cancellation_title,
+        description = R.string.data_collection_cancellation_description,
+        confirmButtonText = R.string.data_collection_cancellation_confirm_button,
+        onConfirmClicked = {
+          isNavigatingUp = true
+          viewModel.clearDraft()
+          findNavController().navigateUp()
+        },
+      )
     }
-  }
-
-  private fun showConfirmationDialog(onConfirm: () -> Unit) {
-    (view as ViewGroup).addView(
-      ComposeView(requireContext()).apply {
-        setContent {
-          AppTheme {
-            ConfirmationDialog(
-              title = R.string.data_collection_cancellation_title,
-              description = R.string.data_collection_cancellation_description,
-              confirmButtonText = R.string.data_collection_cancellation_confirm_button,
-              onConfirmClicked = { onConfirm() },
-            )
-          }
-        }
-      }
-    )
   }
 
   private companion object {

@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import com.google.android.ground.model.submission.NumberTaskData.Companion.fromNumber
@@ -29,7 +28,7 @@ import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.components.TextTaskInput
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.ground.ui.theme.AppTheme
+import com.google.android.ground.util.createComposeView
 import dagger.hilt.android.AndroidEntryPoint
 
 const val INPUT_NUMBER_TEST_TAG: String = "number task input test tag"
@@ -41,8 +40,9 @@ class NumberTaskFragment : AbstractTaskFragment<NumberTaskViewModel>() {
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(layoutInflater)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View =
-    ComposeView(requireContext()).apply { setContent { AppTheme { ShowTextInputField() } } }
+  override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
+    ShowTextInputField()
+  }
 
   @Composable
   private fun ShowTextInputField() {

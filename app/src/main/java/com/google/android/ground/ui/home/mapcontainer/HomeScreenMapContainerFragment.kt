@@ -20,9 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.ComposeView
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -50,7 +48,7 @@ import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.MapFragment
-import com.google.android.ground.ui.theme.AppTheme
+import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -122,27 +120,17 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       is MapCardUiData.AddLoiCardUiData -> cardUiData.job.tasks.values.isNotEmpty()
     }
 
-  private fun renderDataSharingTermsDialog(
+  @Composable
+  private fun ShowDataSharingTermsDialog(
     cardUiData: MapCardUiData,
     dataSharingTerms: DataSharingTerms,
-  ) =
-    ComposeView(requireContext()).apply {
-      setContent {
-        val showDataSharingTermsDialog = remember { mutableStateOf(true) }
-        when {
-          showDataSharingTermsDialog.value -> {
-            AppTheme {
-              DataSharingTermsDialog(showDataSharingTermsDialog, dataSharingTerms) {
-                val job =
-                  lifecycleScope.launch { mapContainerViewModel.updateDataSharingConsent(true) }
-                job.cancel()
-                navigateToDataCollectionFragment(cardUiData)
-              }
-            }
-          }
-        }
-      }
+  ) {
+    DataSharingTermsDialog(dataSharingTerms) {
+      val job = lifecycleScope.launch { mapContainerViewModel.updateDataSharingConsent(true) }
+      job.cancel()
+      navigateToDataCollectionFragment(cardUiData)
     }
+  }
 
   /** Invoked when user clicks on the map cards to collect data. */
   private fun onCollectData(
@@ -171,7 +159,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         ephemeralPopups.ErrorPopup().show(getString(R.string.invalid_data_sharing_terms))
         return
       }
-      (view as ViewGroup).addView(renderDataSharingTermsDialog(cardUiData, hasDataSharingTerms))
+      renderComposableDialog { ShowDataSharingTermsDialog(cardUiData, hasDataSharingTerms) }
       return
     }
     navigateToDataCollectionFragment(cardUiData)
