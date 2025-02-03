@@ -155,7 +155,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
           button.showIfTrue(value.isNotNullOrEmpty())
         }
         button.enableIfTrue(value.isNotNullOrEmpty())
-        val isLastPosition = dataCollectionViewModel.isLastPositionWithValue(taskId, value)
+        val isLastPosition = dataCollectionViewModel.isLastPositionWithValue(viewModel.task, value)
         button.toggleDone(done = isLastPosition)
       }
       .disable()

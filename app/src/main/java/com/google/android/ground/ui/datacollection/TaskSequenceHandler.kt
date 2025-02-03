@@ -26,18 +26,18 @@ import com.google.android.ground.model.task.TaskSelections
  * sequence. The sequence is derived from a list of [Task] objects, filtered based on a provided
  * condition.
  *
- * @param tasks The complete list of [Task] objects from which the sequence is derived.
+ * @param allTasks The complete list of [Task] objects from which the final list is derived.
  */
 class TaskSequenceHandler(
-  private val tasks: List<Task>,
+  private val allTasks: List<Task>,
   private val taskDataHandler: TaskDataHandler,
 ) {
 
-  private var taskSequence: Sequence<Task> = emptySequence()
-  private var isSequenceInitialized = false
+  private var validTasks: List<Task> = emptyList()
+  private var isTaskListReady = false
 
   init {
-    require(tasks.isNotEmpty()) { "Can't generate a sequence from an empty task list." }
+    require(allTasks.isNotEmpty()) { "Can't generate a sequence from an empty task list." }
   }
 
   private fun validateTaskId(taskId: String) {
@@ -45,9 +45,9 @@ class TaskSequenceHandler(
   }
 
   /** Generates the task sequence based on task's conditions. */
-  fun generateTaskSequence(): Sequence<Task> {
+  fun generateValidTasksList(): List<Task> {
     val selections = taskDataHandler.getTaskSelections()
-    return tasks.filter { shouldIncludeTaskInSequence(it, selections) }.asSequence()
+    return allTasks.filter { it.isConditionFulfilled(selections) }
   }
 
   /** Returns true if the specified task would be last in the sequence with the given value. */
@@ -56,55 +56,51 @@ class TaskSequenceHandler(
     validateTaskId(overriddenTaskId)
 
     val selections = taskDataHandler.getTaskSelections(taskValueOverride)
-    val lastTask = tasks.last { shouldIncludeTaskInSequence(it, selections) }
+    val lastTask = allTasks.last { it.isConditionFulfilled(selections) }
     return lastTask.id == overriddenTaskId
   }
 
-  /** Determines if a task should be included with the given overrides. */
-  private fun shouldIncludeTaskInSequence(task: Task, taskSelections: TaskSelections): Boolean =
-    task.condition == null || task.condition.fulfilledBy(taskSelections)
+  /** Determines if a task's conditions are fulfilled using the given [taskSelections]. */
+  private fun Task.isConditionFulfilled(taskSelections: TaskSelections): Boolean =
+    condition == null || condition.fulfilledBy(taskSelections)
 
-  /** Returns the pre-computed task sequence or generates and caches it first, if missing. */
-  fun getTaskSequence(): Sequence<Task> {
-    if (!isSequenceInitialized) {
-      taskSequence = generateTaskSequence()
-      isSequenceInitialized = true
+  /** Returns the pre-computed list of valid tasks or generates/caches it first. */
+  fun getValidTasks(): List<Task> {
+    if (!isTaskListReady) {
+      validTasks = generateValidTasksList()
+      isTaskListReady = true
     }
-    return taskSequence
+    return validTasks
+  }
+
+  /** Resets the local cache of the task list. */
+  fun invalidateCache() {
+    isTaskListReady = false
+    validTasks = emptyList()
   }
 
   /**
-   * Re-computes the task sequence and updates the local cache.
-   *
-   * Note: This is a heavy computing operation. So, it should only be triggered if the task's value
-   * has been updated.
-   */
-  fun refreshTaskSequence() {
-    taskSequence = generateTaskSequence()
-  }
-
-  /**
-   * Checks if the specified task is the first task in the displayed sequence.
+   * Checks if the specified task is the first task in the displayed tasks list.
    *
    * @param taskId The ID of the task to check.
-   * @return `true` if the task is the first in the sequence, `false` otherwise.
+   * @return `true` if the task is the first in the list, `false` otherwise.
    * @throws IllegalArgumentException if the provided [taskId] is blank.
    */
   fun isFirstPosition(taskId: String): Boolean {
     validateTaskId(taskId)
-    return taskId == getTaskSequence().first().id
+    return taskId == getValidTasks().first().id
   }
 
   /**
-   * Checks if the specified task is the last task in the displayed sequence.
+   * Checks if the specified task is the last task in the displayed tasks list.
    *
    * @param taskId The ID of the task to check.
-   * @return `true` if the task is the last in the sequence, `false` otherwise.
+   * @return `true` if the task is the last in the list, `false` otherwise.
    * @throws IllegalArgumentException if the provided [taskId] is blank.
    */
   fun isLastPosition(taskId: String): Boolean {
     validateTaskId(taskId)
-    return taskId == getTaskSequence().last().id
+    return taskId == getValidTasks().last().id
   }
 
   /**
@@ -118,7 +114,7 @@ class TaskSequenceHandler(
   fun getPreviousTask(taskId: String): String {
     val index = getTaskIndex(taskId)
     require(index > 0) { "Can't generate previous task for Task '$taskId'" }
-    return getTaskSequence().elementAt(index - 1).id
+    return getValidTasks().elementAt(index - 1).id
   }
 
   /**
@@ -131,8 +127,8 @@ class TaskSequenceHandler(
    */
   fun getNextTask(taskId: String): String {
     val index = getTaskIndex(taskId)
-    require(index + 1 < getTaskSequence().count()) { "Can't generate next task for Task '$taskId'" }
-    return getTaskSequence().elementAt(index + 1).id
+    require(index + 1 < getValidTasks().count()) { "Can't generate next task for Task '$taskId'" }
+    return getValidTasks().elementAt(index + 1).id
   }
 
   /**
@@ -147,7 +143,7 @@ class TaskSequenceHandler(
    */
   fun getAbsolutePosition(taskId: String): Int {
     validateTaskId(taskId)
-    val index = tasks.indexOfFirst { it.id == taskId }
+    val index = allTasks.indexOfFirst { it.id == taskId }
     require(index >= 0) { "Task '$taskId' not found in the task list." }
     return index
   }
@@ -163,7 +159,7 @@ class TaskSequenceHandler(
    */
   fun getTaskIndex(taskId: String): Int {
     validateTaskId(taskId)
-    val index = getTaskSequence().indexOfFirst { it.id == taskId }
+    val index = getValidTasks().indexOfFirst { it.id == taskId }
     require(index >= 0) { "Task '$taskId' not found in the sequence." }
     return index
   }
@@ -179,6 +175,6 @@ class TaskSequenceHandler(
     TaskPosition(
       absoluteIndex = getAbsolutePosition(taskId),
       relativeIndex = getTaskIndex(taskId),
-      sequenceSize = getTaskSequence().count(),
+      sequenceSize = getValidTasks().count(),
     )
 }
