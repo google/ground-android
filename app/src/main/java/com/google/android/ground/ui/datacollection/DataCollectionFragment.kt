@@ -73,6 +73,12 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
     binding.dataCollectionToolbar.setNavigationOnClickListener { showExitWarningDialog() }
 
+    updateUI(
+      UiState.TaskListAvailable(
+        viewModel.tasks,
+        viewModel.getTaskPosition(viewModel.getCurrentTaskId()),
+      )
+    )
     return binding.root
   }
 
@@ -98,7 +104,12 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     )
 
-    lifecycleScope.launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
+    lifecycleScope.launch {
+      viewModel.uiState.filterNotNull().collect {
+        println("========= viewModel.uiState  ${it}")
+        updateUI(it)
+      }
+    }
   }
 
   override fun onResume() {
@@ -140,6 +151,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun loadTasks(tasks: List<Task>, taskPosition: TaskPosition) {
+    println("========= loadTasks  ${taskPosition}")
     val currentAdapter = viewPager.adapter as? DataCollectionViewPagerAdapter
     if (currentAdapter == null || currentAdapter.tasks != tasks) {
       viewPager.adapter = viewPagerAdapterFactory.create(this, tasks)
@@ -148,6 +160,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun onTaskChanged(taskPosition: TaskPosition) {
+    println("========= onTaskChanged  ${taskPosition}")
     // Pass false to parameter smoothScroll to avoid smooth scrolling animation.
     viewPager.setCurrentItem(taskPosition.absoluteIndex, false)
     updateProgressBar(taskPosition, true)
