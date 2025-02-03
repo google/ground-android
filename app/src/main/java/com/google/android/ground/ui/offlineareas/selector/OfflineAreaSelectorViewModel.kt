@@ -85,7 +85,7 @@ internal constructor(
   private val _networkUnavailableEvent = MutableSharedFlow<Unit>()
   val networkUnavailableEvent = _networkUnavailableEvent.asSharedFlow()
 
-  private var downloadJob: Job? = null
+  var downloadJob: Job? = null
 
   fun onDownloadClick() {
     if (!networkManager.isNetworkConnected()) {

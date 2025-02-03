@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -94,6 +95,8 @@ class DownloadProgressDialogTest : BaseHiltTest() {
 
   @Test
   fun `stopDownloading cancels active download and updates UI state`() = runWithTestDispatcher {
+    composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }
+
     val progressFlow = MutableStateFlow<Pair<Int, Int>>(Pair(0, 0))
     whenever(offlineAreaRepository.downloadTiles(Bounds(-10.0, -20.0, 10.0, 20.0)))
       .thenReturn(progressFlow)
@@ -104,12 +107,14 @@ class DownloadProgressDialogTest : BaseHiltTest() {
     progressFlow.emit(Pair(50, 100))
     assertEquals(0.5f, viewModel.downloadProgress.value)
 
-    viewModel.stopDownloading()
-
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
+      .performClick()
     progressFlow.emit(Pair(75, 100))
 
     assertNotEquals(0.75f, viewModel.downloadProgress.value)
     assertFalse(viewModel.isDownloadProgressVisible.value!!)
+    assertNull(viewModel.downloadJob)
   }
 
   @Test
