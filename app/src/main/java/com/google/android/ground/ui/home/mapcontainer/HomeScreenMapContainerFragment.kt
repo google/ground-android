@@ -79,9 +79,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    adapter = MapCardAdapter { loi, view -> updateSubmissionCount(loi, view) }
+    adapter = MapCardAdapter()
 
-    // Handle collect button clicks
+    adapter.setSubmissionCountUpdater { loi, textView -> updateSubmissionCount(loi, textView) }
     adapter.setCollectDataListener { onCollectData(it) }
 
     // Bind data for cards
@@ -125,13 +125,14 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   /** Updates the given [TextView] with the submission count for the given [LocationOfInterest]. */
-  private fun updateSubmissionCount(loi: LocationOfInterest, view: TextView) {
+  private fun updateSubmissionCount(loi: LocationOfInterest, textView: TextView) {
     externalScope.launch {
       val count = submissionRepository.getTotalSubmissionCount(loi)
-      val submissionText =
-        if (count == 0) resources.getString(R.string.no_submissions)
-        else resources.getQuantityString(R.plurals.submission_count, count, count)
-      withContext(mainDispatcher) { view.text = submissionText }
+      withContext(mainDispatcher) {
+        textView.text =
+          if (count == 0) getString(R.string.no_submissions)
+          else resources.getQuantityString(R.plurals.submission_count, count, count)
+      }
     }
   }
 

@@ -29,17 +29,16 @@ import com.google.android.ground.ui.common.LocationOfInterestHelper
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [LocationOfInterest] data with the
- * [ViewHolder] views.
+ * [RecyclerView.ViewHolder] views.
  */
-class MapCardAdapter(
-  private val updateSubmissionCount: (loi: LocationOfInterest, view: TextView) -> Unit
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MapCardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
   private var focusedIndex: Int = 0
   private var indexOfLastLoi: Int = -1
   private val itemsList: MutableList<MapCardUiData> = mutableListOf()
   private var cardFocusedListener: ((MapCardUiData?) -> Unit)? = null
   private lateinit var collectDataListener: (MapCardUiData) -> Unit
+  private lateinit var submissionCountUpdater: (loi: LocationOfInterest, view: TextView) -> Unit
 
   /** Creates a new [RecyclerView.ViewHolder] item without any data. */
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -48,7 +47,7 @@ class MapCardAdapter(
     return if (viewType == R.layout.loi_card_item) {
       LoiViewHolder(
         LoiCardItemBinding.inflate(layoutInflater, parent, false),
-        updateSubmissionCount,
+        submissionCountUpdater,
       )
     } else {
       AddLoiCardViewHolder(AddLoiCardItemBinding.inflate(layoutInflater, parent, false))
@@ -96,6 +95,12 @@ class MapCardAdapter(
     this.cardFocusedListener = listener
   }
 
+  fun setSubmissionCountUpdater(
+    submissionCountUpdater: (loi: LocationOfInterest, view: TextView) -> Unit
+  ) {
+    this.submissionCountUpdater = submissionCountUpdater
+  }
+
   fun setCollectDataListener(listener: (MapCardUiData) -> Unit) {
     this.collectDataListener = listener
   }
@@ -126,7 +131,7 @@ class MapCardAdapter(
   /** View item representing the [LocationOfInterest] data in the list. */
   class LoiViewHolder(
     internal val binding: LoiCardItemBinding,
-    private val updateSubmissionCount: (loi: LocationOfInterest, view: TextView) -> Unit,
+    private val submissionCountUpdater: (loi: LocationOfInterest, view: TextView) -> Unit,
   ) : CardViewHolder(binding.root) {
     private val loiHelper = LocationOfInterestHelper(itemView.resources)
 
@@ -139,7 +144,7 @@ class MapCardAdapter(
         loiName.text = loiHelper.getDisplayLoiName(loi)
         jobName.text = loiHelper.getJobName(loi)
         collectData.visibility = if (shouldShowCollectButton) View.VISIBLE else View.GONE
-        updateSubmissionCount(loi, submissions)
+        submissionCountUpdater(loi, submissions)
       }
     }
 
