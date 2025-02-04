@@ -86,7 +86,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
       // Handle collect button clicks
       adapter.setCollectDataListener { mapCardUiData ->
-        onCollectData(canUserSubmitData, hasValidTasks(mapCardUiData), mapCardUiData)
+        onCollectData(canUserSubmitData, mapCardUiData)
       }
 
       // Bind data for cards
@@ -118,11 +118,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   /** Invoked when user clicks on the map cards to collect data. */
-  private fun onCollectData(
-    canUserSubmitData: Boolean,
-    hasTasks: Boolean,
-    cardUiData: MapCardUiData,
-  ) {
+  private fun onCollectData(canUserSubmitData: Boolean, cardUiData: MapCardUiData) {
     if (!canUserSubmitData) {
       // Skip data collection screen if the user can't submit any data
       // TODO: Revisit UX for displaying view only mode
@@ -130,7 +126,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       ephemeralPopups.ErrorPopup().show(getString(R.string.collect_data_viewer_error))
       return
     }
-    if (!hasTasks) {
+    if (!hasValidTasks(cardUiData)) {
       // NOTE(#2539): The DataCollectionFragment will crash if there are no tasks.
       ephemeralPopups.ErrorPopup().show(getString(R.string.no_tasks_error))
       return
