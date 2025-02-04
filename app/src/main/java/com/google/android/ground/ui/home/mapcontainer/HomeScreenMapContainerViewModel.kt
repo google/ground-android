@@ -48,7 +48,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -208,19 +207,13 @@ internal constructor(
     }
   }
 
-  suspend fun updateDataSharingConsent(dataSharingTerms: Boolean) {
-    activeSurvey.collectLatest {
-      if (it != null) {
-        setDataSharingConsent(it, dataSharingTerms)
-      }
-    }
-  }
-
   private fun getDataSharingConsent(survey: Survey) =
     localValueStore.getDataSharingConsent(survey.id)
 
-  private fun setDataSharingConsent(survey: Survey, dataSharingTerms: Boolean) =
-    localValueStore.setDataSharingConsent(survey.id, dataSharingTerms)
+  fun acceptDataSharingTerms() {
+    val survey = requireNotNull(surveyRepository.activeSurvey)
+    localValueStore.setDataSharingConsent(survey.id, true)
+  }
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
     loiRepository.getValidLois(survey).map { it.map { loi -> loi.toFeature() }.toPersistentSet() }

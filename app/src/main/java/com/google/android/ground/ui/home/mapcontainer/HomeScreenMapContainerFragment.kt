@@ -20,8 +20,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.compose.runtime.Composable
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
@@ -107,15 +105,15 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       is AddLoiCardUiData -> cardUiData.job.tasks.values.isNotEmpty()
     }
 
-  @Composable
-  private fun ShowDataSharingTermsDialog(
+  private fun showDataSharingTermsDialog(
     cardUiData: MapCardUiData,
     dataSharingTerms: DataSharingTerms,
   ) {
-    DataSharingTermsDialog(dataSharingTerms) {
-      val job = lifecycleScope.launch { mapContainerViewModel.updateDataSharingConsent(true) }
-      job.cancel()
-      navigateToDataCollectionFragment(cardUiData)
+    renderComposableDialog {
+      DataSharingTermsDialog(dataSharingTerms) {
+        mapContainerViewModel.acceptDataSharingTerms()
+        navigateToDataCollectionFragment(cardUiData)
+      }
     }
   }
 
@@ -143,7 +141,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     } else if (terms.type == DataSharingTerms.Type.CUSTOM && terms.customText.isBlank()) {
       ephemeralPopups.ErrorPopup().show(getString(R.string.invalid_data_sharing_terms))
     } else {
-      renderComposableDialog { ShowDataSharingTermsDialog(cardUiData, terms) }
+      showDataSharingTermsDialog(cardUiData, terms)
     }
   }
 
