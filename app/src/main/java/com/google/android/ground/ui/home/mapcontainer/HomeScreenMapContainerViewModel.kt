@@ -33,12 +33,12 @@ import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
+import com.google.android.ground.ui.home.mapcontainer.cards.AddLoiCardUiData
+import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUiData
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.isLocationOfInterest
-import javax.inject.Inject
-import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -57,6 +57,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -183,8 +185,8 @@ internal constructor(
    */
   fun getMapCardUiData(): Flow<Pair<List<MapCardUiData>, Int>> =
     loisInViewport.combine(adHocLoiJobs) { lois, jobs ->
-      val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
-      val jobCards = jobs.map { MapCardUiData.AddLoiCardUiData(it) }
+      val loiCards = lois.map { LoiCardUiData(it) }
+      val jobCards = jobs.map { AddLoiCardUiData(it) }
 
       Pair(loiCards + jobCards, lois.size)
     }

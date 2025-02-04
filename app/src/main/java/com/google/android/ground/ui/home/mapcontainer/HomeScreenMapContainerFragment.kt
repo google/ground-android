@@ -45,6 +45,8 @@ import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.home.DataSharingTermsDialog
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
+import com.google.android.ground.ui.home.mapcontainer.cards.AddLoiCardUiData
+import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUiData
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardAdapter
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.MapFragment
@@ -115,9 +117,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private fun hasValidTasks(cardUiData: MapCardUiData) =
     when (cardUiData) {
       // LOI tasks are filtered out of the tasks list for pre-defined tasks.
-      is MapCardUiData.LoiCardUiData ->
-        cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
-      is MapCardUiData.AddLoiCardUiData -> cardUiData.job.tasks.values.isNotEmpty()
+      is LoiCardUiData -> cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
+      is AddLoiCardUiData -> cardUiData.job.tasks.values.isNotEmpty()
     }
 
   @Composable
@@ -284,7 +285,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   private fun navigateToDataCollectionFragment(cardUiData: MapCardUiData) {
     when (cardUiData) {
-      is MapCardUiData.LoiCardUiData ->
+      is LoiCardUiData ->
         findNavController()
           .navigate(
             HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
@@ -296,7 +297,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
               "",
             )
           )
-      is MapCardUiData.AddLoiCardUiData ->
+      is AddLoiCardUiData ->
         findNavController()
           .navigate(
             HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
@@ -316,8 +317,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
     adapter.setLoiCardFocusedListener {
       when (it) {
-        is MapCardUiData.LoiCardUiData -> mapContainerViewModel.selectLocationOfInterest(it.loi.id)
-        is MapCardUiData.AddLoiCardUiData,
+        is LoiCardUiData -> mapContainerViewModel.selectLocationOfInterest(it.loi.id)
+        is AddLoiCardUiData,
         null -> mapContainerViewModel.selectLocationOfInterest(null)
       }
     }
