@@ -111,14 +111,21 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   /** Invoked when user clicks on the map cards to collect data. */
   private fun onCollectData(cardUiData: MapCardUiData) {
-    val terms = mapContainerViewModel.getDataSharingTerms()
-    if (terms == null) {
-      navigateToDataCollectionFragment(cardUiData)
-    } else if (terms.type == DataSharingTerms.Type.CUSTOM && terms.customText.isBlank()) {
-      ephemeralPopups.ErrorPopup().show(getString(R.string.invalid_data_sharing_terms))
-    } else {
-      showDataSharingTermsDialog(cardUiData, terms)
-    }
+    mapContainerViewModel
+      .getDataSharingTerms()
+      .onSuccess {
+        if (it != null) {
+          showDataSharingTermsDialog(cardUiData, it)
+        } else {
+          navigateToDataCollectionFragment(cardUiData)
+        }
+      }
+      .onFailure {
+        if (it is HomeScreenMapContainerViewModel.InvalidDataSharingTermsException) {
+          ephemeralPopups.ErrorPopup().show(getString(R.string.invalid_data_sharing_terms))
+        }
+        Timber.e(it, "Failed to get data sharing terms")
+      }
   }
 
   /** Updates the given [TextView] with the submission count for the given [LocationOfInterest]. */

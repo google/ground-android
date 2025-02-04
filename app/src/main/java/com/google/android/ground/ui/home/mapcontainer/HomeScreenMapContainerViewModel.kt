@@ -160,16 +160,31 @@ internal constructor(
   }
 
   /**
-   * Returns data sharing terms for the currently active survey, or null if the user has already
-   * consented to it.
+   * Retrieves the data sharing terms for the currently active survey.
+   *
+   * This method checks if the user has already consented to the data sharing terms for the active
+   * survey.
+   * - If consent has been granted, it returns `null` wrapped in a successful [Result].
+   * - If consent has not been granted, it returns the data sharing terms associated with the
+   *   survey, wrapped in a successful [Result].
+   * - If the survey has custom data sharing terms and the custom text is blank, it returns a failed
+   *   [Result] containing an [InvalidDataSharingTermsException].
    */
-  fun getDataSharingTerms(): DataSharingTerms? {
-    val activeSurvey = requireNotNull(surveyRepository.activeSurvey)
-    if (getDataSharingConsent(activeSurvey)) {
+  fun getDataSharingTerms(): Result<DataSharingTerms?> {
+    val currentSurvey = requireNotNull(surveyRepository.activeSurvey)
+
+    if (getDataSharingConsent(currentSurvey)) {
       // User previously agreed to the terms.
-      return null
+      return Result.success(null)
     }
-    return activeSurvey.dataSharingTerms
+
+    val terms = currentSurvey.dataSharingTerms
+    // Validate custom terms if present.
+    return if (terms?.type == DataSharingTerms.Type.CUSTOM && terms.customText.isBlank()) {
+      Result.failure(InvalidDataSharingTermsException())
+    } else {
+      Result.success(terms)
+    }
   }
 
   /**
@@ -232,4 +247,6 @@ internal constructor(
   fun selectLocationOfInterest(id: String?) {
     selectedLoiIdFlow.value = id
   }
+
+  class InvalidDataSharingTermsException : Exception()
 }
