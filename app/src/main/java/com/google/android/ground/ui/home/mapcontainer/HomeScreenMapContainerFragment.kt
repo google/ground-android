@@ -52,7 +52,6 @@ import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.cancellable
@@ -61,6 +60,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
@@ -117,7 +117,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private fun hasValidTasks(cardUiData: MapCardUiData) =
     when (cardUiData) {
       // LOI tasks are filtered out of the tasks list for pre-defined tasks.
-      is LoiCardUiData -> cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
+      is LoiCardUiData -> cardUiData.loi.job.hasNonLoiTasks()
       is AddLoiCardUiData -> cardUiData.job.tasks.values.isNotEmpty()
     }
 
