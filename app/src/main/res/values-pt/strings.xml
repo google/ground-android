@@ -86,7 +86,6 @@
   <string name="drop_a_pin_tooltip_text">Arraste o mapa até que o ponto central esteja na localização desejada</string>
   <string name="current_location">Localização atual:</string>
   <string name="loading">Carregando…</string>
-  <string name="no_tasks_error">Este trabalho não tem mais tarefas para concluir</string>
   <string name="invalid_data_sharing_terms">Este inquérito está mal configurado (não existem termos de partilha de dados disponíveis). Por favor, entre em contato com o organizador do inquérito.</string>
   <string name="offline_map_imagery">Mapas offline</string>
   <string name="offline_map_imagery_no_areas_downloaded_image">Não foi feito o download de nenhuma imagem</string>

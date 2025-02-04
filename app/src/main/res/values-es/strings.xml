@@ -86,7 +86,6 @@
   <string name="drop_a_pin_tooltip_text">Arrastre el mapa hasta que el marcador central esté en la ubicación deseada</string>
   <string name="current_location">Ubicación actual:</string>
   <string name="loading">Cargando…</string>
-  <string name="no_tasks_error">Este trabajo no tiene más tareas por completar</string>
   <string name="invalid_data_sharing_terms">Esta encuesta está mal configurada (no hay términos de intercambio de datos disponibles). Por favor, contacte al organizador de la encuesta.</string>
   <string name="offline_map_imagery">Imágenes de mapa sin conexión</string>
   <string name="offline_map_imagery_no_areas_downloaded_image">Sin imágenes descargadas</string>

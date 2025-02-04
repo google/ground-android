@@ -88,7 +88,6 @@
   <string name="drop_a_pin_tooltip_text">Drag your map until the center pin is on the desired location</string>
   <string name="current_location">Current location:</string>
   <string name="loading">Loading…</string>
-  <string name="no_tasks_error">This job has no more tasks to complete</string>
   <string name="invalid_data_sharing_terms">This survey is misconfigured (no data sharing terms available). Please contact the survey organizer.</string>
   <string name="offline_map_imagery">Offline map imagery</string>
   <string name="offline_map_imagery_no_areas_downloaded_image">No Imagery Downloaded</string>

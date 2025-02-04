@@ -97,13 +97,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     map.featureClicks.launchWhenStartedAndCollect { mapContainerViewModel.onFeatureClicked(it) }
   }
 
-  private fun hasValidTasks(cardUiData: MapCardUiData) =
-    when (cardUiData) {
-      // LOI tasks are filtered out of the tasks list for pre-defined tasks.
-      is LoiCardUiData -> cardUiData.loi.job.hasNonLoiTasks()
-      is AddLoiCardUiData -> cardUiData.job.tasks.values.isNotEmpty()
-    }
-
   private fun showDataSharingTermsDialog(
     cardUiData: MapCardUiData,
     dataSharingTerms: DataSharingTerms,
@@ -118,11 +111,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   /** Invoked when user clicks on the map cards to collect data. */
   private fun onCollectData(cardUiData: MapCardUiData) {
-    if (!hasValidTasks(cardUiData)) {
-      // NOTE(#2539): The DataCollectionFragment will crash if there are no tasks.
-      ephemeralPopups.ErrorPopup().show(getString(R.string.no_tasks_error))
-      return
-    }
     val terms = mapContainerViewModel.getDataSharingTerms()
     if (terms == null) {
       navigateToDataCollectionFragment(cardUiData)
