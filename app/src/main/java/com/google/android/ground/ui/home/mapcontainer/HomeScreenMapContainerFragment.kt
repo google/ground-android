@@ -85,12 +85,11 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       val canUserSubmitData = userRepository.canUserSubmitData()
 
       // Handle collect button clicks
-      adapter.setCollectDataListener { mapCardUiData ->
-        onCollectData(canUserSubmitData, mapCardUiData)
-      }
+      adapter.setCollectDataListener { onCollectData(it) }
 
       // Bind data for cards
       mapContainerViewModel.getMapCardUiData().launchWhenStartedAndCollect { (mapCards, loiCount) ->
+        // Hide the collect button if user doesn't have permissions to collect data.
         adapter.updateData(canUserSubmitData, mapCards, loiCount - 1)
       }
     }
@@ -118,14 +117,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   /** Invoked when user clicks on the map cards to collect data. */
-  private fun onCollectData(canUserSubmitData: Boolean, cardUiData: MapCardUiData) {
-    if (!canUserSubmitData) {
-      // Skip data collection screen if the user can't submit any data
-      // TODO: Revisit UX for displaying view only mode
-      // Issue URL: https://github.com/google/ground-android/issues/1667
-      ephemeralPopups.ErrorPopup().show(getString(R.string.collect_data_viewer_error))
-      return
-    }
+  private fun onCollectData(cardUiData: MapCardUiData) {
     if (!hasValidTasks(cardUiData)) {
       // NOTE(#2539): The DataCollectionFragment will crash if there are no tasks.
       ephemeralPopups.ErrorPopup().show(getString(R.string.no_tasks_error))

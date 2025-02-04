@@ -89,7 +89,6 @@
   <string name="loading">Chargement…</string>
   <string name="no_tasks_error">Ce boulot n&#8217;a plus de tâches à effectuer</string>
   <string name="invalid_data_sharing_terms">Cette enquête est mal configurée (aucune condition de partage des données n&#8217;est disponible). Veuillez contacter l&#8217;organisateur de l&#8217;enquête.</string>
-  <string name="collect_data_viewer_error">Impossible de collecter des données car l&#8217;utilisateur n&#8217;a que des droits de visualisation.</string>
   <string name="offline_map_imagery">Cartes hors ligne</string>
   <string name="offline_map_imagery_no_areas_downloaded_image">Aucune imagerie téléchargée</string>
   <string name="offline_map_imagery_pref_description">Cacher ou afficher l&#8217;imagerie cartographique téléchargée</string>

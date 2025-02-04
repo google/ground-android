@@ -88,7 +88,6 @@
   <string name="loading">Carregando…</string>
   <string name="no_tasks_error">Este trabalho não tem mais tarefas para concluir</string>
   <string name="invalid_data_sharing_terms">Este inquérito está mal configurado (não existem termos de partilha de dados disponíveis). Por favor, entre em contato com o organizador do inquérito.</string>
-  <string name="collect_data_viewer_error">Não é possível coletar dados porque o usuário é apenas VISUALIZADOR</string>
   <string name="offline_map_imagery">Mapas offline</string>
   <string name="offline_map_imagery_no_areas_downloaded_image">Não foi feito o download de nenhuma imagem</string>
   <string name="offline_map_imagery_pref_description">Ocultar ou mostrar imagens baixadas</string>

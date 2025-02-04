@@ -88,7 +88,6 @@
   <string name="loading">Cargando…</string>
   <string name="no_tasks_error">Este trabajo no tiene más tareas por completar</string>
   <string name="invalid_data_sharing_terms">Esta encuesta está mal configurada (no hay términos de intercambio de datos disponibles). Por favor, contacte al organizador de la encuesta.</string>
-  <string name="collect_data_viewer_error">No se puede recopilar datos ya que el usuario es un LECTOR</string>
   <string name="offline_map_imagery">Imágenes de mapa sin conexión</string>
   <string name="offline_map_imagery_no_areas_downloaded_image">Sin imágenes descargadas</string>
   <string name="offline_map_imagery_pref_description">Mostrar u ocultar las imágenes descargadas</string>

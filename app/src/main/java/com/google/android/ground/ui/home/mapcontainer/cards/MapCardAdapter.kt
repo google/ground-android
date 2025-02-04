@@ -112,10 +112,10 @@ class MapCardAdapter(
     holder: RecyclerView.ViewHolder,
   ): CardViewHolder =
     when (uiData) {
-      is MapCardUiData.LoiCardUiData -> {
+      is LoiCardUiData -> {
         (holder as LoiViewHolder).apply { bind(canUserSubmitData, uiData.loi) }
       }
-      is MapCardUiData.AddLoiCardUiData -> {
+      is AddLoiCardUiData -> {
         (holder as AddLoiCardViewHolder).apply { bind(canUserSubmitData, uiData.job) }
       }
     }
@@ -123,7 +123,7 @@ class MapCardAdapter(
   /** Returns index of job card with the given [LocationOfInterest]. */
   fun getIndex(loi: LocationOfInterest): Int {
     for ((index, item) in itemsList.withIndex()) {
-      if (item is MapCardUiData.LoiCardUiData && item.loi == loi) {
+      if (item is LoiCardUiData && item.loi == loi) {
         return index
       }
     }
