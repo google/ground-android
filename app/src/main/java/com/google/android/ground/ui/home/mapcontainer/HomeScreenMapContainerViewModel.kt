@@ -28,6 +28,7 @@ import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
@@ -71,8 +72,9 @@ internal constructor(
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
-  private val surveyRepository: SurveyRepository,
   private val localValueStore: LocalValueStore,
+  private val surveyRepository: SurveyRepository,
+  private val userRepository: UserRepository,
 ) :
   BaseMapViewModel(
     locationManager,
@@ -193,8 +195,9 @@ internal constructor(
    */
   fun getMapCardUiData(): Flow<Pair<List<MapCardUiData>, Int>> =
     loisInViewport.combine(adHocLoiJobs) { lois, jobs ->
-      val loiCards = lois.map { LoiCardUiData(it) }
-      val jobCards = jobs.map { AddLoiCardUiData(it) }
+      val canUserSubmitData = userRepository.canUserSubmitData()
+      val loiCards = lois.map { LoiCardUiData(hasWriteAccess = canUserSubmitData, loi = it) }
+      val jobCards = jobs.map { AddLoiCardUiData(hasWriteAccess = canUserSubmitData, job = it) }
 
       Pair(loiCards + jobCards, lois.size)
     }

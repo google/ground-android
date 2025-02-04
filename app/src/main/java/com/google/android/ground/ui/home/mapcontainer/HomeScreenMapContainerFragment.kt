@@ -81,17 +81,13 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     adapter = MapCardAdapter { loi, view -> updateSubmissionCount(loi, view) }
 
-    launchWhenStarted {
-      val canUserSubmitData = userRepository.canUserSubmitData()
+    // Handle collect button clicks
+    adapter.setCollectDataListener { onCollectData(it) }
 
-      // Handle collect button clicks
-      adapter.setCollectDataListener { onCollectData(it) }
-
-      // Bind data for cards
-      mapContainerViewModel.getMapCardUiData().launchWhenStartedAndCollect { (mapCards, loiCount) ->
-        // Hide the collect button if user doesn't have permissions to collect data.
-        adapter.updateData(canUserSubmitData, mapCards, loiCount - 1)
-      }
+    // Bind data for cards
+    mapContainerViewModel.getMapCardUiData().launchWhenStartedAndCollect { (mapCards, loiCount) ->
+      // Hide the collect button if user doesn't have permissions to collect data.
+      adapter.updateData(mapCards, loiCount - 1)
     }
 
     map.featureClicks.launchWhenStartedAndCollect { mapContainerViewModel.onFeatureClicked(it) }

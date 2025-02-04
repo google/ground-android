@@ -21,6 +21,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 /** Data classes used to populate the Map cards (either an Loi card, or a Suggest Loi card). */
 sealed interface MapCardUiData
 
-data class LoiCardUiData(val loi: LocationOfInterest) : MapCardUiData
+data class LoiCardUiData(val hasWriteAccess: Boolean, val loi: LocationOfInterest) : MapCardUiData
 
-data class AddLoiCardUiData(val job: Job) : MapCardUiData
+data class AddLoiCardUiData(val hasWriteAccess: Boolean, val job: Job) : MapCardUiData
