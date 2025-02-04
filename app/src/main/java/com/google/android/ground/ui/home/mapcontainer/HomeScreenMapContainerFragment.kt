@@ -88,13 +88,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
       // Handle collect button clicks
       adapter.setCollectDataListener { mapCardUiData ->
-        val dataSharingTerms = mapContainerViewModel.getDataSharingTerms()
-        onCollectData(
-          canUserSubmitData,
-          hasValidTasks(mapCardUiData),
-          dataSharingTerms,
-          mapCardUiData,
-        )
+        onCollectData(canUserSubmitData, hasValidTasks(mapCardUiData), mapCardUiData)
       }
 
       // Bind data for cards
@@ -129,7 +123,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private fun onCollectData(
     canUserSubmitData: Boolean,
     hasTasks: Boolean,
-    hasDataSharingTerms: DataSharingTerms?,
     cardUiData: MapCardUiData,
   ) {
     if (!canUserSubmitData) {
@@ -144,18 +137,14 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       ephemeralPopups.ErrorPopup().show(getString(R.string.no_tasks_error))
       return
     }
-    if (hasDataSharingTerms != null) {
-      if (
-        hasDataSharingTerms.type == DataSharingTerms.Type.CUSTOM &&
-          hasDataSharingTerms.customText.isBlank()
-      ) {
-        ephemeralPopups.ErrorPopup().show(getString(R.string.invalid_data_sharing_terms))
-        return
-      }
-      renderComposableDialog { ShowDataSharingTermsDialog(cardUiData, hasDataSharingTerms) }
-      return
+    val terms = mapContainerViewModel.getDataSharingTerms()
+    if (terms == null) {
+      navigateToDataCollectionFragment(cardUiData)
+    } else if (terms.type == DataSharingTerms.Type.CUSTOM && terms.customText.isBlank()) {
+      ephemeralPopups.ErrorPopup().show(getString(R.string.invalid_data_sharing_terms))
+    } else {
+      renderComposableDialog { ShowDataSharingTermsDialog(cardUiData, terms) }
     }
-    navigateToDataCollectionFragment(cardUiData)
   }
 
   /** Updates the given [TextView] with the submission count for the given [LocationOfInterest]. */
