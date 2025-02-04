@@ -23,7 +23,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
-import com.google.android.ground.repository.OfflineAreaRepository
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.Test
@@ -39,7 +38,6 @@ class DownloadProgressDialogTest : BaseHiltTest() {
   @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Inject lateinit var viewModel: OfflineAreaSelectorViewModel
-  @Inject lateinit var offlineAreaRepository: OfflineAreaRepository
 
   @Test
   fun downloadProgressDialog_DisplaysTitleCorrectly() {

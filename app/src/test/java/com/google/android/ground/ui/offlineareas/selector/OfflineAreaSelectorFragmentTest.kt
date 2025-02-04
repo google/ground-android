@@ -105,8 +105,6 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
     progressFlow.emit(Pair(50, 100))
     advanceUntilIdle()
 
-    // assertTrue(downloadProgressValues.contains(0.5f))
-
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
       .isDisplayed()
@@ -115,8 +113,6 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
       .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
       .performClick()
     progressFlow.emit(Pair(75, 100))
-
-    // assertTrue(downloadProgressValues.contains(0.5f))
 
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
