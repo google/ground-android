@@ -87,6 +87,8 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
       )
   }
 
+
+  // TODO: Complete below test
   @Test
   fun `stopDownloading cancels active download and updates UI state`() = runWithTestDispatcher {
     composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }
