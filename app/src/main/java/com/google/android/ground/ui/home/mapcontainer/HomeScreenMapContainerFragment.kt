@@ -52,15 +52,13 @@ import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.cancellable
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import javax.inject.Inject
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
@@ -90,19 +88,13 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
       // Handle collect button clicks
       adapter.setCollectDataListener { mapCardUiData ->
-        val job =
-          lifecycleScope.launch {
-            mapContainerViewModel.activeSurveyDataSharingTermsFlow.cancellable().collectLatest {
-              hasDataSharingTerms ->
-              onCollectData(
-                canUserSubmitData,
-                hasValidTasks(mapCardUiData),
-                hasDataSharingTerms,
-                mapCardUiData,
-              )
-            }
-          }
-        job.cancel()
+        val dataSharingTerms = mapContainerViewModel.getDataSharingTerms()
+        onCollectData(
+          canUserSubmitData,
+          hasValidTasks(mapCardUiData),
+          dataSharingTerms,
+          mapCardUiData,
+        )
       }
 
       // Bind data for cards

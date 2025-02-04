@@ -39,6 +39,8 @@ import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.isLocationOfInterest
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -57,8 +59,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
-import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -72,7 +72,7 @@ internal constructor(
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
-  surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepository,
   private val localValueStore: LocalValueStore,
 ) :
   BaseMapViewModel(
@@ -124,9 +124,6 @@ internal constructor(
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
   val isZoomedInFlow: Flow<Boolean>
 
-  /** Emits the data sharing terms object when the active survey has changed. Null to show none. */
-  val activeSurveyDataSharingTermsFlow: Flow<DataSharingTerms?>
-
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
 
@@ -161,22 +158,19 @@ internal constructor(
         if (survey == null || !isZoomedIn) listOf()
         else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
       }
+  }
 
-    activeSurveyDataSharingTermsFlow =
-      activeSurvey.flatMapLatest { survey ->
-        flowOf(
-          survey?.let {
-            it.dataSharingTerms?.let { dataTerms ->
-              if (getDataSharingConsent(it)) {
-                // User previously agreed to the terms.
-                null
-              } else {
-                dataTerms
-              }
-            }
-          }
-        )
-      }
+  /**
+   * Returns data sharing terms for the currently active survey, or null if the user has already
+   * consented to it.
+   */
+  fun getDataSharingTerms(): DataSharingTerms? {
+    val activeSurvey = requireNotNull(surveyRepository.activeSurvey)
+    if (getDataSharingConsent(activeSurvey)) {
+      // User previously agreed to the terms.
+      return null
+    }
+    return activeSurvey.dataSharingTerms
   }
 
   /**
