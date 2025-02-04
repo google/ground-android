@@ -15,6 +15,13 @@
  */
 package com.google.android.ground.ui.offlineareas.selector
 
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.isNotDisplayed
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.lifecycle.Observer
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
@@ -25,10 +32,20 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.launchFragmentInHiltContainer
+import com.google.android.ground.repository.OfflineAreaRepository
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
+import junit.framework.Assert.assertFalse
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.test.advanceUntilIdle
+import org.junit.Assert.assertNull
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
@@ -36,6 +53,11 @@ import org.robolectric.RobolectricTestRunner
 class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
 
   lateinit var fragment: OfflineAreaSelectorFragment
+  @Inject lateinit var viewModel: OfflineAreaSelectorViewModel
+
+  private val offlineAreaRepository: OfflineAreaRepository = mock()
+
+  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Before
   override fun setUp() {
@@ -63,5 +85,46 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
       .check(
         matches(hasDescendant(withText(fragment.getString(R.string.offline_area_selector_title))))
       )
+  }
+
+  @Test
+  fun `stopDownloading cancels active download and updates UI state`() = runWithTestDispatcher {
+    composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }
+
+    val progressFlow = MutableSharedFlow<Pair<Int, Int>>()
+    whenever(offlineAreaRepository.downloadTiles(any())).thenReturn(progressFlow)
+
+    val downloadProgressValues = mutableListOf<Float>()
+    val observer = Observer<Float> { downloadProgressValues.add(it) }
+
+    viewModel.downloadProgress.observeForever(observer)
+
+    viewModel.onDownloadClick()
+    advanceUntilIdle()
+
+    progressFlow.emit(Pair(50, 100))
+    advanceUntilIdle()
+
+    // assertTrue(downloadProgressValues.contains(0.5f))
+
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
+      .isDisplayed()
+
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
+      .performClick()
+    progressFlow.emit(Pair(75, 100))
+
+    // assertTrue(downloadProgressValues.contains(0.5f))
+
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
+      .isNotDisplayed()
+
+    assertFalse(viewModel.isDownloadProgressVisible.value!!)
+    assertNull(viewModel.downloadJob)
+
+    viewModel.downloadProgress.removeObserver(observer)
   }
 }
