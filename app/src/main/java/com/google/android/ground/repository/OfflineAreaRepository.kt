@@ -35,10 +35,7 @@ import com.google.android.ground.util.rangeOf
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -88,23 +85,20 @@ constructor(
    * Downloads tiles in the specified bounds and stores them in the local filesystem. Emits the
    * number of bytes processed and total expected bytes as the download progresses.
    */
-  suspend fun downloadTiles(bounds: Bounds): Flow<Pair<Int, Int>> =
-    flow {
-        val requests = mogClient.buildTilesRequests(bounds)
-        val totalBytes = requests.sumOf { it.totalBytes }
-        var bytesDownloaded = 0
-        val tilePath = getLocalTileSourcePath()
-        MogTileDownloader(mogClient, tilePath).downloadTiles(requests).collect {
-          currentCoroutineContext().ensureActive()
-          bytesDownloaded += it
-          emit(Pair(bytesDownloaded, totalBytes))
-        }
-        if (bytesDownloaded > 0) {
-          val zoomRange = requests.flatMap { it.tiles }.rangeOf { it.tileCoordinates.zoom }
-          addOfflineArea(bounds, zoomRange)
-        }
-      }
-      .cancellable()
+  suspend fun downloadTiles(bounds: Bounds): Flow<Pair<Int, Int>> = flow {
+    val requests = mogClient.buildTilesRequests(bounds)
+    val totalBytes = requests.sumOf { it.totalBytes }
+    var bytesDownloaded = 0
+    val tilePath = getLocalTileSourcePath()
+    MogTileDownloader(mogClient, tilePath).downloadTiles(requests).collect {
+      bytesDownloaded += it
+      emit(Pair(bytesDownloaded, totalBytes))
+    }
+    if (bytesDownloaded > 0) {
+      val zoomRange = requests.flatMap { it.tiles }.rangeOf { it.tileCoordinates.zoom }
+      addOfflineArea(bounds, zoomRange)
+    }
+  }
 
   // TODO: Generate local tiles path based on source base path.
   // Issue URL: https://github.com/google/ground-android/issues/1730
