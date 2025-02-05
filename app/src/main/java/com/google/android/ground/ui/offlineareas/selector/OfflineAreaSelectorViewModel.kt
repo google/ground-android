@@ -36,6 +36,7 @@ import com.google.android.ground.util.toMb
 import com.google.android.ground.util.toMbString
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
@@ -86,6 +87,8 @@ internal constructor(
   private val _networkUnavailableEvent = MutableSharedFlow<Unit>()
   val networkUnavailableEvent = _networkUnavailableEvent.asSharedFlow()
 
+  var downloadJob: Job? = null
+
   fun onDownloadClick() {
     if (!networkManager.isNetworkConnected()) {
       viewModelScope.launch { _networkUnavailableEvent.emit(Unit) }
@@ -99,7 +102,7 @@ internal constructor(
 
     isDownloadProgressVisible.value = true
     downloadProgress.value = 0f
-    viewModelScope.launch(ioDispatcher) {
+    downloadJob = viewModelScope.launch(ioDispatcher) {
       offlineAreaRepository
         .downloadTiles(viewport!!)
         .catch {
@@ -126,6 +129,12 @@ internal constructor(
 
   fun onCancelClick() {
     viewModelScope.launch { _navigate.emit(UiState.Up) }
+  }
+
+  fun stopDownloading() {
+    downloadJob?.cancel()
+    downloadJob = null
+    isDownloadProgressVisible.postValue(false)
   }
 
   override fun onMapDragged() {

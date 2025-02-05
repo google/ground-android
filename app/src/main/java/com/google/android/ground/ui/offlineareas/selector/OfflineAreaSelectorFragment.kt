@@ -131,9 +131,10 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
         openAlertDialog.value -> {
           DownloadProgressDialog(
             progress = progress.value,
-            // TODO: - Add Download Cancel Feature
-            // Issue URL: https://github.com/google/ground-android/issues/1596
-            onDismiss = { openAlertDialog.value = false },
+            onDismiss = {
+              openAlertDialog.value = false
+              viewModel.stopDownloading()
+            },
           )
         }
       }
