@@ -20,9 +20,8 @@ import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 
 /** Data classes used to populate the data collection entry UI, like the LOI bottom sheet. */
-sealed interface DataCollectionEntryPointData {
+sealed interface DataCollectionEntryPointData
 
-  data class SelectedLoiSheetData(val loi: LocationOfInterest) : DataCollectionEntryPointData
+data class SelectedLoiSheetData(val loi: LocationOfInterest) : DataCollectionEntryPointData
 
-  data class AdHocDataCollectionButtonData(val job: Job) : DataCollectionEntryPointData
-}
+data class AdHocDataCollectionButtonData(val job: Job) : DataCollectionEntryPointData

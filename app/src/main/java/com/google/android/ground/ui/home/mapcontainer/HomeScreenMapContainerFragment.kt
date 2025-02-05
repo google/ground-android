@@ -38,8 +38,10 @@ import com.google.android.ground.ui.common.EphemeralPopups
 import com.google.android.ground.ui.home.DataSharingTermsDialog
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
+import com.google.android.ground.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
 import com.google.android.ground.ui.home.mapcontainer.jobs.JobMapComposables
+import com.google.android.ground.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -111,10 +113,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private fun hasValidTasks(cardUiData: DataCollectionEntryPointData) =
     when (cardUiData) {
       // LOI tasks are filtered out of the tasks list for pre-defined tasks.
-      is DataCollectionEntryPointData.SelectedLoiSheetData ->
-        cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
-      is DataCollectionEntryPointData.AdHocDataCollectionButtonData ->
-        cardUiData.job.tasks.values.isNotEmpty()
+      is SelectedLoiSheetData -> cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
+      is AdHocDataCollectionButtonData -> cardUiData.job.tasks.values.isNotEmpty()
     }
 
   @Composable
@@ -244,7 +244,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   private fun navigateToDataCollectionFragment(cardUiData: DataCollectionEntryPointData) {
     when (cardUiData) {
-      is DataCollectionEntryPointData.SelectedLoiSheetData ->
+      is SelectedLoiSheetData ->
         findNavController()
           .navigate(
             HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
@@ -256,7 +256,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
               "",
             )
           )
-      is DataCollectionEntryPointData.AdHocDataCollectionButtonData ->
+      is AdHocDataCollectionButtonData ->
         findNavController()
           .navigate(
             HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(

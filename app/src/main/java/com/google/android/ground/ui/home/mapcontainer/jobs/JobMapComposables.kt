@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -71,6 +70,7 @@ import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.theme.AppTheme
+import com.google.android.ground.util.createComposeView
 import kotlinx.coroutines.launch
 
 /** Manages a set of [Composable] components that renders [LocationOfInterest] cards and dialogs. */
@@ -78,25 +78,23 @@ class JobMapComposables(private val getSubmissionCount: suspend (loi: LocationOf
   private var collectDataListener: MutableState<(DataCollectionEntryPointData) -> Unit> =
     mutableStateOf({})
   private var canUserSubmitData = mutableStateOf(false)
-  private var activeLoi: MutableState<DataCollectionEntryPointData.SelectedLoiSheetData?> =
-    mutableStateOf(null)
-  private val newLoiJobs: MutableList<DataCollectionEntryPointData.AdHocDataCollectionButtonData> =
-    mutableStateListOf()
+  private var activeLoi: MutableState<SelectedLoiSheetData?> = mutableStateOf(null)
+  private val newLoiJobs: MutableList<AdHocDataCollectionButtonData> = mutableStateListOf()
   private var selectedFeatureListener: ((String?) -> Unit) = {}
   private val jobModalOpened = mutableStateOf(false)
   private val jobCardOpened = mutableStateOf(false)
   private val submissionCount = mutableIntStateOf(-1)
 
-  fun render(bottomContainer: ViewGroup, onOpen: () -> Unit, onDismiss: () -> Unit) {
-    initializeJobCard(bottomContainer)
-    initializeAddLoiButton(bottomContainer, onOpen, onDismiss)
+  fun render(view: ViewGroup, onOpen: () -> Unit, onDismiss: () -> Unit) {
+    initializeJobCard(view)
+    initializeAddLoiButton(view, onOpen, onDismiss)
   }
 
   /** Overwrites existing cards. */
   suspend fun updateData(
     canUserSubmitData: Boolean,
-    selectedLoi: DataCollectionEntryPointData.SelectedLoiSheetData?,
-    addLoiJobs: List<DataCollectionEntryPointData.AdHocDataCollectionButtonData>,
+    selectedLoi: SelectedLoiSheetData?,
+    addLoiJobs: List<AdHocDataCollectionButtonData>,
   ) {
     this.canUserSubmitData.value = canUserSubmitData
     activeLoi.value = selectedLoi
@@ -117,36 +115,27 @@ class JobMapComposables(private val getSubmissionCount: suspend (loi: LocationOf
     collectDataListener.value = listener
   }
 
-  private fun initializeAddLoiButton(
-    bottomContainer: ViewGroup,
-    onOpen: () -> Unit,
-    onDismiss: () -> Unit,
-  ) {
-    bottomContainer.addView(
-      ComposeView(bottomContainer.context).apply {
-        setContent {
-          AppTheme {
-            InitializeAddLoiButton {
-              if (newLoiJobs.size == 1) {
-                // If there's only one job, start data collection on it without showing the
-                // job modal.
-                jobModalOpened.value = false
-                collectDataListener.value(newLoiJobs.first())
-              } else {
-                jobModalOpened.value = true
-              }
+  private fun initializeAddLoiButton(view: ViewGroup, onOpen: () -> Unit, onDismiss: () -> Unit) {
+    view.addView(
+      view.createComposeView {
+        AppTheme {
+          InitializeAddLoiButton {
+            if (newLoiJobs.size == 1) {
+              // If there's only one job, start data collection on it without showing the
+              // job modal.
+              collectDataListener.value(newLoiJobs.first())
+            } else {
+              jobModalOpened.value = true
             }
-            InitializeJobSelectionModal(onOpen, onDismiss)
           }
+          InitializeJobSelectionModal(onOpen, onDismiss)
         }
       }
     )
   }
 
-  private fun initializeJobCard(bottomContainer: ViewGroup) {
-    bottomContainer.addView(
-      ComposeView(bottomContainer.context).apply { setContent { AppTheme { InitializeJobCard() } } }
-    )
+  private fun initializeJobCard(view: ViewGroup) {
+    view.addView(view.createComposeView { AppTheme { InitializeJobCard() } })
   }
 
   private fun closeJobCard() {
@@ -344,10 +333,7 @@ fun Modal(onDismiss: () -> Unit, content: @Composable () -> Unit) {
 }
 
 @Composable
-fun JobSelectionRow(
-  job: DataCollectionEntryPointData.AdHocDataCollectionButtonData,
-  onJobSelected: () -> Unit,
-) {
+fun JobSelectionRow(job: AdHocDataCollectionButtonData, onJobSelected: () -> Unit) {
   Button(
     onClick = { onJobSelected() },
     modifier = Modifier.fillMaxWidth(0.65F).clickable { onJobSelected() },

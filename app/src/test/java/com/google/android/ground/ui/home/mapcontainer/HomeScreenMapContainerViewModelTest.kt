@@ -29,7 +29,8 @@ import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.auth.FakeAuthenticationManager
-import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
+import com.google.android.ground.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
+import com.google.android.ground.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.common.truth.Truth.assertThat
@@ -83,10 +84,8 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   fun `renders the job card when zoomed into LOI and clicked on`() = runWithTestDispatcher {
     viewModel.onFeatureClicked(features = setOf(LOCATION_OF_INTEREST_FEATURE))
     val pair = viewModel.processDataCollectionEntryPoints().first()
-    assertThat(pair.first)
-      .isEqualTo(DataCollectionEntryPointData.SelectedLoiSheetData(LOCATION_OF_INTEREST))
-    assertThat(pair.second)
-      .isEqualTo(listOf(DataCollectionEntryPointData.AdHocDataCollectionButtonData(ADHOC_JOB)))
+    assertThat(pair.first).isEqualTo(SelectedLoiSheetData(LOCATION_OF_INTEREST))
+    assertThat(pair.second).isEqualTo(listOf(AdHocDataCollectionButtonData(ADHOC_JOB)))
   }
 
   companion object {
