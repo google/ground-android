@@ -223,10 +223,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     if (shouldAnimate) map.animateCamera(cameraUpdate) else map.moveCamera(cameraUpdate)
 
   private fun onMapClick(latLng: LatLng) {
-    val clickedPolygons = featureManager.getIntersectingPolygons(latLng)
-    if (clickedPolygons.isNotEmpty()) {
-      viewLifecycleOwner.lifecycleScope.launch { featureClicks.emit(clickedPolygons) }
-    }
+    val clickedPolygonsOrEmpty = featureManager.getIntersectingPolygons(latLng)
+    viewLifecycleOwner.lifecycleScope.launch { featureClicks.emit(clickedPolygonsOrEmpty) }
   }
 
   @SuppressLint("MissingPermission")

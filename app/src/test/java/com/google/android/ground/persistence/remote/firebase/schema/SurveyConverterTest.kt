@@ -40,7 +40,7 @@ class SurveyConverterTest {
         dataSharingTerms = DATA_SHARING_TERMS.copy {}
       }
       val snapshot = createSurveyProtoDocumentSnapshot(surveyProto)
-      assertThat(SurveyConverter.toSurvey(snapshot, listOf(JOB))).isEqualTo(SURVEY)
+      assertThat(SurveyConverter.toSurvey(snapshot, listOf(JOB, ADHOC_JOB))).isEqualTo(SURVEY)
     }
   }
 

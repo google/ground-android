@@ -114,7 +114,7 @@
     <fragment
       android:id="@+id/data_collection_fragment"
       android:name="com.google.android.ground.ui.datacollection.DataCollectionFragment"
-      android:label="@string/collect_data"
+      android:label="@string/add_data"
       tools:layout="@layout/data_collection_frag">
       <argument
         android:name="locationOfInterestId"
@@ -143,32 +143,31 @@
     <fragment
       android:id="@+id/drop_pin_task_fragment"
       android:name="com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskFragment"
-      android:label="@string/collect_data" />
-
+      android:label="@string/add_data" />
     <fragment
       android:id="@+id/multiple_choice_task_fragment"
       android:name="com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskFragment"
-      android:label="@string/collect_data" />
+      android:label="@string/add_data" />
 
     <fragment
       android:id="@+id/number_task_fragment"
       android:name="com.google.android.ground.ui.datacollection.tasks.number.NumberTaskFragment"
-      android:label="@string/collect_data" />
+      android:label="@string/add_data" />
 
     <fragment
       android:id="@+id/photo_task_fragment"
       android:name="com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskFragment"
-      android:label="@string/collect_data" />
+      android:label="@string/add_data" />
 
     <fragment
       android:id="@+id/polygon_task_fragment"
       android:name="com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskFragment"
-      android:label="@string/collect_data" />
+      android:label="@string/add_data" />
 
     <fragment
       android:id="@+id/question_task_fragment"
       android:name="com.google.android.ground.ui.datacollection.tasks.text.TextTaskFragment"
-      android:label="@string/collect_data" />
+      android:label="@string/add_data" />
   </navigation>
   <fragment
     android:id="@+id/offline_areas_fragment"

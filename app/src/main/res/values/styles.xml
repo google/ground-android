@@ -176,28 +176,6 @@
     <item name="cardElevation">0dp</item>
   </style>
 
-  <style name="JobCardTitle" parent="AppTheme.Base">
-    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
-    <item name="android:textSize">14sp</item>
-  </style>
-
-  <style name="JobCardDescription" parent="AppTheme.Base">
-    <item name="android:textColor">?attr/colorOnSurface</item>
-    <item name="android:textSize">16sp</item>
-    <item name="android:layout_marginTop">@dimen/loi_card_item_margin</item>
-  </style>
-
-  <style name="JobCardAdditionalText" parent="AppTheme.Base">
-    <item name="android:textColor">?attr/colorSecondary</item>
-    <item name="android:textSize">12sp</item>
-    <item name="android:layout_marginTop">@dimen/loi_card_item_margin</item>
-  </style>
-
-  <style name="Widget.App.Button.Inverse" parent="Widget.Material3.Button">
-    <item name="android:backgroundTint">?colorPrimaryInverse</item>
-    <item name="android:textColor">?attr/colorOnSecondaryContainer</item>
-  </style>
-
   <style name="TextAppearance.App.MapClusterLabel" parent="TextAppearance.Material3.LabelMedium">
     <item name="android:textColor">@color/blackOverlay</item>
     <item name="android:fontFamily">@font/text_700</item>

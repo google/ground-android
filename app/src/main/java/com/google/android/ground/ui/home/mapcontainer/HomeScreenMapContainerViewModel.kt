@@ -33,7 +33,9 @@ import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
 import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
-import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
+import com.google.android.ground.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
+import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
+import com.google.android.ground.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.isLocationOfInterest
@@ -110,8 +112,8 @@ internal constructor(
    */
   private val loisInViewport: StateFlow<List<LocationOfInterest>>
 
-  /** [LocationOfInterest] clicked by the user. */
-  val loiClicks: MutableStateFlow<LocationOfInterest?> = MutableStateFlow(null)
+  /** [Feature] clicked by the user. */
+  val featureClicked: MutableStateFlow<Feature?> = MutableStateFlow(null)
 
   /**
    * List of [Job]s which allow LOIs to be added during field collection, populated only when zoomed
@@ -178,15 +180,23 @@ internal constructor(
   }
 
   /**
-   * Returns a flow of [MapCardUiData] associated with the active survey's LOIs and adhoc jobs for
-   * displaying the cards.
+   * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and
+   * adhoc jobs for displaying the cards.
    */
-  fun getMapCardUiData(): Flow<Pair<List<MapCardUiData>, Int>> =
-    loisInViewport.combine(adHocLoiJobs) { lois, jobs ->
-      val loiCards = lois.map { MapCardUiData.LoiCardUiData(it) }
-      val jobCards = jobs.map { MapCardUiData.AddLoiCardUiData(it) }
-
-      Pair(loiCards + jobCards, lois.size)
+  fun processDataCollectionEntryPoints():
+    Flow<Pair<SelectedLoiSheetData?, List<AdHocDataCollectionButtonData>>> =
+    combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
+      val loiCard =
+        loisInView
+          .filter { it.geometry == feature?.geometry }
+          .firstOrNull()
+          ?.let { SelectedLoiSheetData(it) }
+      if (loiCard == null && feature != null) {
+        // The feature is not in view anymore.
+        featureClicked.value = null
+      }
+      val jobCard = jobs.map { AdHocDataCollectionButtonData(it) }
+      Pair(loiCard, jobCard)
     }
 
   private fun updatedLoiSelectedStates(
@@ -204,12 +214,7 @@ internal constructor(
    * list of provided features is empty.
    */
   fun onFeatureClicked(features: Set<Feature>) {
-    val geometry = features.map { it.geometry }.minByOrNull { it.area } ?: return
-    for (loi in loisInViewport.value) {
-      if (loi.geometry == geometry) {
-        loiClicks.value = loi
-      }
-    }
+    featureClicked.value = features.minByOrNull { it.geometry.area }
   }
 
   suspend fun updateDataSharingConsent(dataSharingTerms: Boolean) {
@@ -242,5 +247,8 @@ internal constructor(
 
   fun selectLocationOfInterest(id: String?) {
     selectedLoiIdFlow.value = id
+    if (id == null) {
+      featureClicked.value = null
+    }
   }
 }
