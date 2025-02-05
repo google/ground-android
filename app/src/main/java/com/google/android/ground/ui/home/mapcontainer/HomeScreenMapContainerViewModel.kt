@@ -37,11 +37,10 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.mapcontainer.cards.AddLoiCardUiData
 import com.google.android.ground.ui.home.mapcontainer.cards.LoiCardUiData
 import com.google.android.ground.ui.home.mapcontainer.cards.MapCardUiData
+import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.isLocationOfInterest
-import javax.inject.Inject
-import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -59,6 +58,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -108,10 +109,10 @@ internal constructor(
   val mapLoiFeatures: Flow<Set<Feature>>
 
   /**
-   * List of [LocationOfInterest] for the active survey that are present within the viewport and
+   * Pair of active survey and list of [LocationOfInterest] that are present within the viewport and
    * zoom level is clustering threshold or higher.
    */
-  private val loisInViewport: StateFlow<List<LocationOfInterest>>
+  private val loisInViewport: StateFlow<Pair<Survey, List<LocationOfInterest>>?>
 
   /** [LocationOfInterest] clicked by the user. */
   val loiClicks: MutableStateFlow<LocationOfInterest?> = MutableStateFlow(null)
@@ -120,7 +121,7 @@ internal constructor(
    * List of [Job]s which allow LOIs to be added during field collection, populated only when zoomed
    * in far enough.
    */
-  private val adHocLoiJobs: Flow<List<Job>>
+  private val adHocLoiJobs: Flow<Pair<Survey, List<Job>>?>
 
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
   val isZoomedInFlow: Flow<Boolean>
@@ -147,29 +148,52 @@ internal constructor(
     loisInViewport =
       activeSurvey
         .combine(isZoomedInFlow) { survey, isZoomedIn -> Pair(survey, isZoomedIn) }
-        .flatMapLatest { (survey, isZoomedIn) ->
-          val bounds = currentCameraPosition.value?.bounds
-          if (bounds == null || survey == null || !isZoomedIn) flowOf(listOf())
-          else loiRepository.getWithinBounds(survey, bounds)
+        .flatMapLatest { (activeSurvey, isZoomedIn) ->
+          val activeBounds = currentCameraPosition.value?.bounds
+          if (activeBounds == null || activeSurvey == null || !isZoomedIn) {
+            flowOf(null)
+          } else {
+            getLoisInBoundsForSurvey(activeBounds, activeSurvey)
+          }
         }
-        .stateIn(viewModelScope, SharingStarted.Lazily, listOf())
+        .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
     adHocLoiJobs =
-      activeSurvey.combine(isZoomedInFlow) { survey, isZoomedIn ->
-        if (survey == null || !isZoomedIn) listOf()
-        else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
+      activeSurvey.combine(isZoomedInFlow) { activeSurvey, isZoomedIn ->
+        if (activeSurvey == null || !isZoomedIn) {
+          null
+        } else {
+          Pair(activeSurvey, getAdHocLoiJobs(activeSurvey))
+        }
       }
   }
+
+  /**
+   * Returns a [Flow] containing a pair of [LocationOfInterest] and [Survey] within the given
+   * [bounds] and [survey].
+   */
+  private fun getLoisInBoundsForSurvey(
+    bounds: Bounds,
+    survey: Survey,
+  ): Flow<Pair<Survey, List<LocationOfInterest>>> =
+    loiRepository.getWithinBounds(survey, bounds).map { lois -> Pair(survey, lois) }
+
+  /**
+   * Returns a list of [Job] associated with the given [Survey] which contains a task for adding a
+   * new [LocationOfInterest].
+   */
+  private fun getAdHocLoiJobs(survey: Survey): List<Job> =
+    survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
 
   /**
    * Retrieves the data sharing terms for the currently active survey.
    *
    * This method checks if the user has already consented to the data sharing terms for the active
    * survey.
-   * - If consent has been granted, it returns `null` wrapped in a successful [Result].
-   * - If consent has not been granted, it returns the data sharing terms associated with the
-   *   survey, wrapped in a successful [Result].
-   * - If the survey has custom data sharing terms and the custom text is blank, it returns a failed
+   * - If consent has been granted, returns `null` wrapped in a successful [Result].
+   * - If consent has not been granted, returns the data sharing terms associated with the survey,
+   *   wrapped in a successful [Result].
+   * - If the survey has custom data sharing terms and the custom text is blank, returns a failed
    *   [Result] containing an [InvalidDataSharingTermsException].
    */
   fun getDataSharingTerms(): Result<DataSharingTerms?> {
@@ -194,8 +218,13 @@ internal constructor(
    * displaying the cards.
    */
   fun getMapCardUiData(): Flow<Pair<List<MapCardUiData>, Int>> =
-    loisInViewport.combine(adHocLoiJobs) { lois, jobs ->
+    loisInViewport.combine(adHocLoiJobs) { surveyLoisPair, surveyJobsPair ->
+      require(surveyLoisPair?.first == surveyJobsPair?.first)
+
+      val lois = surveyLoisPair?.second ?: listOf()
+      val jobs = surveyJobsPair?.second ?: listOf()
       val canUserSubmitData = userRepository.canUserSubmitData()
+
       val loiCards = lois.map { LoiCardUiData(hasWriteAccess = canUserSubmitData, loi = it) }
       val jobCards = jobs.map { AddLoiCardUiData(hasWriteAccess = canUserSubmitData, job = it) }
 
@@ -218,7 +247,8 @@ internal constructor(
    */
   fun onFeatureClicked(features: Set<Feature>) {
     val geometry = features.map { it.geometry }.minByOrNull { it.area } ?: return
-    for (loi in loisInViewport.value) {
+    val loisInViewport = loisInViewport.value?.second ?: return
+    for (loi in loisInViewport) {
       if (loi.geometry == geometry) {
         loiClicks.value = loi
       }
