@@ -67,8 +67,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.ground.R
-import com.google.android.ground.databinding.BasemapLayoutBinding
-import com.google.android.ground.databinding.MenuButtonBinding
 import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.common.LocationOfInterestHelper
@@ -76,9 +74,7 @@ import com.google.android.ground.ui.theme.AppTheme
 import kotlinx.coroutines.launch
 
 /** Manages a set of [Composable] components that renders [LocationOfInterest] cards and dialogs. */
-class JobMapAdapter(private val getSubmissionCount: suspend (loi: LocationOfInterest) -> Int) {
-  lateinit var basemapLayoutBinding: BasemapLayoutBinding
-  lateinit var menuBinding: MenuButtonBinding
+class JobMapComposables(private val getSubmissionCount: suspend (loi: LocationOfInterest) -> Int) {
   private var collectDataListener: MutableState<(DataCollectionEntryPointData) -> Unit> =
     mutableStateOf({})
   private var canUserSubmitData = mutableStateOf(false)
@@ -91,10 +87,9 @@ class JobMapAdapter(private val getSubmissionCount: suspend (loi: LocationOfInte
   private val jobCardOpened = mutableStateOf(false)
   private val submissionCount = mutableIntStateOf(-1)
 
-  fun render() {
-    initializeJobCard()
-    initializeAddLoiButton()
-    basemapLayoutBinding.bottomContainer.bringToFront()
+  fun render(bottomContainer: ViewGroup, onOpen: () -> Unit, onDismiss: () -> Unit) {
+    initializeJobCard(bottomContainer)
+    initializeAddLoiButton(bottomContainer, onOpen, onDismiss)
   }
 
   /** Overwrites existing cards. */
@@ -122,38 +117,36 @@ class JobMapAdapter(private val getSubmissionCount: suspend (loi: LocationOfInte
     collectDataListener.value = listener
   }
 
-  private fun initializeAddLoiButton() {
-    with(basemapLayoutBinding) {
-      (bottomContainer as ViewGroup).addView(
-        ComposeView(bottomContainer.context).apply {
-          setContent {
-            AppTheme {
-              InitializeAddLoiButton {
-                if (newLoiJobs.size == 1) {
-                  // If there's only one job, start data collection on it without showing the
-                  // job modal.
-                  jobModalOpened.value = false
-                  collectDataListener.value(newLoiJobs.first())
-                } else {
-                  jobModalOpened.value = true
-                }
+  private fun initializeAddLoiButton(
+    bottomContainer: ViewGroup,
+    onOpen: () -> Unit,
+    onDismiss: () -> Unit,
+  ) {
+    bottomContainer.addView(
+      ComposeView(bottomContainer.context).apply {
+        setContent {
+          AppTheme {
+            InitializeAddLoiButton {
+              if (newLoiJobs.size == 1) {
+                // If there's only one job, start data collection on it without showing the
+                // job modal.
+                jobModalOpened.value = false
+                collectDataListener.value(newLoiJobs.first())
+              } else {
+                jobModalOpened.value = true
               }
-              InitializeJobSelectionModal()
             }
+            InitializeJobSelectionModal(onOpen, onDismiss)
           }
         }
-      )
-    }
+      }
+    )
   }
 
-  private fun initializeJobCard() {
-    with(basemapLayoutBinding) {
-      (bottomContainer as ViewGroup).addView(
-        ComposeView(bottomContainer.context).apply {
-          setContent { AppTheme { InitializeJobCard() } }
-        }
-      )
-    }
+  private fun initializeJobCard(bottomContainer: ViewGroup) {
+    bottomContainer.addView(
+      ComposeView(bottomContainer.context).apply { setContent { AppTheme { InitializeJobCard() } } }
+    )
   }
 
   private fun closeJobCard() {
@@ -184,14 +177,12 @@ class JobMapAdapter(private val getSubmissionCount: suspend (loi: LocationOfInte
   }
 
   @Composable
-  private fun InitializeJobSelectionModal() {
+  private fun InitializeJobSelectionModal(onOpen: () -> Unit, onDismiss: () -> Unit) {
     val jobs = remember { newLoiJobs }
     var openJobsModal by remember { jobModalOpened }
     val collectDataCallback by remember { collectDataListener }
     if (openJobsModal) {
-      basemapLayoutBinding.mapTypeBtn.hide()
-      basemapLayoutBinding.locationLockBtn.hide()
-      menuBinding.hamburgerBtn.hide()
+      onOpen()
       Modal(onDismiss = { openJobsModal = false }) {
         jobs.forEach { job ->
           JobSelectionRow(job) {
@@ -202,9 +193,7 @@ class JobMapAdapter(private val getSubmissionCount: suspend (loi: LocationOfInte
         }
       }
     } else {
-      basemapLayoutBinding.mapTypeBtn.show()
-      basemapLayoutBinding.locationLockBtn.show()
-      menuBinding.hamburgerBtn.show()
+      onDismiss()
     }
   }
 

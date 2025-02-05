@@ -17,22 +17,22 @@
 package com.google.android.ground.ui.home.mapcontainer
 
 import com.google.android.ground.BaseHiltTest
+import com.google.android.ground.FakeData.ADHOC_JOB
+import com.google.android.ground.FakeData.LOCATION_OF_INTEREST
+import com.google.android.ground.FakeData.LOCATION_OF_INTEREST_FEATURE
+import com.google.android.ground.FakeData.SURVEY
+import com.google.android.ground.FakeData.USER
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
 import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.persistence.remote.FakeRemoteDataStore
 import com.google.android.ground.repository.LocationOfInterestRepository
 import com.google.android.ground.repository.SurveyRepository
 import com.google.android.ground.repository.UserRepository
+import com.google.android.ground.system.auth.FakeAuthenticationManager
 import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
 import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.CameraPosition
 import com.google.common.truth.Truth.assertThat
-import com.sharedtest.FakeData.ADHOC_JOB
-import com.sharedtest.FakeData.LOCATION_OF_INTEREST
-import com.sharedtest.FakeData.LOCATION_OF_INTEREST_FEATURE
-import com.sharedtest.FakeData.SURVEY
-import com.sharedtest.FakeData.USER
-import com.sharedtest.persistence.remote.FakeRemoteDataStore
-import com.sharedtest.system.auth.FakeAuthenticationManager
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -82,7 +82,7 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   @Test
   fun `renders the job card when zoomed into LOI and clicked on`() = runWithTestDispatcher {
     viewModel.onFeatureClicked(features = setOf(LOCATION_OF_INTEREST_FEATURE))
-    val pair = viewModel.getDataCollectionEntryPoints().first()
+    val pair = viewModel.processDataCollectionEntryPoints().first()
     assertThat(pair.first)
       .isEqualTo(DataCollectionEntryPointData.SelectedLoiSheetData(LOCATION_OF_INTEREST))
     assertThat(pair.second)

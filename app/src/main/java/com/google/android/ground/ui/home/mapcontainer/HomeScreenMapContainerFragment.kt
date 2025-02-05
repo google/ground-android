@@ -41,7 +41,7 @@ import com.google.android.ground.ui.home.DataSharingTermsDialog
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
-import com.google.android.ground.ui.home.mapcontainer.jobs.JobMapAdapter
+import com.google.android.ground.ui.home.mapcontainer.jobs.JobMapComposables
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -69,20 +69,22 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var binding: BasemapLayoutBinding
-  private lateinit var adapter: JobMapAdapter
+  private lateinit var jobMapComposables: JobMapComposables
   private lateinit var infoPopup: EphemeralPopups.InfoPopup
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    adapter = JobMapAdapter { loi -> submissionRepository.getTotalSubmissionCount(loi) }
+    jobMapComposables = JobMapComposables { loi ->
+      submissionRepository.getTotalSubmissionCount(loi)
+    }
 
     launchWhenStarted {
       val canUserSubmitData = userRepository.canUserSubmitData()
 
       // Handle collect button clicks
-      adapter.setCollectDataListener { mapUiData ->
+      jobMapComposables.setCollectDataListener { mapUiData ->
         val job =
           lifecycleScope.launch {
             mapContainerViewModel.activeSurveyDataSharingTermsFlow.cancellable().collectLatest {
@@ -99,9 +101,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       }
 
       // Bind data for cards
-      mapContainerViewModel.getDataCollectionEntryPoints().launchWhenStartedAndCollect {
+      mapContainerViewModel.processDataCollectionEntryPoints().launchWhenStartedAndCollect {
         (loiCard, jobCards) ->
-        runBlocking { adapter.updateData(canUserSubmitData, loiCard, jobCards) }
+        runBlocking { jobMapComposables.updateData(canUserSubmitData, loiCard, jobCards) }
       }
     }
 
@@ -188,7 +190,18 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     val menuBinding = setupMenuFab()
-    setupBottomLoiCards(menuBinding)
+    val onOpen = {
+      binding.mapTypeBtn.hide()
+      binding.locationLockBtn.hide()
+      menuBinding.hamburgerBtn.hide()
+    }
+    val onDismiss = {
+      binding.mapTypeBtn.show()
+      binding.locationLockBtn.show()
+      menuBinding.hamburgerBtn.show()
+    }
+    jobMapComposables.render(binding.bottomContainer, onOpen, onDismiss)
+    binding.bottomContainer.bringToFront()
     showDataCollectionHint()
   }
 
@@ -241,12 +254,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     return menuBinding
   }
 
-  private fun setupBottomLoiCards(menuBinding: MenuButtonBinding) {
-    adapter.basemapLayoutBinding = binding
-    adapter.menuBinding = menuBinding
-    adapter.render()
-  }
-
   private fun navigateToDataCollectionFragment(cardUiData: DataCollectionEntryPointData) {
     when (cardUiData) {
       is DataCollectionEntryPointData.SelectedLoiSheetData ->
@@ -279,7 +286,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   override fun onMapReady(map: MapFragment) {
     mapContainerViewModel.mapLoiFeatures.launchWhenStartedAndCollect { map.setFeatures(it) }
 
-    adapter.setSelectedFeature { mapContainerViewModel.selectLocationOfInterest(it) }
+    jobMapComposables.setSelectedFeature { mapContainerViewModel.selectLocationOfInterest(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel
