@@ -36,6 +36,7 @@ import com.google.android.ground.util.toMb
 import com.google.android.ground.util.toMbString
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -84,6 +85,8 @@ internal constructor(
   private val _networkUnavailableEvent = MutableSharedFlow<Unit>()
   val networkUnavailableEvent = _networkUnavailableEvent.asSharedFlow()
 
+  var downloadJob: Job? = null
+
   fun onDownloadClick() {
     if (!networkManager.isNetworkConnected()) {
       viewModelScope.launch { _networkUnavailableEvent.emit(Unit) }
@@ -97,23 +100,30 @@ internal constructor(
 
     isDownloadProgressVisible.value = true
     downloadProgress.value = 0f
-    viewModelScope.launch(ioDispatcher) {
-      offlineAreaRepository.downloadTiles(viewport!!).collect { (bytesDownloaded, totalBytes) ->
-        val progressValue =
-          if (totalBytes > 0) {
-            (bytesDownloaded.toFloat() / totalBytes.toFloat()).coerceIn(0f, 1f)
-          } else {
-            0f
-          }
-        downloadProgress.postValue(progressValue)
+    downloadJob =
+      viewModelScope.launch(ioDispatcher) {
+        offlineAreaRepository.downloadTiles(viewport!!).collect { (bytesDownloaded, totalBytes) ->
+          val progressValue =
+            if (totalBytes > 0) {
+              (bytesDownloaded.toFloat() / totalBytes.toFloat()).coerceIn(0f, 1f)
+            } else {
+              0f
+            }
+          downloadProgress.postValue(progressValue)
+        }
+        isDownloadProgressVisible.postValue(false)
+        _navigate.emit(UiState.OfflineAreaBackToHomeScreen)
       }
-      isDownloadProgressVisible.postValue(false)
-      _navigate.emit(UiState.OfflineAreaBackToHomeScreen)
-    }
   }
 
   fun onCancelClick() {
     viewModelScope.launch { _navigate.emit(UiState.Up) }
+  }
+
+  fun stopDownloading() {
+    downloadJob?.cancel()
+    downloadJob = null
+    isDownloadProgressVisible.postValue(false)
   }
 
   override fun onMapDragged() {
