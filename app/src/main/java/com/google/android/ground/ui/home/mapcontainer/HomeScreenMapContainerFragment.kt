@@ -99,7 +99,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   ) {
     renderComposableDialog {
       DataSharingTermsDialog(dataSharingTerms) {
-        mapContainerViewModel.acceptDataSharingTerms()
+        mapContainerViewModel.acceptDataSharingTerms(cardUiData.survey!!.id)
         navigateToDataCollectionFragment(cardUiData)
       }
     }
@@ -108,7 +108,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   /** Invoked when user clicks on the map cards to collect data. */
   private fun onCollectData(cardUiData: MapCardUiData) {
     mapContainerViewModel
-      .getDataSharingTerms()
+      .getDataSharingTerms(cardUiData.survey)
       .onSuccess {
         if (it != null) {
           showDataSharingTermsDialog(cardUiData, it)

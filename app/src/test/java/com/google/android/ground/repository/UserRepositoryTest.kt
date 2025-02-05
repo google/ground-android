@@ -104,7 +104,7 @@ class UserRepositoryTest : BaseHiltTest() {
     localSurveyStore.insertOrUpdateSurvey(survey)
     surveyRepository.activateSurvey(survey.id)
 
-    assertThat(userRepository.canUserSubmitData()).isTrue()
+    assertThat(userRepository.authenticatedUserHasWriteAccess(survey)).isTrue()
   }
 
   @Test
@@ -117,7 +117,7 @@ class UserRepositoryTest : BaseHiltTest() {
       surveyRepository.activateSurvey(survey.id)
       advanceUntilIdle()
 
-      assertThat(userRepository.canUserSubmitData()).isFalse()
+      assertThat(userRepository.authenticatedUserHasWriteAccess(survey)).isFalse()
     }
 
   @Test
@@ -140,6 +140,6 @@ class UserRepositoryTest : BaseHiltTest() {
     surveyRepository.activateSurvey(survey.id)
     advanceUntilIdle()
 
-    assertThat(userRepository.canUserSubmitData()).isFalse()
+    assertThat(userRepository.authenticatedUserHasWriteAccess(survey)).isFalse()
   }
 }

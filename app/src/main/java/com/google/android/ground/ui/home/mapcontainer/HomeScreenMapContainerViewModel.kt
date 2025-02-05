@@ -41,6 +41,8 @@ import com.google.android.ground.ui.map.Bounds
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.isLocationOfInterest
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -58,8 +60,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
-import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -196,15 +196,13 @@ internal constructor(
    * - If the survey has custom data sharing terms and the custom text is blank, returns a failed
    *   [Result] containing an [InvalidDataSharingTermsException].
    */
-  fun getDataSharingTerms(): Result<DataSharingTerms?> {
-    val currentSurvey = requireNotNull(surveyRepository.activeSurvey)
-
-    if (getDataSharingConsent(currentSurvey)) {
+  fun getDataSharingTerms(survey: Survey?): Result<DataSharingTerms?> {
+    if (survey == null || getDataSharingConsent(survey)) {
       // User previously agreed to the terms.
       return Result.success(null)
     }
 
-    val terms = currentSurvey.dataSharingTerms
+    val terms = survey.dataSharingTerms
     // Validate custom terms if present.
     return if (terms?.type == DataSharingTerms.Type.CUSTOM && terms.customText.isBlank()) {
       Result.failure(InvalidDataSharingTermsException())
@@ -219,14 +217,14 @@ internal constructor(
    */
   fun getMapCardUiData(): Flow<Pair<List<MapCardUiData>, Int>> =
     loisInViewport.combine(adHocLoiJobs) { surveyLoisPair, surveyJobsPair ->
-      require(surveyLoisPair?.first == surveyJobsPair?.first)
+      val survey = surveyLoisPair?.first ?: surveyJobsPair?.first
+      val hasWriteAccess = userRepository.authenticatedUserHasWriteAccess(survey)
 
       val lois = surveyLoisPair?.second ?: listOf()
-      val jobs = surveyJobsPair?.second ?: listOf()
-      val canUserSubmitData = userRepository.canUserSubmitData()
+      val loiCards = lois.map { LoiCardUiData(hasWriteAccess, survey, loi = it) }
 
-      val loiCards = lois.map { LoiCardUiData(hasWriteAccess = canUserSubmitData, loi = it) }
-      val jobCards = jobs.map { AddLoiCardUiData(hasWriteAccess = canUserSubmitData, job = it) }
+      val jobs = surveyJobsPair?.second ?: listOf()
+      val jobCards = jobs.map { AddLoiCardUiData(hasWriteAccess, survey, job = it) }
 
       Pair(loiCards + jobCards, lois.size)
     }
@@ -258,9 +256,8 @@ internal constructor(
   private fun getDataSharingConsent(survey: Survey) =
     localValueStore.getDataSharingConsent(survey.id)
 
-  fun acceptDataSharingTerms() {
-    val survey = requireNotNull(surveyRepository.activeSurvey)
-    localValueStore.setDataSharingConsent(survey.id, true)
+  fun acceptDataSharingTerms(surveyId: String) {
+    localValueStore.setDataSharingConsent(surveyId, true)
   }
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =

@@ -15,12 +15,21 @@
  */
 package com.google.android.ground.ui.home.mapcontainer.cards
 
+import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 
 /** Data classes used to populate the Map cards (either an Loi card, or a Suggest Loi card). */
-sealed interface MapCardUiData
+sealed class MapCardUiData(open val hasWriteAccess: Boolean, open val survey: Survey?)
 
-data class LoiCardUiData(val hasWriteAccess: Boolean, val loi: LocationOfInterest) : MapCardUiData
+data class LoiCardUiData(
+  override val hasWriteAccess: Boolean,
+  override val survey: Survey?,
+  val loi: LocationOfInterest,
+) : MapCardUiData(hasWriteAccess, survey)
 
-data class AddLoiCardUiData(val hasWriteAccess: Boolean, val job: Job) : MapCardUiData
+data class AddLoiCardUiData(
+  override val hasWriteAccess: Boolean,
+  override val survey: Survey?,
+  val job: Job,
+) : MapCardUiData(hasWriteAccess, survey)

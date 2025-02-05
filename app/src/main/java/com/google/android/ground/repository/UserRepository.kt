@@ -16,6 +16,7 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.model.Role
+import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
@@ -38,9 +39,10 @@ constructor(
   private val localValueStore: LocalValueStore,
   private val localUserStore: LocalUserStore,
   private val networkManager: NetworkManager,
-  private val surveyRepository: SurveyRepository,
   private val remoteDataStore: RemoteDataStore,
 ) {
+
+  private val rolesWithWriteAccess = listOf(Role.DATA_COLLECTOR, Role.OWNER, Role.SURVEY_ORGANIZER)
 
   fun getSignInState() = authenticationManager.signInState
 
@@ -79,13 +81,14 @@ constructor(
   fun clearUserPreferences() = localValueStore.clear()
 
   /**
-   * Returns true if the currently logged in user has permissions to write data to the active
-   * survey. If no survey is active at the moment, then it returns false.
+   * Returns true if the currently logged in user has permissions to write data to the given survey.
    */
-  suspend fun canUserSubmitData(): Boolean {
+  suspend fun authenticatedUserHasWriteAccess(survey: Survey?): Boolean {
+    if (survey == null) return false
     val user = getAuthenticatedUser()
     return try {
-      surveyRepository.activeSurvey?.getRole(user.email) != Role.VIEWER
+      val userRole = survey.getRole(user.email)
+      rolesWithWriteAccess.contains(userRole)
     } catch (e: IllegalStateException) {
       Timber.e(e, "Error getting role for user $user")
       false
