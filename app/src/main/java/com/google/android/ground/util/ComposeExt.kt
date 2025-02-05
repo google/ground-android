@@ -62,15 +62,6 @@ fun Fragment.createComposeView(composable: @Composable () -> Unit): View =
   requireContext().createComposeView { composable() }
 
 /**
- * Creates a [ComposeView] within an [Activity] that hosts the provided composable function.
- *
- * @param composable The composable function to be rendered within the [ComposeView].
- * @return A [View] instance of [ComposeView] configured to display the provided composable.
- */
-fun Activity.createComposeView(composable: @Composable () -> Unit): View =
-  applicationContext.createComposeView { composable() }
-
-/**
  * Creates a [ComposeView] within a [ViewGroup] that hosts the provided composable function.
  *
  * @param composable The composable function to be rendered within the [ComposeView].

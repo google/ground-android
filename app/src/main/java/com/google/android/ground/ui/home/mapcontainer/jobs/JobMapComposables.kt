@@ -16,7 +16,6 @@
 
 package com.google.android.ground.ui.home.mapcontainer.jobs
 
-import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -69,7 +68,6 @@ import com.google.android.ground.R
 import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.common.LocationOfInterestHelper
-import com.google.android.ground.util.renderComposable
 import kotlinx.coroutines.launch
 
 /** Manages a set of [Composable] components that renders [LocationOfInterest] cards and dialogs. */
@@ -84,9 +82,19 @@ class JobMapComposables(private val getSubmissionCount: suspend (loi: LocationOf
   private val jobCardOpened = mutableStateOf(false)
   private val submissionCount = mutableIntStateOf(-1)
 
-  fun render(view: ViewGroup, onOpen: () -> Unit, onDismiss: () -> Unit) {
-    initializeJobCard(view)
-    initializeAddLoiButton(view, onOpen, onDismiss)
+  @Composable
+  fun Render(onOpen: () -> Unit, onDismiss: () -> Unit) {
+    InitializeJobCard()
+    InitializeAddLoiButton {
+      if (newLoiJobs.size == 1) {
+        // If there's only one job, start data collection on it without showing the
+        // job modal.
+        collectDataListener.value(newLoiJobs.first())
+      } else {
+        jobModalOpened.value = true
+      }
+    }
+    InitializeJobSelectionModal(onOpen, onDismiss)
   }
 
   /** Overwrites existing cards. */
@@ -112,25 +120,6 @@ class JobMapComposables(private val getSubmissionCount: suspend (loi: LocationOf
 
   fun setCollectDataListener(listener: (DataCollectionEntryPointData) -> Unit) {
     collectDataListener.value = listener
-  }
-
-  private fun initializeAddLoiButton(view: ViewGroup, onOpen: () -> Unit, onDismiss: () -> Unit) {
-    view.renderComposable {
-      InitializeAddLoiButton {
-        if (newLoiJobs.size == 1) {
-          // If there's only one job, start data collection on it without showing the
-          // job modal.
-          collectDataListener.value(newLoiJobs.first())
-        } else {
-          jobModalOpened.value = true
-        }
-      }
-      InitializeJobSelectionModal(onOpen, onDismiss)
-    }
-  }
-
-  private fun initializeJobCard(view: ViewGroup) {
-    view.renderComposable { InitializeJobCard() }
   }
 
   private fun closeJobCard() {

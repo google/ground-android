@@ -43,6 +43,7 @@ import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPo
 import com.google.android.ground.ui.home.mapcontainer.jobs.JobMapComposables
 import com.google.android.ground.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import com.google.android.ground.ui.map.MapFragment
+import com.google.android.ground.util.createComposeView
 import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -188,7 +189,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       binding.locationLockBtn.show()
       menuBinding.hamburgerBtn.show()
     }
-    jobMapComposables.render(binding.bottomContainer, onOpen, onDismiss)
+    binding.bottomContainer.addView(
+      createComposeView { jobMapComposables.Render(onOpen, onDismiss) }
+    )
     binding.bottomContainer.bringToFront()
     showDataCollectionHint()
   }
