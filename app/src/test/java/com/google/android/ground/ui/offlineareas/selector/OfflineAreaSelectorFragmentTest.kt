@@ -87,7 +87,6 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
       )
   }
 
-
   // TODO: Complete below test
   // Issue URL: https://github.com/google/ground-android/issues/3032
   @Test
