@@ -69,8 +69,7 @@ import com.google.android.ground.R
 import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.ui.common.LocationOfInterestHelper
-import com.google.android.ground.ui.theme.AppTheme
-import com.google.android.ground.util.createComposeView
+import com.google.android.ground.util.renderComposable
 import kotlinx.coroutines.launch
 
 /** Manages a set of [Composable] components that renders [LocationOfInterest] cards and dialogs. */
@@ -116,26 +115,22 @@ class JobMapComposables(private val getSubmissionCount: suspend (loi: LocationOf
   }
 
   private fun initializeAddLoiButton(view: ViewGroup, onOpen: () -> Unit, onDismiss: () -> Unit) {
-    view.addView(
-      view.createComposeView {
-        AppTheme {
-          InitializeAddLoiButton {
-            if (newLoiJobs.size == 1) {
-              // If there's only one job, start data collection on it without showing the
-              // job modal.
-              collectDataListener.value(newLoiJobs.first())
-            } else {
-              jobModalOpened.value = true
-            }
-          }
-          InitializeJobSelectionModal(onOpen, onDismiss)
+    view.renderComposable {
+      InitializeAddLoiButton {
+        if (newLoiJobs.size == 1) {
+          // If there's only one job, start data collection on it without showing the
+          // job modal.
+          collectDataListener.value(newLoiJobs.first())
+        } else {
+          jobModalOpened.value = true
         }
       }
-    )
+      InitializeJobSelectionModal(onOpen, onDismiss)
+    }
   }
 
   private fun initializeJobCard(view: ViewGroup) {
-    view.addView(view.createComposeView { AppTheme { InitializeJobCard() } })
+    view.renderComposable { InitializeJobCard() }
   }
 
   private fun closeJobCard() {
