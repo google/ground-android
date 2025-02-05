@@ -63,7 +63,6 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     runWithTestDispatcher {
-      surveyRepository.activateSurvey(SURVEY.id)
       // Setup user
       authenticationManager.setUser(USER)
       userRepository.saveUserDetails(USER)
@@ -72,6 +71,7 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
       remoteDataStore.surveys = listOf(SURVEY)
       remoteDataStore.predefinedLois = listOf(LOCATION_OF_INTEREST)
       activateSurvey(SURVEY.id)
+      advanceUntilIdle()
       `when`(loiRepository.getWithinBounds(SURVEY, BOUNDS))
         .thenReturn(flowOf(listOf(LOCATION_OF_INTEREST)))
       viewModel.onMapCameraMoved(CAMERA_POSITION)
