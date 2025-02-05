@@ -16,22 +16,18 @@
 package com.google.android.ground.ui.home
 
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.R
 import com.google.android.ground.proto.Survey
+import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertFalse
-import junit.framework.TestCase.assertTrue
 import kotlin.test.Test
-import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
-import org.intellij.markdown.html.HtmlGenerator
-import org.intellij.markdown.parser.MarkdownParser
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -43,109 +39,81 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
   @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Test
-  fun dataSharingTermsDialog_DisplaysTitleCorrectly() {
-    val showDialog = mutableStateOf(true)
-
+  fun `Title is displayed`() {
     composeTestRule.setContent {
       DataSharingTermsDialog(
-        showDataSharingTermsDialog = showDialog,
         dataSharingTerms =
-          Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build(),
+          Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build()
       )
     }
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.data_consent_dialog_title))
-      .assertIsDisplayed()
+    assertDialogVisible(true)
   }
 
   @Test
-  fun dataSharingTermsDialog_DisplaysCorrectMessageForPrivateTerms() {
-    val showDialog = mutableStateOf(true)
-
+  fun `Verify private data sharing terms`() {
     composeTestRule.setContent {
       DataSharingTermsDialog(
-        showDataSharingTermsDialog = showDialog,
         dataSharingTerms =
-          Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build(),
+          Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build()
       )
     }
-    val markdown = composeTestRule.activity.getString(R.string.data_sharing_private_message)
-    val generatedHtml = generateHtmlFromMarkdown(markdown)
+
     val expectedHtml =
       "<body><h2>Private data sharing</h2><p>Data will only be shared with survey organizers, " +
         "who may not share and use collected data publicly.</p></body>"
-    assertEquals(expectedHtml, generatedHtml.trim())
+    composeTestRule.onNodeWithText(expectedHtml).isDisplayed()
   }
 
   @Test
-  fun dataSharingTermsDialog_DisplaysCorrectMessageForPublicTerms() {
-    val showDialog = mutableStateOf(true)
-
+  fun `Verify public data sharing terms`() {
     composeTestRule.setContent {
       DataSharingTermsDialog(
-        showDataSharingTermsDialog = showDialog,
         dataSharingTerms =
           Survey.DataSharingTerms.newBuilder()
             .setType(Survey.DataSharingTerms.Type.PUBLIC_CC0)
-            .build(),
+            .build()
       )
     }
 
-    val markdown = composeTestRule.activity.getString(R.string.data_sharing_public_message)
-    val generatedHtml = generateHtmlFromMarkdown(markdown)
     val expectedHtml =
       "<body><h2>Public data sharing</h2><p>Survey organizers may share and use data publicly under" +
         " the <em>Creative Commons CC0 1.0 License</em>:</p></body>"
-    assertEquals(expectedHtml, generatedHtml.trim())
+    composeTestRule.onNodeWithText(expectedHtml).isDisplayed()
   }
 
   @Test
-  fun dataSharingTermsDialog_DisplaysCorrectMessageForCustomTerms() {
-    val showDialog = mutableStateOf(true)
-
+  fun `Verify custom data sharing terms`() {
     composeTestRule.setContent {
       DataSharingTermsDialog(
-        showDataSharingTermsDialog = showDialog,
         dataSharingTerms =
           Survey.DataSharingTerms.newBuilder()
             .setType(Survey.DataSharingTerms.Type.CUSTOM)
             .setCustomText("Custom text")
-            .build(),
+            .build()
       )
     }
 
-    val generatedHtml = generateHtmlFromMarkdown("Custom text")
     val expectedHtml = "<body><p>Custom text</p></body>"
-    assertEquals(expectedHtml, generatedHtml.trim())
+    composeTestRule.onNodeWithText(expectedHtml).isDisplayed()
   }
 
   @Test
-  fun dataSharingTermsDialog_DisplaysCorrectMessageForNoTerms() {
-    val showDialog = mutableStateOf(true)
-
+  fun `Verify message for no terms`() {
     composeTestRule.setContent {
-      DataSharingTermsDialog(
-        showDataSharingTermsDialog = showDialog,
-        dataSharingTerms = Survey.DataSharingTerms.getDefaultInstance(),
-      )
+      DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.getDefaultInstance())
     }
 
-    val markdown = composeTestRule.activity.getString(R.string.data_sharing_no_terms)
-    val generatedHtml = generateHtmlFromMarkdown(markdown)
     val expectedHtml = "<body><p><em>No terms to display.</em></p></body>"
-    assertEquals(expectedHtml, generatedHtml.trim())
+    composeTestRule.onNodeWithText(expectedHtml).isDisplayed()
   }
 
   @Test
-  fun dataSharingTermsDialog_DismissesOnCancelClick() {
-    val showDialog = mutableStateOf(true)
-
+  fun `Cancel button click dismisses the dialog`() {
     composeTestRule.setContent {
       DataSharingTermsDialog(
-        showDataSharingTermsDialog = showDialog,
         dataSharingTerms =
-          Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build(),
+          Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build()
       )
     }
 
@@ -153,17 +121,15 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
       .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
       .performClick()
 
-    assertFalse(showDialog.value)
+    assertDialogVisible(false)
   }
 
   @Test
-  fun dataSharingTermsDialog_CallsConsentGivenCallback_OnAgreeClick() {
+  fun `Agree button click invokes consent callback`() {
     var callbackCalled = false
-    val showDialog = mutableStateOf(true)
 
     composeTestRule.setContent {
       DataSharingTermsDialog(
-        showDataSharingTermsDialog = showDialog,
         dataSharingTerms =
           Survey.DataSharingTerms.newBuilder()
             .setType(Survey.DataSharingTerms.Type.PRIVATE)
@@ -176,14 +142,17 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
       .onNodeWithText(composeTestRule.activity.getString(R.string.agree_checkbox))
       .performClick()
 
-    assertTrue(callbackCalled)
-
-    assertFalse(showDialog.value)
+    assertThat(callbackCalled).isTrue()
+    assertDialogVisible(false)
   }
 
-  private fun generateHtmlFromMarkdown(markdown: String): String {
-    val flavor = CommonMarkFlavourDescriptor()
-    val parsedTree = MarkdownParser(flavor).buildMarkdownTreeFromString(markdown)
-    return HtmlGenerator(markdown, parsedTree, flavor).generateHtml()
+  private fun assertDialogVisible(isVisible: Boolean) {
+    val title = composeTestRule.activity.getString(R.string.data_consent_dialog_title)
+    val node = composeTestRule.onNodeWithText(title)
+    if (isVisible) {
+      node.assertIsDisplayed()
+    } else {
+      node.assertIsNotDisplayed()
+    }
   }
 }

@@ -29,7 +29,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
@@ -45,7 +44,8 @@ import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.LoiNameDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
 import com.google.android.ground.ui.datacollection.components.TaskView
-import com.google.android.ground.ui.theme.AppTheme
+import com.google.android.ground.util.renderComposableDialog
+import com.google.android.ground.util.setComposableContent
 import kotlin.properties.Delegates
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
@@ -155,7 +155,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
           button.showIfTrue(value.isNotNullOrEmpty())
         }
         button.enableIfTrue(value.isNotNullOrEmpty())
-        val isLastPosition = dataCollectionViewModel.isLastPositionWithValue(taskId, value)
+        val isLastPosition = dataCollectionViewModel.isLastPositionWithValue(viewModel.task, value)
         button.toggleDone(done = isLastPosition)
       }
       .disable()
@@ -219,19 +219,15 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** Adds the action buttons to the UI. */
   private fun renderButtons() {
-    taskView.actionButtonsContainer.composeView.apply {
-      setContent {
-        AppTheme {
-          Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
-          ) {
-            // TODO: Previous button should always be positioned to the left of the screen.
-            //  Rest buttons should be aligned to the right side of the screen.
-            // Issue URL: https://github.com/google/ground-android/issues/2417
-            buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
-          }
-        }
+    taskView.actionButtonsContainer.composeView.setComposableContent {
+      Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxWidth().padding(8.dp),
+      ) {
+        // TODO: Previous button should always be positioned to the left of the screen.
+        //  Rest buttons should be aligned to the right side of the screen.
+        // Issue URL: https://github.com/google/ground-android/issues/2417
+        buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
       }
     }
   }
@@ -245,18 +241,12 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   private fun launchLoiNameDialog() {
     dataCollectionViewModel.loiNameDialogOpen.value = true
-    (view as ViewGroup).addView(
-      ComposeView(requireContext()).apply {
-        setContent {
-          AppTheme {
-            // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
-            ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
-              handleLoiNameSet(loiName = it)
-            }
-          }
-        }
+    renderComposableDialog {
+      // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
+      ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
+        handleLoiNameSet(loiName = it)
       }
-    )
+    }
   }
 
   @Composable

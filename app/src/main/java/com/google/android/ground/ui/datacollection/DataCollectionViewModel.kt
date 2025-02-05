@@ -148,14 +148,14 @@ internal constructor(
   init {
     // Set current task's ID for new task submissions.
     if (currentTaskId.value == "") {
-      savedStateHandle[TASK_POSITION_ID] = taskSequenceHandler.getTaskSequence().first().id
+      savedStateHandle[TASK_POSITION_ID] = taskSequenceHandler.getValidTasks().first().id
     }
 
     _uiState.update { UiState.TaskListAvailable(tasks, getTaskPosition(getCurrentTaskId())) }
 
-    // Update the computed task sequence cache if the task's data is updated.
+    // Invalidates the cache if any of the task's data is updated.
     viewModelScope.launch {
-      taskDataHandler.dataState.collectLatest { taskSequenceHandler.refreshTaskSequence() }
+      taskDataHandler.dataState.collectLatest { taskSequenceHandler.invalidateCache() }
     }
   }
 
@@ -274,13 +274,13 @@ internal constructor(
   }
 
   /** Retrieves a list of [ValueDelta] for tasks that are part of the current sequence. */
-  private fun getDeltas(): List<ValueDelta> =
-    taskSequenceHandler
-      .getTaskSequence()
-      .mapNotNull { task ->
-        taskDataHandler.getData(task)?.let { ValueDelta(task.id, task.type, it) }
-      }
-      .toList()
+  private fun getDeltas(): List<ValueDelta> {
+    val tasksDataMap = taskDataHandler.dataState.value
+    val validTasks = taskSequenceHandler.getValidTasks()
+    return tasksDataMap
+      .filterKeys { validTasks.contains(it) }
+      .map { (task, taskData) -> ValueDelta(task.id, task.type, taskData) }
+  }
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(deltas: List<ValueDelta>) {
@@ -345,17 +345,17 @@ internal constructor(
   fun isLastPosition(taskId: String): Boolean = taskSequenceHandler.isLastPosition(taskId)
 
   /**
-   * Returns true if the given [taskId] with [newValue] would be last in the sequence of displayed
+   * Returns true if the given [task] with [newValue] would be last in the sequence of displayed
    * tasks. Required for handling conditional tasks, see #2394.
    */
-  fun isLastPositionWithValue(taskId: String, newValue: TaskData?): Boolean {
-    if (taskDataHandler.getData(taskId) == newValue) {
+  fun isLastPositionWithValue(task: Task, newValue: TaskData?): Boolean {
+    if (taskDataHandler.getData(task) == newValue) {
       // Reuse the existing task sequence if the value has already been saved (i.e. after pressing
       // "Next" and going back).
-      return isLastPosition(taskId)
+      return isLastPosition(task.id)
     }
 
-    return taskSequenceHandler.checkIfTaskIsLastWithValue(taskValueOverride = taskId to newValue)
+    return taskSequenceHandler.checkIfTaskIsLastWithValue(taskValueOverride = task.id to newValue)
   }
 
   companion object {

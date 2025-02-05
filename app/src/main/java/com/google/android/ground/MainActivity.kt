@@ -18,14 +18,12 @@ package com.google.android.ground
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDirections
@@ -40,7 +38,7 @@ import com.google.android.ground.ui.common.modalSpinner
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.signin.SignInFragmentDirections
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
-import com.google.android.ground.ui.theme.AppTheme
+import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterNotNull
@@ -84,9 +82,7 @@ class MainActivity : AbstractActivity() {
 
     viewModel = viewModelFactory[this, MainViewModel::class.java]
 
-    lifecycleScope.launch {
-      viewModel.navigationRequests.filterNotNull().collect { updateUi(binding.root, it) }
-    }
+    lifecycleScope.launch { viewModel.navigationRequests.filterNotNull().collect { updateUi(it) } }
 
     onBackPressedDispatcher.addCallback(
       this,
@@ -101,10 +97,10 @@ class MainActivity : AbstractActivity() {
     )
   }
 
-  private fun updateUi(viewGroup: ViewGroup, uiState: MainUiState) {
+  private fun updateUi(uiState: MainUiState) {
     when (uiState) {
       MainUiState.OnPermissionDenied -> {
-        showPermissionDeniedDialog(viewGroup)
+        showPermissionDeniedDialog()
       }
       MainUiState.OnUserSignedOut -> {
         navigateTo(SignInFragmentDirections.showSignInScreen())
@@ -128,32 +124,25 @@ class MainActivity : AbstractActivity() {
     }
   }
 
-  private fun showPermissionDeniedDialog(viewGroup: ViewGroup) {
-    viewGroup.addView(
-      ComposeView(this).apply {
-        setContent {
-          AppTheme {
-            var showDialog by remember { mutableStateOf(true) }
-            if (showDialog) {
-              PermissionDeniedDialog(
-                // TODO: Read url from
-                //  Firestore config/properties/signUpUrl
-                // Issue URL: https://github.com/google/ground-android/issues/2402
-                BuildConfig.SIGNUP_FORM_LINK,
-                onSignOut = {
-                  showDialog = false
-                  userRepository.signOut()
-                },
-                onCloseApp = {
-                  showDialog = false
-                  finish()
-                },
-              )
-            }
-          }
-        }
+  private fun showPermissionDeniedDialog() {
+    renderComposableDialog {
+      var showDialog by remember { mutableStateOf(true) }
+      if (showDialog) {
+        PermissionDeniedDialog(
+          // TODO: Read url from Firestore config/properties/signUpUrl
+          // Issue URL: https://github.com/google/ground-android/issues/2402
+          BuildConfig.SIGNUP_FORM_LINK,
+          onSignOut = {
+            showDialog = false
+            userRepository.signOut()
+          },
+          onCloseApp = {
+            showDialog = false
+            finish()
+          },
+        )
       }
-    )
+    }
   }
 
   override fun onWindowInsetChanged(insets: WindowInsetsCompat) {
