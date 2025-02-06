@@ -71,7 +71,7 @@ import com.google.android.ground.ui.common.LocationOfInterestHelper
 import kotlinx.coroutines.launch
 
 /** Manages a set of [Composable] components that renders [LocationOfInterest] cards and dialogs. */
-class JobMapComposables(private val getSubmissionCount: suspend (loi: LocationOfInterest) -> Int) {
+class JobMapComposables {
   private var collectDataListener: MutableState<(DataCollectionEntryPointData) -> Unit> =
     mutableStateOf({})
   private var canUserSubmitData = mutableStateOf(false)
@@ -108,7 +108,7 @@ class JobMapComposables(private val getSubmissionCount: suspend (loi: LocationOf
     newLoiJobs.clear()
     newLoiJobs.addAll(addLoiJobs)
     if (selectedLoi != null) {
-      submissionCount.intValue = getSubmissionCount(selectedLoi.loi)
+      submissionCount.intValue = selectedLoi.submissionCount
       jobCardOpened.value = true
       selectedFeatureListener(selectedLoi.loi.id)
     }

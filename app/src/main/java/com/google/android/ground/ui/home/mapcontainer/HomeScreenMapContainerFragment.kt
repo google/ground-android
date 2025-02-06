@@ -77,9 +77,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    jobMapComposables = JobMapComposables { loi ->
-      submissionRepository.getTotalSubmissionCount(loi)
-    }
+    jobMapComposables = JobMapComposables()
 
     launchWhenStarted {
       val canUserSubmitData = userRepository.canUserSubmitData()
