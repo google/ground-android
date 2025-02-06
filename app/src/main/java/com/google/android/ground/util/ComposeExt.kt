@@ -61,15 +61,6 @@ fun Activity.createComposeView(composable: @Composable () -> Unit): View =
   ComposeView(this).apply { setComposableContent { composable() } }
 
 /**
- * Creates a [ComposeView] within a [ViewGroup] that hosts the provided composable function.
- *
- * @param composable The composable function to be rendered within the [ComposeView].
- * @return A [View] instance of [ComposeView] configured to display the provided composable.
- */
-fun ViewGroup.createComposeView(composable: @Composable () -> Unit): View =
-  ComposeView(context).apply { setComposableContent { composable() } }
-
-/**
  * Sets the content of a [ComposeView] to the provided composable function wrapped in [AppTheme].
  *
  * This function configures the [ComposeView] to display the provided [composable] function,
