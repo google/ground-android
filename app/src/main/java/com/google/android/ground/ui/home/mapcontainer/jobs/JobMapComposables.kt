@@ -98,7 +98,7 @@ class JobMapComposables {
   }
 
   /** Overwrites existing cards. */
-  suspend fun updateData(
+  fun updateData(
     canUserSubmitData: Boolean,
     selectedLoi: SelectedLoiSheetData?,
     addLoiJobs: List<AdHocDataCollectionButtonData>,

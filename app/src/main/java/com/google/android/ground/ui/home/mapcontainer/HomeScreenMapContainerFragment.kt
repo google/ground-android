@@ -53,7 +53,6 @@ import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -78,6 +77,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     jobMapComposables = JobMapComposables()
+    jobMapComposables.setSelectedFeature { mapContainerViewModel.selectLocationOfInterest(it) }
 
     launchWhenStarted {
       val canUserSubmitData = userRepository.canUserSubmitData()
@@ -102,7 +102,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       // Bind data for cards
       mapContainerViewModel.processDataCollectionEntryPoints().launchWhenStartedAndCollect {
         (loiCard, jobCards) ->
-        runBlocking { jobMapComposables.updateData(canUserSubmitData, loiCard, jobCards) }
+        jobMapComposables.updateData(canUserSubmitData, loiCard, jobCards)
       }
     }
 
@@ -274,8 +274,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   override fun onMapReady(map: MapFragment) {
     mapContainerViewModel.mapLoiFeatures.launchWhenStartedAndCollect { map.setFeatures(it) }
-
-    jobMapComposables.setSelectedFeature { mapContainerViewModel.selectLocationOfInterest(it) }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel
