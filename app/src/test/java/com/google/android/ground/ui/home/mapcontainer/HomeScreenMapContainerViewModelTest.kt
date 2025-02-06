@@ -36,7 +36,6 @@ import com.google.android.ground.ui.map.CameraPosition
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -47,6 +46,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
+import javax.inject.Inject
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -84,7 +84,7 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   fun `renders the job card when zoomed into LOI and clicked on`() = runWithTestDispatcher {
     viewModel.onFeatureClicked(features = setOf(LOCATION_OF_INTEREST_FEATURE))
     val pair = viewModel.processDataCollectionEntryPoints().first()
-    assertThat(pair.first).isEqualTo(SelectedLoiSheetData(LOCATION_OF_INTEREST))
+    assertThat(pair.first).isEqualTo(SelectedLoiSheetData(LOCATION_OF_INTEREST, 0))
     assertThat(pair.second).isEqualTo(listOf(AdHocDataCollectionButtonData(ADHOC_JOB)))
   }
 
