@@ -15,6 +15,7 @@
  */
 package com.google.android.ground.ui.offlineareas.selector
 
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.isNotDisplayed
@@ -22,7 +23,6 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.Observer
-import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -39,19 +39,19 @@ import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import junit.framework.Assert.assertFalse
+import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Assert.assertNull
-import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.launch
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
-import org.mockito.Mockito.verify
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowToast
 
@@ -133,6 +133,7 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
     viewModel.downloadProgress.removeObserver(observer)
   }
 
+  // TODO: Mock complete download flow
   @Test
   fun `test failure case displays toast`() = runWithTestDispatcher {
     val isFailureObserver = mock(Observer::class.java) as Observer<Boolean>

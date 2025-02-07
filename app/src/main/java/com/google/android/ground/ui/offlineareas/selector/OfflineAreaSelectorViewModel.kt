@@ -41,6 +41,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 private const val MIN_DOWNLOAD_ZOOM_LEVEL = 9
 private const val MAX_AREA_DOWNLOAD_SIZE_MB = 50
@@ -102,19 +103,21 @@ internal constructor(
 
     isDownloadProgressVisible.value = true
     downloadProgress.value = 0f
-    downloadJob = viewModelScope.launch(ioDispatcher) {
-      offlineAreaRepository
-        .downloadTiles(viewport!!)
-        .catch {
-          isFailure.postValue(true)
-          isDownloadProgressVisible.postValue(false)
-        }
-        .collect { (bytesDownloaded, totalBytes) ->
-          updateDownloadProgress(bytesDownloaded, totalBytes)
-        }
-      isDownloadProgressVisible.postValue(false)
-      _navigate.emit(UiState.OfflineAreaBackToHomeScreen)
-    }
+    downloadJob =
+      viewModelScope.launch(ioDispatcher) {
+        offlineAreaRepository
+          .downloadTiles(viewport!!)
+          .catch {
+            isFailure.postValue(true)
+            isDownloadProgressVisible.postValue(false)
+            Timber.d("Download Stopped by $it ")
+          }
+          .collect { (bytesDownloaded, totalBytes) ->
+            updateDownloadProgress(bytesDownloaded, totalBytes)
+          }
+        isDownloadProgressVisible.postValue(false)
+        _navigate.emit(UiState.OfflineAreaBackToHomeScreen)
+      }
   }
 
   private fun updateDownloadProgress(bytesDownloaded: Int, totalBytes: Int) {
