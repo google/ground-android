@@ -41,7 +41,7 @@
   <string name="google_api_install_failed">La instalación de los Servicios de Google Play ha fallado</string>
   <string name="sign_out">Cerrar sesión</string>
   <string name="ok">Aceptar</string>
-  <string name="collect_data">Recopilar datos</string>
+  <string name="add_data">Recopilar datos</string>
 
   <!-- Untranslated strings -->
   <string name="offline_area_selector">Seleccione el área que quiera descargar</string>
@@ -81,9 +81,8 @@
   <string name="skip">Omitir</string>
 
   <string name="drop_pin">Colocar marcador</string>
-
-  <string name="new_site">Nuevo sitio de recolección de datos</string>
-  <string name="new_site_hint_text">Añadir nuevo sitio y enviar datos relacionados</string>
+  <string name="add_site">Añadir un sitio</string>
+  <string name="job_site_icon">Icono del sitio de tareas</string>
   <string name="drop_a_pin_tooltip_text">Arrastre el mapa hasta que el marcador central esté en la ubicación deseada</string>
   <string name="current_location">Ubicación actual:</string>
   <string name="loading">Cargando…</string>
@@ -118,6 +117,7 @@
 
   <string name="unnamed_point">Punto sin nombre</string>
   <string name="unnamed_area">Área sin nombre</string>
+  <string name="unnamed_job">Tarea sin nombre</string>
   <string name="offline_area_size_on_disk_mb">%s\u00A0MB en el disco</string>
   <string name="offline_area_list_item_size_on_disk_mb">%s\u00A0MB</string>
   <string name="offline_downloaded_areas">Áreas descargadas</string>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.home.mapcontainer.cards
+
+package com.google.android.ground.ui.home.mapcontainer.jobs
 
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 
-/** Data classes used to populate the Map cards (either an Loi card, or a Suggest Loi card). */
-sealed interface MapCardUiData {
+/** Data classes used to populate the data collection entry UI, like the LOI bottom sheet. */
+sealed interface DataCollectionEntryPointData
 
-  data class LoiCardUiData(val loi: LocationOfInterest) : MapCardUiData
+data class SelectedLoiSheetData(val loi: LocationOfInterest) : DataCollectionEntryPointData
 
-  data class AddLoiCardUiData(val job: Job) : MapCardUiData
-}
+data class AdHocDataCollectionButtonData(val job: Job) : DataCollectionEntryPointData
