@@ -188,9 +188,13 @@ internal constructor(
     combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
       val loiCard =
         loisInView
-          .filter { it.geometry == feature?.geometry }
-          .firstOrNull()
-          ?.let { SelectedLoiSheetData(it) }
+          .firstOrNull { it.geometry == feature?.geometry }
+          ?.let {
+            SelectedLoiSheetData(
+              loi = it,
+              submissionCount = submissionRepository.getTotalSubmissionCount(it),
+            )
+          }
       if (loiCard == null && feature != null) {
         // The feature is not in view anymore.
         featureClicked.value = null
