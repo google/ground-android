@@ -84,7 +84,7 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   fun `renders the job card when zoomed into LOI and clicked on`() = runWithTestDispatcher {
     viewModel.onFeatureClicked(features = setOf(LOCATION_OF_INTEREST_FEATURE))
     val pair = viewModel.processDataCollectionEntryPoints().first()
-    assertThat(pair.first).isEqualTo(SelectedLoiSheetData(LOCATION_OF_INTEREST))
+    assertThat(pair.first).isEqualTo(SelectedLoiSheetData(LOCATION_OF_INTEREST, 0))
     assertThat(pair.second).isEqualTo(listOf(AdHocDataCollectionButtonData(ADHOC_JOB)))
   }
 
