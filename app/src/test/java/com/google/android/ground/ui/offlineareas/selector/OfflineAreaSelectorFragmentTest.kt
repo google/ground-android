@@ -125,4 +125,7 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
 
     viewModel.downloadProgress.removeObserver(observer)
   }
+
+  // TODO: Write `test test failure case displays toast`
+  // Issue URL: https://github.com/google/ground-android/issues/3038
 }

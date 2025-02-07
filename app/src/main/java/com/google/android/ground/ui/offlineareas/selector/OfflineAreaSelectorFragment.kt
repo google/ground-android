@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,8 +69,15 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    viewModel.isDownloadProgressVisible.observe(viewLifecycleOwner) {
-      showDownloadProgressDialog(it)
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewModel.isDownloadProgressVisible.observe(viewLifecycleOwner) {
+        showDownloadProgressDialog(it)
+      }
+      viewModel.isFailure.observe(viewLifecycleOwner) {
+        if (it) {
+          Toast.makeText(context, R.string.offline_area_download_error, Toast.LENGTH_LONG).show()
+        }
+      }
     }
 
     lifecycleScope.launch {
