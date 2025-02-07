@@ -39,7 +39,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 private const val MIN_DOWNLOAD_ZOOM_LEVEL = 9
 private const val MAX_AREA_DOWNLOAD_SIZE_MB = 50
@@ -78,6 +80,7 @@ internal constructor(
   val downloadProgress = MutableLiveData(0f)
   val bottomText = MutableLiveData<String?>(null)
   val downloadButtonEnabled = MutableLiveData(false)
+  val isFailure = MutableLiveData(false)
 
   private val _navigate = MutableSharedFlow<UiState>(replay = 0)
   val navigate = _navigate.asSharedFlow()
@@ -102,18 +105,29 @@ internal constructor(
     downloadProgress.value = 0f
     downloadJob =
       viewModelScope.launch(ioDispatcher) {
-        offlineAreaRepository.downloadTiles(viewport!!).collect { (bytesDownloaded, totalBytes) ->
-          val progressValue =
-            if (totalBytes > 0) {
-              (bytesDownloaded.toFloat() / totalBytes.toFloat()).coerceIn(0f, 1f)
-            } else {
-              0f
-            }
-          downloadProgress.postValue(progressValue)
-        }
+        offlineAreaRepository
+          .downloadTiles(viewport!!)
+          .catch {
+            isFailure.postValue(true)
+            isDownloadProgressVisible.postValue(false)
+            Timber.d("Download Stopped by $it ")
+          }
+          .collect { (bytesDownloaded, totalBytes) ->
+            updateDownloadProgress(bytesDownloaded, totalBytes)
+          }
         isDownloadProgressVisible.postValue(false)
         _navigate.emit(UiState.OfflineAreaBackToHomeScreen)
       }
+  }
+
+  private fun updateDownloadProgress(bytesDownloaded: Int, totalBytes: Int) {
+    val progressValue =
+      if (totalBytes > 0) {
+        (bytesDownloaded.toFloat() / totalBytes.toFloat()).coerceIn(0f, 1f)
+      } else {
+        0f
+      }
+    downloadProgress.postValue(progressValue)
   }
 
   fun onCancelClick() {

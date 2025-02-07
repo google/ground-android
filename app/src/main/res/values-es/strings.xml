@@ -52,6 +52,7 @@
   <string name="settings">Configuración</string>
   <string name="offline_area_viewer_title">Área descargada</string>
   <string name="offline_area_viewer_remove_button">Eliminar del dispositivo</string>
+  <string name="offline_area_download_error">¡Error de descarga. Por favor inténtalo de nuevo</string>
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_area_selector_select">Seleccionar área</string>
   <string name="no_basemaps_downloaded">No se ha descargado ningún mapa para su uso sin conexión</string>

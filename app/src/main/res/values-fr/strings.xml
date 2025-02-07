@@ -52,6 +52,7 @@
   <string name="settings">Paramètres</string>
   <string name="offline_area_viewer_title">Zone téléchargée</string>
   <string name="offline_area_viewer_remove_button">Supprimer de l&#8217;appareil</string>
+  <string name="offline_area_download_error">Échec du téléchargement. Veuillez réessayer</string>
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_area_selector_select">Sélectionnez une zone</string>
   <string name="no_basemaps_downloaded">Aucune image n&#8217;a été téléchargée pour l&#8217;utilisation hors ligne. Appuyez sur « Sélectionner et télécharger » pour commencer.</string>

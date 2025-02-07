@@ -52,6 +52,7 @@
   <string name="settings">Settings</string>
   <string name="offline_area_viewer_title">Downloaded area</string>
   <string name="offline_area_viewer_remove_button">Remove from device</string>
+  <string name="offline_area_download_error">Download failed. Please try again</string>
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_area_selector_select">Select area</string>
   <string name="no_basemaps_downloaded">No map imagery downloaded for offline use</string>
