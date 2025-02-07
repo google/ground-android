@@ -134,6 +134,7 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
   }
 
   // TODO: Mock complete download flow
+  // Issue URL: https://github.com/google/ground-android/issues/3038
   @Test
   fun `test failure case displays toast`() = runWithTestDispatcher {
     val isFailureObserver = mock(Observer::class.java) as Observer<Boolean>
