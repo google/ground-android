@@ -35,10 +35,15 @@ import com.google.android.ground.R
 import com.google.android.ground.ui.theme.AppTheme
 
 @Composable
-fun ActionButton(icon: ImageVector, contentDescription: String, onClick: () -> Unit) {
+fun ActionButton(
+  icon: ImageVector,
+  contentDescription: String,
+  modifier: Modifier = Modifier,
+  onClick: () -> Unit,
+) {
   Button(
     onClick = onClick,
-    modifier = Modifier.size(width = 100.dp, height = 100.dp),
+    modifier = modifier.size(width = 100.dp, height = 100.dp),
     colors = getActionButtonColors(),
     shape = RoundedCornerShape(25),
   ) {

@@ -16,22 +16,15 @@
 
 package com.google.android.ground.ui.home.mapcontainer.jobs
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,9 +44,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -147,20 +138,19 @@ class JobMapComposables {
 
   @Composable
   private fun InitializeJobSelectionModal(onOpen: () -> Unit, onDismiss: () -> Unit) {
-    val jobs = remember { newLoiJobs }
+    val buttonDataList = remember { newLoiJobs }
     var openJobsModal by remember { jobModalOpened }
     val collectDataCallback by remember { collectDataListener }
     if (openJobsModal) {
       onOpen()
-      Modal(onDismiss = { openJobsModal = false }) {
-        jobs.forEach { job ->
-          JobSelectionRow(job.job) {
-            collectDataCallback(job)
-            openJobsModal = false
-          }
-          Spacer(Modifier.height(16.dp))
-        }
-      }
+      JobSelectionModal(
+        jobs = buttonDataList.map { it.job },
+        onJobClicked = { job ->
+          collectDataCallback(AdHocDataCollectionButtonData(job))
+          openJobsModal = false
+        },
+        onDismiss = { openJobsModal = false },
+      )
     } else {
       onDismiss()
     }
@@ -255,42 +245,3 @@ class JobMapComposables {
     }
   }
 }
-
-@Composable
-fun Modal(onDismiss: () -> Unit, content: @Composable () -> Unit) {
-  Column(
-    Modifier
-      .fillMaxSize()
-      .background(
-        Brush.verticalGradient(
-          colorStops =
-          arrayOf(
-            0.0f to Color.Black.copy(alpha = 0.75F),
-            0.9f to Color.DarkGray.copy(alpha = 0.6F),
-            1f to Color.Transparent,
-          )
-        )
-      )
-      .pointerInput(Unit) { detectTapGestures {} }
-      .clickable(onClick = onDismiss),
-    verticalArrangement = Arrangement.SpaceBetween,
-    horizontalAlignment = Alignment.CenterHorizontally,
-  ) {
-    Spacer(Modifier.weight(1F))
-    Column(
-      verticalArrangement = Arrangement.SpaceBetween,
-      horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-      content()
-    }
-    Box(modifier = Modifier
-      .weight(1F)
-      .fillMaxWidth(), contentAlignment = Alignment.BottomCenter) {
-      ActionButton(icon = Icons.Filled.Clear, contentDescription = stringResource(R.string.close)) {
-        onDismiss()
-      }
-    }
-  }
-}
-
-
