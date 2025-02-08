@@ -35,7 +35,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -56,7 +55,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -144,7 +142,7 @@ class JobMapComposables {
       ActionButton(
         icon = Icons.Filled.Add,
         contentDescription = stringResource(id = R.string.add_site),
-        callback = callback,
+        onClick = callback,
       )
     }
   }
@@ -194,7 +192,9 @@ class JobMapComposables {
         dragHandle = { BottomSheetDefaults.DragHandle(width = 32.dp) },
       ) {
         Column(
-          modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 32.dp)
+          modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 24.dp, end = 24.dp, bottom = 32.dp)
         ) {
           Text(
             loiHelper.getJobName(loiData.loi) ?: "",
@@ -259,41 +259,18 @@ class JobMapComposables {
 }
 
 @Composable
-fun ActionButton(icon: ImageVector, contentDescription: String, callback: () -> Unit) {
-  Button(
-    onClick = callback,
-    modifier = Modifier.size(width = 100.dp, height = 100.dp),
-    colors =
-      ButtonColors(
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = Color.Black,
-        disabledContainerColor = ButtonDefaults.buttonColors().disabledContainerColor,
-        disabledContentColor = ButtonDefaults.buttonColors().disabledContentColor,
-      ),
-    shape =
-      RoundedCornerShape(
-        topStartPercent = 25,
-        topEndPercent = 25,
-        bottomStartPercent = 25,
-        bottomEndPercent = 25,
-      ),
-  ) {
-    Icon(imageVector = icon, contentDescription = contentDescription, Modifier.size(65.dp))
-  }
-}
-
-@Composable
 fun Modal(onDismiss: () -> Unit, content: @Composable () -> Unit) {
   Column(
-    Modifier.fillMaxSize()
+    Modifier
+      .fillMaxSize()
       .background(
         Brush.verticalGradient(
           colorStops =
-            arrayOf(
-              0.0f to Color.Black.copy(alpha = 0.75F),
-              0.9f to Color.DarkGray.copy(alpha = 0.6F),
-              1f to Color.Transparent,
-            )
+          arrayOf(
+            0.0f to Color.Black.copy(alpha = 0.75F),
+            0.9f to Color.DarkGray.copy(alpha = 0.6F),
+            1f to Color.Transparent,
+          )
         )
       )
       .pointerInput(Unit) { detectTapGestures {} }
@@ -308,7 +285,9 @@ fun Modal(onDismiss: () -> Unit, content: @Composable () -> Unit) {
     ) {
       content()
     }
-    Box(modifier = Modifier.weight(1F).fillMaxWidth(), contentAlignment = Alignment.BottomCenter) {
+    Box(modifier = Modifier
+      .weight(1F)
+      .fillMaxWidth(), contentAlignment = Alignment.BottomCenter) {
       ActionButton(icon = Icons.Filled.Clear, contentDescription = stringResource(R.string.close)) {
         onDismiss()
       }
@@ -320,7 +299,9 @@ fun Modal(onDismiss: () -> Unit, content: @Composable () -> Unit) {
 fun JobSelectionRow(job: AdHocDataCollectionButtonData, onJobSelected: () -> Unit) {
   Button(
     onClick = { onJobSelected() },
-    modifier = Modifier.fillMaxWidth(0.65F).clickable { onJobSelected() },
+    modifier = Modifier
+      .fillMaxWidth(0.65F)
+      .clickable { onJobSelected() },
     shape =
       RoundedCornerShape(
         topStartPercent = 25,
