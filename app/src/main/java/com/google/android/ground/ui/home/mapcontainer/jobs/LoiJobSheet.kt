@@ -98,9 +98,7 @@ private fun ModalContents(
   val submissionCount by remember { submissionCountState }
   val loiHelper = LocationOfInterestHelper(LocalContext.current.resources)
 
-  Column(modifier = Modifier
-    .fillMaxWidth()
-    .padding(start = 24.dp, end = 24.dp, bottom = 32.dp)) {
+  Column(modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 32.dp)) {
 
     // Job Name
     loiHelper.getJobName(loi)?.let {
@@ -188,23 +186,23 @@ fun PreviewModalContentsWhenUserCannotSubmitData() {
       id = "1",
       surveyId = "survey",
       job =
-      Job(
-        id = "job",
-        style = Style(color = "#FFEE8C00"),
-        tasks =
-        mapOf(
-          Pair(
-            "task 1",
-            Task(
-              id = "task 1",
-              index = 1,
-              type = Task.Type.TEXT,
-              label = "task 1",
-              isRequired = false,
+        Job(
+          id = "job",
+          style = Style(color = "#FFEE8C00"),
+          tasks =
+            mapOf(
+              Pair(
+                "task 1",
+                Task(
+                  id = "task 1",
+                  index = 1,
+                  type = Task.Type.TEXT,
+                  label = "task 1",
+                  isRequired = false,
+                ),
+              )
             ),
-          )
         ),
-      ),
       created = auditInfo,
       lastModified = auditInfo,
       geometry = Point(coordinates = Coordinates(lat = 20.0, lng = 20.0)),
@@ -230,24 +228,24 @@ fun PreviewModalContentsWhenJobHasTasks() {
       id = "1",
       surveyId = "survey",
       job =
-      Job(
-        id = "job",
-        style = Style(color = "#4169E1"),
-        name = "Job name",
-        tasks =
-        mapOf(
-          Pair(
-            "task 1",
-            Task(
-              id = "task 1",
-              index = 1,
-              type = Task.Type.TEXT,
-              label = "task 1",
-              isRequired = false,
+        Job(
+          id = "job",
+          style = Style(color = "#4169E1"),
+          name = "Job name",
+          tasks =
+            mapOf(
+              Pair(
+                "task 1",
+                Task(
+                  id = "task 1",
+                  index = 1,
+                  type = Task.Type.TEXT,
+                  label = "task 1",
+                  isRequired = false,
+                ),
+              )
             ),
-          )
         ),
-      ),
       created = auditInfo,
       lastModified = auditInfo,
       geometry = Point(coordinates = Coordinates(lat = 20.0, lng = 20.0)),

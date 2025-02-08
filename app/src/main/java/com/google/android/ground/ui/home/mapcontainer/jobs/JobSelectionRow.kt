@@ -49,16 +49,14 @@ import com.google.android.ground.ui.theme.AppTheme
 fun JobSelectionRow(job: Job, onClick: () -> Unit) {
   Button(
     onClick = { onClick() },
-    modifier = Modifier
-      .fillMaxWidth(0.65F)
-      .clickable { onClick() },
+    modifier = Modifier.fillMaxWidth(0.65F).clickable { onClick() },
     shape = RoundedCornerShape(25),
     colors =
-    ButtonDefaults.buttonColors()
-      .copy(
-        containerColor = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-      ),
+      ButtonDefaults.buttonColors()
+        .copy(
+          containerColor = MaterialTheme.colorScheme.surface,
+          contentColor = MaterialTheme.colorScheme.onSurface,
+        ),
   ) {
     Row(
       modifier = Modifier.fillMaxWidth(),

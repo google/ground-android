@@ -43,26 +43,23 @@ import com.google.android.ground.ui.theme.AppTheme
 private val verticalGradient =
   Brush.verticalGradient(
     colorStops =
-    arrayOf(
-      0.0f to Color.Black.copy(alpha = 0.75F),
-      0.9f to Color.DarkGray.copy(alpha = 0.6F),
-      1f to Color.Transparent,
-    )
+      arrayOf(
+        0.0f to Color.Black.copy(alpha = 0.75F),
+        0.9f to Color.DarkGray.copy(alpha = 0.6F),
+        1f to Color.Transparent,
+      )
   )
 
 @Composable
 fun JobSelectionModal(jobs: List<Job>, onJobClicked: (job: Job) -> Unit, onDismiss: () -> Unit) {
   Column(
-    Modifier
-      .fillMaxWidth()
+    Modifier.fillMaxWidth()
       .background(verticalGradient)
       .pointerInput(Unit) { detectTapGestures {} }
       .clickable(onClick = onDismiss)
   ) {
     Column(
-      Modifier
-        .fillMaxWidth()
-        .weight(1F),
+      Modifier.fillMaxWidth().weight(1F),
       verticalArrangement = Arrangement.Center,
       horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -92,10 +89,10 @@ fun PreviewJobSelectionModal() {
   AppTheme {
     JobSelectionModal(
       jobs =
-      listOf(
-        Job(id = "1", style = Style(color = "#4169E1"), name = "job 1", tasks = emptyMap()),
-        Job(id = "2", style = Style(color = "#FFA500"), name = "job 2", tasks = emptyMap()),
-      ),
+        listOf(
+          Job(id = "1", style = Style(color = "#4169E1"), name = "job 1", tasks = emptyMap()),
+          Job(id = "2", style = Style(color = "#FFA500"), name = "job 2", tasks = emptyMap()),
+        ),
       onJobClicked = {},
       onDismiss = {},
     )
