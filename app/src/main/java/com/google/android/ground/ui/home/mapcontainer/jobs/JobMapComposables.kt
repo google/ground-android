@@ -29,13 +29,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -156,7 +154,7 @@ class JobMapComposables {
       onOpen()
       Modal(onDismiss = { openJobsModal = false }) {
         jobs.forEach { job ->
-          JobSelectionRow(job) {
+          JobSelectionRow(job.job) {
             collectDataCallback(job)
             openJobsModal = false
           }
@@ -295,44 +293,4 @@ fun Modal(onDismiss: () -> Unit, content: @Composable () -> Unit) {
   }
 }
 
-@Composable
-fun JobSelectionRow(job: AdHocDataCollectionButtonData, onJobSelected: () -> Unit) {
-  Button(
-    onClick = { onJobSelected() },
-    modifier = Modifier
-      .fillMaxWidth(0.65F)
-      .clickable { onJobSelected() },
-    shape =
-      RoundedCornerShape(
-        topStartPercent = 25,
-        topEndPercent = 25,
-        bottomStartPercent = 25,
-        bottomEndPercent = 25,
-      ),
-    colors =
-      ButtonDefaults.buttonColors()
-        .copy(
-          containerColor = MaterialTheme.colorScheme.surface,
-          contentColor = MaterialTheme.colorScheme.onSurface,
-        ),
-  ) {
-    Row(
-      modifier = Modifier.fillMaxWidth(),
-      verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.Start,
-    ) {
-      Icon(
-        painter = painterResource(R.drawable.ic_ring_marker),
-        contentDescription = stringResource(R.string.job_site_icon),
-        modifier = Modifier.size(32.dp),
-        tint = Color(job.job.getDefaultColor()),
-      )
-      Spacer(modifier = Modifier.size(8.dp))
-      Text(
-        job.job.name ?: stringResource(R.string.unnamed_job),
-        modifier = Modifier.padding(16.dp),
-        fontSize = 24.sp,
-      )
-    }
-  }
-}
+
