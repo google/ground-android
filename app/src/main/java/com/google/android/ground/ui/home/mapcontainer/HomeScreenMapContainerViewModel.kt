@@ -47,7 +47,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -74,7 +73,7 @@ internal constructor(
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
-  surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepository,
   private val localValueStore: LocalValueStore,
 ) :
   BaseMapViewModel(
@@ -206,16 +205,10 @@ internal constructor(
     featureClicked.value = features.minByOrNull { it.geometry.area }
   }
 
-  suspend fun updateDataSharingConsent(dataSharingTerms: Boolean) {
-    activeSurvey.collectLatest {
-      if (it != null) {
-        setDataSharingConsent(it, dataSharingTerms)
-      }
-    }
+  fun grantDataSharingConsent() {
+    val survey = requireNotNull(surveyRepository.activeSurvey)
+    localValueStore.setDataSharingConsent(survey.id, true)
   }
-
-  private fun setDataSharingConsent(survey: Survey, dataSharingTerms: Boolean) =
-    localValueStore.setDataSharingConsent(survey.id, dataSharingTerms)
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
     loiRepository.getValidLois(survey).map { it.map { loi -> loi.toFeature() }.toPersistentSet() }

@@ -19,8 +19,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.runtime.Composable
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
@@ -49,7 +47,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -102,15 +99,15 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       is AdHocDataCollectionButtonData -> cardUiData.job.tasks.values.isNotEmpty()
     }
 
-  @Composable
-  private fun ShowDataSharingTermsDialog(
+  private fun showDataSharingTermsDialog(
     cardUiData: DataCollectionEntryPointData,
     dataSharingTerms: DataSharingTerms,
   ) {
-    DataSharingTermsDialog(dataSharingTerms) {
-      val job = lifecycleScope.launch { mapContainerViewModel.updateDataSharingConsent(true) }
-      job.cancel()
-      navigateToDataCollectionFragment(cardUiData)
+    renderComposableDialog {
+      DataSharingTermsDialog(dataSharingTerms) {
+        mapContainerViewModel.grantDataSharingConsent()
+        navigateToDataCollectionFragment(cardUiData)
+      }
     }
   }
 
@@ -128,19 +125,19 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       ephemeralPopups.ErrorPopup().show(getString(R.string.no_tasks_error))
       return
     }
-    val dataSharingTerms = mapContainerViewModel.getDataSharingTerms()
-    if (dataSharingTerms != null) {
-      if (
-        dataSharingTerms.type == DataSharingTerms.Type.CUSTOM &&
-        dataSharingTerms.customText.isBlank()
-      ) {
-        ephemeralPopups.ErrorPopup().show(getString(R.string.invalid_data_sharing_terms))
-        return
-      }
-      renderComposableDialog { ShowDataSharingTermsDialog(cardUiData, dataSharingTerms) }
+
+    val terms = mapContainerViewModel.getDataSharingTerms()
+    if (terms == null) {
+      // Data sharing terms already accepted or missing.
+      navigateToDataCollectionFragment(cardUiData)
       return
     }
-    navigateToDataCollectionFragment(cardUiData)
+
+    if (terms.type == DataSharingTerms.Type.CUSTOM && terms.customText.isBlank()) {
+      ephemeralPopups.ErrorPopup().show(getString(R.string.invalid_data_sharing_terms))
+    } else {
+      showDataSharingTermsDialog(cardUiData, terms)
+    }
   }
 
   override fun onCreateView(
