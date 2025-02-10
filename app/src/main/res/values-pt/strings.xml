@@ -201,4 +201,5 @@
   <string name="data_collection_cancellation_title">Parar de coletar dados?</string>
   <string name="data_collection_cancellation_description">Se você sair, os dados que ainda não enviou serão descartados.</string>
   <string name="data_collection_cancellation_confirm_button">Confirmar</string>
+  <string name="something_went_wrong">Algo deu errado</string>
 </resources>
