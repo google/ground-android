@@ -25,22 +25,18 @@ import com.google.android.ground.proto.Survey.DataSharingTerms
 import com.google.android.ground.proto.SurveyKt.dataSharingTerms
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import javax.inject.Inject
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class GetDataSharingTermsUseCaseTest : BaseHiltTest() {
-  @Inject
-  lateinit var activateSurveyUseCase: ActivateSurveyUseCase
-  @Inject
-  lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-  @Inject
-  lateinit var getDataSharingTermsUseCase: GetDataSharingTermsUseCase
-  @Inject
-  lateinit var localValueStore: LocalValueStore
+  @Inject lateinit var activateSurveyUseCase: ActivateSurveyUseCase
+  @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+  @Inject lateinit var getDataSharingTermsUseCase: GetDataSharingTermsUseCase
+  @Inject lateinit var localValueStore: LocalValueStore
 
   private fun activateSurvey(survey: Survey) = runWithTestDispatcher {
     fakeRemoteDataStore.surveys = listOf(survey)
@@ -61,10 +57,10 @@ class GetDataSharingTermsUseCaseTest : BaseHiltTest() {
     val survey =
       SURVEY.copy(
         dataSharingTerms =
-        dataSharingTerms {
-          type = DataSharingTerms.Type.CUSTOM
-          customText = ""
-        }
+          dataSharingTerms {
+            type = DataSharingTerms.Type.CUSTOM
+            customText = ""
+          }
       )
     activateSurvey(survey)
 
