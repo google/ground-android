@@ -150,16 +150,20 @@ private fun ModalContents(
   }
 }
 
+/** Fake data for preview. */
+private val user = User(id = "user", email = "user@email.com", displayName = "User")
+private val auditInfo = AuditInfo(user)
+private const val SURVEY_ID = "survey"
+private const val TASK_ID = "task 1"
+
 @SuppressLint("UnrememberedMutableState")
 @Composable
 @Preview(showBackground = true)
 fun PreviewModalContentsWhenJobHasNoTasks() {
-  val user = User(id = "user", email = "user@email.com", displayName = "User")
-  val auditInfo = AuditInfo(user)
   val loi =
     LocationOfInterest(
       id = "1",
-      surveyId = "survey",
+      surveyId = SURVEY_ID,
       job = Job(id = "job"),
       created = auditInfo,
       lastModified = auditInfo,
@@ -179,12 +183,10 @@ fun PreviewModalContentsWhenJobHasNoTasks() {
 @Composable
 @Preview(showBackground = true)
 fun PreviewModalContentsWhenUserCannotSubmitData() {
-  val user = User(id = "user", email = "user@email.com", displayName = "User")
-  val auditInfo = AuditInfo(user)
   val loi =
     LocationOfInterest(
       id = "1",
-      surveyId = "survey",
+      surveyId = SURVEY_ID,
       job =
         Job(
           id = "job",
@@ -192,12 +194,12 @@ fun PreviewModalContentsWhenUserCannotSubmitData() {
           tasks =
             mapOf(
               Pair(
-                "task 1",
+                TASK_ID,
                 Task(
-                  id = "task 1",
+                  id = TASK_ID,
                   index = 1,
                   type = Task.Type.TEXT,
-                  label = "task 1",
+                  label = "task",
                   isRequired = false,
                 ),
               )
@@ -221,12 +223,10 @@ fun PreviewModalContentsWhenUserCannotSubmitData() {
 @Composable
 @Preview(showBackground = true)
 fun PreviewModalContentsWhenJobHasTasks() {
-  val user = User(id = "user", email = "user@email.com", displayName = "User")
-  val auditInfo = AuditInfo(user)
   val loi =
     LocationOfInterest(
       id = "1",
-      surveyId = "survey",
+      surveyId = SURVEY_ID,
       job =
         Job(
           id = "job",
@@ -235,12 +235,12 @@ fun PreviewModalContentsWhenJobHasTasks() {
           tasks =
             mapOf(
               Pair(
-                "task 1",
+                TASK_ID,
                 Task(
-                  id = "task 1",
+                  id = TASK_ID,
                   index = 1,
                   type = Task.Type.TEXT,
-                  label = "task 1",
+                  label = "task",
                   isRequired = false,
                 ),
               )
