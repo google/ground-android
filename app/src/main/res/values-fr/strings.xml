@@ -199,4 +199,5 @@
   <string name="data_collection_cancellation_title">Arrêter la collecte de données ?</string>
   <string name="data_collection_cancellation_description">Si vous quittez, les données que vous n&#8217;avez pas encore soumises seront supprimées.</string>
   <string name="data_collection_cancellation_confirm_button">Confirmer</string>
+  <string name="something_went_wrong">Quelque chose s&#8217;est mal passé</string>
 </resources>
