@@ -26,6 +26,7 @@ import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.coroutines.MainDispatcher
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.MenuButtonBinding
+import com.google.android.ground.domain.usecases.datasharingterms.GetDataSharingTermsUseCase
 import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.proto.Survey.DataSharingTerms
 import com.google.android.ground.repository.SubmissionRepository
@@ -126,18 +127,22 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       return
     }
 
-    val terms = mapContainerViewModel.getDataSharingTerms()
-    if (terms == null) {
-      // Data sharing terms already accepted or missing.
-      navigateToDataCollectionFragment(cardUiData)
-      return
-    }
-
-    if (terms.type == DataSharingTerms.Type.CUSTOM && terms.customText.isBlank()) {
-      ephemeralPopups.ErrorPopup().show(getString(R.string.invalid_data_sharing_terms))
-    } else {
-      showDataSharingTermsDialog(cardUiData, terms)
-    }
+    mapContainerViewModel
+      .getDataSharingTerms()
+      .onSuccess { terms ->
+        if (terms == null) {
+          // Data sharing terms already accepted or missing.
+          navigateToDataCollectionFragment(cardUiData)
+        } else {
+          showDataSharingTermsDialog(cardUiData, terms)
+        }
+      }
+      .onFailure {
+        Timber.e(it, "Failed to get data sharing terms")
+        if (it is GetDataSharingTermsUseCase.InvalidCustomSharingTermsException) {
+          ephemeralPopups.ErrorPopup().show(getString(R.string.invalid_data_sharing_terms))
+        }
+      }
   }
 
   override fun onCreateView(

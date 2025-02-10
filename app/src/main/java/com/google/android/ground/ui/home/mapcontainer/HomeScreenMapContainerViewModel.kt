@@ -161,7 +161,7 @@ internal constructor(
       }
   }
 
-  fun getDataSharingTerms(): DataSharingTerms? = getDataSharingTermsUseCase()
+  fun getDataSharingTerms(): Result<DataSharingTerms?> = getDataSharingTermsUseCase()
 
   /**
    * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and
