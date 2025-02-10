@@ -139,9 +139,15 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       }
       .onFailure {
         Timber.e(it, "Failed to get data sharing terms")
-        if (it is GetDataSharingTermsUseCase.InvalidCustomSharingTermsException) {
-          ephemeralPopups.ErrorPopup().show(getString(R.string.invalid_data_sharing_terms))
-        }
+        ephemeralPopups
+          .ErrorPopup()
+          .show(
+            if (it is GetDataSharingTermsUseCase.InvalidCustomSharingTermsException) {
+              R.string.invalid_data_sharing_terms
+            } else {
+              R.string.something_went_wrong
+            }
+          )
       }
   }
 
