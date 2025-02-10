@@ -28,14 +28,18 @@ constructor(
 ) {
 
   /** Returns the data sharing terms for the currently active survey, if not already accepted. */
-  operator fun invoke(): DataSharingTerms? {
-    val survey = surveyRepository.activeSurvey ?: return null
-
-    if (localValueStore.getDataSharingConsent(survey.id)) {
-      // User previously agreed to the terms.
-      return null
+  operator fun invoke(): Result<DataSharingTerms?> = runCatching {
+    val survey = surveyRepository.activeSurvey ?: error("No active survey")
+    val sharingTerms = survey.dataSharingTerms
+    if (sharingTerms == null || localValueStore.getDataSharingConsent(survey.id)) {
+      // User previously agreed to the terms or data sharing terms are missing.
+      return Result.success(null)
     }
-
-    return survey.dataSharingTerms
+    if (sharingTerms.type == DataSharingTerms.Type.CUSTOM && sharingTerms.customText.isBlank()) {
+      throw InvalidCustomSharingTermsException()
+    }
+    return Result.success(sharingTerms)
   }
+
+  class InvalidCustomSharingTermsException : Exception()
 }

@@ -18,11 +18,13 @@ package com.google.android.ground.domain.usecases.datasharingterms
 import com.google.android.ground.BaseHiltTest
 import com.google.android.ground.FakeData.SURVEY
 import com.google.android.ground.domain.usecases.survey.ActivateSurveyUseCase
+import com.google.android.ground.model.Survey
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.remote.FakeRemoteDataStore
+import com.google.android.ground.proto.Survey.DataSharingTerms
+import com.google.android.ground.proto.SurveyKt.dataSharingTerms
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -32,7 +34,7 @@ import javax.inject.Inject
 @RunWith(RobolectricTestRunner::class)
 class GetDataSharingTermsUseCaseTest : BaseHiltTest() {
   @Inject
-  lateinit var activateSurvey: ActivateSurveyUseCase
+  lateinit var activateSurveyUseCase: ActivateSurveyUseCase
   @Inject
   lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject
@@ -40,29 +42,57 @@ class GetDataSharingTermsUseCaseTest : BaseHiltTest() {
   @Inject
   lateinit var localValueStore: LocalValueStore
 
-  @Before
-  override fun setUp() {
-    super.setUp()
-    fakeRemoteDataStore.surveys = listOf(SURVEY)
+  private fun activateSurvey(survey: Survey) = runWithTestDispatcher {
+    fakeRemoteDataStore.surveys = listOf(survey)
+    activateSurveyUseCase(survey.id)
   }
 
   @Test
-  fun `Returns null if no survey active`() = runWithTestDispatcher {
-    assertThat(getDataSharingTermsUseCase()).isNull()
+  fun `Fails with exception if no survey active`() {
+    val result = getDataSharingTermsUseCase()
+
+    assertThat(result.isFailure).isTrue()
+    assertThat(result.exceptionOrNull()).isInstanceOf(IllegalStateException::class.java)
+    assertThat(result.exceptionOrNull()?.message).isEqualTo("No active survey")
   }
 
   @Test
-  fun `Returns null if data sharing terms is already accepted`() = runWithTestDispatcher {
-    activateSurvey(SURVEY.id)
+  fun `Fails with custom exception if custom data sharing terms are invalid`() {
+    val survey =
+      SURVEY.copy(
+        dataSharingTerms =
+        dataSharingTerms {
+          type = DataSharingTerms.Type.CUSTOM
+          customText = ""
+        }
+      )
+    activateSurvey(survey)
+
+    val result = getDataSharingTermsUseCase()
+
+    assertThat(result.isFailure).isTrue()
+    assertThat(result.exceptionOrNull())
+      .isInstanceOf(GetDataSharingTermsUseCase.InvalidCustomSharingTermsException::class.java)
+  }
+
+  @Test
+  fun `Succeeds with null if data sharing terms is already accepted`() {
+    activateSurvey(SURVEY)
     localValueStore.setDataSharingConsent(SURVEY.id, true)
 
-    assertThat(getDataSharingTermsUseCase()).isNull()
+    val result = getDataSharingTermsUseCase()
+
+    assertThat(result.isSuccess).isTrue()
+    assertThat(result.getOrNull()).isNull()
   }
 
   @Test
-  fun `Returns data sharing terms if not already accepted`() = runWithTestDispatcher {
-    activateSurvey(SURVEY.id)
+  fun `Succeeds with data sharing terms if not already accepted`() {
+    activateSurvey(SURVEY)
 
-    assertThat(getDataSharingTermsUseCase()).isEqualTo(SURVEY.dataSharingTerms)
+    val result = getDataSharingTermsUseCase()
+
+    assertThat(result.isSuccess).isTrue()
+    assertThat(result.getOrNull()).isEqualTo(SURVEY.dataSharingTerms)
   }
 }
