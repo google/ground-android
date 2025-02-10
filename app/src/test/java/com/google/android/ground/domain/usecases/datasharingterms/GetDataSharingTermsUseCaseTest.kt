@@ -83,6 +83,16 @@ class GetDataSharingTermsUseCaseTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Succeeds with null if data sharing terms is missing`() {
+    activateSurvey(SURVEY.copy(dataSharingTerms = null))
+
+    val result = getDataSharingTermsUseCase()
+
+    assertThat(result.isSuccess).isTrue()
+    assertThat(result.getOrNull()).isNull()
+  }
+
+  @Test
   fun `Succeeds with data sharing terms if not already accepted`() {
     activateSurvey(SURVEY)
 
