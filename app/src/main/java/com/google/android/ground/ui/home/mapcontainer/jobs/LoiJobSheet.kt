@@ -49,6 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.ground.ExcludeFromJacocoGeneratedReport
 import com.google.android.ground.R
 import com.google.android.ground.model.AuditInfo
 import com.google.android.ground.model.User
@@ -159,6 +160,7 @@ private const val TASK_ID = "task 1"
 @SuppressLint("UnrememberedMutableState")
 @Composable
 @Preview(showBackground = true)
+@ExcludeFromJacocoGeneratedReport
 fun PreviewModalContentsWhenJobHasNoTasks() {
   val loi =
     LocationOfInterest(
@@ -182,6 +184,7 @@ fun PreviewModalContentsWhenJobHasNoTasks() {
 @SuppressLint("UnrememberedMutableState")
 @Composable
 @Preview(showBackground = true)
+@ExcludeFromJacocoGeneratedReport
 fun PreviewModalContentsWhenUserCannotSubmitData() {
   val loi =
     LocationOfInterest(
@@ -222,6 +225,7 @@ fun PreviewModalContentsWhenUserCannotSubmitData() {
 @SuppressLint("UnrememberedMutableState")
 @Composable
 @Preview(showBackground = true)
+@ExcludeFromJacocoGeneratedReport
 fun PreviewModalContentsWhenJobHasTasks() {
   val loi =
     LocationOfInterest(
