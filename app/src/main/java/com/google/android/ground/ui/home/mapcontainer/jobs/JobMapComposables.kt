@@ -124,7 +124,7 @@ class JobMapComposables {
       JobSelectionModal(
         jobs = buttonDataList.map { it.job },
         onJobClicked = { job ->
-          onCollectData(AdHocDataCollectionButtonData(job))
+          onCollectData(buttonDataList.first { it.job == job })
           openJobsModal = false
         },
         onDismiss = { openJobsModal = false },

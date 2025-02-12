@@ -19,7 +19,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
@@ -49,7 +48,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -110,8 +108,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   /** Invoked when user clicks on the map cards to collect data. */
-  private suspend fun onCollectData(cardUiData: DataCollectionEntryPointData) {
-    if (!userRepository.canUserSubmitData()) {
+  private fun onCollectData(cardUiData: DataCollectionEntryPointData) {
+    if (!cardUiData.canCollectData) {
       // Skip data collection screen if the user can't submit any data
       // TODO: Revisit UX for displaying view only mode
       // Issue URL: https://github.com/google/ground-android/issues/1667
@@ -173,9 +171,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       binding.mapTypeBtn.show()
       binding.locationLockBtn.show()
       menuBinding.hamburgerBtn.show()
-    }
-    val onCollectData = { mapUiData: DataCollectionEntryPointData ->
-      lifecycleScope.launch { onCollectData(mapUiData) }
     }
     binding.bottomContainer.addView(
       createComposeView {
