@@ -36,7 +36,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 
 /** Manages a set of [Composable] components that renders [LocationOfInterest] cards and dialogs. */
 class JobMapComposables {
-  private var canUserSubmitDataState = mutableStateOf(false)
   private var loiJobCardDataState = mutableStateOf<SelectedLoiSheetData?>(null)
   private val newLoiJobCardDataListState = mutableStateListOf<AdHocDataCollectionButtonData>()
   private var selectedFeatureListener: ((String?) -> Unit) = {}
@@ -65,11 +64,9 @@ class JobMapComposables {
 
   /** Overwrites existing cards. */
   fun updateData(
-    canUserSubmitData: Boolean,
     selectedLoi: SelectedLoiSheetData?,
     addLoiJobs: List<AdHocDataCollectionButtonData>,
   ) {
-    this.canUserSubmitDataState.value = canUserSubmitData
     loiJobCardDataState.value = selectedLoi
     newLoiJobCardDataListState.clear()
     newLoiJobCardDataListState.addAll(addLoiJobs)
@@ -94,8 +91,7 @@ class JobMapComposables {
   private fun InitializeAddLoiButton(callback: () -> Unit) {
     val jobs = remember { newLoiJobCardDataListState }
     val jobModalOpened by remember { showNewLoiJobSelectionModalState }
-    val canUserSubmitData by remember { canUserSubmitDataState }
-    if (jobs.size == 0 || jobModalOpened || !canUserSubmitData) {
+    if (jobs.size == 0 || jobModalOpened || !jobs.first().canCollectData) {
       return
     }
     Row(
@@ -146,7 +142,7 @@ class JobMapComposables {
     loi?.let { loiData ->
       LoiJobSheet(
         loi = loiData.loi,
-        canUserSubmitDataState = canUserSubmitDataState,
+        canUserSubmitDataState = loiData.canCollectData,
         submissionCountState = submissionCount,
         onCollectClicked = { onCollectData(loiData) },
         onDismiss = { closeJobCard() },

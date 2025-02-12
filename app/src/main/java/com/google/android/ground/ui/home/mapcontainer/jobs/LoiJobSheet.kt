@@ -68,7 +68,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoiJobSheet(
   loi: LocationOfInterest,
-  canUserSubmitDataState: State<Boolean>,
+  canUserSubmitDataState: Boolean,
   submissionCountState: IntState,
   onCollectClicked: () -> Unit,
   onDismiss: () -> Unit,

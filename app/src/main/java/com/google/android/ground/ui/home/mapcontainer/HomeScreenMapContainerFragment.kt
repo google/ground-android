@@ -75,14 +75,10 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     jobMapComposables = JobMapComposables()
     jobMapComposables.setSelectedFeature { mapContainerViewModel.selectLocationOfInterest(it) }
 
-    launchWhenStarted {
-      val canUserSubmitData = userRepository.canUserSubmitData()
-
-      // Bind data for cards
-      mapContainerViewModel.processDataCollectionEntryPoints().launchWhenStartedAndCollect {
-        (loiCard, jobCards) ->
-        jobMapComposables.updateData(canUserSubmitData, loiCard, jobCards)
-      }
+    // Bind data for cards
+    mapContainerViewModel.processDataCollectionEntryPoints().launchWhenStartedAndCollect {
+      (loiCard, jobCards) ->
+      jobMapComposables.updateData(loiCard, jobCards)
     }
 
     map.featureClicks.launchWhenStartedAndCollect { mapContainerViewModel.onFeatureClicked(it) }
