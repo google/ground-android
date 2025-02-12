@@ -35,11 +35,11 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 
 /** Manages a set of [Composable] components that renders [LocationOfInterest] cards and dialogs. */
 class JobMapComposables {
-  private var loiJobCardDataState = mutableStateOf<SelectedLoiSheetData?>(null)
+  private var loiSheetDataState = mutableStateOf<SelectedLoiSheetData?>(null)
   private val newLoiJobCardDataListState = mutableStateListOf<AdHocDataCollectionButtonData>()
   private var selectedFeatureListener: ((String?) -> Unit) = {}
   private val showNewLoiJobSelectionModalState = mutableStateOf(false)
-  private val showLoiJobCardState = mutableStateOf(false)
+  private val showLoiSheetState = mutableStateOf(false)
 
   @Composable
   fun Render(
@@ -47,9 +47,65 @@ class JobMapComposables {
     onDismiss: () -> Unit,
     onCollectData: (DataCollectionEntryPointData) -> Unit,
   ) {
-    InitializeJobCard(onCollectClicked = onCollectData)
-    InitializeAddLoiButton(onCollectData = onCollectData)
-    InitializeJobSelectionModal(onOpen, onDismiss, onCollectData)
+    var loiSheetData by remember { loiSheetDataState }
+    var showLoiSheet by remember { showLoiSheetState }
+    val newLoiJobCardDataList = remember { newLoiJobCardDataListState }
+    var showNewLoiJobSelectionModal by remember { showNewLoiJobSelectionModalState }
+
+    if (showLoiSheet) {
+      loiSheetData?.let { loiData ->
+        LoiJobSheet(
+          loi = loiData.loi,
+          canUserSubmitData = loiData.canCollectData,
+          submissionCount = loiData.submissionCount,
+          onCollectClicked = { onCollectData(loiData) },
+          onDismiss = {
+            showLoiSheet = false
+            loiSheetData = null
+            selectedFeatureListener(null)
+          },
+        )
+      }
+    }
+
+    if (
+      newLoiJobCardDataList.size != 0 &&
+        !showNewLoiJobSelectionModal &&
+        newLoiJobCardDataList.all { it.canCollectData }
+    ) {
+      Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+      ) {
+        ActionButton(
+          icon = Icons.Filled.Add,
+          contentDescription = stringResource(id = R.string.add_site),
+          onClick = {
+            if (newLoiJobCardDataList.size == 1) {
+              // If there's only one job, start data collection on it without showing the job modal.
+              onCollectData(newLoiJobCardDataList.first())
+            } else {
+              showNewLoiJobSelectionModal = true
+            }
+          },
+        )
+      }
+    }
+
+    if (showNewLoiJobSelectionModal) {
+      onOpen()
+      JobSelectionModal(
+        jobs = newLoiJobCardDataList.map { it.job },
+        onJobClicked = { job ->
+          onCollectData(newLoiJobCardDataList.first { it.job == job })
+          showNewLoiJobSelectionModal = false
+        },
+        onDismiss = { showNewLoiJobSelectionModal = false },
+      )
+    } else {
+      onDismiss()
+    }
   }
 
   /** Overwrites existing cards. */
@@ -57,92 +113,16 @@ class JobMapComposables {
     selectedLoi: SelectedLoiSheetData?,
     addLoiJobs: List<AdHocDataCollectionButtonData>,
   ) {
-    loiJobCardDataState.value = selectedLoi
+    loiSheetDataState.value = selectedLoi
     newLoiJobCardDataListState.clear()
     newLoiJobCardDataListState.addAll(addLoiJobs)
     if (selectedLoi != null) {
-      showLoiJobCardState.value = true
+      showLoiSheetState.value = true
       selectedFeatureListener(selectedLoi.loi.id)
     }
   }
 
   fun setSelectedFeature(listener: (String?) -> Unit) {
     selectedFeatureListener = listener
-  }
-
-  private fun closeJobCard() {
-    showLoiJobCardState.value = false
-    loiJobCardDataState.value = null
-    selectedFeatureListener(null)
-  }
-
-  @Composable
-  private fun InitializeAddLoiButton(onCollectData: (AdHocDataCollectionButtonData) -> Unit) {
-    val jobs = remember { newLoiJobCardDataListState }
-    var jobModalOpened by remember { showNewLoiJobSelectionModalState }
-    if (jobs.size == 0 || jobModalOpened || !jobs.all { it.canCollectData }) {
-      return
-    }
-    Row(
-      Modifier.fillMaxWidth(),
-      horizontalArrangement = Arrangement.Center,
-      verticalAlignment = Alignment.CenterVertically,
-    ) {
-      ActionButton(
-        icon = Icons.Filled.Add,
-        contentDescription = stringResource(id = R.string.add_site),
-        onClick = {
-          if (jobs.size == 1) {
-            // If there's only one job, start data collection on it without showing the job modal.
-            onCollectData(jobs.first())
-          } else {
-            jobModalOpened = true
-          }
-        },
-      )
-    }
-  }
-
-  @Composable
-  private fun InitializeJobSelectionModal(
-    onOpen: () -> Unit,
-    onDismiss: () -> Unit,
-    onCollectData: (DataCollectionEntryPointData) -> Unit,
-  ) {
-    val buttonDataList = remember { newLoiJobCardDataListState }
-    var openJobsModal by remember { showNewLoiJobSelectionModalState }
-    if (openJobsModal) {
-      onOpen()
-      JobSelectionModal(
-        jobs = buttonDataList.map { it.job },
-        onJobClicked = { job ->
-          onCollectData(buttonDataList.first { it.job == job })
-          openJobsModal = false
-        },
-        onDismiss = { openJobsModal = false },
-      )
-    } else {
-      onDismiss()
-    }
-  }
-
-  @Composable
-  private fun InitializeJobCard(onCollectClicked: (SelectedLoiSheetData) -> Unit) {
-    val loi by remember { loiJobCardDataState }
-    val showJobCard by remember { showLoiJobCardState }
-
-    if (!showJobCard) {
-      return
-    }
-
-    loi?.let { loiData ->
-      LoiJobSheet(
-        loi = loiData.loi,
-        canUserSubmitData = loiData.canCollectData,
-        submissionCount = loiData.submissionCount,
-        onCollectClicked = { onCollectClicked(loiData) },
-        onDismiss = { closeJobCard() },
-      )
-    }
   }
 }
