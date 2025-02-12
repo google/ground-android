@@ -75,19 +75,10 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     jobMapComposables = JobMapComposables()
     jobMapComposables.setSelectedFeature { mapContainerViewModel.selectLocationOfInterest(it) }
 
-    launchWhenStarted {
-      val canUserSubmitData = userRepository.canUserSubmitData()
-
-      // Handle collect button clicks
-      jobMapComposables.setCollectDataListener { mapUiData ->
-        onCollectData(canUserSubmitData, mapUiData)
-      }
-
-      // Bind data for cards
-      mapContainerViewModel.processDataCollectionEntryPoints().launchWhenStartedAndCollect {
-        (loiCard, jobCards) ->
-        jobMapComposables.updateData(canUserSubmitData, loiCard, jobCards)
-      }
+    // Bind data for cards
+    mapContainerViewModel.processDataCollectionEntryPoints().launchWhenStartedAndCollect {
+      (loiCard, jobCards) ->
+      jobMapComposables.updateData(loiCard, jobCards)
     }
 
     map.featureClicks.launchWhenStartedAndCollect { mapContainerViewModel.onFeatureClicked(it) }
@@ -113,8 +104,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   /** Invoked when user clicks on the map cards to collect data. */
-  private fun onCollectData(canUserSubmitData: Boolean, cardUiData: DataCollectionEntryPointData) {
-    if (!canUserSubmitData) {
+  private fun onCollectData(cardUiData: DataCollectionEntryPointData) {
+    if (!cardUiData.canCollectData) {
       // Skip data collection screen if the user can't submit any data
       // TODO: Revisit UX for displaying view only mode
       // Issue URL: https://github.com/google/ground-android/issues/1667
@@ -178,7 +169,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       menuBinding.hamburgerBtn.show()
     }
     binding.bottomContainer.addView(
-      createComposeView { jobMapComposables.Render(onOpen, onDismiss) }
+      createComposeView {
+        jobMapComposables.Render(onOpen, onDismiss, onCollectData = { onCollectData(it) })
+      }
     )
     binding.bottomContainer.bringToFront()
     showDataCollectionHint()
