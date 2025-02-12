@@ -23,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +40,6 @@ class JobMapComposables {
   private var selectedFeatureListener: ((String?) -> Unit) = {}
   private val showNewLoiJobSelectionModalState = mutableStateOf(false)
   private val showLoiJobCardState = mutableStateOf(false)
-  private val submissionCount = mutableIntStateOf(-1)
 
   @Composable
   fun Render(
@@ -63,7 +61,6 @@ class JobMapComposables {
     newLoiJobCardDataListState.clear()
     newLoiJobCardDataListState.addAll(addLoiJobs)
     if (selectedLoi != null) {
-      submissionCount.intValue = selectedLoi.submissionCount
       showLoiJobCardState.value = true
       selectedFeatureListener(selectedLoi.loi.id)
     }
@@ -142,7 +139,7 @@ class JobMapComposables {
       LoiJobSheet(
         loi = loiData.loi,
         canUserSubmitData = loiData.canCollectData,
-        submissionCountState = submissionCount,
+        submissionCount = loiData.submissionCount,
         onCollectClicked = { onCollectClicked(loiData) },
         onDismiss = { closeJobCard() },
       )

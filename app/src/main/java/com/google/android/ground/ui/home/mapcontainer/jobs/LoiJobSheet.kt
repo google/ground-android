@@ -32,10 +32,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.IntState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,7 +63,7 @@ import kotlinx.coroutines.launch
 fun LoiJobSheet(
   loi: LocationOfInterest,
   canUserSubmitData: Boolean,
-  submissionCountState: IntState,
+  submissionCount: Int,
   onCollectClicked: () -> Unit,
   onDismiss: () -> Unit,
 ) {
@@ -80,7 +76,7 @@ fun LoiJobSheet(
     containerColor = MaterialTheme.colorScheme.surface,
     dragHandle = { BottomSheetDefaults.DragHandle(width = 32.dp) },
   ) {
-    ModalContents(loi, canUserSubmitData, submissionCountState) {
+    ModalContents(loi, canUserSubmitData, submissionCount) {
       scope.launch { sheetState.hide() }.invokeOnCompletion { onCollectClicked() }
     }
   }
@@ -90,10 +86,9 @@ fun LoiJobSheet(
 private fun ModalContents(
   loi: LocationOfInterest,
   canUserSubmitData: Boolean,
-  submissionCountState: IntState,
+  submissionCount: Int,
   onCollectClicked: () -> Unit,
 ) {
-  val submissionCount by remember { submissionCountState }
   val loiHelper = LocationOfInterestHelper(LocalContext.current.resources)
 
   Column(modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 32.dp)) {
@@ -169,12 +164,7 @@ fun PreviewModalContentsWhenJobHasNoTasks() {
       geometry = Point(coordinates = Coordinates(lat = 20.0, lng = 20.0)),
     )
   AppTheme {
-    ModalContents(
-      loi = loi,
-      canUserSubmitData = true,
-      submissionCountState = mutableIntStateOf(0),
-      onCollectClicked = {},
-    )
+    ModalContents(loi = loi, canUserSubmitData = true, submissionCount = 0, onCollectClicked = {})
   }
 }
 
@@ -210,12 +200,7 @@ fun PreviewModalContentsWhenUserCannotSubmitData() {
       geometry = Point(coordinates = Coordinates(lat = 20.0, lng = 20.0)),
     )
   AppTheme {
-    ModalContents(
-      loi = loi,
-      canUserSubmitData = false,
-      submissionCountState = mutableIntStateOf(1),
-      onCollectClicked = {},
-    )
+    ModalContents(loi = loi, canUserSubmitData = false, submissionCount = 1, onCollectClicked = {})
   }
 }
 
@@ -252,11 +237,6 @@ fun PreviewModalContentsWhenJobHasTasks() {
       geometry = Point(coordinates = Coordinates(lat = 20.0, lng = 20.0)),
     )
   AppTheme {
-    ModalContents(
-      loi = loi,
-      canUserSubmitData = true,
-      submissionCountState = mutableIntStateOf(20),
-      onCollectClicked = {},
-    )
+    ModalContents(loi = loi, canUserSubmitData = true, submissionCount = 20, onCollectClicked = {})
   }
 }
