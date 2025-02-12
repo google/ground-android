@@ -39,24 +39,24 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 class JobMapComposables {
   private var collectDataListener: MutableState<(DataCollectionEntryPointData) -> Unit> =
     mutableStateOf({})
-  private var canUserSubmitData = mutableStateOf(false)
-  private var activeLoi: MutableState<SelectedLoiSheetData?> = mutableStateOf(null)
-  private val newLoiJobs: MutableList<AdHocDataCollectionButtonData> = mutableStateListOf()
+  private var canUserSubmitDataState = mutableStateOf(false)
+  private var loiJobCardDataState = mutableStateOf<SelectedLoiSheetData?>(null)
+  private val newLoiJobCardDataListState = mutableStateListOf<AdHocDataCollectionButtonData>()
   private var selectedFeatureListener: ((String?) -> Unit) = {}
-  private val jobModalOpened = mutableStateOf(false)
-  private val jobCardOpened = mutableStateOf(false)
+  private val showNewLoiJobSelectionModalState = mutableStateOf(false)
+  private val showLoiJobCardState = mutableStateOf(false)
   private val submissionCount = mutableIntStateOf(-1)
 
   @Composable
   fun Render(onOpen: () -> Unit, onDismiss: () -> Unit) {
     InitializeJobCard()
     InitializeAddLoiButton {
-      if (newLoiJobs.size == 1) {
+      if (newLoiJobCardDataListState.size == 1) {
         // If there's only one job, start data collection on it without showing the
         // job modal.
-        collectDataListener.value(newLoiJobs.first())
+        collectDataListener.value(newLoiJobCardDataListState.first())
       } else {
-        jobModalOpened.value = true
+        showNewLoiJobSelectionModalState.value = true
       }
     }
     InitializeJobSelectionModal(onOpen, onDismiss)
@@ -68,13 +68,13 @@ class JobMapComposables {
     selectedLoi: SelectedLoiSheetData?,
     addLoiJobs: List<AdHocDataCollectionButtonData>,
   ) {
-    this.canUserSubmitData.value = canUserSubmitData
-    activeLoi.value = selectedLoi
-    newLoiJobs.clear()
-    newLoiJobs.addAll(addLoiJobs)
+    this.canUserSubmitDataState.value = canUserSubmitData
+    loiJobCardDataState.value = selectedLoi
+    newLoiJobCardDataListState.clear()
+    newLoiJobCardDataListState.addAll(addLoiJobs)
     if (selectedLoi != null) {
       submissionCount.intValue = selectedLoi.submissionCount
-      jobCardOpened.value = true
+      showLoiJobCardState.value = true
       selectedFeatureListener(selectedLoi.loi.id)
     }
   }
@@ -88,16 +88,16 @@ class JobMapComposables {
   }
 
   private fun closeJobCard() {
-    jobCardOpened.value = false
-    activeLoi.value = null
+    showLoiJobCardState.value = false
+    loiJobCardDataState.value = null
     selectedFeatureListener(null)
   }
 
   @Composable
   private fun InitializeAddLoiButton(callback: () -> Unit) {
-    val jobs = remember { newLoiJobs }
-    val jobModalOpened by remember { jobModalOpened }
-    val canUserSubmitData by remember { canUserSubmitData }
+    val jobs = remember { newLoiJobCardDataListState }
+    val jobModalOpened by remember { showNewLoiJobSelectionModalState }
+    val canUserSubmitData by remember { canUserSubmitDataState }
     if (jobs.size == 0 || jobModalOpened || !canUserSubmitData) {
       return
     }
@@ -116,8 +116,8 @@ class JobMapComposables {
 
   @Composable
   private fun InitializeJobSelectionModal(onOpen: () -> Unit, onDismiss: () -> Unit) {
-    val buttonDataList = remember { newLoiJobs }
-    var openJobsModal by remember { jobModalOpened }
+    val buttonDataList = remember { newLoiJobCardDataListState }
+    var openJobsModal by remember { showNewLoiJobSelectionModalState }
     val collectDataCallback by remember { collectDataListener }
     if (openJobsModal) {
       onOpen()
@@ -137,8 +137,8 @@ class JobMapComposables {
   @Composable
   private fun InitializeJobCard() {
     val collectDataCallback by remember { collectDataListener }
-    val loi by remember { activeLoi }
-    val showJobCard by remember { jobCardOpened }
+    val loi by remember { loiJobCardDataState }
+    val showJobCard by remember { showLoiJobCardState }
 
     if (!showJobCard) {
       return
@@ -147,7 +147,7 @@ class JobMapComposables {
     loi?.let { loiData ->
       LoiJobSheet(
         loi = loiData.loi,
-        canUserSubmitDataState = canUserSubmitData,
+        canUserSubmitDataState = canUserSubmitDataState,
         submissionCountState = submissionCount,
         onCollectClicked = { collectDataCallback(loiData) },
         onDismiss = { closeJobCard() },
