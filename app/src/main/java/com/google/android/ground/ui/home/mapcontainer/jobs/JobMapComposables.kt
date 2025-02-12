@@ -83,7 +83,7 @@ class JobMapComposables {
   private fun InitializeAddLoiButton(onCollectData: (AdHocDataCollectionButtonData) -> Unit) {
     val jobs = remember { newLoiJobCardDataListState }
     var jobModalOpened by remember { showNewLoiJobSelectionModalState }
-    if (jobs.size == 0 || jobModalOpened || !jobs.first().canCollectData) {
+    if (jobs.size == 0 || jobModalOpened || !jobs.all { it.canCollectData }) {
       return
     }
     Row(
