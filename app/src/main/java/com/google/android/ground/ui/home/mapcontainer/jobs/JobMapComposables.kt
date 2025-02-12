@@ -96,7 +96,7 @@ class JobMapComposables {
             // If there's only one job, start data collection on it without showing the job modal.
             onCollectData(newLoiJobCardDataListState.first())
           } else {
-            jobModalOpened = false
+            jobModalOpened = true
           }
         },
       )
