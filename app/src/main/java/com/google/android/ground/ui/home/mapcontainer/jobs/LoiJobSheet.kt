@@ -33,10 +33,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.IntState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -68,7 +66,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoiJobSheet(
   loi: LocationOfInterest,
-  canUserSubmitDataState: Boolean,
+  canUserSubmitData: Boolean,
   submissionCountState: IntState,
   onCollectClicked: () -> Unit,
   onDismiss: () -> Unit,
@@ -82,7 +80,7 @@ fun LoiJobSheet(
     containerColor = MaterialTheme.colorScheme.surface,
     dragHandle = { BottomSheetDefaults.DragHandle(width = 32.dp) },
   ) {
-    ModalContents(loi, canUserSubmitDataState, submissionCountState) {
+    ModalContents(loi, canUserSubmitData, submissionCountState) {
       scope.launch { sheetState.hide() }.invokeOnCompletion { onCollectClicked() }
     }
   }
@@ -91,11 +89,10 @@ fun LoiJobSheet(
 @Composable
 private fun ModalContents(
   loi: LocationOfInterest,
-  canUserSubmitDataState: State<Boolean>,
+  canUserSubmitData: Boolean,
   submissionCountState: IntState,
   onCollectClicked: () -> Unit,
 ) {
-  val canUserSubmitData by remember { canUserSubmitDataState }
   val submissionCount by remember { submissionCountState }
   val loiHelper = LocationOfInterestHelper(LocalContext.current.resources)
 
@@ -174,7 +171,7 @@ fun PreviewModalContentsWhenJobHasNoTasks() {
   AppTheme {
     ModalContents(
       loi = loi,
-      canUserSubmitDataState = mutableStateOf(true),
+      canUserSubmitData = true,
       submissionCountState = mutableIntStateOf(0),
       onCollectClicked = {},
     )
@@ -215,7 +212,7 @@ fun PreviewModalContentsWhenUserCannotSubmitData() {
   AppTheme {
     ModalContents(
       loi = loi,
-      canUserSubmitDataState = mutableStateOf(false),
+      canUserSubmitData = false,
       submissionCountState = mutableIntStateOf(1),
       onCollectClicked = {},
     )
@@ -257,7 +254,7 @@ fun PreviewModalContentsWhenJobHasTasks() {
   AppTheme {
     ModalContents(
       loi = loi,
-      canUserSubmitDataState = mutableStateOf(true),
+      canUserSubmitData = true,
       submissionCountState = mutableIntStateOf(20),
       onCollectClicked = {},
     )

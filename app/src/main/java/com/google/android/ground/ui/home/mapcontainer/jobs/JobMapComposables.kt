@@ -142,7 +142,7 @@ class JobMapComposables {
     loi?.let { loiData ->
       LoiJobSheet(
         loi = loiData.loi,
-        canUserSubmitDataState = loiData.canCollectData,
+        canUserSubmitData = loiData.canCollectData,
         submissionCountState = submissionCount,
         onCollectClicked = { onCollectData(loiData) },
         onDismiss = { closeJobCard() },
