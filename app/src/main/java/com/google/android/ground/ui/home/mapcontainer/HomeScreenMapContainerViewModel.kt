@@ -17,6 +17,7 @@ package com.google.android.ground.ui.home.mapcontainer
 
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
+import com.google.android.ground.domain.usecases.datasharingterms.GetDataSharingTermsUseCase
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
@@ -48,7 +49,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -65,6 +65,7 @@ import kotlinx.coroutines.flow.stateIn
 class HomeScreenMapContainerViewModel
 @Inject
 internal constructor(
+  private val getDataSharingTermsUseCase: GetDataSharingTermsUseCase,
   private val loiRepository: LocationOfInterestRepository,
   mapStateRepository: MapStateRepository,
   private val submissionRepository: SubmissionRepository,
@@ -72,7 +73,7 @@ internal constructor(
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
-  surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepository,
   private val localValueStore: LocalValueStore,
 ) :
   BaseMapViewModel(
@@ -124,9 +125,6 @@ internal constructor(
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
   val isZoomedInFlow: Flow<Boolean>
 
-  /** Emits the data sharing terms object when the active survey has changed. Null to show none. */
-  val activeSurveyDataSharingTermsFlow: Flow<DataSharingTerms?>
-
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
 
@@ -161,23 +159,9 @@ internal constructor(
         if (survey == null || !isZoomedIn) listOf()
         else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
       }
-
-    activeSurveyDataSharingTermsFlow =
-      activeSurvey.flatMapLatest { survey ->
-        flowOf(
-          survey?.let {
-            it.dataSharingTerms?.let { dataTerms ->
-              if (getDataSharingConsent(it)) {
-                // User previously agreed to the terms.
-                null
-              } else {
-                dataTerms
-              }
-            }
-          }
-        )
-      }
   }
+
+  fun getDataSharingTerms(): Result<DataSharingTerms?> = getDataSharingTermsUseCase()
 
   /**
    * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and
@@ -221,19 +205,10 @@ internal constructor(
     featureClicked.value = features.minByOrNull { it.geometry.area }
   }
 
-  suspend fun updateDataSharingConsent(dataSharingTerms: Boolean) {
-    activeSurvey.collectLatest {
-      if (it != null) {
-        setDataSharingConsent(it, dataSharingTerms)
-      }
-    }
+  fun grantDataSharingConsent() {
+    val survey = requireNotNull(surveyRepository.activeSurvey)
+    localValueStore.setDataSharingConsent(survey.id, true)
   }
-
-  private fun getDataSharingConsent(survey: Survey) =
-    localValueStore.getDataSharingConsent(survey.id)
-
-  private fun setDataSharingConsent(survey: Survey, dataSharingTerms: Boolean) =
-    localValueStore.setDataSharingConsent(survey.id, dataSharingTerms)
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
     loiRepository.getValidLois(survey).map { it.map { loi -> loi.toFeature() }.toPersistentSet() }

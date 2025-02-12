@@ -16,33 +16,11 @@
 
 package com.google.android.ground.ui.home.mapcontainer.jobs
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -50,25 +28,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.google.android.ground.R
-import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
-import com.google.android.ground.ui.common.LocationOfInterestHelper
-import kotlinx.coroutines.launch
 
 /** Manages a set of [Composable] components that renders [LocationOfInterest] cards and dialogs. */
 class JobMapComposables {
@@ -144,213 +109,48 @@ class JobMapComposables {
       ActionButton(
         icon = Icons.Filled.Add,
         contentDescription = stringResource(id = R.string.add_site),
-        callback = callback,
+        onClick = callback,
       )
     }
   }
 
   @Composable
   private fun InitializeJobSelectionModal(onOpen: () -> Unit, onDismiss: () -> Unit) {
-    val jobs = remember { newLoiJobs }
+    val buttonDataList = remember { newLoiJobs }
     var openJobsModal by remember { jobModalOpened }
     val collectDataCallback by remember { collectDataListener }
     if (openJobsModal) {
       onOpen()
-      Modal(onDismiss = { openJobsModal = false }) {
-        jobs.forEach { job ->
-          JobSelectionRow(job) {
-            collectDataCallback(job)
-            openJobsModal = false
-          }
-          Spacer(Modifier.height(16.dp))
-        }
-      }
+      JobSelectionModal(
+        jobs = buttonDataList.map { it.job },
+        onJobClicked = { job ->
+          collectDataCallback(AdHocDataCollectionButtonData(job))
+          openJobsModal = false
+        },
+        onDismiss = { openJobsModal = false },
+      )
     } else {
       onDismiss()
     }
   }
 
-  @Suppress("CognitiveComplexMethod", "LongMethod")
-  @OptIn(ExperimentalMaterial3Api::class)
   @Composable
   private fun InitializeJobCard() {
-    val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
-    val showJobCard by remember { jobCardOpened }
-    val loi by remember { activeLoi }
-    val submissionCount by remember { submissionCount }
-    val canUserSubmitData by remember { canUserSubmitData }
     val collectDataCallback by remember { collectDataListener }
-    val loiHelper = LocationOfInterestHelper(LocalContext.current.resources)
+    val loi by remember { activeLoi }
+    val showJobCard by remember { jobCardOpened }
 
     if (!showJobCard) {
       return
     }
+
     loi?.let { loiData ->
-      ModalBottomSheet(
-        onDismissRequest = { closeJobCard() },
-        sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
-        dragHandle = { BottomSheetDefaults.DragHandle(width = 32.dp) },
-      ) {
-        Column(
-          modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 32.dp)
-        ) {
-          Text(
-            loiHelper.getJobName(loiData.loi) ?: "",
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 18.sp,
-          )
-          Row(
-            modifier = Modifier.padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-          ) {
-            Icon(
-              painter = painterResource(R.drawable.ic_ring_marker),
-              contentDescription = stringResource(R.string.job_site_icon),
-              modifier = Modifier.size(32.dp),
-              tint = Color(loiData.loi.job.getDefaultColor()),
-            )
-            Spacer(modifier = Modifier.size(18.dp))
-            Text(
-              loiHelper.getDisplayLoiName(loiData.loi),
-              color = MaterialTheme.colorScheme.onSurface,
-              fontSize = 28.sp,
-            )
-          }
-          Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.SpaceBetween,
-          ) {
-            Text(
-              if (submissionCount <= 0) stringResource(R.string.no_submissions)
-              else
-                pluralStringResource(R.plurals.submission_count, submissionCount, submissionCount),
-              color = MaterialTheme.colorScheme.onSurface,
-              fontSize = 16.sp,
-            )
-            // NOTE(#2539): The DataCollectionFragment will crash if there are no non-LOI tasks.
-            if (canUserSubmitData && loiData.loi.job.hasNonLoiTasks()) {
-              Button(
-                onClick = {
-                  scope
-                    .launch { sheetState.hide() }
-                    .invokeOnCompletion {
-                      if (!sheetState.isVisible) {
-                        closeJobCard()
-                      }
-                      collectDataCallback(loiData)
-                    }
-                }
-              ) {
-                Text(
-                  stringResource(R.string.add_data),
-                  modifier = Modifier.padding(4.dp),
-                  fontSize = 18.sp,
-                )
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-@Composable
-fun ActionButton(icon: ImageVector, contentDescription: String, callback: () -> Unit) {
-  Button(
-    onClick = callback,
-    modifier = Modifier.size(width = 100.dp, height = 100.dp),
-    colors =
-      ButtonColors(
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = Color.Black,
-        disabledContainerColor = ButtonDefaults.buttonColors().disabledContainerColor,
-        disabledContentColor = ButtonDefaults.buttonColors().disabledContentColor,
-      ),
-    shape =
-      RoundedCornerShape(
-        topStartPercent = 25,
-        topEndPercent = 25,
-        bottomStartPercent = 25,
-        bottomEndPercent = 25,
-      ),
-  ) {
-    Icon(imageVector = icon, contentDescription = contentDescription, Modifier.size(65.dp))
-  }
-}
-
-@Composable
-fun Modal(onDismiss: () -> Unit, content: @Composable () -> Unit) {
-  Column(
-    Modifier.fillMaxSize()
-      .background(
-        Brush.verticalGradient(
-          colorStops =
-            arrayOf(
-              0.0f to Color.Black.copy(alpha = 0.75F),
-              0.9f to Color.DarkGray.copy(alpha = 0.6F),
-              1f to Color.Transparent,
-            )
-        )
-      )
-      .pointerInput(Unit) { detectTapGestures {} }
-      .clickable(onClick = onDismiss),
-    verticalArrangement = Arrangement.SpaceBetween,
-    horizontalAlignment = Alignment.CenterHorizontally,
-  ) {
-    Spacer(Modifier.weight(1F))
-    Column(
-      verticalArrangement = Arrangement.SpaceBetween,
-      horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-      content()
-    }
-    Box(modifier = Modifier.weight(1F).fillMaxWidth(), contentAlignment = Alignment.BottomCenter) {
-      ActionButton(icon = Icons.Filled.Clear, contentDescription = stringResource(R.string.close)) {
-        onDismiss()
-      }
-    }
-  }
-}
-
-@Composable
-fun JobSelectionRow(job: AdHocDataCollectionButtonData, onJobSelected: () -> Unit) {
-  Button(
-    onClick = { onJobSelected() },
-    modifier = Modifier.fillMaxWidth(0.65F).clickable { onJobSelected() },
-    shape =
-      RoundedCornerShape(
-        topStartPercent = 25,
-        topEndPercent = 25,
-        bottomStartPercent = 25,
-        bottomEndPercent = 25,
-      ),
-    colors =
-      ButtonDefaults.buttonColors()
-        .copy(
-          containerColor = MaterialTheme.colorScheme.surface,
-          contentColor = MaterialTheme.colorScheme.onSurface,
-        ),
-  ) {
-    Row(
-      modifier = Modifier.fillMaxWidth(),
-      verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.Start,
-    ) {
-      Icon(
-        painter = painterResource(R.drawable.ic_ring_marker),
-        contentDescription = stringResource(R.string.job_site_icon),
-        modifier = Modifier.size(32.dp),
-        tint = Color(job.job.getDefaultColor()),
-      )
-      Spacer(modifier = Modifier.size(8.dp))
-      Text(
-        job.job.name ?: stringResource(R.string.unnamed_job),
-        modifier = Modifier.padding(16.dp),
-        fontSize = 24.sp,
+      LoiJobSheet(
+        loi = loiData.loi,
+        canUserSubmitDataState = canUserSubmitData,
+        submissionCountState = submissionCount,
+        onCollectClicked = { collectDataCallback(loiData) },
+        onDismiss = { closeJobCard() },
       )
     }
   }

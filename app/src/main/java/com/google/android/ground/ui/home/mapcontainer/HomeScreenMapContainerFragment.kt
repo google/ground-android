@@ -19,8 +19,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.runtime.Composable
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
@@ -28,6 +26,7 @@ import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.coroutines.MainDispatcher
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.MenuButtonBinding
+import com.google.android.ground.domain.usecases.datasharingterms.GetDataSharingTermsUseCase
 import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.proto.Survey.DataSharingTerms
 import com.google.android.ground.repository.SubmissionRepository
@@ -49,10 +48,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.cancellable
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -84,19 +80,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
       // Handle collect button clicks
       jobMapComposables.setCollectDataListener { mapUiData ->
-        val job =
-          lifecycleScope.launch {
-            mapContainerViewModel.activeSurveyDataSharingTermsFlow.cancellable().collectLatest {
-              hasDataSharingTerms ->
-              onCollectData(
-                canUserSubmitData,
-                hasValidTasks(mapUiData),
-                hasDataSharingTerms,
-                mapUiData,
-              )
-            }
-          }
-        job.cancel()
+        onCollectData(canUserSubmitData, mapUiData)
       }
 
       // Bind data for cards
@@ -116,25 +100,20 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       is AdHocDataCollectionButtonData -> cardUiData.job.tasks.values.isNotEmpty()
     }
 
-  @Composable
-  private fun ShowDataSharingTermsDialog(
+  private fun showDataSharingTermsDialog(
     cardUiData: DataCollectionEntryPointData,
     dataSharingTerms: DataSharingTerms,
   ) {
-    DataSharingTermsDialog(dataSharingTerms) {
-      val job = lifecycleScope.launch { mapContainerViewModel.updateDataSharingConsent(true) }
-      job.cancel()
-      navigateToDataCollectionFragment(cardUiData)
+    renderComposableDialog {
+      DataSharingTermsDialog(dataSharingTerms) {
+        mapContainerViewModel.grantDataSharingConsent()
+        navigateToDataCollectionFragment(cardUiData)
+      }
     }
   }
 
   /** Invoked when user clicks on the map cards to collect data. */
-  private fun onCollectData(
-    canUserSubmitData: Boolean,
-    hasTasks: Boolean,
-    hasDataSharingTerms: DataSharingTerms?,
-    cardUiData: DataCollectionEntryPointData,
-  ) {
+  private fun onCollectData(canUserSubmitData: Boolean, cardUiData: DataCollectionEntryPointData) {
     if (!canUserSubmitData) {
       // Skip data collection screen if the user can't submit any data
       // TODO: Revisit UX for displaying view only mode
@@ -142,23 +121,34 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       ephemeralPopups.ErrorPopup().show(getString(R.string.collect_data_viewer_error))
       return
     }
-    if (!hasTasks) {
+    if (!hasValidTasks(cardUiData)) {
       // NOTE(#2539): The DataCollectionFragment will crash if there are no tasks.
       ephemeralPopups.ErrorPopup().show(getString(R.string.no_tasks_error))
       return
     }
-    if (hasDataSharingTerms != null) {
-      if (
-        hasDataSharingTerms.type == DataSharingTerms.Type.CUSTOM &&
-          hasDataSharingTerms.customText.isBlank()
-      ) {
-        ephemeralPopups.ErrorPopup().show(getString(R.string.invalid_data_sharing_terms))
-        return
+
+    mapContainerViewModel
+      .getDataSharingTerms()
+      .onSuccess { terms ->
+        if (terms == null) {
+          // Data sharing terms already accepted or missing.
+          navigateToDataCollectionFragment(cardUiData)
+        } else {
+          showDataSharingTermsDialog(cardUiData, terms)
+        }
       }
-      renderComposableDialog { ShowDataSharingTermsDialog(cardUiData, hasDataSharingTerms) }
-      return
-    }
-    navigateToDataCollectionFragment(cardUiData)
+      .onFailure {
+        Timber.e(it, "Failed to get data sharing terms")
+        ephemeralPopups
+          .ErrorPopup()
+          .show(
+            if (it is GetDataSharingTermsUseCase.InvalidCustomSharingTermsException) {
+              R.string.invalid_data_sharing_terms
+            } else {
+              R.string.something_went_wrong
+            }
+          )
+      }
   }
 
   override fun onCreateView(

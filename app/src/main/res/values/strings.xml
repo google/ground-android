@@ -200,4 +200,5 @@
   <string name="data_collection_cancellation_title">Stop collecting data?</string>
   <string name="data_collection_cancellation_description">If you exit, data you haven&#8217;t submitted yet will be discarded.</string>
   <string name="data_collection_cancellation_confirm_button">Confirm</string>
+  <string name="something_went_wrong">Something went wrong</string>
 </resources>
