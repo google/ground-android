@@ -49,16 +49,8 @@ class JobMapComposables {
     onDismiss: () -> Unit,
     onCollectData: (DataCollectionEntryPointData) -> Unit,
   ) {
-    InitializeJobCard(onCollectData)
-    InitializeAddLoiButton {
-      if (newLoiJobCardDataListState.size == 1) {
-        // If there's only one job, start data collection on it without showing the
-        // job modal.
-        onCollectData(newLoiJobCardDataListState.first())
-      } else {
-        showNewLoiJobSelectionModalState.value = true
-      }
-    }
+    InitializeJobCard(onCollectClicked = onCollectData)
+    InitializeAddLoiButton(onCollectData = onCollectData)
     InitializeJobSelectionModal(onOpen, onDismiss, onCollectData)
   }
 
@@ -88,9 +80,9 @@ class JobMapComposables {
   }
 
   @Composable
-  private fun InitializeAddLoiButton(callback: () -> Unit) {
+  private fun InitializeAddLoiButton(onCollectData: (AdHocDataCollectionButtonData) -> Unit) {
     val jobs = remember { newLoiJobCardDataListState }
-    val jobModalOpened by remember { showNewLoiJobSelectionModalState }
+    var jobModalOpened by remember { showNewLoiJobSelectionModalState }
     if (jobs.size == 0 || jobModalOpened || !jobs.first().canCollectData) {
       return
     }
@@ -102,7 +94,14 @@ class JobMapComposables {
       ActionButton(
         icon = Icons.Filled.Add,
         contentDescription = stringResource(id = R.string.add_site),
-        onClick = callback,
+        onClick = {
+          if (jobs.size == 1) {
+            // If there's only one job, start data collection on it without showing the job modal.
+            onCollectData(newLoiJobCardDataListState.first())
+          } else {
+            jobModalOpened = false
+          }
+        },
       )
     }
   }
@@ -131,7 +130,7 @@ class JobMapComposables {
   }
 
   @Composable
-  private fun InitializeJobCard(onCollectData: (DataCollectionEntryPointData) -> Unit) {
+  private fun InitializeJobCard(onCollectClicked: (SelectedLoiSheetData) -> Unit) {
     val loi by remember { loiJobCardDataState }
     val showJobCard by remember { showLoiJobCardState }
 
@@ -144,7 +143,7 @@ class JobMapComposables {
         loi = loiData.loi,
         canUserSubmitData = loiData.canCollectData,
         submissionCountState = submissionCount,
-        onCollectClicked = { onCollectData(loiData) },
+        onCollectClicked = { onCollectClicked(loiData) },
         onDismiss = { closeJobCard() },
       )
     }
