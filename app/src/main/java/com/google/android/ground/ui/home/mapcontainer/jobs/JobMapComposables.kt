@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -37,8 +36,6 @@ import com.google.android.ground.model.locationofinterest.LocationOfInterest
 
 /** Manages a set of [Composable] components that renders [LocationOfInterest] cards and dialogs. */
 class JobMapComposables {
-  private var collectDataListener: MutableState<(DataCollectionEntryPointData) -> Unit> =
-    mutableStateOf({})
   private var canUserSubmitDataState = mutableStateOf(false)
   private var loiJobCardDataState = mutableStateOf<SelectedLoiSheetData?>(null)
   private val newLoiJobCardDataListState = mutableStateListOf<AdHocDataCollectionButtonData>()
@@ -48,18 +45,22 @@ class JobMapComposables {
   private val submissionCount = mutableIntStateOf(-1)
 
   @Composable
-  fun Render(onOpen: () -> Unit, onDismiss: () -> Unit) {
-    InitializeJobCard()
+  fun Render(
+    onOpen: () -> Unit,
+    onDismiss: () -> Unit,
+    onCollectData: (DataCollectionEntryPointData) -> Unit,
+  ) {
+    InitializeJobCard(onCollectData)
     InitializeAddLoiButton {
       if (newLoiJobCardDataListState.size == 1) {
         // If there's only one job, start data collection on it without showing the
         // job modal.
-        collectDataListener.value(newLoiJobCardDataListState.first())
+        onCollectData(newLoiJobCardDataListState.first())
       } else {
         showNewLoiJobSelectionModalState.value = true
       }
     }
-    InitializeJobSelectionModal(onOpen, onDismiss)
+    InitializeJobSelectionModal(onOpen, onDismiss, onCollectData)
   }
 
   /** Overwrites existing cards. */
@@ -81,10 +82,6 @@ class JobMapComposables {
 
   fun setSelectedFeature(listener: (String?) -> Unit) {
     selectedFeatureListener = listener
-  }
-
-  fun setCollectDataListener(listener: (DataCollectionEntryPointData) -> Unit) {
-    collectDataListener.value = listener
   }
 
   private fun closeJobCard() {
@@ -115,16 +112,19 @@ class JobMapComposables {
   }
 
   @Composable
-  private fun InitializeJobSelectionModal(onOpen: () -> Unit, onDismiss: () -> Unit) {
+  private fun InitializeJobSelectionModal(
+    onOpen: () -> Unit,
+    onDismiss: () -> Unit,
+    onCollectData: (DataCollectionEntryPointData) -> Unit,
+  ) {
     val buttonDataList = remember { newLoiJobCardDataListState }
     var openJobsModal by remember { showNewLoiJobSelectionModalState }
-    val collectDataCallback by remember { collectDataListener }
     if (openJobsModal) {
       onOpen()
       JobSelectionModal(
         jobs = buttonDataList.map { it.job },
         onJobClicked = { job ->
-          collectDataCallback(AdHocDataCollectionButtonData(job))
+          onCollectData(AdHocDataCollectionButtonData(job))
           openJobsModal = false
         },
         onDismiss = { openJobsModal = false },
@@ -135,8 +135,7 @@ class JobMapComposables {
   }
 
   @Composable
-  private fun InitializeJobCard() {
-    val collectDataCallback by remember { collectDataListener }
+  private fun InitializeJobCard(onCollectData: (DataCollectionEntryPointData) -> Unit) {
     val loi by remember { loiJobCardDataState }
     val showJobCard by remember { showLoiJobCardState }
 
@@ -149,7 +148,7 @@ class JobMapComposables {
         loi = loiData.loi,
         canUserSubmitDataState = canUserSubmitDataState,
         submissionCountState = submissionCount,
-        onCollectClicked = { collectDataCallback(loiData) },
+        onCollectClicked = { onCollectData(loiData) },
         onDismiss = { closeJobCard() },
       )
     }

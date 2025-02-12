@@ -19,6 +19,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
@@ -45,11 +46,12 @@ import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.util.createComposeView
 import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
@@ -77,11 +79,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
     launchWhenStarted {
       val canUserSubmitData = userRepository.canUserSubmitData()
-
-      // Handle collect button clicks
-      jobMapComposables.setCollectDataListener { mapUiData ->
-        onCollectData(canUserSubmitData, mapUiData)
-      }
 
       // Bind data for cards
       mapContainerViewModel.processDataCollectionEntryPoints().launchWhenStartedAndCollect {
@@ -113,8 +110,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   /** Invoked when user clicks on the map cards to collect data. */
-  private fun onCollectData(canUserSubmitData: Boolean, cardUiData: DataCollectionEntryPointData) {
-    if (!canUserSubmitData) {
+  private suspend fun onCollectData(cardUiData: DataCollectionEntryPointData) {
+    if (!userRepository.canUserSubmitData()) {
       // Skip data collection screen if the user can't submit any data
       // TODO: Revisit UX for displaying view only mode
       // Issue URL: https://github.com/google/ground-android/issues/1667
@@ -177,8 +174,13 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       binding.locationLockBtn.show()
       menuBinding.hamburgerBtn.show()
     }
+    val onCollectData = { mapUiData: DataCollectionEntryPointData ->
+      lifecycleScope.launch { onCollectData(mapUiData) }
+    }
     binding.bottomContainer.addView(
-      createComposeView { jobMapComposables.Render(onOpen, onDismiss) }
+      createComposeView {
+        jobMapComposables.Render(onOpen, onDismiss, onCollectData = { onCollectData(it) })
+      }
     )
     binding.bottomContainer.bringToFront()
     showDataCollectionHint()
