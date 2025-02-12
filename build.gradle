@@ -118,6 +118,6 @@ gitVersioner {
 ext {
     androidCompileSdk = 34
     androidMinSdk = 24
-    androidTargetSdk = 33
+    androidTargetSdk = 34
     jvmToolchainVersion = 17
 }
