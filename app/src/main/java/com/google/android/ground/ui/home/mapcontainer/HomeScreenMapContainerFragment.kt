@@ -42,7 +42,7 @@ import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
 import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPointEvent
-import com.google.android.ground.ui.home.mapcontainer.jobs.JobMapComposables
+import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPointRender
 import com.google.android.ground.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.util.createComposeView
@@ -174,23 +174,22 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   fun JobMapScreen() {
     val state by mapContainerViewModel.dataCollectionEntryPointState
 
-    JobMapComposables()
-      .Render(
-        state = state,
-        onEvent = { event -> mapContainerViewModel.handleEvent(event) },
-        selectedFeatureListener = { mapContainerViewModel.selectLocationOfInterest(it) },
-        onJobSelectionModalShown = {
-          binding.mapTypeBtn.hide()
-          binding.locationLockBtn.hide()
-          menuBinding.hamburgerBtn.hide()
-        },
-        onJobSelectionModalDismissed = {
-          binding.mapTypeBtn.show()
-          binding.locationLockBtn.show()
-          menuBinding.hamburgerBtn.show()
-        },
-        onCollectData = { onCollectData(it) },
-      )
+    DataCollectionEntryPointRender(
+      state = state,
+      onEvent = { event -> mapContainerViewModel.handleEvent(event) },
+      onFeatureSelected = { mapContainerViewModel.selectLocationOfInterest(it) },
+      onJobSelectionModalShown = {
+        binding.mapTypeBtn.hide()
+        binding.locationLockBtn.hide()
+        menuBinding.hamburgerBtn.hide()
+      },
+      onJobSelectionModalDismissed = {
+        binding.mapTypeBtn.show()
+        binding.locationLockBtn.show()
+        menuBinding.hamburgerBtn.show()
+      },
+      onCollectData = { onCollectData(it) },
+    )
   }
 
   /**
