@@ -15,6 +15,8 @@
  */
 package com.google.android.ground.ui.home.mapcontainer
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.domain.usecases.datasharingterms.GetDataSharingTermsUseCase
@@ -37,12 +39,12 @@ import com.google.android.ground.ui.common.BaseMapViewModel
 import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
+import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPointEvent
+import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPointState
 import com.google.android.ground.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import com.google.android.ground.ui.map.isLocationOfInterest
-import javax.inject.Inject
-import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -60,6 +62,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -127,6 +131,10 @@ internal constructor(
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
   val isZoomedInFlow: Flow<Boolean>
 
+  private val _dataCollectionEntryPointState = mutableStateOf(DataCollectionEntryPointState())
+  val dataCollectionEntryPointState: State<DataCollectionEntryPointState>
+    get() = _dataCollectionEntryPointState
+
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
 
@@ -164,6 +172,40 @@ internal constructor(
   }
 
   fun getDataSharingTerms(): Result<DataSharingTerms?> = getDataSharingTermsUseCase()
+
+  fun handleEvent(event: DataCollectionEntryPointEvent) {
+    with(_dataCollectionEntryPointState) {
+      when (event) {
+        is DataCollectionEntryPointEvent.StartDataCollection -> {
+          value.copy(
+            showNewLoiJobSelectionModal = false,
+            showLoiSheet = false,
+            selectedLoiSheetData = null,
+          )
+        }
+
+        is DataCollectionEntryPointEvent.ShowNewLoiJobSelectionModal -> {
+          value.copy(showNewLoiJobSelectionModal = true, showLoiSheet = false)
+        }
+
+        is DataCollectionEntryPointEvent.DismissNewLoiJobSelectionModal -> {
+          value.copy(showNewLoiJobSelectionModal = false)
+        }
+
+        is DataCollectionEntryPointEvent.DismissSelectedLoiJobSheet -> {
+          value.copy(showLoiSheet = false, selectedLoiSheetData = null)
+        }
+
+        is DataCollectionEntryPointEvent.UpdateState -> {
+          value.copy(
+            selectedLoiSheetData = event.selectedLoiSheetData,
+            newLoiJobCardDataList = event.newLoiJobCardDataList,
+            showLoiSheet = event.selectedLoiSheetData != null,
+          )
+        }
+      }.also { value = it }
+    }
+  }
 
   /**
    * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and

@@ -19,6 +19,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.navigation.fragment.findNavController
 import com.google.android.ground.R
 import com.google.android.ground.coroutines.ApplicationScope
@@ -39,17 +41,18 @@ import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.ui.home.HomeScreenViewModel
 import com.google.android.ground.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
+import com.google.android.ground.ui.home.mapcontainer.jobs.DataCollectionEntryPointEvent
 import com.google.android.ground.ui.home.mapcontainer.jobs.JobMapComposables
 import com.google.android.ground.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import com.google.android.ground.ui.map.MapFragment
 import com.google.android.ground.util.createComposeView
 import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
 import timber.log.Timber
+import javax.inject.Inject
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
@@ -62,23 +65,27 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   @Inject @MainDispatcher lateinit var mainDispatcher: CoroutineDispatcher
   @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
 
+  private lateinit var binding: BasemapLayoutBinding
+  private lateinit var menuBinding: MenuButtonBinding
+
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
-  private lateinit var binding: BasemapLayoutBinding
-  private lateinit var jobMapComposables: JobMapComposables
   private lateinit var infoPopup: EphemeralPopups.InfoPopup
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    jobMapComposables = JobMapComposables()
-    jobMapComposables.setSelectedFeature { mapContainerViewModel.selectLocationOfInterest(it) }
 
     // Bind data for cards
     mapContainerViewModel.processDataCollectionEntryPoints().launchWhenStartedAndCollect {
       (loiCard, jobCards) ->
-      jobMapComposables.updateData(loiCard, jobCards)
+      mapContainerViewModel.handleEvent(
+        DataCollectionEntryPointEvent.UpdateState(
+          selectedLoiSheetData = loiCard,
+          newLoiJobCardDataList = jobCards,
+        )
+      )
     }
 
     map.featureClicks.launchWhenStartedAndCollect { mapContainerViewModel.onFeatureClicked(it) }
@@ -157,24 +164,33 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    val menuBinding = setupMenuFab()
-    val onOpen = {
-      binding.mapTypeBtn.hide()
-      binding.locationLockBtn.hide()
-      menuBinding.hamburgerBtn.hide()
-    }
-    val onDismiss = {
-      binding.mapTypeBtn.show()
-      binding.locationLockBtn.show()
-      menuBinding.hamburgerBtn.show()
-    }
-    binding.bottomContainer.addView(
-      createComposeView {
-        jobMapComposables.Render(onOpen, onDismiss, onCollectData = { onCollectData(it) })
-      }
-    )
+    setupMenuFab()
+    binding.bottomContainer.addView(createComposeView { JobMapScreen() })
     binding.bottomContainer.bringToFront()
     showDataCollectionHint()
+  }
+
+  @Composable
+  fun JobMapScreen() {
+    val state by mapContainerViewModel.dataCollectionEntryPointState
+
+    JobMapComposables()
+      .Render(
+        state = state,
+        onEvent = { event -> mapContainerViewModel.handleEvent(event) },
+        selectedFeatureListener = { mapContainerViewModel.selectLocationOfInterest(it) },
+        onJobSelectionModalShown = {
+          binding.mapTypeBtn.hide()
+          binding.locationLockBtn.hide()
+          menuBinding.hamburgerBtn.hide()
+        },
+        onJobSelectionModalDismissed = {
+          binding.mapTypeBtn.show()
+          binding.locationLockBtn.show()
+          menuBinding.hamburgerBtn.show()
+        },
+        onCollectData = { onCollectData(it) },
+      )
   }
 
   /**
@@ -218,12 +234,11 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       }
   }
 
-  private fun setupMenuFab(): MenuButtonBinding {
+  private fun setupMenuFab() {
     val mapOverlay = binding.overlay
-    val menuBinding = MenuButtonBinding.inflate(layoutInflater, mapOverlay, true)
+    menuBinding = MenuButtonBinding.inflate(layoutInflater, mapOverlay, true)
     menuBinding.homeScreenViewModel = homeScreenViewModel
     menuBinding.lifecycleOwner = this
-    return menuBinding
   }
 
   private fun navigateToDataCollectionFragment(cardUiData: DataCollectionEntryPointData) {
