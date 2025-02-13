@@ -120,7 +120,7 @@ internal constructor(
   private val loisInViewport: StateFlow<List<LocationOfInterest>>
 
   /** [Feature] clicked by the user. */
-  val featureClicked: MutableStateFlow<Feature?> = MutableStateFlow(null)
+  private val featureClicked: MutableStateFlow<Feature?> = MutableStateFlow(null)
 
   /**
    * List of [Job]s which allow LOIs to be added during field collection, populated only when zoomed
@@ -193,10 +193,12 @@ internal constructor(
         }
 
         is DataCollectionEntryPointEvent.DismissSelectedLoiJobSheet -> {
+          selectLocationOfInterest(null)
           value.copy(showLoiSheet = false, selectedLoiSheetData = null)
         }
 
         is DataCollectionEntryPointEvent.UpdateState -> {
+          selectLocationOfInterest(event.selectedLoiSheetData?.loi?.id)
           value.copy(
             selectedLoiSheetData = event.selectedLoiSheetData,
             newLoiJobCardDataList = event.newLoiJobCardDataList,
@@ -271,7 +273,7 @@ internal constructor(
       selected = true,
     )
 
-  fun selectLocationOfInterest(id: String?) {
+  private fun selectLocationOfInterest(id: String?) {
     selectedLoiIdFlow.value = id
     if (id == null) {
       featureClicked.value = null

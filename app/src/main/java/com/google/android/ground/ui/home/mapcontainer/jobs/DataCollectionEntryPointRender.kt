@@ -26,45 +26,43 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.google.android.ground.R
-import com.google.android.ground.model.locationofinterest.LocationOfInterest
+import com.google.android.ground.model.job.Job
 
-/** Manages a set of [Composable] components that renders [LocationOfInterest] cards and dialogs. */
+/** Renders the entry points for data collection, managing the display of cards and dialogs. */
 @Composable
 fun DataCollectionEntryPointRender(
   state: DataCollectionEntryPointState,
   onEvent: (DataCollectionEntryPointEvent) -> Unit,
-  onFeatureSelected: (String?) -> Unit,
   onJobSelectionModalShown: () -> Unit,
   onJobSelectionModalDismissed: () -> Unit,
-  onCollectData: (DataCollectionEntryPointData) -> Unit,
+  onDataCollected: (DataCollectionEntryPointData) -> Unit,
 ) {
 
+  /**
+   * Starts the data collection process for the given [DataCollectionEntryPointData].
+   *
+   * @param data The data associated with the location of interest.
+   */
   fun startDataCollection(data: DataCollectionEntryPointData) {
     onEvent(DataCollectionEntryPointEvent.StartDataCollection(data))
-    onCollectData(data)
+    onDataCollected(data)
   }
 
+  // Display the LoiJobSheet if it should be shown.
   if (state.showLoiSheet) {
     state.selectedLoiSheetData?.let { loiData ->
-      onFeatureSelected(loiData.loi.id)
       LoiJobSheet(
         loi = loiData.loi,
         canUserSubmitData = loiData.canCollectData,
         submissionCount = loiData.submissionCount,
         onCollectClicked = { startDataCollection(loiData) },
-        onDismiss = {
-          onFeatureSelected(null)
-          onEvent(DataCollectionEntryPointEvent.DismissSelectedLoiJobSheet)
-        },
+        onDismiss = { onEvent(DataCollectionEntryPointEvent.DismissSelectedLoiJobSheet) },
       )
     }
   }
 
-  if (
-    !state.showNewLoiJobSelectionModal &&
-      state.newLoiJobCardDataList.isNotEmpty() &&
-      state.newLoiJobCardDataList.all { it.canCollectData }
-  ) {
+  // Display the "Add Site" button if the conditions are met.
+  if (state.shouldShowAddSiteButton()) {
     Row(
       Modifier.fillMaxWidth(),
       horizontalArrangement = Arrangement.Center,
@@ -75,7 +73,7 @@ fun DataCollectionEntryPointRender(
         contentDescription = stringResource(id = R.string.add_site),
         onClick = {
           if (state.newLoiJobCardDataList.size == 1) {
-            // If there's only one job, start data collection on it without showing the job modal.
+            // If there's only one job, start data collection on it directly.
             startDataCollection(state.newLoiJobCardDataList.first())
           } else {
             onEvent(DataCollectionEntryPointEvent.ShowNewLoiJobSelectionModal)
@@ -85,16 +83,23 @@ fun DataCollectionEntryPointRender(
     }
   }
 
+  // Display the JobSelectionModal if it should be shown.
   if (state.showNewLoiJobSelectionModal) {
     onJobSelectionModalShown()
     JobSelectionModal(
       jobs = state.newLoiJobCardDataList.map { it.job },
-      onJobClicked = { job ->
-        startDataCollection(state.newLoiJobCardDataList.first { it.job == job })
-      },
+      onJobClicked = { job -> state.findNewLoiJob(job)?.let { startDataCollection(it) } },
       onDismiss = { onEvent(DataCollectionEntryPointEvent.DismissNewLoiJobSelectionModal) },
     )
   } else {
     onJobSelectionModalDismissed()
   }
 }
+
+private fun DataCollectionEntryPointState.findNewLoiJob(job: Job): AdHocDataCollectionButtonData? =
+  newLoiJobCardDataList.firstOrNull { it.job == job }
+
+private fun DataCollectionEntryPointState.shouldShowAddSiteButton(): Boolean =
+  !showNewLoiJobSelectionModal &&
+    newLoiJobCardDataList.isNotEmpty() &&
+    newLoiJobCardDataList.all { it.canCollectData }

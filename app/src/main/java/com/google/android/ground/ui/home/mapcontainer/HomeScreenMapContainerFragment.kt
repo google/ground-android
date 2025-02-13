@@ -176,8 +176,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
     DataCollectionEntryPointRender(
       state = state,
-      onEvent = { event -> mapContainerViewModel.handleEvent(event) },
-      onFeatureSelected = { mapContainerViewModel.selectLocationOfInterest(it) },
+      onEvent = { mapContainerViewModel.handleEvent(it) },
       onJobSelectionModalShown = {
         binding.mapTypeBtn.hide()
         binding.locationLockBtn.hide()
@@ -188,7 +187,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         binding.locationLockBtn.show()
         menuBinding.hamburgerBtn.show()
       },
-      onCollectData = { onCollectData(it) },
+      onDataCollected = { onCollectData(it) },
     )
   }
 
