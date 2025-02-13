@@ -177,18 +177,22 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     DataCollectionEntryPointRender(
       state = state,
       onEvent = { mapContainerViewModel.handleEvent(it) },
-      onJobSelectionModalShown = {
-        binding.mapTypeBtn.hide()
-        binding.locationLockBtn.hide()
-        menuBinding.hamburgerBtn.hide()
-      },
-      onJobSelectionModalDismissed = {
-        binding.mapTypeBtn.show()
-        binding.locationLockBtn.show()
-        menuBinding.hamburgerBtn.show()
-      },
+      onJobSelectionModalShown = { showMapOverlayButtons(false) },
+      onJobSelectionModalDismissed = { showMapOverlayButtons(true) },
       onDataCollected = { onCollectData(it) },
     )
+  }
+
+  private fun showMapOverlayButtons(show: Boolean) {
+    if (show) {
+      binding.mapTypeBtn.show()
+      binding.locationLockBtn.show()
+      menuBinding.hamburgerBtn.show()
+    } else {
+      binding.mapTypeBtn.hide()
+      binding.locationLockBtn.hide()
+      menuBinding.hamburgerBtn.hide()
+    }
   }
 
   /**
