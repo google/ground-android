@@ -28,7 +28,6 @@ import com.google.android.ground.coroutines.IoDispatcher
 import com.google.android.ground.coroutines.MainDispatcher
 import com.google.android.ground.databinding.BasemapLayoutBinding
 import com.google.android.ground.databinding.MenuButtonBinding
-import com.google.android.ground.domain.usecases.datasharingterms.GetDataSharingTermsUseCase
 import com.google.android.ground.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.android.ground.proto.Survey.DataSharingTerms
 import com.google.android.ground.repository.SubmissionRepository
@@ -89,14 +88,23 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     }
 
     map.featureClicks.launchWhenStartedAndCollect { mapContainerViewModel.onFeatureClicked(it) }
+
+    mapContainerViewModel.uiEventsFlow.launchWhenStartedAndCollect { handleUiEvent(it) }
   }
 
-  private fun hasValidTasks(cardUiData: DataCollectionEntryPointData) =
-    when (cardUiData) {
-      // LOI tasks are filtered out of the tasks list for pre-defined tasks.
-      is SelectedLoiSheetData -> cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
-      is AdHocDataCollectionButtonData -> cardUiData.job.tasks.values.isNotEmpty()
+  private fun handleUiEvent(uiEvent: HomeScreenMapContainerEvent) {
+    when (uiEvent) {
+      is HomeScreenMapContainerEvent.ShowDataSharingTermsDialog -> {
+        showDataSharingTermsDialog(uiEvent.data, uiEvent.dataSharingTerms)
+      }
+      is HomeScreenMapContainerEvent.NavigateToDataCollectionFragment -> {
+        navigateToDataCollectionFragment(uiEvent.data)
+      }
+      is HomeScreenMapContainerEvent.ShowErrorToast -> {
+        ephemeralPopups.ErrorPopup().show(getString(uiEvent.messageResId))
+      }
     }
+  }
 
   private fun showDataSharingTermsDialog(
     cardUiData: DataCollectionEntryPointData,
@@ -108,45 +116,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         navigateToDataCollectionFragment(cardUiData)
       }
     }
-  }
-
-  /** Invoked when user clicks on the map cards to collect data. */
-  private fun onCollectData(cardUiData: DataCollectionEntryPointData) {
-    if (!cardUiData.canCollectData) {
-      // Skip data collection screen if the user can't submit any data
-      // TODO: Revisit UX for displaying view only mode
-      // Issue URL: https://github.com/google/ground-android/issues/1667
-      ephemeralPopups.ErrorPopup().show(getString(R.string.collect_data_viewer_error))
-      return
-    }
-    if (!hasValidTasks(cardUiData)) {
-      // NOTE(#2539): The DataCollectionFragment will crash if there are no tasks.
-      ephemeralPopups.ErrorPopup().show(getString(R.string.no_tasks_error))
-      return
-    }
-
-    mapContainerViewModel
-      .getDataSharingTerms()
-      .onSuccess { terms ->
-        if (terms == null) {
-          // Data sharing terms already accepted or missing.
-          navigateToDataCollectionFragment(cardUiData)
-        } else {
-          showDataSharingTermsDialog(cardUiData, terms)
-        }
-      }
-      .onFailure {
-        Timber.e(it, "Failed to get data sharing terms")
-        ephemeralPopups
-          .ErrorPopup()
-          .show(
-            if (it is GetDataSharingTermsUseCase.InvalidCustomSharingTermsException) {
-              R.string.invalid_data_sharing_terms
-            } else {
-              R.string.something_went_wrong
-            }
-          )
-      }
   }
 
   override fun onCreateView(
@@ -179,7 +148,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       onEvent = { mapContainerViewModel.handleEvent(it) },
       onJobSelectionModalShown = { showMapOverlayButtons(false) },
       onJobSelectionModalDismissed = { showMapOverlayButtons(true) },
-      onDataCollected = { onCollectData(it) },
     )
   }
 

@@ -15,10 +15,12 @@
  */
 package com.google.android.ground.ui.home.mapcontainer
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
+import com.google.android.ground.R
 import com.google.android.ground.domain.usecases.datasharingterms.GetDataSharingTermsUseCase
 import com.google.android.ground.model.Survey
 import com.google.android.ground.model.job.Job
@@ -49,9 +51,12 @@ import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -62,6 +67,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -135,6 +142,9 @@ internal constructor(
   val dataCollectionEntryPointState: State<DataCollectionEntryPointState>
     get() = _dataCollectionEntryPointState
 
+  private val _uiEvents: MutableSharedFlow<HomeScreenMapContainerEvent> = MutableSharedFlow()
+  val uiEventsFlow: SharedFlow<HomeScreenMapContainerEvent> = _uiEvents.asSharedFlow()
+
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
 
@@ -171,12 +181,11 @@ internal constructor(
       }
   }
 
-  fun getDataSharingTerms(): Result<DataSharingTerms?> = getDataSharingTermsUseCase()
-
   fun handleEvent(event: DataCollectionEntryPointEvent) {
     with(_dataCollectionEntryPointState) {
       when (event) {
         is DataCollectionEntryPointEvent.StartDataCollection -> {
+          onCollectData(event.data)
           value.copy(
             showNewLoiJobSelectionModal = false,
             showLoiSheet = false,
@@ -207,6 +216,71 @@ internal constructor(
         }
       }.also { value = it }
     }
+  }
+
+  private fun showError(@StringRes messageResId: Int) {
+    viewModelScope.launch {
+      _uiEvents.emit(HomeScreenMapContainerEvent.ShowErrorToast(messageResId))
+    }
+  }
+
+  private fun navigateToDataCollectionFragment(cardUiData: DataCollectionEntryPointData) {
+    viewModelScope.launch {
+      _uiEvents.emit(HomeScreenMapContainerEvent.NavigateToDataCollectionFragment(cardUiData))
+    }
+  }
+
+  private fun showDataSharingTermsDialog(
+    cardUiData: DataCollectionEntryPointData,
+    terms: DataSharingTerms,
+  ) {
+    viewModelScope.launch {
+      _uiEvents.emit(HomeScreenMapContainerEvent.ShowDataSharingTermsDialog(cardUiData, terms))
+    }
+  }
+
+  private fun hasValidTasks(cardUiData: DataCollectionEntryPointData) =
+    when (cardUiData) {
+      // LOI tasks are filtered out of the tasks list for pre-defined tasks.
+      is SelectedLoiSheetData -> cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
+      is AdHocDataCollectionButtonData -> cardUiData.job.tasks.values.isNotEmpty()
+    }
+
+  /** Invoked when user clicks on the map cards to collect data. */
+  private fun onCollectData(cardUiData: DataCollectionEntryPointData) {
+    if (!cardUiData.canCollectData) {
+      // Skip data collection screen if the user can't submit any data
+      // TODO: Revisit UX for displaying view only mode
+      // Issue URL: https://github.com/google/ground-android/issues/1667
+      showError(R.string.collect_data_viewer_error)
+      return
+    }
+
+    if (!hasValidTasks(cardUiData)) {
+      // NOTE(#2539): The DataCollectionFragment will crash if there are no tasks.
+      showError(R.string.no_tasks_error)
+      return
+    }
+
+    getDataSharingTermsUseCase()
+      .onSuccess { terms ->
+        if (terms == null) {
+          // Data sharing terms already accepted or missing.
+          navigateToDataCollectionFragment(cardUiData)
+        } else {
+          showDataSharingTermsDialog(cardUiData, terms)
+        }
+      }
+      .onFailure {
+        Timber.e(it, "Failed to get data sharing terms")
+        showError(
+          if (it is GetDataSharingTermsUseCase.InvalidCustomSharingTermsException) {
+            R.string.invalid_data_sharing_terms
+          } else {
+            R.string.something_went_wrong
+          }
+        )
+      }
   }
 
   /**

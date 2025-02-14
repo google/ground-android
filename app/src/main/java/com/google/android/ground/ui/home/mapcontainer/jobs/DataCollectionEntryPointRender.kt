@@ -35,18 +35,7 @@ fun DataCollectionEntryPointRender(
   onEvent: (DataCollectionEntryPointEvent) -> Unit,
   onJobSelectionModalShown: () -> Unit,
   onJobSelectionModalDismissed: () -> Unit,
-  onDataCollected: (DataCollectionEntryPointData) -> Unit,
 ) {
-
-  /**
-   * Starts the data collection process for the given [DataCollectionEntryPointData].
-   *
-   * @param data The data associated with the location of interest.
-   */
-  fun startDataCollection(data: DataCollectionEntryPointData) {
-    onEvent(DataCollectionEntryPointEvent.StartDataCollection(data))
-    onDataCollected(data)
-  }
 
   // Display the LoiJobSheet if it should be shown.
   if (state.showLoiSheet) {
@@ -55,7 +44,7 @@ fun DataCollectionEntryPointRender(
         loi = loiData.loi,
         canUserSubmitData = loiData.canCollectData,
         submissionCount = loiData.submissionCount,
-        onCollectClicked = { startDataCollection(loiData) },
+        onCollectClicked = { onEvent(DataCollectionEntryPointEvent.StartDataCollection(loiData)) },
         onDismiss = { onEvent(DataCollectionEntryPointEvent.DismissSelectedLoiJobSheet) },
       )
     }
@@ -74,7 +63,8 @@ fun DataCollectionEntryPointRender(
         onClick = {
           if (state.newLoiJobCardDataList.size == 1) {
             // If there's only one job, start data collection on it directly.
-            startDataCollection(state.newLoiJobCardDataList.first())
+            val data = state.newLoiJobCardDataList.first()
+            onEvent(DataCollectionEntryPointEvent.StartDataCollection(data))
           } else {
             onEvent(DataCollectionEntryPointEvent.ShowNewLoiJobSelectionModal)
           }
@@ -88,7 +78,10 @@ fun DataCollectionEntryPointRender(
     onJobSelectionModalShown()
     JobSelectionModal(
       jobs = state.newLoiJobCardDataList.map { it.job },
-      onJobClicked = { job -> state.findNewLoiJob(job)?.let { startDataCollection(it) } },
+      onJobClicked = { job ->
+        val data = state.findNewLoiJob(job)
+        onEvent(DataCollectionEntryPointEvent.StartDataCollection(data))
+      },
       onDismiss = { onEvent(DataCollectionEntryPointEvent.DismissNewLoiJobSelectionModal) },
     )
   } else {
@@ -96,8 +89,8 @@ fun DataCollectionEntryPointRender(
   }
 }
 
-private fun DataCollectionEntryPointState.findNewLoiJob(job: Job): AdHocDataCollectionButtonData? =
-  newLoiJobCardDataList.firstOrNull { it.job == job }
+private fun DataCollectionEntryPointState.findNewLoiJob(job: Job): AdHocDataCollectionButtonData =
+  newLoiJobCardDataList.first { it.job == job }
 
 private fun DataCollectionEntryPointState.shouldShowAddSiteButton(): Boolean =
   !showNewLoiJobSelectionModal &&
