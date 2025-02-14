@@ -16,8 +16,10 @@ sealed interface DataCollectionEntryPointEvent {
   data class StartDataCollection(val data: DataCollectionEntryPointData) :
     DataCollectionEntryPointEvent
 
-  data class UpdateState(
-    val selectedLoiSheetData: SelectedLoiSheetData?,
-    val newLoiJobCardDataList: List<AdHocDataCollectionButtonData>,
+  data class UpdateSelectedLoiSheetData(val selectedLoiSheetData: SelectedLoiSheetData?) :
+    DataCollectionEntryPointEvent
+
+  data class UpdateNewLoiJobCardDataList(
+    val newLoiJobCardDataList: List<AdHocDataCollectionButtonData>
   ) : DataCollectionEntryPointEvent
 }

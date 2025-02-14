@@ -23,7 +23,6 @@ import com.google.android.ground.Config.CLUSTERING_ZOOM_THRESHOLD
 import com.google.android.ground.R
 import com.google.android.ground.domain.usecases.datasharingterms.GetDataSharingTermsUseCase
 import com.google.android.ground.model.Survey
-import com.google.android.ground.model.job.Job
 import com.google.android.ground.model.job.getDefaultColor
 import com.google.android.ground.model.locationofinterest.LocationOfInterest
 import com.google.android.ground.persistence.local.LocalValueStore
@@ -57,6 +56,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -129,12 +129,6 @@ internal constructor(
   /** [Feature] clicked by the user. */
   private val featureClicked: MutableStateFlow<Feature?> = MutableStateFlow(null)
 
-  /**
-   * List of [Job]s which allow LOIs to be added during field collection, populated only when zoomed
-   * in far enough.
-   */
-  private val adHocLoiJobs: Flow<List<Job>>
-
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
   val isZoomedInFlow: Flow<Boolean>
 
@@ -174,11 +168,57 @@ internal constructor(
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
-    adHocLoiJobs =
+    /**
+     * List of [AdHocDataCollectionButtonData]s which allow LOIs to be added during field
+     * collection, populated only when zoomed in far enough.
+     */
+    val adHocDataCollectionButtonData: Flow<List<AdHocDataCollectionButtonData>> =
       activeSurvey.combine(isZoomedInFlow) { survey, isZoomedIn ->
         if (survey == null || !isZoomedIn) listOf()
-        else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
+        else {
+          val canCollectData = userRepository.canUserSubmitData(survey)
+          survey.jobs
+            .filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
+            .map { AdHocDataCollectionButtonData(canCollectData = canCollectData, job = it) }
+        }
       }
+
+    /**
+     * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and
+     * adhoc jobs for displaying the cards.
+     */
+    val selectedLoiSheetData: Flow<SelectedLoiSheetData?> =
+      combine(activeSurvey, loisInViewport, featureClicked) { survey, loisInView, feature ->
+        val canUserSubmitData = userRepository.canUserSubmitData(survey)
+        val loi: LocationOfInterest? = loisInView.firstOrNull { it.geometry == feature?.geometry }
+        if (loi == null && feature != null) {
+          // The feature is not in view anymore.
+          featureClicked.value = null
+        }
+        loi?.let {
+          SelectedLoiSheetData(
+            canCollectData = canUserSubmitData,
+            loi = it,
+            submissionCount = submissionRepository.getTotalSubmissionCount(it),
+          )
+        }
+      }
+
+    viewModelScope.launch {
+      adHocDataCollectionButtonData.collectLatest {
+        handleEvent(
+          DataCollectionEntryPointEvent.UpdateNewLoiJobCardDataList(newLoiJobCardDataList = it)
+        )
+      }
+    }
+
+    viewModelScope.launch {
+      selectedLoiSheetData.collectLatest {
+        handleEvent(
+          DataCollectionEntryPointEvent.UpdateSelectedLoiSheetData(selectedLoiSheetData = it)
+        )
+      }
+    }
   }
 
   fun handleEvent(event: DataCollectionEntryPointEvent) {
@@ -206,11 +246,14 @@ internal constructor(
           value.copy(showLoiSheet = false, selectedLoiSheetData = null)
         }
 
-        is DataCollectionEntryPointEvent.UpdateState -> {
+        is DataCollectionEntryPointEvent.UpdateNewLoiJobCardDataList -> {
+          value.copy(newLoiJobCardDataList = event.newLoiJobCardDataList)
+        }
+
+        is DataCollectionEntryPointEvent.UpdateSelectedLoiSheetData -> {
           selectLocationOfInterest(event.selectedLoiSheetData?.loi?.id)
           value.copy(
             selectedLoiSheetData = event.selectedLoiSheetData,
-            newLoiJobCardDataList = event.newLoiJobCardDataList,
             showLoiSheet = event.selectedLoiSheetData != null,
           )
         }
@@ -282,33 +325,6 @@ internal constructor(
         )
       }
   }
-
-  /**
-   * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and
-   * adhoc jobs for displaying the cards.
-   */
-  fun processDataCollectionEntryPoints():
-    Flow<Pair<SelectedLoiSheetData?, List<AdHocDataCollectionButtonData>>> =
-    combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
-      val canUserSubmitData = userRepository.canUserSubmitData()
-      val loiCard =
-        loisInView
-          .firstOrNull { it.geometry == feature?.geometry }
-          ?.let {
-            SelectedLoiSheetData(
-              canCollectData = canUserSubmitData,
-              loi = it,
-              submissionCount = submissionRepository.getTotalSubmissionCount(it),
-            )
-          }
-      if (loiCard == null && feature != null) {
-        // The feature is not in view anymore.
-        featureClicked.value = null
-      }
-      val jobCard =
-        jobs.map { AdHocDataCollectionButtonData(canCollectData = canUserSubmitData, job = it) }
-      Pair(loiCard, jobCard)
-    }
 
   private fun updatedLoiSelectedStates(
     features: Set<Feature>,

@@ -16,15 +16,16 @@
 package com.google.android.ground.repository
 
 import com.google.android.ground.model.Role
+import com.google.android.ground.model.Survey
 import com.google.android.ground.model.User
 import com.google.android.ground.persistence.local.LocalValueStore
 import com.google.android.ground.persistence.local.stores.LocalUserStore
 import com.google.android.ground.persistence.remote.RemoteDataStore
 import com.google.android.ground.system.NetworkManager
 import com.google.android.ground.system.auth.AuthenticationManager
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import timber.log.Timber
 
 /**
  * Coordinates persistence of [User] instance in local data store. For more details on this pattern
@@ -82,10 +83,10 @@ constructor(
    * Returns true if the currently logged in user has permissions to write data to the active
    * survey. If no survey is active at the moment, then it returns false.
    */
-  suspend fun canUserSubmitData(): Boolean {
+  suspend fun canUserSubmitData(survey: Survey?): Boolean {
     val user = getAuthenticatedUser()
     return try {
-      surveyRepository.activeSurvey?.getRole(user.email) != Role.VIEWER
+      survey?.getRole(user.email) != Role.VIEWER
     } catch (e: IllegalStateException) {
       Timber.e(e, "Error getting role for user $user")
       false
