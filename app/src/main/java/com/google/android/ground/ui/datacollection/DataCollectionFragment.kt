@@ -98,6 +98,13 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     )
 
+    updateUI(
+      UiState.TaskListAvailable(
+        viewModel.tasks,
+        viewModel.getTaskPosition(viewModel.getCurrentTaskId()),
+      )
+    )
+
     lifecycleScope.launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
   }
 
