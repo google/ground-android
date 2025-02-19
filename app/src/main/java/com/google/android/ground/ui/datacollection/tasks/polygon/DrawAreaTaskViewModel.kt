@@ -35,8 +35,10 @@ import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -65,6 +67,9 @@ internal constructor(
   /** Represents whether the user has completed drawing the polygon or not. */
   private var isMarkedComplete: Boolean = false
 
+  private val _showSelfIntersectionDialog = MutableSharedFlow<Unit>()
+  val showSelfIntersectionDialog = _showSelfIntersectionDialog.asSharedFlow()
+
   private var strokeColor: Int = 0
 
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
@@ -89,6 +94,10 @@ internal constructor(
 
   fun getLastVertex() = vertices.lastOrNull()
 
+  fun onSelfIntersectionDetected() {
+    viewModelScope.launch { _showSelfIntersectionDialog.emit(Unit) }
+  }
+
   /**
    * If the distance between the last added vertex and the given [target] is more than the
    * configured threshold, then updates the last vertex with the given [target]. Otherwise, snaps to
@@ -106,6 +115,8 @@ internal constructor(
       val distance = calculateDistanceInPixels(firstVertex, target)
       if (distance <= DISTANCE_THRESHOLD_DP) {
         updatedTarget = firstVertex
+        completePolygon()
+        return
       }
     }
 
@@ -152,6 +163,12 @@ internal constructor(
     // Add the new vertex
     updatedVertices.add(vertex)
 
+    // Check if the updated polygon is valid (no self-intersections)
+    if (isSelfIntersecting(updatedVertices)) {
+      onSelfIntersectionDetected()
+      return // Reject the new vertex
+    }
+
     // Render changes to UI
     updateVertices(updatedVertices.toImmutableList())
 
@@ -161,19 +178,73 @@ internal constructor(
     }
   }
 
+  /** Checks if a polygon formed by the given vertices is self-intersecting. */
+  private fun isSelfIntersecting(vertices: List<Coordinates>): Boolean {
+    if (vertices.size < 4) return false // A polygon must have at least 4 points to self-intersect
+
+    for (i in 0 until vertices.size - 1) {
+      val segment1 = Pair(vertices[i], vertices[i + 1])
+
+      for (j in i + 2 until vertices.size - 1) {
+        val segment2 = Pair(vertices[j], vertices[j + 1])
+
+        if (segmentsIntersect(segment1.first, segment1.second, segment2.first, segment2.second)) {
+          return true
+        }
+      }
+    }
+    return false
+  }
+
+  /** Checks if two line segments intersect. */
+  private fun segmentsIntersect(
+    p1: Coordinates,
+    p2: Coordinates,
+    q1: Coordinates,
+    q2: Coordinates,
+  ): Boolean {
+    fun orientation(a: Coordinates, b: Coordinates, c: Coordinates): Int {
+      val value = (b.lat - a.lat) * (c.lng - b.lng) - (b.lng - a.lng) * (c.lat - b.lat)
+      return when {
+        value > 0 -> 1 // Clockwise
+        value < 0 -> -1 // Counter-clockwise
+        else -> 0 // Collinear
+      }
+    }
+
+    val o1 = orientation(p1, p2, q1)
+    val o2 = orientation(p1, p2, q2)
+    val o3 = orientation(q1, q2, p1)
+    val o4 = orientation(q1, q2, p2)
+
+    return (o1 != o2 && o3 != o4)
+  }
+
   private fun updateVertices(newVertices: List<Coordinates>) {
     this.vertices = newVertices
     refreshMap()
   }
 
   fun completePolygon() {
-    check(LineString(vertices).isClosed()) { "Polygon is not complete" }
-    check(!isMarkedComplete) { "Already marked complete" }
+    Timber.d("Attempting to complete polygon: Vertices = $vertices")
+
+    require(vertices.size > 2) { "A polygon must have at least 3 vertices" }
+    require(!isMarkedComplete) { "Already marked complete" }
+
+    Timber.d("Polygon is valid, marking as complete.")
+
+    val closedVertices =
+      if (vertices.first() != vertices.last()) {
+        vertices + vertices.first()
+      } else {
+        vertices
+      }
 
     isMarkedComplete = true
+    updateVertices(closedVertices)
 
     refreshMap()
-    setValue(DrawAreaTaskData(Polygon(LinearRing(vertices))))
+    setValue(DrawAreaTaskData(Polygon(LinearRing(closedVertices))))
   }
 
   /** Updates the [Feature] drawn on map based on the value of [vertices]. */

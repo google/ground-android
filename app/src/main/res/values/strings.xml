@@ -201,4 +201,8 @@
   <string name="data_collection_cancellation_description">If you exit, data you haven&#8217;t submitted yet will be discarded.</string>
   <string name="data_collection_cancellation_confirm_button">Confirm</string>
   <string name="something_went_wrong">Something went wrong</string>
+
+  <string name="polygon_vertix_add_dialog_title">Error</string>
+  <string name="polygon_vertix_add_dialog_message">Area permit can\'t intersect with itself</string>
+  <string name="polygon_vertix_add_dialog_positive_button">Add another point</string>
 </resources>

@@ -202,4 +202,9 @@
   <string name="data_collection_cancellation_description">Se você sair, os dados que ainda não enviou serão descartados.</string>
   <string name="data_collection_cancellation_confirm_button">Confirmar</string>
   <string name="something_went_wrong">Algo deu errado</string>
+
+  <string name="polygon_vertix_add_dialog_title">Erro</string>
+  <string name="polygon_vertix_add_dialog_message">A área não pode se cruzar</string>
+  <string name="polygon_vertix_add_dialog_positive_button">Adicionar outro ponto</string>
+
 </resources>

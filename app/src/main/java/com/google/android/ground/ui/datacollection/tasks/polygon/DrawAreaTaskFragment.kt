@@ -18,6 +18,14 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.databinding.FragmentDrawAreaTaskBinding
@@ -103,6 +111,30 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   override fun onTaskResume() {
     if (isVisible && !viewModel.instructionsDialogShown) {
       showInstructionsDialog()
+    }
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewModel.showSelfIntersectionDialog.collect {
+        renderComposableDialog { SelfIntersectionDialog() }
+      }
+    }
+  }
+
+  @Composable
+  fun SelfIntersectionDialog() {
+    val showDialog = remember { mutableStateOf(true) }
+    if (showDialog.value) {
+      AlertDialog(
+        onDismissRequest = {},
+        title = {
+          Text(text = stringResource(R.string.polygon_vertix_add_dialog_title), fontSize = 18.sp)
+        },
+        text = { Text(text = stringResource(R.string.polygon_vertix_add_dialog_message)) },
+        confirmButton = {
+          OutlinedButton(onClick = { showDialog.value = false }) {
+            Text(text = stringResource(R.string.polygon_vertix_add_dialog_positive_button))
+          }
+        },
+      )
     }
   }
 
