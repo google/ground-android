@@ -37,6 +37,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -52,7 +54,7 @@ constructor(
   private val termsOfServiceRepository: TermsOfServiceRepository,
   private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  authenticationManager: AuthenticationManager,
+  private val authenticationManager: AuthenticationManager,
 ) : AbstractViewModel() {
 
   private val _navigationRequests: MutableSharedFlow<MainUiState?> = MutableSharedFlow()
@@ -63,11 +65,16 @@ constructor(
 
   init {
     viewModelScope.launch {
-      // TODO: Check auth status whenever fragments resumes
-      // Issue URL: https://github.com/google/ground-android/issues/2624
-      authenticationManager.signInState.collect {
-        _navigationRequests.emit(onSignInStateChange(it))
+      authenticationManager.signInState.collectLatest { signInState ->
+        _navigationRequests.emit(onSignInStateChange(signInState))
       }
+    }
+  }
+
+  fun checkAuthStatus() {
+    viewModelScope.launch {
+      val currentSignInState = authenticationManager.signInState.first()
+      _navigationRequests.emit(onSignInStateChange(currentSignInState))
     }
   }
 
