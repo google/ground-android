@@ -29,6 +29,7 @@ import com.google.android.ground.repository.MapStateRepository
 import com.google.android.ground.repository.OfflineAreaRepository
 import com.google.android.ground.repository.SubmissionRepository
 import com.google.android.ground.repository.SurveyRepository
+import com.google.android.ground.repository.UserRepository
 import com.google.android.ground.system.LocationManager
 import com.google.android.ground.system.PermissionsManager
 import com.google.android.ground.system.SettingsManager
@@ -74,6 +75,7 @@ internal constructor(
   offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
   private val surveyRepository: SurveyRepository,
+  private val userRepository: UserRepository,
   private val localValueStore: LocalValueStore,
 ) :
   BaseMapViewModel(
@@ -170,11 +172,13 @@ internal constructor(
   fun processDataCollectionEntryPoints():
     Flow<Pair<SelectedLoiSheetData?, List<AdHocDataCollectionButtonData>>> =
     combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
+      val canUserSubmitData = userRepository.canUserSubmitData()
       val loiCard =
         loisInView
           .firstOrNull { it.geometry == feature?.geometry }
           ?.let {
             SelectedLoiSheetData(
+              canCollectData = canUserSubmitData,
               loi = it,
               submissionCount = submissionRepository.getTotalSubmissionCount(it),
             )
@@ -183,7 +187,8 @@ internal constructor(
         // The feature is not in view anymore.
         featureClicked.value = null
       }
-      val jobCard = jobs.map { AdHocDataCollectionButtonData(it) }
+      val jobCard =
+        jobs.map { AdHocDataCollectionButtonData(canCollectData = canUserSubmitData, job = it) }
       Pair(loiCard, jobCard)
     }
 
