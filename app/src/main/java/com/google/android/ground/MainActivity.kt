@@ -175,6 +175,11 @@ class MainActivity : AbstractActivity() {
     activityStreams.onActivityResult(requestCode, resultCode, intent)
   }
 
+  override fun onResume() {
+    super.onResume()
+    viewModel.checkAuthStatus()
+  }
+
   /** Override up button behavior to use Navigation Components back stack. */
   override fun onSupportNavigateUp(): Boolean = navigateUp()
 
