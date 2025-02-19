@@ -112,7 +112,7 @@ internal constructor(
     }
 
   // LOI creation task is included only on "new data collection site" flow..
-  private val tasks: List<Task> =
+  val tasks: List<Task> =
     if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
 
   val surveyId: String = requireNotNull(surveyRepository.activeSurvey?.id)
@@ -151,8 +151,6 @@ internal constructor(
       savedStateHandle[TASK_POSITION_ID] = taskSequenceHandler.getValidTasks().first().id
     }
 
-    _uiState.update { UiState.TaskListAvailable(tasks, getTaskPosition(getCurrentTaskId())) }
-
     // Invalidates the cache if any of the task's data is updated.
     viewModelScope.launch {
       taskDataHandler.dataState.collectLatest { taskSequenceHandler.invalidateCache() }
@@ -160,7 +158,7 @@ internal constructor(
   }
 
   /** Returns the ID of the user visible task. */
-  private fun getCurrentTaskId(): String {
+  fun getCurrentTaskId(): String {
     val taskId = currentTaskId.value
     check(taskId.isNotBlank()) { "Task ID can't be blank" }
     return taskId
@@ -336,7 +334,7 @@ internal constructor(
     _uiState.update { UiState.TaskUpdated(getTaskPosition(taskId)) }
   }
 
-  private fun getTaskPosition(taskId: String) = taskSequenceHandler.getTaskPosition(taskId)
+  fun getTaskPosition(taskId: String) = taskSequenceHandler.getTaskPosition(taskId)
 
   /** Returns true if the given [taskId] is first task in the sequence of displayed tasks. */
   fun isFirstPosition(taskId: String): Boolean = taskSequenceHandler.isFirstPosition(taskId)
