@@ -73,12 +73,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
     binding.dataCollectionToolbar.setNavigationOnClickListener { showExitWarningDialog() }
 
-    updateUI(
-      UiState.TaskListAvailable(
-        viewModel.tasks,
-        viewModel.getTaskPosition(viewModel.getCurrentTaskId()),
-      )
-    )
     return binding.root
   }
 
@@ -104,11 +98,14 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     )
 
-    lifecycleScope.launch {
-      viewModel.uiState.filterNotNull().collect {
-        updateUI(it)
-      }
-    }
+    updateUI(
+      UiState.TaskListAvailable(
+        viewModel.tasks,
+        viewModel.getTaskPosition(viewModel.getCurrentTaskId()),
+      )
+    )
+
+    lifecycleScope.launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
   }
 
   override fun onResume() {
