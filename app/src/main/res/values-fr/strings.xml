@@ -203,6 +203,6 @@
 
   <string name="polygon_vertex_add_dialog_title">Erreur</string>
   <string name="polygon_vertex_add_dialog_message">La zone ne peut pas s\'auto-intersecter</string>
-  <string name="polygon_vertex_add_dialog_positive_button">D'accord</string>
+  <string name="polygon_vertex_add_dialog_positive_button">D&#8217;accord</string>
 
 </resources>
