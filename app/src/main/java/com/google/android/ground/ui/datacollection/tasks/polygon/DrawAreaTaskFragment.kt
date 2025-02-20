@@ -18,19 +18,14 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.databinding.FragmentDrawAreaTaskBinding
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LineString.Companion.lineStringOf
+import com.google.android.ground.ui.compose.ConfirmationDialog
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.InstructionsDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
@@ -114,27 +109,19 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     }
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.showSelfIntersectionDialog.collect {
-        renderComposableDialog { SelfIntersectionDialog() }
-      }
-    }
-  }
-
-  @Composable
-  fun SelfIntersectionDialog() {
-    val showDialog = remember { mutableStateOf(true) }
-    if (showDialog.value) {
-      AlertDialog(
-        onDismissRequest = {},
-        title = {
-          Text(text = stringResource(R.string.polygon_vertex_add_dialog_title), fontSize = 18.sp)
-        },
-        text = { Text(text = stringResource(R.string.polygon_vertex_add_dialog_message)) },
-        confirmButton = {
-          OutlinedButton(onClick = { showDialog.value = false }) {
-            Text(text = stringResource(R.string.polygon_vertex_add_dialog_positive_button))
+        renderComposableDialog {
+          val showDialog = remember { mutableStateOf(true) }
+          if (showDialog.value) {
+            ConfirmationDialog(
+              title = R.string.polygon_vertex_add_dialog_title,
+              description = R.string.polygon_vertex_add_dialog_message,
+              confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
+              dismissButtonText = null,
+              onConfirmClicked = { showDialog.value = false },
+            )
           }
-        },
-      )
+        }
+      }
     }
   }
 
