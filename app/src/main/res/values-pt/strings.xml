@@ -203,8 +203,8 @@
   <string name="data_collection_cancellation_confirm_button">Confirmar</string>
   <string name="something_went_wrong">Algo deu errado</string>
 
-  <string name="polygon_vertix_add_dialog_title">Erro</string>
-  <string name="polygon_vertix_add_dialog_message">A área não pode se cruzar</string>
-  <string name="polygon_vertix_add_dialog_positive_button">Adicionar outro ponto</string>
+  <string name="polygon_vertex_add_dialog_title">Erro</string>
+  <string name="polygon_vertex_add_dialog_message">A área não pode se cruzar</string>
+  <string name="polygon_vertex_add_dialog_positive_button">Ok</string>
 
 </resources>
