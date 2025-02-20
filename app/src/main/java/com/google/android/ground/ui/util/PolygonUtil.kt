@@ -49,3 +49,21 @@ fun segmentsIntersect(p1: Coordinates, p2: Coordinates, q1: Coordinates, q2: Coo
 
   return false
 }
+
+/** Checks if a polygon formed by the given vertices is self-intersecting. */
+fun isSelfIntersecting(vertices: List<Coordinates>): Boolean {
+  if (vertices.size < 4) return false // A polygon must have at least 4 points to self-intersect
+
+  for (i in 0 until vertices.size - 1) {
+    val segment1 = Pair(vertices[i], vertices[i + 1])
+
+    for (j in i + 2 until vertices.size - 1) {
+      val segment2 = Pair(vertices[j], vertices[j + 1])
+
+      if (segmentsIntersect(segment1.first, segment1.second, segment2.first, segment2.second)) {
+        return true
+      }
+    }
+  }
+  return false
+}
