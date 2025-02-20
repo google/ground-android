@@ -228,8 +228,8 @@ internal constructor(
   fun completePolygon() {
     Timber.d("Attempting to complete polygon: Vertices = $vertices")
 
-    require(vertices.size > 2) { "A polygon must have at least 3 vertices" }
-    require(!isMarkedComplete) { "Already marked complete" }
+    check(vertices.size > 2) { "A polygon must have at least 3 vertices" }
+    check(!isMarkedComplete) { "Already marked complete" }
 
     Timber.d("Polygon is valid, marking as complete.")
 

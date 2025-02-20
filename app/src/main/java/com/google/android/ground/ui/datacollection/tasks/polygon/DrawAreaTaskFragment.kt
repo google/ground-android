@@ -126,12 +126,12 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
       AlertDialog(
         onDismissRequest = {},
         title = {
-          Text(text = stringResource(R.string.polygon_vertix_add_dialog_title), fontSize = 18.sp)
+          Text(text = stringResource(R.string.polygon_vertex_add_dialog_title), fontSize = 18.sp)
         },
-        text = { Text(text = stringResource(R.string.polygon_vertix_add_dialog_message)) },
+        text = { Text(text = stringResource(R.string.polygon_vertex_add_dialog_message)) },
         confirmButton = {
           OutlinedButton(onClick = { showDialog.value = false }) {
-            Text(text = stringResource(R.string.polygon_vertix_add_dialog_positive_button))
+            Text(text = stringResource(R.string.polygon_vertex_add_dialog_positive_button))
           }
         },
       )
