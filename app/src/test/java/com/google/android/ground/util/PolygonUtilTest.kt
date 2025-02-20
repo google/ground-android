@@ -16,6 +16,7 @@
 package com.google.android.ground.util
 
 import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.ui.util.isSelfIntersecting
 import com.google.android.ground.ui.util.segmentsIntersect
 import junit.framework.TestCase.assertFalse
 import kotlin.test.Test
@@ -38,6 +39,17 @@ class PolygonUtilTest {
     val PARALLEL2 = Coordinates(4.0, 2.0)
     val SEPARATE1 = Coordinates(2.0, 2.0)
     val SEPARATE2 = Coordinates(3.0, 3.0)
+    val NON_INTERSECTING =
+      listOf(
+        Coordinates(0.0, 0.0),
+        Coordinates(4.0, 0.0),
+        Coordinates(4.0, 4.0),
+        Coordinates(0.0, 4.0),
+      )
+    val TRIANGLE = listOf(Coordinates(0.0, 0.0), Coordinates(4.0, 0.0), Coordinates(2.0, 3.0))
+    val SINGLE_POINT = listOf(Coordinates(1.0, 1.0))
+    val THREE_POINTS = listOf(Coordinates(0.0, 0.0), Coordinates(4.0, 4.0), Coordinates(8.0, 0.0))
+    val FOUR_POINTS_X = listOf(P1, P2, Q1, Q2, P1) // Closing the polygon
   }
 
   @Test
@@ -70,5 +82,40 @@ class PolygonUtilTest {
   @Test
   fun `collinear and overlapping segments`() {
     assertTrue(segmentsIntersect(P1, COLLINEAR2, COLLINEAR1, P2))
+  }
+
+  @Test
+  fun testNonIntersectingPolygon() {
+    assertFalse(isSelfIntersecting(NON_INTERSECTING))
+  }
+
+  @Test
+  fun testSelfIntersectingPolygon() {
+    assertTrue(isSelfIntersecting(listOf(P1, P2, Q1, Q2)))
+  }
+
+  @Test
+  fun testTriangle() {
+    assertFalse(isSelfIntersecting(TRIANGLE))
+  }
+
+  @Test
+  fun testEmptyList() {
+    assertFalse(isSelfIntersecting(emptyList()))
+  }
+
+  @Test
+  fun testSinglePoint() {
+    assertFalse(isSelfIntersecting(SINGLE_POINT))
+  }
+
+  @Test
+  fun testThreePoints() {
+    assertFalse(isSelfIntersecting(THREE_POINTS))
+  }
+
+  @Test
+  fun testFourPointsFormingAnX() {
+    assertTrue(isSelfIntersecting(FOUR_POINTS_X))
   }
 }

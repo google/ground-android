@@ -34,7 +34,7 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
-import com.google.android.ground.ui.util.segmentsIntersect
+import com.google.android.ground.ui.util.isSelfIntersecting
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -111,18 +111,17 @@ internal constructor(
   ) {
     check(!isMarkedComplete) { "Attempted to update last vertex after completing the drawing" }
 
-    val firstVertex = vertices.firstOrNull()
-    var updatedTarget = target
-    if (firstVertex != null && vertices.size > 2) {
+    if (vertices.size > 2) {
+      val firstVertex = vertices.first()
       val distance = calculateDistanceInPixels(firstVertex, target)
+
       if (distance <= DISTANCE_THRESHOLD_DP) {
-        updatedTarget = firstVertex
         completePolygon()
         return
       }
     }
 
-    addVertex(updatedTarget, true)
+    addVertex(target, true)
   }
 
   /** Attempts to remove the last vertex of drawn polygon, if any. */
@@ -180,24 +179,6 @@ internal constructor(
     }
   }
 
-  /** Checks if a polygon formed by the given vertices is self-intersecting. */
-  private fun isSelfIntersecting(vertices: List<Coordinates>): Boolean {
-    if (vertices.size < 4) return false // A polygon must have at least 4 points to self-intersect
-
-    for (i in 0 until vertices.size - 1) {
-      val segment1 = Pair(vertices[i], vertices[i + 1])
-
-      for (j in i + 2 until vertices.size - 1) {
-        val segment2 = Pair(vertices[j], vertices[j + 1])
-
-        if (segmentsIntersect(segment1.first, segment1.second, segment2.first, segment2.second)) {
-          return true
-        }
-      }
-    }
-    return false
-  }
-
   private fun updateVertices(newVertices: List<Coordinates>) {
     this.vertices = newVertices
     refreshMap()
@@ -215,8 +196,8 @@ internal constructor(
       }
 
     isMarkedComplete = true
-    updateVertices(closedVertices)
 
+    updateVertices(closedVertices)
     refreshMap()
     setValue(DrawAreaTaskData(Polygon(LinearRing(closedVertices))))
   }
