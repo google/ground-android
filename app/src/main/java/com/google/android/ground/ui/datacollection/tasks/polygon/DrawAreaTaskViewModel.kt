@@ -33,6 +33,7 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
+import com.google.android.ground.ui.util.segmentsIntersect
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -94,7 +95,7 @@ internal constructor(
 
   fun getLastVertex() = vertices.lastOrNull()
 
-  fun onSelfIntersectionDetected() {
+  private fun onSelfIntersectionDetected() {
     viewModelScope.launch { _showSelfIntersectionDialog.emit(Unit) }
   }
 
@@ -196,42 +197,14 @@ internal constructor(
     return false
   }
 
-  /** Checks if two line segments intersect. */
-  private fun segmentsIntersect(
-    p1: Coordinates,
-    p2: Coordinates,
-    q1: Coordinates,
-    q2: Coordinates,
-  ): Boolean {
-    fun orientation(a: Coordinates, b: Coordinates, c: Coordinates): Int {
-      val value = (b.lat - a.lat) * (c.lng - b.lng) - (b.lng - a.lng) * (c.lat - b.lat)
-      return when {
-        value > 0 -> 1 // Clockwise
-        value < 0 -> -1 // Counter-clockwise
-        else -> 0 // Collinear
-      }
-    }
-
-    val o1 = orientation(p1, p2, q1)
-    val o2 = orientation(p1, p2, q2)
-    val o3 = orientation(q1, q2, p1)
-    val o4 = orientation(q1, q2, p2)
-
-    return (o1 != o2 && o3 != o4)
-  }
-
   private fun updateVertices(newVertices: List<Coordinates>) {
     this.vertices = newVertices
     refreshMap()
   }
 
   fun completePolygon() {
-    Timber.d("Attempting to complete polygon: Vertices = $vertices")
-
     check(vertices.size > 2) { "A polygon must have at least 3 vertices" }
     check(!isMarkedComplete) { "Already marked complete" }
-
-    Timber.d("Polygon is valid, marking as complete.")
 
     val closedVertices =
       if (vertices.first() != vertices.last()) {
