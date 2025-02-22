@@ -21,8 +21,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.constraintlayout.widget.Guideline
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
@@ -166,14 +164,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
     // Display a confirmation dialog and move to home screen after that.
     renderComposableDialog {
-      val openAlertDialog = remember { mutableStateOf(true) }
-      when {
-        openAlertDialog.value -> {
-          DataSubmissionConfirmationDialog {
-            openAlertDialog.value = false
-            findNavController().navigate(HomeScreenFragmentDirections.showHomeScreen())
-          }
-        }
+      DataSubmissionConfirmationDialog {
+        findNavController().navigate(HomeScreenFragmentDirections.showHomeScreen())
       }
     }
   }
