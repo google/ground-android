@@ -16,7 +16,6 @@
 package com.google.android.ground.ui.datacollection
 
 import android.content.res.Configuration
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -24,10 +23,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -51,45 +48,30 @@ import com.google.android.ground.ui.theme.AppTheme
 
 @Composable
 fun DataSubmissionConfirmationDialog(onDismiss: () -> Unit) {
-  val configuration = LocalConfiguration.current
-  if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+  if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
     Row(
       modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+      horizontalArrangement = Arrangement.SpaceEvenly,
       verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.Center,
     ) {
-      Column(
-        modifier = Modifier.weight(1f).wrapContentWidth(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-      ) {
-        DataCollectionThumbnail(modifier = Modifier.weight(0.8f))
-      }
-      Column(
-        modifier = Modifier.fillMaxSize().weight(1f),
-        verticalArrangement = Arrangement.Center,
-      ) {
-        DetailColumn()
-        Spacer(modifier = Modifier.height(24.dp))
-        CloseButton(modifier = Modifier.align(Alignment.CenterHorizontally), onDismiss = onDismiss)
-      }
+      DataSubmittedImage()
+      BodyContent(onDismiss)
     }
   } else {
-    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-      Spacer(modifier = Modifier.height(150.dp))
-      DataCollectionThumbnail(modifier = Modifier.padding(horizontal = 8.dp))
-      Spacer(modifier = Modifier.height(100.dp))
-      DetailColumn()
-      Spacer(modifier = Modifier.height(32.dp))
-      CloseButton(modifier = Modifier.align(Alignment.CenterHorizontally), onDismiss = onDismiss)
+    Column(
+      modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+      verticalArrangement = Arrangement.SpaceEvenly,
+      horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+      DataSubmittedImage()
+      BodyContent(onDismiss)
     }
   }
 }
 
 @Composable
-private fun DataCollectionThumbnail(modifier: Modifier = Modifier) {
+private fun DataSubmittedImage() {
   Image(
-    modifier = modifier,
     painter = painterResource(id = R.drawable.data_submitted),
     contentDescription = stringResource(R.string.data_submitted_image),
     contentScale = ContentScale.Fit,
@@ -97,11 +79,10 @@ private fun DataCollectionThumbnail(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun DetailColumn() {
-  Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+private fun BodyContent(onDismiss: () -> Unit) {
+  Column(horizontalAlignment = Alignment.CenterHorizontally) {
     Text(
       text = stringResource(R.string.data_collection_complete),
-      color = MaterialTheme.colorScheme.onSurface,
       fontFamily = FontFamily(Font(R.font.text_500)),
       lineHeight = 28.sp,
       fontSize = 22.sp,
@@ -114,27 +95,19 @@ private fun DetailColumn() {
       fontSize = 14.sp,
       lineHeight = 20.sp,
       fontWeight = FontWeight(400),
-      color = MaterialTheme.colorScheme.onSurface,
       fontFamily = FontFamily(Font(R.font.text_500)),
       textAlign = TextAlign.Center,
     )
-  }
-}
-
-@Composable
-private fun CloseButton(modifier: Modifier = Modifier, onDismiss: () -> Unit) {
-  OutlinedButton(
-    modifier = modifier,
-    border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline),
-    onClick = { onDismiss() },
-  ) {
-    Text(
-      modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-      text = stringResource(id = R.string.close),
-      fontSize = 14.sp,
-      lineHeight = 20.sp,
-      fontFamily = FontFamily(Font(R.font.text_500)),
-    )
+    Spacer(modifier = Modifier.height(30.dp))
+    OutlinedButton(onClick = { onDismiss() }) {
+      Text(
+        modifier = Modifier.padding(horizontal = 24.dp, vertical = 10.dp),
+        text = stringResource(id = R.string.close),
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        fontFamily = FontFamily(Font(R.font.text_500)),
+      )
+    }
   }
 }
 
