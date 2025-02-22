@@ -40,11 +40,11 @@ import com.google.android.ground.ui.compose.ConfirmationDialog
 import com.google.android.ground.ui.home.HomeScreenFragmentDirections
 import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
@@ -161,6 +161,9 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun onTaskSubmitted() {
+    // Hide close button
+    binding.dataCollectionToolbar.navigationIcon = null
+
     // Display a confirmation dialog and move to home screen after that.
     renderComposableDialog {
       val openAlertDialog = remember { mutableStateOf(true) }
