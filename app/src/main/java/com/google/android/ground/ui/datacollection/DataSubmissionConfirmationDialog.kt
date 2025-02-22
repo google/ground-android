@@ -29,8 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -50,32 +48,23 @@ import com.google.android.ground.ui.theme.AppTheme
 
 @Composable
 fun DataSubmissionConfirmationDialog(onDismissed: () -> Unit) {
-  val showDialog = remember { mutableStateOf(true) }
-
-  fun onCloseClicked() {
-    showDialog.value = false
-    onDismissed()
-  }
-
-  if (showDialog.value) {
-    if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-      Row(
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically,
-      ) {
-        DataSubmittedImage()
-        BodyContent { onCloseClicked() }
-      }
-    } else {
-      Column(
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-        verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally,
-      ) {
-        DataSubmittedImage()
-        BodyContent { onCloseClicked() }
-      }
+  if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+    Row(
+      modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+      horizontalArrangement = Arrangement.SpaceEvenly,
+      verticalAlignment = Alignment.CenterVertically,
+    ) {
+      DataSubmittedImage()
+      BodyContent { onDismissed() }
+    }
+  } else {
+    Column(
+      modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+      verticalArrangement = Arrangement.SpaceEvenly,
+      horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+      DataSubmittedImage()
+      BodyContent { onDismissed() }
     }
   }
 }
