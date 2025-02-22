@@ -196,7 +196,10 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   override fun onBack(): Boolean {
-    if (viewPager.currentItem == 0) {
+    if (viewModel.uiState.value == UiState.TaskSubmitted) {
+      // Pressing back button after submitting task should navigate back to home screen.
+      navigateBack()
+    } else if (viewPager.currentItem == 0) {
       showExitWarningDialog()
     } else {
       viewModel.moveToPreviousTask()
@@ -210,13 +213,15 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
         title = R.string.data_collection_cancellation_title,
         description = R.string.data_collection_cancellation_description,
         confirmButtonText = R.string.data_collection_cancellation_confirm_button,
-        onConfirmClicked = {
-          isNavigatingUp = true
-          viewModel.clearDraft()
-          findNavController().navigateUp()
-        },
+        onConfirmClicked = { navigateBack() },
       )
     }
+  }
+
+  private fun navigateBack() {
+    isNavigatingUp = true
+    viewModel.clearDraft()
+    findNavController().navigateUp()
   }
 
   private companion object {
