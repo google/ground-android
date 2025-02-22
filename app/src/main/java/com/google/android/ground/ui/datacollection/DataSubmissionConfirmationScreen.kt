@@ -47,7 +47,7 @@ import com.google.android.ground.R
 import com.google.android.ground.ui.theme.AppTheme
 
 @Composable
-fun DataSubmissionConfirmationDialog(onDismissed: () -> Unit) {
+fun DataSubmissionConfirmationScreen(onDismissed: () -> Unit) {
   if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
     Row(
       modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
@@ -115,6 +115,6 @@ private fun BodyContent(onDismiss: () -> Unit) {
 @Preview(heightDp = 320, widthDp = 800)
 @Preview
 @ExcludeFromJacocoGeneratedReport
-fun DataSubmissionConfirmationDialogPreview() {
-  AppTheme { DataSubmissionConfirmationDialog {} }
+fun DataSubmissionConfirmationScreenPreview() {
+  AppTheme { DataSubmissionConfirmationScreen {} }
 }
