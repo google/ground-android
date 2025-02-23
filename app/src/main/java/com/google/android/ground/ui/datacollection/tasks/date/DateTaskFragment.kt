@@ -16,23 +16,25 @@
 package com.google.android.ground.ui.datacollection.tasks.date
 
 import android.app.DatePickerDialog
+import android.content.DialogInterface
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
+import com.google.android.ground.R
 import com.google.android.ground.databinding.DateTaskFragBinding
 import com.google.android.ground.model.submission.DateTimeTaskData
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.SimpleDateFormat
-import java.util.Calendar
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import org.jetbrains.annotations.TestOnly
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
 @AndroidEntryPoint
 class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
@@ -82,7 +84,8 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
     val year = calendar[Calendar.YEAR]
     val month = calendar[Calendar.MONTH]
     val day = calendar[Calendar.DAY_OF_MONTH]
-    DatePickerDialog(
+    datePickerDialog =
+      DatePickerDialog(
         requireContext(),
         { _, updatedYear, updatedMonth, updatedDayOfMonth ->
           val c = Calendar.getInstance()
@@ -95,10 +98,10 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
         month,
         day,
       )
-      .apply {
-        show()
-        datePickerDialog = this
-      }
+    datePickerDialog?.setButton(DialogInterface.BUTTON_NEUTRAL, getString(R.string.clear)) { _, _ ->
+      viewModel.clearResponse()
+    }
+    datePickerDialog?.show()
   }
 
   @TestOnly fun getDatePickerDialog(): DatePickerDialog? = datePickerDialog
