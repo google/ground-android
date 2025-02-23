@@ -30,11 +30,11 @@ import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import org.jetbrains.annotations.TestOnly
-import java.text.SimpleDateFormat
-import java.util.Calendar
 
 @AndroidEntryPoint
 class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
