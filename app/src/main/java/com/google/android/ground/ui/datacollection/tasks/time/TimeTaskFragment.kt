@@ -16,12 +16,14 @@
 package com.google.android.ground.ui.datacollection.tasks.time
 
 import android.app.TimePickerDialog
+import android.content.DialogInterface
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
+import com.google.android.ground.R
 import com.google.android.ground.databinding.TimeTaskFragBinding
 import com.google.android.ground.model.submission.DateTimeTaskData
 import com.google.android.ground.ui.datacollection.components.TaskView
@@ -85,7 +87,8 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
     val calendar = Calendar.getInstance()
     val hour = calendar[Calendar.HOUR]
     val minute = calendar[Calendar.MINUTE]
-    TimePickerDialog(
+    timePickerDialog =
+      TimePickerDialog(
         requireContext(),
         { _, updatedHourOfDay, updatedMinute ->
           val c = Calendar.getInstance()
@@ -97,10 +100,10 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
         minute,
         DateFormat.is24HourFormat(requireContext()),
       )
-      .apply {
-        show()
-        timePickerDialog = this
-      }
+    timePickerDialog?.setButton(DialogInterface.BUTTON_NEUTRAL, getString(R.string.clear)) { _, _ ->
+      viewModel.clearResponse()
+    }
+    timePickerDialog?.show()
   }
 
   @TestOnly fun getTimePickerDialog(): TimePickerDialog? = timePickerDialog
