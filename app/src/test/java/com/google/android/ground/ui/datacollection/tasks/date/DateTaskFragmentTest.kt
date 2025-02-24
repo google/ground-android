@@ -19,6 +19,7 @@ import android.app.DatePickerDialog
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -112,6 +113,29 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     datePickerDialog?.getButton(DatePickerDialog.BUTTON_POSITIVE)?.performClick()
 
     composeTestRule.onNodeWithText("10/10/24").isDisplayed()
+  }
+
+  @Test
+  fun `Clear button resets the response`() {
+    setupTaskFragment<DateTaskFragment>(job, task)
+
+    val view: View? = fragment.view?.findViewById(R.id.task_container)
+    view?.layoutParams = ViewGroup.LayoutParams(0, 1)
+    onView(withId(R.id.user_response_text)).perform(click())
+    assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
+
+    val hardcodedYear = 2024
+    val hardcodedMonth = 9
+    val hardcodedDay = 10
+
+    val datePickerDialog = fragment.getDatePickerDialog()
+    datePickerDialog?.datePicker?.updateDate(hardcodedYear, hardcodedMonth, hardcodedDay)
+
+    datePickerDialog?.getButton(DatePickerDialog.BUTTON_POSITIVE)?.performClick()
+    composeTestRule.onNodeWithText("10/10/24").isDisplayed()
+
+    datePickerDialog?.getButton(DatePickerDialog.BUTTON_NEUTRAL)?.performClick()
+    composeTestRule.onNodeWithText("10/10/24").isNotDisplayed()
   }
 
   @Test
