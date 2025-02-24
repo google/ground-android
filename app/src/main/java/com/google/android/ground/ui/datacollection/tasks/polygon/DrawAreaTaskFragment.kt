@@ -23,6 +23,7 @@ import com.google.android.ground.R
 import com.google.android.ground.databinding.FragmentDrawAreaTaskBinding
 import com.google.android.ground.model.geometry.LineString
 import com.google.android.ground.model.geometry.LineString.Companion.lineStringOf
+import com.google.android.ground.ui.compose.ConfirmationDialog
 import com.google.android.ground.ui.datacollection.components.ButtonAction
 import com.google.android.ground.ui.datacollection.components.InstructionsDialog
 import com.google.android.ground.ui.datacollection.components.TaskButton
@@ -103,6 +104,19 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   override fun onTaskResume() {
     if (isVisible && !viewModel.instructionsDialogShown) {
       showInstructionsDialog()
+    }
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewModel.showSelfIntersectionDialog.collect {
+        renderComposableDialog {
+          ConfirmationDialog(
+            title = R.string.polygon_vertex_add_dialog_title,
+            description = R.string.polygon_vertex_add_dialog_message,
+            confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
+            dismissButtonText = null,
+            onConfirmClicked = {},
+          )
+        }
+      }
     }
   }
 

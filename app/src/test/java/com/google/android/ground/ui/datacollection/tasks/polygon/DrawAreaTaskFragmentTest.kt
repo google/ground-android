@@ -149,7 +149,8 @@ class DrawAreaTaskFragmentTest :
     updateLastVertexAndAddPoint(COORDINATE_1)
     updateLastVertexAndAddPoint(COORDINATE_2)
     updateLastVertexAndAddPoint(COORDINATE_3)
-    updateLastVertex(COORDINATE_4, true)
+    updateLastVertex(COORDINATE_4)
+    updateLastVertex(COORDINATE_1)
 
     runner()
       .clickButton("Complete")

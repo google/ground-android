@@ -34,7 +34,6 @@ import com.jraska.livedata.TestObserver
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertNotNull
-import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.doNothing
@@ -104,7 +103,8 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
 
-    updateLastVertex(COORDINATE_3, true)
+    updateLastVertex(COORDINATE_3)
+    updateLastVertex(COORDINATE_1)
 
     assertGeometry(3, isLineString = true)
   }
@@ -114,8 +114,8 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
-
-    updateLastVertex(COORDINATE_4, true)
+    updateLastVertex(COORDINATE_4)
+    updateLastVertex(COORDINATE_1)
 
     assertGeometry(4, isLineString = true)
   }
@@ -153,7 +153,8 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
-    updateLastVertex(COORDINATE_4, true)
+    updateLastVertex(COORDINATE_4)
+    updateLastVertex(COORDINATE_1)
 
     viewModel.removeLastVertex()
 
@@ -161,24 +162,12 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Cannot complete polygon when polygon is not complete`() {
-    updateLastVertexAndAdd(COORDINATE_1)
-    updateLastVertexAndAdd(COORDINATE_2)
-    updateLastVertex(COORDINATE_3, false)
-
-    assertThrows("Polygon is not complete", IllegalStateException::class.java) {
-      viewModel.completePolygon()
-    }
-  }
-
-  @Test
   fun `Completes a polygon`() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
-    updateLastVertex(COORDINATE_4, true)
-
-    viewModel.completePolygon()
+    updateLastVertex(COORDINATE_4)
+    updateLastVertex(COORDINATE_1)
 
     assertGeometry(4, isLineString = true)
   }
