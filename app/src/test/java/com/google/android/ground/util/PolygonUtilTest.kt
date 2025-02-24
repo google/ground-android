@@ -16,8 +16,8 @@
 package com.google.android.ground.util
 
 import com.google.android.ground.model.geometry.Coordinates
+import com.google.android.ground.ui.util.isIntersecting
 import com.google.android.ground.ui.util.isSelfIntersecting
-import com.google.android.ground.ui.util.segmentsIntersect
 import junit.framework.TestCase.assertFalse
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -54,34 +54,32 @@ class PolygonUtilTest {
 
   @Test
   fun `segments intersect at a point`() {
-    assertTrue(segmentsIntersect(P1, P2, Q1, Q2))
+    assertTrue(isIntersecting(P1, P2, Q1, Q2))
   }
 
   @Test
   fun `collinear but non-overlapping segments`() {
-    assertFalse(segmentsIntersect(P1, COLLINEAR1, Q2, COLLINEAR2))
+    assertFalse(isIntersecting(P1, COLLINEAR1, Q2, COLLINEAR2))
   }
 
   @Test
   fun `completely separate segments`() {
-    assertFalse(segmentsIntersect(P1, SEPARATE1, SEPARATE2, Q2))
+    assertFalse(isIntersecting(P1, SEPARATE1, SEPARATE2, Q2))
   }
 
   @Test
   fun `segments touching at an endpoint`() {
-    assertTrue(segmentsIntersect(P1, TOUCHING, TOUCHING, P2))
+    assertTrue(isIntersecting(P1, TOUCHING, TOUCHING, P2))
   }
 
   @Test
   fun `parallel but non-overlapping segments`() {
-    assertFalse(
-      segmentsIntersect(PARALLEL1, PARALLEL2, Coordinates(5.0, 2.0), Coordinates(7.0, 2.0))
-    )
+    assertFalse(isIntersecting(PARALLEL1, PARALLEL2, Coordinates(5.0, 2.0), Coordinates(7.0, 2.0)))
   }
 
   @Test
   fun `collinear and overlapping segments`() {
-    assertTrue(segmentsIntersect(P1, COLLINEAR2, COLLINEAR1, P2))
+    assertTrue(isIntersecting(P1, COLLINEAR2, COLLINEAR1, P2))
   }
 
   @Test

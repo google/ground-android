@@ -18,8 +18,6 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.databinding.FragmentDrawAreaTaskBinding
@@ -110,16 +108,13 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.showSelfIntersectionDialog.collect {
         renderComposableDialog {
-          val showDialog = remember { mutableStateOf(true) }
-          if (showDialog.value) {
-            ConfirmationDialog(
-              title = R.string.polygon_vertex_add_dialog_title,
-              description = R.string.polygon_vertex_add_dialog_message,
-              confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
-              dismissButtonText = null,
-              onConfirmClicked = { showDialog.value = false },
-            )
-          }
+          ConfirmationDialog(
+            title = R.string.polygon_vertex_add_dialog_title,
+            description = R.string.polygon_vertex_add_dialog_message,
+            confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
+            dismissButtonText = null,
+            onConfirmClicked = {},
+          )
         }
       }
     }
