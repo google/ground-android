@@ -15,7 +15,12 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
@@ -80,9 +85,29 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     addUndoButton { removeLastVertex() }
     nextButton = addNextButton()
     addPointButton =
-      addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
+      addButton(ButtonAction.ADD_POINT).setOnClickListener {
+        viewModel.addLastVertex()
+        vibrate()
+      }
     completeButton =
       addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.completePolygon() }
+  }
+
+  private fun vibrate() {
+    val vibrator =
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val vibratorManager =
+          context?.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        vibratorManager.defaultVibrator
+      } else {
+        context?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+      }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+    } else {
+      vibrator.vibrate(100)
+    }
   }
 
   /** Removes the last vertex from the polygon. */
