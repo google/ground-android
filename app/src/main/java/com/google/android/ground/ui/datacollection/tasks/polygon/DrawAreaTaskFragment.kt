@@ -18,6 +18,7 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.databinding.FragmentDrawAreaTaskBinding
@@ -104,6 +105,10 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     if (isVisible && !viewModel.instructionsDialogShown) {
       showInstructionsDialog()
     }
+    viewModel.polygonArea.observe(
+      viewLifecycleOwner,
+      { area -> Toast.makeText(requireContext(), "Area: $area m²", Toast.LENGTH_SHORT).show() },
+    )
   }
 
   private fun onFeatureUpdated(feature: Feature?) {
