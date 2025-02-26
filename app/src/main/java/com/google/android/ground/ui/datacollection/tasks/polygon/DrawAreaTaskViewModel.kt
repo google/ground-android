@@ -33,6 +33,7 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
+import com.google.android.ground.ui.util.VibrationHelper
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,6 +48,7 @@ class DrawAreaTaskViewModel
 internal constructor(
   private val localValueStore: LocalValueStore,
   private val uuidGenerator: OfflineUuidGenerator,
+  private val vibrationHelper: VibrationHelper,
 ) : AbstractTaskViewModel() {
 
   /** Polygon [Feature] being drawn by the user. */
@@ -201,6 +203,10 @@ internal constructor(
       return R.string.incomplete_area
     }
     return super.validate(task, taskData)
+  }
+
+  fun triggerVibration() {
+    vibrationHelper.vibrate()
   }
 
   companion object {
