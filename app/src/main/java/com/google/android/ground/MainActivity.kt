@@ -217,17 +217,10 @@ class MainActivity : AbstractActivity() {
   }
 
   private fun navigateTo(directions: NavDirections) {
-    navHostFragment.navController.run {
-      val currentDestinationId = currentDestination?.id
-      val action = currentDestination?.getAction(directions.actionId)
-
-      if (action != null) {
-        val targetDestinationId = action.destinationId
-
-        // Prevent navigating if already on the target screen
-        if (currentDestinationId != targetDestinationId) {
-          navigate(directions)
-        }
+    navHostFragment.navController.currentDestination?.getAction(directions.actionId)?.let { action
+      ->
+      if (navHostFragment.navController.currentDestination?.id != action.destinationId) {
+        navHostFragment.navController.navigate(directions)
       }
     }
   }
