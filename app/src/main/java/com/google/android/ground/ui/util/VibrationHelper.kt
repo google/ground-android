@@ -32,7 +32,7 @@ import javax.inject.Singleton
 @Singleton
 class VibrationHelper @Inject constructor(@ApplicationContext private val context: Context) {
 
-  fun vibrate() {
+  fun vibrate(duration: Long = 100) {
     val vibrator =
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         val vibratorManager =
@@ -43,9 +43,9 @@ class VibrationHelper @Inject constructor(@ApplicationContext private val contex
       }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+      vibrator.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE))
     } else {
-      vibrator.vibrate(100)
+      vibrator.vibrate(duration)
     }
   }
 }
