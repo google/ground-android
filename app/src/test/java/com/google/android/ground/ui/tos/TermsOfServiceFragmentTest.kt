@@ -20,10 +20,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.os.bundleOf
@@ -82,7 +80,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
   fun `Toolbar Back Arrow is displayed`() {
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", true)))
 
-    composeTestRule.onNodeWithContentDescription("Back Arrow").assertExists()
+    composeTestRule.onNodeWithContentDescription("Back").assertIsDisplayed()
   }
 
   @Test
@@ -103,18 +101,22 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
       .onNodeWithText(composeTestRule.activity.getString(R.string.agree_checkbox))
       .assertIsDisplayed()
 
-    composeTestRule.onNodeWithTag("agreeCheckBox").assertIsOff()
-
-    composeTestRule.onNodeWithTag("agreeButton").assertIsNotEnabled()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.agree_terms))
+      .assertIsNotEnabled()
   }
 
   @Test
   fun agreeButton_whenCheckBoxClicked_shouldBeEnabled() {
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
 
-    composeTestRule.onNodeWithTag("agreeCheckBox").performClick()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.agree_checkbox))
+      .performClick()
 
-    composeTestRule.onNodeWithTag("agreeButton").assertIsEnabled()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.agree_terms))
+      .assertIsEnabled()
   }
 
   @Test
@@ -127,9 +129,13 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isFalse()
 
-    composeTestRule.onNodeWithTag("agreeCheckBox").performClick()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.agree_checkbox))
+      .performClick()
 
-    composeTestRule.onNodeWithTag("agreeButton").performClick()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.agree_terms))
+      .performClick()
 
     assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
 
@@ -144,9 +150,13 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
       .onNodeWithText(composeTestRule.activity.getString(R.string.agree_checkbox))
       .assertIsNotDisplayed()
 
-    composeTestRule.onNodeWithTag("agreeCheckBox").assertIsNotDisplayed()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.agree_checkbox))
+      .assertIsNotDisplayed()
 
-    composeTestRule.onNodeWithTag("agreeButton").assertIsNotDisplayed()
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.agree_terms))
+      .assertIsNotDisplayed()
   }
 
   companion object {

@@ -28,13 +28,13 @@ import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Toolbar(@StringRes stringRes: Int, isBackArrowVisible: Boolean = true, iconClick: () -> Unit) {
+fun Toolbar(@StringRes stringRes: Int, showNavigationIcon: Boolean = true, iconClick: () -> Unit) {
   TopAppBar(
     title = { Text(text = stringResource(stringRes)) },
     navigationIcon = {
-      if (isBackArrowVisible) {
+      if (showNavigationIcon) {
         IconButton(onClick = iconClick) {
-          Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back Arrow")
+          Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
         }
       }
     },

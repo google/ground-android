@@ -38,7 +38,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
@@ -76,7 +75,7 @@ class TermsOfServiceFragment : AbstractFragment() {
       topBar = {
         Toolbar(
           stringRes = R.string.tos_title,
-          isBackArrowVisible = args.isViewOnly,
+          showNavigationIcon = args.isViewOnly,
           iconClick = { findNavController().navigateUp() },
         )
       }
@@ -99,7 +98,6 @@ class TermsOfServiceFragment : AbstractFragment() {
         if (!args.isViewOnly) {
           Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Checkbox(
-              modifier = Modifier.testTag("agreeCheckBox"),
               checked = agreeChecked,
               onCheckedChange = { viewModel.agreeCheckboxChecked.value = it },
             )
@@ -111,11 +109,7 @@ class TermsOfServiceFragment : AbstractFragment() {
 
           Spacer(modifier = Modifier.height(16.dp))
 
-          Button(
-            modifier = Modifier.testTag("agreeButton"),
-            onClick = { viewModel.onButtonClicked() },
-            enabled = agreeChecked,
-          ) {
+          Button(onClick = { viewModel.onButtonClicked() }, enabled = agreeChecked) {
             Text(text = stringResource(R.string.agree_terms))
           }
           Spacer(modifier = Modifier.height(32.dp))
