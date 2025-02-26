@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.ground.model.task.Task
 import com.google.android.ground.ui.datacollection.tasks.date.DateTaskFragment
+import com.google.android.ground.ui.datacollection.tasks.instruction.InstructionTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskFragment
 import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskFragment
@@ -59,6 +60,7 @@ constructor(
         Task.Type.DATE -> DateTaskFragment()
         Task.Type.TIME -> TimeTaskFragment()
         Task.Type.CAPTURE_LOCATION -> captureLocationTaskFragmentProvider.get()
+        Task.Type.INSTRUCTION -> InstructionTaskFragment()
         Task.Type.UNKNOWN ->
           throw UnsupportedOperationException("Unsupported task type: ${task.type}")
       }

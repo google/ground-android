@@ -22,6 +22,7 @@ import com.google.android.ground.model.submission.CaptureLocationTaskData
 import com.google.android.ground.model.submission.DateTimeTaskData
 import com.google.android.ground.model.submission.DrawAreaTaskData
 import com.google.android.ground.model.submission.DropPinTaskData
+import com.google.android.ground.model.submission.InstructionTaskData
 import com.google.android.ground.model.submission.MultipleChoiceTaskData
 import com.google.android.ground.model.submission.NumberTaskData
 import com.google.android.ground.model.submission.PhotoTaskData
@@ -109,6 +110,9 @@ internal object ValueJsonConverter {
       Task.Type.CAPTURE_LOCATION -> {
         DataStoreException.checkType(JSONObject::class.java, obj)
         (obj as JSONObject).toCaptureLocationTaskData()
+      }
+      Task.Type.INSTRUCTION -> {
+        InstructionTaskData.fromString()
       }
       Task.Type.UNKNOWN -> {
         throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
