@@ -100,6 +100,11 @@ class TaskFragmentRunner(
     return this
   }
 
+  internal fun inputNumber(value: String): TaskFragmentRunner {
+    getNumberInputNode().performTextInput(value)
+    return this
+  }
+
   internal fun clearInputNumber(): TaskFragmentRunner {
     getNumberInputNode().performTextClearance()
     return this

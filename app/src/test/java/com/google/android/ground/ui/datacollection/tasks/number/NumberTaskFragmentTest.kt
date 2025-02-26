@@ -73,6 +73,15 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   }
 
   @Test
+  fun testResponse_onUserInput_nextButtonIsNotEnabled() = runWithTestDispatcher {
+    setupTaskFragment<NumberTaskFragment>(job, task)
+
+    runner().inputNumber(".").assertInputNumberDisplayed("")
+
+    hasValue(null)
+  }
+
+  @Test
   fun `deleting number resets the displayed text and next button`() = runWithTestDispatcher {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
