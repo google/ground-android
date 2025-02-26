@@ -21,8 +21,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.constraintlayout.widget.Guideline
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
@@ -161,16 +159,13 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun onTaskSubmitted() {
+    // Hide close button
+    binding.dataCollectionToolbar.navigationIcon = null
+
     // Display a confirmation dialog and move to home screen after that.
     renderComposableDialog {
-      val openAlertDialog = remember { mutableStateOf(true) }
-      when {
-        openAlertDialog.value -> {
-          DataSubmissionConfirmationDialog {
-            openAlertDialog.value = false
-            findNavController().navigate(HomeScreenFragmentDirections.showHomeScreen())
-          }
-        }
+      DataSubmissionConfirmationScreen {
+        findNavController().navigate(HomeScreenFragmentDirections.showHomeScreen())
       }
     }
   }
@@ -193,7 +188,10 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   override fun onBack(): Boolean {
-    if (viewPager.currentItem == 0) {
+    if (viewModel.uiState.value == UiState.TaskSubmitted) {
+      // Pressing back button after submitting task should navigate back to home screen.
+      navigateBack()
+    } else if (viewPager.currentItem == 0) {
       showExitWarningDialog()
     } else {
       viewModel.moveToPreviousTask()
@@ -207,13 +205,15 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
         title = R.string.data_collection_cancellation_title,
         description = R.string.data_collection_cancellation_description,
         confirmButtonText = R.string.data_collection_cancellation_confirm_button,
-        onConfirmClicked = {
-          isNavigatingUp = true
-          viewModel.clearDraft()
-          findNavController().navigateUp()
-        },
+        onConfirmClicked = { navigateBack() },
       )
     }
+  }
+
+  private fun navigateBack() {
+    isNavigatingUp = true
+    viewModel.clearDraft()
+    findNavController().navigateUp()
   }
 
   private companion object {

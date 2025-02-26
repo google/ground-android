@@ -266,6 +266,28 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Displays close button on first task`() = runWithTestDispatcher {
+    setupFragment()
+
+    assertThat(getToolbar()?.navigationIcon).isNotNull()
+  }
+
+  @Test
+  fun `Clicking done on final task hides the navigation close button`() = runWithTestDispatcher {
+    setupFragment()
+
+    runner()
+      .inputText(TASK_1_RESPONSE)
+      .clickNextButton()
+      .validateTextIsNotDisplayed(TASK_1_NAME)
+      .validateTextIsDisplayed(TASK_2_NAME)
+      .selectOption(TASK_2_OPTION_LABEL)
+      .clickDoneButton() // Click "done" on final task
+
+    assertThat(getToolbar()?.navigationIcon).isNull()
+  }
+
+  @Test
   fun `Clicking done on final task saves the submission and LOI when LOI is not provided`() =
     runWithTestDispatcher {
       setupFragmentWithNoLoi()
@@ -486,6 +508,11 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   private fun runner() = TaskFragmentRunner(this, fragment)
+
+  private fun getToolbar() =
+    fragment.view?.findViewById<com.google.android.material.appbar.MaterialToolbar>(
+      R.id.data_collection_toolbar
+    )
 
   companion object {
     private const val TASK_ID_0 = "0"
