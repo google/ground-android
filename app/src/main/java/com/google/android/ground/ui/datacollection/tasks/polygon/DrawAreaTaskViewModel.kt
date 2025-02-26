@@ -15,6 +15,8 @@
  */
 package com.google.android.ground.ui.datacollection.tasks.polygon
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.ground.R
 import com.google.android.ground.model.geometry.Coordinates
@@ -33,6 +35,7 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
+import com.google.android.ground.ui.util.calculateShoelacePolygonArea
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,6 +58,9 @@ internal constructor(
 
   /** Whether the instructions dialog has been shown or not. */
   var instructionsDialogShown: Boolean by localValueStore::drawAreaInstructionsShown
+
+  private val _polygonArea = MutableLiveData<Double>()
+  val polygonArea: LiveData<Double> = _polygonArea
 
   /**
    * User-specified vertices of the area being drawn. If [isMarkedComplete] is false, then the last
@@ -174,6 +180,7 @@ internal constructor(
 
     refreshMap()
     setValue(DrawAreaTaskData(Polygon(LinearRing(vertices))))
+    _polygonArea.value = calculateShoelacePolygonArea(vertices)
   }
 
   /** Updates the [Feature] drawn on map based on the value of [vertices]. */
