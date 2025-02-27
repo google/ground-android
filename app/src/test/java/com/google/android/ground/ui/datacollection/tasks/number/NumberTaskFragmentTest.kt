@@ -73,7 +73,7 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   }
 
   @Test
-  fun testResponse_onUserInput_nextButtonIsNotEnabled() = runWithTestDispatcher {
+  fun `non numeral response gets converted to null`() = runWithTestDispatcher {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
     runner().inputNumber(".").assertInputNumberDisplayed("")
