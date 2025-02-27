@@ -20,6 +20,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -88,9 +89,14 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
     whenever(networkManager.isNetworkConnected()).thenReturn(true)
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
 
+    composeTestRule.onNodeWithText("This is a heading\n\nSample terms of service\n\n").isDisplayed()
+
     composeTestRule
-      .onNodeWithText("This is a heading\n\nSample terms of service\n\n")
-      .assertExists()
+      .onNodeWithText(
+        "<p dir=\"ltr\"><span style=\"font-size:1.50em;\"><b>This is a heading</b></span></p>\n" +
+          "<p dir=\"ltr\">Sample terms of service</p>\n"
+      )
+      .isDisplayed()
   }
 
   @Test

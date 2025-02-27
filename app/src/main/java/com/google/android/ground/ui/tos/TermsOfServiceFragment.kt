@@ -38,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
@@ -45,6 +46,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.ground.R
 import com.google.android.ground.ui.common.AbstractFragment
+import com.google.android.ground.ui.compose.HtmlText
 import com.google.android.ground.ui.compose.Toolbar
 import com.google.android.ground.ui.surveyselector.SurveySelectorFragmentDirections
 import com.google.android.ground.util.createComposeView
@@ -92,7 +94,10 @@ class TermsOfServiceFragment : AbstractFragment() {
         horizontalAlignment = Alignment.CenterHorizontally,
       ) {
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = termsText.toString(), modifier = Modifier.padding(8.dp))
+        HtmlText(
+          html = termsText.toString(),
+          modifier = Modifier.padding(8.dp).testTag("sddsfsdfsdf"),
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         if (!args.isViewOnly) {
