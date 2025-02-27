@@ -217,6 +217,11 @@ class MainActivity : AbstractActivity() {
   }
 
   private fun navigateTo(directions: NavDirections) {
-    navHostFragment.navController.navigate(directions)
+    navHostFragment.navController.currentDestination?.getAction(directions.actionId)?.let { action
+      ->
+      if (navHostFragment.navController.currentDestination?.id != action.destinationId) {
+        navHostFragment.navController.navigate(directions)
+      }
+    }
   }
 }

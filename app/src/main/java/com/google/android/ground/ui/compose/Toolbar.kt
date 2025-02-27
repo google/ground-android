@@ -28,12 +28,14 @@ import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Toolbar(@StringRes stringRes: Int, iconClick: () -> Unit) {
+fun Toolbar(@StringRes stringRes: Int, showNavigationIcon: Boolean = true, iconClick: () -> Unit) {
   TopAppBar(
     title = { Text(text = stringResource(stringRes)) },
     navigationIcon = {
-      IconButton(onClick = iconClick) {
-        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+      if (showNavigationIcon) {
+        IconButton(onClick = iconClick) {
+          Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+        }
       }
     },
   )
