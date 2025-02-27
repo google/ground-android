@@ -97,26 +97,17 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
   fun agreeButton_default_shouldNotBeEnabled() {
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.agree_checkbox))
-      .assertIsDisplayed()
-
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.agree_terms))
-      .assertIsNotEnabled()
+    getCheckbox().assertIsDisplayed()
+    getButton().assertIsNotEnabled()
   }
 
   @Test
   fun agreeButton_whenCheckBoxClicked_shouldBeEnabled() {
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.agree_checkbox))
-      .performClick()
+    getCheckbox().performClick()
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.agree_terms))
-      .assertIsEnabled()
+    getButton().assertIsEnabled()
   }
 
   @Test
@@ -129,16 +120,10 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isFalse()
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.agree_checkbox))
-      .performClick()
-
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.agree_terms))
-      .performClick()
+    getCheckbox().performClick()
+    getButton().performClick()
 
     assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
-
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
   }
 
@@ -146,18 +131,15 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
   fun viewOnlyMode_controlsHidden() = runWithTestDispatcher {
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", true)))
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.agree_checkbox))
-      .assertIsNotDisplayed()
-
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.agree_checkbox))
-      .assertIsNotDisplayed()
-
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.agree_terms))
-      .assertIsNotDisplayed()
+    getCheckbox().assertIsNotDisplayed()
+    getButton().assertIsNotDisplayed()
   }
+
+  private fun getCheckbox() =
+    composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.agree_checkbox))
+
+  private fun getButton() =
+    composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.agree_terms))
 
   companion object {
     const val TEST_TOS_TEXT = "# This is a heading\n\nSample terms of service"
