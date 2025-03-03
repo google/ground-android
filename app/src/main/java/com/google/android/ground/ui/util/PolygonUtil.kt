@@ -16,11 +16,22 @@
 package com.google.android.ground.ui.util
 
 import com.google.android.ground.model.geometry.Coordinates
-import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.cos
 
-// Calculates the area of a polygon using the Shoelace formula
+/**
+ * Calculates the area of a polygon using the Shoelace formula.
+ *
+ * This function computes the area of a simple, non-self-intersecting polygon based on its vertex
+ * coordinates. The first coordinate is used as a reference to convert all other points to meters.
+ *
+ * **Note:** This function returns the raw area value without rounding. Formatting (e.g., rounding
+ * to 2 decimal places) should be handled in the UI layer.
+ *
+ * @param coordinates A list of [Coordinates] representing the vertices of the polygon. The list
+ *   must contain at least three points; otherwise, the function returns 0.0.
+ * @return The area of the polygon in square meters.
+ */
 fun calculateShoelacePolygonArea(coordinates: List<Coordinates>): Double {
   if (coordinates.size < 3) return 0.0
 
@@ -30,13 +41,10 @@ fun calculateShoelacePolygonArea(coordinates: List<Coordinates>): Double {
   var area = 0.0
   for (i in points.indices) {
     val j = (i + 1) % points.size
-    val term = points[i].first * points[j].second - points[j].first * points[i].second
-    area += term
+    area += points[i].first * points[j].second - points[j].first * points[i].second
   }
 
-  val finalArea = abs(area) / 2.0
-
-  return String.format(Locale.US, "%.2f", finalArea).toDouble()
+  return abs(area) / 2.0
 }
 
 private fun toRadians(deg: Double): Double = deg * (Math.PI / 180.0)

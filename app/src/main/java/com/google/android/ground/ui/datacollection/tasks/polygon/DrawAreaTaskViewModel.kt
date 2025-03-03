@@ -35,8 +35,8 @@ import com.google.android.ground.ui.common.SharedViewModel
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.ui.map.FeatureType
-import com.google.android.ground.ui.util.calculateShoelacePolygonArea
 import com.google.android.ground.ui.util.VibrationHelper
+import com.google.android.ground.ui.util.calculateShoelacePolygonArea
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
