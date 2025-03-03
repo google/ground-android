@@ -18,6 +18,7 @@ package com.google.android.ground.ui.datacollection.tasks.polygon
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.android.ground.R
 import com.google.android.ground.databinding.FragmentDrawAreaTaskBinding
@@ -33,6 +34,7 @@ import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.flow.collectLatest
@@ -107,6 +109,18 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     if (isVisible && !viewModel.instructionsDialogShown) {
       showInstructionsDialog()
     }
+    viewModel.polygonArea.observe(
+      viewLifecycleOwner,
+      { area ->
+        val formattedArea = String.format(Locale.US, "%.2f", area)
+        Toast.makeText(
+            requireContext(),
+            getString(R.string.area_message, formattedArea),
+            Toast.LENGTH_SHORT,
+          )
+          .show()
+      },
+    )
   }
 
   private fun onFeatureUpdated(feature: Feature?) {
