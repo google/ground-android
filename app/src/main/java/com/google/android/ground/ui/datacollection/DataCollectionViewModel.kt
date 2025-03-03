@@ -39,6 +39,7 @@ import com.google.android.ground.ui.common.LocationOfInterestHelper
 import com.google.android.ground.ui.common.ViewModelFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.date.DateTaskViewModel
+import com.google.android.ground.ui.datacollection.tasks.instruction.InstructionTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
 import com.google.android.ground.ui.datacollection.tasks.number.NumberTaskViewModel
@@ -376,6 +377,7 @@ internal constructor(
         Task.Type.DROP_PIN -> DropPinTaskViewModel::class.java
         Task.Type.DRAW_AREA -> DrawAreaTaskViewModel::class.java
         Task.Type.CAPTURE_LOCATION -> CaptureLocationTaskViewModel::class.java
+        Task.Type.INSTRUCTION -> InstructionTaskViewModel::class.java
         Task.Type.UNKNOWN -> throw IllegalArgumentException("Unsupported task type: $taskType")
       }
   }

@@ -17,20 +17,32 @@ package com.google.android.ground.ui.datacollection.tasks.instruction
 
 import android.view.LayoutInflater
 import android.view.View
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.android.ground.ui.datacollection.components.TaskView
 import com.google.android.ground.ui.datacollection.components.TaskViewFactory
 import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.ground.ui.datacollection.tasks.text.TextTaskViewModel
 import com.google.android.ground.util.createComposeView
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class InstructionTaskFragment : AbstractTaskFragment<TextTaskViewModel>() {
+class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>() {
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
-    TaskViewFactory.createWithHeader(inflater)
+    TaskViewFactory.createWithoutHeader(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
     ShowTextField()
@@ -38,6 +50,15 @@ class InstructionTaskFragment : AbstractTaskFragment<TextTaskViewModel>() {
 
   @Composable
   private fun ShowTextField() {
-    Text(text = "Instruction will be shown here")
+    val instructions by viewModel.instructionsText.observeAsState("")
+    Box(
+      modifier =
+        Modifier.fillMaxWidth()
+          .background(color = Color.White)
+          .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
+          .padding(16.dp)
+    ) {
+      Text(text = instructions, fontSize = 24.sp)
+    }
   }
 }
