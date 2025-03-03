@@ -81,7 +81,10 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     addUndoButton { removeLastVertex() }
     nextButton = addNextButton()
     addPointButton =
-      addButton(ButtonAction.ADD_POINT).setOnClickListener { viewModel.addLastVertex() }
+      addButton(ButtonAction.ADD_POINT).setOnClickListener {
+        viewModel.addLastVertex()
+        viewModel.triggerVibration()
+      }
     completeButton =
       addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.completePolygon() }
   }
