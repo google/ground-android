@@ -18,20 +18,7 @@ package com.google.android.ground.ui.util
 import com.google.android.ground.model.geometry.Coordinates
 
 /** Checks if two line segments intersect. */
-fun segmentsIntersect(p1: Coordinates, p2: Coordinates, q1: Coordinates, q2: Coordinates): Boolean {
-  fun orientation(a: Coordinates, b: Coordinates, c: Coordinates): Int {
-    val value = (b.lat - a.lat) * (c.lng - b.lng) - (b.lng - a.lng) * (c.lat - b.lat)
-    return when {
-      value > 0 -> 1 // Clockwise
-      value < 0 -> -1 // Counter-clockwise
-      else -> 0 // Collinear
-    }
-  }
-
-  fun onSegment(a: Coordinates, b: Coordinates, c: Coordinates): Boolean {
-    return c.lat in minOf(a.lat, b.lat)..maxOf(a.lat, b.lat) &&
-      c.lng in minOf(a.lng, b.lng)..maxOf(a.lng, b.lng)
-  }
+fun isIntersecting(p1: Coordinates, p2: Coordinates, q1: Coordinates, q2: Coordinates): Boolean {
 
   val o1 = orientation(p1, p2, q1)
   val o2 = orientation(p1, p2, q2)
@@ -50,6 +37,20 @@ fun segmentsIntersect(p1: Coordinates, p2: Coordinates, q1: Coordinates, q2: Coo
   return false
 }
 
+private fun orientation(a: Coordinates, b: Coordinates, c: Coordinates): Int {
+  val value = (b.lat - a.lat) * (c.lng - b.lng) - (b.lng - a.lng) * (c.lat - b.lat)
+  return when {
+    value > 0 -> 1 // Clockwise
+    value < 0 -> -1 // Counter-clockwise
+    else -> 0 // Collinear
+  }
+}
+
+private fun onSegment(a: Coordinates, b: Coordinates, c: Coordinates): Boolean {
+  return c.lat in minOf(a.lat, b.lat)..maxOf(a.lat, b.lat) &&
+    c.lng in minOf(a.lng, b.lng)..maxOf(a.lng, b.lng)
+}
+
 /** Checks if a polygon formed by the given vertices is self-intersecting. */
 fun isSelfIntersecting(vertices: List<Coordinates>): Boolean {
   if (vertices.size < 4) return false // A polygon must have at least 4 points to self-intersect
@@ -60,7 +61,7 @@ fun isSelfIntersecting(vertices: List<Coordinates>): Boolean {
     for (j in i + 2 until vertices.size - 1) {
       val segment2 = Pair(vertices[j], vertices[j + 1])
 
-      if (segmentsIntersect(segment1.first, segment1.second, segment2.first, segment2.second)) {
+      if (isIntersecting(segment1.first, segment1.second, segment2.first, segment2.second)) {
         return true
       }
     }
