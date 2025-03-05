@@ -22,7 +22,7 @@
   <data>
     <variable
       name="homeScreenViewModel"
-      type="com.google.android.ground.ui.home.HomeScreenViewModel" />
+      type="org.groundplatform.android.ui.home.HomeScreenViewModel" />
   </data>
 
   <com.google.android.material.floatingactionbutton.FloatingActionButton
