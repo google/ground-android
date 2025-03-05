@@ -22,13 +22,13 @@
   <data>
     <variable
       name="dataCollectionViewModel"
-      type="com.google.android.ground.ui.datacollection.DataCollectionViewModel" />
+      type="org.groundplatform.android.ui.datacollection.DataCollectionViewModel" />
     <variable
       name="fragment"
-      type="com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskFragment" />
+      type="org.groundplatform.android.ui.datacollection.tasks.photo.PhotoTaskFragment" />
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskViewModel" />
+      type="org.groundplatform.android.ui.datacollection.tasks.photo.PhotoTaskViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout

@@ -23,10 +23,10 @@
   <data>
     <variable
       name="user"
-      type="com.google.android.ground.model.User" />
+      type="org.groundplatform.android.model.User" />
     <variable
       name="survey"
-      type="com.google.android.ground.model.Survey" />
+      type="org.groundplatform.android.model.Survey" />
   </data>
 
   <!--

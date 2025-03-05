@@ -22,7 +22,7 @@
   <data>
     <variable
       name="fragment"
-      type="com.google.android.ground.ui.datacollection.tasks.date.DateTaskFragment" />
+      type="org.groundplatform.android.ui.datacollection.tasks.date.DateTaskFragment" />
   </data>
 
   <com.google.android.material.textfield.TextInputLayout

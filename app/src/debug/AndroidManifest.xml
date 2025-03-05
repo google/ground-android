@@ -20,7 +20,7 @@
 
   <application>
     <activity
-      android:name="com.google.android.ground.HiltTestActivity"
+      android:name="org.groundplatform.android.HiltTestActivity"
       android:exported="true"
       android:theme="@style/AppTheme" />
   </application>

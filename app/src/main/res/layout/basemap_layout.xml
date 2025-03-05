@@ -23,10 +23,10 @@
   <data>
     <variable
       name="fragment"
-      type="com.google.android.ground.ui.common.AbstractMapContainerFragment" />
+      type="org.groundplatform.android.ui.common.AbstractMapContainerFragment" />
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.common.BaseMapViewModel" />
+      type="org.groundplatform.android.ui.common.BaseMapViewModel" />
   </data>
 
   <FrameLayout

@@ -145,7 +145,7 @@ to the base repository using a pull request.
 
    https://console.firebase.google.com/
 
-2. Add a new Android app with package name `com.google.android.ground`.
+2. Add a new Android app with package name `org.groundplatform.android`.
 
 3. Add the debug SHA-1 of your device.
 

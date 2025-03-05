@@ -75,7 +75,7 @@ android {
         }
     }
     defaultConfig {
-        applicationId "com.google.android.ground"
+        applicationId "org.groundplatform.android"
         minSdkVersion rootProject.androidMinSdk
         targetSdkVersion rootProject.androidTargetSdk
 
@@ -182,7 +182,7 @@ android {
         }
         animationsDisabled = true
     }
-    namespace 'com.google.android.ground'
+    namespace 'org.groundplatform.android'
 }
 
 configurations {

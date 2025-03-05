@@ -22,7 +22,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.datacollection.DataCollectionViewModel" />
+      type="org.groundplatform.android.ui.datacollection.DataCollectionViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout

@@ -20,7 +20,7 @@ plugins {
 
 android {
     targetProjectPath ':app'
-    namespace 'com.google.android.ground.e2etest'
+    namespace 'org.groundplatform.android.e2etest'
     compileSdk rootProject.androidCompileSdk
 
     defaultConfig {

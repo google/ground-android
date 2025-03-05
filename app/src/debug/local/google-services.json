@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:334087903719:android:277f0bf3c1887739f40542",
         "android_client_info": {
-          "package_name": "com.google.android.ground"
+          "package_name": "org.groundplatform.android"
         }
       },
       "oauth_client": [

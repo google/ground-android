@@ -16,7 +16,7 @@
 
 syntax = "proto3";
 
-option java_package = "com.google.android.ground.test";
+option java_package = "org.groundplatform.android.test";
 option java_multiple_files = true;
 
 message TestDocument {

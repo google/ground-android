@@ -23,7 +23,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.home.mapcontainer.MapTypeViewModel" />
+      type="org.groundplatform.android.ui.home.mapcontainer.MapTypeViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout

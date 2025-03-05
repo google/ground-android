@@ -22,10 +22,10 @@
     <import type="android.view.View" />
     <variable
       name="photoViewModel"
-      type="com.google.android.ground.ui.common.AbstractViewModel" />
+      type="org.groundplatform.android.ui.common.AbstractViewModel" />
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskViewModel" />
+      type="org.groundplatform.android.ui.datacollection.tasks.photo.PhotoTaskViewModel" />
   </data>
 
   <FrameLayout

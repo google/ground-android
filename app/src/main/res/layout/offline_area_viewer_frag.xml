@@ -23,7 +23,7 @@
   <data>
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.offlineareas.viewer.OfflineAreaViewerViewModel" />
+      type="org.groundplatform.android.ui.offlineareas.viewer.OfflineAreaViewerViewModel" />
   </data>
 
   <FrameLayout
@@ -61,7 +61,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            app:layout_behavior="com.google.android.ground.ui.home.mapcontainer.MapLayoutBehavior" />
+            app:layout_behavior="org.groundplatform.android.ui.home.mapcontainer.MapLayoutBehavior" />
         </FrameLayout>
 
         <LinearLayout

@@ -23,13 +23,13 @@
   <data>
     <variable
       name="item"
-      type="com.google.android.ground.model.SurveyListItem" />
+      type="org.groundplatform.android.model.SurveyListItem" />
     <variable
       name="fragment"
-      type="com.google.android.ground.ui.surveyselector.SurveySelectorFragment" />
+      type="org.groundplatform.android.ui.surveyselector.SurveySelectorFragment" />
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.surveyselector.SurveySelectorViewModel" />
+      type="org.groundplatform.android.ui.surveyselector.SurveySelectorViewModel" />
   </data>
 
   <com.google.android.material.card.MaterialCardView
