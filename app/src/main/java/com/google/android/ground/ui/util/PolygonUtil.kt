@@ -25,9 +25,6 @@ import kotlin.math.cos
  * This function computes the area of a simple, non-self-intersecting polygon based on its vertex
  * coordinates. The first coordinate is used as a reference to convert all other points to meters.
  *
- * **Note:** This function returns the raw area value without rounding. Formatting (e.g., rounding
- * to 2 decimal places) should be handled in the UI layer.
- *
  * @param coordinates A list of [Coordinates] representing the vertices of the polygon. The list
  *   must contain at least three points; otherwise, the function returns 0.0.
  * @return The area of the polygon in square meters.

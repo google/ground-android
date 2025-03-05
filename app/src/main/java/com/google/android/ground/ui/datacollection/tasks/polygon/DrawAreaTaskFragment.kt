@@ -112,7 +112,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     viewModel.polygonArea.observe(
       viewLifecycleOwner,
       { area ->
-        val formattedArea = String.format(Locale.US, "%.2f", area)
+        val formattedArea = String.format(Locale.getDefault(), "%.2f", area)
         Toast.makeText(
             requireContext(),
             getString(R.string.area_message, formattedArea),
