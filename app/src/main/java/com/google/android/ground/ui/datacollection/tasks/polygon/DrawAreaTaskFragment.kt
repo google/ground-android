@@ -34,7 +34,6 @@ import com.google.android.ground.ui.datacollection.tasks.AbstractTaskMapFragment
 import com.google.android.ground.ui.map.Feature
 import com.google.android.ground.util.renderComposableDialog
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.flow.collectLatest
@@ -112,12 +111,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     viewModel.polygonArea.observe(
       viewLifecycleOwner,
       { area ->
-        val formattedArea = String.format(Locale.getDefault(), "%.2f", area)
-        Toast.makeText(
-            requireContext(),
-            getString(R.string.area_message, formattedArea),
-            Toast.LENGTH_SHORT,
-          )
+        Toast.makeText(requireContext(), getString(R.string.area_message, area), Toast.LENGTH_SHORT)
           .show()
       },
     )
