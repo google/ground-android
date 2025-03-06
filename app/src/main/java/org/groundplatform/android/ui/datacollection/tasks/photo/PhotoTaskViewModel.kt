@@ -22,17 +22,17 @@ import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.IOException
+import javax.inject.Inject
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
 import org.groundplatform.android.model.submission.PhotoTaskData
 import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.persistence.remote.firebase.FirebaseStorageManager
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.util.BitmapUtil
-import dagger.hilt.android.qualifiers.ApplicationContext
-import java.io.IOException
-import javax.inject.Inject
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 class PhotoTaskViewModel

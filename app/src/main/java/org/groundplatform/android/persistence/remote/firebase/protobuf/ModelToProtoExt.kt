@@ -15,6 +15,9 @@
  */
 package org.groundplatform.android.persistence.remote.firebase.protobuf
 
+import com.google.protobuf.timestamp
+import java.util.Date
+import kotlinx.collections.immutable.toImmutableMap
 import org.groundplatform.android.model.User
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Geometry
@@ -56,9 +59,6 @@ import org.groundplatform.android.proto.locationOfInterest
 import org.groundplatform.android.proto.point
 import org.groundplatform.android.proto.submission
 import org.groundplatform.android.proto.taskData
-import com.google.protobuf.timestamp
-import java.util.Date
-import kotlinx.collections.immutable.toImmutableMap
 
 fun SubmissionMutation.createSubmissionMessage(user: User) = submission {
   assert(userId == user.id) { "UserId doesn't match: expected $userId, found ${user.id}" }

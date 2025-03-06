@@ -18,17 +18,17 @@ package org.groundplatform.android.ui.offlineareas
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import org.groundplatform.android.model.imagery.OfflineArea
-import org.groundplatform.android.repository.OfflineAreaRepository
-import org.groundplatform.android.ui.common.AbstractViewModel
-import org.groundplatform.android.util.toMb
-import org.groundplatform.android.util.toMbString
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import org.groundplatform.android.model.imagery.OfflineArea
+import org.groundplatform.android.repository.OfflineAreaRepository
+import org.groundplatform.android.ui.common.AbstractViewModel
+import org.groundplatform.android.util.toMb
+import org.groundplatform.android.util.toMbString
 
 /**
  * View model for the offline area manager fragment. Handles the current list of downloaded areas.

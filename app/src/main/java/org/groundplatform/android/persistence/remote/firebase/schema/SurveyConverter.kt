@@ -16,14 +16,14 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
+import com.google.firebase.firestore.DocumentSnapshot
+import kotlinx.collections.immutable.toPersistentMap
 import org.groundplatform.android.model.Survey as SurveyModel
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.persistence.remote.DataStoreException
 import org.groundplatform.android.persistence.remote.firebase.protobuf.parseFrom
 import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.android.proto.Survey
-import com.google.firebase.firestore.DocumentSnapshot
-import kotlinx.collections.immutable.toPersistentMap
 
 /** Converts between Firestore documents and [SurveyModel] instances. */
 internal object SurveyConverter {

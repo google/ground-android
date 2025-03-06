@@ -15,6 +15,10 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.SkippedTaskData
@@ -22,10 +26,6 @@ import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.isNullOrEmpty
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.AbstractViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 
 /** Defines the state of an inflated [Task] and controls its UI. */
 open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {

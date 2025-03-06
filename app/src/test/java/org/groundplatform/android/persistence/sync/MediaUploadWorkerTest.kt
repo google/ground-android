@@ -22,6 +22,12 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
+import com.google.common.truth.Truth.assertWithMessage
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import dagger.hilt.android.testing.BindValue
+import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
+import kotlinx.coroutines.flow.first
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.model.mutation.Mutation
@@ -46,12 +52,6 @@ import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.persistence.remote.FakeRemoteStorageManager
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.UserMediaRepository
-import com.google.common.truth.Truth.assertWithMessage
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import dagger.hilt.android.testing.BindValue
-import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
-import kotlinx.coroutines.flow.first
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

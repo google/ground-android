@@ -49,6 +49,7 @@ internal object TaskConverter {
       TaskTypeCase.TAKE_PHOTO -> Task.Type.PHOTO
       TaskTypeCase.TASKTYPE_NOT_SET -> Task.Type.UNKNOWN
       null -> Task.Type.UNKNOWN
+      else -> Task.Type.UNKNOWN
     }
 
   fun toTask(task: TaskProto): Task =

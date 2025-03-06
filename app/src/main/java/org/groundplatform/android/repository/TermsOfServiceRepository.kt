@@ -16,14 +16,14 @@
 
 package org.groundplatform.android.repository
 
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.model.TermsOfService
 import org.groundplatform.android.persistence.local.LocalValueStore
 import org.groundplatform.android.persistence.remote.DataStoreException
 import org.groundplatform.android.persistence.remote.RemoteDataStore
 import org.groundplatform.android.system.NetworkManager
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS: Long = 30 * 1000

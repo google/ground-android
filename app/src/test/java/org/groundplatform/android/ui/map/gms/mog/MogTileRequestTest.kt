@@ -17,10 +17,6 @@
 package org.groundplatform.android.ui.map.gms.mog
 
 import com.google.common.truth.Truth.assertThat
-import org.groundplatform.android.ui.map.gms.mog.MogTileMetadata
-import org.groundplatform.android.ui.map.gms.mog.MogTilesRequest
-import org.groundplatform.android.ui.map.gms.mog.TileCoordinates
-import org.groundplatform.android.ui.map.gms.mog.consolidate
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner

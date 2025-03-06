@@ -21,9 +21,9 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import org.groundplatform.android.*
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
+import org.groundplatform.android.*
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.launchFragmentWithNavController
 import org.junit.Before

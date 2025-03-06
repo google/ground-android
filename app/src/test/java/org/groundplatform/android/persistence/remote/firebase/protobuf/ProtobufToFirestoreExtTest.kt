@@ -16,6 +16,7 @@
 
 package org.groundplatform.android.persistence.remote.firebase.protobuf
 
+import com.google.common.truth.Truth
 import org.groundplatform.android.TimberTestRule
 import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.proto.Task
@@ -28,7 +29,6 @@ import org.groundplatform.android.proto.task
 import org.groundplatform.android.test.deeplyNestedTestObject
 import org.groundplatform.android.test.nestedTestObject
 import org.groundplatform.android.test.testDocument
-import com.google.common.truth.Truth
 import org.junit.ClassRule
 import org.junit.Test
 import org.junit.runner.RunWith

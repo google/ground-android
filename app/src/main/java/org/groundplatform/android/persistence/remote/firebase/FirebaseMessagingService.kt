@@ -16,11 +16,11 @@
 
 package org.groundplatform.android.persistence.remote.firebase
 
-import org.groundplatform.android.persistence.sync.SurveySyncService
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import org.groundplatform.android.persistence.sync.SurveySyncService
 import timber.log.Timber
 
 const val TOPIC_PREFIX = "/topics/"

@@ -16,7 +16,6 @@
 package org.groundplatform.android.persistence.remote
 
 import android.net.Uri
-import org.groundplatform.android.persistence.remote.RemoteStorageManager
 import java.io.File
 import javax.inject.Inject
 

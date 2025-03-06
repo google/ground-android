@@ -15,10 +15,10 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.date
 
-import org.groundplatform.android.model.submission.DateTimeTaskData.Companion.fromMillis
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import java.util.Date
 import javax.inject.Inject
+import org.groundplatform.android.model.submission.DateTimeTaskData.Companion.fromMillis
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 
 class DateTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 

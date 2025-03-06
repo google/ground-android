@@ -23,13 +23,13 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
+import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.model.submission.NumberTaskData.Companion.fromNumber
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.components.TextTaskInput
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.util.createComposeView
-import dagger.hilt.android.AndroidEntryPoint
 
 const val INPUT_NUMBER_TEST_TAG: String = "number task input test tag"
 

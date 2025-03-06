@@ -24,13 +24,13 @@ import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
-import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.FakeData.SURVEY
-import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
-import org.groundplatform.android.persistence.sync.SurveySyncWorker.Companion.SURVEY_ID_PARAM_KEY
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.FakeData.SURVEY
+import org.groundplatform.android.persistence.sync.SurveySyncWorker.Companion.SURVEY_ID_PARAM_KEY
+import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

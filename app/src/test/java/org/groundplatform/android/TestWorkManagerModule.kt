@@ -16,13 +16,13 @@
 package org.groundplatform.android
 
 import androidx.work.WorkManager
-import org.groundplatform.android.persistence.sync.FakeWorkManager
-import org.groundplatform.android.persistence.sync.WorkManagerModule
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
+import org.groundplatform.android.persistence.sync.FakeWorkManager
+import org.groundplatform.android.persistence.sync.WorkManagerModule
 
 @Module
 @TestInstallIn(components = [SingletonComponent::class], replaces = [WorkManagerModule::class])

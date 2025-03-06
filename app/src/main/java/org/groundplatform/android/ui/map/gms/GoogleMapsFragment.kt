@@ -37,6 +37,13 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.TileOverlay
 import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.android.gms.maps.model.TileProvider
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlin.math.min
+import kotlin.math.sqrt
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 import org.groundplatform.android.Config
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.imagery.LocalTileSource
@@ -54,13 +61,6 @@ import org.groundplatform.android.ui.map.gms.mog.MogCollection
 import org.groundplatform.android.ui.map.gms.mog.MogTileProvider
 import org.groundplatform.android.util.invert
 import org.groundplatform.android.util.systemInsets
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import kotlin.math.min
-import kotlin.math.sqrt
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 const val TILE_OVERLAY_Z = 0f

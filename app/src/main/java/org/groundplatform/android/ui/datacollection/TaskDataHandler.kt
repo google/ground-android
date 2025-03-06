@@ -15,12 +15,12 @@
  */
 package org.groundplatform.android.ui.datacollection
 
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.model.task.TaskSelections
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.model.task.Task
+import org.groundplatform.android.model.task.TaskSelections
 
 /**
  * Manages the state of [TaskData] associated with [Task] instances.

@@ -15,8 +15,8 @@
  */
 package org.groundplatform.android.persistence.remote.firebase
 
-import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import javax.inject.Inject
+import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 
 class FirestoreUuidGenerator
 @Inject

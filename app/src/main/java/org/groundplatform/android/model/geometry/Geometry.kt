@@ -15,12 +15,12 @@
  */
 package org.groundplatform.android.model.geometry
 
-import org.groundplatform.android.ui.map.gms.GmsExt.center
-import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
-import org.groundplatform.android.ui.map.gms.toLatLngList
 import com.google.maps.android.SphericalUtil.computeArea
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.groundplatform.android.ui.map.gms.GmsExt.center
+import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
+import org.groundplatform.android.ui.map.gms.toLatLngList
 
 /** A common ancestor for all geometry types. */
 @Serializable

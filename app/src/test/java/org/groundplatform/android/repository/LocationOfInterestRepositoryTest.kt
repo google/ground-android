@@ -16,9 +16,15 @@
 package org.groundplatform.android.repository
 
 import app.cash.turbine.test
+import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.testing.BindValue
+import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
+import kotlin.test.assertFailsWith
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
-import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.Point
@@ -28,13 +34,7 @@ import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.ui.map.Bounds
-import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.BindValue
-import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
-import kotlin.test.assertFailsWith
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.advanceUntilIdle
+import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

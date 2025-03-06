@@ -15,11 +15,11 @@
  */
 package org.groundplatform.android.ui.map
 
-import org.groundplatform.android.ui.map.gms.GoogleMapsFragment
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import org.groundplatform.android.ui.map.gms.GoogleMapsFragment
 
 @InstallIn(SingletonComponent::class)
 @Module

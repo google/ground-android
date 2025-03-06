@@ -16,7 +16,6 @@
 package org.groundplatform.android
 
 import android.content.Context
-import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.ui.map.gms.mog.MogSource
 
 /** Application configuration. */

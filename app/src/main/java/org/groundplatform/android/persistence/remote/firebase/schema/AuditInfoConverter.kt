@@ -16,10 +16,10 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
+import java.util.Date
 import org.groundplatform.android.model.AuditInfo
 import org.groundplatform.android.model.User
 import org.groundplatform.android.proto.AuditInfo as AuditInfoProto
-import java.util.Date
 
 /** Converts between Firestore nested objects and [AuditInfo] instances. */
 internal object AuditInfoConverter {

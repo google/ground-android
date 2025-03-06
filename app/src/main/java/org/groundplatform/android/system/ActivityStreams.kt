@@ -17,7 +17,6 @@ package org.groundplatform.android.system
 
 import android.app.Activity
 import android.content.Intent
-import org.groundplatform.android.coroutines.ApplicationScope
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -28,6 +27,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import org.groundplatform.android.coroutines.ApplicationScope
 
 /** Bridge between the [Activity] and various `Manager` classes. */
 @Singleton

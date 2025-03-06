@@ -16,12 +16,12 @@
 
 package org.groundplatform.android.usecases.survey
 
+import javax.inject.Inject
+import kotlinx.coroutines.withTimeoutOrNull
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.remote.RemoteDataStore
 import org.groundplatform.android.repository.LocationOfInterestRepository
-import javax.inject.Inject
-import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000

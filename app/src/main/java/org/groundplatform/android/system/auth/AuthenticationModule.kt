@@ -15,15 +15,15 @@
  */
 package org.groundplatform.android.system.auth
 
-import org.groundplatform.android.BuildConfig.AUTH_EMULATOR_PORT
-import org.groundplatform.android.BuildConfig.EMULATOR_HOST
-import org.groundplatform.android.BuildConfig.USE_EMULATORS
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import org.groundplatform.android.BuildConfig.AUTH_EMULATOR_PORT
+import org.groundplatform.android.BuildConfig.EMULATOR_HOST
+import org.groundplatform.android.BuildConfig.USE_EMULATORS
 
 @InstallIn(SingletonComponent::class)
 @Module

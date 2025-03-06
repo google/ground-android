@@ -16,6 +16,8 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
+import com.google.common.truth.Truth.assertThat
+import com.google.firebase.firestore.DocumentSnapshot
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.model.job.Job as JobModel
 import org.groundplatform.android.persistence.remote.firebase.protobuf.toFirestoreMap
@@ -24,8 +26,6 @@ import org.groundplatform.android.proto.Task
 import org.groundplatform.android.proto.job
 import org.groundplatform.android.proto.style
 import org.groundplatform.android.proto.task
-import com.google.common.truth.Truth.assertThat
-import com.google.firebase.firestore.DocumentSnapshot
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.whenever

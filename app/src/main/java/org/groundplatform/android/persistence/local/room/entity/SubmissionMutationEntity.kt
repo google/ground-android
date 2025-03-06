@@ -16,10 +16,10 @@
 package org.groundplatform.android.persistence.local.room.entity
 
 import androidx.room.*
+import java.util.*
 import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.persistence.local.room.fields.MutationEntitySyncStatus
 import org.groundplatform.android.persistence.local.room.fields.MutationEntityType
-import java.util.*
 
 /** Representation of a [SubmissionMutation] in local data store. */
 @Entity(

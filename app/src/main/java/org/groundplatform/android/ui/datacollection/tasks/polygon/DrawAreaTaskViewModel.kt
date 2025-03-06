@@ -16,6 +16,12 @@
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
 import androidx.lifecycle.viewModelScope
+import javax.inject.Inject
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LineString
@@ -34,12 +40,6 @@ import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.FeatureType
 import org.groundplatform.android.ui.util.VibrationHelper
-import javax.inject.Inject
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @SharedViewModel

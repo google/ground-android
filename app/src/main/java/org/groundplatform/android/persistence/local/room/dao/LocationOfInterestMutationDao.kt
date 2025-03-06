@@ -17,9 +17,9 @@ package org.groundplatform.android.persistence.local.room.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import org.groundplatform.android.persistence.local.room.entity.LocationOfInterestMutationEntity
 import org.groundplatform.android.persistence.local.room.fields.MutationEntitySyncStatus
-import kotlinx.coroutines.flow.Flow
 
 /**
  * Provides low-level read/write operations of [LocationOfInterestMutationEntity] to/from the local

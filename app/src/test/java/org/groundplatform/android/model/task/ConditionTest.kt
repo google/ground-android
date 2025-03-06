@@ -15,11 +15,11 @@
  */
 package org.groundplatform.android.model.task
 
-import org.groundplatform.android.model.submission.MultipleChoiceTaskData
-import org.groundplatform.android.model.submission.TaskData
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import org.groundplatform.android.model.submission.MultipleChoiceTaskData
+import org.groundplatform.android.model.submission.TaskData
 import org.junit.Test
 
 typealias ExpressionTestCase = List<Pair<Boolean, Pair<String, TaskData>>>

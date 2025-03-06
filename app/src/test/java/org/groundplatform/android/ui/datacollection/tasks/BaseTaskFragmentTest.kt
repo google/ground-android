@@ -23,6 +23,8 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import app.cash.turbine.test
+import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentWithNavController
@@ -33,8 +35,6 @@ import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.TaskFragmentRunner
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import org.mockito.kotlin.whenever
 
 abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractTaskViewModel> :

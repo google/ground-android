@@ -16,8 +16,26 @@
 package org.groundplatform.android.ui.home.mapcontainer
 
 import androidx.lifecycle.viewModelScope
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.collections.immutable.toPersistentSet
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.stateIn
 import org.groundplatform.android.Config.CLUSTERING_ZOOM_THRESHOLD
-import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.getDefaultColor
@@ -40,25 +58,7 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.DataCollectionEntryP
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.isLocationOfInterest
-import javax.inject.Inject
-import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.collections.immutable.toPersistentSet
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.stateIn
+import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel

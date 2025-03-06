@@ -16,10 +16,10 @@
 
 package org.groundplatform.android.model.submission
 
+import java.util.Date
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.mutation.SubmissionMutation
-import java.util.Date
 
 /**
  * A set of changes to be applied to the remote datastore, initiated by the user by completing the

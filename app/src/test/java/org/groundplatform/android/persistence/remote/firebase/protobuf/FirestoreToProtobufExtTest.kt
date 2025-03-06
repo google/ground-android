@@ -16,6 +16,9 @@
 
 package org.groundplatform.android.persistence.remote.firebase.protobuf
 
+import com.google.common.truth.Truth.assertThat
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.protobuf.GeneratedMessageLite
 import org.groundplatform.android.TimberTestRule
 import org.groundplatform.android.persistence.remote.firebase.newDocumentSnapshot
 import org.groundplatform.android.proto.Survey
@@ -28,9 +31,6 @@ import org.groundplatform.android.proto.task
 import org.groundplatform.android.test.deeplyNestedTestObject
 import org.groundplatform.android.test.nestedTestObject
 import org.groundplatform.android.test.testDocument
-import com.google.common.truth.Truth.assertThat
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.protobuf.GeneratedMessageLite
 import org.junit.ClassRule
 import org.junit.Test
 import org.junit.runner.RunWith

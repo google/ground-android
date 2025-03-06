@@ -17,6 +17,8 @@ package org.groundplatform.android.ui.syncstatus
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
+import javax.inject.Inject
+import kotlinx.coroutines.flow.map
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.model.submission.UploadQueueEntry
@@ -26,8 +28,6 @@ import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.LocationOfInterestHelper
-import javax.inject.Inject
-import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 /**

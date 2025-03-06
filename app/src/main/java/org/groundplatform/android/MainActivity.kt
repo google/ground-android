@@ -28,8 +28,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
-import org.groundplatform.android.BuildConfig
-import org.groundplatform.android.R
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 import org.groundplatform.android.databinding.MainActBinding
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.ActivityCallback
@@ -41,10 +43,6 @@ import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
 import org.groundplatform.android.ui.signin.SignInFragmentDirections
 import org.groundplatform.android.ui.surveyselector.SurveySelectorFragmentDirections
 import org.groundplatform.android.util.renderComposableDialog
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**

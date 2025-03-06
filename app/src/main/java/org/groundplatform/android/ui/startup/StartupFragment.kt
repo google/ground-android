@@ -21,12 +21,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
-import org.groundplatform.android.R
-import org.groundplatform.android.ui.common.AbstractFragment
-import org.groundplatform.android.ui.common.EphemeralPopups
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
+import org.groundplatform.android.R
+import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.android.ui.common.EphemeralPopups
 import timber.log.Timber
 
 @AndroidEntryPoint

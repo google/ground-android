@@ -17,8 +17,6 @@ package org.groundplatform.android
 
 import android.content.Context
 import androidx.room.Room
-import org.groundplatform.android.coroutines.IoDispatcher
-import org.groundplatform.android.persistence.local.room.LocalDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,6 +25,8 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asExecutor
+import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.persistence.local.room.LocalDatabase
 
 @InstallIn(SingletonComponent::class)
 @Module

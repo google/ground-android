@@ -15,10 +15,18 @@
  */
 package org.groundplatform.android.persistence.local.room.converter
 
+import com.google.common.reflect.TypeToken
+import com.google.gson.Gson
+import java.util.*
+import kotlinx.collections.immutable.toPersistentList
+import kotlinx.collections.immutable.toPersistentMap
 import org.groundplatform.android.model.AuditInfo
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
 import org.groundplatform.android.model.geometry.*
+import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.geometry.Geometry
+import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.imagery.OfflineArea
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Job.DataCollectionStrategy
@@ -37,21 +45,6 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.model.task.TaskId
 import org.groundplatform.android.persistence.local.LocalDataConsistencyException
 import org.groundplatform.android.persistence.local.room.entity.*
-import org.groundplatform.android.persistence.local.room.fields.*
-import org.groundplatform.android.persistence.local.room.relations.ConditionEntityAndRelations
-import org.groundplatform.android.persistence.local.room.relations.JobEntityAndRelations
-import org.groundplatform.android.persistence.local.room.relations.SurveyEntityAndRelations
-import org.groundplatform.android.persistence.local.room.relations.TaskEntityAndRelations
-import org.groundplatform.android.proto.Survey.DataSharingTerms
-import org.groundplatform.android.ui.map.Bounds
-import com.google.common.reflect.TypeToken
-import com.google.gson.Gson
-import java.util.*
-import kotlinx.collections.immutable.toPersistentList
-import kotlinx.collections.immutable.toPersistentMap
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.Geometry
-import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.persistence.local.room.entity.AuditInfoEntity
 import org.groundplatform.android.persistence.local.room.entity.ConditionEntity
 import org.groundplatform.android.persistence.local.room.entity.DraftSubmissionEntity
@@ -68,19 +61,19 @@ import org.groundplatform.android.persistence.local.room.entity.SubmissionMutati
 import org.groundplatform.android.persistence.local.room.entity.SurveyEntity
 import org.groundplatform.android.persistence.local.room.entity.TaskEntity
 import org.groundplatform.android.persistence.local.room.entity.UserEntity
-import org.groundplatform.android.persistence.local.room.fields.EntityDeletionState
-import org.groundplatform.android.persistence.local.room.fields.ExpressionEntityType
-import org.groundplatform.android.persistence.local.room.fields.MutationEntitySyncStatus
-import org.groundplatform.android.persistence.local.room.fields.MutationEntityType
-import org.groundplatform.android.persistence.local.room.fields.OfflineAreaEntityState
-import org.groundplatform.android.persistence.local.room.fields.TaskEntityType
-import org.groundplatform.android.persistence.local.room.fields.UserDetails
+import org.groundplatform.android.persistence.local.room.fields.*
+import org.groundplatform.android.persistence.local.room.relations.ConditionEntityAndRelations
+import org.groundplatform.android.persistence.local.room.relations.JobEntityAndRelations
+import org.groundplatform.android.persistence.local.room.relations.SurveyEntityAndRelations
+import org.groundplatform.android.persistence.local.room.relations.TaskEntityAndRelations
+import org.groundplatform.android.proto.Survey.DataSharingTerms
+import org.groundplatform.android.ui.map.Bounds
 import org.json.JSONObject
 import timber.log.Timber
 
 fun AuditInfo.toLocalDataStoreObject(): AuditInfoEntity =
   AuditInfoEntity(
-    user = org.groundplatform.android.persistence.local.room.fields.UserDetails.fromUser(user),
+    user = UserDetails.fromUser(user),
     clientTimestamp = clientTimestamp.time,
     serverTimestamp = serverTimestamp?.time,
   )
@@ -88,7 +81,7 @@ fun AuditInfo.toLocalDataStoreObject(): AuditInfoEntity =
 fun AuditInfoEntity.toModelObject() =
   AuditInfo(UserDetails.toUser(user), Date(clientTimestamp), serverTimestamp?.let { Date(it) })
 
-fun Geometry.toLocalDataStoreObject() = org.groundplatform.android.persistence.local.room.entity.GeometryWrapper.fromGeometry(this)
+fun Geometry.toLocalDataStoreObject() = GeometryWrapper.fromGeometry(this)
 
 fun formatVertices(vertices: List<Point>): String? {
   if (vertices.isEmpty()) {
@@ -255,16 +248,20 @@ fun MultipleChoiceEntity.toModelObject(optionEntities: List<OptionEntity>): Mult
 fun MultipleChoice.toLocalDataStoreObject(taskId: String): MultipleChoiceEntity =
   MultipleChoiceEntity(
     taskId,
-    org.groundplatform.android.persistence.local.room.fields.MultipleChoiceEntityType.fromCardinality(this.cardinality),
+    MultipleChoiceEntityType.fromCardinality(this.cardinality),
     hasOtherOption,
   )
 
 private fun OfflineAreaEntityState.toModelObject() =
   when (this) {
-    OfflineAreaEntityState.PENDING -> org.groundplatform.android.model.imagery.OfflineArea.State.PENDING
-    OfflineAreaEntityState.IN_PROGRESS -> org.groundplatform.android.model.imagery.OfflineArea.State.IN_PROGRESS
-    OfflineAreaEntityState.DOWNLOADED -> org.groundplatform.android.model.imagery.OfflineArea.State.DOWNLOADED
-    OfflineAreaEntityState.FAILED -> org.groundplatform.android.model.imagery.OfflineArea.State.FAILED
+    OfflineAreaEntityState.PENDING ->
+      org.groundplatform.android.model.imagery.OfflineArea.State.PENDING
+    OfflineAreaEntityState.IN_PROGRESS ->
+      org.groundplatform.android.model.imagery.OfflineArea.State.IN_PROGRESS
+    OfflineAreaEntityState.DOWNLOADED ->
+      org.groundplatform.android.model.imagery.OfflineArea.State.DOWNLOADED
+    OfflineAreaEntityState.FAILED ->
+      org.groundplatform.android.model.imagery.OfflineArea.State.FAILED
     else -> throw IllegalArgumentException("Unknown area state: $this")
   }
 
@@ -333,8 +330,8 @@ fun Submission.toLocalDataStoreObject() =
     id = this.id,
     jobId = this.job.id,
     locationOfInterestId = this.locationOfInterest.id,
-    deletionState = org.groundplatform.android.persistence.local.room.fields.EntityDeletionState.DEFAULT,
-    data = toString(this.data),
+    deletionState = EntityDeletionState.DEFAULT,
+    data = SubmissionDataConverter.toString(this.data),
     created = this.created.toLocalDataStoreObject(),
     lastModified = this.lastModified.toLocalDataStoreObject(),
   )
@@ -346,7 +343,7 @@ fun SubmissionMutation.toLocalDataStoreObject(created: AuditInfo): SubmissionEnt
     id = this.submissionId,
     jobId = this.job.id,
     locationOfInterestId = this.locationOfInterestId,
-    deletionState = org.groundplatform.android.persistence.local.room.fields.EntityDeletionState.DEFAULT,
+    deletionState = EntityDeletionState.DEFAULT,
     data = SubmissionDataConverter.toString(SubmissionData().copyWithDeltas(this.deltas)),
     // TODO: Preserve creation audit info for UPDATE mutations.
     // Issue URL: https://github.com/google/ground-android/issues/1562
@@ -364,10 +361,9 @@ fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
   return SubmissionMutation(
     job = job,
     submissionId = submissionId,
-    deltas = org.groundplatform.android.persistence.local.room.converter.SubmissionDeltasConverter.fromString(
-      job,
-      deltas
-    ),
+    deltas =
+      org.groundplatform.android.persistence.local.room.converter.SubmissionDeltasConverter
+        .fromString(job, deltas),
     id = id,
     surveyId = surveyId,
     locationOfInterestId = locationOfInterestId,
@@ -476,7 +472,7 @@ fun UserEntity.toModelObject() =
   User(id = id, email = email, displayName = displayName, photoUrl = photoUrl)
 
 fun Condition.toLocalDataStoreObject(parentTaskId: TaskId) =
-  ConditionEntity(parentTaskId = parentTaskId, matchType = org.groundplatform.android.persistence.local.room.fields.MatchEntityType.fromMatchType(matchType))
+  ConditionEntity(parentTaskId = parentTaskId, matchType = MatchEntityType.fromMatchType(matchType))
 
 fun ConditionEntityAndRelations.toModelObject(): Condition? {
   val expressions: List<Expression>?

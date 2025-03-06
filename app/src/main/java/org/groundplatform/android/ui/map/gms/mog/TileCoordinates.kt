@@ -16,10 +16,10 @@
 
 package org.groundplatform.android.ui.map.gms.mog
 
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.ui.map.Bounds
 import kotlin.math.ln
 import kotlin.math.tan
+import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.ui.map.Bounds
 
 /**
  * Uniquely identifies the coordinates of a web mercator tile by its X and Y coordinates and its

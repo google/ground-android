@@ -15,10 +15,10 @@
  */
 package org.groundplatform.android.repository
 
-import org.groundplatform.android.BaseHiltTest
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import org.groundplatform.android.BaseHiltTest
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -16,13 +16,20 @@
 
 package org.groundplatform.android.ui.home.mapcontainer
 
+import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.testing.BindValue
+import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.ADHOC_JOB
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_FEATURE
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.FakeData.USER
-import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.repository.LocationOfInterestRepository
@@ -33,14 +40,7 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionB
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.CameraPosition
-import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.BindValue
-import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.advanceUntilIdle
+import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

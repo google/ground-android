@@ -15,11 +15,6 @@
  */
 package org.groundplatform.android.repository
 
-import org.groundplatform.android.FirebaseCrashLogger
-import org.groundplatform.android.coroutines.ApplicationScope
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.persistence.local.LocalValueStore
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -34,6 +29,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withTimeout
+import org.groundplatform.android.FirebaseCrashLogger
+import org.groundplatform.android.coroutines.ApplicationScope
+import org.groundplatform.android.model.Survey
+import org.groundplatform.android.persistence.local.LocalValueStore
+import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 
 private const val ACTIVATE_SURVEY_TIMEOUT_MILLS: Long = 3 * 1000
 

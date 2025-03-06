@@ -43,7 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
-import com.google.android.ground.R
+import org.groundplatform.android.R
 import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable

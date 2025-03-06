@@ -21,12 +21,12 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.gms.maps.model.Polyline
+import com.google.maps.android.PolyUtil.*
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.MultiPolygon
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.ui.map.Feature
-import com.google.maps.android.PolyUtil.*
 
 /** Manages [Feature]s displayed on the map as Maps SDK items (marker, polyline, etc). */
 class MapsItemManager(

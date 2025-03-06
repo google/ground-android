@@ -20,11 +20,11 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.MapTypeDialogItemBinding
 import org.groundplatform.android.ui.home.mapcontainer.MapTypeAdapter.ViewHolder
 import org.groundplatform.android.ui.map.MapType
-import com.google.android.material.color.MaterialColors
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [MapType] data with the [ViewHolder]

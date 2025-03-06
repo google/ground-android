@@ -16,6 +16,7 @@
 
 package org.groundplatform.android.persistence.local.room.converter
 
+import kotlinx.collections.immutable.toPersistentList
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.submission.CaptureLocationTaskData
@@ -32,7 +33,6 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.persistence.remote.DataStoreException
 import org.groundplatform.android.persistence.remote.firebase.schema.CaptureLocationResultConverter.toCaptureLocationTaskData
 import org.groundplatform.android.persistence.remote.firebase.schema.CaptureLocationResultConverter.toJSONObject
-import kotlinx.collections.immutable.toPersistentList
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject

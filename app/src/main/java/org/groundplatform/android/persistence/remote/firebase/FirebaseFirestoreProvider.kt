@@ -16,12 +16,12 @@
 
 package org.groundplatform.android.persistence.remote.firebase
 
-import org.groundplatform.android.Config
-import org.groundplatform.android.util.AsyncSingletonProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import javax.inject.Inject
 import javax.inject.Singleton
+import org.groundplatform.android.Config
+import org.groundplatform.android.util.AsyncSingletonProvider
 
 @Singleton
 class FirebaseFirestoreProvider @Inject constructor(settings: FirebaseFirestoreSettings) :

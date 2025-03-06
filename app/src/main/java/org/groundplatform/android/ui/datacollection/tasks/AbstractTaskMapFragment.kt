@@ -26,6 +26,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import java.math.RoundingMode
+import java.text.DecimalFormat
+import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.MapTaskFragBinding
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
@@ -37,9 +40,6 @@ import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.gms.getAccuracyOrNull
 import org.groundplatform.android.ui.map.gms.toCoordinates
 import org.groundplatform.android.util.toDmsFormat
-import java.math.RoundingMode
-import java.text.DecimalFormat
-import kotlinx.coroutines.launch
 import org.jetbrains.annotations.MustBeInvokedByOverriders
 
 abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :

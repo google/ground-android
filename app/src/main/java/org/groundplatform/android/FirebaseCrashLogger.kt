@@ -16,11 +16,11 @@
 package org.groundplatform.android
 
 import android.util.Log
-import org.groundplatform.android.Config.isReleaseBuild
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.crashlytics.KeyValueBuilder
 import javax.inject.Inject
 import javax.inject.Singleton
+import org.groundplatform.android.Config.isReleaseBuild
 
 @Singleton
 class FirebaseCrashLogger @Inject constructor() {

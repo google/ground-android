@@ -17,13 +17,13 @@ package org.groundplatform.android.ui.datacollection.tasks.polygon
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlinx.coroutines.flow.map
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.map.CameraPosition
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import kotlinx.coroutines.flow.map
 
 @AndroidEntryPoint
 class DrawAreaTaskMapFragment @Inject constructor() :

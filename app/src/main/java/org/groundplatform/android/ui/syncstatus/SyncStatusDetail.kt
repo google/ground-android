@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.ui.syncstatus
 
+import java.util.Date
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.submission.UploadQueueEntry
-import java.util.Date
 
 /**
  * Defines the set of data needed to display the human-readable status of a queued

@@ -20,13 +20,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import org.groundplatform.android.databinding.MapTypeDialogFragmentBinding
-import org.groundplatform.android.ui.home.mapcontainer.MapTypeDialogFragmentArgs
-import org.groundplatform.android.ui.common.ViewModelFactory
-import org.groundplatform.android.ui.map.MapType
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import org.groundplatform.android.databinding.MapTypeDialogFragmentBinding
+import org.groundplatform.android.ui.common.ViewModelFactory
+import org.groundplatform.android.ui.map.MapType
 
 /** Dialog fragment containing a list of [MapType] for updating basemap layer. */
 @AndroidEntryPoint

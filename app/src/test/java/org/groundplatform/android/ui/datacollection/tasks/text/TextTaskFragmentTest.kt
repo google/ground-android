@@ -16,6 +16,9 @@
 
 package org.groundplatform.android.ui.datacollection.tasks.text
 
+import dagger.hilt.android.testing.BindValue
+import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.TextTaskData
 import org.groundplatform.android.model.task.Task
@@ -23,9 +26,6 @@ import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
-import dagger.hilt.android.testing.BindValue
-import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock

@@ -15,13 +15,6 @@
  */
 package org.groundplatform.android.usecases.survey
 
-import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.toListItem
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
-import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
-import org.groundplatform.android.system.NetworkManager
-import org.groundplatform.android.system.NetworkStatus
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -30,6 +23,13 @@ import kotlin.test.Test
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.model.Survey
+import org.groundplatform.android.model.toListItem
+import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
+import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
+import org.groundplatform.android.system.NetworkManager
+import org.groundplatform.android.system.NetworkStatus
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.kotlin.whenever

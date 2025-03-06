@@ -16,14 +16,14 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.WriteBatch
 import org.groundplatform.android.model.User
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.persistence.remote.firebase.base.FluentDocumentReference
 import org.groundplatform.android.persistence.remote.firebase.protobuf.createSubmissionMessage
 import org.groundplatform.android.persistence.remote.firebase.protobuf.toFirestoreMap
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.WriteBatch
 
 class SubmissionDocumentReference internal constructor(ref: DocumentReference) :
   FluentDocumentReference(ref) {

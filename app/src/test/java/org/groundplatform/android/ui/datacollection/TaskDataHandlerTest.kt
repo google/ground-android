@@ -15,10 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection
 
-import org.groundplatform.android.FakeData
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.submission.TextTaskData
-import org.groundplatform.android.model.task.Task
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -26,6 +22,10 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.groundplatform.android.FakeData
+import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.model.submission.TextTaskData
+import org.groundplatform.android.model.task.Task
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

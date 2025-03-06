@@ -40,13 +40,13 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
+import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.compose.HyperlinkText
 import org.groundplatform.android.ui.compose.Toolbar
 import org.groundplatform.android.util.createComposeView
-import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class AboutFragment : AbstractFragment() {

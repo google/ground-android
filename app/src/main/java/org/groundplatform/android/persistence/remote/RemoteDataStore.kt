@@ -15,13 +15,13 @@
  */
 package org.groundplatform.android.persistence.remote
 
+import kotlinx.coroutines.flow.Flow
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.model.TermsOfService
 import org.groundplatform.android.model.User
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.mutation.Mutation
-import kotlinx.coroutines.flow.Flow
 
 /**
  * Defines API for accessing data in a remote data store. Implementations must ensure all

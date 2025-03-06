@@ -16,6 +16,9 @@
 
 package org.groundplatform.android.persistence.remote.firebase.protobuf
 
+import com.google.common.truth.Truth.assertThat
+import java.time.Instant
+import java.util.Date
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_NAME
 import org.groundplatform.android.model.geometry.Coordinates
@@ -44,9 +47,6 @@ import org.groundplatform.android.proto.LocationOfInterest.SOURCE_FIELD_NUMBER
 import org.groundplatform.android.proto.LocationOfInterest.SUBMISSION_COUNT_FIELD_NUMBER
 import org.groundplatform.android.proto.Point.COORDINATES_FIELD_NUMBER
 import org.groundplatform.android.proto.Polygon.SHELL_FIELD_NUMBER
-import com.google.common.truth.Truth.assertThat
-import java.time.Instant
-import java.util.Date
 import org.junit.Assert.assertThrows
 import org.junit.Test
 

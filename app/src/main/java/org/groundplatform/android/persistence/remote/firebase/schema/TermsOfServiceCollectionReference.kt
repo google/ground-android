@@ -16,8 +16,8 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
-import org.groundplatform.android.persistence.remote.firebase.base.FluentCollectionReference
 import com.google.firebase.firestore.CollectionReference
+import org.groundplatform.android.persistence.remote.firebase.base.FluentCollectionReference
 
 private const val TOS = "tos"
 

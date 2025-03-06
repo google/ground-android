@@ -15,10 +15,9 @@
  */
 package org.groundplatform.android.ui.map.gms.mog
 
+import com.google.common.truth.Truth.assertThat
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.ui.map.Bounds
-import com.google.common.truth.Truth.assertThat
-import org.groundplatform.android.ui.map.gms.mog.TileCoordinates
 import org.junit.Test
 
 class TileCoordinatesTest {

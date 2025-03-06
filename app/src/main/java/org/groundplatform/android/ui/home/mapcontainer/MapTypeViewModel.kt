@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.ui.home.mapcontainer
 
+import javax.inject.Inject
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
-import javax.inject.Inject
 
 class MapTypeViewModel
 @Inject

@@ -15,6 +15,10 @@
  */
 package org.groundplatform.android.persistence.remote.firebase.schema
 
+import com.google.common.truth.Truth.assertThat
+import java.time.Instant
+import java.util.Date
+import kotlinx.collections.immutable.persistentListOf
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LinearRing
@@ -70,10 +74,6 @@ import org.groundplatform.android.proto.TaskData.SKIPPED_FIELD_NUMBER
 import org.groundplatform.android.proto.TaskData.TASK_ID_FIELD_NUMBER
 import org.groundplatform.android.proto.TaskData.TEXT_RESPONSE_FIELD_NUMBER
 import org.groundplatform.android.proto.TaskData.TextResponse.TEXT_FIELD_NUMBER
-import com.google.common.truth.Truth.assertThat
-import java.time.Instant
-import java.util.Date
-import kotlinx.collections.immutable.persistentListOf
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith

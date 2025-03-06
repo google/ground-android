@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.usecases.survey
 
+import javax.inject.Inject
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.repository.SurveyRepository
-import javax.inject.Inject
 
 class RemoveOfflineSurveyUseCase
 @Inject

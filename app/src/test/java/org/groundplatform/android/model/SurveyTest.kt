@@ -16,8 +16,6 @@
 package org.groundplatform.android.model
 
 import com.google.common.truth.Truth.assertThat
-import org.groundplatform.android.model.Role
-import org.groundplatform.android.model.Survey
 import kotlin.test.assertFails
 import org.junit.Test
 

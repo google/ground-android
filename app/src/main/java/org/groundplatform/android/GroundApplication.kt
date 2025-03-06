@@ -21,9 +21,9 @@ import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.multidex.MultiDexApplication
 import androidx.work.Configuration
-import org.groundplatform.android.Config.isReleaseBuild
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
+import org.groundplatform.android.Config.isReleaseBuild
 import timber.log.Timber
 
 @HiltAndroidApp

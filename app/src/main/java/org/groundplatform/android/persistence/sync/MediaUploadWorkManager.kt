@@ -18,8 +18,8 @@ package org.groundplatform.android.persistence.sync
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.WorkManager
-import org.groundplatform.android.persistence.local.LocalValueStore
 import javax.inject.Inject
+import org.groundplatform.android.persistence.local.LocalValueStore
 
 /** Enqueues media upload work to be performed in the background. */
 class MediaUploadWorkManager

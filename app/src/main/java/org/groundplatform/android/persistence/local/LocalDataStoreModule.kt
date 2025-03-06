@@ -15,12 +15,13 @@
  */
 package org.groundplatform.android.persistence.local
 
-import org.groundplatform.android.persistence.local.room.LocalDatabase
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+import org.groundplatform.android.persistence.local.room.LocalDatabase
 import org.groundplatform.android.persistence.local.room.dao.ConditionDao
 import org.groundplatform.android.persistence.local.room.dao.DraftSubmissionDao
 import org.groundplatform.android.persistence.local.room.dao.ExpressionDao
@@ -45,7 +46,6 @@ import org.groundplatform.android.persistence.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.persistence.local.stores.LocalSubmissionStore
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.local.stores.LocalUserStore
-import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module

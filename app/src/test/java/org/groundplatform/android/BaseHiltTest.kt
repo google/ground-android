@@ -17,7 +17,6 @@ package org.groundplatform.android
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import org.groundplatform.android.persistence.local.room.LocalDatabase
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltTestApplication
 import javax.annotation.OverridingMethodsMustInvokeSuper
@@ -25,6 +24,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import org.groundplatform.android.persistence.local.room.LocalDatabase
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule

@@ -42,6 +42,9 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.datacollection.components.LOI_NAME_TEXT_FIELD_TEST_TAG
@@ -50,9 +53,6 @@ import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.OTHER_I
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.SELECT_MULTIPLE_RADIO_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.number.INPUT_NUMBER_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.text.INPUT_TEXT_TEST_TAG
-import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.CoreMatchers.not
 
 /** Helper class for interacting with the data collection tasks and verifying the ui state. */

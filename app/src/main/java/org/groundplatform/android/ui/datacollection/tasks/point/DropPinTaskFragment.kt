@@ -19,6 +19,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import javax.inject.Provider
 import org.groundplatform.android.R
 import org.groundplatform.android.model.submission.isNullOrEmpty
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -28,9 +31,6 @@ import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.util.renderComposableDialog
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import javax.inject.Provider
 
 @AndroidEntryPoint
 class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTaskViewModel>() {

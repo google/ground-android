@@ -26,6 +26,10 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.testing.BindValue
+import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
 import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.task.Task
@@ -33,10 +37,6 @@ import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
-import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.BindValue
-import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock

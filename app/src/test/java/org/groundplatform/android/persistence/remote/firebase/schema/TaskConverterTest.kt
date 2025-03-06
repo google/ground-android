@@ -16,6 +16,8 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
+import com.google.common.truth.Truth.assertThat
+import kotlinx.collections.immutable.persistentListOf
 import org.groundplatform.android.model.task.MultipleChoice
 import org.groundplatform.android.model.task.Task as TaskModel
 import org.groundplatform.android.model.task.Task.Type
@@ -28,8 +30,6 @@ import org.groundplatform.android.proto.TaskKt.multipleChoiceQuestion
 import org.groundplatform.android.proto.TaskKt.numberQuestion
 import org.groundplatform.android.proto.TaskKt.takePhoto
 import org.groundplatform.android.proto.TaskKt.textQuestion
-import com.google.common.truth.Truth.assertThat
-import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized

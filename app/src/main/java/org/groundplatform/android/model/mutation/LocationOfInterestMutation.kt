@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.model.mutation
 
+import java.util.Date
 import org.groundplatform.android.model.geometry.Geometry
 import org.groundplatform.android.model.locationofinterest.LoiProperties
-import java.util.Date
 
 data class LocationOfInterestMutation(
   override val id: Long? = null,

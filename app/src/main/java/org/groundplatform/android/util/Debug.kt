@@ -18,8 +18,8 @@ package org.groundplatform.android.util
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import org.groundplatform.android.FirebaseCrashLogger
 import com.google.firebase.FirebaseNetworkException
+import org.groundplatform.android.FirebaseCrashLogger
 import timber.log.Timber
 
 object Debug {

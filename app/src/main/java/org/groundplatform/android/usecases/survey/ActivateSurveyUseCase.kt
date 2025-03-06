@@ -16,10 +16,10 @@
 
 package org.groundplatform.android.usecases.survey
 
+import javax.inject.Inject
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.sync.SurveySyncWorker
 import org.groundplatform.android.repository.SurveyRepository
-import javax.inject.Inject
 
 /**
  * Sets the survey with the specified ID as the currently active.

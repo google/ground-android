@@ -15,6 +15,10 @@
  */
 package org.groundplatform.android.persistence.local.room.stores
 
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.groundplatform.android.model.imagery.OfflineArea
 import org.groundplatform.android.persistence.local.room.converter.toModelObject
 import org.groundplatform.android.persistence.local.room.converter.toOfflineAreaEntity
@@ -22,10 +26,6 @@ import org.groundplatform.android.persistence.local.room.dao.OfflineAreaDao
 import org.groundplatform.android.persistence.local.room.dao.insertOrUpdate
 import org.groundplatform.android.persistence.local.room.entity.OfflineAreaEntity
 import org.groundplatform.android.persistence.local.stores.LocalOfflineAreaStore
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 @Singleton
 class RoomOfflineAreaStore @Inject internal constructor() : LocalOfflineAreaStore {

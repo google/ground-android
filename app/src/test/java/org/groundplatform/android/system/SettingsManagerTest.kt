@@ -19,11 +19,11 @@ import android.app.Activity
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.LocationRequest
-import org.groundplatform.android.BaseHiltTest
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
+import org.groundplatform.android.BaseHiltTest
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.model.submission
 
+import kotlinx.serialization.Serializable
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import kotlinx.serialization.Serializable
 
 /** Represents a single photo associated with a given [LocationOfInterest] and [Job]. */
 @Serializable

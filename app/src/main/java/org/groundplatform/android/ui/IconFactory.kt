@@ -27,11 +27,11 @@ import android.os.Build
 import androidx.appcompat.content.res.AppCompatResources
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import org.groundplatform.android.R
-import org.groundplatform.android.ui.util.obtainTextPaintFromStyle
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import org.groundplatform.android.R
+import org.groundplatform.android.ui.util.obtainTextPaintFromStyle
 
 /** Responsible for building dynamically generated icon bitmaps. */
 @Singleton

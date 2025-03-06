@@ -24,8 +24,8 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
-import org.groundplatform.android.util.Debug
 import javax.inject.Inject
+import org.groundplatform.android.util.Debug
 
 abstract class AbstractDialogFragment : AppCompatDialogFragment() {
 

@@ -15,17 +15,6 @@
  */
 package org.groundplatform.android.persistence.remote.firebase
 
-import org.groundplatform.android.coroutines.IoDispatcher
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.model.TermsOfService
-import org.groundplatform.android.model.User
-import org.groundplatform.android.model.mutation.LocationOfInterestMutation
-import org.groundplatform.android.model.mutation.Mutation
-import org.groundplatform.android.model.mutation.SubmissionMutation
-import org.groundplatform.android.model.toListItem
-import org.groundplatform.android.persistence.remote.RemoteDataStore
-import org.groundplatform.android.persistence.remote.firebase.schema.GroundFirestore
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.ktx.Firebase
@@ -40,6 +29,17 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.model.Survey
+import org.groundplatform.android.model.SurveyListItem
+import org.groundplatform.android.model.TermsOfService
+import org.groundplatform.android.model.User
+import org.groundplatform.android.model.mutation.LocationOfInterestMutation
+import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.android.model.mutation.SubmissionMutation
+import org.groundplatform.android.model.toListItem
+import org.groundplatform.android.persistence.remote.RemoteDataStore
+import org.groundplatform.android.persistence.remote.firebase.schema.GroundFirestore
 import timber.log.Timber
 
 const val PROFILE_REFRESH_CLOUD_FUNCTION_NAME = "profile-refresh"

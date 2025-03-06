@@ -16,8 +16,8 @@
 package org.groundplatform.android.ui.datacollection
 
 import androidx.fragment.app.Fragment
-import org.groundplatform.android.model.task.Task
 import dagger.assisted.AssistedFactory
+import org.groundplatform.android.model.task.Task
 
 @AssistedFactory
 interface DataCollectionViewPagerAdapterFactory {

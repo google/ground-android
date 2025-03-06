@@ -16,6 +16,10 @@
 package org.groundplatform.android.ui.datacollection.tasks.location
 
 import android.location.Location
+import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.groundplatform.android.ui.common.BaseMapViewModel
@@ -23,10 +27,6 @@ import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.map.gms.getAccuracyOrNull
 import org.groundplatform.android.ui.map.gms.getAltitudeOrNull
 import org.groundplatform.android.ui.map.gms.toCoordinates
-import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 
 /** Location lock states relevant for attempting to enable it or not. */
 enum class LocationLockEnabledState {

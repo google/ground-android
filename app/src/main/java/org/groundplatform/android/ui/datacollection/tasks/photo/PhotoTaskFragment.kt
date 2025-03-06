@@ -25,6 +25,10 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.R
 import org.groundplatform.android.coroutines.ApplicationScope
@@ -39,20 +43,14 @@ import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.util.renderComposableDialog
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /** Fragment allowing the user to capture a photo to complete a task. */
 @AndroidEntryPoint
 class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject lateinit var userMediaRepository: UserMediaRepository
-  @Inject @ApplicationScope
-  lateinit var externalScope: CoroutineScope
-  @Inject @MainScope
-  lateinit var mainScope: CoroutineScope
+  @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
+  @Inject @MainScope lateinit var mainScope: CoroutineScope
   @Inject lateinit var permissionsManager: PermissionsManager
   @Inject lateinit var popups: EphemeralPopups
 

@@ -29,14 +29,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import org.groundplatform.android.R
-import org.groundplatform.android.databinding.OfflineAreasFragBinding
-import org.groundplatform.android.ui.offlineareas.OfflineAreasFragmentDirections
-import org.groundplatform.android.ui.common.AbstractFragment
-import org.groundplatform.android.util.setComposableContent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import org.groundplatform.android.R
+import org.groundplatform.android.databinding.OfflineAreasFragBinding
+import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.android.util.setComposableContent
 
 /**
  * Fragment containing a list of downloaded areas on the device. An area is a set of offline raster

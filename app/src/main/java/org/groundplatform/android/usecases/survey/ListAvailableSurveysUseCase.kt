@@ -15,6 +15,12 @@
  */
 package org.groundplatform.android.usecases.survey
 
+import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.model.toListItem
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
@@ -22,12 +28,6 @@ import org.groundplatform.android.persistence.remote.RemoteDataStore
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
-import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 
 /** Returns a flow of [SurveyListItem] to be displayed to the user. */
 @OptIn(ExperimentalCoroutinesApi::class)

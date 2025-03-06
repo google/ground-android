@@ -16,9 +16,9 @@
 
 package org.groundplatform.android.model.submission
 
+import kotlinx.serialization.Serializable
 import org.groundplatform.android.model.task.MultipleChoice
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
-import kotlinx.serialization.Serializable
 
 /** User responses to a select-one (radio) or select-multiple (checkbox) field. */
 @Serializable

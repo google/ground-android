@@ -15,13 +15,13 @@
  */
 package org.groundplatform.android.ui.offlineareas.viewer
 
-import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.FakeData.OFFLINE_AREA
-import org.groundplatform.android.persistence.local.stores.LocalOfflineAreaStore
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.test.advanceUntilIdle
+import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.FakeData.OFFLINE_AREA
+import org.groundplatform.android.persistence.local.stores.LocalOfflineAreaStore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

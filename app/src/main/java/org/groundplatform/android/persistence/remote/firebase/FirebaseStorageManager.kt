@@ -16,7 +16,6 @@
 package org.groundplatform.android.persistence.remote.firebase
 
 import android.net.Uri
-import org.groundplatform.android.persistence.remote.RemoteStorageManager
 import com.google.firebase.storage.StorageReference
 import java.io.File
 import java.util.StringJoiner
@@ -24,6 +23,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
+import org.groundplatform.android.persistence.remote.RemoteStorageManager
 import timber.log.Timber
 
 @Singleton

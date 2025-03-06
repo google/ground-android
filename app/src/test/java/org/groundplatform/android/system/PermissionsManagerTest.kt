@@ -18,12 +18,12 @@ package org.groundplatform.android.system
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
-import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.system.PermissionsManager.Companion.PERMISSIONS_REQUEST_CODE
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
+import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.system.PermissionsManager.Companion.PERMISSIONS_REQUEST_CODE
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock

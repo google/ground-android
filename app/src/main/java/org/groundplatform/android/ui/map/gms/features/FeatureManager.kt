@@ -20,8 +20,6 @@ import android.content.Context
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
-import org.groundplatform.android.coroutines.MainScope
-import org.groundplatform.android.ui.map.Feature
 import com.google.maps.android.collections.MarkerManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -29,6 +27,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import org.groundplatform.android.coroutines.MainScope
+import org.groundplatform.android.ui.map.Feature
 import timber.log.Timber
 
 /**

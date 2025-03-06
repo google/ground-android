@@ -15,6 +15,12 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.multiplechoice
 
+import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.update
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.MultipleChoiceTaskData
 import org.groundplatform.android.model.submission.MultipleChoiceTaskData.Companion.fromList
@@ -23,12 +29,6 @@ import org.groundplatform.android.model.task.MultipleChoice.Cardinality.SELECT_M
 import org.groundplatform.android.model.task.Option
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
-import javax.inject.Inject
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.update
 
 class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 

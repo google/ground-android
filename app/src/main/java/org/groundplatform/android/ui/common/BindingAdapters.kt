@@ -23,8 +23,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.databinding.BindingAdapter
 import com.google.android.gms.common.SignInButton
-import org.groundplatform.android.R
 import com.squareup.picasso.Picasso
+import org.groundplatform.android.R
 import timber.log.Timber
 
 /**

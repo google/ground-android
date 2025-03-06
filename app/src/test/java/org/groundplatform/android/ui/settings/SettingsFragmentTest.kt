@@ -16,11 +16,11 @@
 package org.groundplatform.android.ui.settings
 
 import androidx.preference.PreferenceCategory
+import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.testing.HiltAndroidTest
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
-import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

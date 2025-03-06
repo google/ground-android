@@ -18,14 +18,14 @@ package org.groundplatform.android.ui.map.gms.features
 import android.content.Context
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.maps.android.clustering.Cluster
+import com.google.maps.android.clustering.ClusterManager
+import com.google.maps.android.collections.MarkerManager
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 import org.groundplatform.android.ui.map.gms.toGoogleMapsObject
-import com.google.maps.android.clustering.Cluster
-import com.google.maps.android.clustering.ClusterManager
-import com.google.maps.android.collections.MarkerManager
 
 /** Manages clustering of map [Feature]s. */
 class FeatureClusterManager(

@@ -15,17 +15,17 @@
  */
 package org.groundplatform.android.repository
 
-import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.FakeData
-import org.groundplatform.android.persistence.remote.DataStoreException
-import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
-import org.groundplatform.android.system.NetworkManager
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestoreException
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
+import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.FakeData
+import org.groundplatform.android.persistence.remote.DataStoreException
+import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
+import org.groundplatform.android.system.NetworkManager
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith

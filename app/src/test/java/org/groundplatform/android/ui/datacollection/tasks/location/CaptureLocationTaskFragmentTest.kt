@@ -16,6 +16,11 @@
 package org.groundplatform.android.ui.datacollection.tasks.location
 
 import android.location.Location
+import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.testing.BindValue
+import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
 import org.groundplatform.android.R
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Point
@@ -29,11 +34,6 @@ import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
-import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.BindValue
-import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableSharedFlow
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock

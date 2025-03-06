@@ -15,10 +15,10 @@
  */
 package org.groundplatform.android.usecases.datasharingterms
 
-import org.groundplatform.android.persistence.local.LocalValueStore
-import com.google.android.ground.proto.Survey.DataSharingTerms
-import org.groundplatform.android.repository.SurveyRepository
 import javax.inject.Inject
+import org.groundplatform.android.persistence.local.LocalValueStore
+import org.groundplatform.android.proto.Survey.DataSharingTerms
+import org.groundplatform.android.repository.SurveyRepository
 
 class GetDataSharingTermsUseCase
 @Inject

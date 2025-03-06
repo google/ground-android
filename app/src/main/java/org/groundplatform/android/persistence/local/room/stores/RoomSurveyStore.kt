@@ -16,6 +16,10 @@
 package org.groundplatform.android.persistence.local.room.stores
 
 import androidx.room.withTransaction
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.task.Condition
@@ -34,10 +38,6 @@ import org.groundplatform.android.persistence.local.room.dao.SurveyDao
 import org.groundplatform.android.persistence.local.room.dao.TaskDao
 import org.groundplatform.android.persistence.local.room.dao.insertOrUpdate
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 /** Manages access to [Survey] objects persisted in local storage. */
 @Singleton

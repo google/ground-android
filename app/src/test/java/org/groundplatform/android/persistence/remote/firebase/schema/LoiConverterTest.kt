@@ -15,6 +15,11 @@
  */
 package org.groundplatform.android.persistence.remote.firebase.schema
 
+import com.google.common.truth.Truth.assertThat
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.protobuf.timestamp
+import java.util.Date
+import kotlinx.collections.immutable.persistentListOf
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.FakeData.USER_ID
 import org.groundplatform.android.FakeData.newTask
@@ -38,11 +43,6 @@ import org.groundplatform.android.proto.coordinates
 import org.groundplatform.android.proto.geometry
 import org.groundplatform.android.proto.locationOfInterest
 import org.groundplatform.android.proto.point
-import com.google.common.truth.Truth.assertThat
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.protobuf.timestamp
-import java.util.Date
-import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock

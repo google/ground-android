@@ -16,6 +16,12 @@
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
 import androidx.lifecycle.asLiveData
+import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import com.jraska.livedata.TestObserver
+import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
+import kotlin.test.assertNotNull
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LineString
@@ -28,12 +34,6 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
-import com.jraska.livedata.TestObserver
-import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
-import kotlin.test.assertNotNull
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith

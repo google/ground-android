@@ -15,9 +15,6 @@
  */
 package org.groundplatform.android
 
-import org.groundplatform.android.coroutines.ApplicationScope
-import org.groundplatform.android.coroutines.CoroutinesScopesModule
-import org.groundplatform.android.coroutines.MainScope
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.components.SingletonComponent
@@ -26,6 +23,9 @@ import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
+import org.groundplatform.android.coroutines.ApplicationScope
+import org.groundplatform.android.coroutines.CoroutinesScopesModule
+import org.groundplatform.android.coroutines.MainScope
 
 @Module
 @TestInstallIn(components = [SingletonComponent::class], replaces = [CoroutinesScopesModule::class])

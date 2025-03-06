@@ -16,6 +16,13 @@
 package org.groundplatform.android.persistence.local
 
 import app.cash.turbine.test
+import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
+import kotlin.test.assertFailsWith
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.model.Survey
@@ -49,13 +56,6 @@ import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.local.stores.LocalUserStore
 import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
-import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
-import kotlin.test.assertFailsWith
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.junit.Test

@@ -17,15 +17,15 @@ package org.groundplatform.android.system
 
 import android.location.Address
 import android.location.Geocoder
-import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.ui.map.Bounds
-import org.groundplatform.android.ui.map.gms.GmsExt.center
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import javax.inject.Inject
 import kotlin.test.assertEquals
+import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.ui.map.Bounds
+import org.groundplatform.android.ui.map.gms.GmsExt.center
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyInt

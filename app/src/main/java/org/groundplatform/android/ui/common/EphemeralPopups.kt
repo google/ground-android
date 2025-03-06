@@ -19,10 +19,10 @@ import android.app.Application
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.StringRes
-import org.groundplatform.android.R
 import com.google.android.material.snackbar.Snackbar
 import javax.inject.Inject
 import javax.inject.Singleton
+import org.groundplatform.android.R
 
 /** Displays short-lived messages such as toasts that are shown over other UI elements. */
 @Suppress("UseDataClass")

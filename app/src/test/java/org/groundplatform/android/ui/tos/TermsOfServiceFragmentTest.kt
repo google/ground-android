@@ -30,6 +30,10 @@ import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.isNotChecked
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.testing.BindValue
+import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
@@ -38,10 +42,6 @@ import org.groundplatform.android.model.TermsOfService
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.system.NetworkManager
-import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.BindValue
-import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import org.hamcrest.BaseMatcher
 import org.hamcrest.Description
 import org.hamcrest.Matcher

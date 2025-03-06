@@ -15,10 +15,10 @@
  */
 package org.groundplatform.android.model.mutation
 
+import java.util.Date
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.PhotoTaskData
 import org.groundplatform.android.model.submission.ValueDelta
-import java.util.Date
 
 data class SubmissionMutation(
   override val id: Long? = null,

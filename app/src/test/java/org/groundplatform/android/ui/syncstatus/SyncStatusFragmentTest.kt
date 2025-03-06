@@ -22,6 +22,10 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.R
@@ -29,10 +33,6 @@ import org.groundplatform.android.launchFragmentInHiltContainer
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.repository.SurveyRepository
-import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

@@ -18,8 +18,8 @@ package org.groundplatform.android.ui.map
 import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import org.groundplatform.android.R
 import kotlinx.parcelize.Parcelize
+import org.groundplatform.android.R
 
 /**
  * The type of base map shown beneath all other layers. Google Maps SDK refers to these as "map

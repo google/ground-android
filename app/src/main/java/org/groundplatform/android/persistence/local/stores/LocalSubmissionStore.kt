@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.persistence.local.stores
 
+import kotlinx.coroutines.flow.Flow
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.mutation.SubmissionMutation
@@ -22,7 +23,6 @@ import org.groundplatform.android.model.submission.DraftSubmission
 import org.groundplatform.android.model.submission.Submission
 import org.groundplatform.android.persistence.local.room.entity.SubmissionMutationEntity
 import org.groundplatform.android.persistence.local.room.fields.MutationEntitySyncStatus
-import kotlinx.coroutines.flow.Flow
 
 interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submission> {
   /**

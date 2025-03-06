@@ -20,18 +20,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_CANCELLED
 import com.google.android.gms.common.api.ApiException
-import org.groundplatform.android.coroutines.IoDispatcher
-import org.groundplatform.android.usecases.survey.ReactivateLastSurveyUseCase
-import org.groundplatform.android.model.User
-import org.groundplatform.android.persistence.local.room.LocalDatabase
-import org.groundplatform.android.repository.SurveyRepository
-import org.groundplatform.android.repository.TermsOfServiceRepository
-import org.groundplatform.android.repository.UserRepository
-import org.groundplatform.android.system.auth.AuthenticationManager
-import org.groundplatform.android.system.auth.SignInState
-import org.groundplatform.android.ui.common.AbstractViewModel
-import org.groundplatform.android.ui.common.SharedViewModel
-import org.groundplatform.android.util.isPermissionDeniedException
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -41,6 +29,18 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.model.User
+import org.groundplatform.android.persistence.local.room.LocalDatabase
+import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.android.repository.TermsOfServiceRepository
+import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.android.system.auth.AuthenticationManager
+import org.groundplatform.android.system.auth.SignInState
+import org.groundplatform.android.ui.common.AbstractViewModel
+import org.groundplatform.android.ui.common.SharedViewModel
+import org.groundplatform.android.usecases.survey.ReactivateLastSurveyUseCase
+import org.groundplatform.android.util.isPermissionDeniedException
 import timber.log.Timber
 
 /** Top-level view model representing state of the [MainActivity] shared by all fragments. */

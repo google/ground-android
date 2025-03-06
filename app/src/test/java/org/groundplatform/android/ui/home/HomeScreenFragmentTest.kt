@@ -35,13 +35,6 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.FakeData
-import org.groundplatform.android.R
-import org.groundplatform.android.launchFragmentWithNavController
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
-import org.groundplatform.android.repository.SurveyRepository
 import com.google.common.truth.Truth.assertThat
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -49,6 +42,13 @@ import javax.inject.Inject
 import kotlin.test.assertFalse
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
+import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.FakeData
+import org.groundplatform.android.R
+import org.groundplatform.android.launchFragmentWithNavController
+import org.groundplatform.android.model.Survey
+import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
+import org.groundplatform.android.repository.SurveyRepository
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

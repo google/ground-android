@@ -18,8 +18,8 @@ package org.groundplatform.android.ui.map.gms.mog
 
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
-import org.groundplatform.android.persistence.remote.RemoteStorageManager
 import kotlinx.coroutines.runBlocking
+import org.groundplatform.android.persistence.remote.RemoteStorageManager
 import timber.log.Timber
 
 // TODO: Add unit tests.

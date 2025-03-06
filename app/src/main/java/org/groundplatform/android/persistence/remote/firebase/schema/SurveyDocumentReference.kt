@@ -16,11 +16,11 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.persistence.remote.firebase.base.FluentDocumentReference
 import com.google.firebase.firestore.DocumentReference
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
+import org.groundplatform.android.model.Survey
+import org.groundplatform.android.persistence.remote.firebase.base.FluentDocumentReference
 import timber.log.Timber
 
 private const val LOIS = "lois"

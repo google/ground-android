@@ -15,6 +15,8 @@
  */
 package org.groundplatform.android.ui.datacollection
 
+import com.google.common.truth.Truth.assertThat
+import kotlinx.collections.immutable.persistentListOf
 import org.groundplatform.android.model.submission.MultipleChoiceTaskData
 import org.groundplatform.android.model.task.Condition
 import org.groundplatform.android.model.task.Expression
@@ -22,8 +24,6 @@ import org.groundplatform.android.model.task.MultipleChoice
 import org.groundplatform.android.model.task.Option
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.model.task.Task.Type
-import com.google.common.truth.Truth.assertThat
-import kotlinx.collections.immutable.persistentListOf
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -17,11 +17,11 @@ package org.groundplatform.android.persistence.local.room.converter
 
 import android.util.Base64
 import androidx.room.TypeConverter
-import org.groundplatform.android.model.geometry.Geometry
-import org.groundplatform.android.persistence.local.room.entity.GeometryWrapper
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.encodeToByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
+import org.groundplatform.android.model.geometry.Geometry
+import org.groundplatform.android.persistence.local.room.entity.GeometryWrapper
 import org.json.JSONException
 import timber.log.Timber
 

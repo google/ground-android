@@ -22,10 +22,10 @@ import android.os.Looper
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-import org.groundplatform.android.system.channel.LocationSharedFlowCallback
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.tasks.await
+import org.groundplatform.android.system.channel.LocationSharedFlowCallback
 
 /** Thin wrapper around [FusedLocationProviderClient] exposing key LOIs as reactive streams. */
 class FusedLocationProviderClient @Inject constructor(@ApplicationContext context: Context) {

@@ -16,10 +16,6 @@
 package org.groundplatform.android.ui.map.gms.mog
 
 import com.google.android.gms.maps.model.LatLng
-import org.groundplatform.android.ui.map.gms.mog.PixelCoordinates
-import org.groundplatform.android.ui.map.gms.mog.TileCoordinates
-import org.groundplatform.android.ui.map.gms.mog.toPixelCoordinate
-import org.groundplatform.android.ui.map.gms.mog.toPixelCoordinates
 import kotlin.test.assertEquals
 import org.junit.Test
 

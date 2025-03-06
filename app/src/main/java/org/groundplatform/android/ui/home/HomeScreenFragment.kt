@@ -27,12 +27,16 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.navigation.NavigationView
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlinx.coroutines.launch
 import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.MainViewModel
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.HomeScreenFragBinding
 import org.groundplatform.android.databinding.NavDrawerHeaderBinding
-import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
 import org.groundplatform.android.model.User
 import org.groundplatform.android.persistence.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.repository.UserRepository
@@ -42,11 +46,6 @@ import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.compose.ConfirmationDialog
 import org.groundplatform.android.util.setComposableContent
 import org.groundplatform.android.util.systemInsets
-import com.google.android.material.imageview.ShapeableImageView
-import com.google.android.material.navigation.NavigationView
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import kotlinx.coroutines.launch
 
 /**
  * Fragment containing the map container and location of interest sheet fragments and NavigationView

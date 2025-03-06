@@ -15,6 +15,8 @@
  */
 package org.groundplatform.android.persistence.local.room.stores
 
+import javax.inject.Inject
+import javax.inject.Singleton
 import org.groundplatform.android.model.User
 import org.groundplatform.android.persistence.local.room.LocalDataStoreException
 import org.groundplatform.android.persistence.local.room.converter.toLocalDataStoreObject
@@ -22,8 +24,6 @@ import org.groundplatform.android.persistence.local.room.converter.toModelObject
 import org.groundplatform.android.persistence.local.room.dao.UserDao
 import org.groundplatform.android.persistence.local.room.dao.insertOrUpdate
 import org.groundplatform.android.persistence.local.stores.LocalUserStore
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /** Manages access to [User] objects persisted in local storage. */
 @Singleton

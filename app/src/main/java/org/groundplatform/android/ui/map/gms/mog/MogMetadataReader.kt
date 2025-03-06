@@ -16,12 +16,12 @@
 
 package org.groundplatform.android.ui.map.gms.mog
 
-import org.groundplatform.android.ui.map.gms.mog.TiffTagDataType.*
 import com.google.common.io.LittleEndianDataInputStream
 import java.io.DataInput
 import java.io.DataInputStream
 import java.nio.charset.StandardCharsets
 import java.util.*
+import org.groundplatform.android.ui.map.gms.mog.TiffTagDataType.*
 
 private const val NULL_CHAR = 0.toChar()
 

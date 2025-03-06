@@ -16,13 +16,13 @@
 
 package org.groundplatform.android.persistence.local.room.converter
 
+import kotlinx.collections.immutable.toPersistentList
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.ValueDelta
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.persistence.local.LocalDataConsistencyException
 import org.groundplatform.android.persistence.remote.DataStoreException
 import org.groundplatform.android.util.Enums.toEnum
-import kotlinx.collections.immutable.toPersistentList
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber

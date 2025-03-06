@@ -26,9 +26,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.OfflineAreaSelectorFragBinding
-import org.groundplatform.android.ui.offlineareas.selector.OfflineAreaSelectorFragmentDirections
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
@@ -37,9 +39,6 @@ import org.groundplatform.android.ui.home.mapcontainer.HomeScreenMapContainerVie
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.MapType
 import org.groundplatform.android.util.renderComposableDialog
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import kotlinx.coroutines.launch
 
 /** Map UI used to select areas for download and viewing offline. */
 @AndroidEntryPoint

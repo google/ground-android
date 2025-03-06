@@ -17,11 +17,11 @@ package org.groundplatform.android.system
 
 import android.location.Location
 import app.cash.turbine.test
-import org.groundplatform.android.BaseHiltTest
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import org.groundplatform.android.BaseHiltTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock

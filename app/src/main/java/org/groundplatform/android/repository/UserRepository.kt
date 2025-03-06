@@ -15,6 +15,8 @@
  */
 package org.groundplatform.android.repository
 
+import javax.inject.Inject
+import javax.inject.Singleton
 import org.groundplatform.android.model.Role
 import org.groundplatform.android.model.User
 import org.groundplatform.android.persistence.local.LocalValueStore
@@ -22,8 +24,6 @@ import org.groundplatform.android.persistence.local.stores.LocalUserStore
 import org.groundplatform.android.persistence.remote.RemoteDataStore
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.AuthenticationManager
-import javax.inject.Inject
-import javax.inject.Singleton
 import timber.log.Timber
 
 /**

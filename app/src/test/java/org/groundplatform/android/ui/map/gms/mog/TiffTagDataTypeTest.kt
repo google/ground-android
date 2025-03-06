@@ -16,7 +16,6 @@
 package org.groundplatform.android.ui.map.gms.mog
 
 import com.google.common.truth.Truth.assertThat
-import org.groundplatform.android.ui.map.gms.mog.TiffTagDataType
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized

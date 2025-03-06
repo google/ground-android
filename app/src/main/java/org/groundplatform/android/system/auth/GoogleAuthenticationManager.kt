@@ -22,11 +22,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import org.groundplatform.android.R
-import org.groundplatform.android.coroutines.ApplicationScope
-import org.groundplatform.android.model.User
-import org.groundplatform.android.system.ActivityResult
-import org.groundplatform.android.system.ActivityStreams
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
@@ -40,6 +35,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.groundplatform.android.R
+import org.groundplatform.android.coroutines.ApplicationScope
+import org.groundplatform.android.model.User
+import org.groundplatform.android.system.ActivityResult
+import org.groundplatform.android.system.ActivityStreams
 import timber.log.Timber
 
 private val signInRequestCode = AuthenticationManager::class.java.hashCode() and 0xffff

@@ -16,9 +16,8 @@
 
 package org.groundplatform.android.util
 
-import org.groundplatform.android.model.geometry.Coordinates
 import com.google.common.truth.Truth.assertThat
-import org.groundplatform.android.util.toDmsFormat
+import org.groundplatform.android.model.geometry.Coordinates
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

@@ -21,11 +21,11 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.R
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.Test
+import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.R
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.runner.RunWith

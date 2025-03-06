@@ -19,6 +19,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import javax.inject.Provider
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
 import org.groundplatform.android.model.geometry.LineString
@@ -32,11 +37,6 @@ import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.util.renderComposableDialog
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import javax.inject.Provider
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawAreaTaskViewModel>() {

@@ -20,15 +20,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import org.groundplatform.android.R
-import org.groundplatform.android.databinding.SignInFragBinding
-import org.groundplatform.android.ui.common.AbstractFragment
-import org.groundplatform.android.ui.common.BackPressListener
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import org.groundplatform.android.R
+import org.groundplatform.android.databinding.SignInFragBinding
+import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.android.ui.common.BackPressListener
 
 @AndroidEntryPoint
 class SignInFragment : AbstractFragment(), BackPressListener {

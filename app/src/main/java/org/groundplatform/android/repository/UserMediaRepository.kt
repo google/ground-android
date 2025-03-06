@@ -20,9 +20,6 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
-import org.groundplatform.android.Config
-import org.groundplatform.android.persistence.remote.RemoteStorageManager
-import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.io.FileNotFoundException
@@ -30,6 +27,9 @@ import java.io.FileOutputStream
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+import org.groundplatform.android.Config
+import org.groundplatform.android.persistence.remote.RemoteStorageManager
+import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import timber.log.Timber
 
 /**

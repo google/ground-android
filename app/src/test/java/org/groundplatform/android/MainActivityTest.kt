@@ -15,14 +15,14 @@
  */
 package org.groundplatform.android
 
-import org.groundplatform.android.system.auth.FakeAuthenticationManager
-import org.groundplatform.android.system.auth.SignInState
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestoreException
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
+import org.groundplatform.android.system.auth.FakeAuthenticationManager
+import org.groundplatform.android.system.auth.SignInState
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric

@@ -18,6 +18,12 @@ package org.groundplatform.android.ui.home
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import org.groundplatform.android.model.submission.DraftSubmission
 import org.groundplatform.android.persistence.sync.MediaUploadWorkManager
 import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
@@ -28,12 +34,6 @@ import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
-import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @SharedViewModel

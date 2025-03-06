@@ -15,6 +15,10 @@
  */
 package org.groundplatform.android.persistence.remote
 
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.model.TermsOfService
@@ -22,10 +26,6 @@ import org.groundplatform.android.model.User
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.toListItem
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 
 @Singleton
 class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {

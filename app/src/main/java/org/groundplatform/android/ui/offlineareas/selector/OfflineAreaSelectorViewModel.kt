@@ -18,6 +18,13 @@ package org.groundplatform.android.ui.offlineareas.selector
 import android.content.res.Resources
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.repository.LocationOfInterestRepository
@@ -34,13 +41,6 @@ import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.CameraPosition
 import org.groundplatform.android.util.toMb
 import org.groundplatform.android.util.toMbString
-import javax.inject.Inject
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 private const val MIN_DOWNLOAD_ZOOM_LEVEL = 9

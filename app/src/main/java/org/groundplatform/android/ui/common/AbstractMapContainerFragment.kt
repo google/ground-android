@@ -19,6 +19,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
+import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
 import org.groundplatform.android.R
 import org.groundplatform.android.coroutines.DefaultDispatcher
 import org.groundplatform.android.model.geometry.Coordinates
@@ -32,8 +34,6 @@ import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.NewCameraPositionViaBounds
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinates
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinatesAndZoomLevel
-import javax.inject.Inject
-import kotlinx.coroutines.CoroutineDispatcher
 import timber.log.Timber
 
 /** Injects a [MapFragment] in the container with id "map" and provides shared map functionality. */
@@ -41,8 +41,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   @Inject lateinit var map: MapFragment
   @Inject lateinit var geocodingManager: GeocodingManager
-  @Inject @DefaultDispatcher
-  lateinit var defaultDispatcher: CoroutineDispatcher
+  @Inject @DefaultDispatcher lateinit var defaultDispatcher: CoroutineDispatcher
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)

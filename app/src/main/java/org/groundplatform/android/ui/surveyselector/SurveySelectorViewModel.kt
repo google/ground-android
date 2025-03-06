@@ -16,14 +16,6 @@
 package org.groundplatform.android.ui.surveyselector
 
 import androidx.lifecycle.viewModelScope
-import org.groundplatform.android.coroutines.ApplicationScope
-import org.groundplatform.android.coroutines.IoDispatcher
-import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
-import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
-import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
-import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.repository.UserRepository
-import org.groundplatform.android.ui.common.AbstractViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -34,6 +26,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.groundplatform.android.coroutines.ApplicationScope
+import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.model.SurveyListItem
+import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.android.ui.common.AbstractViewModel
+import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
+import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
+import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
 import timber.log.Timber
 
 /** Represents view state and behaviors of the survey selector dialog. */

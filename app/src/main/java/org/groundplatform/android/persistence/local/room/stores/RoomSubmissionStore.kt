@@ -15,6 +15,12 @@
  */
 package org.groundplatform.android.persistence.local.room.stores
 
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import org.groundplatform.android.model.AuditInfo
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
@@ -44,12 +50,6 @@ import org.groundplatform.android.persistence.local.room.fields.MutationEntityTy
 import org.groundplatform.android.persistence.local.room.fields.UserDetails
 import org.groundplatform.android.persistence.local.stores.LocalSubmissionStore
 import org.groundplatform.android.util.Debug.logOnFailure
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlinx.collections.immutable.toPersistentList
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 /** Manages access to [Submission] objects persisted in local storage. */

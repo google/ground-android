@@ -23,6 +23,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.SurveySelectorFragBinding
 import org.groundplatform.android.model.SurveyListItem
@@ -31,11 +33,8 @@ import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.compose.ConfirmationDialog
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
-import org.groundplatform.android.ui.surveyselector.SurveySelectorFragmentArgs
 import org.groundplatform.android.util.renderComposableDialog
 import org.groundplatform.android.util.visibleIf
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 /** User interface implementation of survey selector screen. */
 @AndroidEntryPoint

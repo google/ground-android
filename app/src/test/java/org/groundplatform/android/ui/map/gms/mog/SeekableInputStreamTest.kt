@@ -16,7 +16,6 @@
 
 package org.groundplatform.android.ui.map.gms.mog
 
-import org.groundplatform.android.ui.map.gms.mog.SeekableInputStream
 import java.io.ByteArrayInputStream
 import kotlin.test.assertEquals
 import org.junit.Before

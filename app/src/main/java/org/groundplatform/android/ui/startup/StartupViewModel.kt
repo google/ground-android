@@ -15,10 +15,10 @@
  */
 package org.groundplatform.android.ui.startup
 
+import javax.inject.Inject
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.GoogleApiManager
 import org.groundplatform.android.ui.common.AbstractViewModel
-import javax.inject.Inject
 
 class StartupViewModel
 @Inject

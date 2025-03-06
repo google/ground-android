@@ -16,9 +16,8 @@
 
 package org.groundplatform.android.persistence.remote.firebase
 
-import org.groundplatform.android.persistence.sync.SurveySyncService
 import com.google.firebase.messaging.RemoteMessage
-import org.groundplatform.android.persistence.remote.firebase.FirebaseMessagingService
+import org.groundplatform.android.persistence.sync.SurveySyncService
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

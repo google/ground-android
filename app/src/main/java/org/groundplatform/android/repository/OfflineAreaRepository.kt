@@ -15,6 +15,13 @@
  */
 package org.groundplatform.android.repository
 
+import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import org.groundplatform.android.Config
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.OfflineArea
@@ -32,13 +39,6 @@ import org.groundplatform.android.ui.util.FileUtil
 import org.groundplatform.android.util.ByteCount
 import org.groundplatform.android.util.deleteIfEmpty
 import org.groundplatform.android.util.rangeOf
-import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 /**

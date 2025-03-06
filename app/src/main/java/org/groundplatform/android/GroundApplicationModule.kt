@@ -18,13 +18,13 @@ package org.groundplatform.android
 import android.content.Context
 import android.content.res.Resources
 import com.google.android.gms.common.GoogleApiAvailability
-import org.groundplatform.android.ui.common.ViewModelModule
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import org.groundplatform.android.ui.common.ViewModelModule
 
 @InstallIn(SingletonComponent::class)
 @Module(includes = [ViewModelModule::class])

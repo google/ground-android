@@ -15,6 +15,12 @@
  */
 package org.groundplatform.android.repository
 
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.geometry.Geometry
 import org.groundplatform.android.model.job.Job
@@ -31,12 +37,6 @@ import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.gms.GmsExt.contains
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 /**

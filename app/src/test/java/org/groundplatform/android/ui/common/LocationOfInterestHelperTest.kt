@@ -15,12 +15,12 @@
  */
 package org.groundplatform.android.ui.common
 
-import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.FakeData
-import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.FakeData
+import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

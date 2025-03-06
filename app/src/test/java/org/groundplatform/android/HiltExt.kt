@@ -29,7 +29,6 @@ import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
-import org.groundplatform.android.R
 
 /**
  * `launchFragmentInContainer` from the androidx.fragment:fragment-testing library is NOT possible

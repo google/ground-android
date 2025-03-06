@@ -54,14 +54,21 @@ enum class MutationEntityType(private val intValue: Int) : IntEnum {
         else -> UNKNOWN
       }
 
-    @JvmStatic @TypeConverter fun toInt(value: MutationEntityType?) = toInt(value,
-      org.groundplatform.android.persistence.local.room.fields.MutationEntityType.UNKNOWN
-    )
+    @JvmStatic
+    @TypeConverter
+    fun toInt(value: MutationEntityType?) =
+      toInt(
+        value,
+        org.groundplatform.android.persistence.local.room.fields.MutationEntityType.UNKNOWN,
+      )
 
     @JvmStatic
     @TypeConverter
-    fun fromInt(intValue: Int) = fromInt(entries.toTypedArray(), intValue,
-      org.groundplatform.android.persistence.local.room.fields.MutationEntityType.UNKNOWN
-    )
+    fun fromInt(intValue: Int) =
+      fromInt(
+        entries.toTypedArray(),
+        intValue,
+        org.groundplatform.android.persistence.local.room.fields.MutationEntityType.UNKNOWN,
+      )
   }
 }

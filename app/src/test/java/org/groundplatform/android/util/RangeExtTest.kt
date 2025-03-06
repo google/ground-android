@@ -16,7 +16,6 @@
 
 package org.groundplatform.android.util
 
-import org.groundplatform.android.util.rangeOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import org.junit.runner.RunWith

@@ -16,6 +16,11 @@
 
 package org.groundplatform.android.repository
 
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
@@ -30,11 +35,6 @@ import org.groundplatform.android.model.submission.UploadQueueEntry
 import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.persistence.local.stores.LocalSubmissionStore
 import org.groundplatform.android.system.auth.AuthenticationManager
-import javax.inject.Inject
-import javax.inject.Singleton
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import timber.log.Timber
 
 /**

@@ -16,8 +16,8 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
-import org.groundplatform.android.model.TermsOfService
 import com.google.firebase.firestore.DocumentSnapshot
+import org.groundplatform.android.model.TermsOfService
 
 /** Converts between Firestore documents and [TermsOfService] instances. */
 object TermsOfServiceConverter {

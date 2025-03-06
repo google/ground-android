@@ -24,11 +24,11 @@ import androidx.work.ListenableWorker.Result.failure
 import androidx.work.ListenableWorker.Result.retry
 import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
-import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
 import timber.log.Timber
 
 /** Worker responsible for syncing latest surveys and LOIs from remote server to local db. */

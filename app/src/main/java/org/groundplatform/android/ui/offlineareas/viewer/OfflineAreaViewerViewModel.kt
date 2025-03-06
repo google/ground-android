@@ -17,6 +17,11 @@ package org.groundplatform.android.ui.offlineareas.viewer
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.model.imagery.OfflineArea
 import org.groundplatform.android.repository.LocationOfInterestRepository
@@ -29,11 +34,6 @@ import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.util.toMb
 import org.groundplatform.android.util.toMbString
-import javax.inject.Inject
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**

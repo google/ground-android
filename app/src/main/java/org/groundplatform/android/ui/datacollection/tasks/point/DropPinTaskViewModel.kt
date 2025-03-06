@@ -17,6 +17,8 @@ package org.groundplatform.android.ui.datacollection.tasks.point
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import javax.inject.Inject
+import kotlinx.coroutines.launch
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.getDefaultColor
@@ -29,8 +31,6 @@ import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.map.CameraPosition
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.FeatureType
-import javax.inject.Inject
-import kotlinx.coroutines.launch
 
 class DropPinTaskViewModel
 @Inject

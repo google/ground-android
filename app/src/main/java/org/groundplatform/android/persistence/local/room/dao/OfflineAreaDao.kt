@@ -17,8 +17,8 @@ package org.groundplatform.android.persistence.local.room.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import org.groundplatform.android.persistence.local.room.entity.OfflineAreaEntity
 import kotlinx.coroutines.flow.Flow
+import org.groundplatform.android.persistence.local.room.entity.OfflineAreaEntity
 
 /** Provides read/write operations for writing [OfflineAreaEntity] to the local db. */
 @Dao

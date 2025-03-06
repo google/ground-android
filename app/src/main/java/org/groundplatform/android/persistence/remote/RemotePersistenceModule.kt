@@ -15,13 +15,6 @@
  */
 package org.groundplatform.android.persistence.remote
 
-import org.groundplatform.android.BuildConfig.EMULATOR_HOST
-import org.groundplatform.android.BuildConfig.FIRESTORE_EMULATOR_PORT
-import org.groundplatform.android.BuildConfig.USE_EMULATORS
-import org.groundplatform.android.persistence.remote.firebase.FirebaseStorageManager
-import org.groundplatform.android.persistence.remote.firebase.FirestoreDataStore
-import org.groundplatform.android.persistence.remote.firebase.FirestoreUuidGenerator
-import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.ktx.functions
@@ -34,6 +27,13 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import org.groundplatform.android.BuildConfig.EMULATOR_HOST
+import org.groundplatform.android.BuildConfig.FIRESTORE_EMULATOR_PORT
+import org.groundplatform.android.BuildConfig.USE_EMULATORS
+import org.groundplatform.android.persistence.remote.firebase.FirebaseStorageManager
+import org.groundplatform.android.persistence.remote.firebase.FirestoreDataStore
+import org.groundplatform.android.persistence.remote.firebase.FirestoreUuidGenerator
+import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 
 @InstallIn(SingletonComponent::class)
 @Module

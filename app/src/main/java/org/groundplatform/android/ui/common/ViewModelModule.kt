@@ -17,6 +17,11 @@ package org.groundplatform.android.ui.common
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import dagger.multibindings.IntoMap
 import org.groundplatform.android.MainViewModel
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
@@ -38,11 +43,6 @@ import org.groundplatform.android.ui.startup.StartupViewModel
 import org.groundplatform.android.ui.surveyselector.SurveySelectorViewModel
 import org.groundplatform.android.ui.syncstatus.SyncStatusViewModel
 import org.groundplatform.android.ui.tos.TermsOfServiceViewModel
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import dagger.multibindings.IntoMap
 
 @InstallIn(SingletonComponent::class)
 @Module

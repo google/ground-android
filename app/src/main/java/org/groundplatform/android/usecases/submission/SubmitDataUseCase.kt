@@ -16,12 +16,12 @@
 package org.groundplatform.android.usecases.submission
 
 import androidx.room.Transaction
+import javax.inject.Inject
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.GeometryTaskData
 import org.groundplatform.android.model.submission.ValueDelta
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SubmissionRepository
-import javax.inject.Inject
 import timber.log.Timber
 
 class SubmitDataUseCase

@@ -20,7 +20,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import org.groundplatform.android.R
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlin.test.Test
 import org.junit.Rule

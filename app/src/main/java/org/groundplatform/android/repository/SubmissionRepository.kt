@@ -15,6 +15,8 @@
  */
 package org.groundplatform.android.repository
 
+import javax.inject.Inject
+import javax.inject.Singleton
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.mutation.Mutation
@@ -27,8 +29,6 @@ import org.groundplatform.android.persistence.local.LocalValueStore
 import org.groundplatform.android.persistence.local.stores.LocalSubmissionStore
 import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
 import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Coordinates persistence and retrieval of [Submission] instances from remote, local, and in memory

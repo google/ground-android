@@ -16,6 +16,12 @@
 package org.groundplatform.android.ui.datacollection.tasks.multiplechoice
 
 import android.content.Context
+import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.testing.BindValue
+import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
+import kotlinx.collections.immutable.persistentListOf
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.MultipleChoiceTaskData
 import org.groundplatform.android.model.task.MultipleChoice
@@ -25,12 +31,6 @@ import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
-import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.testing.BindValue
-import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
-import kotlinx.collections.immutable.persistentListOf
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith

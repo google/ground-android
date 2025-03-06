@@ -15,6 +15,11 @@
  */
 package org.groundplatform.android
 
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.components.SingletonComponent
+import dagger.hilt.testing.TestInstallIn
+import javax.inject.Singleton
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.persistence.remote.FakeRemoteStorageManager
 import org.groundplatform.android.persistence.remote.RemoteDataStore
@@ -22,11 +27,6 @@ import org.groundplatform.android.persistence.remote.RemotePersistenceModule
 import org.groundplatform.android.persistence.remote.RemoteStorageManager
 import org.groundplatform.android.persistence.uuid.FakeUuidGenerator
 import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.components.SingletonComponent
-import dagger.hilt.testing.TestInstallIn
-import javax.inject.Singleton
 
 @Module
 @TestInstallIn(

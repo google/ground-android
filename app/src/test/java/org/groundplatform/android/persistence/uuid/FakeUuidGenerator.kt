@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.persistence.uuid
 
-import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import javax.inject.Inject
 
 class FakeUuidGenerator @Inject internal constructor() : OfflineUuidGenerator {

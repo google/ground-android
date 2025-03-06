@@ -20,13 +20,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.combine
 import org.groundplatform.android.R
 import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.coroutines.MainDispatcher
 import org.groundplatform.android.databinding.BasemapLayoutBinding
 import org.groundplatform.android.databinding.MenuButtonBinding
-import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.android.repository.SubmissionRepository
@@ -42,13 +46,9 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.DataCollectionEntryP
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComposables
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.MapFragment
+import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 import org.groundplatform.android.util.createComposeView
 import org.groundplatform.android.util.renderComposableDialog
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.combine
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -58,12 +58,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   @Inject lateinit var ephemeralPopups: EphemeralPopups
   @Inject lateinit var submissionRepository: SubmissionRepository
   @Inject lateinit var userRepository: UserRepository
-  @Inject @IoDispatcher
-  lateinit var ioDispatcher: CoroutineDispatcher
-  @Inject @MainDispatcher
-  lateinit var mainDispatcher: CoroutineDispatcher
-  @Inject @ApplicationScope
-  lateinit var externalScope: CoroutineScope
+  @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
+  @Inject @MainDispatcher lateinit var mainDispatcher: CoroutineDispatcher
+  @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel

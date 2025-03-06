@@ -16,15 +16,15 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.Query
+import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.tasks.await
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.persistence.remote.firebase.base.FluentCollectionReference
 import org.groundplatform.android.persistence.remote.firebase.schema.LoiConverter.toLoi
 import org.groundplatform.android.proto.LocationOfInterest as LocationOfInterestProto
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.Query
-import kotlin.coroutines.cancellation.CancellationException
-import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 
 /**

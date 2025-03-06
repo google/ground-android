@@ -16,8 +16,8 @@
 package org.groundplatform.android.util
 
 import android.location.Location
-import org.groundplatform.android.model.geometry.Coordinates
 import kotlin.math.abs
+import org.groundplatform.android.model.geometry.Coordinates
 
 /** Converts the given coordinates in decimal format to D°M′S″ format. */
 fun Coordinates.toDmsFormat(): String = "${convertLatToDms(lat)} ${convertLongToDms(lng)}"

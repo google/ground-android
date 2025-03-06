@@ -20,12 +20,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import org.groundplatform.android.ui.common.MapConfig
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
-import org.groundplatform.android.ui.map.MapFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
+import org.groundplatform.android.ui.common.MapConfig
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
+import org.groundplatform.android.ui.map.MapFragment
 
 @AndroidEntryPoint
 class CaptureLocationTaskMapFragment @Inject constructor() :

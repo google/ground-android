@@ -16,11 +16,11 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.persistence.remote.firebase.base.FluentCollectionReference
 import com.google.firebase.firestore.CollectionReference
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
+import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.persistence.remote.firebase.base.FluentCollectionReference
 import timber.log.Timber
 
 class JobCollectionReference internal constructor(ref: CollectionReference) :

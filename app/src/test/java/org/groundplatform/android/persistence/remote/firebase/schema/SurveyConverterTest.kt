@@ -16,14 +16,14 @@
 
 package org.groundplatform.android.persistence.remote.firebase.schema
 
+import com.google.common.truth.Truth.assertThat
+import com.google.firebase.firestore.DocumentSnapshot
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.persistence.remote.firebase.protobuf.toFirestoreMap
 import org.groundplatform.android.proto.Role
 import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.proto.copy
 import org.groundplatform.android.proto.survey
-import com.google.common.truth.Truth.assertThat
-import com.google.firebase.firestore.DocumentSnapshot
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.whenever

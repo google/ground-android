@@ -17,13 +17,13 @@ package org.groundplatform.android
 
 import android.content.Context
 import androidx.room.Room
-import org.groundplatform.android.persistence.local.room.LocalDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
+import org.groundplatform.android.persistence.local.room.LocalDatabase
 
 @Module
 @TestInstallIn(components = [SingletonComponent::class], replaces = [LocalDatabaseModule::class])

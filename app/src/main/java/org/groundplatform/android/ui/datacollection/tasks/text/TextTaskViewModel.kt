@@ -17,12 +17,12 @@ package org.groundplatform.android.ui.datacollection.tasks.text
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.submission.TextTaskData
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
+import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.model.submission.TextTaskData
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 
 class TextTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 

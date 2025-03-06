@@ -25,9 +25,9 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import kotlin.reflect.KClass
 import org.groundplatform.android.e2etest.TestConfig.LONG_TIMEOUT
 import org.groundplatform.android.e2etest.TestConfig.SHORT_TIMEOUT
-import kotlin.reflect.KClass
 
 interface AutomatorRunner {
   var device: UiDevice

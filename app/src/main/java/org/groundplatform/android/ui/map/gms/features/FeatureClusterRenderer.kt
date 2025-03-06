@@ -20,13 +20,13 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.maps.android.clustering.Cluster
+import com.google.maps.android.clustering.ClusterManager
+import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import org.groundplatform.android.Config.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.ui.IconFactory
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.CLUSTER_Z
-import com.google.maps.android.clustering.Cluster
-import com.google.maps.android.clustering.ClusterManager
-import com.google.maps.android.clustering.view.DefaultClusterRenderer
 
 /**
  * A cluster renderer for [FeatureClusterItem]s.

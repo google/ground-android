@@ -19,12 +19,12 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
-import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.R
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.R
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

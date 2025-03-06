@@ -26,11 +26,11 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.asLiveData
+import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.util.createComposeView
-import dagger.hilt.android.AndroidEntryPoint
 
 const val MULTIPLE_CHOICE_LIST_TEST_TAG = "multiple choice items test tag"
 

@@ -22,12 +22,12 @@ import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.R
-import org.groundplatform.android.proto.Survey
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlin.test.Test
+import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.R
+import org.groundplatform.android.proto.Survey
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

@@ -15,8 +15,8 @@
  */
 package org.groundplatform.android.persistence.local.stores
 
-import org.groundplatform.android.model.Survey
 import kotlinx.coroutines.flow.Flow
+import org.groundplatform.android.model.Survey
 
 /** Provides access to [Survey] data in local storage. */
 interface LocalSurveyStore {

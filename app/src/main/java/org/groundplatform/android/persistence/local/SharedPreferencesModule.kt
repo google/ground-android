@@ -17,14 +17,14 @@ package org.groundplatform.android.persistence.local
 
 import android.content.Context
 import android.content.SharedPreferences
-import org.groundplatform.android.Config
-import org.groundplatform.android.util.allowThreadDiskReads
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import org.groundplatform.android.Config
+import org.groundplatform.android.util.allowThreadDiskReads
 
 @InstallIn(SingletonComponent::class)
 @Module

@@ -16,16 +16,16 @@
 package org.groundplatform.android.repository
 
 import app.cash.turbine.test
-import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.FakeData.SURVEY
-import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
-import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
+import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.FakeData.SURVEY
+import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
+import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
+import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

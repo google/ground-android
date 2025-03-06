@@ -33,6 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
+import kotlin.properties.Delegates
+import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.isNotNullOrEmpty
@@ -46,8 +48,6 @@ import org.groundplatform.android.ui.datacollection.components.TaskButton
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.util.renderComposableDialog
 import org.groundplatform.android.util.setComposableContent
-import kotlin.properties.Delegates
-import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {

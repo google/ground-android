@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.persistence.remote.firebase.schema
 
+import com.google.firebase.firestore.DocumentSnapshot
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.persistence.remote.DataStoreException
@@ -22,7 +23,6 @@ import org.groundplatform.android.persistence.remote.firebase.protobuf.parseFrom
 import org.groundplatform.android.persistence.remote.firebase.schema.GeometryConverter.toGeometry
 import org.groundplatform.android.proto.LocationOfInterest as LocationOfInterestProto
 import org.groundplatform.android.proto.LocationOfInterest.Source
-import com.google.firebase.firestore.DocumentSnapshot
 
 /** Converts between Firestore documents and [LocationOfInterest] instances. */
 object LoiConverter {
