@@ -69,9 +69,12 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
    */
   override suspend fun insertOrUpdateSurvey(survey: Survey) =
     localDatabase.withTransaction {
+      // Update survey.
       surveyDao.insertOrUpdate(survey.toLocalDataStoreObject())
-      jobDao.deleteBySurveyId(survey.id)
+      // Add or update jobs and tasks.
       insertOrUpdateJobs(survey.id, survey.jobs)
+      // Delete removed jobs.
+      jobDao.deleteNotIn(survey.jobs.map { it.id })
     }
 
   /**
@@ -90,12 +93,14 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
 
   private suspend fun insertOrUpdateOptions(taskId: String, options: List<Option>) {
     options.forEach { insertOrUpdateOption(taskId, it) }
+    optionDao.deleteNotIn(taskId, options.map { it.id })
   }
 
   private suspend fun insertOrUpdateCondition(taskId: String, condition: Condition) {
     conditionDao.insertOrUpdate(condition.toLocalDataStoreObject(parentTaskId = taskId))
+    expressionDao.deleteByTaskId(taskId)
     condition.expressions.forEach {
-      expressionDao.insertOrUpdate(it.toLocalDataStoreObject(parentTaskId = taskId))
+      expressionDao.insert(it.toLocalDataStoreObject(parentTaskId = taskId))
     }
   }
 
@@ -114,8 +119,10 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
     }
   }
 
-  private suspend fun insertOrUpdateTasks(jobId: String, tasks: Collection<Task>) =
+  private suspend fun insertOrUpdateTasks(jobId: String, tasks: Collection<Task>) {
     tasks.forEach { insertOrUpdateTask(jobId, it) }
+    taskDao.deleteNotIn(jobId, tasks.map { it.id })
+  }
 
   private suspend fun insertOrUpdateJob(surveyId: String, job: Job) {
     jobDao.insertOrUpdate(job.toLocalDataStoreObject(surveyId))

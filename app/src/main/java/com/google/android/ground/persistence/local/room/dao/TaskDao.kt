@@ -16,6 +16,11 @@
 package com.google.android.ground.persistence.local.room.dao
 
 import androidx.room.Dao
+import androidx.room.Query
 import com.google.android.ground.persistence.local.room.entity.TaskEntity
 
-@Dao interface TaskDao : BaseDao<TaskEntity>
+@Dao
+interface TaskDao : BaseDao<TaskEntity> {
+  @Query("DELETE FROM task WHERE job_id = :jobId AND id NOT IN (:taskIds)")
+  suspend fun deleteNotIn(jobId: String, taskIds: List<String>)
+}

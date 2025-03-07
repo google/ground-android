@@ -23,4 +23,7 @@ import com.google.android.ground.persistence.local.room.entity.JobEntity
 interface JobDao : BaseDao<JobEntity> {
   @Query("DELETE FROM job WHERE survey_id = :surveyId")
   suspend fun deleteBySurveyId(surveyId: String)
+
+  @Query("DELETE FROM job WHERE id NOT IN (:ids)")
+  suspend fun deleteNotIn(ids: List<String>)
 }
