@@ -28,8 +28,8 @@ import org.groundplatform.android.proto.Task.TaskTypeCase
 /** Converts between Firestore nested objects and [Task] instances. */
 internal object TaskConverter {
 
-  private fun TaskProto.toTaskType(): Task.Type {
-    return when (taskTypeCase) {
+  private fun TaskProto.toTaskType(): Task.Type =
+    when (taskTypeCase) {
       TaskTypeCase.TEXT_QUESTION -> Task.Type.TEXT
       TaskTypeCase.NUMBER_QUESTION -> Task.Type.NUMBER
       TaskTypeCase.DATE_TIME_QUESTION -> dateTimeToTaskType()
@@ -41,23 +41,20 @@ internal object TaskConverter {
       null -> Task.Type.UNKNOWN
       else -> Task.Type.UNKNOWN
     }
-  }
 
-  private fun TaskProto.dateTimeToTaskType(): Task.Type {
-    return when (dateTimeQuestion?.type) {
+  private fun TaskProto.dateTimeToTaskType(): Task.Type =
+    when (dateTimeQuestion?.type) {
       TaskProto.DateTimeQuestion.Type.DATE_ONLY -> Task.Type.DATE
       TaskProto.DateTimeQuestion.Type.TIME_ONLY -> Task.Type.TIME
       else -> Task.Type.DATE
     }
-  }
 
-  private fun TaskProto.drawGeometryToTaskType(): Task.Type {
-    return if (drawGeometry?.allowedMethodsList?.contains(Method.DRAW_AREA) == true) {
+  private fun TaskProto.drawGeometryToTaskType(): Task.Type =
+    if (drawGeometry?.allowedMethodsList?.contains(Method.DRAW_AREA) == true) {
       Task.Type.DRAW_AREA
     } else {
       Task.Type.DROP_PIN
     }
-  }
 
   fun toTask(task: TaskProto): Task =
     with(task) {
