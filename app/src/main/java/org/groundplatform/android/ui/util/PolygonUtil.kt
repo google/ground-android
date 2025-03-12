@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.ui.util
 
-import org.groundplatform.android.model.geometry.Coordinates
 import kotlin.math.abs
 import kotlin.math.cos
+import org.groundplatform.android.model.geometry.Coordinates
 
 /**
  * Calculates the area of a polygon using the Shoelace formula.

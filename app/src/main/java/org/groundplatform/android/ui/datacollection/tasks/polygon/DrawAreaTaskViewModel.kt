@@ -18,7 +18,6 @@ package org.groundplatform.android.ui.datacollection.tasks.polygon
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,6 +42,7 @@ import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.FeatureType
 import org.groundplatform.android.ui.util.VibrationHelper
+import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
 import timber.log.Timber
 
 @SharedViewModel
