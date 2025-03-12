@@ -46,9 +46,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentTermsServiceBinding
 import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.android.ui.compose.HtmlText
+import org.groundplatform.android.ui.compose.Toolbar
 import org.groundplatform.android.ui.surveyselector.SurveySelectorFragmentDirections
+import org.groundplatform.android.util.createComposeView
 
 @AndroidEntryPoint
 class TermsOfServiceFragment : AbstractFragment() {
