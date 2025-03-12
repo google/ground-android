@@ -23,10 +23,10 @@
   <data>
     <variable
       name="user"
-      type="com.google.android.ground.model.User" />
+      type="org.groundplatform.android.model.User" />
     <variable
       name="survey"
-      type="com.google.android.ground.model.Survey" />
+      type="org.groundplatform.android.model.Survey" />
   </data>
 
   <!--
@@ -60,20 +60,20 @@
         android:orientation="vertical">
 
         <TextView
-          android:layout_height="wrap_content"
           android:layout_width="wrap_content"
-          android:textSize="18sp"
+          android:layout_height="wrap_content"
+          android:fontFamily="@font/google_sans"
           android:paddingStart="4dp"
           android:paddingEnd="4dp"
           android:text="@string/app_name"
-          android:fontFamily="@font/google_sans"/>
+          android:textSize="18sp" />
 
       </LinearLayout>
       <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/user_image"
         style="@style/NavDrawerHeader.Image"
-        app:imageUrl="@{user.photoUrl}"
         android:layout_marginEnd="24dp"
+        app:imageUrl="@{user.photoUrl}"
         tools:background="@drawable/ground_logo" />
 
     </LinearLayout>

@@ -75,7 +75,7 @@ android {
         }
     }
     defaultConfig {
-        applicationId "com.google.android.ground"
+        applicationId "org.groundplatform.android"
         minSdkVersion rootProject.androidMinSdk
         targetSdkVersion rootProject.androidTargetSdk
 
@@ -182,7 +182,7 @@ android {
         }
         animationsDisabled = true
     }
-    namespace 'com.google.android.ground'
+    namespace 'org.groundplatform.android'
 }
 
 configurations {
@@ -360,7 +360,7 @@ dependencies {
     api("com.google.protobuf:protobuf-kotlin-lite:4.26.1")
 
     // Pulls protodefs from the specified commit in the ground-platform repo.
-    groundProtoJar "com.github.google:ground-platform:125cf86@jar"
+    groundProtoJar "com.github.google:ground-platform:d1ae97131671c2f83efa6e1a9ca20c0b9f151228@jar"
 }
 
 protobuf {
