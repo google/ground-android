@@ -18,6 +18,7 @@ package org.groundplatform.android.ui.datacollection.tasks.polygon
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.util
+package org.groundplatform.android.util
 
-import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.ui.util.calculateShoelacePolygonArea
+import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.util
+package org.groundplatform.android.ui.util
 
-import com.google.android.ground.model.geometry.Coordinates
+import org.groundplatform.android.model.geometry.Coordinates
 import kotlin.math.abs
 import kotlin.math.cos
 
