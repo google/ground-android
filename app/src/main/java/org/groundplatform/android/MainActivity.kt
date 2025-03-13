@@ -221,13 +221,13 @@ class MainActivity : AbstractActivity() {
     val action = currentDestination?.getAction(directions.actionId)
 
     if (action == null) {
-      Timber.d("Invalid navigation action for ${directions.actionId}")
+      Timber.e("Invalid navigation action for ${directions.actionId}")
       return
     }
 
     if (currentDestination.id != action.destinationId) {
       if (navHostFragment.navController.currentDestination?.id != currentDestination.id) {
-        Timber.d("Navigation request ignored: Current destination changed before execution.")
+        Timber.e("Navigation request ignored: Current destination changed before execution.")
         return
       }
       navHostFragment.navController.navigate(directions)
