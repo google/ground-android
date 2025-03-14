@@ -217,6 +217,20 @@ class MainActivity : AbstractActivity() {
   }
 
   private fun navigateTo(directions: NavDirections) {
-    navHostFragment.navController.navigate(directions)
+    val currentDestination = navHostFragment.navController.currentDestination
+    val action = currentDestination?.getAction(directions.actionId)
+
+    if (action == null) {
+      Timber.e("Invalid navigation action for ${directions.actionId}")
+      return
+    }
+
+    if (currentDestination.id != action.destinationId) {
+      if (navHostFragment.navController.currentDestination?.id != currentDestination.id) {
+        Timber.e("Navigation request ignored: Current destination changed before execution.")
+        return
+      }
+      navHostFragment.navController.navigate(directions)
+    }
   }
 }
