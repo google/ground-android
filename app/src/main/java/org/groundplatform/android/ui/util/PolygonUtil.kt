@@ -19,22 +19,16 @@ import org.groundplatform.android.model.geometry.Coordinates
 
 /** Checks if two line segments intersect. */
 fun isIntersecting(p1: Coordinates, p2: Coordinates, q1: Coordinates, q2: Coordinates): Boolean {
-
   val o1 = orientation(p1, p2, q1)
   val o2 = orientation(p1, p2, q2)
   val o3 = orientation(q1, q2, p1)
   val o4 = orientation(q1, q2, p2)
 
-  // General case: segments intersect
-  if (o1 != o2 && o3 != o4) return true
-
-  // Special cases: Collinear points
-  if (o1 == 0 && onSegment(p1, p2, q1)) return true
-  if (o2 == 0 && onSegment(p1, p2, q2)) return true
-  if (o3 == 0 && onSegment(q1, q2, p1)) return true
-  if (o4 == 0 && onSegment(q1, q2, p2)) return true
-
-  return false
+  return (o1 != o2 && o3 != o4) ||
+    (o1 == 0 && onSegment(p1, p2, q1)) ||
+    (o2 == 0 && onSegment(p1, p2, q2)) ||
+    (o3 == 0 && onSegment(q1, q2, p1)) ||
+    (o4 == 0 && onSegment(q1, q2, p2))
 }
 
 private fun orientation(a: Coordinates, b: Coordinates, c: Coordinates): Int {
@@ -46,10 +40,9 @@ private fun orientation(a: Coordinates, b: Coordinates, c: Coordinates): Int {
   }
 }
 
-private fun onSegment(a: Coordinates, b: Coordinates, c: Coordinates): Boolean {
-  return c.lat in minOf(a.lat, b.lat)..maxOf(a.lat, b.lat) &&
+private fun onSegment(a: Coordinates, b: Coordinates, c: Coordinates) =
+  c.lat in minOf(a.lat, b.lat)..maxOf(a.lat, b.lat) &&
     c.lng in minOf(a.lng, b.lng)..maxOf(a.lng, b.lng)
-}
 
 /** Checks if a polygon formed by the given vertices is self-intersecting. */
 fun isSelfIntersecting(vertices: List<Coordinates>): Boolean {

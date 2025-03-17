@@ -27,31 +27,6 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class PolygonUtilTest {
 
-  companion object {
-    val P1 = Coordinates(1.0, 1.0)
-    val P2 = Coordinates(4.0, 4.0)
-    val Q1 = Coordinates(1.0, 4.0)
-    val Q2 = Coordinates(4.0, 1.0)
-    val COLLINEAR1 = Coordinates(3.0, 3.0)
-    val COLLINEAR2 = Coordinates(6.0, 6.0)
-    val TOUCHING = Coordinates(3.0, 3.0)
-    val PARALLEL1 = Coordinates(1.0, 2.0)
-    val PARALLEL2 = Coordinates(4.0, 2.0)
-    val SEPARATE1 = Coordinates(2.0, 2.0)
-    val SEPARATE2 = Coordinates(3.0, 3.0)
-    val NON_INTERSECTING =
-      listOf(
-        Coordinates(0.0, 0.0),
-        Coordinates(4.0, 0.0),
-        Coordinates(4.0, 4.0),
-        Coordinates(0.0, 4.0),
-      )
-    val TRIANGLE = listOf(Coordinates(0.0, 0.0), Coordinates(4.0, 0.0), Coordinates(2.0, 3.0))
-    val SINGLE_POINT = listOf(Coordinates(1.0, 1.0))
-    val THREE_POINTS = listOf(Coordinates(0.0, 0.0), Coordinates(4.0, 4.0), Coordinates(8.0, 0.0))
-    val FOUR_POINTS_X = listOf(P1, P2, Q1, Q2, P1) // Closing the polygon
-  }
-
   @Test
   fun `segments intersect at a point`() {
     assertTrue(isIntersecting(P1, P2, Q1, Q2))
@@ -115,5 +90,30 @@ class PolygonUtilTest {
   @Test
   fun testFourPointsFormingAnX() {
     assertTrue(isSelfIntersecting(FOUR_POINTS_X))
+  }
+
+  companion object {
+    val P1 = Coordinates(1.0, 1.0)
+    val P2 = Coordinates(4.0, 4.0)
+    val Q1 = Coordinates(1.0, 4.0)
+    val Q2 = Coordinates(4.0, 1.0)
+    val COLLINEAR1 = Coordinates(3.0, 3.0)
+    val COLLINEAR2 = Coordinates(6.0, 6.0)
+    val TOUCHING = Coordinates(3.0, 3.0)
+    val PARALLEL1 = Coordinates(1.0, 2.0)
+    val PARALLEL2 = Coordinates(4.0, 2.0)
+    val SEPARATE1 = Coordinates(2.0, 2.0)
+    val SEPARATE2 = Coordinates(3.0, 3.0)
+    val NON_INTERSECTING =
+      listOf(
+        Coordinates(0.0, 0.0),
+        Coordinates(4.0, 0.0),
+        Coordinates(4.0, 4.0),
+        Coordinates(0.0, 4.0),
+      )
+    val TRIANGLE = listOf(Coordinates(0.0, 0.0), Coordinates(4.0, 0.0), Coordinates(2.0, 3.0))
+    val SINGLE_POINT = listOf(Coordinates(1.0, 1.0))
+    val THREE_POINTS = listOf(Coordinates(0.0, 0.0), Coordinates(4.0, 4.0), Coordinates(8.0, 0.0))
+    val FOUR_POINTS_X = listOf(P1, P2, Q1, Q2, P1) // Closing the polygon
   }
 }
