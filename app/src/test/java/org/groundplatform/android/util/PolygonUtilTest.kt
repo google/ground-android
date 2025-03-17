@@ -16,11 +16,11 @@
 package com.google.android.ground.util
 
 import com.google.android.ground.model.geometry.Coordinates
-import com.google.android.ground.ui.util.isIntersecting
-import com.google.android.ground.ui.util.isSelfIntersecting
 import junit.framework.TestCase.assertFalse
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import org.groundplatform.android.ui.util.isIntersecting
+import org.groundplatform.android.ui.util.isSelfIntersecting
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
