@@ -20,13 +20,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Card
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
@@ -152,30 +145,13 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
       }
     }
 
-  @Composable
-  private fun AreaCard() {
-    Card(modifier = Modifier.fillMaxWidth()) {
-      Row(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.weight(1f)) {
-          Text(text = "Area")
-          Text(text = "Area")
-        }
-        Column(modifier = Modifier.weight(1f)) {
-          Text(text = "Area")
-          Text(text = "Area")
-        }
-      }
-    }
-  }
-
   @MustBeInvokedByOverriders
   protected open fun onMapCameraMoved(position: CameraPosition) {
     if (getMapViewModel().locationLock.value.getOrDefault(false)) {
       // Don't update the info card as it is already showing current location
       return
     }
-    with(binding) { areaCard.setContent { AreaCard() } }
-    // updateLocationInfoCard(R.string.map_location, position.coordinates.toDmsFormat())
+    updateLocationInfoCard(R.string.map_location, position.coordinates.toDmsFormat())
   }
 
   companion object {
