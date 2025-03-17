@@ -202,4 +202,6 @@
   <string name="data_collection_cancellation_confirm_button">Confirmar</string>
   <string name="something_went_wrong">algo salió mal</string>
   <string name="clear">Clara</string>
+
+  <string name="area_message">Área: %1$.2f m²</string>
 </resources>

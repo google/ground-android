@@ -201,4 +201,6 @@
   <string name="data_collection_cancellation_confirm_button">Confirmer</string>
   <string name="something_went_wrong">Quelque chose s&#8217;est mal passé</string>
   <string name="clear">Claire</string>
+
+  <string name="area_message">Surface: %1$.2f m²</string>
 </resources>
