@@ -30,9 +30,7 @@ class RotateTransformation(private val uri: Uri, private val context: Context) :
     return rotateBitmap(source, rotateDegrees)
   }
 
-  override fun key(): String {
-    return "rotation-${uri.hashCode()}"
-  }
+  override fun key(): String = "${uri.hashCode()}"
 
   private fun rotateBitmap(bitmap: Bitmap, rotateDegrees: Float): Bitmap {
     val matrix = Matrix()

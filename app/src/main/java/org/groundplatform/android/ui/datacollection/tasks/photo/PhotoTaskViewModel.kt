@@ -15,11 +15,9 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
-import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.IOException
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterIsInstance
@@ -35,7 +33,6 @@ import timber.log.Timber
 class PhotoTaskViewModel
 @Inject
 constructor(
-  @ApplicationContext private val context: Context,
   private val userMediaRepository: UserMediaRepository,
   private val bitmapUtil: BitmapUtil,
 ) : AbstractTaskViewModel() {
