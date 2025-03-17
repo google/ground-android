@@ -20,11 +20,11 @@
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
-    <import type="com.google.android.ground.R" />
+    <import type="org.groundplatform.android.R" />
     <import type="android.view.View" />
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.offlineareas.selector.OfflineAreaSelectorViewModel" />
+      type="org.groundplatform.android.ui.offlineareas.selector.OfflineAreaSelectorViewModel" />
   </data>
 
   <FrameLayout
@@ -50,7 +50,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_gravity="center"
-        app:layout_behavior="com.google.android.ground.ui.home.mapcontainer.MapLayoutBehavior"
+        app:layout_behavior="org.groundplatform.android.ui.home.mapcontainer.MapLayoutBehavior"
         app:layout_constraintBottom_toBottomOf="@id/button_buttons"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

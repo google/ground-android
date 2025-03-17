@@ -35,7 +35,7 @@ tasks.register('jacocoLocalDebugUnitTestReport', JacocoReport) {
         html.required = true
     }
     classDirectories.from = fileTree(
-        dir: 'build/intermediates/classes/localDebug/transformLocalDebugClassesWithAsm/dirs/com/google/android/ground',
+        dir: 'build/intermediates/classes/localDebug/transformLocalDebugClassesWithAsm/dirs/org/groundplatform/android',
         excludes: [
             '**/databinding/*',
             '**/local/room/dao/*',
@@ -103,6 +103,6 @@ tasks.register('jacocoLocalDebugUnitTestReport', JacocoReport) {
             '**/util/AsyncSingletonProvider*',
         ]
     )
-    sourceDirectories.from = files('src/main/java/com/google/android/ground')
+    sourceDirectories.from = files('src/main/java/org/groundplatform/android')
     executionData.from = files('build/jacoco/testLocalDebugUnitTest.exec')
 }
