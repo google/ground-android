@@ -32,6 +32,6 @@
     android:pathData="M7 4L1 4"
     android:strokeWidth="2"
     android:strokeColor="@color/drawAreaLineStringStrokeColor"
-    android:strokeLineCap="round"/>
+    android:strokeLineCap="round" />
 </vector>
 
