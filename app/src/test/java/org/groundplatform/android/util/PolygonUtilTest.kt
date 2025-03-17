@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.util
+package org.groundplatform.android.util
 
-import com.google.android.ground.model.geometry.Coordinates
 import junit.framework.TestCase.assertFalse
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.ui.util.isIntersecting
 import org.groundplatform.android.ui.util.isSelfIntersecting
 import org.junit.runner.RunWith
