@@ -100,7 +100,7 @@ class TaskFragmentRunner(
     return this
   }
 
-  internal fun inputNumber(value: String): TaskFragmentRunner {
+  internal fun inputCharacter(value: String): TaskFragmentRunner {
     getNumberInputNode().performTextInput(value)
     return this
   }

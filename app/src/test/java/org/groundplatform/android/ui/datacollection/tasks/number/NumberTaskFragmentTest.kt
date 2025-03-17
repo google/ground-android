@@ -76,7 +76,7 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   fun `non numeral response gets converted to null`() = runWithTestDispatcher {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
-    runner().inputNumber(".").assertInputNumberDisplayed("")
+    runner().inputCharacter(".").assertInputNumberDisplayed("")
 
     hasValue(null)
   }
