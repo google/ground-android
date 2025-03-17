@@ -15,21 +15,19 @@
  */
 package org.groundplatform.android.ui.tos
 
-import android.text.Html
-import android.text.SpannableStringBuilder
-import android.view.View
-import android.widget.TextView
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isChecked
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.isNotChecked
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -42,10 +40,8 @@ import org.groundplatform.android.model.TermsOfService
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.system.NetworkManager
-import org.hamcrest.BaseMatcher
-import org.hamcrest.Description
-import org.hamcrest.Matcher
 import org.hamcrest.Matchers.not
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -63,22 +59,11 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @BindValue @Mock lateinit var networkManager: NetworkManager
 
-  private fun withHtml(html: String): Matcher<View> =
-    object : BaseMatcher<View>() {
-      override fun describeTo(description: Description?) {
-        description?.apply { this.appendText(html) }
-      }
-
-      override fun matches(actual: Any?): Boolean {
-        val textView = actual as TextView
-        return Html.toHtml(SpannableStringBuilder(textView.text), 0) == html
-      }
-
-      override fun describeMismatch(item: Any?, description: Description?) {
-        description?.appendText(Html.toHtml(SpannableStringBuilder((item as TextView).text), 0))
-        super.describeMismatch(item, description)
-      }
-    }
+  /**
+   * composeTestRule has to be created in the specific test file in order to access the required
+   * activity. [composeTestRule.activity]
+   */
+  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   override fun setUp() {
     super.setUp()
@@ -86,37 +71,51 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Toolbar is displayed`() {
+    launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
+
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.tos_title))
+      .assertIsDisplayed()
+  }
+
+  @Test
+  fun `Toolbar Back Arrow is displayed`() {
+    launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", true)))
+
+    composeTestRule.onNodeWithContentDescription("Back").assertIsDisplayed()
+  }
+
+  @Test
   fun termsOfServiceText_shouldBeDisplayed() {
     whenever(networkManager.isNetworkConnected()).thenReturn(true)
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
 
-    onView(withId(R.id.termsText))
-      .check(matches(isDisplayed()))
-      .check(matches(withText("This is a heading\n\nSample terms of service\n\n")))
-      .check(
-        matches(
-          withHtml(
-            "<p dir=\"ltr\"><span style=\"font-size:1.50em;\"><b>This is a heading</b></span></p>\n" +
-              "<p dir=\"ltr\">Sample terms of service</p>\n"
-          )
-        )
+    composeTestRule.onNodeWithText("This is a heading\n\nSample terms of service\n\n").isDisplayed()
+
+    composeTestRule
+      .onNodeWithText(
+        "<p dir=\"ltr\"><span style=\"font-size:1.50em;\"><b>This is a heading</b></span></p>\n" +
+          "<p dir=\"ltr\">Sample terms of service</p>\n"
       )
+      .isDisplayed()
   }
 
   @Test
   fun agreeButton_default_shouldNotBeEnabled() {
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
 
-    onView(withId(R.id.agreeCheckBox)).check(matches(isNotChecked()))
-    onView(withId(R.id.agreeButton)).check(matches(not(isEnabled())))
+    getCheckbox().assertIsDisplayed()
+    getButton().assertIsNotEnabled()
   }
 
   @Test
   fun agreeButton_whenCheckBoxClicked_shouldBeEnabled() {
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
 
-    onView(withId(R.id.agreeCheckBox)).perform(click()).check(matches(isChecked()))
-    onView(withId(R.id.agreeButton)).check(matches(isEnabled()))
+    getCheckbox().performClick()
+
+    getButton().assertIsEnabled()
   }
 
   @Test
@@ -129,11 +128,10 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isFalse()
 
-    onView(withId(R.id.agreeCheckBox)).perform(click())
-    onView(withId(R.id.agreeButton)).perform(click())
+    getCheckbox().performClick()
+    getButton().performClick()
 
     assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
-
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
   }
 
@@ -141,9 +139,15 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
   fun viewOnlyMode_controlsHidden() = runWithTestDispatcher {
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", true)))
 
-    onView(withId(R.id.agreeCheckBox)).check(matches(not(isDisplayed())))
-    onView(withId(R.id.agreeButton)).check(matches(not(isDisplayed())))
+    getCheckbox().assertIsNotDisplayed()
+    getButton().assertIsNotDisplayed()
   }
+
+  private fun getCheckbox() =
+    composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.agree_checkbox))
+
+  private fun getButton() =
+    composeTestRule.onNodeWithText(composeTestRule.activity.getString(R.string.agree_terms))
 
   companion object {
     const val TEST_TOS_TEXT = "# This is a heading\n\nSample terms of service"
