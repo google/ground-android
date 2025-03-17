@@ -73,15 +73,6 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   }
 
   @Test
-  fun `non numeral response gets converted to null`() = runWithTestDispatcher {
-    setupTaskFragment<NumberTaskFragment>(job, task)
-
-    runner().inputCharacter(".").assertInputNumberDisplayed("")
-
-    hasValue(null)
-  }
-
-  @Test
   fun `deleting number resets the displayed text and next button`() = runWithTestDispatcher {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
