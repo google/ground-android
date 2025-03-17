@@ -114,8 +114,8 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
-    updateLastVertex(COORDINATE_4)
-    updateLastVertex(COORDINATE_1)
+
+    updateLastVertex(COORDINATE_4, true)
 
     assertGeometry(4, isLineString = true)
   }
