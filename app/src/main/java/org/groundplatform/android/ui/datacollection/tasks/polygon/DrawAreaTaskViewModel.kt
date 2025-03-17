@@ -17,6 +17,7 @@ package org.groundplatform.android.ui.datacollection.tasks.polygon
 
 import android.location.Location
 import androidx.lifecycle.viewModelScope
+import com.google.android.ground.ui.util.isSelfIntersecting
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableSharedFlow
