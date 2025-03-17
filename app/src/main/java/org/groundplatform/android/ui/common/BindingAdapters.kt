@@ -48,8 +48,14 @@ object BindingAdapters {
   @JvmStatic
   @BindingAdapter("imageUri")
   fun bindUri(view: ImageView?, uri: Uri?) {
+    if (view == null || uri == null) return
+
     try {
-      Picasso.get().load(uri).placeholder(R.drawable.ic_photo_grey_600_24dp).into(view)
+      Picasso.get()
+        .load(uri)
+        .placeholder(R.drawable.ic_photo_grey_600_24dp)
+        .transform(RotateTransformation(uri, view.context)) // Apply transformation
+        .into(view)
     } catch (exception: IllegalStateException) {
       // Needed for running unit tests
       Timber.e(exception)
