@@ -57,6 +57,7 @@ import org.groundplatform.android.ui.common.LocationOfInterestHelper
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.number.NumberTaskViewModel

@@ -22,6 +22,7 @@ import dagger.assisted.AssistedInject
 import javax.inject.Provider
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskFragment
+import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.number.NumberTaskFragment

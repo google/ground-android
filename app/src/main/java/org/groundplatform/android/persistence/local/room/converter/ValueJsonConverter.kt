@@ -23,6 +23,7 @@ import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.groundplatform.android.model.submission.DateTimeTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DropPinTaskData
+import org.groundplatform.android.model.submission.InstructionTaskData
 import org.groundplatform.android.model.submission.MultipleChoiceTaskData
 import org.groundplatform.android.model.submission.NumberTaskData
 import org.groundplatform.android.model.submission.PhotoTaskData

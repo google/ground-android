@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.instruction
+package org.groundplatform.android.ui.datacollection.tasks.instruction
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import com.google.android.ground.model.submission.TextTaskData
-import com.google.android.ground.ui.datacollection.tasks.AbstractTaskViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
+import org.groundplatform.android.model.submission.TextTaskData
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 
 class InstructionTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 

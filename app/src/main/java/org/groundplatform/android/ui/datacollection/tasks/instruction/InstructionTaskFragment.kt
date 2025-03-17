@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.datacollection.tasks.instruction
+package org.groundplatform.android.ui.datacollection.tasks.instruction
 
 import android.view.LayoutInflater
 import android.view.View
@@ -32,11 +32,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.android.ground.ui.datacollection.components.TaskView
-import com.google.android.ground.ui.datacollection.components.TaskViewFactory
-import com.google.android.ground.ui.datacollection.tasks.AbstractTaskFragment
-import com.google.android.ground.util.createComposeView
 import dagger.hilt.android.AndroidEntryPoint
+import org.groundplatform.android.ui.datacollection.components.TaskView
+import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.android.util.createComposeView
 
 @AndroidEntryPoint
 class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>() {
