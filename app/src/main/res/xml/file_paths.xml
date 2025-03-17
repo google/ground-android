@@ -16,5 +16,7 @@
   ~ limitations under the License.
   -->
 <paths>
-  <external-files-path name="photos" path="Pictures" />
+  <external-files-path
+    name="photos"
+    path="Pictures" />
 </paths>

@@ -206,4 +206,5 @@
   <string name="polygon_vertex_add_dialog_message">El área no puede intersectarse consigo misma</string>
   <string name="polygon_vertex_add_dialog_positive_button">Aceptar</string>
 
+  <string name="clear">Clara</string>
 </resources>
