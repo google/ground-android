@@ -102,4 +102,3 @@ fun isSelfIntersecting(vertices: List<Coordinates>): Boolean {
   }
   return false
 }
-
