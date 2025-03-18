@@ -57,3 +57,48 @@ private fun toMeters(reference: Coordinates, point: Coordinates): Pair<Double, D
   val dY = (point.lat - reference.lat) * EARTH_RADIUS * (Math.PI / 180.0)
   return Pair(dX, dY)
 }
+
+/** Checks if two line segments intersect. */
+fun isIntersecting(p1: Coordinates, p2: Coordinates, q1: Coordinates, q2: Coordinates): Boolean {
+  val o1 = orientation(p1, p2, q1)
+  val o2 = orientation(p1, p2, q2)
+  val o3 = orientation(q1, q2, p1)
+  val o4 = orientation(q1, q2, p2)
+
+  return (o1 != o2 && o3 != o4) ||
+    (o1 == 0 && onSegment(p1, p2, q1)) ||
+    (o2 == 0 && onSegment(p1, p2, q2)) ||
+    (o3 == 0 && onSegment(q1, q2, p1)) ||
+    (o4 == 0 && onSegment(q1, q2, p2))
+}
+
+private fun orientation(a: Coordinates, b: Coordinates, c: Coordinates): Int {
+  val value = (b.lat - a.lat) * (c.lng - b.lng) - (b.lng - a.lng) * (c.lat - b.lat)
+  return when {
+    value > 0 -> 1 // Clockwise
+    value < 0 -> -1 // Counter-clockwise
+    else -> 0 // Collinear
+  }
+}
+
+private fun onSegment(a: Coordinates, b: Coordinates, c: Coordinates) =
+  c.lat in minOf(a.lat, b.lat)..maxOf(a.lat, b.lat) &&
+    c.lng in minOf(a.lng, b.lng)..maxOf(a.lng, b.lng)
+
+/** Checks if a polygon formed by the given vertices is self-intersecting. */
+fun isSelfIntersecting(vertices: List<Coordinates>): Boolean {
+  if (vertices.size < 4) return false // A polygon must have at least 4 points to self-intersect
+
+  for (i in 0 until vertices.size - 1) {
+    val segment1 = Pair(vertices[i], vertices[i + 1])
+
+    for (j in i + 2 until vertices.size - 1) {
+      val segment2 = Pair(vertices[j], vertices[j + 1])
+
+      if (isIntersecting(segment1.first, segment1.second, segment2.first, segment2.second)) {
+        return true
+      }
+    }
+  }
+  return false
+}

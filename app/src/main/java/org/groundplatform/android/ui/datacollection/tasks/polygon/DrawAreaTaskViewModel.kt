@@ -20,8 +20,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
@@ -43,6 +45,7 @@ import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.FeatureType
 import org.groundplatform.android.ui.util.VibrationHelper
 import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
+import org.groundplatform.android.ui.util.isSelfIntersecting
 import timber.log.Timber
 
 @SharedViewModel
@@ -73,6 +76,9 @@ internal constructor(
   /** Represents whether the user has completed drawing the polygon or not. */
   private var isMarkedComplete: Boolean = false
 
+  private val _showSelfIntersectionDialog = MutableSharedFlow<Unit>()
+  val showSelfIntersectionDialog = _showSelfIntersectionDialog.asSharedFlow()
+
   private var strokeColor: Int = 0
 
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
@@ -97,6 +103,10 @@ internal constructor(
 
   fun getLastVertex() = vertices.lastOrNull()
 
+  private fun onSelfIntersectionDetected() {
+    viewModelScope.launch { _showSelfIntersectionDialog.emit(Unit) }
+  }
+
   /**
    * If the distance between the last added vertex and the given [target] is more than the
    * configured threshold, then updates the last vertex with the given [target]. Otherwise, snaps to
@@ -112,6 +122,7 @@ internal constructor(
     var updatedTarget = target
     if (firstVertex != null && vertices.size > 2) {
       val distance = calculateDistanceInPixels(firstVertex, target)
+
       if (distance <= DISTANCE_THRESHOLD_DP) {
         updatedTarget = firstVertex
       }
@@ -163,9 +174,16 @@ internal constructor(
     // Render changes to UI
     updateVertices(updatedVertices.toImmutableList())
 
-    // Save response iff it is user initiated
+    // Save response if it is user initiated
     if (!shouldOverwriteLastVertex) {
       setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices.toImmutableList())))
+    }
+  }
+
+  fun checkVertexIntersection() {
+    if (isSelfIntersecting(vertices)) {
+      vertices = vertices.dropLast(1)
+      onSelfIntersectionDetected()
     }
   }
 
