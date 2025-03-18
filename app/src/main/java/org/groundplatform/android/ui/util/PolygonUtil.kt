@@ -15,7 +15,48 @@
  */
 package org.groundplatform.android.ui.util
 
+import kotlin.math.abs
+import kotlin.math.cos
 import org.groundplatform.android.model.geometry.Coordinates
+
+/**
+ * Calculates the area of a polygon using the Shoelace formula.
+ *
+ * This function computes the area of a simple, non-self-intersecting polygon based on its vertex
+ * coordinates. The first coordinate is used as a reference to convert all other points to meters.
+ *
+ * @param coordinates A list of [Coordinates] representing the vertices of the polygon. The list
+ *   must contain at least three points; otherwise, the function returns 0.0.
+ * @return The area of the polygon in square meters.
+ */
+fun calculateShoelacePolygonArea(coordinates: List<Coordinates>): Double {
+  if (coordinates.size < 3) return 0.0
+
+  val reference = coordinates[0]
+  val points = coordinates.map { toMeters(reference, it) }
+
+  var area = 0.0
+  for (i in points.indices) {
+    val j = (i + 1) % points.size
+    area += points[i].first * points[j].second - points[j].first * points[i].second
+  }
+
+  return abs(area) / 2.0
+}
+
+private fun toRadians(deg: Double): Double = deg * (Math.PI / 180.0)
+
+private const val EARTH_RADIUS = 6378137.0 // Radius of Earth in meters
+
+private fun toMeters(reference: Coordinates, point: Coordinates): Pair<Double, Double> {
+  val dX =
+    (point.lng - reference.lng) *
+      EARTH_RADIUS *
+      cos(toRadians((reference.lat + point.lat) / 2.0)) *
+      (Math.PI / 180.0)
+  val dY = (point.lat - reference.lat) * EARTH_RADIUS * (Math.PI / 180.0)
+  return Pair(dX, dY)
+}
 
 /** Checks if two line segments intersect. */
 fun isIntersecting(p1: Coordinates, p2: Coordinates, q1: Coordinates, q2: Coordinates): Boolean {
@@ -61,3 +102,4 @@ fun isSelfIntersecting(vertices: List<Coordinates>): Boolean {
   }
   return false
 }
+

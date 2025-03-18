@@ -206,4 +206,6 @@
   <string name="polygon_vertex_add_dialog_positive_button">D&#8217;accord</string>
 
   <string name="clear">Claire</string>
+
+  <string name="area_message">Surface: %1$.2f m²</string>
 </resources>
