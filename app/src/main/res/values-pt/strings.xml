@@ -208,4 +208,6 @@
   <string name="polygon_vertex_add_dialog_positive_button">Ok</string>
 
   <string name="clear">Clara</string>
+
+  <string name="area_message">Área: %1$.2f m²</string>
 </resources>

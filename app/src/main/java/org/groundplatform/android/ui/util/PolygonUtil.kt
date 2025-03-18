@@ -13,28 +13,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.ground.ui.util
+package org.groundplatform.android.ui.util
 
-import com.google.android.ground.model.geometry.Coordinates
+import kotlin.math.abs
+import kotlin.math.cos
+import org.groundplatform.android.model.geometry.Coordinates
+
+/**
+ * Calculates the area of a polygon using the Shoelace formula.
+ *
+ * This function computes the area of a simple, non-self-intersecting polygon based on its vertex
+ * coordinates. The first coordinate is used as a reference to convert all other points to meters.
+ *
+ * @param coordinates A list of [Coordinates] representing the vertices of the polygon. The list
+ *   must contain at least three points; otherwise, the function returns 0.0.
+ * @return The area of the polygon in square meters.
+ */
+fun calculateShoelacePolygonArea(coordinates: List<Coordinates>): Double {
+  if (coordinates.size < 3) return 0.0
+
+  val reference = coordinates[0]
+  val points = coordinates.map { toMeters(reference, it) }
+
+  var area = 0.0
+  for (i in points.indices) {
+    val j = (i + 1) % points.size
+    area += points[i].first * points[j].second - points[j].first * points[i].second
+  }
+
+  return abs(area) / 2.0
+}
+
+private fun toRadians(deg: Double): Double = deg * (Math.PI / 180.0)
+
+private const val EARTH_RADIUS = 6378137.0 // Radius of Earth in meters
+
+private fun toMeters(reference: Coordinates, point: Coordinates): Pair<Double, Double> {
+  val dX =
+    (point.lng - reference.lng) *
+      EARTH_RADIUS *
+      cos(toRadians((reference.lat + point.lat) / 2.0)) *
+      (Math.PI / 180.0)
+  val dY = (point.lat - reference.lat) * EARTH_RADIUS * (Math.PI / 180.0)
+  return Pair(dX, dY)
+}
 
 /** Checks if two line segments intersect. */
 fun isIntersecting(p1: Coordinates, p2: Coordinates, q1: Coordinates, q2: Coordinates): Boolean {
-
   val o1 = orientation(p1, p2, q1)
   val o2 = orientation(p1, p2, q2)
   val o3 = orientation(q1, q2, p1)
   val o4 = orientation(q1, q2, p2)
 
-  // General case: segments intersect
-  if (o1 != o2 && o3 != o4) return true
-
-  // Special cases: Collinear points
-  if (o1 == 0 && onSegment(p1, p2, q1)) return true
-  if (o2 == 0 && onSegment(p1, p2, q2)) return true
-  if (o3 == 0 && onSegment(q1, q2, p1)) return true
-  if (o4 == 0 && onSegment(q1, q2, p2)) return true
-
-  return false
+  return (o1 != o2 && o3 != o4) ||
+    (o1 == 0 && onSegment(p1, p2, q1)) ||
+    (o2 == 0 && onSegment(p1, p2, q2)) ||
+    (o3 == 0 && onSegment(q1, q2, p1)) ||
+    (o4 == 0 && onSegment(q1, q2, p2))
 }
 
 private fun orientation(a: Coordinates, b: Coordinates, c: Coordinates): Int {
@@ -46,10 +81,9 @@ private fun orientation(a: Coordinates, b: Coordinates, c: Coordinates): Int {
   }
 }
 
-private fun onSegment(a: Coordinates, b: Coordinates, c: Coordinates): Boolean {
-  return c.lat in minOf(a.lat, b.lat)..maxOf(a.lat, b.lat) &&
+private fun onSegment(a: Coordinates, b: Coordinates, c: Coordinates) =
+  c.lat in minOf(a.lat, b.lat)..maxOf(a.lat, b.lat) &&
     c.lng in minOf(a.lng, b.lng)..maxOf(a.lng, b.lng)
-}
 
 /** Checks if a polygon formed by the given vertices is self-intersecting. */
 fun isSelfIntersecting(vertices: List<Coordinates>): Boolean {

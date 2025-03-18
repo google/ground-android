@@ -16,8 +16,9 @@
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
 import android.location.Location
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.google.android.ground.ui.util.isSelfIntersecting
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -44,6 +45,8 @@ import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.FeatureType
 import org.groundplatform.android.ui.util.VibrationHelper
+import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
+import org.groundplatform.android.ui.util.isSelfIntersecting
 import timber.log.Timber
 
 @SharedViewModel
@@ -61,6 +64,9 @@ internal constructor(
 
   /** Whether the instructions dialog has been shown or not. */
   var instructionsDialogShown: Boolean by localValueStore::drawAreaInstructionsShown
+
+  private val _polygonArea = MutableLiveData<Double>()
+  val polygonArea: LiveData<Double> = _polygonArea
 
   /**
    * User-specified vertices of the area being drawn. If [isMarkedComplete] is false, then the last
@@ -113,17 +119,17 @@ internal constructor(
   ) {
     check(!isMarkedComplete) { "Attempted to update last vertex after completing the drawing" }
 
-    if (vertices.size > 2) {
-      val firstVertex = vertices.first()
+    val firstVertex = vertices.firstOrNull()
+    var updatedTarget = target
+    if (firstVertex != null && vertices.size > 2) {
       val distance = calculateDistanceInPixels(firstVertex, target)
 
       if (distance <= DISTANCE_THRESHOLD_DP) {
-        completePolygon()
-        return
+        updatedTarget = firstVertex
       }
     }
 
-    addVertex(target, true)
+    addVertex(updatedTarget, true)
   }
 
   /** Attempts to remove the last vertex of drawn polygon, if any. */
@@ -166,18 +172,19 @@ internal constructor(
     // Add the new vertex
     updatedVertices.add(vertex)
 
-    // Check if the updated polygon is valid (no self-intersections)
-    if (isSelfIntersecting(updatedVertices)) {
-      onSelfIntersectionDetected()
-      return // Reject the new vertex
-    }
-
     // Render changes to UI
     updateVertices(updatedVertices.toImmutableList())
 
-    // Save response iff it is user initiated
+    // Save response if it is user initiated
     if (!shouldOverwriteLastVertex) {
       setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices.toImmutableList())))
+    }
+  }
+
+  fun checkVertexIntersection() {
+    if (isSelfIntersecting(vertices)) {
+      vertices = vertices.dropLast(1)
+      onSelfIntersectionDetected()
     }
   }
 
@@ -187,32 +194,19 @@ internal constructor(
   }
 
   fun completePolygon() {
-    check(vertices.size > 2) { "A polygon must have at least 3 vertices" }
+    check(LineString(vertices).isClosed()) { "Polygon is not complete" }
     check(!isMarkedComplete) { "Already marked complete" }
-
-    val closedVertices =
-      if (vertices.first() != vertices.last()) {
-        vertices + vertices.first()
-      } else {
-        vertices
-      }
 
     isMarkedComplete = true
 
-    updateVertices(closedVertices)
     refreshMap()
-    setValue(DrawAreaTaskData(Polygon(LinearRing(closedVertices))))
+    setValue(DrawAreaTaskData(Polygon(LinearRing(vertices))))
+    _polygonArea.value = calculateShoelacePolygonArea(vertices)
   }
 
   /** Updates the [Feature] drawn on map based on the value of [vertices]. */
   private fun refreshMap() =
     viewModelScope.launch {
-      if (vertices.size >= 2) {
-        val lastPoint = vertices[vertices.size - 2]
-        val currentPoint = vertices.last()
-        calculateDistanceInMiles(lastPoint, currentPoint)
-      }
-
       _draftArea.emit(
         if (vertices.isEmpty()) {
           null

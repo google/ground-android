@@ -203,7 +203,9 @@
   <string name="something_went_wrong">Something went wrong</string>
 
   <string name="polygon_vertex_add_dialog_title">Error</string>
-  <string name="polygon_vertex_add_dialog_message">Area permit can\'t intersect with itself</string>
-  <string name="polygon_vertex_add_dialog_positive_button">Ok</string>
+  <string name="polygon_vertex_add_dialog_message">Area permit can&#8217;t intersect with itself</string>
+  <string name="polygon_vertex_add_dialog_positive_button">OK</string>
   <string name="clear">Clear</string>
+
+  <string name="area_message">Area: %1$.2f m²</string>
 </resources>

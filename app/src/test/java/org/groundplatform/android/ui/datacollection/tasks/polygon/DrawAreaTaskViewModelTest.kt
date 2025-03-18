@@ -103,8 +103,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
 
-    updateLastVertex(COORDINATE_3)
-    updateLastVertex(COORDINATE_1)
+    updateLastVertex(COORDINATE_3, true)
 
     assertGeometry(3, isLineString = true)
   }
@@ -114,8 +113,8 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
-    updateLastVertex(COORDINATE_4)
-    updateLastVertex(COORDINATE_1)
+
+    updateLastVertex(COORDINATE_4, true)
 
     assertGeometry(4, isLineString = true)
   }
@@ -153,8 +152,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
-    updateLastVertex(COORDINATE_4)
-    updateLastVertex(COORDINATE_1)
+    updateLastVertex(COORDINATE_4, true)
 
     viewModel.removeLastVertex()
 
@@ -162,13 +160,24 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Cannot complete polygon when polygon is not complete`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertex(COORDINATE_3, false)
+
+    assertThrows("Polygon is not complete", IllegalStateException::class.java) {
+      viewModel.completePolygon()
+    }
+  }
+
+  @Test
   fun `Completes a polygon`() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
-    updateLastVertex(COORDINATE_4)
-    updateLastVertex(COORDINATE_1)
+    updateLastVertex(COORDINATE_4, true)
 
+    viewModel.completePolygon()
     assertGeometry(4, isLineString = true)
   }
 

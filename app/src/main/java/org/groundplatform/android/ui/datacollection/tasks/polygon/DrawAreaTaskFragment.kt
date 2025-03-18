@@ -18,6 +18,7 @@ package org.groundplatform.android.ui.datacollection.tasks.polygon
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -28,6 +29,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LineString.Companion.lineStringOf
+import org.groundplatform.android.ui.compose.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
 import org.groundplatform.android.ui.datacollection.components.TaskButton
@@ -82,6 +84,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     addPointButton =
       addButton(ButtonAction.ADD_POINT).setOnClickListener {
         viewModel.addLastVertex()
+        viewModel.checkVertexIntersection()
         viewModel.triggerVibration()
       }
     completeButton =
@@ -107,6 +110,13 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     if (isVisible && !viewModel.instructionsDialogShown) {
       showInstructionsDialog()
     }
+    viewModel.polygonArea.observe(
+      viewLifecycleOwner,
+      { area ->
+        Toast.makeText(requireContext(), getString(R.string.area_message, area), Toast.LENGTH_SHORT)
+          .show()
+      },
+    )
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.showSelfIntersectionDialog.collect {
         renderComposableDialog {
