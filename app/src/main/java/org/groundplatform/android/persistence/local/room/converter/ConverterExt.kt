@@ -112,6 +112,7 @@ fun Job.toLocalDataStoreObject(surveyId: String): JobEntity =
   )
 
 fun JobEntityAndRelations.toModelObject(): Job {
+  println("=====>>>>> taskEntityAndRelations ${taskEntityAndRelations.toString()}")
   val taskMap = taskEntityAndRelations.map { it.toModelObject() }.associateBy { it.id }
   return Job(
     id = jobEntity.id,
@@ -452,7 +453,7 @@ fun TaskEntityAndRelations.toModelObject(): Task {
     }
     condition = conditionEntityAndRelations[0].toModelObject()
   }
-
+  println("=====>>>>> ${taskEntity.toString()}")
   return Task(
     taskEntity.id,
     taskEntity.index,

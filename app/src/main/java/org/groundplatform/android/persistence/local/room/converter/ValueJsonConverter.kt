@@ -111,7 +111,7 @@ internal object ValueJsonConverter {
         DataStoreException.checkType(JSONObject::class.java, obj)
         (obj as JSONObject).toCaptureLocationTaskData()
       }
-      Task.Type.INSTRUCTION -> {
+      Task.Type.INSTRUCTIONS -> {
         InstructionTaskData.fromString()
       }
       Task.Type.UNKNOWN -> {

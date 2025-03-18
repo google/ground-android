@@ -49,6 +49,6 @@ constructor(
     DROP_PIN,
     DRAW_AREA,
     CAPTURE_LOCATION,
-    INSTRUCTION,
+    INSTRUCTIONS,
   }
 }

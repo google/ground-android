@@ -377,7 +377,7 @@ internal constructor(
         Task.Type.DROP_PIN -> DropPinTaskViewModel::class.java
         Task.Type.DRAW_AREA -> DrawAreaTaskViewModel::class.java
         Task.Type.CAPTURE_LOCATION -> CaptureLocationTaskViewModel::class.java
-        Task.Type.INSTRUCTION -> InstructionTaskViewModel::class.java
+        Task.Type.INSTRUCTIONS -> InstructionTaskViewModel::class.java
         Task.Type.UNKNOWN -> throw IllegalArgumentException("Unsupported task type: $taskType")
       }
   }

@@ -60,7 +60,7 @@ constructor(
         Task.Type.DATE -> DateTaskFragment()
         Task.Type.TIME -> TimeTaskFragment()
         Task.Type.CAPTURE_LOCATION -> captureLocationTaskFragmentProvider.get()
-        Task.Type.INSTRUCTION -> InstructionTaskFragment()
+        Task.Type.INSTRUCTIONS -> InstructionTaskFragment()
         Task.Type.UNKNOWN ->
           throw UnsupportedOperationException("Unsupported task type: ${task.type}")
       }
