@@ -27,6 +27,6 @@ data class NumberTaskData(val number: String) : TaskData {
 
   companion object {
     fun fromNumber(number: String): TaskData? =
-      if (number.isEmpty()) null else NumberTaskData(number)
+      if (number.isEmpty() || number.toDoubleOrNull() == null) null else NumberTaskData(number)
   }
 }
