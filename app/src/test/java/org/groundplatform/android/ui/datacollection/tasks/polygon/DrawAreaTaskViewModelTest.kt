@@ -179,7 +179,6 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertex(COORDINATE_4, true)
 
     viewModel.completePolygon()
-
     assertGeometry(4, isLineString = true)
   }
 
