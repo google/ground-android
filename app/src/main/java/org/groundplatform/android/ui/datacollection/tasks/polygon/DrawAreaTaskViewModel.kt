@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
-import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -222,12 +221,6 @@ internal constructor(
         }
       )
     }
-
-  private fun calculateDistanceInMiles(start: Coordinates, end: Coordinates): Double {
-    val results = FloatArray(1)
-    Location.distanceBetween(start.lat, start.lng, end.lat, end.lng, results)
-    return results[0] * 0.000621371 // Convert meters to miles
-  }
 
   override fun validate(task: Task, taskData: TaskData?): Int? {
     // Invalid response for draw area task.
