@@ -183,7 +183,6 @@ internal constructor(
   fun checkVertexIntersection() {
     if (isSelfIntersecting(vertices)) {
       vertices = vertices.dropLast(1)
-      refreshMap()
       onSelfIntersectionDetected()
     }
   }
