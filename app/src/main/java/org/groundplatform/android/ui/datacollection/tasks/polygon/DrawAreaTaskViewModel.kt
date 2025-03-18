@@ -115,7 +115,6 @@ internal constructor(
     val firstVertex = vertices.firstOrNull()
     var updatedTarget = target
     if (firstVertex != null && vertices.size > 2) {
-      val firstVertex = vertices.first()
       val distance = calculateDistanceInPixels(firstVertex, target)
 
       if (distance <= DISTANCE_THRESHOLD_DP) {
