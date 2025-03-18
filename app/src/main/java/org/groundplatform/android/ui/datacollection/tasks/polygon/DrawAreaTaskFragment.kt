@@ -18,6 +18,7 @@ package org.groundplatform.android.ui.datacollection.tasks.polygon
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -107,6 +108,13 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     if (isVisible && !viewModel.instructionsDialogShown) {
       showInstructionsDialog()
     }
+    viewModel.polygonArea.observe(
+      viewLifecycleOwner,
+      { area ->
+        Toast.makeText(requireContext(), getString(R.string.area_message, area), Toast.LENGTH_SHORT)
+          .show()
+      },
+    )
   }
 
   private fun onFeatureUpdated(feature: Feature?) {
