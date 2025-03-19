@@ -23,7 +23,17 @@ import androidx.exifinterface.media.ExifInterface
 import com.squareup.picasso.Transformation
 import java.io.IOException
 
-class RotateTransformation(private val uri: Uri, private val context: Context) : Transformation {
+/**
+ * A transformation that rotates a given bitmap based on its EXIF orientation metadata.
+ *
+ * This class is useful when loading images that may have incorrect orientation due to how they were
+ * captured or stored. It reads the EXIF orientation from the image URI and applies the necessary
+ * rotation to correct its display.
+ *
+ * @property uri The URI of the image to be transformed.
+ * @property context The context used to access the content resolver for reading EXIF data.
+ */
+class RotateUsingExif(private val uri: Uri, private val context: Context) : Transformation {
   override fun transform(source: Bitmap): Bitmap {
     val orientation = getOrientationFromExif(uri)
     val rotateDegrees = getRotationDegrees(orientation)

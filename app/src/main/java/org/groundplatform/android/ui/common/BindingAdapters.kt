@@ -25,7 +25,7 @@ import androidx.databinding.BindingAdapter
 import com.google.android.gms.common.SignInButton
 import com.squareup.picasso.Picasso
 import org.groundplatform.android.R
-import org.groundplatform.android.ui.util.RotateTransformation
+import org.groundplatform.android.ui.util.RotateUsingExif
 import timber.log.Timber
 
 /**
@@ -55,7 +55,7 @@ object BindingAdapters {
       Picasso.get()
         .load(uri)
         .placeholder(R.drawable.ic_photo_grey_600_24dp)
-        .transform(RotateTransformation(uri, view.context))
+        .transform(RotateUsingExif(uri, view.context))
         .into(view)
     } catch (exception: IllegalStateException) {
       // Needed for running unit tests
