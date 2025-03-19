@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.common
+package org.groundplatform.android.ui.util
 
 import android.content.Context
 import android.graphics.Bitmap
