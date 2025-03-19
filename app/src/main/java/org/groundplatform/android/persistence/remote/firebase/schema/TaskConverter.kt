@@ -37,6 +37,7 @@ internal object TaskConverter {
       TaskTypeCase.DRAW_GEOMETRY -> drawGeometryToTaskType()
       TaskTypeCase.CAPTURE_LOCATION -> Task.Type.CAPTURE_LOCATION
       TaskTypeCase.TAKE_PHOTO -> Task.Type.PHOTO
+      TaskTypeCase.INSTRUCTIONS -> Task.Type.INSTRUCTIONS
       TaskTypeCase.TASKTYPE_NOT_SET,
       null -> Task.Type.UNKNOWN
       else -> Task.Type.UNKNOWN

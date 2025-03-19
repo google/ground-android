@@ -168,6 +168,11 @@
       android:id="@+id/question_task_fragment"
       android:name="org.groundplatform.android.ui.datacollection.tasks.text.TextTaskFragment"
       android:label="@string/add_data" />
+
+    <fragment
+      android:id="@+id/instruction_task_fragment"
+      android:name="org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskFragment"
+      android:label="@string/add_data" />
   </navigation>
   <fragment
     android:id="@+id/offline_areas_fragment"

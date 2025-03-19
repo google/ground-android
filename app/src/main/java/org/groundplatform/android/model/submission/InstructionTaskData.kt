@@ -22,6 +22,7 @@ data class InstructionTaskData(val text: String) : TaskData {
   override fun isEmpty(): Boolean = text.trim { it <= ' ' }.isEmpty()
 
   companion object {
-    fun fromString(): TaskData = InstructionTaskData("Ok")
+    fun fromString(text: String): TaskData? =
+      if (text.isEmpty()) null else InstructionTaskData(text)
   }
 }

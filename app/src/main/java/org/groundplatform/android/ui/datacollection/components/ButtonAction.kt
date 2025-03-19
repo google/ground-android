@@ -46,7 +46,8 @@ enum class ButtonAction(
   COMPLETE(Theme.LIGHT_GREEN, textId = R.string.complete_polygon),
 
   // Capture location task
-  CAPTURE_LOCATION(Theme.OUTLINED, textId = R.string.capture);
+  CAPTURE_LOCATION(Theme.OUTLINED, textId = R.string.capture),
+  INSTRUCTION_OK(Theme.LIGHT_GREEN, textId = R.string.instruction_ok_button_text);
 
   enum class Theme {
     DARK_GREEN,

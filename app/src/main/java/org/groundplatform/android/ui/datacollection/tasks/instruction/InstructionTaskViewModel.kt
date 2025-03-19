@@ -15,16 +15,18 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.instruction
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import javax.inject.Inject
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.map
-import org.groundplatform.android.model.submission.TextTaskData
+import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 
 class InstructionTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
-  val instructionsText: LiveData<String> =
-    taskTaskData.filterIsInstance<TextTaskData?>().map { it?.text ?: "" }.asLiveData()
+  lateinit var instructionsText: String
+
+  override fun initialize(job: Job, task: Task, taskData: TaskData?) {
+    super.initialize(job, task, taskData)
+    instructionsText = task.label
+  }
 }

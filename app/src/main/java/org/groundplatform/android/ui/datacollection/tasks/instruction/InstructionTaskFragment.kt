@@ -20,19 +20,19 @@ import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dagger.hilt.android.AndroidEntryPoint
+import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
@@ -48,17 +48,20 @@ class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>()
     ShowTextField()
   }
 
+  override fun onCreateActionButtons() {
+    addButton(ButtonAction.INSTRUCTION_OK).setOnClickListener { moveToNext() }
+  }
+
   @Composable
   private fun ShowTextField() {
-    val instructions by viewModel.instructionsText.observeAsState("")
     Box(
       modifier =
-        Modifier.fillMaxWidth()
+        Modifier.fillMaxSize()
           .background(color = Color.White)
           .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
           .padding(16.dp)
     ) {
-      Text(text = instructions, fontSize = 24.sp)
+      Text(text = viewModel.instructionsText.toString(), fontSize = 24.sp)
     }
   }
 }
