@@ -16,17 +16,7 @@
 package org.groundplatform.android.ui.datacollection.tasks.instruction
 
 import javax.inject.Inject
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 
-class InstructionTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
-
-  lateinit var instructionsText: String
-
-  override fun initialize(job: Job, task: Task, taskData: TaskData?) {
-    super.initialize(job, task, taskData)
-    instructionsText = task.label
-  }
-}
+@Suppress("EmptyClassBlock")
+class InstructionTaskViewModel @Inject constructor() : AbstractTaskViewModel() {}

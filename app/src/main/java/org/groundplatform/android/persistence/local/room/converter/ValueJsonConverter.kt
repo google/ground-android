@@ -23,7 +23,6 @@ import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.groundplatform.android.model.submission.DateTimeTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DropPinTaskData
-import org.groundplatform.android.model.submission.InstructionTaskData
 import org.groundplatform.android.model.submission.MultipleChoiceTaskData
 import org.groundplatform.android.model.submission.NumberTaskData
 import org.groundplatform.android.model.submission.PhotoTaskData
@@ -55,7 +54,6 @@ internal object ValueJsonConverter {
       is DropPinTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is CaptureLocationTaskData -> taskData.toJSONObject()
       is SkippedTaskData -> JSONObject().put(SKIPPED_KEY, true)
-      is InstructionTaskData -> taskData.text
       else -> throw UnsupportedOperationException("Unimplemented value class ${taskData.javaClass}")
     }
   }
@@ -113,8 +111,7 @@ internal object ValueJsonConverter {
         (obj as JSONObject).toCaptureLocationTaskData()
       }
       Task.Type.INSTRUCTIONS -> {
-        DataStoreException.checkType(String::class.java, obj)
-        InstructionTaskData.fromString(obj as String)
+        null
       }
       Task.Type.UNKNOWN -> {
         throw DataStoreException("Unknown type in task: " + obj.javaClass.name)

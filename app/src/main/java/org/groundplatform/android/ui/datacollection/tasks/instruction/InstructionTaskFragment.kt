@@ -29,9 +29,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dagger.hilt.android.AndroidEntryPoint
+import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
@@ -61,7 +63,12 @@ class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>()
           .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
           .padding(16.dp)
     ) {
-      Text(text = viewModel.instructionsText, fontSize = 24.sp)
+      Text(text = viewModel.task.label, fontSize = 24.sp)
     }
   }
+
+  @Composable
+  @Preview(showBackground = true)
+  @ExcludeFromJacocoGeneratedReport
+  fun PreviewTextField() = ShowTextField()
 }
