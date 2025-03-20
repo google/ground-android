@@ -44,7 +44,7 @@ class RotateUsingExif(private val uri: Uri, private val context: Context) : Tran
 
   private fun rotateBitmap(bitmap: Bitmap, rotateDegrees: Float): Bitmap {
     val matrix = Matrix()
-    // Rotate iff rotation is non-zero.
+    // Rotate if rotation is non-zero.
     if (rotateDegrees != 0f) {
       matrix.postRotate(rotateDegrees)
     }
