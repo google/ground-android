@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.number
 
+import androidx.compose.ui.test.performTextInput
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.NumberTaskData
 import org.groundplatform.android.model.task.Task
@@ -29,6 +29,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
+import javax.inject.Inject
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -64,12 +65,22 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   }
 
   @Test
-  fun testResponse_onUserInput_nextButtonIsEnabled() = runWithTestDispatcher {
+  fun `numeral input sets the task data and next button`() = runWithTestDispatcher {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
     runner().inputNumber(123.1).assertInputNumberDisplayed("123.1").assertButtonIsEnabled("Next")
 
     hasValue(NumberTaskData("123.1"))
+  }
+
+  @Test
+  fun `non-numeral input doesn't set the task data and next button`() = runWithTestDispatcher {
+    setupTaskFragment<NumberTaskFragment>(job, task)
+
+    runner().getNumberInputNode().performTextInput("hello")
+
+    runner().assertInputNumberDisplayed("").assertButtonIsDisabled("Next")
+    hasValue(null)
   }
 
   @Test
