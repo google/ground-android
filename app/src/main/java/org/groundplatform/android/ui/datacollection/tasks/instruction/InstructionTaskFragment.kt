@@ -61,7 +61,7 @@ class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>()
           .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
           .padding(16.dp)
     ) {
-      Text(text = viewModel.instructionsText.toString(), fontSize = 24.sp)
+      Text(text = viewModel.instructionsText, fontSize = 24.sp)
     }
   }
 }

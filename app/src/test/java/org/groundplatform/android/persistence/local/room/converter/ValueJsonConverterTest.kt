@@ -27,6 +27,7 @@ import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.submission.DateTimeTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DropPinTaskData
+import org.groundplatform.android.model.submission.InstructionTaskData
 import org.groundplatform.android.model.submission.MultipleChoiceTaskData
 import org.groundplatform.android.model.submission.NumberTaskData
 import org.groundplatform.android.model.submission.TaskData
@@ -146,6 +147,11 @@ class ValueJsonConverterTest(
           FakeData.newTask(type = Task.Type.DRAW_AREA),
           drawAreaTaskResponse,
           polygonGeometryTaskResponseString,
+        ),
+        arrayOf(
+          FakeData.newTask(type = Task.Type.INSTRUCTIONS),
+          InstructionTaskData.fromString("Instruction Text"),
+          "Instruction Text",
         ),
       )
   }

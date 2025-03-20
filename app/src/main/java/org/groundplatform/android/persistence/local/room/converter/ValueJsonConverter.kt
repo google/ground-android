@@ -55,6 +55,7 @@ internal object ValueJsonConverter {
       is DropPinTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is CaptureLocationTaskData -> taskData.toJSONObject()
       is SkippedTaskData -> JSONObject().put(SKIPPED_KEY, true)
+      is InstructionTaskData -> taskData.text
       else -> throw UnsupportedOperationException("Unimplemented value class ${taskData.javaClass}")
     }
   }
@@ -113,7 +114,7 @@ internal object ValueJsonConverter {
       }
       Task.Type.INSTRUCTIONS -> {
         DataStoreException.checkType(String::class.java, obj)
-        InstructionTaskData.fromString(task.label)
+        InstructionTaskData.fromString(obj as String)
       }
       Task.Type.UNKNOWN -> {
         throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
