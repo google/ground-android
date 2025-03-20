@@ -18,6 +18,7 @@ package org.groundplatform.android.ui.datacollection.tasks.number
 import androidx.compose.ui.test.performTextInput
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.NumberTaskData
 import org.groundplatform.android.model.task.Task
@@ -29,7 +30,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
-import javax.inject.Inject
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
