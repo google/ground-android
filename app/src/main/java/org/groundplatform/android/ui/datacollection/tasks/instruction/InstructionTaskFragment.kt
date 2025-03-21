@@ -51,7 +51,7 @@ class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>()
   }
 
   override fun onCreateActionButtons() {
-    addButton(ButtonAction.INSTRUCTION_OK).setOnClickListener { moveToNext() }
+    addButton(ButtonAction.NEXT).setOnClickListener { moveToNext() }
   }
 
   @Composable

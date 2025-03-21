@@ -208,6 +208,4 @@
   <string name="clear">Clear</string>
 
   <string name="area_message">Area: %1$.2f m²</string>
-
-  <string name="instruction_ok_button_text">OK</string>
 </resources>

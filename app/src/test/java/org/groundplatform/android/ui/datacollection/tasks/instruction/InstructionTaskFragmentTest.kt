@@ -63,7 +63,7 @@ class InstructionTaskFragmentTest :
   @Test
   fun testActionButtons() {
     setupTaskFragment<InstructionTaskFragment>(job, task)
-    assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.INSTRUCTION_OK)
+    assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.NEXT)
   }
 
   @Test
