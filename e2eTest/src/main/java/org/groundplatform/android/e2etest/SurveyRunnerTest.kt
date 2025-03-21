@@ -168,6 +168,7 @@ class SurveyRunnerTest : AutomatorRunner {
         Task.Type.NUMBER -> completeNumber()
         Task.Type.DATE -> completeDate()
         Task.Type.TIME -> completeTime()
+        Task.Type.INSTRUCTIONS -> Unit
         Task.Type.UNKNOWN -> fail("Should not get here")
       }
       if (i < taskList.size - 1) {

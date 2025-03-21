@@ -29,7 +29,8 @@ enum class TaskEntityType(private val intValue: Int) : IntEnum {
   TIME(6),
   POINT(7),
   POLYGON(8),
-  CAPTURE_LOCATION(9);
+  CAPTURE_LOCATION(9),
+  INSTRUCTIONS(10);
 
   override fun intValue(): Int = intValue
 
@@ -47,6 +48,7 @@ enum class TaskEntityType(private val intValue: Int) : IntEnum {
         Pair(POINT, Task.Type.DROP_PIN),
         Pair(POLYGON, Task.Type.DRAW_AREA),
         Pair(CAPTURE_LOCATION, Task.Type.CAPTURE_LOCATION),
+        Pair(INSTRUCTIONS, Task.Type.INSTRUCTIONS),
       )
     private val REVERSE_TASK_TYPES: Map<Task.Type, TaskEntityType> =
       TASK_TYPES.entries.associateBy({ it.value }) { it.key }

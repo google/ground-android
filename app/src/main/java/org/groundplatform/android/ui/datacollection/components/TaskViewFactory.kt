@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.datacollection.components
 
 import android.view.LayoutInflater
+import android.view.View
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
@@ -41,5 +42,11 @@ object TaskViewFactory {
     }
     labelResId?.let { binding.headerLabel.setText(labelResId) }
     return TaskViewWithCombinedHeader(binding)
+  }
+
+  fun createWithoutHeader(layoutInflater: LayoutInflater): TaskView {
+    val binding = TaskFragWithHeaderBinding.inflate(layoutInflater)
+    binding.dataCollectionHeader.visibility = View.GONE
+    return TaskViewWithHeader(binding)
   }
 }
