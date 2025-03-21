@@ -25,6 +25,7 @@ import androidx.databinding.BindingAdapter
 import com.google.android.gms.common.SignInButton
 import com.squareup.picasso.Picasso
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.util.RotateUsingExif
 import timber.log.Timber
 
 /**
@@ -48,8 +49,14 @@ object BindingAdapters {
   @JvmStatic
   @BindingAdapter("imageUri")
   fun bindUri(view: ImageView?, uri: Uri?) {
+    if (view == null || uri == null) return
+
     try {
-      Picasso.get().load(uri).placeholder(R.drawable.ic_photo_grey_600_24dp).into(view)
+      Picasso.get()
+        .load(uri)
+        .placeholder(R.drawable.ic_photo_grey_600_24dp)
+        .transform(RotateUsingExif(uri, view.context))
+        .into(view)
     } catch (exception: IllegalStateException) {
       // Needed for running unit tests
       Timber.e(exception)
