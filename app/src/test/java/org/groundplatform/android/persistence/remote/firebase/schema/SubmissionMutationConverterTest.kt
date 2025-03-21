@@ -504,4 +504,42 @@ class SubmissionMutationConverterTest {
         )
       )
   }
+
+  @Test
+  fun testToMap_instructionTaskDataIsNotAdded() {
+    val mutation =
+      submissionMutation.copy(
+        job =
+          job.copy(
+            tasks =
+              mapOf(
+                Pair("task 1", Task("task 1", 1, Task.Type.TEXT, "task 1", true)),
+                Pair("task 2", Task("task 2", 2, Task.Type.INSTRUCTIONS, "task 2", true)),
+              )
+          ),
+        deltas =
+          listOf(
+            ValueDelta(
+              taskId = "task 1",
+              taskType = Task.Type.TEXT,
+              newTaskData = TextTaskData.fromString("some data"),
+            ),
+            ValueDelta(taskId = "task 2", taskType = Task.Type.INSTRUCTIONS, newTaskData = null),
+          ),
+        type = Mutation.Type.CREATE,
+      )
+
+    val map = mutation.createSubmissionMessage(user).toFirestoreMap()
+
+    assertThat(map[TASK_DATA_FIELD_NUMBER.toString()])
+      .isEqualTo(
+        listOf(
+          mapOf(
+            TEXT_RESPONSE_FIELD_NUMBER.toString() to
+              mapOf(TEXT_FIELD_NUMBER.toString() to "some data"),
+            TASK_ID_FIELD_NUMBER.toString() to "task 1",
+          )
+        )
+      )
+  }
 }
