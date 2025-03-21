@@ -92,7 +92,7 @@ class TaskFragmentRunner(
     return this
   }
 
-  private fun getNumberInputNode() =
+  internal fun getNumberInputNode() =
     baseHiltTest.composeTestRule.onNodeWithTag(INPUT_NUMBER_TEST_TAG)
 
   internal fun inputNumber(number: Double): TaskFragmentRunner {
