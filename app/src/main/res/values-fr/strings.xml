@@ -208,4 +208,6 @@
   <string name="clear">Claire</string>
 
   <string name="area_message">Surface: %1$.2f m²</string>
+
+  <string name="distance_format">%.2f miles</string>
 </resources>
