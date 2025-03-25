@@ -209,5 +209,6 @@
 
   <string name="area_message">Area: %1$.2f m²</string>
 
-  <string name="distance_format">%.2f mi</string>
+  <string name="unit_feet">ft</string>
+  <string name="unit_meters">m</string>
 </resources>

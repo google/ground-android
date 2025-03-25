@@ -41,6 +41,7 @@ import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.POLYLINE_Z
 import org.groundplatform.android.ui.map.gms.toLatLngList
 import org.groundplatform.android.ui.util.BitmapUtil
+import org.groundplatform.android.ui.util.formatDistance
 
 class LineStringRenderer
 @Inject
@@ -111,7 +112,8 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
         LatLng(lastVertex.lat, lastVertex.lng),
       )
 
-    val distanceText = geometry.tooltipText ?: return
+    val distanceInMeters = geometry.tooltipDistance ?: return
+    val distanceText = formatDistance(resources, distanceInMeters)
 
     if (tooltipMarker == null) {
       tooltipMarker = addTooltipMarker(map, midPoint, distanceText)

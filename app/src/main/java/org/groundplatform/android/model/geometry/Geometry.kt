@@ -93,13 +93,12 @@ data class LineString(val coordinates: List<Coordinates>) : Geometry {
   override val area: Double
     get() = 0.0
 
-  val tooltipText: String?
+  val tooltipDistance: Double?
     get() {
       if (coordinates.size < 2 || isClosed()) return null
       val lastVertex = coordinates.last()
       val secondLastVertex = coordinates[coordinates.size - 2]
-      val distanceInMiles = calculateDistanceInMiles(secondLastVertex, lastVertex)
-      return "%.2f mi".format(distanceInMiles)
+      return calculateDistanceInMeters(secondLastVertex, lastVertex)
     }
 
   override fun center(): Coordinates = coordinates.centerOrError()
@@ -109,10 +108,10 @@ data class LineString(val coordinates: List<Coordinates>) : Geometry {
   fun isClosed(): Boolean =
     coordinates.size >= 4 && coordinates.firstOrNull() == coordinates.lastOrNull()
 
-  private fun calculateDistanceInMiles(start: Coordinates, end: Coordinates): Double {
+  private fun calculateDistanceInMeters(start: Coordinates, end: Coordinates): Double {
     val results = FloatArray(1)
     Location.distanceBetween(start.lat, start.lng, end.lat, end.lng, results)
-    return results[0] * 0.000621371
+    return results[0].toDouble()
   }
 
   companion object {
