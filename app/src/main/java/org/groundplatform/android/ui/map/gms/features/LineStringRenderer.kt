@@ -56,7 +56,7 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
     val bitmap = bitmapUtil.fromVector(R.drawable.ic_circle_marker)
     CustomCap(BitmapDescriptorFactory.fromBitmap(bitmap))
   }
-  private var distanceMarker: Marker? = null
+  private var tooltipMarker: Marker? = null
 
   override fun add(
     map: GoogleMap,
@@ -87,16 +87,16 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
       zIndex = POLYLINE_Z
     }
 
-    updateDistanceMarker(map, geometry)
+    updateTooltipMarker(map, geometry)
 
     return polyline
   }
 
-  private fun updateDistanceMarker(map: GoogleMap, geometry: LineString) {
+  private fun updateTooltipMarker(map: GoogleMap, geometry: LineString) {
     if (geometry.coordinates.size < 2) {
       // Remove marker if not enough points
-      distanceMarker?.remove()
-      distanceMarker = null
+      tooltipMarker?.remove()
+      tooltipMarker = null
       return
     }
 
@@ -110,8 +110,8 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
 
     if (isPolygonClosed) {
       // Remove marker if the polygon is closed
-      distanceMarker?.remove()
-      distanceMarker = null
+      tooltipMarker?.remove()
+      tooltipMarker = null
       return
     }
 
@@ -129,13 +129,13 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
 
     val distanceText = resources.getString(R.string.distance_format, distanceInMiles)
 
-    if (distanceMarker == null) {
+    if (tooltipMarker == null) {
       // Create the marker at the midpoint if it doesn't exist
-      distanceMarker = addDistanceMarker(map, midPoint, distanceText)
+      tooltipMarker = addTooltipMarker(map, midPoint, distanceText)
     } else {
       // Move the marker and update text instead of recreating it
-      distanceMarker?.position = midPoint
-      distanceMarker?.setIcon(createTextMarker(distanceText))
+      tooltipMarker?.position = midPoint
+      tooltipMarker?.setIcon(createTextMarker(distanceText))
     }
   }
 
@@ -151,7 +151,7 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
     return results[0] * 0.000621371 // Convert meters to miles
   }
 
-  private fun addDistanceMarker(map: GoogleMap, position: LatLng, text: String): Marker {
+  private fun addTooltipMarker(map: GoogleMap, position: LatLng, text: String): Marker {
     val markerOptions =
       MarkerOptions().position(position).icon(createTextMarker(text)).anchor(0.5f, 1f)
 
