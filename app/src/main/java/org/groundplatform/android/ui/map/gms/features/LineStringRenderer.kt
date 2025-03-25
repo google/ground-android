@@ -24,7 +24,6 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Typeface
-import android.location.Location
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -37,7 +36,6 @@ import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
 import javax.inject.Inject
 import org.groundplatform.android.R
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.POLYLINE_Z
@@ -88,30 +86,22 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
     }
 
     updateTooltipMarker(map, geometry)
-
     return polyline
   }
 
   private fun updateTooltipMarker(map: GoogleMap, geometry: LineString) {
     if (geometry.coordinates.size < 2) {
-      // Remove marker if not enough points
-      tooltipMarker?.remove()
-      tooltipMarker = null
+      removeTooltipMarker()
       return
     }
 
     val lastVertex = geometry.coordinates.last()
     val secondLastVertex = geometry.coordinates[geometry.coordinates.size - 2]
 
-    val isPolygonClosed =
-      geometry.coordinates.size > 2 &&
-        lastVertex.lat == geometry.coordinates.first().lat &&
-        lastVertex.lng == geometry.coordinates.first().lng
+    val isPolygonClosed = geometry.isClosed()
 
     if (isPolygonClosed) {
-      // Remove marker if the polygon is closed
-      tooltipMarker?.remove()
-      tooltipMarker = null
+      removeTooltipMarker()
       return
     }
 
@@ -121,34 +111,25 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
         LatLng(lastVertex.lat, lastVertex.lng),
       )
 
-    val distanceInMiles =
-      calculateDistanceInMiles(
-        Coordinates(secondLastVertex.lat, secondLastVertex.lng),
-        Coordinates(lastVertex.lat, lastVertex.lng),
-      )
-
-    val distanceText = resources.getString(R.string.distance_format, distanceInMiles)
+    val distanceText = geometry.tooltipText ?: return
 
     if (tooltipMarker == null) {
-      // Create the marker at the midpoint if it doesn't exist
       tooltipMarker = addTooltipMarker(map, midPoint, distanceText)
     } else {
-      // Move the marker and update text instead of recreating it
       tooltipMarker?.position = midPoint
       tooltipMarker?.setIcon(createTextMarker(distanceText))
     }
+  }
+
+  private fun removeTooltipMarker() {
+    tooltipMarker?.remove()
+    tooltipMarker = null
   }
 
   private fun getMidPoint(p1: LatLng, p2: LatLng): LatLng {
     val lat = (p1.latitude + p2.latitude) / 2
     val lng = (p1.longitude + p2.longitude) / 2
     return LatLng(lat, lng)
-  }
-
-  private fun calculateDistanceInMiles(start: Coordinates, end: Coordinates): Double {
-    val results = FloatArray(1)
-    Location.distanceBetween(start.lat, start.lng, end.lat, end.lng, results)
-    return results[0] * 0.000621371 // Convert meters to miles
   }
 
   private fun addTooltipMarker(map: GoogleMap, position: LatLng, text: String): Marker {

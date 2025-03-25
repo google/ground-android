@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.model.geometry
 
+import android.location.Location
 import com.google.maps.android.SphericalUtil.computeArea
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -92,12 +93,27 @@ data class LineString(val coordinates: List<Coordinates>) : Geometry {
   override val area: Double
     get() = 0.0
 
+  val tooltipText: String?
+    get() {
+      if (coordinates.size < 2 || isClosed()) return null
+      val lastVertex = coordinates.last()
+      val secondLastVertex = coordinates[coordinates.size - 2]
+      val distanceInMiles = calculateDistanceInMiles(secondLastVertex, lastVertex)
+      return "%.2f mi".format(distanceInMiles)
+    }
+
   override fun center(): Coordinates = coordinates.centerOrError()
 
   override fun isEmpty() = coordinates.isEmpty()
 
   fun isClosed(): Boolean =
     coordinates.size >= 4 && coordinates.firstOrNull() == coordinates.lastOrNull()
+
+  private fun calculateDistanceInMiles(start: Coordinates, end: Coordinates): Double {
+    val results = FloatArray(1)
+    Location.distanceBetween(start.lat, start.lng, end.lat, end.lng, results)
+    return results[0] * 0.000621371
+  }
 
   companion object {
     fun lineStringOf(vararg coordinates: Coordinates) = LineString(coordinates.asList())
