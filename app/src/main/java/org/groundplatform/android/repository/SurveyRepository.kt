@@ -19,6 +19,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -76,15 +77,18 @@ constructor(
     _selectedSurveyId.update { surveyId }
 
     // Wait for survey to be updated. Else throw an error after timeout.
-    withTimeout(ACTIVATE_SURVEY_TIMEOUT_MILLS) {
-      Timber.e("Waiting for survey to get updated")
-      activeSurveyFlow.first { survey ->
-        if (surveyId.isBlank()) {
-          survey == null
-        } else {
-          survey?.id == surveyId
+    try {
+      withTimeout(ACTIVATE_SURVEY_TIMEOUT_MILLS) {
+        activeSurveyFlow.first { survey ->
+          if (surveyId.isBlank()) {
+            survey == null
+          } else {
+            survey?.id == surveyId
+          }
         }
       }
+    } catch (e: TimeoutCancellationException) {
+      Timber.e("Waiting for survey to get updated")
     }
 
     if (isSurveyActive(surveyId) || surveyId.isBlank()) {
