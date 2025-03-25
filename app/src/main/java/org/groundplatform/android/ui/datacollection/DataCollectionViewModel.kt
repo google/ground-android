@@ -197,22 +197,23 @@ internal constructor(
   fun getTaskViewModel(taskId: String): AbstractTaskViewModel? {
     val viewModels = taskViewModels.value
 
+    if (viewModels.containsKey(taskId)) {
+      return viewModels[taskId]
+    }
+
     return tasks
       .firstOrNull { it.id == taskId }
       ?.let { task ->
-        viewModels[taskId]
-          ?: run {
-            try {
-              viewModelFactory.create(getViewModelClass(task.type)).apply {
-                taskViewModels.value[task.id] = this
-                val taskData: TaskData? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
-                initialize(job, task, taskData)
-              }
-            } catch (e: Exception) {
-              Timber.e("Ignoring task with invalid type: ${task.type}")
-              null
-            }
+        try {
+          viewModelFactory.create(getViewModelClass(task.type)).apply {
+            taskViewModels.value[task.id] = this
+            val taskData: TaskData? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
+            initialize(job, task, taskData)
           }
+        } catch (e: Exception) {
+          Timber.e("Ignoring task with invalid type: ${task.type}")
+          null
+        }
       }
   }
 
