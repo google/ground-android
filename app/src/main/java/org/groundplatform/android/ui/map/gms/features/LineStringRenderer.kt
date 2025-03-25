@@ -87,24 +87,62 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
       zIndex = POLYLINE_Z
     }
 
-    val lastVertex = geometry.coordinates.lastOrNull() ?: return polyline
-    val lastLatLng = LatLng(lastVertex.lat, lastVertex.lng)
-
-    if (geometry.coordinates.size > 1) {
-      val secondLastVertex = geometry.coordinates[geometry.coordinates.size - 2]
-      val distanceInMiles =
-        calculateDistanceInMiles(
-          Coordinates(secondLastVertex.lat, secondLastVertex.lng),
-          Coordinates(lastVertex.lat, lastVertex.lng),
-        )
-
-      distanceMarker?.remove()
-
-      val distanceText = resources.getString(R.string.distance_format, distanceInMiles)
-      distanceMarker = addDistanceMarker(map, lastLatLng, distanceText)
-    }
+    updateDistanceMarker(map, geometry)
 
     return polyline
+  }
+
+  private fun updateDistanceMarker(map: GoogleMap, geometry: LineString) {
+    if (geometry.coordinates.size < 2) {
+      // Remove marker if not enough points
+      distanceMarker?.remove()
+      distanceMarker = null
+      return
+    }
+
+    val lastVertex = geometry.coordinates.last()
+    val secondLastVertex = geometry.coordinates[geometry.coordinates.size - 2]
+
+    val isPolygonClosed =
+      geometry.coordinates.size > 2 &&
+        lastVertex.lat == geometry.coordinates.first().lat &&
+        lastVertex.lng == geometry.coordinates.first().lng
+
+    if (isPolygonClosed) {
+      // Remove marker if the polygon is closed
+      distanceMarker?.remove()
+      distanceMarker = null
+      return
+    }
+
+    val midPoint =
+      getMidPoint(
+        LatLng(secondLastVertex.lat, secondLastVertex.lng),
+        LatLng(lastVertex.lat, lastVertex.lng),
+      )
+
+    val distanceInMiles =
+      calculateDistanceInMiles(
+        Coordinates(secondLastVertex.lat, secondLastVertex.lng),
+        Coordinates(lastVertex.lat, lastVertex.lng),
+      )
+
+    val distanceText = resources.getString(R.string.distance_format, distanceInMiles)
+
+    if (distanceMarker == null) {
+      // Create the marker at the midpoint if it doesn't exist
+      distanceMarker = addDistanceMarker(map, midPoint, distanceText)
+    } else {
+      // Move the marker and update text instead of recreating it
+      distanceMarker?.position = midPoint
+      distanceMarker?.setIcon(createTextMarker(distanceText))
+    }
+  }
+
+  private fun getMidPoint(p1: LatLng, p2: LatLng): LatLng {
+    val lat = (p1.latitude + p2.latitude) / 2
+    val lng = (p1.longitude + p2.longitude) / 2
+    return LatLng(lat, lng)
   }
 
   private fun calculateDistanceInMiles(start: Coordinates, end: Coordinates): Double {
