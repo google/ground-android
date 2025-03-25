@@ -49,7 +49,7 @@ constructor(
     }
 
     return withTimeout(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS) {
-      Timber.e("Loading Terms of Service")
+      Timber.d("Loading Terms of Service")
       remoteDataStore.loadTermsOfService()
     }
   }
