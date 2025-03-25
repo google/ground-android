@@ -34,6 +34,7 @@ import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.persistence.local.LocalValueStore
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
+import timber.log.Timber
 
 private const val ACTIVATE_SURVEY_TIMEOUT_MILLS: Long = 3 * 1000
 
@@ -76,6 +77,7 @@ constructor(
 
     // Wait for survey to be updated. Else throw an error after timeout.
     withTimeout(ACTIVATE_SURVEY_TIMEOUT_MILLS) {
+      Timber.e("Waiting for survey to get updated")
       activeSurveyFlow.first { survey ->
         if (surveyId.isBlank()) {
           survey == null

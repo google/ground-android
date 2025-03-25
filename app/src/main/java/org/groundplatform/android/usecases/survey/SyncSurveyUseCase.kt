@@ -47,7 +47,7 @@ constructor(
 
   private suspend fun fetchSurvey(surveyId: String): Survey? =
     withTimeoutOrNull(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) {
-      Timber.d("Loading survey $surveyId")
+      Timber.e("Loading survey $surveyId")
       remoteDataStore.loadSurvey(surveyId)
     }
 
