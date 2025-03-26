@@ -88,7 +88,7 @@ constructor(
         }
       }
     } catch (e: TimeoutCancellationException) {
-      Timber.e("Waiting for survey to get updated")
+      Timber.e("Failed to get survey due to timeout")
     }
 
     if (isSurveyActive(surveyId) || surveyId.isBlank()) {

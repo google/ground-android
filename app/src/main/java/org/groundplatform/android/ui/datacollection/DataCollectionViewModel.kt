@@ -101,7 +101,7 @@ internal constructor(
 
   private val activeSurvey: Survey = runBlocking {
     withTimeout(SURVEY_LOAD_TIMEOUT_MILLIS) {
-      Timber.e("Waiting for active survey")
+      Timber.e("Failed to get active survey due to timeout")
       surveyRepository.activeSurveyFlow.filterNotNull().first()
     }
   }
