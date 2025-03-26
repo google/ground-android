@@ -178,8 +178,10 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       isIndoorLevelPickerEnabled = false
     }
 
-    viewLifecycleOwner.lifecycleScope.launch {
-      featureManager.markerClicks.collect { featureClicks.emit(setOf(it)) }
+    viewLifecycleOwnerLiveData.observe(this) { viewLifecycleOwner ->
+      viewLifecycleOwner.lifecycleScope.launch {
+        featureManager.markerClicks.collect { featureClicks.emit(setOf(it)) }
+      }
     }
   }
 
