@@ -25,6 +25,7 @@ import javax.inject.Provider
 import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -100,8 +101,13 @@ internal constructor(
   private var draftDeltas: List<ValueDelta>? = null
 
   private val activeSurvey: Survey = runBlocking {
-    withTimeout(SURVEY_LOAD_TIMEOUT_MILLIS) {
-      surveyRepository.activeSurveyFlow.filterNotNull().first()
+    try {
+      withTimeout(SURVEY_LOAD_TIMEOUT_MILLIS) {
+        surveyRepository.activeSurveyFlow.filterNotNull().first()
+      }
+    } catch (e: TimeoutCancellationException) {
+      Timber.e(e, "Failed to get survey due to timeout")
+      throw e
     }
   }
 
