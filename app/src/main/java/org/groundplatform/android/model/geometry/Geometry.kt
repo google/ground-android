@@ -15,13 +15,13 @@
  */
 package org.groundplatform.android.model.geometry
 
-import android.location.Location
 import com.google.maps.android.SphericalUtil.computeArea
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.groundplatform.android.ui.map.gms.GmsExt.center
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 import org.groundplatform.android.ui.map.gms.toLatLngList
+import org.groundplatform.android.ui.util.getDistanceInMeters
 
 /** A common ancestor for all geometry types. */
 @Serializable
@@ -98,7 +98,7 @@ data class LineString(val coordinates: List<Coordinates>) : Geometry {
       if (coordinates.size < 2 || isClosed()) return null
       val lastVertex = coordinates.last()
       val secondLastVertex = coordinates[coordinates.size - 2]
-      return calculateDistanceInMeters(secondLastVertex, lastVertex)
+      return secondLastVertex.getDistanceInMeters(lastVertex)
     }
 
   override fun center(): Coordinates = coordinates.centerOrError()
@@ -107,12 +107,6 @@ data class LineString(val coordinates: List<Coordinates>) : Geometry {
 
   fun isClosed(): Boolean =
     coordinates.size >= 4 && coordinates.firstOrNull() == coordinates.lastOrNull()
-
-  private fun calculateDistanceInMeters(start: Coordinates, end: Coordinates): Double {
-    val results = FloatArray(1)
-    Location.distanceBetween(start.lat, start.lng, end.lat, end.lng, results)
-    return results[0].toDouble()
-  }
 
   companion object {
     fun lineStringOf(vararg coordinates: Coordinates) = LineString(coordinates.asList())

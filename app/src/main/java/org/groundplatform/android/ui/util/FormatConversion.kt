@@ -21,9 +21,13 @@ import android.icu.util.LocaleData
 import android.icu.util.Measure
 import android.icu.util.MeasureUnit
 import android.icu.util.ULocale
+import android.location.Location
 import android.os.Build
 import java.util.Locale
 import org.groundplatform.android.R
+import org.groundplatform.android.model.geometry.Coordinates
+
+private const val METERS_TO_FEET = 3.28084
 
 fun formatDistance(resources: Resources, distanceInMeters: Double): String {
   val isImperial =
@@ -36,16 +40,16 @@ fun formatDistance(resources: Resources, distanceInMeters: Double): String {
 
   val (convertedDistance, unitString, unitMeasure) =
     if (isImperial) {
-      Triple(distanceInMeters * 3.28084, resources.getString(R.string.unit_feet), MeasureUnit.FOOT)
+      Triple(distanceInMeters.toFeet(), resources.getString(R.string.unit_feet), MeasureUnit.FOOT)
     } else {
       Triple(distanceInMeters, resources.getString(R.string.unit_meters), MeasureUnit.METER)
     }
 
   val roundedDistance =
     if (convertedDistance < 10) {
-      "%.2f".format(Locale.US, convertedDistance)
+      "%.2f".format(Locale.getDefault(), convertedDistance)
     } else {
-      "%.0f".format(Locale.US, convertedDistance)
+      "%.0f".format(Locale.getDefault(), convertedDistance)
     }
 
   return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -56,7 +60,15 @@ fun formatDistance(resources: Resources, distanceInMeters: Double): String {
   }
 }
 
+private fun Double.toFeet(): Double = this * METERS_TO_FEET
+
 private fun isImperialSystemFallback(): Boolean {
   val country = Locale.getDefault().country.uppercase(Locale.ROOT)
   return country in listOf("US", "LR", "MM") // Countries using the imperial system
+}
+
+fun Coordinates.getDistanceInMeters(end: Coordinates): Double {
+  val results = FloatArray(1)
+  Location.distanceBetween(this.lat, this.lng, end.lat, end.lng, results)
+  return results[0].toDouble()
 }
