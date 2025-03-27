@@ -30,9 +30,27 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import javax.inject.Inject
 
+/**
+ * Responsible for rendering a tooltip marker on a GoogleMap instance.
+ *
+ * This class handles creating, updating, and removing a marker that displays custom tooltip text.
+ * It uses a bitmap with rounded corners and stylized text to show the tooltip content.
+ *
+ * @constructor Creates an instance of [TooltipMarkerRenderer].
+ */
 class TooltipMarkerRenderer @Inject constructor() {
   private var tooltipMarker: Marker? = null
 
+  /**
+   * Updates the tooltip marker on the map with the given position and text.
+   *
+   * If [tooltipText] is null or blank, the tooltip is removed. Otherwise, the tooltip is added or
+   * updated with new text and position.
+   *
+   * @param map The [GoogleMap] instance where the marker should be rendered.
+   * @param position The [LatLng] position for the tooltip marker.
+   * @param tooltipText The text to be shown inside the tooltip marker.
+   */
   fun update(map: GoogleMap, position: LatLng, tooltipText: String?) {
     if (tooltipText.isNullOrBlank()) {
       remove()
@@ -47,6 +65,7 @@ class TooltipMarkerRenderer @Inject constructor() {
     }
   }
 
+  /** Removes the current tooltip marker from the map, if it exists. */
   fun remove() {
     tooltipMarker?.remove()
     tooltipMarker = null
