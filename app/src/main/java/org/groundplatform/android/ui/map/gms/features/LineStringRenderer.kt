@@ -33,8 +33,11 @@ import org.groundplatform.android.ui.util.BitmapUtil
 
 class LineStringRenderer
 @Inject
-constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil) :
-  MapsItemRenderer<LineString, Polyline> {
+constructor(
+  private val resources: Resources,
+  private val bitmapUtil: BitmapUtil,
+  private val overlayRenderer: LineStringOverlayRenderer,
+) : MapsItemRenderer<LineString, Polyline> {
 
   // These must be done lazily since resources are not available before the app completes
   // initialization.
@@ -72,6 +75,8 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
       jointType = JointType.ROUND
       zIndex = POLYLINE_Z
     }
+
+    overlayRenderer.renderOverlayFor(map, geometry)
     return polyline
   }
 }
