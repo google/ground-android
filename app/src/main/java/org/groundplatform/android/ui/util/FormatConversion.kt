@@ -21,11 +21,9 @@ import android.icu.util.LocaleData
 import android.icu.util.Measure
 import android.icu.util.MeasureUnit
 import android.icu.util.ULocale
-import android.location.Location
 import android.os.Build
 import java.util.Locale
 import org.groundplatform.android.R
-import org.groundplatform.android.model.geometry.Coordinates
 
 private const val METERS_TO_FEET = 3.28084
 
@@ -65,10 +63,4 @@ private fun Double.toFeet(): Double = this * METERS_TO_FEET
 private fun isImperialSystemFallback(): Boolean {
   val country = Locale.getDefault().country.uppercase(Locale.ROOT)
   return country in listOf("US", "LR", "MM") // Countries using the imperial system
-}
-
-fun Coordinates.getDistanceInMeters(end: Coordinates): Double {
-  val results = FloatArray(1)
-  Location.distanceBetween(this.lat, this.lng, end.lat, end.lng, results)
-  return results[0].toDouble()
 }

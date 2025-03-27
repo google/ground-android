@@ -21,7 +21,6 @@ import kotlinx.serialization.Serializable
 import org.groundplatform.android.ui.map.gms.GmsExt.center
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 import org.groundplatform.android.ui.map.gms.toLatLngList
-import org.groundplatform.android.ui.util.getDistanceInMeters
 
 /** A common ancestor for all geometry types. */
 @Serializable
@@ -92,14 +91,6 @@ data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
 data class LineString(val coordinates: List<Coordinates>) : Geometry {
   override val area: Double
     get() = 0.0
-
-  val tooltipDistance: Double?
-    get() {
-      if (coordinates.size < 2 || isClosed()) return null
-      val lastVertex = coordinates.last()
-      val secondLastVertex = coordinates[coordinates.size - 2]
-      return secondLastVertex.getDistanceInMeters(lastVertex)
-    }
 
   override fun center(): Coordinates = coordinates.centerOrError()
 

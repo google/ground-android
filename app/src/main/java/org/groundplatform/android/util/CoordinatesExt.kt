@@ -16,6 +16,7 @@
 package org.groundplatform.android.util
 
 import android.location.Location
+import com.google.android.gms.maps.model.LatLng
 import kotlin.math.abs
 import org.groundplatform.android.model.geometry.Coordinates
 
@@ -37,3 +38,26 @@ private fun decimalToDms(latOrLong: Double): String {
   val (degrees, minutes, seconds) = dmsFormat.split(":".toRegex())
   return "$degrees°$minutes'$seconds\""
 }
+
+fun Coordinates.getDistanceInMeters(end: Coordinates): Double {
+  val results = FloatArray(1)
+  Location.distanceBetween(this.lat, this.lng, end.lat, end.lng, results)
+  return results[0].toDouble()
+}
+
+fun List<Coordinates>.tooltipDistanceIfLineStringClosed(): Double? {
+  if (size < 2 || isClosedLineString()) return null
+  val last = last()
+  val secondLast = this[size - 2]
+  return secondLast.getDistanceInMeters(last)
+}
+
+fun List<Coordinates>.midPointToLastSegment(): LatLng? {
+  if (size < 2 || isClosedLineString()) return null
+  val last = last()
+  val secondLast = this[size - 2]
+  return LatLng((last.lat + secondLast.lat) / 2, (last.lng + secondLast.lng) / 2)
+}
+
+private fun List<Coordinates>.isClosedLineString(): Boolean =
+  size >= 4 && firstOrNull() == lastOrNull()
