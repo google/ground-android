@@ -24,43 +24,62 @@ import android.icu.util.ULocale
 import android.os.Build
 import java.util.Locale
 import org.groundplatform.android.R
+import timber.log.Timber
 
 private const val METERS_TO_FEET = 3.28084
 
 fun formatDistance(resources: Resources, distanceInMeters: Double): String {
-  val isImperial =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      val measurementSystem = LocaleData.getMeasurementSystem(ULocale.getDefault())
-      measurementSystem == LocaleData.MeasurementSystem.US
-    } else {
-      isImperialSystemFallback()
-    }
+  if (distanceInMeters < 0) return "" // ✅ Prevent negative distances
 
-  val (convertedDistance, unitString, unitMeasure) =
+  val isImperial = isImperialSystem()
+
+  val (convertedDistance, unitLabel, measureUnit) =
     if (isImperial) {
       Triple(distanceInMeters.toFeet(), resources.getString(R.string.unit_feet), MeasureUnit.FOOT)
     } else {
       Triple(distanceInMeters, resources.getString(R.string.unit_meters), MeasureUnit.METER)
     }
 
-  val roundedDistance =
+  val rounded =
     if (convertedDistance < 10) {
-      "%.2f".format(Locale.getDefault(), convertedDistance)
+      String.format(Locale.getDefault(), "%.2f", convertedDistance)
     } else {
-      "%.0f".format(Locale.getDefault(), convertedDistance)
+      String.format(Locale.getDefault(), "%.0f", convertedDistance)
     }
 
   return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-    val formatter = MeasureFormat.getInstance(ULocale.getDefault(), MeasureFormat.FormatWidth.SHORT)
-    formatter.format(Measure(roundedDistance.toDouble(), unitMeasure))
+    formatWithMeasureFormat(rounded, measureUnit, "$rounded $unitLabel")
   } else {
-    "$roundedDistance $unitString"
+    "$rounded $unitLabel"
+  }
+}
+
+private fun formatWithMeasureFormat(value: String, unit: MeasureUnit, fallback: String): String {
+  return try {
+    val formatter = MeasureFormat.getInstance(ULocale.getDefault(), MeasureFormat.FormatWidth.SHORT)
+    val number = value.toDoubleOrNull() ?: return fallback
+    formatter.format(Measure(number, unit))
+  } catch (e: Exception) {
+    Timber.w("FormatDistance", "MeasureFormat failed", e)
+    fallback
   }
 }
 
 private fun Double.toFeet(): Double = this * METERS_TO_FEET
 
+private fun isImperialSystem(): Boolean =
+  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+    try {
+      LocaleData.getMeasurementSystem(ULocale.getDefault()) == LocaleData.MeasurementSystem.US
+    } catch (e: Exception) {
+      Timber.w("MeasurementSystem", "Failed to get measurement system from LocaleData", e)
+      isImperialSystemFallback()
+    }
+  } else {
+    isImperialSystemFallback()
+  }
+
 private fun isImperialSystemFallback(): Boolean {
   val country = Locale.getDefault().country.uppercase(Locale.ROOT)
-  return country in listOf("US", "LR", "MM") // Countries using the imperial system
+  return country in setOf("US", "LR", "MM")
 }

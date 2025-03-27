@@ -39,25 +39,22 @@ private fun decimalToDms(latOrLong: Double): String {
   return "$degrees°$minutes'$seconds\""
 }
 
-fun Coordinates.getDistanceInMeters(end: Coordinates): Double {
-  val results = FloatArray(1)
-  Location.distanceBetween(this.lat, this.lng, end.lat, end.lng, results)
-  return results[0].toDouble()
-}
-
 fun List<Coordinates>.tooltipDistanceIfLineStringClosed(): Double? {
   if (size < 2 || isClosedLineString()) return null
-  val last = last()
-  val secondLast = this[size - 2]
-  return secondLast.getDistanceInMeters(last)
+  return this[size - 2].distanceTo(this[size - 1])
 }
 
 fun List<Coordinates>.midPointToLastSegment(): LatLng? {
   if (size < 2 || isClosedLineString()) return null
-  val last = last()
-  val secondLast = this[size - 2]
-  return LatLng((last.lat + secondLast.lat) / 2, (last.lng + secondLast.lng) / 2)
+  val end = this[size - 1]
+  val start = this[size - 2]
+  return LatLng((start.lat + end.lat) / 2, (start.lng + end.lng) / 2)
 }
 
-private fun List<Coordinates>.isClosedLineString(): Boolean =
-  size >= 4 && firstOrNull() == lastOrNull()
+private fun Coordinates.distanceTo(other: Coordinates): Double {
+  val result = FloatArray(1)
+  Location.distanceBetween(this.lat, this.lng, other.lat, other.lng, result)
+  return result[0].toDouble()
+}
+
+private fun List<Coordinates>.isClosedLineString(): Boolean = size >= 4 && first() == last()
