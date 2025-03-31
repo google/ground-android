@@ -202,6 +202,7 @@
   <string name="data_collection_cancellation_confirm_button">Confirm</string>
   <string name="something_went_wrong">Something went wrong</string>
   <string name="clear">Clear</string>
+  <string name="text_task_data_character_limit">Please enter a value of 255 characters or less.</string>
 
   <string name="area_message">Area: %1$.2f m²</string>
 </resources>
