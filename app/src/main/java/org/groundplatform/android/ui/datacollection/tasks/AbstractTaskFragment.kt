@@ -179,7 +179,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     dataCollectionViewModel.onPreviousClicked(viewModel)
   }
 
-  private fun moveToNext() {
+  fun moveToNext() {
     dataCollectionViewModel.onNextClicked(viewModel)
   }
 

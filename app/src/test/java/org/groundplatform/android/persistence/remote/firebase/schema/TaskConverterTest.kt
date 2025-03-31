@@ -168,6 +168,13 @@ class TaskConverterTest(
           },
           taskType = Type.PHOTO,
         ),
+        testCase(
+          testLabel = "instructions",
+          protoBuilderLambda = { taskBuilder: Task.Builder ->
+            taskBuilder.setInstructions(taskBuilder.instructions)
+          },
+          taskType = Type.INSTRUCTIONS,
+        ),
       )
 
     /** Help to improve readability by provided named args for positional test constructor args. */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.android.ui.datacollection.tasks.instruction
 
-import kotlinx.serialization.Serializable
+import javax.inject.Inject
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 
-/** A user provided response to a number question task. */
-@Serializable
-data class NumberTaskData(val number: String) : TaskData {
-  val value: Double
-    get() = number.toDouble()
-
-  override fun isEmpty(): Boolean = number.isEmpty()
-
-  companion object {
-    fun fromNumber(number: String): TaskData? =
-      if (number.isEmpty() || number.toDoubleOrNull() == null) null else NumberTaskData(number)
-  }
-}
+@Suppress("EmptyClassBlock")
+class InstructionTaskViewModel @Inject constructor() : AbstractTaskViewModel() {}

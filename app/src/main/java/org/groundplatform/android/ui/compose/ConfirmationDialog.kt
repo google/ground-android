@@ -32,7 +32,7 @@ import org.groundplatform.android.ui.theme.AppTheme
 fun ConfirmationDialog(
   @StringRes title: Int,
   @StringRes description: Int,
-  @StringRes dismissButtonText: Int = R.string.cancel,
+  @StringRes dismissButtonText: Int? = R.string.cancel,
   @StringRes confirmButtonText: Int,
   onConfirmClicked: () -> Unit,
 ) {
@@ -53,7 +53,9 @@ fun ConfirmationDialog(
       title = { Text(text = stringResource(title)) },
       text = { Text(text = stringResource(description)) },
       dismissButton = {
-        TextButton(onClick = { onDismiss() }) { Text(text = stringResource(dismissButtonText)) }
+        dismissButtonText?.let {
+          TextButton(onClick = { onDismiss() }) { Text(text = stringResource(it)) }
+        }
       },
       confirmButton = {
         TextButton(onClick = { onConfirm() }) { Text(text = stringResource(confirmButtonText)) }
@@ -71,6 +73,21 @@ fun PreviewConfirmationDialog() {
       title = R.string.data_collection_cancellation_title,
       description = R.string.data_collection_cancellation_description,
       confirmButtonText = R.string.data_collection_cancellation_confirm_button,
+      onConfirmClicked = {},
+    )
+  }
+}
+
+@Composable
+@Preview
+@ExcludeFromJacocoGeneratedReport
+fun PreviewConfirmationDialogWithoutCancel() {
+  AppTheme {
+    ConfirmationDialog(
+      title = R.string.data_collection_cancellation_title,
+      description = R.string.data_collection_cancellation_description,
+      confirmButtonText = R.string.data_collection_cancellation_confirm_button,
+      dismissButtonText = null,
       onConfirmClicked = {},
     )
   }

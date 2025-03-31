@@ -29,6 +29,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LineString.Companion.lineStringOf
+import org.groundplatform.android.ui.compose.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
 import org.groundplatform.android.ui.datacollection.components.TaskButton
@@ -83,6 +84,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     addPointButton =
       addButton(ButtonAction.ADD_POINT).setOnClickListener {
         viewModel.addLastVertex()
+        viewModel.checkVertexIntersection()
         viewModel.triggerVibration()
       }
     completeButton =
@@ -115,6 +117,19 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
           .show()
       },
     )
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewModel.showSelfIntersectionDialog.collect {
+        renderComposableDialog {
+          ConfirmationDialog(
+            title = R.string.polygon_vertex_add_dialog_title,
+            description = R.string.polygon_vertex_add_dialog_message,
+            confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
+            dismissButtonText = null,
+            onConfirmClicked = {},
+          )
+        }
+      }
+    }
   }
 
   private fun onFeatureUpdated(feature: Feature?) {

@@ -19,6 +19,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -34,6 +35,7 @@ import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.persistence.local.LocalValueStore
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
+import timber.log.Timber
 
 private const val ACTIVATE_SURVEY_TIMEOUT_MILLS: Long = 3 * 1000
 
@@ -75,14 +77,18 @@ constructor(
     _selectedSurveyId.update { surveyId }
 
     // Wait for survey to be updated. Else throw an error after timeout.
-    withTimeout(ACTIVATE_SURVEY_TIMEOUT_MILLS) {
-      activeSurveyFlow.first { survey ->
-        if (surveyId.isBlank()) {
-          survey == null
-        } else {
-          survey?.id == surveyId
+    try {
+      withTimeout(ACTIVATE_SURVEY_TIMEOUT_MILLS) {
+        activeSurveyFlow.first { survey ->
+          if (surveyId.isBlank()) {
+            survey == null
+          } else {
+            survey?.id == surveyId
+          }
         }
       }
+    } catch (e: TimeoutCancellationException) {
+      Timber.e(e, "Failed to get survey due to timeout")
     }
 
     if (isSurveyActive(surveyId) || surveyId.isBlank()) {
