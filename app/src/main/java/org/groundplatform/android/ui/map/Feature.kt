@@ -28,7 +28,6 @@ data class Feature(
   val selected: Boolean = false,
   /** An arbitrary slot for boolean flag. The interpretation of this field is type-dependent. */
   val flag: Boolean = false,
-  val tooltipText: String = "",
 ) {
   constructor(
     id: String,
@@ -38,8 +37,7 @@ data class Feature(
     style: Style,
     clusterable: Boolean,
     selected: Boolean = false,
-    tooltipText: String = "",
-  ) : this(Tag(id, type), geometry, style, clusterable, selected, flag, tooltipText)
+  ) : this(Tag(id, type), geometry, style, clusterable, selected, flag)
 
   /** Tag used to uniquely identifier a feature on the map. */
   data class Tag(
