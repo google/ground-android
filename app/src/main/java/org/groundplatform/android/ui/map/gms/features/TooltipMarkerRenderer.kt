@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.map.gms.features
 
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -29,6 +30,10 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import javax.inject.Inject
+import org.groundplatform.android.model.geometry.LineString
+import org.groundplatform.android.ui.util.formatDistance
+import org.groundplatform.android.util.midPointToLastSegment
+import org.groundplatform.android.util.tooltipDistanceIfLineStringClosed
 
 /**
  * Responsible for rendering a tooltip marker on a GoogleMap instance.
@@ -38,7 +43,7 @@ import javax.inject.Inject
  *
  * @constructor Creates an instance of [TooltipMarkerRenderer].
  */
-class TooltipMarkerRenderer @Inject constructor() {
+class TooltipMarkerRenderer @Inject constructor(private val resources: Resources) {
   private var tooltipMarker: Marker? = null
 
   /**
@@ -49,19 +54,22 @@ class TooltipMarkerRenderer @Inject constructor() {
    *
    * @param map The [GoogleMap] instance where the marker should be rendered.
    * @param position The [LatLng] position for the tooltip marker.
-   * @param tooltipText The text to be shown inside the tooltip marker.
    */
-  fun update(map: GoogleMap, position: LatLng, tooltipText: String?) {
-    if (tooltipText.isNullOrBlank()) {
+  fun update(map: GoogleMap, line: LineString) {
+    if (line.coordinates.size < 2) {
       remove()
       return
     }
+    val coords = line.coordinates
+    val distance = coords.tooltipDistanceIfLineStringClosed() ?: return
+    val midPoint = coords.midPointToLastSegment() ?: return
+    val distanceText = formatDistance(resources, distance)
 
     if (tooltipMarker == null) {
-      tooltipMarker = create(map, position, tooltipText)
+      tooltipMarker = create(map, midPoint, distanceText)
     } else {
-      tooltipMarker?.position = position
-      tooltipMarker?.setIcon(createTextMarker(tooltipText))
+      tooltipMarker?.position = midPoint
+      tooltipMarker?.setIcon(createTextMarker(distanceText))
     }
   }
 

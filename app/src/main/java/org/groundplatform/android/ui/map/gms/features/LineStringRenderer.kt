@@ -36,7 +36,7 @@ class LineStringRenderer
 constructor(
   private val resources: Resources,
   private val bitmapUtil: BitmapUtil,
-  private val overlayRenderer: LineStringOverlayRenderer,
+  private val tooltipMarkerRenderer: TooltipMarkerRenderer,
 ) : MapsItemRenderer<LineString, Polyline> {
 
   // These must be done lazily since resources are not available before the app completes
@@ -76,7 +76,7 @@ constructor(
       zIndex = POLYLINE_Z
     }
 
-    overlayRenderer.renderOverlayFor(map, geometry)
+    tooltipMarkerRenderer.update(map, geometry)
     return polyline
   }
 }
