@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.map.gms.features
 
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -39,7 +38,7 @@ import javax.inject.Inject
  *
  * @constructor Creates an instance of [TooltipMarkerRenderer].
  */
-class TooltipMarkerRenderer @Inject constructor(private val resources: Resources) {
+class TooltipMarkerRenderer @Inject constructor() {
   private var tooltipMarker: Marker? = null
 
   /**
