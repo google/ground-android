@@ -47,6 +47,7 @@ constructor(resources: Resources, private val markerIconFactory: IconFactory) :
     style: Feature.Style,
     selected: Boolean,
     visible: Boolean,
+    tooltipText: String?,
   ): Marker {
     val markerOptions = MarkerOptions()
     with(markerOptions) {

@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
+import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -45,7 +46,9 @@ import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.FeatureType
 import org.groundplatform.android.ui.util.VibrationHelper
 import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
+import org.groundplatform.android.ui.util.formatDistance
 import org.groundplatform.android.ui.util.isSelfIntersecting
+import org.groundplatform.android.util.tooltipDistanceIfLineStringClosed
 import timber.log.Timber
 
 @SharedViewModel
@@ -55,6 +58,7 @@ internal constructor(
   private val localValueStore: LocalValueStore,
   private val uuidGenerator: OfflineUuidGenerator,
   private val vibrationHelper: VibrationHelper,
+  private val resources: Resources,
 ) : AbstractTaskViewModel() {
 
   /** Polygon [Feature] being drawn by the user. */
@@ -210,6 +214,8 @@ internal constructor(
         if (vertices.isEmpty()) {
           null
         } else {
+          val distance = LineString(vertices).coordinates.tooltipDistanceIfLineStringClosed() ?: 0.0
+          val distanceText = formatDistance(resources, distance)
           Feature(
             id = uuidGenerator.generateUuid(),
             type = FeatureType.USER_POLYGON.ordinal,
@@ -217,6 +223,7 @@ internal constructor(
             style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
             clusterable = false,
             selected = true,
+            tooltipText = distanceText,
           )
         }
       )

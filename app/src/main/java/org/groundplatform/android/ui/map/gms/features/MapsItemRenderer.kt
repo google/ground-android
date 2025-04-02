@@ -27,5 +27,6 @@ interface MapsItemRenderer<T : Geometry, U> {
     style: Feature.Style,
     selected: Boolean,
     visible: Boolean,
+    tooltipText: String? = null,
   ): U
 }

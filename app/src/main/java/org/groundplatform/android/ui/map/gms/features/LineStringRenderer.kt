@@ -30,6 +30,7 @@ import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.POLYLINE_Z
 import org.groundplatform.android.ui.map.gms.toLatLngList
 import org.groundplatform.android.ui.util.BitmapUtil
+import org.groundplatform.android.util.midPointToLastSegment
 
 class LineStringRenderer
 @Inject
@@ -54,6 +55,7 @@ constructor(
     style: Feature.Style,
     selected: Boolean,
     visible: Boolean,
+    tooltipText: String?,
   ): Polyline {
     val options = PolylineOptions()
     with(options) {
@@ -76,7 +78,15 @@ constructor(
       zIndex = POLYLINE_Z
     }
 
-    tooltipMarkerRenderer.update(map, geometry)
+    tooltipText?.let { text ->
+      if (geometry.coordinates.size < 2) {
+        tooltipMarkerRenderer.remove()
+      } else {
+        geometry.coordinates.midPointToLastSegment()?.let { midPoint ->
+          tooltipMarkerRenderer.update(map, midPoint, text)
+        }
+      }
+    }
     return polyline
   }
 }
