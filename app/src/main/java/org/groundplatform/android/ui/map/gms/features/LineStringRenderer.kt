@@ -78,15 +78,7 @@ constructor(
       zIndex = POLYLINE_Z
     }
 
-    tooltipText?.let { text ->
-      if (geometry.coordinates.size < 2) {
-        tooltipMarkerRenderer.remove()
-      } else {
-        geometry.coordinates.midPointToLastSegment()?.let { midPoint ->
-          tooltipMarkerRenderer.update(map, midPoint, text)
-        }
-      }
-    }
+    tooltipMarkerRenderer.update(map, geometry.coordinates.midPointToLastSegment(), tooltipText)
     return polyline
   }
 }

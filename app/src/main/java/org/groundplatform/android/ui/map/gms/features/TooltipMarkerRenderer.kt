@@ -52,12 +52,21 @@ class TooltipMarkerRenderer @Inject constructor() {
    * @param midPoint The [LatLng] position for the tooltip marker.
    * @param tooltipText The text to be displayed on the tooltip marker.
    */
-  fun update(map: GoogleMap, midPoint: LatLng, tooltipText: String) {
+  fun update(map: GoogleMap, midPoint: LatLng?, tooltipText: String?) {
+    if (midPoint == null) {
+      remove()
+      return
+    }
+
+    tooltipText ?: return
+
     if (tooltipMarker == null) {
       tooltipMarker = create(map, midPoint, tooltipText)
     } else {
-      tooltipMarker?.position = midPoint
-      tooltipMarker?.setIcon(createTextMarker(tooltipText))
+      tooltipMarker?.apply {
+        position = midPoint
+        setIcon(createTextMarker(tooltipText))
+      }
     }
   }
 
