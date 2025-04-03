@@ -215,6 +215,7 @@ internal constructor(
 
       val taskData: TaskData? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
       viewModel.initialize(job, task, taskData)
+      taskDataHandler.setData(task, taskData)
       viewModel
     } catch (e: Exception) {
       Timber.e("ignoring task with invalid type: $task.type")
