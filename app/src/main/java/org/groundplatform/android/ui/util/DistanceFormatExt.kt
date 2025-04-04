@@ -50,21 +50,19 @@ fun Double.formatDistance(resources: Resources): String? {
 private fun Double.convertDistance(
   resources: Resources,
   isImperial: Boolean,
-): Triple<Double, String, MeasureUnit> {
-  return if (isImperial) {
+): Triple<Double, String, MeasureUnit> =
+  if (isImperial) {
     Triple(this * METERS_TO_FEET, resources.getString(R.string.unit_feet), MeasureUnit.FOOT)
   } else {
     Triple(this, resources.getString(R.string.unit_meters), MeasureUnit.METER)
   }
-}
 
-private fun roundDistanceAsDouble(distance: Double): Double {
-  return if (distance < DISTANCE_THRESHOLD) {
+private fun roundDistanceAsDouble(distance: Double): Double =
+  if (distance < DISTANCE_THRESHOLD) {
     (distance * DECIMAL_MULTIPLIER).roundToInt() / DECIMAL_MULTIPLIER
   } else {
     distance.roundToInt().toDouble()
   }
-}
 
 private fun formatDistanceFallback(number: Double, unitLabel: String, locale: Locale): String {
   val formatted =
@@ -81,8 +79,8 @@ private fun formatWithMeasureFormat(
   measureUnit: MeasureUnit,
   fallback: String,
   locale: Locale,
-): String {
-  return runCatching {
+): String =
+  runCatching {
       val formatter =
         MeasureFormat.getInstance(ULocale.forLocale(locale), MeasureFormat.FormatWidth.SHORT)
       formatter.format(Measure(number, measureUnit))
@@ -91,10 +89,9 @@ private fun formatWithMeasureFormat(
       Timber.w("FormatDistance", "MeasureFormat failed", exception)
       fallback
     }
-}
 
-private fun isImperialSystem(locale: Locale): Boolean {
-  return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+private fun isImperialSystem(locale: Locale): Boolean =
+  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
     runCatching {
         LocaleData.getMeasurementSystem(ULocale.forLocale(locale)) ==
           LocaleData.MeasurementSystem.US
@@ -106,7 +103,6 @@ private fun isImperialSystem(locale: Locale): Boolean {
   } else {
     isImperialSystemFallback(locale)
   }
-}
 
 private fun isImperialSystemFallback(locale: Locale): Boolean =
   locale.country.uppercase(Locale.ROOT) in setOf("US", "LR", "MM")
