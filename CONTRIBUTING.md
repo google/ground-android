@@ -178,6 +178,7 @@ to the base repository using a pull request.
   Solution: Ensure `app/src/debug/google-services.json` exists and is valid, as per instructions
   in [Set up Firebase](#set-up-firebase). You may need to perform a clean build in Android Studio by
   going to Build -> Clean Project.
+
 * The map does not appear / appears as a solid gray background.
 
   Ensure `secrets.properties` exists and is correctly populated as described above.
