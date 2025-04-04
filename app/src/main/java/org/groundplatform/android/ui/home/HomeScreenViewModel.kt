@@ -17,6 +17,7 @@ package org.groundplatform.android.ui.home
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -36,6 +37,8 @@ import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import timber.log.Timber
 
+private const val WAITING_PHOTO_CAPTURE_KEY = "awaiting_photo_capture"
+
 @SharedViewModel
 class HomeScreenViewModel
 @Inject
@@ -49,12 +52,25 @@ internal constructor(
   val userRepository: UserRepository,
 ) : AbstractViewModel() {
 
+  private val savedStateHandle: SavedStateHandle = SavedStateHandle()
   private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
   val openDrawerRequestsFlow: SharedFlow<Unit> = _openDrawerRequests.asSharedFlow()
 
   // TODO: Allow tile source configuration from a non-survey accessible source.
   // Issue URL: https://github.com/google/ground-android/issues/1730
   val showOfflineAreaMenuItem: LiveData<Boolean> = MutableLiveData(true)
+
+  /* Indicates the application is being restored after a photo capture.
+   *
+   * We need to persist this state here to control [HomeScreenFragement] UI treatments when returning
+   * from a photo capture task—we do it this way because saving instance state bundles across fragments
+   * does not prove simple.
+   * */
+  var awaitingPhotoCapture: Boolean
+    get() = savedStateHandle[WAITING_PHOTO_CAPTURE_KEY] ?: false
+    set(newValue) {
+      savedStateHandle[WAITING_PHOTO_CAPTURE_KEY] = newValue
+    }
 
   init {
     viewModelScope.launch { kickLocalMutationSyncWorkers() }
