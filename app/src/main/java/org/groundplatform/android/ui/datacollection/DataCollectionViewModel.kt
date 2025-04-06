@@ -25,6 +25,7 @@ import javax.inject.Provider
 import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -57,6 +58,7 @@ import org.groundplatform.android.ui.common.LocationOfInterestHelper
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.number.NumberTaskViewModel
@@ -99,8 +101,13 @@ internal constructor(
   private var draftDeltas: List<ValueDelta>? = null
 
   private val activeSurvey: Survey = runBlocking {
-    withTimeout(SURVEY_LOAD_TIMEOUT_MILLIS) {
-      surveyRepository.activeSurveyFlow.filterNotNull().first()
+    try {
+      withTimeout(SURVEY_LOAD_TIMEOUT_MILLIS) {
+        surveyRepository.activeSurveyFlow.filterNotNull().first()
+      }
+    } catch (e: TimeoutCancellationException) {
+      Timber.e(e, "Failed to get survey due to timeout")
+      throw e
     }
   }
 
@@ -208,6 +215,7 @@ internal constructor(
 
       val taskData: TaskData? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
       viewModel.initialize(job, task, taskData)
+      taskDataHandler.setData(task, taskData)
       viewModel
     } catch (e: Exception) {
       Timber.e("ignoring task with invalid type: $task.type")
@@ -376,6 +384,7 @@ internal constructor(
         Task.Type.DROP_PIN -> DropPinTaskViewModel::class.java
         Task.Type.DRAW_AREA -> DrawAreaTaskViewModel::class.java
         Task.Type.CAPTURE_LOCATION -> CaptureLocationTaskViewModel::class.java
+        Task.Type.INSTRUCTIONS -> InstructionTaskViewModel::class.java
         Task.Type.UNKNOWN -> throw IllegalArgumentException("Unsupported task type: $taskType")
       }
   }

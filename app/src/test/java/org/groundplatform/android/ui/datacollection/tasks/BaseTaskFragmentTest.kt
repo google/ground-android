@@ -35,6 +35,7 @@ import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.TaskFragmentRunner
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.util.view.isGone
 import org.mockito.kotlin.whenever
 
 abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractTaskViewModel> :
@@ -57,6 +58,10 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
   protected fun hasTaskViewWithoutHeader(label: String) {
     onView(withId(R.id.header_label)).check(matches(withText(label))).check(matches(isDisplayed()))
     onView(withId(R.id.header_icon)).check(matches(isDisplayed()))
+  }
+
+  protected fun hasNoTaskViewHeader() {
+    onView(withId(R.id.data_collection_header)).check(matches(isGone()))
   }
 
   protected suspend fun hasValue(taskData: TaskData?) {
