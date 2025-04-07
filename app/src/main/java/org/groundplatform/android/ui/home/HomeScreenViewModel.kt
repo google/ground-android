@@ -37,7 +37,7 @@ import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import timber.log.Timber
 
-private const val WAITING_PHOTO_CAPTURE_KEY = "awaiting_photo_capture"
+private const val AWAITING_PHOTO_CAPTURE_KEY = "awaiting_photo_capture"
 
 @SharedViewModel
 class HomeScreenViewModel
@@ -67,9 +67,9 @@ internal constructor(
    * does not prove simple.
    * */
   var awaitingPhotoCapture: Boolean
-    get() = savedStateHandle[WAITING_PHOTO_CAPTURE_KEY] ?: false
+    get() = savedStateHandle[AWAITING_PHOTO_CAPTURE_KEY] ?: false
     set(newValue) {
-      savedStateHandle[WAITING_PHOTO_CAPTURE_KEY] = newValue
+      savedStateHandle[AWAITING_PHOTO_CAPTURE_KEY] = newValue
     }
 
   init {
