@@ -23,13 +23,13 @@ import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import com.google.common.truth.Truth.assertWithMessage
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
+import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.mutation.Mutation.SyncStatus.COMPLETED
 import org.groundplatform.android.model.mutation.Mutation.SyncStatus.FAILED
@@ -55,7 +55,6 @@ import org.groundplatform.android.repository.UserMediaRepository
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
@@ -70,7 +69,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
   @Inject lateinit var localUserStore: LocalUserStore
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   @Inject lateinit var localLocationOfInterestStore: LocalLocationOfInterestStore
-  @BindValue @Mock lateinit var mockFirebaseCrashlytics: FirebaseCrashlytics
+  @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
 
   private val factory =
     object : WorkerFactory() {
@@ -85,6 +84,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
           fakeRemoteStorageManager,
           mutationRepository,
           userMediaRepository,
+          ioDispatcher,
         )
     }
 

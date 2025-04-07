@@ -27,8 +27,11 @@ import androidx.work.workDataOf
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
+import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.persistence.sync.SurveySyncWorker.Companion.SURVEY_ID_PARAM_KEY
 import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
 import org.junit.Before
@@ -44,13 +47,15 @@ class SurveySyncWorkerTest : BaseHiltTest() {
   private lateinit var context: Context
   @BindValue @Mock lateinit var syncSurvey: SyncSurveyUseCase
 
+  @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
+
   private val factory =
     object : WorkerFactory() {
       override fun createWorker(
         appContext: Context,
         workerClassName: String,
         workerParameters: WorkerParameters,
-      ) = SurveySyncWorker(appContext, workerParameters, syncSurvey)
+      ) = SurveySyncWorker(appContext, workerParameters, syncSurvey, ioDispatcher)
     }
 
   @Before
