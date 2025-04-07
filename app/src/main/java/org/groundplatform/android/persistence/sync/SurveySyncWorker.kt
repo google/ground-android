@@ -26,8 +26,9 @@ import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
 import timber.log.Timber
 
@@ -39,10 +40,11 @@ constructor(
   @Assisted context: Context,
   @Assisted params: WorkerParameters,
   private val syncSurvey: SyncSurveyUseCase,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, params) {
   private val surveyId: String? = params.inputData.getString(SURVEY_ID_PARAM_KEY)
 
-  override suspend fun doWork(): Result = withContext(Dispatchers.IO) { doWorkInternal() }
+  override suspend fun doWork(): Result = withContext(ioDispatcher) { doWorkInternal() }
 
   private suspend fun doWorkInternal(): Result {
     if (surveyId == null) {
