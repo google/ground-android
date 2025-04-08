@@ -49,7 +49,7 @@ import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
 import org.groundplatform.android.ui.util.formatDistance
 import org.groundplatform.android.ui.util.isSelfIntersecting
 import org.groundplatform.android.util.distanceTo
-import org.groundplatform.android.util.isClosedLineString
+import org.groundplatform.android.util.isClosed
 import timber.log.Timber
 
 @SharedViewModel
@@ -215,8 +215,10 @@ internal constructor(
         if (vertices.isEmpty()) {
           null
         } else {
+          // Only show tooltip if there is more than one vertex and the shape has not yet been
+          // closed.
           val distance =
-            if (vertices.size < 2 || vertices.isClosedLineString()) null
+            if (vertices.size <= 1 || vertices.isClosed()) null
             else vertices[vertices.size - 2].distanceTo(vertices[vertices.size - 1])
           val distanceText =
             if (distance != null && distance > 0) distance.formatDistance(resources) else null

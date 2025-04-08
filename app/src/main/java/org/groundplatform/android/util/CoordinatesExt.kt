@@ -40,7 +40,7 @@ private fun decimalToDms(latOrLong: Double): String {
 }
 
 fun List<Coordinates>.midPointToLastSegment(): LatLng? {
-  if (size < 2 || isClosedLineString()) return null
+  if (size < 2 || isClosed()) return null
   val end = this[size - 1]
   val start = this[size - 2]
   return LatLng((start.lat + end.lat) / 2, (start.lng + end.lng) / 2)
@@ -52,4 +52,8 @@ fun Coordinates.distanceTo(other: Coordinates): Double {
   return result[0].toDouble()
 }
 
-fun List<Coordinates>.isClosedLineString(): Boolean = size >= 4 && first() == last()
+/**
+ * Returns true iff the provided coordinates for a closed shape. A shape is considered closed if it
+ * has at least three (3) sized and the first and last coordinates are equal.
+ */
+fun List<Coordinates>.isClosed() = size >= 3 && first() == last()
