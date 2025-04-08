@@ -78,9 +78,13 @@ constructor(
       jointType = JointType.ROUND
       zIndex = POLYLINE_Z
     }
+    updateTooltipMarker(geometry, map, tooltipText)
+    return polyline
+  }
+
+  private fun updateTooltipMarker(geometry: LineString, map: GoogleMap, tooltipText: String?) {
     val coords = geometry.coordinates
     val midpoint = if (coords.size < 2) null else coords.last().midpoint(coords.penult())
     tooltipMarkerRenderer.update(map, midpoint, tooltipText)
-    return polyline
   }
 }
