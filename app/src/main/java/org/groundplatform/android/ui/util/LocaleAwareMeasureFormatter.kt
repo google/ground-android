@@ -28,8 +28,6 @@ import org.groundplatform.android.R
 import timber.log.Timber
 
 private const val METERS_TO_FEET = 3.28084
-private const val DISTANCE_THRESHOLD = 10.0
-private const val DECIMAL_MULTIPLIER = 100.0
 
 class LocaleAwareMeasureFormatter @Inject constructor(val resources: Resources) {
   fun formatDistance(distanceInMeters: Double): String {
@@ -39,13 +37,7 @@ class LocaleAwareMeasureFormatter @Inject constructor(val resources: Resources) 
     val unitStringId = if (isImperial) R.string.unit_meters else R.string.unit_feet
     val unitLabel = resources.getString(unitStringId)
     val measureUnit = if (isImperial) MeasureUnit.FOOT else MeasureUnit.METER
-    val fallback = formatDistanceFallback(distance, unitLabel, locale)
-
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      formatWithMeasureFormat(distance, measureUnit, fallback, locale)
-    } else {
-      fallback
-    }
+    return formatWithMeasureFormat(distance, measureUnit, locale)
   }
 
   private fun Double.toFeet() = this * METERS_TO_FEET
@@ -63,18 +55,12 @@ class LocaleAwareMeasureFormatter @Inject constructor(val resources: Resources) 
   private fun formatWithMeasureFormat(
     number: Double,
     measureUnit: MeasureUnit,
-    fallback: String,
     locale: Locale,
-  ): String =
-    runCatching {
-        val formatter =
-          MeasureFormat.getInstance(ULocale.forLocale(locale), MeasureFormat.FormatWidth.SHORT)
-        formatter.format(Measure(number, measureUnit))
-      }
-      .getOrElse { exception ->
-        Timber.w("FormatDistance", "MeasureFormat failed", exception)
-        fallback
-      }
+  ): String {
+    val formatter =
+      MeasureFormat.getInstance(ULocale.forLocale(locale), MeasureFormat.FormatWidth.SHORT)
+    return formatter.format(Measure(number, measureUnit))
+  }
 
   private fun isImperialSystem(locale: Locale): Boolean =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
