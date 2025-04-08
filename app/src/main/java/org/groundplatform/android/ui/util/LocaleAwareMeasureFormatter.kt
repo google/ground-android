@@ -24,7 +24,6 @@ import android.icu.util.ULocale
 import android.os.Build
 import java.util.Locale
 import javax.inject.Inject
-import kotlin.math.roundToInt
 import org.groundplatform.android.R
 import timber.log.Timber
 
@@ -36,28 +35,20 @@ class LocaleAwareMeasureFormatter @Inject constructor(val resources: Resources) 
   fun formatDistance(distanceInMeters: Double): String {
     val locale = Locale.getDefault()
     val isImperial = isImperialSystem(locale)
-    val convertedDistance = if (isImperial) distanceInMeters.toFeet() else distanceInMeters
-    val unitLabel =
-      resources.getString(if (isImperial) R.string.unit_meters else R.string.unit_feet)
+    val distance = if (isImperial) distanceInMeters.toFeet() else distanceInMeters
+    val unitStringId = if (isImperial) R.string.unit_meters else R.string.unit_feet
+    val unitLabel = resources.getString(unitStringId)
     val measureUnit = if (isImperial) MeasureUnit.FOOT else MeasureUnit.METER
-    val roundedNumber = roundDistanceAsDouble(convertedDistance)
-    val fallback = formatDistanceFallback(roundedNumber, unitLabel, locale)
+    val fallback = formatDistanceFallback(distance, unitLabel, locale)
 
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      formatWithMeasureFormat(roundedNumber, measureUnit, fallback, locale)
+      formatWithMeasureFormat(distance, measureUnit, fallback, locale)
     } else {
       fallback
     }
   }
 
   private fun Double.toFeet() = this * METERS_TO_FEET
-
-  private fun roundDistanceAsDouble(distance: Double): Double =
-    if (distance < DISTANCE_THRESHOLD) {
-      (distance * DECIMAL_MULTIPLIER).roundToInt() / DECIMAL_MULTIPLIER
-    } else {
-      distance.roundToInt().toDouble()
-    }
 
   private fun formatDistanceFallback(number: Double, unitLabel: String, locale: Locale): String {
     val formatted =
