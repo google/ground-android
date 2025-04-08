@@ -49,8 +49,9 @@ constructor(resources: Resources, private val markerIconFactory: IconFactory) :
     visible: Boolean,
     tooltipText: String?,
   ): Marker {
+    check(tooltipText == null) { "Tooltip text not implemented for point features" }
     val markerOptions = MarkerOptions()
-    with(markerOptions) {
+    with(markerOptions)  {
       position(geometry.coordinates.toLatLng())
       icon(getMarkerIcon(style, selected))
       zIndex(MARKER_Z)
