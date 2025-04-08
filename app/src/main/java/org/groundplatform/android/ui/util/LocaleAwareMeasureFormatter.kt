@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.util
 
-import android.content.res.Resources
 import android.icu.text.MeasureFormat
 import android.icu.util.Measure
 import android.icu.util.MeasureUnit
@@ -31,8 +30,7 @@ private const val MIN_ROUNDED_DISTANCE = 10
 /** The number of decimal places shown for distances < MIN_ROUNDED_DISTANCE. */
 private const val SMALL_DISTANCE_DECIMAL_PLACES = 1
 
-class LocaleAwareMeasureFormatter @Inject constructor(val resources: Resources) {
-  private val locale = Locale.getDefault()
+class LocaleAwareMeasureFormatter @Inject constructor(private val locale: Locale) {
   private val uLocale = ULocale.forLocale(locale)
   private val distanceFormatter =
     MeasureFormat.getInstance(uLocale, MeasureFormat.FormatWidth.SHORT)

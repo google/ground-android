@@ -23,8 +23,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 import org.groundplatform.android.ui.common.ViewModelModule
+import java.util.Locale
+import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module(includes = [ViewModelModule::class])
@@ -40,4 +41,6 @@ object GroundApplicationModule {
   fun provideResources(@ApplicationContext context: Context): Resources {
     return context.resources
   }
+
+  @Provides fun provideLocale() = Locale.getDefault()
 }
