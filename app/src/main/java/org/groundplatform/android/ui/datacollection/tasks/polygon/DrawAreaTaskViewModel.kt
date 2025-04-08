@@ -48,6 +48,7 @@ import org.groundplatform.android.ui.util.VibrationHelper
 import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
 import org.groundplatform.android.ui.util.isSelfIntersecting
 import org.groundplatform.android.util.distanceTo
+import org.groundplatform.android.util.penult
 import timber.log.Timber
 
 /** Min. distance between the last two vertices required for distance tooltip to be shown shown. */
@@ -238,7 +239,7 @@ internal constructor(
    */
   private fun getDistanceTooltipText(): String? {
     if (isMarkedComplete || vertices.size <= 1) return null
-    val distance = vertices[vertices.size - 2].distanceTo(vertices[vertices.size - 1])
+    val distance = vertices.penult().distanceTo(vertices.last())
     if (distance < TOOLTIP_MIN_DISTANCE_METERS) return null
     return localeAwareMeasureFormatter.formatDistance(distance)
   }
