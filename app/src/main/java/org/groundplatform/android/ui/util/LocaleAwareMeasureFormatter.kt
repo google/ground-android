@@ -24,9 +24,15 @@ import android.icu.util.ULocale
 import android.os.Build
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.math.floor
+import kotlin.math.pow
 import timber.log.Timber
 
 private const val METERS_TO_FEET = 3.28084
+/** Distances equal to or greater than this value are rounded down to the nearest integer. */
+private const val MIN_ROUNDED_DISTANCE = 10
+/** The number of decimal places shown for distances < MIN_ROUNDED_DISTANCE. */
+private const val SMALL_DISTANCE_DECIMAL_PLACES = 1
 
 class LocaleAwareMeasureFormatter @Inject constructor(val resources: Resources) {
   fun formatDistance(distanceInMeters: Double): String {
@@ -34,10 +40,19 @@ class LocaleAwareMeasureFormatter @Inject constructor(val resources: Resources) 
     val isImperial = isImperialSystem(locale)
     val distance = if (isImperial) distanceInMeters.toFeet() else distanceInMeters
     val measureUnit = if (isImperial) MeasureUnit.FOOT else MeasureUnit.METER
-    return formatWithMeasureFormat(distance, measureUnit, locale)
+    val roundedDistance =
+      if (distance < MIN_ROUNDED_DISTANCE)
+        distance.floorToDecimalPlaces(SMALL_DISTANCE_DECIMAL_PLACES)
+      else floor(distance)
+    return formatWithMeasureFormat(roundedDistance, measureUnit, locale)
   }
 
   private fun Double.toFeet() = this * METERS_TO_FEET
+
+  private fun Double.floorToDecimalPlaces(n: Int): Double {
+    val factor = 10.0.pow(n)
+    return floor(this * factor) / factor
+  }
 
   private fun formatWithMeasureFormat(
     number: Double,
