@@ -234,11 +234,11 @@ internal constructor(
   }
 
   /**
-   * Returns the distance tooltip if there is more than one vertex and the last two vertices do not
-   * overlap.
+   * Returns the distance tooltip if there is more than one vertex, if the last two vertices do not
+   * overlap, and if the polygon has not yet been marked as complete by the user.
    */
   private fun getDistanceTooltipText(): String? {
-    if (vertices.size <= 1) return null
+    if (isMarkedComplete || vertices.size <= 1) return null
     val distance = vertices[vertices.size - 2].distanceTo(vertices[vertices.size - 1])
     if (distance < TOOLTIP_MIN_DISTANCE_METERS) return null
     return localeAwareMeasureFormatter.formatDistance(distance)
