@@ -48,8 +48,10 @@ import org.groundplatform.android.ui.util.VibrationHelper
 import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
 import org.groundplatform.android.ui.util.isSelfIntersecting
 import org.groundplatform.android.util.distanceTo
-import org.groundplatform.android.util.isClosed
 import timber.log.Timber
+
+/** Min. distance between the last two vertices required for distance tooltip to be shown shown. */
+const val TOOLTIP_MIN_DISTANCE_METERS = 0.1
 
 @SharedViewModel
 class DrawAreaTaskViewModel
@@ -232,13 +234,13 @@ internal constructor(
   }
 
   /**
-   * Returns the distance tooltip if there is more than one vertex, the shape has not been closed,
-   * and the last two vertices do not intersect more than 0.001m.
+   * Returns the distance tooltip if there is more than one vertex and the last two vertices do not
+   * overlap.
    */
   private fun getDistanceTooltipText(): String? {
-    if (vertices.size <= 1 || vertices.isClosed()) return null
+    if (vertices.size <= 1) return null
     val distance = vertices[vertices.size - 2].distanceTo(vertices[vertices.size - 1])
-    if (distance < 0.001) return null
+    if (distance < TOOLTIP_MIN_DISTANCE_METERS) return null
     return localeAwareMeasureFormatter.formatDistance(distance)
   }
 
