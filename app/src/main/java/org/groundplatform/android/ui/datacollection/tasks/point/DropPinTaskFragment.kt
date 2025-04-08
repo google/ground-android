@@ -20,8 +20,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import javax.inject.Provider
 import org.groundplatform.android.R
 import org.groundplatform.android.model.submission.isNullOrEmpty
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -31,6 +29,8 @@ import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.util.renderComposableDialog
+import javax.inject.Inject
+import javax.inject.Provider
 
 @AndroidEntryPoint
 class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTaskViewModel>() {
@@ -57,8 +57,6 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
   override fun onCreateActionButtons() {
     addSkipButton()
     addUndoButton()
-    // TODO: Disable the button is location is not available.
-    // Issue URL: https://github.com/google/ground-android/issues/2982
     addButton(ButtonAction.DROP_PIN)
       .setOnClickListener { viewModel.dropPin() }
       .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
