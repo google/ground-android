@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
-import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -44,9 +43,9 @@ import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.FeatureType
+import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
 import org.groundplatform.android.ui.util.VibrationHelper
 import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
-import org.groundplatform.android.ui.util.formatDistance
 import org.groundplatform.android.ui.util.isSelfIntersecting
 import org.groundplatform.android.util.distanceTo
 import org.groundplatform.android.util.isClosed
@@ -59,7 +58,7 @@ internal constructor(
   private val localValueStore: LocalValueStore,
   private val uuidGenerator: OfflineUuidGenerator,
   private val vibrationHelper: VibrationHelper,
-  private val resources: Resources,
+  private val localeAwareMeasureFormatter: LocaleAwareMeasureFormatter,
 ) : AbstractTaskViewModel() {
 
   /** Polygon [Feature] being drawn by the user. */
@@ -240,7 +239,7 @@ internal constructor(
     if (vertices.size <= 1 || vertices.isClosed()) return null
     val distance = vertices[vertices.size - 2].distanceTo(vertices[vertices.size - 1])
     if (distance < 0.001) return null
-    return distance.formatDistance(resources)
+    return localeAwareMeasureFormatter.formatDistance(distance)
   }
 
   override fun validate(task: Task, taskData: TaskData?): Int? {
