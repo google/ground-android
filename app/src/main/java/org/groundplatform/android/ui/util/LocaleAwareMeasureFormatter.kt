@@ -33,10 +33,13 @@ private const val DISTANCE_THRESHOLD = 10.0
 private const val DECIMAL_MULTIPLIER = 100.0
 
 class LocaleAwareMeasureFormatter @Inject constructor(val resources: Resources) {
-  fun formatDistance(distance: Double): String {
+  fun formatDistance(distanceInMeters: Double): String {
     val locale = Locale.getDefault()
     val isImperial = isImperialSystem(locale)
-    val (convertedDistance, unitLabel, measureUnit) = convertDistance(distance, isImperial)
+    val convertedDistance = if (isImperial) distanceInMeters.toFeet() else distanceInMeters
+    val unitLabel =
+      resources.getString(if (isImperial) R.string.unit_meters else R.string.unit_feet)
+    val measureUnit = if (isImperial) MeasureUnit.FOOT else MeasureUnit.METER
     val roundedNumber = roundDistanceAsDouble(convertedDistance)
     val fallback = formatDistanceFallback(roundedNumber, unitLabel, locale)
 
@@ -47,15 +50,7 @@ class LocaleAwareMeasureFormatter @Inject constructor(val resources: Resources) 
     }
   }
 
-  private fun convertDistance(
-    distance: Double,
-    isImperial: Boolean,
-  ): Triple<Double, String, MeasureUnit> =
-    if (isImperial) {
-      Triple(distance * METERS_TO_FEET, resources.getString(R.string.unit_feet), MeasureUnit.FOOT)
-    } else {
-      Triple(distance, resources.getString(R.string.unit_meters), MeasureUnit.METER)
-    }
+  private fun Double.toFeet() = this * METERS_TO_FEET
 
   private fun roundDistanceAsDouble(distance: Double): Double =
     if (distance < DISTANCE_THRESHOLD) {
