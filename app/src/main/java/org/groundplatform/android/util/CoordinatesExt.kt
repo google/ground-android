@@ -39,12 +39,8 @@ private fun decimalToDms(latOrLong: Double): String {
   return "$degrees°$minutes'$seconds\""
 }
 
-fun List<Coordinates>.midPointToLastSegment(): LatLng? {
-  if (size < 2 || isClosed()) return null
-  val end = this[size - 1]
-  val start = this[size - 2]
-  return LatLng((start.lat + end.lat) / 2, (start.lng + end.lng) / 2)
-}
+fun Coordinates.midpoint(other: Coordinates) =
+  LatLng((this.lat + other.lat) / 2, (this.lng + other.lng) / 2)
 
 /**
  * Returns the approximate distance between this coordinate and the specified coordinate as a
