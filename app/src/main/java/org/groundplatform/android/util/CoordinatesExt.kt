@@ -46,6 +46,10 @@ fun List<Coordinates>.midPointToLastSegment(): LatLng? {
   return LatLng((start.lat + end.lat) / 2, (start.lng + end.lng) / 2)
 }
 
+/**
+ * Returns the approximate distance between this coordinate and the specified coordinate as a
+ * non-negative value measured in meters.
+ */
 fun Coordinates.distanceTo(other: Coordinates): Double {
   val result = FloatArray(1)
   Location.distanceBetween(this.lat, this.lng, other.lat, other.lng, result)

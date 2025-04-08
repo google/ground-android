@@ -215,25 +215,33 @@ internal constructor(
         if (vertices.isEmpty()) {
           null
         } else {
-          // Only show tooltip if there is more than one vertex and the shape has not yet been
-          // closed.
-          val distance =
-            if (vertices.size <= 1 || vertices.isClosed()) null
-            else vertices[vertices.size - 2].distanceTo(vertices[vertices.size - 1])
-          val distanceText =
-            if (distance != null && distance > 0) distance.formatDistance(resources) else null
-          Feature(
-            id = uuidGenerator.generateUuid(),
-            type = FeatureType.USER_POLYGON.ordinal,
-            geometry = LineString(vertices),
-            style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
-            clusterable = false,
-            selected = true,
-            tooltipText = distanceText,
-          )
+          buildPolygonFeature()
         }
       )
     }
+
+  private suspend fun buildPolygonFeature(): Feature {
+    return Feature(
+      id = uuidGenerator.generateUuid(),
+      type = FeatureType.USER_POLYGON.ordinal,
+      geometry = LineString(vertices),
+      style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
+      clusterable = false,
+      selected = true,
+      tooltipText = getDistanceTooltipText(),
+    )
+  }
+
+  /**
+   * Returns the distance tooltip if there is more than one vertex, the shape has not been closed,
+   * and the last two vertices do not intersect more than 0.001m.
+   */
+  private fun getDistanceTooltipText(): String? {
+    if (vertices.size <= 1 || vertices.isClosed()) return null
+    val distance = vertices[vertices.size - 2].distanceTo(vertices[vertices.size - 1])
+    if (distance < 0.001) return null
+    return distance.formatDistance(resources)
+  }
 
   override fun validate(task: Task, taskData: TaskData?): Int? {
     // Invalid response for draw area task.
