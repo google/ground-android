@@ -23,8 +23,9 @@ import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.persistence.remote.RemoteDataStore
 import org.groundplatform.android.repository.MutationRepository
@@ -46,10 +47,11 @@ constructor(
   private val remoteDataStore: RemoteDataStore,
   private val mediaUploadWorkManager: MediaUploadWorkManager,
   private val userRepository: UserRepository,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, params) {
 
   override suspend fun doWork(): Result =
-    withContext(Dispatchers.IO) {
+    withContext(ioDispatcher) {
       val queue = mutationRepository.getIncompleteUploads()
       Timber.d("Uploading ${queue.size} additions / changes")
       val results = queue.map { processMutations(it.mutations()) }
