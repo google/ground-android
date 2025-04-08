@@ -48,7 +48,8 @@ import org.groundplatform.android.ui.util.VibrationHelper
 import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
 import org.groundplatform.android.ui.util.formatDistance
 import org.groundplatform.android.ui.util.isSelfIntersecting
-import org.groundplatform.android.util.tooltipDistanceIfLineStringClosed
+import org.groundplatform.android.util.distanceTo
+import org.groundplatform.android.util.isClosedLineString
 import timber.log.Timber
 
 @SharedViewModel
@@ -214,7 +215,9 @@ internal constructor(
         if (vertices.isEmpty()) {
           null
         } else {
-          val distance = LineString(vertices).coordinates.tooltipDistanceIfLineStringClosed()
+          val distance =
+            if (vertices.size < 2 || vertices.isClosedLineString()) null
+            else vertices[vertices.size - 2].distanceTo(vertices[vertices.size - 1])
           val distanceText =
             if (distance != null && distance > 0) distance.formatDistance(resources) else null
           Feature(
