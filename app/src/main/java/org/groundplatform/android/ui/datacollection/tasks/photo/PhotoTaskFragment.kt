@@ -42,6 +42,7 @@ import org.groundplatform.android.ui.compose.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.util.renderComposableDialog
 import timber.log.Timber
 
@@ -53,6 +54,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject @MainScope lateinit var mainScope: CoroutineScope
   @Inject lateinit var permissionsManager: PermissionsManager
   @Inject lateinit var popups: EphemeralPopups
+  lateinit var homeScreenViewModel: HomeScreenViewModel
 
   // Registers a callback to execute after a user captures a photo from the on-device camera.
   private var capturePhotoLauncher: ActivityResultLauncher<Uri> =
@@ -74,6 +76,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     taskBinding.fragment = this
     taskBinding.dataCollectionViewModel = dataCollectionViewModel
     taskBinding.viewModel = viewModel
+    homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     return taskBinding.root
   }
 
@@ -145,6 +148,8 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   }
 
   fun onTakePhoto() {
+    // Keep track of the fact that we are restoring the application after a photo capture.
+    homeScreenViewModel.awaitingPhotoCapture = true
     obtainCapturePhotoPermissions {
       lifecycleScope.launch { launchPhotoCapture(viewModel.task.id) }
     }
@@ -160,6 +165,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
       capturePhotoLauncher.launch(capturedPhotoUri)
       Timber.d("Capture photo intent sent")
     } catch (e: IllegalArgumentException) {
+      homeScreenViewModel.awaitingPhotoCapture = false
       popups.ErrorPopup().unknownError()
       Timber.e(e)
     }
