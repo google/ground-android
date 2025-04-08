@@ -32,17 +32,24 @@ private const val MIN_ROUNDED_DISTANCE = 10
 private const val SMALL_DISTANCE_DECIMAL_PLACES = 1
 
 class LocaleAwareMeasureFormatter @Inject constructor(val resources: Resources) {
+  private val locale = Locale.getDefault()
+  private val uLocale = ULocale.forLocale(locale)
+  private val distanceFormatter =
+    MeasureFormat.getInstance(uLocale, MeasureFormat.FormatWidth.SHORT)
+
   fun formatDistance(distanceInMeters: Double): String {
-    val locale = Locale.getDefault()
-    val isImperial = isImperialSystem(locale)
+    val isImperial = isImperialSystem()
     val distance = if (isImperial) distanceInMeters.toFeet() else distanceInMeters
     val measureUnit = if (isImperial) MeasureUnit.FOOT else MeasureUnit.METER
     val roundedDistance =
       if (distance < MIN_ROUNDED_DISTANCE)
         distance.floorToDecimalPlaces(SMALL_DISTANCE_DECIMAL_PLACES)
       else floor(distance)
-    return formatWithMeasureFormat(roundedDistance, measureUnit, locale)
+    return roundedDistance.formatDistance(measureUnit)
   }
+
+  private fun Double.formatDistance(measureUnit: MeasureUnit) =
+    distanceFormatter.format(Measure(this, measureUnit))
 
   private fun Double.toFeet() = this * METERS_TO_FEET
 
@@ -51,16 +58,6 @@ class LocaleAwareMeasureFormatter @Inject constructor(val resources: Resources) 
     return floor(this * factor) / factor
   }
 
-  private fun formatWithMeasureFormat(
-    number: Double,
-    measureUnit: MeasureUnit,
-    locale: Locale,
-  ): String {
-    val formatter =
-      MeasureFormat.getInstance(ULocale.forLocale(locale), MeasureFormat.FormatWidth.SHORT)
-    return formatter.format(Measure(number, measureUnit))
-  }
-
-  private fun isImperialSystem(locale: Locale): Boolean =
+  private fun isImperialSystem(): Boolean =
     locale.country.uppercase(Locale.ROOT) in setOf("US", "LR", "MM")
 }
