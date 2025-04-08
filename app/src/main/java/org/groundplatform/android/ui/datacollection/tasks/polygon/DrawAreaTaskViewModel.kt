@@ -221,8 +221,8 @@ internal constructor(
       )
     }
 
-  private suspend fun buildPolygonFeature(): Feature {
-    return Feature(
+  private suspend fun buildPolygonFeature() =
+    Feature(
       id = uuidGenerator.generateUuid(),
       type = FeatureType.USER_POLYGON.ordinal,
       geometry = LineString(vertices),
@@ -231,7 +231,6 @@ internal constructor(
       selected = true,
       tooltipText = getDistanceTooltipText(),
     )
-  }
 
   /**
    * Returns the distance tooltip if there is more than one vertex, if the last two vertices do not

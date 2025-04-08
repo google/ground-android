@@ -23,9 +23,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import org.groundplatform.android.ui.common.ViewModelModule
 import java.util.Locale
 import javax.inject.Singleton
+import org.groundplatform.android.ui.common.ViewModelModule
 
 @InstallIn(SingletonComponent::class)
 @Module(includes = [ViewModelModule::class])
