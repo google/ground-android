@@ -31,9 +31,7 @@ private const val METERS_TO_FEET = 3.28084
 private const val DISTANCE_THRESHOLD = 10.0
 private const val DECIMAL_MULTIPLIER = 100.0
 
-fun Double.formatDistance(resources: Resources): String? {
-  if (this <= 0) return null
-
+fun Double.formatDistance(resources: Resources): String {
   val locale = Locale.getDefault()
   val isImperial = isImperialSystem(locale)
   val (convertedDistance, unitLabel, measureUnit) = this.convertDistance(resources, isImperial)

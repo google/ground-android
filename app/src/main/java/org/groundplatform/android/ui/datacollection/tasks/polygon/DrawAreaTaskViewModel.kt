@@ -214,11 +214,9 @@ internal constructor(
         if (vertices.isEmpty()) {
           null
         } else {
+          val distance = LineString(vertices).coordinates.tooltipDistanceIfLineStringClosed()
           val distanceText =
-            LineString(vertices)
-              .coordinates
-              .tooltipDistanceIfLineStringClosed()
-              ?.formatDistance(resources)
+            if (distance != null && distance > 0) distance.formatDistance(resources) else null
           Feature(
             id = uuidGenerator.generateUuid(),
             type = FeatureType.USER_POLYGON.ordinal,
