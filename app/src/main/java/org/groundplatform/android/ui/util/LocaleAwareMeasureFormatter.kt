@@ -24,7 +24,6 @@ import android.icu.util.ULocale
 import android.os.Build
 import java.util.Locale
 import javax.inject.Inject
-import org.groundplatform.android.R
 import timber.log.Timber
 
 private const val METERS_TO_FEET = 3.28084
@@ -34,23 +33,11 @@ class LocaleAwareMeasureFormatter @Inject constructor(val resources: Resources) 
     val locale = Locale.getDefault()
     val isImperial = isImperialSystem(locale)
     val distance = if (isImperial) distanceInMeters.toFeet() else distanceInMeters
-    val unitStringId = if (isImperial) R.string.unit_meters else R.string.unit_feet
-    val unitLabel = resources.getString(unitStringId)
     val measureUnit = if (isImperial) MeasureUnit.FOOT else MeasureUnit.METER
     return formatWithMeasureFormat(distance, measureUnit, locale)
   }
 
   private fun Double.toFeet() = this * METERS_TO_FEET
-
-  private fun formatDistanceFallback(number: Double, unitLabel: String, locale: Locale): String {
-    val formatted =
-      if (number < 10) {
-        String.format(locale, "%.2f", number)
-      } else {
-        String.format(locale, "%.0f", number)
-      }
-    return "$formatted $unitLabel"
-  }
 
   private fun formatWithMeasureFormat(
     number: Double,
