@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.map.gms.features
 
-import com.google.android.gms.maps.GoogleMap
-import org.groundplatform.android.model.geometry.Geometry
-import org.groundplatform.android.ui.map.Feature
+package org.groundplatform.android.util
 
-interface MapsItemRenderer<T : Geometry, U> {
-  fun add(
-    map: GoogleMap,
-    tag: Feature.Tag,
-    geometry: T,
-    style: Feature.Style,
-    selected: Boolean,
-    visible: Boolean,
-    tooltipText: String? = null,
-  ): U
-}
+/**
+ * Returns the second-to-last element, or throws [ArrayIndexOutOfBoundsException] if the element
+ * does not exist.
+ */
+fun <T> List<T>.penult(): T = get(size - 2)

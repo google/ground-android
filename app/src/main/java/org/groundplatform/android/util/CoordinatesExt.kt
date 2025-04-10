@@ -16,6 +16,7 @@
 package org.groundplatform.android.util
 
 import android.location.Location
+import com.google.android.gms.maps.model.LatLng
 import kotlin.math.abs
 import org.groundplatform.android.model.geometry.Coordinates
 
@@ -37,3 +38,22 @@ private fun decimalToDms(latOrLong: Double): String {
   val (degrees, minutes, seconds) = dmsFormat.split(":".toRegex())
   return "$degrees°$minutes'$seconds\""
 }
+
+fun Coordinates.midpoint(other: Coordinates) =
+  LatLng((this.lat + other.lat) / 2, (this.lng + other.lng) / 2)
+
+/**
+ * Returns the approximate distance between this coordinate and the specified coordinate as a
+ * non-negative value measured in meters.
+ */
+fun Coordinates.distanceTo(other: Coordinates): Double {
+  val result = FloatArray(1)
+  Location.distanceBetween(this.lat, this.lng, other.lat, other.lng, result)
+  return result[0].toDouble()
+}
+
+/**
+ * Returns true iff the provided coordinates for a closed shape. A shape is considered closed if it
+ * has at least three (3) sized and the first and last coordinates are equal.
+ */
+fun List<Coordinates>.isClosed() = size >= 3 && first() == last()
