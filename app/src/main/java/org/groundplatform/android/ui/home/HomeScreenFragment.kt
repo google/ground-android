@@ -116,9 +116,15 @@ class HomeScreenFragment :
             )
           )
 
-        ephemeralPopups
-          .InfoPopup(binding.root, R.string.draft_restored, EphemeralPopups.PopupDuration.SHORT)
-          .show()
+        if (!homeScreenViewModel.awaitingPhotoCapture) {
+          ephemeralPopups
+            .InfoPopup(binding.root, R.string.draft_restored, EphemeralPopups.PopupDuration.SHORT)
+            .show()
+        } else {
+          // We're restoring after an instantaneous photo capture for a photo task; don't show a
+          // draft restored toast.
+          homeScreenViewModel.awaitingPhotoCapture = false
+        }
       }
     }
 

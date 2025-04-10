@@ -219,6 +219,7 @@ internal constructor(
         taskViewModels.value[task.id] = this
         val taskData: TaskData? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
         initialize(job, task, taskData)
+        taskDataHandler.setData(task, taskData)
       }
     } catch (e: Exception) {
       Timber.e(e, "Failed to initialize task view model for task ${task.id}")

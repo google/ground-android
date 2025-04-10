@@ -24,8 +24,9 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.io.FileNotFoundException
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.model.submission.PhotoTaskData
 import org.groundplatform.android.persistence.remote.RemoteStorageManager
@@ -52,10 +53,11 @@ constructor(
   private val remoteStorageManager: RemoteStorageManager,
   private val mutationRepository: MutationRepository,
   private val userMediaRepository: UserMediaRepository,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, workerParams) {
 
   override suspend fun doWork(): Result =
-    withContext(Dispatchers.IO) {
+    withContext(ioDispatcher) {
       val mutations = mutationRepository.getIncompleteMediaMutations()
       Timber.d("Uploading photos for ${mutations.size} submission mutations")
       val results = mutations.map { uploadAllMedia(it) }
