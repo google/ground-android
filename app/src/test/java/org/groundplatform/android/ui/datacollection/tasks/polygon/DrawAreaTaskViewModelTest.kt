@@ -172,6 +172,26 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Check distance between Vertices`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
+    updateLastVertex(COORDINATE_4, true)
+
+    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("10,190,704 ft")
+  }
+
+  @Test
+  fun `Check distance between Vertices keeping last vertex far from starting point`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
+    updateLastVertex(COORDINATE_4, false)
+
+    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("4,911,905 ft")
+  }
+
+  @Test
   fun `Completes a polygon`() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
