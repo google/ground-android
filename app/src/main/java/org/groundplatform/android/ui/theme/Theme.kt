@@ -53,6 +53,8 @@ private val LightColors =
     scrim = md_theme_light_scrim,
   )
 
+// TODO: Update with Dark Mode.
+// Issue URL: https://github.com/google/ground-android/issues/620
 @Suppress("UnusedPrivateProperty")
 private val DarkColors =
   darkColorScheme(
