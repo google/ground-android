@@ -155,13 +155,13 @@
   <string name="about">About</string>
   <string name="terms_of_service">Terms of service</string>
   <string name="about_ground">Ground is an open-source community project built by Google and FAO under the Forest Data Partnership with help from SIG, Ecam, and open-source community contributors. \n\nIt is licensed under the <annotation type="apache_license">Apache License, Version 2.0</annotation>. \n\nView other <annotation type="all_licenses">Licenses</annotation></string>
-  <string name="failed">Failed</string>
-  <string name="synced">Synced</string>
-  <string name="syncing">Syncing</string>
-  <string name="upload_pending">Upload pending</string>
-  <string name="data_synced_media_pending">Data synced\n(media pending)</string>
-  <string name="data_synced_media_pending_retry">Data synced\n(media pending retry)</string>
-  <string name="media_syncing">Media syncing</string>
+  <string name="pending_retry">Pending retry</string>
+  <string name="uploaded">Uploaded</string>
+  <string name="uploading_form_data">Uploading form data</string>
+  <string name="pending">Pending</string>
+  <string name="photos_pending">Photos pending</string>
+  <string name="photos_pending_retry">Photos pending retry</string>
+  <string name="uploading_photos">Uploading photos</string>
   <string name="data_sync_status">Data sync status</string>
   <string name="signout_warning">If you sign out, all unsaved data will be lost.</string>
   <string name="admin_request_access">To continue, contact your system administrator to request access.</string>
