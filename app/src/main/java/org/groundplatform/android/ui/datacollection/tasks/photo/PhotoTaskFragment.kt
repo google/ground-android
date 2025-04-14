@@ -59,7 +59,9 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   // Registers a callback to execute after a user captures a photo from the on-device camera.
   private var capturePhotoLauncher: ActivityResultLauncher<Uri> =
     registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-      externalScope.launch { if (result) viewModel.savePhotoTaskData(capturedPhotoUri) }
+      externalScope.launch {
+        if (result && isViewModelInitialized) viewModel.savePhotoTaskData(capturedPhotoUri)
+      }
     }
 
   private var hasRequestedPermissionsOnResume = false

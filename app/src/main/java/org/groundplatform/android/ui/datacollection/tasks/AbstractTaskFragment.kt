@@ -135,6 +135,15 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
+  protected val isViewModelInitialized: Boolean
+    get() =
+      try {
+        viewModel
+        true
+      } catch (e: UninitializedPropertyAccessException) {
+        false
+      }
+
   /** Invoked when the data associated with the current task gets modified. */
   protected open fun onValueChanged(taskData: TaskData?) {
     for ((_, button) in buttonDataList) {
