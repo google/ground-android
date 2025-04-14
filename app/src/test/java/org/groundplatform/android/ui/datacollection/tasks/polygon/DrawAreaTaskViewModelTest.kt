@@ -192,6 +192,28 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Tooltip is not rendered`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+
+    viewModel.removeLastVertex()
+    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo(null)
+  }
+
+  @Test
+  fun `Tooltip is rendered and removed`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    viewModel.removeLastVertex()
+
+    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("5,134,872 ft")
+
+    viewModel.removeLastVertex()
+
+    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo(null)
+  }
+
+  @Test
   fun `Completes a polygon`() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)

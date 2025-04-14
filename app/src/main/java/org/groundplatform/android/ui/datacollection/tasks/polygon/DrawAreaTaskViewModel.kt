@@ -233,10 +233,7 @@ internal constructor(
       tooltipText = getDistanceTooltipText(),
     )
 
-  /**
-   * Returns the distance tooltip if there is more than one vertex, if the last two vertices do not
-   * overlap, and if the polygon has not yet been marked as complete by the user.
-   */
+  /** Returns the distance in meters between the last two vertices for displaying in the tooltip. */
   private fun getDistanceTooltipText(): String? {
     if (isMarkedComplete || vertices.size <= 1) return null
     val distance = vertices.penult().distanceTo(vertices.last())
