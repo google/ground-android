@@ -46,6 +46,10 @@ import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.util.renderComposableDialog
 import timber.log.Timber
 
+private var pendingCapturedPhotoUri: Uri? = null
+private var pendingCaptureTimestamp: Long = 0L
+private val PENDING_TIMEOUT_MS = 3_000L
+
 /** Fragment allowing the user to capture a photo to complete a task. */
 @AndroidEntryPoint
 class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
@@ -60,7 +64,14 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   private var capturePhotoLauncher: ActivityResultLauncher<Uri> =
     registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
       externalScope.launch {
-        if (result && isViewModelInitialized) viewModel.savePhotoTaskData(capturedPhotoUri)
+        if (result) {
+          if (isViewModelInitialized) {
+            viewModel.savePhotoTaskData(capturedPhotoUri)
+          } else {
+            pendingCapturedPhotoUri = capturedPhotoUri
+            pendingCaptureTimestamp = System.currentTimeMillis()
+          }
+        }
       }
     }
 
@@ -86,6 +97,16 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     super.onViewCreated(view, savedInstanceState)
     taskWaitingForPhoto = savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO)
     capturedPhotoPath = savedInstanceState?.getString(CAPTURED_PHOTO_PATH)
+
+    pendingCapturedPhotoUri?.let { uri ->
+      if (System.currentTimeMillis() - pendingCaptureTimestamp < PENDING_TIMEOUT_MS) {
+        externalScope.launch { viewModel.savePhotoTaskData(uri) }
+      } else {
+        Timber.e("PhotoTaskFragment", "Pending photo capture timed out and will be dropped.")
+      }
+      pendingCapturedPhotoUri = null
+      pendingCaptureTimestamp = 0L
+    }
   }
 
   override fun onTaskViewAttached() {
