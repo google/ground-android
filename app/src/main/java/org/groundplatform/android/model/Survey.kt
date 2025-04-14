@@ -26,6 +26,7 @@ data class Survey(
   val jobMap: Map<String, Job>,
   val acl: Map<String, String> = mapOf(),
   val dataSharingTerms: Survey.DataSharingTerms? = null,
+  val isPublic: Boolean = false,
 ) {
   val jobs: Collection<Job>
     get() = jobMap.values

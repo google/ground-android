@@ -64,7 +64,11 @@ internal constructor(
   /** Returns a flow of [SurveyListItem] to be displayed to the user. */
   private fun getSurveyList(): Flow<List<SurveyListItem>> =
     listAvailableSurveysUseCase().map { surveys ->
-      surveys.sortedWith(compareBy({ !it.availableOffline }, { it.title }))
+      surveys.sortedWith(
+        compareBy<SurveyListItem> { it.isPublic }
+          .thenBy { !it.availableOffline }
+          .thenBy { it.title }
+      )
     }
 
   /** Triggers the specified survey to be loaded and activated. */
