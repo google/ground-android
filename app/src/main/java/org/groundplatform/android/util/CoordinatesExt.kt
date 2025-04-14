@@ -51,9 +51,3 @@ fun Coordinates.distanceTo(other: Coordinates): Double {
   Location.distanceBetween(this.lat, this.lng, other.lat, other.lng, result)
   return result[0].toDouble()
 }
-
-/**
- * Returns true iff the provided coordinates for a closed shape. A shape is considered closed if it
- * has at least three (3) sized and the first and last coordinates are equal.
- */
-fun List<Coordinates>.isClosed() = size >= 3 && first() == last()
