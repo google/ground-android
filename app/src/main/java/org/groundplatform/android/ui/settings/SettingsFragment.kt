@@ -25,6 +25,7 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import androidx.preference.SwitchPreferenceCompat
 import org.groundplatform.android.Config
+import org.groundplatform.android.MainActivity
 import org.groundplatform.android.R
 
 /**
@@ -99,11 +100,8 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
 
     setLocale(requireContext(), languageCode)
 
-    // Should we launch the main activity?
-    /*val intent = Intent(requireContext(), MainActivity::class.java)
+    val intent = Intent(requireContext(), MainActivity::class.java)
     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-    startActivity(intent)*/
-
-    requireActivity().recreate()
+    startActivity(intent)
   }
 }
