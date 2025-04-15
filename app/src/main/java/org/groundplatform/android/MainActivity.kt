@@ -19,6 +19,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -66,7 +67,7 @@ class MainActivity : AbstractActivity() {
     // Issue URL: https://github.com/google/ground-android/issues/620
     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
     super.onCreate(savedInstanceState)
-
+    enableEdgeToEdge()
     // Set up event streams first. Navigator must be listening when auth is first initialized.
     lifecycleScope.launch {
       activityStreams.activityRequests.collect { callback: ActivityCallback ->

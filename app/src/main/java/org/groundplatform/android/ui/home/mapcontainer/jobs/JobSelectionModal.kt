@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.Composable
@@ -66,7 +67,7 @@ fun JobSelectionModal(jobs: List<Job>, onJobClicked: (job: Job) -> Unit, onDismi
       ShowJobCards(jobs, onJobClicked)
     }
     ActionButton(
-      modifier = Modifier.align(Alignment.CenterHorizontally),
+      modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 36.dp),
       icon = Icons.Filled.Clear,
       contentDescription = stringResource(R.string.close),
       onClick = onDismiss,
