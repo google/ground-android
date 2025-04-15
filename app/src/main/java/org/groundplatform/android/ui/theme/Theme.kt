@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -54,6 +53,9 @@ private val LightColors =
     scrim = md_theme_light_scrim,
   )
 
+// TODO: Update with Dark Mode.
+// Issue URL: https://github.com/google/ground-android/issues/620
+@Suppress("UnusedPrivateProperty")
 private val DarkColors =
   darkColorScheme(
     primary = md_theme_dark_primary,
@@ -88,13 +90,6 @@ private val DarkColors =
   )
 
 @Composable
-fun AppTheme(useDarkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-  val colors =
-    if (!useDarkTheme) {
-      LightColors
-    } else {
-      DarkColors
-    }
-
-  MaterialTheme(colorScheme = colors, content = content)
+fun AppTheme(content: @Composable () -> Unit) {
+  MaterialTheme(colorScheme = LightColors, content = content)
 }

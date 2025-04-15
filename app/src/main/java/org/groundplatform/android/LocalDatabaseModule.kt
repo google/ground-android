@@ -22,6 +22,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import java.util.concurrent.Executors
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asExecutor
@@ -31,14 +32,25 @@ import org.groundplatform.android.persistence.local.room.LocalDatabase
 @InstallIn(SingletonComponent::class)
 @Module
 object LocalDatabaseModule {
+  // Double-checked locking singleton pattern
+  @Volatile private var INSTANCE: LocalDatabase? = null
+
   @Provides
   @Singleton
   fun localDatabase(
     @ApplicationContext context: Context,
     @IoDispatcher ioDispatcher: CoroutineDispatcher,
-  ): LocalDatabase =
-    Room.databaseBuilder(context, LocalDatabase::class.java, Config.DB_NAME)
-      // Run queries and transactions on background I/O thread.
-      .setQueryExecutor(ioDispatcher.asExecutor())
-      .build()
+  ): LocalDatabase {
+    return INSTANCE
+      ?: Room.databaseBuilder(context, LocalDatabase::class.java, Config.DB_NAME)
+        // Use a separate thread for Room transactions to avoid deadlocks. This means that tests
+        // that run Room
+        // transactions can't use testCoroutines.scope.runBlockingTest, and have to simply use
+        // runBlocking instead.
+        .setTransactionExecutor(Executors.newSingleThreadExecutor())
+        // Run queries and transactions on background I/O thread.
+        .setQueryExecutor(ioDispatcher.asExecutor())
+        .build()
+        .also { INSTANCE = it }
+  }
 }
