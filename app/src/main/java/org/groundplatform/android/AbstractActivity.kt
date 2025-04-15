@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -23,11 +24,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import javax.annotation.OverridingMethodsMustInvokeSuper
+import org.groundplatform.android.ui.settings.onAttach
 import org.groundplatform.android.util.Debug
 import org.groundplatform.android.util.systemInsets
 
 /** Base activity class containing common helper methods. */
 abstract class AbstractActivity : AppCompatActivity() {
+
+  override fun attachBaseContext(newBase: Context) {
+    val context = onAttach(newBase)
+    super.attachBaseContext(context)
+  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     Debug.logLifecycleEvent(this)

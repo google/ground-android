@@ -19,8 +19,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
+import androidx.preference.DropDownPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceManager
 import androidx.preference.SwitchPreferenceCompat
 import org.groundplatform.android.Config
 import org.groundplatform.android.R
@@ -48,6 +50,29 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
 
     val switchPreference = findPreference<SwitchPreferenceCompat>(Keys.UPLOAD_MEDIA)
     switchPreference?.isChecked = loadSwitchPreferenceState()
+
+    val languagePreference = findPreference<DropDownPreference>("select_language")
+    languagePreference?.apply {
+      val currentValue = value
+      if (currentValue != null) {
+        val index = findIndexOfValue(currentValue)
+        if (index >= 0) {
+          summary = entries[index]
+        }
+      }
+
+      onPreferenceChangeListener =
+        Preference.OnPreferenceChangeListener { preference, newValue ->
+          if (newValue is String) {
+            val index = findIndexOfValue(newValue)
+            if (index >= 0) {
+              summary = entries[index]
+            }
+            updateLocaleAndRestart(newValue)
+          }
+          true
+        }
+    }
   }
 
   private fun loadSwitchPreferenceState() =
@@ -66,5 +91,19 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     val intent = Intent(Intent.ACTION_VIEW)
     intent.data = Uri.parse(url)
     startActivity(intent)
+  }
+
+  private fun updateLocaleAndRestart(languageCode: String) {
+    val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+    prefs.edit().putString("select_language", languageCode).apply()
+
+    setLocale(requireContext(), languageCode)
+
+    // Should we launch the main activity?
+    /*val intent = Intent(requireContext(), MainActivity::class.java)
+    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    startActivity(intent)*/
+
+    requireActivity().recreate()
   }
 }

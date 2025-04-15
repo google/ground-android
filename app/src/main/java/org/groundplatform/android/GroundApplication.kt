@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android
 
+import android.content.Context
 import android.os.StrictMode
 import android.os.StrictMode.VmPolicy
 import android.util.Log
@@ -24,6 +25,7 @@ import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 import org.groundplatform.android.Config.isReleaseBuild
+import org.groundplatform.android.ui.settings.onAttach
 import timber.log.Timber
 
 @HiltAndroidApp
@@ -44,6 +46,10 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
       // Log failures when trying to do work in the UI thread.
       setStrictMode()
     }
+  }
+
+  override fun attachBaseContext(base: Context) {
+    super.attachBaseContext(base?.let { onAttach(it) })
   }
 
   private fun setStrictMode() {
