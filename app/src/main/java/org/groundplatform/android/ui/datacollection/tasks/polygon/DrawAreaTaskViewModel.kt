@@ -73,6 +73,8 @@ internal constructor(
    */
   private var vertices: List<Coordinates> = listOf()
 
+  private val redoStack = mutableListOf<Coordinates>()
+
   /** Represents whether the user has completed drawing the polygon or not. */
   private var isMarkedComplete: Boolean = false
 
@@ -151,6 +153,23 @@ internal constructor(
     } else {
       setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
     }
+  }
+
+  fun redoLastVertex() {
+    if (redoStack.isEmpty()) return
+
+    isMarkedComplete = false
+
+    val redoVertex = redoStack.removeAt(redoStack.lastIndex)
+
+    val mutableVertices = vertices.toMutableList()
+    mutableVertices.add(redoVertex)
+    val updatedVertices = mutableVertices.toImmutableList()
+
+    updateVertices(updatedVertices)
+    setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
+
+    vertices = updatedVertices
   }
 
   /** Adds the last vertex to the polygon. */

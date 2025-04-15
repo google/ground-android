@@ -151,6 +151,7 @@
   <string name="switch_survey">Switch survey</string>
   <string name="no_survey_selected">No survey selected</string>
   <string name="undo">Undo</string>
+  <string name="redo">Redo</string>
   <string name="view_licenses_title">Licenses</string>
   <string name="about">About</string>
   <string name="terms_of_service">Terms of service</string>
