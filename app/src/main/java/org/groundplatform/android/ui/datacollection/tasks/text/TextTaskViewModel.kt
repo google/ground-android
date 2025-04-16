@@ -20,8 +20,11 @@ import androidx.lifecycle.asLiveData
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
+import org.groundplatform.android.Config
+import org.groundplatform.android.R
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.TextTaskData
+import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 
 class TextTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
@@ -29,4 +32,13 @@ class TextTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
   /** Transcoded text to be displayed for the current [TaskData]. */
   val responseText: LiveData<String> =
     taskTaskData.filterIsInstance<TextTaskData?>().map { it?.text ?: "" }.asLiveData()
+
+  override fun validate(task: Task, taskData: TaskData?): Int? {
+    if (task.type != Task.Type.TEXT) return super.validate(task, taskData)
+
+    if ((taskData as TextTaskData).text.length > Config.TEXT_DATA_CHAR_LIMIT)
+      return R.string.text_task_data_character_limit
+
+    return super.validate(task, taskData)
+  }
 }
