@@ -201,10 +201,8 @@ internal constructor(
   }
 
   fun getTaskViewModel(taskId: String): AbstractTaskViewModel? {
-    val viewModels = taskViewModels.value
-
-    if (viewModels.containsKey(taskId)) {
-      return viewModels[taskId]
+    taskViewModels.value[taskId]?.let {
+      return it
     }
 
     val task =
@@ -212,18 +210,18 @@ internal constructor(
         .firstOrNull { it.id == taskId }
         .also { if (it == null) Timber.e("Task with id $taskId is not found in task view model") }
 
-    if (task == null) return null
-
-    return try {
-      viewModelFactory.create(getViewModelClass(task.type)).apply {
-        taskViewModels.value[task.id] = this
-        val taskData: TaskData? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
-        initialize(job, task, taskData)
-        taskDataHandler.setData(task, taskData)
+    return task?.let { t ->
+      try {
+        viewModelFactory.create(getViewModelClass(t.type)).apply {
+          taskViewModels.value[t.id] = this
+          val data = if (shouldLoadFromDraft) getValueFromDraft(t) else null
+          initialize(job, t, data)
+          taskDataHandler.setData(t, data)
+        }
+      } catch (e: Exception) {
+        Timber.e(e, "Failed to initialize task view model for task ${t.id}")
+        null
       }
-    } catch (e: Exception) {
-      Timber.e(e, "Failed to initialize task view model for task ${task.id}")
-      null
     }
   }
 
