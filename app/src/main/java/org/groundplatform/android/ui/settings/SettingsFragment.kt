@@ -52,14 +52,13 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     val switchPreference = findPreference<SwitchPreferenceCompat>(Keys.UPLOAD_MEDIA)
     switchPreference?.isChecked = loadSwitchPreferenceState()
 
-    val languagePreference = findPreference<DropDownPreference>("select_language")
+    val languagePreference = findPreference<DropDownPreference>(Keys.SELECT_LANGUAGE)
+    val selectedLanguage =
+      preferenceManager.sharedPreferences?.getString(Keys.SELECT_LANGUAGE, "en") ?: "en"
     languagePreference?.apply {
-      val currentValue = value
-      if (currentValue != null) {
-        val index = findIndexOfValue(currentValue)
-        if (index >= 0) {
-          summary = entries[index]
-        }
+      val index = findIndexOfValue(selectedLanguage)
+      if (index >= 0) {
+        summary = entries[index]
       }
 
       onPreferenceChangeListener =
@@ -96,7 +95,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
 
   private fun updateLocaleAndRestart(languageCode: String) {
     val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-    prefs.edit().putString("select_language", languageCode).apply()
+    prefs.edit().putString(Keys.SELECT_LANGUAGE, languageCode).apply()
 
     setLocale(requireContext(), languageCode)
 
