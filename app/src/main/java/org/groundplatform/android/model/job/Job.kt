@@ -52,9 +52,6 @@ data class Job(
       .apply { check(size <= 1) { "Expected 0 or 1, found $size AddLoiTasks" } }
       .firstOrNull()
 
-  /** Returns true if the job has one or more tasks. */
-  fun hasTasks() = tasks.values.isNotEmpty()
-
   /** Returns whether the job has non-LOI tasks. */
   fun hasNonLoiTasks() = tasks.values.count { !it.isAddLoiTask } > 0
 }
