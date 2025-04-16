@@ -155,7 +155,17 @@ object FakeData {
     id: String = "",
     type: Task.Type = Task.Type.TEXT,
     multipleChoice: MultipleChoice? = null,
-  ): Task = Task(id, 0, type, "", false, multipleChoice)
+    isAddLoiTask: Boolean = false,
+  ): Task =
+    Task(
+      id = id,
+      index = 0,
+      type = type,
+      label = "",
+      isRequired = false,
+      multipleChoice = multipleChoice,
+      isAddLoiTask = isAddLoiTask,
+    )
 
   fun newLoiMutation(
     point: Point,
