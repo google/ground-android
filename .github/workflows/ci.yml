@@ -37,11 +37,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Run unit tests
-        run: ./gradlew testLocalDebugUnitTest
-
       - name: Run code quality checks
         run: ./gradlew checkCode
+
+      - name: Run unit tests
+        run: ./gradlew testLocalDebugUnitTest
 
       - name: Generate codecov report
         run: ./gradlew jacocoLocalDebugUnitTestReport
