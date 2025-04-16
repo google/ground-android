@@ -24,7 +24,6 @@ import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.ValueDelta
 import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -33,7 +32,6 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class SubmitDataUseCaseTest : BaseHiltTest() {
 
-  @Inject lateinit var localSurveyStore: LocalSurveyStore
   @Inject lateinit var submitDataUseCase: SubmitDataUseCase
 
   @Test
