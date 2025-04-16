@@ -71,6 +71,10 @@ internal constructor(
     )
   }
 
+  override fun getPublicSurveyList(): Flow<List<SurveyListItem>> = flow {
+    emitAll(db().surveys().getPublicReadable().map { list -> list.map { it.toListItem(false) } })
+  }
+
   override suspend fun loadPredefinedLois(survey: Survey) =
     withContext(ioDispatcher) { db().surveys().survey(survey.id).lois().fetchPredefined(survey) }
 

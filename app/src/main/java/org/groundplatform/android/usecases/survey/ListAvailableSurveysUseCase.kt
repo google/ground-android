@@ -57,9 +57,15 @@ constructor(
   private suspend fun getRemoteSurveyList(): Flow<List<SurveyListItem>> {
     val user = userRepository.getAuthenticatedUser()
     val remoteSurveyListFlow = remoteDataStore.getSurveyList(user)
-    // For public surveys, we don't need to check user
-    return remoteSurveyListFlow.combine(getLocalSurveyList()) { remoteSurveys, localSurveys ->
-      remoteSurveys.map { remoteSurvey -> addOfflineStatus(remoteSurvey, localSurveys) }
+    val remotePublicSurveyListFlow = remoteDataStore.getPublicSurveyList()
+    val localSurveyListFlow = getLocalSurveyList()
+
+    return combine(remoteSurveyListFlow, remotePublicSurveyListFlow, localSurveyListFlow) {
+      remoteSurveys,
+      remotePublicSurveys,
+      localSurveys ->
+      val allRemoteSurveys = remoteSurveys + remotePublicSurveys
+      allRemoteSurveys.map { remoteSurvey -> addOfflineStatus(remoteSurvey, localSurveys) }
     }
   }
 

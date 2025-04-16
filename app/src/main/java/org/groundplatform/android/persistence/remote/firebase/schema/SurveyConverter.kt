@@ -35,9 +35,8 @@ internal object SurveyConverter {
     val surveyFromProto = parseSurveyFromDocument(doc)
     val jobMap = convertJobsToMap(jobs)
     val dataSharingTerms = getDataSharingTerms(surveyFromProto)
-    val isPublic = getGeneralAccess(surveyFromProto)
 
-    return createSurveyModel(doc, surveyFromProto, jobMap, dataSharingTerms, isPublic)
+    return createSurveyModel(doc, surveyFromProto, jobMap, dataSharingTerms)
   }
 
   /** Parse survey data from the DocumentSnapshot. */
@@ -64,7 +63,6 @@ internal object SurveyConverter {
     surveyProto: SurveyProto,
     jobMap: Map<String, Job>,
     dataSharingTerms: Survey.DataSharingTerms?,
-    isPublic: Boolean = false,
   ): SurveyModel =
     SurveyModel(
       id = surveyProto.id.ifEmpty { doc.id },
@@ -73,6 +71,5 @@ internal object SurveyConverter {
       jobMap = jobMap.toPersistentMap(),
       acl = surveyProto.aclMap.entries.associate { it.key to it.value.toString() },
       dataSharingTerms = dataSharingTerms,
-      isPublic = isPublic,
     )
 }
