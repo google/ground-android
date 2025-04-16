@@ -43,10 +43,16 @@ import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.FeatureType
+import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
 import org.groundplatform.android.ui.util.VibrationHelper
 import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
 import org.groundplatform.android.ui.util.isSelfIntersecting
+import org.groundplatform.android.util.distanceTo
+import org.groundplatform.android.util.penult
 import timber.log.Timber
+
+/** Min. distance between the last two vertices required for distance tooltip to be shown shown. */
+const val TOOLTIP_MIN_DISTANCE_METERS = 0.1
 
 @SharedViewModel
 class DrawAreaTaskViewModel
@@ -55,6 +61,7 @@ internal constructor(
   private val localValueStore: LocalValueStore,
   private val uuidGenerator: OfflineUuidGenerator,
   private val vibrationHelper: VibrationHelper,
+  private val localeAwareMeasureFormatter: LocaleAwareMeasureFormatter,
 ) : AbstractTaskViewModel() {
 
   /** Polygon [Feature] being drawn by the user. */
@@ -210,17 +217,29 @@ internal constructor(
         if (vertices.isEmpty()) {
           null
         } else {
-          Feature(
-            id = uuidGenerator.generateUuid(),
-            type = FeatureType.USER_POLYGON.ordinal,
-            geometry = LineString(vertices),
-            style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
-            clusterable = false,
-            selected = true,
-          )
+          buildPolygonFeature()
         }
       )
     }
+
+  private suspend fun buildPolygonFeature() =
+    Feature(
+      id = uuidGenerator.generateUuid(),
+      type = FeatureType.USER_POLYGON.ordinal,
+      geometry = LineString(vertices),
+      style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
+      clusterable = false,
+      selected = true,
+      tooltipText = getDistanceTooltipText(),
+    )
+
+  /** Returns the distance in meters between the last two vertices for displaying in the tooltip. */
+  private fun getDistanceTooltipText(): String? {
+    if (isMarkedComplete || vertices.size <= 1) return null
+    val distance = vertices.penult().distanceTo(vertices.last())
+    if (distance < TOOLTIP_MIN_DISTANCE_METERS) return null
+    return localeAwareMeasureFormatter.formatDistance(distance)
+  }
 
   override fun validate(task: Task, taskData: TaskData?): Int? {
     // Invalid response for draw area task.
