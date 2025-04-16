@@ -18,8 +18,10 @@ package org.groundplatform.android.usecases.submission
 import androidx.room.Transaction
 import javax.inject.Inject
 import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.submission.GeometryTaskData
+import org.groundplatform.android.model.submission.DrawAreaTaskData
+import org.groundplatform.android.model.submission.DropPinTaskData
 import org.groundplatform.android.model.submission.ValueDelta
+import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import timber.log.Timber
@@ -64,19 +66,16 @@ constructor(
     loiName: String?,
     collectionId: String,
   ): String {
-    val addLoiTask = job.getAddLoiTask() ?: error("Null LOI ID but no add LOI task")
-    val addLoiTaskId = deltas.indexOfFirst { it.taskId == addLoiTask.id }
-    if (addLoiTaskId < 0) error("Add LOI task response missing")
-    val addLoiValue = deltas.removeAt(addLoiTaskId).newTaskData
-    // TODO: Replace check for valid addLoiTask using task type instead of TaskValue's type.
-    // Issue URL: https://github.com/google/ground-android/issues/2981
-    if (addLoiValue !is GeometryTaskData) error("Invalid add LOI task response")
-    return locationOfInterestRepository.saveLoi(
-      addLoiValue.geometry,
-      job,
-      surveyId,
-      loiName,
-      collectionId,
-    )
+    val addLoiTask = job.getAddLoiTask() ?: error("AddLoi task missing")
+    val addLoiTaskIndex = deltas.indexOfFirst { it.taskId == addLoiTask.id }
+    if (addLoiTaskIndex < 0) error("AddLoi task response missing")
+    val addLoiTaskValue = deltas.removeAt(addLoiTaskIndex).newTaskData
+    val geometry =
+      when (addLoiTask.type) {
+        Task.Type.DROP_PIN -> (addLoiTaskValue as (DropPinTaskData)).geometry
+        Task.Type.DRAW_AREA -> (addLoiTaskValue as (DrawAreaTaskData)).geometry
+        else -> error("Invalid AddLoi task")
+      }
+    return locationOfInterestRepository.saveLoi(geometry, job, surveyId, loiName, collectionId)
   }
 }
