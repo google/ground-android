@@ -30,11 +30,16 @@ import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.POLYLINE_Z
 import org.groundplatform.android.ui.map.gms.toLatLngList
 import org.groundplatform.android.ui.util.BitmapUtil
+import org.groundplatform.android.util.midpoint
+import org.groundplatform.android.util.penult
 
 class LineStringRenderer
 @Inject
-constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil) :
-  MapsItemRenderer<LineString, Polyline> {
+constructor(
+  private val resources: Resources,
+  private val bitmapUtil: BitmapUtil,
+  private val tooltipMarkerRenderer: TooltipMarkerRenderer,
+) : MapsItemRenderer<LineString, Polyline> {
 
   // These must be done lazily since resources are not available before the app completes
   // initialization.
@@ -51,6 +56,7 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
     style: Feature.Style,
     selected: Boolean,
     visible: Boolean,
+    tooltipText: String?,
   ): Polyline {
     val options = PolylineOptions()
     with(options) {
@@ -72,6 +78,13 @@ constructor(private val resources: Resources, private val bitmapUtil: BitmapUtil
       jointType = JointType.ROUND
       zIndex = POLYLINE_Z
     }
+    updateTooltipMarker(geometry, map, tooltipText)
     return polyline
+  }
+
+  private fun updateTooltipMarker(geometry: LineString, map: GoogleMap, tooltipText: String?) {
+    val coords = geometry.coordinates
+    val midpoint = if (coords.size < 2) null else coords.last().midpoint(coords.penult())
+    tooltipMarkerRenderer.update(map, midpoint, tooltipText)
   }
 }

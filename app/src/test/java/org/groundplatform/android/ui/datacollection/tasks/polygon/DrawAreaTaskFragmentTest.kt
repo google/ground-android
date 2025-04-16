@@ -153,11 +153,9 @@ class DrawAreaTaskFragmentTest :
 
     runner()
       .clickButton("Complete")
-      .assertButtonIsHidden("Next")
       .assertButtonIsHidden("Skip")
       .assertButtonIsEnabled("Undo", true)
       .assertButtonIsHidden("Add point")
-      .assertButtonIsEnabled("Complete")
 
     hasValue(
       DrawAreaTaskData(

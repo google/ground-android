@@ -40,7 +40,9 @@ class PolygonRenderer @Inject constructor(resources: Resources) :
     style: Feature.Style,
     selected: Boolean,
     visible: Boolean,
+    tooltipText: String?,
   ): MapsPolygon {
+    check(tooltipText == null) { "Tooltip text not implemented for polygon features" }
     val strokeScale = if (selected) 2f else 1f
     val options = PolygonOptions()
     with(options) {
