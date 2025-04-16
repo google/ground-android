@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android
 
-import java.util.Date
 import org.groundplatform.android.model.AuditInfo
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.TermsOfService
@@ -41,6 +40,7 @@ import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.FeatureType
 import org.groundplatform.android.ui.map.gms.features.FeatureClusterItem
+import java.util.Date
 
 /**
  * Shared test data constants. Tests are expected to override existing or set missing values when
@@ -155,7 +155,17 @@ object FakeData {
     id: String = "",
     type: Task.Type = Task.Type.TEXT,
     multipleChoice: MultipleChoice? = null,
-  ): Task = Task(id, 0, type, "", false, multipleChoice)
+    isAddLoiTask: Boolean = false,
+  ): Task =
+    Task(
+      id = id,
+      index = 0,
+      type = type,
+      label = "",
+      isRequired = false,
+      multipleChoice = multipleChoice,
+      isAddLoiTask = isAddLoiTask,
+    )
 
   fun newLoiMutation(
     point: Point,
