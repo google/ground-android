@@ -25,7 +25,7 @@ object Keys {
   const val VISIT_WEBSITE = "visit_website"
   const val FEEDBACK = "feedback"
 
-  const val SELECT_LANGUAGE = "select_language"
+  const val LANGUAGE = "language"
 
-  val ALL_KEYS = arrayOf(UPLOAD_MEDIA, VISIT_WEBSITE, FEEDBACK, SELECT_LANGUAGE)
+  val ALL_KEYS = arrayOf(UPLOAD_MEDIA, VISIT_WEBSITE, FEEDBACK, LANGUAGE)
 }

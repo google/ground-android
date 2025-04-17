@@ -21,6 +21,7 @@ import androidx.preference.PreferenceManager
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.Config.DEFAULT_LANGUAGE
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
 import org.junit.Assert.assertEquals
@@ -123,6 +124,6 @@ class SettingsFragmentTest : BaseHiltTest() {
     assertThat(languagePreference.summary.toString()).isEqualTo("French")
 
     val prefs = PreferenceManager.getDefaultSharedPreferences(fragment.requireContext())
-    assertThat(prefs.getString("select_language", "en")).isEqualTo(newLanguageCode)
+    assertThat(prefs.getString(Keys.LANGUAGE, DEFAULT_LANGUAGE)).isEqualTo(newLanguageCode)
   }
 }

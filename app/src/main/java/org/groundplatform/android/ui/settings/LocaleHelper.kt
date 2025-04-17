@@ -19,15 +19,16 @@ import android.content.Context
 import android.content.res.Configuration
 import androidx.preference.PreferenceManager
 import java.util.Locale
+import org.groundplatform.android.Config.DEFAULT_LANGUAGE
 
-fun onAttach(context: Context, defaultLanguage: String = "en"): Context {
+fun onAttach(context: Context, defaultLanguage: String = DEFAULT_LANGUAGE): Context {
   val lang = getPersistedLanguage(context, defaultLanguage)
   return setLocale(context, lang)
 }
 
 private fun getPersistedLanguage(context: Context, defaultLanguage: String): String {
   val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-  return preferences.getString("select_language", defaultLanguage) ?: defaultLanguage
+  return preferences.getString(Keys.LANGUAGE, defaultLanguage) ?: DEFAULT_LANGUAGE
 }
 
 fun setLocale(context: Context, language: String): Context {

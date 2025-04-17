@@ -24,7 +24,9 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import androidx.preference.SwitchPreferenceCompat
+import java.util.Locale
 import org.groundplatform.android.Config
+import org.groundplatform.android.Config.DEFAULT_LANGUAGE
 import org.groundplatform.android.MainActivity
 import org.groundplatform.android.R
 
@@ -52,9 +54,10 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     val switchPreference = findPreference<SwitchPreferenceCompat>(Keys.UPLOAD_MEDIA)
     switchPreference?.isChecked = loadSwitchPreferenceState()
 
-    val languagePreference = findPreference<DropDownPreference>(Keys.SELECT_LANGUAGE)
+    val languagePreference = findPreference<DropDownPreference>(Keys.LANGUAGE)
     val selectedLanguage =
-      preferenceManager.sharedPreferences?.getString(Keys.SELECT_LANGUAGE, "en") ?: "en"
+      preferenceManager.sharedPreferences?.getString(Keys.LANGUAGE, DEFAULT_LANGUAGE)
+        ?: Locale.getDefault().language
     languagePreference?.apply {
       val index = findIndexOfValue(selectedLanguage)
       if (index >= 0) {
@@ -95,7 +98,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
 
   private fun updateLocaleAndRestart(languageCode: String) {
     val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-    prefs.edit().putString(Keys.SELECT_LANGUAGE, languageCode).apply()
+    prefs.edit().putString(Keys.LANGUAGE, languageCode).apply()
 
     setLocale(requireContext(), languageCode)
 
