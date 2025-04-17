@@ -30,6 +30,8 @@ import org.groundplatform.android.model.mutation.Mutation
 interface RemoteDataStore {
   fun getSurveyList(user: User): Flow<List<SurveyListItem>>
 
+  fun getPublicSurveyList(): Flow<List<SurveyListItem>>
+
   /**
    * Loads the survey with the specified id from the remote data store. Returns `null` if the survey
    * is not found. Throws an error if the remote data store is not available.
