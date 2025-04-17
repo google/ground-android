@@ -151,6 +151,7 @@
   <string name="switch_survey">Alternar inquérito</string>
   <string name="no_survey_selected">Nenhum inquérito selecionado</string>
   <string name="undo">Desfazer</string>
+  <string name="redo">Refazer</string>
   <string name="view_licenses_title">Licenças</string>
   <string name="about">Sobre</string>
   <string name="terms_of_service">Termos de serviço</string>

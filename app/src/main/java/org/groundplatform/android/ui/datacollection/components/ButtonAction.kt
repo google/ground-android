@@ -37,6 +37,11 @@ enum class ButtonAction(
     drawableId = R.drawable.ic_undo_black,
     contentDescription = R.string.undo,
   ),
+  REDO(
+    Theme.LIGHT_GREEN,
+    drawableId = R.drawable.ic_redo_black,
+    contentDescription = R.string.redo,
+  ),
 
   // Drop a pin task
   DROP_PIN(Theme.OUTLINED, textId = R.string.drop_pin),
