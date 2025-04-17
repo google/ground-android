@@ -31,7 +31,7 @@
 
     <DropDownPreference
       app:iconSpaceReserved="false"
-      app:key="select_language"
+      app:key="language"
       app:title="@string/select_language_title"
       app:summary="@string/select_language_summary"
       app:entries="@array/language_entries"
