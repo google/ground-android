@@ -15,10 +15,13 @@
  */
 package org.groundplatform.android.ui.settings
 
+import androidx.preference.DropDownPreference
 import androidx.preference.PreferenceCategory
+import androidx.preference.PreferenceManager
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.Config.DEFAULT_LANGUAGE
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
 import org.junit.Assert.assertEquals
@@ -48,12 +51,17 @@ class SettingsFragmentTest : BaseHiltTest() {
     assertThat(item!!.toString()).isEqualTo(fragment.getString(R.string.general_title))
 
     val items = item.getPreferenceCount()
-    assertThat(items).isEqualTo(1)
+    assertThat(items).isEqualTo(2)
 
     val preferenceGeneral = item.getPreference(0)
     assertThat(preferenceGeneral.title).isEqualTo(fragment.getString(R.string.upload_media_title))
     assertThat(preferenceGeneral.summary.toString())
       .isEqualTo(fragment.getString(R.string.over_wifi_summary))
+
+    val preferenceLanguage = item.getPreference(1)
+    assertThat(preferenceLanguage.title)
+      .isEqualTo(fragment.getString(R.string.select_language_title))
+    assertThat(preferenceLanguage.summary.toString()).isEqualTo("English") // default language
   }
 
   @Test
@@ -98,5 +106,24 @@ class SettingsFragmentTest : BaseHiltTest() {
       preferenceWebsite.summary,
       Shadows.shadowOf(fragment.activity).nextStartedActivity.data.toString(),
     )
+  }
+
+  @Test
+  fun `Change App Language to Spanish`() {
+    val generalCategory = fragment.findPreference<PreferenceCategory>("general_category")
+    val languagePreference = generalCategory!!.getPreference(1) as? DropDownPreference
+
+    assertThat(languagePreference!!.summary.toString()).isEqualTo("English")
+
+    val newLanguageCode = "fr"
+    val changeListener = languagePreference.onPreferenceChangeListener
+    assertThat(changeListener).isNotNull()
+
+    changeListener!!.onPreferenceChange(languagePreference, newLanguageCode)
+
+    assertThat(languagePreference.summary.toString()).isEqualTo("French")
+
+    val prefs = PreferenceManager.getDefaultSharedPreferences(fragment.requireContext())
+    assertThat(prefs.getString(Keys.LANGUAGE, DEFAULT_LANGUAGE)).isEqualTo(newLanguageCode)
   }
 }

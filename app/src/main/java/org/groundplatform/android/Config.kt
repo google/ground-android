@@ -44,6 +44,8 @@ object Config {
    */
   const val CLUSTERING_ZOOM_THRESHOLD = 14f
 
+  const val DEFAULT_LANGUAGE = "en"
+
   // TODO: Make sub-paths configurable and
   //  stop hardcoding here.
   // Issue URL: https://github.com/google/ground-android/issues/1730

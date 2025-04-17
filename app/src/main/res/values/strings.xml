@@ -177,6 +177,8 @@
   <string name="report_summary">Report technical issues or suggest new locationsOfInterest</string>
   <string name="not_yet_impl_title">Not yet implemented</string>
   <string name="accuracy">Accuracy:</string>
+  <string name="select_language_title">Select language</string>
+  <string name="select_language_summary">Select your preferred language</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_no_terms">*No terms to display.*</string>
   <string name="data_sharing_private_message">
