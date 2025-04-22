@@ -65,6 +65,6 @@ class LocalSurveyStoreTest : BaseHiltTest() {
     localSurveyStore.insertOrUpdateSurvey(SURVEY.copy(jobMap = mapOf(job2.id to job2)))
 
     val updatedSurvey = localSurveyStore.getSurveyById(SURVEY.id)!!
-    assertThat(updatedSurvey.jobs).isEqualTo(mapOf(job2.id to job2))
+    assertThat(updatedSurvey.jobs).containsExactly(job2)
   }
 }
