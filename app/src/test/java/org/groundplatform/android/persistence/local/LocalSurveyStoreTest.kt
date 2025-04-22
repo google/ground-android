@@ -35,31 +35,32 @@ class LocalSurveyStoreTest : BaseHiltTest() {
   @Inject lateinit var localSurveyStore: LocalSurveyStore
 
   @Test
-  fun testInsertAndGetSurveys() = runWithTestDispatcher {
+  fun `insertOrUpdateSurvey() inserts new survey`() = runWithTestDispatcher {
     localSurveyStore.insertOrUpdateSurvey(SURVEY)
     assertThat(localSurveyStore.surveys.first()).containsExactly(SURVEY)
   }
 
   @Test
-  fun testGetSurveyById() = runWithTestDispatcher {
+  fun `getSurveyById() retrieves survey`() = runWithTestDispatcher {
     localSurveyStore.insertOrUpdateSurvey(SURVEY)
     assertThat(localSurveyStore.getSurveyById(SURVEY.id)).isEqualTo(SURVEY)
   }
 
   @Test
-  fun testDeleteSurvey() = runWithTestDispatcher {
+  fun `deleteSurvey() removes survey`() = runWithTestDispatcher {
     localSurveyStore.insertOrUpdateSurvey(SURVEY)
     localSurveyStore.deleteSurvey(SURVEY)
     assertThat(localSurveyStore.surveys.first()).isEmpty()
   }
 
   @Test
-  fun testRemovedJobFromSurvey() = runWithTestDispatcher {
+  fun `insertOrUpdateSurvey() removes deleted jobs`() = runWithTestDispatcher {
     val job1 = Job("job 1", Style(""), "job 1 name")
     val job2 = Job("job 2", Style(""), "job 2 name")
     var survey =
       Survey("foo id", "foo survey", "foo survey description", mapOf(Pair(job1.id, job1)))
     localSurveyStore.insertOrUpdateSurvey(survey)
+
     survey = Survey("foo id", "foo survey", "foo survey description", mapOf(Pair(job2.id, job2)))
     localSurveyStore.insertOrUpdateSurvey(survey)
     val updatedSurvey = localSurveyStore.getSurveyById("foo id")
