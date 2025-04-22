@@ -16,8 +16,8 @@
 package org.groundplatform.android.ui.syncstatus
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -28,9 +28,17 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
+import org.groundplatform.android.FakeData.USER
+import org.groundplatform.android.FakeData.newLoiMutation
+import org.groundplatform.android.FakeData.newSubmissionMutation
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
+import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.geometry.Point
+import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
+import org.groundplatform.android.persistence.local.stores.LocalSubmissionStore
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
+import org.groundplatform.android.persistence.local.stores.LocalUserStore
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.repository.SurveyRepository
 import org.junit.Test
@@ -43,31 +51,73 @@ import org.robolectric.RobolectricTestRunner
 class SyncStatusFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+  @Inject lateinit var localLoiStore: LocalLocationOfInterestStore
+  @Inject lateinit var localSubmissionStore: LocalSubmissionStore
   @Inject lateinit var localSurveyStore: LocalSurveyStore
+  @Inject lateinit var localUserStore: LocalUserStore
   @Inject lateinit var surveyRepository: SurveyRepository
-
-  override fun setUp() {
-    super.setUp()
-    launchFragmentInHiltContainer<SyncStatusFragment>()
-  }
 
   @Test
   fun `Toolbar should be displayed`() {
+    setupFragment()
+
     onView(withId(R.id.sync_status_toolbar)).check(matches(isDisplayed()))
   }
 
   @Test
   fun `Sync items should be displayed`() = runWithTestDispatcher {
-    fakeRemoteDataStore.surveys = listOf(SURVEY)
-    localSurveyStore.insertOrUpdateSurvey(SURVEY)
-    surveyRepository.activateSurvey(SURVEY.id)
-    advanceUntilIdle()
+    setupSurvey()
+    setupFragment()
 
     composeTestRule.onNodeWithTag("sync list").assertIsDisplayed()
   }
 
   @Test
-  fun `Sync items should not be displayed`() {
-    composeTestRule.onNodeWithTag("sync list").assertIsNotDisplayed()
+  fun `Entry for LOI Mutation is displayed`() = runWithTestDispatcher {
+    setupSurvey()
+
+    // Insert a new LOI mutation in local db
+    localUserStore.insertOrUpdateUser(USER)
+    localLoiStore.applyAndEnqueue(newLoiMutation(point = Point(Coordinates(0.0, 0.0))))
+    advanceUntilIdle()
+
+    setupFragment()
+
+    composeTestRule.onNodeWithTag("sync list").assertIsDisplayed()
+    composeTestRule.onNodeWithText("User").assertIsDisplayed() // User's display name
+    composeTestRule.onNodeWithText("Pending").assertIsDisplayed() // Status
+    composeTestRule.onNodeWithText("Job").assertIsDisplayed() // Label
+    composeTestRule.onNodeWithText("Test LOI Name").assertIsDisplayed() // Subtitle
+  }
+
+  @Test
+  fun `Entry for Submission Mutation is displayed`() = runWithTestDispatcher {
+    setupSurvey()
+
+    // Insert a new submission mutation in local db
+    localUserStore.insertOrUpdateUser(USER)
+    localLoiStore.apply(newLoiMutation(point = Point(Coordinates(0.0, 0.0))))
+    localSubmissionStore.applyAndEnqueue(newSubmissionMutation())
+    advanceUntilIdle()
+
+    setupFragment()
+
+    composeTestRule.onNodeWithTag("sync list").assertIsDisplayed()
+    composeTestRule.onNodeWithText("User").assertIsDisplayed() // User's display name
+    composeTestRule.onNodeWithText("Pending").assertIsDisplayed() // Status
+    composeTestRule.onNodeWithText("Job").assertIsDisplayed() // Label
+    composeTestRule.onNodeWithText("Survey title").assertIsDisplayed() // Subtitle
+  }
+
+  private fun setupSurvey() = runWithTestDispatcher {
+    fakeRemoteDataStore.surveys = listOf(SURVEY)
+    localSurveyStore.insertOrUpdateSurvey(SURVEY)
+    surveyRepository.activateSurvey(SURVEY.id)
+    advanceUntilIdle()
+  }
+
+  private fun setupFragment() = runWithTestDispatcher {
+    launchFragmentInHiltContainer<SyncStatusFragment>()
+    advanceUntilIdle()
   }
 }
