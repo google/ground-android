@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,16 @@ package org.groundplatform.android.persistence.local
 
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import kotlinx.coroutines.flow.first
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
-import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import javax.inject.Inject
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -57,14 +56,15 @@ class LocalSurveyStoreTest : BaseHiltTest() {
   fun `insertOrUpdateSurvey() removes deleted jobs`() = runWithTestDispatcher {
     val job1 = Job("job 1", Style(""), "job 1 name")
     val job2 = Job("job 2", Style(""), "job 2 name")
-    var survey =
-      Survey("foo id", "foo survey", "foo survey description", mapOf(Pair(job1.id, job1)))
-    localSurveyStore.insertOrUpdateSurvey(survey)
+    // Insert survey with two jobs.
+    localSurveyStore.insertOrUpdateSurvey(
+      SURVEY.copy(jobMap = mapOf(job1.id to job1, job2.id to job2))
+    )
 
-    survey = Survey("foo id", "foo survey", "foo survey description", mapOf(Pair(job2.id, job2)))
-    localSurveyStore.insertOrUpdateSurvey(survey)
-    val updatedSurvey = localSurveyStore.getSurveyById("foo id")
-    assertThat(updatedSurvey?.jobs).hasSize(1)
-    assertThat(updatedSurvey?.jobs?.first()).isEqualTo(job2)
+    // Update data survey, removing one job.
+    localSurveyStore.insertOrUpdateSurvey(SURVEY.copy(jobMap = mapOf(job2.id to job2)))
+
+    val updatedSurvey = localSurveyStore.getSurveyById(SURVEY.id)!!
+    assertThat(updatedSurvey.jobs).isEqualTo(mapOf(job2.id to job2))
   }
 }
