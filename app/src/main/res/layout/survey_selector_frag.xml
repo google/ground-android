@@ -24,7 +24,7 @@
     <import type="android.view.View" />
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.surveyselector.SurveySelectorViewModel" />
+      type="org.groundplatform.android.ui.surveyselector.SurveySelectorViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout

@@ -145,7 +145,7 @@ to the base repository using a pull request.
 
    https://console.firebase.google.com/
 
-2. Add a new Android app with package name `com.google.android.ground`.
+2. Add a new Android app with package name `org.groundplatform.android`.
 
 3. Add the debug SHA-1 of your device.
 
@@ -156,6 +156,16 @@ to the base repository using a pull request.
     ```
 
 4. Download the config file for the Android app to `app/src/debug/google-services.json`
+
+5. Create a file named `secrets.properties` in the root of the project with the following contents:
+
+   ```
+   MAPS_API_KEY=<Your Maps SDK API key>
+   ```
+
+   You can find the Maps SDK key for your Firebase project at 
+   http://console.cloud.google.com/google/maps-apis/credentials under 
+   "Android key (auto created by Firebase)". 
 
 ### Troubleshooting
 
@@ -168,6 +178,10 @@ to the base repository using a pull request.
   Solution: Ensure `app/src/debug/google-services.json` exists and is valid, as per instructions
   in [Set up Firebase](#set-up-firebase). You may need to perform a clean build in Android Studio by
   going to Build -> Clean Project.
+
+* The map does not appear / appears as a solid gray background.
+
+  Ensure `secrets.properties` exists and is correctly populated as described above.
 
 * Gradle Build fails with "License for package Android SDK Platform ... not accepted":
 

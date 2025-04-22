@@ -154,13 +154,13 @@
   <string name="about">À propos</string>
   <string name="terms_of_service">Conditions générales d&#8217;utilisation</string>
   <string name="about_ground">Ground est un projet communautaire open-source développé par Google et la FAO dans le cadre du « Forest Data Partnership » avec l&#8217;aide de SIG, Ecam et des contributeurs de la communauté open-source. \n\nIl est sous licence <annotation type="apache_license">Apache License, Version 2.0</annotation>. \n\nVoir autres <annotation type="all_licenses">Licenses</annotation></string>
-  <string name="failed">Échec</string>
-  <string name="synced">Synchronisé</string>
-  <string name="syncing">Synchronisation</string>
-  <string name="upload_pending">Téléchargement en attente</string>
-  <string name="data_synced_media_pending">Données synchronisées\n(media pending)</string>
-  <string name="data_synced_media_pending_retry">Données synchronisées\n(media pending retry)</string>
-  <string name="media_syncing">Synchronisation des médias</string>
+  <string name="pending_retry">Nouvelle tentative en attente</string>
+  <string name="uploaded">Téléversé</string>
+  <string name="uploading_form_data">Téléversement des données du formulaire</string>
+  <string name="pending">En attente</string>
+  <string name="photos_pending">Photos en attente</string>
+  <string name="photos_pending_retry">Photos en attente de nouvelle tentative</string>
+  <string name="uploading_photos">Téléversement des photos</string>
   <string name="data_sync_status">État de synchronisation</string>
   <string name="signout_warning">Si vous vous déconnectez, toutes les données non sauvegardées seront perdues.</string>
   <string name="admin_request_access">Pour continuer, contactez votre administrateur système pour demander l&#8217;accès.</string>
@@ -200,5 +200,12 @@
   <string name="data_collection_cancellation_description">Si vous quittez, les données que vous n&#8217;avez pas encore soumises seront supprimées.</string>
   <string name="data_collection_cancellation_confirm_button">Confirmer</string>
   <string name="something_went_wrong">Quelque chose s&#8217;est mal passé</string>
+
+  <string name="polygon_vertex_add_dialog_title">Erreur</string>
+  <string name="polygon_vertex_add_dialog_message">La zone ne peut pas s&#8217;auto-intersecter</string>
+  <string name="polygon_vertex_add_dialog_positive_button">D&#8217;accord</string>
+
   <string name="clear">Claire</string>
+
+  <string name="area_message">Surface: %1$.2f m²</string>
 </resources>

@@ -23,6 +23,7 @@ apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.android.gms.oss-licenses-plugin'
 apply plugin: 'com.google.protobuf'
+apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
@@ -40,13 +41,6 @@ project.ext {
 
 // Directory where downloaded Protocol Buffer definitions are extracted to.
 def extractedGroundProtoPath = layout.buildDirectory.dir('extracted-ground-protos')
-
-// Extract API key from google-services.json for use with Google Maps SDK.
-import groovy.json.JsonSlurper
-
-def inputFile = new File("app/src/debug/google-services.json")
-def json = inputFile.exists() ? new JsonSlurper().parseText(inputFile.text) : null
-def googleMapsApiKey = json ? json.client[0].api_key[0].current_key : ''
 
 def getCommitSha1 = { ->
     def stdout = new ByteArrayOutputStream()
@@ -75,7 +69,7 @@ android {
         }
     }
     defaultConfig {
-        applicationId "com.google.android.ground"
+        applicationId "org.groundplatform.android"
         minSdkVersion rootProject.androidMinSdk
         targetSdkVersion rootProject.androidTargetSdk
 
@@ -118,12 +112,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            resValue("string", "GOOGLE_MAPS_API_KEY", googleMapsApiKey)
         }
         debug {
             ext.enableCrashlytics = false
             ext.alwaysUpdateBuildId = false
-            resValue("string", "GOOGLE_MAPS_API_KEY", googleMapsApiKey)
             FirebasePerformance {
                 instrumentationEnabled false
             }
@@ -132,7 +124,6 @@ android {
             ext.enableCrashlytics = false
             ext.alwaysUpdateBuildId = false
             signingConfig signingConfigs.staging
-            resValue("string", "GOOGLE_MAPS_API_KEY", googleMapsApiKey)
             FirebasePerformance {
                 instrumentationEnabled false
             }
@@ -182,7 +173,7 @@ android {
         }
         animationsDisabled = true
     }
-    namespace 'com.google.android.ground'
+    namespace 'org.groundplatform.android'
 }
 
 configurations {
@@ -360,7 +351,7 @@ dependencies {
     api("com.google.protobuf:protobuf-kotlin-lite:4.26.1")
 
     // Pulls protodefs from the specified commit in the ground-platform repo.
-    groundProtoJar "com.github.google:ground-platform:125cf86@jar"
+    groundProtoJar "com.github.google:ground-platform:9ea4a73@jar"
 }
 
 protobuf {
@@ -411,4 +402,14 @@ apply plugin: 'com.google.gms.google-services'
 
 kotlin {
     jvmToolchain rootProject.jvmToolchainVersion
+}
+
+secrets {
+    // Location of file containing Maps API key for this project. Should not be checked into
+    // version control.
+    propertiesFileName = "secrets.properties"
+
+    // A properties file containing default secret values. This file can be
+    // checked in version control.
+    defaultPropertiesFileName = "local.defaults.properties"
 }

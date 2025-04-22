@@ -32,7 +32,7 @@
 
       <androidx.fragment.app.FragmentContainerView
         android:id="@+id/map_container_fragment"
-        android:name="com.google.android.ground.ui.home.mapcontainer.HomeScreenMapContainerFragment"
+        android:name="org.groundplatform.android.ui.home.mapcontainer.HomeScreenMapContainerFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center" />
@@ -58,12 +58,12 @@
       android:layout_width="wrap_content"
       android:layout_height="match_parent"
       android:layout_gravity="start"
-      app:itemTextAppearance="@style/TextAppearance.App.TitleSmall.OnSurfaceContainer"
       app:headerLayout="@layout/nav_drawer_header"
       app:itemBackground="@android:color/transparent"
       app:itemIconTint="@color/nav_drawer_item"
+      app:itemTextAppearance="@style/TextAppearance.App.TitleSmall.OnSurfaceContainer"
       app:itemTextColor="@color/nav_drawer_item"
-      app:menu="@menu/nav_drawer_menu"/>
+      app:menu="@menu/nav_drawer_menu" />
 
   </androidx.drawerlayout.widget.DrawerLayout>
 </layout>

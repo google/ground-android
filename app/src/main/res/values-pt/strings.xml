@@ -156,13 +156,13 @@
   <string name="terms_of_service">Termos de serviço</string>
   <string name="about_ground">Ground é um projeto comunitário de código aberto desenvolvido pelo Google e pela FAO no âmbito da “Forest Data Partnership”, com a ajuda do SIG, Ecam e dos contribuintes da comunidade de código aberto. \n\nEle é licenciado sob a <annotation type="apache_license">Apache License, Version 2.0</annotation>. \n\nVeja outras <annotation type="all_licenses">licenças</annotation></string>
 
-  <string name="failed">Falhou</string>
-  <string name="synced">Sincronizado</string>
-  <string name="syncing">Sincronizando</string>
-  <string name="upload_pending">Envio pendente</string>
-  <string name="data_synced_media_pending">Dados sincronizados\n(mídia pendente)</string>
-  <string name="data_synced_media_pending_retry">Dados sincronizados\n(mídia pendente de nova tentativa)</string>
-  <string name="media_syncing">Sincronizando mídia</string>
+  <string name="pending_retry">Pendente de nova tentativa</string>
+  <string name="uploaded">Enviado</string>
+  <string name="uploading_form_data">Enviando dados do formulário</string>
+  <string name="pending">Pendente</string>
+  <string name="photos_pending">Fotos pendentes</string>
+  <string name="photos_pending_retry">Fotos pendentes de nova tentativa</string>
+  <string name="uploading_photos">Enviando fotos</string>
   <string name="data_sync_status">Estado da sincronização</string>
   <string name="signout_warning">Se você sair, todos os dados não salvos serão perdidos.</string>
   <string name="admin_request_access">Para continuar, entre em contato com o administrador do sistema para solicitar acesso.</string>
@@ -202,5 +202,12 @@
   <string name="data_collection_cancellation_description">Se você sair, os dados que ainda não enviou serão descartados.</string>
   <string name="data_collection_cancellation_confirm_button">Confirmar</string>
   <string name="something_went_wrong">Algo deu errado</string>
+
+  <string name="polygon_vertex_add_dialog_title">Erro</string>
+  <string name="polygon_vertex_add_dialog_message">A área não pode se cruzar</string>
+  <string name="polygon_vertex_add_dialog_positive_button">Ok</string>
+
   <string name="clear">Clara</string>
+
+  <string name="area_message">Área: %1$.2f m²</string>
 </resources>

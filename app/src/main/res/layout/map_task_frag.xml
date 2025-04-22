@@ -23,10 +23,10 @@
   <data>
     <variable
       name="fragment"
-      type="com.google.android.ground.ui.common.AbstractMapContainerFragment" />
+      type="org.groundplatform.android.ui.common.AbstractMapContainerFragment" />
     <variable
       name="viewModel"
-      type="com.google.android.ground.ui.common.BaseMapViewModel" />
+      type="org.groundplatform.android.ui.common.BaseMapViewModel" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
@@ -71,6 +71,16 @@
       app:layout_constraintTop_toTopOf="parent"
       app:srcCompat="@drawable/map_layers"
       app:useCompatPadding="true" />
+
+    <androidx.compose.ui.platform.ComposeView
+      android:id="@+id/areaCard"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="20dp"
+      android:layout_marginBottom="20dp"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toStartOf="@id/location_lock_btn"
+      app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.card.MaterialCardView
       android:id="@+id/infoCard"

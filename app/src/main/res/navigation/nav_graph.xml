@@ -25,7 +25,7 @@
   app:startDestination="@id/startup_fragment">
   <fragment
     android:id="@+id/startup_fragment"
-    android:name="com.google.android.ground.ui.startup.StartupFragment"
+    android:name="org.groundplatform.android.ui.startup.StartupFragment"
     android:label="startup_frag"
     tools:layout="@layout/startup_frag">
     <action
@@ -47,7 +47,7 @@
 
   <fragment
     android:id="@+id/home_screen_fragment"
-    android:name="com.google.android.ground.ui.home.HomeScreenFragment"
+    android:name="org.groundplatform.android.ui.home.HomeScreenFragment"
     android:label="@string/map_view"
     tools:layout="@layout/home_screen_frag">
     <action
@@ -82,7 +82,7 @@
   </fragment>
   <fragment
     android:id="@+id/sync_status_fragment"
-    android:name="com.google.android.ground.ui.syncstatus.SyncStatusFragment"
+    android:name="org.groundplatform.android.ui.syncstatus.SyncStatusFragment"
     android:label="@string/sync_status"
     tools:layout="@layout/sync_status_frag" />
   <navigation
@@ -113,7 +113,7 @@
 
     <fragment
       android:id="@+id/data_collection_fragment"
-      android:name="com.google.android.ground.ui.datacollection.DataCollectionFragment"
+      android:name="org.groundplatform.android.ui.datacollection.DataCollectionFragment"
       android:label="@string/add_data"
       tools:layout="@layout/data_collection_frag">
       <argument
@@ -142,36 +142,41 @@
 
     <fragment
       android:id="@+id/drop_pin_task_fragment"
-      android:name="com.google.android.ground.ui.datacollection.tasks.point.DropPinTaskFragment"
+      android:name="org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskFragment"
       android:label="@string/add_data" />
     <fragment
       android:id="@+id/multiple_choice_task_fragment"
-      android:name="com.google.android.ground.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskFragment"
+      android:name="org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskFragment"
       android:label="@string/add_data" />
 
     <fragment
       android:id="@+id/number_task_fragment"
-      android:name="com.google.android.ground.ui.datacollection.tasks.number.NumberTaskFragment"
+      android:name="org.groundplatform.android.ui.datacollection.tasks.number.NumberTaskFragment"
       android:label="@string/add_data" />
 
     <fragment
       android:id="@+id/photo_task_fragment"
-      android:name="com.google.android.ground.ui.datacollection.tasks.photo.PhotoTaskFragment"
+      android:name="org.groundplatform.android.ui.datacollection.tasks.photo.PhotoTaskFragment"
       android:label="@string/add_data" />
 
     <fragment
       android:id="@+id/polygon_task_fragment"
-      android:name="com.google.android.ground.ui.datacollection.tasks.polygon.DrawAreaTaskFragment"
+      android:name="org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskFragment"
       android:label="@string/add_data" />
 
     <fragment
       android:id="@+id/question_task_fragment"
-      android:name="com.google.android.ground.ui.datacollection.tasks.text.TextTaskFragment"
+      android:name="org.groundplatform.android.ui.datacollection.tasks.text.TextTaskFragment"
+      android:label="@string/add_data" />
+
+    <fragment
+      android:id="@+id/instruction_task_fragment"
+      android:name="org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskFragment"
       android:label="@string/add_data" />
   </navigation>
   <fragment
     android:id="@+id/offline_areas_fragment"
-    android:name="com.google.android.ground.ui.offlineareas.OfflineAreasFragment"
+    android:name="org.groundplatform.android.ui.offlineareas.OfflineAreasFragment"
     android:label="@string/offline_map_imagery"
     tools:layout="@layout/offline_areas_frag">
     <action
@@ -186,7 +191,7 @@
   </fragment>
   <fragment
     android:id="@+id/offline_area_selector_fragment"
-    android:name="com.google.android.ground.ui.offlineareas.selector.OfflineAreaSelectorFragment"
+    android:name="org.groundplatform.android.ui.offlineareas.selector.OfflineAreaSelectorFragment"
     android:label="@string/offline_area_selector"
     tools:layout="@layout/offline_area_selector_frag">
     <action
@@ -195,7 +200,7 @@
   </fragment>
   <fragment
     android:id="@+id/offline_area_viewer_fragment"
-    android:name="com.google.android.ground.ui.offlineareas.viewer.OfflineAreaViewerFragment"
+    android:name="org.groundplatform.android.ui.offlineareas.viewer.OfflineAreaViewerFragment"
     android:label="@string/offline_area_viewer_title"
     tools:layout="@layout/offline_area_viewer_frag">
     <argument
@@ -204,7 +209,7 @@
   </fragment>
   <fragment
     android:id="@+id/sign_in_fragment"
-    android:name="com.google.android.ground.ui.signin.SignInFragment"
+    android:name="org.groundplatform.android.ui.signin.SignInFragment"
     android:label="sign_in_frag"
     tools:layout="@layout/sign_in_frag">
     <action
@@ -215,7 +220,7 @@
   </fragment>
   <activity
     android:id="@+id/settings_activity"
-    android:name="com.google.android.ground.SettingsActivity"
+    android:name="org.groundplatform.android.SettingsActivity"
     android:label="settings_activity"
     tools:layout="@layout/settings_activity" />
   <action
@@ -235,7 +240,7 @@
     app:destination="@id/mapTypeDialogFragment" />
   <fragment
     android:id="@+id/terms_of_service_fragment"
-    android:name="com.google.android.ground.ui.tos.TermsOfServiceFragment"
+    android:name="org.groundplatform.android.ui.tos.TermsOfServiceFragment"
     android:label="@string/tos_title"
     tools:layout="@layout/fragment_terms_service">
     <argument
@@ -249,7 +254,7 @@
   </fragment>
   <fragment
     android:id="@+id/surveySelectorFragment"
-    android:name="com.google.android.ground.ui.surveyselector.SurveySelectorFragment"
+    android:name="org.groundplatform.android.ui.surveyselector.SurveySelectorFragment"
     android:label="SurveySelectorFragment">
     <argument
       android:name="shouldExitApp"
@@ -257,14 +262,14 @@
   </fragment>
   <dialog
     android:id="@+id/mapTypeDialogFragment"
-    android:name="com.google.android.ground.ui.home.mapcontainer.MapTypeDialogFragment"
+    android:name="org.groundplatform.android.ui.home.mapcontainer.MapTypeDialogFragment"
     android:label="MapTypeDialogFragment">
     <argument
       android:name="mapTypes"
-      app:argType="com.google.android.ground.ui.map.MapType[]" />
+      app:argType="org.groundplatform.android.ui.map.MapType[]" />
   </dialog>
   <fragment
     android:id="@+id/aboutFragment"
-    android:name="com.google.android.ground.ui.home.AboutFragment"
+    android:name="org.groundplatform.android.ui.home.AboutFragment"
     android:label="AboutFragment" />
 </navigation>
