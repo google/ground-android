@@ -32,6 +32,8 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class LocalSurveyStoreTest : BaseHiltTest() {
   @Inject lateinit var localSurveyStore: LocalSurveyStore
+  private val job1 = Job("job 1", Style(""), "job 1 name")
+  private val job2 = Job("job 2", Style(""), "job 2 name")
 
   @Test
   fun `insertOrUpdateSurvey() inserts new survey`() = runWithTestDispatcher {
@@ -54,17 +56,45 @@ class LocalSurveyStoreTest : BaseHiltTest() {
 
   @Test
   fun `insertOrUpdateSurvey() removes deleted jobs`() = runWithTestDispatcher {
-    val job1 = Job("job 1", Style(""), "job 1 name")
-    val job2 = Job("job 2", Style(""), "job 2 name")
     // Insert survey with two jobs.
     localSurveyStore.insertOrUpdateSurvey(
       SURVEY.copy(jobMap = mapOf(job1.id to job1, job2.id to job2))
     )
 
-    // Update data survey, removing one job.
+    // Update survey, removing one job.
     localSurveyStore.insertOrUpdateSurvey(SURVEY.copy(jobMap = mapOf(job2.id to job2)))
 
     val updatedSurvey = localSurveyStore.getSurveyById(SURVEY.id)!!
     assertThat(updatedSurvey.jobs).containsExactly(job2)
+  }
+
+  @Test
+  fun `insertOrUpdateSurvey() updates existing jobs`() = runWithTestDispatcher {
+    // Insert survey with two jobs.
+    localSurveyStore.insertOrUpdateSurvey(SURVEY.copy(jobMap = mapOf(job1.id to job1)))
+
+    // Update survey, renaming both jobs.
+    val modifiedJob1 = job1.copy(name = "New name 1")
+    val modifiedJob2 = job2.copy(name = "New name 2")
+    localSurveyStore.insertOrUpdateSurvey(
+      SURVEY.copy(jobMap = mapOf(job1.id to modifiedJob1, job2.id to modifiedJob2))
+    )
+
+    val updatedSurvey = localSurveyStore.getSurveyById(SURVEY.id)!!
+    assertThat(updatedSurvey.jobs).containsExactly(modifiedJob1, modifiedJob2)
+  }
+
+  @Test
+  fun `insertOrUpdateSurvey() inserts new jobs`() = runWithTestDispatcher {
+    // Insert survey with two jobs.
+    localSurveyStore.insertOrUpdateSurvey(SURVEY.copy(jobMap = mapOf(job1.id to job1)))
+
+    // Update data survey, removing one job.
+    localSurveyStore.insertOrUpdateSurvey(
+      SURVEY.copy(jobMap = mapOf(job1.id to job1, job2.id to job2))
+    )
+
+    val updatedSurvey = localSurveyStore.getSurveyById(SURVEY.id)!!
+    assertThat(updatedSurvey.jobs).containsExactly(job1, job2)
   }
 }
