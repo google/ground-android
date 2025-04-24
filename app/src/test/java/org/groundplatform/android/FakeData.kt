@@ -33,6 +33,7 @@ import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.mutation.SubmissionMutation
+import org.groundplatform.android.model.task.Condition
 import org.groundplatform.android.model.task.MultipleChoice
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.proto.Survey.DataSharingTerms
@@ -154,10 +155,11 @@ object FakeData {
     OfflineArea("id_1", OfflineArea.State.PENDING, Bounds(0.0, 0.0, 0.0, 0.0), "Test Area", 0..14)
 
   fun newTask(
-    id: String = "",
+    id: String = "taskId",
     type: Task.Type = Task.Type.TEXT,
     multipleChoice: MultipleChoice? = null,
     isAddLoiTask: Boolean = false,
+    condition: Condition? = null,
   ): Task =
     Task(
       id = id,
@@ -167,6 +169,7 @@ object FakeData {
       isRequired = false,
       multipleChoice = multipleChoice,
       isAddLoiTask = isAddLoiTask,
+      condition = condition,
     )
 
   fun newLoiMutation(
