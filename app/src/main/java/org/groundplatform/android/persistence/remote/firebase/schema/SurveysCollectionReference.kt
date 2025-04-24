@@ -46,7 +46,7 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
 
   fun getPublicReadable(): Flow<List<Survey>> =
     reference()
-      .whereEqualTo(GENERAL_ACCESS_FIELD, SurveyProto.GeneralAccess.PUBLIC_VALUE.toString())
+      .whereEqualTo(GENERAL_ACCESS_FIELD, SurveyProto.GeneralAccess.PUBLIC_VALUE)
       .snapshots()
       .map { it.documents.map { doc -> doc.let { SurveyConverter.toSurvey(doc) } } }
 }
