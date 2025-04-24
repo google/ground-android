@@ -74,7 +74,7 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
       // Add or update jobs and tasks.
       insertOrUpdateJobs(survey.id, survey.jobs)
       // Delete removed jobs.
-      jobDao.deleteNotIn(survey.jobs.map { it.id })
+      jobDao.deleteNotIn(survey.id, survey.jobs.map { it.id })
     }
 
   /**
