@@ -43,6 +43,7 @@ import org.groundplatform.android.ui.common.modalSpinner
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
 import org.groundplatform.android.ui.signin.SignInFragmentDirections
 import org.groundplatform.android.ui.surveyselector.SurveySelectorFragmentDirections
+import org.groundplatform.android.ui.surveyselector.SurveySelectorViewModel
 import org.groundplatform.android.util.renderComposableDialog
 import timber.log.Timber
 
@@ -74,6 +75,8 @@ class MainActivity : AbstractActivity() {
         callback(this@MainActivity)
       }
     }
+
+    handleDeepLinkIntent(intent)
 
     val binding = MainActBinding.inflate(layoutInflater)
     setContentView(binding.root)
@@ -232,6 +235,16 @@ class MainActivity : AbstractActivity() {
         return
       }
       navHostFragment.navController.navigate(directions)
+    }
+  }
+
+  private fun handleDeepLinkIntent(intent: Intent) {
+    val viewModel = viewModelFactory[this, SurveySelectorViewModel::class.java]
+    intent.data?.let { uri ->
+      val surveyId = uri.lastPathSegment
+      if (!surveyId.isNullOrBlank()) {
+        viewModel.activateSurvey(surveyId)
+      }
     }
   }
 }
