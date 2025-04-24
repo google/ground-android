@@ -16,7 +16,9 @@
 
 package org.groundplatform.android.util
 
+import com.google.android.gms.maps.model.LatLng
 import com.google.common.truth.Truth.assertThat
+import junit.framework.TestCase.assertEquals
 import org.groundplatform.android.model.geometry.Coordinates
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,5 +45,69 @@ class CoordinatesExtTest {
   @Test
   fun testProcessCoordinates_sw() {
     assertThat(Coordinates(-10.555, -10.555).toDmsFormat()).isEqualTo("10°33'18\" S 10°33'18\" W")
+  }
+
+  @Test
+  fun testMidpoint_simpleCase() {
+    val coord1 = Coordinates(lat = 0.0, lng = 0.0)
+    val coord2 = Coordinates(lat = 2.0, lng = 2.0)
+    val expected = LatLng(1.0, 1.0)
+
+    val result = coord1.midpoint(coord2)
+
+    assertEquals("Latitude should be averaged correctly", expected.latitude, result.latitude, 1e-5)
+    assertEquals(
+      "Longitude should be averaged correctly",
+      expected.longitude,
+      result.longitude,
+      1e-5,
+    )
+  }
+
+  @Test
+  fun testMidpoint_negativeCoordinates() {
+    val coord1 = Coordinates(lat = -1.0, lng = -1.0)
+    val coord2 = Coordinates(lat = 1.0, lng = 1.0)
+    val expected = LatLng(0.0, 0.0)
+
+    val result = coord1.midpoint(coord2)
+
+    assertEquals(
+      "Latitude should be averaged correctly with negatives",
+      expected.latitude,
+      result.latitude,
+      1e-5,
+    )
+    assertEquals(
+      "Longitude should be averaged correctly with negatives",
+      expected.longitude,
+      result.longitude,
+      1e-5,
+    )
+  }
+
+  @Test
+  fun testMidpoint_mixedCoordinates() {
+    // Given a case with mixed (positive and negative) values
+    val coord1 = Coordinates(lat = 10.0, lng = -5.0)
+    val coord2 = Coordinates(lat = 20.0, lng = 15.0)
+    val expected = LatLng(15.0, 5.0)
+
+    // When
+    val result = coord1.midpoint(coord2)
+
+    // Then
+    assertEquals(
+      "Latitude should be averaged correctly with mixed values",
+      expected.latitude,
+      result.latitude,
+      1e-5,
+    )
+    assertEquals(
+      "Longitude should be averaged correctly with mixed values",
+      expected.longitude,
+      result.longitude,
+      1e-5,
+    )
   }
 }

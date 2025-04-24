@@ -20,12 +20,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -74,7 +71,6 @@ fun LoiJobSheet(
   val sheetState = rememberModalBottomSheetState()
 
   ModalBottomSheet(
-    modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars),
     onDismissRequest = onDismiss,
     sheetState = sheetState,
     containerColor = MaterialTheme.colorScheme.surface,
@@ -95,7 +91,7 @@ private fun ModalContents(
 ) {
   val loiHelper = LocationOfInterestHelper(LocalContext.current.resources)
 
-  Column(modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 32.dp)) {
+  Column(modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 50.dp)) {
 
     // Job Name
     loiHelper.getJobName(loi)?.let {

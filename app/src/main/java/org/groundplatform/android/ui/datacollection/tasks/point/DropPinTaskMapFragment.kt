@@ -21,10 +21,24 @@ import javax.inject.Inject
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.map.CameraPosition
 import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.map.MapFragment
 
 @AndroidEntryPoint
 class DropPinTaskMapFragment @Inject constructor() :
   AbstractTaskMapFragment<DropPinTaskViewModel>() {
+
+  override fun onMapReady(map: MapFragment) {
+    super.onMapReady(map)
+
+    // Disable pan/zoom gestures if a marker has been placed on the map.
+    taskViewModel.features.observe(this) {
+      if (it.isEmpty()) {
+        map.enableGestures()
+      } else {
+        map.disableGestures()
+      }
+    }
+  }
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
