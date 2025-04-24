@@ -74,7 +74,7 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
       // Add or update jobs and tasks.
       insertOrUpdateJobs(survey.id, survey.jobs)
       // Delete removed jobs.
-      jobDao.deleteNotIn(survey.jobs.map { it.id })
+      jobDao.deleteNotIn(survey.id, survey.jobs.map { it.id })
     }
 
   /**
@@ -97,11 +97,18 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
   }
 
   private suspend fun insertOrUpdateCondition(taskId: String, condition: Condition) {
-    conditionDao.insertOrUpdate(condition.toLocalDataStoreObject(parentTaskId = taskId))
-    expressionDao.deleteByTaskId(taskId)
+    // Condition and expression are leaf entities with no cascading deletes, so delete and re-insert
+    // are acceptable here.
+    deleteCondition(taskId)
+    conditionDao.insert(condition.toLocalDataStoreObject(parentTaskId = taskId))
     condition.expressions.forEach {
       expressionDao.insert(it.toLocalDataStoreObject(parentTaskId = taskId))
     }
+  }
+
+  private suspend fun deleteCondition(taskId: String) {
+    conditionDao.deleteByTaskId(taskId)
+    expressionDao.deleteByTaskId(taskId)
   }
 
   private suspend fun insertOrUpdateMultipleChoice(taskId: String, multipleChoice: MultipleChoice) {
@@ -116,6 +123,8 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
     }
     if (task.condition != null) {
       insertOrUpdateCondition(task.id, task.condition)
+    } else {
+      deleteCondition(task.id)
     }
   }
 

@@ -24,5 +24,6 @@ interface JobDao : BaseDao<JobEntity> {
   @Query("DELETE FROM job WHERE survey_id = :surveyId")
   suspend fun deleteBySurveyId(surveyId: String)
 
-  @Query("DELETE FROM job WHERE id NOT IN (:ids)") suspend fun deleteNotIn(ids: List<String>)
+  @Query("DELETE FROM job WHERE survey_id = :surveyId AND id NOT IN (:ids)")
+  suspend fun deleteNotIn(surveyId: String, ids: List<String>)
 }

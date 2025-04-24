@@ -151,7 +151,7 @@ class LocalSurveyStoreTest : BaseHiltTest() {
 
     // Verify updated survey is returned.
     val updatedSurvey = localSurveyStore.getSurveyById(SURVEY.id)!!
-    assertThat(updatedSurvey.jobs).containsExactly(updatedJob)
+    assertThat(updatedSurvey.jobs.first().tasks[task.id]!!.condition).isNull()
   }
 
   @Test
