@@ -21,5 +21,6 @@ import org.groundplatform.android.persistence.local.room.entity.ExpressionEntity
 
 @Dao
 interface ExpressionDao : BaseDao<ExpressionEntity> {
-  @Query("DELETE FROM expression WHERE task_id = :taskId") fun deleteByTaskId(taskId: String)
+  @Query("DELETE FROM expression WHERE task_id = :taskId")
+  suspend fun deleteByTaskId(taskId: String)
 }
