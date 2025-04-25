@@ -54,9 +54,6 @@ internal object SurveyConverter {
       surveyProto.dataSharingTerms
     }
 
-  private fun getGeneralAccess(surveyProto: SurveyProto): Boolean =
-    surveyProto.generalAccess.number == Survey.GeneralAccess.PUBLIC_VALUE
-
   /** Build SurveyModel from parsed data. */
   private fun createSurveyModel(
     doc: DocumentSnapshot,
