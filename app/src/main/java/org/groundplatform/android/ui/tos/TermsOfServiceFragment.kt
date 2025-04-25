@@ -128,7 +128,7 @@ class TermsOfServiceFragment : AbstractFragment() {
     lifecycleScope.launch {
       viewModel.navigateToSurveySelector.collect {
         findNavController()
-          .navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
+          .navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true, null))
       }
     }
   }

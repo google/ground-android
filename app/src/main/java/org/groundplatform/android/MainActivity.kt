@@ -17,7 +17,6 @@ package org.groundplatform.android
 
 import android.app.AlertDialog
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
@@ -28,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,7 +44,6 @@ import org.groundplatform.android.ui.common.modalSpinner
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
 import org.groundplatform.android.ui.signin.SignInFragmentDirections
 import org.groundplatform.android.ui.surveyselector.SurveySelectorFragmentDirections
-import org.groundplatform.android.ui.surveyselector.SurveySelectorViewModel
 import org.groundplatform.android.util.renderComposableDialog
 import timber.log.Timber
 
@@ -77,13 +76,13 @@ class MainActivity : AbstractActivity() {
       }
     }
 
-    intent.data?.let { handleDeepLinkIntent(it) }
-
     val binding = MainActBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
     navHostFragment =
       supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+
+    navHostFragment.navController.handleDeepLinkIfNeeded(intent)
 
     viewModel = viewModelFactory[this, MainViewModel::class.java]
 
@@ -114,7 +113,7 @@ class MainActivity : AbstractActivity() {
         navigateTo(SignInFragmentDirections.showTermsOfService(false))
       }
       MainUiState.NoActiveSurvey -> {
-        navigateTo(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
+        navigateTo(SurveySelectorFragmentDirections.showSurveySelectorScreen(true, null))
       }
       MainUiState.ShowHomeScreen -> {
         navigateTo(HomeScreenFragmentDirections.showHomeScreen())
@@ -188,6 +187,11 @@ class MainActivity : AbstractActivity() {
   /** Override up button behavior to use Navigation Components back stack. */
   override fun onSupportNavigateUp(): Boolean = navigateUp()
 
+  override fun onNewIntent(intent: Intent) {
+    super.onNewIntent(intent)
+    navHostFragment.navController.handleDeepLink(intent)
+  }
+
   private fun navigateUp(): Boolean {
     val navController = navHostFragment.navController
     return if (navHostFragment.childFragmentManager.backStackEntryCount > 0) {
@@ -239,11 +243,12 @@ class MainActivity : AbstractActivity() {
     }
   }
 
-  private fun handleDeepLinkIntent(uri: Uri) {
-    val viewModel = viewModelFactory[this, SurveySelectorViewModel::class.java]
-    val surveyId = uri.lastPathSegment
-    if (!surveyId.isNullOrBlank()) {
-      viewModel.activateSurvey(surveyId)
+  private fun NavController.handleDeepLinkIfNeeded(intent: Intent) {
+    intent.data?.let { uri ->
+      if (uri.host == "groundplatform.org" && uri.pathSegments.firstOrNull() == "survey") {
+        val surveyId = uri.lastPathSegment
+        navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(false, surveyId))
+      }
     }
   }
 }
