@@ -79,7 +79,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data
           android:scheme="https"
-          android:host="groundforis.com"
+          android:host="groundplatform.org"
           android:pathPrefix="/survey/" />
       </intent-filter>
     </activity>
