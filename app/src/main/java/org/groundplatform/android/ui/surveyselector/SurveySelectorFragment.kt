@@ -59,7 +59,6 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun updateUi(uiState: UiState) {
-    println("====== ${uiState.toString()}")
     when (uiState) {
       UiState.ActivatingSurvey,
       UiState.FetchingSurveys -> {
