@@ -70,6 +70,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
         listOf(
           SURVEY_1.toListItem(availableOffline = true),
           SURVEY_2.toListItem(availableOffline = false),
+          SURVEY_1.toListItem(availableOffline = true),
+          SURVEY_2.toListItem(availableOffline = false),
         )
       )
   }
@@ -122,6 +124,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
         listOf(
           SURVEY_1.toListItem(availableOffline = true),
           SURVEY_2.toListItem(availableOffline = false),
+          SURVEY_1.toListItem(availableOffline = true),
+          SURVEY_2.toListItem(availableOffline = false),
         )
       )
   }
@@ -143,6 +147,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
           listOf(
             SURVEY_1.toListItem(availableOffline = false),
             SURVEY_2.toListItem(availableOffline = false),
+            SURVEY_1.toListItem(availableOffline = false),
+            SURVEY_2.toListItem(availableOffline = false),
           )
         )
 
@@ -153,6 +159,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
       assertThat(resultFlow.first())
         .isEqualTo(
           listOf(
+            SURVEY_1.toListItem(availableOffline = true),
+            SURVEY_2.toListItem(availableOffline = false),
             SURVEY_1.toListItem(availableOffline = true),
             SURVEY_2.toListItem(availableOffline = false),
           )
