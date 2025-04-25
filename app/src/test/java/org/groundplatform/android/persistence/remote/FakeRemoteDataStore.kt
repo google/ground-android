@@ -44,6 +44,9 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   override fun getSurveyList(user: User): Flow<List<SurveyListItem>> =
     flowOf(surveys.map { it.toListItem(false) })
 
+  override fun getPublicSurveyList(): Flow<List<SurveyListItem>> =
+    flowOf(surveys.map { it.toListItem(false) })
+
   override suspend fun loadSurvey(surveyId: String): Survey? = onLoadSurvey.invoke(surveyId)
 
   override suspend fun loadTermsOfService(): TermsOfService? = termsOfService?.getOrThrow()
