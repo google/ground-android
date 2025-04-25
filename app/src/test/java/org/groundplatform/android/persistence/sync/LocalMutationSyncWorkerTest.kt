@@ -48,6 +48,7 @@ import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.local.stores.LocalUserStore
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.repository.MutationRepository
+import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.junit.Before
@@ -235,6 +236,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
   private fun createLoiMutation(userId: String) =
     LocationOfInterestMutation(
+      jobId = TEST_JOB.id,
       type = Mutation.Type.CREATE,
       syncStatus = Mutation.SyncStatus.PENDING,
       locationOfInterestId = TEST_LOI_ID,
