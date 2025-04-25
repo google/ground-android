@@ -17,6 +17,7 @@ package org.groundplatform.android
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
@@ -82,7 +83,9 @@ class MainActivity : AbstractActivity() {
     navHostFragment =
       supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
 
-    navHostFragment.navController.handleDeepLinkIfNeeded(intent)
+    intent.data?.let {
+      navHostFragment.navController.handleDeepLinkIfNeeded(it)
+    }
 
     viewModel = viewModelFactory[this, MainViewModel::class.java]
 
@@ -243,12 +246,10 @@ class MainActivity : AbstractActivity() {
     }
   }
 
-  private fun NavController.handleDeepLinkIfNeeded(intent: Intent) {
-    intent.data?.let { uri ->
-      if (uri.host == "groundplatform.org" && uri.pathSegments.firstOrNull() == "survey") {
-        val surveyId = uri.lastPathSegment
-        navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(false, surveyId))
-      }
+  private fun NavController.handleDeepLinkIfNeeded(uri: Uri) {
+    if (uri.host == "groundplatform.org" && uri.pathSegments.firstOrNull() == "survey") {
+      val surveyId = uri.lastPathSegment
+      navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(false, surveyId))
     }
   }
 }
