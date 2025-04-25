@@ -17,6 +17,7 @@ package org.groundplatform.android
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
@@ -76,7 +77,7 @@ class MainActivity : AbstractActivity() {
       }
     }
 
-    handleDeepLinkIntent(intent)
+    intent.data?.let { handleDeepLinkIntent(it) }
 
     val binding = MainActBinding.inflate(layoutInflater)
     setContentView(binding.root)
@@ -238,13 +239,11 @@ class MainActivity : AbstractActivity() {
     }
   }
 
-  private fun handleDeepLinkIntent(intent: Intent) {
+  private fun handleDeepLinkIntent(uri: Uri) {
     val viewModel = viewModelFactory[this, SurveySelectorViewModel::class.java]
-    intent.data?.let { uri ->
-      val surveyId = uri.lastPathSegment
-      if (!surveyId.isNullOrBlank()) {
-        viewModel.activateSurvey(surveyId)
-      }
+    val surveyId = uri.lastPathSegment
+    if (!surveyId.isNullOrBlank()) {
+      viewModel.activateSurvey(surveyId)
     }
   }
 }
