@@ -18,6 +18,7 @@ package org.groundplatform.android.persistence.local.room.entity
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import org.groundplatform.android.model.locationofinterest.LoiProperties
@@ -27,7 +28,19 @@ import org.groundplatform.android.persistence.local.room.fields.EntityDeletionSt
  * Defines how Room persists LOIs in the local db. By default, Room uses the name of object fields
  * and their respective types to determine database column names and types.
  */
-@Entity(tableName = "location_of_interest", indices = [Index("survey_id")])
+@Entity(
+  tableName = "location_of_interest",
+  foreignKeys =
+    [
+      ForeignKey(
+        entity = JobEntity::class,
+        parentColumns = ["id"],
+        childColumns = ["job_id"],
+        onDelete = ForeignKey.CASCADE,
+      )
+    ],
+  indices = [Index("survey_id"), Index("job_id")],
+)
 data class LocationOfInterestEntity(
   @ColumnInfo(name = "id") @PrimaryKey val id: String,
   @ColumnInfo(name = "survey_id") val surveyId: String,
