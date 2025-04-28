@@ -65,7 +65,9 @@ constructor(
       remotePublicSurveys,
       localSurveys ->
       val allRemoteSurveys = remoteSurveys + remotePublicSurveys
-      allRemoteSurveys.map { remoteSurvey -> addOfflineStatus(remoteSurvey, localSurveys) }
+      allRemoteSurveys
+        .distinctBy { it.id }
+        .map { remoteSurvey -> addOfflineStatus(remoteSurvey, localSurveys) }
     }
   }
 
