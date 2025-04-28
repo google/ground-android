@@ -30,6 +30,11 @@ import org.groundplatform.android.model.mutation.Mutation
 interface RemoteDataStore {
   fun getSurveyList(user: User): Flow<List<SurveyListItem>>
 
+  /**
+   * Fetches and continuously observes all surveys that have been marked public. Whenever public
+   * surveys are added, updated, or removed in the remote store, this function will emit the latest
+   * list of [SurveyListItem].
+   */
   fun getPublicSurveyList(): Flow<List<SurveyListItem>>
 
   /**
