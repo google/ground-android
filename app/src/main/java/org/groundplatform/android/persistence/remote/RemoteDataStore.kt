@@ -28,7 +28,7 @@ import org.groundplatform.android.model.mutation.Mutation
  * subscriptions are run in a background thread (i.e., not the Android main thread).
  */
 interface RemoteDataStore {
-  fun getSurveyList(user: User): Flow<List<SurveyListItem>>
+  fun getRestrictedSurveyList(user: User): Flow<List<SurveyListItem>>
 
   /**
    * Fetches and continuously observes all surveys that have been marked public. Whenever public

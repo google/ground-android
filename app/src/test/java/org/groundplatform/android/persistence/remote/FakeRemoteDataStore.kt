@@ -42,7 +42,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   private val subscribedSurveyIds = mutableSetOf<String>()
 
-  override fun getSurveyList(user: User): Flow<List<SurveyListItem>> =
+  override fun getRestrictedSurveyList(user: User): Flow<List<SurveyListItem>> =
     flowOf(surveys.map { it.toListItem(false) })
 
   override fun getPublicSurveyList(): Flow<List<SurveyListItem>> =

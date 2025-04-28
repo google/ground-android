@@ -61,7 +61,7 @@ internal constructor(
   override suspend fun loadTermsOfService(): TermsOfService? =
     withContext(ioDispatcher) { db().termsOfService().terms().get() }
 
-  override fun getSurveyList(user: User): Flow<List<SurveyListItem>> = flow {
+  override fun getRestrictedSurveyList(user: User): Flow<List<SurveyListItem>> = flow {
     emitAll(
       db().surveys().getReadable(user).map { list ->
         // TODO: Return SurveyListItem from getReadable(), only fetch required fields.
@@ -72,7 +72,11 @@ internal constructor(
   }
 
   override fun getPublicSurveyList(): Flow<List<SurveyListItem>> = flow {
-    emitAll(db().surveys().getPublicReadable().map { list -> list.map { it.toListItem(false) } })
+    emitAll(
+      db().surveys().getPublicReadable().map { list ->
+        list.map { it.toListItem(availableOffline = false) }
+      }
+    )
   }
 
   override suspend fun loadPredefinedLois(survey: Survey) =

@@ -37,6 +37,7 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
 
   fun getReadable(user: User): Flow<List<Survey>> =
     reference()
+      .whereEqualTo(GENERAL_ACCESS_FIELD, SurveyProto.GeneralAccess.RESTRICTED_VALUE)
       .whereIn(
         FieldPath.of(ACL_FIELD, user.email),
         listOf(Role.SURVEY_ORGANIZER, Role.DATA_COLLECTOR, Role.VIEWER).map { it.ordinal },
