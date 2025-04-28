@@ -32,6 +32,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   var predefinedLois = emptyList<LocationOfInterest>()
   var userLois = emptyList<LocationOfInterest>()
   var surveys = emptyList<Survey>()
+  var publicSurveys = emptyList<Survey>()
   var onLoadSurvey = { surveyId: String -> surveys.firstOrNull { it.id == surveyId } }
   var userProfileRefreshCount = 0
     private set
@@ -45,7 +46,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
     flowOf(surveys.map { it.toListItem(false) })
 
   override fun getPublicSurveyList(): Flow<List<SurveyListItem>> =
-    flowOf(surveys.map { it.toListItem(false) })
+    flowOf(publicSurveys.map { it.toListItem(false) })
 
   override suspend fun loadSurvey(surveyId: String): Survey? = onLoadSurvey.invoke(surveyId)
 

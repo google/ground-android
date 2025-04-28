@@ -49,11 +49,15 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
     localSurveyStore.insertOrUpdateSurvey(survey)
   }
 
-  private fun setupSurveys(localSurveys: List<Survey>, remoteSurveys: List<Survey>) =
-    runWithTestDispatcher {
-      localSurveys.forEach { setupLocalSurvey(it) }
-      fakeRemoteDataStore.surveys = remoteSurveys
-    }
+  private fun setupSurveys(
+    localSurveys: List<Survey>,
+    remoteSurveys: List<Survey>,
+    publicSurveys: List<Survey>,
+  ) = runWithTestDispatcher {
+    localSurveys.forEach { setupLocalSurvey(it) }
+    fakeRemoteDataStore.surveys = remoteSurveys
+    fakeRemoteDataStore.publicSurveys = publicSurveys
+  }
 
   @Test
   fun `when network is available, should return remote survey list`() = runWithTestDispatcher {
@@ -61,7 +65,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
 
     val remoteSurveys = listOf(SURVEY_1, SURVEY_2)
     val localSurveys = listOf(SURVEY_1, SURVEY_3)
-    setupSurveys(localSurveys, remoteSurveys)
+    val publicSurveys = listOf(SURVEY_1, SURVEY_2)
+    setupSurveys(localSurveys, remoteSurveys, publicSurveys)
 
     val result = listAvailableSurveysUseCase().first()
 
@@ -82,7 +87,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
 
     val remoteSurveys = listOf(SURVEY_1, SURVEY_2)
     val localSurveys = listOf(SURVEY_1, SURVEY_3)
-    setupSurveys(localSurveys, remoteSurveys)
+    val publicSurveys = listOf(SURVEY_1, SURVEY_2)
+    setupSurveys(localSurveys, remoteSurveys, publicSurveys)
 
     val result = listAvailableSurveysUseCase().first()
 
@@ -102,7 +108,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
 
     val remoteSurveys = listOf(SURVEY_1, SURVEY_2)
     val localSurveys = listOf(SURVEY_1, SURVEY_3)
-    setupSurveys(localSurveys, remoteSurveys)
+    val publicSurveys = listOf(SURVEY_1, SURVEY_2)
+    setupSurveys(localSurveys, remoteSurveys, publicSurveys)
 
     val resultFlow = listAvailableSurveysUseCase()
 
@@ -137,7 +144,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
 
       val remoteSurveys = listOf(SURVEY_1, SURVEY_2)
       val localSurveys = emptyList<Survey>()
-      setupSurveys(localSurveys, remoteSurveys)
+      val publicSurveys = listOf(SURVEY_1, SURVEY_2)
+      setupSurveys(localSurveys, remoteSurveys, publicSurveys)
 
       val resultFlow = listAvailableSurveysUseCase()
 
