@@ -27,7 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -106,7 +105,10 @@ fun MultipleChoiceItemView(
           supportingText = {
             Row(modifier = modifier.fillMaxWidth()) {
               Spacer(modifier = modifier.weight(1f))
-              Text("${item.otherText.length} / ${Config.TEXT_DATA_CHAR_LIMIT}", textAlign = TextAlign.End)
+              Text(
+                "${item.otherText.length} / ${Config.TEXT_DATA_CHAR_LIMIT}",
+                textAlign = TextAlign.End,
+              )
             }
           },
           isError = item.otherText.length > Config.TEXT_DATA_CHAR_LIMIT,

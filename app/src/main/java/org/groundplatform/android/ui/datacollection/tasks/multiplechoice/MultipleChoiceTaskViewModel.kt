@@ -60,8 +60,8 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
   }
 
   override fun validate(task: Task, taskData: TaskData?): Int? {
-    if (task.type != Task.Type.MULTIPLE_CHOICE) return super.validate(task, taskData)
-    if (!selectedIds.contains(OTHER_ID)) return super.validate(task, taskData)
+    if (task.type != Task.Type.MULTIPLE_CHOICE || !selectedIds.contains(OTHER_ID))
+      return super.validate(task, taskData)
 
     if (otherText.length > Config.TEXT_DATA_CHAR_LIMIT)
       return R.string.text_task_data_character_limit

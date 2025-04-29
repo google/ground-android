@@ -27,9 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,22 +46,19 @@ fun TextTaskInput(
     supportingText = {
       Row(modifier = modifier.fillMaxWidth()) {
         Spacer(modifier = modifier.weight(1f))
-        Text(
-          "${value.length} / ${Config.TEXT_DATA_CHAR_LIMIT}",
-          textAlign = TextAlign.End,
-        )
+        Text("${value.length} / ${Config.TEXT_DATA_CHAR_LIMIT}", textAlign = TextAlign.End)
       }
     },
     isError = value.length > Config.TEXT_DATA_CHAR_LIMIT,
     value = value,
     onValueChange = { valueChanged(it) },
     modifier =
-    modifier
-      .fillMaxWidth()
-      .wrapContentHeight(align = Alignment.Top)
-      // TODO: Add horizontal padding as 16.dp when global padding is removed.
-      // Issue URL: https://github.com/google/ground-android/issues/2976
-      .padding(vertical = 8.dp),
+      modifier
+        .fillMaxWidth()
+        .wrapContentHeight(align = Alignment.Top)
+        // TODO: Add horizontal padding as 16.dp when global padding is removed.
+        // Issue URL: https://github.com/google/ground-android/issues/2976
+        .padding(vertical = 8.dp),
     textStyle = MaterialTheme.typography.bodyLarge,
     singleLine = true,
     keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
