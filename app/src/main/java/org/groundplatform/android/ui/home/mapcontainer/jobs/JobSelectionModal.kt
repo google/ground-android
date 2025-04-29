@@ -65,7 +65,7 @@ fun JobSelectionModal(jobs: List<Job>, onJobClicked: (job: Job) -> Unit, onDismi
     ActionButton(
       modifier = Modifier
         .align(Alignment.CenterHorizontally)
-        .padding(bottom =(48 * 160 / LocalDensity.current.density).dp),
+        .padding(bottom = 35.dp),
       icon = Icons.Filled.Clear,
       contentDescription = stringResource(R.string.close),
       onClick = onDismiss,

@@ -25,7 +25,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -69,13 +68,13 @@ private fun getActionButtonColors(mode: ButtonMode) =
       ButtonDefaults.buttonColors()
         .copy(
           containerColor = MaterialTheme.colorScheme.primaryContainer,
-          contentColor = Color.Black,
+          contentColor = MaterialTheme.colorScheme.onSurface,
         )
     ButtonMode.SECONDARY ->
       ButtonDefaults.buttonColors()
         .copy(
           containerColor = MaterialTheme.colorScheme.secondaryContainer,
-          contentColor = Color.Black,
+          contentColor = MaterialTheme.colorScheme.onSurface,
         )
   }
 
