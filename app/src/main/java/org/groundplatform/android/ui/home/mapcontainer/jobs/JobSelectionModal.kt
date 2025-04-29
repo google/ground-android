@@ -41,21 +41,11 @@ import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.ui.theme.AppTheme
 
-private val verticalGradient =
-  Brush.verticalGradient(
-    colorStops =
-      arrayOf(
-        0.0f to Color.Black.copy(alpha = 0.75F),
-        0.9f to Color.DarkGray.copy(alpha = 0.6F),
-        1f to Color.Transparent,
-      )
-  )
-
 @Composable
 fun JobSelectionModal(jobs: List<Job>, onJobClicked: (job: Job) -> Unit, onDismiss: () -> Unit) {
   Column(
     Modifier.fillMaxWidth()
-      .background(verticalGradient)
+      .background(color = Color.Black.copy(alpha = 0.6f))
       .pointerInput(Unit) { detectTapGestures {} }
       .clickable(onClick = onDismiss)
   ) {
