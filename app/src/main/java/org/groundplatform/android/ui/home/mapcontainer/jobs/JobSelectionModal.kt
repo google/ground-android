@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -64,7 +65,7 @@ fun JobSelectionModal(jobs: List<Job>, onJobClicked: (job: Job) -> Unit, onDismi
     ActionButton(
       modifier = Modifier
         .align(Alignment.CenterHorizontally)
-        .padding(bottom = 36.dp),
+        .padding(bottom =(48 * 160 / LocalDensity.current.density).dp),
       icon = Icons.Filled.Clear,
       contentDescription = stringResource(R.string.close),
       onClick = onDismiss,
