@@ -34,17 +34,23 @@ import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.theme.AppTheme
 
+enum class ButtonMode {
+  PRIMARY,
+  SECONDARY,
+}
+
 @Composable
 fun ActionButton(
   icon: ImageVector,
   contentDescription: String,
   modifier: Modifier = Modifier,
   onClick: () -> Unit,
+  mode: ButtonMode = ButtonMode.PRIMARY,
 ) {
   Button(
     onClick = onClick,
     modifier = modifier.size(width = 100.dp, height = 100.dp),
-    colors = getActionButtonColors(),
+    colors = getActionButtonColors(mode),
     shape = RoundedCornerShape(25),
   ) {
     Icon(imageVector = icon, contentDescription = contentDescription, Modifier.size(65.dp))
@@ -52,9 +58,21 @@ fun ActionButton(
 }
 
 @Composable
-private fun getActionButtonColors() =
-  ButtonDefaults.buttonColors()
-    .copy(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = Color.Black)
+private fun getActionButtonColors(mode: ButtonMode) =
+  when (mode) {
+    ButtonMode.PRIMARY ->
+      ButtonDefaults.buttonColors()
+        .copy(
+          containerColor = MaterialTheme.colorScheme.primaryContainer,
+          contentColor = Color.Black,
+        )
+    ButtonMode.SECONDARY ->
+      ButtonDefaults.buttonColors()
+        .copy(
+          containerColor = MaterialTheme.colorScheme.secondaryContainer,
+          contentColor = Color.Black,
+        )
+  }
 
 @Composable
 @Preview
