@@ -91,7 +91,7 @@ private fun ModalContents(
 ) {
   val loiHelper = LocationOfInterestHelper(LocalContext.current.resources)
 
-  Column(modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 32.dp)) {
+  Column(modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 50.dp)) {
 
     // Job Name
     loiHelper.getJobName(loi)?.let {

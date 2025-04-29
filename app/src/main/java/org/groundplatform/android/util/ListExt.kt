@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.persistence.local.room.dao
 
-import androidx.room.Dao
-import androidx.room.Query
-import org.groundplatform.android.persistence.local.room.entity.JobEntity
+package org.groundplatform.android.util
 
-@Dao
-interface JobDao : BaseDao<JobEntity> {
-  @Query("DELETE FROM job WHERE survey_id = :surveyId")
-  suspend fun deleteBySurveyId(surveyId: String)
-
-  @Query("DELETE FROM job WHERE survey_id = :surveyId AND id NOT IN (:ids)")
-  suspend fun deleteNotIn(surveyId: String, ids: List<String>)
-}
+/**
+ * Returns the second-to-last element, or throws [ArrayIndexOutOfBoundsException] if the element
+ * does not exist.
+ */
+fun <T> List<T>.penult(): T = get(size - 2)

@@ -27,10 +27,12 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
+import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
@@ -78,6 +80,8 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
   @Inject lateinit var userRepository: UserRepository
 
+  @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
+
   private val factory =
     object : WorkerFactory() {
       override fun createWorker(
@@ -92,6 +96,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
           fakeRemoteDataStore,
           mockMediaUploadWorkManager,
           userRepository,
+          ioDispatcher,
         )
     }
 
@@ -230,6 +235,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
   private fun createLoiMutation(userId: String) =
     LocationOfInterestMutation(
+      jobId = TEST_JOB.id,
       type = Mutation.Type.CREATE,
       syncStatus = Mutation.SyncStatus.PENDING,
       locationOfInterestId = TEST_LOI_ID,

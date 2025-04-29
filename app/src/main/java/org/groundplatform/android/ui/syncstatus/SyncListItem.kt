@@ -112,13 +112,13 @@ private fun Date.toFormattedTime(): String =
 
 private fun Mutation.SyncStatus.toLabel(): Int =
   when (this) {
-    Mutation.SyncStatus.PENDING -> R.string.upload_pending
-    Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS -> R.string.media_syncing
-    Mutation.SyncStatus.IN_PROGRESS -> R.string.syncing
-    Mutation.SyncStatus.COMPLETED -> R.string.synced
-    Mutation.SyncStatus.FAILED -> R.string.failed
-    Mutation.SyncStatus.MEDIA_UPLOAD_PENDING -> R.string.data_synced_media_pending
-    Mutation.SyncStatus.MEDIA_UPLOAD_AWAITING_RETRY -> R.string.data_synced_media_pending_retry
+    Mutation.SyncStatus.PENDING -> R.string.pending
+    Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS -> R.string.uploading_photos
+    Mutation.SyncStatus.IN_PROGRESS -> R.string.uploading_form_data
+    Mutation.SyncStatus.COMPLETED -> R.string.uploaded
+    Mutation.SyncStatus.FAILED -> R.string.pending_retry
+    Mutation.SyncStatus.MEDIA_UPLOAD_PENDING -> R.string.photos_pending
+    Mutation.SyncStatus.MEDIA_UPLOAD_AWAITING_RETRY -> R.string.photos_pending_retry
     Mutation.SyncStatus.UNKNOWN -> error("Unexpected status")
   }
 

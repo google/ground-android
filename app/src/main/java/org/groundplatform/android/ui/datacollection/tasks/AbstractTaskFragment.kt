@@ -49,6 +49,7 @@ import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.util.renderComposableDialog
 import org.groundplatform.android.util.setComposableContent
 import org.jetbrains.annotations.TestOnly
+import timber.log.Timber
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
@@ -62,6 +63,16 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** ID of the associated task in the Job. Used for instantiating the [viewModel]. */
   var taskId by Delegates.notNull<String>()
+
+  protected val isViewModelInitialized: Boolean
+    get() =
+      try {
+        viewModel
+        true
+      } catch (e: UninitializedPropertyAccessException) {
+        Timber.d("Viewmodel is not initialized", e)
+        false
+      }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)

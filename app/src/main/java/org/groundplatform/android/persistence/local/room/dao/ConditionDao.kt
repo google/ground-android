@@ -16,6 +16,11 @@
 package org.groundplatform.android.persistence.local.room.dao
 
 import androidx.room.Dao
+import androidx.room.Query
 import org.groundplatform.android.persistence.local.room.entity.ConditionEntity
 
-@Dao interface ConditionDao : BaseDao<ConditionEntity>
+@Dao
+interface ConditionDao : BaseDao<ConditionEntity> {
+  @Query("DELETE FROM condition WHERE parent_task_id = :taskId")
+  suspend fun deleteByTaskId(taskId: String)
+}

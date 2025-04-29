@@ -22,7 +22,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import javax.inject.Provider
-import kotlin.collections.set
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.TimeoutCancellationException
@@ -203,22 +202,29 @@ internal constructor(
   fun getTaskViewModel(taskId: String): AbstractTaskViewModel? {
     val viewModels = taskViewModels.value
 
-    val task = tasks.first { it.id == taskId }
-
     if (viewModels.containsKey(taskId)) {
       return viewModels[taskId]
     }
 
-    return try {
-      val viewModel = viewModelFactory.create(getViewModelClass(task.type))
-      taskViewModels.value[task.id] = viewModel
+    // Cleanup extra logs added for debugging: https://github.com/google/ground-android/issues/2998
+    val task =
+      tasks.firstOrNull { it.id == taskId }
+        ?: error("Task not found. taskId=$taskId, jobId=$jobId, loiId=$loiId, surveyId=$surveyId")
+
+    val viewModel =
+      try {
+        viewModelFactory.create(getViewModelClass(task.type))
+      } catch (e: Exception) {
+        Timber.e("ignoring task with invalid type: $task.type")
+        null
+      }
+
+    return viewModel?.apply {
+      viewModels[task.id] = viewModel
 
       val taskData: TaskData? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
       viewModel.initialize(job, task, taskData)
-      viewModel
-    } catch (e: Exception) {
-      Timber.e("ignoring task with invalid type: $task.type")
-      null
+      taskDataHandler.setData(task, taskData)
     }
   }
 

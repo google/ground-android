@@ -42,8 +42,13 @@ import org.groundplatform.android.ui.compose.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.util.renderComposableDialog
 import timber.log.Timber
+
+private var pendingCapturedPhotoUri: Uri? = null
+private var pendingCaptureTimestamp: Long = 0L
+private const val PENDING_TIMEOUT_MS = 3_000L
 
 /** Fragment allowing the user to capture a photo to complete a task. */
 @AndroidEntryPoint
@@ -53,11 +58,21 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject @MainScope lateinit var mainScope: CoroutineScope
   @Inject lateinit var permissionsManager: PermissionsManager
   @Inject lateinit var popups: EphemeralPopups
+  lateinit var homeScreenViewModel: HomeScreenViewModel
 
   // Registers a callback to execute after a user captures a photo from the on-device camera.
   private var capturePhotoLauncher: ActivityResultLauncher<Uri> =
     registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-      externalScope.launch { if (result) viewModel.savePhotoTaskData(capturedPhotoUri) }
+      externalScope.launch {
+        if (result) {
+          if (isViewModelInitialized) {
+            viewModel.savePhotoTaskData(capturedPhotoUri)
+          } else {
+            pendingCapturedPhotoUri = capturedPhotoUri
+            pendingCaptureTimestamp = System.currentTimeMillis()
+          }
+        }
+      }
     }
 
   private var hasRequestedPermissionsOnResume = false
@@ -74,6 +89,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     taskBinding.fragment = this
     taskBinding.dataCollectionViewModel = dataCollectionViewModel
     taskBinding.viewModel = viewModel
+    homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     return taskBinding.root
   }
 
@@ -81,6 +97,16 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     super.onViewCreated(view, savedInstanceState)
     taskWaitingForPhoto = savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO)
     capturedPhotoPath = savedInstanceState?.getString(CAPTURED_PHOTO_PATH)
+
+    pendingCapturedPhotoUri?.let { uri ->
+      if (System.currentTimeMillis() - pendingCaptureTimestamp < PENDING_TIMEOUT_MS) {
+        externalScope.launch { viewModel.savePhotoTaskData(uri) }
+      } else {
+        Timber.e("PhotoTaskFragment", "Pending photo capture timed out and will be dropped.")
+      }
+      pendingCapturedPhotoUri = null
+      pendingCaptureTimestamp = 0L
+    }
   }
 
   override fun onTaskViewAttached() {
@@ -145,6 +171,8 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   }
 
   fun onTakePhoto() {
+    // Keep track of the fact that we are restoring the application after a photo capture.
+    homeScreenViewModel.awaitingPhotoCapture = true
     obtainCapturePhotoPermissions {
       lifecycleScope.launch { launchPhotoCapture(viewModel.task.id) }
     }
@@ -160,6 +188,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
       capturePhotoLauncher.launch(capturedPhotoUri)
       Timber.d("Capture photo intent sent")
     } catch (e: IllegalArgumentException) {
+      homeScreenViewModel.awaitingPhotoCapture = false
       popups.ErrorPopup().unknownError()
       Timber.e(e)
     }
