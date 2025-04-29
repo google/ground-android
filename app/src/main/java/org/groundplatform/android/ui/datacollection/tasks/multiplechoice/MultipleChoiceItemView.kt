@@ -24,6 +24,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.groundplatform.android.Config
 import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
 import org.groundplatform.android.model.task.MultipleChoice
@@ -98,6 +100,7 @@ fun MultipleChoiceItemView(
     if (item.isOtherOption) {
       Row(modifier = modifier.padding(horizontal = 48.dp)) {
         TextField(
+          label = { Text(text = "${item.otherText.length} / ${Config.TEXT_DATA_CHAR_LIMIT}") },
           value = item.otherText,
           textStyle = MaterialTheme.typography.bodyLarge,
           onValueChange = { otherValueChanged(it) },
