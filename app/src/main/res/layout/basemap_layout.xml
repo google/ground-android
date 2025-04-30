@@ -88,12 +88,11 @@
 
     <View
       android:layout_width="match_parent"
-      android:layout_height="64dp"
+      android:layout_height="86dp"
       android:background="@drawable/bottom_container_shim"
       android:fitsSystemWindows="true"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      android:translationZ="10dp"/>
+      app:layout_constraintStart_toStartOf="parent" />
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
