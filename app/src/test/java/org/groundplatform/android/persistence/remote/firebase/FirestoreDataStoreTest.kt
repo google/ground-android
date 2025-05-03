@@ -15,64 +15,63 @@
  */
 package org.groundplatform.android.persistence.remote.firebase
 
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.BindValue
+import com.google.firebase.FirebaseApp
+import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.google.firebase.functions.FirebaseFunctions
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.FakeData
+import org.groundplatform.android.FakeData.USER_ID
 import org.groundplatform.android.model.Survey
+import org.groundplatform.android.model.User
 import org.groundplatform.android.model.toListItem
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
-import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
-import org.groundplatform.android.system.NetworkManager
-import org.groundplatform.android.system.NetworkStatus
+import org.groundplatform.android.persistence.remote.firebase.schema.GroundFirestore
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.kotlin.whenever
+import org.mockito.kotlin.mock
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class FirestoreDataStoreTest : BaseHiltTest() {
 
-  @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-  @BindValue @Mock lateinit var networkManager: NetworkManager
-  @Inject lateinit var localSurveyStore: LocalSurveyStore
+  var firebaseFunctions: FirebaseFunctions = mock()
+  lateinit var firebaseFirestoreProvider: FirebaseFirestoreProvider
+  var firebaseFirestoreSettings: FirebaseFirestoreSettings = mock()
+
+  lateinit var groundFirestore: GroundFirestore
+  lateinit var firestoreDataStore: FirestoreDataStore
 
   @Before
-  override fun setUp() {
+  override fun setUp() = runBlocking {
     super.setUp()
-    setupSurveys()
-  }
-
-  private fun setupSurveys() = runWithTestDispatcher {
-    fakeRemoteDataStore.surveys = listOf(SURVEY_1, SURVEY_2)
-    fakeRemoteDataStore.publicSurveys = listOf(PUBLIC_SURVEY_A, PUBLIC_SURVEY_B)
+    FirebaseApp.initializeApp(InstrumentationRegistry.getInstrumentation().targetContext)
+    firebaseFirestoreProvider = FirebaseFirestoreProvider(firebaseFirestoreSettings)
+    groundFirestore = GroundFirestore(firebaseFirestoreProvider.get())
+    firestoreDataStore =
+      FirestoreDataStore(firebaseFunctions, firebaseFirestoreProvider, testDispatcher)
   }
 
   @Test
   fun `getRestrictedSurveyList emits mapped list`() = runWithTestDispatcher {
-    whenever(networkManager.networkStatusFlow).thenReturn(flowOf(NetworkStatus.AVAILABLE))
-    val resultFlow = fakeRemoteDataStore.getRestrictedSurveyList(FakeData.USER)
+    val resultFlow = firestoreDataStore.getRestrictedSurveyList(User(USER_ID, "fakeEmail", "User"))
 
     assertThat(resultFlow.first())
       .isEqualTo(
         listOf(
-          SURVEY_1.toListItem(availableOffline = false),
-          SURVEY_2.toListItem(availableOffline = false),
+          PUBLIC_SURVEY_A.toListItem(availableOffline = false),
+          PUBLIC_SURVEY_B.toListItem(availableOffline = false),
         )
       )
   }
 
   @Test
   fun `getPublicSurveyList emits mapped list`() = runWithTestDispatcher {
-    whenever(networkManager.networkStatusFlow).thenReturn(flowOf(NetworkStatus.AVAILABLE))
-    val resultFlow = fakeRemoteDataStore.getPublicSurveyList()
+    val resultFlow = firestoreDataStore.getPublicSurveyList()
 
     assertThat(resultFlow.first())
       .isEqualTo(
@@ -84,11 +83,6 @@ class FirestoreDataStoreTest : BaseHiltTest() {
   }
 
   companion object {
-    private val SURVEY_1 =
-      Survey(id = "1", title = "Survey 1", description = "", jobMap = emptyMap())
-    private val SURVEY_2 =
-      Survey(id = "2", title = "Survey 2", description = "", jobMap = emptyMap())
-
     private val PUBLIC_SURVEY_A =
       Survey(id = "A", title = "Public Survey 1", description = "", jobMap = emptyMap())
     private val PUBLIC_SURVEY_B =
