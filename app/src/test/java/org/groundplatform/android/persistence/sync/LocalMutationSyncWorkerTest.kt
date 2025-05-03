@@ -93,9 +93,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
           appContext,
           workerParameters,
           mutationRepository,
-          fakeRemoteDataStore,
           mockMediaUploadWorkManager,
-          userRepository,
           ioDispatcher,
         )
     }
