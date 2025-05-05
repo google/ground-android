@@ -16,12 +16,12 @@
 package org.groundplatform.android.persistence.remote.firebase
 
 import androidx.test.platform.app.InstrumentationRegistry
+import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.functions.FirebaseFunctions
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.USER_ID
@@ -58,28 +58,28 @@ class FirestoreDataStoreTest : BaseHiltTest() {
 
   @Test
   fun `getRestrictedSurveyList emits mapped list`() = runWithTestDispatcher {
-    val resultFlow = firestoreDataStore.getRestrictedSurveyList(User(USER_ID, "fakeEmail", "User"))
-
-    assertThat(resultFlow.first())
-      .isEqualTo(
-        listOf(
-          PUBLIC_SURVEY_A.toListItem(availableOffline = false),
-          PUBLIC_SURVEY_B.toListItem(availableOffline = false),
+    firestoreDataStore.getRestrictedSurveyList(User(USER_ID, "fakeEmail", "User")).test {
+      assertThat(expectMostRecentItem())
+        .isEqualTo(
+          listOf(
+            PUBLIC_SURVEY_A.toListItem(availableOffline = false),
+            PUBLIC_SURVEY_B.toListItem(availableOffline = false),
+          )
         )
-      )
+    }
   }
 
   @Test
   fun `getPublicSurveyList emits mapped list`() = runWithTestDispatcher {
-    val resultFlow = firestoreDataStore.getPublicSurveyList()
-
-    assertThat(resultFlow.first())
-      .isEqualTo(
-        listOf(
-          PUBLIC_SURVEY_A.toListItem(availableOffline = false),
-          PUBLIC_SURVEY_B.toListItem(availableOffline = false),
+    firestoreDataStore.getPublicSurveyList().test {
+      assertThat(expectMostRecentItem())
+        .isEqualTo(
+          listOf(
+            PUBLIC_SURVEY_A.toListItem(availableOffline = false),
+            PUBLIC_SURVEY_B.toListItem(availableOffline = false),
+          )
         )
-      )
+    }
   }
 
   companion object {
