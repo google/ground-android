@@ -148,7 +148,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     whenever(activateSurvey(TEST_SURVEY_2.id)).thenReturn(true)
 
     launchFragmentWithNavController<SurveySelectorFragment>(
-      fragmentArgs = bundleOf(Pair("shouldExitApp", false)),
+      fragmentArgs = bundleOf(Pair("shouldExitApp", false), Pair("surveyId", "")),
       destId = R.id.surveySelectorFragment,
       navControllerCallback = { navController = it },
     )
@@ -172,7 +172,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
 
     launchFragmentWithNavController<SurveySelectorFragment>(
-      fragmentArgs = bundleOf(Pair("shouldExitApp", false)),
+      fragmentArgs = bundleOf(Pair("shouldExitApp", false), Pair("surveyId", "")),
       destId = R.id.surveySelectorFragment,
       navControllerCallback = { navController = it },
     )
@@ -203,7 +203,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun shouldExitAppOnBackPress_whenArgIsPresent() {
     setSurveyList(listOf())
-    setUpFragment(bundleOf(Pair("shouldExitApp", true)))
+    setUpFragment(bundleOf(Pair("shouldExitApp", true), Pair("surveyId", "")))
 
     assertThat(fragment.onBack()).isTrue()
     assertThat(fragment.requireActivity().isFinishing).isTrue()
@@ -334,15 +334,16 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
       )
   }
 
-  private fun setUpFragment(optBundle: Bundle = bundleOf(Pair("shouldExitApp", false))) =
-    runWithTestDispatcher {
-      launchFragmentInHiltContainer<SurveySelectorFragment>(optBundle) {
-        fragment = this as SurveySelectorFragment
-      }
-
-      // Wait for survey cards to be populated
-      advanceUntilIdle()
+  private fun setUpFragment(
+    optBundle: Bundle = bundleOf(Pair("shouldExitApp", false), Pair("surveyId", ""))
+  ) = runWithTestDispatcher {
+    launchFragmentInHiltContainer<SurveySelectorFragment>(optBundle) {
+      fragment = this as SurveySelectorFragment
     }
+
+    // Wait for survey cards to be populated
+    advanceUntilIdle()
+  }
 
   private fun setSurveyList(surveys: List<SurveyListItem>) = runWithTestDispatcher {
     whenever(listAvailableSurveysUseCase()).thenReturn(listOf(surveys).asFlow())
