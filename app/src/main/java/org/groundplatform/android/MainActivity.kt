@@ -62,6 +62,8 @@ class MainActivity : AbstractActivity() {
 
   private var signInProgressDialog: AlertDialog? = null
 
+  private var pendingDeepLink: Uri? = null
+
   override fun onCreate(savedInstanceState: Bundle?) {
     // Make sure this is before calling super.onCreate()
     setTheme(R.style.AppTheme)
@@ -83,13 +85,17 @@ class MainActivity : AbstractActivity() {
     navHostFragment =
       supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
 
-    intent.data?.let {
-      navHostFragment.navController.handleDeepLinkIfNeeded(it)
-    }
-
     viewModel = viewModelFactory[this, MainViewModel::class.java]
 
     lifecycleScope.launch { viewModel.navigationRequests.filterNotNull().collect { updateUi(it) } }
+
+    intent.data?.let {
+      if (navHostFragment.navController.currentDestination?.id != R.id.sign_in_fragment) {
+        navHostFragment.navController.handleDeepLinkIfNeeded(it)
+      } else {
+        pendingDeepLink = it
+      }
+    }
 
     onBackPressedDispatcher.addCallback(
       this,
@@ -189,11 +195,6 @@ class MainActivity : AbstractActivity() {
 
   /** Override up button behavior to use Navigation Components back stack. */
   override fun onSupportNavigateUp(): Boolean = navigateUp()
-
-  override fun onNewIntent(intent: Intent) {
-    super.onNewIntent(intent)
-    navHostFragment.navController.handleDeepLink(intent)
-  }
 
   private fun navigateUp(): Boolean {
     val navController = navHostFragment.navController
