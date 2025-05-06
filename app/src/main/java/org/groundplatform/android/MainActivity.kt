@@ -34,6 +34,7 @@ import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.groundplatform.android.databinding.MainActBinding
 import org.groundplatform.android.repository.UserRepository
@@ -87,14 +88,18 @@ class MainActivity : AbstractActivity() {
 
     viewModel = viewModelFactory[this, MainViewModel::class.java]
 
-    lifecycleScope.launch { viewModel.navigationRequests.filterNotNull().collect { updateUi(it) } }
+    lifecycleScope.launch {
+      viewModel.navigationRequests.filterNotNull().first()
 
-    intent.data?.let {
-      if (navHostFragment.navController.currentDestination?.id != R.id.sign_in_fragment) {
-        navHostFragment.navController.handleDeepLinkIfNeeded(it)
-      } else {
-        pendingDeepLink = it
+      intent.data?.let {
+        if (navHostFragment.navController.currentDestination?.id != R.id.sign_in_fragment) {
+          navHostFragment.navController.handleDeepLinkIfNeeded(it)
+        } else {
+          pendingDeepLink = it
+        }
       }
+
+      viewModel.navigationRequests.filterNotNull().collect { updateUi(it) }
     }
 
     onBackPressedDispatcher.addCallback(

@@ -127,9 +127,18 @@ class TermsOfServiceFragment : AbstractFragment() {
     super.onViewCreated(view, savedInstanceState)
     lifecycleScope.launch {
       viewModel.navigateToSurveySelector.collect {
-        findNavController()
-          .navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true, null))
+        activity?.intent?.data?.let { uri ->
+          if (uri.host == "groundplatform.org" && uri.pathSegments.firstOrNull() == "survey") {
+            val surveyId = uri.lastPathSegment
+            openSurveySelector(surveyId)
+          }
+        } ?: run { openSurveySelector(null) }
       }
     }
+  }
+
+  private fun openSurveySelector(surveyId: String? = null) {
+    findNavController()
+      .navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true, surveyId))
   }
 }
