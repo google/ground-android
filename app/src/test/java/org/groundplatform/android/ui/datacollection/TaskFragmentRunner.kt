@@ -67,13 +67,6 @@ class TaskFragmentRunner(
 
   internal fun clickDoneButton(): TaskFragmentRunner = clickButton("Done")
 
-  internal fun clickUndoButton(): TaskFragmentRunner = clickButton("Undo", true)
-
-  internal fun clickRedoButton(): TaskFragmentRunner = clickButton("Redo", true)
-
-  /*baseHiltTest.composeTestRule
-  .onNodeWithContentDescription("Undo").performClick()*/
-
   internal fun clickButton(
     text: String,
     isContentDescription: Boolean = false,
