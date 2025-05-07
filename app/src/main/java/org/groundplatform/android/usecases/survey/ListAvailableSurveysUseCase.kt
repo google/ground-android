@@ -61,8 +61,9 @@ constructor(
     return combine(remoteSurveyListFlow, localFlow) { remoteSurveys, localSurveys ->
       val remoteSurveysWithOfflineStatus =
         remoteSurveys.map { remote -> addOfflineStatus(remote, localSurveys) }
-      val onlyLocal = localSurveys.filter { local -> remoteSurveys.none { it.id == local.id } }
-      remoteSurveysWithOfflineStatus + onlyLocal
+      val localOnlySurveys =
+        localSurveys.filter { local -> remoteSurveys.none { it.id == local.id } }
+      remoteSurveysWithOfflineStatus + localOnlySurveys
     }
   }
 
