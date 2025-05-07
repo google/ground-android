@@ -148,6 +148,9 @@ internal constructor(
     // Reset complete status
     isMarkedComplete = false
 
+    val removed = vertices.last()
+    redoStack.add(removed)
+
     // Remove last vertex and update polygon
     val updatedVertices = vertices.toMutableList().apply { removeLast() }.toImmutableList()
 
