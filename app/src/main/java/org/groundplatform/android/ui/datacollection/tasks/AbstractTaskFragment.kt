@@ -233,9 +233,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   /** Adds the action buttons to the UI. */
   private fun renderButtons() {
     taskView.actionButtonsContainer.composeView.setComposableContent {
-      Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-      ) {
+      Row(horizontalArrangement = Arrangement.SpaceBetween) {
         buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
       }
     }
