@@ -16,9 +16,13 @@
 package org.groundplatform.android.ui.tos
 
 import android.os.Bundle
+import android.text.SpannedString
+import android.text.method.LinkMovementMethod
+import android.text.util.Linkify
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,10 +42,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,7 +52,6 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.Config.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractFragment
-import org.groundplatform.android.ui.compose.HtmlText
 import org.groundplatform.android.ui.compose.Toolbar
 import org.groundplatform.android.ui.surveyselector.SurveySelectorFragmentDirections
 import org.groundplatform.android.util.createComposeView
@@ -83,7 +85,7 @@ class TermsOfServiceFragment : AbstractFragment() {
         )
       }
     ) { innerPadding ->
-      val termsText by viewModel.termsOfServiceText.observeAsState(AnnotatedString(""))
+      val termsText by viewModel.termsOfServiceText.observeAsState(SpannedString(""))
       val agreeChecked by viewModel.agreeCheckboxChecked.observeAsState(false)
 
       Column(
@@ -95,9 +97,19 @@ class TermsOfServiceFragment : AbstractFragment() {
         horizontalAlignment = Alignment.CenterHorizontally,
       ) {
         Spacer(modifier = Modifier.height(16.dp))
-        HtmlText(
-          html = termsText.toString(),
-          modifier = Modifier.padding(8.dp).testTag("sddsfsdfsdf"),
+        AndroidView(
+          factory = { context ->
+            TextView(context).apply {
+              movementMethod = LinkMovementMethod.getInstance()
+              autoLinkMask = Linkify.WEB_URLS
+              setTextAppearance(android.R.style.TextAppearance_Material_Body1)
+            }
+          },
+          update = { textView ->
+            textView.text = termsText
+            Linkify.addLinks(textView, Linkify.WEB_URLS)
+          },
+          modifier = Modifier.fillMaxWidth().padding(8.dp),
         )
         Spacer(modifier = Modifier.height(16.dp))
 
