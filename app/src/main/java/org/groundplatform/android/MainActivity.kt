@@ -36,6 +36,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import org.groundplatform.android.Config.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.databinding.MainActBinding
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.ActivityCallback
@@ -253,7 +254,7 @@ class MainActivity : AbstractActivity() {
   }
 
   private fun NavController.handleDeepLinkIfNeeded(uri: Uri) {
-    if (uri.host == "groundplatform.org" && uri.pathSegments.firstOrNull() == "survey") {
+    if (uri.pathSegments.firstOrNull() == SURVEY_PATH_SEGMENT) {
       val surveyId = uri.lastPathSegment
       navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(false, surveyId))
     }

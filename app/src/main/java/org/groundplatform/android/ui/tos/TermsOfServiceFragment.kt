@@ -46,6 +46,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import org.groundplatform.android.Config.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.compose.HtmlText
@@ -128,7 +129,7 @@ class TermsOfServiceFragment : AbstractFragment() {
     lifecycleScope.launch {
       viewModel.navigateToSurveySelector.collect {
         activity?.intent?.data?.let { uri ->
-          if (uri.host == "groundplatform.org" && uri.pathSegments.firstOrNull() == "survey") {
+          if (uri.pathSegments.firstOrNull() == SURVEY_PATH_SEGMENT) {
             val surveyId = uri.lastPathSegment
             openSurveySelector(surveyId)
           }
