@@ -171,7 +171,10 @@ internal constructor(
   /** Adds the last vertex to the polygon. */
   fun addLastVertex() {
     check(!isMarkedComplete) { "Attempted to add last vertex after completing the drawing" }
-    vertices.lastOrNull()?.let { addVertex(it, false) }
+    vertices.lastOrNull()?.let {
+      _isTooClose = true
+      addVertex(it, false)
+    }
   }
 
   /** Adds a new vertex to the polygon. */
