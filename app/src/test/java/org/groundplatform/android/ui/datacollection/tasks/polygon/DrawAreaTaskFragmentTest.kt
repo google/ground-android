@@ -78,6 +78,7 @@ class DrawAreaTaskFragmentTest :
       ButtonAction.PREVIOUS,
       ButtonAction.SKIP,
       ButtonAction.UNDO,
+      ButtonAction.REDO,
       ButtonAction.NEXT,
       ButtonAction.ADD_POINT,
       ButtonAction.COMPLETE,
@@ -92,6 +93,7 @@ class DrawAreaTaskFragmentTest :
       .assertButtonIsHidden("Next")
       .assertButtonIsEnabled("Skip")
       .assertButtonIsHidden("Undo", true)
+      .assertButtonIsHidden("Redo", true)
       .assertButtonIsEnabled("Add point")
       .assertButtonIsHidden("Complete")
   }
@@ -104,6 +106,7 @@ class DrawAreaTaskFragmentTest :
       .assertButtonIsHidden("Next")
       .assertButtonIsHidden("Skip")
       .assertButtonIsHidden("Undo", true)
+      .assertButtonIsHidden("Redo", true)
       .assertButtonIsEnabled("Add point")
       .assertButtonIsHidden("Complete")
   }
@@ -131,11 +134,12 @@ class DrawAreaTaskFragmentTest :
       )
     )
 
-    // Only "Undo" and "Add point" buttons should be visible.
+    // Only "Undo", "Redo" and "Add point" buttons should be visible.
     runner()
       .assertButtonIsHidden("Next")
       .assertButtonIsHidden("Skip")
       .assertButtonIsEnabled("Undo", true)
+      .assertButtonIsEnabled("Redo", true)
       .assertButtonIsEnabled("Add point")
       .assertButtonIsHidden("Complete")
   }
@@ -155,6 +159,7 @@ class DrawAreaTaskFragmentTest :
       .clickButton("Complete")
       .assertButtonIsHidden("Skip")
       .assertButtonIsEnabled("Undo", true)
+      .assertButtonIsEnabled("Redo", true)
       .assertButtonIsHidden("Add point")
 
     hasValue(
