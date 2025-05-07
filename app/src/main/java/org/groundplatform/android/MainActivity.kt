@@ -128,7 +128,7 @@ class MainActivity : AbstractActivity() {
         navigateTo(SignInFragmentDirections.showTermsOfService(false))
       }
       MainUiState.NoActiveSurvey -> {
-        navigateTo(SurveySelectorFragmentDirections.showSurveySelectorScreen(true, null))
+        navigateTo(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
       }
       MainUiState.ShowHomeScreen -> {
         navigateTo(HomeScreenFragmentDirections.showHomeScreen())
@@ -256,7 +256,9 @@ class MainActivity : AbstractActivity() {
   private fun NavController.handleDeepLinkIfNeeded(uri: Uri) {
     if (uri.pathSegments.firstOrNull() == SURVEY_PATH_SEGMENT) {
       val surveyId = uri.lastPathSegment
-      navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(false, surveyId))
+      val action = SurveySelectorFragmentDirections.showSurveySelectorScreen(false)
+      action.surveyId = surveyId
+      navigate(action)
     }
   }
 }

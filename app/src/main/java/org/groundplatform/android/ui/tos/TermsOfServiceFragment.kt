@@ -139,7 +139,8 @@ class TermsOfServiceFragment : AbstractFragment() {
   }
 
   private fun openSurveySelector(surveyId: String? = null) {
-    findNavController()
-      .navigate(SurveySelectorFragmentDirections.showSurveySelectorScreen(true, surveyId))
+    val action = SurveySelectorFragmentDirections.showSurveySelectorScreen(true)
+    action.surveyId = surveyId
+    findNavController().navigate(action)
   }
 }

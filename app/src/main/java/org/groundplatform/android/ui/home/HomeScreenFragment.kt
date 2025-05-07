@@ -93,7 +93,7 @@ class HomeScreenFragment :
     navHeader.findViewById<TextView>(R.id.switch_survey_button).setOnClickListener {
       findNavController()
         .navigate(
-          HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false, null)
+          HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
         )
     }
     viewLifecycleOwner.lifecycleScope.launch { user = userRepository.getAuthenticatedUser() }

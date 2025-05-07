@@ -262,7 +262,8 @@
     <argument
       android:name="surveyId"
       app:argType="string"
-      app:nullable="true"/>
+      app:nullable="true"
+      android:defaultValue="@null" />
   </fragment>
   <dialog
     android:id="@+id/mapTypeDialogFragment"
