@@ -32,6 +32,8 @@ import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.android.model.mutation.SubmissionMutation
+import org.groundplatform.android.model.task.Condition
 import org.groundplatform.android.model.task.MultipleChoice
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.proto.Survey.DataSharingTerms
@@ -55,11 +57,12 @@ object FakeData {
   const val LOI_ID = "loi id"
   const val USER_ID = "user id"
   const val SURVEY_ID = "survey id"
+  const val SUBMISSION_ID = "submission id"
 
   val JOB =
     Job(
       name = "Job",
-      id = "JOB",
+      id = JOB_ID,
       style = Style("#000"),
       strategy = Job.DataCollectionStrategy.PREDEFINED,
     )
@@ -76,7 +79,7 @@ object FakeData {
       tasks = mapOf(ADHOC_TASK.id to ADHOC_TASK),
     )
 
-  val USER = User("user_id", "", "User")
+  val USER = User(USER_ID, "", "User")
 
   val DATA_SHARING_TERMS = dataSharingTerms {
     type = DataSharingTerms.Type.CUSTOM
@@ -85,7 +88,7 @@ object FakeData {
 
   val SURVEY: Survey =
     Survey(
-      "SURVEY",
+      SURVEY_ID,
       "Survey title",
       "Test survey description",
       mapOf(JOB.id to JOB, ADHOC_JOB.id to ADHOC_JOB),
@@ -152,10 +155,11 @@ object FakeData {
     OfflineArea("id_1", OfflineArea.State.PENDING, Bounds(0.0, 0.0, 0.0, 0.0), "Test Area", 0..14)
 
   fun newTask(
-    id: String = "",
+    id: String = "taskId",
     type: Task.Type = Task.Type.TEXT,
     multipleChoice: MultipleChoice? = null,
     isAddLoiTask: Boolean = false,
+    condition: Condition? = null,
   ): Task =
     Task(
       id = id,
@@ -165,6 +169,7 @@ object FakeData {
       isRequired = false,
       multipleChoice = multipleChoice,
       isAddLoiTask = isAddLoiTask,
+      condition = condition,
     )
 
   fun newLoiMutation(
@@ -203,5 +208,17 @@ object FakeData {
       clientTimestamp = Date(),
       properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
       collectionId = "",
+    )
+
+  fun newSubmissionMutation(): SubmissionMutation =
+    SubmissionMutation(
+      type = Mutation.Type.CREATE,
+      syncStatus = Mutation.SyncStatus.PENDING,
+      surveyId = SURVEY_ID,
+      locationOfInterestId = LOI_ID,
+      userId = USER_ID,
+      collectionId = "",
+      job = JOB,
+      submissionId = SUBMISSION_ID,
     )
 }

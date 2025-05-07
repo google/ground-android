@@ -16,6 +16,11 @@
 package org.groundplatform.android.persistence.local.room.dao
 
 import androidx.room.Dao
+import androidx.room.Query
 import org.groundplatform.android.persistence.local.room.entity.ExpressionEntity
 
-@Dao interface ExpressionDao : BaseDao<ExpressionEntity>
+@Dao
+interface ExpressionDao : BaseDao<ExpressionEntity> {
+  @Query("DELETE FROM expression WHERE task_id = :taskId")
+  suspend fun deleteByTaskId(taskId: String)
+}

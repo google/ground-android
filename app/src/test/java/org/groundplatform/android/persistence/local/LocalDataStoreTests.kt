@@ -21,7 +21,6 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
@@ -78,39 +77,6 @@ class LocalDataStoreTests : BaseHiltTest() {
   // Issue URL: https://github.com/google/ground-android/issues/1470
   @Inject lateinit var submissionDao: SubmissionDao
   @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
-
-  @Test
-  fun testInsertAndGetSurveys() = runWithTestDispatcher {
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
-    assertThat(localSurveyStore.surveys.first()).containsExactly(TEST_SURVEY)
-  }
-
-  @Test
-  fun testGetSurveyById() = runWithTestDispatcher {
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
-    assertThat(localSurveyStore.getSurveyById(TEST_SURVEY.id)).isEqualTo(TEST_SURVEY)
-  }
-
-  @Test
-  fun testDeleteSurvey() = runWithTestDispatcher {
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
-    localSurveyStore.deleteSurvey(TEST_SURVEY)
-    assertThat(localSurveyStore.surveys.first()).isEmpty()
-  }
-
-  @Test
-  fun testRemovedJobFromSurvey() = runWithTestDispatcher {
-    val job1 = Job("job 1", TEST_STYLE, "job 1 name")
-    val job2 = Job("job 2", TEST_STYLE, "job 2 name")
-    var survey =
-      Survey("foo id", "foo survey", "foo survey description", mapOf(Pair(job1.id, job1)))
-    localSurveyStore.insertOrUpdateSurvey(survey)
-    survey = Survey("foo id", "foo survey", "foo survey description", mapOf(Pair(job2.id, job2)))
-    localSurveyStore.insertOrUpdateSurvey(survey)
-    val updatedSurvey = localSurveyStore.getSurveyById("foo id")
-    assertThat(updatedSurvey?.jobs).hasSize(1)
-    assertThat(updatedSurvey?.jobs?.first()).isEqualTo(job2)
-  }
 
   @Test
   fun testInsertAndGetUser() = runWithTestDispatcher {
