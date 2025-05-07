@@ -21,15 +21,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.lifecycleScope
@@ -239,11 +235,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     taskView.actionButtonsContainer.composeView.setComposableContent {
       Row(
         horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.fillMaxWidth().padding(8.dp),
       ) {
-        // TODO: Previous button should always be positioned to the left of the screen.
-        //  Rest buttons should be aligned to the right side of the screen.
-        // Issue URL: https://github.com/google/ground-android/issues/2417
         buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
       }
     }

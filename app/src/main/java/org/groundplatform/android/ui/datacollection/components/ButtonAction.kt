@@ -33,12 +33,12 @@ enum class ButtonAction(
   PREVIOUS(Theme.TRANSPARENT, textId = R.string.previous),
   SKIP(Theme.TRANSPARENT, textId = R.string.skip),
   UNDO(
-    Theme.LIGHT_GREEN,
+    Theme.TRANSPARENT,
     drawableId = R.drawable.ic_undo_black,
     contentDescription = R.string.undo,
   ),
   REDO(
-    Theme.LIGHT_GREEN,
+    Theme.TRANSPARENT,
     drawableId = R.drawable.ic_redo_black,
     contentDescription = R.string.redo,
   ),
