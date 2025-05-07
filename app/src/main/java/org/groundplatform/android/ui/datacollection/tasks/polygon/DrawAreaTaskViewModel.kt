@@ -83,6 +83,8 @@ internal constructor(
   /** Represents whether the user has completed drawing the polygon or not. */
   private var isMarkedComplete: Boolean = false
 
+  private var isTooClose: Boolean = false
+
   private val _showSelfIntersectionDialog = MutableSharedFlow<Unit>()
   val showSelfIntersectionDialog = _showSelfIntersectionDialog.asSharedFlow()
 
@@ -107,6 +109,8 @@ internal constructor(
   }
 
   fun isMarkedComplete(): Boolean = isMarkedComplete
+
+  fun getIsTooClose(): Boolean = isTooClose
 
   fun getLastVertex() = vertices.lastOrNull()
 
@@ -134,6 +138,10 @@ internal constructor(
         updatedTarget = firstVertex
       }
     }
+
+    val prev = vertices.dropLast(1).lastOrNull()
+    isTooClose =
+      prev?.let { calculateDistanceInPixels(it, target) <= DISTANCE_THRESHOLD_DP } == true
 
     addVertex(updatedTarget, true)
   }

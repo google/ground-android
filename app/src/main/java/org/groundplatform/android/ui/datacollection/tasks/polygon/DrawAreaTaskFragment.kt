@@ -136,9 +136,14 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     val geometry = feature?.geometry ?: lineStringOf()
     check(geometry is LineString) { "Invalid area geometry type ${geometry.javaClass}" }
 
-    addPointButton.showIfTrue(!geometry.isClosed())
-    completeButton.showIfTrue(geometry.isClosed() && !viewModel.isMarkedComplete())
-    nextButton.showIfTrue(viewModel.isMarkedComplete())
+    val closed = geometry.isClosed()
+    val marked = viewModel.isMarkedComplete()
+    val tooClose = viewModel.getIsTooClose()
+
+    addPointButton.showIfTrue(!closed)
+    addPointButton.enableIfTrue(!closed && !tooClose)
+    completeButton.showIfTrue(closed && !marked)
+    nextButton.showIfTrue(marked)
   }
 
   private fun showInstructionsDialog() {
