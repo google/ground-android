@@ -59,9 +59,10 @@ constructor(
     val remoteSurveyListFlow = remoteDataStore.getSurveyList(user)
     val localFlow = getLocalSurveyList()
     return combine(remoteSurveyListFlow, localFlow) { remoteSurveys, localSurveys ->
-      val enrichedRemote = remoteSurveys.map { remote -> addOfflineStatus(remote, localSurveys) }
+      val remoteSurveysWithOfflineStatus =
+        remoteSurveys.map { remote -> addOfflineStatus(remote, localSurveys) }
       val onlyLocal = localSurveys.filter { local -> remoteSurveys.none { it.id == local.id } }
-      enrichedRemote + onlyLocal
+      remoteSurveysWithOfflineStatus + onlyLocal
     }
   }
 

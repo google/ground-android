@@ -145,7 +145,7 @@ class TermsOfServiceFragment : AbstractFragment() {
             val surveyId = uri.lastPathSegment
             openSurveySelector(surveyId)
           }
-        } ?: run { openSurveySelector(null) }
+        } ?: run { openSurveySelector() }
       }
     }
   }
