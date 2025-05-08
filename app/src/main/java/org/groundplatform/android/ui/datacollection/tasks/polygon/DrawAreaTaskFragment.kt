@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
+import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LineString.Companion.lineStringOf
 import org.groundplatform.android.ui.compose.ConfirmationDialog
@@ -98,13 +99,17 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
     // Move the camera to the last vertex, if any.
     val lastVertex = viewModel.getLastVertex() ?: return
-    drawAreaTaskMapFragment.moveToPosition(lastVertex)
+    moveToPosition(lastVertex)
   }
 
   private fun redoLastVertex() {
     viewModel.redoLastVertex()
 
     val lastVertex = viewModel.getLastVertex() ?: return
+    moveToPosition(lastVertex)
+  }
+
+  private fun moveToPosition(lastVertex: Coordinates) {
     drawAreaTaskMapFragment.moveToPosition(lastVertex)
   }
 
