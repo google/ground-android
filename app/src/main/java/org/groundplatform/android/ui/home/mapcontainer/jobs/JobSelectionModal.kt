@@ -29,11 +29,8 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,34 +39,28 @@ import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.ui.theme.AppTheme
-import org.groundplatform.android.ui.theme.md_theme_dark_onSecondaryContainer
 
 @Composable
 fun JobSelectionModal(jobs: List<Job>, onJobClicked: (job: Job) -> Unit, onDismiss: () -> Unit) {
   Column(
-    Modifier
-      .fillMaxWidth()
+    Modifier.fillMaxWidth()
       .background(color = Color.Black.copy(alpha = 0.6f))
       .pointerInput(Unit) { detectTapGestures {} }
       .clickable(onClick = onDismiss)
   ) {
     Column(
-      Modifier
-        .fillMaxWidth()
-        .weight(1F),
+      Modifier.fillMaxWidth().weight(1F),
       verticalArrangement = Arrangement.Center,
       horizontalAlignment = Alignment.CenterHorizontally,
     ) {
       ShowJobCards(jobs, onJobClicked)
     }
     ActionButton(
-      modifier = Modifier
-        .align(Alignment.CenterHorizontally)
-        .padding(bottom = 35.dp),
+      modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 35.dp),
       icon = Icons.Filled.Clear,
       contentDescription = stringResource(R.string.close),
       onClick = onDismiss,
-      mode = ButtonMode.SECONDARY
+      mode = ButtonMode.SECONDARY,
     )
   }
 }
