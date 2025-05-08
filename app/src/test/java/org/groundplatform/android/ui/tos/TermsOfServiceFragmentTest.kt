@@ -146,7 +146,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `openSurveySelectorFragment_withSurveyId`() = runWithTestDispatcher {
+  fun openSurveySelectorFragment_withSurveyId() = runWithTestDispatcher {
     val uri = Uri.parse("https://groundplatform.org/survey/surveyId")
     launchFragmentWithNavController<TermsOfServiceFragment>(
       fragmentArgs = bundleOf("isViewOnly" to false),
