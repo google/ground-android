@@ -15,18 +15,23 @@
  */
 package org.groundplatform.android.ui.datacollection.components
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TextField
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.groundplatform.android.Config
 import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
@@ -37,7 +42,14 @@ fun TextTaskInput(
   keyboardType: KeyboardType = KeyboardType.Text,
   valueChanged: (text: String) -> Unit = {},
 ) {
-  TextField(
+  OutlinedTextField(
+    supportingText = {
+      Row(modifier = modifier.fillMaxWidth()) {
+        Spacer(modifier = modifier.weight(1f))
+        Text("${value.length} / ${Config.TEXT_DATA_CHAR_LIMIT}", textAlign = TextAlign.End)
+      }
+    },
+    isError = value.length > Config.TEXT_DATA_CHAR_LIMIT,
     value = value,
     onValueChange = { valueChanged(it) },
     modifier =

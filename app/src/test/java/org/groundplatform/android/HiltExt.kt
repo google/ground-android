@@ -17,6 +17,7 @@ package org.groundplatform.android
 
 import android.content.ComponentName
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.annotation.StyleRes
@@ -40,9 +41,10 @@ import androidx.test.core.app.ApplicationProvider.getApplicationContext
 inline fun <reified T : Fragment> launchFragmentInHiltContainer(
   fragmentArgs: Bundle? = null,
   @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
+  intentData: Uri? = null,
   crossinline action: Fragment.() -> Unit = {},
 ): ActivityScenario<HiltTestActivity> =
-  hiltActivityScenario(themeResId).launchFragment<T>(fragmentArgs, {}) { this.action() }
+  hiltActivityScenario(themeResId, intentData).launchFragment<T>(fragmentArgs, {}) { this.action() }
 
 /**
  * Launches a fragment in a Hilt enabled ActivityScenario after setting up the NavController for the
@@ -52,11 +54,12 @@ inline fun <reified T : Fragment> launchFragmentWithNavController(
   fragmentArgs: Bundle? = null,
   @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
   @IdRes destId: Int,
+  intentData: Uri? = null,
   noinline navControllerCallback: ((NavController) -> Unit)? = null,
   crossinline preTransactionAction: Fragment.() -> Unit = {},
   crossinline postTransactionAction: Fragment.() -> Unit = {},
 ): ActivityScenario<HiltTestActivity> =
-  hiltActivityScenario(themeResId).launchFragment<T>(
+  hiltActivityScenario(themeResId, intentData).launchFragment<T>(
     fragmentArgs,
     {
       this.preTransactionAction()
@@ -81,7 +84,8 @@ inline fun <reified T : Fragment> launchFragmentWithNavController(
 
 /** Instantiates a new activity scenario with Hilt support. */
 fun hiltActivityScenario(
-  @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme
+  @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
+  uri: Uri? = null,
 ): ActivityScenario<HiltTestActivity> {
   val startActivityIntent =
     Intent.makeMainActivity(ComponentName(getApplicationContext(), HiltTestActivity::class.java))
@@ -89,6 +93,7 @@ fun hiltActivityScenario(
         "androidx.fragment.app.testing.FragmentScenario.EmptyFragmentActivity.THEME_EXTRAS_BUNDLE_KEY",
         themeResId,
       )
+      .apply { data = uri }
 
   // Tests fail here with Fragment DrawAreaTaskMapFragment{6a17fdc5}... does not have a
   // NavController set
