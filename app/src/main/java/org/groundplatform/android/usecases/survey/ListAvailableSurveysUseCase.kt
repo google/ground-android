@@ -57,8 +57,13 @@ constructor(
   private suspend fun getRemoteSurveyList(): Flow<List<SurveyListItem>> {
     val user = userRepository.getAuthenticatedUser()
     val remoteSurveyListFlow = remoteDataStore.getSurveyList(user)
-    return remoteSurveyListFlow.combine(getLocalSurveyList()) { remoteSurveys, localSurveys ->
-      remoteSurveys.map { remoteSurvey -> addOfflineStatus(remoteSurvey, localSurveys) }
+    val localFlow = getLocalSurveyList()
+    return combine(remoteSurveyListFlow, localFlow) { remoteSurveys, localSurveys ->
+      val remoteSurveysWithOfflineStatus =
+        remoteSurveys.map { remote -> addOfflineStatus(remote, localSurveys) }
+      val localOnlySurveys =
+        localSurveys.filter { local -> remoteSurveys.none { it.id == local.id } }
+      remoteSurveysWithOfflineStatus + localOnlySurveys
     }
   }
 

@@ -44,6 +44,14 @@ object Config {
    */
   const val CLUSTERING_ZOOM_THRESHOLD = 14f
 
+  /**
+   * The path segment used in deep‑link URIs to identify the survey screen.
+   *
+   * When handling incoming deep links, compare the first segment of the URI’s path to this constant
+   * to determine whether to navigate to the survey flow.
+   */
+  const val SURVEY_PATH_SEGMENT = "survey"
+
   /** Limit on the permitted character length for free text question responses. */
   const val TEXT_DATA_CHAR_LIMIT = 255
 
