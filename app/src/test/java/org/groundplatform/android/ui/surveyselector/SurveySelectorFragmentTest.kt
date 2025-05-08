@@ -324,6 +324,13 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
       .assertIsNotDisplayed()
   }
 
+  @Test
+  fun `activateSurvey is called when surveyId arg is non-blank`() = runWithTestDispatcher {
+    setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
+    setUpFragment(bundleOf(Pair("shouldExitApp", false), Pair("surveyId", TEST_SURVEY_1.id)))
+    verify(activateSurvey).invoke(TEST_SURVEY_1.id)
+  }
+
   private fun openOverflowMenu() {
     onView(withId(R.id.recycler_view))
       .perform(
