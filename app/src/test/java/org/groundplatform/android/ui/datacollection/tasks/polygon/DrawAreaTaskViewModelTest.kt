@@ -224,6 +224,18 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     assertGeometry(4, isLineString = true)
   }
 
+  @Test
+  fun `redoLastVertex re-adds last vertex`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    viewModel.removeLastVertex()
+    assertGeometry(2, isLineString = true)
+
+    viewModel.redoLastVertex()
+    assertGeometry(3, isLineString = true)
+  }
+
   private fun assertGeometry(
     expectedVerticesCount: Int,
     isLineString: Boolean = false,
