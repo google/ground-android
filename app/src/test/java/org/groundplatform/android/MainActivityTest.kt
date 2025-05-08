@@ -91,7 +91,7 @@ class MainActivityTest : BaseHiltTest() {
   }
 
   @Test
-  fun launchAppWithSurveyId_ActivitySurvey() = runWithTestDispatcher {
+  fun launchAppWithSurveyId_loggedInUser_ActivitySurvey() = runWithTestDispatcher {
     val uri = Uri.parse("https://groundplatform.org/survey/surveyId")
     val intent = Intent(Intent.ACTION_VIEW, uri)
 
@@ -108,6 +108,28 @@ class MainActivityTest : BaseHiltTest() {
 
       assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
 
+      assertThat(navController.currentBackStackEntry?.arguments?.getString("surveyId"))
+        .isEqualTo("surveyId")
+    }
+  }
+
+  @Test
+  fun launchAppWithSurveyId_needLogin_ShowLoginIn() = runWithTestDispatcher {
+    val uri = Uri.parse("https://groundplatform.org/survey/surveyId")
+    val intent = Intent(Intent.ACTION_VIEW, uri)
+
+    Robolectric.buildActivity(MainActivity::class.java, intent).use { controller ->
+      controller.setup()
+      activity = controller.get()
+
+      val navHost =
+        activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+      val navController = navHost.navController
+
+      fakeAuthenticationManager.setState(SignInState.SigningIn)
+      advanceUntilIdle()
+
+      assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isTrue()
       assertThat(navController.currentBackStackEntry?.arguments?.getString("surveyId"))
         .isEqualTo("surveyId")
     }
