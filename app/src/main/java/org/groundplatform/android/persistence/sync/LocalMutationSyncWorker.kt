@@ -29,7 +29,6 @@ import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.persistence.remote.RemoteDataStore
 import org.groundplatform.android.repository.MutationRepository
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.util.priority
 import timber.log.Timber
 
@@ -44,9 +43,7 @@ constructor(
   @Assisted context: Context,
   @Assisted params: WorkerParameters,
   private val mutationRepository: MutationRepository,
-  private val remoteDataStore: RemoteDataStore,
   private val mediaUploadWorkManager: MediaUploadWorkManager,
-  private val userRepository: UserRepository,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, params) {
 
@@ -69,13 +66,9 @@ constructor(
   private suspend fun processMutations(mutations: List<Mutation>): Boolean {
     if (mutations.isEmpty()) return true
     try {
-      val user = userRepository.getAuthenticatedUser()
       mutationRepository.markAsInProgress(mutations)
-      // TODO: Apply mutations via repository layer rather than accessing data store directly.
-      // Issue URL: https://github.com/google/ground-android/issues/2883
-      remoteDataStore.applyMutations(mutations, user)
+      mutationRepository.uploadMutations(mutations)
       mutationRepository.finalizePendingMutationsForMediaUpload(mutations)
-
       return true
     } catch (t: Throwable) {
       // Mark all mutations as having failed since the remote datastore only commits when all
