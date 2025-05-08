@@ -26,14 +26,19 @@ import org.groundplatform.android.model.User
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.mutation.Mutation.SyncStatus
-import org.groundplatform.android.model.mutation.Mutation.SyncStatus.*
+import org.groundplatform.android.model.mutation.Mutation.SyncStatus.COMPLETED
 import org.groundplatform.android.model.mutation.Mutation.SyncStatus.FAILED
 import org.groundplatform.android.model.mutation.Mutation.SyncStatus.IN_PROGRESS
+import org.groundplatform.android.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_AWAITING_RETRY
+import org.groundplatform.android.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS
 import org.groundplatform.android.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_PENDING
+import org.groundplatform.android.model.mutation.Mutation.SyncStatus.PENDING
+import org.groundplatform.android.model.mutation.Mutation.SyncStatus.UNKNOWN
 import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.model.submission.UploadQueueEntry
 import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.persistence.local.stores.LocalSubmissionStore
+import org.groundplatform.android.persistence.remote.RemoteDataStore
 import org.groundplatform.android.system.auth.AuthenticationManager
 import timber.log.Timber
 
@@ -48,7 +53,10 @@ constructor(
   private val authenticationManager: AuthenticationManager,
   private val localLocationOfInterestStore: LocalLocationOfInterestStore,
   private val localSubmissionStore: LocalSubmissionStore,
+  private val remoteDataStore: RemoteDataStore,
+  private val userRepository: UserRepository,
 ) {
+
   /**
    * Returns a long-lived stream that emits the full list of mutations for specified survey on
    * subscribe and a new list on each subsequent change.
@@ -167,6 +175,11 @@ constructor(
 
   suspend fun markAsInProgress(mutations: List<Mutation>) {
     saveMutationsLocally(mutations.updateMutationStatus(IN_PROGRESS))
+  }
+
+  suspend fun uploadMutations(mutations: List<Mutation>) {
+    val user = userRepository.getAuthenticatedUser()
+    remoteDataStore.applyMutations(mutations, user)
   }
 
   suspend fun markAsMediaUploadInProgress(mutations: List<SubmissionMutation>) {

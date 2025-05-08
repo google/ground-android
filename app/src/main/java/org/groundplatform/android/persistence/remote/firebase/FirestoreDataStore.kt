@@ -111,6 +111,9 @@ internal constructor(
   override suspend fun applyMutations(mutations: List<Mutation>, user: User) {
     val batch = db().batch()
     for (mutation in mutations) {
+      check(mutation.userId == user.id) {
+        "Expected user ${mutation.userId} but found ${user.id} when uploading mutation"
+      }
       when (mutation) {
         is LocationOfInterestMutation -> addLocationOfInterestMutationToBatch(mutation, user, batch)
         is SubmissionMutation -> addSubmissionMutationToBatch(mutation, user, batch)
