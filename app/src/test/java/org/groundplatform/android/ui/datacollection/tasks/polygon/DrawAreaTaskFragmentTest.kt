@@ -136,7 +136,7 @@ class DrawAreaTaskFragmentTest :
       .assertButtonIsHidden(NEXT_POINT_BUTTON_TEXT)
       .assertButtonIsHidden(SKIP_POINT_BUTTON_TEXT)
       .assertButtonIsEnabled(UNDO_POINT_BUTTON_TEXT, true)
-      .assertButtonIsEnabled(ADD_POINT_BUTTON_TEXT)
+      .assertButtonIsDisabled(ADD_POINT_BUTTON_TEXT)
       .assertButtonIsHidden(COMPLETE_POINT_BUTTON_TEXT)
   }
 
@@ -185,23 +185,6 @@ class DrawAreaTaskFragmentTest :
 
     runner().assertButtonIsDisabled(ADD_POINT_BUTTON_TEXT)
   }
-
-  @Test
-  fun testDrawArea_addPointButton_disabledWhenTooClose_enableWhenOutOfThreshold() =
-    runWithTestDispatcher {
-      setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
-      ShadowDialog.getLatestDialog().dismiss()
-
-      runner().assertButtonIsEnabled(ADD_POINT_BUTTON_TEXT)
-
-      updateLastVertexAndAddPoint(COORDINATE_1)
-      updateCloseVertex(COORDINATE_5)
-
-      runner().assertButtonIsDisabled(ADD_POINT_BUTTON_TEXT)
-
-      updateLastVertexAndAddPoint(COORDINATE_2)
-      runner().assertButtonIsEnabled(ADD_POINT_BUTTON_TEXT)
-    }
 
   @Test
   fun `Instructions dialog is shown`() = runWithTestDispatcher {
