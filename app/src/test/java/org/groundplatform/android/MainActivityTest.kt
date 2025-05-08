@@ -126,12 +126,10 @@ class MainActivityTest : BaseHiltTest() {
         activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
       val navController = navHost.navController
 
-      fakeAuthenticationManager.setState(SignInState.SigningIn)
+      fakeAuthenticationManager.setState(SignInState.SignedOut)
       advanceUntilIdle()
 
-      assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isTrue()
-      assertThat(navController.currentBackStackEntry?.arguments?.getString("surveyId"))
-        .isEqualTo("surveyId")
+      assertThat(navController.currentDestination?.id).isEqualTo(R.id.sign_in_fragment)
     }
   }
 }
