@@ -22,6 +22,8 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
+import org.groundplatform.android.Config
+import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.MultipleChoiceTaskData
 import org.groundplatform.android.model.task.MultipleChoice
@@ -31,6 +33,7 @@ import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
+import org.groundplatform.android.ui.datacollection.tasks.text.TextTaskFragment
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -135,6 +138,21 @@ class MultipleChoiceTaskFragmentTest :
     runner().selectOption("Other").inputOtherText(userInput).assertButtonIsEnabled("Next")
 
     hasValue(MultipleChoiceTaskData(multipleChoice, listOf("[ $userInput ]")))
+  }
+
+  @Test
+  fun `text over the character limit is invalid`() = runWithTestDispatcher {
+    val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_MULTIPLE, true)
+    setupTaskFragment<MultipleChoiceTaskFragment>(
+      job,
+      task.copy(multipleChoice = multipleChoice, isRequired = true),
+    )
+    val userInput = "a".repeat(Config.TEXT_DATA_CHAR_LIMIT + 1)
+    // TODO: We should actually validate that the error toast is displayed after Next is clicked.
+    // Unfortunately, matching toasts with espresso is not straightforward, so we leave it at
+    // an explicit validation check for now.
+    runner().selectOption("Other").inputOtherText(userInput)
+    assertThat(viewModel.validate()).isEqualTo(R.string.text_task_data_character_limit)
   }
 
   @Test
