@@ -52,6 +52,9 @@ object Config {
    */
   const val SURVEY_PATH_SEGMENT = "survey"
 
+  /** Limit on the permitted character length for free text question responses. */
+  const val TEXT_DATA_CHAR_LIMIT = 255
+
   // TODO: Make sub-paths configurable and
   //  stop hardcoding here.
   // Issue URL: https://github.com/google/ground-android/issues/1730
