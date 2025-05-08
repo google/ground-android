@@ -44,6 +44,14 @@ object Config {
    */
   const val CLUSTERING_ZOOM_THRESHOLD = 14f
 
+  /**
+   * The path segment used in deep‑link URIs to identify the survey screen.
+   *
+   * When handling incoming deep links, compare the first segment of the URI’s path to this constant
+   * to determine whether to navigate to the survey flow.
+   */
+  const val SURVEY_PATH_SEGMENT = "survey"
+
   // TODO: Make sub-paths configurable and
   //  stop hardcoding here.
   // Issue URL: https://github.com/google/ground-android/issues/1730

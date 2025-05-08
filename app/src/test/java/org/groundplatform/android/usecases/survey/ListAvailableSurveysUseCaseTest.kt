@@ -70,6 +70,7 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
         listOf(
           SURVEY_1.toListItem(availableOffline = true),
           SURVEY_2.toListItem(availableOffline = false),
+          SURVEY_3.toListItem(availableOffline = true),
         )
       )
   }
@@ -122,6 +123,7 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
         listOf(
           SURVEY_1.toListItem(availableOffline = true),
           SURVEY_2.toListItem(availableOffline = false),
+          SURVEY_3.toListItem(availableOffline = true),
         )
       )
   }
