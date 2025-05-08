@@ -81,7 +81,9 @@ internal constructor(
   private var vertices: List<Coordinates> = listOf()
 
   /** Stack of vertices that have been removed. */
-  private val redoStack = mutableListOf<Coordinates>()
+  private val _redoStack = mutableListOf<Coordinates>()
+  val redoStack: List<Coordinates>
+    get() = _redoStack
 
   /** Represents whether the user has completed drawing the polygon or not. */
   private var isMarkedComplete: Boolean = false
@@ -149,7 +151,7 @@ internal constructor(
     // Reset complete status
     isMarkedComplete = false
 
-    redoStack.add(vertices.last())
+    _redoStack.add(vertices.last())
 
     // Remove last vertex and update polygon
     val updatedVertices = vertices.toMutableList().apply { removeLast() }.toImmutableList()
@@ -160,7 +162,7 @@ internal constructor(
     // Update saved response.
     if (updatedVertices.isEmpty()) {
       setValue(null)
-      redoStack.clear()
+      _redoStack.clear()
     } else {
       setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
     }
@@ -171,7 +173,7 @@ internal constructor(
 
     isMarkedComplete = false
 
-    val redoVertex = redoStack.removeAt(redoStack.lastIndex)
+    val redoVertex = _redoStack.removeAt(_redoStack.lastIndex)
 
     val mutableVertices = vertices.toMutableList()
     mutableVertices.add(redoVertex)

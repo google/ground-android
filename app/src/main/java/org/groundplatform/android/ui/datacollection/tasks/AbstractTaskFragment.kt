@@ -213,10 +213,10 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       .setOnValueChanged { button, value -> button.showIfTrue(value.isNotNullOrEmpty()) }
       .hide()
 
-  fun addRedoButton(clickHandler: () -> Unit) =
+  fun addRedoButton(clickHandler: () -> Unit, visiblityHandler: (TaskButton, TaskData?) -> Unit) =
     addButton(ButtonAction.REDO)
       .setOnClickListener { clickHandler() }
-      .setOnValueChanged { button, value -> button.showIfTrue(value.isNotNullOrEmpty()) }
+      .setOnValueChanged { button, value -> visiblityHandler(button, value) }
       .hide()
 
   protected fun addButton(buttonAction: ButtonAction): TaskButton {

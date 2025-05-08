@@ -134,12 +134,12 @@ class DrawAreaTaskFragmentTest :
       )
     )
 
-    // Only "Undo", "Redo" and "Add point" buttons should be visible.
+    // Only "Undo", and "Add point" buttons should be visible.
     runner()
       .assertButtonIsHidden("Next")
       .assertButtonIsHidden("Skip")
       .assertButtonIsEnabled("Undo", true)
-      .assertButtonIsEnabled("Redo", true)
+      .assertButtonIsHidden("Redo", true)
       .assertButtonIsEnabled("Add point")
       .assertButtonIsHidden("Complete")
   }
@@ -159,7 +159,7 @@ class DrawAreaTaskFragmentTest :
       .clickButton("Complete")
       .assertButtonIsHidden("Skip")
       .assertButtonIsEnabled("Undo", true)
-      .assertButtonIsEnabled("Redo", true)
+      .assertButtonIsHidden("Redo", true)
       .assertButtonIsHidden("Add point")
 
     hasValue(
@@ -176,6 +176,21 @@ class DrawAreaTaskFragmentTest :
         )
       )
     )
+  }
+
+  @Test
+  fun testRedoButton_isVisible() = runWithTestDispatcher {
+    setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
+    ShadowDialog.getLatestDialog().dismiss()
+
+    runner().assertButtonIsHidden("Redo", true)
+
+    updateLastVertexAndAddPoint(COORDINATE_1)
+    updateLastVertexAndAddPoint(COORDINATE_2)
+
+    viewModel.removeLastVertex()
+
+    runner().assertButtonIsEnabled("Redo", true)
   }
 
   @Test

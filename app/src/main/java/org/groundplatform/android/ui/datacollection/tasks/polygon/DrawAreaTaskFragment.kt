@@ -30,6 +30,7 @@ import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LineString.Companion.lineStringOf
+import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.ui.compose.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
@@ -81,7 +82,12 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   override fun onCreateActionButtons() {
     addSkipButton()
     addUndoButton { removeLastVertex() }
-    addRedoButton { redoLastVertex() }
+    addRedoButton(
+      clickHandler = { redoLastVertex() },
+      visiblityHandler = { button, value ->
+        button.showIfTrue(viewModel.redoStack.isNotEmpty() && value.isNotNullOrEmpty())
+      },
+    )
     nextButton = addNextButton()
     addPointButton =
       addButton(ButtonAction.ADD_POINT).setOnClickListener {
