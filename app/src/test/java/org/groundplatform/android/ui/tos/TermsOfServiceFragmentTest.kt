@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.tos
 
+import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -32,6 +33,7 @@ import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlin.test.assertEquals
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
@@ -141,6 +143,21 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
     getCheckbox().assertIsNotDisplayed()
     getButton().assertIsNotDisplayed()
+  }
+
+  @Test
+  fun openSurveySelectorFragment_withSurveyId() = runWithTestDispatcher {
+    val uri = Uri.parse("https://groundplatform.org/survey/surveyId")
+    launchFragmentWithNavController<TermsOfServiceFragment>(
+      fragmentArgs = bundleOf("isViewOnly" to false),
+      destId = R.id.terms_of_service_fragment,
+      navControllerCallback = { navController = it },
+      intentData = uri,
+    )
+    getCheckbox().performClick()
+    getButton().performClick()
+    assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
+    assertEquals("surveyId", navController.currentBackStackEntry?.arguments?.getString("surveyId"))
   }
 
   private fun getCheckbox() =
