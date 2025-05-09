@@ -44,6 +44,13 @@ open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
   /** Checks if the current value is valid and updates error value. */
   fun validate(): Int? = validate(task, taskTaskData.value)
 
+  /**
+   * Performs input validation on the given [Task] and associated [TaskData].
+   *
+   * Returns an [Int] identifier for an error string if validation fails, returns null otherwise.
+   * Subclasses may override this method to validate input data and display an error message to the
+   * user.
+   */
   open fun validate(task: Task, taskData: TaskData?): Int? {
     // Empty response for a required task.
     if (task.isRequired && (taskData == null || taskData.isEmpty())) {
