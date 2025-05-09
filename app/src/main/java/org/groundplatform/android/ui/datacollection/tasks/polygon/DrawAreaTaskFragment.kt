@@ -27,9 +27,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LineString.Companion.lineStringOf
+import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.ui.compose.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -99,23 +99,28 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
       addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.completePolygon() }
   }
 
+  fun addRedoButton(clickHandler: () -> Unit, visiblityHandler: (TaskButton, TaskData?) -> Unit) =
+    addButton(ButtonAction.REDO)
+      .setOnClickListener { clickHandler() }
+      .setOnValueChanged { button, value -> visiblityHandler(button, value) }
+      .hide()
+
   /** Removes the last vertex from the polygon. */
   private fun removeLastVertex() {
     viewModel.removeLastVertex()
 
     // Move the camera to the last vertex, if any.
-    val lastVertex = viewModel.getLastVertex() ?: return
-    moveToPosition(lastVertex)
+    moveToPosition()
   }
 
   private fun redoLastVertex() {
     viewModel.redoLastVertex()
 
-    val lastVertex = viewModel.getLastVertex() ?: return
-    moveToPosition(lastVertex)
+    moveToPosition()
   }
 
-  private fun moveToPosition(lastVertex: Coordinates) {
+  private fun moveToPosition() {
+    val lastVertex = viewModel.getLastVertex() ?: return
     drawAreaTaskMapFragment.moveToPosition(lastVertex)
   }
 
