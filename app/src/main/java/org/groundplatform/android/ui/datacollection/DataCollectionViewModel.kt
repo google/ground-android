@@ -274,11 +274,6 @@ internal constructor(
     val taskId = getCurrentTaskId()
     val viewModel = getTaskViewModel(taskId) ?: error("ViewModel not found for task $taskId")
 
-    viewModel.validate()?.let {
-      Timber.d("Ignoring task $taskId with invalid data")
-      return
-    }
-
     taskDataHandler.setData(viewModel.task, viewModel.taskTaskData.value)
     savedStateHandle[TASK_POSITION_ID] = taskId
     saveDraft(taskId)
