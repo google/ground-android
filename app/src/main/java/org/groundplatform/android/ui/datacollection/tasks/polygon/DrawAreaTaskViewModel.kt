@@ -186,6 +186,7 @@ internal constructor(
   /** Adds the last vertex to the polygon. */
   fun addLastVertex() {
     check(!isMarkedComplete) { "Attempted to add last vertex after completing the drawing" }
+    _redoStack.clear()
     vertices.lastOrNull()?.let { addVertex(it, false) }
   }
 
