@@ -16,6 +16,7 @@
 package org.groundplatform.android
 
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestoreException
@@ -55,7 +56,7 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   private fun setupUserPreferences() {
-    sharedPreferences.edit().putString("foo", "bar").apply()
+    sharedPreferences.edit { putString("foo", "bar") }
   }
 
   private fun verifyUserPreferencesCleared() {
