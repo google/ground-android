@@ -16,6 +16,7 @@
 package org.groundplatform.android.persistence.local.room.entity
 
 import org.groundplatform.android.model.geometry.Geometry
+import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.MultiPolygon
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.geometry.Polygon
@@ -27,9 +28,11 @@ data class GeometryWrapper(
   val polygon: Polygon? = null,
   /** Non-null iff this geometry is a multi-polygon. */
   val multiPolygon: MultiPolygon? = null,
+  /** Non-null iff this geometry is a line-string. */
+  val linestring: LineString? = null,
 ) {
 
-  fun getGeometry(): Geometry = point ?: polygon ?: multiPolygon!!
+  fun getGeometry(): Geometry = point ?: polygon ?: multiPolygon ?: linestring!!
 
   companion object {
     fun fromGeometry(geometry: Geometry?): GeometryWrapper =
@@ -37,6 +40,7 @@ data class GeometryWrapper(
         is Point -> GeometryWrapper(point = geometry)
         is Polygon -> GeometryWrapper(polygon = geometry)
         is MultiPolygon -> GeometryWrapper(multiPolygon = geometry)
+        is LineString -> GeometryWrapper(linestring = geometry)
         else -> error("No matching geometry found")
       }
   }

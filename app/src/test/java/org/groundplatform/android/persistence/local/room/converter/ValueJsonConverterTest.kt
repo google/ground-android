@@ -21,11 +21,13 @@ import kotlinx.collections.immutable.persistentListOf
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.submission.DateTimeTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskData
+import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.android.model.submission.DropPinTaskData
 import org.groundplatform.android.model.submission.MultipleChoiceTaskData
 import org.groundplatform.android.model.submission.NumberTaskData
@@ -111,6 +113,17 @@ class ValueJsonConverterTest(
       "XQoHcG9seWdvbhJSClAKEgkAAAAAAAAkQBEAAAAAAAA0QAoSCQAAAAAAADRAEQAAAAAAAD5AChIJ\n" +
         "AAAAAAAAPkARAAAAAAAAREAKEgkAAAAAAAAkQBEAAAAAAAA0QA==\n"
 
+    private val incompleteDrawAreaTaskResponse =
+      DrawAreaTaskIncompleteData(
+        LineString(
+          listOf(Coordinates(10.0, 20.0), Coordinates(20.0, 30.0), Coordinates(30.0, 40.0))
+        )
+      )
+
+    private const val lineStringGeometryTaskResponseString =
+      "SwoLbGluZV9zdHJpbmcSPAoSCQAAAAAAACRAEQAAAAAAADRAChIJAAAAAAAANEARAAAAAAAAPkAK\n" +
+        "EgkAAAAAAAA+QBEAAAAAAABEQA==\n"
+
     @JvmStatic
     @ParameterizedRobolectricTestRunner.Parameters(name = "task:{0}, data:{1}, jsonObject:{2}")
     fun data() =
@@ -146,6 +159,11 @@ class ValueJsonConverterTest(
           FakeData.newTask(type = Task.Type.DRAW_AREA),
           drawAreaTaskResponse,
           polygonGeometryTaskResponseString,
+        ),
+        arrayOf(
+          FakeData.newTask(type = Task.Type.DRAW_AREA),
+          incompleteDrawAreaTaskResponse,
+          lineStringGeometryTaskResponseString,
         ),
       )
   }

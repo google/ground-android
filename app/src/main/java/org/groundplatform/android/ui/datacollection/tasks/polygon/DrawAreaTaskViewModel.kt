@@ -95,17 +95,27 @@ internal constructor(
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
     super.initialize(job, task, taskData)
     strokeColor = job.getDefaultColor()
-    (taskData as? DrawAreaTaskData)?.let {
-      updateVertices(it.area.getShellCoordinates())
-      try {
-        completePolygon()
-      } catch (e: IllegalStateException) {
-        // This state can theoretically happen if the coordinates form an incomplete ring, but
-        // construction of a DrawAreaTaskData is impossible without a complete ring anyway so it is
-        // unlikely to happen. This can also happen if `isMarkedComplete` is true at initialization
-        // time, which is also unlikely.
-        Timber.e(e, "Error when loading draw area from saved state")
-        updateVertices(listOf())
+
+    // Apply saved state if it exists.
+    when (taskData) {
+      is DrawAreaTaskIncompleteData -> {
+        updateVertices(taskData.lineString.coordinates)
+      }
+
+      is DrawAreaTaskData -> {
+        updateVertices(taskData.area.getShellCoordinates())
+        try {
+          completePolygon()
+        } catch (e: IllegalStateException) {
+          // This state can theoretically happen if the coordinates form an incomplete ring, but
+          // construction of a DrawAreaTaskData is impossible without a complete ring anyway so it
+          // is
+          // unlikely to happen. This can also happen if `isMarkedComplete` is true at
+          // initialization
+          // time, which is also unlikely.
+          Timber.e(e, "Error when loading draw area from saved state")
+          updateVertices(listOf())
+        }
       }
     }
   }

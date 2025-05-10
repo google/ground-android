@@ -17,11 +17,13 @@
 package org.groundplatform.android.persistence.local.room.converter
 
 import kotlinx.collections.immutable.toPersistentList
+import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.groundplatform.android.model.submission.DateTimeTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskData
+import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.android.model.submission.DropPinTaskData
 import org.groundplatform.android.model.submission.MultipleChoiceTaskData
 import org.groundplatform.android.model.submission.NumberTaskData
@@ -52,6 +54,7 @@ internal object ValueJsonConverter {
       is PhotoTaskData -> taskData.remoteFilename
       is DrawAreaTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is DropPinTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
+      is DrawAreaTaskIncompleteData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is CaptureLocationTaskData -> taskData.toJSONObject()
       is SkippedTaskData -> JSONObject().put(SKIPPED_KEY, true)
       else -> throw UnsupportedOperationException("Unimplemented value class ${taskData.javaClass}")
@@ -96,8 +99,14 @@ internal object ValueJsonConverter {
         DataStoreException.checkType(String::class.java, obj)
         val geometry = GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
         DataStoreException.checkNotNull(geometry, "Missing geometry in draw area task result")
-        DataStoreException.checkType(Polygon::class.java, geometry!!)
-        DrawAreaTaskData(geometry as Polygon)
+        when (geometry) {
+          is Polygon -> DrawAreaTaskData(geometry)
+          is LineString -> DrawAreaTaskIncompleteData(geometry)
+          else ->
+            throw DataStoreException(
+              "Unknown geometry type in draw area task result: ${geometry?.javaClass?.name}"
+            )
+        }
       }
       Task.Type.DROP_PIN -> {
         DataStoreException.checkType(String::class.java, obj)

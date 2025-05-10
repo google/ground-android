@@ -30,6 +30,7 @@ import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.submission.DrawAreaTaskData
+import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.android.ui.map.Feature
@@ -37,8 +38,6 @@ import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.doNothing
-import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
@@ -63,22 +62,21 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   @Test
   fun `Initializes with complete polygon`() {
     val polygon =
-      Polygon(
-        shell =
-          LinearRing(coordinates = listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1))
-      )
+      Polygon(LinearRing(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1)))
+
     viewModel.initialize(JOB, TASK, taskData = DrawAreaTaskData(area = polygon))
+
     assertGeometry(4, isLineString = true)
     assertThat(viewModel.isMarkedComplete()).isTrue()
   }
 
   @Test
   fun `Initializes with incomplete polygon`() {
-    val linearRingMock = mock(LinearRing::class.java)
-    doNothing().`when`(linearRingMock).validate()
-    val polygon = Polygon(shell = linearRingMock)
-    viewModel.initialize(JOB, TASK, taskData = DrawAreaTaskData(area = polygon))
-    assertGeometry(0)
+    val lineString = LineString(coordinates = listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3))
+
+    viewModel.initialize(JOB, TASK, taskData = DrawAreaTaskIncompleteData(lineString))
+
+    assertGeometry(3, isLineString = true)
     assertThat(viewModel.isMarkedComplete()).isFalse()
   }
 
