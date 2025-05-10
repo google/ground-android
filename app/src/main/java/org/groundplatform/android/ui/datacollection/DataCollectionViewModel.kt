@@ -20,6 +20,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import javax.inject.Provider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.TimeoutCancellationException
@@ -66,8 +68,6 @@ import org.groundplatform.android.ui.datacollection.tasks.text.TextTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.time.TimeTaskViewModel
 import org.groundplatform.android.usecases.submission.SubmitDataUseCase
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Provider
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
