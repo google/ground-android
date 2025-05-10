@@ -20,8 +20,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import javax.inject.Provider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.TimeoutCancellationException
@@ -68,6 +66,8 @@ import org.groundplatform.android.ui.datacollection.tasks.text.TextTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.time.TimeTaskViewModel
 import org.groundplatform.android.usecases.submission.SubmitDataUseCase
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Provider
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -273,6 +273,10 @@ internal constructor(
   fun saveCurrentState() {
     val taskId = getCurrentTaskId()
     val viewModel = getTaskViewModel(taskId) ?: error("ViewModel not found for task $taskId")
+
+    // We are not validating the data before saving as draft. This is needed for storing partially
+    // drawn polygons. Always ensure that draft doesn't get submitted without validation. Currently,
+    // it is being mitigated by validating on clicking previous/next buttons.
 
     taskDataHandler.setData(viewModel.task, viewModel.taskTaskData.value)
     savedStateHandle[TASK_POSITION_ID] = taskId
