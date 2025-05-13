@@ -205,8 +205,18 @@ class TaskFragmentRunner(
       }
     }
 
-  internal fun assertButtonIsDisabled(text: String): TaskFragmentRunner {
-    baseHiltTest.composeTestRule.onNodeWithText(text).assertIsDisplayed().assertIsNotEnabled()
+  internal fun assertButtonIsDisabled(
+    text: String,
+    isContentDescription: Boolean = false,
+  ): TaskFragmentRunner {
+    if (isContentDescription) {
+      baseHiltTest.composeTestRule
+        .onNodeWithContentDescription(text)
+        .assertIsDisplayed()
+        .assertIsNotEnabled()
+    } else {
+      baseHiltTest.composeTestRule.onNodeWithText(text).assertIsDisplayed().assertIsNotEnabled()
+    }
     return this
   }
 
