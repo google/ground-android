@@ -84,8 +84,8 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     addUndoButton { removeLastVertex() }
     addRedoButton(
       clickHandler = { redoLastVertex() },
-      visiblityHandler = { button, value ->
-        button.showIfTrue(viewModel.redoStack.isNotEmpty() && value.isNotNullOrEmpty())
+      disableHandler = { button, value ->
+        button.enableIfTrue(viewModel.redoStack.isNotEmpty() && value.isNotNullOrEmpty())
       },
     )
     nextButton = addNextButton()
@@ -99,11 +99,10 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
       addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.completePolygon() }
   }
 
-  fun addRedoButton(clickHandler: () -> Unit, visiblityHandler: (TaskButton, TaskData?) -> Unit) =
+  fun addRedoButton(clickHandler: () -> Unit, disableHandler: (TaskButton, TaskData?) -> Unit) =
     addButton(ButtonAction.REDO)
       .setOnClickListener { clickHandler() }
-      .setOnValueChanged { button, value -> visiblityHandler(button, value) }
-      .hide()
+      .setOnValueChanged { button, value -> disableHandler(button, value) }
 
   /** Removes the last vertex from the polygon. */
   private fun removeLastVertex() {
