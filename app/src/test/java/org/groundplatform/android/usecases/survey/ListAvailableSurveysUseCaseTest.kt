@@ -77,6 +77,7 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
           SURVEY_2.toListItem(availableOffline = false),
           PUBLIC_SURVEY_A.toListItem(availableOffline = false),
           PUBLIC_SURVEY_B.toListItem(availableOffline = false),
+          SURVEY_3.toListItem(availableOffline = true),
         )
       )
   }
@@ -133,6 +134,7 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
           SURVEY_2.toListItem(availableOffline = false),
           PUBLIC_SURVEY_A.toListItem(availableOffline = false),
           PUBLIC_SURVEY_B.toListItem(availableOffline = false),
+          SURVEY_3.toListItem(availableOffline = true),
         )
       )
   }

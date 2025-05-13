@@ -83,6 +83,10 @@ internal constructor(
   /** Represents whether the user has completed drawing the polygon or not. */
   private var isMarkedComplete: Boolean = false
 
+  private var _isTooClose: Boolean = false
+  val isTooClose: Boolean
+    get() = _isTooClose
+
   private val _showSelfIntersectionDialog = MutableSharedFlow<Unit>()
   val showSelfIntersectionDialog = _showSelfIntersectionDialog.asSharedFlow()
 
@@ -91,17 +95,27 @@ internal constructor(
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
     super.initialize(job, task, taskData)
     strokeColor = job.getDefaultColor()
-    (taskData as? DrawAreaTaskData)?.let {
-      updateVertices(it.area.getShellCoordinates())
-      try {
-        completePolygon()
-      } catch (e: IllegalStateException) {
-        // This state can theoretically happen if the coordinates form an incomplete ring, but
-        // construction of a DrawAreaTaskData is impossible without a complete ring anyway so it is
-        // unlikely to happen. This can also happen if `isMarkedComplete` is true at initialization
-        // time, which is also unlikely.
-        Timber.e(e, "Error when loading draw area from saved state")
-        updateVertices(listOf())
+
+    // Apply saved state if it exists.
+    when (taskData) {
+      is DrawAreaTaskIncompleteData -> {
+        updateVertices(taskData.lineString.coordinates)
+      }
+
+      is DrawAreaTaskData -> {
+        updateVertices(taskData.area.getShellCoordinates())
+        try {
+          completePolygon()
+        } catch (e: IllegalStateException) {
+          // This state can theoretically happen if the coordinates form an incomplete ring, but
+          // construction of a DrawAreaTaskData is impossible without a complete ring anyway so it
+          // is
+          // unlikely to happen. This can also happen if `isMarkedComplete` is true at
+          // initialization
+          // time, which is also unlikely.
+          Timber.e(e, "Error when loading draw area from saved state")
+          updateVertices(listOf())
+        }
       }
     }
   }
@@ -135,6 +149,10 @@ internal constructor(
       }
     }
 
+    val prev = vertices.dropLast(1).lastOrNull()
+    _isTooClose =
+      prev?.let { calculateDistanceInPixels(it, target) <= DISTANCE_THRESHOLD_DP } == true
+
     addVertex(updatedTarget, true)
   }
 
@@ -163,7 +181,10 @@ internal constructor(
   /** Adds the last vertex to the polygon. */
   fun addLastVertex() {
     check(!isMarkedComplete) { "Attempted to add last vertex after completing the drawing" }
-    vertices.lastOrNull()?.let { addVertex(it, false) }
+    vertices.lastOrNull()?.let {
+      _isTooClose = true
+      addVertex(it, false)
+    }
   }
 
   /** Adds a new vertex to the polygon. */

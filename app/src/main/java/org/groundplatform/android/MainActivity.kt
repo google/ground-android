@@ -17,6 +17,7 @@ package org.groundplatform.android
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
@@ -27,12 +28,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import org.groundplatform.android.Config.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.databinding.MainActBinding
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.ActivityCallback
@@ -60,6 +64,8 @@ class MainActivity : AbstractActivity() {
 
   private var signInProgressDialog: AlertDialog? = null
 
+  private var pendingDeepLink: Uri? = null
+
   override fun onCreate(savedInstanceState: Bundle?) {
     // Make sure this is before calling super.onCreate()
     setTheme(R.style.AppTheme)
@@ -83,7 +89,19 @@ class MainActivity : AbstractActivity() {
 
     viewModel = viewModelFactory[this, MainViewModel::class.java]
 
-    lifecycleScope.launch { viewModel.navigationRequests.filterNotNull().collect { updateUi(it) } }
+    lifecycleScope.launch {
+      viewModel.navigationRequests.filterNotNull().first()
+
+      intent.data?.let {
+        if (navHostFragment.navController.currentDestination?.id != R.id.sign_in_fragment) {
+          navHostFragment.navController.handleDeepLinkIfNeeded(it)
+        } else {
+          pendingDeepLink = it
+        }
+      }
+
+      viewModel.navigationRequests.filterNotNull().collect { updateUi(it) }
+    }
 
     onBackPressedDispatcher.addCallback(
       this,
@@ -232,6 +250,15 @@ class MainActivity : AbstractActivity() {
         return
       }
       navHostFragment.navController.navigate(directions)
+    }
+  }
+
+  private fun NavController.handleDeepLinkIfNeeded(uri: Uri) {
+    if (uri.pathSegments.firstOrNull() == SURVEY_PATH_SEGMENT) {
+      val surveyId = uri.lastPathSegment
+      val action = SurveySelectorFragmentDirections.showSurveySelectorScreen(false)
+      action.surveyId = surveyId
+      navigate(action)
     }
   }
 }
