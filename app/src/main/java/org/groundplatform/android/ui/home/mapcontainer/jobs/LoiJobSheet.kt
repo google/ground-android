@@ -235,7 +235,7 @@ fun PreviewModalContentsWhenJobHasTasks() {
       created = auditInfo,
       lastModified = auditInfo,
       geometry = Point(coordinates = Coordinates(lat = 20.0, lng = 20.0)),
-      isPredefined = false
+      isPredefined = false,
     )
   AppTheme {
     ModalContents(loi = loi, canUserSubmitData = true, submissionCount = 20, onCollectClicked = {})
@@ -273,7 +273,7 @@ fun PreviewModalContentsWhenJobHasTasksAndIsPredefined() {
       created = auditInfo,
       lastModified = auditInfo,
       geometry = Point(coordinates = Coordinates(lat = 20.0, lng = 20.0)),
-      isPredefined = true
+      isPredefined = true,
     )
   AppTheme {
     ModalContents(loi = loi, canUserSubmitData = true, submissionCount = 20, onCollectClicked = {})
