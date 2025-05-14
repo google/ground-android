@@ -151,6 +151,7 @@
   <string name="switch_survey">Cambiar encuesta</string>
   <string name="no_survey_selected">No se ha seleccionado ninguna encuesta</string>
   <string name="undo">Deshacer</string>
+  <string name="redo">Rehacer</string>
   <string name="view_licenses_title">Licencias</string>
   <string name="about">Acerca de</string>
   <string name="terms_of_service">Términos de servicio</string>

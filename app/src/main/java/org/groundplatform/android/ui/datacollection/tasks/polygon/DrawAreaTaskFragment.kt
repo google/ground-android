@@ -29,6 +29,8 @@ import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LineString.Companion.lineStringOf
+import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.ui.compose.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
@@ -79,7 +81,15 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
   override fun onCreateActionButtons() {
     addSkipButton()
-    addUndoButton { removeLastVertex() }
+    addButton(ButtonAction.UNDO)
+      .setOnClickListener { removeLastVertex() }
+      .setOnValueChanged { button, value -> button.enableIfTrue(value.isNotNullOrEmpty()) }
+    addRedoButton(
+      clickHandler = { redoLastVertex() },
+      disableHandler = { button, value ->
+        button.enableIfTrue(viewModel.redoStack.isNotEmpty() && value.isNotNullOrEmpty())
+      },
+    )
     nextButton = addNextButton()
     addPointButton =
       addButton(ButtonAction.ADD_POINT).setOnClickListener {
@@ -91,11 +101,26 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
       addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.completePolygon() }
   }
 
+  fun addRedoButton(clickHandler: () -> Unit, disableHandler: (TaskButton, TaskData?) -> Unit) =
+    addButton(ButtonAction.REDO)
+      .setOnClickListener { clickHandler() }
+      .setOnValueChanged { button, value -> disableHandler(button, value) }
+
   /** Removes the last vertex from the polygon. */
   private fun removeLastVertex() {
     viewModel.removeLastVertex()
 
     // Move the camera to the last vertex, if any.
+    moveToPosition()
+  }
+
+  private fun redoLastVertex() {
+    viewModel.redoLastVertex()
+
+    moveToPosition()
+  }
+
+  private fun moveToPosition() {
     val lastVertex = viewModel.getLastVertex() ?: return
     drawAreaTaskMapFragment.moveToPosition(lastVertex)
   }
