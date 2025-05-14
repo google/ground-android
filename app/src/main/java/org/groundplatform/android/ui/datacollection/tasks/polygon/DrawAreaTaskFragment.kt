@@ -81,7 +81,9 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
   override fun onCreateActionButtons() {
     addSkipButton()
-    addUndoButton { removeLastVertex() }
+    addButton(ButtonAction.UNDO)
+      .setOnClickListener { removeLastVertex() }
+      .setOnValueChanged { button, value -> button.enableIfTrue(value.isNotNullOrEmpty()) }
     addRedoButton(
       clickHandler = { redoLastVertex() },
       disableHandler = { button, value ->

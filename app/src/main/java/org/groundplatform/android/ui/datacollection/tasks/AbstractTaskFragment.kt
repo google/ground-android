@@ -210,7 +210,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   fun addUndoButton(clickHandler: () -> Unit) =
     addButton(ButtonAction.UNDO)
       .setOnClickListener { clickHandler() }
-      .setOnValueChanged { button, value -> button.enableIfTrue(value.isNotNullOrEmpty()) }
+      .setOnValueChanged { button, value -> button.showIfTrue(value.isNotNullOrEmpty()) }
 
   protected fun addButton(buttonAction: ButtonAction): TaskButton {
     val action =
