@@ -130,7 +130,7 @@ private fun ModalContents(
         fontSize = 16.sp,
       )
       // NOTE(#2539): The DataCollectionFragment will crash if there are no non-LOI tasks.
-      if (canUserSubmitData && loi.job.hasNonLoiTasks()) {
+      if (canUserSubmitData && loi.job.hasNonLoiTasks() && loi.isPredefined == true) {
         Button(onClick = onCollectClicked) {
           Text(
             stringResource(R.string.add_data),
@@ -235,6 +235,45 @@ fun PreviewModalContentsWhenJobHasTasks() {
       created = auditInfo,
       lastModified = auditInfo,
       geometry = Point(coordinates = Coordinates(lat = 20.0, lng = 20.0)),
+      isPredefined = false
+    )
+  AppTheme {
+    ModalContents(loi = loi, canUserSubmitData = true, submissionCount = 20, onCollectClicked = {})
+  }
+}
+
+@SuppressLint("UnrememberedMutableState")
+@Composable
+@Preview(showBackground = true)
+@ExcludeFromJacocoGeneratedReport
+fun PreviewModalContentsWhenJobHasTasksAndIsPredefined() {
+  val loi =
+    LocationOfInterest(
+      id = "1",
+      surveyId = SURVEY_ID,
+      job =
+        Job(
+          id = "job",
+          style = Style(color = "#4169E1"),
+          name = "Job name",
+          tasks =
+            mapOf(
+              Pair(
+                TASK_ID,
+                Task(
+                  id = TASK_ID,
+                  index = 1,
+                  type = Task.Type.TEXT,
+                  label = "task",
+                  isRequired = false,
+                ),
+              )
+            ),
+        ),
+      created = auditInfo,
+      lastModified = auditInfo,
+      geometry = Point(coordinates = Coordinates(lat = 20.0, lng = 20.0)),
+      isPredefined = true
     )
   AppTheme {
     ModalContents(loi = loi, canUserSubmitData = true, submissionCount = 20, onCollectClicked = {})
