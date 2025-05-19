@@ -23,7 +23,10 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.anyString
+import org.mockito.Mockito.never
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.junit.MockitoRule

@@ -23,7 +23,6 @@ import kotlinx.collections.immutable.toPersistentMap
 import org.groundplatform.android.model.AuditInfo
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
-import org.groundplatform.android.model.geometry.*
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Geometry
 import org.groundplatform.android.model.geometry.Point
@@ -44,11 +43,11 @@ import org.groundplatform.android.model.task.Option
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.model.task.TaskId
 import org.groundplatform.android.persistence.local.LocalDataConsistencyException
-import org.groundplatform.android.persistence.local.room.entity.*
 import org.groundplatform.android.persistence.local.room.entity.AuditInfoEntity
 import org.groundplatform.android.persistence.local.room.entity.ConditionEntity
 import org.groundplatform.android.persistence.local.room.entity.DraftSubmissionEntity
 import org.groundplatform.android.persistence.local.room.entity.ExpressionEntity
+import org.groundplatform.android.persistence.local.room.entity.GeometryWrapper
 import org.groundplatform.android.persistence.local.room.entity.JobEntity
 import org.groundplatform.android.persistence.local.room.entity.LocationOfInterestEntity
 import org.groundplatform.android.persistence.local.room.entity.LocationOfInterestMutationEntity
@@ -61,7 +60,15 @@ import org.groundplatform.android.persistence.local.room.entity.SubmissionMutati
 import org.groundplatform.android.persistence.local.room.entity.SurveyEntity
 import org.groundplatform.android.persistence.local.room.entity.TaskEntity
 import org.groundplatform.android.persistence.local.room.entity.UserEntity
-import org.groundplatform.android.persistence.local.room.fields.*
+import org.groundplatform.android.persistence.local.room.fields.EntityDeletionState
+import org.groundplatform.android.persistence.local.room.fields.ExpressionEntityType
+import org.groundplatform.android.persistence.local.room.fields.MatchEntityType
+import org.groundplatform.android.persistence.local.room.fields.MultipleChoiceEntityType
+import org.groundplatform.android.persistence.local.room.fields.MutationEntitySyncStatus
+import org.groundplatform.android.persistence.local.room.fields.MutationEntityType
+import org.groundplatform.android.persistence.local.room.fields.OfflineAreaEntityState
+import org.groundplatform.android.persistence.local.room.fields.TaskEntityType
+import org.groundplatform.android.persistence.local.room.fields.UserDetails
 import org.groundplatform.android.persistence.local.room.relations.ConditionEntityAndRelations
 import org.groundplatform.android.persistence.local.room.relations.JobEntityAndRelations
 import org.groundplatform.android.persistence.local.room.relations.SurveyEntityAndRelations
@@ -361,9 +368,7 @@ fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
   return SubmissionMutation(
     job = job,
     submissionId = submissionId,
-    deltas =
-      org.groundplatform.android.persistence.local.room.converter.SubmissionDeltasConverter
-        .fromString(job, deltas),
+    deltas = SubmissionDeltasConverter.fromString(job, deltas),
     id = id,
     surveyId = surveyId,
     locationOfInterestId = locationOfInterestId,
