@@ -26,9 +26,7 @@
 
   <!-- Severity: Error -->
   <issue id="ApplySharedPref" severity="error" />
-  <issue id="Deprecated" severity="error">
-    <ignore path="res/layout/multiple_choice_input_task.xml" />
-  </issue>
+  <issue id="Deprecated" severity="error" />
   <issue id="DuplicateIds" severity="error" />
   <issue id="FragmentTagUsage" severity="error" />
   <issue id="HardcodedText" severity="error" />

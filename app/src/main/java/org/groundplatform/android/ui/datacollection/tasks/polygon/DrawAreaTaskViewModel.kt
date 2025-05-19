@@ -165,7 +165,7 @@ internal constructor(
     isMarkedComplete = false
 
     // Remove last vertex and update polygon
-    val updatedVertices = vertices.toMutableList().apply { removeLast() }.toImmutableList()
+    val updatedVertices = vertices.toMutableList().apply { removeAt(lastIndex) }.toImmutableList()
 
     // Render changes to UI
     updateVertices(updatedVertices)
@@ -193,7 +193,7 @@ internal constructor(
 
     // Maybe remove the last vertex before adding the new vertex.
     if (shouldOverwriteLastVertex && updatedVertices.isNotEmpty()) {
-      updatedVertices.removeLast()
+      updatedVertices.removeAt(updatedVertices.lastIndex)
     }
 
     // Add the new vertex
