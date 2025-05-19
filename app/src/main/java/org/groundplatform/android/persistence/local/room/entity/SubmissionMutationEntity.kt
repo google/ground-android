@@ -15,8 +15,11 @@
  */
 package org.groundplatform.android.persistence.local.room.entity
 
-import androidx.room.*
-import java.util.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
 import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.persistence.local.room.fields.MutationEntitySyncStatus
 import org.groundplatform.android.persistence.local.room.fields.MutationEntityType
