@@ -65,7 +65,7 @@ buildscript {
 plugins {
     id "org.jetbrains.kotlin.android" version "$kotlinVersion" apply false
     id "org.jetbrains.kotlin.plugin.serialization" version "$kotlinVersion"
-    id "com.ncorti.ktfmt.gradle" version "0.20.0"
+    id "com.ncorti.ktfmt.gradle" version "0.22.0"
     id "com.google.dagger.hilt.android" version "$hiltVersion" apply false
     id "io.gitlab.arturbosch.detekt" version "1.23.5"
     id "com.google.protobuf" version '0.9.4' apply false
@@ -93,7 +93,7 @@ subprojects {
 }
 
 detekt {
-    toolVersion = "1.23.5"
+    toolVersion = "1.23.8"
 
     source = files("app/src")
     allRules = true
@@ -120,8 +120,8 @@ gitVersioner {
 }
 
 ext {
-    androidCompileSdk = 34
+    androidCompileSdk = 35
     androidMinSdk = 24
-    androidTargetSdk = 34
+    androidTargetSdk = 35
     jvmToolchainVersion = 17
 }
