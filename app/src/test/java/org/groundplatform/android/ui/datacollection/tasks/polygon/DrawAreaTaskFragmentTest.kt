@@ -206,6 +206,25 @@ class DrawAreaTaskFragmentTest :
   }
 
   @Test
+  fun testRedoButton_isDisabled_emptyRedoVertexStack() = runWithTestDispatcher {
+    setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
+    ShadowDialog.getLatestDialog().dismiss()
+
+    runner().assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
+
+    updateLastVertexAndAddPoint(COORDINATE_1)
+    updateLastVertexAndAddPoint(COORDINATE_2)
+
+    viewModel.removeLastVertex()
+    runner().assertButtonIsEnabled(REDO_POINT_BUTTON_TEXT, true)
+
+    viewModel.removeLastVertex()
+    viewModel.removeLastVertex()
+    assertThat(viewModel.redoVertexStack).isEmpty()
+    runner().assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
+  }
+
+  @Test
   fun `Instructions dialog is shown`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
     assertThat(ShadowDialog.getLatestDialog()).isNotNull()

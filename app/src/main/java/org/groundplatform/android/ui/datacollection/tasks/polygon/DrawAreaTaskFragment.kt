@@ -29,7 +29,6 @@ import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LineString.Companion.lineStringOf
-import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.ui.compose.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -84,12 +83,11 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     addButton(ButtonAction.UNDO)
       .setOnClickListener { removeLastVertex() }
       .setOnValueChanged { button, value -> button.enableIfTrue(value.isNotNullOrEmpty()) }
-    addRedoButton(
-      clickHandler = { redoLastVertex() },
-      disableHandler = { button, value ->
-        button.enableIfTrue(viewModel.redoStack.isNotEmpty() && value.isNotNullOrEmpty())
-      },
-    )
+    addButton(ButtonAction.REDO)
+      .setOnClickListener { redoLastVertex() }
+      .setOnValueChanged { button, value ->
+        button.enableIfTrue(viewModel.redoVertexStack.isNotEmpty() && value.isNotNullOrEmpty())
+      }
     nextButton = addNextButton()
     addPointButton =
       addButton(ButtonAction.ADD_POINT).setOnClickListener {
@@ -100,11 +98,6 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     completeButton =
       addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.completePolygon() }
   }
-
-  fun addRedoButton(clickHandler: () -> Unit, disableHandler: (TaskButton, TaskData?) -> Unit) =
-    addButton(ButtonAction.REDO)
-      .setOnClickListener { clickHandler() }
-      .setOnValueChanged { button, value -> disableHandler(button, value) }
 
   /** Removes the last vertex from the polygon. */
   private fun removeLastVertex() {

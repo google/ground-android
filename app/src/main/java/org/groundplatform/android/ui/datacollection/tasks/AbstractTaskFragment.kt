@@ -211,6 +211,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     addButton(ButtonAction.UNDO)
       .setOnClickListener { clickHandler() }
       .setOnValueChanged { button, value -> button.showIfTrue(value.isNotNullOrEmpty()) }
+      .hide()
 
   protected fun addButton(buttonAction: ButtonAction): TaskButton {
     val action =
