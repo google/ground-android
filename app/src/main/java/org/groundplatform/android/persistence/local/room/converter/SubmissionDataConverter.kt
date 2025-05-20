@@ -44,9 +44,7 @@ object SubmissionDataConverter {
 
   @JvmStatic
   fun fromString(job: Job, jsonString: String?): SubmissionData {
-    if (jsonString == null) {
-      return SubmissionData()
-    }
+    if (jsonString == null) return SubmissionData()
     val map = mutableMapOf<String, TaskData>()
     try {
       val jsonObject = JSONObject(jsonString)

@@ -21,7 +21,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.gms.maps.model.Polyline
-import com.google.maps.android.PolyUtil.*
+import com.google.maps.android.PolyUtil.containsLocation
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.MultiPolygon
 import org.groundplatform.android.model.geometry.Point

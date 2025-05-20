@@ -61,12 +61,20 @@ internal constructor(
   override suspend fun loadTermsOfService(): TermsOfService? =
     withContext(ioDispatcher) { db().termsOfService().terms().get() }
 
-  override fun getSurveyList(user: User): Flow<List<SurveyListItem>> = flow {
+  override fun getRestrictedSurveyList(user: User): Flow<List<SurveyListItem>> = flow {
     emitAll(
       db().surveys().getReadable(user).map { list ->
         // TODO: Return SurveyListItem from getReadable(), only fetch required fields.
         // Issue URL: https://github.com/google/ground-android/issues/2031
         list.map { it.toListItem(false) }
+      }
+    )
+  }
+
+  override fun getPublicSurveyList(): Flow<List<SurveyListItem>> = flow {
+    emitAll(
+      db().surveys().getPublicReadable().map { list ->
+        list.map { it.toListItem(availableOffline = false) }
       }
     )
   }

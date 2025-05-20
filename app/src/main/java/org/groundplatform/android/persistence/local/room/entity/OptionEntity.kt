@@ -15,7 +15,10 @@
  */
 package org.groundplatform.android.persistence.local.room.entity
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 
 @Entity(
   tableName = "option",
