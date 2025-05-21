@@ -17,6 +17,7 @@ package org.groundplatform.android.model
 
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.proto.Survey
+import org.groundplatform.android.proto.Survey.GeneralAccess
 
 /** Configuration, schema, and ACLs for a single survey. */
 data class Survey(
@@ -26,6 +27,7 @@ data class Survey(
   val jobMap: Map<String, Job>,
   val acl: Map<String, String> = mapOf(),
   val dataSharingTerms: Survey.DataSharingTerms? = null,
+  val generalAccess: GeneralAccess,
 ) {
   val jobs: Collection<Job>
     get() = jobMap.values

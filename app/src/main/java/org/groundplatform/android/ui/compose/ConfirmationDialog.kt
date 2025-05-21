@@ -20,6 +20,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
@@ -35,33 +36,32 @@ fun ConfirmationDialog(
   @StringRes dismissButtonText: Int? = R.string.cancel,
   @StringRes confirmButtonText: Int,
   onConfirmClicked: () -> Unit,
+  visibleState: MutableState<Boolean>? = null,
 ) {
-  val showDialog = remember { mutableStateOf(true) }
+  val showDialog = visibleState ?: remember { mutableStateOf(true) }
 
-  fun onConfirm() {
-    showDialog.value = false
-    onConfirmClicked()
-  }
+  if (!showDialog.value) return
 
-  fun onDismiss() {
-    showDialog.value = false
-  }
-
-  if (showDialog.value) {
-    AlertDialog(
-      onDismissRequest = { onDismiss() },
-      title = { Text(text = stringResource(title)) },
-      text = { Text(text = stringResource(description)) },
-      dismissButton = {
-        dismissButtonText?.let {
-          TextButton(onClick = { onDismiss() }) { Text(text = stringResource(it)) }
+  AlertDialog(
+    onDismissRequest = { showDialog.value = false },
+    title = { Text(text = stringResource(title)) },
+    text = { Text(text = stringResource(description)) },
+    dismissButton = {
+      dismissButtonText?.let {
+        TextButton(onClick = { showDialog.value = false }) { Text(text = stringResource(it)) }
+      }
+    },
+    confirmButton = {
+      TextButton(
+        onClick = {
+          showDialog.value = false
+          onConfirmClicked()
         }
-      },
-      confirmButton = {
-        TextButton(onClick = { onConfirm() }) { Text(text = stringResource(confirmButtonText)) }
-      },
-    )
-  }
+      ) {
+        Text(text = stringResource(confirmButtonText))
+      }
+    },
+  )
 }
 
 @Composable

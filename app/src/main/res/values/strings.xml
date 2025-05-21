@@ -209,4 +209,8 @@
   <string name="text_task_data_character_limit">255 characters max</string>
 
   <string name="area_message">Area: %1$.2f m²</string>
+
+  <string name="access_restricted">Restricted</string>
+  <string name="access_unlisted">Unlisted</string>
+  <string name="access_public">Public</string>
 </resources>

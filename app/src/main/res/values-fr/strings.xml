@@ -208,4 +208,8 @@
   <string name="clear">Claire</string>
 
   <string name="area_message">Surface: %1$.2f m²</string>
+
+  <string name="access_restricted">Restreint</string>
+  <string name="access_unlisted">Non répertorié</string>
+  <string name="access_public">Public</string>
 </resources>

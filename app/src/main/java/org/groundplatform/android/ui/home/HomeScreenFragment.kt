@@ -226,9 +226,8 @@ class HomeScreenFragment :
           title = R.string.sign_out_dialog_title,
           description = R.string.sign_out_dialog_body,
           confirmButtonText = R.string.sign_out,
-        ) {
-          homeScreenViewModel.signOut()
-        }
+          onConfirmClicked = { homeScreenViewModel.signOut() },
+        )
       }
     }
   }

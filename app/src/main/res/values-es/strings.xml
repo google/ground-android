@@ -209,4 +209,8 @@
   <string name="clear">Clara</string>
 
   <string name="area_message">Área: %1$.2f m²</string>
+
+  <string name="access_restricted">Restringido</string>
+  <string name="access_unlisted">No listado</string>
+  <string name="access_public">Público</string>
 </resources>

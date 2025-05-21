@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.model
+package org.groundplatform.android.persistence.local.room.converter
 
-import org.groundplatform.android.proto.Survey.GeneralAccess
+import androidx.room.TypeConverter
+import org.groundplatform.android.proto.Survey
 
-data class SurveyListItem(
-  val id: String,
-  val title: String,
-  val description: String,
-  val availableOffline: Boolean,
-  val generalAccess: GeneralAccess,
-)
+class GeneralAccessConverter {
 
-fun Survey.toListItem(availableOffline: Boolean): SurveyListItem =
-  SurveyListItem(id, title, description, availableOffline, generalAccess)
+  @TypeConverter fun toDbValue(access: Survey.GeneralAccess?): String? = access?.name
+
+  @TypeConverter
+  fun fromDbValue(dbValue: String?): Survey.GeneralAccess =
+    dbValue?.let { safeName -> Survey.GeneralAccess.valueOf(safeName) }
+      ?: Survey.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED
+}

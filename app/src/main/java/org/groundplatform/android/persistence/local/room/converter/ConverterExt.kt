@@ -408,7 +408,10 @@ fun SurveyEntityAndRelations.toModelObject(): Survey {
     surveyEntity.description!!,
     jobMap.toPersistentMap(),
     surveyEntity.acl?.toStringMap()!!,
-    surveyEntity.dataSharingTerms?.let { DataSharingTerms.parseFrom(surveyEntity.dataSharingTerms) },
+    surveyEntity.dataSharingTerms?.let {
+      DataSharingTerms.parseFrom(surveyEntity.dataSharingTerms)
+    },
+    surveyEntity.generalAccess!!,
   )
 }
 
@@ -425,6 +428,7 @@ fun Survey.toLocalDataStoreObject() =
     description = description,
     acl = JSONObject(acl as Map<*, *>),
     dataSharingTerms = dataSharingTerms?.toByteArray(),
+    generalAccess = generalAccess,
   )
 
 fun Task.toLocalDataStoreObject(jobId: String?) =

@@ -73,14 +73,10 @@
         android:layout_marginEnd="20dp"
         android:text="@string/survey_sync_hint" />
 
-      <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
+      <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/compose_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        tools:itemCount="3"
-        tools:listitem="@layout/survey_card_item" />
+        android:layout_height="match_parent"/>
     </LinearLayout>
 
     <LinearLayout
