@@ -22,18 +22,14 @@ import timber.log.Timber
 import timber.log.Timber.DebugTree
 
 class TimberTestRule : TestWatcher() {
-  val logs = mutableListOf<String>()
-
   private val tree =
     object : DebugTree() {
       override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-        logs += "${tag ?: "NO_TAG"}: $message"
         println("$tag: $message")
       }
     }
 
   override fun starting(description: Description?) {
-    logs.clear()
     super.starting(description)
     Timber.plant(tree)
   }
