@@ -23,6 +23,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertNotNull
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.TimberTestRule
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LinearRing
@@ -35,7 +36,11 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
+import org.hamcrest.CoreMatchers.hasItem
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.endsWith
 import org.junit.Assert.assertThrows
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -43,6 +48,9 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class DrawAreaTaskViewModelTest : BaseHiltTest() {
+
+  @get:Rule val timberRule = TimberTestRule()
+
   @Inject lateinit var viewModel: DrawAreaTaskViewModel
 
   private lateinit var featureTestObserver: TestObserver<Feature>
@@ -232,6 +240,17 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     viewModel.redoLastVertex()
     assertGeometry(3, isLineString = true)
+  }
+
+  @Test
+  fun `redoLastVertex when redo stack is empty`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+
+    viewModel.redoLastVertex()
+    assertThat(viewModel.redoVertexStack).isEqualTo(emptyList<Coordinates>())
+
+    viewModel.redoLastVertex()
+    assertThat(timberRule.logs, hasItem(endsWith("redoVertexStack is already empty")))
   }
 
   private fun assertGeometry(
