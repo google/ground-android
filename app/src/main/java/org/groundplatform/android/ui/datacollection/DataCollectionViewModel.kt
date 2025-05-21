@@ -274,10 +274,9 @@ internal constructor(
     val taskId = getCurrentTaskId()
     val viewModel = getTaskViewModel(taskId) ?: error("ViewModel not found for task $taskId")
 
-    viewModel.validate()?.let {
-      Timber.d("Ignoring task $taskId with invalid data")
-      return
-    }
+    // We are not validating the data before saving as draft. This is needed for storing partially
+    // drawn polygons. Always ensure that draft doesn't get submitted without validation. Currently,
+    // it is being mitigated by validating on clicking previous/next buttons.
 
     taskDataHandler.setData(viewModel.task, viewModel.taskTaskData.value)
     savedStateHandle[TASK_POSITION_ID] = taskId

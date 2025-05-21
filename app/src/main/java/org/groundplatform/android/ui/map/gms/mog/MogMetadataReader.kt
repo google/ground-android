@@ -20,8 +20,6 @@ import com.google.common.io.LittleEndianDataInputStream
 import java.io.DataInput
 import java.io.DataInputStream
 import java.nio.charset.StandardCharsets
-import java.util.*
-import org.groundplatform.android.ui.map.gms.mog.TiffTagDataType.*
 
 private const val NULL_CHAR = 0.toChar()
 
@@ -124,7 +122,7 @@ class MogMetadataReader(private val seekable: SeekableInputStream) {
     val values: MutableList<Any?> = ArrayList()
     repeat(valueCount) { values.add(readTagValue(dataType)) }
 
-    return if (dataType == ASCII) {
+    return if (dataType == TiffTagDataType.ASCII) {
       tiffAsciiValuesToStringList(values)
     } else {
       values
@@ -133,16 +131,16 @@ class MogMetadataReader(private val seekable: SeekableInputStream) {
 
   private fun readTagValue(dataType: TiffTagDataType): Any =
     when (dataType) {
-      ASCII -> dataInput.readChar()
-      BYTE,
-      UNDEFINED -> dataInput.readUnsignedByte()
-      SBYTE -> dataInput.readByte()
-      SHORT -> dataInput.readUnsignedShort()
-      SSHORT -> dataInput.readShort()
-      LONG -> dataInput.readUnsignedInt()
-      SLONG -> dataInput.readInt()
-      FLOAT -> dataInput.readFloat()
-      DOUBLE -> dataInput.readDouble()
+      TiffTagDataType.ASCII -> dataInput.readChar()
+      TiffTagDataType.BYTE,
+      TiffTagDataType.UNDEFINED -> dataInput.readUnsignedByte()
+      TiffTagDataType.SBYTE -> dataInput.readByte()
+      TiffTagDataType.SHORT -> dataInput.readUnsignedShort()
+      TiffTagDataType.SSHORT -> dataInput.readShort()
+      TiffTagDataType.LONG -> dataInput.readUnsignedInt()
+      TiffTagDataType.SLONG -> dataInput.readInt()
+      TiffTagDataType.FLOAT -> dataInput.readFloat()
+      TiffTagDataType.DOUBLE -> dataInput.readDouble()
       else -> throw UnsupportedOperationException("Unsupported tag type $dataType")
     }
 

@@ -16,10 +16,10 @@ build:
     maxIssues: 0
     excludeCorrectable: false
     weights:
-    # complexity: 2
-    # LongParameterList: 1
-    # style: 1
-    # comments: 1
+     complexity: 2
+     LongParameterList: 1
+     style: 1
+     comments: 1
 
 config:
     validation: true
@@ -95,6 +95,7 @@ comments:
         searchInInnerObject: true
         searchInInnerInterface: true
         searchInProtectedClass: false
+        ignoreDefaultCompanionObject: false
     UndocumentedPublicFunction:
         active: false
         excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**', '**/*Module.kt' ]
@@ -158,7 +159,7 @@ complexity:
         threshold: 3
         ignoreArgumentsMatchingNames: false
     NestedBlockDepth:
-        active: false
+        active: true
         threshold: 4
     NestedScopeFunctions:
         active: true
@@ -189,6 +190,7 @@ complexity:
         ignoreDeprecated: false
         ignorePrivate: false
         ignoreOverridden: false
+        ignoreAnnotatedFunctions: [ ]
 
 coroutines:
     active: true
@@ -300,7 +302,7 @@ exceptions:
         active: true
     TooGenericExceptionCaught:
         active: false
-        excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
+        excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
         exceptionNames:
             - 'ArrayIndexOutOfBoundsException'
             - 'Error'
@@ -363,6 +365,17 @@ naming:
     MatchingDeclarationName:
         active: true
         mustBeFirst: true
+        multiplatformTargets:
+            - 'ios'
+            - 'android'
+            - 'js'
+            - 'jvm'
+            - 'native'
+            - 'iosArm64'
+            - 'iosX64'
+            - 'macosX64'
+            - 'mingwX64'
+            - 'linuxX64'
     MemberNameEqualsClassName:
         active: true
         ignoreOverridden: true
@@ -454,9 +467,12 @@ potential-bugs:
         active: true
         restrictToConfig: true
         returnValueAnnotations:
+            - 'CheckResult'
             - '*.CheckResult'
+            - 'CheckReturnValue'
             - '*.CheckReturnValue'
         ignoreReturnValueAnnotations:
+            - 'CanIgnoreReturnValue'
             - '*.CanIgnoreReturnValue'
         returnValueTypes:
             - 'kotlin.sequences.Sequence'
@@ -621,7 +637,7 @@ style:
         maxJumpCount: 1
     MagicNumber:
         active: false
-        excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.kts' ]
+        excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.kts' ]
         ignoreNumbers:
             - '-1'
             - '0'
@@ -697,12 +713,12 @@ style:
         active: true
     SerialVersionUIDInSerializableClass:
         active: true
+    SpacingBetweenPackageAndImports:
+        active: true
     StringShouldBeRawString:
         active: true
         maxEscapedCharacterCount: 2
         ignoredCharacters: [ ]
-    SpacingBetweenPackageAndImports:
-        active: true
     ThrowsCount:
         active: true
         max: 2
@@ -746,6 +762,7 @@ style:
         active: true
     UnusedParameter:
         active: true
+        allowedNames: 'ignored|expected'
     UnusedPrivateClass:
         active: true
     UnusedPrivateMember:
@@ -753,7 +770,7 @@ style:
         allowedNames: ''
     UnusedPrivateProperty:
         active: true
-        allowedNames: '(_|ignored|expected|serialVersionUID)'
+        allowedNames: '_|ignored|expected|serialVersionUID'
     UseAnyOrNoneInsteadOfFind:
         active: true
     UseArrayLiteralsInAnnotations:
@@ -792,6 +809,6 @@ style:
         active: true
         ignoreLateinitVar: false
     WildcardImport:
-        active: false
+        active: true
         excludeImports:
             - 'java.util.*'

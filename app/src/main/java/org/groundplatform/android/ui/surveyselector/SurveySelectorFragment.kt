@@ -23,6 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.groundplatform.android.R
@@ -45,11 +46,16 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   private lateinit var binding: SurveySelectorFragBinding
   private lateinit var adapter: SurveyListAdapter
 
+  private val args: SurveySelectorFragmentArgs by navArgs()
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(SurveySelectorViewModel::class.java)
     adapter = SurveyListAdapter(viewModel, this)
     viewModel.uiState.launchWhenStartedAndCollect { updateUi(it) }
+    if (!args.surveyId.isNullOrBlank()) {
+      viewModel.activateSurvey(args.surveyId!!)
+    }
   }
 
   private fun updateUi(uiState: UiState) {

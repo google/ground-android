@@ -80,10 +80,17 @@ internal constructor(
    */
   private var vertices: List<Coordinates> = listOf()
 
-  private val redoStack = mutableListOf<Coordinates>()
+  /** Stack of vertices that have been removed. */
+  private val _redoVertexStack = mutableListOf<Coordinates>()
+  val redoVertexStack: List<Coordinates>
+    get() = _redoVertexStack
 
   /** Represents whether the user has completed drawing the polygon or not. */
   private var isMarkedComplete: Boolean = false
+
+  private var _isTooClose: Boolean = false
+  val isTooClose: Boolean
+    get() = _isTooClose
 
   private val _showSelfIntersectionDialog = MutableSharedFlow<Unit>()
   val showSelfIntersectionDialog = _showSelfIntersectionDialog.asSharedFlow()
@@ -93,17 +100,27 @@ internal constructor(
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
     super.initialize(job, task, taskData)
     strokeColor = job.getDefaultColor()
-    (taskData as? DrawAreaTaskData)?.let {
-      updateVertices(it.area.getShellCoordinates())
-      try {
-        completePolygon()
-      } catch (e: IllegalStateException) {
-        // This state can theoretically happen if the coordinates form an incomplete ring, but
-        // construction of a DrawAreaTaskData is impossible without a complete ring anyway so it is
-        // unlikely to happen. This can also happen if `isMarkedComplete` is true at initialization
-        // time, which is also unlikely.
-        Timber.e(e, "Error when loading draw area from saved state")
-        updateVertices(listOf())
+
+    // Apply saved state if it exists.
+    when (taskData) {
+      is DrawAreaTaskIncompleteData -> {
+        updateVertices(taskData.lineString.coordinates)
+      }
+
+      is DrawAreaTaskData -> {
+        updateVertices(taskData.area.getShellCoordinates())
+        try {
+          completePolygon()
+        } catch (e: IllegalStateException) {
+          // This state can theoretically happen if the coordinates form an incomplete ring, but
+          // construction of a DrawAreaTaskData is impossible without a complete ring anyway so it
+          // is
+          // unlikely to happen. This can also happen if `isMarkedComplete` is true at
+          // initialization
+          // time, which is also unlikely.
+          Timber.e(e, "Error when loading draw area from saved state")
+          updateVertices(listOf())
+        }
       }
     }
   }
@@ -137,6 +154,10 @@ internal constructor(
       }
     }
 
+    val prev = vertices.dropLast(1).lastOrNull()
+    _isTooClose =
+      prev?.let { calculateDistanceInPixels(it, target) <= DISTANCE_THRESHOLD_DP } == true
+
     addVertex(updatedTarget, true)
   }
 
@@ -148,11 +169,10 @@ internal constructor(
     // Reset complete status
     isMarkedComplete = false
 
-    val removed = vertices.last()
-    redoStack.add(removed)
+    _redoVertexStack.add(vertices.last())
 
     // Remove last vertex and update polygon
-    val updatedVertices = vertices.toMutableList().apply { removeLast() }.toImmutableList()
+    val updatedVertices = vertices.toMutableList().apply { removeAt(lastIndex) }.toImmutableList()
 
     // Render changes to UI
     updateVertices(updatedVertices)
@@ -160,17 +180,21 @@ internal constructor(
     // Update saved response.
     if (updatedVertices.isEmpty()) {
       setValue(null)
+      _redoVertexStack.clear()
     } else {
       setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
     }
   }
 
   fun redoLastVertex() {
-    if (redoStack.isEmpty()) return
+    if (redoVertexStack.isEmpty()) {
+      Timber.e("redoVertexStack is already empty")
+      return
+    }
 
     isMarkedComplete = false
 
-    val redoVertex = redoStack.removeAt(redoStack.lastIndex)
+    val redoVertex = _redoVertexStack.removeAt(_redoVertexStack.lastIndex)
 
     val mutableVertices = vertices.toMutableList()
     mutableVertices.add(redoVertex)
@@ -178,14 +202,16 @@ internal constructor(
 
     updateVertices(updatedVertices)
     setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
-
-    vertices = updatedVertices
   }
 
   /** Adds the last vertex to the polygon. */
   fun addLastVertex() {
     check(!isMarkedComplete) { "Attempted to add last vertex after completing the drawing" }
-    vertices.lastOrNull()?.let { addVertex(it, false) }
+    _redoVertexStack.clear()
+    vertices.lastOrNull()?.let {
+      _isTooClose = true
+      addVertex(it, false)
+    }
   }
 
   /** Adds a new vertex to the polygon. */
@@ -194,7 +220,7 @@ internal constructor(
 
     // Maybe remove the last vertex before adding the new vertex.
     if (shouldOverwriteLastVertex && updatedVertices.isNotEmpty()) {
-      updatedVertices.removeLast()
+      updatedVertices.removeAt(updatedVertices.lastIndex)
     }
 
     // Add the new vertex
