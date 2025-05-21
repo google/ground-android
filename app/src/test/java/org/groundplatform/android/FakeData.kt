@@ -58,6 +58,7 @@ object FakeData {
   const val USER_ID = "user id"
   const val SURVEY_ID = "survey id"
   const val SUBMISSION_ID = "submission id"
+  const val TASK_ID = "task_id"
 
   val JOB =
     Job(
