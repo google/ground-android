@@ -80,7 +80,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   override fun onCreateActionButtons() {
     addSkipButton()
     addUndoButton { removeLastVertex() }
-    addRedoButton { redoLastVertex() }
+    addRedoButton { restoreLastVertex() }
     nextButton = addNextButton()
     addPointButton =
       addButton(ButtonAction.ADD_POINT).setOnClickListener {
@@ -101,7 +101,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     drawAreaTaskMapFragment.moveToPosition(lastVertex)
   }
 
-  private fun redoLastVertex() {
+  private fun restoreLastVertex() {
     viewModel.redoLastVertex()
 
     val lastVertex = viewModel.getLastVertex() ?: return
