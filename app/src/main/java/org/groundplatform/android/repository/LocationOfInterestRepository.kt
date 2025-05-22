@@ -140,9 +140,18 @@ constructor(
     mutationSyncWorkManager.enqueueSyncWorker()
   }
 
-  /** Returns a flow of all valid (not deleted) [LocationOfInterest] in the given [Survey]. */
-  fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
-    localLoiStore.getValidLois(survey)
+  fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> {
+    val visibility =
+      survey.dataVisibility
+        ?: org.groundplatform.android.proto.Survey.DataVisibility.CONTRIBUTOR_AND_ORGANIZERS
+
+    return when (visibility) {
+      org.groundplatform.android.proto.Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS ->
+        localLoiStore.getValidLois(survey).map { it.toSet() }
+
+      else -> localLoiStore.getValidLois(survey)
+    }
+  }
 
   /** Returns a flow of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBounds(survey: Survey, bounds: Bounds): Flow<List<LocationOfInterest>> =
