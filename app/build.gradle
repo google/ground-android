@@ -253,16 +253,10 @@ dependencies {
     implementation "androidx.hilt:hilt-navigation-fragment:$project.hiltJetpackVersion"
     // For Robolectric tests.
     testImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
-    // ...with Kotlin.
     kaptTest "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
-    // ...with Java.
-    testAnnotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
     // For instrumented tests.
     androidTestImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
-    // ...with Kotlin.
     kaptAndroidTest "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
-    // ...with Java.
-    androidTestAnnotationProcessor "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
     // Hilt Android Worker API support.
     implementation "androidx.hilt:hilt-work:$project.hiltJetpackVersion"
     kapt "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
@@ -342,8 +336,6 @@ dependencies {
     debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
     //noinspection AndroidLintFragmentGradleConfiguration
     stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
-
-    implementation "com.google.guava:guava:33.0.0-android"
 
     // TODO: Move protos into shared module and set correct path here.
     // Issue URL: https://github.com/google/ground-android/issues/1748
