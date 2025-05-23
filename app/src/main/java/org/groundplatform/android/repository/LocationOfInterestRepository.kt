@@ -157,6 +157,7 @@ constructor(
     mutationSyncWorkManager.enqueueSyncWorker()
   }
 
+  /** Returns a flow of all valid (not deleted) [LocationOfInterest] in the given [Survey]. */
   fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
     localLoiStore.getValidLois(survey)
 
