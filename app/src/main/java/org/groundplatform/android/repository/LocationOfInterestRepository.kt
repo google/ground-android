@@ -17,6 +17,8 @@ package org.groundplatform.android.repository
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
@@ -34,6 +36,7 @@ import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.remote.RemoteDataStore
 import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
 import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
+import org.groundplatform.android.proto.Survey.DataVisibility
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.gms.GmsExt.contains
@@ -57,24 +60,38 @@ constructor(
   private val authenticationManager: AuthenticationManager,
 ) {
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
-  suspend fun syncLocationsOfInterest(survey: Survey) {
+  suspend fun syncLocationsOfInterest(survey: Survey) = coroutineScope {
     // TODO: Allow survey organizers to make ad hoc LOIs visible to all data collectors.
     // Issue URL: https://github.com/google/ground-android/issues/2384
     val ownerUserId = authenticationManager.getAuthenticatedUser().id
-    val lois =
-      with(remoteDataStore) { loadPredefinedLois(survey) + loadUserLois(survey, ownerUserId) }
-    val loiMutations = localLoiStore.getAllSurveyMutations(survey).firstOrNull() ?: listOf()
-    // NOTE(#2652): Don't delete pending locations of interest, since we can accidentally delete
-    // them here if we get to this routine before they can be synced up to the remote database.
-    val pendingLois =
-      loiMutations.mapNotNull {
-        when (it.syncStatus) {
-          SyncStatus.PENDING,
-          SyncStatus.IN_PROGRESS -> it.locationOfInterestId
-          else -> null
-        }
+
+    val visibility = survey.dataVisibility ?: DataVisibility.CONTRIBUTOR_AND_ORGANIZERS
+
+    val predefinedDeferred = async { remoteDataStore.loadPredefinedLois(survey) }
+    val userDeferred = async { remoteDataStore.loadUserLois(survey, ownerUserId) }
+    val publicDeferred = async {
+      when (visibility) {
+        DataVisibility.ALL_SURVEY_PARTICIPANTS -> remoteDataStore.loadPublicLois(survey)
+        else -> emptyList()
       }
-    mergeAll(survey.id, lois, pendingLois)
+    }
+
+    val predefinedLois = predefinedDeferred.await()
+    val userLois = userDeferred.await()
+    val publicLois = publicDeferred.await()
+
+    val allLois = predefinedLois + userLois + publicLois
+
+    val mutations = localLoiStore.getAllSurveyMutations(survey).firstOrNull().orEmpty()
+
+    val pendingLois =
+      mutations
+        .asSequence()
+        .filter { it.syncStatus in setOf(SyncStatus.PENDING, SyncStatus.IN_PROGRESS) }
+        .map { it.locationOfInterestId }
+        .toList()
+
+    mergeAll(survey.id, allLois, pendingLois)
   }
 
   private suspend fun mergeAll(
@@ -140,18 +157,8 @@ constructor(
     mutationSyncWorkManager.enqueueSyncWorker()
   }
 
-  fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> {
-    val visibility =
-      survey.dataVisibility
-        ?: org.groundplatform.android.proto.Survey.DataVisibility.CONTRIBUTOR_AND_ORGANIZERS
-
-    return when (visibility) {
-      org.groundplatform.android.proto.Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS ->
-        localLoiStore.getValidLois(survey).map { it.toSet() }
-
-      else -> localLoiStore.getValidLois(survey)
-    }
-  }
+  fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
+    localLoiStore.getValidLois(survey)
 
   /** Returns a flow of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBounds(survey: Survey, bounds: Bounds): Flow<List<LocationOfInterest>> =
