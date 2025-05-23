@@ -21,7 +21,8 @@ data class SurveyListItem(
   val title: String,
   val description: String,
   val availableOffline: Boolean,
+  val dataVisibility: org.groundplatform.android.proto.Survey.DataVisibility?,
 )
 
 fun Survey.toListItem(availableOffline: Boolean): SurveyListItem =
-  SurveyListItem(id, title, description, availableOffline)
+  SurveyListItem(id, title, description, availableOffline, dataVisibility)

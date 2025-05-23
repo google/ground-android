@@ -35,8 +35,9 @@ internal object SurveyConverter {
     val surveyFromProto = parseSurveyFromDocument(doc)
     val jobMap = convertJobsToMap(jobs)
     val dataSharingTerms = getDataSharingTerms(surveyFromProto)
+    val dataVisibility = getDataVisibility(surveyFromProto)
 
-    return createSurveyModel(doc, surveyFromProto, jobMap, dataSharingTerms)
+    return createSurveyModel(doc, surveyFromProto, jobMap, dataSharingTerms, dataVisibility)
   }
 
   /** Parse survey data from the DocumentSnapshot. */
@@ -54,12 +55,16 @@ internal object SurveyConverter {
       surveyProto.dataSharingTerms
     }
 
+  private fun getDataVisibility(surveyProto: SurveyProto): SurveyProto.DataVisibility? =
+    surveyProto.dataVisibility
+
   /** Build SurveyModel from parsed data. */
   private fun createSurveyModel(
     doc: DocumentSnapshot,
     surveyProto: SurveyProto,
     jobMap: Map<String, Job>,
     dataSharingTerms: Survey.DataSharingTerms?,
+    dataVisibility: SurveyProto.DataVisibility?,
   ): SurveyModel =
     SurveyModel(
       id = surveyProto.id.ifEmpty { doc.id },
@@ -68,5 +73,6 @@ internal object SurveyConverter {
       jobMap = jobMap.toPersistentMap(),
       acl = surveyProto.aclMap.entries.associate { it.key to it.value.toString() },
       dataSharingTerms = dataSharingTerms,
+      dataVisibility = dataVisibility,
     )
 }

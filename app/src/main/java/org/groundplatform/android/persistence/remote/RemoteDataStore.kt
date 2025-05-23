@@ -56,6 +56,12 @@ interface RemoteDataStore {
   suspend fun loadUserLois(survey: Survey, ownerUserId: String): List<LocationOfInterest>
 
   /**
+   * Returns LOIs that have been marked as publicly visible for all participants of the specified
+   * survey.
+   */
+  suspend fun loadPublicLois(survey: Survey): List<LocationOfInterest>
+
+  /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one
    * update fails, none of the mutations will be applied.
    */
