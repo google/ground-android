@@ -43,6 +43,7 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class DrawAreaTaskViewModelTest : BaseHiltTest() {
+
   @Inject lateinit var viewModel: DrawAreaTaskViewModel
 
   private lateinit var featureTestObserver: TestObserver<Feature>
@@ -220,6 +221,26 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     viewModel.completePolygon()
     assertGeometry(4, isLineString = true)
+  }
+
+  @Test
+  fun `redoLastVertex re-adds last vertex`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    viewModel.removeLastVertex()
+    assertGeometry(2, isLineString = true)
+
+    viewModel.redoLastVertex()
+    assertGeometry(3, isLineString = true)
+  }
+
+  @Test
+  fun `redoLastVertex when redo stack is empty`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+
+    viewModel.redoLastVertex()
+    assertThat(viewModel.redoVertexStack).isEqualTo(emptyList<Coordinates>())
   }
 
   private fun assertGeometry(
