@@ -20,6 +20,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import org.groundplatform.android.Config
+import org.groundplatform.android.persistence.local.room.converter.GeneralAccessConverter
 import org.groundplatform.android.persistence.local.room.converter.GeometryWrapperTypeConverter
 import org.groundplatform.android.persistence.local.room.converter.JsonArrayTypeConverter
 import org.groundplatform.android.persistence.local.room.converter.JsonObjectTypeConverter
@@ -107,6 +108,7 @@ import org.groundplatform.android.persistence.local.room.fields.TileSetEntitySta
   StyleTypeConverter::class,
   TileSetEntityState::class,
   LoiPropertiesMapConverter::class,
+  GeneralAccessConverter::class,
 )
 abstract class LocalDatabase : RoomDatabase() {
   abstract fun draftSubmissionDao(): DraftSubmissionDao

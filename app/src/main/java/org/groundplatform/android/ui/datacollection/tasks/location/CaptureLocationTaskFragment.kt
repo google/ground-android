@@ -90,12 +90,13 @@ class CaptureLocationTaskFragment @Inject constructor() :
         title = R.string.allow_location_title,
         description = R.string.allow_location_description,
         confirmButtonText = R.string.allow_location_confirmation,
-      ) {
-        // Open the app settings
-        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-        intent.data = Uri.fromParts("package", context?.packageName, null)
-        context?.startActivity(intent)
-      }
+        onConfirmClicked = {
+          // Open the app settings
+          val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+          intent.data = Uri.fromParts("package", context?.packageName, null)
+          context?.startActivity(intent)
+        },
+      )
     }
   }
 }

@@ -24,6 +24,7 @@ import org.groundplatform.android.persistence.remote.DataStoreException
 import org.groundplatform.android.persistence.remote.firebase.protobuf.parseFrom
 import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.android.proto.Survey
+import org.groundplatform.android.proto.Survey.GeneralAccess
 
 /** Converts between Firestore documents and [SurveyModel] instances. */
 internal object SurveyConverter {
@@ -35,8 +36,9 @@ internal object SurveyConverter {
     val surveyFromProto = parseSurveyFromDocument(doc)
     val jobMap = convertJobsToMap(jobs)
     val dataSharingTerms = getDataSharingTerms(surveyFromProto)
+    val generalAccess = getGeneralAccess(surveyFromProto)
 
-    return createSurveyModel(doc, surveyFromProto, jobMap, dataSharingTerms)
+    return createSurveyModel(doc, surveyFromProto, jobMap, dataSharingTerms, generalAccess)
   }
 
   /** Parse survey data from the DocumentSnapshot. */
@@ -54,12 +56,16 @@ internal object SurveyConverter {
       surveyProto.dataSharingTerms
     }
 
+  private fun getGeneralAccess(surveyProto: SurveyProto): GeneralAccess =
+    surveyProto.generalAccess ?: GeneralAccess.GENERAL_ACCESS_UNSPECIFIED
+
   /** Build SurveyModel from parsed data. */
   private fun createSurveyModel(
     doc: DocumentSnapshot,
     surveyProto: SurveyProto,
     jobMap: Map<String, Job>,
     dataSharingTerms: Survey.DataSharingTerms?,
+    generalAccess: GeneralAccess,
   ): SurveyModel =
     SurveyModel(
       id = surveyProto.id.ifEmpty { doc.id },
@@ -68,5 +74,6 @@ internal object SurveyConverter {
       jobMap = jobMap.toPersistentMap(),
       acl = surveyProto.aclMap.entries.associate { it.key to it.value.toString() },
       dataSharingTerms = dataSharingTerms,
+      generalAccess = generalAccess,
     )
 }
