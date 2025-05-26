@@ -59,7 +59,7 @@ class LoiCollectionReference internal constructor(ref: CollectionReference) :
         .whereEqualTo(OWNER_FIELD, ownerUserId),
     )
 
-  /** Retrieves LOIs created by the anyone in the specified survey. Main-safe. */
+  /** Retrieves all LOIs visible to data collectors in the given survey. */
   suspend fun fetchPublicLois(survey: Survey): List<LocationOfInterest> =
     fetchLois(
       survey,
