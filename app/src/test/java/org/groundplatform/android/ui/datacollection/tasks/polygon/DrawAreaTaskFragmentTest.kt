@@ -78,6 +78,7 @@ class DrawAreaTaskFragmentTest :
       ButtonAction.PREVIOUS,
       ButtonAction.SKIP,
       ButtonAction.UNDO,
+      ButtonAction.REDO,
       ButtonAction.NEXT,
       ButtonAction.ADD_POINT,
       ButtonAction.COMPLETE,
@@ -91,7 +92,8 @@ class DrawAreaTaskFragmentTest :
     runner()
       .assertButtonIsHidden(NEXT_POINT_BUTTON_TEXT)
       .assertButtonIsEnabled(SKIP_POINT_BUTTON_TEXT)
-      .assertButtonIsHidden(UNDO_POINT_BUTTON_TEXT, true)
+      .assertButtonIsDisabled(UNDO_POINT_BUTTON_TEXT, true)
+      .assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
       .assertButtonIsEnabled(ADD_POINT_BUTTON_TEXT)
       .assertButtonIsHidden(COMPLETE_POINT_BUTTON_TEXT)
   }
@@ -103,7 +105,8 @@ class DrawAreaTaskFragmentTest :
     runner()
       .assertButtonIsHidden(NEXT_POINT_BUTTON_TEXT)
       .assertButtonIsHidden(SKIP_POINT_BUTTON_TEXT)
-      .assertButtonIsHidden(UNDO_POINT_BUTTON_TEXT, true)
+      .assertButtonIsDisabled(UNDO_POINT_BUTTON_TEXT, true)
+      .assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
       .assertButtonIsEnabled(ADD_POINT_BUTTON_TEXT)
       .assertButtonIsHidden(COMPLETE_POINT_BUTTON_TEXT)
   }
@@ -131,11 +134,11 @@ class DrawAreaTaskFragmentTest :
       )
     )
 
-    // Only UNDO_POINT_BUTTON_TEXT and ADD_POINT_BUTTON_TEXT buttons should be visible.
     runner()
       .assertButtonIsHidden(NEXT_POINT_BUTTON_TEXT)
       .assertButtonIsHidden(SKIP_POINT_BUTTON_TEXT)
       .assertButtonIsEnabled(UNDO_POINT_BUTTON_TEXT, true)
+      .assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
       .assertButtonIsDisabled(ADD_POINT_BUTTON_TEXT)
       .assertButtonIsHidden(COMPLETE_POINT_BUTTON_TEXT)
   }
@@ -155,6 +158,7 @@ class DrawAreaTaskFragmentTest :
       .clickButton(COMPLETE_POINT_BUTTON_TEXT)
       .assertButtonIsHidden(SKIP_POINT_BUTTON_TEXT)
       .assertButtonIsEnabled(UNDO_POINT_BUTTON_TEXT, true)
+      .assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
       .assertButtonIsHidden(ADD_POINT_BUTTON_TEXT)
 
     hasValue(
@@ -184,6 +188,40 @@ class DrawAreaTaskFragmentTest :
     updateCloseVertex(COORDINATE_5)
 
     runner().assertButtonIsDisabled(ADD_POINT_BUTTON_TEXT)
+  }
+
+  @Test
+  fun testRedoButton_isVisible() = runWithTestDispatcher {
+    setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
+    ShadowDialog.getLatestDialog().dismiss()
+
+    runner().assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
+
+    updateLastVertexAndAddPoint(COORDINATE_1)
+    updateLastVertexAndAddPoint(COORDINATE_2)
+
+    viewModel.removeLastVertex()
+
+    runner().assertButtonIsEnabled(REDO_POINT_BUTTON_TEXT, true)
+  }
+
+  @Test
+  fun testRedoButton_isDisabled_emptyRedoVertexStack() = runWithTestDispatcher {
+    setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
+    ShadowDialog.getLatestDialog().dismiss()
+
+    runner().assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
+
+    updateLastVertexAndAddPoint(COORDINATE_1)
+    updateLastVertexAndAddPoint(COORDINATE_2)
+
+    viewModel.removeLastVertex()
+    runner().assertButtonIsEnabled(REDO_POINT_BUTTON_TEXT, true)
+
+    viewModel.removeLastVertex()
+    viewModel.removeLastVertex()
+    assertThat(viewModel.redoVertexStack).isEmpty()
+    runner().assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
   }
 
   @Test
@@ -235,6 +273,7 @@ class DrawAreaTaskFragmentTest :
     private const val NEXT_POINT_BUTTON_TEXT = "Next"
     private const val SKIP_POINT_BUTTON_TEXT = "Skip"
     private const val UNDO_POINT_BUTTON_TEXT = "Undo"
+    private const val REDO_POINT_BUTTON_TEXT = "Redo"
     private const val COMPLETE_POINT_BUTTON_TEXT = "Complete"
   }
 }

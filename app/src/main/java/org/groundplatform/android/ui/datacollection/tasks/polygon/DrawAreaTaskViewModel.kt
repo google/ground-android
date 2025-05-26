@@ -80,6 +80,11 @@ internal constructor(
    */
   private var vertices: List<Coordinates> = listOf()
 
+  /** Stack of vertices that have been removed. */
+  private val _redoVertexStack = mutableListOf<Coordinates>()
+  val redoVertexStack: List<Coordinates>
+    get() = _redoVertexStack
+
   /** Represents whether the user has completed drawing the polygon or not. */
   private var isMarkedComplete: Boolean = false
 
@@ -164,6 +169,8 @@ internal constructor(
     // Reset complete status
     isMarkedComplete = false
 
+    _redoVertexStack.add(vertices.last())
+
     // Remove last vertex and update polygon
     val updatedVertices = vertices.toMutableList().apply { removeAt(lastIndex) }.toImmutableList()
 
@@ -173,14 +180,34 @@ internal constructor(
     // Update saved response.
     if (updatedVertices.isEmpty()) {
       setValue(null)
+      _redoVertexStack.clear()
     } else {
       setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
     }
   }
 
+  fun redoLastVertex() {
+    if (redoVertexStack.isEmpty()) {
+      Timber.e("redoVertexStack is already empty")
+      return
+    }
+
+    isMarkedComplete = false
+
+    val redoVertex = _redoVertexStack.removeAt(_redoVertexStack.lastIndex)
+
+    val mutableVertices = vertices.toMutableList()
+    mutableVertices.add(redoVertex)
+    val updatedVertices = mutableVertices.toImmutableList()
+
+    updateVertices(updatedVertices)
+    setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
+  }
+
   /** Adds the last vertex to the polygon. */
   fun addLastVertex() {
     check(!isMarkedComplete) { "Attempted to add last vertex after completing the drawing" }
+    _redoVertexStack.clear()
     vertices.lastOrNull()?.let {
       _isTooClose = true
       addVertex(it, false)
