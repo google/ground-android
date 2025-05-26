@@ -51,7 +51,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
 import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.proto.Survey
+import org.groundplatform.android.proto.Survey.DataVisibility.CONTRIBUTOR_AND_ORGANIZERS
 import org.groundplatform.android.recyclerChildAction
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
@@ -371,7 +371,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
         title = "survey 1",
         description = "description 1",
         false,
-        Survey.DataVisibility.CONTRIBUTOR_AND_ORGANIZERS,
+        CONTRIBUTOR_AND_ORGANIZERS,
       )
     private val TEST_SURVEY_2 =
       SurveyListItem(
@@ -379,7 +379,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
         title = "survey 2",
         description = "description 2",
         false,
-        Survey.DataVisibility.CONTRIBUTOR_AND_ORGANIZERS,
+        CONTRIBUTOR_AND_ORGANIZERS,
       )
   }
 }
