@@ -70,9 +70,10 @@ constructor(
     val predefinedDeferred = async { remoteDataStore.loadPredefinedLois(survey) }
     val userDeferred = async { remoteDataStore.loadUserLois(survey, ownerUserId) }
     val publicDeferred = async {
-      when (visibility) {
-        DataVisibility.ALL_SURVEY_PARTICIPANTS -> remoteDataStore.loadPublicLois(survey)
-        else -> emptyList()
+      if (visibility == DataVisibility.ALL_SURVEY_PARTICIPANTS) {
+        remoteDataStore.loadPublicLois(survey)
+      } else {
+        emptyList()
       }
     }
 
