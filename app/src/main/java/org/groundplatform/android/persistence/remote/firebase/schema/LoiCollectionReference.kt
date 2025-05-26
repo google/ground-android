@@ -60,7 +60,7 @@ class LoiCollectionReference internal constructor(ref: CollectionReference) :
     )
 
   /** Retrieves all LOIs visible to data collectors in the given survey. */
-  suspend fun fetchPublicLois(survey: Survey): List<LocationOfInterest> =
+  suspend fun fetchSharedLois(survey: Survey): List<LocationOfInterest> =
     fetchLois(
       survey,
       reference().whereEqualTo(SOURCE_FIELD, LocationOfInterestProto.Source.FIELD_DATA.number),

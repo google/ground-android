@@ -56,8 +56,7 @@ interface RemoteDataStore {
   suspend fun loadUserLois(survey: Survey, ownerUserId: String): List<LocationOfInterest>
 
   /**
-   * Returns LOIs that have been marked as publicly visible for all participants of the specified
-   * survey.
+   * Returns LOIs that have been marked as shared for other participants of the specified survey.
    */
   suspend fun loadSharedLois(survey: Survey): List<LocationOfInterest>
 

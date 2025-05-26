@@ -18,6 +18,7 @@ package org.groundplatform.android.repository
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -63,23 +64,20 @@ constructor(
   suspend fun syncLocationsOfInterest(survey: Survey) = coroutineScope {
     val ownerUserId = authenticationManager.getAuthenticatedUser().id
 
-    val visibility = survey.dataVisibility ?: DataVisibility.CONTRIBUTOR_AND_ORGANIZERS
-
     val predefinedDeferred = async { remoteDataStore.loadPredefinedLois(survey) }
     val userDeferred = async { remoteDataStore.loadUserLois(survey, ownerUserId) }
-    val publicDeferred = async {
-      if (visibility == DataVisibility.ALL_SURVEY_PARTICIPANTS) {
+    val sharedDeferred = async {
+      if (survey.dataVisibility == DataVisibility.ALL_SURVEY_PARTICIPANTS) {
         remoteDataStore.loadSharedLois(survey)
       } else {
         emptyList()
       }
     }
 
-    val predefinedLois = predefinedDeferred.await()
-    val userLois = userDeferred.await()
-    val publicLois = publicDeferred.await()
+    val (predefinedLois, userLois, sharedLois) =
+      awaitAll(predefinedDeferred, userDeferred, sharedDeferred)
 
-    val allLois = predefinedLois + userLois + publicLois
+    val allLois = predefinedLois + userLois + sharedLois
 
     val mutations = localLoiStore.getAllSurveyMutations(survey).firstOrNull().orEmpty()
 

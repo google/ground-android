@@ -16,12 +16,14 @@
 
 package org.groundplatform.android.model
 
+import org.groundplatform.android.proto.Survey.DataVisibility
+
 data class SurveyListItem(
   val id: String,
   val title: String,
   val description: String,
   val availableOffline: Boolean,
-  val dataVisibility: org.groundplatform.android.proto.Survey.DataVisibility?,
+  val dataVisibility: DataVisibility?,
 )
 
 fun Survey.toListItem(availableOffline: Boolean): SurveyListItem =
