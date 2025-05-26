@@ -37,6 +37,7 @@ import org.groundplatform.android.model.task.Condition
 import org.groundplatform.android.model.task.MultipleChoice
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.proto.Survey.DataSharingTerms
+import org.groundplatform.android.proto.Survey.DataVisibility.CONTRIBUTOR_AND_ORGANIZERS
 import org.groundplatform.android.proto.SurveyKt.dataSharingTerms
 import org.groundplatform.android.proto.copy
 import org.groundplatform.android.ui.map.Bounds
@@ -95,6 +96,7 @@ object FakeData {
       mapOf(JOB.id to JOB, ADHOC_JOB.id to ADHOC_JOB),
       mapOf(USER.email to "DATA_COLLECTOR"),
       DATA_SHARING_TERMS.copy {},
+      CONTRIBUTOR_AND_ORGANIZERS,
     )
 
   const val LOCATION_OF_INTEREST_NAME = "Test LOI Name"

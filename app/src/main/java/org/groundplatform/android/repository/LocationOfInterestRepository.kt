@@ -61,8 +61,6 @@ constructor(
 ) {
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
   suspend fun syncLocationsOfInterest(survey: Survey) = coroutineScope {
-    // TODO: Allow survey organizers to make ad hoc LOIs visible to all data collectors.
-    // Issue URL: https://github.com/google/ground-android/issues/2384
     val ownerUserId = authenticationManager.getAuthenticatedUser().id
 
     val visibility = survey.dataVisibility ?: DataVisibility.CONTRIBUTOR_AND_ORGANIZERS
@@ -71,7 +69,7 @@ constructor(
     val userDeferred = async { remoteDataStore.loadUserLois(survey, ownerUserId) }
     val publicDeferred = async {
       if (visibility == DataVisibility.ALL_SURVEY_PARTICIPANTS) {
-        remoteDataStore.loadPublicLois(survey)
+        remoteDataStore.loadSharedLois(survey)
       } else {
         emptyList()
       }
@@ -85,6 +83,8 @@ constructor(
 
     val mutations = localLoiStore.getAllSurveyMutations(survey).firstOrNull().orEmpty()
 
+    // NOTE(#2652): Don't delete pending locations of interest, since we can accidentally delete
+    // them here if we get to this routine before they can be synced up to the remote database.
     val pendingLois =
       mutations
         .asSequence()

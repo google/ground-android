@@ -87,7 +87,7 @@ internal constructor(
       db().surveys().survey(survey.id).lois().fetchUserDefined(survey, ownerUserId)
     }
 
-  override suspend fun loadPublicLois(survey: Survey) =
+  override suspend fun loadSharedLois(survey: Survey) =
     withContext(ioDispatcher) { db().surveys().survey(survey.id).lois().fetchPublicLois(survey) }
 
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {
