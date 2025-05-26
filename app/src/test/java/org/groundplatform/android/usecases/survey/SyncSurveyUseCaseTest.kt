@@ -53,7 +53,8 @@ class SyncSurveyUseCaseTest : BaseHiltTest() {
 
     syncSurvey(SURVEY.id)
 
-    assertThat(localSurveyStore.getSurveyById(SURVEY.id)).isEqualTo(SURVEY)
+    assertThat(localSurveyStore.getSurveyById(SURVEY.id))
+      .isEqualTo(SURVEY.copy(dataVisibility = null))
     verify(loiRepository).syncLocationsOfInterest(SURVEY)
   }
 
