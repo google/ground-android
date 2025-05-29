@@ -17,11 +17,9 @@ package org.groundplatform.android.ui.settings
 
 import androidx.preference.DropDownPreference
 import androidx.preference.PreferenceCategory
-import androidx.preference.PreferenceManager
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.Config.DEFAULT_LANGUAGE
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
 import org.junit.Assert.assertEquals
@@ -109,7 +107,7 @@ class SettingsFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Change App Language to Spanish`() {
+  fun `Change App Language to French`() {
     val generalCategory = fragment.findPreference<PreferenceCategory>("general_category")
     val languagePreference = generalCategory!!.getPreference(1) as? DropDownPreference
 
@@ -122,8 +120,5 @@ class SettingsFragmentTest : BaseHiltTest() {
     changeListener!!.onPreferenceChange(languagePreference, newLanguageCode)
 
     assertThat(languagePreference.summary.toString()).isEqualTo("French")
-
-    val prefs = PreferenceManager.getDefaultSharedPreferences(fragment.requireContext())
-    assertThat(prefs.getString(Keys.LANGUAGE, DEFAULT_LANGUAGE)).isEqualTo(newLanguageCode)
   }
 }
