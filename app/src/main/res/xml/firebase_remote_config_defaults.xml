@@ -19,10 +19,10 @@
 <defaultsMap>
     <entry>
         <key>force_update</key>
-        <value>true</value>
+        <value>false</value>
     </entry>
     <entry>
         <key>latest_version_code</key>
-        <value>14916</value>
+        <value>14914</value>
     </entry>
 </defaultsMap>

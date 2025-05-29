@@ -271,7 +271,7 @@ class MainActivity : AbstractActivity() {
     val forceUpdate = remoteConfig.getBoolean("force_update")
     val latestVersion = remoteConfig.getLong("latest_version_code").toInt()
     val currentVersion = BuildConfig.VERSION_CODE
-    println(" --- $forceUpdate $latestVersion $currentVersion")
+
     if (forceUpdate && currentVersion < latestVersion) {
       showForceUpdateDialog()
     }
