@@ -22,6 +22,7 @@ import org.groundplatform.android.FakeData
 import org.groundplatform.android.persistence.remote.firebase.protobuf.toFirestoreMap
 import org.groundplatform.android.proto.Role
 import org.groundplatform.android.proto.Survey
+import org.groundplatform.android.proto.Survey.DataVisibility.DATA_VISIBILITY_UNSPECIFIED
 import org.groundplatform.android.proto.copy
 import org.groundplatform.android.proto.survey
 import org.junit.Test
@@ -38,9 +39,11 @@ class SurveyConverterTest {
         description = SURVEY.description
         acl.put(USER.email, Role.DATA_COLLECTOR)
         dataSharingTerms = DATA_SHARING_TERMS.copy {}
+        dataVisibility = DATA_VISIBILITY_UNSPECIFIED
       }
       val snapshot = createSurveyProtoDocumentSnapshot(surveyProto)
-      assertThat(SurveyConverter.toSurvey(snapshot, listOf(JOB, ADHOC_JOB))).isEqualTo(SURVEY)
+      assertThat(SurveyConverter.toSurvey(snapshot, listOf(JOB, ADHOC_JOB)))
+        .isEqualTo(SURVEY.copy(dataVisibility = DATA_VISIBILITY_UNSPECIFIED))
     }
   }
 
