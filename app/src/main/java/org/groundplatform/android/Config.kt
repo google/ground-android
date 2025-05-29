@@ -55,6 +55,10 @@ object Config {
   /** Limit on the permitted character length for free text question responses. */
   const val TEXT_DATA_CHAR_LIMIT = 255
 
+  /**
+   * ISO 639-1 code of language used when the system language is not supported, and the user has not
+   * yet manually selected a supported language.
+   */
   const val DEFAULT_LANGUAGE = "en"
 
   // TODO: Make sub-paths configurable and
