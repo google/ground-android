@@ -15,14 +15,16 @@
  */
 package org.groundplatform.android.ui.settings
 
+import android.R.id.edit
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.preference.DropDownPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceManager
 import androidx.preference.SwitchPreferenceCompat
 import java.util.Locale
 import org.groundplatform.android.Config
@@ -97,10 +99,10 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
   }
 
   private fun updateLocaleAndRestart(languageCode: String) {
-    val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-    prefs.edit().putString(Keys.LANGUAGE, languageCode).apply()
+    preferenceManager.sharedPreferences?.edit()?.putString(Keys.LANGUAGE, languageCode)?.apply()
 
-    setLocale(requireContext(), languageCode)
+    val appLocale = LocaleListCompat.forLanguageTags(languageCode)
+    AppCompatDelegate.setApplicationLocales(appLocale)
 
     val intent = Intent(requireContext(), MainActivity::class.java)
     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
