@@ -18,12 +18,18 @@ package org.groundplatform.android
 import android.os.StrictMode
 import android.os.StrictMode.VmPolicy
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.multidex.MultiDexApplication
+import androidx.preference.PreferenceManager
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
+import java.util.Locale
 import javax.inject.Inject
+import org.groundplatform.android.Config.DEFAULT_LANGUAGE
 import org.groundplatform.android.Config.isReleaseBuild
+import org.groundplatform.android.ui.settings.Keys
 import timber.log.Timber
 
 @HiltAndroidApp
@@ -44,6 +50,11 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
       // Log failures when trying to do work in the UI thread.
       setStrictMode()
     }
+    val selectedLanguage =
+      PreferenceManager.getDefaultSharedPreferences(this)
+        ?.getString(Keys.LANGUAGE, DEFAULT_LANGUAGE) ?: Locale.getDefault().language
+    val appLocale = LocaleListCompat.forLanguageTags(selectedLanguage)
+    AppCompatDelegate.setApplicationLocales(appLocale)
   }
 
   private fun setStrictMode() {

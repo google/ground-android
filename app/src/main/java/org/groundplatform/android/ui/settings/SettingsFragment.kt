@@ -19,10 +19,16 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import androidx.preference.DropDownPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import java.util.Locale
 import org.groundplatform.android.Config
+import org.groundplatform.android.Config.DEFAULT_LANGUAGE
+import org.groundplatform.android.MainActivity
 import org.groundplatform.android.R
 
 /**
@@ -48,6 +54,29 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
 
     val switchPreference = findPreference<SwitchPreferenceCompat>(Keys.UPLOAD_MEDIA)
     switchPreference?.isChecked = loadSwitchPreferenceState()
+
+    val languagePreference = findPreference<DropDownPreference>(Keys.LANGUAGE)
+    val selectedLanguage =
+      preferenceManager.sharedPreferences?.getString(Keys.LANGUAGE, DEFAULT_LANGUAGE)
+        ?: Locale.getDefault().language
+    languagePreference?.apply {
+      val index = findIndexOfValue(selectedLanguage)
+      if (index >= 0) {
+        summary = entries[index]
+      }
+
+      onPreferenceChangeListener =
+        Preference.OnPreferenceChangeListener { preference, newValue ->
+          if (newValue is String) {
+            val index = findIndexOfValue(newValue)
+            if (index >= 0) {
+              summary = entries[index]
+            }
+            updateLocaleAndRestart(newValue)
+          }
+          true
+        }
+    }
   }
 
   private fun loadSwitchPreferenceState() =
@@ -65,6 +94,19 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
   private fun openUrl(url: String) {
     val intent = Intent(Intent.ACTION_VIEW)
     intent.data = Uri.parse(url)
+    startActivity(intent)
+  }
+
+  private fun updateLocaleAndRestart(languageCode: String) {
+    preferenceManager.sharedPreferences?.edit()?.putString(Keys.LANGUAGE, languageCode)?.apply()
+
+    val appLocale = LocaleListCompat.forLanguageTags(languageCode)
+    AppCompatDelegate.setApplicationLocales(appLocale)
+
+    val intent =
+      Intent(requireContext(), MainActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+      }
     startActivity(intent)
   }
 }
