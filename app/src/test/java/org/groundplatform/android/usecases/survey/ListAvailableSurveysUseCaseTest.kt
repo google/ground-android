@@ -49,11 +49,15 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
     localSurveyStore.insertOrUpdateSurvey(survey)
   }
 
-  private fun setupSurveys(localSurveys: List<Survey>, remoteSurveys: List<Survey>) =
-    runWithTestDispatcher {
-      localSurveys.forEach { setupLocalSurvey(it) }
-      fakeRemoteDataStore.surveys = remoteSurveys
-    }
+  private fun setupSurveys(
+    localSurveys: List<Survey>,
+    remoteSurveys: List<Survey>,
+    publicSurveys: List<Survey>,
+  ) = runWithTestDispatcher {
+    localSurveys.forEach { setupLocalSurvey(it) }
+    fakeRemoteDataStore.surveys = remoteSurveys
+    fakeRemoteDataStore.publicSurveys = publicSurveys
+  }
 
   @Test
   fun `when network is available, should return remote survey list`() = runWithTestDispatcher {
@@ -61,7 +65,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
 
     val remoteSurveys = listOf(SURVEY_1, SURVEY_2)
     val localSurveys = listOf(SURVEY_1, SURVEY_3)
-    setupSurveys(localSurveys, remoteSurveys)
+    val publicSurveys = listOf(PUBLIC_SURVEY_A, PUBLIC_SURVEY_B)
+    setupSurveys(localSurveys, remoteSurveys, publicSurveys)
 
     val result = listAvailableSurveysUseCase().first()
 
@@ -70,6 +75,9 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
         listOf(
           SURVEY_1.toListItem(availableOffline = true),
           SURVEY_2.toListItem(availableOffline = false),
+          PUBLIC_SURVEY_A.toListItem(availableOffline = false),
+          PUBLIC_SURVEY_B.toListItem(availableOffline = false),
+          SURVEY_3.toListItem(availableOffline = true),
         )
       )
   }
@@ -80,7 +88,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
 
     val remoteSurveys = listOf(SURVEY_1, SURVEY_2)
     val localSurveys = listOf(SURVEY_1, SURVEY_3)
-    setupSurveys(localSurveys, remoteSurveys)
+    val publicSurveys = listOf(PUBLIC_SURVEY_A, PUBLIC_SURVEY_B)
+    setupSurveys(localSurveys, remoteSurveys, publicSurveys)
 
     val result = listAvailableSurveysUseCase().first()
 
@@ -100,7 +109,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
 
     val remoteSurveys = listOf(SURVEY_1, SURVEY_2)
     val localSurveys = listOf(SURVEY_1, SURVEY_3)
-    setupSurveys(localSurveys, remoteSurveys)
+    val publicSurveys = listOf(PUBLIC_SURVEY_A, PUBLIC_SURVEY_B)
+    setupSurveys(localSurveys, remoteSurveys, publicSurveys)
 
     val resultFlow = listAvailableSurveysUseCase()
 
@@ -122,6 +132,9 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
         listOf(
           SURVEY_1.toListItem(availableOffline = true),
           SURVEY_2.toListItem(availableOffline = false),
+          PUBLIC_SURVEY_A.toListItem(availableOffline = false),
+          PUBLIC_SURVEY_B.toListItem(availableOffline = false),
+          SURVEY_3.toListItem(availableOffline = true),
         )
       )
   }
@@ -133,7 +146,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
 
       val remoteSurveys = listOf(SURVEY_1, SURVEY_2)
       val localSurveys = emptyList<Survey>()
-      setupSurveys(localSurveys, remoteSurveys)
+      val publicSurveys = listOf(PUBLIC_SURVEY_A, PUBLIC_SURVEY_B)
+      setupSurveys(localSurveys, remoteSurveys, publicSurveys)
 
       val resultFlow = listAvailableSurveysUseCase()
 
@@ -143,6 +157,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
           listOf(
             SURVEY_1.toListItem(availableOffline = false),
             SURVEY_2.toListItem(availableOffline = false),
+            PUBLIC_SURVEY_A.toListItem(availableOffline = false),
+            PUBLIC_SURVEY_B.toListItem(availableOffline = false),
           )
         )
 
@@ -155,6 +171,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
           listOf(
             SURVEY_1.toListItem(availableOffline = true),
             SURVEY_2.toListItem(availableOffline = false),
+            PUBLIC_SURVEY_A.toListItem(availableOffline = false),
+            PUBLIC_SURVEY_B.toListItem(availableOffline = false),
           )
         )
     }
@@ -166,5 +184,10 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
       Survey(id = "2", title = "Survey 2", description = "", jobMap = emptyMap())
     private val SURVEY_3 =
       Survey(id = "3", title = "Survey 3", description = "", jobMap = emptyMap())
+
+    private val PUBLIC_SURVEY_A =
+      Survey(id = "A", title = "Public Survey 1", description = "", jobMap = emptyMap())
+    private val PUBLIC_SURVEY_B =
+      Survey(id = "B", title = "Public Survey 2", description = "", jobMap = emptyMap())
   }
 }

@@ -150,6 +150,7 @@
   <string name="switch_survey">Changer l&#8217;enquête</string>
   <string name="no_survey_selected">Aucune enquête sélectionnée</string>
   <string name="undo">Annuler</string>
+  <string name="redo">Refaire</string>
   <string name="view_licenses_title">Licences</string>
   <string name="about">À propos</string>
   <string name="terms_of_service">Conditions générales d&#8217;utilisation</string>

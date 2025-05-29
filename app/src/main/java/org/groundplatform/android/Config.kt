@@ -25,7 +25,7 @@ object Config {
   const val SHARED_PREFS_MODE = Context.MODE_PRIVATE
 
   // Local db settings.
-  const val DB_VERSION = 121
+  const val DB_VERSION = 122
   const val DB_NAME = "ground.db"
 
   // Firebase Cloud Firestore settings.
@@ -43,6 +43,17 @@ object Config {
    * lower, renders markers as clusters, otherwise, we render them as individual markers.
    */
   const val CLUSTERING_ZOOM_THRESHOLD = 14f
+
+  /**
+   * The path segment used in deep‑link URIs to identify the survey screen.
+   *
+   * When handling incoming deep links, compare the first segment of the URI’s path to this constant
+   * to determine whether to navigate to the survey flow.
+   */
+  const val SURVEY_PATH_SEGMENT = "survey"
+
+  /** Limit on the permitted character length for free text question responses. */
+  const val TEXT_DATA_CHAR_LIMIT = 255
 
   const val DEFAULT_LANGUAGE = "en"
 

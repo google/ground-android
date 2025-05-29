@@ -17,14 +17,16 @@ package org.groundplatform.android.ui.datacollection.tasks.multiplechoice
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.TextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -34,8 +36,10 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.groundplatform.android.Config
 import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
 import org.groundplatform.android.model.task.MultipleChoice
@@ -97,7 +101,17 @@ fun MultipleChoiceItemView(
 
     if (item.isOtherOption) {
       Row(modifier = modifier.padding(horizontal = 48.dp)) {
-        TextField(
+        OutlinedTextField(
+          supportingText = {
+            Row(modifier = modifier.fillMaxWidth()) {
+              Spacer(modifier = modifier.weight(1f))
+              Text(
+                "${item.otherText.length} / ${Config.TEXT_DATA_CHAR_LIMIT}",
+                textAlign = TextAlign.End,
+              )
+            }
+          },
+          isError = item.otherText.length > Config.TEXT_DATA_CHAR_LIMIT,
           value = item.otherText,
           textStyle = MaterialTheme.typography.bodyLarge,
           onValueChange = { otherValueChanged(it) },

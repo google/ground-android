@@ -93,9 +93,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
           appContext,
           workerParameters,
           mutationRepository,
-          fakeRemoteDataStore,
           mockMediaUploadWorkManager,
-          userRepository,
           ioDispatcher,
         )
     }
@@ -235,6 +233,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
   private fun createLoiMutation(userId: String) =
     LocationOfInterestMutation(
+      jobId = TEST_JOB.id,
       type = Mutation.Type.CREATE,
       syncStatus = Mutation.SyncStatus.PENDING,
       locationOfInterestId = TEST_LOI_ID,
