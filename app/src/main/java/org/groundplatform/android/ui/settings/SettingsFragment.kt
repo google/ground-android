@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.settings
 
-import android.R.id.edit
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -39,6 +38,8 @@ import org.groundplatform.android.R
  * does in other fragments.
  */
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClickListener {
+
+  var restartHandler: (() -> Unit)? = null
 
   override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
     preferenceManager.sharedPreferencesName = Config.SHARED_PREFS_NAME
@@ -104,8 +105,13 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     val appLocale = LocaleListCompat.forLanguageTags(languageCode)
     AppCompatDelegate.setApplicationLocales(appLocale)
 
-    val intent = Intent(requireContext(), MainActivity::class.java)
-    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-    startActivity(intent)
+    restartHandler?.invoke()
+      ?: run {
+        val intent =
+          Intent(requireContext(), MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+          }
+        startActivity(intent)
+      }
   }
 }

@@ -20,7 +20,7 @@ import androidx.core.os.LocaleListCompat
 import androidx.preference.DropDownPreference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceManager
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.Locale
@@ -47,13 +47,16 @@ class SettingsFragmentTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     resetPreferences()
-    launchFragmentInHiltContainer<SettingsFragment> { fragment = this as SettingsFragment }
+    launchFragmentInHiltContainer<SettingsFragment> {
+      fragment = this as SettingsFragment
+      restartHandler = {
+        // do nothing
+      }
+    }
   }
 
   private fun resetPreferences() {
-    PreferenceManager.getDefaultSharedPreferences(
-        InstrumentationRegistry.getInstrumentation().targetContext
-      )
+    PreferenceManager.getDefaultSharedPreferences(ApplicationProvider.getApplicationContext())
       .edit()
       .clear()
       .commit()
