@@ -47,7 +47,7 @@ class SettingsFragmentTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     resetPreferences()
-    launchFragmentInHiltContainer<SettingsFragment> { fragment = this as SettingsFragment }
+    launchFragmentInHiltContainer<SettingsFragment>() { fragment = this as SettingsFragment }
   }
 
   private fun resetPreferences() {
@@ -142,8 +142,13 @@ class SettingsFragmentTest : BaseHiltTest() {
 
   @Test
   fun `Change App Language to French`() {
+    assertThat(fragment).isNotNull()
+
     val generalCategory = fragment.findPreference<PreferenceCategory>("general_category")
+    assertThat(generalCategory).isNotNull()
+
     val languagePreference = generalCategory!!.getPreference(1) as? DropDownPreference
+    assertThat(languagePreference).isNotNull()
 
     assertThat(languagePreference!!.summary.toString()).isEqualTo("English")
 
@@ -151,7 +156,9 @@ class SettingsFragmentTest : BaseHiltTest() {
     val changeListener = languagePreference.onPreferenceChangeListener
     assertThat(changeListener).isNotNull()
 
-    changeListener!!.onPreferenceChange(languagePreference, newLanguageCode)
+    runWithTestDispatcher {
+      changeListener!!.onPreferenceChange(languagePreference, newLanguageCode)
+    }
 
     assertThat(languagePreference.summary.toString()).isEqualTo("French")
   }
