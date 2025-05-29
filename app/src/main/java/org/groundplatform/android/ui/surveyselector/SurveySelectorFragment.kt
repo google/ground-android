@@ -15,13 +15,48 @@
  */
 package org.groundplatform.android.ui.surveyselector
 
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupMenu
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,12 +64,13 @@ import javax.inject.Inject
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.SurveySelectorFragBinding
 import org.groundplatform.android.model.SurveyListItem
+import org.groundplatform.android.proto.Survey.GeneralAccess
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.compose.ConfirmationDialog
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
-import org.groundplatform.android.util.renderComposableDialog
+import org.groundplatform.android.ui.theme.AppTheme
 import org.groundplatform.android.util.visibleIf
 
 /** User interface implementation of survey selector screen. */
@@ -90,7 +126,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
       container.visibleIf(surveys.isNotEmpty())
       emptyContainer.visibleIf(surveys.isEmpty())
     }
-    adapter.updateData(surveys)
+    binding.composeView.setContent { AppTheme { SurveyList(surveys) } }
   }
 
   override fun onCreateView(
@@ -106,7 +142,6 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    binding.recyclerView.adapter = adapter
     getAbstractActivity().setSupportActionBar(binding.toolbar)
 
     if (parentFragmentManager.backStackEntryCount > 0) {
@@ -116,34 +151,199 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
     }
   }
 
-  fun showPopupMenu(view: View, surveyId: String) {
-    with(PopupMenu(requireContext(), view)) {
-      inflate(R.menu.survey_options_menu)
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        setForceShowIcon(true)
+  @Composable
+  private fun SurveyList(surveys: List<SurveyListItem>) {
+    val showDialogState = remember { mutableStateOf(false) }
+    var surveyId by remember { mutableStateOf("") }
+
+    val onDevice =
+      surveys.filter { it.availableOffline || it.generalAccess == GeneralAccess.RESTRICTED }
+    val sharedWith =
+      surveys.filter { it.generalAccess == GeneralAccess.UNLISTED && !it.availableOffline }
+    val publicList = surveys.filter { it.generalAccess == GeneralAccess.PUBLIC }
+
+    var expandedOnDevice by remember { mutableStateOf(true) }
+    var expandedSharedWith by remember { mutableStateOf(false) }
+    var expandedPublic by remember { mutableStateOf(false) }
+
+    ConfirmationDialog(
+      title = R.string.remove_offline_access_warning_title,
+      description = R.string.remove_offline_access_warning_dialog_body,
+      confirmButtonText = R.string.remove_offline_access_warning_confirm_button,
+      onConfirmClicked = { viewModel.deleteSurvey(surveyId) },
+      visibleState = showDialogState,
+    )
+
+    LazyColumn(
+      modifier = Modifier.fillMaxSize().padding(16.dp),
+      verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+      item {
+        SectionHeader(
+          title = "On this device",
+          count = onDevice.size,
+          expanded = expandedOnDevice,
+          onClick = { expandedOnDevice = !expandedOnDevice },
+        )
       }
-      setOnMenuItemClickListener(
-        object : PopupMenu.OnMenuItemClickListener {
-          override fun onMenuItemClick(item: MenuItem): Boolean {
-            if (item.itemId == R.id.remove_offline_access_menu_item) {
-              showDeleteConfirmationDialog { viewModel.deleteSurvey(surveyId) }
-              return true
-            }
-            return false
-          }
+
+      if (expandedOnDevice) {
+        SurveyItemExpandedList(onDevice) { id ->
+          surveyId = id
+          showDialogState.value = true
         }
-      )
-      show()
+      }
+
+      item {
+        Spacer(modifier = Modifier.height(8.dp))
+        SectionHeader(
+          title = "Shared with me",
+          count = sharedWith.size,
+          expanded = expandedSharedWith,
+          onClick = { expandedSharedWith = !expandedSharedWith },
+        )
+      }
+      if (expandedSharedWith) {
+        SurveyItemExpandedList(sharedWith) { id ->
+          surveyId = id
+          showDialogState.value = true
+        }
+      }
+
+      item {
+        Spacer(modifier = Modifier.height(8.dp))
+        SectionHeader(
+          title = "Public",
+          count = publicList.size,
+          expanded = expandedPublic,
+          onClick = { expandedPublic = !expandedPublic },
+        )
+      }
+      if (expandedPublic) {
+        SurveyItemExpandedList(publicList) { id ->
+          surveyId = id
+          showDialogState.value = true
+        }
+      }
+      item { Spacer(modifier = Modifier.height(16.dp)) }
     }
   }
 
-  private fun showDeleteConfirmationDialog(onConfirm: () -> Unit) {
-    renderComposableDialog {
-      ConfirmationDialog(
-        title = R.string.remove_offline_access_warning_title,
-        description = R.string.remove_offline_access_warning_dialog_body,
-        confirmButtonText = R.string.remove_offline_access_warning_confirm_button,
-        onConfirmClicked = { onConfirm() },
+  private fun LazyListScope.SurveyItemExpandedList(
+    onDevice: List<SurveyListItem>,
+    onPopUpClick: (String) -> Unit,
+  ) {
+    items(onDevice, key = { it.id }) { item ->
+      SurveyCardItem(
+        item = item,
+        onActivate = { viewModel.activateSurvey(it) },
+        onPopUpClick = { id -> onPopUpClick(id) },
+      )
+    }
+  }
+
+  @Composable
+  private fun SurveyCardItem(
+    item: SurveyListItem,
+    modifier: Modifier = Modifier,
+    onActivate: (String) -> Unit,
+    onPopUpClick: (String) -> Unit,
+  ) {
+    Card(
+      modifier = modifier.fillMaxWidth().clickable { onActivate(item.id) },
+      shape = MaterialTheme.shapes.medium,
+      colors =
+        CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
+    ) {
+      Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp)) {
+        HeaderRow(item) { onPopUpClick(item.id) }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+          text = item.title,
+          fontFamily = FontFamily(Font(R.font.text_500)),
+          lineHeight = 28.sp,
+          fontSize = 18.sp,
+          fontWeight = FontWeight(500),
+          color = MaterialTheme.colorScheme.onSurface,
+          modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+          text = item.description,
+          fontSize = 14.sp,
+          lineHeight = 20.sp,
+          fontWeight = FontWeight(400),
+          fontFamily = FontFamily(Font(R.font.text_500)),
+          color = MaterialTheme.colorScheme.outline,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis,
+          modifier = Modifier.fillMaxWidth(),
+        )
+      }
+    }
+  }
+
+  @Composable
+  private fun HeaderRow(item: SurveyListItem, onPopUpClick: (String) -> Unit) {
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+      Icon(
+        painter =
+          painterResource(
+            when (item.generalAccess.ordinal) {
+              2 -> R.drawable.ic_unlisted
+              3 -> R.drawable.ic_public
+              else -> R.drawable.ic_restricted
+            }
+          ),
+        contentDescription = stringResource(R.string.offline_icon_description),
+        modifier = Modifier.size(24.dp).padding(end = 4.dp),
+      )
+      Spacer(modifier = Modifier.width(4.dp))
+      Text(
+        text =
+          when (item.generalAccess.ordinal) {
+            2 -> stringResource(R.string.access_unlisted)
+            3 -> stringResource(R.string.access_public)
+            else -> stringResource(R.string.access_restricted)
+          },
+        fontFamily = FontFamily(Font(R.font.text_500)),
+        lineHeight = 16.sp,
+        fontSize = 12.sp,
+        fontWeight = FontWeight(500),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
+      Spacer(modifier = Modifier.weight(1f))
+      if (item.availableOffline) {
+        Icon(
+          tint = Color(0xff006E2C),
+          painter = painterResource(R.drawable.ic_offline_pin),
+          contentDescription = stringResource(R.string.offline_icon_description),
+          modifier = Modifier.size(24.dp).padding(end = 4.dp).clickable { onPopUpClick(item.id) },
+        )
+      }
+    }
+  }
+
+  @Composable
+  private fun SectionHeader(title: String, count: Int, expanded: Boolean, onClick: () -> Unit) {
+    Row(
+      modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+      verticalAlignment = Alignment.CenterVertically,
+    ) {
+      Icon(
+        imageVector =
+          if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+        contentDescription = if (expanded) "Collapse" else "Expand",
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
+      Spacer(Modifier.width(8.dp))
+      Text(
+        text = "$title ($count)",
+        fontFamily = FontFamily(Font(R.font.text_500)),
+        lineHeight = 16.sp,
+        fontSize = 16.sp,
+        fontWeight = FontWeight(500),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
     }
   }
