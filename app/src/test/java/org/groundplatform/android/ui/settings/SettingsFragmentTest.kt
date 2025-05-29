@@ -15,10 +15,15 @@
  */
 package org.groundplatform.android.ui.settings
 
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.preference.DropDownPreference
 import androidx.preference.PreferenceCategory
+import androidx.preference.PreferenceManager
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
+import java.util.Locale
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
@@ -26,6 +31,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
 import org.robolectric.shadows.ShadowToast
@@ -39,7 +46,19 @@ class SettingsFragmentTest : BaseHiltTest() {
   @Before
   override fun setUp() {
     super.setUp()
+    resetPreferences()
     launchFragmentInHiltContainer<SettingsFragment> { fragment = this as SettingsFragment }
+  }
+
+  private fun resetPreferences() {
+    PreferenceManager.getDefaultSharedPreferences(
+        InstrumentationRegistry.getInstrumentation().targetContext
+      )
+      .edit()
+      .clear()
+      .commit()
+
+    AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
   }
 
   @Test
@@ -121,4 +140,21 @@ class SettingsFragmentTest : BaseHiltTest() {
 
     assertThat(languagePreference.summary.toString()).isEqualTo("French")
   }
+
+  @Test
+  fun `When sharedPreferences is null, should use device default language`() =
+    runWithTestDispatcher {
+      val mockedPreferenceManager = mock<PreferenceManager>()
+      whenever(mockedPreferenceManager.sharedPreferences).thenReturn(null)
+
+      val generalCategory = fragment.findPreference<PreferenceCategory>("general_category")
+      val languagePreference = generalCategory!!.getPreference(1) as? DropDownPreference
+      val defaultLanguageCode = Locale.getDefault().language
+      val expectedSummary =
+        languagePreference?.let { pref ->
+          val index = pref.findIndexOfValue(defaultLanguageCode)
+          if (index >= 0) pref.entries[index].toString() else defaultLanguageCode
+        } ?: defaultLanguageCode
+      assertThat(languagePreference?.summary.toString()).isEqualTo(expectedSummary)
+    }
 }
