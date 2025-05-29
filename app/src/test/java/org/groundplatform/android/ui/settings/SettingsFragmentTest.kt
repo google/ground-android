@@ -47,12 +47,7 @@ class SettingsFragmentTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     resetPreferences()
-    launchFragmentInHiltContainer<SettingsFragment> {
-      fragment = this as SettingsFragment
-      restartHandler = {
-        // do nothing
-      }
-    }
+    launchFragmentInHiltContainer<SettingsFragment> { fragment = this as SettingsFragment }
   }
 
   private fun resetPreferences() {
@@ -129,22 +124,6 @@ class SettingsFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Change App Language to French`() {
-    val generalCategory = fragment.findPreference<PreferenceCategory>("general_category")
-    val languagePreference = generalCategory!!.getPreference(1) as? DropDownPreference
-
-    assertThat(languagePreference!!.summary.toString()).isEqualTo("English")
-
-    val newLanguageCode = "fr"
-    val changeListener = languagePreference.onPreferenceChangeListener
-    assertThat(changeListener).isNotNull()
-
-    changeListener!!.onPreferenceChange(languagePreference, newLanguageCode)
-
-    assertThat(languagePreference.summary.toString()).isEqualTo("French")
-  }
-
-  @Test
   fun `When sharedPreferences is null, should use device default language`() =
     runWithTestDispatcher {
       val mockedPreferenceManager = mock<PreferenceManager>()
@@ -160,4 +139,20 @@ class SettingsFragmentTest : BaseHiltTest() {
         } ?: defaultLanguageCode
       assertThat(languagePreference?.summary.toString()).isEqualTo(expectedSummary)
     }
+
+  @Test
+  fun `Change App Language to French`() {
+    val generalCategory = fragment.findPreference<PreferenceCategory>("general_category")
+    val languagePreference = generalCategory!!.getPreference(1) as? DropDownPreference
+
+    assertThat(languagePreference!!.summary.toString()).isEqualTo("English")
+
+    val newLanguageCode = "fr"
+    val changeListener = languagePreference.onPreferenceChangeListener
+    assertThat(changeListener).isNotNull()
+
+    changeListener!!.onPreferenceChange(languagePreference, newLanguageCode)
+
+    assertThat(languagePreference.summary.toString()).isEqualTo("French")
+  }
 }

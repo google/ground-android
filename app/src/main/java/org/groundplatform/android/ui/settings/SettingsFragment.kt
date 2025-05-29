@@ -39,8 +39,6 @@ import org.groundplatform.android.R
  */
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClickListener {
 
-  var restartHandler: (() -> Unit)? = null
-
   override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
     preferenceManager.sharedPreferencesName = Config.SHARED_PREFS_NAME
     preferenceManager.sharedPreferencesMode = Config.SHARED_PREFS_MODE
@@ -105,13 +103,10 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     val appLocale = LocaleListCompat.forLanguageTags(languageCode)
     AppCompatDelegate.setApplicationLocales(appLocale)
 
-    restartHandler?.invoke()
-      ?: run {
-        val intent =
-          Intent(requireContext(), MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-          }
-        startActivity(intent)
+    val intent =
+      Intent(requireContext(), MainActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
       }
+    startActivity(intent)
   }
 }
