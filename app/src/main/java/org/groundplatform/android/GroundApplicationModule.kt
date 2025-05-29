@@ -18,6 +18,10 @@ package org.groundplatform.android
 import android.content.Context
 import android.content.res.Resources
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.remoteConfig
+import com.google.firebase.remoteconfig.remoteConfigSettings
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -43,4 +47,11 @@ object GroundApplicationModule {
   }
 
   @Provides fun provideLocale() = Locale.getDefault()
+
+  @Provides
+  @Singleton
+  fun provideFirebaseRemoteConfig(): FirebaseRemoteConfig =
+    Firebase.remoteConfig.apply {
+      setConfigSettingsAsync(remoteConfigSettings { minimumFetchIntervalInSeconds = 3600 })
+    }
 }

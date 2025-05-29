@@ -16,6 +16,7 @@
 package org.groundplatform.android
 
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -31,8 +32,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlin.compareTo
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -58,6 +61,7 @@ class MainActivity : AbstractActivity() {
   @Inject lateinit var activityStreams: ActivityStreams
   @Inject lateinit var viewModelFactory: ViewModelFactory
   @Inject lateinit var userRepository: UserRepository
+  @Inject lateinit var remoteConfig: FirebaseRemoteConfig
 
   private lateinit var viewModel: MainViewModel
   private lateinit var navHostFragment: NavHostFragment
@@ -197,6 +201,7 @@ class MainActivity : AbstractActivity() {
   override fun onResume() {
     super.onResume()
     viewModel.checkAuthStatus()
+    checkForUpdate()
   }
 
   /** Override up button behavior to use Navigation Components back stack. */
@@ -260,5 +265,38 @@ class MainActivity : AbstractActivity() {
       action.surveyId = surveyId
       navigate(action)
     }
+  }
+
+  private fun checkForUpdate() {
+    val forceUpdate = remoteConfig.getBoolean("force_update")
+    val latestVersion = remoteConfig.getLong("latest_version_code").toInt()
+    val currentVersion = BuildConfig.VERSION_CODE
+    println(" --- $forceUpdate $latestVersion $currentVersion")
+    if (forceUpdate && currentVersion < latestVersion) {
+      showForceUpdateDialog()
+    }
+  }
+
+  private fun showForceUpdateDialog() {
+    AlertDialog.Builder(this)
+      .setTitle("Update Required")
+      .setMessage("A new version of the app is available. Please update to continue using the app.")
+      .setCancelable(false)
+      .setPositiveButton("Update") { dialog, _ ->
+        val appPackageName = packageName
+        try {
+          startActivity(
+            Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$appPackageName"))
+          )
+        } catch (e: ActivityNotFoundException) {
+          startActivity(
+            Intent(
+              Intent.ACTION_VIEW,
+              Uri.parse("https://play.google.com/store/apps/details?id=$appPackageName"),
+            )
+          )
+        }
+      }
+      .show()
   }
 }

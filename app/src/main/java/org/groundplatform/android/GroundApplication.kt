@@ -21,6 +21,7 @@ import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.multidex.MultiDexApplication
 import androidx.work.Configuration
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 import org.groundplatform.android.Config.isReleaseBuild
@@ -31,6 +32,7 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
 
   @Inject lateinit var crashReportingTree: CrashReportingTree
   @Inject lateinit var workerFactory: HiltWorkerFactory
+  @Inject lateinit var remoteConfig: FirebaseRemoteConfig
 
   override val workManagerConfiguration: Configuration
     get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
@@ -44,6 +46,8 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
       // Log failures when trying to do work in the UI thread.
       setStrictMode()
     }
+    remoteConfig.setDefaultsAsync(R.xml.firebase_remote_config_defaults)
+    remoteConfig.fetchAndActivate()
   }
 
   private fun setStrictMode() {
