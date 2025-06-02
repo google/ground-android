@@ -35,7 +35,6 @@ import androidx.navigation.fragment.NavHostFragment
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlin.compareTo
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -279,16 +278,17 @@ class MainActivity : AbstractActivity() {
 
   private fun showForceUpdateDialog() {
     AlertDialog.Builder(this)
-      .setTitle("Update Required")
-      .setMessage("A new version of the app is available. Please update to continue using the app.")
+      .setTitle(R.string.dialog_title_update_required)
+      .setMessage(R.string.dialog_message_update_required)
       .setCancelable(false)
-      .setPositiveButton("Update") { dialog, _ ->
+      .setPositiveButton(R.string.dialog_button_update) { dialog, _ ->
         val appPackageName = packageName
         try {
           startActivity(
             Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$appPackageName"))
           )
         } catch (e: ActivityNotFoundException) {
+          Timber.e("Not able to open play store: $e")
           startActivity(
             Intent(
               Intent.ACTION_VIEW,
