@@ -32,7 +32,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterNotNull
@@ -60,7 +59,6 @@ class MainActivity : AbstractActivity() {
   @Inject lateinit var activityStreams: ActivityStreams
   @Inject lateinit var viewModelFactory: ViewModelFactory
   @Inject lateinit var userRepository: UserRepository
-  @Inject lateinit var remoteConfig: FirebaseRemoteConfig
 
   private lateinit var viewModel: MainViewModel
   private lateinit var navHostFragment: NavHostFragment
@@ -267,8 +265,8 @@ class MainActivity : AbstractActivity() {
   }
 
   private fun checkForUpdate() {
-    val forceUpdate = remoteConfig.getBoolean("force_update")
-    val latestVersion = remoteConfig.getLong("latest_version_code").toInt()
+    val forceUpdate = viewModel.remoteConfig.getBoolean("force_update")
+    val latestVersion = viewModel.remoteConfig.getLong("latest_version_code").toInt()
     val currentVersion = BuildConfig.VERSION_CODE
 
     if (forceUpdate && currentVersion < latestVersion) {

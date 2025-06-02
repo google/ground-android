@@ -19,6 +19,7 @@ import android.content.Context
 import android.content.res.Resources
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
@@ -50,8 +51,13 @@ object GroundApplicationModule {
 
   @Provides
   @Singleton
-  fun provideFirebaseRemoteConfig(): FirebaseRemoteConfig =
-    Firebase.remoteConfig.apply {
+  fun provideFirebaseRemoteConfig(@ApplicationContext context: Context): FirebaseRemoteConfig {
+    if (FirebaseApp.getApps(context).isEmpty()) {
+      FirebaseApp.initializeApp(context)
+    }
+
+    return Firebase.remoteConfig.apply {
       setConfigSettingsAsync(remoteConfigSettings { minimumFetchIntervalInSeconds = 3600 })
     }
+  }
 }
