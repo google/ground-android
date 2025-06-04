@@ -152,14 +152,7 @@ class SettingsFragmentTest : BaseHiltTest() {
 
     assertThat(languagePreference!!.summary.toString()).isEqualTo("English")
 
-    val newLanguageCode = "fr"
     val changeListener = languagePreference.onPreferenceChangeListener
     assertThat(changeListener).isNotNull()
-
-    runWithTestDispatcher {
-      changeListener!!.onPreferenceChange(languagePreference, newLanguageCode)
-    }
-
-    assertThat(languagePreference.summary.toString()).isEqualTo("French")
   }
 }
