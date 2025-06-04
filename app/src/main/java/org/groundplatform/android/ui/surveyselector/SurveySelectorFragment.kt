@@ -19,7 +19,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,6 +45,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -162,10 +165,6 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
       surveys.filter { it.generalAccess == GeneralAccess.UNLISTED && !it.availableOffline }
     val publicList = surveys.filter { it.generalAccess == GeneralAccess.PUBLIC }
 
-    var expandedOnDevice by remember { mutableStateOf(true) }
-    var expandedSharedWith by remember { mutableStateOf(false) }
-    var expandedPublic by remember { mutableStateOf(false) }
-
     ConfirmationDialog(
       title = R.string.remove_offline_access_warning_title,
       description = R.string.remove_offline_access_warning_dialog_body,
@@ -174,70 +173,68 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
       visibleState = showDialogState,
     )
 
+    val sectionData =
+      listOf(
+        R.string.section_on_device to onDevice,
+        R.string.section_shared_with_me to sharedWith,
+        R.string.section_public to publicList,
+      )
+
+    val expandedStates = remember {
+      mutableStateMapOf(
+        R.string.section_on_device to true,
+        R.string.section_shared_with_me to false,
+        R.string.section_public to false,
+      )
+    }
+
     LazyColumn(
       modifier = Modifier.fillMaxSize().padding(16.dp),
       verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-      item {
-        SectionHeader(
-          title = "On this device",
-          count = onDevice.size,
-          expanded = expandedOnDevice,
-          onClick = { expandedOnDevice = !expandedOnDevice },
-        )
+      sectionData.forEach { (titleResId, list) ->
+        item {
+          SectionHeader(
+            title = stringResource(id = titleResId),
+            count = list.size,
+            expanded = expandedStates[titleResId] == true,
+            isClickable = list.isNotEmpty(),
+            onClick = {
+              if (list.isNotEmpty()) {
+                expandedStates[titleResId] = !(expandedStates[titleResId] ?: false)
+              }
+            },
+          )
+        }
+
+        if (expandedStates[titleResId] == true) {
+          SurveyItemExpandedList(
+            items = list,
+            onActivate = { viewModel.activateSurvey(it) },
+            onPopUpClick = { id ->
+              surveyId = id
+              showDialogState.value = true
+            },
+          )
+        }
+
+        item { Spacer(modifier = Modifier.height(8.dp)) }
       }
 
-      if (expandedOnDevice) {
-        SurveyItemExpandedList(onDevice) { id ->
-          surveyId = id
-          showDialogState.value = true
-        }
-      }
-
-      item {
-        Spacer(modifier = Modifier.height(8.dp))
-        SectionHeader(
-          title = "Shared with me",
-          count = sharedWith.size,
-          expanded = expandedSharedWith,
-          onClick = { expandedSharedWith = !expandedSharedWith },
-        )
-      }
-      if (expandedSharedWith) {
-        SurveyItemExpandedList(sharedWith) { id ->
-          surveyId = id
-          showDialogState.value = true
-        }
-      }
-
-      item {
-        Spacer(modifier = Modifier.height(8.dp))
-        SectionHeader(
-          title = "Public",
-          count = publicList.size,
-          expanded = expandedPublic,
-          onClick = { expandedPublic = !expandedPublic },
-        )
-      }
-      if (expandedPublic) {
-        SurveyItemExpandedList(publicList) { id ->
-          surveyId = id
-          showDialogState.value = true
-        }
-      }
       item { Spacer(modifier = Modifier.height(16.dp)) }
     }
   }
 
   private fun LazyListScope.SurveyItemExpandedList(
-    onDevice: List<SurveyListItem>,
+    items: List<SurveyListItem>,
+    onActivate: (String) -> Unit,
     onPopUpClick: (String) -> Unit,
   ) {
-    items(onDevice, key = { it.id }) { item ->
+    this.items(items, key = { it.id }) { item ->
       SurveyCardItem(
         item = item,
-        onActivate = { viewModel.activateSurvey(it) },
-        onPopUpClick = { id -> onPopUpClick(id) },
+        onActivate = { onActivate(it) },
+        onPopUpClick = { onPopUpClick(it) },
       )
     }
   }
@@ -318,6 +315,11 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
           tint = Color(0xff006E2C),
           painter = painterResource(R.drawable.ic_offline_pin),
           contentDescription = stringResource(R.string.offline_icon_description),
+          modifier = Modifier.size(24.dp).padding(end = 4.dp),
+        )
+        Icon(
+          painter = painterResource(R.drawable.ic_more_vert),
+          contentDescription = "",
           modifier = Modifier.size(24.dp).padding(end = 4.dp).clickable { onPopUpClick(item.id) },
         )
       }
@@ -325,9 +327,24 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   }
 
   @Composable
-  private fun SectionHeader(title: String, count: Int, expanded: Boolean, onClick: () -> Unit) {
+  private fun SectionHeader(
+    title: String,
+    count: Int,
+    expanded: Boolean,
+    isClickable: Boolean,
+    onClick: () -> Unit,
+  ) {
+    val interactionSource = remember { MutableInteractionSource() }
+
     Row(
-      modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+      modifier =
+        Modifier.fillMaxWidth()
+          .clickable(
+            enabled = isClickable,
+            interactionSource = interactionSource,
+            indication = if (isClickable) LocalIndication.current else null,
+            onClick = onClick,
+          ),
       verticalAlignment = Alignment.CenterVertically,
     ) {
       Icon(

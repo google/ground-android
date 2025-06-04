@@ -214,4 +214,8 @@
   <string name="access_restricted">Restringido</string>
   <string name="access_unlisted">No listado</string>
   <string name="access_public">Público</string>
+
+  <string name="section_on_device">En este dispositivo</string>
+  <string name="section_shared_with_me">Compartido conmigo</string>
+  <string name="section_public">Público</string>
 </resources>

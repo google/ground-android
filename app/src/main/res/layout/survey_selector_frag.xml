@@ -53,26 +53,6 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-      <TextView
-        android:id="@+id/title"
-        style="@style/TextAppearance.App.TitleMedium.OnSurfaceContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="20dp"
-        android:text="@string/select_survey_title" />
-
-      <TextView
-        android:id="@+id/help_text"
-        style="@style/TextAppearance.App.BodySmall.OnSurfaceContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="20dp"
-        android:text="@string/survey_sync_hint" />
-
       <androidx.compose.ui.platform.ComposeView
         android:id="@+id/compose_view"
         android:layout_width="match_parent"
