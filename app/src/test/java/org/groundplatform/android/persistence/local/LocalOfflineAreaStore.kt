@@ -31,12 +31,12 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class LocalOfflineAreaStore : BaseHiltTest() {
 
-  @Inject lateinit var localOfflineAreaStore: LocalOfflineAreaStore
+  @Inject lateinit var localOfflineStore: LocalOfflineAreaStore
 
   @Test
   fun testGetOfflineAreas() = runWithTestDispatcher {
-    localOfflineAreaStore.insertOrUpdate(TEST_OFFLINE_AREA)
-    localOfflineAreaStore.offlineAreas().test {
+    localOfflineStore.insertOrUpdate(TEST_OFFLINE_AREA)
+    localOfflineStore.offlineAreas().test {
       assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_OFFLINE_AREA))
     }
   }
