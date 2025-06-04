@@ -198,7 +198,9 @@ class MainActivity : AbstractActivity() {
   override fun onResume() {
     super.onResume()
     viewModel.checkAuthStatus()
-    checkForUpdate()
+    if (viewModel.shouldForceUpdate()) {
+      showForceUpdateDialog()
+    }
   }
 
   /** Override up button behavior to use Navigation Components back stack. */
@@ -261,16 +263,6 @@ class MainActivity : AbstractActivity() {
       val action = SurveySelectorFragmentDirections.showSurveySelectorScreen(false)
       action.surveyId = surveyId
       navigate(action)
-    }
-  }
-
-  private fun checkForUpdate() {
-    val forceUpdate = viewModel.remoteConfig.getBoolean("force_update")
-    val latestVersion = viewModel.remoteConfig.getLong("latest_version_code").toInt()
-    val currentVersion = BuildConfig.VERSION_CODE
-
-    if (forceUpdate && currentVersion < latestVersion) {
-      showForceUpdateDialog()
     }
   }
 
