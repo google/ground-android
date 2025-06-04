@@ -44,9 +44,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -67,7 +68,6 @@ import javax.inject.Inject
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.SurveySelectorFragBinding
 import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.proto.Survey.GeneralAccess
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
@@ -156,21 +156,27 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
 
   @Composable
   private fun SurveyList(surveys: List<SurveyListItem>) {
-    val showDialogState = remember { mutableStateOf(false) }
-    var surveyId by remember { mutableStateOf("") }
+    LaunchedEffect(surveys) { viewModel.setSurveys(surveys) }
 
-    val onDevice =
-      surveys.filter { it.availableOffline || it.generalAccess == GeneralAccess.RESTRICTED }
-    val sharedWith =
-      surveys.filter { it.generalAccess == GeneralAccess.UNLISTED && !it.availableOffline }
-    val publicList = surveys.filter { it.generalAccess == GeneralAccess.PUBLIC }
+    val onDevice by viewModel.onDevice.collectAsState()
+    val sharedWith by viewModel.sharedWith.collectAsState()
+    val publicList by viewModel.publicList.collectAsState()
+
+    val showDialog = viewModel.showDialog
+    val expandedStates = remember {
+      mutableStateMapOf(
+        R.string.section_on_device to true,
+        R.string.section_shared_with_me to false,
+        R.string.section_public to false,
+      )
+    }
 
     ConfirmationDialog(
       title = R.string.remove_offline_access_warning_title,
       description = R.string.remove_offline_access_warning_dialog_body,
       confirmButtonText = R.string.remove_offline_access_warning_confirm_button,
-      onConfirmClicked = { viewModel.deleteSurvey(surveyId) },
-      visibleState = showDialogState,
+      onConfirmClicked = { viewModel.confirmDelete() },
+      visibleState = showDialog,
     )
 
     val sectionData =
@@ -179,14 +185,6 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
         R.string.section_shared_with_me to sharedWith,
         R.string.section_public to publicList,
       )
-
-    val expandedStates = remember {
-      mutableStateMapOf(
-        R.string.section_on_device to true,
-        R.string.section_shared_with_me to false,
-        R.string.section_public to false,
-      )
-    }
 
     LazyColumn(
       modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -210,11 +208,8 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
         if (expandedStates[titleResId] == true) {
           SurveyItemExpandedList(
             items = list,
-            onActivate = { viewModel.activateSurvey(it) },
-            onPopUpClick = { id ->
-              surveyId = id
-              showDialogState.value = true
-            },
+            onActivate = viewModel::activateSurvey,
+            onPopUpClick = viewModel::openDeleteDialog,
           )
         }
 
