@@ -133,26 +133,21 @@ android {
 
     flavorDimensions "backend"
     productFlavors {
-        local {
-            dimension "backend"
-            versionNameSuffix "-local"
-            buildConfigField "boolean", "USE_EMULATORS", "true"
-            manifestPlaceholders.usesCleartextTraffic = true
-        }
         dev {
             dimension "backend"
             versionNameSuffix "-dev"
-            buildConfigField "boolean", "USE_EMULATORS", "false"
+            buildConfigField "boolean", "USE_EMULATORS", "true"
+            buildConfigField "String", "API_BASE_URL", "\"https://dev-api.yourapp.com\""
+            manifestPlaceholders.usesCleartextTraffic = true
+            buildConfigField "boolean", "DEBUG_FEATURES", "true"
         }
-        sig {
+        prod {
             dimension "backend"
-            versionNameSuffix "-sig"
+            versionNameSuffix ""
             buildConfigField "boolean", "USE_EMULATORS", "false"
-        }
-        ecam {
-            dimension "backend"
-            versionNameSuffix "-ecam"
-            buildConfigField "boolean", "USE_EMULATORS", "false"
+            buildConfigField "String", "API_BASE_URL", "\"https://api.yourapp.com\""
+            manifestPlaceholders.usesCleartextTraffic = false
+            buildConfigField "boolean", "DEBUG_FEATURES", "false"
         }
     }
 
