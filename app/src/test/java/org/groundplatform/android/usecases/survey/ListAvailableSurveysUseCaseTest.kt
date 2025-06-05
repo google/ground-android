@@ -28,6 +28,7 @@ import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.toListItem
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
+import org.groundplatform.android.proto.Survey.GeneralAccess
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
 import org.junit.runner.RunWith
@@ -179,15 +180,45 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
 
   companion object {
     private val SURVEY_1 =
-      Survey(id = "1", title = "Survey 1", description = "", jobMap = emptyMap())
+      Survey(
+        id = "1",
+        title = "Survey 1",
+        description = "",
+        jobMap = emptyMap(),
+        generalAccess = GeneralAccess.RESTRICTED,
+      )
     private val SURVEY_2 =
-      Survey(id = "2", title = "Survey 2", description = "", jobMap = emptyMap())
+      Survey(
+        id = "2",
+        title = "Survey 2",
+        description = "",
+        jobMap = emptyMap(),
+        generalAccess = GeneralAccess.RESTRICTED,
+      )
     private val SURVEY_3 =
-      Survey(id = "3", title = "Survey 3", description = "", jobMap = emptyMap())
+      Survey(
+        id = "3",
+        title = "Survey 3",
+        description = "",
+        jobMap = emptyMap(),
+        generalAccess = GeneralAccess.RESTRICTED,
+      )
 
     private val PUBLIC_SURVEY_A =
-      Survey(id = "A", title = "Public Survey 1", description = "", jobMap = emptyMap())
+      Survey(
+        id = "A",
+        title = "Public Survey 1",
+        description = "",
+        jobMap = emptyMap(),
+        generalAccess = GeneralAccess.PUBLIC,
+      )
     private val PUBLIC_SURVEY_B =
-      Survey(id = "B", title = "Public Survey 2", description = "", jobMap = emptyMap())
+      Survey(
+        id = "B",
+        title = "Public Survey 2",
+        description = "",
+        jobMap = emptyMap(),
+        generalAccess = GeneralAccess.PUBLIC,
+      )
   }
 }

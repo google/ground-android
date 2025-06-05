@@ -17,24 +17,23 @@ package org.groundplatform.android.ui.surveyselector
 
 import android.os.Bundle
 import android.view.Menu
-import android.view.View
 import android.widget.Button
 import android.widget.PopupMenu
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
-import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
 import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
-import androidx.test.espresso.matcher.ViewMatchers.hasChildCount
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
@@ -51,6 +50,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
 import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.SurveyListItem
+import org.groundplatform.android.proto.Survey.GeneralAccess
 import org.groundplatform.android.recyclerChildAction
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
@@ -58,7 +58,6 @@ import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
-import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.not
 import org.junit.Before
 import org.junit.Rule
@@ -101,20 +100,36 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setUpFragment()
 
-    // Assert that 2 surveys are displayed
-    onView(withId(R.id.recycler_view)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
+    composeTestRule
+      .onNodeWithText(
+        formatSectionTitle(composeTestRule.activity.getString(R.string.section_on_device), 0)
+      )
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(
+        formatSectionTitle(composeTestRule.activity.getString(R.string.section_shared_with_me), 2)
+      )
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(
+        formatSectionTitle(composeTestRule.activity.getString(R.string.section_public), 0)
+      )
+      .assertIsDisplayed()
 
-    var viewHolder = getViewHolder(0)
-    assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_1.title)
-    assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_1.description)
-    assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.GONE)
-    assertThat(viewHolder.binding.overflowMenu.visibility).isEqualTo(View.GONE)
+    composeTestRule
+      .onNodeWithText(
+        formatSectionTitle(composeTestRule.activity.getString(R.string.section_shared_with_me), 2)
+      )
+      .performClick()
 
-    viewHolder = getViewHolder(1)
-    assertThat(viewHolder.binding.title.text).isEqualTo(TEST_SURVEY_2.title)
-    assertThat(viewHolder.binding.description.text).isEqualTo(TEST_SURVEY_2.description)
-    assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.GONE)
-    assertThat(viewHolder.binding.overflowMenu.visibility).isEqualTo(View.GONE)
+    composeTestRule.onNodeWithText(TEST_SURVEY_1.title).assertIsDisplayed()
+    composeTestRule.onNodeWithText(TEST_SURVEY_2.title).assertIsDisplayed()
+    composeTestRule.onNodeWithText(TEST_SURVEY_1.description).assertIsDisplayed()
+    composeTestRule.onNodeWithText(TEST_SURVEY_2.description).assertIsDisplayed()
+
+    composeTestRule
+      .onAllNodesWithText(composeTestRule.activity.getString(R.string.access_restricted))
+      .assertCountEquals(2)
   }
 
   @Test
@@ -124,22 +139,14 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     setSurveyList(listOf(syncedSurvey, unsyncedSurvey))
     setUpFragment()
 
-    // Assert that 2 surveys are displayed.
-    onView(withId(R.id.recycler_view)).check(matches(allOf(isDisplayed(), hasChildCount(2))))
+    composeTestRule
+      .onNodeWithText(
+        formatSectionTitle(composeTestRule.activity.getString(R.string.section_on_device), 1)
+      )
+      .assertIsDisplayed()
 
-    // The survey which is available offline should appear first.
-
-    var viewHolder = getViewHolder(0)
-    assertThat(viewHolder.binding.title.text).isEqualTo(syncedSurvey.title)
-    assertThat(viewHolder.binding.description.text).isEqualTo(syncedSurvey.description)
-    assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.VISIBLE)
-    assertThat(viewHolder.binding.overflowMenu.visibility).isEqualTo(View.VISIBLE)
-
-    viewHolder = getViewHolder(1)
-    assertThat(viewHolder.binding.title.text).isEqualTo(unsyncedSurvey.title)
-    assertThat(viewHolder.binding.description.text).isEqualTo(unsyncedSurvey.description)
-    assertThat(viewHolder.binding.offlineIcon.visibility).isEqualTo(View.GONE)
-    assertThat(viewHolder.binding.overflowMenu.visibility).isEqualTo(View.GONE)
+    composeTestRule.onNodeWithText(TEST_SURVEY_2.title).assertIsDisplayed()
+    composeTestRule.onNodeWithText(TEST_SURVEY_2.description).assertIsDisplayed()
   }
 
   @Test
@@ -154,9 +161,12 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     )
     advanceUntilIdle()
 
-    // Click second item
-    onView(withId(R.id.recycler_view))
-      .perform(actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(1, click()))
+    composeTestRule
+      .onNodeWithText(
+        formatSectionTitle(composeTestRule.activity.getString(R.string.section_shared_with_me), 2)
+      )
+      .performClick()
+    composeTestRule.onNodeWithText(TEST_SURVEY_1.title).performClick()
     advanceUntilIdle()
 
     // Assert that navigation to home screen was requested
@@ -356,17 +366,23 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     whenever(listAvailableSurveysUseCase()).thenReturn(listOf(surveys).asFlow())
   }
 
-  private fun getViewHolder(index: Int): SurveyListAdapter.ViewHolder {
-    val recyclerView = fragment.view?.findViewById<RecyclerView>(R.id.recycler_view)
-    val viewHolder = recyclerView?.findViewHolderForAdapterPosition(index)
-    return viewHolder as SurveyListAdapter.ViewHolder
-  }
-
   companion object {
     private val TEST_USER = FakeData.USER
     private val TEST_SURVEY_1 =
-      SurveyListItem(id = "1", title = "survey 1", description = "description 1", false)
+      SurveyListItem(
+        id = "1",
+        title = "survey 1",
+        description = "description 1",
+        false,
+        generalAccess = GeneralAccess.RESTRICTED,
+      )
     private val TEST_SURVEY_2 =
-      SurveyListItem(id = "2", title = "survey 2", description = "description 2", false)
+      SurveyListItem(
+        id = "2",
+        title = "survey 2",
+        description = "description 2",
+        false,
+        generalAccess = GeneralAccess.RESTRICTED,
+      )
   }
 }
