@@ -20,6 +20,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_CANCELLED
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -55,6 +56,7 @@ constructor(
   private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   private val authenticationManager: AuthenticationManager,
+  private val remoteConfig: FirebaseRemoteConfig,
 ) : AbstractViewModel() {
 
   private val _navigationRequests: MutableSharedFlow<MainUiState?> = MutableSharedFlow()
@@ -138,4 +140,10 @@ constructor(
 
   /** Returns true if the user has already accepted the Terms of Service. */
   private fun isTosAccepted(): Boolean = termsOfServiceRepository.isTermsOfServiceAccepted
+
+  fun isAppUpdateAvailable(currentVersion: Int = BuildConfig.VERSION_CODE): Boolean {
+    val forceUpdate = remoteConfig.getBoolean("force_update")
+    val latestVersion = remoteConfig.getLong("latest_version_code")
+    return forceUpdate && currentVersion.toLong() < latestVersion
+  }
 }

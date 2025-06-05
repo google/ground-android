@@ -211,4 +211,8 @@
   <string name="clear">Clara</string>
 
   <string name="area_message">Área: %1$.2f m²</string>
+
+  <string name="dialog_title_update_required">Atualização necessária</string>
+  <string name="dialog_message_update_required">Uma nova versão do aplicativo está disponível. Atualize para continuar usando o aplicativo.</string>
+  <string name="dialog_button_update">Atualizar</string>
 </resources>

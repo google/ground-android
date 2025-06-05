@@ -210,4 +210,8 @@
   <string name="text_task_data_character_limit">255 characters max</string>
 
   <string name="area_message">Area: %1$.2f m²</string>
+
+  <string name="dialog_title_update_required">Update Required</string>
+  <string name="dialog_message_update_required">A new version of the app is available. Please update to continue using the app.</string>
+  <string name="dialog_button_update">Update</string>
 </resources>
