@@ -38,6 +38,8 @@ import org.groundplatform.android.model.submission.TextTaskData
 import org.groundplatform.android.model.submission.ValueDelta
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.persistence.local.room.LocalDataStoreException
+import org.groundplatform.android.persistence.local.room.converter.formatVertices
+import org.groundplatform.android.persistence.local.room.converter.parseVertices
 import org.groundplatform.android.persistence.local.room.dao.LocationOfInterestDao
 import org.groundplatform.android.persistence.local.room.fields.EntityDeletionState
 import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
@@ -57,6 +59,7 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   @Inject lateinit var localUserStore: LocalUserStore
   @Inject lateinit var localSubmissionStore: LocalSubmissionStore
+  @Inject lateinit var localValueStore: LocalValueStore
 
   @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
 
@@ -185,6 +188,27 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
     assertFailsWith<LocalDataStoreException> {
       localSubmissionStore.getSubmission(loi, "submission id")
     }
+  }
+
+  @Test
+  fun testParseVertices_emptyString() {
+    assertThat(parseVertices("")).isEqualTo(listOf<Any>())
+  }
+
+  @Test
+  fun testFormatVertices_emptyList() {
+    assertThat(formatVertices(listOf())).isNull()
+  }
+
+  @Test
+  fun testTermsOfServiceAccepted() {
+    localValueStore.isTermsOfServiceAccepted = true
+    assertThat(localValueStore.isTermsOfServiceAccepted).isTrue()
+  }
+
+  @Test
+  fun testTermsOfServiceNotAccepted() {
+    assertThat(localValueStore.isTermsOfServiceAccepted).isFalse()
   }
 
   companion object {
