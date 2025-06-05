@@ -25,10 +25,12 @@ import androidx.preference.DropDownPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import org.groundplatform.android.Config
 import org.groundplatform.android.MainActivity
 import org.groundplatform.android.R
-import org.groundplatform.android.util.getSelectedLanguage
+import org.groundplatform.android.persistence.local.LocalValueStore
 
 /**
  * Fragment containing app preferences saved as shared preferences.
@@ -36,7 +38,10 @@ import org.groundplatform.android.util.getSelectedLanguage
  * NOTE: It uses [PreferenceFragmentCompat] instead of [ ], so dagger can't inject into it like it
  * does in other fragments.
  */
+@AndroidEntryPoint
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClickListener {
+
+  @Inject lateinit var localValueStore: LocalValueStore
 
   override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
     preferenceManager.sharedPreferencesName = Config.SHARED_PREFS_NAME
@@ -55,7 +60,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     switchPreference?.isChecked = loadSwitchPreferenceState()
 
     val languagePreference = findPreference<DropDownPreference>(Keys.LANGUAGE)
-    val selectedLanguage = getSelectedLanguage(requireContext())
+    val selectedLanguage = localValueStore.selectedLanguage
     languagePreference?.apply {
       val index = findIndexOfValue(selectedLanguage)
       if (index >= 0) {

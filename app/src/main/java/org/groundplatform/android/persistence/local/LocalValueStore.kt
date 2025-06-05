@@ -17,6 +17,7 @@ package org.groundplatform.android.persistence.local
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +37,9 @@ import timber.log.Timber
  * database-specific implementation.
  */
 @Singleton
-class LocalValueStore @Inject constructor(private val preferences: SharedPreferences) {
+class LocalValueStore
+@Inject
+constructor(private val preferences: SharedPreferences, private val locale: Locale) {
   private val _mapType = MutableStateFlow(mapType)
   private val _offlineImageryEnabled = MutableStateFlow(isOfflineImageryEnabled)
 
@@ -99,6 +102,12 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
   var draftSubmissionId: String?
     get() = allowThreadDiskReads { preferences.getString(DRAFT_SUBMISSION_ID, null) }
     set(value) = allowThreadDiskReads { preferences.edit { putString(DRAFT_SUBMISSION_ID, value) } }
+
+  var selectedLanguage: String
+    get() = allowThreadDiskReads {
+      preferences.getString(Keys.LANGUAGE, locale.language) ?: locale.language
+    }
+    set(value) = allowThreadDiskReads { preferences.edit { putString(Keys.LANGUAGE, value) } }
 
   /** Removes all values stored in the local store. */
   fun clear() = allowThreadDiskWrites { preferences.edit { clear() } }
