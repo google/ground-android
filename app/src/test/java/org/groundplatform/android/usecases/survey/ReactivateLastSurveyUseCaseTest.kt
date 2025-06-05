@@ -26,6 +26,7 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.persistence.local.LocalValueStore
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
+import org.groundplatform.android.proto.Survey.GeneralAccess
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -87,6 +88,7 @@ class ReactivateLastSurveyUseCaseTest : BaseHiltTest() {
         title = "survey title",
         description = "survey description",
         jobMap = emptyMap(),
+        generalAccess = GeneralAccess.RESTRICTED,
       )
   }
 }

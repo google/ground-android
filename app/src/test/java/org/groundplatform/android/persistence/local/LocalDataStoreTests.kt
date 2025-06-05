@@ -53,6 +53,7 @@ import org.groundplatform.android.persistence.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.persistence.local.stores.LocalSubmissionStore
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.local.stores.LocalUserStore
+import org.groundplatform.android.proto.Survey.GeneralAccess
 import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
 import org.hamcrest.MatcherAssert
@@ -343,7 +344,13 @@ class LocalDataStoreTests : BaseHiltTest() {
     private val TEST_JOB =
       Job(FakeData.JOB_ID, TEST_STYLE, "heading title", mapOf(Pair(TEST_TASK.id, TEST_TASK)))
     private val TEST_SURVEY =
-      Survey(FakeData.SURVEY_ID, "survey 1", "foo description", mapOf(Pair(TEST_JOB.id, TEST_JOB)))
+      Survey(
+        FakeData.SURVEY_ID,
+        "survey 1",
+        "foo description",
+        mapOf(Pair(TEST_JOB.id, TEST_JOB)),
+        generalAccess = GeneralAccess.RESTRICTED,
+      )
     private val TEST_POINT = Point(Coordinates(110.0, -23.1))
     private val TEST_POINT_2 = Point(Coordinates(51.0, 44.0))
     private val TEST_POLYGON_1 =

@@ -38,6 +38,7 @@ import org.groundplatform.android.persistence.remote.firebase.schema.LoiConverte
 import org.groundplatform.android.proto.LocationOfInterest as LocationOfInterestProto
 import org.groundplatform.android.proto.LocationOfInterest.Source
 import org.groundplatform.android.proto.LocationOfInterestKt.property
+import org.groundplatform.android.proto.Survey.GeneralAccess
 import org.groundplatform.android.proto.auditInfo
 import org.groundplatform.android.proto.coordinates
 import org.groundplatform.android.proto.geometry
@@ -157,7 +158,7 @@ class LoiConverterTest {
   private fun setUpTestSurvey(jobId: String, vararg tasks: Task) {
     val taskMap = tasks.associateBy { it.id }
     val job = Job(jobId, TEST_STYLE, "JOB_NAME", taskMap)
-    survey = Survey("", "", "", mapOf(Pair(job.id, job)))
+    survey = Survey("", "", "", mapOf(Pair(job.id, job)), generalAccess = GeneralAccess.RESTRICTED)
   }
 
   private fun setUpTestGeometry() {

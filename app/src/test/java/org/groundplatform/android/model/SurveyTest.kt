@@ -17,6 +17,7 @@ package org.groundplatform.android.model
 
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFails
+import org.groundplatform.android.proto.Survey.GeneralAccess
 import org.junit.Test
 
 class SurveyTest {
@@ -40,6 +41,7 @@ class SurveyTest {
           Pair(surveyOrganizerEmail, Role.SURVEY_ORGANIZER.toString()),
           Pair(badRoleEmail, "UNKNOWN_ROLE"),
         ),
+      generalAccess = GeneralAccess.RESTRICTED,
     )
 
   @Test

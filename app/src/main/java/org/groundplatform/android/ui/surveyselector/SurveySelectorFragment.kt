@@ -193,8 +193,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
       sectionData.forEach { (titleResId, list) ->
         item {
           SectionHeader(
-            title = stringResource(id = titleResId),
-            count = list.size,
+            title = formatSectionTitle(stringResource(id = titleResId), list.size),
             expanded = expandedStates[titleResId] == true,
             isClickable = list.isNotEmpty(),
             onClick = {
@@ -324,7 +323,6 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   @Composable
   private fun SectionHeader(
     title: String,
-    count: Int,
     expanded: Boolean,
     isClickable: Boolean,
     onClick: () -> Unit,
@@ -350,7 +348,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
       )
       Spacer(Modifier.width(8.dp))
       Text(
-        text = "$title ($count)",
+        text = title,
         fontFamily = FontFamily(Font(R.font.text_500)),
         lineHeight = 16.sp,
         fontSize = 16.sp,
@@ -370,4 +368,8 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
     }
     return false
   }
+}
+
+fun formatSectionTitle(title: String, count: Int): String {
+  return "$title ($count)"
 }
