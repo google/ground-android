@@ -56,6 +56,11 @@ interface RemoteDataStore {
   suspend fun loadUserLois(survey: Survey, ownerUserId: String): List<LocationOfInterest>
 
   /**
+   * Returns LOIs that have been marked as shared for other participants of the specified survey.
+   */
+  suspend fun loadSharedLois(survey: Survey): List<LocationOfInterest>
+
+  /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one
    * update fails, none of the mutations will be applied.
    */
