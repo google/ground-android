@@ -25,11 +25,10 @@ import androidx.preference.DropDownPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
-import java.util.Locale
 import org.groundplatform.android.Config
-import org.groundplatform.android.Config.DEFAULT_LANGUAGE
 import org.groundplatform.android.MainActivity
 import org.groundplatform.android.R
+import org.groundplatform.android.util.getSelectedLanguage
 
 /**
  * Fragment containing app preferences saved as shared preferences.
@@ -56,9 +55,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     switchPreference?.isChecked = loadSwitchPreferenceState()
 
     val languagePreference = findPreference<DropDownPreference>(Keys.LANGUAGE)
-    val selectedLanguage =
-      preferenceManager.sharedPreferences?.getString(Keys.LANGUAGE, DEFAULT_LANGUAGE)
-        ?: Locale.getDefault().language
+    val selectedLanguage = getSelectedLanguage(requireContext())
     languagePreference?.apply {
       val index = findIndexOfValue(selectedLanguage)
       if (index >= 0) {

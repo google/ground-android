@@ -213,4 +213,9 @@
   <string name="clear">Clara</string>
 
   <string name="area_message">Área: %1$.2f m²</string>
+
+  <string name="lang_english">Inglês</string>
+  <string name="lang_french">Francês</string>
+  <string name="lang_spanish">Espanhol</string>
+  <string name="lang_portuguese">Português</string>
 </resources>

@@ -18,10 +18,10 @@
 
 <resources>
   <string-array name="language_entries">
-    <item>English</item>
-    <item>French</item>
-    <item>Spanish</item>
-    <item>Portuguese</item>
+    <item>@string/lang_english</item>
+    <item>@string/lang_french</item>
+    <item>@string/lang_spanish</item>
+    <item>@string/lang_portuguese</item>
   </string-array>
   <string-array name="language_entry_values">
     <item>en</item>

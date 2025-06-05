@@ -212,4 +212,9 @@
   <string name="text_task_data_character_limit">255 characters max</string>
 
   <string name="area_message">Area: %1$.2f m²</string>
+
+  <string name="lang_english">English</string>
+  <string name="lang_french">French</string>
+  <string name="lang_spanish">Spanish</string>
+  <string name="lang_portuguese">Portuguese</string>
 </resources>
