@@ -56,7 +56,7 @@ constructor(
   private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   private val authenticationManager: AuthenticationManager,
-  val remoteConfig: FirebaseRemoteConfig,
+  private val remoteConfig: FirebaseRemoteConfig,
 ) : AbstractViewModel() {
 
   private val _navigationRequests: MutableSharedFlow<MainUiState?> = MutableSharedFlow()
@@ -141,7 +141,7 @@ constructor(
   /** Returns true if the user has already accepted the Terms of Service. */
   private fun isTosAccepted(): Boolean = termsOfServiceRepository.isTermsOfServiceAccepted
 
-  fun shouldForceUpdate(currentVersion: Int = BuildConfig.VERSION_CODE): Boolean {
+  fun isAppUpdateAvailable(currentVersion: Int = BuildConfig.VERSION_CODE): Boolean {
     val forceUpdate = remoteConfig.getBoolean("force_update")
     val latestVersion = remoteConfig.getLong("latest_version_code")
     return forceUpdate && currentVersion.toLong() < latestVersion

@@ -46,8 +46,7 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
       // Log failures when trying to do work in the UI thread.
       setStrictMode()
     }
-    remoteConfig.setDefaultsAsync(R.xml.firebase_remote_config_defaults)
-    remoteConfig.fetchAndActivate()
+    initiateRemoteConfig()
   }
 
   private fun setStrictMode() {
@@ -56,6 +55,22 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
     // https://github.com/google/ground-android/issues/1758#issuecomment-1720243538
     // StrictMode.setThreadPolicy(ThreadPolicy.Builder().detectAll().penaltyLog().build())
     StrictMode.setVmPolicy(VmPolicy.Builder().detectLeakedSqlLiteObjects().penaltyLog().build())
+  }
+
+  /**
+   * Initializes Firebase Remote Config by setting default values from the provided XML file and
+   * fetching remote values to activate them for use in the app.
+   *
+   * This method:
+   * - Sets default values using `firebase_remote_config_defaults.xml`
+   * - Asynchronously fetches the latest Remote Config values from Firebase
+   * - Immediately activates the fetched values
+   *
+   * Call this during app startup to ensure Remote Config values are available.
+   */
+  private fun initiateRemoteConfig() {
+    remoteConfig.setDefaultsAsync(R.xml.firebase_remote_config_defaults)
+    remoteConfig.fetchAndActivate()
   }
 
   /** Reports any error with priority more than "info" to Crashlytics. */

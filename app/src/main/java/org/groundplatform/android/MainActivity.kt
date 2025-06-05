@@ -198,7 +198,7 @@ class MainActivity : AbstractActivity() {
   override fun onResume() {
     super.onResume()
     viewModel.checkAuthStatus()
-    if (viewModel.shouldForceUpdate()) {
+    if (viewModel.isAppUpdateAvailable()) {
       showForceUpdateDialog()
     }
   }
