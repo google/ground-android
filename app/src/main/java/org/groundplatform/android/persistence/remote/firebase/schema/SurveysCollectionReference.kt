@@ -29,6 +29,7 @@ import org.groundplatform.android.proto.Survey as SurveyProto
 
 private const val ACL_FIELD = SurveyProto.ACL_FIELD_NUMBER.toString()
 private const val GENERAL_ACCESS_FIELD = SurveyProto.GENERAL_ACCESS_FIELD_NUMBER.toString()
+private const val STATE = SurveyProto.STATE_FIELD_NUMBER.toString()
 
 class SurveysCollectionReference internal constructor(ref: CollectionReference) :
   FluentCollectionReference(ref) {
@@ -44,6 +45,7 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
           SurveyProto.GeneralAccess.RESTRICTED_VALUE,
         ),
       )
+      .whereIn(STATE, listOf(SurveyProto.State.READY_VALUE))
       .whereIn(
         FieldPath.of(ACL_FIELD, user.email),
         listOf(Role.SURVEY_ORGANIZER, Role.DATA_COLLECTOR, Role.VIEWER).map { it.ordinal },
@@ -54,6 +56,7 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
   fun getPublicReadable(): Flow<List<Survey>> =
     reference()
       .whereEqualTo(GENERAL_ACCESS_FIELD, SurveyProto.GeneralAccess.PUBLIC_VALUE)
+      .whereIn(STATE, listOf(SurveyProto.State.READY_VALUE))
       .snapshots()
       .map { snapshot -> snapshot.documents.mapNotNull(SurveyConverter::toSurvey) }
 }
