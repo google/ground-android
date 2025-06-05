@@ -146,7 +146,6 @@ android {
         }
         prod {
             dimension "backend"
-            versionNameSuffix ""
             buildConfigField "boolean", "USE_EMULATORS", "false"
         }
     }
