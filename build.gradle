@@ -109,10 +109,6 @@ tasks.register('checkCode', GradleBuild) {
     tasks = ['checkstyle', 'lintLocalDebug', 'ktfmtCheck', 'detekt']
 }
 
-tasks.register('clean', Delete) {
-    delete rootProject.buildDir
-}
-
 // https://github.com/passsy/gradle-gitVersioner-plugin
 apply plugin: "de.sharpmind.gitversioner"
 gitVersioner {
