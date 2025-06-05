@@ -18,12 +18,15 @@ package org.groundplatform.android
 import android.os.StrictMode
 import android.os.StrictMode.VmPolicy
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.multidex.MultiDexApplication
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 import org.groundplatform.android.Config.isReleaseBuild
+import org.groundplatform.android.persistence.local.LocalValueStore
 import timber.log.Timber
 
 @HiltAndroidApp
@@ -31,6 +34,7 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
 
   @Inject lateinit var crashReportingTree: CrashReportingTree
   @Inject lateinit var workerFactory: HiltWorkerFactory
+  @Inject lateinit var localValueStore: LocalValueStore
 
   override val workManagerConfiguration: Configuration
     get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
@@ -44,6 +48,9 @@ class GroundApplication : MultiDexApplication(), Configuration.Provider {
       // Log failures when trying to do work in the UI thread.
       setStrictMode()
     }
+    val selectedLanguage = localValueStore.selectedLanguage
+    val appLocale = LocaleListCompat.forLanguageTags(selectedLanguage)
+    AppCompatDelegate.setApplicationLocales(appLocale)
   }
 
   private fun setStrictMode() {

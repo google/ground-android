@@ -178,6 +178,8 @@
   <string name="report_summary">Report technical issues or suggest new locationsOfInterest</string>
   <string name="not_yet_impl_title">Not yet implemented</string>
   <string name="accuracy">Accuracy:</string>
+  <string name="select_language_title">Select language</string>
+  <string name="select_language_summary">Select your preferred language</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_no_terms">*No terms to display.*</string>
   <string name="data_sharing_private_message">
@@ -210,4 +212,9 @@
   <string name="text_task_data_character_limit">255 characters max</string>
 
   <string name="area_message">Area: %1$.2f m²</string>
+
+  <string name="lang_english">English</string>
+  <string name="lang_french">French</string>
+  <string name="lang_spanish">Spanish</string>
+  <string name="lang_portuguese">Portuguese</string>
 </resources>
