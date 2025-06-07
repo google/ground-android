@@ -17,7 +17,6 @@
 package org.groundplatform.android.usecases.survey
 
 import javax.inject.Inject
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.sync.SurveySyncWorker
 import org.groundplatform.android.repository.SurveyRepository
 
@@ -32,7 +31,6 @@ import org.groundplatform.android.repository.SurveyRepository
 class ActivateSurveyUseCase
 @Inject
 constructor(
-  private val localSurveyStore: LocalSurveyStore,
   private val makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase,
   private val surveyRepository: SurveyRepository,
 ) {
@@ -46,7 +44,7 @@ constructor(
       return true
     }
 
-    localSurveyStore.getSurveyById(surveyId)
+    surveyRepository.getOfflineSurvey(surveyId)
       ?: makeSurveyAvailableOffline(surveyId)
       ?: error("Survey $surveyId not found in remote db")
 

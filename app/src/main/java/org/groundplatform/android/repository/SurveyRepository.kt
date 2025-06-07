@@ -61,10 +61,15 @@ constructor(
   val activeSurvey: Survey?
     get() = activeSurveyFlow.value
 
-  /**
-   * Returns the survey with the specified id from the local db, or `null` if not available offline.
-   */
+  suspend fun saveSurvey(survey: Survey) = localSurveyStore.insertOrUpdateSurvey(survey)
+
   suspend fun getOfflineSurvey(surveyId: String): Survey? = localSurveyStore.getSurveyById(surveyId)
+
+  fun getOfflineSurveys(): Flow<List<Survey>> = localSurveyStore.surveys
+
+  suspend fun removeOfflineSurvey(surveyId: String) {
+    getOfflineSurvey(surveyId)?.let { localSurveyStore.deleteSurvey(it) }
+  }
 
   private fun getOfflineSurveyFlow(id: String?): Flow<Survey?> =
     if (id.isNullOrBlank()) flowOf(null) else localSurveyStore.survey(id)
