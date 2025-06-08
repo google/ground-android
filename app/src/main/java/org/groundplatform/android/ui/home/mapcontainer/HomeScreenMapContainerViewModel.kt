@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import org.groundplatform.android.Config.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
@@ -57,8 +58,10 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionB
 import org.groundplatform.android.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.map.FeatureType
 import org.groundplatform.android.ui.map.isLocationOfInterest
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
+import org.groundplatform.android.usecases.location.ShouldEnableLocationLockUseCase
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -73,6 +76,7 @@ internal constructor(
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
+  private val shouldEnableLocationLockUseCase: ShouldEnableLocationLockUseCase,
   private val surveyRepository: SurveyRepository,
   private val userRepository: UserRepository,
   private val localValueStore: LocalValueStore,
@@ -162,6 +166,15 @@ internal constructor(
       }
   }
 
+  fun maybeEnableLocationLock() {
+    viewModelScope.launch {
+      val survey = activeSurvey.filterNotNull().first()
+      if (shouldEnableLocationLockUseCase(survey.id)) {
+        enableLocationLockAndGetUpdates()
+      }
+    }
+  }
+
   fun getDataSharingTerms(): Result<DataSharingTerms?> = getDataSharingTermsUseCase()
 
   /**
@@ -220,10 +233,10 @@ internal constructor(
   private suspend fun LocationOfInterest.toFeature() =
     Feature(
       id = id,
-      type = org.groundplatform.android.ui.map.FeatureType.LOCATION_OF_INTEREST.ordinal,
+      type = FeatureType.LOCATION_OF_INTEREST.ordinal,
       flag = submissionRepository.getTotalSubmissionCount(this) > 0,
       geometry = geometry,
-      style = org.groundplatform.android.ui.map.Feature.Style(job.getDefaultColor()),
+      style = Feature.Style(job.getDefaultColor()),
       clusterable = true,
       selected = true,
     )
