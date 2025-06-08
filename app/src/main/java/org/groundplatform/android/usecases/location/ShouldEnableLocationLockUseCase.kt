@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.usecases.location
 
+import javax.inject.Inject
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
-import javax.inject.Inject
 
 /** Use case to determine if location lock should be enabled for a survey. */
 class ShouldEnableLocationLockUseCase
