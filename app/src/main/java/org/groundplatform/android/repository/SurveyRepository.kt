@@ -24,20 +24,26 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import org.groundplatform.android.FirebaseCrashLogger
 import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.model.Survey
+import org.groundplatform.android.model.SurveyListItem
+import org.groundplatform.android.model.User
 import org.groundplatform.android.persistence.local.LocalValueStore
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
+import org.groundplatform.android.persistence.remote.RemoteDataStore
 import timber.log.Timber
 
 private const val ACTIVATE_SURVEY_TIMEOUT_MILLS: Long = 3 * 1000
+private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000
 
 /** Maintains the state of currently active survey. */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -45,10 +51,11 @@ private const val ACTIVATE_SURVEY_TIMEOUT_MILLS: Long = 3 * 1000
 class SurveyRepository
 @Inject
 constructor(
+  @ApplicationScope private val externalScope: CoroutineScope,
   private val firebaseCrashLogger: FirebaseCrashLogger,
   private val localSurveyStore: LocalSurveyStore,
   private val localValueStore: LocalValueStore,
-  @ApplicationScope private val externalScope: CoroutineScope,
+  private val remoteDataStore: RemoteDataStore,
 ) {
   private val _selectedSurveyId = MutableStateFlow<String?>(null)
 
@@ -62,6 +69,16 @@ constructor(
     get() = activeSurveyFlow.value
 
   suspend fun saveSurvey(survey: Survey) = localSurveyStore.insertOrUpdateSurvey(survey)
+
+  suspend fun getRemoteSurvey(surveyId: String): Survey? =
+    withTimeoutOrNull(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) { remoteDataStore.loadSurvey(surveyId) }
+
+  fun getRemoteSurveys(user: User): Flow<List<SurveyListItem>> =
+    combine(remoteDataStore.getRestrictedSurveyList(user), remoteDataStore.getPublicSurveyList()) {
+      restrictedSurveys,
+      publicSurveys ->
+      restrictedSurveys + publicSurveys
+    }
 
   suspend fun getOfflineSurvey(surveyId: String): Survey? = localSurveyStore.getSurveyById(surveyId)
 
