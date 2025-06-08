@@ -107,6 +107,10 @@ class LocalValueStore @Inject constructor(private val preferences: SharedPrefere
     preferences.getBoolean(Keys.UPLOAD_MEDIA, false)
   }
 
+  fun clearLastCameraPosition(surveyId: String) = allowThreadDiskReads {
+    preferences.edit { remove(LAST_VIEWPORT_PREFIX + surveyId) }
+  }
+
   fun setLastCameraPosition(surveyId: String, cameraPosition: CameraPosition) =
     allowThreadDiskReads {
       preferences.edit { putString(LAST_VIEWPORT_PREFIX + surveyId, cameraPosition.serialize()) }
