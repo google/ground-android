@@ -144,14 +144,8 @@ android {
             versionNameSuffix "-dev"
             buildConfigField "boolean", "USE_EMULATORS", "false"
         }
-        sig {
+        prod {
             dimension "backend"
-            versionNameSuffix "-sig"
-            buildConfigField "boolean", "USE_EMULATORS", "false"
-        }
-        ecam {
-            dimension "backend"
-            versionNameSuffix "-ecam"
             buildConfigField "boolean", "USE_EMULATORS", "false"
         }
     }
