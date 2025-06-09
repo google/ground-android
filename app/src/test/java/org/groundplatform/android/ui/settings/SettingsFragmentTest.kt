@@ -15,9 +15,15 @@
  */
 package org.groundplatform.android.ui.settings
 
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import androidx.preference.DropDownPreference
 import androidx.preference.PreferenceCategory
+import androidx.preference.PreferenceManager
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
+import java.util.Locale
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
@@ -25,6 +31,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
 import org.robolectric.shadows.ShadowToast
@@ -38,7 +46,17 @@ class SettingsFragmentTest : BaseHiltTest() {
   @Before
   override fun setUp() {
     super.setUp()
-    launchFragmentInHiltContainer<SettingsFragment> { fragment = this as SettingsFragment }
+    resetPreferences()
+    launchFragmentInHiltContainer<SettingsFragment>() { fragment = this as SettingsFragment }
+  }
+
+  private fun resetPreferences() {
+    PreferenceManager.getDefaultSharedPreferences(ApplicationProvider.getApplicationContext())
+      .edit()
+      .clear()
+      .commit()
+
+    AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
   }
 
   @Test
@@ -48,12 +66,17 @@ class SettingsFragmentTest : BaseHiltTest() {
     assertThat(item!!.toString()).isEqualTo(fragment.getString(R.string.general_title))
 
     val items = item.getPreferenceCount()
-    assertThat(items).isEqualTo(1)
+    assertThat(items).isEqualTo(2)
 
     val preferenceGeneral = item.getPreference(0)
     assertThat(preferenceGeneral.title).isEqualTo(fragment.getString(R.string.upload_media_title))
     assertThat(preferenceGeneral.summary.toString())
       .isEqualTo(fragment.getString(R.string.over_wifi_summary))
+
+    val preferenceLanguage = item.getPreference(1)
+    assertThat(preferenceLanguage.title)
+      .isEqualTo(fragment.getString(R.string.select_language_title))
+    assertThat(preferenceLanguage.summary.toString()).isEqualTo("English") // default language
   }
 
   @Test
@@ -98,5 +121,38 @@ class SettingsFragmentTest : BaseHiltTest() {
       preferenceWebsite.summary,
       Shadows.shadowOf(fragment.activity).nextStartedActivity.data.toString(),
     )
+  }
+
+  @Test
+  fun `When sharedPreferences is null, should use device default language`() =
+    runWithTestDispatcher {
+      val mockedPreferenceManager = mock<PreferenceManager>()
+      whenever(mockedPreferenceManager.sharedPreferences).thenReturn(null)
+
+      val generalCategory = fragment.findPreference<PreferenceCategory>("general_category")
+      val languagePreference = generalCategory!!.getPreference(1) as? DropDownPreference
+      val defaultLanguageCode = Locale.getDefault().language
+      val expectedSummary =
+        languagePreference?.let { pref ->
+          val index = pref.findIndexOfValue(defaultLanguageCode)
+          if (index >= 0) pref.entries[index].toString() else defaultLanguageCode
+        } ?: defaultLanguageCode
+      assertThat(languagePreference?.summary.toString()).isEqualTo(expectedSummary)
+    }
+
+  @Test
+  fun `Change App Language to French`() {
+    assertThat(fragment).isNotNull()
+
+    val generalCategory = fragment.findPreference<PreferenceCategory>("general_category")
+    assertThat(generalCategory).isNotNull()
+
+    val languagePreference = generalCategory!!.getPreference(1) as? DropDownPreference
+    assertThat(languagePreference).isNotNull()
+
+    assertThat(languagePreference!!.summary.toString()).isEqualTo("English")
+
+    val changeListener = languagePreference.onPreferenceChangeListener
+    assertThat(changeListener).isNotNull()
   }
 }
