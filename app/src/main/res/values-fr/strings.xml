@@ -177,6 +177,8 @@
   <string name="report_summary">Signaler des problèmes techniques ou suggérer de nouveaux lieux d&#8217;intérêt</string>
   <string name="not_yet_impl_title">Pas encore mis en œuvre</string>
   <string name="accuracy">Précision :</string>
+  <string name="select_language_title">Sélectionner la langue</string>
+  <string name="select_language_summary">Sélectionnez votre langue préférée</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_no_terms">*Aucune condition à afficher.*</string>
   <string name="data_sharing_private_message">
@@ -209,4 +211,9 @@
   <string name="clear">Claire</string>
 
   <string name="area_message">Surface: %1$.2f m²</string>
+
+  <string name="lang_english">Anglais</string>
+  <string name="lang_french">Français</string>
+  <string name="lang_spanish">Espagnol</string>
+  <string name="lang_portuguese">Portugais</string>
 </resources>
