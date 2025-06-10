@@ -19,6 +19,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.net.Uri
+import androidx.core.graphics.scale
 import androidx.exifinterface.media.ExifInterface
 import com.squareup.picasso.Transformation
 import java.io.IOException
@@ -33,22 +34,60 @@ import java.io.IOException
  * @property uri The URI of the image to be transformed.
  * @property context The context used to access the content resolver for reading EXIF data.
  */
-class RotateUsingExif(private val uri: Uri, private val context: Context) : Transformation {
+class RotateUsingExif(
+  private val uri: Uri,
+  private val context: Context,
+  private val maxWidth: Int = 2048,
+  private val maxHeight: Int = 2048,
+) : Transformation {
   override fun transform(source: Bitmap): Bitmap {
     val orientation = getOrientationFromExif(uri)
     val rotateDegrees = getRotationDegrees(orientation)
-    return rotateBitmap(source, rotateDegrees)
+
+    val resizedBitmap = resizeBitmapIfNeeded(source, maxWidth, maxHeight)
+
+    return if (rotateDegrees != 0f) {
+      rotateBitmap(resizedBitmap, rotateDegrees)
+    } else {
+      resizedBitmap
+    }
   }
 
-  override fun key(): String = "${uri.hashCode()}"
+  override fun key(): String = "${uri.hashCode()}_${maxWidth}x${maxHeight}"
+
+  private fun resizeBitmapIfNeeded(bitmap: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
+    val width = bitmap.width
+    val height = bitmap.height
+
+    if (width <= maxWidth && height <= maxHeight) {
+      return bitmap
+    }
+
+    val scaleFactor = minOf(maxWidth.toFloat() / width, maxHeight.toFloat() / height)
+
+    val newWidth = (width * scaleFactor).toInt()
+    val newHeight = (height * scaleFactor).toInt()
+
+    val resized = bitmap.scale(newWidth, newHeight)
+
+    if (resized != bitmap) {
+      bitmap.recycle()
+    }
+
+    return resized
+  }
 
   private fun rotateBitmap(bitmap: Bitmap, rotateDegrees: Float): Bitmap {
     val matrix = Matrix()
-    // Rotate if rotation is non-zero.
-    if (rotateDegrees != 0f) {
-      matrix.postRotate(rotateDegrees)
+    matrix.postRotate(rotateDegrees)
+
+    val rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+
+    if (rotated != bitmap) {
+      bitmap.recycle()
     }
-    return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true)
+
+    return rotated
   }
 
   /**
