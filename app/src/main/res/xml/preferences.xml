@@ -28,6 +28,16 @@
       app:key="upload_media"
       app:summary="@string/over_wifi_summary"
       app:title="@string/upload_media_title" />
+
+    <DropDownPreference
+      app:iconSpaceReserved="false"
+      app:key="language"
+      app:title="@string/select_language_title"
+      app:summary="@string/select_language_summary"
+      app:entries="@array/language_entries"
+      app:entryValues="@array/language_entry_values"
+      app:defaultValue="en"/>
+
   </PreferenceCategory>
 
   <PreferenceCategory
