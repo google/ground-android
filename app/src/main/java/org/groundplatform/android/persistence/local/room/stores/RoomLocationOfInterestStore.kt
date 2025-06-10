@@ -44,6 +44,9 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   @Inject lateinit var locationOfInterestMutationDao: LocationOfInterestMutationDao
   @Inject lateinit var userStore: RoomUserStore
 
+  override suspend fun getLoiCount(surveyId: String): Int =
+    locationOfInterestDao.countByDeletionState(surveyId, EntityDeletionState.DEFAULT)
+
   override fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
     locationOfInterestDao.getByDeletionState(survey.id, EntityDeletionState.DEFAULT).map {
       toLocationsOfInterest(survey, it)

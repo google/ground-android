@@ -44,7 +44,7 @@ internal constructor(
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   private val listAvailableSurveysUseCase: ListAvailableSurveysUseCase,
-  private val remoteOfflineSurveyUseCase: RemoveOfflineSurveyUseCase,
+  private val removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase,
   private val userRepository: UserRepository,
 ) : AbstractViewModel() {
 
@@ -108,7 +108,7 @@ internal constructor(
   }
 
   fun deleteSurvey(surveyId: String) {
-    externalScope.launch(ioDispatcher) { remoteOfflineSurveyUseCase(surveyId) }
+    externalScope.launch(ioDispatcher) { removeOfflineSurveyUseCase(surveyId) }
   }
 
   fun signOut() {
