@@ -23,8 +23,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.model.toListItem
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
-import org.groundplatform.android.persistence.remote.RemoteDataStore
+import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
@@ -34,9 +33,8 @@ import org.groundplatform.android.system.NetworkStatus
 class ListAvailableSurveysUseCase
 @Inject
 constructor(
-  private val localSurveyStore: LocalSurveyStore,
   private val networkManager: NetworkManager,
-  private val remoteDataStore: RemoteDataStore,
+  private val surveyRepository: SurveyRepository,
   private val userRepository: UserRepository,
 ) {
 
@@ -50,26 +48,19 @@ constructor(
     }
 
   private fun getLocalSurveyList(): Flow<List<SurveyListItem>> =
-    localSurveyStore.surveys.map { localSurveys ->
+    surveyRepository.getOfflineSurveys().map { localSurveys ->
       localSurveys.map { localSurvey -> localSurvey.toListItem(true) }
     }
 
   private suspend fun getRemoteSurveyList(): Flow<List<SurveyListItem>> {
     val user = userRepository.getAuthenticatedUser()
-    val remoteRestrictedSurveyListFlow = remoteDataStore.getRestrictedSurveyList(user)
-    val remotePublicSurveyListFlow = remoteDataStore.getPublicSurveyList()
-    val localSurveyListFlow = getLocalSurveyList()
+    val remoteSurveyFlow = surveyRepository.getRemoteSurveys(user)
 
-    return combine(
-      remoteRestrictedSurveyListFlow,
-      remotePublicSurveyListFlow,
-      localSurveyListFlow,
-    ) { restrictedRemoteSurveys, remotePublicSurveys, localSurveys ->
-      val allRemoteSurveys = restrictedRemoteSurveys + remotePublicSurveys
+    return combine(remoteSurveyFlow, getLocalSurveyList()) { remoteSurveys, localSurveys ->
       val remoteSurveysWithOfflineStatus =
-        allRemoteSurveys.map { remoteSurvey -> addOfflineStatus(remoteSurvey, localSurveys) }
+        remoteSurveys.map { remoteSurvey -> addOfflineStatus(remoteSurvey, localSurveys) }
       val localOnlySurveys =
-        localSurveys.filter { local -> allRemoteSurveys.none { it.id == local.id } }
+        localSurveys.filter { local -> remoteSurveys.none { it.id == local.id } }
       remoteSurveysWithOfflineStatus + localOnlySurveys
     }
   }
