@@ -110,9 +110,9 @@ constructor(
     val locationOfInterest = survey?.let { localLoiStore.getLocationOfInterest(it, loiId) }
 
     if (survey == null) {
-      Timber.e("LocationOfInterestRepository", "Survey not found: $surveyId")
+      Timber.e("Survey not found: $surveyId")
     } else if (locationOfInterest == null) {
-      Timber.e("LocationRepository", "LOI not found for survey $surveyId: LOI ID $loiId")
+      Timber.e("LOI not found for survey $surveyId: LOI ID $loiId")
     }
     return locationOfInterest
   }
