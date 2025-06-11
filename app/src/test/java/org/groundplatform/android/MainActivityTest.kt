@@ -47,14 +47,22 @@ class MainActivityTest : BaseHiltTest() {
 
   @Test
   fun signInProgressDialog_whenSigningIn_isDisplayed() = runWithTestDispatcher {
-    Robolectric.buildActivity(MainActivity::class.java).use { controller ->
-      controller.setup() // Moves Activity to RESUMED state
-      activity = controller.get()
+    try {
+      Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+        controller.setup() // Moves Activity to RESUMED state
+        activity = controller.get()
 
-      fakeAuthenticationManager.setState(SignInState.SigningIn)
-      advanceUntilIdle()
+        advanceUntilIdle()
 
-      assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isTrue()
+        fakeAuthenticationManager.setState(SignInState.SigningIn)
+        advanceUntilIdle()
+
+        assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isTrue()
+      }
+    } catch (e: Exception) {
+      println("Caught exception: ${e.message}")
+      e.printStackTrace()
+      throw e
     }
   }
 
