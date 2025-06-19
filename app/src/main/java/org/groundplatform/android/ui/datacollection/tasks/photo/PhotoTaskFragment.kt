@@ -16,7 +16,6 @@
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
 import android.Manifest
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -63,11 +62,16 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   lateinit var homeScreenViewModel: HomeScreenViewModel
 
   // Registers a callback to execute after a user captures a photo from the on-device camera.
-  private var capturePhotoLauncher: ActivityResultLauncher<Void?> =
-    registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+  private var capturePhotoLauncher: ActivityResultLauncher<Uri> =
+    registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
       externalScope.launch(Dispatchers.IO) {
-        if (bitmap != null && isViewModelInitialized) {
-          viewModel.savePhotoTaskData(bitmap)
+        if (result) {
+          if (isViewModelInitialized) {
+            viewModel.savePhotoTaskData(capturedPhotoUri)
+          } else {
+            pendingCapturedPhotoUri = capturedPhotoUri
+            pendingCaptureTimestamp = System.currentTimeMillis()
+          }
         }
       }
     }
@@ -185,7 +189,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
         FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID, photoFile)
       viewModel.taskWaitingForPhoto = taskId
       capturedPhotoPath = capturedPhotoUri.path
-      capturePhotoLauncher.launch(null)
+      capturePhotoLauncher.launch(capturedPhotoUri)
       Timber.d("Capture photo intent sent")
     } catch (e: IllegalArgumentException) {
       homeScreenViewModel.awaitingPhotoCapture = false

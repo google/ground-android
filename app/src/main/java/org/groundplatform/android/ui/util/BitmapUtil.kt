@@ -18,32 +18,54 @@ package org.groundplatform.android.ui.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.IOException
 import javax.inject.Inject
 
 class BitmapUtil @Inject internal constructor(@ApplicationContext private val context: Context) {
 
-  /**
-   * Retrieves an image for the given URI as a [Bitmap].
-   *
-   * @param url The URI of the image.
-   * @return The decoded [Bitmap].
-   * @throws IllegalArgumentException If the URI cannot be opened or decoded.
-   */
-  fun fromUri(url: Uri): Bitmap =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, url))
-    } else {
-      // Use InputStream and BitmapFactory for older APIs
-      context.contentResolver.openInputStream(url)?.use { BitmapFactory.decodeStream(it) }
-        ?: throw IllegalArgumentException("Unable to open URI: $url")
+  fun fromUri(uri: Uri): Bitmap {
+    val options = BitmapFactory.Options().apply {
+      inJustDecodeBounds = true
     }
+    context.contentResolver.openInputStream(uri)?.use {
+      BitmapFactory.decodeStream(it, null, options)
+    }
+
+    // Compute a sample size to avoid OOM
+    options.inSampleSize = calculateInSampleSize(options, reqWidth = 1024, reqHeight = 1024)
+    options.inJustDecodeBounds = false
+
+    return context.contentResolver.openInputStream(uri)?.use {
+      BitmapFactory.decodeStream(it, null, options)
+    } ?: throw IOException("Unable to open URI: $uri")
+  }
+
+  private fun calculateInSampleSize(
+    options: BitmapFactory.Options,
+    reqWidth: Int,
+    reqHeight: Int
+  ): Int {
+    val (height: Int, width: Int) = options.outHeight to options.outWidth
+    var inSampleSize = 1
+
+    if (height > reqHeight || width > reqWidth) {
+      val halfHeight: Int = height / 2
+      val halfWidth: Int = width / 2
+
+      while ((halfHeight / inSampleSize) >= reqHeight &&
+        (halfWidth / inSampleSize) >= reqWidth) {
+        inSampleSize *= 2
+      }
+    }
+
+    return inSampleSize
+  }
+
 
   /**
    * Retrieves an image for the given vector resource as a [Bitmap].
