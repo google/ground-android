@@ -131,6 +131,20 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
   }
 
   @Test
+  fun `getLoiCount returns 0 when no LOIs exist`() = runWithTestDispatcher {
+    assertThat(localLoiStore.getLoiCount(TEST_SURVEY.id)).isEqualTo(0)
+  }
+
+  @Test
+  fun `getLoiCount returns count when LOIs exist`() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
+
+    assertThat(localLoiStore.getLoiCount(TEST_SURVEY.id)).isEqualTo(1)
+  }
+
+  @Test
   fun testMergeLoi() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)

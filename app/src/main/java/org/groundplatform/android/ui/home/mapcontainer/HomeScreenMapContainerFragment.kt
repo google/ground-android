@@ -175,6 +175,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     )
     binding.bottomContainer.bringToFront()
     showDataCollectionHint()
+
+    launchWhenStarted { mapContainerViewModel.maybeEnableLocationLock() }
   }
 
   /**

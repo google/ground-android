@@ -16,11 +16,15 @@
 package org.groundplatform.android.usecases.survey
 
 import javax.inject.Inject
+import org.groundplatform.android.persistence.local.LocalValueStore
 import org.groundplatform.android.repository.SurveyRepository
 
 class RemoveOfflineSurveyUseCase
 @Inject
-constructor(private val surveyRepository: SurveyRepository) {
+constructor(
+  private val localValueStore: LocalValueStore,
+  private val surveyRepository: SurveyRepository,
+) {
 
   /**
    * Attempts to remove the locally synced survey. Also, deactivates it before removing, if it is
@@ -30,6 +34,8 @@ constructor(private val surveyRepository: SurveyRepository) {
     if (surveyRepository.isSurveyActive(surveyId)) {
       surveyRepository.clearActiveSurvey()
     }
+
+    localValueStore.clearLastCameraPosition(surveyId)
 
     surveyRepository.removeOfflineSurvey(surveyId)
   }

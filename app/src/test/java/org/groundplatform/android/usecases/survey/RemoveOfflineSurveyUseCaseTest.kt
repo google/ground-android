@@ -23,8 +23,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
+import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.persistence.local.LocalValueStore
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.android.ui.map.CameraPosition
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -35,6 +38,7 @@ import org.robolectric.RobolectricTestRunner
 class RemoveOfflineSurveyUseCaseTest : BaseHiltTest() {
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var localSurveyStore: LocalSurveyStore
+  @Inject lateinit var localValueStore: LocalValueStore
   @Inject lateinit var removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase
   @Inject lateinit var surveyRepository: SurveyRepository
 
@@ -45,6 +49,16 @@ class RemoveOfflineSurveyUseCaseTest : BaseHiltTest() {
     removeOfflineSurveyUseCase(SURVEY.id)
 
     localSurveyStore.surveys.test { assertThat(expectMostRecentItem()).isEmpty() }
+  }
+
+  @Test
+  fun `should remove last camera position`() = runWithTestDispatcher {
+    localValueStore.setLastCameraPosition(SURVEY.id, CameraPosition(Coordinates(0.0, 0.0)))
+    localSurveyStore.insertOrUpdateSurvey(SURVEY)
+
+    removeOfflineSurveyUseCase(SURVEY.id)
+
+    assertThat(localValueStore.getLastCameraPosition(SURVEY.id)).isNull()
   }
 
   @Test
