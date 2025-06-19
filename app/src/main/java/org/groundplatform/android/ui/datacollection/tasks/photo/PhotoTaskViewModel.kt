@@ -69,8 +69,7 @@ constructor(
     requireNotNull(currentTask) { "Photo captured but no task waiting for the result" }
     externalScope.launch(Dispatchers.IO) {
       try {
-        val bitmap = bitmapUtil.fromUri(uri)
-        val file = userMediaRepository.savePhoto(bitmap, currentTask)
+        val file = userMediaRepository.savePhotoFromUri(uri, currentTask)
         userMediaRepository.addImageToGallery(file.absolutePath, file.name)
         val remoteFilename = FirebaseStorageManager.getRemoteMediaPath(surveyId, file.name)
 
