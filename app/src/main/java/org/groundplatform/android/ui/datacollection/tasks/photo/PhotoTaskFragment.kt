@@ -76,7 +76,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
       }
     }
 
-
   private var hasRequestedPermissionsOnResume = false
   private var taskWaitingForPhoto: String? = null
   private var capturedPhotoPath: String? = null
