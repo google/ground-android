@@ -35,7 +35,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import org.groundplatform.android.Config.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
@@ -61,7 +60,6 @@ import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.FeatureType
 import org.groundplatform.android.ui.map.isLocationOfInterest
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
-import org.groundplatform.android.usecases.location.ShouldEnableLocationLockUseCase
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -70,13 +68,12 @@ class HomeScreenMapContainerViewModel
 internal constructor(
   private val getDataSharingTermsUseCase: GetDataSharingTermsUseCase,
   private val loiRepository: LocationOfInterestRepository,
-  mapStateRepository: MapStateRepository,
+  private val mapStateRepository: MapStateRepository,
   private val submissionRepository: SubmissionRepository,
   locationManager: LocationManager,
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
-  private val shouldEnableLocationLockUseCase: ShouldEnableLocationLockUseCase,
   private val surveyRepository: SurveyRepository,
   private val userRepository: UserRepository,
   private val localValueStore: LocalValueStore,
@@ -166,12 +163,18 @@ internal constructor(
       }
   }
 
-  fun maybeEnableLocationLock() {
-    viewModelScope.launch {
-      val survey = activeSurvey.filterNotNull().first()
-      if (shouldEnableLocationLockUseCase(survey.id)) {
-        enableLocationLockAndGetUpdates()
-      }
+  /** Enables the location lock if the active survey doesn't have a default camera position. */
+  suspend fun maybeEnableLocationLock() {
+    val surveyId = activeSurvey.filterNotNull().first().id
+
+    // Note: This logic should be in sync with BaseMapViewModel.getLastSavedPositionOrDefaultBounds.
+    if (loiRepository.hasValidLois(surveyId)) {
+      // Skipping as there are valid LOIs. The camera position will be set to the LOI bounds.
+    } else if (mapStateRepository.getCameraPosition(surveyId) != null) {
+      // Skipping as the camera position is already set.
+    } else {
+      // Enabling location lock.
+      enableLocationLockAndGetUpdates()
     }
   }
 
