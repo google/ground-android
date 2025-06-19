@@ -85,13 +85,11 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     TaskViewFactory.createWithHeader(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
-
     val taskBinding = PhotoTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
     taskBinding.fragment = this
     taskBinding.dataCollectionViewModel = dataCollectionViewModel
     taskBinding.viewModel = viewModel
-    println("======== ${viewModel.uri}")
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     return taskBinding.root
   }
