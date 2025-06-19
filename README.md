@@ -1,6 +1,6 @@
 # Ground for Android
 
-![CI](https://github.com/google/ground-android/actions/workflows/ci.yml/badge.svg)
+[![CI](https://github.com/google/ground-android/actions/workflows/ci.yml/badge.svg)](https://github.com/google/ground-android/actions/workflows/ci.yml)
 [![codecov.io](https://codecov.io/github/google/ground-android/branch/master/graph/badge.svg)](https://codecov.io/github/google/ground-android)
 [![Open Source Helpers](https://www.codetriage.com/google/ground-android/badges/users.svg)](https://www.codetriage.com/google/ground-android)
 
