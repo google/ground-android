@@ -62,24 +62,29 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   lateinit var homeScreenViewModel: HomeScreenViewModel
 
   // Registers a callback to execute after a user captures a photo from the on-device camera.
-  private var capturePhotoLauncher: ActivityResultLauncher<Uri> =
-    registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-      externalScope.launch(Dispatchers.IO) {
-        if (result) {
-          if (isViewModelInitialized) {
-            viewModel.savePhotoTaskData(capturedPhotoUri)
-          } else {
-            pendingCapturedPhotoUri = capturedPhotoUri
-            pendingCaptureTimestamp = System.currentTimeMillis()
-          }
-        }
-      }
-    }
+  private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
 
   private var hasRequestedPermissionsOnResume = false
   private var taskWaitingForPhoto: String? = null
   private var capturedPhotoPath: String? = null
   private lateinit var capturedPhotoUri: Uri
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    capturePhotoLauncher =
+      registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
+        externalScope.launch(Dispatchers.IO) {
+          if (result) {
+            if (isViewModelInitialized) {
+              viewModel.savePhotoTaskData(capturedPhotoUri)
+            } else {
+              pendingCapturedPhotoUri = capturedPhotoUri
+              pendingCaptureTimestamp = System.currentTimeMillis()
+            }
+          }
+        }
+      }
+  }
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
