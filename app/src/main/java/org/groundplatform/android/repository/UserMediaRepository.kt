@@ -86,7 +86,7 @@ constructor(
         bitmap.compress(Bitmap.CompressFormat.JPEG, 85, output)
       }
 
-      Timber.d("Photo saved %s : %b", file.path, file.exists())
+      Timber.d("Photo saved ${file.path} : ${file.exists()}")
       file
     }
 
