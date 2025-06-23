@@ -74,13 +74,18 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     capturePhotoLauncher =
       registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
         externalScope.launch(Dispatchers.IO) {
-          if (result) {
-            if (isViewModelInitialized) {
-              viewModel.savePhotoTaskData(capturedPhotoUri)
-            } else {
-              pendingCapturedPhotoUri = capturedPhotoUri
-              pendingCaptureTimestamp = System.currentTimeMillis()
-            }
+          if (!result) return@launch
+
+          if (!::capturedPhotoUri.isInitialized) {
+            Timber.e("Captured photo URI is not initialized.")
+            return@launch
+          }
+
+          if (isViewModelInitialized) {
+            viewModel.savePhotoTaskData(capturedPhotoUri)
+          } else {
+            pendingCapturedPhotoUri = capturedPhotoUri
+            pendingCaptureTimestamp = System.currentTimeMillis()
           }
         }
       }

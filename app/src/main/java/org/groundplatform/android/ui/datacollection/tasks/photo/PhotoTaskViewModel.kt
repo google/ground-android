@@ -74,6 +74,8 @@ constructor(
         withContext(Dispatchers.Main) { setValue(PhotoTaskData(remoteFilename)) }
       } catch (e: IOException) {
         Timber.e(e, "Error getting photo selected from storage")
+      } catch (e: Exception) {
+        Timber.e(e, "Unexpected error processing photo")
       }
     }
   }
