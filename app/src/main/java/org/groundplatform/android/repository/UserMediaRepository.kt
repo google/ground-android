@@ -90,8 +90,8 @@ constructor(
       file
     }
 
-  private fun decodeSampledBitmapFromUri(uri: Uri): Bitmap {
-    return context.contentResolver.openInputStream(uri)?.use { inputStream ->
+  private fun decodeSampledBitmapFromUri(uri: Uri): Bitmap =
+    context.contentResolver.openInputStream(uri)?.use { inputStream ->
       val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
       BitmapFactory.decodeStream(inputStream, null, options)
 
@@ -102,7 +102,6 @@ constructor(
         BitmapFactory.decodeStream(newInputStream, null, options)
       }
     } ?: throw IOException("Unable to decode bitmap from URI: $uri")
-  }
 
   private fun calculateInSampleSize(options: BitmapFactory.Options): Int {
     val (height: Int, width: Int) = options.run { outHeight to outWidth }

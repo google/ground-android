@@ -71,23 +71,10 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+
     capturePhotoLauncher =
       registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-        externalScope.launch(Dispatchers.IO) {
-          if (!result) return@launch
-
-          if (!::capturedPhotoUri.isInitialized) {
-            Timber.e("Captured photo URI is not initialized.")
-            return@launch
-          }
-
-          if (isViewModelInitialized) {
-            viewModel.savePhotoTaskData(capturedPhotoUri)
-          } else {
-            pendingCapturedPhotoUri = capturedPhotoUri
-            pendingCaptureTimestamp = System.currentTimeMillis()
-          }
-        }
+        handleCaptureResult(result)
       }
   }
 
@@ -144,6 +131,22 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     super.onSaveInstanceState(outState)
     outState.putString(TASK_WAITING_FOR_PHOTO, viewModel.taskWaitingForPhoto)
     outState.putString(CAPTURED_PHOTO_PATH, capturedPhotoPath)
+  }
+
+  private fun handleCaptureResult(result: Boolean) {
+    if (!result || !::capturedPhotoUri.isInitialized) {
+      Timber.e("Photo capture failed or URI not initialized.")
+      return
+    }
+
+    externalScope.launch(Dispatchers.IO) {
+      if (isViewModelInitialized) {
+        viewModel.savePhotoTaskData(capturedPhotoUri)
+      } else {
+        pendingCapturedPhotoUri = capturedPhotoUri
+        pendingCaptureTimestamp = System.currentTimeMillis()
+      }
+    }
   }
 
   // Requests camera/photo access permissions from the device, executing an optional callback
