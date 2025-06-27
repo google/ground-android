@@ -21,7 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
@@ -50,6 +49,7 @@ import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsU
 import org.groundplatform.android.util.createComposeView
 import org.groundplatform.android.util.renderComposableDialog
 import timber.log.Timber
+import javax.inject.Inject
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
@@ -176,6 +176,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     binding.bottomContainer.bringToFront()
     showDataCollectionHint()
 
+    // Always ensure that the LOIs are synced before enabling location lock. During first load of a
+    // survey, the home screen is loaded after the LOIs have been synced.
     launchWhenStarted { mapContainerViewModel.maybeEnableLocationLock() }
   }
 
