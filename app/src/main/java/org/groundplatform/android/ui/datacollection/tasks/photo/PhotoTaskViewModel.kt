@@ -20,21 +20,25 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import java.io.IOException
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.model.submission.PhotoTaskData
 import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.persistence.remote.firebase.FirebaseStorageManager
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
-import org.groundplatform.android.ui.util.BitmapUtil
 import timber.log.Timber
 
 class PhotoTaskViewModel
 @Inject
 constructor(
   private val userMediaRepository: UserMediaRepository,
-  private val bitmapUtil: BitmapUtil,
+  @ApplicationScope private val externalScope: CoroutineScope,
 ) : AbstractTaskViewModel() {
 
   /**
@@ -58,18 +62,21 @@ constructor(
    * Saves photo data stored on an on-device URI in Ground-associated storage and prepares it for
    * inclusion in a data collection submission.
    */
-  suspend fun savePhotoTaskData(uri: Uri) {
+  fun savePhotoTaskData(uri: Uri) {
     val currentTask = taskWaitingForPhoto
     requireNotNull(currentTask) { "Photo captured but no task waiting for the result" }
+    externalScope.launch(Dispatchers.IO) {
+      try {
+        val file = userMediaRepository.savePhotoFromUri(uri, currentTask)
+        userMediaRepository.addImageToGallery(file.absolutePath, file.name)
+        val remoteFilename = FirebaseStorageManager.getRemoteMediaPath(surveyId, file.name)
 
-    try {
-      val bitmap = bitmapUtil.fromUri(uri)
-      val file = userMediaRepository.savePhoto(bitmap, currentTask)
-      userMediaRepository.addImageToGallery(file.absolutePath, file.name)
-      val remoteFilename = FirebaseStorageManager.getRemoteMediaPath(surveyId, file.name)
-      setValue(PhotoTaskData(remoteFilename))
-    } catch (e: IOException) {
-      Timber.e(e, "Error getting photo selected from storage")
+        withContext(Dispatchers.Main) { setValue(PhotoTaskData(remoteFilename)) }
+      } catch (e: IOException) {
+        Timber.e(e, "Error getting photo selected from storage")
+      } catch (e: Exception) {
+        Timber.e(e, "Unexpected error processing photo")
+      }
     }
   }
 }

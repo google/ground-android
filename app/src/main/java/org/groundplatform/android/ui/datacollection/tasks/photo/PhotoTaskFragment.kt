@@ -28,6 +28,7 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.R
@@ -61,24 +62,21 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   lateinit var homeScreenViewModel: HomeScreenViewModel
 
   // Registers a callback to execute after a user captures a photo from the on-device camera.
-  private var capturePhotoLauncher: ActivityResultLauncher<Uri> =
-    registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-      externalScope.launch {
-        if (result) {
-          if (isViewModelInitialized) {
-            viewModel.savePhotoTaskData(capturedPhotoUri)
-          } else {
-            pendingCapturedPhotoUri = capturedPhotoUri
-            pendingCaptureTimestamp = System.currentTimeMillis()
-          }
-        }
-      }
-    }
+  private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
 
   private var hasRequestedPermissionsOnResume = false
   private var taskWaitingForPhoto: String? = null
   private var capturedPhotoPath: String? = null
   private lateinit var capturedPhotoUri: Uri
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+
+    capturePhotoLauncher =
+      registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
+        handleCaptureResult(result)
+      }
+  }
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
@@ -133,6 +131,22 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     super.onSaveInstanceState(outState)
     outState.putString(TASK_WAITING_FOR_PHOTO, viewModel.taskWaitingForPhoto)
     outState.putString(CAPTURED_PHOTO_PATH, capturedPhotoPath)
+  }
+
+  private fun handleCaptureResult(result: Boolean) {
+    if (!result || !::capturedPhotoUri.isInitialized) {
+      Timber.e("Photo capture failed or URI not initialized.")
+      return
+    }
+
+    externalScope.launch(Dispatchers.IO) {
+      if (isViewModelInitialized) {
+        viewModel.savePhotoTaskData(capturedPhotoUri)
+      } else {
+        pendingCapturedPhotoUri = capturedPhotoUri
+        pendingCaptureTimestamp = System.currentTimeMillis()
+      }
+    }
   }
 
   // Requests camera/photo access permissions from the device, executing an optional callback
