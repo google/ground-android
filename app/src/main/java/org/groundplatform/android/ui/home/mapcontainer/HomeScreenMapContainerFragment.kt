@@ -176,8 +176,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     binding.bottomContainer.bringToFront()
     showDataCollectionHint()
 
-    // Always ensure that the LOIs are synced before enabling location lock. During first load of a
-    // survey, the home screen is loaded after the LOIs have been synced.
+    // LOIs associated with the survey have been synced to the local db by this point. We can
+    // enable location lock if no LOIs exist or a previous camera position doesn't exist.
     launchWhenStarted { mapContainerViewModel.maybeEnableLocationLock() }
   }
 
