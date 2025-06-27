@@ -175,6 +175,10 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     )
     binding.bottomContainer.bringToFront()
     showDataCollectionHint()
+
+    // LOIs associated with the survey have been synced to the local db by this point. We can
+    // enable location lock if no LOIs exist or a previous camera position doesn't exist.
+    launchWhenStarted { mapContainerViewModel.maybeEnableLocationLock() }
   }
 
   /**
