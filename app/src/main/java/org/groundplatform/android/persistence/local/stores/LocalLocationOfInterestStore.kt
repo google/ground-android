@@ -24,6 +24,12 @@ import org.groundplatform.android.persistence.local.room.fields.MutationEntitySy
 
 interface LocalLocationOfInterestStore :
   LocalMutationStore<LocationOfInterestMutation, LocationOfInterest> {
+
+  /**
+   * Returns the count of [LocationOfInterest] in the local db associated with the given [Survey].
+   */
+  suspend fun getLoiCount(surveyId: String): Int
+
   /**
    * Retrieves the complete set of [LocationOfInterest] associated with the given [Survey] from the
    * local database and returns a [Flow] that continually emits the complete set anew any time the
