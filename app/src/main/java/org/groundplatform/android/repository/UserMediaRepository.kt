@@ -17,7 +17,6 @@ package org.groundplatform.android.repository
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
@@ -81,42 +80,13 @@ constructor(
     withContext(Dispatchers.IO) {
       val file = createImageFile(fieldId)
 
-      val bitmap = decodeSampledBitmapFromUri(uri)
-      FileOutputStream(file).use { output ->
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, output)
-      }
+      context.contentResolver.openInputStream(uri)?.use { input ->
+        FileOutputStream(file).use { output -> input.copyTo(output) }
+      } ?: throw IOException("Unable to open URI: $uri")
 
       Timber.d("Photo saved ${file.path} : ${file.exists()}")
       file
     }
-
-  private fun decodeSampledBitmapFromUri(uri: Uri): Bitmap =
-    context.contentResolver.openInputStream(uri)?.use { inputStream ->
-      val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-      BitmapFactory.decodeStream(inputStream, null, options)
-
-      options.inSampleSize = calculateInSampleSize(options)
-
-      options.inJustDecodeBounds = false
-      context.contentResolver.openInputStream(uri)?.use { newInputStream ->
-        BitmapFactory.decodeStream(newInputStream, null, options)
-      }
-    } ?: throw IOException("Unable to decode bitmap from URI: $uri")
-
-  private fun calculateInSampleSize(options: BitmapFactory.Options): Int {
-    val (height: Int, width: Int) = options.run { outHeight to outWidth }
-    var inSampleSize = 1
-
-    if (height > 1024 || width > 1024) {
-      val halfHeight: Int = height / 2
-      val halfWidth: Int = width / 2
-
-      while (halfHeight / inSampleSize >= 1024 && halfWidth / inSampleSize >= 1024) {
-        inSampleSize *= 2
-      }
-    }
-    return inSampleSize
-  }
 
   @Throws(FileNotFoundException::class)
   fun addImageToGallery(filePath: String, title: String): String =
