@@ -95,21 +95,20 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     super.onViewCreated(view, savedInstanceState)
     taskWaitingForPhoto = savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO)
     capturedPhotoPath = savedInstanceState?.getString(CAPTURED_PHOTO_PATH)
-
-    pendingCapturedPhotoUri?.let { uri ->
-      if (System.currentTimeMillis() - pendingCaptureTimestamp < PENDING_TIMEOUT_MS) {
-        externalScope.launch { viewModel.savePhotoTaskData(uri) }
-      } else {
-        Timber.e("PhotoTaskFragment", "Pending photo capture timed out and will be dropped.")
-      }
-      pendingCapturedPhotoUri = null
-      pendingCaptureTimestamp = 0L
-    }
   }
 
   override fun onTaskViewAttached() {
     viewModel.surveyId = dataCollectionViewModel.surveyId
     viewModel.taskWaitingForPhoto = taskWaitingForPhoto
+
+    viewModel.capturedUri?.let { uri ->
+      if (!viewModel.hasLaunchedCamera) {
+        externalScope.launch {
+          viewModel.savePhotoTaskData(uri)
+          viewModel.capturedUri = null
+        }
+      }
+    }
   }
 
   override fun onCreateActionButtons() {
@@ -134,16 +133,17 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   }
 
   private fun handleCaptureResult(result: Boolean) {
-    if (!result || !::capturedPhotoUri.isInitialized) {
-      Timber.e("Photo capture failed or URI not initialized.")
+    if (!result || viewModel.capturedUri == null) {
+      Timber.e("Photo capture failed or URI not set")
       return
     }
 
     externalScope.launch(Dispatchers.IO) {
       if (isViewModelInitialized) {
-        viewModel.savePhotoTaskData(capturedPhotoUri)
+        viewModel.savePhotoTaskData(viewModel.capturedUri!!)
+        viewModel.hasLaunchedCamera = false
       } else {
-        pendingCapturedPhotoUri = capturedPhotoUri
+        pendingCapturedPhotoUri = viewModel.capturedUri!!
         pendingCaptureTimestamp = System.currentTimeMillis()
       }
     }
@@ -185,6 +185,8 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   }
 
   fun onTakePhoto() {
+    if (viewModel.hasLaunchedCamera) return
+
     // Keep track of the fact that we are restoring the application after a photo capture.
     homeScreenViewModel.awaitingPhotoCapture = true
     obtainCapturePhotoPermissions {
@@ -197,7 +199,10 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
       val photoFile = userMediaRepository.createImageFile(taskId)
       capturedPhotoUri =
         FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID, photoFile)
+
       viewModel.taskWaitingForPhoto = taskId
+      viewModel.capturedUri = capturedPhotoUri
+      viewModel.hasLaunchedCamera = true
       capturedPhotoPath = capturedPhotoUri.path
       capturePhotoLauncher.launch(capturedPhotoUri)
       Timber.d("Capture photo intent sent")

@@ -49,6 +49,9 @@ constructor(
 
   lateinit var surveyId: String
 
+  var hasLaunchedCamera: Boolean = false
+  var capturedUri: Uri? = null
+
   val uri: LiveData<Uri> =
     taskTaskData
       .filterIsInstance<PhotoTaskData>()
