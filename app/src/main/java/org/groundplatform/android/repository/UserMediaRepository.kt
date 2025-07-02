@@ -27,6 +27,8 @@ import java.io.FileOutputStream
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.groundplatform.android.Config
 import org.groundplatform.android.persistence.remote.RemoteStorageManager
 import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
@@ -65,6 +67,25 @@ constructor(
     createImageFile(fieldId).apply {
       FileOutputStream(this).use { fos -> bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos) }
       Timber.d("Photo saved %s : %b", path, exists())
+    }
+
+  /**
+   * Saves the original image from the given [uri] to a file associated with the given [fieldId].
+   *
+   * This method copies the image bytes directly from the input stream without decoding it into
+   * memory, preserving the original quality, metadata, and resolution. It avoids potential
+   * OutOfMemoryError caused by loading large images into a Bitmap.
+   */
+  suspend fun savePhotoFromUri(uri: Uri, fieldId: String): File =
+    withContext(Dispatchers.IO) {
+      val file = createImageFile(fieldId)
+
+      context.contentResolver.openInputStream(uri)?.use { input ->
+        FileOutputStream(file).use { output -> input.copyTo(output) }
+      } ?: throw IOException("Unable to open URI: $uri")
+
+      Timber.d("Photo saved ${file.path} : ${file.exists()}")
+      file
     }
 
   @Throws(FileNotFoundException::class)
