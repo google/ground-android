@@ -94,6 +94,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
         viewModel.addLastVertex()
         viewModel.checkVertexIntersection()
         viewModel.triggerVibration()
+        drawAreaTaskMapFragment.updateCenterMarker()
       }
     completeButton =
       addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.completePolygon() }

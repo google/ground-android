@@ -145,6 +145,11 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
       }
     }
 
+  fun updateCenterMarker(isTooClose: Boolean, isMarkedComplete: Boolean) {
+    val shouldShow = !isMarkedComplete && !isTooClose
+    binding.centerMarker.visibility = if (shouldShow) View.VISIBLE else View.GONE
+  }
+
   @MustBeInvokedByOverriders
   protected open fun onMapCameraMoved(position: CameraPosition) {
     if (getMapViewModel().locationLock.value.getOrDefault(false)) {
