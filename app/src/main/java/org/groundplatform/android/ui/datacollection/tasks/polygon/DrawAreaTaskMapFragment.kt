@@ -32,6 +32,7 @@ class DrawAreaTaskMapFragment @Inject constructor() :
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
     if (!taskViewModel.isMarkedComplete()) {
+      updateCenterMarker()
       val mapCenter = position.coordinates
       taskViewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->
         map.getDistanceInPixels(c1, c2)
@@ -50,4 +51,11 @@ class DrawAreaTaskMapFragment @Inject constructor() :
     taskViewModel.draftArea
       .map { feature: Feature? -> if (feature == null) setOf() else setOf(feature) }
       .asLiveData()
+
+  fun updateCenterMarker() {
+    super.updateCenterMarker(
+      isTooClose = taskViewModel.isTooClose,
+      isMarkedComplete = taskViewModel.isMarkedComplete(),
+    )
+  }
 }
