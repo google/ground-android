@@ -83,8 +83,8 @@ constructor(
    * survey. If no survey is active at the moment, then it returns false.
    */
   suspend fun canUserSubmitData(): Boolean {
-    val isPublic = surveyRepository.activeSurvey?.generalAccess
-    if (isPublic?.ordinal == 3) {
+    val generalAccessValue = surveyRepository.activeSurvey?.generalAccess
+    if (generalAccessValue?.ordinal == 3) {
       return true
     }
 
