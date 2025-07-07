@@ -53,9 +53,6 @@ class DrawAreaTaskMapFragment @Inject constructor() :
       .asLiveData()
 
   fun updateCenterMarker() {
-    super.updateCenterMarker(
-      isTooClose = taskViewModel.isTooClose,
-      isMarkedComplete = taskViewModel.isMarkedComplete(),
-    )
+    setCenterMarkerVisibility(!taskViewModel.isMarkedComplete() && !taskViewModel.isTooClose)
   }
 }
