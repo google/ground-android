@@ -408,8 +408,16 @@ fun SurveyEntityAndRelations.toModelObject(): Survey {
     surveyEntity.description!!,
     jobMap.toPersistentMap(),
     surveyEntity.acl?.toStringMap()!!,
-    surveyEntity.dataSharingTerms?.let { DataSharingTerms.parseFrom(surveyEntity.dataSharingTerms) },
+    surveyEntity.dataSharingTerms?.let {
+      DataSharingTerms.parseFrom(surveyEntity.dataSharingTerms)
+    },
+    generalAccess = surveyEntity.generalAccess?.toGeneralAccess(),
   )
+}
+
+fun Int.toGeneralAccess(): org.groundplatform.android.proto.Survey.GeneralAccess {
+  return org.groundplatform.android.proto.Survey.GeneralAccess.values().find { it.number == this }
+    ?: org.groundplatform.android.proto.Survey.GeneralAccess.UNRECOGNIZED
 }
 
 private fun JSONObject.toStringMap(): Map<String, String> {
@@ -425,6 +433,7 @@ fun Survey.toLocalDataStoreObject() =
     description = description,
     acl = JSONObject(acl as Map<*, *>),
     dataSharingTerms = dataSharingTerms?.toByteArray(),
+    generalAccess = generalAccess?.ordinal,
   )
 
 fun Task.toLocalDataStoreObject(jobId: String?) =
