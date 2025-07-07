@@ -73,6 +73,8 @@ class MainActivityTest : BaseHiltTest() {
         controller.setup() // Moves Activity to RESUMED state
         activity = controller.get()
 
+        advanceUntilIdle()
+
         fakeAuthenticationManager.setState(SignInState.SigningIn)
         fakeAuthenticationManager.setState(SignInState.SignedOut)
         advanceUntilIdle()
