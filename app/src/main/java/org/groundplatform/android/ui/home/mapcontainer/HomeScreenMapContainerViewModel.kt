@@ -57,6 +57,7 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionB
 import org.groundplatform.android.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.map.FeatureType
 import org.groundplatform.android.ui.map.isLocationOfInterest
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 
@@ -67,7 +68,7 @@ class HomeScreenMapContainerViewModel
 internal constructor(
   private val getDataSharingTermsUseCase: GetDataSharingTermsUseCase,
   private val loiRepository: LocationOfInterestRepository,
-  mapStateRepository: MapStateRepository,
+  private val mapStateRepository: MapStateRepository,
   private val submissionRepository: SubmissionRepository,
   locationManager: LocationManager,
   settingsManager: SettingsManager,
@@ -162,6 +163,21 @@ internal constructor(
       }
   }
 
+  /** Enables the location lock if the active survey doesn't have a default camera position. */
+  suspend fun maybeEnableLocationLock() {
+    val surveyId = activeSurvey.filterNotNull().first().id
+
+    // Note: This logic should be in sync with BaseMapViewModel.getLastSavedPositionOrDefaultBounds.
+    if (loiRepository.hasValidLois(surveyId)) {
+      // Skipping as there are valid LOIs. The camera position will be set to the LOI bounds.
+    } else if (mapStateRepository.getCameraPosition(surveyId) != null) {
+      // Skipping as the camera position is already set.
+    } else {
+      // Enabling location lock.
+      enableLocationLockAndGetUpdates()
+    }
+  }
+
   fun getDataSharingTerms(): Result<DataSharingTerms?> = getDataSharingTermsUseCase()
 
   /**
@@ -220,10 +236,10 @@ internal constructor(
   private suspend fun LocationOfInterest.toFeature() =
     Feature(
       id = id,
-      type = org.groundplatform.android.ui.map.FeatureType.LOCATION_OF_INTEREST.ordinal,
+      type = FeatureType.LOCATION_OF_INTEREST.ordinal,
       flag = submissionRepository.getTotalSubmissionCount(this) > 0,
       geometry = geometry,
-      style = org.groundplatform.android.ui.map.Feature.Style(job.getDefaultColor()),
+      style = Feature.Style(job.getDefaultColor()),
       clusterable = true,
       selected = true,
     )

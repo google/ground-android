@@ -33,6 +33,11 @@ interface LocationOfInterestDao : BaseDao<LocationOfInterestEntity> {
     deletionState: EntityDeletionState,
   ): Flow<List<LocationOfInterestEntity>>
 
+  @Query(
+    "SELECT COUNT(*) from location_of_interest WHERE survey_id = :surveyId AND state = :deletionState"
+  )
+  suspend fun countByDeletionState(surveyId: String, deletionState: EntityDeletionState): Int
+
   @Query("SELECT * FROM location_of_interest WHERE id = :id")
   suspend fun findById(id: String): LocationOfInterestEntity?
 
