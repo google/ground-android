@@ -30,6 +30,7 @@ import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.mutation.Mutation.Type.CREATE
+import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
@@ -53,6 +54,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
+  @Inject lateinit var localLoiStore: LocalLocationOfInterestStore
   @Inject lateinit var mutationRepository: MutationRepository
   @Inject lateinit var userRepository: UserRepository
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
@@ -164,6 +166,27 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
           )
         )
     }
+  }
+
+  @Test
+  fun `hasValidLois when survey has no lois returns false`() = runWithTestDispatcher {
+    // Remove all LOIs from local db inserted during setup()
+    localLoiStore.deleteNotIn(TEST_SURVEY.id, emptyList())
+
+    assertThat(locationOfInterestRepository.hasValidLois(TEST_SURVEY.id)).isFalse()
+  }
+
+  @Test
+  fun `hasValidLois when survey has lois returns true`() = runWithTestDispatcher {
+    // Remove all LOIs from local db inserted during setup()
+    localLoiStore.deleteNotIn(TEST_SURVEY.id, emptyList())
+
+    // Insert a new LOI
+    locationOfInterestRepository.applyAndEnqueue(
+      LOCATION_OF_INTEREST.toMutation(CREATE, TEST_USER.id)
+    )
+
+    assertThat(locationOfInterestRepository.hasValidLois(TEST_SURVEY.id)).isTrue()
   }
 
   companion object {

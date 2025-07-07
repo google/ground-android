@@ -156,6 +156,12 @@ constructor(
     mutationSyncWorkManager.enqueueSyncWorker()
   }
 
+  /**
+   * Returns true if [Survey] for the given [surveyId] has at least one valid [LocationOfInterest]
+   * in the local storage.
+   */
+  suspend fun hasValidLois(surveyId: String): Boolean = localLoiStore.getLoiCount(surveyId) > 0
+
   /** Returns a flow of all valid (not deleted) [LocationOfInterest] in the given [Survey]. */
   fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
     localLoiStore.getValidLois(survey)
