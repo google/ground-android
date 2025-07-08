@@ -27,12 +27,13 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.R
 import org.groundplatform.android.coroutines.ApplicationScope
+import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.coroutines.MainScope
 import org.groundplatform.android.databinding.PhotoTaskFragBinding
 import org.groundplatform.android.repository.UserMediaRepository
@@ -58,6 +59,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject @MainScope lateinit var mainScope: CoroutineScope
   @Inject lateinit var permissionsManager: PermissionsManager
   @Inject lateinit var popups: EphemeralPopups
+  @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
   lateinit var homeScreenViewModel: HomeScreenViewModel
 
   // Registers a callback to execute after a user captures a photo from the on-device camera.
@@ -73,7 +75,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
     capturePhotoLauncher =
       registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-        externalScope.launch(Dispatchers.IO) { handleCaptureResult(result) }
+        externalScope.launch(ioDispatcher) { handleCaptureResult(result) }
       }
   }
 
@@ -102,7 +104,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
     viewModel.capturedUri?.let { uri ->
       if (!viewModel.hasLaunchedCamera) {
-        externalScope.launch {
+        externalScope.launch(ioDispatcher) {
           viewModel.savePhotoTaskData(uri)
           viewModel.capturedUri = null
         }
