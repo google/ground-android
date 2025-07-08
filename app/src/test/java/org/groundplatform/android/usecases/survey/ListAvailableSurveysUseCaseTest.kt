@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.FakeData.FAKE_GENERAL_ACCESS
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.toListItem
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
@@ -179,15 +180,45 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
 
   companion object {
     private val SURVEY_1 =
-      Survey(id = "1", title = "Survey 1", description = "", jobMap = emptyMap())
+      Survey(
+        id = "1",
+        title = "Survey 1",
+        description = "",
+        jobMap = emptyMap(),
+        generalAccess = FAKE_GENERAL_ACCESS,
+      )
     private val SURVEY_2 =
-      Survey(id = "2", title = "Survey 2", description = "", jobMap = emptyMap())
+      Survey(
+        id = "2",
+        title = "Survey 2",
+        description = "",
+        jobMap = emptyMap(),
+        generalAccess = FAKE_GENERAL_ACCESS,
+      )
     private val SURVEY_3 =
-      Survey(id = "3", title = "Survey 3", description = "", jobMap = emptyMap())
+      Survey(
+        id = "3",
+        title = "Survey 3",
+        description = "",
+        jobMap = emptyMap(),
+        generalAccess = FAKE_GENERAL_ACCESS,
+      )
 
     private val PUBLIC_SURVEY_A =
-      Survey(id = "A", title = "Public Survey 1", description = "", jobMap = emptyMap())
+      Survey(
+        id = "A",
+        title = "Public Survey 1",
+        description = "",
+        jobMap = emptyMap(),
+        generalAccess = FAKE_GENERAL_ACCESS,
+      )
     private val PUBLIC_SURVEY_B =
-      Survey(id = "B", title = "Public Survey 2", description = "", jobMap = emptyMap())
+      Survey(
+        id = "B",
+        title = "Public Survey 2",
+        description = "",
+        jobMap = emptyMap(),
+        generalAccess = FAKE_GENERAL_ACCESS,
+      )
   }
 }
