@@ -24,7 +24,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.model.submission.PhotoTaskData
@@ -65,21 +64,18 @@ constructor(
    * Saves photo data stored on an on-device URI in Ground-associated storage and prepares it for
    * inclusion in a data collection submission.
    */
-  fun savePhotoTaskData(uri: Uri) {
+  suspend fun savePhotoTaskData(uri: Uri) {
     val currentTask = taskWaitingForPhoto
     requireNotNull(currentTask) { "Photo captured but no task waiting for the result" }
-    externalScope.launch(Dispatchers.IO) {
-      try {
-        val file = userMediaRepository.savePhotoFromUri(uri, currentTask)
-        userMediaRepository.addImageToGallery(file.absolutePath, file.name)
-        val remoteFilename = FirebaseStorageManager.getRemoteMediaPath(surveyId, file.name)
 
-        withContext(Dispatchers.Main) { setValue(PhotoTaskData(remoteFilename)) }
-      } catch (e: IOException) {
-        Timber.e(e, "Error getting photo selected from storage")
-      } catch (e: Exception) {
-        Timber.e(e, "Unexpected error processing photo")
-      }
+    try {
+      val file = userMediaRepository.savePhotoFromUri(uri, currentTask)
+      userMediaRepository.addImageToGallery(file.absolutePath, file.name)
+      val remoteFilename = FirebaseStorageManager.getRemoteMediaPath(surveyId, file.name)
+
+      withContext(Dispatchers.Main) { setValue(PhotoTaskData(remoteFilename)) }
+    } catch (e: IOException) {
+      Timber.e(e, "Error saving photo to storage")
     }
   }
 }

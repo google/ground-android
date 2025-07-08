@@ -74,7 +74,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
     capturePhotoLauncher =
       registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-        handleCaptureResult(result)
+        externalScope.launch(Dispatchers.IO) { handleCaptureResult(result) }
       }
   }
 
@@ -132,20 +132,18 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     outState.putString(CAPTURED_PHOTO_PATH, capturedPhotoPath)
   }
 
-  private fun handleCaptureResult(result: Boolean) {
+  private suspend fun handleCaptureResult(result: Boolean) {
     if (!result || viewModel.capturedUri == null) {
       Timber.e("Photo capture failed or URI not set")
       return
     }
 
-    externalScope.launch(Dispatchers.IO) {
-      if (isViewModelInitialized) {
-        viewModel.savePhotoTaskData(viewModel.capturedUri!!)
-        viewModel.hasLaunchedCamera = false
-      } else {
-        pendingCapturedPhotoUri = viewModel.capturedUri!!
-        pendingCaptureTimestamp = System.currentTimeMillis()
-      }
+    if (isViewModelInitialized) {
+      viewModel.savePhotoTaskData(viewModel.capturedUri!!)
+      viewModel.hasLaunchedCamera = false
+    } else {
+      pendingCapturedPhotoUri = viewModel.capturedUri!!
+      pendingCaptureTimestamp = System.currentTimeMillis()
     }
   }
 
