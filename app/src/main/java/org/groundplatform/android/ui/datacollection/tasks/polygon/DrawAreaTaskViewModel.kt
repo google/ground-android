@@ -86,11 +86,11 @@ internal constructor(
     get() = _redoVertexStack
 
   /** Represents whether the user has completed drawing the polygon or not. */
-  private var isMarkedComplete: Boolean = false
+  private val _isMarkedComplete = MutableStateFlow(false)
+  val isMarkedComplete: StateFlow<Boolean> = _isMarkedComplete.asStateFlow()
 
-  private var _isTooClose: Boolean = false
-  val isTooClose: Boolean
-    get() = _isTooClose
+  private val _isTooClose = MutableStateFlow(false)
+  val isTooClose: StateFlow<Boolean> = _isTooClose.asStateFlow()
 
   private val _showSelfIntersectionDialog = MutableSharedFlow<Unit>()
   val showSelfIntersectionDialog = _showSelfIntersectionDialog.asSharedFlow()
@@ -125,9 +125,17 @@ internal constructor(
     }
   }
 
-  fun isMarkedComplete(): Boolean = isMarkedComplete
+  fun isMarkedComplete(): Boolean = isMarkedComplete.value
 
   fun getLastVertex() = vertices.lastOrNull()
+
+  fun markComplete() {
+    _isMarkedComplete.value = true
+  }
+
+  fun setTooClose(value: Boolean) {
+    _isTooClose.value = value
+  }
 
   private fun onSelfIntersectionDetected() {
     viewModelScope.launch { _showSelfIntersectionDialog.emit(Unit) }
@@ -142,7 +150,9 @@ internal constructor(
     target: Coordinates,
     calculateDistanceInPixels: (c1: Coordinates, c2: Coordinates) -> Double,
   ) {
-    check(!isMarkedComplete) { "Attempted to update last vertex after completing the drawing" }
+    check(!isMarkedComplete.value) {
+      "Attempted to update last vertex after completing the drawing"
+    }
 
     val firstVertex = vertices.firstOrNull()
     var updatedTarget = target
@@ -155,7 +165,7 @@ internal constructor(
     }
 
     val prev = vertices.dropLast(1).lastOrNull()
-    _isTooClose =
+    _isTooClose.value =
       prev?.let { calculateDistanceInPixels(it, target) <= DISTANCE_THRESHOLD_DP } == true
 
     addVertex(updatedTarget, true)
@@ -167,7 +177,7 @@ internal constructor(
     if (vertices.isEmpty()) return
 
     // Reset complete status
-    isMarkedComplete = false
+    _isMarkedComplete.value = false
 
     _redoVertexStack.add(vertices.last())
 
@@ -192,7 +202,7 @@ internal constructor(
       return
     }
 
-    isMarkedComplete = false
+    _isMarkedComplete.value = false
 
     val redoVertex = _redoVertexStack.removeAt(_redoVertexStack.lastIndex)
 
@@ -206,10 +216,10 @@ internal constructor(
 
   /** Adds the last vertex to the polygon. */
   fun addLastVertex() {
-    check(!isMarkedComplete) { "Attempted to add last vertex after completing the drawing" }
+    check(!isMarkedComplete.value) { "Attempted to add last vertex after completing the drawing" }
     _redoVertexStack.clear()
     vertices.lastOrNull()?.let {
-      _isTooClose = true
+      _isTooClose.value = true
       addVertex(it, false)
     }
   }
@@ -249,9 +259,9 @@ internal constructor(
 
   fun completePolygon() {
     check(LineString(vertices).isClosed()) { "Polygon is not complete" }
-    check(!isMarkedComplete) { "Already marked complete" }
+    check(!isMarkedComplete.value) { "Already marked complete" }
 
-    isMarkedComplete = true
+    _isMarkedComplete.value = true
 
     refreshMap()
     setValue(DrawAreaTaskData(Polygon(LinearRing(vertices))))
@@ -283,7 +293,7 @@ internal constructor(
 
   /** Returns the distance in meters between the last two vertices for displaying in the tooltip. */
   private fun getDistanceTooltipText(): String? {
-    if (isMarkedComplete || vertices.size <= 1) return null
+    if (isMarkedComplete.value || vertices.size <= 1) return null
     val distance = vertices.penult().distanceTo(vertices.last())
     if (distance < TOOLTIP_MIN_DISTANCE_METERS) return null
     return localeAwareMeasureFormatter.formatDistance(distance)
