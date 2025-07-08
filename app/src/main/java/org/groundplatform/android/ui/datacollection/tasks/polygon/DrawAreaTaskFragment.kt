@@ -156,7 +156,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
     val closed = geometry.isClosed()
     val markedComplete = viewModel.isMarkedComplete()
-    val tooClose = viewModel.isTooClose
+    val tooClose = viewModel.isTooClose.value
 
     addPointButton.showIfTrue(!closed)
     addPointButton.enableIfTrue(!closed && !tooClose)
