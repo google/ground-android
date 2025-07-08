@@ -22,6 +22,7 @@ import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
+import org.groundplatform.android.FakeData.FAKE_GENERAL_ACCESS
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
 import org.groundplatform.android.model.geometry.Coordinates
@@ -164,7 +165,13 @@ class LocalSubmissionStoreTest : BaseHiltTest() {
     private val TEST_JOB =
       Job(FakeData.JOB_ID, TEST_STYLE, "heading title", mapOf(Pair(TEST_TASK.id, TEST_TASK)))
     private val TEST_SURVEY =
-      Survey(FakeData.SURVEY_ID, "survey 1", "foo description", mapOf(Pair(TEST_JOB.id, TEST_JOB)))
+      Survey(
+        FakeData.SURVEY_ID,
+        "survey 1",
+        "foo description",
+        mapOf(Pair(TEST_JOB.id, TEST_JOB)),
+        generalAccess = FAKE_GENERAL_ACCESS,
+      )
     private val TEST_POINT = Point(Coordinates(110.0, -23.1))
     private val TEST_LOI_MUTATION = FakeData.newLoiMutation(TEST_POINT)
     private val TEST_SUBMISSION_MUTATION =

@@ -22,6 +22,7 @@ import org.groundplatform.android.model.User
 import org.groundplatform.android.persistence.local.LocalValueStore
 import org.groundplatform.android.persistence.local.stores.LocalUserStore
 import org.groundplatform.android.persistence.remote.RemoteDataStore
+import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.AuthenticationManager
 import timber.log.Timber
@@ -83,6 +84,13 @@ constructor(
    * survey. If no survey is active at the moment, then it returns false.
    */
   suspend fun canUserSubmitData(): Boolean {
+    if (
+      surveyRepository.activeSurvey?.generalAccess == Survey.GeneralAccess.PUBLIC ||
+        surveyRepository.activeSurvey?.generalAccess == Survey.GeneralAccess.UNLISTED
+    ) {
+      return true
+    }
+
     val user = getAuthenticatedUser()
     return try {
       surveyRepository.activeSurvey?.getRole(user.email) != Role.VIEWER
