@@ -415,10 +415,9 @@ fun SurveyEntityAndRelations.toModelObject(): Survey {
   )
 }
 
-fun Int.toGeneralAccess(): org.groundplatform.android.proto.Survey.GeneralAccess {
-  return org.groundplatform.android.proto.Survey.GeneralAccess.values().find { it.number == this }
+fun Int.toGeneralAccess(): org.groundplatform.android.proto.Survey.GeneralAccess =
+  org.groundplatform.android.proto.Survey.GeneralAccess.values().find { it.number == this }
     ?: org.groundplatform.android.proto.Survey.GeneralAccess.UNRECOGNIZED
-}
 
 private fun JSONObject.toStringMap(): Map<String, String> {
   val builder = mutableMapOf<String, String>()
