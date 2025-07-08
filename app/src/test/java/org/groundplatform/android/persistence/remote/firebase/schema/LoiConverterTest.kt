@@ -20,6 +20,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.timestamp
 import java.util.Date
 import kotlinx.collections.immutable.persistentListOf
+import org.groundplatform.android.FakeData.FAKE_GENERAL_ACCESS
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.FakeData.USER_ID
 import org.groundplatform.android.FakeData.newTask
@@ -157,7 +158,7 @@ class LoiConverterTest {
   private fun setUpTestSurvey(jobId: String, vararg tasks: Task) {
     val taskMap = tasks.associateBy { it.id }
     val job = Job(jobId, TEST_STYLE, "JOB_NAME", taskMap)
-    survey = Survey("", "", "", mapOf(Pair(job.id, job)))
+    survey = Survey("", "", "", mapOf(Pair(job.id, job)), generalAccess = FAKE_GENERAL_ACCESS)
   }
 
   private fun setUpTestGeometry() {
