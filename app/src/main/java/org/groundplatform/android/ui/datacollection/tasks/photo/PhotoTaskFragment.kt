@@ -49,7 +49,6 @@ import timber.log.Timber
 
 private var pendingCapturedPhotoUri: Uri? = null
 private var pendingCaptureTimestamp: Long = 0L
-private const val PENDING_TIMEOUT_MS = 3_000L
 
 /** Fragment allowing the user to capture a photo to complete a task. */
 @AndroidEntryPoint
