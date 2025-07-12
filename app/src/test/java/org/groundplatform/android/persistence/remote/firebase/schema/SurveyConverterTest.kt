@@ -39,6 +39,7 @@ class SurveyConverterTest {
         description = SURVEY.description
         acl.put(USER.email, Role.DATA_COLLECTOR)
         dataSharingTerms = DATA_SHARING_TERMS.copy {}
+        generalAccess = FAKE_GENERAL_ACCESS
         dataVisibility = DATA_VISIBILITY_UNSPECIFIED
       }
       val snapshot = createSurveyProtoDocumentSnapshot(surveyProto)

@@ -1,0 +1,1151 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 123,
+    "identityHash": "5b8e3c49ff710bd4f80b1dae1be0fe09",
+    "entities": [
+      {
+        "tableName": "draft_submission",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `job_id` TEXT NOT NULL, `loi_id` TEXT, `survey_id` TEXT NOT NULL, `deltas` TEXT, `loi_name` TEXT, `current_task_id` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobId",
+            "columnName": "job_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "loiId",
+            "columnName": "loi_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "surveyId",
+            "columnName": "survey_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deltas",
+            "columnName": "deltas",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "loiName",
+            "columnName": "loi_name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "currentTaskId",
+            "columnName": "current_task_id",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_draft_submission_loi_id_job_id_survey_id",
+            "unique": false,
+            "columnNames": [
+              "loi_id",
+              "job_id",
+              "survey_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_draft_submission_loi_id_job_id_survey_id` ON `${TABLE_NAME}` (`loi_id`, `job_id`, `survey_id`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "location_of_interest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `survey_id` TEXT NOT NULL, `job_id` TEXT NOT NULL, `state` INTEGER NOT NULL, `geometry` BLOB, `customId` TEXT NOT NULL, `submissionCount` INTEGER NOT NULL, `properties` TEXT NOT NULL, `isPredefined` INTEGER, `created_clientTimestamp` INTEGER NOT NULL, `created_serverTimestamp` INTEGER, `created_user_id` TEXT NOT NULL, `created_user_email` TEXT NOT NULL, `created_user_display_name` TEXT NOT NULL, `modified_clientTimestamp` INTEGER NOT NULL, `modified_serverTimestamp` INTEGER, `modified_user_id` TEXT NOT NULL, `modified_user_email` TEXT NOT NULL, `modified_user_display_name` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`job_id`) REFERENCES `job`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "surveyId",
+            "columnName": "survey_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobId",
+            "columnName": "job_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletionState",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "geometry",
+            "columnName": "geometry",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "customId",
+            "columnName": "customId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "submissionCount",
+            "columnName": "submissionCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "properties",
+            "columnName": "properties",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isPredefined",
+            "columnName": "isPredefined",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "created.clientTimestamp",
+            "columnName": "created_clientTimestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "created.serverTimestamp",
+            "columnName": "created_serverTimestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "created.user.id",
+            "columnName": "created_user_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "created.user.email",
+            "columnName": "created_user_email",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "created.user.displayName",
+            "columnName": "created_user_display_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastModified.clientTimestamp",
+            "columnName": "modified_clientTimestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastModified.serverTimestamp",
+            "columnName": "modified_serverTimestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lastModified.user.id",
+            "columnName": "modified_user_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastModified.user.email",
+            "columnName": "modified_user_email",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastModified.user.displayName",
+            "columnName": "modified_user_display_name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_location_of_interest_survey_id",
+            "unique": false,
+            "columnNames": [
+              "survey_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_location_of_interest_survey_id` ON `${TABLE_NAME}` (`survey_id`)"
+          },
+          {
+            "name": "index_location_of_interest_job_id",
+            "unique": false,
+            "columnNames": [
+              "job_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_location_of_interest_job_id` ON `${TABLE_NAME}` (`job_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "job",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "job_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "location_of_interest_mutation",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `survey_id` TEXT NOT NULL, `type` INTEGER NOT NULL, `state` INTEGER NOT NULL, `retry_count` INTEGER NOT NULL, `last_error` TEXT NOT NULL, `user_id` TEXT NOT NULL, `client_timestamp` INTEGER NOT NULL, `location_of_interest_id` TEXT NOT NULL, `job_id` TEXT NOT NULL, `is_predefined` INTEGER, `collection_id` TEXT NOT NULL, `newGeometry` BLOB, `newProperties` TEXT NOT NULL, `newCustomId` TEXT NOT NULL, FOREIGN KEY(`location_of_interest_id`) REFERENCES `location_of_interest`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "surveyId",
+            "columnName": "survey_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "retryCount",
+            "columnName": "retry_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastError",
+            "columnName": "last_error",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "user_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "clientTimestamp",
+            "columnName": "client_timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "locationOfInterestId",
+            "columnName": "location_of_interest_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobId",
+            "columnName": "job_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isPredefined",
+            "columnName": "is_predefined",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "collectionId",
+            "columnName": "collection_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "newGeometry",
+            "columnName": "newGeometry",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "newProperties",
+            "columnName": "newProperties",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "newCustomId",
+            "columnName": "newCustomId",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_location_of_interest_mutation_location_of_interest_id",
+            "unique": false,
+            "columnNames": [
+              "location_of_interest_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_location_of_interest_mutation_location_of_interest_id` ON `${TABLE_NAME}` (`location_of_interest_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "location_of_interest",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "location_of_interest_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "task",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `index` INTEGER NOT NULL, `task_type` INTEGER NOT NULL, `label` TEXT, `is_required` INTEGER NOT NULL, `job_id` TEXT, `is_add_loi_task` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`job_id`) REFERENCES `job`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "index",
+            "columnName": "index",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taskType",
+            "columnName": "task_type",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "label",
+            "columnName": "label",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isRequired",
+            "columnName": "is_required",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobId",
+            "columnName": "job_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isAddLoiTask",
+            "columnName": "is_add_loi_task",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_task_job_id",
+            "unique": false,
+            "columnNames": [
+              "job_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_task_job_id` ON `${TABLE_NAME}` (`job_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "job",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "job_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "job",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT, `survey_id` TEXT, `strategy` TEXT NOT NULL, `style_color` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`survey_id`) REFERENCES `survey`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "surveyId",
+            "columnName": "survey_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "strategy",
+            "columnName": "strategy",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "style.color",
+            "columnName": "style_color",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_job_survey_id",
+            "unique": false,
+            "columnNames": [
+              "survey_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_job_survey_id` ON `${TABLE_NAME}` (`survey_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "survey",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "survey_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "multiple_choice",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`task_id` TEXT NOT NULL, `type` INTEGER NOT NULL, `has_other_option` INTEGER NOT NULL, PRIMARY KEY(`task_id`), FOREIGN KEY(`task_id`) REFERENCES `task`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "taskId",
+            "columnName": "task_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hasOtherOption",
+            "columnName": "has_other_option",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "task_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_multiple_choice_task_id",
+            "unique": false,
+            "columnNames": [
+              "task_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_multiple_choice_task_id` ON `${TABLE_NAME}` (`task_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "task",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "task_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "option",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `code` TEXT NOT NULL, `label` TEXT NOT NULL, `task_id` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`task_id`) REFERENCES `task`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "code",
+            "columnName": "code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "label",
+            "columnName": "label",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taskId",
+            "columnName": "task_id",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_option_task_id",
+            "unique": false,
+            "columnNames": [
+              "task_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_option_task_id` ON `${TABLE_NAME}` (`task_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "task",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "task_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "survey",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT, `description` TEXT, `acl` TEXT, `data_sharing_terms` BLOB, `general_access` INTEGER, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "acl",
+            "columnName": "acl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "dataSharingTerms",
+            "columnName": "data_sharing_terms",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "generalAccess",
+            "columnName": "general_access",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "submission",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `location_of_interest_id` TEXT NOT NULL, `job_id` TEXT NOT NULL, `state` INTEGER NOT NULL, `data` TEXT, `created_clientTimestamp` INTEGER NOT NULL, `created_serverTimestamp` INTEGER, `created_user_id` TEXT NOT NULL, `created_user_email` TEXT NOT NULL, `created_user_display_name` TEXT NOT NULL, `modified_clientTimestamp` INTEGER NOT NULL, `modified_serverTimestamp` INTEGER, `modified_user_id` TEXT NOT NULL, `modified_user_email` TEXT NOT NULL, `modified_user_display_name` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`location_of_interest_id`) REFERENCES `location_of_interest`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "locationOfInterestId",
+            "columnName": "location_of_interest_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobId",
+            "columnName": "job_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletionState",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data",
+            "columnName": "data",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "created.clientTimestamp",
+            "columnName": "created_clientTimestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "created.serverTimestamp",
+            "columnName": "created_serverTimestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "created.user.id",
+            "columnName": "created_user_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "created.user.email",
+            "columnName": "created_user_email",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "created.user.displayName",
+            "columnName": "created_user_display_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastModified.clientTimestamp",
+            "columnName": "modified_clientTimestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastModified.serverTimestamp",
+            "columnName": "modified_serverTimestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lastModified.user.id",
+            "columnName": "modified_user_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastModified.user.email",
+            "columnName": "modified_user_email",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastModified.user.displayName",
+            "columnName": "modified_user_display_name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_submission_location_of_interest_id_job_id_state",
+            "unique": false,
+            "columnNames": [
+              "location_of_interest_id",
+              "job_id",
+              "state"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_submission_location_of_interest_id_job_id_state` ON `${TABLE_NAME}` (`location_of_interest_id`, `job_id`, `state`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "location_of_interest",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "location_of_interest_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "submission_mutation",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `survey_id` TEXT NOT NULL, `type` INTEGER NOT NULL, `state` INTEGER NOT NULL, `retry_count` INTEGER NOT NULL, `last_error` TEXT NOT NULL, `user_id` TEXT NOT NULL, `client_timestamp` INTEGER NOT NULL, `location_of_interest_id` TEXT NOT NULL, `job_id` TEXT NOT NULL, `submission_id` TEXT NOT NULL, `collection_id` TEXT NOT NULL, `deltas` TEXT, FOREIGN KEY(`location_of_interest_id`) REFERENCES `location_of_interest`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`submission_id`) REFERENCES `submission`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "surveyId",
+            "columnName": "survey_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "retryCount",
+            "columnName": "retry_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastError",
+            "columnName": "last_error",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "user_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "clientTimestamp",
+            "columnName": "client_timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "locationOfInterestId",
+            "columnName": "location_of_interest_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobId",
+            "columnName": "job_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "submissionId",
+            "columnName": "submission_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "collectionId",
+            "columnName": "collection_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deltas",
+            "columnName": "deltas",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_submission_mutation_location_of_interest_id",
+            "unique": false,
+            "columnNames": [
+              "location_of_interest_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_submission_mutation_location_of_interest_id` ON `${TABLE_NAME}` (`location_of_interest_id`)"
+          },
+          {
+            "name": "index_submission_mutation_submission_id",
+            "unique": false,
+            "columnNames": [
+              "submission_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_submission_mutation_submission_id` ON `${TABLE_NAME}` (`submission_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "location_of_interest",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "location_of_interest_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "submission",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "submission_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "offline_area",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `state` INTEGER NOT NULL, `north` REAL NOT NULL, `south` REAL NOT NULL, `east` REAL NOT NULL, `west` REAL NOT NULL, `min_zoom` INTEGER NOT NULL, `max_zoom` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "north",
+            "columnName": "north",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "south",
+            "columnName": "south",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "east",
+            "columnName": "east",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "west",
+            "columnName": "west",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minZoom",
+            "columnName": "min_zoom",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "maxZoom",
+            "columnName": "max_zoom",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "user",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `email` TEXT NOT NULL, `display_name` TEXT NOT NULL, `photo_url` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "email",
+            "columnName": "email",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayName",
+            "columnName": "display_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "photoUrl",
+            "columnName": "photo_url",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "condition",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`parent_task_id` TEXT NOT NULL, `match_type` INTEGER NOT NULL, PRIMARY KEY(`parent_task_id`), FOREIGN KEY(`parent_task_id`) REFERENCES `task`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "parentTaskId",
+            "columnName": "parent_task_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "matchType",
+            "columnName": "match_type",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "parent_task_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_condition_parent_task_id",
+            "unique": false,
+            "columnNames": [
+              "parent_task_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_condition_parent_task_id` ON `${TABLE_NAME}` (`parent_task_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "task",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "parent_task_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "expression",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`parent_task_id` TEXT NOT NULL, `task_id` TEXT NOT NULL, `expression_type` INTEGER NOT NULL, `option_ids` TEXT, PRIMARY KEY(`parent_task_id`), FOREIGN KEY(`parent_task_id`) REFERENCES `condition`(`parent_task_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "parentTaskId",
+            "columnName": "parent_task_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taskId",
+            "columnName": "task_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expressionType",
+            "columnName": "expression_type",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "optionIds",
+            "columnName": "option_ids",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "parent_task_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_expression_parent_task_id",
+            "unique": false,
+            "columnNames": [
+              "parent_task_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_expression_parent_task_id` ON `${TABLE_NAME}` (`parent_task_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "condition",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "parent_task_id"
+            ],
+            "referencedColumns": [
+              "parent_task_id"
+            ]
+          }
+        ]
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5b8e3c49ff710bd4f80b1dae1be0fe09')"
+    ]
+  }
+}

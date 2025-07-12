@@ -36,9 +36,10 @@ internal object SurveyConverter {
     val surveyFromProto = parseSurveyFromDocument(doc)
     val jobMap = convertJobsToMap(jobs)
     val dataSharingTerms = getDataSharingTerms(surveyFromProto)
+    val generalAccess = getGeneralAccess(surveyFromProto)
     val dataVisibility = surveyFromProto.dataVisibility ?: DataVisibility.CONTRIBUTOR_AND_ORGANIZERS
 
-    return createSurveyModel(doc, surveyFromProto, jobMap, dataSharingTerms, dataVisibility)
+    return createSurveyModel(doc, surveyFromProto, jobMap, dataSharingTerms, generalAccess, dataVisibility)
   }
 
   /** Parse survey data from the DocumentSnapshot. */
@@ -56,12 +57,16 @@ internal object SurveyConverter {
       surveyProto.dataSharingTerms
     }
 
+  private fun getGeneralAccess(surveyProto: SurveyProto): SurveyProto.GeneralAccess =
+    surveyProto.generalAccess ?: SurveyProto.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED
+
   /** Build SurveyModel from parsed data. */
   private fun createSurveyModel(
     doc: DocumentSnapshot,
     surveyProto: SurveyProto,
     jobMap: Map<String, Job>,
     dataSharingTerms: Survey.DataSharingTerms?,
+    generalAccess: SurveyProto.GeneralAccess,
     dataVisibility: DataVisibility,
   ): SurveyModel =
     SurveyModel(
@@ -71,6 +76,7 @@ internal object SurveyConverter {
       jobMap = jobMap.toPersistentMap(),
       acl = surveyProto.aclMap.entries.associate { it.key to it.value.toString() },
       dataSharingTerms = dataSharingTerms,
+      generalAccess = generalAccess,
       dataVisibility = dataVisibility,
     )
 }
