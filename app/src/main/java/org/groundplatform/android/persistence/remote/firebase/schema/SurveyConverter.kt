@@ -39,7 +39,14 @@ internal object SurveyConverter {
     val generalAccess = getGeneralAccess(surveyFromProto)
     val dataVisibility = surveyFromProto.dataVisibility ?: DataVisibility.CONTRIBUTOR_AND_ORGANIZERS
 
-    return createSurveyModel(doc, surveyFromProto, jobMap, dataSharingTerms, generalAccess, dataVisibility)
+    return createSurveyModel(
+      doc,
+      surveyFromProto,
+      jobMap,
+      dataSharingTerms,
+      generalAccess,
+      dataVisibility,
+    )
   }
 
   /** Parse survey data from the DocumentSnapshot. */
