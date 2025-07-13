@@ -433,6 +433,7 @@ fun Survey.toLocalDataStoreObject() =
     acl = JSONObject(acl as Map<*, *>),
     dataSharingTerms = dataSharingTerms?.toByteArray(),
     generalAccess = generalAccess?.ordinal,
+    dataVisibility = dataVisibility?.ordinal,
   )
 
 fun Task.toLocalDataStoreObject(jobId: String?) =
