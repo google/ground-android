@@ -654,12 +654,6 @@
             "columnName": "general_access",
             "affinity": "INTEGER",
             "notNull": false
-          },
-          {
-            "fieldPath": "dataVisibility",
-            "columnName": "data_visibility",
-            "affinity": "INTEGER",
-            "notNull": false
           }
         ],
         "primaryKey": {
