@@ -26,12 +26,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.Config.SURVEY_PATH_SEGMENT
@@ -70,8 +67,6 @@ constructor(
   val windowInsets: MutableLiveData<WindowInsetsCompat> = MutableLiveData()
 
   private val _deepLinkUri = MutableStateFlow<Uri?>(null)
-  val isDeepLinkAvailable =
-    _deepLinkUri.map { it != null }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
   init {
     viewModelScope.launch {
@@ -88,7 +83,7 @@ constructor(
     }
   }
 
-  fun isDeepLinkAvailable(): Boolean = _deepLinkUri.value != null
+  private fun isDeepLinkAvailable(): Boolean = _deepLinkUri.value != null
 
   fun setDeepLinkUri(uri: Uri) {
     _deepLinkUri.value = uri
