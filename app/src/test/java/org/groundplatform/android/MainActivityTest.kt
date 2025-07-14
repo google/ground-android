@@ -24,6 +24,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
+import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.auth.SignInState
 import org.junit.Test
@@ -39,6 +40,8 @@ class MainActivityTest : BaseHiltTest() {
 
   private lateinit var activity: MainActivity
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
+  @Inject lateinit var viewModel: MainViewModel
+  @Inject lateinit var tosRepository: TermsOfServiceRepository
 
   override fun setUp() {
     super.setUp()
@@ -92,6 +95,7 @@ class MainActivityTest : BaseHiltTest() {
 
   @Test
   fun launchAppWithSurveyId_loggedInUser_ActivitySurvey() = runWithTestDispatcher {
+    tosRepository.isTermsOfServiceAccepted = true
     val uri = Uri.parse("https://groundplatform.org/survey/surveyId")
     val intent = Intent(Intent.ACTION_VIEW, uri)
 
@@ -99,6 +103,8 @@ class MainActivityTest : BaseHiltTest() {
       controller.setup()
       activity = controller.get()
 
+      viewModel.setDeepLinkUri(uri)
+      advanceUntilIdle()
       val navHost =
         activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
       val navController = navHost.navController
