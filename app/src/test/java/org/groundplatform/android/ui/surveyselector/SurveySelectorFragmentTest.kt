@@ -371,7 +371,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
         title = "survey 1",
         description = "description 1",
         false,
-        CONTRIBUTOR_AND_ORGANIZERS,
       )
     private val TEST_SURVEY_2 =
       SurveyListItem(
@@ -379,7 +378,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
         title = "survey 2",
         description = "description 2",
         false,
-        CONTRIBUTOR_AND_ORGANIZERS,
       )
   }
 }
