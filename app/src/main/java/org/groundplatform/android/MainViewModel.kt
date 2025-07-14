@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android
 
+import android.net.Uri
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -23,12 +24,17 @@ import com.google.android.gms.common.api.ApiException
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.groundplatform.android.Config.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.model.User
 import org.groundplatform.android.persistence.local.room.LocalDatabase
@@ -63,6 +69,10 @@ constructor(
   /** The window insets determined by the activity. */
   val windowInsets: MutableLiveData<WindowInsetsCompat> = MutableLiveData()
 
+  private val _deepLinkUri = MutableStateFlow<Uri?>(null)
+  val isDeepLinkAvailable =
+    _deepLinkUri.map { it != null }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
   init {
     viewModelScope.launch {
       authenticationManager.signInState.collectLatest { signInState ->
@@ -76,6 +86,12 @@ constructor(
       val currentSignInState = authenticationManager.signInState.first()
       _navigationRequests.emit(onSignInStateChange(currentSignInState))
     }
+  }
+
+  fun isDeepLinkAvailable(): Boolean = _deepLinkUri.value != null
+
+  fun setDeepLinkUri(uri: Uri) {
+    _deepLinkUri.value = uri
   }
 
   private suspend fun onSignInStateChange(signInState: SignInState): MainUiState =
@@ -126,6 +142,18 @@ constructor(
       userRepository.saveUserDetails(user)
       if (!isTosAccepted()) {
         MainUiState.TosNotAccepted
+      } else if (isDeepLinkAvailable()) {
+        val deepLinkUri = _deepLinkUri.value
+        val surveyId =
+          deepLinkUri
+            ?.takeIf { it.pathSegments.firstOrNull() == SURVEY_PATH_SEGMENT }
+            ?.lastPathSegment
+
+        if (!surveyId.isNullOrBlank()) {
+          MainUiState.ActiveSurveyById(surveyId)
+        } else {
+          MainUiState.NoActiveSurvey
+        }
       } else if (!reactivateLastSurvey()) {
         MainUiState.NoActiveSurvey
       } else {

@@ -29,4 +29,6 @@ sealed class MainUiState {
   data object NoActiveSurvey : MainUiState()
 
   data object ShowHomeScreen : MainUiState()
+
+  data class ActiveSurveyById(val surveyId: String) : MainUiState()
 }
