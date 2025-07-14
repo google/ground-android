@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.tos
 
 import android.os.Bundle
+import android.text.Spanned
 import android.text.SpannedString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
@@ -89,62 +90,89 @@ class TermsOfServiceFragment : AbstractFragment() {
     ) { innerPadding ->
       val termsText by viewModel.termsOfServiceText.observeAsState(SpannedString(""))
       val agreeChecked by viewModel.agreeCheckboxChecked.observeAsState(false)
-
-      val isLoading = termsText.isBlank() // 👈 simple loading condition
+      val isLoading = termsText.isBlank()
 
       Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
         if (isLoading) {
           CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else {
-          Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
-          ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            AndroidView(
-              factory = { context ->
-                TextView(context).apply {
-                  movementMethod = LinkMovementMethod.getInstance()
-                  autoLinkMask = Linkify.WEB_URLS
-                  setTextAppearance(android.R.style.TextAppearance_Material_Body1)
-                }
-              },
-              update = { textView ->
-                textView.text = termsText
-                Linkify.addLinks(textView, Linkify.WEB_URLS)
-              },
-              modifier = Modifier.fillMaxWidth().padding(8.dp),
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (!args.isViewOnly) {
-              Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-              ) {
-                Checkbox(
-                  checked = agreeChecked,
-                  onCheckedChange = { viewModel.agreeCheckboxChecked.value = it },
-                )
-                Text(
-                  text = stringResource(R.string.agree_checkbox),
-                  modifier =
-                    Modifier.clickable { viewModel.agreeCheckboxChecked.value = !agreeChecked },
-                )
-              }
-
-              Spacer(modifier = Modifier.height(16.dp))
-
-              Button(onClick = { viewModel.onButtonClicked() }, enabled = agreeChecked) {
-                Text(text = stringResource(R.string.agree_terms))
-              }
-
-              Spacer(modifier = Modifier.height(32.dp))
-            }
-          }
+          TermsContent(
+            args = args,
+            termsText = termsText,
+            agreeChecked = agreeChecked,
+            onAgreeCheckedChange = { viewModel.agreeCheckboxChecked.value = it },
+            onAgreeClick = { viewModel.onButtonClicked() },
+          )
         }
       }
     }
+  }
+
+  @Composable
+  private fun TermsContent(
+    args: TermsOfServiceFragmentArgs,
+    termsText: Spanned,
+    agreeChecked: Boolean,
+    onAgreeCheckedChange: (Boolean) -> Unit,
+    onAgreeClick: () -> Unit,
+  ) {
+    Column(
+      modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
+      horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+      Spacer(modifier = Modifier.height(16.dp))
+      TermsTextView(termsText)
+      Spacer(modifier = Modifier.height(16.dp))
+
+      if (!args.isViewOnly) {
+        AgreeSection(
+          agreeChecked = agreeChecked,
+          onCheckedChange = onAgreeCheckedChange,
+          onClick = onAgreeClick,
+        )
+      }
+    }
+  }
+
+  @Composable
+  private fun TermsTextView(termsText: Spanned) {
+    AndroidView(
+      factory = { context ->
+        TextView(context).apply {
+          movementMethod = LinkMovementMethod.getInstance()
+          autoLinkMask = Linkify.WEB_URLS
+          setTextAppearance(android.R.style.TextAppearance_Material_Body1)
+        }
+      },
+      update = { textView ->
+        textView.text = termsText
+        Linkify.addLinks(textView, Linkify.WEB_URLS)
+      },
+      modifier = Modifier.fillMaxWidth().padding(8.dp),
+    )
+  }
+
+  @Composable
+  private fun AgreeSection(
+    agreeChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    onClick: () -> Unit,
+  ) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+      Checkbox(checked = agreeChecked, onCheckedChange = onCheckedChange)
+      Text(
+        text = stringResource(R.string.agree_checkbox),
+        modifier = Modifier.clickable { onCheckedChange(!agreeChecked) },
+      )
+    }
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Button(onClick = onClick, enabled = agreeChecked) {
+      Text(text = stringResource(R.string.agree_terms))
+    }
+
+    Spacer(modifier = Modifier.height(32.dp))
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
