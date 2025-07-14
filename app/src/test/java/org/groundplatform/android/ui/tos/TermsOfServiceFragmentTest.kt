@@ -28,7 +28,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -42,7 +41,6 @@ import org.groundplatform.android.model.TermsOfService
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.system.NetworkManager
-import org.hamcrest.Matchers.not
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -70,6 +68,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     fakeRemoteDataStore.termsOfService = Result.success(TEST_TOS)
+    whenever(networkManager.isNetworkConnected()).thenReturn(true)
   }
 
   @Test
@@ -90,7 +89,6 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun termsOfServiceText_shouldBeDisplayed() {
-    whenever(networkManager.isNetworkConnected()).thenReturn(true)
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
 
     composeTestRule.onNodeWithText("This is a heading\n\nSample terms of service\n\n").isDisplayed()
@@ -105,7 +103,6 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun agreeButton_default_shouldNotBeEnabled() {
-    whenever(networkManager.isNetworkConnected()).thenReturn(true)
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
 
     getCheckbox().assertIsDisplayed()
@@ -114,7 +111,6 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun agreeButton_whenCheckBoxClicked_shouldBeEnabled() {
-    whenever(networkManager.isNetworkConnected()).thenReturn(true)
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
 
     getCheckbox().performClick()
@@ -124,7 +120,6 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun agreeButton_whenPressed_shouldUpdatePrefAndNavigate() = runWithTestDispatcher {
-    whenever(networkManager.isNetworkConnected()).thenReturn(true)
     launchFragmentWithNavController<TermsOfServiceFragment>(
       fragmentArgs = bundleOf(Pair("isViewOnly", false)),
       destId = R.id.terms_of_service_fragment,
@@ -150,7 +145,6 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun openSurveySelectorFragment_withSurveyId() = runWithTestDispatcher {
-    whenever(networkManager.isNetworkConnected()).thenReturn(true)
     val uri = Uri.parse("https://groundplatform.org/survey/surveyId")
     launchFragmentWithNavController<TermsOfServiceFragment>(
       fragmentArgs = bundleOf("isViewOnly" to false),
