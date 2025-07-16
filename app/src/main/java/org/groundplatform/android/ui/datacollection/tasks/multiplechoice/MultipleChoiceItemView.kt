@@ -109,7 +109,7 @@ fun MultipleChoiceItemView(
 
     if (item.isOtherOption) {
       Row(modifier = modifier.padding(horizontal = 48.dp)) {
-        RenderOtherTextField(modifier, item, focusRequester, otherValueChanged)
+        OtherTextField(modifier, item, focusRequester, otherValueChanged)
       }
     }
 
@@ -120,7 +120,7 @@ fun MultipleChoiceItemView(
 }
 
 @Composable
-private fun RenderOtherTextField(
+private fun OtherTextField(
   modifier: Modifier,
   item: MultipleChoiceItem,
   focusRequester: FocusRequester,
