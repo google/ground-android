@@ -29,8 +29,11 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -67,11 +70,16 @@ fun MultipleChoiceItemView(
 ) {
   val focusManager = LocalFocusManager.current
   val keyboardController = LocalSoftwareKeyboardController.current
+  val focusRequester = remember { FocusRequester() }
 
   LaunchedEffect(item.isSelected) {
-    if (item.isOtherOption && !item.isSelected) {
-      keyboardController?.hide()
-      focusManager.clearFocus()
+    if (item.isOtherOption) {
+      if (item.isSelected) {
+        focusRequester.requestFocus()
+      } else {
+        keyboardController?.hide()
+        focusManager.clearFocus()
+      }
     }
   }
 
@@ -115,7 +123,7 @@ fun MultipleChoiceItemView(
           value = item.otherText,
           textStyle = MaterialTheme.typography.bodyLarge,
           onValueChange = { otherValueChanged(it) },
-          modifier = Modifier.testTag(OTHER_INPUT_TEXT_TEST_TAG),
+          modifier = Modifier.testTag(OTHER_INPUT_TEXT_TEST_TAG).focusRequester(focusRequester),
         )
       }
     }
