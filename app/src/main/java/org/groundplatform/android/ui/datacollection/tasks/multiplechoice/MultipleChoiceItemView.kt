@@ -109,22 +109,7 @@ fun MultipleChoiceItemView(
 
     if (item.isOtherOption) {
       Row(modifier = modifier.padding(horizontal = 48.dp)) {
-        OutlinedTextField(
-          supportingText = {
-            Row(modifier = modifier.fillMaxWidth()) {
-              Spacer(modifier = modifier.weight(1f))
-              Text(
-                "${item.otherText.length} / ${Config.TEXT_DATA_CHAR_LIMIT}",
-                textAlign = TextAlign.End,
-              )
-            }
-          },
-          isError = item.otherText.length > Config.TEXT_DATA_CHAR_LIMIT,
-          value = item.otherText,
-          textStyle = MaterialTheme.typography.bodyLarge,
-          onValueChange = { otherValueChanged(it) },
-          modifier = Modifier.testTag(OTHER_INPUT_TEXT_TEST_TAG).focusRequester(focusRequester),
-        )
+        RenderOtherTextField(modifier, item, focusRequester, otherValueChanged)
       }
     }
 
@@ -132,6 +117,28 @@ fun MultipleChoiceItemView(
       HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
     }
   }
+}
+
+@Composable
+private fun RenderOtherTextField(
+  modifier: Modifier,
+  item: MultipleChoiceItem,
+  focusRequester: FocusRequester,
+  otherValueChanged: (text: String) -> Unit,
+) {
+  OutlinedTextField(
+    supportingText = {
+      Row(modifier = modifier.fillMaxWidth()) {
+        Spacer(modifier = modifier.weight(1f))
+        Text("${item.otherText.length} / ${Config.TEXT_DATA_CHAR_LIMIT}", textAlign = TextAlign.End)
+      }
+    },
+    isError = item.otherText.length > Config.TEXT_DATA_CHAR_LIMIT,
+    value = item.otherText,
+    textStyle = MaterialTheme.typography.bodyLarge,
+    onValueChange = { otherValueChanged(it) },
+    modifier = Modifier.testTag(OTHER_INPUT_TEXT_TEST_TAG).focusRequester(focusRequester),
+  )
 }
 
 @Composable
