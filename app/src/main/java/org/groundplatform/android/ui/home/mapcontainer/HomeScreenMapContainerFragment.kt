@@ -195,11 +195,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
     // Decides which survey-related popup to show based on the current survey.
     mapContainerViewModel.surveyUpdateFlow.launchWhenStartedAndCollectFirst { surveyProperties ->
-      surveyProperties.getInfoPopupMessageId()?.let { messageId ->
-        ephemeralPopups
-          .InfoPopup(binding.bottomContainer, messageId, EphemeralPopups.PopupDuration.LONG)
-          .show()
-      }
+      surveyProperties.getInfoPopupMessageId()?.let { showInfoPopup(it) }
     }
   }
 
@@ -209,6 +205,12 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     } else {
       null
     }
+
+  private fun showInfoPopup(messageId: Int) {
+    ephemeralPopups
+      .InfoPopup(binding.bottomContainer, messageId, EphemeralPopups.PopupDuration.LONG)
+      .show()
+  }
 
   private fun setupMenuFab(): MenuButtonBinding {
     val mapOverlay = binding.overlay
