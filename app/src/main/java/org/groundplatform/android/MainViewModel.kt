@@ -76,13 +76,6 @@ constructor(
     }
   }
 
-  fun checkAuthStatus() {
-    viewModelScope.launch {
-      val currentSignInState = authenticationManager.signInState.first()
-      _navigationRequests.emit(onSignInStateChange(currentSignInState))
-    }
-  }
-
   private fun isDeepLinkAvailable(): Boolean = _deepLinkUri.value != null
 
   fun setDeepLinkUri(uri: Uri) {

@@ -90,7 +90,7 @@ import org.groundplatform.android.persistence.local.room.fields.TileSetEntitySta
     ],
   version = Config.DB_VERSION,
   exportSchema = true,
-  autoMigrations = [AutoMigration(from = 120, to = 121), AutoMigration(from = 121, to = 122)],
+  autoMigrations = [AutoMigration(from = 120, to = 121), AutoMigration(from = 121, to = 122), AutoMigration(from = 122, to = 123)],
 )
 @TypeConverters(
   TaskEntityType::class,
