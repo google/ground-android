@@ -20,8 +20,8 @@ import androidx.lifecycle.asLiveData
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
-import org.groundplatform.android.common.Constants
 import org.groundplatform.android.R
+import org.groundplatform.android.common.Constants
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.TextTaskData
 import org.groundplatform.android.model.task.Task

@@ -27,9 +27,9 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import org.groundplatform.android.common.Constants
 import org.groundplatform.android.MainActivity
 import org.groundplatform.android.R
+import org.groundplatform.android.common.Constants
 import org.groundplatform.android.persistence.local.LocalValueStore
 
 /**
