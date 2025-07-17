@@ -23,7 +23,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
-import org.groundplatform.android.Config
+import org.groundplatform.android.common.Constants
 import org.groundplatform.android.util.allowThreadDiskReads
 
 @InstallIn(SingletonComponent::class)
@@ -33,6 +33,6 @@ object SharedPreferencesModule {
   @Singleton
   fun sharedPreferences(@ApplicationContext context: Context): SharedPreferences =
     allowThreadDiskReads {
-      context.getSharedPreferences(Config.SHARED_PREFS_NAME, Config.SHARED_PREFS_MODE)
+      context.getSharedPreferences(Constants.SHARED_PREFS_NAME, Constants.SHARED_PREFS_MODE)
     }
 }

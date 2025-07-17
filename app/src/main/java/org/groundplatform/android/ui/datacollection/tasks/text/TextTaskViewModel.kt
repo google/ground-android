@@ -20,7 +20,7 @@ import androidx.lifecycle.asLiveData
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
-import org.groundplatform.android.Config
+import org.groundplatform.android.common.Constants
 import org.groundplatform.android.R
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.TextTaskData
@@ -36,7 +36,7 @@ class TextTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
   override fun validate(task: Task, taskData: TaskData?): Int? {
     if (task.type != Task.Type.TEXT) return super.validate(task, taskData)
 
-    if ((taskData as TextTaskData).text.length > Config.TEXT_DATA_CHAR_LIMIT)
+    if ((taskData as TextTaskData).text.length > Constants.TEXT_DATA_CHAR_LIMIT)
       return R.string.text_task_data_character_limit
 
     return super.validate(task, taskData)
