@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 122,
-    "identityHash": "ec359a748f5139dc24205b7cbea2b4ed",
+    "identityHash": "5b8e3c49ff710bd4f80b1dae1be0fe09",
     "entities": [
       {
         "tableName": "draft_submission",
@@ -617,7 +617,7 @@
       },
       {
         "tableName": "survey",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT, `description` TEXT, `acl` TEXT, `data_sharing_terms` BLOB, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT, `description` TEXT, `acl` TEXT, `data_sharing_terms` BLOB, `general_access` INTEGER, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -647,6 +647,12 @@
             "fieldPath": "dataSharingTerms",
             "columnName": "data_sharing_terms",
             "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "generalAccess",
+            "columnName": "general_access",
+            "affinity": "INTEGER",
             "notNull": false
           }
         ],
@@ -1139,7 +1145,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ec359a748f5139dc24205b7cbea2b4ed')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5b8e3c49ff710bd4f80b1dae1be0fe09')"
     ]
   }
 }
