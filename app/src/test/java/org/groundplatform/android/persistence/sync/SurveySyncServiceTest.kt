@@ -30,6 +30,8 @@ import androidx.work.testing.WorkManagerTestInitHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
+import kotlin.test.assertEquals
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -44,8 +46,6 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
-import javax.inject.Inject
-import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
