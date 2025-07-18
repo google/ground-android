@@ -18,7 +18,18 @@ package org.groundplatform.android.model
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.proto.Survey
 
-/** Configuration, schema, and ACLs for a single survey. */
+/**
+ * Configuration, schema, and Access Control Lists (ACLs) for a single survey.
+ *
+ * @param id Unique identifier for the survey.
+ * @param title The title of the survey.
+ * @param description A detailed description of the survey.
+ * @param jobMap A mapping from job IDs to their respective job details.
+ * @param acl A map defining user roles and permissions for accessing the survey.
+ * @param dataSharingTerms Terms governing how data collected through this survey can be shared.
+ * @param dataVisibility Specifies the visibility level for Locations of Interest (LOIs) associated
+ *   with this survey.
+ */
 data class Survey(
   val id: String,
   val title: String,
@@ -27,6 +38,7 @@ data class Survey(
   val acl: Map<String, String> = mapOf(),
   val dataSharingTerms: Survey.DataSharingTerms? = null,
   val generalAccess: Survey.GeneralAccess?,
+  val dataVisibility: Survey.DataVisibility? = null,
 ) {
   val jobs: Collection<Job>
     get() = jobMap.values
