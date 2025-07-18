@@ -16,10 +16,7 @@
 package org.groundplatform.android.ui.common
 
 import android.content.res.ColorStateList
-import android.graphics.BitmapFactory
-import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
 import android.view.View
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
@@ -28,7 +25,7 @@ import androidx.databinding.BindingAdapter
 import com.google.android.gms.common.SignInButton
 import com.squareup.picasso.Picasso
 import org.groundplatform.android.R
-import org.groundplatform.android.ui.util.RotateUsingExif
+import org.groundplatform.android.ui.util.loadBitmapWithCorrectOrientation
 import timber.log.Timber
 
 /**
@@ -55,25 +52,11 @@ object BindingAdapters {
     if (view == null || uri == null) return
 
     try {
-      val context = view.context
-
-      val bitmap =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-          val source = ImageDecoder.createSource(context.contentResolver, uri)
-          ImageDecoder.decodeBitmap(source)
-        } else {
-          @Suppress("DEPRECATION")
-          context.contentResolver.openInputStream(uri)?.use { inputStream ->
-            BitmapFactory.decodeStream(inputStream)
-          }
-        }
-
-      bitmap?.let {
-        val rotated = RotateUsingExif(uri, context).transform(it)
-        view.setImageBitmap(rotated)
-      }
+      val rotatedBitmap = loadBitmapWithCorrectOrientation(view.context, uri)
+      view.setImageBitmap(rotatedBitmap)
     } catch (e: Exception) {
-      Timber.e(e, "Error loading image")
+      Timber.e(e, "Image load failed")
+      view.setImageResource(R.drawable.outline_error_outline_24)
     }
   }
 
