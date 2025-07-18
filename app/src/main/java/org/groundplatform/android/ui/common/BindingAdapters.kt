@@ -16,7 +16,10 @@
 package org.groundplatform.android.ui.common
 
 import android.content.res.ColorStateList
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import android.view.View
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
@@ -52,14 +55,25 @@ object BindingAdapters {
     if (view == null || uri == null) return
 
     try {
-      Picasso.get()
-        .load(uri)
-        .placeholder(R.drawable.ic_photo_grey_600_24dp)
-        .transform(RotateUsingExif(uri, view.context))
-        .into(view)
-    } catch (exception: IllegalStateException) {
-      // Needed for running unit tests
-      Timber.e(exception)
+      val context = view.context
+
+      val bitmap =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+          val source = ImageDecoder.createSource(context.contentResolver, uri)
+          ImageDecoder.decodeBitmap(source)
+        } else {
+          @Suppress("DEPRECATION")
+          context.contentResolver.openInputStream(uri)?.use { inputStream ->
+            BitmapFactory.decodeStream(inputStream)
+          }
+        }
+
+      bitmap?.let {
+        val rotated = RotateUsingExif(uri, context).transform(it)
+        view.setImageBitmap(rotated)
+      }
+    } catch (e: Exception) {
+      Timber.e(e, "Error loading image")
     }
   }
 
