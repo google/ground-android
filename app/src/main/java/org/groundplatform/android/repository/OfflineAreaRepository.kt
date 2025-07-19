@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import org.groundplatform.android.Config
+import org.groundplatform.android.common.Constants
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.OfflineArea
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
@@ -114,7 +114,7 @@ constructor(
 
   /** Returns the default configured tile source. */
   fun getRemoteTileSource(): TileSource =
-    RemoteMogTileSource(remotePath = Config.DEFAULT_MOG_TILE_LOCATION)
+    RemoteMogTileSource(remotePath = Constants.DEFAULT_MOG_TILE_LOCATION)
 
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
     val maxZoom = mogClient.collection.sources.maxZoom()

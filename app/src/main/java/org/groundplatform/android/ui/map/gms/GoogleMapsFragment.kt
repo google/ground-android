@@ -44,7 +44,7 @@ import kotlin.math.sqrt
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import org.groundplatform.android.Config
+import org.groundplatform.android.common.Constants
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
@@ -282,7 +282,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private fun addRemoteMogTileOverlay(url: String) {
     // TODO: Make sub-paths configurable and stop hardcoding here.
     // Issue URL: https://github.com/google/ground-android/issues/1730
-    val mogCollection = MogCollection(Config.getMogSources(url))
+    val mogCollection = MogCollection(Constants.getMogSources(url))
     addTileOverlay(MogTileProvider(mogCollection, remoteStorageManager))
   }
 

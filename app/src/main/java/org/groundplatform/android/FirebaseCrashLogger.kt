@@ -20,7 +20,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.crashlytics.KeyValueBuilder
 import javax.inject.Inject
 import javax.inject.Singleton
-import org.groundplatform.android.Config.isReleaseBuild
+import org.groundplatform.android.common.Constants.isReleaseBuild
 
 @Singleton
 class FirebaseCrashLogger @Inject constructor() {

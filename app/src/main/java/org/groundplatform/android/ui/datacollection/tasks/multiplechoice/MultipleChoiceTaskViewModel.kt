@@ -21,8 +21,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
-import org.groundplatform.android.Config
 import org.groundplatform.android.R
+import org.groundplatform.android.common.Constants
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.MultipleChoiceTaskData
 import org.groundplatform.android.model.submission.MultipleChoiceTaskData.Companion.fromList
@@ -63,7 +63,7 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
     if (task.type != Task.Type.MULTIPLE_CHOICE || !selectedIds.contains(OTHER_ID))
       return super.validate(task, taskData)
 
-    if (otherText.length > Config.TEXT_DATA_CHAR_LIMIT)
+    if (otherText.length > Constants.TEXT_DATA_CHAR_LIMIT)
       return R.string.text_task_data_character_limit
 
     return super.validate(task, taskData)

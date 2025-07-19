@@ -22,8 +22,8 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
-import org.groundplatform.android.Config
 import org.groundplatform.android.R
+import org.groundplatform.android.common.Constants
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.MultipleChoiceTaskData
 import org.groundplatform.android.model.task.MultipleChoice
@@ -146,7 +146,7 @@ class MultipleChoiceTaskFragmentTest :
       job,
       task.copy(multipleChoice = multipleChoice, isRequired = true),
     )
-    val userInput = "a".repeat(Config.TEXT_DATA_CHAR_LIMIT + 1)
+    val userInput = "a".repeat(Constants.TEXT_DATA_CHAR_LIMIT + 1)
     // TODO: We should actually validate that the error toast is displayed after Next is clicked.
     // Unfortunately, matching toasts with espresso is not straightforward, so we leave it at
     // an explicit validation check for now.
