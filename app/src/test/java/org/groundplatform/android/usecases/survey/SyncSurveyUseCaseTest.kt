@@ -20,13 +20,16 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
+import org.groundplatform.android.data.repository.RepositoryModule
 import org.groundplatform.android.domain.repository.LocationOfInterestRepository
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
+import org.groundplatform.android.system.SystemModule
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,6 +39,7 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
+@UninstallModules(RepositoryModule::class)
 class SyncSurveyUseCaseTest : BaseHiltTest() {
   @BindValue @Mock lateinit var loiRepository: LocationOfInterestRepository
 

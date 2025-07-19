@@ -19,6 +19,7 @@ package org.groundplatform.android.ui.home.mapcontainer
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -30,6 +31,7 @@ import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_FEATURE
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.FakeData.USER
+import org.groundplatform.android.data.repository.RepositoryModule
 import org.groundplatform.android.domain.repository.LocationOfInterestRepository
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
@@ -50,6 +52,7 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
+@UninstallModules(RepositoryModule::class)
 class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   @Inject lateinit var viewModel: HomeScreenMapContainerViewModel
   @Inject lateinit var surveyRepository: SurveyRepository
