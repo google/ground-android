@@ -17,7 +17,9 @@
 package org.groundplatform.android.usecases.survey
 
 import javax.inject.Inject
+import org.groundplatform.android.model.isUsable
 import org.groundplatform.android.persistence.sync.SurveySyncWorker
+import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SurveyRepository
 
 /**
@@ -31,12 +33,14 @@ import org.groundplatform.android.repository.SurveyRepository
 class ActivateSurveyUseCase
 @Inject
 constructor(
+  private val locationOfInterestRepository: LocationOfInterestRepository,
   private val makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase,
   private val surveyRepository: SurveyRepository,
 ) {
 
   /**
    * @return `true` if the survey was successfully activated or was already active, otherwise false.
+   * @throws UnusableSurveyException if the survey has no predefined LOIs and no ad hoc jobs.
    */
   suspend operator fun invoke(surveyId: String): Boolean {
     if (surveyRepository.isSurveyActive(surveyId)) {
@@ -44,12 +48,22 @@ constructor(
       return true
     }
 
-    surveyRepository.getOfflineSurvey(surveyId)
-      ?: makeSurveyAvailableOffline(surveyId)
-      ?: error("Survey $surveyId not found in remote db")
+    val survey =
+      surveyRepository.getOfflineSurvey(surveyId)
+        ?: makeSurveyAvailableOffline(surveyId)
+        ?: error("Survey $surveyId not found in remote db")
+
+    // Check if the survey has predefined LOIs or ad hoc jobs
+    val loiCount = locationOfInterestRepository.getLoiCount(surveyId)
+    if (!survey.isUsable(loiCount)) {
+      throw UnusableSurveyException("Survey $surveyId has no predefined LOIs and no ad hoc jobs")
+    }
 
     surveyRepository.activateSurvey(surveyId)
 
     return surveyRepository.isSurveyActive(surveyId)
   }
 }
+
+/** Exception thrown when a survey has no predefined LOIs and no ad hoc jobs. */
+class UnusableSurveyException(message: String) : Exception(message)
