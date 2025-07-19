@@ -24,10 +24,10 @@ import androidx.core.widget.ImageViewCompat
 import androidx.databinding.BindingAdapter
 import com.google.android.gms.common.SignInButton
 import com.squareup.picasso.Picasso
+import java.io.IOException
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.util.loadBitmapWithCorrectOrientation
 import timber.log.Timber
-import java.io.IOException
 
 /**
  * Container for adapter methods defining custom data binding behavior. This class cannot be made
