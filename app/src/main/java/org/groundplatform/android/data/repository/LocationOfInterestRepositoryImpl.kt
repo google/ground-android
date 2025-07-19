@@ -21,18 +21,12 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import org.groundplatform.android.domain.repository.LocationOfInterestRepository
 import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.geometry.Geometry
-import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.locationofinterest.generateProperties
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.remote.RemoteDataStore
-import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
-import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.gms.GmsExt.contains
@@ -47,10 +41,7 @@ class LocationOfInterestRepositoryImpl(
   private val authenticationManager: AuthenticationManager,
   private val localLoiStore: LocalLocationOfInterestStore,
   private val localSurveyStore: LocalSurveyStore,
-  private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val remoteDataStore: RemoteDataStore,
-  private val userRepository: UserRepository,
-  private val uuidGenerator: OfflineUuidGenerator,
 ) : LocationOfInterestRepository {
 
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
@@ -91,38 +82,11 @@ class LocationOfInterestRepositoryImpl(
     val locationOfInterest = survey?.let { localLoiStore.getLocationOfInterest(it, loiId) }
 
     if (survey == null) {
-      Timber.Forest.e("Survey not found: $surveyId")
+      Timber.e("Survey not found: $surveyId")
     } else if (locationOfInterest == null) {
-      Timber.Forest.e("LOI not found for survey $surveyId: LOI ID $loiId")
+      Timber.e("LOI not found for survey $surveyId: LOI ID $loiId")
     }
     return locationOfInterest
-  }
-
-  /** Saves a new LOI in the local db and enqueues a sync worker. */
-  override suspend fun saveLoi(
-    geometry: Geometry,
-    job: Job,
-    surveyId: String,
-    loiName: String?,
-    collectionId: String,
-  ): String {
-    val newId = uuidGenerator.generateUuid()
-    val user = userRepository.getAuthenticatedUser()
-    val mutation =
-      LocationOfInterestMutation(
-        jobId = job.id,
-        type = Mutation.Type.CREATE,
-        syncStatus = Mutation.SyncStatus.PENDING,
-        surveyId = surveyId,
-        locationOfInterestId = newId,
-        userId = user.id,
-        geometry = geometry,
-        properties = generateProperties(loiName),
-        isPredefined = false,
-        collectionId = collectionId,
-      )
-    applyAndEnqueue(mutation)
-    return newId
   }
 
   /**
@@ -134,7 +98,6 @@ class LocationOfInterestRepositoryImpl(
    */
   override suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
     localLoiStore.applyAndEnqueue(mutation)
-    mutationSyncWorkManager.enqueueSyncWorker()
   }
 
   /**

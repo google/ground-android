@@ -24,9 +24,6 @@ import org.groundplatform.android.domain.repository.LocationOfInterestRepository
 import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.remote.RemoteDataStore
-import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
-import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.AuthenticationManager
 
 @InstallIn(SingletonComponent::class)
@@ -39,19 +36,13 @@ object RepositoryModule {
     authenticationManager: AuthenticationManager,
     localLoiStore: LocalLocationOfInterestStore,
     localSurveyStore: LocalSurveyStore,
-    mutationSyncWorkManager: MutationSyncWorkManager,
     remoteDataStore: RemoteDataStore,
-    userRepository: UserRepository,
-    uuidGenerator: OfflineUuidGenerator,
   ): LocationOfInterestRepository {
     return LocationOfInterestRepositoryImpl(
       authenticationManager,
       localLoiStore,
       localSurveyStore,
-      mutationSyncWorkManager,
       remoteDataStore,
-      userRepository,
-      uuidGenerator,
     )
   }
 }

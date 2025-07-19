@@ -17,7 +17,7 @@ package org.groundplatform.android.usecases.submission
 
 import androidx.room.Transaction
 import javax.inject.Inject
-import org.groundplatform.android.domain.repository.LocationOfInterestRepository
+import org.groundplatform.android.domain.usecase.loi.SaveLoiUseCase
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DropPinTaskData
@@ -29,7 +29,7 @@ import timber.log.Timber
 class SubmitDataUseCase
 @Inject
 constructor(
-  private val locationOfInterestRepository: LocationOfInterestRepository,
+  private val saveLoiUseCase: SaveLoiUseCase,
   private val submissionRepository: SubmissionRepository,
 ) {
 
@@ -76,6 +76,6 @@ constructor(
         Task.Type.DRAW_AREA -> (addLoiTaskValue as (DrawAreaTaskData)).geometry
         else -> error("Invalid AddLoi task")
       }
-    return locationOfInterestRepository.saveLoi(geometry, job, surveyId, loiName, collectionId)
+    return saveLoiUseCase(collectionId, geometry, job, loiName, surveyId)
   }
 }

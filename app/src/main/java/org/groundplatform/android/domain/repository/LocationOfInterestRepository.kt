@@ -17,8 +17,6 @@ package org.groundplatform.android.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.geometry.Geometry
-import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.ui.map.Bounds
@@ -67,25 +65,6 @@ interface LocationOfInterestRepository {
    * @return The [LocationOfInterest] if found, otherwise `null`.
    */
   suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest?
-
-  /**
-   * Creates and saves a new [LocationOfInterest] locally and schedules it for remote
-   * synchronization.
-   *
-   * @param geometry The geometry of the new LOI.
-   * @param job The job associated with the new LOI.
-   * @param surveyId The ID of the survey this LOI belongs to.
-   * @param loiName An optional name for the LOI.
-   * @param collectionId The ID of the collection this LOI belongs to.
-   * @return The unique ID of the newly created [LocationOfInterest].
-   */
-  suspend fun saveLoi(
-    geometry: Geometry,
-    job: Job,
-    surveyId: String,
-    loiName: String?,
-    collectionId: String,
-  ): String
 
   /**
    * Applies a [LocationOfInterestMutation] to the local data store and enqueues it for

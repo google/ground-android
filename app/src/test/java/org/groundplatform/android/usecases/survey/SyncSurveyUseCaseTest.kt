@@ -29,7 +29,6 @@ import org.groundplatform.android.data.repository.RepositoryModule
 import org.groundplatform.android.domain.repository.LocationOfInterestRepository
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
-import org.groundplatform.android.system.SystemModule
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
