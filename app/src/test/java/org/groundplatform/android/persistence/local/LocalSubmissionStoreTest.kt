@@ -63,7 +63,7 @@ class LocalSubmissionStoreTest : BaseHiltTest() {
   @Inject lateinit var submissionDao: SubmissionDao
 
   @Test
-  fun testApplyAndEnqueue_insertAndUpdateSubmission() = runWithTestDispatcher {
+  fun `apply and enqueue when insert and update submission`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
@@ -116,7 +116,7 @@ class LocalSubmissionStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testMergeSubmission() = runWithTestDispatcher {
+  fun `merge submission`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
@@ -130,7 +130,7 @@ class LocalSubmissionStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testDeleteSubmission() = runWithTestDispatcher {
+  fun `delete submission`() = runWithTestDispatcher {
     // Add test submission
     localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)

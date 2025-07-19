@@ -24,14 +24,14 @@ class MogTileMetadataTest {
     MogTileMetadata(TileCoordinates(10, 20, 10), 100, 100, ByteArray(10), LongRange(0, 10))
 
   @Test
-  fun testEquals_throwsError() {
+  fun `equals when throws error`() {
     assertThrows(UnsupportedOperationException::class.java) {
       testMogTileMetadata.equals(testMogTileMetadata.copy(width = 100))
     }
   }
 
   @Test
-  fun testHashcode_throwsError() {
+  fun `hashcode when throws error`() {
     assertThrows(UnsupportedOperationException::class.java) { testMogTileMetadata.hashCode() }
   }
 }
