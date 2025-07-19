@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.repository
+package org.groundplatform.android.data.repository
 
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import org.groundplatform.android.domain.repository.LocationOfInterestRepository
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.geometry.Geometry
 import org.groundplatform.android.model.job.Job
@@ -28,24 +27,24 @@ import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.locationofinterest.generateProperties
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
-import org.groundplatform.android.model.mutation.Mutation.SyncStatus
 import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.remote.RemoteDataStore
 import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
 import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
+import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.gms.GmsExt.contains
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
  * in memory data stores. For more details on this pattern and overall architecture, see
  * https://developer.android.com/jetpack/docs/guide.
  */
-@Singleton
-class LocationOfInterestRepository
+class LocationOfInterestRepositoryImpl
 @Inject
 constructor(
   private val localSurveyStore: LocalSurveyStore,
@@ -55,9 +54,9 @@ constructor(
   private val userRepository: UserRepository,
   private val uuidGenerator: OfflineUuidGenerator,
   private val authenticationManager: AuthenticationManager,
-) {
+) : LocationOfInterestRepository {
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
-  suspend fun syncLocationsOfInterest(survey: Survey) {
+  override suspend fun syncLocationsOfInterest(survey: Survey) {
     // TODO: Allow survey organizers to make ad hoc LOIs visible to all data collectors.
     // Issue URL: https://github.com/google/ground-android/issues/2384
     val ownerUserId = authenticationManager.getAuthenticatedUser().id
@@ -69,8 +68,8 @@ constructor(
     val pendingLois =
       loiMutations.mapNotNull {
         when (it.syncStatus) {
-          SyncStatus.PENDING,
-          SyncStatus.IN_PROGRESS -> it.locationOfInterestId
+          Mutation.SyncStatus.PENDING,
+          Mutation.SyncStatus.IN_PROGRESS -> it.locationOfInterestId
           else -> null
         }
       }
@@ -89,20 +88,20 @@ constructor(
   }
 
   /** This only works if the survey and location of interests are already cached to local db. */
-  suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest? {
+  override suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest? {
     val survey = localSurveyStore.getSurveyById(surveyId)
     val locationOfInterest = survey?.let { localLoiStore.getLocationOfInterest(it, loiId) }
 
     if (survey == null) {
-      Timber.e("Survey not found: $surveyId")
+      Timber.Forest.e("Survey not found: $surveyId")
     } else if (locationOfInterest == null) {
-      Timber.e("LOI not found for survey $surveyId: LOI ID $loiId")
+      Timber.Forest.e("LOI not found for survey $surveyId: LOI ID $loiId")
     }
     return locationOfInterest
   }
 
   /** Saves a new LOI in the local db and enqueues a sync worker. */
-  suspend fun saveLoi(
+  override suspend fun saveLoi(
     geometry: Geometry,
     job: Job,
     surveyId: String,
@@ -115,7 +114,7 @@ constructor(
       LocationOfInterestMutation(
         jobId = job.id,
         type = Mutation.Type.CREATE,
-        syncStatus = SyncStatus.PENDING,
+        syncStatus = Mutation.SyncStatus.PENDING,
         surveyId = surveyId,
         locationOfInterestId = newId,
         userId = user.id,
@@ -135,7 +134,7 @@ constructor(
    * @param mutation Input [LocationOfInterestMutation]
    * @return If successful, returns the provided locations of interest wrapped as `Loadable`
    */
-  suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
+  override suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
     localLoiStore.applyAndEnqueue(mutation)
     mutationSyncWorkManager.enqueueSyncWorker()
   }
@@ -144,14 +143,15 @@ constructor(
    * Returns true if [Survey] for the given [surveyId] has at least one valid [LocationOfInterest]
    * in the local storage.
    */
-  suspend fun hasValidLois(surveyId: String): Boolean = localLoiStore.getLoiCount(surveyId) > 0
+  override suspend fun hasValidLois(surveyId: String): Boolean =
+    localLoiStore.getLoiCount(surveyId) > 0
 
   /** Returns a flow of all valid (not deleted) [LocationOfInterest] in the given [Survey]. */
-  fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
+  override fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
     localLoiStore.getValidLois(survey)
 
   /** Returns a flow of all [LocationOfInterest] within the map bounds (viewport). */
-  fun getWithinBounds(survey: Survey, bounds: Bounds): Flow<List<LocationOfInterest>> =
+  override fun getWithinBounds(survey: Survey, bounds: Bounds): Flow<List<LocationOfInterest>> =
     getValidLois(survey)
       .map { lois -> lois.filter { bounds.contains(it.geometry) } }
       .distinctUntilChanged()
