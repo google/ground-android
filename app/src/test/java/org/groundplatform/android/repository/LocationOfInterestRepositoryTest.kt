@@ -17,10 +17,8 @@ package org.groundplatform.android.repository
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
@@ -33,25 +31,18 @@ import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.mutation.Mutation.Type.CREATE
 import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
-import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class LocationOfInterestRepositoryTest : BaseHiltTest() {
-  @BindValue @Mock lateinit var mockWorkManager: MutationSyncWorkManager
-
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
@@ -102,32 +93,6 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       assertThat(expectMostRecentItem()).isEqualTo(listOf(mutation.copy(id = 1)))
     }
   }
-
-  @Test
-  fun testApplyAndEnqueue_enqueuesWorker() = runWithTestDispatcher {
-    locationOfInterestRepository.applyAndEnqueue(mutation)
-
-    verify(mockWorkManager).enqueueSyncWorker()
-  }
-
-  @Test
-  fun testApplyAndEnqueue_returnsErrorOnWorkerSyncFailure() = runWithTestDispatcher {
-    `when`(mockWorkManager.enqueueSyncWorker()).thenThrow(Error())
-
-    assertFailsWith<Error> {
-      locationOfInterestRepository.applyAndEnqueue(
-        LOCATION_OF_INTEREST.toMutation(CREATE, TEST_USER.id)
-      )
-    }
-
-    verify(mockWorkManager, times(1)).enqueueSyncWorker()
-  }
-
-  // TODO: Add tests for new LOI sync once implemented (create, update, delete, error).
-  // Issue URL: https://github.com/google/ground-android/issues/1373
-
-  // TODO: Add tests for getLocationsOfInterest once new LOI sync implemented.
-  // Issue URL: https://github.com/google/ground-android/issues/1373
 
   @Test
   fun testLoiWithinBounds_whenOutOfBounds_returnsEmptyList() = runWithTestDispatcher {
