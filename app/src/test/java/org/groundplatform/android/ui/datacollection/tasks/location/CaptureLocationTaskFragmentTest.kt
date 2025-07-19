@@ -71,14 +71,14 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun testHeader() {
+  fun `header`() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     hasTaskViewWithoutHeader(task.label)
   }
 
   @Test
-  fun testDropPin() = runWithTestDispatcher {
+  fun `drop pin`() = runWithTestDispatcher {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
     setupLocation()
 
@@ -97,14 +97,14 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun testInfoCard_noValue() {
+  fun `info card when no value`() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     runner().assertInfoCardHidden()
   }
 
   @Test
-  fun testUndo() = runWithTestDispatcher {
+  fun `undo`() = runWithTestDispatcher {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
     setupLocation()
 
@@ -124,7 +124,7 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun testActionButtons() {
+  fun `action buttons`() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     assertFragmentHasButtons(
@@ -137,7 +137,7 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun testActionButtons_whenTaskIsOptional() {
+  fun `action buttons when task is optional`() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = false))
 
     runner()
@@ -148,7 +148,7 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun testActionButtons_whenTaskIsRequired() {
+  fun `action buttons when task is required`() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = true))
 
     runner()
@@ -159,7 +159,7 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun testGetMapConfig() {
+  fun `get map config`() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     assertThat(fragment.captureLocationTaskMapFragmentProvider.get().getMapConfig())

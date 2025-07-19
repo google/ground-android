@@ -72,7 +72,7 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testSignInStateChanged_onSignedOut() = runWithTestDispatcher {
+  fun `sign in state changed when on signed out`() = runWithTestDispatcher {
     setupUserPreferences()
 
     viewModel.navigationRequests.test {
@@ -87,7 +87,7 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testSignInStateChanged_onSigningIn() = runWithTestDispatcher {
+  fun `sign in state changed when on signing in`() = runWithTestDispatcher {
     viewModel.navigationRequests.test {
       fakeAuthenticationManager.setState(SignInState.SigningIn)
       advanceUntilIdle()
@@ -103,7 +103,7 @@ class MainViewModelTest : BaseHiltTest() {
   // Issue URL: https://github.com/google/ground-android/issues/1612
 
   @Test
-  fun testSignInStateChanged_onSignedIn_whenTosNotAccepted() = runWithTestDispatcher {
+  fun `sign in state changed when on signed in when tos not accepted`() = runWithTestDispatcher {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
 
@@ -118,7 +118,7 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testSignInStateChanged_onSignedIn_getTos_whenTosMissing() = runWithTestDispatcher {
+  fun `sign in state changed when on signed in get tos when tos missing`() = runWithTestDispatcher {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService = null
 
@@ -133,7 +133,7 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testSignInStateChanged_onSignedIn_getTos_whenPermissionDenied() = runWithTestDispatcher {
+  fun `sign in state changed when on signed in get tos when permission denied`() = runWithTestDispatcher {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService =
       Result.failure(
@@ -154,7 +154,7 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testSignInStateChanged_onSignedIn_getTos_whenNotPermissionDeniedError() =
+  fun `sign in state changed when on signed in get tos when not permission denied error`() =
     runWithTestDispatcher {
       tosRepository.isTermsOfServiceAccepted = false
       fakeRemoteDataStore.termsOfService = Result.failure(Error("user error"))
@@ -169,7 +169,7 @@ class MainViewModelTest : BaseHiltTest() {
     }
 
   @Test
-  fun testSignInStateChanged_onSignInError() = runWithTestDispatcher {
+  fun `sign in state changed when on sign in error`() = runWithTestDispatcher {
     setupUserPreferences()
 
     viewModel.navigationRequests.test {
