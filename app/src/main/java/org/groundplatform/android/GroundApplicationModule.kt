@@ -27,6 +27,13 @@ import java.util.Locale
 import javax.inject.Singleton
 import org.groundplatform.android.data.repository.LocationOfInterestRepositoryImpl
 import org.groundplatform.android.domain.repository.LocationOfInterestRepository
+import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
+import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
+import org.groundplatform.android.persistence.remote.RemoteDataStore
+import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
+import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
+import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.ui.common.ViewModelModule
 
 @InstallIn(SingletonComponent::class)
@@ -49,8 +56,22 @@ object GroundApplicationModule {
   @Provides
   @Singleton
   fun provideLocationOfInterestRepository(
-    loiRepository: LocationOfInterestRepositoryImpl
+    authenticationManager: AuthenticationManager,
+    localLoiStore: LocalLocationOfInterestStore,
+    localSurveyStore: LocalSurveyStore,
+    mutationSyncWorkManager: MutationSyncWorkManager,
+    remoteDataStore: RemoteDataStore,
+    userRepository: UserRepository,
+    uuidGenerator: OfflineUuidGenerator,
   ): LocationOfInterestRepository {
-    return loiRepository
+    return LocationOfInterestRepositoryImpl(
+      authenticationManager,
+      localLoiStore,
+      localSurveyStore,
+      mutationSyncWorkManager,
+      remoteDataStore,
+      userRepository,
+      uuidGenerator,
+    )
   }
 }
