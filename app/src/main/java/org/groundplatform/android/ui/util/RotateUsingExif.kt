@@ -46,15 +46,6 @@ fun loadBitmapWithCorrectOrientation(context: Context, uri: Uri): Bitmap {
   throw IOException("Unable to open input stream for URI: $uri")
 }
 
-/** Reads the EXIF orientation tag from the image at the given [uri]. */
-private fun getOrientationFromExif(context: Context, uri: Uri): Int {
-  val inputStream =
-    context.contentResolver.openInputStream(uri)
-      ?: throw IOException("Content resolver returned null for $uri")
-  val exif = ExifInterface(inputStream)
-  return exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-}
-
 /**
  * Returns the number of degrees a photo should be rotated based on the value of its orientation
  * EXIF tag.
@@ -68,3 +59,12 @@ private fun getRotationDegrees(orientation: Int): Float =
     ExifInterface.ORIENTATION_ROTATE_270 -> 270f
     else -> throw UnsupportedOperationException("Unsupported photo orientation $orientation")
   }
+
+/** Reads the EXIF orientation tag from the image at the given [uri]. */
+private fun getOrientationFromExif(context: Context, uri: Uri): Int {
+  val inputStream =
+    context.contentResolver.openInputStream(uri)
+      ?: throw IOException("Content resolver returned null for $uri")
+  val exif = ExifInterface(inputStream)
+  return exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+}
