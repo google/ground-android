@@ -40,5 +40,8 @@ sealed class UiState {
   /** Represents that there was an error while activating surveys. */
   data object Error : UiState()
 
+  /** Represents that the selected survey has no predefined LOIs and no ad hoc jobs. */
+  data object UnusableSurvey : UiState()
+
   data object NavigateToHome : UiState()
 }

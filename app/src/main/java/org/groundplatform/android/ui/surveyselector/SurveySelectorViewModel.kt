@@ -34,6 +34,7 @@ import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
+import org.groundplatform.android.usecases.survey.UnusableSurveyException
 import timber.log.Timber
 
 /** Represents view state and behaviors of the survey selector dialog. */
@@ -90,7 +91,13 @@ internal constructor(
               onSurveyActivationFailed()
             }
           },
-          onFailure = { onSurveyActivationFailed(it) },
+          onFailure = { error ->
+            if (error is UnusableSurveyException) {
+              onUnusableSurvey()
+            } else {
+              onSurveyActivationFailed(error)
+            }
+          },
         )
     }
   }
@@ -99,6 +106,12 @@ internal constructor(
     surveyActivationInProgress = false
     _uiState.emit(UiState.SurveyActivated)
     _uiState.emit(UiState.NavigateToHome)
+  }
+
+  private suspend fun onUnusableSurvey() {
+    Timber.e("Survey is unusable: no predefined LOIs and no ad hoc jobs")
+    surveyActivationInProgress = false
+    _uiState.emit(UiState.UnusableSurvey)
   }
 
   private suspend fun onSurveyActivationFailed(error: Throwable? = null) {
