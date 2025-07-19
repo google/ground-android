@@ -17,6 +17,7 @@ package org.groundplatform.android.repository
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import org.groundplatform.android.domain.repository.LocationOfInterestRepository
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.mutation.Mutation

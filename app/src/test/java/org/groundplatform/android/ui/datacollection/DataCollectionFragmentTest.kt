@@ -34,6 +34,7 @@ import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_NAME
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.R
+import org.groundplatform.android.domain.repository.LocationOfInterestRepository
 import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Point
@@ -52,7 +53,6 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.persistence.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
-import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.UserRepository

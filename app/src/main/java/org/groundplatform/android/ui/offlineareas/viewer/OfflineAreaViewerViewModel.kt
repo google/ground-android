@@ -23,8 +23,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.domain.repository.LocationOfInterestRepository
 import org.groundplatform.android.model.imagery.OfflineArea
-import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SurveyRepository
