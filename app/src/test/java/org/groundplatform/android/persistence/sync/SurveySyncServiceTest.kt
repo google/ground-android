@@ -19,9 +19,11 @@ package org.groundplatform.android.persistence.sync
 import android.content.Context
 import android.util.Log
 import androidx.work.Configuration
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
+import androidx.work.await
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.TestDriver
 import androidx.work.testing.WorkManagerTestInitHelper
@@ -29,6 +31,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlin.test.assertEquals
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -41,6 +44,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -90,10 +94,7 @@ class SurveySyncServiceTest : BaseHiltTest() {
     testDriver.setAllConstraintsMet(requestId)
     advanceUntilIdle()
 
-    // TODO: Re-enable once GCB-specific flake is resolved.
-    // Issue URL: https://github.com/google/ground-android/issues/1787
-    //    verify(syncSurvey).invoke(surveyId)
-    //    assertEquals(WorkInfo.State.SUCCEEDED,
-    // workManager.getWorkInfoById(requestId).await().state)
+    verify(syncSurvey).invoke(surveyId)
+    assertEquals(WorkInfo.State.SUCCEEDED, workManager.getWorkInfoById(requestId).await().state)
   }
 }
