@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.data.repository
 
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
@@ -44,17 +43,16 @@ import timber.log.Timber
  * in memory data stores. For more details on this pattern and overall architecture, see
  * https://developer.android.com/jetpack/docs/guide.
  */
-class LocationOfInterestRepositoryImpl
-@Inject
-constructor(
-  private val localSurveyStore: LocalSurveyStore,
+class LocationOfInterestRepositoryImpl(
+  private val authenticationManager: AuthenticationManager,
   private val localLoiStore: LocalLocationOfInterestStore,
-  private val remoteDataStore: RemoteDataStore,
+  private val localSurveyStore: LocalSurveyStore,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
+  private val remoteDataStore: RemoteDataStore,
   private val userRepository: UserRepository,
   private val uuidGenerator: OfflineUuidGenerator,
-  private val authenticationManager: AuthenticationManager,
 ) : LocationOfInterestRepository {
+
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
   override suspend fun syncLocationsOfInterest(survey: Survey) {
     // TODO: Allow survey organizers to make ad hoc LOIs visible to all data collectors.
