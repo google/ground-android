@@ -89,13 +89,6 @@ class LocationOfInterestRepositoryImpl(
     return locationOfInterest
   }
 
-  /**
-   * Creates a mutation entry for the given parameters, applies it to the local db and schedules a
-   * task for remote sync if the local transaction is successful.
-   *
-   * @param mutation Input [LocationOfInterestMutation]
-   * @return If successful, returns the provided locations of interest wrapped as `Loadable`
-   */
   override suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
     localLoiStore.applyAndEnqueue(mutation)
   }

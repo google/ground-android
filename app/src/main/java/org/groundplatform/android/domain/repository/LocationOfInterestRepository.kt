@@ -67,10 +67,11 @@ interface LocationOfInterestRepository {
   suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest?
 
   /**
-   * Applies a [LocationOfInterestMutation] to the local data store and enqueues it for
-   * synchronization.
+   * Saves the given [mutation] and generates a corresponding [LocationOfInterest] to persist them
+   * to the local database.
    *
-   * @param mutation The mutation to apply and enqueue.
+   * This allows for optimistic UI updates by using the generated LOI as a local cache until the
+   * [mutation] is successfully synchronized with the remote data store.
    */
   suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation)
 
