@@ -27,6 +27,7 @@ import com.squareup.picasso.Picasso
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.util.loadBitmapWithCorrectOrientation
 import timber.log.Timber
+import java.io.IOException
 
 /**
  * Container for adapter methods defining custom data binding behavior. This class cannot be made
@@ -54,8 +55,11 @@ object BindingAdapters {
     try {
       val rotatedBitmap = loadBitmapWithCorrectOrientation(view.context, uri)
       view.setImageBitmap(rotatedBitmap)
-    } catch (e: Exception) {
-      Timber.e(e, "Image load failed")
+    } catch (e: IOException) {
+      Timber.e(e, "Failed to load image: IO error")
+      view.setImageResource(R.drawable.outline_error_outline_24)
+    } catch (e: IllegalArgumentException) {
+      Timber.e(e, "Failed to load image: Invalid arguments")
       view.setImageResource(R.drawable.outline_error_outline_24)
     }
   }
