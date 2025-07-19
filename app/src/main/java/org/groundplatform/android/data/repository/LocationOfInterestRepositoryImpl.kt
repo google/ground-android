@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.data.repository
 
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
@@ -37,7 +38,6 @@ import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.gms.GmsExt.contains
 import timber.log.Timber
-import javax.inject.Inject
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and

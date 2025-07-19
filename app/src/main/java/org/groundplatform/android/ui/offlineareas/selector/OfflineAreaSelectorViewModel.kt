@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.coroutines.IoDispatcher
-import org.groundplatform.android.repository.LocationOfInterestRepository
+import org.groundplatform.android.domain.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SurveyRepository
