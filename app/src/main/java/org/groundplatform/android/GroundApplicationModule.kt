@@ -25,6 +25,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import java.util.Locale
 import javax.inject.Singleton
+import org.groundplatform.android.data.repository.LocationOfInterestRepositoryImpl
+import org.groundplatform.android.domain.repository.LocationOfInterestRepository
 import org.groundplatform.android.ui.common.ViewModelModule
 
 @InstallIn(SingletonComponent::class)
@@ -43,4 +45,12 @@ object GroundApplicationModule {
   }
 
   @Provides fun provideLocale() = Locale.getDefault()
+
+  @Provides
+  @Singleton
+  fun provideLocationOfInterestRepository(
+    loiRepository: LocationOfInterestRepositoryImpl
+  ): LocationOfInterestRepository {
+    return loiRepository
+  }
 }
