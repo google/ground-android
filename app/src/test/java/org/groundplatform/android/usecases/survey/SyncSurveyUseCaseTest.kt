@@ -24,9 +24,9 @@ import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
+import org.groundplatform.android.domain.repository.LocationOfInterestRepository
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
-import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
