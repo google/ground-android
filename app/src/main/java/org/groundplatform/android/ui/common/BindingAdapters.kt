@@ -57,10 +57,10 @@ object BindingAdapters {
       view.setImageBitmap(rotatedBitmap)
     } catch (e: IOException) {
       Timber.e(e, "Failed to load image: IO error")
-      view.setImageResource(R.drawable.outline_error_outline_24)
+      setErrorImage(view)
     } catch (e: IllegalArgumentException) {
       Timber.e(e, "Failed to load image: Invalid arguments")
-      view.setImageResource(R.drawable.outline_error_outline_24)
+      setErrorImage(view)
     }
   }
 
@@ -79,5 +79,9 @@ object BindingAdapters {
   @BindingAdapter("visible")
   fun bindVisible(view: View, visible: Boolean) {
     view.visibility = if (visible) View.VISIBLE else View.GONE
+  }
+
+  private fun setErrorImage(view: ImageView) {
+    view.setImageResource(R.drawable.outline_error_outline_24)
   }
 }
