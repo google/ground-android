@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.home
 
-import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -36,7 +35,6 @@ import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.common.truth.Truth.assertThat
-import com.squareup.picasso.Picasso
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFalse
@@ -60,7 +58,6 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   lateinit var fragment: HomeScreenFragment
-  private var initializedPicasso = false
   protected lateinit var navController: NavController
 
   @Before
@@ -71,21 +68,7 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
       navControllerCallback = { navController = it },
     ) {
       fragment = this as HomeScreenFragment
-      initPicasso(fragment.requireContext())
     }
-  }
-
-  private fun initPicasso(context: Context) {
-    if (initializedPicasso) {
-      return
-    }
-    try {
-      Picasso.setSingletonInstance(Picasso.Builder(context).build())
-    } catch (_: Exception) {
-      // ignore failures if context is already set
-      // Tracking bug : https://github.com/square/picasso/issues/1929
-    }
-    initializedPicasso = true
   }
 
   protected fun openDrawer() {
